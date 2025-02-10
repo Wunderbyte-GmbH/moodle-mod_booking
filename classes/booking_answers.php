@@ -901,7 +901,7 @@ class booking_answers {
      * @param int $userid
      * @param int $cmid
      * @param array $status
-     * @param bool $withcoursetimes
+     * @param bool $excludeselflearningcourses
      *
      * @return array
      *
@@ -914,7 +914,7 @@ class booking_answers {
             MOD_BOOKING_STATUSPARAM_WAITINGLIST,
             MOD_BOOKING_STATUSPARAM_RESERVED,
         ],
-        bool $withcoursetimes = false
+        bool $excludeselflearningcourses = false
     ) {
 
         global $DB, $CFG;
@@ -934,7 +934,7 @@ class booking_answers {
                 $answers = [];
                 // We don't have any answers, we get the ones we need.
                 if (!$data) {
-                    [$sql, $params] = $this->return_sql_to_get_answers(0, $userid, $status, $withcoursetimes);
+                    [$sql, $params] = $this->return_sql_to_get_answers(0, $userid, $status);
 
                     $answers = $DB->get_records_sql($sql, $params);
 
@@ -970,6 +970,24 @@ class booking_answers {
                 throw $e;
             }
         }
+
+        if ($excludeselflearningcourses) {
+            foreach ($answers as $key => $answer) {
+                if (
+                    !empty($answer->nooverlappinghandling)
+                    && isset($answer->json) && !empty($answer->json)
+                ) {
+                    $jsondata = json_decode($answer->json);
+                    if (
+                        isset($jsondata->selflearningcourse)
+                        && $jsondata->selflearningcourse != 1
+                    ) {
+                        unset($answers[$key]);
+                        continue;
+                    }
+                }
+            }
+        }
         return $answers;
     }
 
@@ -979,7 +997,6 @@ class booking_answers {
      * @param int $optionid
      * @param int $userid
      * @param array $status
-     * @param bool $withcoursetimes
      *
      * @return array
      *
@@ -992,8 +1009,7 @@ class booking_answers {
             MOD_BOOKING_STATUSPARAM_WAITINGLIST,
             MOD_BOOKING_STATUSPARAM_RESERVED,
             MOD_BOOKING_STATUSPARAM_NOTIFYMELIST,
-        ],
-        $withcoursetimes = false
+        ]
     ) {
         global $DB;
 
@@ -1012,16 +1028,8 @@ class booking_answers {
             $params['userid'] = $userid;
             $wherearray[] = ' ba.userid = :userid ';
         }
-
-        if ($withcoursetimes) {
-            $overlapping = bo_info::check_for_sqljson_key_in_array('bo.availability', 'nooverlappinghandling');
-            $withcoursestarttimesselect = " , bo.coursestarttime, bo.courseendtime, $overlapping as nooverlappinghandling";
-            $withcoursestarttimesjoin = " JOIN {booking_options} bo ON ba.optionid = bo.id ";
-            $wherearray[] = ' NOT (bo.json LIKE \'%"selflearningcourse":"1"%\' OR bo.json LIKE \'%"selflearningcourse":1%\')';
-        } else {
-            $withcoursestarttimesselect = "";
-            $withcoursestarttimesjoin = "";
-        }
+        $overlapping = bo_info::check_for_sqljson_key_in_array('bo.availability', 'nooverlappinghandling');
+        $withcoursestarttimesselect = ", $overlapping as nooverlappinghandling";
 
         $where = implode(' AND ', $wherearray);
 
@@ -1035,10 +1043,12 @@ class booking_answers {
                 ba.optionid,
                 ba.timecreated,
                 ba.json,
-                ba.places
+                ba.places,
+                bo.coursestarttime,
+                bo.courseendtime
                 $withcoursestarttimesselect
             FROM {booking_answers} ba
-            $withcoursestarttimesjoin
+            JOIN {booking_options} bo ON ba.optionid = bo.id
             WHERE $where
             ORDER BY ba.timemodified ASC";
 
