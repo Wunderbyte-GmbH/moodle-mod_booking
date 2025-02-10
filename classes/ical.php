@@ -339,8 +339,28 @@ class ical {
         }
 
         // Make sure we have not tags in full description.
-        $fulldescription = rtrim(strip_tags(preg_replace( "/<br>|<\/p>/", "\n", $fulldescription)));
+        $fulldescriptionhtml = $fulldescription;
+        // Remove CR and CRLF from description as the description must be on one line.
+        $fulldescriptionhtml = str_replace (array("\r\n", "\n", "\r"), ' ', $fulldescriptionhtml);
+
+        // Check for a url and render it as a nice link.
+        // Regular Expression Pattern for a basic URL.
+        $pattern = '/\b(?:https?:\/\/)[a-zA-Z0-9\.\-]+(?:\.[a-zA-Z]{2,})(?:\/\S*)?/';
+        // Array to hold the matched URLs.
+        $matches = [];
+        // Perform the pattern match.
+        preg_match_all($pattern, $fulldescriptionhtml, $matches);
+
+        foreach ($matches[0] as $url) {
+            $fulldescriptionhtml = str_replace($url, '<a href="' . $url . '">Link</a>', $fulldescriptionhtml);
+        }
+
+        $fulldescription = rtrim(strip_tags(preg_replace("/<br>|<\/p>/", "\n", $fulldescription)));
         $fulldescription = str_replace("\n", "\\n", $fulldescription );
+
+        // Remove CR and CRLF from description as the description must be on one line to work with ical.
+        $fulldescription = str_replace (array("\r\n", "\n", "\r"), ' ', $fulldescription);
+
 
         // Make sure that we fall back onto some reasonable no-reply address.
         $noreplyaddressdefault = 'noreply@' . get_host_from_url($CFG->wwwroot);
@@ -353,6 +373,7 @@ class ical {
             "BEGIN:VEVENT",
             "CLASS:PUBLIC",
             "DESCRIPTION:{$fulldescription}",
+            "X-ALT-DESC;FMTTYPE=text/html:{$fulldescriptionhtml}",
             "DTEND:{$dtend}",
             "DTSTAMP:{$this->dtstamp}",
             "DTSTART:{$dtstart}",
