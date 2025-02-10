@@ -36,8 +36,8 @@ use context;
 use context_system;
 use context_module;
 use core_form\dynamic_form;
+use mod_booking\booking;
 use mod_booking\local\optiondates\optiondate_answer;
-use mod_booking\utils\wb_payment;
 use moodle_url;
 
 /**
@@ -74,26 +74,14 @@ class modal_change_status extends dynamic_form {
         $mform->addElement('hidden', 'userid', $userid);
         $mform->setType('userid', PARAM_INT);
 
-        $possiblepresences[0] = '';
-        $storedpresences = explode(',', get_config('booking', 'presenceoptions'));
-        if (wb_payment::pro_version_is_activated()) {
-            foreach ($storedpresences as $key) {
-                $possiblepresences[$key] = MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY[$key];
-            }
-        } else {
-            // Without PRO version, use all possible presences.
-            foreach (MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY as $key => $value) {
-                $possiblepresences[$key] = $value;
-            }
-        }
         $mform->addElement(
             'select',
             'status',
             get_string('presence', 'mod_booking'),
-            $possiblepresences
+            booking::get_possible_presences(true)
         );
         $mform->setType('status', PARAM_INT);
-        $mform->setDefault('status', 5); // Unknown.
+        $mform->setDefault('status', 0); // Empty string.
     }
 
     /**
@@ -118,8 +106,7 @@ class modal_change_status extends dynamic_form {
 
         $data = $this->get_data();
         if (empty($data->status)) {
-            // Todo: Make sure that status unknown is always part of the array!
-            $data->status = MOD_BOOKING_PRESENCE_STATUS_UNKNOWN;
+            $data->status = 0;
         }
 
         $userid = $this->_ajaxformdata['userid'];

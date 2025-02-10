@@ -32,6 +32,7 @@ use local_entities\local\entities\entitydate;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\local\modechecker;
 use mod_booking\teachers_handler;
+use mod_booking\utils\wb_payment;
 use moodle_exception;
 use stdClass;
 use moodle_url;
@@ -1865,5 +1866,38 @@ class booking {
                    AND m.name = 'booking'
               ORDER BY cm.id DESC";
         return $DB->get_fieldset_sql($sql);
+    }
+
+    /**
+     * Helper function to get the right array of possible presence statuses.
+     * @param bool $withempty if true, the array will start with an empty value
+     * @return array of possible presence statuses
+     */
+    public static function get_possible_presences(bool $withempty = true) {
+        if ($withempty) {
+            $presences[0] = '';
+        }
+        if (wb_payment::pro_version_is_activated()) {
+            $storedpresences = explode(',', get_config('booking', 'presenceoptions'));
+            if (
+                empty($storedpresences)
+                || (count($storedpresences) == 1 && empty($storedpresences[0]))
+            ) {
+                // Fallback: If no presences were set at all, use all possible presences.
+                foreach (MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY as $key => $value) {
+                    $presences[$key] = $value;
+                }
+            } else {
+                foreach ($storedpresences as $id) {
+                    $presences[$id] = MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY[$id];
+                }
+            }
+        } else {
+            // Without PRO version, use all possible presences.
+            foreach (MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY as $key => $value) {
+                $presences[$key] = $value;
+            }
+        }
+        return $presences;
     }
 }

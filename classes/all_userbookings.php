@@ -27,8 +27,6 @@ namespace mod_booking;
 use coding_exception;
 use mod_booking\output\report_edit_bookingnotes;
 use html_writer;
-use mod_booking\bo_availability\conditions\customform;
-use mod_booking\utils\wb_payment;
 use moodle_url;
 use stdClass;
 use user_picture;
@@ -637,19 +635,8 @@ class all_userbookings extends \table_sql {
                 // Change presence status.
                 // Status order: Unknown, Attending, Complete, Incomplete, No Show, and Failed.
                 echo "<br>";
-                $presences = [];
-                $storedpresences = explode(',', get_config('booking', 'presenceoptions'));
-                if (wb_payment::pro_version_is_activated()) {
-                    foreach ($storedpresences as $id) {
-                        $presences[$id] = MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY[$id];
-                    }
-                } else {
-                    // Without PRO version, use all possible presences.
-                    $presences = MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY;
-                }
-
                 echo html_writer::select(
-                    $presences,
+                    booking::get_possible_presences(false),
                     'selectpresencestatus',
                     '',
                     ['' => 'choosedots'],
