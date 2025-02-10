@@ -1056,7 +1056,13 @@ class mod_booking_mod_form extends moodleform_mod {
                 get_string('maxoptionsfromcategorycount', 'booking', $customfield->name),
                 0
             );
-            $mform->setDefault('maxoptionsfromcategorycount', 0);
+            $savedsettings = booking::get_value_of_json_by_key($bookingid, 'maxoptionsfromcategory') ?? '';
+            if (!empty($savedsettings)) {
+                $savedsettingsdata = (array)json_decode($savedsettings);
+                $mform->setDefault('maxoptionsfromcategorycount', (int)reset($savedsettingsdata));
+            } else {
+                $mform->setDefault('maxoptionsfromcategorycount', 0);
+            }
             $mform->setType('maxoptionsfromcategorycount', PARAM_INT);
 
             $sql = "SELECT DISTINCT cd.value
@@ -1070,7 +1076,9 @@ class mod_booking_mod_form extends moodleform_mod {
 
             $records = $DB->get_records_sql($sql, $params);
             // Extract values into a clean array.
-            $options = [];
+            $options = [
+                '' => get_string('choosedots'),
+            ];
             foreach ($records as $record) {
                 if (empty($record->value)) {
                     continue;
@@ -1083,10 +1091,13 @@ class mod_booking_mod_form extends moodleform_mod {
             $mform->addElement(
                 'select',
                 'maxoptionsfromcategoryvalue',
-                get_string('maxoptionsfromcategoryvalue',
-                'booking', $customfield->name),
+                get_string('maxoptionsfromcategoryvalue', 'booking', $customfield->name),
                 $options
             );
+            if (!empty($savedsettingsdata)) {
+                $mform->setDefault('maxoptionsfromcategoryvalue', array_key_first($savedsettingsdata));
+            };
+
         }
         // Miscellaneous settings.
         $mform->addElement(
