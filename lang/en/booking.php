@@ -398,6 +398,7 @@ $string['booking:editoptionformconfig'] = 'Edit option config form';
 $string['booking:editteacherdescription'] = 'Edit teacher description';
 $string['booking:expertoptionform'] = "Expert option form";
 $string['booking:limitededitownoption'] = 'Less than addeditownoption, only allows very limited actions';
+$string['booking:managebookedusers'] = 'Manage user bookings (booking answers)';
 $string['booking:managecomments'] = 'Manage comments';
 $string['booking:manageoptiondates'] = 'Manage option dates';
 $string['booking:manageoptiontemplates'] = "Manage option templates";

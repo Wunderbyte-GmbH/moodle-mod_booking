@@ -390,6 +390,7 @@ $string['booking:editoptionformconfig'] = 'Buchungsoptionsfelder bearbeiten';
 $string['booking:editteacherdescription'] = 'Beschreibung der Lehrenden bearbeiten';
 $string['booking:expertoptionform'] = "Expert Buchungsoptions Formular";
 $string['booking:limitededitownoption'] = 'Weniger als addeditownoption, nur sehr beschränktes Editieren eigener Optionen erlaubt.';
+$string['booking:managebookedusers'] = 'Buchungen von Nutzer:innen verwalten';
 $string['booking:manageoptiondates'] = 'Bearbeite Termine';
 $string['booking:manageoptiontemplates'] = "Buchungsoptionsvorlagen verwalten";
 $string['booking:overrideboconditions'] = 'Nutzer:in darf buchen auch wenn Verfügbarkeit false zurückliefert.';
