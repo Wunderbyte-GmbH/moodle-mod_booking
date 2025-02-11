@@ -140,6 +140,7 @@ class price {
             $mform->addHelpButton('priceformulaoff', 'priceformulaoff', 'mod_booking');
 
             $url = new moodle_url('admin/category.php?category=modbookingfolder');
+            $url = new moodle_url('/admin/category.php?category=modbookingfolder');
             $linktoformular = $url->out();
 
             $formulaobj = new stdClass();
