@@ -1437,6 +1437,7 @@ $string['maxoptionsfromcategoryfield'] = 'Which field should be used for the res
 $string['maxoptionsfromcategoryfielddesc'] = 'Select a field whose values can be used to restrict the booking of multiple options for users in the booking instance.';
 $string['maxoptionsfromcategorycount'] = 'How many booking options can a user book at most in category "{$a}"? 0 means unlimited.';
 $string['maxoptionsfromcategoryvalue'] = 'Which value needs to be given in "{$a}" so that this restriction is applied?';
+$string['maxoptionsfrominstance'] = 'Limitation applies only to bookings of this instance';
 $string['maxoptionsstring'] = 'You have reached the maximum of bookings of this type.';
 $string['maxoverbooking'] = 'Max. number of places on waiting list';
 $string['maxparticipantsnumber'] = 'Max. number of participants';

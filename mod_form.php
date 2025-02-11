@@ -1097,7 +1097,12 @@ class mod_booking_mod_form extends moodleform_mod {
             if (!empty($savedsettingsdata)) {
                 $mform->setDefault('maxoptionsfromcategoryvalue', array_key_first($savedsettingsdata));
             };
+            $mform->hideIf('maxoptionsfromcategoryvalue', 'maxoptionsfromcategorycount', 'eq', 0);
 
+            $mform->addElement('advcheckbox', 'maxoptionsfrominstance', get_string('maxoptionsfrominstance', 'mod_booking'));
+            $maxoptionsfrominstancesetting = booking::get_value_of_json_by_key($bookingid, 'maxoptionsfrominstance') ?? 1;
+            $mform->setDefault('maxoptionsfrominstance', $maxoptionsfrominstancesetting);
+            $mform->hideIf('maxoptionsfrominstance', 'maxoptionsfromcategorycount', 'eq', 0);
         }
         // Miscellaneous settings.
         $mform->addElement(
