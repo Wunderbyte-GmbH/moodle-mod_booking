@@ -26,6 +26,7 @@ namespace mod_booking\bo_availability\conditions;
 
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\booking;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
 use moodle_url;
@@ -162,8 +163,9 @@ class maxoptionsfromcategory implements bo_condition {
             $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
 
             // If the user is not yet booked we return true.
+            $this->otheranswers = $bookinganswer->exceeds_max_bookings($userid, $restriction, $field);
             if (
-                $bookinganswer->exceeds_max_bookings($userid, $restriction, $field) === false
+                empty($this->otheranswers)
             ) {
                 $isavailable = true;
             }
@@ -324,7 +326,7 @@ class maxoptionsfromcategory implements bo_condition {
         }
 
         if (!$isavailable) {
-            $description = get_string('maxoptionsstring', 'mod_booking');
+            $description = $this->get_string_with_url();
         }
         return $description;
     }
@@ -339,21 +341,18 @@ class maxoptionsfromcategory implements bo_condition {
      * @return [type]
      *
      */
-    private function get_string_with_url(string $identifier, object $settings, int $userid = 0) {
+    private function get_string_with_url() {
         global $CFG, $USER;
 
         $optionid = 0;
         $string = "";
-        foreach ($this->overlappinganswers as $answer) {
+        foreach ($this->otheranswers as $answer) {
             if (empty($optionid = $answer->optionid)) {
                 continue;
             }
 
             $booking = singleton_service::get_instance_of_booking_by_optionid($optionid);
             $bookinoption = singleton_service::get_instance_of_booking_option_settings($optionid);
-            if (empty($userid)) {
-                $userid = $USER->id;
-            }
 
             $title = $bookinoption->text;
             $url = new moodle_url($CFG->wwwroot . '/mod/booking/optionview.php', [
@@ -363,7 +362,27 @@ class maxoptionsfromcategory implements bo_condition {
             $url = $url->out(false);
             $string .= '<div><a href="' . $url . '" >"' . $title . '" </a></div>';
         }
-        return get_string($identifier, 'mod_booking', $string);
+
+        $savedsettings = booking::get_value_of_json_by_key($booking->id, 'maxoptionsfromcategory') ?? '';
+        if (
+            !empty($savedsettings)
+            && !empty($savedsettingsdata = (array)json_decode($savedsettings))
+        ) {
+            $field = get_config('booking', 'maxoptionsfromcategoryfield') ?? '';
+            $max = reset($savedsettingsdata);
+            $type = singleton_service::get_customfield_value_from_sanitzed_string(array_key_first($savedsettingsdata), $field);
+            $a = (object) [
+                'maxoptions' => $string,
+                'type' => $type,
+                'category' => $field,
+                'max' => $max,
+            ];
+            $string = get_string('maxoptionsstringdetailed', 'mod_booking', $a);
+        } else {
+            $string = get_string('maxoptionsstring', 'mod_booking');
+        }
+
+        return $string;
     }
 
     /**
