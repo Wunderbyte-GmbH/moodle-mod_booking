@@ -720,6 +720,10 @@ function booking_add_instance($booking) {
         booking::add_data_to_json($booking, 'allowupdatetimestamp', $booking->allowupdatetimestamp);
     }
 
+    if (isset($booking->maxoptionsfromcategory)) {
+        booking::add_data_to_json($booking, 'maxoptionsfromcategory', $booking->maxoptionsfromcategory);
+    }
+
     // If no policy was entered, we still have to check for HTML tags.
     if (!isset($booking->bookingpolicy) || empty(strip_tags($booking->bookingpolicy))) {
         $booking->bookingpolicy = '';
@@ -1006,6 +1010,7 @@ function booking_update_instance($booking) {
 
     if (empty($booking->maxoptionsfromcategorycount)) {
         booking::remove_key_from_json($booking, "maxoptionsfromcategory");
+        booking::remove_key_from_json($booking, "maxoptionsfrominstance");
     } else if (!empty($booking->maxoptionsfromcategoryvalue)) {
         $value = json_encode(
             [
@@ -1013,6 +1018,7 @@ function booking_update_instance($booking) {
             ]
         );
         booking::add_data_to_json($booking, "maxoptionsfromcategory", $value);
+        booking::add_data_to_json($booking, "maxoptionsfrominstance", $booking->maxoptionsfrominstance);
     }
 
     // Update, delete or insert answers.
