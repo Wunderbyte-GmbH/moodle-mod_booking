@@ -42,7 +42,6 @@ use moodle_url;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class deleteruleform extends dynamic_form {
-
     /**
      * {@inheritdoc}
      * @see moodleform::definition()
@@ -129,7 +128,12 @@ class deleteruleform extends dynamic_form {
 
         $contextid = $ajaxformdata['contextid'] ?? $customdata['contextid'];
 
-        $context = context::instance_by_id($contextid);
+        if (empty($contextid)) {
+            // Use system context as fallback.
+            $context = context_system::instance();
+        } else {
+            $context = context::instance_by_id($contextid);
+        }
 
         require_capability('mod/booking:editbookingrules', $context);
     }
