@@ -1429,6 +1429,7 @@ $string['maxoptionsfromcategoryfield'] = 'Welches Feld soll für die Einschränk
 $string['maxoptionsfromcategoryfielddesc'] = 'Wählen Sie ein Feld, auf dessen Werte hin das Buchen multipler Optionen für die Nutzenden eingeschränkt werden kann.';
 $string['maxoptionsfromcategorycount'] = 'Wieviele Buchungen sollen in der Kategorie "{$a}" pro Person maximal möglich sein? 0 bedeutet unbegrenzt.';
 $string['maxoptionsfromcategoryvalue'] = 'Welcher Wert soll im Feld "{$a}" stehen, damit diese Beschränkung angewendet wird?';
+$string['maxoptionsfrominstance'] = 'Einschränkung gilt nur für Buchungen dieser Instanz';
 $string['maxoptionsstring'] = 'Sie haben bereits die maximale Anzahl an Buchungen dieses Types erreicht.';
 $string['maxoverbooking'] = 'Maximale Anzahl der Wartelistenplätze';
 $string['maxparticipantsnumber'] = 'Maximale Teilnehmeranzahl';

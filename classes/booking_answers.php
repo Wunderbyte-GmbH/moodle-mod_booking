@@ -464,15 +464,23 @@ class booking_answers {
         if (empty($myanswers)) {
             return false;
         }
-        // TODO: Should this only restrict to the bookings from this instance or to all answers??
+        $limittoinstance = booking::get_value_of_json_by_key(
+            (int) $this->bookingoptionsettings->bookingid,
+            'maxoptionsfrominstance'
+        ) ?? 1;
         foreach ($myanswers as $answer) {
             $bosetting = singleton_service::get_instance_of_booking_option_settings($answer->optionid);
             if (!isset($bosetting->customfields[$field])) {
                 continue;
             }
             if ($bosetting->customfields[$field] === $localizedentry) {
-                // TODO: Eventually make a setting if this should apply to answers from all bookings or only current one.
-                // $bosettings->bookingid == $this->bookingoptionsettings->bookingid.
+                if (
+                    !empty($limittoinstance)
+                    && $bosetting->bookingid != $this->bookingoptionsettings->bookingid
+                ) {
+                    // The settings define if comparison is counted only for bookings in the same instance.
+                    continue;
+                }
                 $answerspercategory[$answer->id] = $answer;
             }
         }
