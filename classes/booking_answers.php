@@ -431,12 +431,12 @@ class booking_answers {
      * @param array $restriction
      * @param string $field
      *
-     * @return bool
+     * @return array
      *
      */
-    public function exceeds_max_bookings(int $userid, array $restriction, string $field): bool {
+    public function exceeds_max_bookings(int $userid, array $restriction, string $field): array {
         if (!isloggedin() || isguestuser()) {
-            return false;
+            return [];
         }
         // Check if restriction applies to current answer.
         $field = get_config('booking', 'maxoptionsfromcategoryfield');
@@ -446,7 +446,7 @@ class booking_answers {
             !isset($this->bookingoptionsettings->customfields[$field])
             || $this->bookingoptionsettings->customfields[$field] != $localizedentry
         ) {
-            return false;
+            return [];
         }
         $answerspercategory = [];
         $myanswers = $this->get_all_answers_for_user_cached(
@@ -462,7 +462,7 @@ class booking_answers {
 
         // If the user has no answers, then there is no problem.
         if (empty($myanswers)) {
-            return false;
+            return [];
         }
         $limittoinstance = booking::get_value_of_json_by_key(
             (int) $this->bookingoptionsettings->bookingid,
@@ -486,13 +486,13 @@ class booking_answers {
         }
         // If the user has no answers in this category, then there is no problem.
         if (empty($answerspercategory)) {
-            return false;
+            return [];
         }
         // Finally count the number of answers and check if it is more than the limit.
         if (count($answerspercategory) >= $restriction[$key]) {
-            return true;
+            return $answerspercategory;
         }
-        return false;
+        return [];
     }
 
     /**
