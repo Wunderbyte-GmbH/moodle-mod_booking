@@ -1439,6 +1439,7 @@ $string['maxoptionsfromcategorycount'] = 'How many booking options can a user bo
 $string['maxoptionsfromcategoryvalue'] = 'Which value needs to be given in "{$a}" so that this restriction is applied?';
 $string['maxoptionsfrominstance'] = 'Limitation applies only to bookings of this instance';
 $string['maxoptionsstring'] = 'You have reached the maximum of bookings of this type.';
+$string['maxoptionsstringdetailed'] = 'You have reached the maximum of {$a->max} bookings of type "{$a->type}" (in category "{$a->category}"): <br> {$a->maxoptions}';
 $string['maxoverbooking'] = 'Max. number of places on waiting list';
 $string['maxparticipantsnumber'] = 'Max. number of participants';
 $string['maxperuser'] = 'Max current bookings per user';
