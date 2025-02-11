@@ -536,35 +536,18 @@ class booking_answers {
      * @param int $bookingid not cmid
      * @return int
      */
-    public static function number_of_active_bookings_for_user(int $userid, int $bookingid) {
-        global $DB;
+    public function get_answers_for_user(int $userid, int $bookingid) {
 
-        $params = [
-            'statuswaitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
-            'bookingid' => $bookingid,
-            'userid' => $userid,
-        ];
-
-        $sql = "SELECT COUNT(ba.id) cnt
-                FROM {booking_answers} ba
-                JOIN {booking_options} bo
-                ON bo.id = ba.optionid
-                WHERE ba.waitinglist <= :statuswaitinglist
-                AND ba.bookingid = :bookingid
-                AND ba.userid = :userid";
-
-        if (get_config('booking', 'maxperuserdontcountpassed')) {
-            $params['now'] = time();
-            $sql .= " AND (bo.courseendtime > :now OR bo.courseendtime IS NULL OR bo.courseendtime = 0)";
-        }
-        if (get_config('booking', 'maxperuserdontcountcompleted')) {
-            $sql .= " AND ba.completed = 0 AND ba.status NOT IN (1,6)";
-        }
-        if (get_config('booking', 'maxperuserdontcountnoshow')) {
-            $sql .= " AND ba.status <> 3";
-        }
-
-        return $DB->count_records_sql($sql, $params);
+        $answers = $this->get_all_answers_for_user_cached(
+            $userid,
+            $bookingid,
+            [
+                MOD_BOOKING_STATUSPARAM_BOOKED,
+                MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+            ]
+        );
+        // Do not count reserved options.
+        return count($answers);
     }
 
     /**
@@ -1033,6 +1016,20 @@ class booking_answers {
                         unset($answers[$key]);
                         continue;
                     }
+                }
+            }
+        }
+        // Make sure to filter the status if the cache contains more values than supposed.
+        if (
+            $status != [
+                MOD_BOOKING_STATUSPARAM_BOOKED,
+                MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+                MOD_BOOKING_STATUSPARAM_RESERVED,
+                ]
+        ) {
+            foreach ($answers as $key => $answer) {
+                if (!in_array((int) $answer->waitinglist, $status)) {
+                    unset($answers[$key]);
                 }
             }
         }
