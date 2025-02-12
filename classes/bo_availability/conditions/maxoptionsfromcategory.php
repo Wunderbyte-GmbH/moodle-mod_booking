@@ -349,7 +349,7 @@ class maxoptionsfromcategory implements bo_condition {
             $booking = singleton_service::get_instance_of_booking_by_optionid($optionid);
             $bookinoption = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-            $title = $bookinoption->text;
+            $title = $bookinoption->get_title_with_prefix();
             $url = new moodle_url($CFG->wwwroot . '/mod/booking/optionview.php', [
                 'cmid' => $booking->cmid,
                 'optionid' => $optionid,
