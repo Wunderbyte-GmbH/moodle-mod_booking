@@ -364,8 +364,9 @@ class maxoptionsfromcategory implements bo_condition {
             && !empty($savedsettingsdata = (array)json_decode($savedsettings))
         ) {
             $field = get_config('booking', 'maxoptionsfromcategoryfield') ?? '';
-            $max = reset($savedsettingsdata);
-            $type = singleton_service::get_customfield_value_from_sanitzed_string(array_key_first($savedsettingsdata), $field);
+            $shortname = array_key_first($savedsettingsdata);
+            $max = $savedsettingsdata[$shortname]->count ?? '';
+            $type = $savedsettingsdata[$shortname]->localizedstring ?? '';
             $a = (object) [
                 'maxoptions' => $string,
                 'type' => $type,
@@ -437,7 +438,7 @@ class maxoptionsfromcategory implements bo_condition {
     }
 
     /**
-     * Returns empty string if no overlapping is defined and otherwise the kind of handling (block, warn).
+     * Returns empty array if max options from category is defined and otherwise the kind of handling (block, warn).
      *
      * @param booking_option_settings $settings
      *
