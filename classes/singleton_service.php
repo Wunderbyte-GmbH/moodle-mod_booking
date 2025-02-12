@@ -875,7 +875,7 @@ class singleton_service {
     /**
      * Get customfield value from sanitzed string.
      *
-     * @param string $originalstring
+     * @param string $sanitizedstring
      * @param string $field
      *
      * @return string
