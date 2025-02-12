@@ -1059,7 +1059,8 @@ class mod_booking_mod_form extends moodleform_mod {
             $savedsettings = booking::get_value_of_json_by_key($bookingid, 'maxoptionsfromcategory') ?? '';
             if (!empty($savedsettings)) {
                 $savedsettingsdata = (array)json_decode($savedsettings);
-                $mform->setDefault('maxoptionsfromcategorycount', (int)reset($savedsettingsdata));
+                $sanitizedfieldname = array_key_first($savedsettingsdata);
+                $mform->setDefault('maxoptionsfromcategorycount', $savedsettingsdata[$sanitizedfieldname]->count);
             } else {
                 $mform->setDefault('maxoptionsfromcategorycount', 0);
             }
@@ -1084,7 +1085,7 @@ class mod_booking_mod_form extends moodleform_mod {
                     continue;
                 }
                 // Sanitize the value to be used as a key and store to facilitate matching of values.
-                $key = singleton_service::sanitze_string_and_store($record->value);
+                $key = singleton_service::sanitize_string_and_store($record->value);
                 $options[$key] = $record->value;
             }
 
@@ -1095,7 +1096,7 @@ class mod_booking_mod_form extends moodleform_mod {
                 $options
             );
             if (!empty($savedsettingsdata)) {
-                $mform->setDefault('maxoptionsfromcategoryvalue', array_key_first($savedsettingsdata));
+                $mform->setDefault('maxoptionsfromcategoryvalue', $sanitizedfieldname);
             };
             $mform->hideIf('maxoptionsfromcategoryvalue', 'maxoptionsfromcategorycount', 'eq', 0);
 
