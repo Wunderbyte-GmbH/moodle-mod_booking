@@ -172,8 +172,6 @@ class maxoptionsfromcategory implements bo_condition {
         } else {
             $isavailable = true;
         }
-
-
         // If it's inversed, we inverse.
         if ($not) {
             $isavailable = !$isavailable;
@@ -334,9 +332,6 @@ class maxoptionsfromcategory implements bo_condition {
     /**
      * Return a rendered string with links to bookingoption.
      *
-     * @param string $identifier
-     * @param object $settings
-     * @param int $userid
      *
      * @return [type]
      *
