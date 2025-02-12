@@ -440,12 +440,22 @@ class booking_answers {
         }
         // Check if restriction applies to current answer.
         $field = get_config('booking', 'maxoptionsfromcategoryfield');
-        $key = array_key_first($restriction);
-        $localizedentry = $restriction[$key]->localizedstring;
-        if (
-            !isset($this->bookingoptionsettings->customfields[$field])
-            || $this->bookingoptionsettings->customfields[$field] != $localizedentry
-        ) {
+
+        // First check if the field of the current option contains the entry we are looking for.
+        $match = '';
+        foreach ($restriction as $key => $data) {
+            $localizedentry = $data->localizedstring;
+            if (
+                !isset($this->bookingoptionsettings->customfields[$field])
+                || $this->bookingoptionsettings->customfields[$field] != $localizedentry
+            ) {
+                continue;
+            } else {
+                $match = $localizedentry;
+                break;
+            }
+        }
+        if (empty($match)) {
             return [];
         }
         $answerspercategory = [];

@@ -1058,9 +1058,14 @@ class mod_booking_mod_form extends moodleform_mod {
             );
             $savedsettings = booking::get_value_of_json_by_key($bookingid, 'maxoptionsfromcategory') ?? '';
             if (!empty($savedsettings)) {
-                $savedsettingsdata = (array)json_decode($savedsettings);
-                $sanitizedfieldname = array_key_first($savedsettingsdata);
-                $mform->setDefault('maxoptionsfromcategorycount', $savedsettingsdata[$sanitizedfieldname]->count);
+                $savedsettings = (array)json_decode($savedsettings);
+                $fieldnames = [];
+                foreach ($savedsettings as $fieldname => $savedsetting) {
+                    $fieldnames[] = $fieldname;
+                    $count = $savedsetting->count;
+                }
+                // Count is stored in each of the classes, so we just take the first one.
+                $mform->setDefault('maxoptionsfromcategorycount', $savedsetting->count);
             } else {
                 $mform->setDefault('maxoptionsfromcategorycount', 0);
             }
@@ -1095,8 +1100,9 @@ class mod_booking_mod_form extends moodleform_mod {
                 get_string('maxoptionsfromcategoryvalue', 'booking', $customfield->name),
                 $options
             );
-            if (!empty($savedsettingsdata)) {
-                $mform->setDefault('maxoptionsfromcategoryvalue', $sanitizedfieldname);
+            $mform->getElement('maxoptionsfromcategoryvalue')->setMultiple(true);
+            if (!empty($savedsettings)) {
+                $mform->setDefault('maxoptionsfromcategoryvalue', array_keys($savedsettings));
             };
             $mform->hideIf('maxoptionsfromcategoryvalue', 'maxoptionsfromcategorycount', 'eq', 0);
 

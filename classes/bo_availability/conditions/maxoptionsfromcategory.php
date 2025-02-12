@@ -459,7 +459,7 @@ class maxoptionsfromcategory implements bo_condition {
             return [];
         }
         $maxoptions = (array) json_decode($data->maxoptionsfromcategory) ?? [];
-        if (reset($maxoptions) == 0) {
+        if (reset($maxoptions)->count == 0) {
             return [];
         }
         $this->handling = $maxoptions;
