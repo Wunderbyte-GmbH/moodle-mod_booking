@@ -50,7 +50,6 @@ use mod_booking\singleton_service;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class dates_handler {
-
     /** @var int $optionid */
     public int $optionid = 0;
 
@@ -82,8 +81,13 @@ class dates_handler {
 
         $semestersarray = semester::get_semesters_id_name_array();
 
-        $mform->addElement('autocomplete', 'chooseperiod', get_string('chooseperiod', 'mod_booking'),
-            $semestersarray, ['tags' => false]);
+        $mform->addElement(
+            'autocomplete',
+            'chooseperiod',
+            get_string('chooseperiod', 'mod_booking'),
+            $semestersarray,
+            ['tags' => false]
+        );
         // If a semesterid for the booking option was already set, use it.
         if (!empty($bookingoptionsettings->semesterid)) {
             $mform->setDefault('chooseperiod', $bookingoptionsettings->semesterid);
@@ -95,15 +99,23 @@ class dates_handler {
 
         // Turn off submit on enter (keycode: 13).
         // We will work with the submit button only (as it has some sophisticated JS listeners).
-        $mform->addElement('text', 'reoccurringdatestring', get_string('reoccurringdatestring', 'booking'),
-            ['onkeypress' => 'return event.keyCode != 13;']);
+        $mform->addElement(
+            'text',
+            'reoccurringdatestring',
+            get_string('reoccurringdatestring', 'booking'),
+            ['onkeypress' => 'return event.keyCode != 13;']
+        );
         $mform->setDefault('reoccurringdatestring', $bookingoptionsettings->dayofweektime);
         $mform->addHelpButton('reoccurringdatestring', 'reoccurringdatestring', 'mod_booking');
         $mform->setType('reoccurringdatestring', PARAM_TEXT);
 
         // Add a button to create specific single dates which are not part of the date series.
-        $mform->addElement('button', 'customdatesbtn', get_string('customdatesbtn', 'mod_booking'),
-            ['data-action' => 'opendateformmodal']);
+        $mform->addElement(
+            'button',
+            'customdatesbtn',
+            get_string('customdatesbtn', 'mod_booking'),
+            ['data-action' => 'opendateformmodal']
+        );
 
         if ($loadexistingdates) {
             // Add already existing optiondates to form.
@@ -145,17 +157,14 @@ class dates_handler {
         global $DB;
 
         if ($this->optionid && $this->bookingid) {
-
             // Get the currently saved optiondateids from DB.
             $olddates = $DB->get_records('booking_optiondates', ['optionid' => $this->optionid]);
 
             // Now, let's check, if they have not been removed by the dynamic form.
             foreach ($olddates as $olddate) {
-
                 if (isset($fromform->stillexistingdates[(int) $olddate->id])) {
-
                     $stillexistingdatestring = $fromform->stillexistingdates[(int) $olddate->id];
-                    list($starttime, $endtime) = explode('-', $stillexistingdatestring);
+                    [$starttime, $endtime] = explode('-', $stillexistingdatestring);
 
                     // Check if start time or end time has changed.
                     if ($olddate->coursestarttime != $starttime || $olddate->courseendtime != $endtime) {
@@ -164,7 +173,6 @@ class dates_handler {
                         $olddate->courseendtime = (int)$endtime;
                         $DB->update_record('booking_optiondates', $olddate);
                     }
-
                 } else {
                     optiondate::delete($olddate->id);
                 }
@@ -172,7 +180,7 @@ class dates_handler {
 
             // It's important that this happens AFTER deleting the removed dates.
             foreach ($fromform->newoptiondates as $optiondatestring) {
-                list($starttime, $endtime) = explode('-', $optiondatestring);
+                [$starttime, $endtime] = explode('-', $optiondatestring);
 
                 // Now save the new optiondates.
                 optiondate::save(
@@ -180,7 +188,7 @@ class dates_handler {
                     $this->optionid,
                     (int) $starttime,
                     (int) $endtime,
-                    // TODO: Implement additional params in a later release.
+                    // We can implement additional params in a later release.
                 );
             }
         }
@@ -268,7 +276,7 @@ class dates_handler {
         $reoccurringdatestring = str_replace('-', ' ', $reoccurringdatestring);
         $reoccurringdatestring = str_replace(',', ' ', $reoccurringdatestring);
         $reoccurringdatestring = preg_replace("/\s+/", " ", $reoccurringdatestring);
-        $strings = explode(' ',  $reoccurringdatestring);
+        $strings = explode(' ', $reoccurringdatestring);
 
         $daystring = $strings[0];
 
@@ -298,10 +306,11 @@ class dates_handler {
             $currentweekday2char = substr($currentweekday, 0, 2);
             $currentweekday3char = substr($currentweekday, 0, 3);
 
-            if ($daystring == $currentweekday2char ||
+            if (
+                $daystring == $currentweekday2char ||
                 $daystring == $currentweekday3char ||
-                $daystring == $currentweekday) {
-
+                $daystring == $currentweekday
+            ) {
                 $day = $key;
                 break;
             }
@@ -332,7 +341,6 @@ class dates_handler {
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
         if (count($settings->sessions) > 0) {
-
             foreach ($settings->sessions as $session) {
                 $date = new stdClass();
                 $date->dateid = 'dateid-' . $session->id;
@@ -340,8 +348,11 @@ class dates_handler {
                 $date->endtimestamp = $session->courseendtime;
 
                 // If dates are on the same day, then show date only once.
-                $date->string = self::prettify_optiondates_start_end($date->starttimestamp,
-                    $date->endtimestamp, current_language());
+                $date->string = self::prettify_optiondates_start_end(
+                    $date->starttimestamp,
+                    $date->endtimestamp,
+                    current_language()
+                );
 
                 $datearray[] = $date;
             }
@@ -361,8 +372,12 @@ class dates_handler {
      * @param bool $showweekdays if true, weekdays will be shown
      * @return string the prettified string from start to end date
      */
-    public static function prettify_optiondates_start_end(int $starttimestamp, int $endtimestamp,
-        string $lang = 'en', bool $showweekdays = true): string {
+    public static function prettify_optiondates_start_end(
+        int $starttimestamp,
+        int $endtimestamp,
+        string $lang = 'en',
+        bool $showweekdays = true
+    ): string {
 
         $date = self::prettify_datetime($starttimestamp, $endtimestamp, $lang, $showweekdays);
 
@@ -413,14 +428,18 @@ class dates_handler {
             return true;
         }
 
-        if (!preg_match('/^[a-zA-Z]+[,\s]+([0-1]?[0-9]|[2][0-3]):([0-5][0-9])\s*-\s*([0-1]?[0-9]|[2][0-3]):([0-5][0-9])$/',
-            $reoccurringdatestring)) {
+        if (
+            !preg_match(
+                '/^[a-zA-Z]+[,\s]+([0-1]?[0-9]|[2][0-3]):([0-5][0-9])\s*-\s*([0-1]?[0-9]|[2][0-3]):([0-5][0-9])$/',
+                $reoccurringdatestring
+            )
+        ) {
             return false;
         }
 
         $string = str_replace(',', ' ', $string);
         $string = preg_replace("/\s+/", " ", $string);
-        $strings = explode(' ',  $string);
+        $strings = explode(' ', $string);
         $daystring = $strings[0]; // Lower case weekday part of the string, e.g. "mo", "mon" or "monday".
 
         $weekdays = self::get_localized_weekdays();
@@ -519,13 +538,16 @@ class dates_handler {
         }
 
         // If we don't have any sessions, we render the date of the option itself.
-        if (empty($sessions) && !empty($settings->coursestarttime) && !empty($settings->courseendtime)
-            && $settings->coursestarttime != "0" && $settings->courseendtime != "0") {
+        if (
+            empty($sessions) && !empty($settings->coursestarttime) && !empty($settings->courseendtime)
+            && $settings->coursestarttime != "0" && $settings->courseendtime != "0"
+        ) {
             $returnarray[] = [
                     'datestring' => self::prettify_optiondates_start_end(
-                            $settings->coursestarttime,
-                            $settings->courseendtime,
-                            current_language()),
+                        $settings->coursestarttime,
+                        $settings->courseendtime,
+                        current_language()
+                    ),
             ];
         }
 
@@ -552,12 +574,15 @@ class dates_handler {
         }
 
         // If we don't have any sessions, we render the date of the option itself.
-        if (empty($sessions) && !empty($settings->coursestarttime) && !empty($settings->courseendtime)
-            && $settings->coursestarttime != "0" && $settings->courseendtime != "0") {
+        if (
+            empty($sessions) && !empty($settings->coursestarttime) && !empty($settings->courseendtime)
+            && $settings->coursestarttime != "0" && $settings->courseendtime != "0"
+        ) {
             $returnarray[] = self::prettify_optiondates_start_end(
-                            $settings->coursestarttime,
-                            $settings->courseendtime,
-                            current_language());
+                $settings->coursestarttime,
+                $settings->courseendtime,
+                current_language()
+            );
         }
 
         return $returnarray;
@@ -657,8 +682,12 @@ class dates_handler {
      *
      * @return array
      */
-    public static function return_dates_with_strings(booking_option_settings $settings,
-        string $lang = '', bool $showweekdays = false, bool $ashtml = false): array {
+    public static function return_dates_with_strings(
+        booking_option_settings $settings,
+        string $lang = '',
+        bool $showweekdays = false,
+        bool $ashtml = false
+    ): array {
 
         $sessions = [];
 
@@ -669,29 +698,33 @@ class dates_handler {
             $formattedsession = new stdClass();
 
             foreach ($settings->sessions as $session) {
-
-                $data = self::prettify_datetime($session->coursestarttime,
+                $data = self::prettify_datetime(
+                    $session->coursestarttime,
                     $session->courseendtime,
                     $lang,
                     $showweekdays,
-                    $ashtml);
+                    $ashtml
+                );
                 $data->id = $session->id;
                 $sessions[] = $data;
             }
-        } else if (isset($settings->coursestarttime) && isset($settings->courseendtime)
-            && $settings->coursestarttime != "0" && $settings->courseendtime != "0") {
+        } else if (
+            isset($settings->coursestarttime) && isset($settings->courseendtime)
+            && $settings->coursestarttime != "0" && $settings->courseendtime != "0"
+        ) {
             // If we don't have extra sessions, we take the normal coursestart & endtime.
 
-            $data = self::prettify_datetime($settings->coursestarttime,
-                    $settings->courseendtime,
-                    $lang,
-                    $showweekdays);
+            $data = self::prettify_datetime(
+                $settings->coursestarttime,
+                $settings->courseendtime,
+                $lang,
+                $showweekdays
+            );
             $data->id = 0;
             $sessions[] = $data;
         }
 
         return $sessions;
-
     }
 
     /**
@@ -705,8 +738,13 @@ class dates_handler {
      *
      * @return stdClass
      */
-    public static function prettify_datetime(int $starttime, int $endtime = 0,
-     $lang = '', $showweekdays = false, bool $ashtml = false) {
+    public static function prettify_datetime(
+        int $starttime,
+        int $endtime = 0,
+        $lang = '',
+        $showweekdays = false,
+        bool $ashtml = false
+    ) {
 
         if (empty($lang)) {
             $lang = current_language();
@@ -768,7 +806,6 @@ class dates_handler {
                     $date->endtime . get_string('h', 'mod_booking');
                     // Friday, 3. February 2023, 11:45 - 12:45.
             }
-
         } else {
             // Without weekdays.
             $date->startdate = userdate($starttime, $strftimedate); // 3. February 2023.
@@ -807,7 +844,6 @@ class dates_handler {
         $slotendtime = $starttime; // This is just to jump into the while loop.
 
         while ($slotendtime < $endtime) {
-
             $slotstarttime = $starttime;
             $slotendtime = strtotime("+ $duration minutes ", $starttime);
             $starttime = $slotendtime; // New starttime previous slotendtime.
