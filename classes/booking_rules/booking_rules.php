@@ -152,7 +152,7 @@ class booking_rules {
 
     /**
      * Check if rules in a given contextid match with the bookingid.
-     * @param int $bookingid
+     * @param int $bookingcmid
      * @param int $contextid
      */
     public static function booking_matches_rulecontext(int $bookingcmid, int $contextid) {
