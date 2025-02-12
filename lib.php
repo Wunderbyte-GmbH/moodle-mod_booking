@@ -1061,9 +1061,17 @@ function booking_update_instance($booking) {
         booking::remove_key_from_json($booking, "maxoptionsfromcategory");
         booking::remove_key_from_json($booking, "maxoptionsfrominstance");
     } else if (!empty($booking->maxoptionsfromcategoryvalue)) {
+        $field = get_config('booking', 'maxoptionsfromcategoryfield');
+        $localizedstring = singleton_service::get_customfield_value_from_sanitzed_string(
+            $booking->maxoptionsfromcategoryvalue,
+            $field
+        );
         $value = json_encode(
             [
-                $booking->maxoptionsfromcategoryvalue => $booking->maxoptionsfromcategorycount,
+                $booking->maxoptionsfromcategoryvalue => [
+                    'count' => $booking->maxoptionsfromcategorycount,
+                    'localizedstring' => $localizedstring,
+                ],
             ]
         );
         booking::add_data_to_json($booking, "maxoptionsfromcategory", $value);

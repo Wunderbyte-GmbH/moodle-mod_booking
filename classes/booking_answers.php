@@ -441,7 +441,7 @@ class booking_answers {
         // Check if restriction applies to current answer.
         $field = get_config('booking', 'maxoptionsfromcategoryfield');
         $key = array_key_first($restriction);
-        $localizedentry = singleton_service::get_customfield_value_from_sanitzed_string($key, $field);
+        $localizedentry = $restriction[$key]->localizedstring;
         if (
             !isset($this->bookingoptionsettings->customfields[$field])
             || $this->bookingoptionsettings->customfields[$field] != $localizedentry
