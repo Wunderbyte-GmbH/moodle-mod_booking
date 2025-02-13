@@ -390,7 +390,7 @@ class nooverlapping implements bo_condition {
                 $userid = $USER->id;
             }
 
-            $title = $bookinoption->text;
+            $title = $bookinoption->get_title_with_prefix();
             $url = new moodle_url($CFG->wwwroot . '/mod/booking/optionview.php', [
                 'cmid' => $booking->cmid,
                 'optionid' => $optionid,
