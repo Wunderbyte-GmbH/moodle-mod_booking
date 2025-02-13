@@ -1,3 +1,36 @@
+## Version 8.9.19 (2025021300)
+* Improvement: Add prefix to display of bo in overlapping message
+* Improvement: Use cached answers for `max_number_of_bookings` condition
+* Improvement: If semester is removed from option, no fallback to booking instance semester
+* Improvement: Use common function to generate possible presence statuses and harden code
+* Improvement: Show an alert box if capability to edit option form is missing
+* Improvement: Switch between report contexts within report and fix `require_login` in system scope
+* Improvement: Add message about enrollment to waitlist
+* Improvement: Enable book only after confirmation settings for enrolllink
+* Improvement: Add info about no enrolllink triggered when user buys 1 seat for himself
+* Improvement: Enrollbot user buying can choose if he wants to get enrolled
+* Improvement: Booking mobile styling
+* Improvement: Removed description and teacher from detail view
+* Improvement: Write `erlid` into JSON of consuming answers to enable enrollment via confirmation
+* Bugfix: Fix broken link
+* Bugfix: Global booking rules could not be deleted anymore
+* Bugfix: Manager archetype missing from `exportoptionform` capability
+* Bugfix: Fix version number in `upgrade.php`
+* Bugfix: Initial user after confirmation needs payment
+* Bugfix: Block enrollment for guest users
+* Bugfix: Use enrolllink param if given
+* Bugfix: Status already enrolled
+* Bugfix: Exception "Undefined variable $enwaitlist" in `managerusers_table.php`
+* Bugfix: If user is enrolled add consumed item
+* Bugfix: Require login before printing page
+* Bugfix: Support sending teacher mails from mac/iOS system using a comma separator
+* Bugfix: When previously booked referees to deleted option, webservices don’t work
+* Tests: Refactoring and extend phpunit `test_rule_on_enrolllink_and_enroll()` to cover enrolllink usage by students
+* Tests: Adjustments of the Behat Scenario: Booking option enrolllink: create and validate
+* Tests: Adjust `test_rule_on_enrolllink_and_enroll_via_waitinglists()` test method
+* Tests: Replace strings by constants in tests
+* Tests: Extending of Behat scenario "Booking option enrolllink: create and validate" with rule and message validation
+
 ## Version 8.9.18 (2025013000)
 * New feature: Turn shortcodes off globally. #810
 * New Feature: New Rule to notify days before/after in relation to selflearningcourse. #823
