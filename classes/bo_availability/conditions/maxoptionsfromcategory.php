@@ -347,9 +347,9 @@ class maxoptionsfromcategory implements bo_condition {
             }
 
             $booking = singleton_service::get_instance_of_booking_by_optionid($optionid);
-            $bookinoption = singleton_service::get_instance_of_booking_option_settings($optionid);
+            $bookingoption = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-            $title = $bookinoption->get_title_with_prefix();
+            $title = $bookingoption->get_title_with_prefix();
             $url = new moodle_url($CFG->wwwroot . '/mod/booking/optionview.php', [
                 'cmid' => $booking->cmid,
                 'optionid' => $optionid,
@@ -364,14 +364,11 @@ class maxoptionsfromcategory implements bo_condition {
             && !empty($savedsettingsdata = (array)json_decode($savedsettings))
         ) {
             $field = get_config('booking', 'maxoptionsfromcategoryfield') ?? '';
-            $shortname = array_key_first($savedsettingsdata);
-            $max = $savedsettingsdata[$shortname]->count ?? '';
-            $type = $savedsettingsdata[$shortname]->localizedstring ?? '';
             $a = (object) [
                 'maxoptions' => $string,
-                'type' => $type,
+                'type' => $bookingoption->customfields[$field],
                 'category' => $field,
-                'max' => $max,
+                'max' => reset($savedsettingsdata)->count, // Since count is the same for all, we can just take the first one.
             ];
             $string = get_string('maxoptionsstringdetailed', 'mod_booking', $a);
         } else {
