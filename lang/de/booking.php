@@ -896,6 +896,8 @@ $string['defaulttemplatedesc'] = 'Standard-Vorlage für neue Buchungsoptionen';
 $string['defaultvalue'] = 'Standardpreis';
 $string['defaultvalue_help'] = 'Geben Sie einen Standardpreis für jeden Preis in dieser Kategorie ein. Natürlich kann dieser Wert später überschrieben werden.';
 $string['definecmidforshortcode'] = "Um diesen Shortcode verwenden zu können, muss die cmid einer Booking instanz folgendermaßen zum shortcode hinzugefügt werden: [courselist cmid=23]";
+$string['definedresponsiblecontactrole'] = 'Rolle für verantwortliche Kontaktperson einer Buchungsoption festlegen';
+$string['definedresponsiblecontactrole_desc'] = 'Wird eine verantwortliche Kontaktperson zu einer Buchungsoption hinzugefügt, erhält sie im zugehörigen verbundenen Moodle-Kurs die ausgewählte Rolle.';
 $string['definedteacherrole'] = 'Rolle für Trainer:innen einer Buchungsoption festlegen';
 $string['definedteacherrole_desc'] = 'Wird ein:e Trainer:in einer Buchungsoption hinzugefügt, erhält sie im zugehörigen Kurs die ausgewählte Rolle.';
 $string['definefieldofstudy'] = 'Sie können hier alle Buchungsoptionen aus dem gesamten Studienbereich anzeigen lassen. Damit dies funktioniert,
@@ -1892,6 +1894,8 @@ $string['responsiblecontactcanedit'] = 'Kontaktpersonen das Editieren erlauben';
 $string['responsiblecontactcanedit_desc'] = 'Aktivieren Sie diese Einstellung, um es Kontaktpersonen zu erlauben,
 die Buchungsoptionen, bei denen Sie eingetragen sind, zu editieren und Teilnehmer:innen-Listen einzusehen.<br>
 <b>Wichtig:</b> Die Kontaktperson braucht zusätzlich das Recht <b>mod/booking:addeditownoption</b>.';
+$string['responsiblecontactenroltocourse'] = 'Kontaktperson in verbundenen Moodle-Kurs einschreiben';
+$string['responsiblecontactenroltocourse_desc'] = 'Bitte definieren Sie auch die Rolle, die die Kontaktperson im verbundenen Moodle-Kurs haben soll.';
 $string['restresponse'] = "rest_response";
 $string['restrictanswerperiodclosing'] = 'Buchen nur bis zu einem bestimmten Zeitpunkt ermöglichen';
 $string['restrictanswerperiodopening'] = 'Buchen erst ab einem bestimmten Zeitpunkt ermöglichen';

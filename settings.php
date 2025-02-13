@@ -390,6 +390,34 @@ if ($ADMIN->fulltree) {
 
     $settings->add(
         new admin_setting_configcheckbox(
+            'booking/responsiblecontactenroltocourse',
+            get_string('responsiblecontactenroltocourse', 'mod_booking'),
+            get_string('responsiblecontactenroltocourse_desc', 'mod_booking'),
+            0
+        )
+    );
+
+    $courseroleids = [0 => ''];
+    $allrolenames = role_get_names();
+    $assignableroles = get_roles_for_contextlevels(CONTEXT_COURSE);
+    foreach ($allrolenames as $value) {
+        if (in_array($value->id, $assignableroles)) {
+            $courseroleids[$value->id] = $value->localname;
+        }
+    }
+
+    $settings->add(
+        new admin_setting_configselect(
+            'booking/definedresponsiblecontactrole',
+            get_string('definedresponsiblecontactrole', 'mod_booking'),
+            get_string('definedresponsiblecontactrole_desc', 'mod_booking'),
+            'definedresponsiblecontactrole',
+            $courseroleids
+        )
+    );
+
+    $settings->add(
+        new admin_setting_configcheckbox(
             'booking/maxperuserdontcountpassed',
             get_string('maxperuserdontcountpassed', 'mod_booking'),
             get_string('maxperuserdontcountpassed_desc', 'mod_booking'),
@@ -583,22 +611,13 @@ if ($ADMIN->fulltree) {
             )
         );
 
-        $teacherroleid = [0 => ''];
-        $allrolenames = role_get_names();
-        $assignableroles = get_roles_for_contextlevels(CONTEXT_COURSE);
-        foreach ($allrolenames as $value) {
-            if (in_array($value->id, $assignableroles)) {
-                $teacherroleid[$value->id] = $value->localname;
-            }
-        }
-
         $settings->add(
             new admin_setting_configselect(
                 'booking/definedteacherrole',
                 get_string('definedteacherrole', 'mod_booking'),
                 get_string('definedteacherrole_desc', 'mod_booking'),
                 'definedteacherrole',
-                $teacherroleid
+                $courseroleids
             )
         );
     } else {

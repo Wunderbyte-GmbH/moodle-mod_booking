@@ -903,6 +903,8 @@ $string['defaulttemplatedesc'] = 'Default booking option template when creating 
 $string['defaultvalue'] = 'Default price value';
 $string['defaultvalue_help'] = 'Enter a default value for every price in this category. Of course, this value can be overwritten later.';
 $string['definecmidforshortcode'] = "To use this shortcode, enter the id of a booking instance like this: [courselist cmid=23]";
+$string['definedresponsiblecontactrole'] = 'Define role for responsible contact person of a booking option';
+$string['definedresponsiblecontactrole_desc'] = 'When a responsible contact person is added to a booking option, they will be assigned the selected role in the connected Moodle course.';
 $string['definedteacherrole'] = 'Teachers of booking option are assigned to this role';
 $string['definedteacherrole_desc'] = 'When a teacher is added to a bookingoption, he/she will be assigned to this role in the corresponding course.';
 $string['definefieldofstudy'] = 'You can show here all booking options from the whole field fo study. To make this work,
@@ -1951,6 +1953,8 @@ $string['responsiblecontactcanedit_desc'] = 'Activate this setting if you want t
 to edit their booking options and to see and edit the list of booked users.<br>
 <b>Important:</b> The responsible contact person additionally needs the capability
 <b>mod/booking:addeditownoption</b>.';
+$string['responsiblecontactenroltocourse'] = 'Enrol responsible contact person to connected Moodle course';
+$string['responsiblecontactenroltocourse_desc'] = 'Please also define the role the responsible contact person should have in the connected Moodle course.';
 $string['restresponse'] = "rest_response";
 $string['restrictanswerperiodclosing'] = 'Booking is possible only until a certain date';
 $string['restrictanswerperiodopening'] = 'Booking is possible only after a certain date';
