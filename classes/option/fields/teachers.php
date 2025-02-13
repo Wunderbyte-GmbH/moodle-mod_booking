@@ -39,7 +39,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class teachers extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -93,7 +92,8 @@ class teachers extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         parent::prepare_save_field($formdata, $newoption, $updateparam, '');
 
@@ -142,7 +142,6 @@ class teachers extends field_base {
             $teacherhandler = new teachers_handler($data->id);
             $teacherhandler->set_data($data);
         } else {
-
             // This Logic is linked to the webservice importer functionality.
             // If we are currently importing, we check the mergeparam.
             // We might want to add teachers instead of replacing them.
@@ -150,9 +149,10 @@ class teachers extends field_base {
             // ... because on importing, we want it to fail, if teacher is not found.
             $teacherids = teachers_handler::get_teacherids_from_form($data, true);
 
-            if (!empty($data->importing)
-                && (!empty($data->mergeparam))) {
-
+            if (
+                !empty($data->importing)
+                && (!empty($data->mergeparam))
+            ) {
                 if ($data->mergeparam > 1) {
                     $oldteacherids = $settings->teacherids;
                     $teacherids = array_merge($oldteacherids, $teacherids);
@@ -160,7 +160,6 @@ class teachers extends field_base {
             }
             $data->teachersforoption = $teacherids;
         }
-
     }
 
     /**
@@ -180,5 +179,3 @@ class teachers extends field_base {
         return $changes;
     }
 }
-
-

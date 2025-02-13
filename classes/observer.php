@@ -40,7 +40,6 @@ use mod_booking\singleton_service;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_booking_observer {
-
     /**
      * Observer for the user_created event
      *
@@ -110,10 +109,13 @@ class mod_booking_observer {
                     $bo->user_delete_response($cp->userid);
                 }
                 $optionids = array_keys($options);
-                list ($insql, $inparams) = $DB->get_in_or_equal($optionids, SQL_PARAMS_NAMED);
+                 [$insql, $inparams] = $DB->get_in_or_equal($optionids, SQL_PARAMS_NAMED);
                 $inparams['userid'] = $cp->userid;
-                $DB->delete_records_select('booking_teachers',
-                    "userid = :userid AND optionid $insql", $inparams);
+                $DB->delete_records_select(
+                    'booking_teachers',
+                    "userid = :userid AND optionid $insql",
+                    $inparams
+                );
             }
         }
     }
@@ -199,7 +201,6 @@ class mod_booking_observer {
 
         // If there are associated optiondates (sessions) then update their calendar events.
         if ($optiondates = $DB->get_records('booking_optiondates', ['optionid' => $optionid])) {
-
             // Delete course event if we have optiondates (multisession!).
             if ($settings->calendarid) {
                 $DB->delete_records('event', ['id' => $settings->calendarid]);
@@ -233,8 +234,12 @@ class mod_booking_observer {
             }
         }
 
-        $allteachers = $DB->get_fieldset_select('booking_teachers', 'userid', 'optionid = :optionid AND calendarid > 0',
-            [ 'optionid' => $event->objectid]);
+        $allteachers = $DB->get_fieldset_select(
+            'booking_teachers',
+            'userid',
+            'optionid = :optionid AND calendarid > 0',
+            [ 'optionid' => $event->objectid]
+        );
         foreach ($allteachers as $key => $value) {
             new calendar($event->contextinstanceid, $event->objectid, $value, calendar::MOD_BOOKING_TYPETEACHERUPDATE);
         }
@@ -258,21 +263,38 @@ class mod_booking_observer {
             return;
         }
 
-        new calendar($event->contextinstanceid, $optionid, 0,
-            calendar::MOD_BOOKING_TYPEOPTIONDATE, $event->objectid);
+        new calendar(
+            $event->contextinstanceid,
+            $optionid,
+            0,
+            calendar::MOD_BOOKING_TYPEOPTIONDATE,
+            $event->objectid
+        );
 
         $cmid = $event->contextinstanceid;
         $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
 
         $users = $bookingoption->get_all_users_booked();
         foreach ($users as $user) {
-            new calendar($event->contextinstanceid, $optionid, $user->userid,
-                calendar::MOD_BOOKING_TYPEOPTIONDATE, $event->objectid, 1);
+            new calendar(
+                $event->contextinstanceid,
+                $optionid,
+                $user->userid,
+                calendar::MOD_BOOKING_TYPEOPTIONDATE,
+                $event->objectid,
+                1
+            );
         }
         // Also create calendar events for teachers.
         foreach ($settings->teacherids as $teacherid) {
-            new calendar($event->contextinstanceid, $optionid, $teacherid,
-                calendar::MOD_BOOKING_TYPEOPTIONDATE, $event->objectid, 1);
+            new calendar(
+                $event->contextinstanceid,
+                $optionid,
+                $teacherid,
+                calendar::MOD_BOOKING_TYPEOPTIONDATE,
+                $event->objectid,
+                1
+            );
         }
     }
 
@@ -295,15 +317,11 @@ class mod_booking_observer {
         }
 
         try {
-
             // Send a message to the user who has completed the booking option (or who has been marked for completion).
             $bookingoption->sendmessage_completed($selecteduserid);
-
         } catch (coding_exception | dml_exception $e) {
-
             debugging('Booking option completion message could not be sent. ' .
                 'Exception in function observer.php/bookingoption_completed.');
-
         }
     }
 
@@ -327,7 +345,8 @@ class mod_booking_observer {
                 "SELECT cm.id FROM {course_modules} cm
                 JOIN {modules} md ON md.id = cm.module
                 JOIN {booking} m ON m.id = cm.instance
-                WHERE md.name = 'booking' AND cm.instance = ?", [$value->bookingid]
+                WHERE md.name = 'booking' AND cm.instance = ?",
+                [$value->bookingid]
             );
 
             // There are no calendar entries for whole booking options anymore. Only for optiondates!
@@ -337,8 +356,10 @@ class mod_booking_observer {
             // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
             // TODO: We have to re-write this function so all calendar entries of optiondates will get updated correctly.
 
-            $allteachers = $DB->get_records_sql("SELECT userid FROM {booking_teachers} WHERE optionid = ? AND calendarid > 0",
-                [$value->id]);
+            $allteachers = $DB->get_records_sql(
+                "SELECT userid FROM {booking_teachers} WHERE optionid = ? AND calendarid > 0",
+                [$value->id]
+            );
 
             foreach ($allteachers as $keyt => $valuet) {
                 new calendar($tmpcmid->id, $value->id, $valuet->userid, calendar::MOD_BOOKING_TYPETEACHERUPDATE);
@@ -368,8 +389,14 @@ class mod_booking_observer {
 
         // Create calendar events for the newly added teacher.
         foreach ($settings->sessions as $session) {
-            new calendar($cmid, $optionid, $teacherid,
-                calendar::MOD_BOOKING_TYPEOPTIONDATE, $session->id, 1);
+            new calendar(
+                $cmid,
+                $optionid,
+                $teacherid,
+                calendar::MOD_BOOKING_TYPEOPTIONDATE,
+                $session->id,
+                1
+            );
         }
     }
 
