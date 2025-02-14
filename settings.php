@@ -22,6 +22,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_booking\booking_option;
 use mod_booking\customfield\booking_handler;
 
 defined('MOODLE_INTERNAL') || die();
@@ -31,6 +32,7 @@ global $CFG, $DB, $ADMIN, $DB;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 require_once($CFG->dirroot . '/user/profile/lib.php');
 
+use mod_booking\booking;
 use mod_booking\price;
 use mod_booking\utils\wb_payment;
 
@@ -411,7 +413,7 @@ if ($ADMIN->fulltree) {
             'booking/definedresponsiblecontactrole',
             get_string('definedresponsiblecontactrole', 'mod_booking'),
             get_string('definedresponsiblecontactrole_desc', 'mod_booking'),
-            'definedresponsiblecontactrole',
+            0,
             $courseroleids
         )
     );
@@ -561,6 +563,23 @@ if ($ADMIN->fulltree) {
                 0
             )
         );
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/bookingstrackerpresencecounter',
+                get_string('bookingstrackerpresencecounter', 'mod_booking'),
+                get_string('bookingstrackerpresencecounter_desc', 'mod_booking'),
+                0
+            )
+        );
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/bookingstrackerpresencecountervaluetocount',
+                get_string('bookingstrackerpresencecountervaluetocount', 'mod_booking'),
+                get_string('bookingstrackerpresencecountervaluetocount_desc', 'mod_booking'),
+                0,
+                booking::get_possible_presences(true)
+            )
+        );
 
         // PRO feature: Teacher settings.
         $settings->add(
@@ -616,7 +635,7 @@ if ($ADMIN->fulltree) {
                 'booking/definedteacherrole',
                 get_string('definedteacherrole', 'mod_booking'),
                 get_string('definedteacherrole_desc', 'mod_booking'),
-                'definedteacherrole',
+                0,
                 $courseroleids
             )
         );

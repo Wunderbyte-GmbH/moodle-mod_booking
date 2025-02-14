@@ -188,6 +188,16 @@ class manageusers_table extends wunderbyte_table {
     }
 
     /**
+     * Return presence counter.
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_presencecnt(stdClass $values) {
+        return $values->presencecnt ?? '';
+    }
+
+    /**
      * Change number of rows. Uses the transmitaction pattern (actionbutton).
      * @param int $id
      * @param string $data

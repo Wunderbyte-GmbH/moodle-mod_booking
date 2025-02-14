@@ -547,6 +547,11 @@ $string['bookingstracker'] = "Bookings tracker";
 $string['bookingstracker_desc'] = "Here you can activate the bookings tracker.
 It allows authorized users to manage bookings for the entire site at various hierarchical booking levels
 (optiondates, booking options, booking instance, Moodle course, site-wide).";
+$string['bookingstrackerpresencecounter'] = 'Count presences at booking option level';
+$string['bookingstrackerpresencecounter_desc'] = 'Display a counter that shows the total number of presences at the booking option level.
+Define in the next setting which Presence status should be counted.';
+$string['bookingstrackerpresencecountervaluetocount'] = 'Presence status to count';
+$string['bookingstrackerpresencecountervaluetocount_desc'] = 'This presence status will be counted and displayed in the booking tracker at the booking option level.';
 $string['bookingsubbooking'] = "Subbooking";
 $string['bookingsubbookingadd'] = 'Add a subbooking';
 $string['bookingsubbookingdelete'] = 'Delete subbooking';
@@ -1728,6 +1733,7 @@ $string['populatefromtemplate'] = 'Populate from template';
 $string['potentialsubscribers'] = 'Potential subscribers';
 $string['prepareimport'] = "Prepare Import";
 $string['presence'] = "Presence";
+$string['presencecount'] = 'Presence count';
 $string['presenceoptions'] = "Options for attendance status";
 $string['presenceoptions_desc'] = "Which status should be possible?";
 $string['previous'] = 'Previous';

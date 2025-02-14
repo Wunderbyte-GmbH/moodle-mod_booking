@@ -505,7 +505,7 @@ $string['bookingplacesinfotexts'] = 'Beschreibungstexte für verfügbare Buchung
 $string['bookingplacesinfotextsinfo'] = 'Kurze Infotexte anstatt der konkreten Zahl verfügbarer Buchungsplätze anzeigen.';
 $string['bookingplaceslowmessage'] = 'Nur noch wenige Plätze verfügbar!';
 $string['bookingplaceslowpercentage'] = 'Buchungsplätze: Prozentsatz für "Nur noch wenige Plätze verfügbar"-Nachricht';
-$string['bookingplaceslowpercentagedesc'] = 'Wenn die Anzahl verfügbarer Buchungsplätze diesen Prozentsatz erreicht oder unter diesen Prozentsatz sinkt, wird eine Nachricht angezeigt, dass nur noch wenige Plätze verfügbar sind.';
+$string['bookingplaceslowpercentagedesc'] = 'Wenn die Anzahl verbookingstrackerpresencecounterfügbarer Buchungsplätze diesen Prozentsatz erreicht oder unter diesen Prozentsatz sinkt, wird eine Nachricht angezeigt, dass nur noch wenige Plätze verfügbar sind.';
 $string['bookingpoints'] = 'Kurspunkte';
 $string['bookingpolicy'] = 'Buchungsbedingungen - Booking Policy';
 $string['bookingpolicyagree'] = 'Ich habe die Buchungsbedingungen gelesen und erkläre mich damit einverstanden.';
@@ -536,6 +536,11 @@ $string['bookingstracker'] = "Buchungstracker";
 $string['bookingstracker_desc'] = "Hier können Sie den Buchungstracker aktivieren.
 Er erlaubt es berechtigten Benutzer/innen, die Buchungen der gesamten Seite auf verschiedenen hierarchischen Buchungsebenen
 (Termin, Buchungsoption, Buchungsinstanz, Moodle-Kurs, gesamte Plattform) zu verwalten.";
+$string['bookingstrackerpresencecounter'] = 'Anwesenheiten auf Buchungsoptions-Ebene zählen';
+$string['bookingstrackerpresencecounter_desc'] = 'Zähler anzeigen, der die Gesamtzahl der Anwesenheiten auf Buchungsoptions-Ebene anzeigt.
+Definieren Sie in der nächsten Einstellung, welcher Anwesenheitsstatus gezählt werden soll.';
+$string['bookingstrackerpresencecountervaluetocount'] = 'Anwesenheitsstatus, der gezählt werden soll';
+$string['bookingstrackerpresencecountervaluetocount_desc'] = 'Dieser Anwesenheitsstatus wird gezählt und im Buchungstracker auf Buchungsoptions-Ebene angezeigt.';
 $string['bookingsubbooking'] = "Zusatzbuchungen";
 $string['bookingsubbookingadd'] = 'Füge eine Zusatzbuchung hinzu';
 $string['bookingsubbookingdelete'] = 'Lösche Zusatzbuchung';
@@ -1727,6 +1732,7 @@ $string['populatefromtemplate'] = 'Mit Vorlage ausfüllen';
 $string['potentialsubscribers'] = 'Mögliche Nutzer:innen';
 $string['prepareimport'] = "Bereite den Import vor";
 $string['presence'] = "Anwesenheitsstatus";
+$string['presencecount'] = 'Anzahl der Anwesenheiten';
 $string['presenceoptions'] = "Möglicher Anwesenheitsstatus";
 $string['presenceoptions_desc'] = "Welcher Status soll zur Verfügung stehen?";
 $string['previous'] = 'Vorherige';

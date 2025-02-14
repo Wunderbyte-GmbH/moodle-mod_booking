@@ -104,16 +104,23 @@ class booked_users implements renderable, templatable {
             $bookedusersheaders[] = get_string('actions', 'mod_booking');
         } else {
             // Define columns and headers for the tables.
-            $bookeduserscols = ['name', 'action_delete'];
+            $bookeduserscols[] = 'name';
+            if (get_config('booking', 'bookingstrackerpresencecounter')) {
+                $bookeduserscols[] = 'presencecnt';
+            }
+            $bookeduserscols[] = 'action_delete';
+
             $waitinglistcols = ['name', 'action_confirm_delete'];
             $reserveduserscols = ['name', 'action_delete'];
             $userstonotifycols = ['name', 'action_delete'];
             $deleteduserscols = ['name', 'timemodified'];
 
-            $bookedusersheaders = [
-                get_string('user', 'core'),
-                get_string('delete', 'mod_booking'),
-            ];
+            $bookedusersheaders[] = get_string('user', 'core');
+            if (get_config('booking', 'bookingstrackerpresencecounter')) {
+                $bookedusersheaders[] = get_string('presencecount', 'mod_booking');
+            }
+            $bookedusersheaders[] = get_string('delete', 'mod_booking');
+
             $waitinglistheaders = [
                 get_string('user', 'core'),
                 get_string('delete', 'mod_booking'),

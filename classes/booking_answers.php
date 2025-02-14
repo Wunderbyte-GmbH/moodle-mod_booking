@@ -737,7 +737,7 @@ class booking_answers {
                     LEFT JOIN {booking_optiondates_answers} boda
                     ON bod.id = boda.optiondateid AND bo.id = boda.optionid AND ba.userid = boda.userid
                     WHERE bod.id = :optiondateid AND ba.waitinglist = :statusparam
-                    ORDER BY bod.coursestarttime, u.lastname, u.firstname ASC
+                    ORDER BY u.lastname, u.firstname, bod.coursestarttime ASC
                     LIMIT 10000000000
                 ) s1";
                 $params = [
@@ -747,6 +747,29 @@ class booking_answers {
                 break;
             case 'option':
                 $optionid = $scopeid;
+
+                $params = [
+                    'optionid' => $optionid,
+                    'statusparam' => $statusparam,
+                ];
+
+                // If presence counter is activated, we add that to SQL.
+                $selectpresencecnt = '';
+                $presencecntsqlpart = '';
+                if (get_config('booking', 'bookingstrackerpresencecounter')) {
+                    $selectpresencecnt = 'pcnt.presencecnt,';
+                    $presencecntsqlpart =
+                        "LEFT JOIN (
+                            SELECT boda.optionid, boda.userid, COUNT(*) AS presencecnt
+                            FROM {booking_optiondates_answers} boda
+                            WHERE boda.optionid = :optionid2 AND boda.status = :statustocount
+                            GROUP BY boda.optionid, boda.userid
+                        ) pcnt
+                        ON pcnt.optionid = ba.optionid AND pcnt.userid = u.id";
+                    $params['optionid2'] = $optionid;
+                    $params['statustocount'] = get_config('booking', 'bookingstrackerpresencecountervaluetocount');
+                }
+
                 // We need to set a limit for the query in mysqlfamily.
                 $fields = 's1.*, ROW_NUMBER() OVER (ORDER BY s1.timemodified, s1.id DESC) AS rank';
                 $from = "(
@@ -757,20 +780,18 @@ class booking_answers {
                         u.firstname,
                         u.lastname,
                         u.email,
+                        $selectpresencecnt
                         ba.timemodified,
                         ba.timecreated,
                         ba.optionid,
                         ba.json
                     FROM {booking_answers} ba
                     JOIN {user} u ON ba.userid = u.id
+                    $presencecntsqlpart
                     WHERE ba.optionid=:optionid AND ba.waitinglist=:statusparam
-                    ORDER BY ba.timemodified, ba.id ASC
+                    ORDER BY u.lastname DESC, u.firstname DESC, ba.timemodified DESC
                     LIMIT 10000000000
                 ) s1";
-                $params = [
-                    'optionid' => $optionid,
-                    'statusparam' => $statusparam,
-                ];
                 break;
             case 'instance':
                 $cmid = $scopeid;
