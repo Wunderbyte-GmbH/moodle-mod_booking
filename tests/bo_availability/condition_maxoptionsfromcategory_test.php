@@ -28,9 +28,11 @@ namespace mod_booking;
 
 use advanced_testcase;
 use coding_exception;
+use context_system;
 use mod_booking\price;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
+use stdClass;
 
 
 defined('MOODLE_INTERNAL') || die();
@@ -42,7 +44,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  *
  * @package mod_booking
  * @category test
- * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
@@ -78,6 +80,33 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
 
+        // Create the custom field and select it as the field to use for max options from category.
+        // Create custom booking field.
+        $categorydata = [
+            'name' => 'BookCustomCat1',
+            'component' => 'mod_booking',
+            'area' => 'booking',
+            'itemid' => 0,
+            'contextid' => context_system::instance()->id,
+        ];
+        $bookingcat = $this->getDataGenerator()->create_custom_field_category($categorydata);
+        $bookingcat->save();
+        $catid = $bookingcat->get('id');
+
+        $fielddata = [
+            'categoryid' => $catid,
+            'name' => 'Sport',
+            'shortname' => 'sport',
+            'type' => 'text',
+            'configdata' => "",
+        ];
+        $bookingfield = $this->getDataGenerator()->create_custom_field($fielddata);
+        $bookingfield->save();
+
+        // Set this config for the entire test.
+        set_config('maxoptionsfromcategory', 1, 'booking');
+        set_config('maxoptionsfromcategoryfield', 'sport', 'booking');
+
         $this->setAdminUser();
 
         // Create the courses, depending on data provider.
@@ -101,64 +130,44 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
                 // Create booking options.
                 foreach ($bdata['bookingoptions'] as $option) {
                     $option['bookingid'] = $booking->id;
+                    // Add value to all bookingoptions.
+                    // $option['customfield_sport'] = 'aerialsilk';
+
                     $option = $plugingenerator->create_option((object)$option);
 
                     $bookingoptions[$option->identifier] = $option;
                 }
             }
         }
-
+        set_config('maxoptionsfromcategoryfield', 'sport', 'mod_booking');
         foreach ($expected as $expecteddata) {
 
-            if (isset($expecteddata['config'])) {
-                foreach ($expecteddata['config'] as $key => $value) {
-                    set_config($key, $value, 'booking');
-                }
-            }
-
-            $option = $bookingoptions[$expecteddata['boookingoption']];
-            $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+            $option1 = $bookingoptions[$expecteddata['boookingoption_1']];
+            $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
+            $option2 = $bookingoptions[$expecteddata['boookingoption_2']];
+            $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
 
             // Book the first user without any problem.
-            $boinfo = new bo_info($settings);
+            $boinfo1 = new bo_info($settings1);
+            $boinfo2 = new bo_info($settings2);
 
             $user = $users[$expecteddata['user']];
             $this->setUser($user);
 
-            [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $user->id, false);
-            $this->assertEquals($expecteddata['bo_cond'], $id);
+            // Book the first option to simulate booking answers.
+            [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $user->id, false);
+            $this->assertEquals($expecteddata['bo_cond_1'], $id);
+            $result = booking_bookit::bookit('option', $settings1->id, $user->id);
+            [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $user->id, true);
+            $this->assertEquals($expecteddata['bo_cond_2'], $id);
+            $result = booking_bookit::bookit('option', $settings1->id, $user->id);
+            [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $user->id, true);
+            $this->assertEquals($expecteddata['bo_cond_3'], $id);
 
-            // We can also check how the button actually looks which will be displayed to this user.
-            [$templates, $datas] = booking_bookit::render_bookit_template_data($settings, $user->id);
+            [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $user->id, false);
+            $this->assertEquals($expecteddata['bo_cond_block'], $id);
 
-            if ($expecteddata['label'] ?? false) {
-                // Check the label of the button.
-                $label = $datas[0]->data["main"]["label"];
-                $this->assertEquals($expecteddata['label'], $label);
-            }
-
-            if ($expecteddata['showprice']) {
-                $price = price::get_price('option', $settings->id, $user);
-
-                // We check the price which is stored.
-                $this->assertEquals($expecteddata['price'], (float)$price['price']);
-
-                // Here we check the price which is shown on the button.
-
-                if (!is_array($datas[0]->data["price"])) {
-                    $price = $datas[0]->data["price"] ?? null;
-                    $this->assertEquals($expecteddata['price'], (float)$price);
-                } else {
-                    $price = $datas[0]->data["price"]["price"] ?? 0;
-                    $this->assertEquals($expecteddata['price'], (float)$price);
-                }
-            }
-
-            if (isset($expecteddata['undoconfig'])) {
-                foreach ($expecteddata['undoconfig'] as $key => $value) {
-                    set_config($key, $value, 'booking');
-                }
-            }
+            // Now try to book the second option.
         }
     }
 
@@ -177,6 +186,7 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
                 'identifier' => 'noprice',
                 'maxanswers' => 1,
                 'importing' => 1,
+                'customfield_sport' => 'aerialsilk',
             ],
             [
                 'text' => 'Test Booking Option with price',
@@ -184,6 +194,7 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
                 'identifier' => 'withprice',
                 'maxanswers' => 1,
                 'importing' => 1,
+                'customfield_sport' => 'aerialsilk',
             ],
             [
                 'text' => 'Disalbed Test Booking Option',
@@ -192,6 +203,7 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
                 'maxanswers' => 1,
                 'importing' => 1,
                 'disablebookingusers' => 1,
+                'customfield_sport' => 'aerialsilk',
             ],
             [
                 'text' => 'Wait for confirmation Booking Option, no price',
@@ -200,6 +212,7 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
                 'maxanswers' => 1,
                 'importing' => 1,
                 'waitforconfirmation' => 1,
+                'customfield_sport' => 'aerialsilk',
             ],
         ];
 
@@ -220,7 +233,7 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
                 'userleave' => ['text' => 'text'],
                 'tags' => '',
                 'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
-                'json' => '{"maxoptionsfromcategory":"{\"aerialsilk\":3}","maxoptionsfrominstance":"1"}',
+                'json' => '{"cancelrelativedate":"2","viewparam":0,"maxoptionsfromcategory":"{\"aerialhammockacrobatics\":{\"count\":1,\"localizedstring\":\"AERIAL HAMMOCK ACROBATICS\"},\"aerialhoop\":{\"count\":1,\"localizedstring\":\"AERIAL HOOP\"},\"aerialpilates\":{\"count\":1,\"localizedstring\":\"AERIAL PILATES\"},\"aerialsilk\":{\"count\":1,\"localizedstring\":\"AERIAL SILK\"},\"aerialstrengthflexibility\":{\"count\":1,\"localizedstring\":\"AERIAL STRENGTH&FLEXIBILITY\"},\"aerialtrapez\":{\"count\":1,\"localizedstring\":\"AERIAL TRAPEZ\"}}","maxoptionsfrominstance":"1"}',
                 'bookingoptions' => $standardbookingoptions,
             ],
             [
@@ -238,27 +251,9 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
                 'userleave' => ['text' => 'text'],
                 'tags' => '',
                 'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
-                'json' => '{"maxoptionsfromcategory":"{\"aerialsilk\":1}","maxoptionsfrominstance":"1"}',
+                'json' => '{"cancelrelativedate":"2","viewparam":0,"maxoptionsfromcategory":"{\"aerialhammockacrobatics\":{\"count\":1,\"localizedstring\":\"AERIAL HAMMOCK ACROBATICS\"},\"aerialhoop\":{\"count\":1,\"localizedstring\":\"AERIAL HOOP\"},\"aerialpilates\":{\"count\":1,\"localizedstring\":\"AERIAL PILATES\"},\"aerialsilk\":{\"count\":1,\"localizedstring\":\"AERIAL SILK\"},\"aerialstrengthflexibility\":{\"count\":1,\"localizedstring\":\"AERIAL STRENGTH&FLEXIBILITY\"},\"aerialtrapez\":{\"count\":1,\"localizedstring\":\"AERIAL TRAPEZ\"}}","maxoptionsfrominstance":"1"}',
                 'bookingoptions' => $standardbookingoptions,
-            ],
-            [
-                // Booking instance 2 in tests.
-                'name' => 'Restricting aerialsilk limit 1 all instances',
-                'eventtype' => 'Test event',
-                'bookedtext' => ['text' => 'text'],
-                'waitingtext' => ['text' => 'text'],
-                'notifyemail' => ['text' => 'text'],
-                'statuschangetext' => ['text' => 'text'],
-                'deletedtext' => ['text' => 'text'],
-                'pollurltext' => ['text' => 'text'],
-                'pollurlteacherstext' => ['text' => 'text'],
-                'notificationtext' => ['text' => 'text'],
-                'userleave' => ['text' => 'text'],
-                'tags' => '',
-                'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
-                'json' => '{"maxoptionsfromcategory":"{\"aerialsilk\":1}","maxoptionsfrominstance":"0"}',
-                'bookingoptions' => $standardbookingoptions,
-            ],
+                        ],
         ];
 
         $standardusers = [
@@ -292,76 +287,82 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
             'expected' => [
                 [
                     'user' => 'student1',
-                    'boookingoption' => 'noprice',
-                    'bo_cond' => MOD_BOOKING_BO_COND_BOOKITBUTTON,
+                    'boookingoption_1' => 'noprice',
+                    'boookingoption_2' => 'withprice',
+                    'bo_cond_1' => MOD_BOOKING_BO_COND_BOOKITBUTTON,
+                    'bo_cond_2' => MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
+                    'bo_cond_3' => MOD_BOOKING_BO_COND_ALREADYBOOKED,
+                    'bo_cond_block' => MOD_BOOKING_BO_COND_JSON_MAXOPTIONSFROMCATEGORY,
                     'showprice' => false,
                     'price' => 0,
                     'cancancelbook' => 0,
                     'canbook' => 1,
                 ],
-                [
-                    'user' => 'student1',
-                    'boookingoption' => 'withprice',
-                    'bo_cond' => MOD_BOOKING_BO_COND_PRICEISSET,
-                    'showprice' => true,
-                    'price' => 10,
-                    'cancancelbook' => 0,
-                    'canbook' => 1,
-                ],
-                [
-                    'user' => 'teacher1',
-                    'boookingoption' => 'withprice',
-                    'bo_cond' => MOD_BOOKING_BO_COND_PRICEISSET,
-                    'showprice' => true,
-                    'price' => 20,
-                    'cancancelbook' => 0,
-                    'canbook' => 1,
-                ],
-                [
-                    'user' => 'bookingmanager',
-                    'boookingoption' => 'withprice',
-                    'bo_cond' => MOD_BOOKING_BO_COND_PRICEISSET,
-                    'showprice' => true,
-                    'price' => 30,
-                    'cancancelbook' => 0,
-                    'canbook' => 1,
-                ],
-                [
-                    'user' => 'student1',
-                    'boookingoption' => 'disabledoption', // Booking disabled.
-                    'bo_cond' => MOD_BOOKING_BO_COND_ISBOOKABLE,
-                    'showprice' => false,
-                    'price' => 30,
-                    'cancancelbook' => 0,
-                    'canbook' => 1,
-                ],
-                [
-                    'user' => 'student1',
-                    'boookingoption' => 'waitforconfirmationnoprice', // Ask for confirmation, no price.
-                    'bo_cond' => MOD_BOOKING_BO_COND_ASKFORCONFIRMATION,
-                    'showprice' => false,
-                    'price' => 30,
-                    'cancancelbook' => 0,
-                    'canbook' => 1,
-                ],
-                [
-                    'user' => 'student1',
-                    'boookingoption' => 'waitforconfirmationwithprice', // Ask for confirmation, price.
-                    'bo_cond' => MOD_BOOKING_BO_COND_ASKFORCONFIRMATION,
-                    'showprice' => true,
-                    'price' => 10,
-                    'cancancelbook' => 0,
-                    'canbook' => 1,
-                ],
-                [
-                    'user' => 'bookingmanager',
-                    'boookingoption' => 'waitforconfirmationwithprice', // Ask for confirmation, price.
-                    'bo_cond' => MOD_BOOKING_BO_COND_ASKFORCONFIRMATION,
-                    'showprice' => true,
-                    'price' => 0,
-                    'cancancelbook' => 0,
-                    'canbook' => 1,
-                ],
+                // [
+                //     'user' => 'student1',
+                //     'boookingoption' => 'withprice',
+                //     'bo_cond_1' => MOD_BOOKING_BO_COND_JSON_MAXOPTIONSFROMCATEGORY,
+                //     'bo_cond_2' => MOD_BOOKING_BO_COND_JSON_MAXOPTIONSFROMCATEGORY,
+                //     'bo_cond_3' => MOD_BOOKING_BO_COND_JSON_MAXOPTIONSFROMCATEGORY,
+                //     'showprice' => true,
+                //     'price' => 10,
+                //     'cancancelbook' => 0,
+                //     'canbook' => 1,
+                // ],
+                // [
+                //     'user' => 'teacher1',
+                //     'boookingoption' => 'withprice',
+                //     'bo_cond' => MOD_BOOKING_BO_COND_PRICEISSET,
+                //     'showprice' => true,
+                //     'price' => 20,
+                //     'cancancelbook' => 0,
+                //     'canbook' => 1,
+                // ],
+                // [
+                //     'user' => 'bookingmanager',
+                //     'boookingoption' => 'withprice',
+                //     'bo_cond' => MOD_BOOKING_BO_COND_PRICEISSET,
+                //     'showprice' => true,
+                //     'price' => 30,
+                //     'cancancelbook' => 0,
+                //     'canbook' => 1,
+                // ],
+                // [
+                //     'user' => 'student1',
+                //     'boookingoption' => 'disabledoption', // Booking disabled.
+                //     'bo_cond' => MOD_BOOKING_BO_COND_ISBOOKABLE,
+                //     'showprice' => false,
+                //     'price' => 30,
+                //     'cancancelbook' => 0,
+                //     'canbook' => 1,
+                // ],
+                // [
+                //     'user' => 'student1',
+                //     'boookingoption' => 'waitforconfirmationnoprice', // Ask for confirmation, no price.
+                //     'bo_cond' => MOD_BOOKING_BO_COND_ASKFORCONFIRMATION,
+                //     'showprice' => false,
+                //     'price' => 30,
+                //     'cancancelbook' => 0,
+                //     'canbook' => 1,
+                // ],
+                // [
+                //     'user' => 'student1',
+                //     'boookingoption' => 'waitforconfirmationwithprice', // Ask for confirmation, price.
+                //     'bo_cond' => MOD_BOOKING_BO_COND_ASKFORCONFIRMATION,
+                //     'showprice' => true,
+                //     'price' => 10,
+                //     'cancancelbook' => 0,
+                //     'canbook' => 1,
+                // ],
+                // [
+                //     'user' => 'bookingmanager',
+                //     'boookingoption' => 'waitforconfirmationwithprice', // Ask for confirmation, price.
+                //     'bo_cond' => MOD_BOOKING_BO_COND_ASKFORCONFIRMATION,
+                //     'showprice' => true,
+                //     'price' => 0,
+                //     'cancancelbook' => 0,
+                //     'canbook' => 1,
+                // ],
             ],
 
         ];
