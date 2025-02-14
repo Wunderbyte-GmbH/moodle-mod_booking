@@ -50,7 +50,6 @@ require_once($CFG->libdir . '/externallib.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class bookings extends external_api {
-
     /**
      * Describes the parameters for booking.
      *
@@ -61,8 +60,7 @@ class bookings extends external_api {
             'courseid' => new external_value(PARAM_TEXT, 'Course id', VALUE_DEFAULT, ''),
             'printusers' => new external_value(PARAM_TEXT, 'Print user profiles', VALUE_DEFAULT, ''),
             'days' => new external_value(PARAM_TEXT, 'How old bookings to retrive - in days.', VALUE_DEFAULT, ''),
-            ]
-        );
+            ]);
     }
 
     /**
@@ -82,13 +80,14 @@ class bookings extends external_api {
 
         $returns = [];
 
-        $params = self::validate_parameters(self::execute_parameters(),
-            ['courseid' => $courseid, 'printusers' => $printusers, 'days' => $days]);
+        $params = self::validate_parameters(
+            self::execute_parameters(),
+            ['courseid' => $courseid, 'printusers' => $printusers, 'days' => $days]
+        );
 
         $bookings = $DB->get_records_select("booking", "course = {$courseid}");
 
         foreach ($bookings as $booking) {
-
             $ret = [];
             $cm = get_coursemodule_from_instance('booking', $booking->id);
 
@@ -108,8 +107,14 @@ class bookings extends external_api {
                     $bookingdata->apply_tags();
                     $context = context_module::instance($cm->id);
 
-                    $bookingdata->settings->intro = file_rewrite_pluginfile_urls($bookingdata->settings->intro,
-                        'pluginfile.php', $context->id, 'mod_booking', 'intro', 0);
+                    $bookingdata->settings->intro = file_rewrite_pluginfile_urls(
+                        $bookingdata->settings->intro,
+                        'pluginfile.php',
+                        $context->id,
+                        'mod_booking',
+                        'intro',
+                        0
+                    );
 
                     $manager = $DB->get_record('user', ['username' => $bookingdata->settings->bookingmanager]);
 
@@ -122,12 +127,17 @@ class bookings extends external_api {
                     $ret['points'] = $bookingdata->settings->points;
                     $ret['organizatorname'] = $bookingdata->settings->organizatorname;
                     $ret['eventtype'] = $bookingdata->settings->eventtype;
-                    $ret['bookingmanagerid'] = $manager->id;
-                    $ret['bookingmanagername'] = $manager->firstname;
-                    $ret['bookingmanagersurname'] = $manager->lastname;
-                    $ret['bookingmanageremail'] = $manager->email;
-                    $ret['myfilemanager'] = external_util::get_area_files($context->id,
-                        'mod_booking', 'myfilemanager', 0, false);
+                    $ret['bookingmanagerid'] = $manager->id ?? 0;
+                    $ret['bookingmanagername'] = $manager->firstname ?? '';
+                    $ret['bookingmanagersurname'] = $manager->lastname ?? '';
+                    $ret['bookingmanageremail'] = $manager->email ?? '';
+                    $ret['myfilemanager'] = external_util::get_area_files(
+                        $context->id,
+                        'mod_booking',
+                        'myfilemanager',
+                        0,
+                        false
+                    );
                     $ret['categories'] = [];
                     $ret['options'] = [];
 
@@ -146,7 +156,6 @@ class bookings extends external_api {
                     }
 
                     foreach ($bookingdata->get_all_options(0, 0, '', '*') as $record) {
-
                         $option = [];
                         $option['id'] = $record->id;
                         $option['text'] = $record->text;
@@ -161,12 +170,14 @@ class bookings extends external_api {
                         $option['users'] = [];
                         $option['teachers'] = [];
 
+                        $settings = singleton_service::get_instance_of_booking_option_settings($record->id);
+
                         if ($printusers) {
-                            $users = $DB->get_records('booking_answers',
-                                ['optionid' => $record->id]);
-                            foreach ($users as $user) {
+                            $ba = singleton_service::get_instance_of_booking_answers($settings);
+
+                            foreach ($ba->usersonlist as $user) {
                                 $tmpuser = [];
-                                $ruser = $DB->get_record('user', ['id' => $user->userid]);
+                                $ruser = singleton_service::get_instance_of_user((int)$user->userid);
                                 $tmpuser['id'] = $ruser->id;
                                 $tmpuser['username'] = $ruser->username;
                                 $tmpuser['firstname'] = $ruser->firstname;
@@ -177,18 +188,24 @@ class bookings extends external_api {
                             }
                         }
 
-                        $users = $DB->get_records('booking_teachers',
-                            ['bookingid' => $record->bookingid, 'optionid' => $record->id]);
-                        foreach ($users as $user) {
+                        foreach ($settings->teachers as $user) {
                             $teacher = [];
-                            $ruser = $DB->get_record('user', ['id' => $user->userid]);
-                            $teacher['id'] = $ruser->id;
-                            $teacher['username'] = $ruser->username;
-                            $teacher['firstname'] = $ruser->firstname;
-                            $teacher['lastname'] = $ruser->lastname;
-                            $teacher['email'] = $ruser->email;
+                            $teacher['id'] = $user->userid ?? '';
+                            $teacher['username'] = $user->username;
+                            $teacher['firstname'] = $user->firstname;
+                            $teacher['lastname'] = $user->lastname;
+                            $teacher['email'] = $user->email;
 
                             $option['teachers'][] = $teacher;
+                        }
+
+                        $option['sessions'] = [];
+                        foreach ($settings->sessions as $session) {
+                            $option['sessions'][] = [
+                                'id' => $session->id,
+                                'coursestarttime' => $session->coursestarttime,
+                                'courseendtime' => $session->courseendtime,
+                            ];
                         }
 
                         $ret['options'][] = $option;
@@ -258,6 +275,13 @@ class bookings extends external_api {
                                     'firstname' => new external_value(PARAM_TEXT, 'First name'),
                                     'lastname' => new external_value(PARAM_TEXT, 'First'),
                                     'email' => new external_value(PARAM_TEXT, 'Email'),
+                                ]
+                            )),
+                            'sessions' => new external_multiple_structure(new external_single_structure(
+                                [
+                                    'id' => new external_value(PARAM_INT, 'User ID', VALUE_OPTIONAL),
+                                    'coursestarttime' => new external_value(PARAM_INT, 'Coursestarttime', VALUE_OPTIONAL),
+                                    'courseendtime' => new external_value(PARAM_INT, 'Courseendtime', VALUE_OPTIONAL),
                                 ]
                             )),
                         ]
