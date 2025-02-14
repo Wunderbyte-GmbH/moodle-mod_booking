@@ -687,7 +687,8 @@ class booking_answers {
                 u.email,
                 ba.timemodified,
                 ba.timecreated,
-                ba.json
+                ba.json,
+                '" . $scope . "' AS scope
             FROM {booking_answers} ba
             JOIN {booking_options} bo ON bo.id = ba.optionid
             JOIN {user} u ON ba.userid = u.id
@@ -726,7 +727,8 @@ class booking_answers {
                         bo.text,
                         u.firstname,
                         u.lastname,
-                        u.email
+                        u.email,
+                        '" . $scope . "' AS scope
                     FROM {booking_optiondates} bod
                     JOIN {booking_options} bo
                     ON bo.id = bod.optionid
@@ -784,7 +786,8 @@ class booking_answers {
                         ba.timemodified,
                         ba.timecreated,
                         ba.optionid,
-                        ba.json
+                        ba.json,
+                        '" . $scope . "' AS scope
                     FROM {booking_answers} ba
                     JOIN {user} u ON ba.userid = u.id
                     $presencecntsqlpart

@@ -194,7 +194,14 @@ class manageusers_table extends wunderbyte_table {
      * @return string
      */
     public function col_presencecnt(stdClass $values) {
-        return $values->presencecnt ?? '';
+        // Todo: Continue here...
+        if ($values->scope == 'option') {
+            $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid);
+            $numberofoptiondates = count($settings->sessions);
+            return "<b>" . ($values->presencecnt ?? '0') . "</b>" . "/" . $numberofoptiondates;
+        } else {
+            return $values->presencecnt ?? '';
+        }
     }
 
     /**
