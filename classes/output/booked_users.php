@@ -82,83 +82,125 @@ class booked_users implements renderable, templatable {
         bool $showdeleted = false,
         int $cmid = 0
     ) {
-        if ($scope == 'optiondate') {
-            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
-            $enablepresence = $bookingsettings->enablepresence;
+        switch ($scope) {
+            case 'optiondate':
+                $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+                $enablepresence = $bookingsettings->enablepresence;
 
-            // For optiondates we only show booked users.
-            // Also, we have no delete action but presence tracking.
-            $bookeduserscols[] = 'lastname';
-            $bookedusersheaders[] = get_string('lastname', 'core');
-            $bookeduserscols[] = 'firstname';
-            $bookedusersheaders[] = get_string('firstname', 'core');
-            $bookeduserscols[] = 'email';
-            $bookedusersheaders[] = get_string('email', 'core');
-            if ($enablepresence) {
-                $bookeduserscols[] = 'status';
-                $bookedusersheaders[] = get_string('presence', 'mod_booking');
-            }
-            $bookeduserscols[] = 'notes';
-            $bookedusersheaders[] = get_string('notes', 'mod_booking');
-            $bookeduserscols[] = 'actions';
-            $bookedusersheaders[] = get_string('actions', 'mod_booking');
-        } else {
-            // Define columns and headers for the tables.
-            $bookeduserscols[] = 'name';
-            if (get_config('booking', 'bookingstrackerpresencecounter')) {
-                $bookeduserscols[] = 'presencecnt';
-            }
-            $bookeduserscols[] = 'action_delete';
+                // For optiondates we only show booked users.
+                // Also, we have no delete action but presence tracking.
+                $bookeduserscols[] = 'lastname';
+                $bookedusersheaders[] = get_string('lastname', 'core');
+                $bookeduserscols[] = 'firstname';
+                $bookedusersheaders[] = get_string('firstname', 'core');
+                $bookeduserscols[] = 'email';
+                $bookedusersheaders[] = get_string('email', 'core');
+                if ($enablepresence) {
+                    $bookeduserscols[] = 'status';
+                    $bookedusersheaders[] = get_string('presence', 'mod_booking');
+                }
+                $bookeduserscols[] = 'notes';
+                $bookedusersheaders[] = get_string('notes', 'mod_booking');
+                $bookeduserscols[] = 'actions';
+                $bookedusersheaders[] = get_string('actions', 'mod_booking');
+                break;
+            case 'option':
+                // Define columns and headers for the tables.
+                $bookeduserscols[] = 'lastname';
+                $bookedusersheaders[] = get_string('lastname', 'core');
+                $bookeduserscols[] = 'firstname';
+                $bookedusersheaders[] = get_string('firstname', 'core');
+                $bookeduserscols[] = 'email';
+                if (get_config('booking', 'bookingstrackerpresencecounter')) {
+                    $bookeduserscols[] = 'presencecount';
+                }
+                $bookeduserscols[] = 'action_delete';
 
-            $waitinglistcols = ['name', 'action_confirm_delete'];
-            $reserveduserscols = ['name', 'action_delete'];
-            $userstonotifycols = ['name', 'action_delete'];
-            $deleteduserscols = ['name', 'timemodified'];
+                $waitinglistcols = ['name', 'action_confirm_delete'];
+                $reserveduserscols = ['name', 'action_delete'];
+                $userstonotifycols = ['name', 'action_delete'];
+                $deleteduserscols = ['name', 'timemodified'];
 
-            $bookedusersheaders[] = get_string('user', 'core');
-            if (get_config('booking', 'bookingstrackerpresencecounter')) {
-                $bookedusersheaders[] = get_string('presencecount', 'mod_booking');
-            }
-            $bookedusersheaders[] = get_string('delete', 'mod_booking');
+                $bookedusersheaders[] = get_string('user', 'core');
+                if (get_config('booking', 'bookingstrackerpresencecounter')) {
+                    $bookedusersheaders[] = get_string('presencecount', 'mod_booking');
+                }
+                $bookedusersheaders[] = get_string('delete', 'mod_booking');
 
-            $waitinglistheaders = [
-                get_string('user', 'core'),
-                get_string('delete', 'mod_booking'),
-            ];
-            $reservedusersheaders = [
-                get_string('user', 'core'),
-                get_string('delete', 'mod_booking'),
-            ];
-            $userstonotifyheaders = [
-                get_string('user', 'core'),
-                get_string('delete', 'mod_booking'),
-            ];
-            $deletedusersheaders = [
-                get_string('user', 'core'),
-                get_string('date'),
-            ];
-        }
+                $waitinglistheaders = [
+                    get_string('user', 'core'),
+                    get_string('delete', 'mod_booking'),
+                ];
+                $reservedusersheaders = [
+                    get_string('user', 'core'),
+                    get_string('delete', 'mod_booking'),
+                ];
+                $userstonotifyheaders = [
+                    get_string('user', 'core'),
+                    get_string('delete', 'mod_booking'),
+                ];
+                $deletedusersheaders = [
+                    get_string('user', 'core'),
+                    get_string('date'),
+                ];
 
-        // If the scope contains more than one option...
-        // ...then we have to add an option column!
-        if (!in_array($scope, ['option', 'optiondate'])) {
-            array_unshift($bookeduserscols, 'option');
-            array_unshift($waitinglistcols, 'option');
-            array_unshift($reserveduserscols, 'option');
-            array_unshift($userstonotifycols, 'option');
-            array_unshift($deleteduserscols, 'option');
+                if (get_config('booking', 'waitinglistshowplaceonwaitinglist')) {
+                    array_unshift($waitinglistcols, 'rank');
+                    array_unshift($waitinglistheaders, get_string('rank', 'mod_booking'));
+                }
+                break;
+            case 'system':
+            case 'course':
+            case 'instance':
+            default:
+                // Define columns and headers for the tables.
+                $bookeduserscols = [];
+                $waitinglistcols = [];
+                $reserveduserscols = [];
+                $userstonotifycols = [];
+                $deleteduserscols = [];
+                $bookedusersheaders = [];
+                $waitinglistheaders = [];
+                $reservedusersheaders = [];
+                $userstonotifyheaders = [];
+                $deletedusersheaders = [];
 
-            array_unshift($bookedusersheaders, get_string('bookingoption', 'mod_booking'));
-            array_unshift($waitinglistheaders, get_string('bookingoption', 'mod_booking'));
-            array_unshift($reservedusersheaders, get_string('bookingoption', 'mod_booking'));
-            array_unshift($userstonotifyheaders, get_string('bookingoption', 'mod_booking'));
-            array_unshift($deletedusersheaders, get_string('bookingoption', 'mod_booking'));
-        } else if ($scope == 'option') {
-            // We are in 'option' scope.
-            if (get_config('booking', 'waitinglistshowplaceonwaitinglist')) {
-                array_unshift($waitinglistcols, 'rank');
-                array_unshift($waitinglistheaders, get_string('rank', 'mod_booking'));
-            }
+                $bookeduserscols[] = 'option';
+                if (get_config('booking', 'bookingstrackerpresencecounter')) {
+                    $bookeduserscols[] = 'presencecount';
+                }
+                $bookeduserscols[] = 'answerscount';
+
+                $waitinglistcols[] = 'option';
+                $waitinglistcols[] = 'answerscount';
+
+                $reserveduserscols[] = 'option';
+                $reserveduserscols[] = 'answerscount';
+
+                $userstonotifycols[] = 'option';
+                $userstonotifycols[] = 'answerscount';
+
+                $deleteduserscols[] = 'option';
+                $deleteduserscols[] = 'answerscount';
+
+                $bookedusersheaders[] = get_string('bookingoption', 'mod_booking');
+                if (get_config('booking', 'bookingstrackerpresencecounter')) {
+                    $bookedusersheaders[] = get_string('presencecount', 'mod_booking');
+                }
+                $bookedusersheaders[] = get_string('answerscount', 'mod_booking');
+
+                $waitinglistheaders[] = get_string('bookingoption', 'mod_booking');
+                $waitinglistheaders[] = get_string('answerscount', 'mod_booking');
+
+                $reservedusersheaders[] = get_string('bookingoption', 'mod_booking');
+                $reservedusersheaders[] = get_string('answerscount', 'mod_booking');
+
+                $userstonotifyheaders[] = get_string('bookingoption', 'mod_booking');
+                $userstonotifyheaders[] = get_string('answerscount', 'mod_booking');
+
+                $deletedusersheaders[] = get_string('bookingoption', 'mod_booking');
+                $deletedusersheaders[] = get_string('answerscount', 'mod_booking');
+                break;
         }
 
         $this->bookedusers = $showbooked ?

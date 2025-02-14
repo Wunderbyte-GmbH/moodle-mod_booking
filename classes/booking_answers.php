@@ -672,35 +672,36 @@ class booking_answers {
         global $DB;
         if (!in_array($scope, ["option", "optiondate"])) {
             $advancedsqlstart = "SELECT
-                ba.id,
+                ba.optionid AS id,
+                ba.optionid,
                 cm.id AS cmid,
                 c.id AS courseid,
                 c.fullname AS coursename,
-                ba.optionid,
                 bo.titleprefix,
                 bo.text,
                 b.name AS instancename,
-                u.id AS userid,
+                /* u.id AS userid,
                 u.username,
                 u.firstname,
                 u.lastname,
-                u.email,
-                ba.timemodified,
-                ba.timecreated,
-                ba.json,
-                '" . $scope . "' AS scope
+                u.email,*/
+                '" . $scope . "' AS scope,
+                count(ba.id) AS answerscount
             FROM {booking_answers} ba
             JOIN {booking_options} bo ON bo.id = ba.optionid
             JOIN {user} u ON ba.userid = u.id
             JOIN {course_modules} cm ON bo.bookingid = cm.instance
             JOIN {booking} b ON b.id = bo.bookingid
             JOIN {course} c ON c.id = b.course
-            JOIN {modules} m ON m.id = cm.module
-            WHERE
+            JOIN {modules} m ON m.id = cm.module";
+
+            $advancedsqlwhere = "WHERE
                 m.name = 'booking'
                 AND ba.waitinglist = :statusparam";
 
-            $advancedsqlend = "ORDER BY bo.titleprefix, bo.text, ba.timemodified, ba.id ASC
+            $advancedsqlgroupby = "GROUP BY cm.id, c.id, c.fullname, ba.optionid, bo.titleprefix, bo.text, b.name";
+
+            $advancedsqlend = "ORDER BY bo.titleprefix, bo.text ASC
                 LIMIT 10000000000";
         }
 
@@ -756,13 +757,13 @@ class booking_answers {
                 ];
 
                 // If presence counter is activated, we add that to SQL.
-                $selectpresencecnt = '';
-                $presencecntsqlpart = '';
+                $selectpresencecount = '';
+                $presencecountsqlpart = '';
                 if (get_config('booking', 'bookingstrackerpresencecounter')) {
-                    $selectpresencecnt = 'pcnt.presencecnt,';
-                    $presencecntsqlpart =
+                    $selectpresencecount = 'pcnt.presencecount,';
+                    $presencecountsqlpart =
                         "LEFT JOIN (
-                            SELECT boda.optionid, boda.userid, COUNT(*) AS presencecnt
+                            SELECT boda.optionid, boda.userid, COUNT(*) AS presencecount
                             FROM {booking_optiondates_answers} boda
                             WHERE boda.optionid = :optionid2 AND boda.status = :statustocount
                             GROUP BY boda.optionid, boda.userid
@@ -782,7 +783,7 @@ class booking_answers {
                         u.firstname,
                         u.lastname,
                         u.email,
-                        $selectpresencecnt
+                        $selectpresencecount
                         ba.timemodified,
                         ba.timecreated,
                         ba.optionid,
@@ -790,7 +791,7 @@ class booking_answers {
                         '" . $scope . "' AS scope
                     FROM {booking_answers} ba
                     JOIN {user} u ON ba.userid = u.id
-                    $presencecntsqlpart
+                    $presencecountsqlpart
                     WHERE ba.optionid=:optionid AND ba.waitinglist=:statusparam
                     ORDER BY u.lastname DESC, u.firstname DESC, ba.timemodified DESC
                     LIMIT 10000000000
@@ -801,7 +802,9 @@ class booking_answers {
                 $fields = 's1.*';
                 $from = "(
                     $advancedsqlstart
+                    $advancedsqlwhere
                     AND cm.id = :cmid
+                    $advancedsqlgroupby
                     $advancedsqlend
                 ) s1";
                 $params = [
@@ -814,7 +817,9 @@ class booking_answers {
                 $fields = 's1.*';
                 $from = "(
                     $advancedsqlstart
+                    $advancedsqlwhere
                     AND c.id = :courseid
+                    $advancedsqlgroupby
                     $advancedsqlend
                 ) s1";
                 $params = [
@@ -827,6 +832,8 @@ class booking_answers {
                 $fields = 's1.*';
                 $from = "(
                     $advancedsqlstart
+                    $advancedsqlwhere
+                    $advancedsqlgroupby
                     $advancedsqlend
                 ) s1";
                 $params = [

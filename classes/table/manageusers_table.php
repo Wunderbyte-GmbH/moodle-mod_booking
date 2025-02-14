@@ -108,7 +108,7 @@ class manageusers_table extends wunderbyte_table {
         $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid);
 
         // Render col_teacher using a template.
-        $data = new col_teacher($values->id, $settings);
+        $data = new col_teacher($values->optionid, $settings);
         /** @var renderer $output */
         $output = singleton_service::get_renderer('mod_booking');
         $teachers = $output->render_col_teacher($data);
@@ -136,7 +136,7 @@ class manageusers_table extends wunderbyte_table {
         );
 
         $data = [
-            'id' => $values->id,
+            'id' => $values->optionid,
             'titleprefix' => $values->titleprefix,
             'title' => $values->text,
             'optionlink' => $optionlink->out(false),
@@ -193,15 +193,28 @@ class manageusers_table extends wunderbyte_table {
      * @param stdClass $values
      * @return string
      */
-    public function col_presencecnt(stdClass $values) {
+    public function col_presencecount(stdClass $values) {
+        if ($this->is_downloading()) {
+            return $values->presencecount ?? '';
+        }
         // Todo: Continue here...
         if ($values->scope == 'option') {
             $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid);
             $numberofoptiondates = count($settings->sessions);
-            return "<b>" . ($values->presencecnt ?? '0') . "</b>" . "/" . $numberofoptiondates;
+            return "<b>" . ($values->presencecount ?? '0') . "</b>" . "/" . $numberofoptiondates;
         } else {
-            return $values->presencecnt ?? '';
+            return $values->presencecount ?? '';
         }
+    }
+
+    /**
+     * Return count of booking answers.
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_answerscount(stdClass $values) {
+        return $values->answerscount ?? '';
     }
 
     /**

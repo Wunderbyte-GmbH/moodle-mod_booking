@@ -102,6 +102,7 @@ $string['andotherfield'] = "AND additional field";
 $string['annotation'] = 'Internal annotation';
 $string['answer'] = "Answer";
 $string['answered'] = 'Answered';
+$string['answerscount'] = "Number of bookings";
 $string['appearancesettings'] = 'Appearance ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['appearancesettings_desc'] = 'Configure the appearance of the booking plugin.';
 $string['apply'] = 'Apply';
@@ -547,11 +548,11 @@ $string['bookingstracker'] = "Bookings tracker";
 $string['bookingstracker_desc'] = "Here you can activate the bookings tracker.
 It allows authorized users to manage bookings for the entire site at various hierarchical booking levels
 (optiondates, booking options, booking instance, Moodle course, site-wide).";
-$string['bookingstrackerpresencecounter'] = 'Count presences at booking option level';
-$string['bookingstrackerpresencecounter_desc'] = 'Display a counter that shows the total number of presences at the booking option level.
-Define in the next setting which Presence status should be counted.';
+$string['bookingstrackerpresencecounter'] = 'Count presences';
+$string['bookingstrackerpresencecounter_desc'] = 'Display a counter that shows the total number of presences.
+Define in the next setting which presence status should be counted.';
 $string['bookingstrackerpresencecountervaluetocount'] = 'Presence status to count';
-$string['bookingstrackerpresencecountervaluetocount_desc'] = 'This presence status will be counted and displayed in the booking tracker at the booking option level.';
+$string['bookingstrackerpresencecountervaluetocount_desc'] = 'This presence status will be counted and displayed in the booking tracker.';
 $string['bookingsubbooking'] = "Subbooking";
 $string['bookingsubbookingadd'] = 'Add a subbooking';
 $string['bookingsubbookingdelete'] = 'Delete subbooking';

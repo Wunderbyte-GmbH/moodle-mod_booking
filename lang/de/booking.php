@@ -101,6 +101,7 @@ $string['andotherfield'] = "UND weiteres Feld";
 $string['annotation'] = 'Interne Anmerkung';
 $string['answer'] = "Antwort";
 $string['answered'] = 'Beantwortet';
+$string['answerscount'] = "Anzahl der Buchungen";
 $string['appearancesettings'] = 'Darstellung ' . '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['appearancesettings_desc'] = 'Passen Sie die Darstellung des Buchungsplugins an.';
 $string['apply'] = 'Anwenden';
@@ -536,11 +537,11 @@ $string['bookingstracker'] = "Buchungstracker";
 $string['bookingstracker_desc'] = "Hier können Sie den Buchungstracker aktivieren.
 Er erlaubt es berechtigten Benutzer/innen, die Buchungen der gesamten Seite auf verschiedenen hierarchischen Buchungsebenen
 (Termin, Buchungsoption, Buchungsinstanz, Moodle-Kurs, gesamte Plattform) zu verwalten.";
-$string['bookingstrackerpresencecounter'] = 'Anwesenheiten auf Buchungsoptions-Ebene zählen';
-$string['bookingstrackerpresencecounter_desc'] = 'Zähler anzeigen, der die Gesamtzahl der Anwesenheiten auf Buchungsoptions-Ebene anzeigt.
+$string['bookingstrackerpresencecounter'] = 'Anwesenheiten zählen';
+$string['bookingstrackerpresencecounter_desc'] = 'Zähler anzeigen, der die Gesamtzahl der Anwesenheiten anzeigt.
 Definieren Sie in der nächsten Einstellung, welcher Anwesenheitsstatus gezählt werden soll.';
 $string['bookingstrackerpresencecountervaluetocount'] = 'Anwesenheitsstatus, der gezählt werden soll';
-$string['bookingstrackerpresencecountervaluetocount_desc'] = 'Dieser Anwesenheitsstatus wird gezählt und im Buchungstracker auf Buchungsoptions-Ebene angezeigt.';
+$string['bookingstrackerpresencecountervaluetocount_desc'] = 'Die Anzahl der Anwesenheiten wird für den ausgewählten Status gezählt und im Buchungstracker angezeigt.';
 $string['bookingsubbooking'] = "Zusatzbuchungen";
 $string['bookingsubbookingadd'] = 'Füge eine Zusatzbuchung hinzu';
 $string['bookingsubbookingdelete'] = 'Lösche Zusatzbuchung';
