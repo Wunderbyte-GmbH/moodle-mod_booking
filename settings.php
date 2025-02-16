@@ -494,6 +494,15 @@ if ($ADMIN->fulltree) {
         )
     );
 
+    $settings->add(
+        new admin_setting_configcheckbox(
+            'booking/alwaysshowlinkondetailspage',
+            get_string('alwaysshowlinkondetailspage', 'mod_booking'),
+            get_string('alwaysshowlinkondetailspage_desc', 'mod_booking'),
+            0
+        )
+    );
+
     $coloroptions = [
         'primary' => get_string('cdo:buttoncolor:primary', 'mod_booking'),
         'secondary' => get_string('cdo:buttoncolor:secondary', 'mod_booking'),
