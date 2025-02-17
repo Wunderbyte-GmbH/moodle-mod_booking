@@ -680,20 +680,23 @@ class booking_answers {
                 bo.titleprefix,
                 bo.text,
                 b.name AS instancename,
-                /* u.id AS userid,
-                u.username,
-                u.firstname,
-                u.lastname,
-                u.email,*/
-                '" . $scope . "' AS scope,
-                count(ba.id) AS answerscount
+                COUNT(ba.id) answerscount,
+                SUM(pcnt.presencecount) presencecount,
+                '" . $scope . "' AS scope
             FROM {booking_answers} ba
             JOIN {booking_options} bo ON bo.id = ba.optionid
             JOIN {user} u ON ba.userid = u.id
             JOIN {course_modules} cm ON bo.bookingid = cm.instance
             JOIN {booking} b ON b.id = bo.bookingid
             JOIN {course} c ON c.id = b.course
-            JOIN {modules} m ON m.id = cm.module";
+            JOIN {modules} m ON m.id = cm.module
+            LEFT JOIN (
+                SELECT boda.optionid, boda.userid, COUNT(*) AS presencecount
+                FROM {booking_optiondates_answers} boda
+                WHERE boda.status = :statustocount
+                GROUP BY boda.optionid, boda.userid
+            ) pcnt
+            ON pcnt.optionid = ba.optionid AND pcnt.userid = u.id";
 
             $advancedsqlwhere = "WHERE
                 m.name = 'booking'
@@ -810,6 +813,7 @@ class booking_answers {
                 $params = [
                     'cmid' => $cmid,
                     'statusparam' => $statusparam,
+                    'statustocount' => get_config('booking', 'bookingstrackerpresencecountervaluetocount'),
                 ];
                 break;
             case 'course':
@@ -825,6 +829,7 @@ class booking_answers {
                 $params = [
                     'courseid' => $courseid,
                     'statusparam' => $statusparam,
+                    'statustocount' => get_config('booking', 'bookingstrackerpresencecountervaluetocount'),
                 ];
                 break;
             case 'system':
@@ -838,6 +843,7 @@ class booking_answers {
                 ) s1";
                 $params = [
                     'statusparam' => $statusparam,
+                    'statustocount' => get_config('booking', 'bookingstrackerpresencecountervaluetocount'),
                 ];
                 break;
         }
