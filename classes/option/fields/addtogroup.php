@@ -38,7 +38,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class addtogroup extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -90,7 +89,8 @@ class addtogroup extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         return [];
     }
@@ -111,7 +111,6 @@ class addtogroup extends field_base {
         $fieldstoinstanciate = [],
         $applyheader = true
     ) {
-
     }
 
     /**
@@ -127,12 +126,11 @@ class addtogroup extends field_base {
         $optionid = $option->id;
 
         if (!empty($cmid)) {
-
             $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
 
             if (!empty($bookingsettings->addtogroup) && !empty($option->courseid)) {
                 $bo = singleton_service::get_instance_of_booking_option($cmid, $optionid);
-                // TODO: This looks kind of strange. Was this copied from legacy code? Does it still work?
+                // Todo: This looks kind of strange. Was this copied from legacy code? Does it still work?
                 // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
                 /* $bo->option->courseid = $optionsettings->courseid; */
                 $option->groupid = $bo->create_group($option);

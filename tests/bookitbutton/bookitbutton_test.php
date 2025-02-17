@@ -31,15 +31,13 @@ use coding_exception;
 use mod_booking\price;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
-use local_shopping_cart\shopping_cart;
-use local_shopping_cart\shopping_cart_history;
-use local_shopping_cart\local\cartstore;
-use local_shopping_cart\output\shoppingcart_history_list;
 use stdClass;
+use context_system;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
+require_once($CFG->dirroot . '/cohort/lib.php');
 
 /**
  * Class handling tests for booking options.
@@ -96,6 +94,14 @@ final class bookitbutton_test extends advanced_testcase {
 
         $this->setAdminUser();
 
+        // Create test cohort (global group).
+        $cohort = new stdClass();
+        $cohort->name = 'Test Cohort';
+        $cohort->idnumber = 'testcohort';
+        $cohort->contextid = context_system::instance()->id; // Generally, cohorts are created in the system context.
+        $cohort->id = cohort_add_cohort($cohort); // Add the cohort to the database and get the ID.
+
+
         // Create the courses, depending on data provider.
         foreach ($coursedata as $coursearray) {
             $course = $this->getDataGenerator()->create_course((object)$coursearray);
@@ -120,6 +126,13 @@ final class bookitbutton_test extends advanced_testcase {
                         $students[$student->username] = $student;
                         $this->getDataGenerator()->enrol_user($student->id, $course->id);
                         $users[$student->username] = $student;
+                        // The student is part of only one cohort.
+                        cohort_add_member($cohort->id, $student->id);
+                        // Verify that the student user is added to the cohort.
+                        $this->assertTrue(
+                            cohort_is_member($cohort->id, $student->id),
+                            'Student is part of testcohort.'
+                        );
                         break;
                 }
             }
@@ -140,7 +153,6 @@ final class bookitbutton_test extends advanced_testcase {
         }
 
         foreach ($expected as $expecteddata) {
-
             if (isset($expecteddata['config'])) {
                 foreach ($expecteddata['config'] as $key => $value) {
                     set_config($key, $value, 'booking');
@@ -284,6 +296,18 @@ final class bookitbutton_test extends advanced_testcase {
                 'staff' => 0,
                 'importing' => 1,
                 'waitforconfirmation' => 1,
+            ],
+            [
+                'text' => 'Blocked by enrolledincohorts',
+                'description' => 'Test enrolledincohorts availability condition',
+                'identifier' => 'enrolledincohorts',
+                'maxanswers' => 1,
+                'useprice' => 0,
+                'default' => 10,
+                'student' => 10,
+                'staff' => 10,
+                'importing' => 1,
+                'boavenrolledincohorts' => 'testcohort',
             ],
         ];
 
@@ -441,6 +465,25 @@ final class bookitbutton_test extends advanced_testcase {
                     'boookingoption' => 'waitforconfirmationwithprice', // Ask for confirmation, price.
                     'bo_cond' => MOD_BOOKING_BO_COND_ASKFORCONFIRMATION,
                     'showprice' => true,
+                    'price' => 0,
+                    'cancancelbook' => 0,
+                    'canbook' => 1,
+                ],
+                [
+                    'user' => 'student1',
+                    'boookingoption' => 'enrolledincohorts', // Student1 is part of cohort, so only price may block.
+                    'bo_cond' => MOD_BOOKING_BO_COND_PRICEISSET,
+                    'showprice' => false,
+                    'price' => 0,
+                    'cancancelbook' => 0,
+                    'canbook' => 1,
+                ],
+                [
+                    'user' => 'bookingmanager',
+                    'boookingoption' => 'enrolledincohorts',
+                    // Booking manager user is not part of cohort, so the cohort condition blocks.
+                    'bo_cond' => MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOHORTS,
+                    'showprice' => false,
                     'price' => 0,
                     'cancancelbook' => 0,
                     'canbook' => 1,

@@ -40,7 +40,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class availability extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -73,6 +72,7 @@ class availability extends field_base {
      */
     public static $alternativeimportidentifiers = [
         'boavenrolledincourse',
+        'boavenrolledincohorts',
         'bo_cond_customform_restrict',
     ];
 
@@ -100,7 +100,8 @@ class availability extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         // Save the additional JSON conditions (the ones which have been added to the mform).
         bo_info::save_json_conditions_from_form($formdata);
@@ -136,7 +137,7 @@ class availability extends field_base {
 
         $optionid = $formdata['id'];
 
-        // TODO: expert/simple mode needs to work with this too!
+        // Todo: expert/simple mode needs to work with this too!
         // Add availability conditions.
         bo_info::add_conditions_to_mform($mform, $optionid);
     }
@@ -163,10 +164,9 @@ class availability extends field_base {
 
             // On importing, we support the boavenrolledincourse key.
             if (!empty($data->boavenrolledincourse)) {
-
                 $items = explode(',', $data->boavenrolledincourse);
 
-                list($inorequal, $params) = $DB->get_in_or_equal($items, SQL_PARAMS_NAMED);
+                [$inorequal, $params] = $DB->get_in_or_equal($items, SQL_PARAMS_NAMED);
                 $sql = "SELECT id
                         FROM {course}
                         WHERE shortname $inorequal";
@@ -180,6 +180,22 @@ class availability extends field_base {
                 unset($data->boavenrolledincourse);
                 unset($data->boavenrolledincourseoperator);
             }
+            // We do the some for the boavenrolledincohorts key.
+            if (!empty($data->boavenrolledincohorts)) {
+                $items = explode(',', $data->boavenrolledincohorts);
+                [$inorequal, $params] = $DB->get_in_or_equal($items, SQL_PARAMS_NAMED);
+                $sql = "SELECT id
+                        FROM {cohort}
+                        WHERE idnumber $inorequal";
+                $cohorts = $DB->get_records_sql($sql, $params);
+
+                $data->bo_cond_enrolledincohorts_cohortids = array_keys($cohorts);
+                $data->bo_cond_enrolledincohorts_restrict = 1;
+                // The operator defaults to "OR", but can be set via the boavenrolledincourseoperator column.
+                $data->bo_cond_enrolledincohorts_cohortids_operator = $data->boavenrolledincohortsoperator ?? 'OR';
+                unset($data->boavenrolledincohorts);
+                unset($data->boavenrolledincohortsoperator);
+            }
         } else {
             $availability = $settings->availability ?? "{}";
             bookingopeningtime::set_data($data, $settings);
@@ -190,7 +206,6 @@ class availability extends field_base {
             $jsonobject = json_decode($availability);
             bo_info::set_defaults($data, $jsonobject);
         }
-
     }
 
     /**

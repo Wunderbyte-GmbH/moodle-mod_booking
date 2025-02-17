@@ -46,7 +46,6 @@ require_once($CFG->dirroot . '/cohort/lib.php');
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class enrolledincohorts implements bo_condition {
-
     /** @var int $id set via json during construction */
     public $id = MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOHORTS;
 
@@ -171,7 +170,6 @@ class enrolledincohorts implements bo_condition {
         $usercohorts = singleton_service::get_cohorts_of_user($USER->id);
         $databasetype = $DB->get_dbfamily();
         if (empty($usercohorts)) {
-
             if ($databasetype == 'postgres') {
                 $where = "
                     availability IS NOT NULL
@@ -191,7 +189,7 @@ class enrolledincohorts implements bo_condition {
         if ($databasetype == 'postgres') {
             // Appended as string for DB syntax reasons.
             $appendwhere1 = "";
-            $cohortids = array_map(fn($c) => '"' . $c->id. '"', $usercohorts);
+            $cohortids = array_map(fn($c) => '"' . $c->id . '"', $usercohorts);
             $appendwhere1 = implode(', ', $cohortids);
 
             $cohorts = [];
@@ -230,7 +228,6 @@ class enrolledincohorts implements bo_condition {
             ))";
             return ['', '', '', [], $where];
         } else if ($databasetype == 'mysql') {
-
             $andcases = '';
             foreach (array_keys($usercohorts) as $cohortid) {
                 $andcases .= "
@@ -330,16 +327,18 @@ class enrolledincohorts implements bo_condition {
 
         // Check if PRO version is activated.
         if (wb_payment::pro_version_is_activated()) {
-
             $cohortssarray = [];
 
             $cohorts = cohort_get_all_cohorts(0, 500);
 
             if ($cohorts) {
-
                 if ($cohorts["totalcohorts"] > count($cohorts["cohorts"])) {
-                    $mform->addElement('static', 'bo_cond_enrolledincohorts_warning', '',
-                    get_string('bocondenrolledincohortswarning', 'mod_booking'));
+                    $mform->addElement(
+                        'static',
+                        'bo_cond_enrolledincohorts_warning',
+                        '',
+                        get_string('bocondenrolledincohortswarning', 'mod_booking')
+                    );
                 }
 
                 foreach ($cohorts['cohorts'] as $cohortrecord) {
@@ -348,8 +347,11 @@ class enrolledincohorts implements bo_condition {
                 }
             }
 
-            $mform->addElement('advcheckbox', 'bo_cond_enrolledincohorts_restrict',
-                    get_string('bocondenrolledincohorts', 'mod_booking'));
+            $mform->addElement(
+                'advcheckbox',
+                'bo_cond_enrolledincohorts_restrict',
+                get_string('bocondenrolledincohorts', 'mod_booking')
+            );
 
             $enrolledincohortsoptions = [
                 'tags' => false,
@@ -361,8 +363,13 @@ class enrolledincohorts implements bo_condition {
                 'AND' => get_string('overrideoperator:and', 'mod_booking'),
             ];
 
-            $mform->addElement('autocomplete', 'bo_cond_enrolledincohorts_cohortids',
-                get_string('cohorts', 'mod_booking'), $cohortssarray, $enrolledincohortsoptions);
+            $mform->addElement(
+                'autocomplete',
+                'bo_cond_enrolledincohorts_cohortids',
+                get_string('cohorts', 'mod_booking'),
+                $cohortssarray,
+                $enrolledincohortsoptions
+            );
             $mform->hideIf('bo_cond_enrolledincohorts_cohortids', 'bo_cond_enrolledincohorts_restrict', 'notchecked');
 
             $cohortoperator = [
@@ -370,27 +377,44 @@ class enrolledincohorts implements bo_condition {
                 'AND' => get_string('allcohortsmustbefound', 'mod_booking'),
             ];
 
-            $mform->addElement('select', 'bo_cond_enrolledincohorts_cohortids_operator',
-            get_string('overrideoperator', 'mod_booking'), $cohortoperator);
+            $mform->addElement(
+                'select',
+                'bo_cond_enrolledincohorts_cohortids_operator',
+                get_string('overrideoperator', 'mod_booking'),
+                $cohortoperator
+            );
             $mform->setDefault('bo_cond_enrolledincohorts_cohortids_operator', 'OR');
             $mform->hideIf('bo_cond_enrolledincohorts_cohortids_operator', 'bo_cond_enrolledincohorts_restrict', 'notchecked');
 
-            $mform->addElement('advcheckbox', 'bo_cond_enrolledincohorts_sqlfiltercheck',
-                get_string('sqlfiltercheckstring', 'mod_booking'));
+            $mform->addElement(
+                'advcheckbox',
+                'bo_cond_enrolledincohorts_sqlfiltercheck',
+                get_string('sqlfiltercheckstring', 'mod_booking')
+            );
             $mform->hideIf('bo_cond_enrolledincohorts_sqlfiltercheck', 'bo_cond_enrolledincohorts_restrict', 'notchecked');
 
-            $mform->addElement('advcheckbox', 'bo_cond_enrolledincohorts_overrideconditioncheckbox',
-                get_string('overrideconditioncheckbox', 'mod_booking'));
+            $mform->addElement(
+                'advcheckbox',
+                'bo_cond_enrolledincohorts_overrideconditioncheckbox',
+                get_string('overrideconditioncheckbox', 'mod_booking')
+            );
             $mform->hideIf(
                 'bo_cond_enrolledincohorts_overrideconditioncheckbox',
                 'bo_cond_enrolledincohorts_restrict',
                 'notchecked'
             );
 
-            $mform->addElement('select', 'bo_cond_enrolledincohorts_overrideoperator',
-                get_string('overrideoperator', 'mod_booking'), $overrideoperators);
-            $mform->hideIf('bo_cond_enrolledincohorts_overrideoperator',
-                'bo_cond_enrolledincohorts_overrideconditioncheckbox', 'notchecked');
+            $mform->addElement(
+                'select',
+                'bo_cond_enrolledincohorts_overrideoperator',
+                get_string('overrideoperator', 'mod_booking'),
+                $overrideoperators
+            );
+            $mform->hideIf(
+                'bo_cond_enrolledincohorts_overrideoperator',
+                'bo_cond_enrolledincohorts_overrideconditioncheckbox',
+                'notchecked'
+            );
 
             $overrideconditions = bo_info::get_conditions(MOD_BOOKING_CONDPARAM_CANBEOVERRIDDEN);
             $overrideconditionsarray = [];
@@ -418,9 +442,11 @@ class enrolledincohorts implements bo_condition {
                             $currentclassname = $jsoncondition->class;
                             $currentcondition = $currentclassname::instance();
                             // Currently conditions of the same type cannot be combined with each other.
-                            if ($jsoncondition->id != $this->id
+                            if (
+                                $jsoncondition->id != $this->id
                                 && isset($currentcondition->overridable)
-                                && ($currentcondition->overridable == true)) {
+                                && ($currentcondition->overridable == true)
+                            ) {
                                 $overrideconditionsarray[$jsoncondition->id] = get_string('bocond' .
                                     str_replace("_", "", $jsoncondition->name), 'mod_booking'); // Remove underscroll.
                             }
@@ -434,16 +460,26 @@ class enrolledincohorts implements bo_condition {
                 'tags' => false,
                 'multiple' => true,
             ];
-            $mform->addElement('autocomplete', 'bo_cond_enrolledincohorts_overridecondition',
-                get_string('overridecondition', 'mod_booking'), $overrideconditionsarray, $options);
-            $mform->hideIf('bo_cond_enrolledincohorts_overridecondition',
+            $mform->addElement(
+                'autocomplete',
+                'bo_cond_enrolledincohorts_overridecondition',
+                get_string('overridecondition', 'mod_booking'),
+                $overrideconditionsarray,
+                $options
+            );
+            $mform->hideIf(
+                'bo_cond_enrolledincohorts_overridecondition',
                 'bo_cond_enrolledincohorts_overrideconditioncheckbox',
-                'notchecked');
+                'notchecked'
+            );
         } else {
             // No PRO license is active.
-            $mform->addElement('static', 'bo_cond_enrolledincohorts_restrict',
+            $mform->addElement(
+                'static',
+                'bo_cond_enrolledincohorts_restrict',
                 get_string('bocondenrolledincohorts', 'mod_booking'),
-                get_string('proversiononly', 'mod_booking'));
+                get_string('proversiononly', 'mod_booking')
+            );
         }
 
         $mform->addElement('html', '<hr class="w-50"/>');
@@ -585,8 +621,10 @@ class enrolledincohorts implements bo_condition {
             }
             $a = implode(', ', $coursestringsarr);
 
-            if (isset($this->customsettings->cohortidsoperator)
-                && $this->customsettings->cohortidsoperator == 'OR') {
+            if (
+                isset($this->customsettings->cohortidsoperator)
+                && $this->customsettings->cohortidsoperator == 'OR'
+            ) {
                 $description = $full ?
                     get_string('bocondenrolledincohortsfullnotavailable', 'mod_booking', $a) :
                     get_string('bocondenrolledincohortsnotavailable', 'mod_booking', $a);
@@ -595,7 +633,6 @@ class enrolledincohorts implements bo_condition {
                     get_string('bocondenrolledincohortsfullnotavailableand', 'mod_booking', $a) :
                     get_string('bocondenrolledincohortsnotavailableand', 'mod_booking', $a);
             }
-
         }
 
         return $description;

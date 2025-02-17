@@ -1270,15 +1270,17 @@ class booking_option {
      * @param string $erlid
      * @return int
      */
-    public static function write_user_answer_to_db(int $bookingid,
-                                            int $frombookingid,
-                                            int $userid,
-                                            int $optionid,
-                                            int $waitinglist,
-                                            $currentanswerid = null,
-                                            $timecreated = null,
-                                            $confirmwaitinglist = 0,
-                                            $erlid = "") {
+    public static function write_user_answer_to_db(
+        int $bookingid,
+        int $frombookingid,
+        int $userid,
+        int $optionid,
+        int $waitinglist,
+        $currentanswerid = null,
+        $timecreated = null,
+        $confirmwaitinglist = 0,
+        $erlid = ""
+    ) {
 
         global $DB, $USER;
 
