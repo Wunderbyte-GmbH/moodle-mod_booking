@@ -233,7 +233,7 @@ $string['bocondcustomuserprofilefieldvalue2'] = 'Wert (2. Feld)';
 $string['bocondenrolledincohorts'] = 'Benutzer:in ist in bestimmte(n) globale(n) Gruppe(n) eingeschrieben';
 $string['bocondenrolledincohortsavailable'] = 'Buchen';
 $string['bocondenrolledincohortsfullavailable'] = 'Buchen möglich';
-$string['bocondenrolledincohortsfullnotavailable'] = 'Nur Benutzer:innen, die in mindestens einen der folgenden globalen Grupppen eingeschrieben sind, dürfen buchen: {$a}
+$string['bocondenrolledincohortsfullnotavailable'] = 'Nur Benutzer:innen, die in mindestens eine der folgenden globalen Grupppen eingeschrieben sind, dürfen buchen: {$a}
     <br>Sie haben aber das Recht dennoch zu buchen.';
 $string['bocondenrolledincohortsfullnotavailableand'] = 'Nur Benutzer:innen, die in alle folgenden globalen Grupppen eingeschrieben sind, dürfen buchen: {$a}
 <br>Sie haben aber das Recht dennoch zu buchen.';

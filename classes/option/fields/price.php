@@ -40,7 +40,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class price extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -94,7 +93,8 @@ class price extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         // We store the information if we use a price in the JSON.
         // So this has to happen BEFORE JSON is saved!
@@ -226,9 +226,7 @@ class price extends field_base {
             if (!isset($data->useprice)) {
                 $data->useprice = $settings->useprice ?? 0;
             }
-
         } else {
-
             $useprice = booking_option::get_value_of_json_by_key($data->id, "useprice");
 
             // If the value is not set in JSON, we activate useprice if a price was found for the option.

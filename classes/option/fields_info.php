@@ -50,7 +50,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class fields_info {
-
      /**
       * This function runs through all installed field classes and executes the prepare save function.
       * Returns an array of warnings as string.
@@ -59,8 +58,11 @@ class fields_info {
       * @param int $updateparam
       * @return array
       */
-    public static function prepare_save_fields(stdClass &$formdata, stdClass &$newoption,
-        int $updateparam = MOD_BOOKING_UPDATE_OPTIONS_PARAM_DEFAULT): array {
+    public static function prepare_save_fields(
+        stdClass &$formdata,
+        stdClass &$newoption,
+        int $updateparam = MOD_BOOKING_UPDATE_OPTIONS_PARAM_DEFAULT
+    ): array {
 
         $feedback = [];
         $error = [];
@@ -70,7 +72,6 @@ class fields_info {
         $classes = self::get_field_classes($context->id);
 
         foreach ($classes as $classname) {
-
             if (class_exists($classname)) {
                 // We want to ignore some classes here.
                 if (self::ignore_class($formdata, $classname)) {
@@ -224,7 +225,6 @@ class fields_info {
         $classes = self::get_field_classes($context->id);
 
         foreach ($classes as $classname) {
-
             // We want to ignore some classes here.
             if (self::ignore_class((object)$data, $classname)) {
                 continue;
@@ -247,12 +247,10 @@ class fields_info {
         $classes = self::get_field_classes($context->id, MOD_BOOKING_EXECUTION_POSTSAVE);
         $changes = [];
         foreach ($classes as $classname) {
-
             // We want to ignore some classes here.
             if (self::ignore_class($formdata, $classname)) {
                 continue;
             }
-
             $changes[$classname] = $classname::save_data($formdata, $option);
         }
         return $changes;
@@ -281,7 +279,6 @@ class fields_info {
 
         try {
             foreach ($classes as $classname) {
-
                 // We want to ignore some classes here.
                 if (self::ignore_class($data, $classname)) {
                     continue;
@@ -319,7 +316,6 @@ class fields_info {
         $classes = self::get_field_classes($context->id);
 
         foreach ($classes as $classname) {
-
             // We want to ignore some classes here.
             if (self::ignore_class($formdata, $classname)) {
                 continue;
@@ -349,7 +345,6 @@ class fields_info {
         $classes = [];
         $namespace = "mod_booking\\option\\fields\\";
         foreach ($fields as $field) {
-
             $classname = $namespace . $field->classname;
 
             // We might only want postsave classes.
@@ -394,9 +389,10 @@ class fields_info {
             $shortclassname = array_pop($array);
 
             // If the class is not necessary and not part of the imported fields, ignore it.
-            if (!in_array(MOD_BOOKING_OPTION_FIELD_NECESSARY, $classname::$fieldcategories)
-                && !isset($data->{$shortclassname})) {
-
+            if (
+                !in_array(MOD_BOOKING_OPTION_FIELD_NECESSARY, $classname::$fieldcategories)
+                && !isset($data->{$shortclassname})
+            ) {
                 if ($classname::$id === MOD_BOOKING_OPTION_FIELD_PRICE) {
                     // TODO: if a column is called like any price category.
                     $existingpricecategories = $DB->get_records('booking_pricecategories', ['disabled' => 0]);
