@@ -499,7 +499,7 @@ class booking_answers {
             return [];
         }
         // Finally count the number of answers and check if it is more than the limit.
-        if (count($answerspercategory) >= $restriction[$key]) {
+        if (count($answerspercategory) >= $restriction[$key]->count) {
             return $answerspercategory;
         }
         return [];
