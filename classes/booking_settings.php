@@ -363,6 +363,9 @@ class booking_settings {
     /** @var array $maxoptionsfromcategory */
     public $maxoptionsfromcategory = null;
 
+    /** @var int $maxoptionsfrominstance */
+    public $maxoptionsfrominstance = null;
+
     /** @var string $customfieldsforfilter */
     public $customfieldsforfilter = null;
 
