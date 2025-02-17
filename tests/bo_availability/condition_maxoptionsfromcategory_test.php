@@ -103,10 +103,6 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
         $bookingfield = $this->getDataGenerator()->create_custom_field($fielddata);
         $bookingfield->save();
 
-        // Set this config for the entire test.
-        set_config('maxoptionsfromcategory', 1, 'booking');
-        set_config('maxoptionsfromcategoryfield', 'sport', 'booking');
-
         $this->setAdminUser();
 
         // Create the courses, depending on data provider.
@@ -130,8 +126,6 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
                 // Create booking options.
                 foreach ($bdata['bookingoptions'] as $option) {
                     $option['bookingid'] = $booking->id;
-                    // Add value to all bookingoptions.
-                    // $option['customfield_sport'] = 'aerialsilk';
 
                     $option = $plugingenerator->create_option((object)$option);
 
@@ -139,7 +133,9 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
                 }
             }
         }
-        set_config('maxoptionsfromcategoryfield', 'sport', 'mod_booking');
+        // Set this config for the entire test.
+        set_config('maxoptionsfromcategory', 1, 'booking');
+        set_config('maxoptionsfromcategoryfield', 'sport', 'booking');
         foreach ($expected as $expecteddata) {
 
             $option1 = $bookingoptions[$expecteddata['boookingoption_1']];
@@ -186,7 +182,7 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
                 'identifier' => 'noprice',
                 'maxanswers' => 1,
                 'importing' => 1,
-                'customfield_sport' => 'aerialsilk',
+                'sport' => 'AERIAL SILK',
             ],
             [
                 'text' => 'Test Booking Option with price',
@@ -194,7 +190,7 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
                 'identifier' => 'withprice',
                 'maxanswers' => 1,
                 'importing' => 1,
-                'customfield_sport' => 'aerialsilk',
+                'sport' => 'AERIAL SILK',
             ],
             [
                 'text' => 'Disalbed Test Booking Option',
@@ -203,7 +199,7 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
                 'maxanswers' => 1,
                 'importing' => 1,
                 'disablebookingusers' => 1,
-                'customfield_sport' => 'aerialsilk',
+                'sport' => 'AERIAL SILK',
             ],
             [
                 'text' => 'Wait for confirmation Booking Option, no price',
@@ -212,7 +208,7 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
                 'maxanswers' => 1,
                 'importing' => 1,
                 'waitforconfirmation' => 1,
-                'customfield_sport' => 'aerialsilk',
+                'sport' => 'AERIAL SILK',
             ],
         ];
 
