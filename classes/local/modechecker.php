@@ -92,7 +92,10 @@ class modechecker {
         ) {
             // The book only on details page avoid js and allows booking only on the details page.
             if (
-                get_config('booking', 'bookonlyondetailspage')
+                (
+                    get_config('booking', 'bookonlyondetailspage')
+                    || get_config('booking', 'alwaysshowlinkondetailspage')
+                )
                 && (
                     !self::is_ajax_or_webservice_request()
                     || !(self::is_mod_booking_bookit()

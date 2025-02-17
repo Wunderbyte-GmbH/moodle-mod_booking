@@ -169,7 +169,16 @@ class bookondetail implements bo_condition {
 
         $description = $this->get_description_string($isavailable, $full, $settings);
 
-        return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_JUSTMYALERT];
+        if (
+            !get_config('booking', 'bookonlyondetailspage')
+            &&get_config('booking', 'alwaysshowlinkondetailspage')
+        ) {
+            $buttontype = MOD_BOOKING_BO_BUTTON_MYALERT;
+        } else {
+            $buttontype = MOD_BOOKING_BO_BUTTON_JUSTMYALERT;
+        }
+
+        return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, $buttontype];
     }
 
     /**
