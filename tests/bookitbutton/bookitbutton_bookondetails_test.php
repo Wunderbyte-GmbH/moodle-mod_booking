@@ -187,7 +187,7 @@ final class bookitbutton_bookondetails_test extends advanced_testcase {
 
             if (isset($expecteddata['undoconfig'])) {
                 foreach ($expecteddata['undoconfig'] as $key => $value) {
-                    set_config($key, $value, 'booking');
+                    set_config($key, $value, 'mod_booking');
                 }
             }
         }
@@ -376,7 +376,7 @@ final class bookitbutton_bookondetails_test extends advanced_testcase {
                 [
                     'user' => 'student1',
                     'boookingoption' => 'noprice',
-                    'bo_cond' => MOD_BOOKING_BO_COND_BOOKITBUTTON,
+                    'bo_cond' => MOD_BOOKING_BO_COND_BOOKONDETAIL,
                     'showprice' => false,
                     'price' => 0,
                     'cancancelbook' => 0,
