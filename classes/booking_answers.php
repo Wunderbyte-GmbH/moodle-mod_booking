@@ -491,7 +491,7 @@ class booking_answers {
                     // The settings define if comparison is counted only for bookings in the same instance.
                     continue;
                 }
-                $answerspercategory[$answer->id] = $answer;
+                $answerspercategory[$answer->baid] = $answer;
             }
         }
         // If the user has no answers in this category, then there is no problem.
