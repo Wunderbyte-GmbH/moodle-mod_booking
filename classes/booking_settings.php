@@ -360,7 +360,7 @@ class booking_settings {
     /** @var int $allowupdatetimestamp */
     public $allowupdatetimestamp = null;
 
-    /** @var array $maxoptionsfromcategory */
+    /** @var mixed $maxoptionsfromcategory */
     public $maxoptionsfromcategory = null;
 
     /** @var int $maxoptionsfrominstance */
