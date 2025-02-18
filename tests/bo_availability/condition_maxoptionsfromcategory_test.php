@@ -65,7 +65,6 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
      * @covers \booking_bookit
      *
      * @param array $coursedata
-     * @param array $pricecategories
      * @param array $expected
      * @throws \coding_exception
      * @throws \dml_exception
@@ -373,7 +372,11 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
                     [   'bookingconfig' => $bookingconfig['on'],
                         'bookinginstancesettings' => [
                             '{}', // First instance doesn't contain any restrictions.
-                            '{"maxoptionsfromcategory":"{\"aerialsilk\":{\"count\":1,\"localizedstring\":\"AERIAL SILK\"},\"aerialstrengthflexibility\":{\"count\":1,\"localizedstring\":\"AERIAL STRENGTH&FLEXIBILITY\"}}","maxoptionsfrominstance":"1"}',
+                            '{"maxoptionsfromcategory":' .
+                                '"{\"aerialsilk\":{\"count\":1,\"localizedstring\":\"AERIAL SILK\"},' .
+                                '\"aerialstrengthflexibility\":' .
+                                '{\"count\":1,\"localizedstring\":\"AERIAL STRENGTH&FLEXIBILITY\"}}",' .
+                                '"maxoptionsfrominstance":"1"}',
                         ],
                         'user' => 'student1',
                         'bookingoptions' => $bookingoptions,
@@ -389,7 +392,11 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
                     [   'bookingconfig' => $bookingconfig['on'],
                         'bookinginstancesettings' => [
                             '{}', // First instance doesn't contain any restrictions.
-                            '{"maxoptionsfromcategory":"{\"aerialsilk\":{\"count\":2,\"localizedstring\":\"AERIAL SILK\"},\"aerialstrengthflexibility\":{\"count\":2,\"localizedstring\":\"AERIAL STRENGTH&FLEXIBILITY\"}}","maxoptionsfrominstance":"1"}',
+                            '{"maxoptionsfromcategory":' . // Count is set to two.
+                                '"{\"aerialsilk\":{\"count\":2,\"localizedstring\":\"AERIAL SILK\"},' .
+                                '\"aerialstrengthflexibility\":' .
+                                '{\"count\":2,\"localizedstring\":\"AERIAL STRENGTH&FLEXIBILITY\"}}",' .
+                                '"maxoptionsfrominstance":"1"}',
                         ],
                         'user' => 'student2',
                         'bookingoptions' => $bookingoptions,
@@ -405,13 +412,17 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
                     [   'bookingconfig' => $bookingconfig['on'],
                         'bookinginstancesettings' => [
                             '{}', // First instance doesn't contain any restrictions.
-                            '{"maxoptionsfromcategory":"{\"aerialsilk\":{\"count\":2,\"localizedstring\":\"AERIAL SILK\"},\"aerialstrengthflexibility\":{\"count\":2,\"localizedstring\":\"AERIAL STRENGTH&FLEXIBILITY\"}}","maxoptionsfrominstance":"0"}',
-                        ],
+                            '{"maxoptionsfromcategory":' . // Count is set to two.
+                                '"{\"aerialsilk\":{\"count\":2,\"localizedstring\":\"AERIAL SILK\"}}",' .
+                                '"maxoptionsfrominstance":"0"}',
+                        ], // Instance is disabled ("maxoptionsfrominstance":"0") & count is set to two.
                         'user' => 'student2',
                         'bookingoptions' => $bookingoptions,
                         'results' => [
-                            // Setting has slightly changed: Now booking answers from other instaces are counted for the blocking limit.
-                            // So with one booking from first instance, and limit count 2, the first aerialsilk option is bookable and second is blocking.
+                            // Setting has slightly changed...
+                            // Now booking answers from other instaces are counted for the blocking limit.
+                            // So with one booking from first instance, and limit count 2, ...
+                            // ... the first aerialsilk option is bookable and second is blocking.
                             'aerialsilk1' => $conditionresult['bookable'],
                             'aerialsilk2' => $conditionresult['blocking'],
                             'othervalue' => $conditionresult['bookable'],
