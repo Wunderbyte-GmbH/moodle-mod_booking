@@ -140,29 +140,54 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
             }
         }
         foreach ($expected as $expecteddata) {
-            $DB->update_record('booking', (object)['id' => $booking->id, 'json' => $expecteddata['bookinginstancesettings']]);
+            foreach ($boinstance as $key => $booking) {
+                $jsondata = $expecteddata['bookinginstancesettings'][$key];
+                $DB->update_record('booking', (object)['id' => $booking->id, 'json' => $jsondata]);
+            }
+
             booking::purge_cache_for_booking_instance_by_cmid($option->cmid);
             $booking = singleton_service::get_instance_of_booking_by_bookingid($booking->id);
             foreach ($expecteddata['bookingconfig'] as $config) {
                 set_config($config['name'], $config['value'], 'booking');
             }
 
+            $firstenrollbos = [];
             $bos = [];
-            foreach ($expecteddata['bookingoptions'] as $key => $bookingoption) {
-                $option = $bookingoptions[$bookingoption['identifier']];
+            foreach ($bookingoptions as $option) {
+                // Use the same bookingoptions in both booking instances.
                 $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
                 $boinfo = new bo_info($settings);
-                $bos[$key] = [
-                    'settings' => $settings,
-                    'boinfo' => $boinfo,
-                    'option' => $option,
-                    'identifier' => $bookingoption['identifier'],
-                ];
+                if ($option->identifier == "aerialsilksecondinstance") {
+                    $firstenrollbos[] = [
+                        'settings' => $settings,
+                        'boinfo' => $boinfo,
+                        'option' => $option,
+                        'identifier' => $option->identifier,
+                    ];
+                } else {
+                    $bos[] = [
+                        'settings' => $settings,
+                        'boinfo' => $boinfo,
+                        'option' => $option,
+                        'identifier' => $option->identifier,
+                    ];
+                }
             }
 
             $user = $users[$expecteddata['user']];
             $this->setUser($user);
 
+            // First make sure to enrol into bo of first instance.
+            foreach ($firstenrollbos as $bo) {
+                $settings = $bo['settings'];
+                $result = booking_bookit::bookit('option', $settings->id, $user->id);
+                $result = booking_bookit::bookit('option', $settings->id, $user->id);
+                maxoptionsfromcategory::reset_instance();
+                singleton_service::destroy_instance();
+                cache_helper::invalidate_by_event('setbackoptionsanswers', [$bo['option']->id]);
+            }
+
+            // Then we proceed with the actual test for bookingoptions in the second instance.
             foreach ($bos as $bo) {
                 $settings = $bo['settings'];
                 $boinfo = $bo['boinfo'];
@@ -177,6 +202,9 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
                     $result = booking_bookit::bookit('option', $settings->id, $user->id);
                     [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $user->id, true);
                     $this->assertEquals($expecteddata['results'][$identifier][2], $id);
+                    maxoptionsfromcategory::reset_instance();
+                    singleton_service::destroy_instance();
+                    cache_helper::invalidate_by_event('setbackoptionsanswers', [$bo['option']->id]);
                 }
             }
 
@@ -235,7 +263,33 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
         [
             [
                 // Booking instance 0 in tests.
-                'name' => 'Restricting aerialsilk limit 3 in instance',
+                'name' => 'Presetting instance',
+                'eventtype' => 'Test event',
+                'bookedtext' => ['text' => 'text'],
+                'waitingtext' => ['text' => 'text'],
+                'notifyemail' => ['text' => 'text'],
+                'statuschangetext' => ['text' => 'text'],
+                'deletedtext' => ['text' => 'text'],
+                'pollurltext' => ['text' => 'text'],
+                'pollurlteacherstext' => ['text' => 'text'],
+                'notificationtext' => ['text' => 'text'],
+                'userleave' => ['text' => 'text'],
+                'tags' => '',
+                'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
+                'bookingoptions' => [
+                    0 => [
+                        'text' => 'Test bookingoption with customfield AERIAL SILK second instance',
+                        'description' => 'Test Booking Option',
+                        'identifier' => 'aerialsilksecondinstance',
+                        'maxanswers' => 10,
+                        'importing' => 1,
+                        'sport' => 'AERIAL SILK',
+                        ],
+                    ],
+            ],
+            [
+                // Booking instance 1 in tests.
+                'name' => 'Second booking instance',
                 'eventtype' => 'Test event',
                 'bookedtext' => ['text' => 'text'],
                 'waitingtext' => ['text' => 'text'],
@@ -317,20 +371,26 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
             'expected' => [
                 'maxoneoptionblock' =>
                     [   'bookingconfig' => $bookingconfig['on'],
-                        'bookinginstancesettings' => '{"maxoptionsfromcategory":"{\"aerialsilk\":{\"count\":1,\"localizedstring\":\"AERIAL SILK\"},\"aerialstrengthflexibility\":{\"count\":1,\"localizedstring\":\"AERIAL STRENGTH&FLEXIBILITY\"}}","maxoptionsfrominstance":"1"}',
+                        'bookinginstancesettings' => [
+                            '{}', // First instance doesn't contain any restrictions.
+                            '{"maxoptionsfromcategory":"{\"aerialsilk\":{\"count\":1,\"localizedstring\":\"AERIAL SILK\"},\"aerialstrengthflexibility\":{\"count\":1,\"localizedstring\":\"AERIAL STRENGTH&FLEXIBILITY\"}}","maxoptionsfrominstance":"1"}',
+                        ],
                         'user' => 'student1',
                         'bookingoptions' => $bookingoptions,
                         'results' => [
                             // With these settings, first option is supposed to be bookable and second to block.
                             'aerialsilk1' => $conditionresult['bookable'],
-                            'aerialsilk2' => $conditionresult['blocking'],
+                            'aerialsilk2' => $conditionresult['blocking'], // This one is blocking.
                             'othervalue' => $conditionresult['bookable'],
                             'withoutcustomfield' => $conditionresult['bookable'],
                         ],
                     ],
                 'maxtwooptionblock' =>
                     [   'bookingconfig' => $bookingconfig['on'],
-                        'bookinginstancesettings' => '{"maxoptionsfromcategory":"{\"aerialsilk\":{\"count\":2,\"localizedstring\":\"AERIAL SILK\"},\"aerialstrengthflexibility\":{\"count\":2,\"localizedstring\":\"AERIAL STRENGTH&FLEXIBILITY\"}}","maxoptionsfrominstance":"1"}',
+                        'bookinginstancesettings' => [
+                            '{}', // First instance doesn't contain any restrictions.
+                            '{"maxoptionsfromcategory":"{\"aerialsilk\":{\"count\":2,\"localizedstring\":\"AERIAL SILK\"},\"aerialstrengthflexibility\":{\"count\":2,\"localizedstring\":\"AERIAL STRENGTH&FLEXIBILITY\"}}","maxoptionsfrominstance":"1"}',
+                        ],
                         'user' => 'student2',
                         'bookingoptions' => $bookingoptions,
                         'results' => [
@@ -341,9 +401,29 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
                             'withoutcustomfield' => $conditionresult['bookable'],
                         ],
                     ],
+                'secondinstanceblock' =>
+                    [   'bookingconfig' => $bookingconfig['on'],
+                        'bookinginstancesettings' => [
+                            '{}', // First instance doesn't contain any restrictions.
+                            '{"maxoptionsfromcategory":"{\"aerialsilk\":{\"count\":2,\"localizedstring\":\"AERIAL SILK\"},\"aerialstrengthflexibility\":{\"count\":2,\"localizedstring\":\"AERIAL STRENGTH&FLEXIBILITY\"}}","maxoptionsfrominstance":"0"}',
+                        ],
+                        'user' => 'student2',
+                        'bookingoptions' => $bookingoptions,
+                        'results' => [
+                            // Setting has slightly changed: Now booking answers from other instaces are counted for the blocking limit.
+                            // So with one booking from first instance, and limit count 2, the first aerialsilk option is bookable and second is blocking.
+                            'aerialsilk1' => $conditionresult['bookable'],
+                            'aerialsilk2' => $conditionresult['blocking'],
+                            'othervalue' => $conditionresult['bookable'],
+                            'withoutcustomfield' => $conditionresult['bookable'],
+                        ],
+                    ],
                 'settingsoff' =>
                     [   'bookingconfig' => $bookingconfig['off'],
-                        'bookinginstancesettings' => '{"maxoptionsfromcategory":"{\"aerialsilk\":{\"count\":2,\"localizedstring\":\"AERIAL SILK\"},\"aerialstrengthflexibility\":{\"count\":2,\"localizedstring\":\"AERIAL STRENGTH&FLEXIBILITY\"}}","maxoptionsfrominstance":"1"}',
+                        'bookinginstancesettings' => [
+                            '{}', // First instance doesn't contain any restrictions.
+                            '{"maxoptionsfromcategory":"{\"aerialsilk\":{\"count\":2,\"localizedstring\":\"AERIAL SILK\"},\"aerialstrengthflexibility\":{\"count\":2,\"localizedstring\":\"AERIAL STRENGTH&FLEXIBILITY\"}}","maxoptionsfrominstance":"1"}',
+                        ],
                         'user' => 'student2',
                         'bookingoptions' => $bookingoptions,
                         'results' => [
@@ -356,7 +436,10 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
                     ],
                 'nolimitset' =>
                     [   'bookingconfig' => $bookingconfig['on'],
-                        'bookinginstancesettings' => '{"maxoptionsfromcategory":"{\"aerialsilk\":{\"count\":0,\"localizedstring\":\"AERIAL SILK\"},\"aerialstrengthflexibility\":{\"count\":0,\"localizedstring\":\"AERIAL STRENGTH&FLEXIBILITY\"}}","maxoptionsfrominstance":"1"}',
+                        'bookinginstancesettings' => [
+                            '{}', // First instance doesn't contain any restrictions.
+                            '{"maxoptionsfromcategory":"{\"aerialsilk\":{\"count\":0,\"localizedstring\":\"AERIAL SILK\"},\"aerialstrengthflexibility\":{\"count\":0,\"localizedstring\":\"AERIAL STRENGTH&FLEXIBILITY\"}}","maxoptionsfrominstance":"1"}',
+                        ],
                         'user' => 'student2',
                         'bookingoptions' => $bookingoptions,
                         'results' => [
