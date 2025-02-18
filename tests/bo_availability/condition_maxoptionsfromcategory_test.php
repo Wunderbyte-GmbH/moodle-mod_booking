@@ -27,8 +27,10 @@
 namespace mod_booking;
 
 use advanced_testcase;
+use cache_helper;
 use coding_exception;
 use context_system;
+use mod_booking\bo_availability\conditions\maxoptionsfromcategory;
 use mod_booking\price;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
@@ -106,53 +108,45 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
         $bookingfield->save();
 
         $this->setAdminUser();
-        foreach ($expected as $expecteddata) {
+
         // Create the courses, depending on data provider.
-            foreach ($coursedata as $coursearray) {
-                $course = $this->getDataGenerator()->create_course((object)$coursearray);
-                $courses[$course->id] = $course;
+        foreach ($coursedata as $coursearray) {
+            $course = $this->getDataGenerator()->create_course((object)$coursearray);
+            $courses[$course->id] = $course;
 
-                // Create users.
-                if (empty($users)) {
-                    foreach ($coursearray['users'] as $user) {
-                        $student = $this->getDataGenerator()->create_user($user);
-                        $this->getDataGenerator()->enrol_user($student->id, $course->id);
-                        $users[$student->username] = $student;
-                    }
-                } else {
-                    foreach ($users as $user) {
-                        $this->getDataGenerator()->enrol_user($user->id, $course->id);
-                    }
+            // Create users.
+            if (empty($users)) {
+                foreach ($coursearray['users'] as $user) {
+                    $student = $this->getDataGenerator()->create_user($user);
+                    $this->getDataGenerator()->enrol_user($student->id, $course->id);
+                    $users[$student->username] = $student;
                 }
-
-
-                // Create Booking instances.
-                foreach ($coursearray['bdata'] as $bdata) {
-                    $bdata['course'] = $course->id;
-                    $bdata['json'] = $expecteddata['bookinginstancesettings'];
-                    $booking = $this->getDataGenerator()->create_module('booking', (object)$bdata);
-                    $boinstance[] = $booking;
-                    // Create booking options.
-                    if (!empty($bookingoptions)) {
-                        // Reassign the bookingtoptions to the new instance.
-                        foreach ($bookingoptions as $bookingoption) {
-                            // We need to actually update the bookingoption in order to really change the settings.
-                            $bookingoption->bookingid = $booking->id;
-                        }
-                    } else {
-                        foreach ($bdata['bookingoptions'] as $option) {
-                            $option['bookingid'] = $booking->id;
-                            $option = $plugingenerator->create_option((object)$option);
-                            $bookingoptions[$option->identifier] = $option;
-                        }
-                    }
+            } else {
+                foreach ($users as $user) {
+                    $this->getDataGenerator()->enrol_user($user->id, $course->id);
                 }
             }
+            // Create Booking instances.
+            foreach ($coursearray['bdata'] as $bdata) {
+                $bdata['course'] = $course->id;
+                $booking = $this->getDataGenerator()->create_module('booking', (object)$bdata);
+                $boinstance[] = $booking;
+                // Create booking options.
+                foreach ($bdata['bookingoptions'] as $option) {
+                    $option['bookingid'] = $booking->id;
+                    $option = $plugingenerator->create_option((object)$option);
+                    $bookingoptions[$option->identifier] = $option;
+                }
+            }
+        }
+        foreach ($expected as $expecteddata) {
+            $DB->update_record('booking', (object)['id' => $booking->id, 'json' => $expecteddata['bookinginstancesettings']]);
+            booking::purge_cache_for_booking_instance_by_cmid($option->cmid);
+            $booking = singleton_service::get_instance_of_booking_by_bookingid($booking->id);
             foreach ($expecteddata['bookingconfig'] as $config) {
                 set_config($config['name'], $config['value'], 'booking');
             }
 
-            // Foreach bookingoptions.
             $bos = [];
             foreach ($expecteddata['bookingoptions'] as $key => $bookingoption) {
                 $option = $bookingoptions[$bookingoption['identifier']];
@@ -185,8 +179,12 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
                     $this->assertEquals($expecteddata['results'][$identifier][2], $id);
                 }
             }
+
+            $DB->delete_records('booking_answers');
+            foreach ($bos as $bo) {
+                cache_helper::invalidate_by_event('setbackoptionsanswers', [$bo['option']->id]);
+            }
             $this->tearDown();
-            singleton_service::destroy_instance();
         }
     }
 
@@ -369,7 +367,7 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
                             'withoutcustomfield' => $conditionresult['bookable'],
                         ],
                     ],
-                // TODO Test bookings from other instance.
+                // TODO Extend test case to test bookings from other instance.
 
             ],
         ];
@@ -382,6 +380,8 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
      */
     public function tearDown(): void {
         parent::tearDown();
+        cache_helper::purge_all();
+        maxoptionsfromcategory::reset_instance();
         // Mandatory clean-up.
         singleton_service::destroy_instance();
     }
