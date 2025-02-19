@@ -70,7 +70,7 @@ Feature: As admin - configure max option for category and validate it as student
       | Limitation applies only to bookings of this instance | 1          |
     And I press "Save and display"
     And I log out
-    ## Verify max options availability as a student
+    ## Verify max booking options for selected instance as a student
     When I am on the "Booking0" Activity page logged in as student1
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
@@ -84,6 +84,14 @@ Feature: As admin - configure max option for category and validate it as student
     And I should see "You have reached the maximum of 2 bookings of type \"tenis\" (in category \"spt1\")" in the ".allbookingoptionstable_r7" "css_element"
     And I should see "You have reached the maximum of 2 bookings of type \"tenis\" (in category \"spt1\")" in the ".allbookingoptionstable_r8" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    ## Verify max booking options for both instances as a student
+    And I am on the "Booking1" Activity page
+    And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "You have reached the maximum of 3 bookings of type \"tenis\" (in category \"spt1\")" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "You have reached the maximum of 3 bookings of type \"tenis\" (in category \"spt1\")" in the ".allbookingoptionstable_r5" "css_element"
+    And I should see "You have reached the maximum of 3 bookings of type \"tenis\" (in category \"spt1\")" in the ".allbookingoptionstable_r6" "css_element"
 
   @javascript
   Scenario: Booking: configure max option across both instances and validate it as student
