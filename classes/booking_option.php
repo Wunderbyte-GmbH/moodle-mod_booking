@@ -43,6 +43,7 @@ use mod_booking\event\bookinganswer_waitingforconfirmation;
 use mod_booking\event\bookingoption_bookedviaautoenrol;
 use mod_booking\option\dates_handler;
 use mod_booking\bo_actions\actions_info;
+use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_rules\rules_info;
 use stdClass;
 use moodle_url;
@@ -1094,7 +1095,7 @@ class booking_option {
         // False means, that it can't be booked.
         // 0 means, that we can book right away
         // 1 means, that there is only a place on the waiting list.
-        $waitinglist = $this->check_if_limit($user->id, self::option_allows_overbooking_for_user($this->optionid));
+        $waitinglist = $this->check_if_limit($user->id, self::option_allows_overbooking_for_user($this->optionid, $user->id));
         // With the second param, we check if overbooking is allowed.
 
         // The $status == 2 means confirm. Under some circumstances, waitinglist can be false here.
@@ -3388,9 +3389,15 @@ class booking_option {
      * Helper function to check if an option allows overbooking.
      *
      * @param int $optionid
+     * @param int $userid if not provided, use logged-in $USER->id
      * @return bool true if overbooking is allowed
      */
-    public static function option_allows_overbooking_for_user(int $optionid): bool {
+    public static function option_allows_overbooking_for_user(int $optionid, int $userid = 0): bool {
+
+        if (empty($userid)) {
+            global $USER;
+            $userid = $USER->id;
+        }
 
         /* If the global setting to allow overbooking is on, we still need to check
         if the current user has the capability to overbook. */
@@ -3401,20 +3408,29 @@ class booking_option {
             return true;
         }
 
+        // Else we check availability conditions.
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-        if (!empty($settings->availability)) {
-            foreach (json_decode($settings->availability) as $ac) {
-                /* When the fullybooked condition is present as an override condition in combination
-                with an "OR" operator, we want to allow overbooking. */
-                if (
-                    isset($ac->id)
-                    && isset($ac->overrideoperator) && $ac->overrideoperator === 'OR'
-                    && isset($ac->overrides) && in_array("" . MOD_BOOKING_BO_COND_FULLYBOOKED . "", $ac->overrides)
-                ) {
-                    return true;
-                }
-            }
+        $boinfo = new bo_info($settings);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $userid, true);
+        if (
+            // If the only thing blocking is a confirmation, the bookit button or the price, we allow overbooking.
+            in_array(
+                $isavailable,
+                [
+                    MOD_BOOKING_BO_COND_BOOKITBUTTON,
+                    MOD_BOOKING_BO_COND_PRICEISSET,
+                    MOD_BOOKING_BO_COND_CONFIRMATION,
+                    MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
+                    MOD_BOOKING_BO_COND_ASKFORCONFIRMATION,
+                ]
+            )
+            // Note, if it's fully booked then usually the MOD_BOOKING_BO_COND_FULLYBOOKED will block.
+            // But for example, a user could have a setup where MOD_BOOKING_BO_COND_FULLYBOOKED is combined with an OR operator.
+            // In this case, it will only block if the first condition is not met.
+        ) {
+            return true;
         }
+        // By default, overbooking is never allowed.
         return false;
     }
 
