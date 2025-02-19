@@ -107,6 +107,11 @@ class mod_booking_generator extends testing_module_generator {
             }
         }
 
+        // Process instance's maxoptionsfromcategoryvalue.
+        if (!empty($record->maxoptionsfromcategoryvalue)) {
+            $record->maxoptionsfromcategoryvalue = explode(',', $record->maxoptionsfromcategoryvalue);
+        }
+
         // To set default semester is mandatory.
         $semesterid = semester::get_semester_with_highest_id();
         if (!empty($record->semester)) {
