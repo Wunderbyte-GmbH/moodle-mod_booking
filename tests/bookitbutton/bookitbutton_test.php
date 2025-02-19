@@ -101,7 +101,6 @@ final class bookitbutton_test extends advanced_testcase {
         $cohort->contextid = context_system::instance()->id; // Generally, cohorts are created in the system context.
         $cohort->id = cohort_add_cohort($cohort); // Add the cohort to the database and get the ID.
 
-
         // Create the courses, depending on data provider.
         foreach ($coursedata as $coursearray) {
             $course = $this->getDataGenerator()->create_course((object)$coursearray);
