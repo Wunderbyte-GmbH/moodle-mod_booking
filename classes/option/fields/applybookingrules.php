@@ -153,9 +153,7 @@ class applybookingrules extends field_base {
         $applyheader = true
     ) {
 
-        $optionid = $formdata['id'];
-        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-        $context = context_module::instance($settings->cmid);
+        $context = context_module::instance($formdata['cmid']);
 
         // Standardfunctionality to add a header to the mform (only if its not yet there).
         if ($applyheader) {
