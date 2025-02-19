@@ -270,7 +270,7 @@ class view implements renderable, templatable {
         if (in_array('myoptions', $showviews) && booking_check_if_teacher()) {
             // If we show this table first, we don't load it lazy.
             $lazy = $whichview !== 'myoptions';
-            $this->renderedoptionsiteachtable = $this->get_rendered_table_for_teacher($USER->id, false, true, true, $lazy);
+            $this->renderedoptionsiteachtable = $this->get_rendered_table_for_teacher($USER->id, true, true, true, $lazy);
         }
 
         // Only the booking options of my institution.
