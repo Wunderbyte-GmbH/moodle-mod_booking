@@ -749,6 +749,27 @@ function booking_add_instance($booking) {
         booking::add_data_to_json($booking, 'maxoptionsfromcategory', $booking->maxoptionsfromcategory);
     }
 
+    if (empty($booking->maxoptionsfromcategorycount)) {
+        booking::remove_key_from_json($booking, "maxoptionsfromcategory");
+        booking::remove_key_from_json($booking, "maxoptionsfrominstance");
+    } else if (!empty($booking->maxoptionsfromcategoryvalue)) {
+        $submitdata = [];
+        $field = get_config('booking', 'maxoptionsfromcategoryfield');
+        foreach ($booking->maxoptionsfromcategoryvalue as $value) {
+            $localizedstring = singleton_service::get_customfield_value_from_sanitzed_string(
+                $value,
+                $field
+            );
+            $submitdata[$value] = [
+                        'count' => $booking->maxoptionsfromcategorycount,
+                        'localizedstring' => $localizedstring,
+                ];
+        }
+
+        booking::add_data_to_json($booking, "maxoptionsfromcategory", json_encode($submitdata));
+        booking::add_data_to_json($booking, "maxoptionsfrominstance", $booking->maxoptionsfrominstance);
+    }
+
     if (isset($booking->customfieldsforfilter)) {
         $customfields = booking_handler::get_customfields($booking->customfieldsforfilter);
         $fieldsfordb = [];
