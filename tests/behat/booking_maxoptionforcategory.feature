@@ -19,8 +19,8 @@ Feature: As admin - configure max option for category and validate it as student
     And I clean booking cache
     And the following "activities" exist:
       | activity | course | name     | intro               | bookingmanager | eventtype | Default view for booking options | Send confirmation e-mail | maxoptionsfromcategorycount | maxoptionsfromcategoryvalue | maxoptionsfrominstance |
-      | booking  | C1     | Booking0 | Booking description | teacher1       | Webinar   | All bookings                     | Yes                      | 2                           | tenis                       |                        |
-      | booking  | C1     | Booking1 | Booking description | teacher1       | Webinar   | All bookings                     | Yes                      | 3                           | tenis                       |                        |
+      | booking  | C1     | Booking0 | Booking description | teacher1       | Webinar   | All bookings                     | Yes                      | 2                           | tenis                       | 0                      |
+      | booking  | C1     | Booking1 | Booking description | teacher1       | Webinar   | All bookings                     | Yes                      | 3                           | tenis                       | 0                      |
     And the following "custom field categories" exist:
       | name     | component   | area    | itemid |
       | SportArt | mod_booking | booking | 0      |
@@ -47,12 +47,13 @@ Feature: As admin - configure max option for category and validate it as student
       | Booking0  | Option11-y | C1     | Yoga (limited)  | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 1        | yoga     |
       | Booking0  | Option12-c | C1     | Chess           | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 1        | chess    |
       | Booking1  | Option11-t | C1     | Tenis (limited) | 1         | 3          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 0        | tenis    |
-      ##| Booking1  | Option12-f | C1     | Football        | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | football |
-      ##| Booking1  | Option13-y | C1     | Yoga (limited)  | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | yoga     |
-      ##| Booking1  | Option14-c | C1     | Chess           | 1         | 3          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 0        | chess    |
+      | Booking1  | Option12-f | C1     | Football        | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | football |
+      | Booking1  | Option13-y | C1     | Yoga            | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | yoga     |
+      | Booking1  | Option14-c | C1     | Chess           | 1         | 3          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 0        | chess    |
       | Booking1  | Option15-t | C1     | Tenis (limited) | 1         | 3          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 0        | tenis    |
       | Booking1  | Option16-t | C1     | Tenis (limited) | 1         | 3          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 0        | tenis    |
-    And I change viewport size to "2732x20000"
+    ##And I change viewport size to "2732x20000"
+    And I change viewport size to "1366x10000"
     ## Unfortunately, TinyMCE is slow and has misbehavior which might cause number of site-wide issues. So - we disable it.
     And the following config values are set as admin:
       | config                      | value         | plugin  |
@@ -69,18 +70,11 @@ Feature: As admin - configure max option for category and validate it as student
       | id_maxoptionsfromcategoryvalue                       | tenis,yoga |
       | Limitation applies only to bookings of this instance | 1          |
     And I press "Save and display"
-    And I log out
-    Given I am on the "Booking1" "booking activity editing" page logged in as admin
-    And I expand all fieldsets
-    And I set the following fields to these values:
-      | maxoptionsfromcategorycount                          | 3          |
-      | id_maxoptionsfromcategoryvalue                       | tenis      |
-      | Limitation applies only to bookings of this instance | 0          |
+    And I am on the "Booking1" "booking activity editing" page
     And I press "Save and display"
-    And I change viewport size to "1366x10000"
     And I log out
-    ## Verify max booking options for selected instance as a student
-    When I am on the "Booking0" Activity page logged in as student1
+    ## Verify max booking options for 1st instance as a student
+    When I am on the "Booking0" Activity page logged in as admin
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
@@ -92,19 +86,25 @@ Feature: As admin - configure max option for category and validate it as student
     Then I should see "You have reached the maximum of 2 bookings of type \"tenis\" (in category \"spt1\")" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "You have reached the maximum of 2 bookings of type \"tenis\" (in category \"spt1\")" in the ".allbookingoptionstable_r7" "css_element"
     And I should see "You have reached the maximum of 2 bookings of type \"tenis\" (in category \"spt1\")" in the ".allbookingoptionstable_r8" "css_element"
-    ## Verify max booking options for both instances as a student
+    ## Verify max booking options for 2nd instance as a student
     And I am on the "Booking1" Activity page
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "You have reached the maximum of 3 bookings of type \"tenis\" (in category \"spt1\")" in the ".allbookingoptionstable_r1" "css_element"
-    ##And I should see "You have reached the maximum of 3 bookings of type \"tenis\" (in category \"spt1\")" in the ".allbookingoptionstable_r5" "css_element"
-    ##And I should see "You have reached the maximum of 3 bookings of type \"tenis\" (in category \"spt1\")" in the ".allbookingoptionstable_r6" "css_element"
+    And I should see "You have reached the maximum of 3 bookings of type \"tenis\" (in category \"spt1\")" in the ".allbookingoptionstable_r5" "css_element"
+    And I should see "You have reached the maximum of 3 bookings of type \"tenis\" (in category \"spt1\")" in the ".allbookingoptionstable_r6" "css_element"
 
   @javascript
   Scenario: Booking: configure max option across both instances and validate it as student
     ## TODO: Correctly define settings for booking instances.
+    Given I am on the "Booking0" "booking activity editing" page logged in as admin
+    And I press "Save and display"
+    And I am on the "Booking1" "booking activity editing" page
+    And I press "Save and display"
+    And I log out
+    ## Verify max booking options as a student
     Given I am on the "Booking1" Activity page logged in as student1
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
@@ -120,9 +120,11 @@ Feature: As admin - configure max option for category and validate it as student
     And I should see "You have reached the maximum of 2 bookings of type \"tenis\" (in category \"spt1\")" in the ".allbookingoptionstable_r7" "css_element"
     And I should see "You have reached the maximum of 2 bookings of type \"tenis\" (in category \"spt1\")" in the ".allbookingoptionstable_r8" "css_element"
     ## Validate blocking after 3 booked options for Booking1
+    And I am on the "Booking1" Activity page
     And I click on "Book now" "text" in the ".allbookingoptionstable_r5 .booknow" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r5" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r5" "css_element"
     And I should see "Start" in the ".allbookingoptionstable_r5" "css_element"
-    And I should see "You have reached the maximum of 2 bookings of type \"tenis\" (in category \"spt1\")" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "You have reached the maximum of 2 bookings of type \"tenis\" (in category \"spt1\")" in the ".allbookingoptionstable_r5" "css_element"
+    And I should see "You have reached the maximum of 3 bookings of type \"tenis\" (in category \"spt1\")" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "You have reached the maximum of 3 bookings of type \"tenis\" (in category \"spt1\")" in the ".allbookingoptionstable_r5" "css_element"
+    And I should see "You have reached the maximum of 3 bookings of type \"tenis\" (in category \"spt1\")" in the ".allbookingoptionstable_r6" "css_element"
