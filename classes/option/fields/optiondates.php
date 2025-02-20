@@ -82,6 +82,7 @@ class optiondates extends field_base {
         'starddate',
         'enddate',
         'optiondateid_0',
+        'optiondateid_1',
     ];
 
     /**
