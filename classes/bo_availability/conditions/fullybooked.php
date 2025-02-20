@@ -48,7 +48,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class fullybooked implements bo_condition {
-
     /** @var int $id Standard Conditions have hardcoded ids. */
     public $id = MOD_BOOKING_BO_COND_FULLYBOOKED;
 
@@ -106,9 +105,11 @@ class fullybooked implements bo_condition {
 
         // If the user is not yet booked, and option is not fully booked, we return true.
         if (isset($bookinginformation['notbooked'])) {
-            if (isset($bookinginformation['notbooked']['fullybooked'])
+            if (
+                isset($bookinginformation['notbooked']['fullybooked'])
                 && $bookinginformation['notbooked']['fullybooked'] === true
-                && empty($bookinginformation['notbooked']['freeonwaitinglist'])) {
+                && empty($bookinginformation['notbooked']['freeonwaitinglist'])
+            ) {
                 $isavailable = false;
             }
         }
@@ -185,8 +186,10 @@ class fullybooked implements bo_condition {
         $description = self::get_description_string($isavailable, $full, $settings);
 
         // If the user is in principle allowed to overbook AND the overbook setting is set in the instance, overbooking is possible.
-        if (!empty(get_config('booking', 'allowoverbooking'))
-            && has_capability('mod/booking:canoverbook', context_system::instance())) {
+        if (
+            !empty(get_config('booking', 'allowoverbooking'))
+            && has_capability('mod/booking:canoverbook', context_system::instance())
+        ) {
             $buttontype = MOD_BOOKING_BO_BUTTON_MYALERT;
         } else {
             $buttontype = MOD_BOOKING_BO_BUTTON_JUSTMYALERT;

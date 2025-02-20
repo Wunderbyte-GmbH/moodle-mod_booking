@@ -49,7 +49,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class cancelmyself implements bo_condition {
-
     /** @var int $id Standard Conditions have hardcoded ids. */
     public $id = MOD_BOOKING_BO_COND_CANCELMYSELF;
 
@@ -100,8 +99,10 @@ class cancelmyself implements bo_condition {
 
         // If cancelling was disabled in the booking option or for the whole instance...
         // ...then we do not show the cancel button.
-        if (booking_option::get_value_of_json_by_key($optionid, 'disablecancel')
-            || booking::get_value_of_json_by_key($settings->bookingid, 'disablecancel')) {
+        if (
+            booking_option::get_value_of_json_by_key($optionid, 'disablecancel')
+            || booking::get_value_of_json_by_key($settings->bookingid, 'disablecancel')
+        ) {
             return true;
         }
 
@@ -134,8 +135,10 @@ class cancelmyself implements bo_condition {
                 // We have to check if there's a limit until a certain date.
                 $canceluntil = booking_option::return_cancel_until_date($optionid);
                 // If the cancel until date has passed, we do not show cancel button.
-                if (class_exists('local_shopping_cart\shopping_cart')
-                    && (!empty($settings->jsonobject->useprice))) {
+                if (
+                    class_exists('local_shopping_cart\shopping_cart')
+                    && (!empty($settings->jsonobject->useprice))
+                ) {
                     $item = (object)[
                         'itemid' => $settings->id,
                         'componentname' => 'mod_booking',
@@ -148,10 +151,11 @@ class cancelmyself implements bo_condition {
 
                     // If user is confirmed, we don't block.
                     if (isset($bookinginformation['onwaitinglist'])) {
-
                         // We don't show cancel when we don't ask for confirmation and it's not fully booked.
-                        if (empty($settings->waitforconfirmation)
-                            && $bookinginformation['onwaitinglist']['fullybooked'] === false) {
+                        if (
+                            empty($settings->waitforconfirmation)
+                            && $bookinginformation['onwaitinglist']['fullybooked'] === false
+                        ) {
                             $isavailable = true;
                         } else {
                             $ba = $bookinganswer->usersonwaitinglist[$userid];
@@ -163,7 +167,6 @@ class cancelmyself implements bo_condition {
                             }
                         }
                     }
-
                 }
 
                 if (!empty($canceluntil) && $now > $canceluntil) {
@@ -335,10 +338,17 @@ class cancelmyself implements bo_condition {
         }
 
         $label = $this->get_description_string();
-            return bo_info::render_button($settings, $userid, $label,
+            return bo_info::render_button(
+                $settings,
+                $userid,
+                $label,
                 'btn btn-light btn-sm',
-                false, $fullwidth, 'button', 'option', false);
-
+                false,
+                $fullwidth,
+                'button',
+                'option',
+                false
+            );
     }
 
     /**
@@ -363,7 +373,6 @@ class cancelmyself implements bo_condition {
 
         $coolingoffperiod = get_config('booking', 'coolingoffperiod');
         if ($coolingoffperiod > 0) {
-
             $ba = singleton_service::get_instance_of_booking_answers($settings);
             $timemodified = $ba->users[$userid]->timemodified ?? 0;
             if (strtotime("+ $coolingoffperiod seconds", $timemodified) > time()) {

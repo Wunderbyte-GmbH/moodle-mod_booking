@@ -138,7 +138,6 @@ class allowedtobookininstance implements bo_condition {
 
             // If the user is not yet booked we return true.
             if (has_capability('mod/booking:choose', $context)) {
-
                 $isavailable = true;
             }
         }
@@ -226,7 +225,6 @@ class allowedtobookininstance implements bo_condition {
 
         // Check if PRO version is activated.
         if (wb_payment::pro_version_is_activated()) {
-
             $mform->addElement(
                 'advcheckbox',
                 'bo_cond_allowedtobookininstance_restrict',
@@ -462,7 +460,6 @@ class allowedtobookininstance implements bo_condition {
             $description = $full ?
                     get_string('bocondallowedtobookininstancefullnotavailable', 'mod_booking') :
                     get_string('bocondallowedtobookininstancenotavailable', 'mod_booking');
-
         }
 
         return $description;

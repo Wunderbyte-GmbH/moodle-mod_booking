@@ -49,7 +49,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class askforconfirmation implements bo_condition {
-
     /** @var int $id Standard Conditions have hardcoded ids. */
     public $id = MOD_BOOKING_BO_COND_ASKFORCONFIRMATION;
 
@@ -105,15 +104,18 @@ class askforconfirmation implements bo_condition {
         // - User must not be on waitinglist
         // - AND: Ask for confirmation must be turned on.
         // - OR: A price is set and it's fully booked already.
-        if (!isset($bookinginformation['onwaitinglist'])
+        if (
+            !isset($bookinginformation['onwaitinglist'])
             && (!empty($settings->waitforconfirmation)
             || (!empty($settings->jsonobject->useprice))
-                && (isset($bookinginformation['notbooked']['fullybooked']) &&
-                $bookinginformation['notbooked']['fullybooked'] === true
-                && ($settings->maxoverbooking > booking_answers::count_places($bookinganswer->usersonwaitinglist))))) {
-
-            if (!empty(get_config('booking', 'allowoverbooking'))
-                && has_capability('mod/booking:canoverbook', context_system::instance())) {
+                && (isset($bookinginformation['notbooked']['fullybooked'])
+                && $bookinginformation['notbooked']['fullybooked'] === true
+                && ($settings->maxoverbooking > booking_answers::count_places($bookinganswer->usersonwaitinglist))))
+        ) {
+            if (
+                !empty(get_config('booking', 'allowoverbooking'))
+                && has_capability('mod/booking:canoverbook', context_system::instance())
+            ) {
                 $isavailable = true;
             } else {
                 $isavailable = false;
@@ -222,7 +224,7 @@ class askforconfirmation implements bo_condition {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        list($template, $data2) = booking_bookit::render_bookit_template_data($settings, $userid ?? 0, false);
+        [$template, $data2] = booking_bookit::render_bookit_template_data($settings, $userid ?? 0, false);
         $data2 = reset($data2);
         $template = reset($template);
 

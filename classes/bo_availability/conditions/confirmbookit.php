@@ -46,7 +46,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class confirmbookit implements bo_condition {
-
     /** @var int $id Standard Conditions have hardcoded ids. */
     public $id = MOD_BOOKING_BO_COND_CONFIRMBOOKIT;
 
@@ -224,8 +223,17 @@ class confirmbookit implements bo_condition {
         }
         $label = $this->get_description_string();
 
-        return bo_info::render_button($settings, $userid, $label, 'btn btn-warning', false, $fullwidth,
-            'button', 'option', false);
+        return bo_info::render_button(
+            $settings,
+            $userid,
+            $label,
+            'btn btn-warning',
+            false,
+            $fullwidth,
+            'button',
+            'option',
+            false
+        );
     }
 
     /**

@@ -24,7 +24,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
- namespace mod_booking\bo_availability\conditions;
+namespace mod_booking\bo_availability\conditions;
 
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
@@ -53,7 +53,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class bookwithsubscription implements bo_condition {
-
     /** @var int $id Standard Conditions have hardcoded ids. */
     public $id = MOD_BOOKING_BO_COND_BOOKWITHSUBSCRIPTION;
 
@@ -108,30 +107,24 @@ class bookwithsubscription implements bo_condition {
             $profilefield = get_config('booking', 'bookwithcreditsprofilefield');
 
             if (!empty($profilefield) && $settings->credits > 0) {
-
                 // If the user is not yet booked we return true.
                 if (empty($settings->jsonobject->useprice)) {
                     // When we use credits, we can't book without.
                     $isavailable = false;
                 } else {
-
                     if (!empty($userid) && $USER->id != $userid) {
                         $user = singleton_service::get_instance_of_user($userid);
                         profile_load_custom_fields($user);
-
                     } else {
                         $user = $USER;
                     }
 
                     $key = "profile_field_" . $profilefield;
                     if ($settings->credits < $user->{$key}) {
-
                         $isavailable = false;
                     }
                 }
-
             }
-
         }
 
         return $isavailable;
@@ -228,7 +221,7 @@ class bookwithsubscription implements bo_condition {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        list($template, $data2) = booking_bookit::render_bookit_template_data($settings, 0, false);
+        [$template, $data2] = booking_bookit::render_bookit_template_data($settings, 0, false);
         $data2 = reset($data2);
         $template = reset($template);
 
@@ -306,8 +299,18 @@ class bookwithsubscription implements bo_condition {
             $label = get_string('bookwithcredit', 'mod_booking', $settings->credits);
         }
 
-        return bo_info::render_button($settings, $userid, $label, 'btn btn-success mt-1 mb-1', false, $fullwidth,
-            'button', 'option', false, 'noforward');
+        return bo_info::render_button(
+            $settings,
+            $userid,
+            $label,
+            'btn btn-success mt-1 mb-1',
+            false,
+            $fullwidth,
+            'button',
+            'option',
+            false,
+            'noforward'
+        );
     }
 
     /**

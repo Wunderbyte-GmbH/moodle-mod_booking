@@ -47,7 +47,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class bookingpolicy implements bo_condition {
-
     /** @var int $id Standard Conditions have hardcoded ids. */
     public $id = MOD_BOOKING_BO_COND_BOOKINGPOLICY;
 
@@ -175,8 +174,12 @@ class bookingpolicy implements bo_condition {
      * @return array availability and Information string (for admin) about all restrictions on
      *   this item
      */
-    public function get_description(booking_option_settings $settings,
-        $userid = null, $full = false, $not = false): array {
+    public function get_description(
+        booking_option_settings $settings,
+        $userid = null,
+        $full = false,
+        $not = false
+    ): array {
 
         $description = '';
 

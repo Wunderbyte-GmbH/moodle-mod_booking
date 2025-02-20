@@ -42,7 +42,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class alreadyreserved implements bo_condition {
-
     /** @var int $id default conditions have hardcoded ids. */
     public $id = MOD_BOOKING_BO_COND_ALREADYRESERVED;
 
@@ -231,7 +230,6 @@ class alreadyreserved implements bo_condition {
 
             return ['mod_booking/bookit_price', $data];
         } else {
-
             $label = get_string('selected', 'mod_booking');
             return bo_info::render_button($settings, $userid, $label, 'alert alert-warning', true, $fullwidth, 'alert', 'option');
         }
