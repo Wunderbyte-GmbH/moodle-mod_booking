@@ -24,10 +24,17 @@
 
 namespace mod_booking\option\fields;
 
+use context_module;
+use html_writer;
 use mod_booking\bo_actions\actions_info;
+use mod_booking\booking_option;
+use mod_booking\booking_option_settings;
+use mod_booking\dates;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
+use mod_booking\singleton_service;
 use mod_booking\subbookings\subbookings_info;
+use moodle_url;
 use MoodleQuickForm;
 use stdClass;
 
@@ -39,7 +46,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class recurringoptions extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -70,7 +76,10 @@ class recurringoptions extends field_base {
      * Additionally to the classname, there might be others keys which should instantiate this class.
      * @var array
      */
-    public static $alternativeimportidentifiers = [];
+    public static $alternativeimportidentifiers = [
+        "parentid",
+        "repeatthisbooking",
+    ];
 
     /**
      * This is an array of incompatible field ids.
@@ -91,9 +100,11 @@ class recurringoptions extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
+        $newoption->parentid = $formdata->parentid ?? 0;
 
-        return parent::prepare_save_field($formdata, $newoption, $updateparam, '');
+        return [];
     }
 
     /**
@@ -112,17 +123,67 @@ class recurringoptions extends field_base {
         $fieldstoinstanciate = [],
         $applyheader = true
     ) {
+        global $DB, $USER;
+
 
         // Templates and recurring 'events' - only visible when adding new.
-        if ($formdata['optionid'] == -1) {
+        if ($formdata['id']) {
+            $mform->addElement(
+                'header',
+                'recurringheader',
+                get_string('recurringheader', 'mod_booking')
+            );
+            $mform->addElement(
+                'hidden',
+                'parentid',
+            );
 
-            $mform->addElement('header', 'recurringheader',
-                            get_string('recurringheader', 'mod_booking'));
+            $settings = singleton_service::get_instance_of_booking_option_settings($formdata['id']);
 
-            $mform->addElement('checkbox', 'repeatthisbooking',
-                        get_string('repeatthisbooking', 'mod_booking'));
-            $mform->addElement('text', 'howmanytimestorepeat',
-                        get_string('howmanytimestorepeat', 'mod_booking'));
+            $sql = 'SELECT * FROM {booking_options} WHERE id = :parentid1 OR parentid = :parentid2 OR parentid = :id';
+
+            $params = [
+                'id' => $formdata['id'],
+                'parentid1' => $settings->parentid,
+                'parentid2' => $settings->parentid,
+            ];
+
+            $linkedlist = $DB->get_records_sql($sql, $params);
+
+           // Remove current item from the sibling list.
+            foreach ($linkedlist as $key => $linked) {
+                if ($linked->id == $settings->id) {
+                        unset($linkedlist[$key]);
+                }
+            }
+
+            // Sort the array by keys in ascending order.
+            ksort($linkedlist);
+
+            // Display linked options if available.
+            if (!empty($linkedlist)) {
+                $linkedlistnames = array_map(function ($value) use ($formdata, $USER) {
+                    $url = new moodle_url('/mod/booking/optionview.php', [
+                        'optionid' => $value->id,
+                        'cmid' => $formdata['cmid'],
+                        'userid' => $USER->id,
+                    ]);
+                    return html_writer::link($url->out(false), $value->text);
+                }, $linkedlist);
+
+                $mform->addElement('html', implode('<br>', $linkedlistnames));
+            }
+
+            $mform->addElement(
+                'checkbox',
+                'repeatthisbooking',
+                get_string('repeatthisbooking', 'mod_booking')
+            );
+            $mform->addElement(
+                'text',
+                'howmanytimestorepeat',
+                get_string('howmanytimestorepeat', 'mod_booking')
+            );
             $mform->setType('howmanytimestorepeat', PARAM_INT);
             $mform->setDefault('howmanytimestorepeat', 1);
             $mform->disabledIf('howmanytimestorepeat', 'repeatthisbooking', 'notchecked');
@@ -131,11 +192,81 @@ class recurringoptions extends field_base {
                 604800 => get_string('week'),
                 2592000 => get_string('month'),
             ];
-            $mform->addElement('select', 'howoftentorepeat', get_string('howoftentorepeat', 'mod_booking'),
-                        $howoften);
+            $mform->addElement(
+                'select',
+                'howoftentorepeat',
+                get_string(
+                    'howoftentorepeat',
+                    'mod_booking'
+                ),
+                $howoften
+            );
             $mform->setType('howoftentorepeat', PARAM_INT);
             $mform->setDefault('howoftentorepeat', 86400);
             $mform->disabledIf('howoftentorepeat', 'repeatthisbooking', 'notchecked');
         }
+    }
+
+    /**
+     * Standard function to transfer stored value to form.
+     * @param stdClass $data
+     * @param booking_option_settings $settings
+     * @return void
+     * @throws dml_exception
+     */
+    public static function set_data(stdClass &$data, booking_option_settings $settings) {
+        if (empty($data->parentid)) {
+            $data->parentid = $settings->parentid;
+        }
+    }
+
+    /**
+     * Save data
+     * @param stdClass $data
+     * @param stdClass $option
+     * @return array
+     * @throws \dml_exception
+     */
+    public static function save_data(stdClass &$data, stdClass &$option): array {
+
+        $changes = [];
+        if (!empty($data->repeatthisbooking)) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+            $context = context_module::instance($settings->cmid);
+
+            $templateoption = (object)[
+                'cmid' => $data->cmid,
+                'id' => $option->id, // In the context of option_form class, id always refers to optionid.
+                'optionid' => $option->id, // Just kept on for legacy reasons.
+                'bookingid' => $data->bookingid,
+                'copyoptionid' => 0, // Do NOT set it here as we might get stuck in a loop.
+                'oldcopyoptionid' => $data->copyoptionid ?? 0,
+                'returnurl' => '',
+            ];
+
+            fields_info::set_data($templateoption);
+            $templateoption->importing = 1;
+            $templateoption->parentid = $option->id;
+            [$newoptiondates, $highesindex] = dates::get_list_of_submitted_dates((array)$templateoption);
+
+            $title = $templateoption->text;
+            for ($i = 1; $i <= $data->howmanytimestorepeat; $i++) {
+                unset($templateoption->id, $templateoption->identifier, $templateoption->optionid);
+                $templateoption->text = $title . " $i";
+                foreach ($newoptiondates as $newoptiondate) {
+                    $key = MOD_BOOKING_FORM_OPTIONDATEID . $newoptiondate["index"];
+                    $templateoption->{$key} = 0;
+                    $delta = $data->howoftentorepeat;
+                    $key = MOD_BOOKING_FORM_COURSESTARTTIME . $newoptiondate["index"];
+                    $templateoption->{$key} += $delta;
+                    $key = MOD_BOOKING_FORM_COURSEENDTIME . $newoptiondate["index"];
+                    $templateoption->{$key} += $delta;
+                }
+
+                booking_option::update((object) $templateoption, $context);
+            }
+        }
+
+        return $changes;
     }
 }
