@@ -433,7 +433,9 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
                     [   'bookingconfig' => $bookingconfig['off'],
                         'bookinginstancesettings' => [
                             '{}', // First instance doesn't contain any restrictions.
-                            '{"maxoptionsfromcategory":"{\"aerialsilk\":{\"count\":2,\"localizedstring\":\"AERIAL SILK\"},\"aerialstrengthflexibility\":{\"count\":2,\"localizedstring\":\"AERIAL STRENGTH&FLEXIBILITY\"}}","maxoptionsfrominstance":"1"}',
+                            '{"maxoptionsfromcategory":"{\"aerialsilk\":{\"count\":2,\"localizedstring\":\"AERIAL SILK\"},' .
+                            '\"aerialstrengthflexibility\":{\"count\":2,\"localizedstring\":\"AERIAL STRENGTH&FLEXIBILITY\"}}",' .
+                            '"maxoptionsfrominstance":"1"}',
                         ],
                         'user' => 'student2',
                         'bookingoptions' => $bookingoptions,
@@ -449,7 +451,9 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
                     [   'bookingconfig' => $bookingconfig['on'],
                         'bookinginstancesettings' => [
                             '{}', // First instance doesn't contain any restrictions.
-                            '{"maxoptionsfromcategory":"{\"aerialsilk\":{\"count\":0,\"localizedstring\":\"AERIAL SILK\"},\"aerialstrengthflexibility\":{\"count\":0,\"localizedstring\":\"AERIAL STRENGTH&FLEXIBILITY\"}}","maxoptionsfrominstance":"1"}',
+                            '{"maxoptionsfromcategory":"{\"aerialsilk\":{\"count\":0,\"localizedstring\":\"AERIAL SILK\"},' .
+                            '\"aerialstrengthflexibility\":{\"count\":0,\"localizedstring\":\"AERIAL STRENGTH&FLEXIBILITY\"}}",' . '
+                            "maxoptionsfrominstance":"1"}',
                         ],
                         'user' => 'student2',
                         'bookingoptions' => $bookingoptions,
@@ -461,8 +465,6 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
                             'withoutcustomfield' => $conditionresult['bookable'],
                         ],
                     ],
-                // TODO Extend test case to test bookings from other instance.
-
             ],
         ];
 
