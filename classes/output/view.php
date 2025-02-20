@@ -32,6 +32,7 @@ use local_wunderbyte_table\filters\types\datepicker;
 use local_wunderbyte_table\filters\types\standardfilter;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
+use mod_booking\customfield\booking_handler;
 use mod_booking\elective;
 use mod_booking\singleton_service;
 use mod_booking\table\bookingoptions_wbtable;
@@ -803,7 +804,9 @@ class view implements renderable, templatable {
         bool $reload = true,
         bool $filterinactive = true,
         int $viewparam = MOD_BOOKING_VIEW_PARAM_LIST
-    ) {
+	) {
+
+        global $PAGE;
         // Activate sorting.
         $wbtable->cardsort = true;
 
@@ -904,8 +907,32 @@ class view implements renderable, templatable {
                 'now',
                 'now + 1 year'
             );
-
             $wbtable->add_filter($datepicker);
+
+            // Setting fetchen.
+            $url = $PAGE->url ?? false;
+            if (
+                $url
+                && !empty($path = $url->get_path(true))
+                && strpos($path, 'mod/booking/view.php') !== false
+            ) {
+                $cmid = optional_param('id', 0, PARAM_INT) ?? 0;
+                $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+                $jsonsettings = $bookingsettings->jsonobject ?? [];
+                if (!empty($jsonsettings->customfieldsforfilter)) {
+                    foreach ($jsonsettings->customfieldsforfilter as $customfilter) {
+                        // TODO Add caching for customfields.
+                        $customfields = booking_handler::get_customfields();
+                        foreach ($customfields as $customfield) {
+                            if ($customfield->shortname == $customfilter) {
+                                $localizedname = format_string($customfield->name);
+                            }
+                        }
+                        $standardfilter = new standardfilter($customfilter, $localizedname);
+                        $wbtable->add_filter($standardfilter);
+                    }
+                }
+            }
         }
 
         if ($sort) {
