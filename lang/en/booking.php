@@ -824,6 +824,7 @@ $string['custombulkmessagesent'] = 'Custom bulk message sent (> 75% of booked us
 $string['customdatesbtn'] = '<i class="fa fa-plus-square"></i> Custom dates...';
 $string['customdownloadreport'] = 'Download report';
 $string['customfield'] = 'Custom field to be set in the booking option settings. It will then be shown in the booking option overview.';
+$string['customfieldsforfilter'] = 'Custom fields that are to be displayed as filter options';
 $string['customfieldchanged'] = 'Custom field changed';
 $string['customfieldconfigure'] = 'Booking: Custom booking option fields';
 $string['customfielddef'] = 'Custom booking option field';

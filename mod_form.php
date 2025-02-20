@@ -1151,6 +1151,20 @@ class mod_booking_mod_form extends moodleform_mod {
                 booking::get_value_of_json_by_key($bookingid, 'billboardtext') ?? ''
             );
         }
+        // Custom fields to be shown on detail page (optionview.php).
+        $customfields = booking_handler::get_customfields();
+        if (!empty($customfields)) {
+            $customfieldshortnames = [];
+            foreach ($customfields as $cf) {
+                $customfieldshortnames[$cf->shortname] = "$cf->name ($cf->shortname)";
+            }
+            $mform->addElement('select', 'customfieldsforfilter', get_string('customfieldsforfilter', 'mod_booking'), $customfieldshortnames);
+            $mform->getElement('customfieldsforfilter')->setMultiple(true);
+            $mform->setDefault(
+                'customfieldsforfilter',
+            (array)booking::get_value_of_json_by_key($bookingid, 'customfieldsforfilter') ?? []
+            );
+        }
 
         // Booking option text.
         $mform->addElement(
