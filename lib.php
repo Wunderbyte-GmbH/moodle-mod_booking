@@ -719,6 +719,25 @@ function booking_add_instance($booking) {
         booking::add_data_to_json($booking, 'allowupdatetimestamp', $booking->allowupdatetimestamp);
     }
 
+    if (isset($booking->viewparam)) {
+        // Save list view as default value.
+        booking::add_data_to_json($booking, "viewparam", MOD_BOOKING_VIEW_PARAM_LIST);
+    }
+
+    if (isset($booking->disablebooking)) {
+        // This will store the correct JSON to $optionvalues->json.
+        booking::add_data_to_json($booking, "disablebooking", $booking->disablebooking);
+    }
+
+    if (isset($booking->overwriteblockingwarnings)) {
+        // This will store the correct JSON to $optionvalues->json.
+        booking::add_data_to_json($booking, "overwriteblockingwarnings", $booking->overwriteblockingwarnings);
+    }
+    if (isset($booking->billboardtext)) {
+        // This will store the correct JSON to $optionvalues->json.
+        booking::add_data_to_json($booking, "billboardtext", $booking->billboardtext);
+    }
+
     // If no policy was entered, we still have to check for HTML tags.
     if (!isset($booking->bookingpolicy) || empty(strip_tags($booking->bookingpolicy))) {
         $booking->bookingpolicy = '';
