@@ -739,6 +739,10 @@ function booking_add_instance($booking) {
         booking::add_data_to_json($booking, "billboardtext", $booking->billboardtext);
     }
 
+    if (isset($booking->customfieldsforfilter)) {
+        // This will store the correct JSON to $optionvalues->json.
+        booking::remove_key_from_json($booking, "customfieldsforfilter");
+
     // If no policy was entered, we still have to check for HTML tags.
     if (!isset($booking->bookingpolicy) || empty(strip_tags($booking->bookingpolicy))) {
         $booking->bookingpolicy = '';
