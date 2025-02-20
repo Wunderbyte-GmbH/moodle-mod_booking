@@ -1,0 +1,235 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Tests for booking option events.
+ *
+ * @package mod_booking
+ * @category test
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author 2017 Andraž Prinčič
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+namespace mod_booking;
+
+use advanced_testcase;
+use coding_exception;
+use mod_booking\price;
+use mod_booking_generator;
+use mod_booking\bo_availability\bo_info;
+use local_shopping_cart\shopping_cart;
+use local_shopping_cart\shopping_cart_history;
+use local_shopping_cart\local\cartstore;
+use local_shopping_cart\output\shoppingcart_history_list;
+use stdClass;
+
+defined('MOODLE_INTERNAL') || die();
+global $CFG;
+require_once($CFG->dirroot . '/mod/booking/lib.php');
+
+/**
+ * Class handling tests for booking options.
+ *
+ * @package mod_booking
+ * @category test
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
+ */
+final class recurringoptions_test extends advanced_testcase {
+    /**
+     * Tests set up.
+     */
+    public function setUp(): void {
+        parent::setUp();
+        $this->resetAfterTest(true);
+    }
+
+    /**
+     * Test booking, cancelation, option has started etc.
+     *
+     * @covers \condition\bookitbutton::is_available
+     * @covers \condition\alreadybooked::is_available
+     * @covers \condition\fullybooked::is_available
+     * @covers \condition\confirmation::render_page
+     * @covers \condition\notifymelist::is_available
+     * @covers \condition\isloggedin::is_available
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_create_recurrignoptions(array $bdata): void {
+        global $DB, $CFG;
+
+        // Setup test data.
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        // Create users.
+        $admin = $this->getDataGenerator()->create_user();
+        $student1 = $this->getDataGenerator()->create_user();
+        $student2 = $this->getDataGenerator()->create_user();
+        $teacher = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($student1->id, $course->id);
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id);
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course->id);
+
+
+        // Create an initial booking option.
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option1';
+        $record->courseid = $course->id;
+        $record->importing = 1;
+        $record->coursestarttime = '2025-01-01 10:00:00';
+        $record->courseendtime = '2025-01-01 12:00:00';
+
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option1 = $plugingenerator->create_option($record);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        // To avoid retrieving the singleton with the wrong settings, we destroy it.
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
+
+        // Update option to trigger recurrence.
+        $record->id = $option1->id;
+        $record->cmid = $settings->cmid;
+        $record->repeatthisbooking = 1;
+        $record->howmanytimestorepeat = 2; // Repeat twice
+        $record->howoftentorepeat = 14 * 24 * 60 * 60; // 2 weeks in seconds
+        $record->importing = 1;
+        booking_option::update($record);
+
+        // Check that 3 options exist (original + 2 recurrences).
+        $createdoptions = $DB->get_records('booking_options', ['bookingid' => $booking1->id]);
+        $this->assertCount(3, $createdoptions, 'Recurring options were not created correctly.');
+
+        // Fetch created options and check naming.
+        $optiondates = $DB->get_records_sql(
+            "SELECT id, text, coursestarttime, courseendtime FROM {booking_options} WHERE bookingid = ? ORDER BY id ASC",
+            [$booking1->id]
+        );
+
+        $optionarray = array_values($optiondates);
+        $this->assertEquals('Test option1', $optionarray[0]->text);
+        $this->assertEquals('Test option1 1', $optionarray[1]->text);
+        $this->assertEquals('Test option1 2', $optionarray[2]->text);
+
+        $expectedstarttime = strtotime($record->coursestarttime);
+
+        $this->assertEquals($expectedstarttime, $optionarray[0]->coursestarttime);
+        $this->assertEquals(strtotime('+2 weeks', $expectedstarttime), $optionarray[1]->coursestarttime);
+        $this->assertEquals(strtotime('+4 weeks', $expectedstarttime), $optionarray[2]->coursestarttime);
+
+        $expectedendttime = strtotime($record->courseendtime);
+
+        $this->assertEquals($expectedendttime, $optionarray[0]->courseendtime);
+        $this->assertEquals(strtotime('+2 weeks', $expectedendttime), $optionarray[1]->courseendtime);
+        $this->assertEquals(strtotime('+4 weeks', $expectedendttime), $optionarray[2]->courseendtime);
+
+
+        // Logic regarding changes made on parent and reflecting on children.
+        // Unset keys regarding repeating, coursestarttime and courseendtime.
+        unset($record->repeatthisbooking, $record->howmanytimestorepeat, $record->howoftentorepeat);
+        unset($record->coursestarttime);
+        unset($record->courseendtime);
+
+        // Update the parent option with new values.
+        $record->maxanswers = 20;
+        $record->maxoverbooking = 10;
+        $record->text = 'Test Parent';
+        $record->description = 'Test Booking Description';
+        $record->coursestarttime = '2025-01-03 10:00:00';
+        $record->courseendtime = '2025-01-03 12:00:00';
+        booking_option::update($record);
+
+        // Fetch updated options.
+        $updatedoptions = $DB->get_records_sql(
+            "SELECT id, parentid, maxanswers, maxoverbooking, text, description, coursestarttime, courseendtime FROM {booking_options} WHERE bookingid = ? ORDER BY id ASC",
+            [$booking1->id]
+        );
+
+        $parentid = $optionarray[0]->id;
+
+        $updatedarray = array_values($updatedoptions);
+
+        foreach ($updatedarray as $index => $child) {
+            if ($child->parentid == $parentid) {
+                $this->assertEquals($record->maxanswers, $child->maxanswers, "Child {$child->id} maxanswers not updated correctly.");
+                $this->assertEquals($record->maxoverbooking, $child->maxoverbooking, "Child {$child->id} maxoverbooking not updated correctly.");
+                $this->assertEquals($record->text, $child->text, "Child {$child->id} title not updated correctly.");
+                $this->assertEquals($record->description, $child->description, "Child {$child->id} description not updated correctly.");
+
+                //todo adapt the test also for the coursestarttime and courseendtime
+                // Validate recurring start times.
+                /*$this->assertEquals(
+                    $record->coursestarttime[$index],
+                    (int) $child->coursestarttime,
+                    "Child {$child->id} coursestarttime does not match expected value."
+                );*/
+            }
+        }
+    }
+    /**
+     * Data provider for condition_bookingpolicy_test
+     *
+     * @return array
+     * @throws \UnexpectedValueException
+     */
+    public static function booking_common_settings_provider(): array {
+        $bdata = [
+            'name' => 'Test Booking Policy 1',
+            'eventtype' => 'Test event',
+            'enablecompletion' => 1,
+            'bookedtext' => ['text' => 'text'],
+            'waitingtext' => ['text' => 'text'],
+            'notifyemail' => ['text' => 'text'],
+            'statuschangetext' => ['text' => 'text'],
+            'deletedtext' => ['text' => 'text'],
+            'pollurltext' => ['text' => 'text'],
+            'pollurlteacherstext' => ['text' => 'text'],
+            'notificationtext' => ['text' => 'text'],
+            'userleave' => ['text' => 'text'],
+            'tags' => '',
+            'completion' => 2,
+            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
+        ];
+        return ['bdata' => [$bdata]];
+    }
+
+    /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        parent::tearDown();
+        // Mandatory clean-up.
+        singleton_service::destroy_instance();
+    }
+}

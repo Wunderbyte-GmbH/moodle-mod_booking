@@ -3526,13 +3526,6 @@ class booking_option {
         // Use the booking option title as subject.
         $subject = str_replace(' ', '%20', $settings->get_title_with_prefix());
 
-        // As neither comma nor semicolon works on all machines, we need to distinghish here.
-        $useragent = $_SERVER['HTTP_USER_AGENT'];
-        $ismacuser = stripos($useragent, 'Macintosh') !== false ||
-                    stripos($useragent, 'iPhone') !== false ||
-                    stripos($useragent, 'iPad') !== false;
-        $emailseparator = $ismacuser ? ',' : ';';
-
         if (empty($bookedusers)) {
             return '';
         }
@@ -3541,11 +3534,11 @@ class booking_option {
         if (!empty($settings->teachers)) {
             foreach ($settings->teachers as $t) {
                 if (!empty($t->email) && ($t->email != $USER->email)) {
-                    $teachersstring .= "$t->email" . $emailseparator;
+                    $teachersstring .= "$t->email;";
                 }
             }
             if ($teachersstring) {
-                $teachersstring = trim($teachersstring, $emailseparator);
+                $teachersstring = trim($teachersstring, ';');
                 $teachersstring = "cc=$teachersstring&";
             }
         }
@@ -3554,10 +3547,10 @@ class booking_option {
         foreach ($bookedusers as $bu) {
             $user = singleton_service::get_instance_of_user($bu->userid);
             if (!empty($user->email)) {
-                $emailstring .= "$user->email" . $emailseparator;
+                $emailstring .= "$user->email;";
             }
         }
-        $emailstring = trim($emailstring, $emailseparator);
+        $emailstring = trim($emailstring, ';');
 
         if (empty($emailstring)) {
             return '';
@@ -3759,6 +3752,9 @@ class booking_option {
             }
         } else {
             // Save the changes to DB.
+            if (empty($newoption->identifier)) {
+                $newoption->identifier = booking_option::create_truly_unique_option_identifier();
+            }
             if (!$optionid = $DB->insert_record("booking_options", $newoption)) {
                 throw new moodle_exception('creationofoptionwentwrong', 'mod_booking');
             }
@@ -3821,7 +3817,7 @@ class booking_option {
 
         // If there have been changes to significant fields, we react on changes.
         // Change notification will be sent (if active).
-        // Action logs will be stored ("Shwo recent updates..." link on bottom of option form).
+        // Action logs will be stored ("Show recent updates..." link on bottom of option form).
         $bu = new booking_utils();
 
         // New way of handling changes.
@@ -3833,6 +3829,74 @@ class booking_option {
         // Only react on changes if update is triggered via formsave (see comment at beginning of function - cases A) & B))...
         // ... since otherwise previous data is unreliable.
         if (!empty($changes) && $updateparam == MOD_BOOKING_UPDATE_OPTIONS_PARAM_DEFAULT) {
+            $children = $DB->get_records('booking_options', ['parentid' => $optionid]);
+
+            if (!empty($children)) {
+                foreach ($children as $child) {
+                    // Loop through the changes.
+                    $data = [
+                        'id' => $child->id,
+                        'importing' => 1,
+                    ];
+                    $update = false;
+                    foreach ($changes as $change) {
+                        if (isset($change['changes']['fieldname']) && $change['changes']['fieldname'] == 'customfields') {
+                            continue;
+                        }
+
+                        if (isset($change['changes']['fieldname']) && $change['changes']['fieldname'] == 'dates') {
+                            $oldvalues = $change['changes']['oldvalue'];
+                            $newvalues = $change['changes']['newvalue'];
+
+                            $results = [];
+
+                            foreach ($oldvalues as $old) {
+                                foreach ($newvalues as $new) {
+                                    if ($old->id == $new['id']) {
+                                        $oldstarttime = $old->coursestarttime;
+                                        $oldendtime = $old->courseendtime;
+                                        $newstarttime = $new['coursestarttime'];
+                                        $newendtime = $new['courseendtime'];
+
+                                        $deltastart = $newstarttime - $oldstarttime;
+                                        $deltaend = $newendtime - $oldendtime;
+
+                                        // Store results
+                                        $results[] = [
+                                            "id" => $old->id,
+                                            "delta_start_time_seconds" => $deltastart,
+                                            "delta_end_time_seconds" => $deltaend,
+                                        ];
+                                    }
+                                }
+                            }
+
+                            $key = MOD_BOOKING_FORM_OPTIONDATEID . $change['changes']['newvalue'][0]['index'];
+                            $data[$key] = 0;
+                            $key = MOD_BOOKING_FORM_COURSESTARTTIME . $change['changes']['newvalue'][0]['index'];
+                            $data[$key] = $child->coursestarttime + $results['delta_start_time_seconds'];
+                            $key  = MOD_BOOKING_FORM_COURSEENDTIME . $change['changes']['newvalue'][0]['index'];
+                            $data[$key] = $child->courseendtime + $results['delta_end_time_seconds'];
+                            $update = true;
+                        }
+
+                        $fieldname = $change['changes']['fieldname'] ?? '';
+                        $newvalue = $change['changes']['newvalue'] ?? '';
+
+                        // If the field exists and the value is different, update it.
+                        if (isset($child->$fieldname) && $child->$fieldname !== $newvalue) {
+                            $data[$fieldname] = $newvalue;
+                            $update = true;
+                        }
+                    }
+                    // Update the data record after all changes are made.
+                    if ($update) {
+                        //$DB->update_record('booking_options', $child);
+                        self::update($data, $context);
+                    }
+                }
+            }
+
             // If we have no cmid, it's most possibly a template.
             if (!empty($cmid) && $newoption->bookingid != 0) {
                 // We only react on changes, if a cmid exists.
