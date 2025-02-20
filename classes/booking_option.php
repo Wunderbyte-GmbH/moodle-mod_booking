@@ -3412,10 +3412,11 @@ class booking_option {
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $boinfo = new bo_info($settings);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $userid, true);
+        // If it's not blocking, we can return true right away.
         if (
             // If the only thing blocking is a confirmation, the bookit button or the price, we allow overbooking.
             in_array(
-                $isavailable,
+                $id,
                 [
                     MOD_BOOKING_BO_COND_BOOKITBUTTON,
                     MOD_BOOKING_BO_COND_PRICEISSET,

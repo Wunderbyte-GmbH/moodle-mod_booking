@@ -149,7 +149,10 @@ class fullybooked implements bo_condition {
     public function hard_block(booking_option_settings $settings, $userid): bool {
 
         $context = context_system::instance();
-        if (has_capability('mod/booking:overrideboconditions', $context)) {
+        if (
+            get_config('booking', 'allowoverbooking')
+            && has_capability('mod/booking:overrideboconditions', $context)
+        ) {
             return false;
         }
 

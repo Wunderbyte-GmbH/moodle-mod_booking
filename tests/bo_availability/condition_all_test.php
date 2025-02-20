@@ -1630,7 +1630,8 @@ final class condition_all_test extends advanced_testcase {
 
         // Disable allowoverbooking at all.
         $res = set_config('allowoverbooking', 0, 'booking');
-        $res = set_config('allowoverbooking', null, 'booking');
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $res = set_config('allowoverbooking', null, 'booking'); */
 
         $record = new stdClass();
         $record->bookingid = $booking1->id;
