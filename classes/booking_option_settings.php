@@ -1207,7 +1207,7 @@ class booking_option_settings {
                     'mod_booking',
                     '',
                     $name,
-                    "This shorname of a booking customfield contains forbidden characters"
+                    "This shortname of a booking customfield contains forbidden characters"
                 );
             }
 

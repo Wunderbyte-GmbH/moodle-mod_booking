@@ -817,6 +817,7 @@ $string['customfieldname_help'] = 'Sie können einen beliebigen Feldnamen angebe
                                     </ul> zeigen in Kombination mit einem Link im Feld "Wert" einen Button mit dem Link an,
                                     der nur während des Meetings (und kurz davor) sichtbar ist.';
 $string['customfields'] = 'Benutzerdefinierte Felder';
+$string['customfieldsforfilter'] = 'Benutzerdefinierte Felder, die als Filtermöglichkeit angezeigt werden sollen';
 $string['customfieldsplaceholdertext'] = 'Benutzerdefinierte Felder';
 $string['customfieldtype'] = 'Feldtyp';
 $string['customfieldvalue'] = 'Wert';

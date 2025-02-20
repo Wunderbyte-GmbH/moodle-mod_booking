@@ -1025,6 +1025,13 @@ function booking_update_instance($booking) {
         booking::remove_key_from_json($booking, "allowupdatetimestamp");
     }
 
+    if (empty($booking->customfieldsforfilter)) {
+        // This will store the correct JSON to $optionvalues->json.
+        booking::remove_key_from_json($booking, "customfieldsforfilter");
+    } else {
+        booking::add_data_to_json($booking, "customfieldsforfilter", $booking->customfieldsforfilter);
+    }
+
     // Update, delete or insert answers.
     if (!empty($booking->option)) {
         foreach ($booking->option as $key => $value) {
