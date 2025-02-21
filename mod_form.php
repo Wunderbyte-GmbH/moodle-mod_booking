@@ -1160,9 +1160,10 @@ class mod_booking_mod_form extends moodleform_mod {
             }
             $mform->addElement('select', 'customfieldsforfilter', get_string('customfieldsforfilter', 'mod_booking'), $customfieldshortnames);
             $mform->getElement('customfieldsforfilter')->setMultiple(true);
+            $preset = (array)booking::get_value_of_json_by_key($bookingid, 'customfieldsforfilter') ?? [];
             $mform->setDefault(
                 'customfieldsforfilter',
-            (array)booking::get_value_of_json_by_key($bookingid, 'customfieldsforfilter') ?? []
+            array_keys($preset) ?? []
             );
         }
 

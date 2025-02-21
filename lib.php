@@ -1,4 +1,6 @@
 <?php
+
+use mod_booking\customfield\booking_handler;
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -740,9 +742,13 @@ function booking_add_instance($booking) {
     }
 
     if (isset($booking->customfieldsforfilter)) {
-        // This will store the correct JSON to $optionvalues->json.
-        booking::remove_key_from_json($booking, "customfieldsforfilter");
-
+        $customfields = booking_handler::get_customfields($booking->customfieldsforfilter);
+        $fieldsfordb = [];
+        foreach ($customfields as $field) {
+            $fieldsfordb[$field->shortname] = $field->name;
+        }
+        booking::add_data_to_json($booking, "customfieldsforfilter", $fieldsfordb);
+    }
     // If no policy was entered, we still have to check for HTML tags.
     if (!isset($booking->bookingpolicy) || empty(strip_tags($booking->bookingpolicy))) {
         $booking->bookingpolicy = '';
@@ -1031,7 +1037,12 @@ function booking_update_instance($booking) {
         // This will store the correct JSON to $optionvalues->json.
         booking::remove_key_from_json($booking, "customfieldsforfilter");
     } else {
-        booking::add_data_to_json($booking, "customfieldsforfilter", $booking->customfieldsforfilter);
+        $customfields = booking_handler::get_customfields($booking->customfieldsforfilter);
+        $fieldsfordb = [];
+        foreach ($customfields as $field) {
+            $fieldsfordb[$field->shortname] = $field->name;
+        }
+        booking::add_data_to_json($booking, "customfieldsforfilter", $fieldsfordb);
     }
 
     // Update, delete or insert answers.

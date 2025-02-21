@@ -920,15 +920,9 @@ class view implements renderable, templatable {
                 $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
                 $jsonsettings = $bookingsettings->jsonobject ?? [];
                 if (!empty($jsonsettings->customfieldsforfilter)) {
-                    foreach ($jsonsettings->customfieldsforfilter as $customfilter) {
-                        // TODO Add caching for customfields.
-                        $customfields = booking_handler::get_customfields();
-                        foreach ($customfields as $customfield) {
-                            if ($customfield->shortname == $customfilter) {
-                                $localizedname = format_string($customfield->name);
-                            }
-                        }
-                        $standardfilter = new standardfilter($customfilter, $localizedname);
+                    foreach ($jsonsettings->customfieldsforfilter as $shortname => $localizedname) {
+                        $localizedname = format_string($localizedname);
+                        $standardfilter = new standardfilter($shortname, $localizedname);
                         $wbtable->add_filter($standardfilter);
                     }
                 }

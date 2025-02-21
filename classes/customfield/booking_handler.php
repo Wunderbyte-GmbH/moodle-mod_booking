@@ -87,20 +87,34 @@ class booking_handler extends \core_customfield\handler {
     /**
      * Returns the customfields of the mod_booking component.
      *
+     * @param array $selectedshortnames
+     *
      * @return array
      *
      */
-    public static function get_customfields(): array {
+    public static function get_customfields(array $selectedshortnames = []): array {
         global $DB;
 
-        $sql = "SELECT cff.id, cff.name, cff.shortname, cff.configdata
-        FROM {customfield_field} cff
-        LEFT JOIN {customfield_category} cfc
-        ON cff.categoryid = cfc.id
-        WHERE cfc.component = 'mod_booking'
-        ORDER BY cfc.sortorder, cff.sortorder";
+        if (empty($selectedshortnames)) {
+            $sql = "SELECT cff.id, cff.name, cff.shortname, cff.configdata
+                    FROM {customfield_field} cff
+                    LEFT JOIN {customfield_category} cfc
+                    ON cff.categoryid = cfc.id
+                    WHERE cfc.component = 'mod_booking'
+                    ORDER BY cfc.sortorder, cff.sortorder";
+            $params = [];
+        } else {
+            [$insql, $params] = $DB->get_in_or_equal($selectedshortnames, SQL_PARAMS_NAMED, 'param', true);
+            $sql = "SELECT cff.id, cff.name, cff.shortname, cff.configdata
+                    FROM {customfield_field} cff
+                    LEFT JOIN {customfield_category} cfc
+                    ON cff.categoryid = cfc.id
+                    WHERE cfc.component = 'mod_booking'
+                    AND cff.shortname $insql
+                    ORDER BY cfc.sortorder, cff.sortorder";
+        }
 
-        $records = $DB->get_records_sql($sql);
+        $records = $DB->get_records_sql($sql, $params);
 
         return $records;
     }
