@@ -202,8 +202,16 @@ class customfields extends field_base {
                 // Only report that there was change in the section.
                 // Can be extended when needed.
                 $fieldname = $data->get_field()->get('name') ?? $key;
-                $oldvalue = is_string($oldvalue) ? format_string($oldvalue) : $oldvalue;
-                $newvalue = is_string($newvalue) ? format_string($newvalue) : $newvalue;
+                if (is_string($oldvalue)) {
+                    $oldvalue = format_string($oldvalue);
+                } else if (is_array($oldvalue)) {
+                    $oldvalue = implode(',', $oldvalue);
+                }
+                if (is_string($newvalue)) {
+                    $newvalue = format_string($newvalue);
+                } else if (is_array($newvalue)) {
+                    $newvalue = implode(',', $newvalue);
+                }
                 $changes[$key] = [
                     'changes' => [
                         'fieldname' => 'customfields',
