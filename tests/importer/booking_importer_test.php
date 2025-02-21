@@ -43,7 +43,6 @@ use mod_booking\importer\bookingoptionsimporter;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class booking_importer_test extends advanced_testcase {
-
     /**
      * Tests set up.
      */
@@ -100,7 +99,7 @@ final class booking_importer_test extends advanced_testcase {
             'pollurlteacherstext' => ['text' => 'text'],
             'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
             'bookingpolicy' => 'bookingpolicy', 'tags' => '', 'completion' => 2,
-            'showviews' => ['showall,showactive,mybooking,myoptions,myinstitution'],
+            'showviews' => ['showall,showactive,mybooking,myoptions,optionsiamresponsiblefor,myinstitution'],
             'optionsfields' =>
             ['description', 'statusdescription', 'teacher', 'showdates', 'dayofweektime', 'location', 'institution', 'minanswers'],
             'semesterid' => $testsemester->id,
@@ -141,8 +140,8 @@ final class booking_importer_test extends advanced_testcase {
 
         // Perform import of CSV: 3 new booking options have to be created.
         $res = $bookingcsvimport1->execute_bookingoptions_csv_import(
-                                    $formdata,
-                                    file_get_contents($this->get_full_path_of_csv_file('options_coma_new', '01')),
+            $formdata,
+            file_get_contents($this->get_full_path_of_csv_file('options_coma_new', '01')),
         );
         // Check success of import process.
         $this->assertIsArray($res);
@@ -254,6 +253,6 @@ final class booking_importer_test extends advanced_testcase {
      * @return string full path of file.
      */
     protected function get_full_path_of_csv_file(string $setname, string $test): string {
-        return  __DIR__."/../fixtures/{$setname}{$test}.csv";
+        return  __DIR__ . "/../fixtures/{$setname}{$test}.csv";
     }
 }

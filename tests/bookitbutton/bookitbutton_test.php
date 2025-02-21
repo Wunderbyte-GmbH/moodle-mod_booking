@@ -326,7 +326,7 @@ final class bookitbutton_test extends advanced_testcase {
                 'notificationtext' => ['text' => 'text'],
                 'userleave' => ['text' => 'text'],
                 'tags' => '',
-                'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
+                'showviews' => ['mybooking,myoptions,optionsiamresponsiblefor,showall,showactive,myinstitution'],
                 'bookingoptions' => $standardbookingoptions,
             ],
             [
@@ -343,7 +343,7 @@ final class bookitbutton_test extends advanced_testcase {
                 'notificationtext' => ['text' => 'text'],
                 'userleave' => ['text' => 'text'],
                 'tags' => '',
-                'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
+                'showviews' => ['mybooking,myoptions,optionsiamresponsiblefor,showall,showactive,myinstitution'],
                 'bookingoptions' => $standardbookingoptions,
             ],
         ];

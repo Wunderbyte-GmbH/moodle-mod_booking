@@ -1661,6 +1661,7 @@ $string['optionnoimage'] = 'Kein Bild';
 $string['optionsdownloadfields'] = 'Buchungsübersicht - Download (CSV, XLSX...)';
 $string['optionsfield'] = 'Buchungsoptionsfeld';
 $string['optionsfields'] = 'Buchungsoptionsfelder';
+$string['optionsiamresponsiblefor'] = 'Ich bin Kontaktperson';
 $string['optionsiteach'] = 'Von mir geleitet';
 $string['optionspagefields'] = 'Buchungsübersicht - Seite';
 $string['optionspecificcampaignwarning'] = '

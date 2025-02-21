@@ -59,74 +59,6 @@ use templatable;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class renderer extends plugin_renderer_base {
-
-    /**
-     * Prints tabs for options.
-     *
-     * @param booking $booking
-     * @param mixed $urlparams
-     * @param string $current
-     * @param int $mybookings
-     * @param int $myoptions
-     *
-     * @return void
-     *
-     */
-    public function print_booking_tabs(booking $booking, $urlparams, $current = 'showall', $mybookings = 0, $myoptions = 0) {
-        global $USER;
-        // Output tabs.
-        $row = [];
-
-        unset($urlparams['sort']);
-        $tmpurlparams = $urlparams;
-
-        $showviews = explode(',', $booking->settings->showviews);
-        if (in_array('showall', $showviews)) {
-            $tmpurlparams['whichview'] = 'showall';
-            $row[] = new tabobject('showall',
-                new moodle_url('/mod/booking/view.php', $tmpurlparams),
-                get_string('showallbookingoptions', 'mod_booking'));
-        }
-        if (in_array('showactive', $showviews)) {
-            $tmpurlparams['whichview'] = 'showactive';
-            $row[] = new tabobject('showactive',
-                new moodle_url('/mod/booking/view.php', $tmpurlparams),
-                get_string('showactive', 'mod_booking'));
-        }
-        if (in_array('mybooking', $showviews)) {
-            $tmpurlparams['whichview'] = 'mybooking';
-            $row[] = new tabobject('mybooking',
-                new moodle_url('/mod/booking/view.php', $tmpurlparams),
-                get_string('showmybookingsonly', 'mod_booking'));
-        }
-        if ($myoptions > 0 && in_array('myoptions', $showviews)) {
-            $tmpurlparams['whichview'] = 'myoptions';
-            $row[] = new tabobject('myoptions',
-                    new moodle_url('/mod/booking/view.php', $tmpurlparams),
-                    get_string('myoptions', 'booking', $myoptions));
-        }
-        if (!empty($USER->institution) && in_array('myinstitution', $showviews)) {
-            $tmpurlparams['whichview'] = 'myinstitution';
-            $row[] = new tabobject('myinstitution',
-                    new moodle_url('/mod/booking/view.php', $tmpurlparams),
-                    get_string('myinstitution', 'mod_booking'));
-        }
-        if (in_array('showvisible', $showviews)) {
-            $tmpurlparams['whichview'] = 'showvisible';
-            $row[] = new tabobject('showvisible',
-                new moodle_url('/mod/booking/view.php', $tmpurlparams),
-                get_string('visibleoptions', 'mod_booking'));
-        }
-        if (in_array('showinvisible', $showviews)) {
-            $tmpurlparams['whichview'] = 'showinvisible';
-            $row[] = new tabobject('showinvisible',
-                new moodle_url('/mod/booking/view.php', $tmpurlparams),
-                get_string('invisibleoptions', 'mod_booking'));
-        }
-
-        echo $this->tabtree($row, $current);
-    }
-
     /**
      * This method is used to generate HTML for a subscriber selection form that uses two user_selector controls
      *
@@ -135,33 +67,42 @@ class renderer extends plugin_renderer_base {
      * @param int $courseid
      * @return string
      */
-    public function subscriber_selection_form(user_selector_base $existinguc,
-            user_selector_base $potentialuc, $courseid) {
+    public function subscriber_selection_form(
+        user_selector_base $existinguc,
+        user_selector_base $potentialuc,
+        $courseid
+    ) {
         $output = '';
         $formattributes = [];
         $formattributes['id'] = 'subscriberform';
         $formattributes['action'] = '';
         $formattributes['method'] = 'post';
         $output .= html_writer::start_tag('form', $formattributes);
-        $output .= html_writer::empty_tag('input',
-                ['type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()]);
+        $output .= html_writer::empty_tag(
+            'input',
+            ['type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()]
+        );
 
         $existingcell = new html_table_cell();
         $existingcell->text = $existinguc->display(true);
         $existingcell->attributes['class'] = 'existing';
         $actioncell = new html_table_cell();
         $actioncell->text = html_writer::start_tag('div', []);
-        $actioncell->text .= html_writer::empty_tag('input',
-                ['type' => 'submit', 'name' => 'subscribe',
+        $actioncell->text .= html_writer::empty_tag(
+            'input',
+            ['type' => 'submit', 'name' => 'subscribe',
                     'value' => $this->page->theme->larrow . ' ' . get_string('add'),
                     'class' => 'actionbutton',
-                ]);
+            ]
+        );
         $actioncell->text .= html_writer::empty_tag('br', []);
-        $actioncell->text .= html_writer::empty_tag('input',
-                ['type' => 'submit', 'name' => 'unsubscribe',
+        $actioncell->text .= html_writer::empty_tag(
+            'input',
+            ['type' => 'submit', 'name' => 'unsubscribe',
                     'value' => $this->page->theme->rarrow . ' ' . get_string('remove'),
                     'class' => 'actionbutton',
-                ]);
+            ]
+        );
         $actioncell->text .= html_writer::end_tag('div', []);
         $actioncell->attributes['class'] = 'actions';
         $potentialcell = new html_table_cell();
@@ -214,17 +155,26 @@ class renderer extends plugin_renderer_base {
                         $bookingstatus = get_string('onwaitinglist', 'mod_booking');
                     }
 
-                    $bookinginstanceurl = new moodle_url('/mod/booking/view.php',
-                            ['id' => $user->cmid]);
-                    $bookingcourseurl = new moodle_url('/course/view.php',
-                            ['id' => $user->courseid]);
-                    $bookinglink = html_writer::link($bookinginstanceurl,
-                            $user->bookingtitle);
-                    $courselink = html_writer::link($bookingcourseurl,
-                            $user->coursename);
+                    $bookinginstanceurl = new moodle_url(
+                        '/mod/booking/view.php',
+                        ['id' => $user->cmid]
+                    );
+                    $bookingcourseurl = new moodle_url(
+                        '/course/view.php',
+                        ['id' => $user->courseid]
+                    );
+                    $bookinglink = html_writer::link(
+                        $bookinginstanceurl,
+                        $user->bookingtitle
+                    );
+                    $courselink = html_writer::link(
+                        $bookingcourseurl,
+                        $user->coursename
+                    );
                     $html = html_writer::span(
-                            $user->bookingoptionname .
-                                     " $bookinglink.  $courselink $bookingstatus");
+                        $user->bookingoptionname .
+                        " $bookinglink.  $courselink $bookingstatus"
+                    );
                     $items[] = $html;
                 }
             }
@@ -233,7 +183,7 @@ class renderer extends plugin_renderer_base {
                 $content = $this->output->user_picture($user) . " " . fullname($user) . " ";
                 $content .= html_writer::link('mailto:' . $user->email, $user->email);
                 $output .= html_writer::tag('h3', $content);
-                $output .= html_writer::start_tag('div',  ['class' => 'list-group']);
+                $output .= html_writer::start_tag('div', ['class' => 'list-group']);
                 foreach ($items as $item) {
                     $output .= html_writer::tag('div', $item, ['class' => 'list-group-item']);
                 }
@@ -264,32 +214,46 @@ class renderer extends plugin_renderer_base {
 
         // Permissions check - can they view the aggregate?
         if ($rating->user_can_view_aggregate()) {
-
             $aggregatelabel = $ratingmanager->get_aggregate_label(
-                    $rating->settings->aggregationmethod);
+                $rating->settings->aggregationmethod
+            );
             $aggregatestr = $rating->get_aggregate_string();
 
-            $aggregatehtml = html_writer::tag('span', $aggregatestr,
-                    ['id' => 'ratingaggregate' . $rating->itemid, 'class' => 'ratingaggregate']) .
+            $aggregatehtml = html_writer::tag(
+                'span',
+                $aggregatestr,
+                ['id' => 'ratingaggregate' . $rating->itemid, 'class' => 'ratingaggregate']
+            ) .
                      ' ';
             if ($rating->count > 0) {
                 $countstr = "({$rating->count})";
             } else {
                 $countstr = '-';
             }
-            $aggregatehtml .= html_writer::tag('span', $countstr,
-                    ['id' => "ratingcount{$rating->itemid}", 'class' => 'ratingcount']) . ' ';
+            $aggregatehtml .= html_writer::tag(
+                'span',
+                $countstr,
+                ['id' => "ratingcount{$rating->itemid}", 'class' => 'ratingcount']
+            ) . ' ';
 
-            $ratinghtml .= html_writer::tag('span', $aggregatelabel,
-                    ['class' => 'rating-aggregate-label']);
-            if ($rating->settings->permissions->viewall &&
-                     $rating->settings->pluginpermissions->viewall) {
-
+            $ratinghtml .= html_writer::tag(
+                'span',
+                $aggregatelabel,
+                ['class' => 'rating-aggregate-label']
+            );
+            if (
+                $rating->settings->permissions->viewall &&
+                     $rating->settings->pluginpermissions->viewall
+            ) {
                 $nonpopuplink = $rating->get_view_ratings_url();
                 $popuplink = $rating->get_view_ratings_url(true);
 
-                $action = new popup_action('click', $popuplink, 'ratings',
-                        ['height' => 400, 'width' => 600]);
+                $action = new popup_action(
+                    'click',
+                    $popuplink,
+                    'ratings',
+                    ['height' => 400, 'width' => 600]
+                );
                 $ratinghtml .= $this->action_link($nonpopuplink, $aggregatehtml, $action);
             } else {
                 $ratinghtml .= $aggregatehtml;
@@ -300,7 +264,6 @@ class renderer extends plugin_renderer_base {
         // If the item doesn't belong to the current user, the user has permission to rate
         // and we're within the assessable period.
         if ($rating->user_can_rate()) {
-
             $rateurl = $rating->get_rate_url();
 
             // Start the rating form.
@@ -313,17 +276,28 @@ class renderer extends plugin_renderer_base {
 
             $scalearray = [RATING_UNSET_RATING => $strrate . '...'] + $rating->settings->scale->scaleitems;
             $scaleattrs = ['class' => 'postratingmenu ratinginput', 'id' => 'menurating' . $rating->itemid];
-            $ratinghtml .= html_writer::label($rating->rating, 'menurating' . $rating->itemid,
-                    false, ['class' => 'accesshide']);
-            $ratinghtml .= html_writer::select($scalearray, 'rating' . $rating->itemid,
-                    $rating->rating, false, $scaleattrs);
+            $ratinghtml .= html_writer::label(
+                $rating->rating,
+                'menurating' . $rating->itemid,
+                false,
+                ['class' => 'accesshide']
+            );
+            $ratinghtml .= html_writer::select(
+                $scalearray,
+                'rating' . $rating->itemid,
+                $rating->rating,
+                false,
+                $scaleattrs
+            );
 
             if (!$rating->settings->scale->isnumeric) {
                 // If a global scale, try to find current course ID from the context.
                 /** @var \context $ratingcontext */
                 $ratingcontext = $rating->context;
-                if (empty($rating->settings->scale->courseid) && !empty($ratingcontext) &&
-                         $coursecontext = $ratingcontext->get_course_context(false)) {
+                if (
+                    empty($rating->settings->scale->courseid) && !empty($ratingcontext) &&
+                         $coursecontext = $ratingcontext->get_course_context(false)
+                ) {
                     $courseid = $coursecontext->instanceid;
                 } else {
                     $courseid = $rating->settings->scale->courseid;

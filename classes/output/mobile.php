@@ -51,7 +51,6 @@ require_once($CFG->dirroot . '/mod/booking/locallib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mobile {
-
     /**
      * Returns all my bookings view for mobile app.
      *
@@ -72,7 +71,7 @@ class mobile {
 
         $wherearray['bookingid'] = (int)$booking->id;
 
-        list($fields, $from, $where, $params, $filter) =
+        [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(0, 0, '', null, null, [], $wherearray);
 
         $sql = "SELECT $fields
@@ -144,10 +143,10 @@ class mobile {
         $data['userid'] = $USER->id;
 
         $boinfo = new bo_info($settings);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $USER->id, false);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $USER->id, false);
 
         // Now we render the button for this option & user.
-        list($templates, $button) = booking_bookit::render_bookit_template_data($settings, 0, false);
+        [$templates, $button] = booking_bookit::render_bookit_template_data($settings, 0, false);
         $button = reset($button);
 
         $ionsubmissionhtml = '';
@@ -389,6 +388,11 @@ class mobile {
             case 'myoptions':
                 $params = self::get_rendered_table_for_teacher($booking);
                 break;
+            // Todo: When we need it, we can uncomment this.
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /* case 'optionsiamresponsiblefor':
+                $params = self::get_rendered_table_for_responsible_contact($booking);
+                break; */
             case 'myinstitution':
                 $params = self::get_rendered_myinstitution_table($booking);
                 break;
@@ -402,7 +406,7 @@ class mobile {
                 $params = self::get_rendered_all_options_table($booking);
                 break;
         }
-        list($fields, $from, $where, $params, $filter) = booking::get_options_filter_sql(
+        [$fields, $from, $where, $params, $filter] = booking::get_options_filter_sql(
             0,
             0,
             '',
@@ -494,6 +498,23 @@ class mobile {
      * @param \mod_booking\booking $booking
      * @return array
      */
+    // Todo: When we need it, we can uncomment this.
+    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+    /* public static function get_rendered_table_for_responsible_contact($booking): array {
+        global $USER;
+        $wherearray = ['bookingid' => (int)$booking->id];
+        $additionalwhere = "responsiblecontact = $USER->id";
+        return [
+            'wherearray' => $wherearray,
+            'additionalwhere' => $additionalwhere,
+        ];
+    } */
+
+    /**
+     * Render table for all booking options.
+     * @param \mod_booking\booking $booking
+     * @return array
+     */
     public static function get_rendered_active_options_table($booking): array {
         $wherearray = ['bookingid' => (int)$booking->id];
         $additionalwhere = '((courseendtime > :timenow OR courseendtime = 0) AND status = 0)';
@@ -578,13 +599,16 @@ class mobile {
      */
     public static function match_view_label_and_names() {
         return [
-            'showall' => get_string('showallbookingoptions', 'booking'),
-            'mybooking' => get_string('showmybookingsonly', 'booking'),
-            'myoptions' => get_string('optionsiteach', 'booking'),
-            'showactive' => get_string('activebookingoptions', 'booking'),
-            'myinstitution' => get_string('myinstitution', 'booking'),
-            'showvisible' => get_string('visibleoptions', 'booking'),
-            'showinvisible' => get_string('invisibleoptions', 'booking'),
+            'showall' => get_string('showallbookingoptions', 'mod_booking'),
+            'mybooking' => get_string('showmybookingsonly', 'mod_booking'),
+            'myoptions' => get_string('optionsiteach', 'mod_booking'),
+            // Todo: When we need it, we can uncomment this.
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /* 'optionsiamresponsiblefor' => get_string('optionsiamresponsiblefor', 'mod_booking'), */
+            'showactive' => get_string('activebookingoptions', 'mod_booking'),
+            'myinstitution' => get_string('myinstitution', 'mod_booking'),
+            'showvisible' => get_string('visibleoptions', 'mod_booking'),
+            'showinvisible' => get_string('invisibleoptions', 'mod_booking'),
         ];
     }
 
@@ -628,8 +652,10 @@ class mobile {
         $options = [];
 
         foreach ($bookingoptions as $key => $value) {
-            $option = singleton_service::get_instance_of_booking_option($cm->id,
-                    (is_object($value) ? $value->id : $value));
+            $option = singleton_service::get_instance_of_booking_option(
+                $cm->id,
+                (is_object($value) ? $value->id : $value)
+            );
             $option->get_teachers();
             $options[] = self::prepare_options($option, $booking, $context, $cm, $courseid);
         }
@@ -677,12 +703,17 @@ class mobile {
 
         if ($values->option->coursestarttime != 0 && $values->option->courseendtime != 0) {
             $text .= userdate($values->option->coursestarttime) . " - " . userdate(
-                    $values->option->courseendtime);
+                $values->option->courseendtime
+            );
         }
 
         $text .= (!empty($values->teachers) ? "<br>" . (empty($booking->settings->lblteachname) ? get_string(
-                'teachers', 'booking') : $booking->settings->lblteachname) . ": " . implode(', ',
-                $teachers) : '');
+            'teachers',
+            'booking'
+        ) : $booking->settings->lblteachname) . ": " . implode(
+            ', ',
+            $teachers
+        ) : '');
 
         $delete = [];
         $status = '';
@@ -714,14 +745,20 @@ class mobile {
                 $deletemessage = format_string($values->option->text);
 
                 if ($values->option->coursestarttime != 0) {
-                    $deletemessage .= "<br />" . userdate($values->option->coursestarttime,
-                            get_string('strftimedatetime', 'langconfig')) . " - " . userdate(
-                            $values->option->courseendtime, get_string('strftimedatetime', 'langconfig'));
+                    $deletemessage .= "<br />" . userdate(
+                        $values->option->coursestarttime,
+                        get_string('strftimedatetime', 'langconfig')
+                    ) . " - " . userdate(
+                        $values->option->courseendtime,
+                        get_string('strftimedatetime', 'langconfig')
+                    );
                 }
 
                 $cmessage = get_string('deletebooking', 'booking', $deletemessage);
-                $bname = (empty($values->option->btncancelname) ? get_string('cancelbooking',
-                        'booking') : $values->option->btncancelname);
+                $bname = (empty($values->option->btncancelname) ? get_string(
+                    'cancelbooking',
+                    'booking'
+                ) : $values->option->btncancelname);
                 $delete = [
                     'text' => $bname,
                                 'args' => "optionid: {$values->option->id}, cmid: {$cm->id}, courseid: {$courseid}",
@@ -745,9 +782,13 @@ class mobile {
         } else {
             $message = $values->option->text;
             if ($values->option->coursestarttime != 0) {
-                $message .= "<br>" . userdate($values->option->coursestarttime,
-                        get_string('strftimedatetime')) . " - " . userdate(
-                        $values->option->courseendtime, get_string('strftimedatetime', 'langconfig'));
+                $message .= "<br>" . userdate(
+                    $values->option->coursestarttime,
+                    get_string('strftimedatetime')
+                ) . " - " . userdate(
+                    $values->option->courseendtime,
+                    get_string('strftimedatetime', 'langconfig')
+                );
             }
             $message .= '<br><br>' . get_string('confirmbookingoffollowing', 'booking');
             if (!empty($booking->settings->bookingpolicy)) {
@@ -763,13 +804,17 @@ class mobile {
             ];
         }
 
-        if (($values->option->limitanswers && ($status == "full")) || ($status == "closed") ||
-            !$underlimit || $values->option->disablebookingusers) {
+        if (
+            ($values->option->limitanswers && ($status == "full")) || ($status == "closed") ||
+            !$underlimit || $values->option->disablebookingusers
+        ) {
             $button = [];
         }
 
-        if ($booking->settings->cancancelbook == 0 && $values->option->courseendtime > 0
-            && $values->option->courseendtime < time()) {
+        if (
+            $booking->settings->cancancelbook == 0 && $values->option->courseendtime > 0
+            && $values->option->courseendtime < time()
+        ) {
             $button = [];
             $delete = [];
         }
@@ -785,9 +830,12 @@ class mobile {
         }
 
         if ($values->option->limitanswers) {
-            $places = new places($values->option->maxanswers,
-                    $values->option->maxanswers - $values->booked, $values->option->maxoverbooking,
-                    $values->option->maxoverbooking - $values->waiting);
+            $places = new places(
+                $values->option->maxanswers,
+                $values->option->maxanswers - $values->booked,
+                $values->option->maxoverbooking,
+                $values->option->maxoverbooking - $values->waiting
+            );
         }
 
         return [

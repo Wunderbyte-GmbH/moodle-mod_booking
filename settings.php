@@ -1612,6 +1612,7 @@ if ($ADMIN->fulltree) {
             'showall' => get_string('showallbookingoptions', 'booking'),
             'mybooking' => get_string('showmybookingsonly', 'booking'),
             'myoptions' => get_string('optionsiteach', 'booking'),
+            'optionsiamresponsiblefor' => get_string('optionsiamresponsiblefor', 'mod_booking'),
             'showactive' => get_string('activebookingoptions', 'booking'),
             'myinstitution' => get_string('myinstitution', 'booking'),
             'showvisible' => get_string('visibleoptions', 'booking'),

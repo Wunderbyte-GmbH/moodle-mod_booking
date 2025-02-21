@@ -1665,6 +1665,7 @@ $string['optionnoimage'] = 'No image';
 $string['optionsdownloadfields'] = 'Booking options overview - Download (CSV, XLSX...)';
 $string['optionsfield'] = 'Booking option field';
 $string['optionsfields'] = 'Booking option fields';
+$string['optionsiamresponsiblefor'] = 'I am responsible contact';
 $string['optionsiteach'] = 'Taught by me';
 $string['optionspagefields'] = 'Booking options overview - Page';
 $string['optionspecificcampaignwarning'] = 'If you choose fields here beneath, the campaign will apply only for booking options that fullfill the requirements.

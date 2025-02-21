@@ -4838,5 +4838,26 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2025013000, 'booking');
     }
 
+    if ($oldversion < 2025022100) {
+        // Add optionsiamresponsiblefor to the default of field showviews.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field(
+            'showviews',
+            XMLDB_TYPE_CHAR,
+            '255',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            'mybooking,myoptions,optionsiamresponsiblefor,showall,showactive,myinstitution',
+            'defaultoptionsort'
+        );
+
+        // Launch change of default for field showviews.
+        $dbman->change_field_default($table, $field);
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2025022100, 'booking');
+    }
+
     return true;
 }

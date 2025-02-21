@@ -29,6 +29,7 @@
       "activeoptionstable" : "HTML activeoptionstable",
       "myoptionstable" : "HTML myoptionstable",
       "optionsiteachtable" : null,
+      "responsiblecontacttable": null,
       "showonlyonetable" : null,
       "myinstitutiontable" : null,
       "showonlyone" : null,
@@ -82,6 +83,14 @@
         </button>
       </li>
     {{/optionsiteachtable}}
+    {{#responsiblecontacttable}}
+      <li class="nav-item mr-1" role="presentation">
+        <button class="nav-link {{#optionsiamresponsiblefor}}active{{/optionsiamresponsiblefor}}" id="options-i-am-responsible-for-tab" data-toggle="pill" data-target="#options-i-am-responsible-for"
+          type="button" role="tab" aria-controls="options-i-am-responsible-for" aria-selected="true">
+          {{#str}} optionsiamresponsiblefor, mod_booking {{/str}}
+        </button>
+      </li>
+    {{/responsiblecontacttable}}
     {{#myinstitutiontable}}
       <li class="nav-item mr-1" role="presentation">
         <button class="nav-link {{#myinstitution}}active{{/myinstitution}}" id="myinstitution-tab" data-toggle="pill" data-target="#myinstitution"
@@ -140,6 +149,9 @@
     {{#optionsiteachtable}}
       <div class="tab-pane fade {{#myoptions}}show active{{/myoptions}}" id="options-i-teach" role="tabpanel" aria-labelledby="options-i-teach-tab">{{{optionsiteachtable}}}</div>
     {{/optionsiteachtable}}
+    {{#responsiblecontacttable}}
+      <div class="tab-pane fade {{#optionsiamresponsiblefor}}show active{{/optionsiamresponsiblefor}}" id="options-i-am-responsible-for" role="tabpanel" aria-labelledby="options-i-am-responsible-for">{{{responsiblecontacttable}}}</div>
+    {{/responsiblecontacttable}}
     {{#myinstitutiontable}}
       <div class="tab-pane fade {{#myinstitution}}show active{{/myinstitution}}" id="myinstitution" role="tabpanel" aria-labelledby="myinstitution-tab">{{{myinstitutiontable}}}</div>
     {{/myinstitutiontable}}

@@ -49,7 +49,6 @@ use local_shopping_cart\local\cartstore;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_booking_generator extends testing_module_generator {
-
     /**
      *
      * @var int keep track of how many booking options have been created.
@@ -85,7 +84,7 @@ class mod_booking_generator extends testing_module_generator {
 
         $defaultsettings = [
             'assessed' => 0,
-            'showviews' => 'showall,showactive,mybooking,myoptions,myinstitution',
+            'showviews' => 'showall,showactive,mybooking,myoptions,optionsiamresponsiblefor,myinstitution',
             'whichview' => 'showall',
             'optionsfields' => 'description,statusdescription,teacher,showdates,dayofweektime,
                                 location,institution,minanswers',
@@ -130,12 +129,14 @@ class mod_booking_generator extends testing_module_generator {
 
         if (!isset($record['bookingid'])) {
             throw new coding_exception(
-                    'bookingid must be present in phpunit_util::create_option() $record');
+                'bookingid must be present in phpunit_util::create_option() $record'
+            );
         }
 
         if (!isset($record['text'])) {
             throw new coding_exception(
-                    'text must be present in phpunit_util::create_option() $record');
+                'text must be present in phpunit_util::create_option() $record'
+            );
         }
 
         $booking = singleton_service::get_instance_of_booking_by_bookingid($record['bookingid']);
@@ -191,7 +192,7 @@ class mod_booking_generator extends testing_module_generator {
         $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
         $user = $DB->get_record('user', ['id' => (int)$record->userid], '*', MUST_EXIST);
         $option->user_submit_response($user, 0, 0, 0, MOD_BOOKING_VERIFIED);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $record->userid, true);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $record->userid, true);
         // Value of $id expected to be MOD_BOOKING_BO_COND_ALREADYBOOKED.
 
         return $id;
@@ -298,8 +299,13 @@ class mod_booking_generator extends testing_module_generator {
                 $itemid = 0;
         }
 
-        Mod_bookingPrice::add_price($record->area, $itemid, $record->pricecategoryidentifier,
-        $record->price, $record->currency);
+        Mod_bookingPrice::add_price(
+            $record->area,
+            $itemid,
+            $record->pricecategoryidentifier,
+            $record->price,
+            $record->currency
+        );
     }
     /**
      * Function to create a dummy semester option.
@@ -425,7 +431,7 @@ class mod_booking_generator extends testing_module_generator {
         global $DB;
 
         $param = '\"name\":\"' . $rulename . '\"';
-        $sql = 'SELECT id FROM {booking_rules} WHERE rulejson LIKE \'%'. $param .'%\'';
+        $sql = 'SELECT id FROM {booking_rules} WHERE rulejson LIKE \'%' . $param . '%\'';
         if (!$id = $DB->get_field_sql($sql)) {
             throw new Exception('The specified rule with name "' . $rulename . '" does not exist');
         }

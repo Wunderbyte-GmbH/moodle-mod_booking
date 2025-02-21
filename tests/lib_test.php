@@ -45,7 +45,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class lib_test extends advanced_testcase {
-
     /**
      * Tests set up.
      */
@@ -79,7 +78,7 @@ final class lib_test extends advanced_testcase {
                     'pollurlteacherstext' => ['text' => 'text'], 'notificationtext' => ['text' => 'text'],
                     'userleave' => ['text' => 'text'], 'bookingpolicy' => 'bookingpolicy',
                     'tags' => '', 'course' => $course->id, 'bookingmanager' => $user->username,
-                    'showviews' => ['showall, showactive, mybooking, myoptions, myinstitution'],
+                    'showviews' => ['mybooking,myoptions,optionsiamresponsiblefor,showall,showactive,myinstitution'],
         ];
 
         $booking = $this->getDataGenerator()->create_module('booking', $bdata);
@@ -107,7 +106,5 @@ final class lib_test extends advanced_testcase {
         $this->assertEquals(1, $DB->count_records('booking_teachers', ['userid' => $user->id, 'optionid' => $option->id]));
 
         $this->assertEquals(true, groups_is_member($group->id, $user->id));
-
     }
-
 }

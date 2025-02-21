@@ -1196,7 +1196,7 @@ final class shopping_cart_test extends advanced_testcase {
                 'tags' => '',
                 'completion' => 2,
                 'cancancelbook' => 0,
-                'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
+                'showviews' => ['mybooking,myoptions,optionsiamresponsiblefor,showall,showactive,myinstitution'],
             ],
             'options' => [
                 // Option 1 with 1 session in remote future.

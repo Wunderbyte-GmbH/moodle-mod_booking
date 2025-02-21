@@ -44,6 +44,7 @@ use core\event\notification_sent;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class send_reminder_mails_test extends advanced_testcase {
+
     /**
      * Tests set up.
      */
@@ -74,7 +75,7 @@ final class send_reminder_mails_test extends advanced_testcase {
             'pollurlteacherstext' => ['text' => 'text'],
             'notificationtext' => ['text' => 'text'], 'userleave' => ['text' => 'text'],
             'bookingpolicy' => 'bookingpolicy', 'tags' => '', 'completion' => 2,
-            'showviews' => ['mybooking,myoptions,optionsiamresponsiblefor,showall,showactive,myinstitution'],
+            'showviews' => [''],
         ];
 
         // Spoecific setting to notify teachers.
