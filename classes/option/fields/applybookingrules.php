@@ -175,7 +175,7 @@ class applybookingrules extends field_base {
             if (get_class($context) === 'core\context\system') {
                 $contextname = get_string('system', 'mod_booking');
             } else {
-                $booking = singleton_service::get_instance_of_booking_settings_by_cmid($context->instanceid);
+                $booking = singleton_service::get_instance_of_booking_settings_by_cmid($formdata['cmid']);
                 $contextname = $booking->name;
             }
 
