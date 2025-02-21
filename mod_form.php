@@ -596,6 +596,22 @@ class mod_booking_mod_form extends moodleform_mod {
         $defaults = array_keys($optionsfields);
         $mform->setDefault('optionsfields', $defaults);
 
+        // Custom fields to be shown on detail page (optionview.php).
+        $customfields = booking_handler::get_customfields();
+        if (!empty($customfields)) {
+            $customfieldshortnames = [];
+            foreach ($customfields as $cf) {
+                $customfieldshortnames[$cf->shortname] = "$cf->name ($cf->shortname)";
+            }
+            $mform->addElement('select', 'customfieldsforfilter', get_string('customfieldsforfilter', 'mod_booking'), $customfieldshortnames);
+            $mform->getElement('customfieldsforfilter')->setMultiple(true);
+            $preset = (array)booking::get_value_of_json_by_key($bookingid, 'customfieldsforfilter') ?? [];
+            $mform->setDefault(
+                'customfieldsforfilter',
+            array_keys($preset)
+            );
+        }
+
         // Fields for download of booking option overview.
         $options = [
             'multiple' => true,
@@ -1149,21 +1165,6 @@ class mod_booking_mod_form extends moodleform_mod {
             $mform->setDefault(
                 'billboardtext',
                 booking::get_value_of_json_by_key($bookingid, 'billboardtext') ?? ''
-            );
-        }
-        // Custom fields to be shown on detail page (optionview.php).
-        $customfields = booking_handler::get_customfields();
-        if (!empty($customfields)) {
-            $customfieldshortnames = [];
-            foreach ($customfields as $cf) {
-                $customfieldshortnames[$cf->shortname] = "$cf->name ($cf->shortname)";
-            }
-            $mform->addElement('select', 'customfieldsforfilter', get_string('customfieldsforfilter', 'mod_booking'), $customfieldshortnames);
-            $mform->getElement('customfieldsforfilter')->setMultiple(true);
-            $preset = (array)booking::get_value_of_json_by_key($bookingid, 'customfieldsforfilter') ?? [];
-            $mform->setDefault(
-                'customfieldsforfilter',
-            array_keys($preset) ?? []
             );
         }
 
