@@ -749,10 +749,7 @@ function booking_add_instance($booking) {
         booking::add_data_to_json($booking, 'maxoptionsfromcategory', $booking->maxoptionsfromcategory);
     }
 
-    if (empty($booking->maxoptionsfromcategorycount)) {
-        booking::remove_key_from_json($booking, "maxoptionsfromcategory");
-        booking::remove_key_from_json($booking, "maxoptionsfrominstance");
-    } else if (!empty($booking->maxoptionsfromcategoryvalue)) {
+    if (!empty($booking->maxoptionsfromcategoryvalue)) {
         $submitdata = [];
         $field = get_config('booking', 'maxoptionsfromcategoryfield');
         foreach ($booking->maxoptionsfromcategoryvalue as $value) {
