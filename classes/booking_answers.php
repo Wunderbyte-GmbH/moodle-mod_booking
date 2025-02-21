@@ -447,7 +447,9 @@ class booking_answers {
             $localizedentry = $data->localizedstring;
             if (
                 !isset($this->bookingoptionsettings->customfields[$field])
-                || $this->bookingoptionsettings->customfields[$field] != $localizedentry
+                || ($this->bookingoptionsettings->customfields[$field] != $localizedentry
+                    && !(is_array($this->bookingoptionsettings->customfields[$field])
+                        && in_array($localizedentry, $this->bookingoptionsettings->customfields[$field])))
             ) {
                 continue;
             } else {
@@ -483,7 +485,11 @@ class booking_answers {
             if (!isset($bosetting->customfields[$field])) {
                 continue;
             }
-            if ($bosetting->customfields[$field] === $localizedentry) {
+            if (
+                $bosetting->customfields[$field] === $localizedentry
+                || (is_array($bosetting->customfields[$field])
+                && in_array($localizedentry, $bosetting->customfields[$field]))
+            ) {
                 if (
                     !empty($limittoinstance)
                     && $bosetting->bookingid != $this->bookingoptionsettings->bookingid
