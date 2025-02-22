@@ -374,9 +374,15 @@ class maxoptionsfromcategory implements bo_condition {
             && !empty($savedsettingsdata = (array)json_decode($savedsettings))
         ) {
             $field = get_config('booking', 'maxoptionsfromcategoryfield') ?? '';
+            // Fix for drop-down menu customfields.
+            if (is_array($bookingoption->customfields[$field])) {
+                $typestr = reset($bookingoption->customfields[$field]);
+            } else {
+                $typestr = $bookingoption->customfields[$field];
+            }
             $a = (object) [
                 'maxoptions' => $string,
-                'type' => $bookingoption->customfields[$field],
+                'type' => $typestr,
                 'category' => $field,
                 'max' => reset($savedsettingsdata)->count, // Since count is the same for all, we can just take the first one.
             ];
