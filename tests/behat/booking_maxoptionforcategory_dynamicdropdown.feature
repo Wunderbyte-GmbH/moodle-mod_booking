@@ -22,7 +22,7 @@ Feature: As admin - configure max option for category with dynamic dropdown cust
       | UserN | mod_booking | booking | 0      |
     And the following "custom fields" exist:
       | name     | category | type          | shortname   | configdata                                          |
-      | DynamicU | UserN    | dynamicformat | dynamicuser | {"required":"0","uniquevalues":"0","dynamicsql":"SELECT id, username as data FROM {user}","autocomplete":"0","defaultvalue":"1","multiselect":"1"} |
+      | DynamicU | UserN    | dynamicformat | dynamicuser | {"required":"0","uniquevalues":"0","dynamicsql":"SELECT username as id, username as data FROM {user}","autocomplete":"0","defaultvalue":"1","multiselect":"0"} |
     And the following "mod_booking > pricecategories" exist:
       | ordernum | identifier | name  | defaultvalue | disabled | pricecatsortorder |
       | 1        | default    | Price | 88           | 0        | 1                 |
@@ -34,8 +34,8 @@ Feature: As admin - configure max option for category with dynamic dropdown cust
       | booking  | C1     | Booking1 | Booking description | teacher1       | Webinar   | All bookings                     | Yes                      | {"maxoptionsfromcategory":"{\"teacher1\":{\"count\":3,\"localizedstring\":\"teacher1\"}}","maxoptionsfrominstance":"0"} |
     And the following "mod_booking > options" exist:
       | booking   | text       | course | description        | importing | maxanswers | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | useprice | dynamicuser |
-      | Booking0  | Option01-t | C1     | teacher1 (limited) | 1         | 3          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 0        | teacher1,student1 |
-      | Booking0  | Option02-f | C1     | student2           | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | student2    |
+      | Booking0  | Option01-t | C1     | teacher1 (limited) | 1         | 3          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 0        | teacher1    |
+      | Booking0  | Option02-f | C1     | student2           | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | student2 |
       | Booking0  | Option03-y | C1     | student1 (limited) | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | student1    |
       | Booking0  | Option04-c | C1     | student2           | 1         | 3          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 0        | student2    |
       | Booking0  | Option05-r | C1     | student2           | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | student2    |
@@ -61,7 +61,7 @@ Feature: As admin - configure max option for category with dynamic dropdown cust
       | maxoptionsfromcategoryfield | dynamicuser   | booking |
 
   @javascript
-  Scenario: Booking: configure max option for category with dynamic dropdown customfield and validate it as student
+  Scenario: Booking: configure max option for category via dynamic dropdown customfield with multiselect and validate it as student
     Given I am on the "Booking0" "booking activity editing" page logged in as admin
     And I expand all fieldsets
     And I set the following fields to these values:
@@ -74,7 +74,7 @@ Feature: As admin - configure max option for category with dynamic dropdown cust
     ## And I press "Save and display"
     And I log out
     ## Verify max booking options for 1st instance as a student
-    When I am on the "Booking0" Activity page logged in as admin
+    When I am on the "Booking0" Activity page logged in as student1
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
@@ -83,15 +83,15 @@ Feature: As admin - configure max option for category with dynamic dropdown cust
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r7" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r7" "css_element"
     And I should see "Start" in the ".allbookingoptionstable_r7" "css_element"
-    Then I should see "You have reached the maximum of 2 bookings of type \"tenis\" (in category \"spt1\")" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "You have reached the maximum of 2 bookings of type \"tenis\" (in category \"spt1\")" in the ".allbookingoptionstable_r7" "css_element"
-    And I should see "You have reached the maximum of 2 bookings of type \"tenis\" (in category \"spt1\")" in the ".allbookingoptionstable_r8" "css_element"
+    Then I should see "You have reached the maximum of 2 bookings of type \"teacher1\" (in category \"dynamicuser\")" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "You have reached the maximum of 2 bookings of type \"teacher1\" (in category \"dynamicuser\")" in the ".allbookingoptionstable_r7" "css_element"
+    And I should see "You have reached the maximum of 2 bookings of type \"teacher1\" (in category \"dynamicuser\")" in the ".allbookingoptionstable_r8" "css_element"
     ## Verify max booking options for 2nd instance as a student
     And I am on the "Booking1" Activity page
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "You have reached the maximum of 3 bookings of type \"tenis\" (in category \"spt1\")" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "You have reached the maximum of 3 bookings of type \"tenis\" (in category \"spt1\")" in the ".allbookingoptionstable_r5" "css_element"
-    And I should see "You have reached the maximum of 3 bookings of type \"tenis\" (in category \"spt1\")" in the ".allbookingoptionstable_r6" "css_element"
+    And I should see "You have reached the maximum of 3 bookings of type \"teacher1\" (in category \"dynamicuser\")" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "You have reached the maximum of 3 bookings of type \"teacher1\" (in category \"dynamicuser\")" in the ".allbookingoptionstable_r5" "css_element"
+    And I should see "You have reached the maximum of 3 bookings of type \"teacher1\" (in category \"dynamicuser\")" in the ".allbookingoptionstable_r6" "css_element"
