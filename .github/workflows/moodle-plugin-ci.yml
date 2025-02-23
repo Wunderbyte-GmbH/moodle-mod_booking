@@ -146,6 +146,7 @@ jobs:
           moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-local_wunderbyte_table
           moodle-plugin-ci add-plugin --branch MOODLE_401_DEV Wunderbyte-GmbH/moodle-local_shopping_cart
           moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-local_entities
+          moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-customfield_dynamicformat
           moodle-plugin-ci add-plugin --branch master branchup/moodle-filter_shortcodes
 
           moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1
