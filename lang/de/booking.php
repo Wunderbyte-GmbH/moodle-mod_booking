@@ -2286,6 +2286,8 @@ $string['turnoffwaitinglist_desc'] = 'Aktivieren Sie diese Einstellung, um die W
 $string['turnoffwaitinglistaftercoursestart'] = 'Automatisches Nachrücken von der Warteliste ab Beginn der Buchungsoption deaktivieren.';
 $string['turnoffwunderbytelogo'] = 'Wunderbyte Logo und Link nicht anzeigen';
 $string['turnoffwunderbytelogo_desc'] = 'Wenn diese Einstellung aktiviert ist, werden das Wunderbyte Logo und der Link zur Wunderbyte-Website nicht angezeigt.';
+$string['turnthisoninsettings'] = 'Aktivierung in globalen Einstellungen nötig';
+$string['turnthisoninsettings_help'] = 'Noch nicht aktiviert. <a href="{$a}" target="_blank">Hier klicken, um diese Funktionalität in den globalen Einstellungen zu aktivieren</a>.';
 $string['unconfirm'] = 'Lösche Bestätigung';
 $string['unconfirmbooking'] = 'Lösche Bestätigung dieser Buchung';
 $string['unconfirmbookinglong'] = 'Wollen Sie die Bestätigung dieser Buchung wirklich aufheben?';

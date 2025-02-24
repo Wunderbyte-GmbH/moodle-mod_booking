@@ -30,6 +30,7 @@ use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use mod_booking\utils\wb_payment;
+use moodle_url;
 use MoodleQuickForm;
 use stdClass;
 
@@ -130,7 +131,7 @@ class duration extends field_base {
         $fieldstoinstanciate = [],
         $applyheader = true
     ) {
-
+        $proversion = wb_payment::pro_version_is_activated();
         $optionid = $formdata['id'];
 
         // Standardfunctionality to add a header to the mform (only if its not yet there).
@@ -139,8 +140,13 @@ class duration extends field_base {
         }
 
         // PRO feature: Self-learning courses - booking options with a duration.
-        if (wb_payment::pro_version_is_activated()) {
+        $showlinktosettings = false;
+        if ($proversion) {
             $selflearningcourseactive = (int)get_config('booking', 'selflearningcourseactive');
+            if (!$selflearningcourseactive) {
+                // If PRO is active, but setting is not yet on, we want to show a link to config settings.
+                $showlinktosettings = true;
+            }
         } else {
             $selflearningcourseactive = 0;
         }
@@ -163,7 +169,23 @@ class duration extends field_base {
             [0, 1]
         );
         $mform->setDefault('selflearningcourse', 0);
-        $mform->addHelpButton('selflearningcourse', 'selflearningcourse', 'mod_booking', '', false, $selflearningcourselabel);
+        if ($showlinktosettings) {
+            // If PRO version is active, but selflearningcourse is not, we show a link to config settings.
+            $mform->addHelpButton(
+                'selflearningcourse',
+                'turnthisoninsettings',
+                'mod_booking',
+                '',
+                false,
+                new moodle_url(
+                    '/admin/settings.php',
+                    ['section' => 'modsettingbooking']
+                )
+            );
+        } else {
+            // Else we show the normal help text.
+            $mform->addHelpButton('selflearningcourse', 'selflearningcourse', 'mod_booking', '', false, $selflearningcourselabel);
+        }
         $mform->disabledIf('selflearningcourse', 'selflearningcourseactive', 'neq', 1);
 
         if ($selflearningcourseactive === 1) {

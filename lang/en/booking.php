@@ -2358,6 +2358,8 @@ $string['turnoffwaitinglist_desc'] = 'Activate this setting, if you do not want 
 $string['turnoffwaitinglistaftercoursestart'] = 'Turn off automatic moving up from waiting list after a booking option has started.';
 $string['turnoffwunderbytelogo'] = 'Do not show Wunderbyte logo and link';
 $string['turnoffwunderbytelogo_desc'] = 'If you activate this setting, the Wunderbyte logo and the link to the Wunderbyte website won\'t be shown.';
+$string['turnthisoninsettings'] = 'Activation in config settings necessary';
+$string['turnthisoninsettings_help'] = 'Not yet activated. <a href="{$a}" target="_blank">Click here to enable this functionality in the global settings</a>.';
 $string['unconfirm'] = 'Delete confirmation';
 $string['unconfirmbooking'] = 'Delete confirmation of this booking';
 $string['unconfirmbookinglong'] = 'Do you really want to delete the confirmation of this booking?';
