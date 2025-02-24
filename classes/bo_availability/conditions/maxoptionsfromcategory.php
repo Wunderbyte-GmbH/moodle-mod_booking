@@ -459,8 +459,8 @@ class maxoptionsfromcategory implements bo_condition {
      *
      */
     private function max_options_defined(booking_option_settings $settings): array {
-        if (!empty($this->handling)) {
-            return $this->handling;
+        if (!empty($this->handling[$settings->cmid])) {
+            return $this->handling[$settings->cmid];
         }
         $booking = singleton_service::get_instance_of_booking_by_cmid($settings->cmid);
         $bsettingsjson = $booking->settings->json ?? '';
@@ -475,7 +475,7 @@ class maxoptionsfromcategory implements bo_condition {
         if (reset($maxoptions)->count == 0) {
             return [];
         }
-        $this->handling = $maxoptions;
-        return $this->handling;
+        $this->handling[$settings->cmid] = $maxoptions;
+        return $this->handling[$settings->cmid];
     }
 }
