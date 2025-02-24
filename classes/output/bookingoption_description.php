@@ -300,8 +300,10 @@ class bookingoption_description implements renderable, templatable {
         // Show info until when the booking option can be cancelled.
         // If cancelling was disabled in the booking option or for the whole instance...
         // ...then we do not show the cancel until info.
-        if (booking_option::get_value_of_json_by_key($optionid, 'disablecancel')
-            || booking::get_value_of_json_by_key($settings->bookingid, 'disablecancel')) {
+        if (
+            booking_option::get_value_of_json_by_key($optionid, 'disablecancel')
+            || booking::get_value_of_json_by_key($settings->bookingid, 'disablecancel')
+        ) {
             $this->canceluntil = null;
         } else {
             // Check if the option has its own canceluntil date.
