@@ -22,7 +22,7 @@ Feature: As admin - configure max option for category with dynamic dropdown cust
       | UserN | mod_booking | booking | 0      |
     And the following "custom fields" exist:
       | name     | category | type          | shortname   | configdata                                          |
-      | DynamicU | UserN    | dynamicformat | dynamicuser | {"required":"0","uniquevalues":"0","dynamicsql":"SELECT username as id, username as data FROM {user}","autocomplete":"0","defaultvalue":"1","multiselect":"0"} |
+      | DynamicU | UserN    | dynamicformat | dynamicuser | {"required":"0","uniquevalues":"0","dynamicsql":"SELECT username as id, username as data FROM {user}","autocomplete":"0","defaultvalue":"1","multiselect":"1"} |
     And the following "mod_booking > pricecategories" exist:
       | ordernum | identifier | name  | defaultvalue | disabled | pricecatsortorder |
       | 1        | default    | Price | 88           | 0        | 1                 |
@@ -30,11 +30,11 @@ Feature: As admin - configure max option for category with dynamic dropdown cust
       | 3        | discount2  | Disc2 | 66           | 0        | 3                 |
     And the following "activities" exist:
       | activity | course | name     | intro               | bookingmanager | eventtype | Default view for booking options | Send confirmation e-mail | json                                                                                                                    |
-      | booking  | C1     | Booking0 | Booking description | teacher1       | Webinar   | All bookings                     | Yes                      | {"maxoptionsfromcategory":"{\"teacher1\":{\"count\":2,\"localizedstring\":\"teacher1\"}}","maxoptionsfrominstance":"0"} |
-      | booking  | C1     | Booking1 | Booking description | teacher1       | Webinar   | All bookings                     | Yes                      | {"maxoptionsfromcategory":"{\"teacher1\":{\"count\":3,\"localizedstring\":\"teacher1\"}}","maxoptionsfrominstance":"0"} |
+      | booking  | C1     | Booking0 | Booking description | teacher1       | Webinar   | All bookings                     | Yes                      | {"maxoptionsfromcategory":"{\"1\":{\"count\":2,\"localizedstring\":\"teacher1\"}}","maxoptionsfrominstance":"0"} |
+      | booking  | C1     | Booking1 | Booking description | teacher1       | Webinar   | All bookings                     | Yes                      | {"maxoptionsfromcategory":"{\"1\":{\"count\":3,\"localizedstring\":\"teacher1\"}}","maxoptionsfrominstance":"0"} |
     And the following "mod_booking > options" exist:
       | booking   | text       | course | description        | importing | maxanswers | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | useprice | dynamicuser |
-      | Booking0  | Option01-t | C1     | teacher1 (limited) | 1         | 3          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 0        | teacher1    |
+      | Booking0  | Option01-t | C1     | teacher1 (limited) | 1         | 3          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 0        | teacher1,student2    |
       | Booking0  | Option02-f | C1     | student2           | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | student2 |
       | Booking0  | Option03-y | C1     | student1 (limited) | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | student1    |
       | Booking0  | Option04-c | C1     | student2           | 1         | 3          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 0        | student2    |
