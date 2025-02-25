@@ -1,4 +1,6 @@
 <?php
+
+use local_wunderbyte_table\local\customfield\wbt_field_controller_info;
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -744,25 +746,19 @@ function booking_add_instance($booking) {
     if (isset($booking->billboardtext)) {
         // This will store the correct JSON to $optionvalues->json.
         booking::add_data_to_json($booking, "billboardtext", $booking->billboardtext);
-	}
-    if (isset($booking->maxoptionsfromcategory)) {
-        booking::add_data_to_json($booking, 'maxoptionsfromcategory', $booking->maxoptionsfromcategory);
     }
 
     if (!empty($booking->maxoptionsfromcategoryvalue)) {
         $submitdata = [];
         $field = get_config('booking', 'maxoptionsfromcategoryfield');
-        foreach ($booking->maxoptionsfromcategoryvalue as $value) {
-            $localizedstring = singleton_service::get_customfield_value_from_sanitzed_string(
-                $value,
-                $field
-            );
-            $submitdata[$value] = [
+        $fieldcontroller = wbt_field_controller_info::get_instance_by_shortname($field);
+        foreach ($booking->maxoptionsfromcategoryvalue as $id) {
+            $localizedstring = $fieldcontroller->get_option_value_by_key($id, false);
+            $submitdata[$id] = [
                         'count' => $booking->maxoptionsfromcategorycount,
                         'localizedstring' => $localizedstring,
                 ];
         }
-
         booking::add_data_to_json($booking, "maxoptionsfromcategory", json_encode($submitdata));
         booking::add_data_to_json($booking, "maxoptionsfrominstance", $booking->maxoptionsfrominstance);
     }
@@ -1081,12 +1077,10 @@ function booking_update_instance($booking) {
     } else if (!empty($booking->maxoptionsfromcategoryvalue)) {
         $submitdata = [];
         $field = get_config('booking', 'maxoptionsfromcategoryfield');
-        foreach ($booking->maxoptionsfromcategoryvalue as $value) {
-            $localizedstring = singleton_service::get_customfield_value_from_sanitzed_string(
-                $value,
-                $field
-            );
-            $submitdata[$value] = [
+        $fieldcontroller = wbt_field_controller_info::get_instance_by_shortname($field);
+        foreach ($booking->maxoptionsfromcategoryvalue as $id) {
+            $localizedstring = $fieldcontroller->get_option_value_by_key($id, false);
+            $submitdata[$id] = [
                         'count' => $booking->maxoptionsfromcategorycount,
                         'localizedstring' => $localizedstring,
                 ];

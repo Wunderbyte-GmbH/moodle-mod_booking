@@ -373,8 +373,8 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
                         'bookinginstancesettings' => [
                             '{}', // First instance doesn't contain any restrictions.
                             '{"maxoptionsfromcategory":' .
-                                '"{\"aerialsilk\":{\"count\":1,\"localizedstring\":\"AERIAL SILK\"},' .
-                                '\"aerialstrengthflexibility\":' .
+                                '"{\"1\":{\"count\":1,\"localizedstring\":\"AERIAL SILK\"},' .
+                                '\"2\":' .
                                 '{\"count\":1,\"localizedstring\":\"AERIAL STRENGTH&FLEXIBILITY\"}}",' .
                                 '"maxoptionsfrominstance":"1"}',
                         ],
@@ -393,7 +393,7 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
                         'bookinginstancesettings' => [
                             '{}', // First instance doesn't contain any restrictions.
                             '{"maxoptionsfromcategory":' . // Count is set to two.
-                                '"{\"aerialsilk\":{\"count\":2,\"localizedstring\":\"AERIAL SILK\"},' .
+                                '"{\"1\":{\"count\":2,\"localizedstring\":\"AERIAL SILK\"},' .
                                 '\"aerialstrengthflexibility\":' .
                                 '{\"count\":2,\"localizedstring\":\"AERIAL STRENGTH&FLEXIBILITY\"}}",' .
                                 '"maxoptionsfrominstance":"1"}',
@@ -413,7 +413,7 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
                         'bookinginstancesettings' => [
                             '{}', // First instance doesn't contain any restrictions.
                             '{"maxoptionsfromcategory":' . // Count is set to two.
-                                '"{\"aerialsilk\":{\"count\":2,\"localizedstring\":\"AERIAL SILK\"}}",' .
+                                '"{\"1\":{\"count\":2,\"localizedstring\":\"AERIAL SILK\"}}",' .
                                 '"maxoptionsfrominstance":"0"}',
                         ], // Instance is disabled ("maxoptionsfrominstance":"0") & count is set to two.
                         'user' => 'student2',
@@ -433,8 +433,8 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
                     [   'bookingconfig' => $bookingconfig['off'],
                         'bookinginstancesettings' => [
                             '{}', // First instance doesn't contain any restrictions.
-                            '{"maxoptionsfromcategory":"{\"aerialsilk\":{\"count\":2,\"localizedstring\":\"AERIAL SILK\"},' .
-                            '\"aerialstrengthflexibility\":{\"count\":2,\"localizedstring\":\"AERIAL STRENGTH&FLEXIBILITY\"}}",' .
+                            '{"maxoptionsfromcategory":"{\"1\":{\"count\":2,\"localizedstring\":\"AERIAL SILK\"},' .
+                            '\"2\":{\"count\":2,\"localizedstring\":\"AERIAL STRENGTH&FLEXIBILITY\"}}",' .
                             '"maxoptionsfrominstance":"1"}',
                         ],
                         'user' => 'student2',
@@ -451,8 +451,8 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
                     [   'bookingconfig' => $bookingconfig['on'],
                         'bookinginstancesettings' => [
                             '{}', // First instance doesn't contain any restrictions.
-                            '{"maxoptionsfromcategory":"{\"aerialsilk\":{\"count\":0,\"localizedstring\":\"AERIAL SILK\"},' .
-                            '\"aerialstrengthflexibility\":{\"count\":0,\"localizedstring\":\"AERIAL STRENGTH&FLEXIBILITY\"}}",' . '
+                            '{"maxoptionsfromcategory":"{\"1\":{\"count\":0,\"localizedstring\":\"AERIAL SILK\"},' .
+                            '\"2\":{\"count\":0,\"localizedstring\":\"AERIAL STRENGTH&FLEXIBILITY\"}}",' . '
                             "maxoptionsfrominstance":"1"}',
                         ],
                         'user' => 'student2',
