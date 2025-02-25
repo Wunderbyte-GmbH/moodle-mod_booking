@@ -1449,6 +1449,11 @@ class booking {
 
         // Bring the result in the correct form.
         foreach ($records as $record) {
+            // Fix context of page.
+            $bookingid = $DB->get_field('booking_optiondates', 'bookingid', ['id' => $record->instanceid]);
+            [$course, $cm] = get_course_and_cm_from_instance($bookingid, 'booking');
+            booking_context_helper::fix_booking_page_context($PAGE, $cm->id);
+
             $optionsettings = singleton_service::get_instance_of_booking_option_settings($record->optionid);
 
             if (!modechecker::is_ajax_or_webservice_request()) {
