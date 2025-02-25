@@ -40,7 +40,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class message_sent extends \core\event\base {
-
     /**
      * Init
      *
@@ -85,13 +84,12 @@ class message_sent extends \core\event\base {
             $other = (object)$data['other'];
             $userid = $data['userid'];
             $relateduserid = $data['relateduserid'];
-
         }
         $subject = $other->subject ?? '';
         $message = $other->message ?? 'Message body not saved.';
         $messageparam = $other->messageparam ?? '';
 
-        $messagetype = $this->transform_msgparam( $messageparam );
+        $messagetype = $this->transform_msgparam($messageparam);
 
         $user = singleton_service::get_instance_of_user($userid);
         $relateduser = singleton_service::get_instance_of_user($relateduserid);
@@ -106,15 +104,14 @@ class message_sent extends \core\event\base {
                 aria-controls="collapseExample">
 
                 ' . $messagetype . ' A message e-mail with subject "' . $subject .
-                '" has been sent to user: "'. $relatedusername .
-                '" by the user "' . $username  .'"
+                '" has been sent to user: "' . $relatedusername .
+                '" by the user "' . $username  . '"
             </a>
             <div class="collapse" id="a' . $uniqueid . '">
                 <div class="card card-body">
                     ' . $message . '
                 </div>
             </div>';
-
     }
 
     /**

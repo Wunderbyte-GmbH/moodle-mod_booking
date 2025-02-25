@@ -41,7 +41,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class custom_message_sent extends \core\event\base {
-
     /**
      * Init.
      * @return void
@@ -80,13 +79,12 @@ class custom_message_sent extends \core\event\base {
             $other = (object)$data['other'];
             $userid = $data['userid'];
             $relateduserid = $data['relateduserid'];
-
         }
         $subject = $other->subject ?? '';
         $message = $other->message ?? 'Message body not saved.';
         $messageparam = $other->messageparam ?? 0;
 
-        $messagetype = $this->transform_msgparam( $messageparam );
+        $messagetype = $this->transform_msgparam($messageparam);
 
         return '
             <a class=""
@@ -96,8 +94,8 @@ class custom_message_sent extends \core\event\base {
                 aria-controls="collapseExample">
 
                 ' . $messagetype . ' A message e-mail with subject "' . $subject .
-                '" has been sent to user with id: '. $relateduserid .
-                ' by the user ' . $userid  .'
+                '" has been sent to user with id: ' . $relateduserid .
+                ' by the user ' . $userid  . '
             </a>
             <div class="collapse" id="a' . $uniqueid . '">
                 <div class="card card-body">
