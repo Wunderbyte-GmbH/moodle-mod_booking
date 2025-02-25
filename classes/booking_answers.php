@@ -674,6 +674,7 @@ class booking_answers {
             $advancedsqlstart = "SELECT
                 ba.optionid AS id,
                 ba.optionid,
+                ba.waitinglist,
                 cm.id AS cmid,
                 c.id AS courseid,
                 c.fullname AS coursename,
@@ -702,7 +703,7 @@ class booking_answers {
                 m.name = 'booking'
                 AND ba.waitinglist = :statusparam";
 
-            $advancedsqlgroupby = "GROUP BY cm.id, c.id, c.fullname, ba.optionid, bo.titleprefix, bo.text, b.name";
+            $advancedsqlgroupby = "GROUP BY cm.id, c.id, c.fullname, ba.optionid, ba.waitinglist, bo.titleprefix, bo.text, b.name";
 
             $advancedsqlend = "ORDER BY bo.titleprefix, bo.text ASC
                 LIMIT 10000000000";
@@ -723,6 +724,7 @@ class booking_answers {
                         bod.coursestarttime,
                         bod.courseendtime,
                         ba.userid,
+                        ba.waitinglist,
                         boda.status,
                         boda.json,
                         boda.notes,
@@ -786,6 +788,7 @@ class booking_answers {
                         u.firstname,
                         u.lastname,
                         u.email,
+                        ba.waitinglist,
                         $selectpresencecount
                         ba.timemodified,
                         ba.timecreated,

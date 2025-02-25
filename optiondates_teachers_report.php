@@ -32,7 +32,7 @@ $cmid = required_param('cmid', PARAM_INT); // Course module id.
 $optionid = required_param('optionid', PARAM_INT);
 $download = optional_param('download', '', PARAM_ALPHA);
 
-list($course, $cm) = get_course_and_cm_from_cmid($cmid);
+[$course, $cm] = get_course_and_cm_from_cmid($cmid);
 require_course_login($course, true, $cm);
 
 $urlparams = [
@@ -49,10 +49,12 @@ $PAGE->set_url($baseurl);
 // In Moodle 4.0+ we want to turn the instance description off on every page except view.php.
 $PAGE->activityheader->disable();
 
-if ((has_capability('mod/booking:updatebooking', $context)
+if (
+    (has_capability('mod/booking:updatebooking', $context)
     || has_capability('mod/booking:addeditownoption', $context)
     || has_capability('mod/booking:viewreports', $context)
-    || has_capability('mod/booking:limitededitownoption', $context)) == false) {
+    || has_capability('mod/booking:limitededitownoption', $context)) == false
+) {
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string('accessdenied', 'mod_booking'), 4);
     echo get_string('nopermissiontoaccesspage', 'mod_booking');

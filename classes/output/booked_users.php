@@ -27,9 +27,14 @@
 
 namespace mod_booking\output;
 
+use context_module;
+use context_course;
+use context_system;
 use mod_booking\booking_answers;
 use mod_booking\singleton_service;
 use mod_booking\table\manageusers_table;
+use moodle_exception;
+use moodle_url;
 use renderer_base;
 use renderable;
 use templatable;
@@ -166,10 +171,10 @@ class booked_users implements renderable, templatable {
                 $deletedusersheaders = [];
 
                 $bookeduserscols[] = 'option';
+                $bookeduserscols[] = 'answerscount';
                 if (get_config('booking', 'bookingstrackerpresencecounter')) {
                     $bookeduserscols[] = 'presencecount';
                 }
-                $bookeduserscols[] = 'answerscount';
 
                 $waitinglistcols[] = 'option';
                 $waitinglistcols[] = 'answerscount';
@@ -184,10 +189,10 @@ class booked_users implements renderable, templatable {
                 $deleteduserscols[] = 'answerscount';
 
                 $bookedusersheaders[] = get_string('bookingoption', 'mod_booking');
+                $bookedusersheaders[] = get_string('answerscount', 'mod_booking');
                 if (get_config('booking', 'bookingstrackerpresencecounter')) {
                     $bookedusersheaders[] = get_string('presencecount', 'mod_booking');
                 }
-                $bookedusersheaders[] = get_string('answerscount', 'mod_booking');
 
                 $waitinglistheaders[] = get_string('bookingoption', 'mod_booking');
                 $waitinglistheaders[] = get_string('answerscount', 'mod_booking');
@@ -300,6 +305,26 @@ class booked_users implements renderable, templatable {
 
         $table->set_sql($fields, $from, $where, $params);
 
+        // Table configurations for different scopes.
+        if (self::has_capability_in_scope($scope, $scopeid, 'mod/booking:updatebooking')) {
+            $baseurl = new moodle_url(
+                '/mod/booking/download_report2.php',
+                [
+                    'scope' => $scope,
+                    'statusparam' => $statusparam,
+                ]
+            );
+            $table->define_baseurl($baseurl);
+
+            // We currently support download for booked users only.
+            if ($statusparam == 0) {
+                $table->showdownloadbutton = true;
+                if (in_array($scope, ['option', 'optiondate'])) {
+                    $table->showdownloadbuttonatbottom = true;
+                }
+            }
+        }
+
         // Checkboxes are currently only supported in option scope.
         if ($scope === 'option') {
             $table->addcheckboxes = true;
@@ -330,7 +355,6 @@ class booked_users implements renderable, templatable {
                 ],
             ];
         }
-
         $html = $table->outhtml(20, false);
         return count($table->rawdata) > 0 ? $html : null;
     }
@@ -348,5 +372,32 @@ class booked_users implements renderable, templatable {
             'userstonotify' => $this->userstonotify ?? null,
             'deletedusers' => $this->deletedusers ?? null,
         ]);
+    }
+
+    /**
+     * Helper function to check capability for logged-in user in provided scope.
+     * @param string $scope
+     * @param int $scopeid
+     * @param string $capability
+     */
+    public static function has_capability_in_scope($scope, $scopeid, $capability) {
+        switch ($scope) {
+            case 'optiondate':
+                global $DB;
+                $optionid = $DB->get_field('booking_optiondates', 'optionid', ['id' => $scopeid]);
+                $cmid = singleton_service::get_instance_of_booking_option_settings($optionid)->cmid;
+                return has_capability($capability, context_module::instance($cmid));
+            case 'option':
+                $cmid = singleton_service::get_instance_of_booking_option_settings($scopeid)->cmid;
+                return has_capability($capability, context_module::instance($cmid));
+            case 'instance':
+                return has_capability($capability, context_module::instance($scopeid));
+            case 'course':
+                return has_capability($capability, context_course::instance($scopeid));
+            case 'system':
+                return has_capability($capability, context_system::instance());
+            default:
+                throw new moodle_exception('Invalid scope for booked users table.');
+        }
     }
 }

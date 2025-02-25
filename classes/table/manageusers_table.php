@@ -103,9 +103,16 @@ class manageusers_table extends wunderbyte_table {
      */
     public function col_option(stdClass $values) {
 
-        global $OUTPUT;
-
+        if (empty($values->optionid)) {
+            return '';
+        }
         $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid);
+
+        if ($this->is_downloading()) {
+            return $settings->get_title_with_prefix();
+        }
+
+        global $OUTPUT;
 
         // Render col_teacher using a template.
         $data = new col_teacher($values->optionid, $settings);
@@ -195,15 +202,20 @@ class manageusers_table extends wunderbyte_table {
      */
     public function col_presencecount(stdClass $values) {
         if ($this->is_downloading()) {
-            return $values->presencecount ?? '';
+            return $values->presencecount ?? 0;
         }
-        // Todo: Continue here...
+        if (empty($values->optionid)) {
+            return '';
+        }
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid);
+        $numberofoptiondates = count($settings->sessions);
         if ($values->scope == 'option') {
-            $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid);
-            $numberofoptiondates = count($settings->sessions);
             return "<b>" . ($values->presencecount ?? '0') . "</b>" . "/" . $numberofoptiondates;
         } else {
-            return $values->presencecount ?? '';
+            $answers = singleton_service::get_instance_of_booking_answers($settings);
+            $numberofbookedusers = count($answers->usersonlist);
+            $numberofpossiblepresences = $numberofbookedusers * $numberofoptiondates;
+            return "<b>" . ($values->presencecount ?? 0) . "</b>/" . $numberofpossiblepresences;
         }
     }
 
@@ -214,6 +226,22 @@ class manageusers_table extends wunderbyte_table {
      * @return string
      */
     public function col_answerscount(stdClass $values) {
+        if ($this->is_downloading()) {
+            return $values->answerscount ?? 0;
+        }
+        if (empty($values->optionid)) {
+            return '';
+        }
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid);
+        $maxanswers = $settings->maxanswers ?? get_string('unlimitedplaces', 'mod_booking');
+        $maxoverbooking = $settings->maxoverbooking ?? 0;
+
+        if ($values->waitinglist == 0) {
+            return "<b>" . ($values->answerscount ?? 0) . "</b>/" . $maxanswers;
+        } else if ($values->waitinglist == 1) {
+            return "<b>" . ($values->answerscount ?? 0) . "</b>/" . $maxoverbooking;
+        }
+
         return $values->answerscount ?? '';
     }
 
