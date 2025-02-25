@@ -24,6 +24,8 @@
 
 namespace mod_booking\bo_availability\conditions;
 
+use local_shopping_cart\local\cartstore;
+use local_shopping_cart\shopping_cart;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
@@ -222,6 +224,21 @@ class alreadyreserved implements bo_condition {
         $booking = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
 
         if (empty($booking->iselective)) {
+            if (
+                get_config('booking', 'screstoreitemfromreserved')
+                && class_exists('local_shopping_cart\shopping_cart')
+            ) {
+                $cartstore = cartstore::instance($userid);
+                if (empty($cartstore->get_item('mod_booking', 'option', $settings->id))) {
+                    shopping_cart::add_item_to_cart(
+                        'mod_booking',
+                        'option',
+                        $settings->id,
+                        $userid
+                    );
+                }
+            }
+
             $data = $settings->return_booking_option_information($user);
 
             if ($fullwidth) {
