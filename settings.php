@@ -1308,6 +1308,18 @@ if ($ADMIN->fulltree) {
             ''
         )
     );
+
+    if (class_exists('local_shopping_cart\shopping_cart')) {
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/screstoreitemfromreserved',
+                get_string('screstoreitemfromreserved', 'mod_booking'),
+                get_string('screstoreitemfromreserved_desc', 'mod_booking'),
+                0
+            )
+        );
+    }
+
     $settings->add(
         new admin_setting_configcheckbox(
             'booking/displayemptyprice',
