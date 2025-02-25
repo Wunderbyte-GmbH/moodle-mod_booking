@@ -74,19 +74,29 @@ if (!empty($optiondateid)) {
     require_course_login($course, false, $cm);
     $urlparams = ["optionid" => $optionid, "optiondateid" => $optiondateid]; // For PAGE url.
 
-    $r2courseurl = new moodle_url('/mod/booking/report2.php', ['courseid' => $courseid]);
-    $r2instanceurl = new moodle_url('/mod/booking/report2.php', ['cmid' => $cmid]);
-    $r2optionurl = new moodle_url('/mod/booking/report2.php', ['optionid' => $optionid]);
-
     // Define scope contexts.
     $r2coursecontext = context_course::instance($courseid);
     $r2instancecontext = context_module::instance($cmid);
 
-    // Capability checks.
-    $isteacher = booking_check_if_teacher($optionid);
-    if (!($isteacher || has_capability('mod/booking:viewreports', $r2instancecontext))) {
-        require_capability('mod/booking:readresponses', $r2instancecontext);
+    // Check capabilities.
+    require_capability('mod/booking:readresponses', $r2instancecontext);
+    require_capability('mod/booking:managebookedusers', $r2instancecontext);
+    if (
+        (
+            has_capability('mod/booking:updatebooking', $r2instancecontext)
+            || (
+                has_capability('mod/booking:addeditownoption', $r2instancecontext)
+                && booking_check_if_teacher($optionid)
+            )
+        ) == false
+    ) {
+        throw new moodle_exception('nopermissions');
     }
+
+    $r2courseurl = new moodle_url('/mod/booking/report2.php', ['courseid' => $courseid]);
+    $r2instanceurl = new moodle_url('/mod/booking/report2.php', ['cmid' => $cmid]);
+    $r2optionurl = new moodle_url('/mod/booking/report2.php', ['optionid' => $optionid]);
+
     // To create the correct links.
     $r2coursecap = has_capability('mod/booking:managebookedusers', $r2coursecontext);
     $r2instancecap = has_capability('mod/booking:managebookedusers', $r2instancecontext);
@@ -175,11 +185,21 @@ if (!empty($optiondateid)) {
     $r2coursecontext = context_course::instance($courseid);
     $r2instancecontext = context_module::instance($cmid);
 
-    // Capability checks.
-    $isteacher = booking_check_if_teacher($optionid);
-    if (!($isteacher || has_capability('mod/booking:viewreports', $r2instancecontext))) {
-        require_capability('mod/booking:readresponses', $r2instancecontext);
+    // Check capabilities.
+    require_capability('mod/booking:readresponses', $r2instancecontext);
+    require_capability('mod/booking:managebookedusers', $r2instancecontext);
+    if (
+        (
+            has_capability('mod/booking:updatebooking', $r2instancecontext)
+            || (
+                has_capability('mod/booking:addeditownoption', $r2instancecontext)
+                && booking_check_if_teacher($optionid)
+            )
+        ) == false
+    ) {
+        throw new moodle_exception('nopermissions');
     }
+
     // To create the correct links.
     $r2coursecap = has_capability('mod/booking:managebookedusers', $r2coursecontext);
     $r2instancecap = has_capability('mod/booking:managebookedusers', $r2instancecontext);
@@ -255,6 +275,7 @@ if (!empty($optiondateid)) {
     $r2coursecap = has_capability('mod/booking:managebookedusers', $r2coursecontext);
     $r2instancecap = has_capability('mod/booking:managebookedusers', $r2instancecontext);
 
+    require_capability('mod/booking:readresponses', $r2instancecontext);
     require_capability('mod/booking:managebookedusers', $r2instancecontext);
 
     // We only show links, if we have the matching capabilities.
@@ -291,6 +312,7 @@ if (!empty($optiondateid)) {
     // To create the correct links.
     $r2coursecap = has_capability('mod/booking:managebookedusers', $r2coursecontext);
 
+    require_capability('mod/booking:readresponses', $r2coursecontext);
     require_capability('mod/booking:managebookedusers', $r2coursecontext);
 
     // We only show links, if we have the matching capabilities.
@@ -315,6 +337,7 @@ if (!empty($optiondateid)) {
 
     $r2systemurl = new moodle_url('/');
 
+    require_capability('mod/booking:readresponses', $r2syscontext);
     require_capability('mod/booking:managebookedusers', $r2syscontext);
 
     // We only show links, if we have the matching capabilities.
