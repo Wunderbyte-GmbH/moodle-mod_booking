@@ -22,6 +22,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_wunderbyte_table\local\customfield\wbt_field_controller_info;
 use mod_booking\booking;
 use mod_booking\customfield\booking_handler;
 use mod_booking\elective;
@@ -1071,27 +1072,27 @@ class mod_booking_mod_form extends moodleform_mod {
             }
             $mform->setType('maxoptionsfromcategorycount', PARAM_INT);
 
-            $sql = "SELECT DISTINCT cd.value
-                FROM {customfield_data} cd
-                WHERE fieldid = :fieldid
-                ORDER BY value ASC";
+            // $sql = "SELECT DISTINCT cd.value
+            //     FROM {customfield_data} cd
+            //     WHERE fieldid = :fieldid
+            //     ORDER BY value ASC";
 
-            $params = [
-                'fieldid' => $customfield->id,
-            ];
+            // $params = [
+            //     'fieldid' => $customfield->id,
+            // ];
+            $fieldcontroller = wbt_field_controller_info::get_instance_by_shortname($field);
 
-            $records = $DB->get_records_sql($sql, $params);
+            $records = $fieldcontroller->get_values_array();
             // Extract values into a clean array.
             $options = [
                 '' => get_string('choosedots'),
             ];
             foreach ($records as $record) {
-                if (empty($record->value)) {
+                if (empty($record)) {
                     continue;
                 }
-                // Sanitize the value to be used as a key and store to facilitate matching of values.
-                $key = singleton_service::sanitize_string_and_store($record->value);
-                $options[$key] = $record->value;
+
+                $options[$record->id] = format_string($record->data);
             }
 
             $mform->addElement(
