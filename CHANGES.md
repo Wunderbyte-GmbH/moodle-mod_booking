@@ -1,3 +1,21 @@
+## Version 8.10.0 (2025022600)
+* New feature: Responsible contact persons can now be (un-)enrolled automatically to (from) the connected Moodle course.
+* New feature: Include sessions in 'bookings' webservice.
+* New feature: presence counter feature in report2
+* New feature: Show tab on booking view.php with options where the logged-in user is a responsible contact.
+* New feature: Add possibility to download booked users in bookings tracker in different scopes.
+* Improvement: Use is_available of bo_info to check for actual condition results in function option_allows_overbooking_for_user.
+* Improvement: Skip rules from option (opt in, opt out)
+* Improvement: When PRO is active but selflearningcourse feature is not, we show a link to config settings (within help text)
+* Improvement: Better capability checks for report2.
+* Bugfix: Fix duplication for responsible contacts - moved it to POSTSAVE.
+* Bugfix: Remove file that was duplicated by accident.
+* Bugfix: Capability updatebooking should not be attributed to teachers by default as it would allow them to edit ALL booking options!
+* Bugfix: Remove string concatenations as this causes AMOS to fail.
+* Bugfix: Fix string for report reminders so bookingdetails placeholder will work again.
+* Tests: Add new test for enrolled in cohort condition.
+
+
 ## Version 8.9.19 (2025021300)
 * Improvement: Add prefix to display of bo in overlapping message
 * Improvement: Use cached answers for `max_number_of_bookings` condition
