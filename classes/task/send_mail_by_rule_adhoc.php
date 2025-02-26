@@ -43,7 +43,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
-
     /**
      * Get task name.
      *
@@ -172,10 +171,10 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
                 mtrace('send_mail_by_rule_adhoc task: mail could not be sent for option ' . $taskdata->optionid . ' to user '
                 . $taskdata->userid);
             }
-
         } else {
             throw new \coding_exception(
-                    'send_mail_by_rule_adhoc task: ERROR - missing taskdata.');
+                'send_mail_by_rule_adhoc task: ERROR - missing taskdata.'
+            );
         }
     }
 }

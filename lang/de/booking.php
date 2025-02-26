@@ -645,7 +645,7 @@ $string['canceldependenton_desc'] = 'Wählen Sie aus, auf welches Datumsfeld sic
 "Nutzer:innen können nur bis n Tage vor Kursstart stornieren. Negative Werte meinen n Tage NACH Kursstart."
 beziehen soll.<br>Dadurch wird auch die <i>Serviceperiode</i> von Kursen im Warenkorb entsprechend festgelegt
 (wenn Shopping Cart installiert ist). Dies betrifft auch die Ratenzahlung. Entfernen Sie das ausgewählte Semester, wenn Sie Kursstart anstelle von Semesterstart nutzen möchten.';
-$string['cancelical'] = 'Abbrechen';
+$string['cancelical'] = 'Termin(e) absagen';
 $string['cancellation'] = 'Stornierung';
 $string['cancellationsettings'] = 'Stornierungseinstellungen <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['cancelmyself'] = 'Wieder abmelden';
@@ -782,7 +782,7 @@ $string['coursesheader'] = 'Moodle-Kurs';
 $string['coursestart'] = 'Starten';
 $string['coursestarttime'] = 'Kursbeginn';
 $string['createdbywunderbyte'] = 'Dieses Buchungsmodul wurde von der Wunderbyte GmbH entwickelt';
-$string['createical'] = 'Erstellen';
+$string['createical'] = 'Termin(e) erstellen';
 $string['createnewbookingoption'] = 'Neue Buchungsoption';
 $string['createnewbookingoptionfromtemplate'] = 'Neue Buchungsoption von Vorlage erstellen';
 $string['createnewmoodlecourse'] = 'Erstelle neuen, leeren Moodle-Kurs';
@@ -2035,8 +2035,8 @@ $string['sendcopyofmail'] = 'Eine Kopie der E-Mail senden';
 $string['sendcopyofmailmessageprefix'] = 'Vorangestellter Text für die Nachricht';
 $string['sendcopyofmailsubjectprefix'] = 'Vorangestellter Text für den Betreff';
 $string['sendcustommsg'] = 'Persönliche Nachricht senden';
-$string['sendical'] = 'Senden Sie die ICS-Datei als Anhang';
-$string['sendicalcreateorcancel'] = 'Handelt es sich bei der iCal-Datei um eine Erstellung oder eine Stornierung eines Ereignisses?';
+$string['sendical'] = 'ical-Datei (.ics) als Anhang mitsenden';
+$string['sendicalcreateorcancel'] = 'Soll die ical-Datei neue Termine erstellen oder vorhandene absagen?';
 $string['sendmail'] = "Sende E-Mail";
 $string['sendmailheading'] = 'E-Mail an alle TrainerInnen der ausgewählten Buchungsoptionen senden';
 $string['sendmailinterval'] = 'Eine Nachricht zeitversetzt an mehrere Nutzer:innen schicken';

@@ -35,7 +35,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class send_mail implements booking_rule_action {
-
     /** @var string $rulename */
     public $actionname = 'send_mail';
 
@@ -94,25 +93,37 @@ class send_mail implements booking_rule_action {
         $mform->addRule('action_send_mail_sendical', null, 'required', null, 'client');
         $mform->setType('action_send_mail_sendical', PARAM_INT);
 
-        // TODO This should probably only show if the above dropdown is set to yes.
+        // Todo: This should probably only show if the above dropdown is set to yes.
         $options = ['create' => get_string('createical', 'mod_booking'), 'cancel' => get_string('cancelical', 'mod_booking')];
-        $mform->addElement('select', 'action_send_mail_sendicalcreateorcancel',
-                get_string('sendicalcreateorcancel', 'mod_booking'), $options);
+        $mform->addElement(
+            'select',
+            'action_send_mail_sendicalcreateorcancel',
+            get_string('sendicalcreateorcancel', 'mod_booking'),
+            $options
+        );
         $mform->setType('action_send_mail_sendicalcreateorcancel', PARAM_RAW);
 
         // Mail subject.
-        $mform->addElement('text', 'action_send_mail_subject', get_string('messagesubject', 'mod_booking'),
-            ['size' => '66']);
+        $mform->addElement(
+            'text',
+            'action_send_mail_subject',
+            get_string('messagesubject', 'mod_booking'),
+            ['size' => '66']
+        );
         $mform->setType('action_send_mail_subject', PARAM_TEXT);
 
         // Mail template.
-        $mform->addElement('editor', 'action_send_mail_template',
-            get_string('message'), ['rows' => 15], ['subdirs' => 0, 'maxfiles' => 0, 'context' => null]);
+        $mform->addElement(
+            'editor',
+            'action_send_mail_template',
+            get_string('message'),
+            ['rows' => 15],
+            ['subdirs' => 0, 'maxfiles' => 0, 'context' => null]
+        );
 
         // Placeholders info text.
         $placeholders = placeholders_info::return_list_of_placeholders();
         $mform->addElement('html', get_string('helptext:placeholders', 'mod_booking', $placeholders));
-
     }
 
     /**
