@@ -1,6 +1,4 @@
 <?php
-
-use local_wunderbyte_table\local\customfield\wbt_field_controller_info;
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -43,6 +41,7 @@ use mod_booking\teachers_handler;
 use mod_booking\utils\wb_payment;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\booking_rules\booking_rules;
+use local_wunderbyte_table\local\customfield\wbt_field_controller_info;
 use mod_booking\customfield\booking_handler;
 
 // Default fields for bookingoptions in view.php and for download.
