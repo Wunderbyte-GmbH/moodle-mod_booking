@@ -154,6 +154,13 @@ class ical {
     protected $role = 'REQ-PARTICIPANT';
 
     /**
+     * $partstat
+     *
+     * @var string
+     */
+    protected $partstat = 'NEEDS-ACTION';
+
+    /**
      * $userfullname
      *
      * @var string
@@ -181,10 +188,12 @@ class ical {
      * @param object $option the option that is being booked
      * @param object $user the user the booking is for
      * @param object $fromuser
-     * @param bool $updated if set to true, this will create an update ical (METHOD: REQUEST, SEQUENCE: 1)
+     * @param bool $updated if set to true, this will create an update ical
      */
     public function __construct($booking, $option, $user, $fromuser, $updated = false) {
         global $DB, $CFG;
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
 
         $this->booking = $booking;
         $this->option = $option;
@@ -215,11 +224,10 @@ class ical {
         if (($coursedates || $sessiontimes)) {
             $this->datesareset = true;
             $this->user = $DB->get_record('user', ['id' => $user->id]);
-            // Date that this representation of the calendar information was created -
-            // See http://www.kanzaki.com/docs/ical/dtstamp.html.
-            $this->dtstamp = $this->generate_timestamp($this->option->timemodified);
-            $this->summary = $this->escape($this->booking->name . " - " . $this->option->text);
-            $this->description = $this->escape($this->option->text, true);
+            $now = time();
+            $this->dtstamp = $this->generate_timestamp($now);
+            $this->summary = $this->escape($settings->get_title_with_prefix());
+            $this->description = $this->escape($settings->description ?? '', true);
             $urlbits = parse_url($CFG->wwwroot);
             $this->host = $urlbits['host'];
             $this->userfullname = \fullname($this->user);
@@ -246,6 +254,7 @@ class ical {
 
         if ($cancel) {
             $this->role = 'NON-PARTICIPANT';
+            $this->partstat = 'DECLINED';
             $this->status = "\nSTATUS:CANCELLED";
         }
 
@@ -381,30 +390,32 @@ class ical {
             "DTSTART:{$dtstart}",
             "LOCATION:{$this->location}",
             "PRIORITY:5",
-            // phpcs:ignore moodle.Commenting.InlineComment.NotCapital,Squiz.PHP.CommentedOutCode.Found
-            // "SEQUENCE:0",
             "SUMMARY:{$this->summary}",
             "TRANSP:OPAQUE{$this->status}",
             "ORGANIZER;CN={$fromuseremail}:MAILTO:{$fromuseremail}",
-            "ATTENDEE;CUTYPE=INDIVIDUAL;ROLE={$this->role};PARTSTAT=NEEDS-ACTION;RSVP=false;" .
+            "ATTENDEE;CUTYPE=INDIVIDUAL;ROLE={$this->role};PARTSTAT={$this->partstat};RSVP=false;" .
                 "CN={$this->userfullname};LANGUAGE=en:MAILTO:{$this->user->email}",
             "UID:{$uid}",
         ];
 
-        // If the event has been updated then add SEQUENCE:1 before END:VEVENT.
+        // If the event has been updated then add the sequence value before END:VEVENT.
         if ($this->updated) {
             if (!$data = $DB->get_record('booking_icalsequence', ['userid' => $this->user->id, 'optionid' => $this->option->id])) {
                 $data = new \stdClass();
                 $data->userid = $this->user->id;
                 $data->optionid = $this->option->id;
-                $data->sequencevalue = 1;
+                $data->sequencevalue = 2;
                 $DB->insert_record('booking_icalsequence', $data);
+                $sequencevalue = $data->sequencevalue;
             } else {
                 ++$data->sequencevalue;
                 $DB->update_record('booking_icalsequence', $data);
+                $sequencevalue = $data->sequencevalue;
             }
-            array_push($veventparts, "SEQUENCE:$data->sequencevalue");
+        } else {
+            $sequencevalue = 1;
         }
+        array_push($veventparts, "SEQUENCE:$sequencevalue");
         array_push($veventparts, "END:VEVENT");
 
         $vevent = implode("\r\n", $veventparts);
