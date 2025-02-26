@@ -235,8 +235,9 @@ class shoppingcart extends field_base {
                         'changes' => [
                             'fieldname' => 'shoppingcart',
                         ],
-                        ];
+                    ];
             }
+            // TODO: Track changes for each key like in customfields / pollurl.
         }
         // No changes were found, so array is empty.
         return [];
