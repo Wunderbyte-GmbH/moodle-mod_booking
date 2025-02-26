@@ -354,74 +354,160 @@ class recurringoptions extends field_base {
         return $errors;
     }
 
-    public static function update_children(int $optionid, array $changes) {
+    /**
+     * If there are changes, apply them to the children.
+     *
+     * @param int $optionid
+     * @param array $changes
+     * @param object $data
+     * @param object $oldoption
+     *
+     *
+     */
+    public static function update_children(
+        int $optionid,
+        array $changes,
+        object $data,
+        object $oldoption
+    ) {
         global $DB;
         $children = $DB->get_records('booking_options', ['parentid' => $optionid]);
 
+        $delta = 0;
+        if (isset($change['changes']['fieldname']['dates'])) {
+            // Check for delta, see if its everywhere the same. If not, 0 returned.
+            $delta = self::find_constant_delta($oldoption, $children);
+        }
+
         if (!empty($children)) {
-            foreach ($children as $child) {
+            foreach ($children as $index => $child) {
                 // Loop through the changes.
-                $data = [
+                $childdata = (object)[
                     'id' => $child->id,
-                    'importing' => 1,
+                    'cmid' => $data->cmid,
                 ];
+                fields_info::set_data($childdata);
                 $update = false;
+
                 foreach ($changes as $change) {
-                    if (isset($change['changes']['fieldname']) && $change['changes']['fieldname'] == 'customfields') {
+                    if (empty($change['changes'])) {
                         continue;
                     }
+                    if (
+                        isset($change['changes']['fieldname'])
+                        && $change['changes']['fieldname'] == 'dates'
+                    ) {
+                        if (empty($delta)) {
+                            // No consistent delta, changes in dates not applied.
+                            continue;
+                        } else {
+                            $update = true;
+                            // Apply delta to all children.
+                            // Also see save_data function.
 
-                    if (isset($change['changes']['fieldname']) && $change['changes']['fieldname'] == 'dates') {
-                        $oldvalues = $change['changes']['oldvalue'];
-                        $newvalues = $change['changes']['newvalue'];
-
-                        $results = [];
-
-                        foreach ($oldvalues as $old) {
-                            foreach ($newvalues as $new) {
-                                if ($old->id == $new['id']) {
-                                    $oldstarttime = $old->coursestarttime;
-                                    $oldendtime = $old->courseendtime;
-                                    $newstarttime = $new['coursestarttime'];
-                                    $newendtime = $new['courseendtime'];
-
-                                    $deltastart = $newstarttime - $oldstarttime;
-                                    $deltaend = $newendtime - $oldendtime;
-
-                                    // Store results
-                                    $results[] = [
-                                        "id" => $old->id,
-                                        "delta_start_time_seconds" => $deltastart,
-                                        "delta_end_time_seconds" => $deltaend,
-                                    ];
-                                }
-                            }
+                            // TODO: Make sure, the child doesnt contain more sessions than the parent. If so, delete them.
                         }
+                        // If yes, apply dates with delta to all children.
 
-                        $key = MOD_BOOKING_FORM_OPTIONDATEID . $change['changes']['newvalue'][0]['index'];
-                        $data[$key] = 0;
-                        $key = MOD_BOOKING_FORM_COURSESTARTTIME . $change['changes']['newvalue'][0]['index'];
-                        $data[$key] = $child->coursestarttime + $results['delta_start_time_seconds'];
-                        $key  = MOD_BOOKING_FORM_COURSEENDTIME . $change['changes']['newvalue'][0]['index'];
-                        $data[$key] = $child->courseendtime + $results['delta_end_time_seconds'];
-                        $update = true;
-                    }
+                        // $oldvalues = $change['changes']['oldvalue'];
+                        // $newvalues = $change['changes']['newvalue'];
 
-                    $fieldname = $change['changes']['fieldname'] ?? '';
-                    $newvalue = $change['changes']['newvalue'] ?? '';
+                        // $results = [];
 
-                    // If the field exists and the value is different, update it.
-                    if (isset($child->$fieldname) && $child->$fieldname !== $newvalue) {
-                        $data[$fieldname] = $newvalue;
-                        $update = true;
+                        // foreach ($oldvalues as $old) {
+                        //     foreach ($newvalues as $new) {
+                        //         if ($old->id == $new['id']) {
+                        //             $oldstarttime = $old->coursestarttime;
+                        //             $oldendtime = $old->courseendtime;
+                        //             $newstarttime = $new['coursestarttime'];
+                        //             $newendtime = $new['courseendtime'];
+
+                        //             $deltastart = $newstarttime - $oldstarttime;
+                        //             $deltaend = $newendtime - $oldendtime;
+
+                        //             // Store results
+                        //             $results[] = [
+                        //                 "id" => $old->id,
+                        //                 "delta_start_time_seconds" => $deltastart,
+                        //                 "delta_end_time_seconds" => $deltaend,
+                        //             ];
+                        //         }
+                        //     }
+
+
+                        // $key = MOD_BOOKING_FORM_OPTIONDATEID . $change['changes']['newvalue'][0]['index'];
+                        // $data[$key] = 0;
+                        // $key = MOD_BOOKING_FORM_COURSESTARTTIME . $change['changes']['newvalue'][0]['index'];
+                        // $data[$key] = $child->coursestarttime + $results['delta_start_time_seconds'];
+                        // $key  = MOD_BOOKING_FORM_COURSEENDTIME . $change['changes']['newvalue'][0]['index'];
+                        // $data[$key] = $child->courseendtime + $results['delta_end_time_seconds'];
+                        // $update = true;
+                    } else {
+                        $fieldname = $change['changes']['formkey'] ?? '';
+                        $newvalue = $change['changes']['newvalue'] ?? '';
+
+                        // If the field exists and the value is different, update it.
+                        if (isset($child->$fieldname) && $child->$fieldname !== $newvalue) {
+                            $child->$fieldname = $newvalue;
+                            $update = true;
+                        }
                     }
                 }
                 // Update the data record after all changes are made.
                 if ($update) {
-                    //$DB->update_record('booking_options', $child);
-                    //self::update($data, $context);
+                    $DB->update_record('booking_options', $child);
+                    $child->cmid = $data->cmid;
+                    $context = context_module::instance($data->cmid);
+                    booking_option::update($child, $context);
                 }
             }
         }
+    }
+
+    /**
+     * Check if there is a constant delta between the parent and all children records. Otherwise return 0.
+     *
+     * @param object $parent
+     * @param array $children
+     *
+     * @return int
+     *
+     */
+    private static function find_constant_delta(object $parent, array &$children): int {
+        // Ensure the parent record has a valid coursestarttime.
+        if (!isset($parent->coursestarttime) || empty((int)$parent->coursestarttime)) {
+            return 0;
+        }
+
+        // Filter out children that don't have a valid coursestarttime.
+        $children = array_filter($children, function ($child) {
+            return isset($child->coursestarttime) && !empty((int)$child->coursestarttime);
+        });
+
+        // If there is less than 1 valid child, we cannot determine a difference.
+        if (count($children) < 1) {
+            return 0;
+        }
+
+        // Sort the array by coursestarttime in ascending order.
+        usort($children, function ($a, $b) {
+            return $a->coursestarttime <=> $b->coursestarttime;
+        });
+
+        // Re-index the array to have sequential numeric keys.
+        $children = array_values($children);
+
+        // Calculate the expected interval based on the first two children.
+        $interval = $children[0]->coursestarttime - $parent->coursestarttime;
+
+        // Check if the interval remains constant for all subsequent children.
+        for ($i = 0; $i < count($children) - 1; $i++) {
+            $diff = $children[$i + 1]->coursestarttime - $children[$i]->coursestarttime;
+            if ($diff !== $interval) {
+                return 0; // If any difference is inconsistent, return false.
+            }
+        }
+
+        return $interval; // Return the consistent interval.
     }
 }
