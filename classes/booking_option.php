@@ -44,6 +44,7 @@ use mod_booking\option\dates_handler;
 use mod_booking\bo_actions\actions_info;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_rules\rules_info;
+use mod_booking\option\fields\recurringoptions;
 use stdClass;
 use moodle_url;
 use mod_booking\booking_utils;
@@ -3829,72 +3830,11 @@ class booking_option {
         // Only react on changes if update is triggered via formsave (see comment at beginning of function - cases A) & B))...
         // ... since otherwise previous data is unreliable.
         if (!empty($changes) && $updateparam == MOD_BOOKING_UPDATE_OPTIONS_PARAM_DEFAULT) {
-            $children = $DB->get_records('booking_options', ['parentid' => $optionid]);
-
-            if (!empty($children)) {
-                foreach ($children as $child) {
-                    // Loop through the changes.
-                    $data = [
-                        'id' => $child->id,
-                        'importing' => 1,
-                    ];
-                    $update = false;
-                    foreach ($changes as $change) {
-                        if (isset($change['changes']['fieldname']) && $change['changes']['fieldname'] == 'customfields') {
-                            continue;
-                        }
-
-                        if (isset($change['changes']['fieldname']) && $change['changes']['fieldname'] == 'dates') {
-                            $oldvalues = $change['changes']['oldvalue'];
-                            $newvalues = $change['changes']['newvalue'];
-
-                            $results = [];
-
-                            foreach ($oldvalues as $old) {
-                                foreach ($newvalues as $new) {
-                                    if ($old->id == $new['id']) {
-                                        $oldstarttime = $old->coursestarttime;
-                                        $oldendtime = $old->courseendtime;
-                                        $newstarttime = $new['coursestarttime'];
-                                        $newendtime = $new['courseendtime'];
-
-                                        $deltastart = $newstarttime - $oldstarttime;
-                                        $deltaend = $newendtime - $oldendtime;
-
-                                        // Store results
-                                        $results[] = [
-                                            "id" => $old->id,
-                                            "delta_start_time_seconds" => $deltastart,
-                                            "delta_end_time_seconds" => $deltaend,
-                                        ];
-                                    }
-                                }
-                            }
-
-                            $key = MOD_BOOKING_FORM_OPTIONDATEID . $change['changes']['newvalue'][0]['index'];
-                            $data[$key] = 0;
-                            $key = MOD_BOOKING_FORM_COURSESTARTTIME . $change['changes']['newvalue'][0]['index'];
-                            $data[$key] = $child->coursestarttime + $results['delta_start_time_seconds'];
-                            $key  = MOD_BOOKING_FORM_COURSEENDTIME . $change['changes']['newvalue'][0]['index'];
-                            $data[$key] = $child->courseendtime + $results['delta_end_time_seconds'];
-                            $update = true;
-                        }
-
-                        $fieldname = $change['changes']['fieldname'] ?? '';
-                        $newvalue = $change['changes']['newvalue'] ?? '';
-
-                        // If the field exists and the value is different, update it.
-                        if (isset($child->$fieldname) && $child->$fieldname !== $newvalue) {
-                            $data[$fieldname] = $newvalue;
-                            $update = true;
-                        }
-                    }
-                    // Update the data record after all changes are made.
-                    if ($update) {
-                        //$DB->update_record('booking_options', $child);
-                        self::update($data, $context);
-                    }
-                }
+            if (
+                isset($data->apply_to_children)
+                && !empty($data->apply_to_children)
+            ) {
+                recurringoptions::update_children($newoption->id, $changes);
             }
 
             // If we have no cmid, it's most possibly a template.
