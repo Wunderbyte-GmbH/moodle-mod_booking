@@ -2106,7 +2106,6 @@ $string['sendmailtoallbookedusers'] = 'Send e-mail to all booked users';
 $string['sendmailtobooker'] = 'Book other users page: Send mail to user who books instead to users who are booked';
 $string['sendmailtobooker_help'] = 'Activate this option in order to send booking confirmation mails to the user who books other users instead to users, who have been added to a booking option. This is only relevant for bookings made on the page "book other users".';
 $string['sendmailtoteachers'] = 'Send mail to teacher(s)';
-
 $string['sendmessage'] = 'Send message';
 $string['sendpollurltoteachers'] = 'Send poll url';
 $string['sendreminderemail'] = "Send reminder e-mail";
