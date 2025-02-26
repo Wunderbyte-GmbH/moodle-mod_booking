@@ -760,6 +760,8 @@ $string['confirmoptioncompletion'] = '(Un)confirm completion status';
 $string['confirmoptioncreation'] = 'Do you want to split this booking option so that a separate booking option is created
  from each individual date of this booking option?';
 $string['confirmpresence'] = "Confirm presence";
+$string['confirmrecurringoption'] = 'Apply these changes to all the following bookingoption as well?';
+$string['confirmrecurringoptionerror'] = '';
 $string['confirmusers'] = 'Confirm users activity';
 $string['confirmuserswith'] = 'Confirm users who completed activity or received badge';
 $string['connectedbooking'] = '[DEPRECATED] Connected booking';
@@ -1938,7 +1940,7 @@ $string['recommendedin'] = "Shortcode to show a list of booking options which sh
 $string['recordsimported'] = 'Booking options imported via csv';
 $string['recordsimporteddescription'] = '{$a} booking options imported via csv';
 $string['recreategroup'] = 'Recreate group in the target course and enrol users in group';
-$string['recurringheader'] = 'Recurring options';
+$string['recurringheader'] = '<i class="fa-solid fa-repeat" aria-hidden="true"></i>&nbsp;Recurring options';
 $string['recurringoptions'] = 'Recurring booking options';
 $string['relatedcourseidneeded'] = 'A related course is needed because of your availabilty condition(s).';
 $string['reminder1sent'] = 'First reminder sent';
