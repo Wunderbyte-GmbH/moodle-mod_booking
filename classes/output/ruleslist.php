@@ -39,7 +39,6 @@ use templatable;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class ruleslist implements renderable, templatable {
-
     /** @var array $rules */
     public $rules = [];
 
@@ -71,11 +70,15 @@ class ruleslist implements renderable, templatable {
 
             // Localize the names if possible.
             $localizedrulename = str_replace("_", "", $rule->rulename) ?? '';
-            $rule->localizedrulename = !empty($localizedrulename) ? get_string($localizedrulename, 'mod_booking') : '';
             $localizedconditionname = str_replace("_", "", $rule->conditionname) ?? '';
-            $rule->localizedconditionname = !empty($localizedconditionname) ? get_string($localizedconditionname, 'mod_booking') : '';
             $localizedactionname = str_replace("_", "", $rule->actionname) ?? '';
-            $rule->localizedactionname = !empty($localizedactionname) ? get_string($localizedactionname, 'mod_booking') : '';
+
+            $rule->localizedrulename = !empty($localizedrulename) ?
+                get_string($localizedrulename, 'mod_booking') : '';
+            $rule->localizedconditionname = !empty($localizedconditionname) ?
+                get_string($localizedconditionname, 'mod_booking') : '';
+            $rule->localizedactionname = !empty($localizedactionname) ?
+                get_string($localizedactionname, 'mod_booking') : '';
 
             // Filter for rules of this or other context.
             if ($rule->contextid == $contextid) {
