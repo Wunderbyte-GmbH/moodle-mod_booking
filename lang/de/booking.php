@@ -748,6 +748,8 @@ $string['confirmed'] = 'Bestätigt';
 $string['confirmoptioncompletion'] = 'Abschluss bestätigen';
 $string['confirmoptioncreation'] = 'Wollen Sie diese Buchungsoption splitten sodass aus jedem Einzeltermin eine eigene
  Buchungsoption erstellt wird?';
+$string['confirmrecurringoption'] = 'Diese Änderungen auch für alle folgenden Buchungsoptionen anwenden?';
+$string['confirmrecurringoptionerror'] = '';
 $string['connectedbooking'] = '[VERALTET] Vorgeschaltete Buchung';
 $string['connectedbooking_help'] = 'Buchung von der Teilnehmer:innen übernommen werden. Es kann bestimmt werden wie viele Teilnehmer:innen übernommen werden.';
 $string['connectedmoodlecourse'] = 'Verbundener Moodle-Kurs';
@@ -1884,7 +1886,8 @@ $string['recommendedin'] = "Shortcode um Buchungsoptionen in bestimmten Kursen z
 $string['recordsimported'] = 'Buchungsoptionen importiert via CSV';
 $string['recordsimporteddescription'] = '{$a} Buchungsoptionen importiert via CSV';
 $string['recreategroup'] = 'Gruppe erneut anlegen und Nutzer:innen der Gruppe zuordnen';
-$string['recurringoptions'] = 'Wiederkehrende Optionen';
+$string['recurringheader'] = '<i class="fa-solid fa-repeat" aria-hidden="true"></i>&nbsp;Wiederkehrende Optionen';
+$string['recurringoptions'] = 'Wiederkehrende Buchungs Optionen';
 $string['relatedcourseidneeded'] = 'Aufgrund Ihrer Verfügbarkeits-Einstellungen muss ein verknüpfter Moodle-Kurs angegeben werden.';
 $string['reminder1sent'] = 'Erste Benachrichtigung versendet';
 $string['reminder2sent'] = 'Zweite Benachrichtigung versendet';
