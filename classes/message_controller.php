@@ -20,10 +20,7 @@ defined('MOODLE_INTERNAL') || die();
 use cache_helper;
 use stdClass;
 use moodle_exception;
-use core_user;
-use core_text;
 use context_system;
-use context_user;
 use core\message\message;
 use mod_booking\booking_option;
 use mod_booking\booking_settings;
@@ -120,7 +117,7 @@ class message_controller {
     /** @var float $price price given in installment */
     private $price;
 
-    /** @var array $rulesettings duedate of installment. */
+    /** @var stdClass $rulesettings duedate of installment. */
     private $rulesettings;
 
     /** @var array $ruleid the id of the running rule. */
@@ -171,7 +168,7 @@ class message_controller {
             // Get the rulesjson and convert into an array for later
             // There is probably an exisiting method for this, but I couldn't find it.
             $this->rulesettings = $DB->get_record('booking_rules', ['id' => $ruleid], 'rulejson');
-            if ( $this->rulesettings) {
+            if ($this->rulesettings) {
                 $this->rulesettings = json_decode($this->rulesettings->rulejson);
                 $this->ruleid = $ruleid;
             }
@@ -499,22 +496,21 @@ class message_controller {
             if ($this->msgcontrparam == MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC) {
                 return $this->send_mail_with_adhoc_task();
             } else {
-
                 // If the rule has sendical set then we get the ical attachment.
                 // Create it in file storage and put it in the message object.
                 if ($this->rulesettings->actiondata->sendical) {
-
                     $update = false;
                     if ($this->rulesettings->actiondata->sendicalcreateorcancel == 'cancel') {
                         $update = true;
                     }
 
                     // Pass the update param - false will create a remove calendar invite.
-                    // TODO The system still fires an unsubscribe message - I believe this is a hangover of the old non rules booking system.
-                    list($attachments, $attachname) = $this->get_attachments($update);
+                    /* Todo: The system still fires an unsubscribe message.
+                    I believe this is a hangover of the old non rules booking system. (danbuntu) */
+                    [$attachments, $attachname] = $this->get_attachments($update);
 
                     if (!empty($attachments)) {
-                        // TODO this should probably be a method in the ical class.
+                        // Todo: this should probably be a method in the ical class.
                         // Left here to limit to number of changed files.
                         // Store the file correctly in order to be able to attach it.
                         $fs = get_file_storage();
@@ -523,7 +519,6 @@ class message_controller {
 
                         // Check if the file exists in the temp path.
                         if (file_exists($tempfilepath)) {
-
                             // Prepare file record in Moodle storage.
                             $filerecord = [
                                     'contextid' => $context->id,
@@ -542,16 +537,14 @@ class message_controller {
                             $this->messagedata->attachment = $storedfile;
                             $this->messagedata->attachname = $attachname;
                         } else {
-                            // TODO There is possibly a better way to handle this error nicely - or remove the check entirely.
+                            // Todo: There is possibly a better way to handle this error nicely - or remove the check entirely.
                             throw new \moodle_exception('Attachment file not found.');
                         }
-
                     }
                 }
 
                 // In all other cases, use message_send.
                 if (message_send($this->messagedata)) {
-
                     if ($this->rulesettings->actiondata->sendical) {
                         // Tidy up the now not needed file.
                         $storedfile->delete();

@@ -41,7 +41,6 @@ const MOD_BOOKING_DESCRIPTION_ICAL = 3;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class ical {
-
     /**
      * $datesareset
      *
@@ -191,8 +190,11 @@ class ical {
         $this->option = $option;
         $this->fromuser = $fromuser;
         $this->updated = $updated;
-        $this->times = $DB->get_records('booking_optiondates', ['optionid' => $option->id],
-                'coursestarttime ASC');
+        $this->times = $DB->get_records(
+            'booking_optiondates',
+            ['optionid' => $option->id],
+            'coursestarttime ASC'
+        );
         // Check if start and end dates exist.
         $coursedates = ($this->option->coursestarttime && $this->option->courseendtime);
         $sessiontimes = !empty($this->times);
@@ -341,7 +343,7 @@ class ical {
         // Make sure we have not tags in full description.
         $fulldescriptionhtml = $fulldescription;
         // Remove CR and CRLF from description as the description must be on one line.
-        $fulldescriptionhtml = str_replace (array("\r\n", "\n", "\r"), ' ', $fulldescriptionhtml);
+        $fulldescriptionhtml = str_replace(["\r\n", "\n", "\r"], ' ', $fulldescriptionhtml);
 
         // Check for a url and render it as a nice link.
         // Regular Expression Pattern for a basic URL.
@@ -356,10 +358,10 @@ class ical {
         }
 
         $fulldescription = rtrim(strip_tags(preg_replace("/<br>|<\/p>/", "\n", $fulldescription)));
-        $fulldescription = str_replace("\n", "\\n", $fulldescription );
+        $fulldescription = str_replace("\n", "\\n", $fulldescription);
 
         // Remove CR and CRLF from description as the description must be on one line to work with ical.
-        $fulldescription = str_replace (array("\r\n", "\n", "\r"), ' ', $fulldescription);
+        $fulldescription = str_replace(["\r\n", "\n", "\r"], ' ', $fulldescription);
 
 
         // Make sure that we fall back onto some reasonable no-reply address.

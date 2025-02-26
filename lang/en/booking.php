@@ -657,7 +657,7 @@ $string['canceldependenton_desc'] = 'Choose the date that should be used as "sta
 "Disallow users to cancel their booking n days before start. Minus means, that users can still cancel n
 days AFTER course start.".<br>
 This will also set the <i>service period</i> of courses in shopping cart accordingly (if shopping cart is installed). This also affects installment payments. You can take out the semester in the Dates section of a booking option, if you want to use the coursestart instead of the semesterstart.';
-$string['cancelical'] = 'Cancel';
+$string['cancelical'] = 'Cancel calendar event(s)';
 $string['cancellation'] = 'Cancellation';
 $string['cancellationsettings'] = 'Cancellation settings <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['cancelmyself'] = 'Undo my booking';
@@ -801,7 +801,7 @@ $string['coursestart'] = 'Start';
 $string['coursestarttime'] = 'Start time of the course';
 $string['courseurl'] = 'Course URL';
 $string['createdbywunderbyte'] = 'Booking module created by Wunderbyte GmbH';
-$string['createical'] = 'Create';
+$string['createical'] = 'Create calendar event(s)';
 $string['createnewbookingoption'] = 'New booking option';
 $string['createnewbookingoptionfromtemplate'] = 'Add a new booking option from template';
 $string['createnewmoodlecourse'] = 'Create new empty Moodle course';
@@ -2097,8 +2097,8 @@ $string['sendcopyofmail'] = 'Send an email copy';
 $string['sendcopyofmailmessageprefix'] = 'Message prefix for the copy';
 $string['sendcopyofmailsubjectprefix'] = 'Subject prefix for the copy';
 $string['sendcustommsg'] = 'Send custom message';
-$string['sendical'] = 'Send ICS file as attachment';
-$string['sendicalcreateorcancel'] = 'Is the Ical a create or cancel event?';
+$string['sendical'] = 'Send ical file (.ics) as attachment';
+$string['sendicalcreateorcancel'] = 'Should the ical create or cancel calendar events?';
 $string['sendmail'] = 'Send email';
 $string['sendmailheading'] = 'Send mail to all teachers of selected bookingoption(s)';
 $string['sendmailinterval'] = 'Send a message to multiple users with a time delay';
