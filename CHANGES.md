@@ -1,3 +1,7 @@
+## Version 8.10.1 (2025022601)
+* Bugfix: Fallback for empty fields in rules.
+* Bugfix: Add field places to DB if it's still missing for some reason.
+
 ## Version 8.10.0 (2025022600)
 * New feature: Responsible contact persons can now be (un-)enrolled automatically to (from) the connected Moodle course.
 * New feature: Include sessions in 'bookings' webservice.
@@ -14,7 +18,6 @@
 * Bugfix: Remove string concatenations as this causes AMOS to fail.
 * Bugfix: Fix string for report reminders so bookingdetails placeholder will work again.
 * Tests: Add new test for enrolled in cohort condition.
-
 
 ## Version 8.9.19 (2025021300)
 * Improvement: Add prefix to display of bo in overlapping message
