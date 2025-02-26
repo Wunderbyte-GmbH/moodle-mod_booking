@@ -168,6 +168,7 @@ final class recurringoptions_test extends advanced_testcase {
         $record->description = 'Test Booking Description';
         $record->coursestarttime = '2025-01-03 10:00:00';
         $record->courseendtime = '2025-01-03 12:00:00';
+        $record->apply_to_children = 1;
         booking_option::update($record);
 
         // Fetch updated options.
