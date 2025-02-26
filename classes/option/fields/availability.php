@@ -245,6 +245,7 @@ class availability extends field_base {
             $changes = [
                 'changes' => [
                     'fieldname' => 'availability',
+                    'formkey' => 'availability',
                 ],
             ];
         }

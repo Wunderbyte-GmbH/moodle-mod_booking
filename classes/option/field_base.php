@@ -271,6 +271,7 @@ abstract class field_base implements fields {
                         'fieldname' => $classname,
                         'oldvalue' => $oldvalue,
                         'newvalue' => $newvalue,
+                        'formkey' => $key,
                     ],
                 ];
             }
