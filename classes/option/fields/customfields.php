@@ -202,6 +202,7 @@ class customfields extends field_base {
                 // Only report that there was change in the section.
                 // Can be extended when needed.
                 $fieldname = $data->get_field()->get('name') ?? $key;
+                $shortname = $data->get_field()->get('shortname') ?? $key;
                 $oldvalue = is_string($oldvalue) ? format_string($oldvalue) : $oldvalue;
                 $newvalue = is_string($newvalue) ? format_string($newvalue) : $newvalue;
                 $changes[$key] = [
@@ -209,6 +210,7 @@ class customfields extends field_base {
                         'fieldname' => 'customfields',
                         'oldvalue' => $fieldname . ' : ' . $oldvalue,
                         'newvalue' => $fieldname . ' : ' . $newvalue,
+                        'formkey' => 'customfield_' . $shortname,
                     ],
                 ];
             }
