@@ -169,9 +169,10 @@ class recurringoptions extends field_base {
             // Display linked options if available.
             if (!empty($linkedlist)) {
                 $sameparent = [];
-                $isparent = [];
-                $ischild = [];
-                // Sort these records.
+                $isparentofcurrent = [];
+                $ischildofcurrent = [];
+
+                // Sort records into categories.
                 foreach ($linkedlist as $record) {
                     if ($record->parentid == $settings->id) {
                         $ischildofcurrent[] = $record;
@@ -179,24 +180,43 @@ class recurringoptions extends field_base {
                         $sameparent[] = $record;
                     } else if ($settings->parentid == $record->id) {
                         $isparentofcurrent[] = $record;
-                    } else {
-                        continue;
                     }
                 }
+
                 if (!empty($ischildofcurrent)) {
                     $mform->addElement('hidden', 'has_children', 1);
                 }
 
-                $linkedlistnames = array_map(function ($value) use ($formdata, $USER) {
-                    $url = new moodle_url('/mod/booking/optionview.php', [
-                        'optionid' => $value->id,
-                        'cmid' => $formdata['cmid'],
-                        'userid' => $USER->id,
-                    ]);
-                    return html_writer::link($url->out(false), $value->text);
-                }, $linkedlist);
+                // Function to generate links for a given set of records.
+                $generatelinks = function ($records) use ($formdata, $USER) {
+                    return array_map(function ($value) {
+                        $url = new moodle_url('/mod/booking/optionview.php', ['optionid' => $value->id]);
+                        return html_writer::link($url->out(false), $value->text);
+                    }, $records);
+                };
 
-                $mform->addElement('html', implode('<br>', $linkedlistnames));
+                // Build categorized sections.
+                $htmlcontent = '';
+
+                if (!empty($isparentofcurrent)) {
+                    $htmlcontent .= '<h7>' . get_string('recurringparentoption', 'mod_booking') . '</h7>';
+                    $htmlcontent .= implode('<br>', $generatelinks($isparentofcurrent)) . '<br><br>';
+                }
+
+                if (!empty($sameparent)) {
+                    $htmlcontent .= '<h7>' . get_string('recurringsameparentoptions', 'mod_booking') . '</h7>';
+                    $htmlcontent .= implode('<br>', $generatelinks($sameparent)) . '<br><br>';
+                }
+
+                if (!empty($ischildofcurrent)) {
+                    $htmlcontent .= '<h7>' . get_string('recurringchildoptions', 'mod_booking') . '</h7>';
+                    $htmlcontent .= implode('<br>', $generatelinks($ischildofcurrent)) . '<br><br>';
+                }
+
+                // Add the structured HTML to the form.
+                if (!empty($htmlcontent)) {
+                    $mform->addElement('html', $htmlcontent);
+                }
             }
 
             $mform->addElement(
