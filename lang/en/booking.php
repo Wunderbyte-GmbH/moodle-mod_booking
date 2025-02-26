@@ -762,7 +762,7 @@ $string['confirmoptioncreation'] = 'Do you want to split this booking option so 
  from each individual date of this booking option?';
 $string['confirmpresence'] = "Confirm presence";
 $string['confirmrecurringoption'] = 'Apply these changes to all the following bookingoption as well?';
-$string['confirmrecurringoptionerror'] = '';
+$string['confirmrecurringoptionerror'] = 'You can proceed with or without this checkbox checked.';
 $string['confirmusers'] = 'Confirm users activity';
 $string['confirmuserswith'] = 'Confirm users who completed activity or received badge';
 $string['connectedbooking'] = '[DEPRECATED] Connected booking';
