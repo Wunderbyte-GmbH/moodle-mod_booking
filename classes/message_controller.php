@@ -630,7 +630,7 @@ class message_controller {
 
     /**
      * Get ical attachments.
-     * @param bool $updated if set to true, it will create an update ical (METHOD: REQUEST, SEQUENCE: 1)
+     * @param bool $updated if set to true, it will create an update ical
      * @return array [array $attachments, string $attachname]
      */
     private function get_attachments(bool $updated = false): array {
