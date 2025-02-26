@@ -212,9 +212,11 @@ function showInvalidFeedback() {
             }
         }
     });
-    let firstelement = nonEmptyElements[0];
-    firstelement.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center'
-    });
+    if (nonEmptyElements.length > 0) {
+        let firstelement = nonEmptyElements[0];
+        firstelement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+        });
+    }
 }
