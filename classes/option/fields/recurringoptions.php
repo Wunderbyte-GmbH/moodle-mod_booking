@@ -125,7 +125,6 @@ class recurringoptions extends field_base {
     ) {
         global $DB, $USER;
 
-
         // Templates and recurring 'events' - only visible when adding new.
         if ($formdata['id']) {
             $mform->addElement(
@@ -140,13 +139,20 @@ class recurringoptions extends field_base {
 
             $settings = singleton_service::get_instance_of_booking_option_settings($formdata['id']);
 
-            $sql = 'SELECT * FROM {booking_options} WHERE id = :parentid1 OR parentid = :parentid2 OR parentid = :id';
+            // Fetch parents and children of this option.
+            // Parents / Children header.
 
+            // Either parentid is current optionid or id is current parentid. Case with same parent.
+            $sql = 'SELECT * FROM {booking_options}
+                    WHERE parentid = :id';
             $params = [
                 'id' => $formdata['id'],
                 'parentid1' => $settings->parentid,
                 'parentid2' => $settings->parentid,
             ];
+            if (!empty($settings->parentid)) {
+                $sql .= ' AND id = :parentid1 OR parentid = :parentid2';
+            }
 
             $linkedlist = $DB->get_records_sql($sql, $params);
 
@@ -162,6 +168,25 @@ class recurringoptions extends field_base {
 
             // Display linked options if available.
             if (!empty($linkedlist)) {
+                $sameparent = [];
+                $isparent = [];
+                $ischild = [];
+                // Sort these records.
+                foreach ($linkedlist as $record) {
+                    if ($record->parentid == $settings->id) {
+                        $ischildofcurrent[] = $record;
+                    } else if ($record->id == $settings->parentid) {
+                        $sameparent[] = $record;
+                    } else if ($settings->parentid == $record->id) {
+                        $isparentofcurrent[] = $record;
+                    } else {
+                        continue;
+                    }
+                }
+                if (!empty($ischildofcurrent)) {
+                    $mform->addElement('hidden', 'has_children', 1);
+                }
+
                 $linkedlistnames = array_map(function ($value) use ($formdata, $USER) {
                     $url = new moodle_url('/mod/booking/optionview.php', [
                         'optionid' => $value->id,
@@ -204,6 +229,26 @@ class recurringoptions extends field_base {
             $mform->setType('howoftentorepeat', PARAM_INT);
             $mform->setDefault('howoftentorepeat', 86400);
             $mform->disabledIf('howoftentorepeat', 'repeatthisbooking', 'notchecked');
+
+            // Hidden input to track if the form has been validated before.
+            $mform->addElement('hidden', 'validated_once', 0);
+            $mform->setType('validated_once', PARAM_INT);
+        }
+    }
+
+    /**
+     * Definition after data callback
+     * @param MoodleQuickForm $mform
+     * @param mixed $formdata
+     * @return void
+     */
+    public static function definition_after_data(MoodleQuickForm &$mform, $formdata) {
+        if (($mform->_flagSubmitted ?? false) && empty($formdata['validated_once'])) {
+            $validationelement = $mform->getElement('validated_once');
+            $validationelement->setValue(1);
+            $mform->addElement('html', '<div class="alert alert-warning">');
+            $mform->addElement('advcheckbox', 'confirm_recurring_option', get_string('confirmrecurringoption', 'mod_booking'));
+            $mform->addElement('html', '</div>');
         }
     }
 
@@ -268,5 +313,21 @@ class recurringoptions extends field_base {
         }
 
         return $changes;
+    }
+
+    /**
+     * This function adds error keys for form validation.
+     * @param array $data
+     * @param array $files
+     * @param array $errors
+     * @return array
+     */
+    public static function validation(array $data, array $files, array &$errors) {
+        $errors = [];
+
+        if (empty($data['validated_once']) && !empty($data['has_children'])) {
+            $errors['confirm_recurring_option'] = get_string('confirmrecurringoptionerror', 'mod_booking');
+        }
+        return $errors;
     }
 }
