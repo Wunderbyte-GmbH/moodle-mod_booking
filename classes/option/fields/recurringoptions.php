@@ -199,17 +199,17 @@ class recurringoptions extends field_base {
                 $htmlcontent = '';
 
                 if (!empty($isparentofcurrent)) {
-                    $htmlcontent .= '<h7>' . get_string('recurringparentoption', 'mod_booking') . '</h7>';
+                    $htmlcontent .= '<h7>' . get_string('recurringparentoption', 'mod_booking') . '</h7><br>';
                     $htmlcontent .= implode('<br>', $generatelinks($isparentofcurrent)) . '<br><br>';
                 }
 
                 if (!empty($sameparent)) {
-                    $htmlcontent .= '<h7>' . get_string('recurringsameparentoptions', 'mod_booking') . '</h7>';
+                    $htmlcontent .= '<h7>' . get_string('recurringsameparentoptions', 'mod_booking') . '</h7><br>';
                     $htmlcontent .= implode('<br>', $generatelinks($sameparent)) . '<br><br>';
                 }
 
                 if (!empty($ischildofcurrent)) {
-                    $htmlcontent .= '<h7>' . get_string('recurringchildoptions', 'mod_booking') . '</h7>';
+                    $htmlcontent .= '<h7>' . get_string('recurringchildoptions', 'mod_booking') . '</h7><br>';
                     $htmlcontent .= implode('<br>', $generatelinks($ischildofcurrent)) . '<br><br>';
                 }
 
@@ -253,6 +253,12 @@ class recurringoptions extends field_base {
             // Hidden input to track if the form has been validated before.
             $mform->addElement('hidden', 'validated_once', 0);
             $mform->setType('validated_once', PARAM_INT);
+
+            //$mform->addElement('html', '<div class="alert alert-warning">');
+            $mform->addElement('advcheckbox', 'apply_to_children', get_string('confirmrecurringoption', 'mod_booking'));
+            $mform->setDefault('apply_to_children', 0);
+            //$mform->addElement('html', '</div>');
+            $mform->hideIf('apply_to_children', 'validated_once', 'eq', 0);
         }
     }
 
@@ -266,9 +272,6 @@ class recurringoptions extends field_base {
         if (($mform->_flagSubmitted ?? false) && empty($formdata['validated_once'])) {
             $validationelement = $mform->getElement('validated_once');
             $validationelement->setValue(1);
-            $mform->addElement('html', '<div class="alert alert-warning">');
-            $mform->addElement('advcheckbox', 'confirm_recurring_option', get_string('confirmrecurringoption', 'mod_booking'));
-            $mform->addElement('html', '</div>');
         }
     }
 
@@ -346,8 +349,79 @@ class recurringoptions extends field_base {
         $errors = [];
 
         if (empty($data['validated_once']) && !empty($data['has_children'])) {
-            $errors['confirm_recurring_option'] = get_string('confirmrecurringoptionerror', 'mod_booking');
+            $errors['apply_to_children'] = get_string('confirmrecurringoptionerror', 'mod_booking');
         }
         return $errors;
+    }
+
+    public static function update_children(int $optionid, array $changes) {
+        global $DB;
+        $children = $DB->get_records('booking_options', ['parentid' => $optionid]);
+
+        if (!empty($children)) {
+            foreach ($children as $child) {
+                // Loop through the changes.
+                $data = [
+                    'id' => $child->id,
+                    'importing' => 1,
+                ];
+                $update = false;
+                foreach ($changes as $change) {
+                    if (isset($change['changes']['fieldname']) && $change['changes']['fieldname'] == 'customfields') {
+                        continue;
+                    }
+
+                    if (isset($change['changes']['fieldname']) && $change['changes']['fieldname'] == 'dates') {
+                        $oldvalues = $change['changes']['oldvalue'];
+                        $newvalues = $change['changes']['newvalue'];
+
+                        $results = [];
+
+                        foreach ($oldvalues as $old) {
+                            foreach ($newvalues as $new) {
+                                if ($old->id == $new['id']) {
+                                    $oldstarttime = $old->coursestarttime;
+                                    $oldendtime = $old->courseendtime;
+                                    $newstarttime = $new['coursestarttime'];
+                                    $newendtime = $new['courseendtime'];
+
+                                    $deltastart = $newstarttime - $oldstarttime;
+                                    $deltaend = $newendtime - $oldendtime;
+
+                                    // Store results
+                                    $results[] = [
+                                        "id" => $old->id,
+                                        "delta_start_time_seconds" => $deltastart,
+                                        "delta_end_time_seconds" => $deltaend,
+                                    ];
+                                }
+                            }
+                        }
+
+                        $key = MOD_BOOKING_FORM_OPTIONDATEID . $change['changes']['newvalue'][0]['index'];
+                        $data[$key] = 0;
+                        $key = MOD_BOOKING_FORM_COURSESTARTTIME . $change['changes']['newvalue'][0]['index'];
+                        $data[$key] = $child->coursestarttime + $results['delta_start_time_seconds'];
+                        $key  = MOD_BOOKING_FORM_COURSEENDTIME . $change['changes']['newvalue'][0]['index'];
+                        $data[$key] = $child->courseendtime + $results['delta_end_time_seconds'];
+                        $update = true;
+                    }
+
+                    $fieldname = $change['changes']['fieldname'] ?? '';
+                    $newvalue = $change['changes']['newvalue'] ?? '';
+
+                    // If the field exists and the value is different, update it.
+                    if (isset($child->$fieldname) && $child->$fieldname !== $newvalue) {
+                        $data[$fieldname] = $newvalue;
+                        $update = true;
+                    }
+                }
+                // Update the data record after all changes are made.
+                if ($update) {
+                    //$DB->update_record('booking_options', $child);
+                    //self::update($data, $context);
+                }
+            }
+        }
     }
 }
