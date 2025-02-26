@@ -1886,8 +1886,11 @@ $string['recommendedin'] = "Shortcode um Buchungsoptionen in bestimmten Kursen z
 $string['recordsimported'] = 'Buchungsoptionen importiert via CSV';
 $string['recordsimporteddescription'] = '{$a} Buchungsoptionen importiert via CSV';
 $string['recreategroup'] = 'Gruppe erneut anlegen und Nutzer:innen der Gruppe zuordnen';
+$string['recurringchildoptions'] = '"Kinder" dieser Buchungsoption:';
 $string['recurringheader'] = '<i class="fa-solid fa-repeat" aria-hidden="true"></i>&nbsp;Wiederkehrende Optionen';
 $string['recurringoptions'] = 'Wiederkehrende Buchungs Optionen';
+$string['recurringparentoption'] = 'Vorlage dieser Buchungsoption:';
+$string['recurringsameparentoptions'] = 'Buchungsoption(en) mit gleicher Vorlage:';
 $string['relatedcourseidneeded'] = 'Aufgrund Ihrer Verfügbarkeits-Einstellungen muss ein verknüpfter Moodle-Kurs angegeben werden.';
 $string['reminder1sent'] = 'Erste Benachrichtigung versendet';
 $string['reminder2sent'] = 'Zweite Benachrichtigung versendet';
