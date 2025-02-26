@@ -74,7 +74,7 @@ class ruleslist implements renderable, templatable {
             $rule->localizedrulename = !empty($localizedrulename) ? get_string($localizedrulename, 'mod_booking') : '';
             $localizedconditionname = str_replace("_", "", $rule->conditionname) ?? '';
             $rule->localizedconditionname = !empty($localizedconditionname) ? get_string($localizedconditionname, 'mod_booking') : '';
-            $localizedactionname = str_replace("_", "", $rule->rulename) ?? '';
+            $localizedactionname = str_replace("_", "", $rule->actionname) ?? '';
             $rule->localizedactionname = !empty($localizedactionname) ? get_string($localizedactionname, 'mod_booking') : '';
 
             // Filter for rules of this or other context.
