@@ -749,7 +749,7 @@ $string['confirmoptioncompletion'] = 'Abschluss bestätigen';
 $string['confirmoptioncreation'] = 'Wollen Sie diese Buchungsoption splitten sodass aus jedem Einzeltermin eine eigene
  Buchungsoption erstellt wird?';
 $string['confirmrecurringoption'] = 'Diese Änderungen auch für alle folgenden Buchungsoptionen anwenden?';
-$string['confirmrecurringoptionerror'] = '';
+$string['confirmrecurringoptionerror'] = 'Sie können mit oder ohne Aktivierung dieser Checkbox fortfahren.';
 $string['connectedbooking'] = '[VERALTET] Vorgeschaltete Buchung';
 $string['connectedbooking_help'] = 'Buchung von der Teilnehmer:innen übernommen werden. Es kann bestimmt werden wie viele Teilnehmer:innen übernommen werden.';
 $string['connectedmoodlecourse'] = 'Verbundener Moodle-Kurs';
