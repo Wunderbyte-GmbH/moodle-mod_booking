@@ -214,6 +214,7 @@ class enrolmentstatus extends field_base {
                         'fieldname' => $classname,
                         'oldvalue' => empty($oldvalue) ? 0 : 1,
                         'newvalue' => empty($newvalue) ? 0 : 1,
+                        'formkey' => 'enrolmentstatus',
                     ],
                 ];
             }

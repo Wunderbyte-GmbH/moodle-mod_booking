@@ -226,6 +226,7 @@ class canceluntil extends field_base {
                         'fieldname' => $classname,
                         'oldvalue' => $oldvalue,
                         'newvalue' => $newvalue,
+                        'formkey' => 'canceluntil',
                     ],
                 ];
             }
