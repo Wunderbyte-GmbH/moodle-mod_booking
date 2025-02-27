@@ -1890,6 +1890,12 @@ $string['recurringheader'] = '<i class="fa-solid fa-repeat" aria-hidden="true"><
 $string['recurringoptions'] = 'Wiederkehrende Buchungs Optionen';
 $string['recurringparentoption'] = 'Vorlage dieser Buchungsoption:';
 $string['recurringsameparentoptions'] = 'Buchungsoption(en) mit gleicher Vorlage:';
+$string['recurringsavedatesinfo'] = '<div class="alert alert-info" role="alert">
+                                    <strong>Achtung:</strong> Jegliche Änderungen das Datum betreffend werden nur übernommen, wenn der zeitliche Abstand zwischen dieser und allen folgenden Buchungsoptionen identisch ist.
+                                    </div>';
+$string['recurringsaveinfo'] = '<div class="alert alert-info" role="alert">
+                                <strong>Achtung:</strong> Bitte speichern Sie allfällie Änderungen bevor Sie wiederkehrende Buchungsoption anlegen. Ihre Änderungen werden sonst in den neuen Buchungen nicht übernommen.
+                                </div>';
 $string['relatedcourseidneeded'] = 'Aufgrund Ihrer Verfügbarkeits-Einstellungen muss ein verknüpfter Moodle-Kurs angegeben werden.';
 $string['reminder1sent'] = 'Erste Benachrichtigung versendet';
 $string['reminder2sent'] = 'Zweite Benachrichtigung versendet';
@@ -1910,6 +1916,7 @@ $string['report2labelsystem'] = 'Gesamte Seite';
 $string['reportfields'] = 'Felder reportieren';
 $string['reportremindermessage'] = '{bookingdetails}';
 $string['reportremindersubject'] = 'Erinnerung: Ihr gebuchter Kurs';
+$string['requirepreviousoptionstobebooked'] = 'Einschränkung aktivieren: Vorangegangene Buchungsoption muss gebucht sein, damit die folgende buchbar wird.';
 $string['reservedusers'] = 'Kurzfristige Reservierungen';
 $string['reset'] = 'Zurücksetzen';
 $string['responses'] = 'Buchungen';
