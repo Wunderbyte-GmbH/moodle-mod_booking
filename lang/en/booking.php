@@ -1946,6 +1946,12 @@ $string['recurringheader'] = '<i class="fa-solid fa-repeat" aria-hidden="true"><
 $string['recurringoptions'] = 'Recurring booking options';
 $string['recurringparentoption'] = 'Parent of this option:';
 $string['recurringsameparentoptions'] = 'Bookingoption(s) with same parent:';
+$string['recurringsavedatesinfo'] = '<div class="alert alert-info" role="alert">
+                                    <strong>Attention:</strong> Any changes related to dates will only be applied if the time interval between this and all following booking options is equal.
+                                    </div>';
+$string['recurringsaveinfo'] = '<div class="alert alert-info" role="alert">
+                                <strong>Attention:</strong> Please save any changes before creating recurring booking options. Otherwise, your changes will not be applied to the new options.
+                                </div>';
 $string['relatedcourseidneeded'] = 'A related course is needed because of your availabilty condition(s).';
 $string['reminder1sent'] = 'First reminder sent';
 $string['reminder2sent'] = 'Second reminder sent';
@@ -1967,6 +1973,7 @@ $string['report2labelsystem'] = 'Site';
 $string['reportfields'] = 'Report fields';
 $string['reportremindermessage'] = '{bookingdetails}';
 $string['reportremindersubject'] = 'Reminder: Your booked course';
+$string['requirepreviousoptionstobebooked'] = 'Activate condition: User has to book the previous bookingoption to be able to book the following option.';
 $string['reservedusers'] = 'Shortterm reservations';
 $string['reset'] = 'Reset';
 $string['responses'] = 'Responses';
