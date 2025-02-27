@@ -252,13 +252,13 @@ class recurringoptions extends field_base {
 
             // Hidden input to track if the form has been validated before.
             $mform->addElement('hidden', 'validated_once', 0);
+            $mform->setDefault('validated_once', 0);
             $mform->setType('validated_once', PARAM_INT);
 
-            //$mform->addElement('html', '<div class="alert alert-warning">');
             $mform->addElement('advcheckbox', 'apply_to_children', get_string('confirmrecurringoption', 'mod_booking'));
             $mform->setDefault('apply_to_children', 0);
-            //$mform->addElement('html', '</div>');
             $mform->hideIf('apply_to_children', 'validated_once', 'eq', 0);
+            // TODO: Info about dates not applied if delta isn't consistent.
         }
     }
 
@@ -313,12 +313,12 @@ class recurringoptions extends field_base {
             ];
 
             fields_info::set_data($templateoption);
-            $templateoption->importing = 1;
             $templateoption->parentid = $option->id;
             [$newoptiondates, $highesindex] = dates::get_list_of_submitted_dates((array)$templateoption);
 
             $title = $templateoption->text;
             for ($i = 1; $i <= $data->howmanytimestorepeat; $i++) {
+                // Handle dates.
                 unset($templateoption->id, $templateoption->identifier, $templateoption->optionid);
                 $templateoption->text = $title . " $i";
                 foreach ($newoptiondates as $newoptiondate) {
@@ -373,13 +373,17 @@ class recurringoptions extends field_base {
         global $DB;
         $children = $DB->get_records('booking_options', ['parentid' => $optionid]);
 
-        $delta = 0;
-        if (isset($change['changes']['fieldname']['dates'])) {
-            // Check for delta, see if its everywhere the same. If not, 0 returned.
-            $delta = self::find_constant_delta($oldoption, $children);
-        }
-
         if (!empty($children)) {
+            $context = context_module::instance($data->cmid);
+
+            $delta = 0;
+            if (isset($changes['mod_booking\option\fields\optiondates'])) {
+                // Check for delta, see if its everywhere the same. If not, 0 returned.
+                $delta = self::find_constant_delta($oldoption, $children);
+                $d = 0;
+                [$newparentoptiondates, $highesindex] = dates::get_list_of_submitted_dates((array)$data);
+            }
+
             foreach ($children as $index => $child) {
                 // Loop through the changes.
                 $childdata = (object)[
@@ -402,46 +406,32 @@ class recurringoptions extends field_base {
                             continue;
                         } else {
                             $update = true;
-                            // Apply delta to all children.
-                            // Also see save_data function.
+                            [$childoptiondates, $highesindexchild] = dates::get_list_of_submitted_dates((array)$childdata);
 
-                            // TODO: Make sure, the child doesnt contain more sessions than the parent. If so, delete them.
+                            for ($i = 1; $i <= $highesindexchild; $i++) {
+                                $key = MOD_BOOKING_FORM_OPTIONDATEID . $i;
+                                if (isset($childdata->$key)) {
+                                    unset($childdata->$key);
+                                }
+                            }
+
+                            $d += $delta;
+                            foreach ($newparentoptiondates as $newparentoptiondate) {
+                                // Set the timestamp including the corresponding delta.
+                                $key = MOD_BOOKING_FORM_OPTIONDATEID . $newparentoptiondate["index"];
+                                $childdata->{$key} = 0;
+                                $key = MOD_BOOKING_FORM_COURSESTARTTIME . $newparentoptiondate["index"];
+                                $coursestarttimekey = rtrim(MOD_BOOKING_FORM_COURSESTARTTIME, "_");
+                                $childdata->{$key} = (int) $newparentoptiondate[$coursestarttimekey] + $d;
+                                $key = MOD_BOOKING_FORM_COURSEENDTIME . $newparentoptiondate["index"];
+                                $courseendtimekey = rtrim(MOD_BOOKING_FORM_COURSEENDTIME, "_");
+                                $childdata->{$key} = (int) $newparentoptiondate[$courseendtimekey] + $d;
+                                $key = MOD_BOOKING_FORM_DAYSTONOTIFY . $newparentoptiondate["index"];
+                                $dayskey = rtrim(MOD_BOOKING_FORM_DAYSTONOTIFY, "_");
+                                $childdata->{$key} = $newparentoptiondate[$dayskey];
+                            }
                         }
-                        // If yes, apply dates with delta to all children.
-
-                        // $oldvalues = $change['changes']['oldvalue'];
-                        // $newvalues = $change['changes']['newvalue'];
-
-                        // $results = [];
-
-                        // foreach ($oldvalues as $old) {
-                        //     foreach ($newvalues as $new) {
-                        //         if ($old->id == $new['id']) {
-                        //             $oldstarttime = $old->coursestarttime;
-                        //             $oldendtime = $old->courseendtime;
-                        //             $newstarttime = $new['coursestarttime'];
-                        //             $newendtime = $new['courseendtime'];
-
-                        //             $deltastart = $newstarttime - $oldstarttime;
-                        //             $deltaend = $newendtime - $oldendtime;
-
-                        //             // Store results
-                        //             $results[] = [
-                        //                 "id" => $old->id,
-                        //                 "delta_start_time_seconds" => $deltastart,
-                        //                 "delta_end_time_seconds" => $deltaend,
-                        //             ];
-                        //         }
-                        //     }
-
-
-                        // $key = MOD_BOOKING_FORM_OPTIONDATEID . $change['changes']['newvalue'][0]['index'];
-                        // $data[$key] = 0;
-                        // $key = MOD_BOOKING_FORM_COURSESTARTTIME . $change['changes']['newvalue'][0]['index'];
-                        // $data[$key] = $child->coursestarttime + $results['delta_start_time_seconds'];
-                        // $key  = MOD_BOOKING_FORM_COURSEENDTIME . $change['changes']['newvalue'][0]['index'];
-                        // $data[$key] = $child->courseendtime + $results['delta_end_time_seconds'];
-                        // $update = true;
+                        booking_option::update($childdata, $context);
                     } else {
                         $fieldname = $change['changes']['formkey'] ?? '';
                         $newvalue = $change['changes']['newvalue'] ?? '';
@@ -455,9 +445,8 @@ class recurringoptions extends field_base {
                 }
                 // Update the data record after all changes are made.
                 if ($update) {
-                    $DB->update_record('booking_options', $child);
                     $child->cmid = $data->cmid;
-                    $context = context_module::instance($data->cmid);
+                    $child->importing = 1;
                     booking_option::update($child, $context);
                 }
             }
@@ -474,14 +463,18 @@ class recurringoptions extends field_base {
      *
      */
     private static function find_constant_delta(object $parent, array &$children): int {
+        $parent->coursestarttime = (int)$parent->coursestarttime;
+        foreach ($children as $child) {
+            $child->coursestarttime = (int)$child->coursestarttime;
+        }
         // Ensure the parent record has a valid coursestarttime.
-        if (!isset($parent->coursestarttime) || empty((int)$parent->coursestarttime)) {
+        if (!isset($parent->coursestarttime) || empty($parent->coursestarttime)) {
             return 0;
         }
 
         // Filter out children that don't have a valid coursestarttime.
         $children = array_filter($children, function ($child) {
-            return isset($child->coursestarttime) && !empty((int)$child->coursestarttime);
+            return isset($child->coursestarttime) && !empty($child->coursestarttime);
         });
 
         // If there is less than 1 valid child, we cannot determine a difference.
