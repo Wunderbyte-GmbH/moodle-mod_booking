@@ -189,9 +189,9 @@ class recurringoptions extends field_base {
 
                 // Function to generate links for a given set of records.
                 $generatelinks = function ($records) use ($formdata, $USER) {
-                    return array_map(function ($value) {
-                        $url = new moodle_url('/mod/booking/optionview.php', ['optionid' => $value->id]);
-                        return html_writer::link($url->out(false), $value->text);
+
+                    return array_map(function ($value) use ($formdata, $USER) {
+                        return booking_option::create_link_to_bookingoption($value->id, $formdata['cmid'], $value->text, $USER->id, ['target' => '_blank']);
                     }, $records);
                 };
 

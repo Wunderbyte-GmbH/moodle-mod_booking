@@ -3955,4 +3955,36 @@ class booking_option {
             }
         }
     }
+
+    /**
+     * Create a new moodle url for bookingoptionview.
+     *
+     * @param int $optionid
+     * @param int $cmid
+     * @param string $texttodisplay
+     * @param int $userid
+     * @param array $linkattributes
+     *
+     * @return string
+     *
+     */
+    public static function create_link_to_bookingoption(
+        int $optionid,
+        int $cmid,
+        string $texttodisplay,
+        int $userid = 0,
+        array $linkattributes = []
+    ) {
+        $params = [
+            'cmid' => $cmid,
+            'optionid' => $optionid,
+        ];
+        if (!empty($userid)) {
+            $params['userid'] = $userid;
+        }
+        $url = new moodle_url('/mod/booking/optionview.php', $params);
+
+        return html_writer::link($url->out(false), $texttodisplay, $linkattributes);
+    }
+
 }
