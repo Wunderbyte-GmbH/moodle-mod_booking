@@ -28,6 +28,7 @@ namespace mod_booking;
 
 use advanced_testcase;
 use coding_exception;
+use mod_booking\option\fields_info;
 use mod_booking\price;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
@@ -136,6 +137,7 @@ final class recurringoptions_test extends advanced_testcase {
         $record->repeatthisbooking = 1;
         $record->howmanytimestorepeat = 2; // Repeat twice
         $record->howoftentorepeat = 7 * 24 * 60 * 60; // 1 week in seconds
+        $record->requirepreviousoptionstobebooked = "1";
         $record->importing = 1;
         booking_option::update($record);
 
@@ -210,13 +212,27 @@ final class recurringoptions_test extends advanced_testcase {
                 $this->assertEquals($record->text, $child->text, "Child {$child->id} title not updated correctly.");
                 $this->assertEquals($record->description, $child->description, "Child {$child->id} description not updated correctly.");
 
-                //todo adapt the test also for the coursestarttime and courseendtime
-                // Validate recurring start times.
-                /*$this->assertEquals(
-                    $record->coursestarttime[$index],
-                    (int) $child->coursestarttime,
-                    "Child {$child->id} coursestarttime does not match expected value."
-                );*/
+                // Verify if all sessions were updated correctly.
+                $childdata = (object)[
+                    'id' => $child->id,
+                    'cmid' => $record->cmid,
+                ];
+                fields_info::set_data($childdata);
+                [$childdates, $highesindexchild] = dates::get_list_of_submitted_dates((array)$childdata);
+                foreach ($childdates as $optiondate) {
+                    if (
+                        empty($optiondate->coursestarttime)
+                        && empty($optiondate->courseendtime)
+                    ) {
+                        continue;
+                    }
+                    $this->assertTrue(in_array($optiondate->coursestarttime, (array)$record));
+                    $this->assertTrue(in_array($optiondate->courseendtime, (array)$record));
+                }
+                // Verify that previouslybooked condition was applied.
+                $this->assertNotEmpty($childdata->bo_cond_previouslybooked_restrict);
+                // This could be extended to make sure, it's really the right optionids here.
+                $this->assertIsNumeric($childdata->bo_cond_previouslybooked_optionid);
             }
         }
     }
