@@ -250,6 +250,17 @@ class recurringoptions extends field_base {
             $mform->setDefault('howoftentorepeat', 86400);
             $mform->disabledIf('howoftentorepeat', 'repeatthisbooking', 'notchecked');
 
+            $mform->addElement(
+                'advcheckbox',
+                'requirepreviousoptionstobebooked',
+                get_string('requirepreviousoptionstobebooked','mod_booking')
+            );
+            $mform->setDefault('requirepreviousoptionstobebooked', 0);
+            $mform->hideIf('apply_to_children', 'repeatthisbooking', 'eq', 0);
+
+            $mform->addElement('static', 'recurringsaveinfo', '', get_string('recurringsaveinfo', 'mod_booking'));
+            $mform->hideIf('recurringsaveinfo', 'repeatthisbooking', 'notchecked');
+
             // Hidden input to track if the form has been validated before.
             $mform->addElement('hidden', 'validated_once', 0);
             $mform->setDefault('validated_once', 0);
@@ -258,7 +269,8 @@ class recurringoptions extends field_base {
             $mform->addElement('advcheckbox', 'apply_to_children', get_string('confirmrecurringoption', 'mod_booking'));
             $mform->setDefault('apply_to_children', 0);
             $mform->hideIf('apply_to_children', 'validated_once', 'eq', 0);
-            // TODO: Info about dates not applied if delta isn't consistent.
+            $mform->addElement('static', 'recurringsavedatesinfo', '', get_string('recurringsavedatesinfo', 'mod_booking'));
+            $mform->hideIf('recurringsavedatesinfo', 'apply_to_children', 'eq', 0);
         }
     }
 
@@ -314,6 +326,7 @@ class recurringoptions extends field_base {
 
             fields_info::set_data($templateoption);
             $templateoption->parentid = $option->id;
+            $restrictoptionid = $option->id;
             [$newoptiondates, $highesindex] = dates::get_list_of_submitted_dates((array)$templateoption);
 
             $title = $templateoption->text;
@@ -330,8 +343,12 @@ class recurringoptions extends field_base {
                     $key = MOD_BOOKING_FORM_COURSEENDTIME . $newoptiondate["index"];
                     $templateoption->{$key} += $delta;
                 }
-
-                booking_option::update((object) $templateoption, $context);
+                // Handle setting: condition that previous option needs to be booked.
+                if ($data->requirepreviousoptionstobebooked == 1) {
+                    $templateoption->bo_cond_previouslybooked_restrict = "1";
+                    $templateoption->bo_cond_previouslybooked_optionid = "$restrictoptionid";
+                }
+                $restrictoptionid = booking_option::update((object) $templateoption, $context);
             }
         }
 
