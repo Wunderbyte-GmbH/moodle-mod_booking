@@ -1062,7 +1062,10 @@ class mod_booking_mod_form extends moodleform_mod {
                 '' => get_string('choosedots'),
             ];
             foreach ($records as $record) {
-                if (empty($record)) {
+                if (
+                    empty($record)
+                    || in_array($record->data, $options)
+                ) {
                     continue;
                 }
 
