@@ -71,14 +71,16 @@ final class recurringoptions_test extends advanced_testcase {
      * @covers \condition\notifymelist::is_available
      * @covers \condition\isloggedin::is_available
      *
-     * @param array $bdata
+     * @param array $data
+     * @param array $expected
      * @throws \coding_exception
      * @throws \dml_exception
      *
      * @dataProvider booking_common_settings_provider
      */
-    public function test_create_recurrignoptions(array $bdata): void {
+    public function test_create_recurrignoptions(array $data, array $expected): void {
         global $DB, $CFG;
+        $bdata = self::provide_bdata();
 
         // Setup test data.
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
@@ -134,16 +136,18 @@ final class recurringoptions_test extends advanced_testcase {
         // Update option to trigger recurrence.
         $record->id = $option1->id;
         $record->cmid = $settings->cmid;
-        $record->repeatthisbooking = 1;
-        $record->howmanytimestorepeat = 2; // Repeat twice
-        $record->howoftentorepeat = 7 * 24 * 60 * 60; // 1 week in seconds
-        $record->requirepreviousoptionstobebooked = "1";
         $record->importing = 1;
+
+        $record->repeatthisbooking = $data['repeatthisbooking'];
+        $record->howmanytimestorepeat = $data['howmanytimestorepeat']; // Repeat twice
+        $record->howoftentorepeat = $data['howoftentorepeat']; // 1 week in seconds
+        $record->requirepreviousoptionstobebooked = $data['requirepreviousoptionstobebooked'];
+
         booking_option::update($record);
 
         // Check that 3 options exist (original + 2 recurrences).
         $createdoptions = $DB->get_records('booking_options', ['bookingid' => $booking1->id]);
-        $this->assertCount(3, $createdoptions, 'Recurring options were not created correctly.');
+        $this->assertCount($expected['totaloptions'], $createdoptions, 'Recurring options were not created correctly.');
 
         // Fetch created options and check naming.
         $optiondates = $DB->get_records_sql(
@@ -159,14 +163,14 @@ final class recurringoptions_test extends advanced_testcase {
         $expectedstarttime = strtotime($record->coursestarttime);
 
         $this->assertEquals($expectedstarttime, $optionarray[0]->coursestarttime);
-        $this->assertEquals(strtotime('+1 weeks', $expectedstarttime), $optionarray[1]->coursestarttime);
-        $this->assertEquals(strtotime('+2 weeks', $expectedstarttime), $optionarray[2]->coursestarttime);
+        $this->assertEquals(strtotime($expected['delta1'], $expectedstarttime), $optionarray[1]->coursestarttime);
+        $this->assertEquals(strtotime($expected['delta2'], $expectedstarttime), $optionarray[2]->coursestarttime);
 
         $expectedendttime = strtotime($record->courseendtime);
 
         $this->assertEquals($expectedendttime, $optionarray[0]->courseendtime);
-        $this->assertEquals(strtotime('+1 weeks', $expectedendttime), $optionarray[1]->courseendtime);
-        $this->assertEquals(strtotime('+2 weeks', $expectedendttime), $optionarray[2]->courseendtime);
+        $this->assertEquals(strtotime($expected['delta1'], $expectedendttime), $optionarray[1]->courseendtime);
+        $this->assertEquals(strtotime($expected['delta2'], $expectedendttime), $optionarray[2]->courseendtime);
 
         $price = price::get_price('option', $optionarray[0]->id);
         $priceoriginal = price::get_price('option', $record->id);
@@ -230,9 +234,13 @@ final class recurringoptions_test extends advanced_testcase {
                     $this->assertTrue(in_array($optiondate->courseendtime, (array)$record));
                 }
                 // Verify that previouslybooked condition was applied.
-                $this->assertNotEmpty($childdata->bo_cond_previouslybooked_restrict);
-                // This could be extended to make sure, it's really the right optionids here.
-                $this->assertIsNumeric($childdata->bo_cond_previouslybooked_optionid);
+                if ($expected['previouslybooked']) {
+                    $this->assertNotEmpty($childdata->bo_cond_previouslybooked_restrict);
+                    // This could be extended to make sure, it's really the right optionids here.
+                    $this->assertIsNumeric($childdata->bo_cond_previouslybooked_optionid);
+                } else {
+                    $this->assertObjectNotHasProperty('bo_cond_previouslybooked_restrict', $childdata);
+                }
             }
         }
     }
@@ -243,7 +251,47 @@ final class recurringoptions_test extends advanced_testcase {
      * @throws \UnexpectedValueException
      */
     public static function booking_common_settings_provider(): array {
-        $bdata = [
+
+        return [
+            'one_week_delta_with_previouslybooked' => [
+                [
+                    'repeatthisbooking' => 1,
+                    'howmanytimestorepeat' => 2, // Repeat twice.
+                    'howoftentorepeat' => 7 * 24 * 60 * 60, // 1 week in seconds.
+                    'requirepreviousoptionstobebooked' => "1",
+                ],
+                [
+                    'totaloptions' => 3,
+                    'delta1' => '1 week',
+                    'delta2' => '2 weeks',
+                    'previouslybooked' => true,
+                ],
+            ],
+            'one_day_delta_simple' => [
+                [
+                    'repeatthisbooking' => 1,
+                    'howmanytimestorepeat' => 3, // Repeat three times.
+                    'howoftentorepeat' => 24 * 60 * 60, // 1 day in seconds.
+                    'requirepreviousoptionstobebooked' => "0",
+                ],
+                [
+                    'totaloptions' => 4,
+                    'delta1' => '1 day',
+                    'delta2' => '2 days',
+                    'previouslybooked' => false,
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Provides the data that's constant for the test.
+     *
+     * @return array
+     *
+     */
+    private static function provide_bdata(): array {
+        return [
             'name' => 'Test Booking Policy 1',
             'eventtype' => 'Test event',
             'enablecompletion' => 1,
@@ -260,7 +308,6 @@ final class recurringoptions_test extends advanced_testcase {
             'completion' => 2,
             'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
         ];
-        return ['bdata' => [$bdata]];
     }
 
     /**
