@@ -40,6 +40,7 @@ use stdClass;
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
+require_once($CFG->dirroot . '/mod/booking/classes/price.php');
 
 /**
  * Class handling tests for booking options.
@@ -99,6 +100,16 @@ final class recurringoptions_test extends advanced_testcase {
         $this->getDataGenerator()->enrol_user($teacher->id, $course->id);
         $this->getDataGenerator()->enrol_user($bookingmanager->id, $course->id);
 
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $pricecategorydata1 = (object) [
+            'ordernum' => 1,
+            'name' => 'default',
+            'identifier' => 'default',
+            'defaultvalue' => 30,
+            'pricecatsortorder' => 1,
+        ];
+        $plugingenerator->create_pricecategory($pricecategorydata1);
+        $encodedkey = bin2hex($pricecategorydata1->identifier);
 
         // Create an initial booking option.
         $record = new stdClass();
@@ -108,7 +119,8 @@ final class recurringoptions_test extends advanced_testcase {
         $record->importing = 1;
         $record->coursestarttime = '2025-01-01 10:00:00';
         $record->courseendtime = '2025-01-01 12:00:00';
-
+        $record->useprice = 1;
+        $record->default = 50;
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
@@ -123,7 +135,7 @@ final class recurringoptions_test extends advanced_testcase {
         $record->cmid = $settings->cmid;
         $record->repeatthisbooking = 1;
         $record->howmanytimestorepeat = 2; // Repeat twice
-        $record->howoftentorepeat = 14 * 24 * 60 * 60; // 2 weeks in seconds
+        $record->howoftentorepeat = 7 * 24 * 60 * 60; // 1 week in seconds
         $record->importing = 1;
         booking_option::update($record);
 
@@ -145,15 +157,19 @@ final class recurringoptions_test extends advanced_testcase {
         $expectedstarttime = strtotime($record->coursestarttime);
 
         $this->assertEquals($expectedstarttime, $optionarray[0]->coursestarttime);
-        $this->assertEquals(strtotime('+2 weeks', $expectedstarttime), $optionarray[1]->coursestarttime);
-        $this->assertEquals(strtotime('+4 weeks', $expectedstarttime), $optionarray[2]->coursestarttime);
+        $this->assertEquals(strtotime('+1 weeks', $expectedstarttime), $optionarray[1]->coursestarttime);
+        $this->assertEquals(strtotime('+2 weeks', $expectedstarttime), $optionarray[2]->coursestarttime);
 
         $expectedendttime = strtotime($record->courseendtime);
 
         $this->assertEquals($expectedendttime, $optionarray[0]->courseendtime);
-        $this->assertEquals(strtotime('+2 weeks', $expectedendttime), $optionarray[1]->courseendtime);
-        $this->assertEquals(strtotime('+4 weeks', $expectedendttime), $optionarray[2]->courseendtime);
+        $this->assertEquals(strtotime('+1 weeks', $expectedendttime), $optionarray[1]->courseendtime);
+        $this->assertEquals(strtotime('+2 weeks', $expectedendttime), $optionarray[2]->courseendtime);
 
+        $price = price::get_price('option', $optionarray[0]->id);
+        $priceoriginal = price::get_price('option', $record->id);
+
+        $this->assertEquals($price['price'], $priceoriginal['price']);
 
         // Logic regarding changes made on parent and reflecting on children.
         // Unset keys regarding repeating, coursestarttime and courseendtime.
@@ -166,8 +182,14 @@ final class recurringoptions_test extends advanced_testcase {
         $record->maxoverbooking = 10;
         $record->text = 'Test Parent';
         $record->description = 'Test Booking Description';
-        $record->coursestarttime = '2025-01-03 10:00:00';
-        $record->courseendtime = '2025-01-03 12:00:00';
+        $record->coursestarttime = strtotime('2025-01-03 10:00:00');
+        $record->courseendtime = strtotime('2025-30-03 10:00:00');
+        $record->daystonotify_1 = "0";
+        $record->coursestarttime_1 = strtotime('2025-01-03 10:00:00');
+        $record->courseendtime_1 = strtotime('2025-15-03 10:00:00');
+        $record->daystonotify_2 = "0";
+        $record->coursestarttime_2 = strtotime('2025-29-03 10:00:00');
+        $record->courseendtime_2 = strtotime('2025-30-03 10:00:00');
         $record->apply_to_children = 1;
         booking_option::update($record);
 
