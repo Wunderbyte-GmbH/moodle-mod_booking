@@ -549,7 +549,7 @@ class bo_info {
                         AND ba.userid = :bookeduserbypass
                         AND ba.waitinglist < 5
                     ) OR ";
-            $params['bookeduserbypass'] = $userid;
+            $paramsarray['bookeduserbypass'] = $userid;
         } else {
             $bypass = "";
         }

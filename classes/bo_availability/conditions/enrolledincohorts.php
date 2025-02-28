@@ -168,24 +168,9 @@ class enrolledincohorts implements bo_condition {
     public function return_sql(int $userid = 0): array {
         global $USER, $DB;
 
-        if (!empty($userid)) {
-            // If we look at the table for booked users, we ant to bypass the restriction.
-            // If the user is already booked.
-            $bypass = "OR EXISTS (
-                        SELECT 1 FROM {booking_answers} ba
-                        WHERE ba.optionid = optionid
-                        AND ba.userid = :enrolledincohortsuserid
-                        AND ba.waitinglist < 5
-                    )";
-        } else {
-            $bypass = "";
-        }
-
         $params = [];
 
-        if (!empty($userid)) {
-            $params['enrolledincohortsuserid'] = $userid;
-        } else {
+        if (empty($userid)) {
             $userid = $USER->id;
         }
 
@@ -198,26 +183,24 @@ class enrolledincohorts implements bo_condition {
         if (empty($usercohorts)) {
             if ($databasetype == 'postgres') {
                 $where = "
-                    ((
+                    (
                         availability IS NOT NULL
                         AND NOT EXISTS (
                             SELECT 1
                             FROM jsonb_array_elements(availability::jsonb) elem
                             WHERE elem ->> 'sqlfilter' = '1'
                         )
-                    )
-                    $bypass)";
+                    )";
             } else if ($databasetype == 'mysql') {
                 $where = "
-                ((
+                (
                     availability IS NOT NULL
                     AND NOT EXISTS (
                         SELECT 1
                         FROM JSON_TABLE(availability, '$[*]' COLUMNS (sqlfilter VARCHAR(10) PATH '$.sqlfilter')) jt
                         WHERE jt.sqlfilter = '1'
                     )
-                )
-                $bypass)";
+                )";
             } else {
                 return ["", "", "", $params, ""];
             }
@@ -270,7 +253,6 @@ class enrolledincohorts implements bo_condition {
                         )
                     END
                 )
-                $bypass
             )";
             return ['', '', '', $params, $where];
         } else if ($databasetype == 'mysql') {
@@ -312,7 +294,6 @@ class enrolledincohorts implements bo_condition {
                         )
                     )
                 )
-                $bypass
             )";
             return ['', '', '', $params, $where];
         } else {
