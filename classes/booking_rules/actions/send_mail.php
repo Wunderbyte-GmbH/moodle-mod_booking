@@ -88,21 +88,6 @@ class send_mail implements booking_rule_action {
      */
     public function add_action_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {
 
-        // Select to send ical.
-        $mform->addElement('selectyesno', 'action_send_mail_sendical', get_string('sendical', 'mod_booking'));
-        $mform->addRule('action_send_mail_sendical', null, 'required', null, 'client');
-        $mform->setType('action_send_mail_sendical', PARAM_INT);
-
-        // Todo: This should probably only show if the above dropdown is set to yes.
-        $options = ['create' => get_string('createical', 'mod_booking'), 'cancel' => get_string('cancelical', 'mod_booking')];
-        $mform->addElement(
-            'select',
-            'action_send_mail_sendicalcreateorcancel',
-            get_string('sendicalcreateorcancel', 'mod_booking'),
-            $options
-        );
-        $mform->setType('action_send_mail_sendicalcreateorcancel', PARAM_RAW);
-
         // Mail subject.
         $mform->addElement(
             'text',
@@ -120,6 +105,20 @@ class send_mail implements booking_rule_action {
             ['rows' => 15],
             ['subdirs' => 0, 'maxfiles' => 0, 'context' => null]
         );
+
+        // Select to send ical.
+        $mform->addElement('advcheckbox', 'action_send_mail_sendical', get_string('sendical', 'mod_booking'), 0, null, [0, 1]);
+        $mform->setType('action_send_mail_sendical', PARAM_INT);
+
+        $options = ['create' => get_string('createical', 'mod_booking'), 'cancel' => get_string('cancelical', 'mod_booking')];
+        $mform->addElement(
+            'select',
+            'action_send_mail_sendicalcreateorcancel',
+            get_string('sendicalcreateorcancel', 'mod_booking'),
+            $options
+        );
+        $mform->hideIf('action_send_mail_sendicalcreateorcancel', 'action_send_mail_sendical', 'eq', 0);
+        $mform->setType('action_send_mail_sendicalcreateorcancel', PARAM_RAW);
 
         // Placeholders info text.
         $placeholders = placeholders_info::return_list_of_placeholders();
