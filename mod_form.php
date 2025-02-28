@@ -1069,7 +1069,7 @@ class mod_booking_mod_form extends moodleform_mod {
                     continue;
                 }
 
-                $options[$record->id] = format_string($record->data);
+                $options[$record->data] = format_string($record->data);
             }
 
             $mform->addElement(

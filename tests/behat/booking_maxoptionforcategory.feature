@@ -19,8 +19,8 @@ Feature: As admin - configure max option for category and validate it as student
     And I clean booking cache
     And the following "activities" exist:
       | activity | course | name     | intro               | bookingmanager | eventtype | Default view for booking options | Send confirmation e-mail | json                                                                                                          |
-      | booking  | C1     | Booking0 | Booking description | teacher1       | Webinar   | All bookings                     | Yes                      | {"maxoptionsfromcategory":"{\"1\":{\"count\":2,\"localizedstring\":\"tenis\"}}","maxoptionsfrominstance":"0"} |
-      | booking  | C1     | Booking1 | Booking description | teacher1       | Webinar   | All bookings                     | Yes                      | {"maxoptionsfromcategory":"{\"1\":{\"count\":3,\"localizedstring\":\"tenis\"}}","maxoptionsfrominstance":"0"} |
+      | booking  | C1     | Booking0 | Booking description | teacher1       | Webinar   | All bookings                     | Yes                      | {"maxoptionsfromcategory":"{\"tenis\":{\"count\":2,\"localizedstring\":\"tenis\"}}","maxoptionsfrominstance":"0"} |
+      | booking  | C1     | Booking1 | Booking description | teacher1       | Webinar   | All bookings                     | Yes                      | {"maxoptionsfromcategory":"{\"tenis\":{\"count\":3,\"localizedstring\":\"tenis\"}}","maxoptionsfrominstance":"0"} |
     And the following "custom field categories" exist:
       | name     | component   | area    | itemid |
       | SportArt | mod_booking | booking | 0      |
@@ -83,6 +83,8 @@ Feature: As admin - configure max option for category and validate it as student
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r7" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r7" "css_element"
     And I should see "Start" in the ".allbookingoptionstable_r7" "css_element"
+    And I wait "1" seconds
+    ## You have reached the maximum of 2 bookings of type "tenis" (in category "spt1"):
     Then I should see "You have reached the maximum of 2 bookings of type \"tenis\" (in category \"spt1\")" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "You have reached the maximum of 2 bookings of type \"tenis\" (in category \"spt1\")" in the ".allbookingoptionstable_r7" "css_element"
     And I should see "You have reached the maximum of 2 bookings of type \"tenis\" (in category \"spt1\")" in the ".allbookingoptionstable_r8" "css_element"
