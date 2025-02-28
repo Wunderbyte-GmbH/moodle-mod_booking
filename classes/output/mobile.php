@@ -133,13 +133,6 @@ class mobile {
 
         $data = (array)$settings->return_settings_as_stdclass();
 
-        $teachers = [];
-        foreach ($data['teachers'] as $teacher) {
-            $teacher->email = str_replace('@', '&#64;', $teacher->email);
-            $teachers[] = (array)$teacher;
-        }
-
-        $data['teachers'] = $teachers;
         $data['userid'] = $USER->id;
 
         $boinfo = new bo_info($settings);
@@ -192,6 +185,23 @@ class mobile {
                     = !empty($description) ? $description : get_string('notbookable', 'mod_booking');
                 break;
         }
+
+        $teachers = [];
+        foreach ($data['teachers'] as $teacher) {
+            if (
+                get_config('booking', 'teachersshowemails')
+                || (
+                    get_config('booking', 'bookedteachersshowemails')
+                    && ($id == MOD_BOOKING_BO_COND_ALREADYBOOKED)
+                )
+            ) {
+                $teacher->email = str_replace('@', '&#64;', $teacher->email);
+            } else {
+                $teacher->email = '';
+            }
+            $teachers[] = (array)$teacher;
+        }
+        $data['teachers'] = $teachers;
 
         self::format_description($data['description']);
         $detailhtml = $OUTPUT->render_from_template('mod_booking/mobile/mobile_booking_option_details', $data);
