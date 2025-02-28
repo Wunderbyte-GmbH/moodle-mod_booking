@@ -4860,6 +4860,8 @@ function xmldb_booking_upgrade($oldversion) {
     }
 
     if ($oldversion < 2025022601) {
+        /* For some reason, in some versions this field was not added.
+        So we do it again. */
         // Define field places to be added to booking_answers.
         $table = new xmldb_table('booking_answers');
         $field = new xmldb_field('places', XMLDB_TYPE_INTEGER, '10', null, null, null, 1, 'status');
@@ -4873,6 +4875,40 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2025022601, 'booking');
+    }
+
+    if ($oldversion < 2025022800) {
+        /* For some reason, in some versions these fields were not added.
+        So we do it again. */
+        // Define field id to be added to booking_rules.
+        $table = new xmldb_table('booking_rules');
+        $field = new xmldb_field('useastemplate', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'eventname');
+
+        // Conditionally launch add field id.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Changing precision of fields pollurlteachers & pollurl on table booking_options to (1000).
+        $table1 = new xmldb_table('booking_options');
+        $field1 = new xmldb_field('pollurl', XMLDB_TYPE_CHAR, '1000');
+        $field2 = new xmldb_field('pollurlteachers', XMLDB_TYPE_CHAR, '1000');
+
+        // Launch change of precision for fields pollurlteachers & pollurl.
+        $dbman->change_field_type($table1, $field1);
+        $dbman->change_field_type($table1, $field2);
+
+        // Changing precision of fields pollurlteachers & pollurl on table booking_options to (1000).
+        $table2 = new xmldb_table('booking');
+        $field3 = new xmldb_field('pollurl', XMLDB_TYPE_CHAR, '1000');
+        $field4 = new xmldb_field('pollurlteachers', XMLDB_TYPE_CHAR, '1000');
+
+        // Launch change of precision for fields pollurlteachers & pollurl.
+        $dbman->change_field_type($table2, $field3);
+        $dbman->change_field_type($table2, $field4);
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2025022800, 'booking');
     }
 
     return true;
