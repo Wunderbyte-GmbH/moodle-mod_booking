@@ -1133,7 +1133,8 @@ class booking {
         // If the user does not have the capability to see invisible options...
         if (!$context || !has_capability('mod/booking:canseeinvisibleoptions', $context)) {
             // If we have a direct link, we only hide totally invisible options.
-            if (isset($where['id'])) {
+            // Also, if the user has already booked and looks at her table, she should see it.
+            if (isset($where['id']) || !empty($userid)) {
                 $where = " invisible <> 1 ";
             } else {
                 // ... then only show visible options.
