@@ -1169,7 +1169,7 @@ class booking {
         [$select1, $from1, $filter1, $params1] = booking_option_settings::return_sql_for_customfield();
         [$select2, $from2, $filter2, $params2] = booking_option_settings::return_sql_for_teachers();
         [$select3, $from3, $filter3, $params3] = booking_option_settings::return_sql_for_imagefiles();
-        [$select4, $from4, $filter4, $params4, $conditionsql] = bo_info::return_sql_from_conditions();
+        [$select4, $from4, $filter4, $params4, $conditionsql] = bo_info::return_sql_from_conditions($userid ?? 0);
 
         // The $outerfrom takes all the select from the supplementary selects.
         $outerfrom .= !empty($select1) ? ", $select1 " : '';

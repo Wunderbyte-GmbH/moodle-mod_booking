@@ -721,7 +721,7 @@ class view implements renderable, templatable {
      * @param bool $search
      * @param bool $sort
      */
-    private function wbtable_initialize_list_layout(
+    public function wbtable_initialize_list_layout(
         wunderbyte_table &$wbtable,
         bool $filter = true,
         bool $search = true,

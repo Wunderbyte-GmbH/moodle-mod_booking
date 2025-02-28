@@ -3767,20 +3767,22 @@ class booking_option {
 
         $feedbackpostchanges = fields_info::save_fields_post($data, $newoption, $updateparam);
 
-        // We need to keep the previous values (before purging caches).
-        $oldsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
         // Only now, we can purge.
         self::purge_cache_for_option($newoption->id);
 
         $option = singleton_service::get_instance_of_booking_option($data->cmid, $optionid);
 
         // Sync the waiting list and send status change mails.
-        if ($oldsettings->maxanswers < $newoption->maxanswers) {
+        if (
+            !empty($originaloption->id) // If we have an old option at all.
+            && !empty($originaloption->bookingid) // If it's not a template.
+            && $originaloption->maxanswers < $newoption->maxanswers // Only then we show if we need to sync.
+        ) {
             // We have more places now, so we can sync without danger.
 
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-            $ba = singleton_service::get_instance_of_booking_answers($oldsettings);
+            $ba = singleton_service::get_instance_of_booking_answers($originaloption);
             $fullybooked = $ba->is_fully_booked();
             // Check if the option is fully booked.
             $option->sync_waiting_list();
@@ -3788,7 +3790,7 @@ class booking_option {
             // If it was fully booked, we need to trigger the places free again event.
             self::check_if_free_to_book_again($settings, 0, $fullybooked);
         } else if (
-            $oldsettings->maxanswers > $newoption->maxanswers
+            $originaloption->maxanswers > $newoption->maxanswers
             && !get_config('booking', 'keepusersbookedonreducingmaxanswers')
         ) {
             // We have less places now, so we only sync if the setting to keep users booked is turned off.

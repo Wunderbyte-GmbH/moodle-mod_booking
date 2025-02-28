@@ -489,10 +489,10 @@ class bo_info {
 
     /**
      * Add the sql from the conditions.
-     *
+     * @param int $userid
      * @return array
      */
-    public static function return_sql_from_conditions() {
+    public static function return_sql_from_conditions(int $userid) {
         global $PAGE;
         // First, we get all the relevant conditions.
         $conditions = self::get_conditions(MOD_BOOKING_CONDPARAM_MFORM_ONLY);
@@ -502,7 +502,16 @@ class bo_info {
         $paramsarray = [];
 
         $cm = $PAGE->cm;
-        if ($cm && ((has_capability('mod/booking:updatebooking', $cm->context)))) {
+        if (
+            (
+                class_exists('local_shopping_cart\shopping_cart')
+                && has_capability('local/shopping_cart:cashier', context_system::instance())
+            )
+            || (
+                $cm
+                && (has_capability('mod/booking:updatebooking', $cm->context))
+            )
+        ) {
             // With this capability, ignore filter for sql check.
             // Because of missing $cm this will not work for display outside a course i.e. in shortcodes display.
             // A teacher would not see hidden bookingconditions on startpage but in courselist they would be displayed.
@@ -516,7 +525,7 @@ class bo_info {
                 $condition = new $class();
             }
 
-            list($select, $from, $filter, $params, $where) = $condition->return_sql();
+            [$select, $from, $filter, $params, $where] = $condition->return_sql($userid);
 
             $selectall .= $select;
             $fromall .= $from;
@@ -530,9 +539,24 @@ class bo_info {
 
         $where = implode(" AND ", $wherearray);
 
+        // For booked users, we don't want to apply all of these conditions.
+        if (!empty($userid)) {
+            // If we look at the table for booked users, we ant to bypass the restriction.
+            // If the user is already booked.
+            $bypass = "EXISTS (
+                        SELECT 1 FROM {booking_answers} ba
+                        WHERE ba.optionid = optionid
+                        AND ba.userid = :bookeduserbypass
+                        AND ba.waitinglist < 5
+                    ) OR ";
+            $params['bookeduserbypass'] = $userid;
+        } else {
+            $bypass = "";
+        }
+
         // For performance reason we have a flag if we need to check the value at all.
         $where = " (
-                        sqlfilter < 1 OR (
+                        sqlfilter < 1 OR $bypass (
                             $where
                             )
                         )

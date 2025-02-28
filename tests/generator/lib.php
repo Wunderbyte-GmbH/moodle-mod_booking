@@ -23,8 +23,11 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_booking\booking;
 use mod_booking\booking_rules\booking_rules;
 use mod_booking\booking_rules\rules_info;
+use mod_booking\output\view;
+use mod_booking\table\bookingoptions_wbtable;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -406,6 +409,40 @@ class mod_booking_generator extends testing_module_generator {
         } else {
             throw new Exception('The shopping_cart plugin has not installed!');
         }
+    }
+
+    /**
+     * This creates a show only one table via the view page.
+     *
+     * @param mixed $optionid
+     *
+     * @return array
+     *
+     */
+    public function create_table_for_one_option($optionid) {
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $booking = singleton_service::get_instance_of_booking_by_cmid($settings->cmid);
+
+        $view = new view($settings->cmid, 'showonlyone', $settings->id);
+
+        // Create the table.
+        $showonlyonetable = new bookingoptions_wbtable("cmid_{$settings->cmid}_optionid_{$optionid} showonlyonetable");
+
+        $wherearray = [
+            'bookingid' => (int) $booking->id,
+            'id' => $optionid,
+        ];
+        [$fields, $from, $where, $params, $filter] =
+                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
+        $showonlyonetable->set_filter_sql($fields, $from, $where, $filter, $params);
+
+        // Initialize the default columnes, headers, settings and layout for the table.
+        // In the future, we can parametrize this function so we can use it on many different places.
+        $view->wbtable_initialize_list_layout($showonlyonetable, false, false, false);
+        $showonlyonetable->printtable(10, true);
+
+        return $showonlyonetable->rawdata ?? [];
     }
 
     /**

@@ -91,9 +91,9 @@ export const init = (cmid, id, optionid, bookingid, copyoptionid, returnurl) => 
         console.log('validation error');
     });
 
-    var checkbox1 = document.querySelector('[name="restrictanswerperiodopening"]');
-    var checkbox2 = document.querySelector('[name="restrictanswerperiodclosing"]');
-    var conditionalCheckbox = document.querySelector('[name="bo_cond_booking_time_sqlfiltercheck"]');
+    var checkbox1 = document.querySelector('[type="checkbox"][name="restrictanswerperiodopening"]');
+    var checkbox2 = document.querySelector('[type="checkbox"][name="restrictanswerperiodclosing"]');
+    var conditionalCheckbox = document.querySelector('[type="checkbox"][name="bo_cond_booking_time_sqlfiltercheck"]');
     let closest = conditionalCheckbox.closest('[class^="form-group row"],[class*=" fitem"]');
 
     dynamicForm.addEventListener('change', e => {

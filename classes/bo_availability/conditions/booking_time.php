@@ -129,13 +129,33 @@ class booking_time implements bo_condition {
      * Each function can return additional sql.
      * This will be used if the conditions should not only block booking...
      * ... but actually hide the conditons alltogether.
-     *
+     * @param int $userid
      * @return array
      */
-    public function return_sql(): array {
+    public function return_sql(int $userid = 0): array {
 
-        $where = "((bookingopeningtime < 1 OR bookingopeningtime < :bookingopeningtimenow1)
-                  AND (bookingclosingtime < 1 OR bookingclosingtime > :bookingopeningtimenow2))";
+        if (!empty($userid)) {
+            // If we look at the table for booked users, we ant to bypass the restriction.
+            // If the user is already booked.
+            $bypass = "OR EXISTS (
+                        SELECT 1 FROM {booking_answers} ba
+                        WHERE ba.optionid = optionid
+                        AND ba.userid = :bookingtimeuserid
+                        AND ba.waitinglist < 5
+                    )";
+        } else {
+            $bypass = "";
+        }
+
+        $where = "(
+                    sqlfilter <> 2
+
+                    OR (
+                        (bookingopeningtime < 1 OR bookingopeningtime < :bookingopeningtimenow1)
+                        AND (bookingclosingtime < 1 OR bookingclosingtime > :bookingopeningtimenow2)
+                    )
+                    $bypass
+                  )";
 
         // Using realtime here would destroy our caching.
         // Cache would be invalidated every second.
@@ -148,6 +168,10 @@ class booking_time implements bo_condition {
             'bookingopeningtimenow1' => $nowstart,
             'bookingopeningtimenow2' => $nowend,
         ];
+
+        if (!empty($userid)) {
+            $params['bookingtimeuserid'] = $userid;
+        }
 
         return ['', '', '', $params, $where];
     }

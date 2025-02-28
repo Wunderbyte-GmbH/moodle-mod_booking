@@ -339,8 +339,6 @@ define('MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION', 2);
 define('MOD_BOOKING_BO_SUBMIT_STATUS_UN_CONFIRM', 3);
 define('MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL', 4);
 
-
-
 /**
  * Booking get coursemodule info.
  *
