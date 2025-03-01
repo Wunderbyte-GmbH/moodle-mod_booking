@@ -250,6 +250,20 @@ class rule_daysbefore implements booking_rule {
             return;
         }
 
+        // Self-learning courses use coursestarttime only for sorting #684.
+        // So if a rule is dependent on coursestarttime or courseendtime, we just skip the execution.
+        if (!empty($settings->selflearningcourse)) {
+            if (
+                !empty($jsonobject->ruledata->datefield)
+                && (
+                    ($jsonobject->ruledata->datefield == 'coursestarttime')
+                    || ($jsonobject->ruledata->datefield == 'courseendtime')
+                )
+            ) {
+                return;
+            }
+        }
+
         // We reuse this code when we check for validity, therefore we use a separate function.
         $records = $this->get_records_for_execution($optionid, $userid);
 
@@ -260,20 +274,6 @@ class rule_daysbefore implements booking_rule {
         $action->ruleid = $this->ruleid;
 
         foreach ($records as $record) {
-            // Self-learning courses use coursestarttime only for sorting #684.
-            // So if a rule is dependent on coursestarttime or courseendtime, we just skip the execution.
-            if (!empty($settings->selflearningcourse)) {
-                if (
-                    !empty($jsonobject->ruledata->datefield)
-                    && (
-                        ($jsonobject->ruledata->datefield == 'coursestarttime')
-                        || ($jsonobject->ruledata->datefield == 'courseendtime')
-                    )
-                ) {
-                    continue;
-                }
-            }
-
             // Set the time of when the task should run.
             $nextruntime = (int) $record->datefield - ((int) $this->days * 86400);
             $record->rulename = $this->rulename;
