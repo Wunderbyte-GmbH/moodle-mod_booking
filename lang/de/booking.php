@@ -2194,6 +2194,7 @@ $string['tagtemplates'] = 'Schlagwort Vorlagen';
 $string['tagtext'] = 'Schlagwort-Text';
 $string['taken'] = 'gebucht';
 $string['taskadhocresetoptiondatesforsemester'] = 'Adhoc task: Termine zurücksetzen und neu erstellen';
+$string['taskcheckanswers'] = 'Booking: Antworten prüfen';
 $string['taskcleanbookingdb'] = 'Booking: Datenbank aufräumen';
 $string['taskenrolbookeduserstocourse'] = 'Booking: Gebuchte User in Kurs einschreiben';
 $string['taskpurgecampaigncaches'] = 'Booking: Caches für Buchungskampagne leeren';
