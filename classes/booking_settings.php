@@ -360,6 +360,9 @@ class booking_settings {
     /** @var int $allowupdatetimestamp */
     public $allowupdatetimestamp = null;
 
+    /** @var string $customfieldsforfilter */
+    public $customfieldsforfilter = null;
+
     /**
      * Constructor for the booking settings class.
      *
