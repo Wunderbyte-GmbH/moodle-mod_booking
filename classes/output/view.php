@@ -804,7 +804,7 @@ class view implements renderable, templatable {
         bool $reload = true,
         bool $filterinactive = true,
         int $viewparam = MOD_BOOKING_VIEW_PARAM_LIST
-	) {
+    ) {
 
         global $PAGE;
         // Activate sorting.
