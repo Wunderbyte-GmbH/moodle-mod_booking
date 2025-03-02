@@ -130,7 +130,7 @@ Feature: As admin - apply bulk operations under booking options.
     And I click on "btn_bookingruletemplates" "button" in the ".modal-body" "css_element"
     And I wait "1" seconds
     And I set the field "Assign teachers:" to "Teacher 1"
-    And I click on "Save changes" "button"
+    And I click on "Confirm" "button"
     ## Send multiple emails
     And I set the field with xpath "//tr[contains(@id, '_optionbulkoperationstable_r1')]//input[contains(@name, '_optionbulkoperationstable-')]" to "checked"
     And I set the field with xpath "//tr[contains(@id, '_optionbulkoperationstable_r3')]//input[contains(@name, '_optionbulkoperationstable-')]" to "checked"
