@@ -824,7 +824,6 @@ $string['custombulkmessagesent'] = 'Custom bulk message sent (> 75% of booked us
 $string['customdatesbtn'] = '<i class="fa fa-plus-square"></i> Custom dates...';
 $string['customdownloadreport'] = 'Download report';
 $string['customfield'] = 'Custom field to be set in the booking option settings. It will then be shown in the booking option overview.';
-$string['customfieldsforfilter'] = 'Custom fields that are to be displayed as filter options';
 $string['customfieldchanged'] = 'Custom field changed';
 $string['customfieldconfigure'] = 'Booking: Custom booking option fields';
 $string['customfielddef'] = 'Custom booking option field';
@@ -839,6 +838,7 @@ $string['customfieldname_help'] = 'You can enter any field name you want. The sp
                                     which are only accessible during (and shortly before) the actual meetings.';
 $string['customfieldoptions'] = 'List of possible values';
 $string['customfields'] = 'Custom fields';
+$string['customfieldsforfilter'] = 'Custom fields that are to be displayed as filter options';
 $string['customfieldsplaceholdertext'] = 'Custom fields';
 $string['customfieldtype'] = 'Field type';
 $string['customfieldvalue'] = 'Value';
