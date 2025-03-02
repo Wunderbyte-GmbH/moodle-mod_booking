@@ -603,7 +603,12 @@ class mod_booking_mod_form extends moodleform_mod {
             foreach ($customfields as $cf) {
                 $customfieldshortnames[$cf->shortname] = "$cf->name ($cf->shortname)";
             }
-            $mform->addElement('select', 'customfieldsforfilter', get_string('customfieldsforfilter', 'mod_booking'), $customfieldshortnames);
+            $mform->addElement(
+                'select',
+                'customfieldsforfilter',
+                get_string('customfieldsforfilter', 'mod_booking'),
+                $customfieldshortnames
+            );
             $mform->getElement('customfieldsforfilter')->setMultiple(true);
             $preset = (array)booking::get_value_of_json_by_key($bookingid, 'customfieldsforfilter') ?? [];
             $mform->setDefault('customfieldsforfilter', array_keys($preset));
