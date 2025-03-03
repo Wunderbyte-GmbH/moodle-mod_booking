@@ -29,9 +29,10 @@ Feature: As admin - configure max option for category with dynamic dropdown cust
       | 2        | discount1  | Disc1 | 77           | 0        | 2                 |
       | 3        | discount2  | Disc2 | 66           | 0        | 3                 |
     And the following "activities" exist:
-      | activity | course | name     | intro               | bookingmanager | eventtype | Default view for booking options | Send confirmation e-mail | json                                                                                                                    |
-      | booking  | C1     | Booking0 | Booking description | teacher1       | Webinar   | All bookings                     | Yes                      | {"maxoptionsfromcategory":"{\"1\":{\"count\":2,\"localizedstring\":\"teacher1\"}}","maxoptionsfrominstance":"0"} |
-      | booking  | C1     | Booking1 | Booking description | teacher1       | Webinar   | All bookings                     | Yes                      | {"maxoptionsfromcategory":"{\"1\":{\"count\":3,\"localizedstring\":\"teacher1\"}}","maxoptionsfrominstance":"0"} |
+    ## Base64 of customfield value must be used as key in json:
+      | activity | course | name     | intro               | bookingmanager | eventtype | Default view for booking options | Send confirmation e-mail | json                                                                                                                        |
+      | booking  | C1     | Booking0 | Booking description | teacher1       | Webinar   | All bookings                     | Yes                      | {"maxoptionsfromcategory":"{\"dGVhY2hlcjE=\":{\"count\":2,\"localizedstring\":\"teacher1\"}}","maxoptionsfrominstance":"0"} |
+      | booking  | C1     | Booking1 | Booking description | teacher1       | Webinar   | All bookings                     | Yes                      | {"maxoptionsfromcategory":"{\"dGVhY2hlcjE=\":{\"count\":3,\"localizedstring\":\"teacher1\"}}","maxoptionsfrominstance":"0"} |
     And the following "mod_booking > options" exist:
       | booking   | text       | course | description        | importing | maxanswers | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | useprice | dynamicuser |
       | Booking0  | Option01-t | C1     | teacher1 (limited) | 1         | 3          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 0        | teacher1,student2    |

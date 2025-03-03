@@ -18,9 +18,10 @@ Feature: As admin - configure max option for category and validate it as student
       | student2 | C1     | student        |
     And I clean booking cache
     And the following "activities" exist:
-      | activity | course | name     | intro               | bookingmanager | eventtype | Default view for booking options | Send confirmation e-mail | json                                                                                                          |
-      | booking  | C1     | Booking0 | Booking description | teacher1       | Webinar   | All bookings                     | Yes                      | {"maxoptionsfromcategory":"{\"1\":{\"count\":2,\"localizedstring\":\"tenis\"}}","maxoptionsfrominstance":"0"} |
-      | booking  | C1     | Booking1 | Booking description | teacher1       | Webinar   | All bookings                     | Yes                      | {"maxoptionsfromcategory":"{\"1\":{\"count\":3,\"localizedstring\":\"tenis\"}}","maxoptionsfrominstance":"0"} |
+    ## Base64 of customfield value must be used as key in json:
+      | activity | course | name     | intro               | bookingmanager | eventtype | Default view for booking options | Send confirmation e-mail | json                                                                                                                 |
+      | booking  | C1     | Booking0 | Booking description | teacher1       | Webinar   | All bookings                     | Yes                      | {"maxoptionsfromcategory":"{\"dGVuaXM=\":{\"count\":2,\"localizedstring\":\"tenis\"}}","maxoptionsfrominstance":"0"} |
+      | booking  | C1     | Booking1 | Booking description | teacher1       | Webinar   | All bookings                     | Yes                      | {"maxoptionsfromcategory":"{\"dGVuaXM=\":{\"count\":3,\"localizedstring\":\"tenis\"}}","maxoptionsfrominstance":"0"} |
     And the following "custom field categories" exist:
       | name     | component   | area    | itemid |
       | SportArt | mod_booking | booking | 0      |
@@ -74,7 +75,7 @@ Feature: As admin - configure max option for category and validate it as student
     ## And I press "Save and display"
     And I log out
     ## Verify max booking options for 1st instance as a student
-    When I am on the "Booking0" Activity page logged in as student1
+    When I am on the "Booking0" Activity page logged in as admin
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
