@@ -34,6 +34,7 @@ use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use mod_booking\singleton_service;
 use mod_booking\subbookings\subbookings_info;
+use mod_booking\utils\wb_payment;
 use moodle_url;
 use MoodleQuickForm;
 use stdClass;
@@ -126,7 +127,10 @@ class recurringoptions extends field_base {
         global $DB, $USER;
 
         // Templates and recurring 'events' - only visible when adding new.
-        if ($formdata['id']) {
+        if (
+            $formdata['id']
+            && wb_payment::pro_version_is_activated()
+        ) {
             $mform->addElement(
                 'header',
                 'recurringheader',
@@ -271,6 +275,18 @@ class recurringoptions extends field_base {
             $mform->hideIf('apply_to_children', 'validated_once', 'eq', 0);
             $mform->addElement('static', 'recurringsavedatesinfo', '', get_string('recurringsavedatesinfo', 'mod_booking'));
             $mform->hideIf('recurringsavedatesinfo', 'apply_to_children', 'eq', 0);
+        } else if ($formdata['id']) {
+            $mform->addElement(
+                'header',
+                'recurringheader',
+                get_string('recurringheader', 'mod_booking')
+            );
+            $mform->addElement(
+                'static',
+                'nolicense',
+                get_string('licensekeycfg', 'mod_booking'),
+                get_string('licensekeycfgdesc', 'mod_booking')
+            );
         }
     }
 
