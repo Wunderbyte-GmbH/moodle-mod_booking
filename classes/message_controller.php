@@ -498,7 +498,7 @@ class message_controller {
             } else {
                 // If the rule has sendical set then we get the ical attachment.
                 // Create it in file storage and put it in the message object.
-                if ($this->rulesettings->actiondata->sendical) {
+                if (!empty($this->rulesettings->actiondata) && !empty($this->rulesettings->actiondata->sendical)) {
                     $update = false;
                     if ($this->rulesettings->actiondata->sendicalcreateorcancel == 'cancel') {
                         $update = true;
@@ -545,7 +545,7 @@ class message_controller {
 
                 // In all other cases, use message_send.
                 if (message_send($this->messagedata)) {
-                    if ($this->rulesettings->actiondata->sendical) {
+                    if (!empty($this->rulesettings->actiondata) && !empty($this->rulesettings->actiondata->sendical)) {
                         // Tidy up the now not needed file.
                         $storedfile->delete();
                     }
