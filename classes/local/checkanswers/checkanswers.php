@@ -72,13 +72,30 @@ class checkanswers {
      * @param int $contextid The context id of the booking instance.
      * @param int $check Which checks to perform.
      * @param int $action Which action to perform.
+     * @param int $userid Only treat answers for a given user.
      */
     public static function create_bookinganswers_check_tasks(
         int $contextid,
         int $check = self::CHECK_ALL,
-        int $action = self::ACTION_DELETE
+        int $action = self::ACTION_DELETE,
+        int $userid = 0
     ) {
         global $DB;
+
+        $additionaljoin = '';
+        $additionalwhere = '';
+        $params = ['contextid' => $contextid];
+
+        // Don't do anythiing when setting is not correct.
+        if (!get_config('mod_booking', 'unenroluserswithoutaccess')) {
+            return;
+        }
+
+        if (!empty($userid)) {
+            $additionaljoin = "JOIN {booking_answers} ba ON bo.id = ba.optionid";
+            $additionalwhere = " AND ba.userid = :userid ";
+            $params['userid'] = $userid;
+        }
 
         $sql = "SELECT bo.id
                 FROM {booking_options} bo
@@ -87,9 +104,9 @@ class checkanswers {
                     SELECT id FROM {modules} WHERE name = 'booking'
                 )
                 JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = " . CONTEXT_MODULE . "
-                WHERE ctx.path LIKE (SELECT path FROM {context} WHERE id = :contextid) || '%'";
-
-        $params = ['contextid' => $contextid];
+                $additionaljoin
+                WHERE ctx.path LIKE (SELECT path FROM {context} WHERE id = :contextid) || '%'
+                $additionalwhere ";
 
         $bookingoptions = $DB->get_records_sql($sql, $params);
 
@@ -100,11 +117,17 @@ class checkanswers {
                     'optionid' => $option->id,
                     'check' => $check,
                     'action' => $action,
+                    'userid' => $userid,
                 ]
             );
             // For security, we schedule the taks five minutes in the future.
             // This will give the possiblity to cancel the task if needed.
-            $task->set_next_run_time(strtotime('- 5 minutes'));
+            if (PHPUNIT_TEST) {
+                $executiontime = strtotime('- 5 minutes');
+            } else {
+                $executiontime = strtotime('+ 5 minutes');
+            }
+            $task->set_next_run_time($executiontime);
             manager::queue_adhoc_task($task);
         }
     }
@@ -117,6 +140,7 @@ class checkanswers {
      * @param int $optionid The booking option ID.
      * @param int $action The check to perform.
      * @param int $action The action to take.
+     * @param int $userid Checks can be restricted to a given user.
      *
      * @return array
      *
@@ -124,7 +148,8 @@ class checkanswers {
     public static function process_booking_option(
         int $optionid,
         int $check,
-        int $action
+        int $action,
+        int $userid = 0
     ): array {
         global $DB;
 
@@ -135,6 +160,13 @@ class checkanswers {
         $log = [];
 
         foreach ($ba->answers as $answer) {
+            if (
+                !empty($userid)
+                && $answer->userid != $userid
+            ) {
+                continue;
+            }
+
             $checkresult = self::check_answer($answer, $check);
 
             if (!empty($checkresult)) {

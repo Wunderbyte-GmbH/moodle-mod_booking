@@ -60,10 +60,15 @@ class check_answers extends \core\task\adhoc_task {
             return;
         }
 
+        if (!get_config('mod_booking', 'unenroluserswithoutaccess')) {
+            return;
+        }
+
         checkanswers::process_booking_option(
             $data->optionid,
             $data->check,
-            $data->action
+            $data->action,
+            $data->userid
         );
     }
 }

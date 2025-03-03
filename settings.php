@@ -607,6 +607,14 @@ if ($ADMIN->fulltree) {
                 booking::get_possible_presences(true)
             )
         );
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/unenroluserswithoutaccess',
+                get_string('unenroluserswithoutaccess', 'mod_booking'),
+                get_string('unenroluserswithoutaccess_desc', 'mod_booking'),
+                0
+            )
+        );
 
         // PRO feature: Teacher settings.
         $settings->add(
