@@ -35,6 +35,7 @@ use mod_booking_generator;
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
+require_once($CFG->dirroot . '/enrol/manual/externallib.php');
 
 /**
  * Class handling tests for booking options.
@@ -53,6 +54,7 @@ final class checkanswers_test extends advanced_testcase {
         parent::setUp();
         $this->resetAfterTest(true);
         set_config('uselegacymailtemplates', 0, 'mod_booking');
+        set_config('unenroluserswithoutaccess', 1, 'mod_booking');
     }
 
     /**
@@ -153,14 +155,50 @@ final class checkanswers_test extends advanced_testcase {
 
         // Now we turn off the visibility of the activity.
         set_coursemodule_visible($settings->cmid, 0);
+        $cm = get_fast_modinfo($course1)->get_cm($settings->cmid);
+        $event = \core\event\course_module_updated::create_from_cm($cm);
+        $event->trigger();
 
-        checkanswers::create_bookinganswers_check_tasks(1);
+        // The eventobserver of the updated course module should be enough to create our tasks.
         $this->runAdhocTasks();
-
         singleton_service::destroy_instance();
 
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, false);
         $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+
+        // Now we turn off the visibility of the activity.
+        set_coursemodule_visible($settings->cmid, 1);
+        singleton_service::destroy_instance();
+
+        // Book the third student.
+        $result = booking_bookit::bookit('option', $settings->id, $student3->id);
+        $result = booking_bookit::bookit('option', $settings->id, $student3->id);
+
+        // Book the fourth student.
+        $result = booking_bookit::bookit('option', $settings->id, $student4->id);
+        $result = booking_bookit::bookit('option', $settings->id, $student4->id);
+
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student3->id, false);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student4->id, false);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        \enrol_manual_external::unenrol_users([
+            ['userid' => $student3->id, 'courseid' => $course1->id],
+        ]);
+
+        $this->runAdhocTasks();
+
+        singleton_service::destroy_instance();
+
+        // The unenrolled user is not booked anymore.
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student3->id, false);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+
+        // The user who stayed in the course is unaffected.
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student4->id, false);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
     }
 
     /**
