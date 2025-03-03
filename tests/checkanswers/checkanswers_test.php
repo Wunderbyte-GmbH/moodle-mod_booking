@@ -20,21 +20,17 @@
  * @package mod_booking
  * @category test
  * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
- * @author 2025 Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_booking;
 
 use advanced_testcase;
-use coding_exception;
 use context_module;
-use core\task\manager;
-use mod_booking\local\checkanswers\checkanswers;
-use mod_booking\task\check_answers;
-use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\local\checkanswers\checkanswers;
 use stdClass;
+use mod_booking_generator;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -49,30 +45,27 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
-final class test_checkanswers extends advanced_testcase {
+final class checkanswers_test extends advanced_testcase {
     /**
      * Tests set up.
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
-
         set_config('uselegacymailtemplates', 0, 'mod_booking');
     }
 
     /**
-     * [Description for test_checkanswers]
+     * Test of booking option with price as well as cancellation by user.
      *
-     * @covers \local\checkanswers\checkanswers::create_bookinganswers_check_tasks
-     *
+     * @covers \condition\priceset::is_available
      * @param array $bdata
+     * @dataProvider booking_common_settings_provider
      *
      * @return void
      *
-     * @dataProvider booking_common_settings_provider
-     *
      */
-    public function test_checkanswers(array $bdata): void {
+    public function test_booking_bookit_with_price_and_cancellation(array $bdata): void {
         global $DB, $CFG, $PAGE;
 
         $bdata['cancancelbook'] = 1;
@@ -99,7 +92,6 @@ final class test_checkanswers extends advanced_testcase {
 
         $this->getDataGenerator()->enrol_user($admin->id, $course1->id);
         $this->getDataGenerator()->enrol_user($student1->id, $course1->id);
-        // $this->getDataGenerator()->enrol_user($student2->id, $course1->id);
         $this->getDataGenerator()->enrol_user($student3->id, $course1->id);
         $this->getDataGenerator()->enrol_user($student4->id, $course1->id);
         $this->getDataGenerator()->enrol_user($teacher->id, $course1->id);
@@ -123,9 +115,6 @@ final class test_checkanswers extends advanced_testcase {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
 
-
-
-
         // Book the first student.
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
@@ -148,6 +137,7 @@ final class test_checkanswers extends advanced_testcase {
         $this->assertCount(1, $tasks);
 
         $this->runAdhocTasks();
+        singleton_service::destroy_instance();
 
         $tasks = $DB->get_records('task_adhoc', ['classname' => "\\mod_booking\\task\\check_answers"]);
 
@@ -159,6 +149,17 @@ final class test_checkanswers extends advanced_testcase {
 
         // Student 2 should not be booked anymore.
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, false);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+
+        // Now we turn off the visibility of the activity.
+        set_coursemodule_visible($settings->cmid, 0);
+
+        checkanswers::create_bookinganswers_check_tasks(1);
+        $this->runAdhocTasks();
+
+        singleton_service::destroy_instance();
+
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, false);
         $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
     }
 
