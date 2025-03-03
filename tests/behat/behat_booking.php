@@ -29,6 +29,7 @@ use mod_booking\booking;
 use mod_booking\singleton_service;
 use mod_booking\booking_rules\booking_rules;
 use mod_booking\booking_rules\rules_info;
+use mod_booking\bo_availability\conditions\maxoptionsfromcategory;
 
 /**
  * To create booking specific behat scearios.
@@ -128,12 +129,14 @@ class behat_booking extends behat_base {
      */
     public function i_clean_booking_cache() {
             // Mandatory clean-up.
+            cache_helper::purge_all();
             singleton_service::reset_campaigns();
             singleton_service::get_instance()->users = [];
             singleton_service::get_instance()->bookinganswers = [];
             singleton_service::get_instance()->userpricecategory = [];
             rules_info::$rulestoexecute = [];
             booking_rules::$rules = [];
+            maxoptionsfromcategory::reset_instance();
             singleton_service::destroy_instance();
     }
 }
