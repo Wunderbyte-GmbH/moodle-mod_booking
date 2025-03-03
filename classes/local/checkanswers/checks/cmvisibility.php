@@ -67,15 +67,15 @@ class cmvisibility {
         $settings = singleton_service::get_instance_of_booking_option_settings($answer->optionid);
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
 
-        $cm = get_fast_modinfo($bookingsettings->course)->get_cm($settings->cmid);
-        if (!$cm) {
-            return false;
-        }
-
         // Ensure we check visibility for the correct user.
         if ($USER->id != $answer->userid) {
             $originaluser = $USER;
             $USER = \core_user::get_user($answer->userid); // Temporarily switch user context.
+        }
+
+        $cm = get_fast_modinfo($bookingsettings->course, $USER->id)->get_cm($settings->cmid);
+        if (!$cm) {
+            return false;
         }
 
         $visible = $cm->uservisible;
