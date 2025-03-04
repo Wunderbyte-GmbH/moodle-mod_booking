@@ -1087,7 +1087,7 @@ function booking_update_instance($booking) {
 
         booking::add_data_to_json($booking, "maxoptionsfromcategory", json_encode($submitdata));
         booking::add_data_to_json($booking, "maxoptionsfrominstance", $booking->maxoptionsfrominstance);
-	}
+    }
 
     if (empty($booking->customfieldsforfilter)) {
         // This will store the correct JSON to $optionvalues->json.
