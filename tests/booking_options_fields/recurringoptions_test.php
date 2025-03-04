@@ -139,8 +139,8 @@ final class recurringoptions_test extends advanced_testcase {
         $record->importing = 1;
 
         $record->repeatthisbooking = $data['repeatthisbooking'];
-        $record->howmanytimestorepeat = $data['howmanytimestorepeat']; // Repeat twice
-        $record->howoftentorepeat = $data['howoftentorepeat']; // 1 week in seconds
+        $record->howmanytimestorepeat = $data['howmanytimestorepeat'];
+        $record->howoftentorepeat = $data['howoftentorepeat'];
         $record->requirepreviousoptionstobebooked = $data['requirepreviousoptionstobebooked'];
 
         booking_option::update($record);
@@ -201,7 +201,9 @@ final class recurringoptions_test extends advanced_testcase {
 
         // Fetch updated options.
         $updatedoptions = $DB->get_records_sql(
-            "SELECT id, parentid, maxanswers, maxoverbooking, text, description, coursestarttime, courseendtime FROM {booking_options} WHERE bookingid = ? ORDER BY id ASC",
+            "SELECT id, parentid, maxanswers, maxoverbooking, text, description, coursestarttime, courseendtime
+            FROM {booking_options}
+            WHERE bookingid = ? ORDER BY id ASC",
             [$booking1->id]
         );
 
@@ -211,10 +213,26 @@ final class recurringoptions_test extends advanced_testcase {
 
         foreach ($updatedarray as $index => $child) {
             if ($child->parentid == $parentid) {
-                $this->assertEquals($record->maxanswers, $child->maxanswers, "Child {$child->id} maxanswers not updated correctly.");
-                $this->assertEquals($record->maxoverbooking, $child->maxoverbooking, "Child {$child->id} maxoverbooking not updated correctly.");
-                $this->assertEquals($record->text, $child->text, "Child {$child->id} title not updated correctly.");
-                $this->assertEquals($record->description, $child->description, "Child {$child->id} description not updated correctly.");
+                $this->assertEquals(
+                    $record->maxanswers,
+                    $child->maxanswers,
+                    "Child {$child->id} maxanswers not updated correctly."
+                );
+                $this->assertEquals(
+                    $record->maxoverbooking,
+                    $child->maxoverbooking,
+                    "Child {$child->id} maxoverbooking not updated correctly."
+                );
+                $this->assertEquals(
+                    $record->text,
+                    $child->text,
+                    "Child {$child->id} title not updated correctly."
+                );
+                $this->assertEquals(
+                    $record->description,
+                    $child->description,
+                    "Child {$child->id} description not updated correctly."
+                );
 
                 // Verify if all sessions were updated correctly.
                 $childdata = (object)[
