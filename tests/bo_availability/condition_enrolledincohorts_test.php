@@ -274,9 +274,6 @@ final class condition_enrolledincohorts_test extends advanced_testcase {
         $record->restrictanswerperiodclosing = 1;
         $record->bookingopeningtime = strtotime('now - 3 day');
         $record->bookingclosingtime = strtotime('now - 2 day');
-        // We add the SQL Filter. Students should not even see the option.
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* $record->bo_cond_booking_time_sqlfiltercheck = 1; */
 
         [$course, $cm] = get_course_and_cm_from_cmid($booking1->cmid);
         // Before the creation, we need to fix the Page context.
