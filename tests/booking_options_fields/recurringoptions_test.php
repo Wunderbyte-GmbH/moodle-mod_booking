@@ -257,7 +257,7 @@ final class recurringoptions_test extends advanced_testcase {
                     // This could be extended to make sure, it's really the right optionids here.
                     $this->assertIsNumeric($childdata->bo_cond_previouslybooked_optionid);
                 } else {
-                    $this->assertObjectNotHasProperty('bo_cond_previouslybooked_restrict', $childdata);
+                    $this->assertFalse(property_exists($childdata, 'bo_cond_previouslybooked_restrict'));
                 }
             }
         }
