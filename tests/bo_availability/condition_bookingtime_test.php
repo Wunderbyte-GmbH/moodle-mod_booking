@@ -48,11 +48,11 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  *
  * @package mod_booking
  * @category test
- * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
-final class condition_bookingtime extends advanced_testcase {
+final class condition_bookingtime_test extends advanced_testcase {
     /**
      * Tests set up.
      */
