@@ -38,7 +38,14 @@ class booking_context_helper {
      * @param int $cmid course module id of the booking instance
      */
     public static function fix_booking_page_context(moodle_page &$page, int $cmid) {
+        global $PAGE;
+        
         // With shortcodes & webservice we might not have a valid context object.
+        if (empty($PAGE->url)) {
+            $PAGE->set_url('/');
+        }
+
+
         try {
             if (!$context = $page->context ?? null) {
                 if (empty($context)) {
