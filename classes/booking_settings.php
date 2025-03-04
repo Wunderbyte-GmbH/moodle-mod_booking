@@ -534,7 +534,9 @@ class booking_settings {
             if (!empty($dbrecord->json)) {
                 $this->jsonobject = json_decode($this->json);
                 foreach ($this->jsonobject as $key => $value) {
-                    $this->$key = $value;
+                    if (property_exists($this, $key)) {
+                        $this->$key = $value;
+                    }
                 }
             } else {
                 $this->jsonobject = new stdClass();
