@@ -1078,7 +1078,7 @@ function booking_update_instance($booking) {
         $field = get_config('booking', 'maxoptionsfromcategoryfield');
         $fieldcontroller = wbt_field_controller_info::get_instance_by_shortname($field);
         foreach ($booking->maxoptionsfromcategoryvalue as $id) {
-            $localizedstring = $fieldcontroller->get_option_value_by_key($id, false);
+            $localizedstring = $fieldcontroller->get_option_value_by_key($id, false, true);
             $submitdata[$id] = [
                         'count' => $booking->maxoptionsfromcategorycount,
                         'localizedstring' => $localizedstring,
