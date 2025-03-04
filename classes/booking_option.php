@@ -3754,7 +3754,7 @@ class booking_option {
         } else {
             // Save the changes to DB.
             if (empty($newoption->identifier)) {
-                $newoption->identifier = booking_option::create_truly_unique_option_identifier();
+                $newoption->identifier = self::create_truly_unique_option_identifier();
             }
             if (!$optionid = $DB->insert_record("booking_options", $newoption)) {
                 throw new moodle_exception('creationofoptionwentwrong', 'mod_booking');
