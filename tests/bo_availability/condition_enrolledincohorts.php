@@ -19,8 +19,7 @@
  *
  * @package mod_booking
  * @category test
- * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
- * @author 2017 Andraž Prinčič
+ * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -48,7 +47,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  *
  * @package mod_booking
  * @category test
- * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
@@ -276,8 +275,6 @@ final class condition_enrolledincohorts extends advanced_testcase {
         $record->restrictanswerperiodclosing = 1;
         $record->bookingopeningtime = strtotime('now - 3 day');
         $record->bookingclosingtime = strtotime('now - 2 day');
-        // We add the SQL Filter. Students should not even see the option.
-        // $record->bo_cond_booking_time_sqlfiltercheck = 1;
 
         [$course, $cm] = get_course_and_cm_from_cmid($booking1->cmid);
         // Before the creation, we need to fix the Page context.
