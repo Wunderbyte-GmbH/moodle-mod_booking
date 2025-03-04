@@ -160,7 +160,7 @@ class recurringoptions extends field_base {
 
             $linkedlist = $DB->get_records_sql($sql, $params);
 
-           // Remove current item from the sibling list.
+            // Remove current item from the sibling list.
             foreach ($linkedlist as $key => $linked) {
                 if ($linked->id == $settings->id) {
                         unset($linkedlist[$key]);
@@ -195,7 +195,13 @@ class recurringoptions extends field_base {
                 $generatelinks = function ($records) use ($formdata, $USER) {
 
                     return array_map(function ($value) use ($formdata, $USER) {
-                        return booking_option::create_link_to_bookingoption($value->id, $formdata['cmid'], $value->text, $USER->id, ['target' => '_blank']);
+                        return booking_option::create_link_to_bookingoption(
+                            $value->id,
+                            $formdata['cmid'],
+                            $value->text,
+                            $USER->id,
+                            ['target' => '_blank']
+                        );
                     }, $records);
                 };
 
@@ -257,7 +263,7 @@ class recurringoptions extends field_base {
             $mform->addElement(
                 'advcheckbox',
                 'requirepreviousoptionstobebooked',
-                get_string('requirepreviousoptionstobebooked','mod_booking')
+                get_string('requirepreviousoptionstobebooked', 'mod_booking')
             );
             $mform->setDefault('requirepreviousoptionstobebooked', 0);
             $mform->hideIf('apply_to_children', 'repeatthisbooking', 'eq', 0);
