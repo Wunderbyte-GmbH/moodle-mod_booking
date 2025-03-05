@@ -340,6 +340,11 @@ define('MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION', 2);
 define('MOD_BOOKING_BO_SUBMIT_STATUS_UN_CONFIRM', 3);
 define('MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL', 4);
 
+// Instance specific settings for cancellation.
+define('MOD_BOOKING_CANCANCELBOOK_ABSOLUTE', 0);
+define('MOD_BOOKING_CANCANCELBOOK_RELATIVE', 1);
+define('MOD_BOOKING_CANCANCELBOOK_UNLIMITED', 2);
+
 /**
  * Booking get coursemodule info.
  *
@@ -1022,14 +1027,30 @@ function booking_update_instance($booking) {
     } else {
         booking::add_data_to_json($booking, "billboardtext", $booking->billboardtext);
     }
-    if (empty($booking->cancelrelativedate)) {
-        // If date is not relative, delete given entries for relative dates.
-        $booking->allowupdatedays = "0";
-        booking::add_data_to_json($booking, "cancelrelativedate", $booking->cancelrelativedate);
-        booking::add_data_to_json($booking, "allowupdatetimestamp", $booking->allowupdatetimestamp);
-    } else {
-        booking::add_data_to_json($booking, "cancelrelativedate", $booking->cancelrelativedate);
+    if (empty($booking->cancancelbook)) {
+        $booking->allowupdatedays = 0;
         booking::remove_key_from_json($booking, "allowupdatetimestamp");
+        booking::remove_key_from_json($booking, "cancelrelativedate");
+    } else {
+        // We need to store the chosen value (absolute, relative, unlimited) in the JSON.
+        booking::add_data_to_json($booking, "cancelrelativedate", $booking->cancelrelativedate);
+        // Depending on chosen cancel mode (absolute, relative, unlimited) we need to set the JSON correctly.
+        switch ($booking->cancelrelativedate) {
+            case MOD_BOOKING_CANCANCELBOOK_ABSOLUTE:
+                $booking->allowupdatedays = 0; // Only relevant if relative.
+                // Add absolute cancelling date to JSON.
+                booking::add_data_to_json($booking, "allowupdatetimestamp", $booking->allowupdatetimestamp);
+                break;
+            case MOD_BOOKING_CANCANCELBOOK_RELATIVE:
+                // Remove absolute cancelling date from JSON.
+                booking::remove_key_from_json($booking, "allowupdatetimestamp");
+                break;
+            case MOD_BOOKING_CANCANCELBOOK_UNLIMITED:
+                $booking->allowupdatedays = 0; // Only relevant if relative.
+                // Remove absolute cancelling date from JSON.
+                booking::remove_key_from_json($booking, "allowupdatetimestamp");
+                break;
+        }
     }
 
     if (empty($booking->customfieldsforfilter)) {
