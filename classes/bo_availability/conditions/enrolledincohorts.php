@@ -294,7 +294,7 @@ class enrolledincohorts implements bo_condition {
                         )
                     )
                 )
-            )";
+            ";
             return ['', '', '', $params, $where];
         } else {
             return ['', '', '', $params, ''];
