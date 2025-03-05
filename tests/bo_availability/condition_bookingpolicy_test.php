@@ -51,7 +51,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class condition_bookingpolicy_test extends advanced_testcase {
-
     /**
      * Tests set up.
      */
