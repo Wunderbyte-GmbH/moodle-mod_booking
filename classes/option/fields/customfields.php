@@ -217,7 +217,7 @@ class customfields extends field_base {
                         'fieldname' => 'customfields',
                         'oldvalue' => $fieldname . ' : ' . $oldvalue,
                         'newvalue' => $fieldname . ' : ' . $newvalue,
-                        'formkey' => 'customfield_' . $shortname,
+                        'formkey' => 'customfield_' . $fieldname,
                     ],
                 ];
             }
