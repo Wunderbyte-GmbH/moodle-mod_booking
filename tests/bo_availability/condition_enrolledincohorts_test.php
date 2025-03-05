@@ -63,9 +63,13 @@ final class condition_enrolledincohorts_test extends advanced_testcase {
     /**
      * Test of booking option availability by cohorts and bookingtime.
      *
+     * @covers enrolledincohorts::is_available
+     *
      * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
      */
     public function test_booking_bookit_cohorts(array $bdata): void {
         global $DB, $CFG, $PAGE;
@@ -195,10 +199,13 @@ final class condition_enrolledincohorts_test extends advanced_testcase {
 
     /**
      * Test add to group.
+     * @covers enrolledincohorts::is_available
      *
      * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
      */
     public function test_booking_enrolledincohorts_with_bookit_bookingtime(array $bdata): void {
         global $DB, $CFG, $PAGE;

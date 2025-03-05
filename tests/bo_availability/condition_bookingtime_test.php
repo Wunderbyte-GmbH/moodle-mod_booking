@@ -63,11 +63,13 @@ final class condition_bookingtime_test extends advanced_testcase {
     /**
      * Test bookingtime.
      *
-     * @covers \condition\boking_time::is_available
+     * @covers \condition\booking_time::is_available
      *
      * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
      */
     public function test_booking_bookit_bookingtime(array $bdata): void {
         global $DB, $CFG, $PAGE;
@@ -157,6 +159,7 @@ final class condition_bookingtime_test extends advanced_testcase {
      *
      * @return array
      * @throws \UnexpectedValueException
+     *
      */
     public static function booking_common_settings_provider(): array {
         $bdata = [
