@@ -140,6 +140,7 @@ class recurringoptions extends field_base {
                 'hidden',
                 'parentid',
             );
+            $mform->setType('parentid', PARAM_INT);
 
             $settings = singleton_service::get_instance_of_booking_option_settings($formdata['id']);
 
