@@ -62,15 +62,11 @@ final class condition_bookingtime extends advanced_testcase {
     }
 
     /**
-     * Test add to group.
-     *
-     * @covers \condition\boking_time::is_available
+     * Test bookit bookingtime.
      *
      * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception
-     *
-     * @dataProvider booking_common_settings_provider
      */
     public function test_booking_bookit_bookingtime(array $bdata): void {
         global $DB, $CFG, $PAGE;

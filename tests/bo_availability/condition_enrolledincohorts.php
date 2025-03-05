@@ -64,13 +64,9 @@ final class condition_enrolledincohorts extends advanced_testcase {
     /**
      * Test of booking option availability by cohorts and bookingtime.
      *
-     * @covers \condition\boking_time::is_available
-     *
      * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception
-     *
-     * @dataProvider booking_common_settings_provider
      */
     public function test_booking_bookit_cohorts(array $bdata): void {
         global $DB, $CFG, $PAGE;
@@ -201,13 +197,9 @@ final class condition_enrolledincohorts extends advanced_testcase {
     /**
      * Test add to group.
      *
-     * @covers \condition\boking_time::is_available
-     *
      * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception
-     *
-     * @dataProvider booking_common_settings_provider
      */
     public function test_booking_enrolledincohorts_with_bookit_bookingtime(array $bdata): void {
         global $DB, $CFG, $PAGE;
@@ -277,7 +269,8 @@ final class condition_enrolledincohorts extends advanced_testcase {
         $record->bookingopeningtime = strtotime('now - 3 day');
         $record->bookingclosingtime = strtotime('now - 2 day');
         // We add the SQL Filter. Students should not even see the option.
-        // $record->bo_cond_booking_time_sqlfiltercheck = 1;
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $record->bo_cond_booking_time_sqlfiltercheck = 1; */
 
         [$course, $cm] = get_course_and_cm_from_cmid($booking1->cmid);
         // Before the creation, we need to fix the Page context.

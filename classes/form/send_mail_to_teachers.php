@@ -53,7 +53,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class send_mail_to_teachers extends dynamic_form {
-
     /**
      * {@inheritDoc}
      * @see moodleform::definition()
@@ -63,8 +62,12 @@ class send_mail_to_teachers extends dynamic_form {
 
         $submitdata = $this->_ajaxformdata;
 
-        $mform->addElement('text', 'subject', get_string('subject'),
-        ['size' => '64']);
+        $mform->addElement(
+            'text',
+            'subject',
+            get_string('subject'),
+            ['size' => '64']
+        );
         $mform->addElement('editor', 'emailbody', get_string('emailbody', 'booking'));
 
         if (isset($submitdata['checkedids'])) {
@@ -108,7 +111,6 @@ class send_mail_to_teachers extends dynamic_form {
      * @return void
      */
     protected function check_access_for_dynamic_submission(): void {
-
     }
 
 

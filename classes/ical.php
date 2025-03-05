@@ -372,7 +372,6 @@ class ical {
         // Remove CR and CRLF from description as the description must be on one line to work with ical.
         $fulldescription = str_replace(["\r\n", "\n", "\r"], ' ', $fulldescription);
 
-
         // Make sure that we fall back onto some reasonable no-reply address.
         $noreplyaddressdefault = 'noreply@' . get_host_from_url($CFG->wwwroot);
         $noreplyaddress = empty($CFG->noreplyaddress) ? $noreplyaddressdefault : $CFG->noreplyaddress;

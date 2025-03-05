@@ -160,7 +160,7 @@ class send_mail implements booking_rule_action {
         $jsonobject->actionname = $this->actionname;
         $jsonobject->actiondata = new stdClass();
         $jsonobject->actiondata->sendical = $data->action_send_mail_sendical;
-        $jsonobject->actiondata->sendicalcreateorcancel = $data->action_send_mail_sendicalcreateorcancel;
+        $jsonobject->actiondata->sendicalcreateorcancel = $data->action_send_mail_sendicalcreateorcancel ?? '';
         $jsonobject->actiondata->subject = $data->action_send_mail_subject;
         $jsonobject->actiondata->template = $data->action_send_mail_template['text'];
         $jsonobject->actiondata->templateformat = $data->action_send_mail_template['format'];
@@ -179,7 +179,7 @@ class send_mail implements booking_rule_action {
         $actiondata = $jsonobject->actiondata;
 
         $data->action_send_mail_sendical = $actiondata->sendical;
-        $data->action_send_mail_sendicalcreateorcancel = $actiondata->sendicalcreateorcancel;
+        $data->action_send_mail_sendicalcreateorcancel = $actiondata->sendicalcreateorcancel ?? '';
         $data->action_send_mail_subject = $actiondata->subject;
         $data->action_send_mail_template = [];
         $data->action_send_mail_template['text'] = $actiondata->template;
