@@ -50,7 +50,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class option_form extends dynamic_form {
-
     /**
      * {@inheritDoc}
      * @see moodleform::definition()
@@ -60,16 +59,20 @@ class option_form extends dynamic_form {
         $formdata = $this->_customdata ?? $this->_ajaxformdata;
 
         $cmid = $formdata['cmid'] ?? 0;
+        $optionid = $formdata['optionid'] ?? 0;
 
         if (!empty($cmid)) {
             // We need context on this.
             $context = context_module::instance($cmid);
+        } else if (empty($cmid) && !empty($optionid)) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+            $formdata['cmid'] = $settings->cmid;
+            $context = context_module::instance($settings->cmid);
         } else {
             $context = context_system::instance();
         }
 
         $formdata['context'] = $context;
-        $optionid = $formdata['optionid'];
 
         $mform = &$this->_form;
 
@@ -176,8 +179,10 @@ class option_form extends dynamic_form {
 
         $context = $this->get_context_for_dynamic_submission();
 
-        if (!has_capability('mod/booking:addeditownoption', $context)
-            && !has_capability('mod/booking:updatebooking', $context)) {
+        if (
+            !has_capability('mod/booking:addeditownoption', $context)
+            && !has_capability('mod/booking:updatebooking', $context)
+        ) {
                 throw new required_capability_exception($context, '', 'cant access edit form', '');
         }
     }

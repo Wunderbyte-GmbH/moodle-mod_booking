@@ -152,8 +152,13 @@ class applybookingrules extends field_base {
         $fieldstoinstanciate = [],
         $applyheader = true
     ) {
-
-        $context = context_module::instance($formdata['cmid']);
+        if (!empty($formdata['context'])) {
+            $context = $formdata['context'];
+        } else if (!empty($formdata['cmid'])) {
+            $context = context_module::instance($formdata['cmid']);
+        } else {
+            $context = context_system::instance();
+        }
 
         // Standardfunctionality to add a header to the mform (only if its not yet there).
         if ($applyheader) {
