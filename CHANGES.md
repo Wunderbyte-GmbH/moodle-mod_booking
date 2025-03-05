@@ -1,3 +1,8 @@
+## Version 8.10.3 (2025030501)
+* Bugfix: Fix SQL errors for MariaDB.
+* Bugfix: Fix broken context for applybookingrules field.
+* Bugfix: Fix unit test definitions.
+
 ## Version 8.10.2 (2025030500)
 * New feature: Attach ical files to mails from Booking rules.
 * Improvement: Don't show mails in mobile when we don’t want them.
