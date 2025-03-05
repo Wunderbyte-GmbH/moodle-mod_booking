@@ -1,3 +1,26 @@
+## Version 8.10.2 (2025030500)
+* New feature: Attach ical files to mails from Booking rules.
+* Improvement: Don't show mails in mobile when we don’t want them.
+* Improvement: More efficient way to skip selflearningcourse rules.
+* Improvement: Move setting to configurefields section.
+* Improvement: Save localized names of customfields to json for better performance.
+* Improvement: Use site settings for teacher e-mail visibility also in mobile app Wunderbyte-GmbH.
+* Improvement: Show options that are visible with direct link also in the mybooked options table.
+* Improvement: SQL-based filtering by conditions now allows is bypassed for booked options.
+* Improvement: Only output email key if email exists.
+* Improvement: Add setting to json on add instance.
+* Improvement: Add filter to table.
+* Improvement: Add setting about customfield filter to instance.
+* Improvement: Add moodle-customfield_dynamicformat to the list of required plugins in GitHub workflow.
+* Bugfix: Add missing !empty checks for sendical attribute.
+* Bugfix: Support array of values on data save to avoid Array to string conversion.
+* Bugfix: Creation of dynamic property mod_booking\booking_settings::$customfieldsforfilter is deprecated.
+* Bugfix: Fix cancelling icals and several improvements for new ical feature in rules.
+* Bugfix: Fix issues with tracking, bulkoperations table, pollurl, pollunitteachers.
+* Bugfix: Fix linting and improvements for new feature to add ical to rules mails.
+* Bugfix: Settings to allow booking rules to send ics attachments.
+* Tests: Add new behat test scenario for booking: configure customfield filter for booking instance and validate it as student.
+
 ## Version 8.10.1 (2025022601)
 * Bugfix: Fallback for empty fields in rules.
 * Bugfix: Add field places to DB if it's still missing for some reason.
