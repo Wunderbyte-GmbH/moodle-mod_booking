@@ -1973,7 +1973,7 @@ $string['rulesnotfound'] = 'Keine Regeln für diese Buchungsoption gefunden';
 $string['rulessettings'] = "Einstellungen für Regeln";
 $string['rulessettingsdesc'] = 'Einstellungen, die für die <a href="{$a}">Funktion Buchungs Regeln</a> gelten.';
 $string['ruletemplatebookingoptioncompleted'] = "Template - Buchungsoption abgeschlossen";
-$string['ruletemplatebookingoptioncompletedbody'] = "<p>Sie haben die folgende Buchungsoption abgeschlossen:<br>{bookingdetails}<br>Zum Kurs: {courselink}<br>Alle Buchungsoptionen ansehen: {bookinglink}</p>";
+$string['ruletemplatebookingoptioncompletedbody'] = "<p>Sie haben die folgende Buchungsoption abgeschlossen:<br>{bookingdetails}<br> Bitte nehmen Sie an der Umfrage teil:<br><br>Link zur Umfrage: {pollurl} <br> Zum Kurs: {courselink}<br>Alle Buchungsoptionen ansehen: {bookinglink}</p>";
 $string['ruletemplatebookingoptioncompletedsubject'] = "Buchungsoption abgeschlossen";
 $string['ruletemplateconfirmbooking'] = "Template - Bestätige Buchung";
 $string['ruletemplateconfirmbookingbody'] = "<p>Sehr geehrte/r {firstname} {lastname},<br>Vielen Dank für Ihre Buchung<br>{bookingdetails}<br>Alles Gute!</p>";

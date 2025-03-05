@@ -69,12 +69,10 @@ class ruletemplate_trainerpoll {
                 "template" => get_string('ruletemplatetrainerpollbody', 'booking'),
                 "templateformat" => "1",
             ],
-            "rulename" => "rule_react_on_event",
+            "rulename" => "rule_daysbefore",
             "ruledata" => [
-                "boevent" => "\\mod_booking\\event\bookingoption_completed",
-                "condition" => "0",
-                "aftercompletion" => 0,
-                "cancelrules" => [],
+                "days" => "0",
+                "datefield" => "courseendtime",
             ],
         ];
 
