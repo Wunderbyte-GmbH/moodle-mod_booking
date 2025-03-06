@@ -131,11 +131,9 @@ class recurringoptions extends field_base {
             $formdata['id']
             && wb_payment::pro_version_is_activated()
         ) {
-            $mform->addElement(
-                'header',
-                'recurringheader',
-                get_string('recurringheader', 'mod_booking')
-            );
+            if ($applyheader) {
+                fields_info::add_header_to_mform($mform, self::$header);
+            }
             $mform->addElement(
                 'hidden',
                 'parentid',
@@ -304,7 +302,11 @@ class recurringoptions extends field_base {
      * @return void
      */
     public static function definition_after_data(MoodleQuickForm &$mform, $formdata) {
-        if (($mform->_flagSubmitted ?? false) && empty($formdata['validated_once'])) {
+        if (
+            isset($formdata['validated_once'])
+            && ($mform->_flagSubmitted ?? false)
+            && empty($formdata['validated_once'])
+            ) {
             $validationelement = $mform->getElement('validated_once');
             $validationelement->setValue(1);
         }
