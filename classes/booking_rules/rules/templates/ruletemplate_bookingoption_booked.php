@@ -35,12 +35,12 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class ruletemplate_trainerreminderbeforestart {
+class ruletemplate_bookingoption_booked {
     /** @var int $templateid */
-    public static $templateid = 4;
+    public static $templateid = 1;
 
     /** @var int $eventtype */
-    public static $eventtype = 'rule_daysbefore';
+    public static $eventtype = 'rule_react_on_event';
 
     /**
      * Returns the localized name of this template
@@ -49,7 +49,7 @@ class ruletemplate_trainerreminderbeforestart {
      *
      */
     public static function get_name() {
-        return get_string('ruletemplatetrainerreminder', 'booking');
+        return get_string('ruletemplateconfirmbooking', 'booking');
     }
 
     /**
@@ -61,19 +61,23 @@ class ruletemplate_trainerreminderbeforestart {
     public static function return_template() {
 
         $rulejson = (object)[
-            "conditionname" => "select_teacher_in_bo",
-            "conditiondata" => [],
+            "conditionname" => "select_user_from_event",
+            "conditiondata" => [
+                "userfromeventtype" => "relateduserid",
+            ],
             "name" => self::get_name(),
             "actionname" => "send_mail",
             "actiondata" => [
-                "subject" => get_string('ruletemplatetrainerremindersubject', 'booking'),
-                "template" => get_string('ruletemplatetrainerreminderbody', 'booking'),
+                "subject" => get_string('ruletemplateconfirmbookingsubject', 'booking'),
+                "template" => get_string('ruletemplateconfirmbookingbody', 'booking'),
                 "templateformat" => "1",
             ],
-            "rulename" => "rule_daysbefore",
+            "rulename" => "rule_react_on_event",
             "ruledata" => [
-                "days" => "3",
-                "datefield" => "coursestarttime",
+                "boevent" => "\\mod_booking\\event\bookingoption_booked",
+                "condition" => "0",
+                "aftercompletion" => 0,
+                "cancelrules" => [],
             ],
         ];
 
@@ -81,6 +85,7 @@ class ruletemplate_trainerreminderbeforestart {
             'id' => self::$templateid,
             'rulename' => self::$eventtype,
             'rulejson' => json_encode($rulejson),
+            'eventname' => "\\mod_booking\\event\bookingoption_booked",
             'contextid' => 1,
             'useastemplate' => 0,
         ];

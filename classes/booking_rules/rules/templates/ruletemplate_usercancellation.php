@@ -35,9 +35,9 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class ruletemplate_confirmbooking {
+class ruletemplate_usercancellation {
     /** @var int $templateid */
-    public static $templateid = 1;
+    public static $templateid = 10;
 
     /** @var int $eventtype */
     public static $eventtype = 'rule_react_on_event';
@@ -49,7 +49,7 @@ class ruletemplate_confirmbooking {
      *
      */
     public static function get_name() {
-        return get_string('ruletemplateconfirmbooking', 'booking');
+        return get_string('ruletemplateusercancellation', 'booking');
     }
 
     /**
@@ -61,20 +61,20 @@ class ruletemplate_confirmbooking {
     public static function return_template() {
 
         $rulejson = (object)[
-            "conditionname" => "select_user_from_event",
+            "conditionname" => "select_student_in_bo",
             "conditiondata" => [
-                "userfromeventtype" => "relateduserid",
+                "borole" => "smallerthan1",
             ],
             "name" => self::get_name(),
             "actionname" => "send_mail",
             "actiondata" => [
-                "subject" => get_string('ruletemplateconfirmbookingsubject', 'booking'),
-                "template" => get_string('ruletemplateconfirmbookingbody', 'booking'),
+                "subject" => get_string('ruletemplateusercancellationsubject', 'booking'),
+                "template" => get_string('ruletemplateusercancellationbody', 'booking'),
                 "templateformat" => "1",
             ],
             "rulename" => "rule_react_on_event",
             "ruledata" => [
-                "boevent" => "\\mod_booking\\event\bookingoption_booked",
+                "boevent" => "\\mod_booking\\event\bookingoption_cancelled",
                 "condition" => "0",
                 "aftercompletion" => 0,
                 "cancelrules" => [],
@@ -85,7 +85,7 @@ class ruletemplate_confirmbooking {
             'id' => self::$templateid,
             'rulename' => self::$eventtype,
             'rulejson' => json_encode($rulejson),
-            'eventname' => "\\mod_booking\\event\bookingoption_booked",
+            'eventname' => "\\mod_booking\\event\bookinganswer_cancelled",
             'contextid' => 1,
             'useastemplate' => 0,
         ];

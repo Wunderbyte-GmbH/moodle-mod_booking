@@ -40,7 +40,7 @@ class ruletemplate_userpoll {
     public static $templateid = 7;
 
     /** @var int $eventtype */
-    public static $eventtype = 'rule_react_on_event';
+    public static $eventtype = 'rule_daysbefore';
 
     /**
      * Returns the localized name of this template
@@ -61,9 +61,9 @@ class ruletemplate_userpoll {
     public static function return_template() {
 
         $rulejson = (object)[
-            "conditionname" => "select_user_from_event",
+            "conditionname" => "select_student_in_bo",
             "conditiondata" => [
-                "userfromeventtype" => "relateduserid",
+                "borole" => "0",
             ],
             "name" => self::get_name(),
             "actionname" => "send_mail",
