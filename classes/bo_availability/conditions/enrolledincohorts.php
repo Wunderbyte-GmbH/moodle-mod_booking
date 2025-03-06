@@ -268,7 +268,7 @@ class enrolledincohorts implements bo_condition {
 
             $where = "
                 availability IS NOT NULL
-                AND (
+                AND ((
                     (NOT EXISTS (
                         SELECT 1
                         FROM JSON_TABLE(availability, '$[*]' COLUMNS (sqlfilter VARCHAR(10) PATH '$.sqlfilter')) jt
@@ -294,7 +294,7 @@ class enrolledincohorts implements bo_condition {
                         )
                     )
                 )
-            ";
+            )";
             return ['', '', '', $params, $where];
         } else {
             return ['', '', '', $params, ''];
