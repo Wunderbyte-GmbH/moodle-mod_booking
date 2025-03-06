@@ -188,6 +188,7 @@ class recurringoptions extends field_base {
 
                 if (!empty($ischildofcurrent)) {
                     $mform->addElement('hidden', 'has_children', 1);
+                    $mform->setType('has_children', PARAM_INT);
                 }
 
                 // Function to generate links for a given set of records.
@@ -306,7 +307,7 @@ class recurringoptions extends field_base {
             isset($formdata['validated_once'])
             && ($mform->_flagSubmitted ?? false)
             && empty($formdata['validated_once'])
-            ) {
+        ) {
             $validationelement = $mform->getElement('validated_once');
             $validationelement->setValue(1);
         }
@@ -375,7 +376,6 @@ class recurringoptions extends field_base {
      * @return array
      */
     public static function validation(array $data, array $files, array &$errors) {
-        $errors = [];
 
         if (empty($data['validated_once']) && !empty($data['has_children'])) {
             $errors['apply_to_children'] = get_string('confirmrecurringoptionerror', 'mod_booking');
