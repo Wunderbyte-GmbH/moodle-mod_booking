@@ -40,7 +40,7 @@ class ruletemplate_trainerpoll {
     public static $templateid = 8;
 
     /** @var int $eventtype */
-    public static $eventtype = 'rule_react_on_event';
+    public static $eventtype = 'rule_daysbefore';
 
     /**
      * Returns the localized name of this template
@@ -62,6 +62,7 @@ class ruletemplate_trainerpoll {
 
         $rulejson = (object)[
             "conditionname" => "select_teacher_in_bo",
+            "conditiondata" => [],
             "name" => self::get_name(),
             "actionname" => "send_mail",
             "actiondata" => [
