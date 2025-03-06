@@ -203,7 +203,8 @@ class shoppingcart extends field_base {
         field_base $self,
         $mockdata = '',
         string $key = '',
-        $value = ''): array {
+        $value = ''
+    ): array {
 
         if (!isset($self)) {
             return [];
@@ -228,8 +229,10 @@ class shoppingcart extends field_base {
                 $oldvalue = $mockdata->$key;
             }
 
-            if ($oldvalue != $newvalue
-                && !(empty($oldvalue) && empty($newvalue))) {
+            if (
+                $oldvalue != $newvalue
+                && !(empty($oldvalue) && empty($newvalue))
+                ) {
                     // If change was found in any of the shoppingcart fields, return this generic information.
                     return [
                         'changes' => [
