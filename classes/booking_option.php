@@ -3776,7 +3776,7 @@ class booking_option {
         if (
             !empty($originaloption->id) // If we have an old option at all.
             && !empty($originaloption->bookingid) // If it's not a template.
-            && $originaloption->maxanswers < $newoption->maxanswers // Only then we show if we need to sync.
+            && ($originaloption->maxanswers ?? 0) < ($newoption->maxanswers ?? 0) // Only then we show if we need to sync.
         ) {
             // We have more places now, so we can sync without danger.
 
@@ -3790,7 +3790,7 @@ class booking_option {
             // If it was fully booked, we need to trigger the places free again event.
             self::check_if_free_to_book_again($settings, 0, $fullybooked);
         } else if (
-            $originaloption->maxanswers > $newoption->maxanswers
+            ($originaloption->maxanswers ?? 0) < ($newoption->maxanswers ?? 0)
             && !get_config('booking', 'keepusersbookedonreducingmaxanswers')
         ) {
             // We have less places now, so we only sync if the setting to keep users booked is turned off.
