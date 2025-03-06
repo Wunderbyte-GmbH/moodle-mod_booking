@@ -213,7 +213,6 @@ class moveoption extends field_base {
 
                     $DB->update_record('booking_options', ['id' => $data->id, 'bookingid' => $cm->instance]);
 
-
                     // We also need to update the answers, as the also have a booking id.
                     $records = $DB->get_records('booking_answers', ['optionid' => $data->id]);
                     foreach ($records as $record) {
