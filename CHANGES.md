@@ -1,3 +1,7 @@
+## Version 8.10.4 (2025030501)
+* New Feature: Set maximum of bookable options per category (customfield) #818
+* Bugfix: SQL errors for MariaDB
+
 ## Version 8.10.3 (2025030501)
 * Bugfix: Fix SQL errors for MariaDB.
 * Bugfix: Fix broken context for applybookingrules field.
