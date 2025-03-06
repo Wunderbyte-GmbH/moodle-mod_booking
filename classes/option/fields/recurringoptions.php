@@ -313,19 +313,6 @@ class recurringoptions extends field_base {
     }
 
     /**
-     * Standard function to transfer stored value to form.
-     * @param stdClass $data
-     * @param booking_option_settings $settings
-     * @return void
-     * @throws dml_exception
-     */
-    public static function set_data(stdClass &$data, booking_option_settings $settings) {
-        if (empty($data->parentid)) {
-            $data->parentid = $settings->parentid;
-        }
-    }
-
-    /**
      * Save data
      * @param stdClass $data
      * @param stdClass $option
