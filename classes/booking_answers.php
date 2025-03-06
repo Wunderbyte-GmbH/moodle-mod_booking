@@ -111,8 +111,16 @@ class booking_answers {
             AND u.deleted = 0
             ORDER BY ba.timecreated ASC"; */
 
-            [$sql, $params] = self::return_sql_to_get_answers($optionid);
-            $answers = $DB->get_records_sql($sql, $params);
+            try {
+                [$sql, $params] = self::return_sql_to_get_answers($optionid);
+                $answers = $DB->get_records_sql($sql, $params);
+            } catch (Throwable $e) {
+                if ($CFG->debug === E_ALL) {
+                    throw $e;
+                } else {
+                    $answers = [];
+                }
+            }
 
             // We don't want to query for empty bookings, so we also cache these.
             if (count($answers) == 0) {
