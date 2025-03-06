@@ -27,6 +27,7 @@
 namespace mod_booking;
 
 use cache_helper;
+use context_system;
 use core_cohort\reportbuilder\local\entities\cohort;
 use Exception;
 use html_writer;
@@ -733,6 +734,7 @@ class shortcodes {
             'id' => get_string('id', 'local_wunderbyte_table'),
             'text' => get_string('title', 'mod_booking'),
             'action' => get_string('edit'),
+            'invisible' => get_string('invisible', 'mod_booking'),
         ];
         // Add defined customfields from args to columns.
         if (isset($args['customfields'])) {
@@ -778,9 +780,10 @@ class shortcodes {
         $table->sort_default_column = 'id';
         $table->sort_default_order = SORT_DESC;
 
+        $context = context_system::instance();
         // Templates are excluded here.
         [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(0, 0, '', null, null, [], [], null, [], ' bookingid > 0');
+                booking::get_options_filter_sql(0, 0, '', null, $context, [], [], null, [], ' bookingid > 0');
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
@@ -855,6 +858,13 @@ class shortcodes {
         $filtercolumns = array_diff_key($columns, array_flip(['action']));
         foreach ($filtercolumns as $key => $localized) {
             $standardfilter = new standardfilter($key, $localized);
+            if ($key === 'invisible') {
+                $standardfilter->add_options([
+                    "0" => get_string('optionvisible', 'mod_booking'),
+                    "1" => get_string('optioninvisible', 'mod_booking'),
+                    "2" => get_string('optionvisibledirectlink', 'mod_booking'),
+                ]);
+            }
             $table->add_filter($standardfilter);
         }
 
