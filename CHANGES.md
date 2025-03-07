@@ -1,3 +1,8 @@
+## Version 8.10.5 (2025030700)
+* Bugfix: moveoption didn't move all the data #865
+* Bugfix: Make sure a lacking e-mail key wont destroy the mobile template
+* Bugfix: maxanswers fallback
+
 ## Version 8.10.4 (2025030501)
 * New Feature: Set maximum of bookable options per category (customfield) #818
 * Bugfix: SQL errors for MariaDB
