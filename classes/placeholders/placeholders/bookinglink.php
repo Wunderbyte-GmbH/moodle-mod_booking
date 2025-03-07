@@ -65,12 +65,12 @@ class bookinglink {
         float $price = 0,
         string &$text = '',
         array &$params = [],
-        int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE) {
+        int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE
+    ) {
 
         $classname = substr(strrchr(get_called_class(), '\\'), 1);
 
         if (!empty($optionid)) {
-
             // The cachekey depends on the kind of placeholder and it's ttl.
             // If it's the same for all users, we don't use userid.
             // If it's the same for all options of a cmid, we don't use optionid.
