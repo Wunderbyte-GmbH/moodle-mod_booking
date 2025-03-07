@@ -25,11 +25,14 @@
 namespace mod_booking;
 
 use advanced_testcase;
+use local_shopping_cart\local\cartstore;
+use local_shopping_cart\shopping_cart;
 use mod_booking\booking_rules\rules\templates\ruletemplate_bookingoption_booked;
 use mod_booking\booking_rules\rules\templates\ruletemplate_bookingoptioncompleted;
 use mod_booking\booking_rules\rules\templates\ruletemplate_confirmwaitinglist;
 use mod_booking\booking_rules\rules\templates\ruletemplate_courseupdate;
 use mod_booking\booking_rules\rules\templates\ruletemplate_daysbeforestart;
+use mod_booking\booking_rules\rules\templates\ruletemplate_paymentconfirmation;
 use mod_booking\booking_rules\rules\templates\ruletemplate_trainerpoll;
 use mod_booking\booking_rules\rules\templates\ruletemplate_userpoll;
 use mod_booking\local\templaterule;
@@ -57,6 +60,126 @@ final class rules_template_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
+    }
+    /**
+     * Test rules for "test for template rule_confirmation".
+     *
+     * @covers \condition\alreadybooked::is_available
+     * @covers \condition\onwaitinglist::is_available
+     * @covers \mod_booking\event\bookingoption_freetobookagain
+     * @covers \mod_booking\event\bookingoptionwaitinglist_booked
+     * @covers \mod_booking\booking_rules\rules\rule_react_on_event
+     * @covers \mod_booking\booking_rules\actions\send_mail
+     * @covers \mod_booking\booking_rules\conditions\select_teacher_in_bo
+     * @covers \mod_booking\booking_rules\conditions\select_student_in_bo
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_payment_conformation(array $bdata): void {
+        global $DB, $CFG;
+
+        $bdata['cancancelbook'] = 1;
+
+        // Create course.
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        // Create users.
+        $student1 = $this->getDataGenerator()->create_user();
+        $student2 = $this->getDataGenerator()->create_user();
+        $student3 = $this->getDataGenerator()->create_user();
+        $teacher1 = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course1->id;
+        $bdata['bookingmanager'] = $teacher1->username;
+
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($student1->id, $course1->id, 'student');
+        $this->getDataGenerator()->enrol_user($student2->id, $course1->id, 'student');
+        $this->getDataGenerator()->enrol_user($student3->id, $course1->id, 'student');
+        $this->getDataGenerator()->enrol_user($teacher1->id, $course1->id, 'editingteacher');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        // Create booking rule 1 - "payment_conformation".
+        $boevent1 = '"boevent":"\\\\local_shopping_cart\\\\event\\\\payment_confirmed"';
+        $template = ruletemplate_paymentconfirmation::return_template();
+        $ruledatanew = json_decode($template->rulejson, true);
+        $ruledatanew["conditiondata"] = json_encode($ruledatanew["conditiondata"]);
+        $ruledatanew["actiondata"] = json_encode($ruledatanew["actiondata"]);
+        $ruledatanew["ruledata"] = json_encode($ruledatanew["ruledata"]);
+        $ruledatanew["contextid"] = $template->contextid;
+        $rule1 = $plugingenerator->create_rule($ruledatanew);
+
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option1';
+        $record->chooseorcreatecourse = 1; // Reqiured.
+        $record->courseid = $course1->id;
+        $record->maxanswers = 2;
+        $record->useprice = 1; // Use price from the default category.
+        $record->importing = 1;
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $pricecategorydata = (object) [
+            'ordernum' => 1,
+            'name' => 'default',
+            'identifier' => 'default',
+            'defaultvalue' => 100,
+            'pricecatsortorder' => 1,
+        ];
+
+        $plugingenerator->create_pricecategory($pricecategorydata);
+        $option1 = $plugingenerator->create_option($record);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+
+        // Verify price.
+        $price = price::get_price('option', $settings->id);
+        // Default price expected.
+        $this->assertEquals($pricecategorydata->defaultvalue, $price["price"]);
+        // Purchase item in behalf of user if shopping_cart installed.
+        if (class_exists('local_shopping_cart\shopping_cart')) {
+            // Clean cart.
+            shopping_cart::delete_all_items_from_cart($student1->id);
+            // Set user to buy in behalf of.
+            shopping_cart::buy_for_user($student1->id);
+            // Get cached data or setup defaults.
+            $cartstore = cartstore::instance($student1->id);
+            // Put in a test item with given ID (or default if ID > 4).
+            shopping_cart::add_item_to_cart('mod_booking', 'option', $settings->id, -1);
+            // Confirm cash payment.
+            $res = shopping_cart::confirm_payment($student1->id, LOCAL_SHOPPING_CART_PAYMENT_METHOD_CASHIER_CASH);
+        }
+
+        // Get all scheduled task messages.
+        $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+
+        $this->assertCount(1, $tasks);
+        // Validate task messages. Might be free order.
+        foreach ($tasks as $key => $task) {
+            $customdata = $task->get_custom_data();
+                // Validate 2 task messages on the bookingoption_freetobookagain event.
+                $this->assertEquals("Payment for {Title} confirmed", $customdata->customsubject);
+                $this->assertEquals("Thank you for your booking!<br>Your booking {Title} with the price: {price} has been successfully made.<br>Here is the confirmation link:<br>{bookingconformationlink}<br>Here is the course link:<br>{courselink}<br>Best regards", $customdata->custommessage);
+                $this->assertStringContainsString($boevent1, $customdata->rulejson);
+                $this->assertStringContainsString($ruledatanew['conditiondata'], $customdata->rulejson);
+                $this->assertStringContainsString($ruledatanew['actiondata'], $customdata->rulejson);
+        }
+        // Mandatory to solve potential cache issues.
+        singleton_service::destroy_instance();
+        // Mandatory to deal with static variable in the booking_rules.
+        rules_info::$rulestoexecute = [];
+        booking_rules::$rules = [];
     }
     /**
      * Test rule on before and after cursestart events.
@@ -441,7 +564,7 @@ final class rules_template_test extends advanced_testcase {
             } else { 
                 // Validate message on the bookingoptionwaitinglist_booked event.
                 $this->assertEquals("You are on the waiting list", $customdata->customsubject);
-                $this->assertEquals("<p>Dear {firstname} {lastname},<br>You are on the waiting list<br>{bookingdetails}<br>All the best!</p>", $customdata->custommessage);
+                $this->assertEquals("Dear {firstname} {lastname},<br>You are on the waiting list<br>{bookingdetails}<br>All the best!", $customdata->custommessage);
                 $this->assertEquals($counter == 1 ? $student2->id : $student1->id, $customdata->userid);
                 $this->assertStringContainsString($boevent1, $customdata->rulejson);
                 $this->assertStringContainsString($ruledatanew['conditiondata'], $customdata->rulejson);
