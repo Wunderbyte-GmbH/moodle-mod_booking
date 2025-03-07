@@ -63,6 +63,7 @@ use mod_booking\task\send_completion_mails;
 use moodle_exception;
 use MoodleQuickForm;
 
+use Throwable;
 use function get_config;
 
 defined('MOODLE_INTERNAL') || die();
@@ -3302,8 +3303,12 @@ class booking_option {
      */
     public static function return_cancel_until_date($optionid) {
 
-        $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
-        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($optionsettings->cmid);
+        try {
+            $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($optionsettings->cmid);
+        } catch (Throwable $e) {
+            return 0;
+        }
 
         // If the option itself has a canceluntil date, we always use this one.
         if (!empty($optionsettings->canceluntil)) {
