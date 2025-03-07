@@ -636,6 +636,13 @@ class booking_answers {
                 $bookinginformation['bookingplacesclass'] = 'text-success avail';
                 $bookinginformation['bookingplacesiconclass'] = 'avail';
             }
+        } else {
+            if (
+                !has_capability('mod/booking:updatebooking', $context)
+                && get_config('booking', 'dontshowbookingswhenunlimited')
+            ) {
+                $bookinginformation['dontshowbookingswhenunlimited'] = true;
+            }
         }
         // Waiting list places.
         if (!empty($bookinginformation['maxoverbooking'])) {

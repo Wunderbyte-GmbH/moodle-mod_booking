@@ -531,10 +531,16 @@ class bookingoptions_wbtable extends wunderbyte_table {
             if ($maxoverbooking) {
                 $ret .= " (" . get_string('waitinglist', 'mod_booking') . ": $waiting / $maxoverbooking)";
             }
+            return $ret;
         } else {
             $ret = $output->render_col_availableplaces($data);
+            if (strlen(trim($ret)) > 0) {
+                $icon = html_writer::tag('i', '', ['class' => "fa fa-ticket fa-fw text-gray font-size-sm"]);
+                return $icon . $ret;
+            }
+            return '';
         }
-        return $ret;
+
     }
 
     /**

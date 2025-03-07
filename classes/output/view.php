@@ -1122,11 +1122,11 @@ class view implements renderable, templatable {
             ['columnclass' => 'text-left text-gray pr-2'],
             ['bookings']
         );
-        $wbtable->add_classes_to_subcolumns(
-            'cardlist',
-            ['columniclassbefore' => 'fa fa-ticket fa-fw text-gray'],
-            ['bookings']
-        );
+        // $wbtable->add_classes_to_subcolumns(
+        //     'cardlist',
+        //     ['columniclassbefore' => 'fa fa-ticket fa-fw text-gray'],
+        //     ['bookings']
+        // );
         if (in_array('minanswers', $optionsfields)) {
             $wbtable->add_classes_to_subcolumns(
                 'cardlist',
@@ -1352,11 +1352,11 @@ class view implements renderable, templatable {
             ['columnclass' => 'text-left text-gray pr-2 font-size-sm'],
             ['bookings']
         );
-        $wbtable->add_classes_to_subcolumns(
-            'footer',
-            ['columniclassbefore' => 'fa fa-ticket fa-fw text-gray font-size-sm'],
-            ['bookings']
-        );
+        // $wbtable->add_classes_to_subcolumns(
+        //     'footer',
+        //     ['columniclassbefore' => 'fa fa-ticket fa-fw text-gray font-size-sm'],
+        //     ['bookings']
+        // );
         if (in_array('minanswers', $optionsfields)) {
             $wbtable->add_classes_to_subcolumns(
                 'footer',

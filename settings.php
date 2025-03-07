@@ -1322,6 +1322,15 @@ if ($ADMIN->fulltree) {
             )
         );
 
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/dontshowbookingswhenunlimited',
+                get_string('dontshowbookingswhenunlimited', 'mod_booking'),
+                get_string('dontshowbookingswhenunlimited_desc', 'booking'),
+                0
+            )
+        );
+
         $bookingplaceslowpercentages = [
             0 => ' 0%',
             5 => ' 5%',

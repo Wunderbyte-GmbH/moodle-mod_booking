@@ -31,7 +31,6 @@
 {{#showmanageresponses}}
 <a href="{{{manageresponsesurl}}}" style="text-decoration: none;">
 {{/showmanageresponses}}
-
 {{! Booking places }}
 {{#maxanswers}}
     <span class="col-ap-availableplaces {{#bookingplacesclass}}{{.}}{{/bookingplacesclass}}">
@@ -50,8 +49,10 @@
     </span>
 {{/maxanswers}}
 {{^maxanswers}}
-    <span class="text-success font-weight-bold">{{booked}}</span>
+    {{^dontshowbookingswhenunlimited}}
+    <span class="text-success font-weight-bold">{{booked}} </span>
             / {{#str}} unlimitedplaces, mod_booking {{/str}}
+    {{/dontshowbookingswhenunlimited}}
 {{/maxanswers}}
 
 {{! Waiting list places }}
