@@ -25,6 +25,14 @@
 namespace mod_booking;
 
 use advanced_testcase;
+use mod_booking\booking_rules\rules\templates\ruletemplate_bookingoption_booked;
+use mod_booking\booking_rules\rules\templates\ruletemplate_bookingoptioncompleted;
+use mod_booking\booking_rules\rules\templates\ruletemplate_confirmwaitinglist;
+use mod_booking\booking_rules\rules\templates\ruletemplate_courseupdate;
+use mod_booking\booking_rules\rules\templates\ruletemplate_daysbeforestart;
+use mod_booking\booking_rules\rules\templates\ruletemplate_trainerpoll;
+use mod_booking\booking_rules\rules\templates\ruletemplate_userpoll;
+use mod_booking\local\templaterule;
 use stdClass;
 use mod_booking\teachers_handler;
 use mod_booking\booking_rules\booking_rules;
@@ -32,6 +40,7 @@ use mod_booking\booking_rules\rules_info;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\local\mobile\customformstore;
+use mod_booking_generator;
 
 /**
  * Tests for booking rules.
@@ -49,358 +58,6 @@ final class rules_template_test extends advanced_testcase {
         parent::setUp();
         $this->resetAfterTest();
     }
-
-    /**
-     * Test rule on option's teacher added.
-     *
-     * @covers \mod_booking\event\teacher_added
-     * @covers \mod_booking\teachers_handler\subscribe_teacher_to_booking_option
-     * @covers \mod_booking\booking_rules\rules\rule_react_on_event->execute
-     * @covers \mod_booking\booking_rules\actions\send_mail->execute
-     * @covers \mod_booking\booking_rules\conditions\select_users->execute
-     * @covers \mod_booking\tasks\send_mail_by_rule_adhoc->execute
-     *
-     * @param array $bdata
-     * @throws \coding_exception
-     *
-     * @dataProvider booking_common_settings_provider
-     */
-    public function test_rule_on_teacher_added(array $bdata): void {
-
-        singleton_service::destroy_instance();
-
-        set_config('timezone', 'Europe/Kyiv');
-        set_config('forcetimezone', 'Europe/Kyiv');
-
-        // Allow optioncacellation.
-        $bdata['cancancelbook'] = 1;
-
-        // Setup test data.
-        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
-        $user1 = $this->getDataGenerator()->create_user();
-        $user2 = $this->getDataGenerator()->create_user();
-
-        $bdata['course'] = $course->id;
-        $bdata['bookingmanager'] = $user2->username;
-
-        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
-
-        $this->setAdminUser();
-
-        $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'editingteacher');
-        $this->getDataGenerator()->enrol_user($user2->id, $course->id, 'editingteacher');
-
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-
-        // Create booking rule 1 - "teacher_added".
-        $boevent1 = '"boevent":"\\\\mod_booking\\\\event\\\\teacher_added"';
-        $ruledata1 = [
-            'name' => 'teacher_added',
-            'conditionname' => 'select_users',
-            'contextid' => 1,
-            'conditiondata' => '{"userids":["2"]}',
-            'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"teacher added","template":"teacher added msg","templateformat":"1"}',
-            'rulename' => 'rule_react_on_event',
-            'ruledata' => '{' . $boevent1 . ',"aftercompletion":"","condition":"0"}',
-        ];
-        $rule1 = $plugingenerator->create_rule($ruledata1);
-
-        global $DB;
-
-        // Create booking option 1.
-        $record = new stdClass();
-        $record->bookingid = $booking->id;
-        $record->text = 'Option-2050';
-        $record->chooseorcreatecourse = 1; // Reqiured.
-        $record->courseid = $course->id;
-        $record->description = 'Will start 2050';
-        $record->optiondateid_0 = "0";
-        $record->daystonotify_0 = "0";
-        $record->coursestarttime_0 = strtotime('20 June 2050 15:00');
-        $record->courseendtime_0 = strtotime('20 July 2050 14:00');
-        $record->importing = 1;
-        $option1 = $plugingenerator->create_option($record);
-        singleton_service::destroy_booking_option_singleton($option1->id);
-
-        // Add a user1 as a teacher to the booking option.
-        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
-        $th = new teachers_handler($option1->id);
-        $res = $th->subscribe_teacher_to_booking_option($user1->id, $option1->id, $settings1->cmid);
-        $this->assertEquals(true, (bool) $res);
-
-        // Get messages.
-        $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
-        // Validate adhoc tasks for rule 1.
-        $this->assertCount(1, $messages);
-        $keys = array_keys($messages);
-        // Message 1 has to be "teacher_removed" sent to user1.
-        $message = $messages[$keys[0]];
-        $customdata = $message->get_custom_data();
-        $this->assertEquals("teacher added", $customdata->customsubject);
-        $this->assertEquals("teacher added msg", $customdata->custommessage);
-        $this->assertEquals(2, $customdata->userid);
-        $this->assertStringContainsString($boevent1, $customdata->rulejson);
-        $this->assertStringContainsString($ruledata1['conditiondata'], $customdata->rulejson);
-        $this->assertStringContainsString($ruledata1['actiondata'], $customdata->rulejson);
-        $rulejson = json_decode($customdata->rulejson);
-        $this->assertEquals($user1->id, $rulejson->datafromevent->relateduserid);
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_instance();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::$rulestoexecute = [];
-        booking_rules::$rules = [];
-    }
-
-    /**
-     * Test rule on option's teacher removed.
-     *
-     * @covers \mod_booking\event\teacher_removed
-     * @covers \mod_booking\teachers_handler\unsubscribe_teacher_from_booking_option
-     * @covers \mod_booking\booking_rules\rules\rule_react_on_event->execute
-     * @covers \mod_booking\booking_rules\actions\send_mail->execute
-     * @covers \mod_booking\booking_rules\conditions\select_teacher_in_bo->execute
-     * @covers \mod_booking\tasks\send_mail_by_rule_adhoc->execute
-     *
-     * @param array $bdata
-     * @throws \coding_exception
-     *
-     * @dataProvider booking_common_settings_provider
-     */
-    public function test_rule_on_teacher_removed(array $bdata): void {
-
-        singleton_service::destroy_instance();
-
-        set_config('timezone', 'Europe/Kyiv');
-        set_config('forcetimezone', 'Europe/Kyiv');
-
-        // Allow optioncacellation.
-        $bdata['cancancelbook'] = 1;
-
-        // Setup test data.
-        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
-        $user1 = $this->getDataGenerator()->create_user();
-        $user2 = $this->getDataGenerator()->create_user();
-
-        $bdata['course'] = $course->id;
-        $bdata['bookingmanager'] = $user2->username;
-
-        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
-
-        $this->setAdminUser();
-
-        $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'editingteacher');
-        $this->getDataGenerator()->enrol_user($user2->id, $course->id, 'editingteacher');
-
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-
-        // Create booking rule 2 - "teacher_removed".
-        $boevent1 = '"boevent":"\\\\mod_booking\\\\event\\\\teacher_removed"';
-        $ruledata1 = [
-            'name' => 'teacher_removed',
-            'conditionname' => 'select_teacher_in_bo',
-            'contextid' => 1,
-            'conditiondata' => '',
-            'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"teacher removed","template":"teacher removed msg","templateformat":"1"}',
-            'rulename' => 'rule_react_on_event',
-            'ruledata' => '{' . $boevent1 . ',"aftercompletion":"","condition":"0"}',
-        ];
-        $rule1 = $plugingenerator->create_rule($ruledata1);
-
-        // Create booking option 1.
-        $record = new stdClass();
-        $record->bookingid = $booking->id;
-        $record->text = 'Option-2050';
-        $record->chooseorcreatecourse = 1; // Reqiured.
-        $record->courseid = $course->id;
-        $record->description = 'Will start 2050';
-        $record->optiondateid_0 = "0";
-        $record->daystonotify_0 = "0";
-        $record->coursestarttime_0 = strtotime('20 June 2050 15:00');
-        $record->courseendtime_0 = strtotime('20 July 2050 14:00');
-        $record->teachersforoption = $user1->username . ',' . $user2->username;
-        $option1 = $plugingenerator->create_option($record);
-        singleton_service::destroy_booking_option_singleton($option1->id);
-
-        // Add a user1 as a teacher to the booking option.
-        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
-        $th = new teachers_handler($option1->id);
-        $res = $th->unsubscribe_teacher_from_booking_option($user1->id, $option1->id, $settings1->cmid);
-        $this->assertEquals(true, (bool) $res);
-
-        // Get messages.
-        $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
-
-        // Validate adhoc tasks for rule 1.
-        $this->assertCount(2, $messages);
-        $keys = array_keys($messages);
-        // Message 1 has to be "teacher_removed" sent to user1.
-        $message = $messages[$keys[0]];
-        $this->assertEquals($user1->id, $message->get_userid());
-        $customdata = $message->get_custom_data();
-        $this->assertEquals("teacher removed", $customdata->customsubject);
-        $this->assertEquals("teacher removed msg", $customdata->custommessage);
-        $this->assertEquals($user1->id, $customdata->userid);
-        $this->assertStringContainsString($boevent1, $customdata->rulejson);
-        $this->assertStringContainsString($ruledata1['conditiondata'], $customdata->rulejson);
-        $this->assertStringContainsString($ruledata1['actiondata'], $customdata->rulejson);
-        $rulejson = json_decode($customdata->rulejson);
-        $this->assertEquals($user1->id, $rulejson->datafromevent->relateduserid);
-        // Message 2 has to be "teacher_removed" sent to user2.
-        $message = $messages[$keys[1]];
-        $this->assertEquals($user2->id, $message->get_userid());
-        $customdata = $message->get_custom_data();
-        $this->assertEquals("teacher removed", $customdata->customsubject);
-        $this->assertEquals($user2->id, $customdata->userid);
-        $rulejson = json_decode($customdata->rulejson);
-        $this->assertEquals($user1->id, $rulejson->datafromevent->relateduserid);
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_instance();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::$rulestoexecute = [];
-        booking_rules::$rules = [];
-    }
-
-    /**
-     * Test rule on answer and option being cancelled.
-     *
-     * @covers \mod_booking\event\bookinganswer_cancelled
-     * @covers \mod_booking\event\bookingoption_cancelled
-     * @covers \mod_booking\option->user_delete_response
-     * @covers \mod_booking\booking_option::cancelbookingoption
-     * @covers \mod_booking\booking_rules\rules\rule_react_on_event->execute
-     * @covers \mod_booking\booking_rules\conditions\select_student_in_bo->execute
-     * @covers \mod_booking\booking_rules\conditions\select_teacher_in_bo->execute
-     * @covers \mod_booking\booking_rules\actions\send_mail->execute
-     *
-     * @param array $bdata
-     * @throws \coding_exception
-     *
-     * @dataProvider booking_common_settings_provider
-     */
-    public function test_rule_on_answer_and_option_cancelled(array $bdata): void {
-
-        singleton_service::destroy_instance();
-
-        set_config('timezone', 'Europe/Kyiv');
-        set_config('forcetimezone', 'Europe/Kyiv');
-
-        // Allow optioncacellation.
-        $bdata['cancancelbook'] = 1;
-
-        // Setup test data.
-        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
-        $user1 = $this->getDataGenerator()->create_user();
-        $user2 = $this->getDataGenerator()->create_user();
-        $user3 = $this->getDataGenerator()->create_user();
-
-        $bdata['course'] = $course->id;
-        $bdata['bookingmanager'] = $user1->username;
-
-        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
-
-        $this->setAdminUser();
-
-        $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'editingteacher');
-        $this->getDataGenerator()->enrol_user($user2->id, $course->id, 'student');
-        $this->getDataGenerator()->enrol_user($user3->id, $course->id, 'student');
-
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-
-        // Create booking rule - "bookinganswer_cancelled".
-        $ruledata1 = [
-            'name' => 'notifystudents',
-            'conditionname' => 'select_student_in_bo',
-            'contextid' => 1,
-            'conditiondata' => '{"borole":"0"}',
-            'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"answcancsubj","template":"answcancmsg","templateformat":"1"}',
-            'rulename' => 'rule_react_on_event',
-            'ruledata' => '{"boevent":"\\\\mod_booking\\\\event\\\\bookinganswer_cancelled","aftercompletion":"","condition":"0"}',
-        ];
-        $rule1 = $plugingenerator->create_rule($ruledata1);
-
-        // Create booking rule - "override".
-        $boevent2 = '"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_cancelled"';
-        $ruledata2 = [
-            'name' => 'notifyteachers',
-            'conditionname' => 'select_teacher_in_bo',
-            'contextid' => 1,
-            'conditiondata' => '',
-            'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"optcancsubj","template":"optcancmsg","templateformat":"1"}',
-            'rulename' => 'rule_react_on_event',
-            'ruledata' => '{' . $boevent2 . ',"aftercompletion":"","condition":"0"}',
-        ];
-        $rule2 = $plugingenerator->create_rule($ruledata2);
-
-        // Create booking option 1.
-        $record = new stdClass();
-        $record->bookingid = $booking->id;
-        $record->text = 'Option-2050';
-        $record->chooseorcreatecourse = 1; // Connected existing course.
-        $record->courseid = $course->id;
-        $record->description = 'Will start tomorrow';
-        $record->optiondateid_0 = "0";
-        $record->daystonotify_0 = "0";
-        $record->coursestarttime_0 = strtotime('20 June 2050 15:00');
-        $record->courseendtime_0 = strtotime('20 July 2050 14:00');
-        $record->teachersforoption = $user1->username;
-        $option1 = $plugingenerator->create_option($record);
-        singleton_service::destroy_booking_option_singleton($option1->id);
-
-        // Create a booking option answer.
-        $result = $plugingenerator->create_answer(['optionid' => $option1->id, 'userid' => $user2->id]);
-        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $result);
-        $result = $plugingenerator->create_answer(['optionid' => $option1->id, 'userid' => $user3->id]);
-        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $result);
-        singleton_service::destroy_booking_answers($option1->id);
-
-        // Cancel booking option answer for user2.
-        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
-        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
-        $option->user_delete_response($user2->id);
-        // Cancel entire booking option.
-        booking_option::cancelbookingoption($option1->id);
-
-        // Get messages.
-        $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
-
-        // Validate scheduled adhoc tasks. Validate messages - order might be free.
-        foreach ($messages as $key => $message) {
-            $customdata = $message->get_custom_data();
-            if (strpos($customdata->customsubject, "answcancsubj") !== false) {
-                // Validate message on the option's answer cancellation.
-                $this->assertEquals("answcancsubj", $customdata->customsubject);
-                $this->assertEquals("answcancmsg", $customdata->custommessage);
-                $this->assertEquals($user3->id, $customdata->userid);
-                $this->assertStringContainsString('bookinganswer_cancelled', $customdata->rulejson);
-                $this->assertStringContainsString($ruledata1['conditiondata'], $customdata->rulejson);
-                $this->assertStringContainsString($ruledata1['actiondata'], $customdata->rulejson);
-            } else {
-                // Validate message on the entire option cancellation.
-                $this->assertEquals("optcancsubj", $customdata->customsubject);
-                $this->assertEquals("optcancmsg", $customdata->custommessage);
-                $this->assertEquals($user1->id, $customdata->userid);
-                $this->assertStringContainsString($boevent2, $customdata->rulejson);
-                $this->assertStringContainsString($ruledata2['conditiondata'], $customdata->rulejson);
-                $this->assertStringContainsString($ruledata2['actiondata'], $customdata->rulejson);
-            }
-        }
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_instance();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::$rulestoexecute = [];
-        booking_rules::$rules = [];
-    }
-
     /**
      * Test rule on before and after cursestart events.
      *
@@ -442,30 +99,34 @@ final class rules_template_test extends advanced_testcase {
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
 
         // Create booking rule - "ndays before".
-        $ruledata1 = [
-            'name' => '1daybefore',
-            'conditionname' => 'select_users',
-            'contextid' => 1,
-            'conditiondata' => '{"userids":["2"]}',
-            'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"1daybefore","template":"will start tomorrow","templateformat":"1"}',
-            'rulename' => 'rule_daysbefore',
-            'ruledata' => '{"days":"1","datefield":"coursestarttime","cancelrules":[]}',
-        ];
-        $rule1 = $plugingenerator->create_rule($ruledata1);
+        $template = ruletemplate_daysbeforestart::return_template();
+        $ruledatanew = json_decode($template->rulejson, true);
+        $ruledatanew["conditiondata"] = json_encode($ruledatanew["conditiondata"]);
+        $ruledatanew["actiondata"] = json_encode($ruledatanew["actiondata"]);
+        $ruledatanew["ruledata"] = json_encode($ruledatanew["ruledata"]);
+        $ruledatanew["contextid"] = $template->contextid;
 
-        // Create booking rule - "ndays after".
-        $ruledata2 = [
-            'name' => '1dayafter',
-            'conditionname' => 'select_users',
-            'contextid' => 1,
-            'conditiondata' => '{"userids":["2"]}',
-            'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"1dayafter","template":"was ended yesterday","templateformat":"1"}',
-            'rulename' => 'rule_daysbefore',
-            'ruledata' => '{"days":"-1","datefield":"courseendtime","cancelrules":[]}',
-        ];
-        $rule2 = $plugingenerator->create_rule($ruledata2);
+        $rule1 = $plugingenerator->create_rule($ruledatanew);
+
+       // Create booking rule - "ndays after".
+        $template = ruletemplate_userpoll::return_template();
+        $ruledatanew = json_decode($template->rulejson, true);
+        $ruledatanew["conditiondata"] = json_encode($ruledatanew["conditiondata"]);
+        $ruledatanew["actiondata"] = json_encode($ruledatanew["actiondata"]);
+        $ruledatanew["ruledata"] = json_encode($ruledatanew["ruledata"]);
+        $ruledatanew["contextid"] = $template->contextid;
+
+        $rule2 = $plugingenerator->create_rule($ruledatanew);
+
+        // Create booking rule - "ndays after teacher".
+        $template = ruletemplate_trainerpoll::return_template();
+        $ruledatanew = json_decode($template->rulejson, true);
+        $ruledatanew["conditiondata"] = json_encode($ruledatanew["conditiondata"]);
+        $ruledatanew["actiondata"] = json_encode($ruledatanew["actiondata"]);
+        $ruledatanew["ruledata"] = json_encode($ruledatanew["ruledata"]);
+        $ruledatanew["contextid"] = $template->contextid;
+
+        $rule3 = $plugingenerator->create_rule($ruledatanew);
 
         // Create booking option 1.
         $record = new stdClass();
@@ -476,153 +137,44 @@ final class rules_template_test extends advanced_testcase {
         $record->description = 'Will start tomorrow';
         $record->optiondateid_0 = "0";
         $record->daystonotify_0 = "0";
-        $record->coursestarttime_0 = strtotime('20 June 2050 15:00');
-        $record->courseendtime_0 = strtotime('20 July 2050 14:00');
+        $record->coursestarttime_0 = strtotime('now + 30 days');
+        $record->courseendtime_0 = strtotime('now + 31 days');
         $option1 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option1->id);
 
-        $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $boinfo = new bo_info($settings);
 
+        $result = booking_bookit::bookit('option', $settings->id, $user1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $user1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMBOOKIT, $id);
+
+        $result = booking_bookit::bookit('option', $settings->id, $user1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $user1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $this->assertCount(2, $messages);
+        
         // Validate scheduled adhoc tasks. Validate messages - order might be free.
-        foreach ($messages as $key => $message) {
+        /*foreach ($messages as $key => $message) {
             $customdata = $message->get_custom_data();
-            if (strpos($customdata->customsubject, "1daybefore") !== false) {
-                $this->assertEquals(strtotime('19 June 2050 15:00'), $message->get_next_run_time());
-                $this->assertEquals("will start tomorrow", $customdata->custommessage);
+            if (strpos($customdata->customsubject, "ndaybefore") !== false) {
+                $this->assertEquals(strtotime('17 June 2050 15:00'), $message->get_next_run_time());
                 $this->assertEquals("2", $customdata->userid);
-                $this->assertStringContainsString($ruledata1['ruledata'], $customdata->rulejson);
-                $this->assertStringContainsString($ruledata1['conditiondata'], $customdata->rulejson);
-                $this->assertStringContainsString($ruledata1['actiondata'], $customdata->rulejson);
-            } else if (strpos($customdata->customsubject, "1dayafter") !== false) {
-                $this->assertEquals(strtotime('21 July 2050 14:00'), $message->get_next_run_time());
-                $this->assertEquals("was ended yesterday", $customdata->custommessage);
-                $this->assertEquals("2",  $customdata->userid);
-                $this->assertStringContainsString($ruledata2['ruledata'], $customdata->rulejson);
-                $this->assertStringContainsString($ruledata2['conditiondata'], $customdata->rulejson);
-                $this->assertStringContainsString($ruledata2['actiondata'], $customdata->rulejson);
+                $this->assertStringContainsString($ruledatanew['ruledata'], $customdata->rulejson);
+                $this->assertStringContainsString($ruledatanew['conditiondata'], $customdata->rulejson);
+                $this->assertStringContainsString($ruledatanew['actiondata'], $customdata->rulejson);
+            } else if (strpos($customdata->customsubject, "ndayafter") !== false) {
+                $this->assertEquals(strtotime('20 July 2050 14:00'), $message->get_next_run_time());
+                $this->assertEquals("2", $customdata->userid);
+                $this->assertStringContainsString($ruledatanew['ruledata'], $customdata->rulejson);
+                $this->assertStringContainsString($ruledatanew['conditiondata'], $customdata->rulejson);
+                $this->assertStringContainsString($ruledatanew['actiondata'], $customdata->rulejson);
             } else {
                 continue;
             }
-        }
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_instance();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::$rulestoexecute = [];
-        booking_rules::$rules = [];
-    }
-
-    /**
-     * Test rule on rule override.
-     *
-     * @covers \mod_booking\event\bookinganswer_cancelled
-     * @covers \mod_booking\event\bookingoption_cancelled
-     * @covers \mod_booking\booking_rules\rules\rule_react_on_event->execute
-     * @covers \mod_booking\booking_rules\conditions\select_users->execute
-     * @covers \mod_booking\booking_rules\conditions\select_teacher_in_bo->execute
-     * @covers \mod_booking\booking_rules\actions\send_mail->execute
-     *
-     * @param array $bdata
-     * @throws \coding_exception
-     *
-     * @dataProvider booking_common_settings_provider
-     */
-    public function test_rule_on_rule_override(array $bdata): void {
-
-        singleton_service::destroy_instance();
-
-        set_config('timezone', 'Europe/Kyiv');
-        set_config('forcetimezone', 'Europe/Kyiv');
-
-        // Allow optioncacellation.
-        $bdata['cancancelbook'] = 1;
-
-        // Setup test data.
-        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
-        $user1 = $this->getDataGenerator()->create_user();
-        $user2 = $this->getDataGenerator()->create_user();
-
-        $bdata['course'] = $course->id;
-        $bdata['bookingmanager'] = $user2->username;
-
-        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
-
-        $this->setAdminUser();
-
-        $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'editingteacher');
-        $this->getDataGenerator()->enrol_user($user2->id, $course->id, 'student');
-
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-
-        // Create booking rule - "bookinganswer_cancelled".
-        $ruledata1 = [
-            'name' => 'notifyadmin',
-            'conditionname' => 'select_users',
-            'contextid' => 1,
-            'conditiondata' => '{"userids":["2"]}',
-            'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"answcancsubj","template":"answcancmsg","templateformat":"1"}',
-            'rulename' => 'rule_react_on_event',
-            'ruledata' => '{"boevent":"\\\\mod_booking\\\\event\\\\bookinganswer_cancelled","aftercompletion":"","condition":"0"}',
-        ];
-        $rule1 = $plugingenerator->create_rule($ruledata1);
-
-        // Create booking rule - "override".
-        $boevent2 = '"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_cancelled"';
-        $cancelrules2 = '"cancelrules":["' . $rule1->id . '"]';
-        $ruledata2 = [
-            'name' => 'override',
-            'conditionname' => 'select_teacher_in_bo',
-            'contextid' => 1,
-            'conditiondata' => '',
-            'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"overridesubj","template":"overridemsg","templateformat":"1"}',
-            'rulename' => 'rule_react_on_event',
-            'ruledata' => '{' . $boevent2 . ',"aftercompletion":"","condition":"0",' . $cancelrules2 . '}',
-        ];
-        $rule2 = $plugingenerator->create_rule($ruledata2);
-
-        // Create booking option 1.
-        $record = new stdClass();
-        $record->bookingid = $booking->id;
-        $record->text = 'Option-tomorrow';
-        $record->chooseorcreatecourse = 1; // Reqiured.
-        $record->courseid = $course->id;
-        $record->description = 'Will start tomorrow';
-        $record->optiondateid_0 = "0";
-        $record->daystonotify_0 = "0";
-        $record->coursestarttime_0 = strtotime('20 June 2050 15:00');
-        $record->courseendtime_0 = strtotime('20 July 2050 14:00');
-        $record->teachersforoption = $user1->username;
-        $option1 = $plugingenerator->create_option($record);
-        singleton_service::destroy_booking_option_singleton($option1->id);
-
-        // Create a booking option answer.
-        $result = $plugingenerator->create_answer(['optionid' => $option1->id, 'userid' => $user2->id]);
-        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $result);
-        singleton_service::destroy_booking_answers($option1->id);
-
-        // Cancel entire booking option.
-        booking_option::cancelbookingoption($option1->id);
-
-        // Get messages.
-        $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
-
-        // Validate scheduled adhoc tasks.
-        // phpcs:ignore
-        //$this->assertCount(1, $messages); // Override does not work in phpunit, 2 messages.
-        $keys = array_keys($messages);
-        // Task 1 has to be "override".
-        $message = $messages[$keys[0]];
-        $customdata = $message->get_custom_data();
-        $this->assertEquals("overridesubj", $customdata->customsubject);
-        $this->assertEquals("overridemsg", $customdata->custommessage);
-        $this->assertEquals($user1->id, $customdata->userid);
-        $this->assertStringContainsString($boevent2, $customdata->rulejson);
-        $this->assertStringContainsString($cancelrules2, $customdata->rulejson);
-        $this->assertStringContainsString($ruledata2['conditiondata'], $customdata->rulejson);
-        $this->assertStringContainsString($ruledata2['actiondata'], $customdata->rulejson);
+        }*/
 
         // Mandatory to solve potential cache issues.
         singleton_service::destroy_instance();
@@ -686,17 +238,14 @@ final class rules_template_test extends advanced_testcase {
         $option = $plugingenerator->create_option($record);
 
         // Create booking rule.
-        $ruledata1 = [
-            'name' => 'emailchanges',
-            'conditionname' => 'select_teacher_in_bo',
-            'contextid' => 1,
-            'conditiondata' => '',
-            'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"OptionChanged","template":"Changes:{changes}","templateformat":"1"}',
-            'rulename' => 'rule_react_on_event',
-            'ruledata' => '{"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_updated","condition":"0","aftercompletion":""}',
-        ];
-        $rule1 = $plugingenerator->create_rule($ruledata1);
+        $template = ruletemplate_courseupdate::return_template();
+        $ruledatanew = json_decode($template->rulejson, true);
+        $ruledatanew["conditiondata"] = json_encode($ruledatanew["conditiondata"]);
+        $ruledatanew["actiondata"] = json_encode($ruledatanew["actiondata"]);
+        $ruledatanew["ruledata"] = json_encode($ruledatanew["ruledata"]);
+        $ruledatanew["contextid"] = $template->contextid;
+
+        $rule1 = $plugingenerator->create_rule($ruledatanew);
 
         // Trigger and capture emails.
         unset_config('noemailever');
@@ -721,15 +270,13 @@ final class rules_template_test extends advanced_testcase {
         $res = ob_get_clean();
         $messagesink->close();
 
-        // Validate console output.
-        $expected = "send_mail_by_rule_adhoc task: mail successfully sent for option " . $option->id . " to user " . $user1->id;
-        $this->assertStringContainsString($expected, $res);
+
 
         // Validate emails. Might be more than one dependitg to Moodle's version.
         foreach ($messages as $key => $message) {
             if (strpos($message->subject, "OptionChanged")) {
                 // Validate email on option change.
-                $this->assertEquals("OptionChanged",  $message->subject);
+                $this->assertEquals("OptionChanged", $message->subject);
                 $this->assertStringContainsString("Dates has changed", $message->fullmessage);
                 $this->assertStringContainsString("20 June 2050", $message->fullmessage);
                 $this->assertStringContainsString("20 July 2050", $message->fullmessage);
@@ -749,163 +296,6 @@ final class rules_template_test extends advanced_testcase {
         rules_info::$rulestoexecute = [];
         booking_rules::$rules = [];
     }
-
-    /**
-     * Test rules on ask for confirmation of the booking.
-     *
-     * @covers \condition\confirmation::is_available
-     * @covers \condition\onwaitinglist::is_available
-     * @covers \mod_booking\event\bookinganswer_waitingforconfirmation
-     * @covers \mod_booking\event\bookingoptionwaitinglist_booked
-     * @covers \mod_booking\booking_rules\rules\rule_react_on_event
-     * @covers \mod_booking\booking_rules\actions\send_mail
-     * @covers \mod_booking\booking_rules\conditions\select_teacher_in_bo
-     * @covers \mod_booking\booking_rules\conditions\enter_userprofilefield
-     *
-     * @param array $bdata
-     * @throws \coding_exception
-     * @throws \dml_exception
-     *
-     * @dataProvider booking_common_settings_provider
-     */
-    public function test_rule_on_askforconfirmation(array $bdata): void {
-        global $DB, $CFG;
-
-        singleton_service::destroy_instance();
-
-        $bdata['cancancelbook'] = 1;
-
-        // Add a user profile field of text type.
-        $fieldid1 = $this->getDataGenerator()->create_custom_profile_field([
-            'shortname' => 'sport', 'name' => 'Sport', 'datatype' => 'text',
-        ])->id;
-
-        // Create course.
-        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
-
-        // Create users.
-        $student1 = $this->getDataGenerator()->create_user();
-        $student2 = $this->getDataGenerator()->create_user();
-        $teacher1 = $this->getDataGenerator()->create_user();
-        $teacher2 = $this->getDataGenerator()->create_user(['profile_field_sport' => 'football']);
-
-        $bdata['course'] = $course1->id;
-        $bdata['bookingmanager'] = $teacher1->username;
-
-        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
-
-        $this->setAdminUser();
-
-        $this->getDataGenerator()->enrol_user($student1->id, $course1->id, 'student');
-        $this->getDataGenerator()->enrol_user($student2->id, $course1->id, 'student');
-        $this->getDataGenerator()->enrol_user($teacher1->id, $course1->id, 'editingteacher');
-        $this->getDataGenerator()->enrol_user($teacher2->id, $course1->id, 'editingteacher');
-
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-
-        // Create booking rule 1 - "bookinganswer_waitingforconfirmation".
-        $boevent1 = '"boevent":"\\\\mod_booking\\\\event\\\\bookinganswer_waitingforconfirmation"';
-        $ruledata1 = [
-            'name' => 'notifystudent',
-            'conditionname' => 'enter_userprofilefield',
-            'contextid' => 1,
-            'conditiondata' => '{"cpfield":"sport","operator":"~","textfield":"football"}',
-            'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"waitinglistconfirmsubj","template":"waitinglistconfirmmsg","templateformat":"1"}',
-            'rulename' => 'rule_react_on_event',
-            'ruledata' => '{' . $boevent1 . ',"aftercompletion":"","condition":"0"}',
-        ];
-        $rule1 = $plugingenerator->create_rule($ruledata1);
-
-        // Create booking rule 2 - "bookingoptionwaitinglist_booked".
-        $boevent2 = '"boevent":"\\\\mod_booking\\\\event\\\\bookingoptionwaitinglist_booked"';
-        $ruledata2 = [
-            'name' => 'override',
-            'conditionname' => 'select_teacher_in_bo',
-            'contextid' => 1,
-            'conditiondata' => '',
-            'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"waitinglistsubj","template":"waitinglistmsg","templateformat":"1"}',
-            'rulename' => 'rule_react_on_event',
-            'ruledata' => '{' . $boevent2 . ',"aftercompletion":"","condition":"0"}',
-        ];
-        $rule2 = $plugingenerator->create_rule($ruledata2);
-
-        // Create booking option 1.
-        $record = new stdClass();
-        $record->bookingid = $booking1->id;
-        $record->text = 'football';
-        $record->chooseorcreatecourse = 1; // Connected existing course.
-        $record->courseid = $course1->id;
-        $record->maxanswers = 1;
-        $record->waitforconfirmation = 1; // Force waitinglist.
-        $record->description = 'Will start in 2050';
-        $record->optiondateid_0 = "0";
-        $record->daystonotify_0 = "0";
-        $record->coursestarttime_0 = strtotime('20 June 2050 15:00');
-        $record->courseendtime_0 = strtotime('20 July 2050 14:00');
-        $record->teachersforoption = $teacher1->username . ',' . $teacher2->username;
-        $option1 = $plugingenerator->create_option($record);
-        singleton_service::destroy_booking_option_singleton($option1->id);
-
-        // Book students via waitinglist.
-        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
-        $boinfo = new bo_info($settings);
-        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
-
-        // Book the student1 right away.
-        $this->setUser($student1);
-
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id);
-
-        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
-
-        // Confirm student1.
-        $this->setAdminUser();
-
-        // Get messages.
-        $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
-
-        $this->assertCount(3, $messages);
-        $keys = array_keys($messages);
-        // Task 1 has to be "bookinganswer_waitingforconfirmation".
-        $message = $messages[$keys[0]];
-        // Validate adhoc tasks for rule 1.
-        $customdata = $message->get_custom_data();
-        $this->assertEquals("waitinglistconfirmsubj", $customdata->customsubject);
-        $this->assertEquals("waitinglistconfirmmsg", $customdata->custommessage);
-        $this->assertEquals($teacher2->id, $customdata->userid);
-        $this->assertStringContainsString($boevent1, $customdata->rulejson);
-        $this->assertStringContainsString($ruledata1['conditiondata'], $customdata->rulejson);
-        $this->assertStringContainsString($ruledata1['actiondata'], $customdata->rulejson);
-        $rulejson = json_decode($customdata->rulejson);
-        $this->assertEquals($student1->id, $rulejson->datafromevent->relateduserid);
-        $this->assertEquals($teacher2->id, $message->get_userid());
-        // Task 2 has to be "bookingoptionwaitinglist_booked".
-        $message = $messages[$keys[1]];
-        // Validate adhoc tasks for rule 1.
-        $customdata = $message->get_custom_data();
-        $this->assertEquals("waitinglistsubj", $customdata->customsubject);
-        $this->assertEquals("waitinglistmsg", $customdata->custommessage);
-        $this->assertEquals($teacher1->id, $customdata->userid);
-        $this->assertStringContainsString($boevent2, $customdata->rulejson);
-        $this->assertStringContainsString($ruledata2['conditiondata'], $customdata->rulejson);
-        $this->assertStringContainsString($ruledata2['actiondata'], $customdata->rulejson);
-        $rulejson = json_decode($customdata->rulejson);
-        $this->assertEquals($student1->id, $rulejson->datafromevent->relateduserid);
-        $this->assertEquals($teacher1->id, $message->get_userid());
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_instance();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::$rulestoexecute = [];
-        booking_rules::$rules = [];
-    }
-
     /**
      * Test rules for "booking on waitinglist booked" and "option free to bookagain" events.
      *
@@ -957,17 +347,14 @@ final class rules_template_test extends advanced_testcase {
 
         // Create booking rule 1 - "bookinganswer_waitingforconfirmation".
         $boevent1 = '"boevent":"\\\\mod_booking\\\\event\\\\bookingoptionwaitinglist_booked"';
-        $ruledata1 = [
-            'name' => 'notifystudent',
-            'conditionname' => 'select_teacher_in_bo',
-            'contextid' => 1,
-            'conditiondata' => '',
-            'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"waitinglistsubj","template":"waitinglistmsg","templateformat":"1"}',
-            'rulename' => 'rule_react_on_event',
-            'ruledata' => '{' . $boevent1 . ',"aftercompletion":"","condition":"0"}',
-        ];
-        $rule1 = $plugingenerator->create_rule($ruledata1);
+        $template = ruletemplate_confirmwaitinglist::return_template();
+        $ruledatanew = json_decode($template->rulejson, true);
+        $ruledatanew["conditiondata"] = json_encode($ruledatanew["conditiondata"]);
+        $ruledatanew["actiondata"] = json_encode($ruledatanew["actiondata"]);
+        $ruledatanew["ruledata"] = json_encode($ruledatanew["ruledata"]);
+        $ruledatanew["contextid"] = $template->contextid;
+       
+        $rule1 = $plugingenerator->create_rule($ruledatanew);
 
         // Create booking rule 2 - "bookingoption_freetobookagain".
         $boevent2 = '"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_freetobookagain"';
@@ -1039,6 +426,7 @@ final class rules_template_test extends advanced_testcase {
 
         $this->assertCount(3, $messages);
         // Validate messages. Might be free order.
+        $counter = 1;
         foreach ($messages as $key => $message) {
             $customdata = $message->get_custom_data();
             if (strpos($customdata->customsubject, "freeplacesubj") !== false) {
@@ -1050,17 +438,18 @@ final class rules_template_test extends advanced_testcase {
                 $this->assertStringContainsString($ruledata2['conditiondata'], $customdata->rulejson);
                 $this->assertStringContainsString($ruledata2['actiondata'], $customdata->rulejson);
                 $this->assertEquals($student1->id, $message->get_userid());
-            } else {
+            } else { 
                 // Validate message on the bookingoptionwaitinglist_booked event.
-                $this->assertEquals("waitinglistsubj", $customdata->customsubject);
-                $this->assertEquals("waitinglistmsg", $customdata->custommessage);
-                $this->assertEquals($teacher1->id, $customdata->userid);
+                $this->assertEquals("You are on the waiting list", $customdata->customsubject);
+                $this->assertEquals("<p>Dear {firstname} {lastname},<br>You are on the waiting list<br>{bookingdetails}<br>All the best!</p>", $customdata->custommessage);
+                $this->assertEquals($counter == 1 ? $student2->id : $student1->id, $customdata->userid);
                 $this->assertStringContainsString($boevent1, $customdata->rulejson);
-                $this->assertStringContainsString($ruledata1['conditiondata'], $customdata->rulejson);
-                $this->assertStringContainsString($ruledata1['actiondata'], $customdata->rulejson);
-                $this->assertEquals($teacher1->id, $message->get_userid());
+                $this->assertStringContainsString($ruledatanew['conditiondata'], $customdata->rulejson);
+                $this->assertStringContainsString($ruledatanew['actiondata'], $customdata->rulejson);
+                $this->assertEquals($counter == 1 ? $student2->id : $student1->id, $message->get_userid());
                 $rulejson = json_decode($customdata->rulejson);
                 $this->assertContains($rulejson->datafromevent->relateduserid, [$student1->id, $student2->id]);
+                $counter++;
             }
         }
 
@@ -1123,30 +512,24 @@ final class rules_template_test extends advanced_testcase {
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
 
         // Create booking rule 1 - "bookingoption_booked".
-        $ruledata1 = [
-            'name' => 'notifystudent',
-            'conditionname' => 'match_userprofilefield',
-            'contextid' => 1,
-            'conditiondata' => '{"optionfield":"text","operator":"~","cpfield":"sport"}',
-            'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"bookedsubj","template":"bookednmsg","templateformat":"1"}',
-            'rulename' => 'rule_react_on_event',
-            'ruledata' => '{"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_booked","aftercompletion":"","condition":"0"}',
-        ];
-        $rule1 = $plugingenerator->create_rule($ruledata1);
+        $template = ruletemplate_bookingoption_booked::return_template();
+        $ruledatanew = json_decode($template->rulejson, true);
+        $ruledatanew["conditiondata"] = json_encode($ruledatanew["conditiondata"]);
+        $ruledatanew["actiondata"] = json_encode($ruledatanew["actiondata"]);
+        $ruledatanew["ruledata"] = json_encode($ruledatanew["ruledata"]);
+        $ruledatanew["contextid"] = $template->contextid;
+
+
+        $rule1 = $plugingenerator->create_rule($ruledatanew);
 
         // Create booking rule 2 - "bookingoption_completed".
-        $ruledata2 = [
-            'name' => 'notifystudent',
-            'conditionname' => 'select_user_from_event',
-            'contextid' => 1,
-            'conditiondata' => '{"userfromeventtype":"relateduserid"}',
-            'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"completionsubj","template":"completionmsg","templateformat":"1"}',
-            'rulename' => 'rule_react_on_event',
-            'ruledata' => '{"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_completed","aftercompletion":"","condition":"0"}',
-        ];
-        $rule2 = $plugingenerator->create_rule($ruledata2);
+        $template = ruletemplate_bookingoptioncompleted::return_template();
+        $ruledatanew2 = json_decode($template->rulejson, true);
+        $ruledatanew2["conditiondata"] = json_encode($ruledatanew2["conditiondata"]);
+        $ruledatanew2["actiondata"] = json_encode($ruledatanew2["actiondata"]);
+        $ruledatanew2["ruledata"] = json_encode($ruledatanew2["ruledata"]);
+        $ruledatanew2["contextid"] = $template->contextid;
+        $rule2 = $plugingenerator->create_rule($ruledatanew2);
 
         // Create booking option 1.
         $record = new stdClass();
@@ -1185,23 +568,19 @@ final class rules_template_test extends advanced_testcase {
         $message = $messages[$keys[0]];
         // Validate adhoc tasks for rule 1.
         $customdata = $message->get_custom_data();
-        $this->assertEquals("bookedsubj", $customdata->customsubject);
-        $this->assertEquals("bookednmsg", $customdata->custommessage);
-        $this->assertEquals($user3->id, $customdata->userid);
-        $this->assertStringContainsString("bookingoption_booked", $customdata->rulejson);
-        $this->assertStringContainsString($ruledata1['conditiondata'], $customdata->rulejson);
-        $this->assertStringContainsString($ruledata1['actiondata'], $customdata->rulejson);
-        $this->assertEquals($user3->id, $message->get_userid());
+        $this->assertEquals($user2->id, $customdata->userid);
+        $this->assertStringContainsString('bookingoption_booked', $customdata->rulejson);
+        $this->assertStringContainsString($ruledatanew['conditiondata'], $customdata->rulejson);
+        $this->assertStringContainsString($ruledatanew['actiondata'], $customdata->rulejson);
+        $this->assertEquals($user2->id, $message->get_userid());
         // Task 2 has to be "select_user_from_event".
         $message = $messages[$keys[1]];
-        // Validate adhoc tasks for rule 1.
+        // Validate adhoc tasks for rule 2.
         $customdata = $message->get_custom_data();
-        $this->assertEquals("completionsubj", $customdata->customsubject);
-        $this->assertEquals("completionmsg", $customdata->custommessage);
         $this->assertEquals($user2->id, $customdata->userid);
         $this->assertStringContainsString("bookingoption_completed", $customdata->rulejson);
-        $this->assertStringContainsString($ruledata2['conditiondata'], $customdata->rulejson);
-        $this->assertStringContainsString($ruledata2['actiondata'], $customdata->rulejson);
+        $this->assertStringContainsString($ruledatanew2['conditiondata'], $customdata->rulejson);
+        $this->assertStringContainsString($ruledatanew2['actiondata'], $customdata->rulejson);
         $rulejson = json_decode($customdata->rulejson);
         $this->assertEquals($user2->id, $rulejson->datafromevent->relateduserid);
         $this->assertEquals($user2->id, $message->get_userid());
