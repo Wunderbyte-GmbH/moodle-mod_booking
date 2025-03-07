@@ -440,6 +440,7 @@ Klicken Sie auf den folgenden Link um die Änderung(en) und eine Übersicht übe
 $string['bookingchangedtextsubject'] = 'Änderungsbenachrichtigung für {$a->title}';
 $string['bookingclosingtime'] = 'Buchbar bis';
 $string['bookingcondition'] = "Bedingung";
+$string['bookingconformationlink'] = 'Link zur Buchungsbestätigung';
 $string['bookingcustomfield'] = 'Benutzerdefinierte Felder für Buchungsoptionen';
 $string['bookingdate'] = 'Buchungsdatum';
 $string['bookingdebugmode'] = 'Booking-Debug-Modus';

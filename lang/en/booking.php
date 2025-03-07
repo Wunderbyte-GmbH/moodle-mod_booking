@@ -451,6 +451,7 @@ To view the change(s) and all your booked courses click on the following link: {
 $string['bookingchangedtextsubject'] = 'Change notification for {$a->title}';
 $string['bookingclosingtime'] = 'Bookable until';
 $string['bookingcondition'] = 'Condition';
+$string['bookingconformationlink'] = 'Link to booking receipt';
 $string['bookingcustomfield'] = 'Booking customfields for booking options';
 $string['bookingdate'] = 'Booking date';
 $string['bookingdebugmode'] = 'Booking debug mode';
