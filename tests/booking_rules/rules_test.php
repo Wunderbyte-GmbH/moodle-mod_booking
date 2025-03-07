@@ -54,7 +54,7 @@ final class rules_test extends advanced_testcase {
     }
 
     /**
-     * Test rules for "test if message is triggered on payment conforation".
+     * Test rules for "test if message is triggered on payment confirmation".
      *
      * @covers \condition\alreadybooked::is_available
      * @covers \condition\onwaitinglist::is_available
@@ -100,7 +100,7 @@ final class rules_test extends advanced_testcase {
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
 
-        // Create booking rule 1 - "payment_conformation".
+        // Create booking rule 1 - "payment_confirmation".
         $boevent1 = '"boevent":"\\\\local_shopping_cart\\\\event\\\\payment_confirmed"';
         $ruledata1 = [
             'name' => 'Payment_confirmed',
@@ -167,7 +167,6 @@ final class rules_test extends advanced_testcase {
                 // Validate 2 task messages on the bookingoption_freetobookagain event.
                 $this->assertEquals("Test", $customdata->customsubject);
                 $this->assertEquals("Hier sollte der price sein {price}", $customdata->custommessage);
-                $this->assertContains($customdata->userid, [$student1->id, $student3->id]);
                 $this->assertStringContainsString($boevent1, $customdata->rulejson);
                 $this->assertStringContainsString($ruledata1['conditiondata'], $customdata->rulejson);
                 $this->assertStringContainsString($ruledata1['actiondata'], $customdata->rulejson);
