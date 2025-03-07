@@ -196,6 +196,8 @@ class mobile {
                 )
             ) {
                 $teacher->email = str_replace('@', '&#64;', $teacher->email);
+            } else {
+                $teacher->email = false;
             }
 
             $teachers[] = (array)$teacher;
