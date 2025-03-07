@@ -90,12 +90,16 @@
                          {{> local_wunderbyte_table/component_toggle }}
                          {{> local_wunderbyte_table/component_reload }}
                          {{> local_wunderbyte_table/component_edit }}
-                         {{> local_wunderbyte_table/component_print }}
                     </div>
                     <div class="ml-auto">
                          {{> local_wunderbyte_table/component_sort }}
                          {{> local_wunderbyte_table/component_search }}
                     </div>
+               </div>
+               <div>
+                    {{^showdownloadbuttonatbottom}}
+                    {{> local_wunderbyte_table/component_print }}
+                    {{/showdownloadbuttonatbottom}}
                </div>
           </div>
           <div class="wunderbyte_table_container {{#showfilterontop}}showontop{{/showfilterontop}} {{uniqueid}}">
@@ -116,6 +120,11 @@
                <div class= "wunderbyteTableClass {{uniqueid}}" id='a{{idstring}}'>
                     {{> mod_booking/table_cards }}
                </div>
+               {{#showdownloadbuttonatbottom}}
+               <div class="ml-2">
+                    {{> local_wunderbyte_table/component_print }}
+               </div>
+               {{/showdownloadbuttonatbottom}}
           </div>
      </div>
 {{#js}}
