@@ -237,7 +237,7 @@ class mobile {
             isset($data['courseid']) &&
             (int)$data['courseid'] > 0
         ) {
-            $linktocourse = 'moodlemobile://' . $CFG->wwwroot . '?redirect=/course/view.php?id=' . $data['courseid'];
+            $linktocourse = $CFG->wwwroot . '/course/view.php?id=' . $data['courseid'];
             if (get_config('booking', 'linktomoodlecourseonbookedbutton')) {
                 $data['linktomoodlecourseonbookedbutton'] = $linktocourse;
             } else {
