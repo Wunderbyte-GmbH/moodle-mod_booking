@@ -33,6 +33,7 @@ Feature: Create recurring options as tescher and configuring it.
   @javascript
   Scenario: Booking: add daily recurring options as a teacher and verify as student
     Given I am on the "MyBooking" Activity page logged in as teacher1
+    ## Create recurring options
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I wait until the page is ready
     And I follow "Recurring options"
@@ -42,16 +43,84 @@ Feature: Create recurring options as tescher and configuring it.
       | How often to repeat?             | day |
       | requirepreviousoptionstobebooked | 1   |
     And I press "Save"
-    And I log out
-    And I am on the "MyBooking" Activity page logged in as student1
-    ##And I wait "13" seconds
-    And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I wait until the page is ready
     And I should see "RecurrOpt 1" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "16 March 2045, 3:20 PM" in the ".allbookingoptionstable_r2" "css_element"
-    And I should see "Only users who have previously booked this option are allowed to book." in the ".allbookingoptionstable_r2" "css_element"
     And I should see "RecurrOpt 2" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "17 March 2045, 3:20 PM" in the ".allbookingoptionstable_r3" "css_element"
-    And I should see "Only users who have previously booked this option are allowed to book." in the ".allbookingoptionstable_r3" "css_element"
     And I should see "RecurrOpt 3" in the ".allbookingoptionstable_r4" "css_element"
     And I should see "18 March 2045, 3:20 PM" in the ".allbookingoptionstable_r4" "css_element"
+    ## Update existing recuring options
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until the page is ready
+    And I follow "Recurring options"
+    And I set the following fields to these values:
+      | Booking option name              | RecurrOptUpd |
+      | Repeat this option               | 1    |
+      | How many times to repeat?        | 2    |
+      | How often to repeat?             | Week |
+      | requirepreviousoptionstobebooked | 1    |
+    And I press "Save"
+    And I wait until the page is ready
+    And I set the field "Apply these changes to all the following bookingoption as well?" to "checked"
+    And I press "Save"
+    And I wait until the page is ready
+    And I should see "RecurrOptUpd" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "RecurrOptUpd" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "RecurrOptUpd" in the ".allbookingoptionstable_r4" "css_element"
+    And I should see "RecurrOptUpd" in the ".allbookingoptionstable_r5" "css_element"
+    And I should see "22 March 2045, 3:20 PM" in the ".allbookingoptionstable_r5" "css_element"
+    And I should see "RecurrOptUpd" in the ".allbookingoptionstable_r6" "css_element"
+    ## Because of summmer time: 
+    And I should see "29 March 2045, 4:20 PM" in the ".allbookingoptionstable_r6" "css_element"
+    ## Current bug
+    ##And I should not see "1 January 1970," in the ".allbookingoptionstable_r2" "css_element"
+    ## Update existing recuring options 2nd time
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until the page is ready
+    And I follow "Recurring options"
+    And I set the following fields to these values:
+      | Booking option name              | RecurrOptUpdMonth |
+      | Repeat this option               | 1     |
+      | How many times to repeat?        | 2     |
+      | How often to repeat?             | Month |
+      | requirepreviousoptionstobebooked |       |
+    And I press "Save"
+    And I wait until the page is ready
+    And I set the field "Apply these changes to all the following bookingoption as well?" to ""
+    And I press "Save"
+    And I wait until the page is ready
+    And I should see "RecurrOptUpd" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "RecurrOptUpd" in the ".allbookingoptionstable_r5" "css_element"
+    ## Potential issue - name not updated?
+    And I should see "RecurrOptUpd 1" in the ".allbookingoptionstable_r6" "css_element"
+    And I should see "14 April 2045, 4:20 PM" in the ".allbookingoptionstable_r6" "css_element"
+    And I should see "RecurrOptUpd 2" in the ".allbookingoptionstable_r7" "css_element"
+    And I should see "14 May 2045, 4:20 PM" in the ".allbookingoptionstable_r7" "css_element"
+    And I should see "RecurrOptUpdMonth" in the ".allbookingoptionstable_r8" "css_element"
+    And I should see "15 March 2045, 3:20 PM" in the ".allbookingoptionstable_r8" "css_element"
+    And I log out
+    ## Validate recurring options as student
+    And I am on the "MyBooking" Activity page logged in as student1
+    ##And I wait "13" seconds
+    And I should see "Book now" in the ".allbookingoptionstable_r8 .booknow" "css_element"
+    And I should see "RecurrOptUpd" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "16 March 2045, 3:20 PM" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Only users who have previously booked this option are allowed to book." in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "RecurrOptUpd" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "17 March 2045, 3:20 PM" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "Only users who have previously booked this option are allowed to book." in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "RecurrOptUpd" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "18 March 2045, 3:20 PM" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Only users who have previously booked this option are allowed to book." in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "RecurrOptUpd" in the ".allbookingoptionstable_r4" "css_element"
+    And I should see "22 March 2045, 3:20 PM" in the ".allbookingoptionstable_r4" "css_element"
     And I should see "Only users who have previously booked this option are allowed to book." in the ".allbookingoptionstable_r4" "css_element"
+    And I should see "RecurrOptUpd" in the ".allbookingoptionstable_r5" "css_element"
+    And I should see "29 March 2045, 4:20 PM" in the ".allbookingoptionstable_r5" "css_element"
+    And I should see "Only users who have previously booked this option are allowed to book." in the ".allbookingoptionstable_r5" "css_element"
+    And I should see "RecurrOptUpd 1" in the ".allbookingoptionstable_r6" "css_element"
+    And I should see "14 April 2045, 4:20 PM" in the ".allbookingoptionstable_r6" "css_element"
+    And I should see "RecurrOptUpd 2" in the ".allbookingoptionstable_r7" "css_element"
+    And I should see "14 May 2045, 4:20 PM" in the ".allbookingoptionstable_r7" "css_element"
+    And I should see "RecurrOptUpdMonth" in the ".allbookingoptionstable_r8" "css_element"
