@@ -213,13 +213,54 @@ class bookingoptions_wbtable extends wunderbyte_table {
             return '';
         }
 
-        // Render col_price using a template.
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
 
         $buyforuser = price::return_user_to_buy_for();
 
         return booking_bookit::render_bookit_button($settings, $buyforuser->id);
     }
+
+    /**
+     * [Description for col_price]
+     *
+     * @param object $values
+     *
+     * @return string
+     *
+     */
+    public function col_price($values) {
+        if (!$this->is_downloading()) {
+            return '';
+        }
+
+        $prices = price::get_prices_from_cache_or_db('option', $values->id);
+        if (empty($prices)) {
+            return '';
+        }
+        $formattedprices = array_map(fn($a) => $a->name . ': ' . $a->price . ' ' . $a->currency . ' ', $prices);
+
+        return implode(PHP_EOL, $formattedprices);
+    }
+
+    /**
+     * [Description for col_status]
+     *
+     * @param object $values
+     *
+     * @return string
+     *
+     */
+    public function col_invisible($values){
+        if (!$this->is_downloading()) {
+            return '';
+        }
+
+
+           return "asdf";
+    }
+
+    // TODO col_status.
+
 
     /**
      * This function is called for each data row to allow processing of the
