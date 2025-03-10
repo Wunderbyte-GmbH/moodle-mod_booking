@@ -29,7 +29,6 @@ use Throwable;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class booking_context_helper {
-
     /**
      * Helper function to fix $PAGE->context problems in booking,
      * e.g. with shortcodes.
@@ -39,12 +38,11 @@ class booking_context_helper {
      */
     public static function fix_booking_page_context(moodle_page &$page, int $cmid) {
         global $PAGE;
-        
+
         // With shortcodes & webservice we might not have a valid context object.
         if (empty($PAGE->url)) {
             $PAGE->set_url('/');
         }
-
 
         try {
             if (!$context = $page->context ?? null) {
@@ -56,5 +54,4 @@ class booking_context_helper {
             $page->set_context(context_module::instance($cmid));
         }
     }
-
 }

@@ -234,7 +234,7 @@ class rules_info {
         }
 
         if ($data->id < 0) {
-            // We get the value von den predefined templates.
+            // We get the value from the predefined templates.
 
             $record = templaterule::get_template_record_by_id($data->id);
 
