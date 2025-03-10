@@ -221,12 +221,11 @@ class bookingoptions_wbtable extends wunderbyte_table {
     }
 
     /**
-     * [Description for col_price]
+     * This function is called for each data row to allow processing of the
+     * price value.
      *
      * @param object $values
-     *
      * @return string
-     *
      */
     public function col_price($values) {
         if (!$this->is_downloading()) {
@@ -243,24 +242,29 @@ class bookingoptions_wbtable extends wunderbyte_table {
     }
 
     /**
-     * [Description for col_status]
+     * This function is called for each data row to allow processing of the
+     * invisible value.
      *
      * @param object $values
-     *
      * @return string
-     *
      */
-    public function col_invisible($values){
+    public function col_invisible($values) {
         if (!$this->is_downloading()) {
             return '';
         }
-
-
-           return "asdf";
+        switch ($values->invisible) {
+            case '0':
+                $status = get_string('optionvisible', 'mod_booking');
+                break;
+            case '1':
+                $status = get_string('optioninvisible', 'mod_booking');
+                break;
+            case '2':
+                $status = get_string('optionvisibledirectlink', 'mod_booking');
+                break;
+        }
+        return $status;
     }
-
-    // TODO col_status.
-
 
     /**
      * This function is called for each data row to allow processing of the
