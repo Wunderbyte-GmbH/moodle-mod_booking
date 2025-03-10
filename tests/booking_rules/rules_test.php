@@ -624,7 +624,7 @@ final class rules_test extends advanced_testcase {
             } else if (strpos($customdata->customsubject, "1dayafter") !== false) {
                 $this->assertEquals(strtotime('21 July 2050 14:00'), $message->get_next_run_time());
                 $this->assertEquals("was ended yesterday", $customdata->custommessage);
-                $this->assertEquals("2",  $customdata->userid);
+                $this->assertEquals("2", $customdata->userid);
                 $this->assertStringContainsString($ruledata2['ruledata'], $customdata->rulejson);
                 $this->assertStringContainsString($ruledata2['conditiondata'], $customdata->rulejson);
                 $this->assertStringContainsString($ruledata2['actiondata'], $customdata->rulejson);
@@ -857,7 +857,7 @@ final class rules_test extends advanced_testcase {
         foreach ($messages as $key => $message) {
             if (strpos($message->subject, "OptionChanged")) {
                 // Validate email on option change.
-                $this->assertEquals("OptionChanged",  $message->subject);
+                $this->assertEquals("OptionChanged", $message->subject);
                 $this->assertStringContainsString("Dates has changed", $message->fullmessage);
                 $this->assertStringContainsString("20 June 2050", $message->fullmessage);
                 $this->assertStringContainsString("20 July 2050", $message->fullmessage);
@@ -985,11 +985,11 @@ final class rules_test extends advanced_testcase {
         // Book the student1 right away.
         $this->setUser($student1);
 
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id);
 
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // Confirm student1.
@@ -1137,20 +1137,20 @@ final class rules_test extends advanced_testcase {
         $this->setUser($student2);
 
         $result = booking_bookit::bookit('option', $settings->id, $student2->id);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student2->id, true);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // Confirm booking as admin.
         $this->setAdminUser();
         $option->user_submit_response($student2, 0, 0, 0, MOD_BOOKING_VERIFIED);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student2->id, true);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         // Book the student1 via waitinglist.
         $this->setUser($student1);
 
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // Now take student 2 from the list, for a place to free up.
@@ -1629,27 +1629,27 @@ final class rules_test extends advanced_testcase {
         $this->setUser($student2);
         singleton_service::destroy_user($student2->id);
         $result = booking_bookit::bookit('option', $settings->id, $student2->id);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student2->id, true);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // Confirm booking as admin.
         $this->setAdminUser();
         $option->user_submit_response($student2, 0, 0, 0, MOD_BOOKING_VERIFIED);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student2->id, true);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         // Book the student1 via waitinglist.
         $this->setUser($student1);
         singleton_service::destroy_user($student1->id);
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // Book the student3 via waitinglist.
         $this->setUser($student3);
         singleton_service::destroy_user($student3->id);
         $result = booking_bookit::bookit('option', $settings->id, $student3->id);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student3->id, true);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student3->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // Now take student 2 from the list, for a place to free up.
@@ -1725,8 +1725,6 @@ final class rules_test extends advanced_testcase {
         rules_info::$rulestoexecute = [];
         booking_rules::$rules = [];
     }
-    
-   
 
     /**
      * Data provider for condition_bookingpolicy_test
