@@ -212,14 +212,16 @@ class customfields extends field_base {
                 } else if (is_array($newvalue)) {
                     $newvalue = implode(',', $newvalue);
                 }
-                $changes[$key] = [
-                    'changes' => [
-                        'fieldname' => 'customfields',
-                        'oldvalue' => $fieldname . ' : ' . $oldvalue,
-                        'newvalue' => $fieldname . ' : ' . $newvalue,
-                        'formkey' => 'customfield_' . $fieldname,
-                    ],
-                ];
+                if ($oldvalue !== $newvalue) {
+                    $changes[$key] = [
+                        'changes' => [
+                            'fieldname' => 'customfields',
+                            'oldvalue' => $fieldname . ' : ' . $oldvalue,
+                            'newvalue' => $fieldname . ' : ' . $newvalue,
+                            'formkey' => 'customfield_' . $fieldname,
+                        ],
+                    ];
+                }
             }
         }
         // Changes can apply to multiple fields.
