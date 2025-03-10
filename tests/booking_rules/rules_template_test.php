@@ -170,7 +170,12 @@ final class rules_template_test extends advanced_testcase {
             $customdata = $task->get_custom_data();
                 // Validate 2 task messages on the bookingoption_freetobookagain event.
                 $this->assertEquals("Payment for {Title} confirmed", $customdata->customsubject);
-                $this->assertEquals("Thank you for your booking!<br>Your booking {Title} with the price: {price} has been successfully made.<br>Here is the confirmation link:<br>{bookingconformationlink}<br>Here is the course link:<br>{courselink}<br>Best regards", $customdata->custommessage);
+                $this->assertEquals(
+                    "Thank you for your booking!<br>Your booking {Title} with the price: {price} has been successfully made.
+                    <br>Here is the confirmation link:<br>{bookingconformationlink}<br>Here is the course link:<br>{courselink}
+                    <br>Best regards",
+                    $customdata->custommessage
+                );
                 $this->assertStringContainsString($boevent1, $customdata->rulejson);
                 $this->assertStringContainsString($ruledatanew['conditiondata'], $customdata->rulejson);
                 $this->assertStringContainsString($ruledatanew['actiondata'], $customdata->rulejson);
@@ -564,7 +569,10 @@ final class rules_template_test extends advanced_testcase {
             } else {
                 // Validate message on the bookingoptionwaitinglist_booked event.
                 $this->assertEquals("You are on the waiting list", $customdata->customsubject);
-                $this->assertEquals("Dear {firstname} {lastname},<br>You are on the waiting list<br>{bookingdetails}<br>All the best!", $customdata->custommessage);
+                $this->assertEquals(
+                    "Dear {firstname} {lastname},<br>You are on the waiting list<br>{bookingdetails}<br>All the best!",
+                    $customdata->custommessage
+                );
                 $this->assertEquals($counter == 1 ? $student2->id : $student1->id, $customdata->userid);
                 $this->assertStringContainsString($boevent1, $customdata->rulejson);
                 $this->assertStringContainsString($ruledatanew['conditiondata'], $customdata->rulejson);
@@ -641,7 +649,6 @@ final class rules_template_test extends advanced_testcase {
         $ruledatanew["actiondata"] = json_encode($ruledatanew["actiondata"]);
         $ruledatanew["ruledata"] = json_encode($ruledatanew["ruledata"]);
         $ruledatanew["contextid"] = $template->contextid;
-
 
         $rule1 = $plugingenerator->create_rule($ruledatanew);
 

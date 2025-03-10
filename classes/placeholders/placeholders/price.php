@@ -48,6 +48,7 @@ class price {
      * @param string $text
      * @param array $params
      * @param int $descriptionparam
+     * @param string $rulejson
      * @return string
      */
     public static function return_value(
