@@ -108,7 +108,7 @@ final class rules_test extends advanced_testcase {
             'contextid' => 1,
             'conditiondata' => '{"userfromeventtype":"userid"}',
             'actionname' => 'send_mail',
-            'actiondata' => '{"sendical":0,"sendicalcreateorcancel":"","subject":"Test","template":"Hier sollte der price sein {price}"}',
+            'actiondata' => '{"sendical":0,"sendicalcreateorcancel":"","subject":"Test","template":"{price}"}',
             'rulename' => 'rule_react_on_event',
             'ruledata' => '{' . $boevent1 . ',"aftercompletion":0,"cancelrules":[],"condition":"0"}',
         ];
@@ -166,7 +166,7 @@ final class rules_test extends advanced_testcase {
             $customdata = $task->get_custom_data();
                 // Validate 2 task messages on the bookingoption_freetobookagain event.
                 $this->assertEquals("Test", $customdata->customsubject);
-                $this->assertEquals("Hier sollte der price sein {price}", $customdata->custommessage);
+                $this->assertEquals("{price}", $customdata->custommessage);
                 $this->assertStringContainsString($boevent1, $customdata->rulejson);
                 $this->assertStringContainsString($ruledata1['conditiondata'], $customdata->rulejson);
                 $this->assertStringContainsString($ruledata1['actiondata'], $customdata->rulejson);
