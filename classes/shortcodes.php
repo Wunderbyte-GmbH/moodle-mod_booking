@@ -726,10 +726,10 @@ class shortcodes {
         ) {
             $perpage = 100;
         }
-
         cache_helper::purge_by_event('changesinwunderbytetable');
-
-        $table = new bulkoperations_table(bin2hex(random_bytes(8)) . '_optionbulkoperationstable');
+        // Add the arguments to make sure cache is built correctly.
+        $argsstring = implode($args);
+        $table = new bulkoperations_table(bin2hex(random_bytes(8)) . '_optionbulkoperationstable_' . $argsstring);
         $columns = [
             'id' => get_string('id', 'local_wunderbyte_table'),
             'text' => get_string('title', 'mod_booking'),
