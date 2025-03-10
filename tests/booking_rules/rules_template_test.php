@@ -182,7 +182,7 @@ final class rules_template_test extends advanced_testcase {
         booking_rules::$rules = [];
     }
     /**
-     * Test rule on before and after cursestart events.
+     * Test rule on before and after coursestart events.
      *
      * @covers \mod_booking\booking_option::update
      * @covers \mod_booking\option\field_base->check_for_changes
@@ -196,7 +196,7 @@ final class rules_template_test extends advanced_testcase {
      *
      * @dataProvider booking_common_settings_provider
      */
-    public function test_rule_on_beforeafter_cursestart(array $bdata): void {
+    public function test_rule_on_beforeafter_coursestart(array $bdata): void {
 
         singleton_service::destroy_instance();
 
