@@ -819,6 +819,16 @@ class booking {
                     $headers[] = get_string('bookingclosingtime', 'mod_booking');
                     $columns[] = 'bookingclosingtime';
                     break;
+                case 'invisible':
+                        $columns[] = 'invisible';
+                        $headers[] = get_string('invisible', 'mod_booking');
+                    break;
+                case 'price':
+                    if (class_exists('local_shopping_cart\shopping_cart')) {
+                        $headers[] = get_string('price', 'mod_booking');
+                        $columns[] = 'price';
+                    }
+                    break;
             }
         }
         return [$headers, $columns];

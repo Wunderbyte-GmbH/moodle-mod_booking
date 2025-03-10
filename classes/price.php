@@ -993,7 +993,7 @@ class price {
 
                 $sortorder = empty(get_config('booking', 'pricecategorychoosehighest')) ? 'ASC' : 'DESC';
 
-                $sql = "SELECT bp.*
+                $sql = "SELECT bp.*, bpc.name
                         FROM {booking_prices} bp
                         JOIN {booking_pricecategories} bpc ON bp.pricecategoryidentifier = bpc.identifier
                         WHERE area = :area AND itemid = :itemid
