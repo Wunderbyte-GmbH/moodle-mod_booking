@@ -466,17 +466,17 @@ class recurringoptions extends field_base {
                         $newvalue = $change['changes']['newvalue'] ?? '';
 
                         // If the field exists and the value is different, update it.
-                        if (isset($child->$fieldname) && $child->$fieldname !== $newvalue) {
-                            $child->$fieldname = $newvalue;
+                        if (isset($childdata->$fieldname) && $childdata->$fieldname !== $newvalue) {
+                            $childdata->$fieldname = $newvalue;
                             $update = true;
                         }
                     }
                 }
                 // Update the data record after all changes are made.
                 if ($update) {
-                    $child->cmid = $data->cmid;
-                    $child->importing = 1;
-                    booking_option::update($child, $context);
+                    $childdata->parentid = $data->optionid;
+                    $childdata->importing = 1;
+                    booking_option::update($childdata, $context);
                 }
             }
         }
