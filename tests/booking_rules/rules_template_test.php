@@ -171,9 +171,9 @@ final class rules_template_test extends advanced_testcase {
                 // Validate 2 task messages on the bookingoption_freetobookagain event.
                 $this->assertEquals("Payment for {Title} confirmed", $customdata->customsubject);
                 $this->assertEquals(
-                    "Thank you for your booking!<br>Your booking {Title} with the price: {price} has been successfully made.
-                    <br>Here is the confirmation link:<br>{bookingconformationlink}<br>Here is the course link:<br>{courselink}
-                    <br>Best regards",
+                    "Thank you for your booking!<br>Your booking {Title} with the price: {price} has been successfully made." .
+                    "<br>Here is the confirmation link:<br>{bookingconformationlink}<br>Here is the course link:<br>{courselink}" .
+                    "<br>Best regards",
                     $customdata->custommessage
                 );
                 $this->assertStringContainsString($boevent1, $customdata->rulejson);
@@ -236,7 +236,7 @@ final class rules_template_test extends advanced_testcase {
 
         $rule1 = $plugingenerator->create_rule($ruledatanew);
 
-       // Create booking rule - "ndays after".
+        // Create booking rule - "ndays after".
         $template = ruletemplate_userpoll::return_template();
         $ruledatanew = json_decode($template->rulejson, true);
         $ruledatanew["conditiondata"] = json_encode($ruledatanew["conditiondata"]);
@@ -397,8 +397,6 @@ final class rules_template_test extends advanced_testcase {
         $messages = $messagesink->get_messages();
         $res = ob_get_clean();
         $messagesink->close();
-
-
 
         // Validate emails. Might be more than one dependitg to Moodle's version.
         foreach ($messages as $key => $message) {
