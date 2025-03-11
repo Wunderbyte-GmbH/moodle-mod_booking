@@ -24,8 +24,9 @@ Feature: Create recurring options as tescher and configuring it.
     ## 2045/03/15 14:20 - 2045/03/15 16:30
     ## Unfortunately, TinyMCE is slow and has misbehavior which might cause number of site-wide issues. So - we disable it.
     And the following config values are set as admin:
-      | config      | value         |
-      | texteditors | atto,textarea |
+      | config        | value         |
+      | texteditors   | atto,textarea |
+    ## Forcing of timezome is important for date validation
       | timezone      | Europe/Berlin |
       | forcetimezone | Europe/Berlin |
     And I change viewport size to "1366x10000"
@@ -71,10 +72,8 @@ Feature: Create recurring options as tescher and configuring it.
     And I should see "RecurrOptUpd" in the ".allbookingoptionstable_r5" "css_element"
     And I should see "22 March 2045, 3:20 PM" in the ".allbookingoptionstable_r5" "css_element"
     And I should see "RecurrOptUpd" in the ".allbookingoptionstable_r6" "css_element"
-    ## Because of summmer time: 
+    ## Because of summmer time:
     And I should see "29 March 2045, 4:20 PM" in the ".allbookingoptionstable_r6" "css_element"
-    ## Current bug
-    ##And I should not see "1 January 1970," in the ".allbookingoptionstable_r2" "css_element"
     ## Update existing recuring options 2nd time
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I wait until the page is ready
@@ -102,7 +101,6 @@ Feature: Create recurring options as tescher and configuring it.
     And I log out
     ## Validate recurring options as student
     And I am on the "MyBooking" Activity page logged in as student1
-    ##And I wait "13" seconds
     And I should see "Book now" in the ".allbookingoptionstable_r8 .booknow" "css_element"
     And I should see "RecurrOptUpd" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "16 March 2045, 3:20 PM" in the ".allbookingoptionstable_r1" "css_element"
