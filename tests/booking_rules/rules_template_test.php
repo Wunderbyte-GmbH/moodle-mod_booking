@@ -172,7 +172,7 @@ final class rules_template_test extends advanced_testcase {
                 $this->assertEquals("Payment for {Title} confirmed", $customdata->customsubject);
                 $this->assertEquals(
                     "Thank you for your booking!<br>Your booking {Title} with the price: {price} has been successfully made." .
-                    "<br>Here is the confirmation link:<br>{bookingconformationlink}<br>Here is the course link:<br>{courselink}" .
+                    "<br>Here is the confirmation link:<br>{bookingconfirmationlink}<br>Here is the course link:<br>{courselink}" .
                     "<br>Best regards",
                     $customdata->custommessage
                 );

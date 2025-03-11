@@ -78,12 +78,12 @@ class bookingconfornationlink {
             $event = $rulejson->datafromevent;
             if ($class == '\local_shopping_cart\event\payment_confirmed') {
                 $eventdata = json_decode($event->other->cart, true);
-                $bookingconformationlink = "";
-                $bookingconformationlink = $eventdata['receipturl'];
+                $bookingconfirmationlink = "";
+                $bookingconfirmationlink = $eventdata['receipturl'];
             }
         }
 
-        return $bookingconformationlink;
+        return $bookingconfirmationlink;
     }
 
     /**

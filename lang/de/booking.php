@@ -440,7 +440,7 @@ Klicken Sie auf den folgenden Link um die Änderung(en) und eine Übersicht übe
 $string['bookingchangedtextsubject'] = 'Änderungsbenachrichtigung für {$a->title}';
 $string['bookingclosingtime'] = 'Buchbar bis';
 $string['bookingcondition'] = "Bedingung";
-$string['bookingconformationlink'] = 'Link zur Buchungsbestätigung';
+$string['bookingconfirmationlink'] = 'Link zur Buchungsbestätigung';
 $string['bookingcustomfield'] = 'Benutzerdefinierte Felder für Buchungsoptionen';
 $string['bookingdate'] = 'Buchungsdatum';
 $string['bookingdebugmode'] = 'Booking-Debug-Modus';
@@ -1989,7 +1989,7 @@ $string['ruletemplatedaysbefore'] = "Template - Benachrichtigung n Tage vor Begi
 $string['ruletemplatedaysbeforebody'] = "Ihre Buchung startet in einigen Tagen:<br>{bookingdetails} <br> Um eine Übersicht über alle Buchungen zu erhalten, klicken Sie auf den folgenden Link: {bookinglink}<br> Hier geht's zum Kurs: {courselink}";
 $string['ruletemplatedaysbeforesubject'] = "Ihr Kurs fängt in einigen Tagen an";
 $string['ruletemplatepaymentconfirmation'] = "Template - Zahlung der Buchung bestätigt";
-$string['ruletemplatepaymentconfirmationbody'] = "Vielen Dank für Ihre Buchung!<br>Ihre Buchung {Title} mit dem Preis: {price} wurde erfolgreich gebucht.<br>Hier ist der der Bestätigungslink:<br>{bookingconformationlink}<br>Hier geht's zum Kurs:<br>{courselink}<br>Mit freundlichen Grüßen";
+$string['ruletemplatepaymentconfirmationbody'] = "Vielen Dank für Ihre Buchung!<br>Ihre Buchung {Title} mit dem Preis: {price} wurde erfolgreich gebucht.<br>Hier ist der der Bestätigungslink:<br>{bookingconfirmationlink}<br>Hier geht's zum Kurs:<br>{courselink}<br>Mit freundlichen Grüßen";
 $string['ruletemplatepaymentconfirmationsubject'] = "Zahlung von {Title} bestätigt";
 $string['ruletemplatetrainercancellation'] = "Template - Trainer/innen Absage Buchungsoption";
 $string['ruletemplatetrainercancellationbody'] = "Guten Tag {firstname} {lastname},<br>leider musste folgende Veranstaltung abgesagt werden:<br>Veranstaltung: {Title}<br>Mit freundlichen Grüßen";

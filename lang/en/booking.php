@@ -451,7 +451,7 @@ To view the change(s) and all your booked courses click on the following link: {
 $string['bookingchangedtextsubject'] = 'Change notification for {$a->title}';
 $string['bookingclosingtime'] = 'Bookable until';
 $string['bookingcondition'] = 'Condition';
-$string['bookingconformationlink'] = 'Link to booking receipt';
+$string['bookingconfirmationlink'] = 'Link to booking receipt';
 $string['bookingcustomfield'] = 'Booking customfields for booking options';
 $string['bookingdate'] = 'Booking date';
 $string['bookingdebugmode'] = 'Booking debug mode';
@@ -2048,7 +2048,7 @@ $string['ruletemplatedaysbefore'] = "Template - Notification n Days Before start
 $string['ruletemplatedaysbeforebody'] = "Your booking starts in a few days: {bookingdetails} <br> Name: {participant} <br> To get an overview of all bookings, click on the following link:{bookinglink}<br> Here is the link to the course: {courselink}";
 $string['ruletemplatedaysbeforesubject'] = "Your booking starts in a few days";
 $string['ruletemplatepaymentconfirmation'] = "Template - Payment for the booking confirmed";
-$string['ruletemplatepaymentconfirmationbody'] = "Thank you for your booking!<br>Your booking {Title} with the price: {price} has been successfully made.<br>Here is the confirmation link:<br>{bookingconformationlink}<br>Here is the course link:<br>{courselink}<br>Best regards";
+$string['ruletemplatepaymentconfirmationbody'] = "Thank you for your booking!<br>Your booking {Title} with the price: {price} has been successfully made.<br>Here is the confirmation link:<br>{bookingconfirmationlink}<br>Here is the course link:<br>{courselink}<br>Best regards";
 $string['ruletemplatepaymentconfirmationsubject'] = "Payment for {Title} confirmed";
 $string['ruletemplatetrainercancellation'] = "Template - Trainer Cancellation Bookingoption";
 $string['ruletemplatetrainercancellationbody'] = "Guten Tag {firstname} {lastname},<br>leider musste folgende Veranstaltung abgesagt werden:<br>Veranstaltung: {Title}<br>Mit freundlichen Grüßen";
