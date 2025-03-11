@@ -749,7 +749,7 @@ class booking_option {
                     $useranswer = $ba->users[$userid];
                     $status = self::status_bookinganswer_deleted($useranswer);
                     // Make sure to log this operation into the booking_history table.
-                    self::booking_history_insert($status, $result->id, $result->optionid, $result->booking, $userid);
+                    self::booking_history_insert($status, $result->id, $result->optionid, $result->bookingid, $userid);
                 }
             }
         }
