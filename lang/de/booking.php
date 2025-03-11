@@ -2279,6 +2279,11 @@ $string['successfullysorted'] = 'Erfolgreich sortiert';
 $string['sucessfullybooked'] = 'Erfolgreich gebucht';
 $string['sumunits'] = 'Summe UE';
 $string['sunday'] = 'Sonntag';
+$string['switchtemplates'] = 'Nutzer:innen können die Ansicht wechseln';
+$string['switchtemplates_help'] = 'Aktivieren Sie diese Einstellung, um es Nutzer:innen zu ermöglichen zwischen verschiedenen Ansichten zu wechseln.
+Definieren Sie im nächsten Schritt die Ansichten zwischen denen gewechselt werden kann.';
+$string['switchtemplatesselection'] = 'Ansichten zwischen denen gewechselt werden kann';
+$string['switchtemplatesselection_help'] = 'Wählen Sie die Ansichten aus, zwischen denen Nutzer:innen wechseln können.';
 $string['system'] = 'System';
 $string['tableheadercourseendtime'] = 'Kursende';
 $string['tableheadercoursestarttime'] = 'Kursbeginn';

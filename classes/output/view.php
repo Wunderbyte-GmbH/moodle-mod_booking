@@ -340,7 +340,7 @@ class view implements renderable, templatable {
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
-        $this->wbtable_initialize_list_layout($allbookingoptionstable, true, true, true);
+        $this->wbtable_initialize_layout($allbookingoptionstable, true, true, true);
 
         $out = $allbookingoptionstable->outhtml($booking->get_pagination_setting(), true);
 
@@ -370,7 +370,7 @@ class view implements renderable, templatable {
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
-        $this->wbtable_initialize_list_layout($allbookingoptionstable, true, true, true);
+        $this->wbtable_initialize_layout($allbookingoptionstable, true, true, true);
 
         if ($lazy) {
             [$idstring, $encodedtable, $out]
@@ -419,7 +419,7 @@ class view implements renderable, templatable {
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
-        $this->wbtable_initialize_list_layout($activebookingoptionstable, true, true, true);
+        $this->wbtable_initialize_layout($activebookingoptionstable, true, true, true);
 
         if ($lazy) {
             [$idstring, $encodedtable, $out]
@@ -452,7 +452,7 @@ class view implements renderable, templatable {
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
-        $this->wbtable_initialize_list_layout($mybookingoptionstable, true, true, true);
+        $this->wbtable_initialize_layout($mybookingoptionstable, true, true, true);
 
         // For mybookingstable we need to apply a different cache, because it changes with every booking of a user.
         $mybookingoptionstable->define_cache('mod_booking', 'mybookingoptionstable');
@@ -499,7 +499,7 @@ class view implements renderable, templatable {
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
-        $this->wbtable_initialize_list_layout($teacheroptionstable, $tfilter, $tsearch, $tsort);
+        $this->wbtable_initialize_layout($teacheroptionstable, $tfilter, $tsearch, $tsort);
 
         $teacheroptionstable->showreloadbutton = false; // No reload button on teacher pages.
         $teacheroptionstable->requirelogin = false; // Teacher pages need to be accessible without login.
@@ -556,7 +556,7 @@ class view implements renderable, templatable {
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
-        $this->wbtable_initialize_list_layout($responsiblecontacttable, $tfilter, $tsearch, $tsort);
+        $this->wbtable_initialize_layout($responsiblecontacttable, $tfilter, $tsearch, $tsort);
 
         $responsiblecontacttable->showreloadbutton = false; // No reload button on teacher pages.
         $responsiblecontacttable->requirelogin = true;
@@ -602,7 +602,7 @@ class view implements renderable, templatable {
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
-        $this->wbtable_initialize_list_layout($showonlyonetable, false, false, false);
+        $this->wbtable_initialize_layout($showonlyonetable, false, false, false);
 
         $out = $showonlyonetable->outhtml(1, true);
 
@@ -633,7 +633,7 @@ class view implements renderable, templatable {
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
-        $this->wbtable_initialize_list_layout($myinstitutiontable, true, true, true);
+        $this->wbtable_initialize_layout($myinstitutiontable, true, true, true);
 
         if ($lazy) {
             [$idstring, $encodedtable, $out]
@@ -668,7 +668,7 @@ class view implements renderable, templatable {
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
-        $this->wbtable_initialize_list_layout($visibleoptionstable, true, true, true);
+        $this->wbtable_initialize_layout($visibleoptionstable, true, true, true);
 
         if ($lazy) {
             [$idstring, $encodedtable, $out]
@@ -703,7 +703,7 @@ class view implements renderable, templatable {
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
-        $this->wbtable_initialize_list_layout($invisibleoptionstable, true, true, true);
+        $this->wbtable_initialize_layout($invisibleoptionstable, true, true, true);
 
         if ($lazy) {
             [$idstring, $encodedtable, $out]
@@ -716,13 +716,13 @@ class view implements renderable, templatable {
     }
 
     /**
-     * Helper function to set the default layout for the table (list view).
+     * Helper function to initialize the layout for the table.
      * @param wunderbyte_table $wbtable reference to the table class that should be initialized
      * @param bool $filter
      * @param bool $search
      * @param bool $sort
      */
-    public function wbtable_initialize_list_layout(
+    public function wbtable_initialize_layout(
         wunderbyte_table &$wbtable,
         bool $filter = true,
         bool $search = true,
@@ -812,6 +812,8 @@ class view implements renderable, templatable {
 
         // Without defining sorting won't work!
         $wbtable->define_columns(['titleprefix', 'coursestarttime', 'courseendtime']);
+
+        // TODO: If template switcher is active, we need to check the current template and set viewparam accordingly.
 
         // Switch view type (cards view or list view).
         switch ($viewparam) {
