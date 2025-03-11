@@ -881,33 +881,37 @@ class view implements renderable, templatable {
                 $wbtable->add_filter($standardfilter);
             }
 
-            $datepicker = new datepicker(
-                'coursestarttime',
-                get_string('timefilter:coursetime', 'mod_booking'),
-                'courseendtime'
-            );
-            $datepicker->add_options(
-                'in between',
-                '<',
-                get_string('apply_filter', 'local_wunderbyte_table'),
-                'now',
-                'now + 1 year'
-            );
-            $wbtable->add_filter($datepicker);
+            if (in_array('coursestarttime', $optionsfields)) {
+                $datepicker = new datepicker(
+                    'coursestarttime',
+                    get_string('timefilter:coursetime', 'mod_booking'),
+                    'courseendtime'
+                );
+                $datepicker->add_options(
+                    'in between',
+                    '<',
+                    get_string('apply_filter', 'local_wunderbyte_table'),
+                    'now',
+                    'now + 1 year'
+                );
+                $wbtable->add_filter($datepicker);
+            }
 
-            $datepicker = new datepicker(
-                'bookingopeningtime',
-                get_string('timefilter:bookingtime', 'mod_booking'),
-                'bookingclosingtime'
-            );
-            $datepicker->add_options(
-                'in between',
-                '<',
-                get_string('apply_filter', 'local_wunderbyte_table'),
-                'now',
-                'now + 1 year'
-            );
-            $wbtable->add_filter($datepicker);
+            if (in_array('bookingopeningtime', $optionsfields)) {
+                $datepicker = new datepicker(
+                    'bookingopeningtime',
+                    get_string('timefilter:bookingtime', 'mod_booking'),
+                    'bookingclosingtime'
+                );
+                $datepicker->add_options(
+                    'in between',
+                    '<',
+                    get_string('apply_filter', 'local_wunderbyte_table'),
+                    'now',
+                    'now + 1 year'
+                );
+                $wbtable->add_filter($datepicker);
+            }
 
             // Setting fetchen.
             $url = $PAGE->url ?? false;
