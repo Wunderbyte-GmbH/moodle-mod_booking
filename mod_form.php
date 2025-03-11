@@ -202,7 +202,33 @@ class mod_booking_mod_form extends moodleform_mod {
             (int)booking::get_value_of_json_by_key($bookingid, 'viewparam') ?? MOD_BOOKING_VIEW_PARAM_LIST
         );
 
-        if (!$isproversion) {
+        if ($isproversion) {
+            $mform->addElement(
+                'advcheckbox',
+                'switchtemplates',
+                get_string('switchtemplates', 'mod_booking')
+            );
+            $mform->addHelpButton('switchtemplates', 'switchtemplates', 'mod_booking');
+            $mform->setDefault('switchtemplates', 0);
+            $mform->setType('switchtemplates', PARAM_INT);
+
+            // Options for the switchtemplates selection autocomplete.
+            $swtopts = [
+                'noselectionstring' => get_string('choose...', 'mod_booking'),
+                'tags' => true,
+                'multiple' => true,
+            ];
+            $mform->addElement(
+                'autocomplete',
+                'switchtemplatesselection',
+                get_string('switchtemplatesselection', 'mod_booking'),
+                $viewparamoptions,
+                $swtopts
+            );
+            $mform->addHelpButton('switchtemplatesselection', 'switchtemplatesselection', 'mod_booking');
+            $mform->hideIf('switchtemplatesselection', 'switchtemplates', 'neq', 1);
+        } else {
+            // No PRO version.
             $mform->addElement('html', '<div class="mb-3" style="margin-left: 13rem;">' . get_string('badge:pro', 'mod_booking') .
                 " <span class='small'>" . get_string('proversion:extraviews', 'mod_booking') . '</span></div>');
         }
