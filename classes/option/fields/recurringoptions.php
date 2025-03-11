@@ -474,7 +474,7 @@ class recurringoptions extends field_base {
                 }
                 // Update the data record after all changes are made.
                 if ($update) {
-                    $childdata->parentid = $data->optionid;
+                    $childdata->parentid = $data->optionid ?? $child->parentid ?? 0;
                     $childdata->importing = 1;
                     booking_option::update($childdata, $context);
                 }
