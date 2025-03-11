@@ -46,7 +46,7 @@ use mod_booking\customfield\booking_handler;
 
 // Default fields for bookingoptions in view.php and for download.
 define('MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS', "identifier,titleprefix,text,description,teacher,responsiblecontact," .
-"showdates,dayofweektime,location,institution,course,minanswers,bookings,bookingopeningtime,bookingclosingtime");
+"showdates,dayofweektime,location,institution,course,minanswers,bookings,bookingopeningtime,bookingclosingtime,coursestarttime");
 
 // View params.
 define('MOD_BOOKING_VIEW_PARAM_LIST', 0); // List view.
