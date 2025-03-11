@@ -32,7 +32,7 @@ Feature: Create recurring options as tescher and configuring it.
     And I change viewport size to "1366x10000"
 
   @javascript
-  Scenario: Booking: add daily recurring options as a teacher and verify as student
+  Scenario: Booking: add different recurring options as a teacher and verify as student
     Given I am on the "MyBooking" Activity page logged in as teacher1
     ## Create recurring options
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
@@ -122,3 +122,72 @@ Feature: Create recurring options as tescher and configuring it.
     And I should see "RecurrOptUpd 2" in the ".allbookingoptionstable_r7" "css_element"
     And I should see "14 May 2045, 4:20 PM" in the ".allbookingoptionstable_r7" "css_element"
     And I should see "RecurrOptUpdMonth" in the ".allbookingoptionstable_r8" "css_element"
+
+@javascript
+  Scenario: Booking: add daily recurring options as a teacher and edit dates
+    Given I am on the "MyBooking" Activity page logged in as teacher1
+    ## Create recurring options
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until the page is ready
+    ## And I follow "Recurring options"
+    And I expand all fieldsets
+    And I set the following fields to these values:
+      | Repeat this option               | 1   |
+      | How many times to repeat?        | 2   |
+      | How often to repeat?             | day |
+    And I press "Save"
+    And I wait until the page is ready
+    And I should see "RecurrOpt 1" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "16 March 2045, 3:20 PM" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "RecurrOpt 2" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "17 March 2045, 3:20 PM" in the ".allbookingoptionstable_r3" "css_element"
+    ## Update existing recuring options
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until the page is ready
+    And I expand all fieldsets
+    And I click on "15 March 2045" "text" in the "#booking_optiondate_1" "css_element"
+    And I set the following fields to these values:
+      | coursestarttime_1[day]    | 17   |
+      | courseendtime_1[day]      | 17   |
+    And I press "Apply"
+    And I wait until the page is ready
+    And I expand all fieldsets
+    And I set the field "Apply these changes to all the following bookingoption as well?" to "checked"
+    And I press "Save"
+    And I wait until the page is ready
+    ## Verify that dates of child options have been updated
+    And I should see "RecurrOpt 1" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "18 March 2045, 3:20 PM" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "RecurrOpt 2" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "19 March 2045, 3:20 PM" in the ".allbookingoptionstable_r3" "css_element"
+    ## Update date of child
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r3" "css_element"
+    And I wait until the page is ready
+    And I expand all fieldsets
+    And I click on "19 March 2045" "text" in the "#booking_optiondate_1" "css_element"
+    And I set the following fields to these values:
+      | coursestarttime_1[day]    | 20   |
+      | courseendtime_1[day]      | 20   |
+    And I press "Apply"
+    And I wait until the page is ready
+    And I press "Save"
+    ## Update date of parent again
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until the page is ready
+    And I expand all fieldsets
+    And I click on "17 March 2045" "text" in the "#booking_optiondate_1" "css_element"
+    And I set the following fields to these values:
+      | coursestarttime_1[day]    | 10   |
+      | courseendtime_1[day]      | 10   |
+    And I press "Apply"
+    And I wait until the page is ready
+    And I expand all fieldsets
+    And I set the field "Apply these changes to all the following bookingoption as well?" to "checked"
+    And I press "Save"
+    And I wait until the page is ready
+    ## Verify that date of child options has been updated
+    And I should see "RecurrOpt 1" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "11 March 2045, 3:20 PM" in the ".allbookingoptionstable_r2" "css_element"
+    ## Verify that date of child options has NOT been updated
+    And I should see "RecurrOpt 2" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "20 March 2045, 3:20 PM" in the ".allbookingoptionstable_r3" "css_element"
