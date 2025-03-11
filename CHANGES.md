@@ -1,3 +1,11 @@
+## Version 8.10.7 (2025031100)
+* Introducing new booking history table
+* Improvement: Fix Link on course in Mobile App
+
+## Version 8.10.6 (2025030700)
+* Improvement: showdownloadbuttonatbottom needs to work in cards template too!
+* Bugfix: Hardening when $optionid is 0.
+
 ## Version 8.10.5 (2025030700)
 * Bugfix: moveoption didn't move all the data #865
 * Bugfix: Make sure a lacking e-mail key wont destroy the mobile template
