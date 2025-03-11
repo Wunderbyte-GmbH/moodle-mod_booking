@@ -176,6 +176,22 @@ final class bookinghistory_test extends advanced_testcase {
         $status = reset($historyrecords)->status;
         $this->assertEquals($expected['historystatus'][0], $status);
 
+        // Cancellation.
+        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals($expected['bookitresults'][2], $id);
+
+        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals($expected['bookitresults'][3], $id);
+
+        $answers = $DB->get_records('booking_answers');
+        $this->assertCount(1, $answers);
+        $historyrecords = $DB->get_records('booking_history');
+        $this->assertCount(2, $historyrecords);
+        $status = end($historyrecords)->status;
+        $this->assertEquals($expected['historystatus'][1], $status);
+
         // TODO: Cancel booking. And check status if it's the right status.
     }
 
@@ -206,7 +222,9 @@ final class bookinghistory_test extends advanced_testcase {
                         'student1' => [], // Just a demo how params could be set.
                     ],
                     'bookingsettings' => [
-                        [],
+                        [
+                            'cancancelbook' => 1,
+                        ],
                     ],
                     'optionsettings' => [
                         [
@@ -218,9 +236,12 @@ final class bookinghistory_test extends advanced_testcase {
                     'bookitresults' => [
                         MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
                         MOD_BOOKING_BO_COND_ALREADYBOOKED,
+                        MOD_BOOKING_BO_COND_CONFIRMCANCEL,
+                        MOD_BOOKING_BO_COND_BOOKITBUTTON,
                     ],
                     'historystatus' => [
                         MOD_BOOKING_STATUSPARAM_BOOKED,
+                        MOD_BOOKING_STATUSPARAM_BOOKED_DELETED,
                     ],
                 ],
             ],
