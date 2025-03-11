@@ -28,20 +28,18 @@ use mod_booking\booking_rules\booking_rules;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\output\view;
 use mod_booking\table\bookingoptions_wbtable;
-
-defined('MOODLE_INTERNAL') || die();
-
-global $CFG;
-
 use mod_booking\booking_option;
 use mod_booking\booking_campaigns\campaigns_info;
 use mod_booking\singleton_service;
 use mod_booking\semester;
-use mod_booking\booking;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\price as Mod_bookingPrice;
 use local_shopping_cart\shopping_cart;
 use local_shopping_cart\local\cartstore;
+
+defined('MOODLE_INTERNAL') || die();
+
+global $CFG;
 
 /**
  * Class to handle module booking data generator
