@@ -718,6 +718,12 @@ class booking_option {
         }
 
         if ($cancelreservation) {
+
+            $ba = singleton_service::get_instance_of_booking_answers($optionsettings);
+            // All answers, fetch for user.
+
+            // Make sure to log this operation into the booking_history table.
+            //self::booking_history_insert($result->waitinglist, $result->id, $result->optionid, $result->booking, $userid);
             $DB->delete_records(
                 'booking_answers',
                 [
@@ -734,12 +740,16 @@ class booking_option {
                     $result->timemodified = time();
                     // We mark all the booking answers as deleted.
                     $DB->update_record('booking_answers', $result);
-
                     // Also delete corresponding entries in booking_optiondates_answers table.
                     $DB->delete_records(
                         'booking_optiondates_answers',
                         ['userid' => $result->userid, 'optionid' => $result->optionid]
                     );
+                    $ba = singleton_service::get_instance_of_booking_answers($optionsettings);
+                    $useranswer = $ba->users[$userid];
+                    $status = self::status_bookinganswer_deleted($useranswer);
+                    // Make sure to log this operation into the booking_history table.
+                    self::booking_history_insert($status, $result->id, $result->optionid, $result->booking, $userid);
                 }
             }
         }
@@ -1336,6 +1346,9 @@ class booking_option {
                 new \moodle_exception("dmlwriteexception");
             }
         }
+        $ba = singleton_service::get_instance_of_booking_answers($settings);
+
+        self::booking_history_insert($newanswer->waitinglist, $newanswer->id, $newanswer->optionid, $newanswer->bookingid, $userid);
 
         // After writing an answer, cache has to be invalidated.
         self::purge_cache_for_answers($optionid);
@@ -2037,6 +2050,7 @@ class booking_option {
             );
 
             $userdata->status = $presencestatus;
+            // TODO: Booking_history ??
             $DB->update_record('booking_answers', $userdata);
         }
 
@@ -3064,6 +3078,14 @@ class booking_option {
                 );
                 $status = 1;
             } else {
+                // Should we fetch the answerid before the deletion?
+                self::booking_history_insert(
+                    MOD_BOOKING_STATUSPARAM_DELETED,
+                    0,
+                    $optionid,
+                    $booking->id,
+                    $userid
+                );
                 // As the deletion here has no further consequences, we can do it directly in DB.
                 $DB->delete_records(
                     'booking_answers',
@@ -3072,7 +3094,6 @@ class booking_option {
                                     'waitinglist' => MOD_BOOKING_STATUSPARAM_NOTIFYMELIST,
                     ]
                 );
-
                 // Do not forget to purge cache afterwards.
                 self::purge_cache_for_answers($optionid);
 
@@ -3964,11 +3985,8 @@ class booking_option {
      * @param string $texttodisplay
      * @param int $userid
      * @param array $linkattributes
-     *
-     * @return string
-     *
      */
-    public static function create_link_to_bookingoption(
+	public static function create_link_to_bookingoption(
         int $optionid,
         int $cmid,
         string $texttodisplay,
@@ -3987,4 +4005,64 @@ class booking_option {
         return html_writer::link($url->out(false), $texttodisplay, $linkattributes);
     }
 
+    /**
+     * Insert a record into the booking history to make sure to log all the booking answer related activities.
+     *
+     * @param int $status
+     * @param int $answerid
+     * @param int $optionid
+     * @param int $bookingid
+     * @param int $userid
+     *
+     * @return int The id of the record inserted.
+     *
+     */
+    public static function booking_history_insert(
+        int $status,
+        int $answerid,
+        int $optionid = 0,
+        int $bookingid = 0,
+        int $userid = 0
+    ): int {
+        global $DB, $USER;
+
+        $data = (object) [
+            'status' => $status,
+            'userid' => $userid,
+            'answerid' => $answerid,
+            'optionid' => $optionid,
+            'bookingid' => $bookingid,
+            'timecreated' => time(),
+            'usermodified' => $USER->id,
+        ];
+        return $DB->insert_record('booking_history', $data);
+    }
+
+    /**
+     * Check previous status of bookinganswer to be deleted and return updated status.
+     *
+     * @param object $ba
+     * @return string
+     *
+     */
+    public static function status_bookinganswer_deleted(object $ba): string {
+        switch ($ba->waitinglist) {
+            case MOD_BOOKING_STATUSPARAM_BOOKED:
+                $status = MOD_BOOKING_STATUSPARAM_BOOKED_DELETED;
+                break;
+            case MOD_BOOKING_STATUSPARAM_WAITINGLIST:
+                $status = MOD_BOOKING_STATUSPARAM_WAITINGLIST_DELETED;
+                break;
+            case MOD_BOOKING_STATUSPARAM_RESERVED:
+                $status = MOD_BOOKING_STATUSPARAM_RESERVED_DELETED;
+                break;
+            case MOD_BOOKING_STATUSPARAM_NOTIFYMELIST:
+                $status = MOD_BOOKING_STATUSPARAM_NOTIFYMELIST_DELETED;
+                break;
+            default:
+                $status = MOD_BOOKING_STATUSPARAM_DELETED;
+                break;
+        }
+        return $status;
+    }
 }
