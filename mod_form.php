@@ -477,7 +477,8 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $tmpaddfields = $DB->get_records('user_info_field', []);
 
-        $responsesfields = ['completed' => get_string('completed', 'mod_booking'),
+        $responsesfields = [
+            'completed' => get_string('completed', 'mod_booking'),
             'status' => get_string('presence', 'mod_booking'),
             'rating' => get_string('rating', 'core_rating'),
             'numrec' => get_string('numrec', 'mod_booking'),
@@ -531,6 +532,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'minanswers' => get_string('minanswers', 'mod_booking'),
             'bookingopeningtime' => get_string('bookingopeningtime', 'mod_booking'),
             'bookingclosingtime' => get_string('bookingclosingtime', 'mod_booking'),
+            'coursestarttime' => get_string('optiondatestart', 'mod_booking'),
         ];
 
         $optionsdownloadfields = [
