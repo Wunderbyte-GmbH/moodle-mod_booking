@@ -44,7 +44,7 @@
 
             <%#nosubmit%>
                 <%#linktomoodlecourseonbookedbutton%>
-                    <ion-button href="<% linktomoodlecourseonbookedbutton %>">
+                    <ion-button href="<% linktomoodlecourseonbookedbutton %>" core-link [capture]="true">
                         {{ 'plugin.mod_booking.coursestart' | translate }}
                     </ion-button>
                 <%/linktomoodlecourseonbookedbutton%>
@@ -55,7 +55,7 @@
                     </ion-button>
                     <%#linktomoodlecourseadditionalbutton%>
                         <br>
-                        <ion-button href="<% linktomoodlecourseadditionalbutton %>" data-open-in="app">
+                        <ion-button href="<% linktomoodlecourseadditionalbutton %>" core-link [capture]="true">
                             <ion-icon name="school" style="margin-right: 8px; font-size: 18px;"></ion-icon>
                             {{ 'plugin.mod_booking.gotomoodlecourse' | translate }}
                         </ion-button>
