@@ -35,7 +35,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @author Magdalena Holczik
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class bookingconfornationlink {
+class bookingconfirmationlink {
     /**
      * Function which takes a text, replaces the placeholders...
      * ... and returns the text with the correct values.
