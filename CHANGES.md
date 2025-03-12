@@ -1,3 +1,6 @@
+## Version 8.10.9 (2025031201)
+Bugfix: Link to Moodle course in Moodle Mobile App
+
 ## Version 8.10.8 (2025031200)
 * New feature: Pre-configured rule templates - users can now replace
 legacy mail templates with booking rules by using the new templates.
