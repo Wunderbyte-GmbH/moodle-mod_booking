@@ -1,5 +1,16 @@
+## Version 8.10.8 (2025031200)
+* New feature: Pre-configured rule templates - users can now replace
+legacy mail templates with booking rules by using the new templates.
+* Improvement: New price placeholder.
+* Improvement: New place holder bookingconfirmationlink - link to booking receipt.
+* Bugfix: If source of mail templates is global templates, we do not need to save instance mail templates.
+* Bugfix: Wrong cmid for booking settings in applybookingrules
+* Bugfix: Always use formdata['id'] instead of formdata['optionid']
+* Tests: implemented test that triggers rules on payment_confirmed event
+* Tests: created unittest for ruletemplate_paymentconfirmation
+
 ## Version 8.10.7 (2025031100)
-* Introducing new booking history table
+* Improvement: Introducing new booking history table
 * Improvement: Fix Link on course in Mobile App
 
 ## Version 8.10.6 (2025030700)
