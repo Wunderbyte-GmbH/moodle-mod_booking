@@ -177,10 +177,10 @@ class applybookingrules extends field_base {
             $ruleobject = json_decode($rule->rulejson);
             $context = context::instance_by_id($rule->contextid);
 
-            if (get_class($context) === 'core\context\system') {
+            if ($context->contextlevel === CONTEXT_SYSTEM) {
                 $contextname = get_string('system', 'mod_booking');
             } else {
-                $booking = singleton_service::get_instance_of_booking_settings_by_cmid($formdata['cmid']);
+                $booking = singleton_service::get_instance_of_booking_settings_by_cmid($context->instanceid);
                 $contextname = $booking->name;
             }
 

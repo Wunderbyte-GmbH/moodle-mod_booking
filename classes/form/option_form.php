@@ -59,7 +59,7 @@ class option_form extends dynamic_form {
         $formdata = $this->_customdata ?? $this->_ajaxformdata;
 
         $cmid = $formdata['cmid'] ?? 0;
-        $optionid = $formdata['optionid'] ?? 0;
+        $optionid = $formdata['id'] ?? $formdata['optionid'] ?? 0;
 
         if (!empty($cmid)) {
             // We need context on this.
