@@ -97,19 +97,14 @@ class shortcodes {
         [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(0, 0, '', null, null, [], $wherearray);
 
-        // By default, we do not show booking options that lie in the past.
+        // By default, we do not show booking options that have ended in the past.
         // Shortcode arg values get transmitted as string, so also check for "false" and "0".
         if (empty($args['all']) || $args['all'] == "false" || $args['all'] == "0") {
-            $now = time();
-            $where .= " AND courseendtime > $now ";
+            $startoftoday = strtotime('today'); // Will be 00:00:00 of the current day.
+            $where .= " AND courseendtime > $startoftoday ";
         }
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
-
-        if (empty($args['all'])) {
-            $now = time();
-            $where .= " coursestarttime > $now ";
-        }
 
         // These are all possible options to be displayed in the bookingtable.
         $possibleoptions = [
@@ -267,16 +262,11 @@ class shortcodes {
         // By default, we do not show booking options that lie in the past.
         // Shortcode arg values get transmitted as string, so also check for "false" and "0".
         if (empty($args['all']) || $args['all'] == "false" || $args['all'] == "0") {
-            $now = time();
-            $where .= " AND courseendtime > $now ";
+            $startoftoday = strtotime('today'); // Will be 00:00:00 of the current day.
+            $where .= " AND courseendtime > $startoftoday ";
         }
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
-
-        if (empty($args['all'])) {
-            $now = time();
-            $where .= " coursestarttime > $now ";
-        }
 
         // These are all possible options to be displayed in the bookingtable.
         $possibleoptions = [
