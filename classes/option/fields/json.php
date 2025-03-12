@@ -116,7 +116,9 @@ class json extends field_base {
         $applyheader = true
     ) {
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($formdata['optionid'] ?? $formdata['id']);
+        $optionid = $formdata['id'] ?? $formdata['optionid'] ?? 0;
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $mform->addElement('hidden', 'json', $settings->json ?? '{}');
         $mform->setType('json', PARAM_RAW);
     }

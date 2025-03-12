@@ -124,10 +124,12 @@ class formconfig extends field_base {
             fields_info::add_header_to_mform($mform, self::$header);
         }
 
+        $optionid = $formdata['id'] ?? $formdata['optionid'] ?? 0;
+
         if (!empty($formdata['cmid'])) {
             $context = context_module::instance($formdata['cmid']);
-        } else if (!empty($formdata['optionid'])) {
-            $settings = singleton_service::get_instance_of_booking_option_settings($formdata['optionid']);
+        } else if (!empty($optionid)) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
             $context = context_module::instance($settings->cmid);
         } else {
             throw new moodle_exception('formconfig.php: missing context in function instance_form_definition');

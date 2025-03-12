@@ -117,7 +117,7 @@ class customfields extends field_base {
         $applyheader = true
     ) {
 
-        $optionid = $formdata['id'] ?? $formdata['optionid'];
+        $optionid = $formdata['id'] ?? $formdata['optionid'] ?? 0;
 
         if (!empty($formdata['cmid'])) {
             $context = context_module::instance($formdata['cmid']);
