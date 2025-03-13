@@ -131,7 +131,7 @@ Feature: Create recurring options as tescher and configuring it.
     ## And I should see "14 May 2045, 4:20 PM" in the ".allbookingoptionstable_r7" "css_element"
     And I should see "RecurrOptUpdMonth" in the ".allbookingoptionstable_r8" "css_element"
 
-@javascript
+  @javascript
   Scenario: Booking: add daily recurring options as a teacher and edit dates
     Given I am on the "MyBooking" Activity page logged in as teacher1
     ## Create recurring options
