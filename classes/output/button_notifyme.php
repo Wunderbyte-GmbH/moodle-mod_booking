@@ -40,7 +40,6 @@ use templatable;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class button_notifyme implements renderable, templatable {
-
     /**
      * $userid
      *
@@ -61,6 +60,13 @@ class button_notifyme implements renderable, templatable {
      * @var bool
      */
     private $onlist = false;
+
+    /**
+     * $price
+     *
+     * @var array
+     */
+    private $price = [];
 
     /**
      * Constructor
@@ -88,7 +94,7 @@ class button_notifyme implements renderable, templatable {
         $returnarray = [
             'userid' => $this->userid,
             'itemid' => $this->itemid,
-            'price' => $this->price,
+            'price' => $this->price ?? [],
             'area' => 'option',
         ];
 

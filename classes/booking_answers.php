@@ -554,7 +554,6 @@ class booking_answers {
 
     /**
      * Returns the number of active bookings for a given user for the whole instance.
-     * This is not cached!
      *
      * @param int $userid
      * @param int $bookingid not cmid
@@ -570,6 +569,7 @@ class booking_answers {
                 MOD_BOOKING_STATUSPARAM_WAITINGLIST,
             ]
         );
+
         // Do not count reserved options.
         return count($answers);
     }
