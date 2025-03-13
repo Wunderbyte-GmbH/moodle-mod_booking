@@ -354,7 +354,62 @@ class booked_users implements renderable, templatable {
                     /* 'labelcolumn' => 'name', */
                 ],
             ];
+        } else if ($scope == 'optiondate') {
+            global $DB;
+            // We are in optiondate scope, so scopeid is optiondateid.
+            $optionid = $DB->get_field('booking_optiondates', 'optionid', ['id' => $scopeid]);
+            $cmid = singleton_service::get_instance_of_booking_option_settings($optionid)->cmid;
+            if (!empty($cmid)) {
+                // Add checkboxes, so we can perform actions for more than one selected user.
+                $table->addcheckboxes = true;
+
+                // Change presence status action.
+                $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+                $enablepresence = $bookingsettings->enablepresence ?? 0;
+                if ($enablepresence) {
+                    $table->actionbuttons[] = [
+                        'label' => get_string('presence', 'mod_booking'), // Name of your action button.
+                        'class' => 'btn btn-primary btn-sm ml-2',
+                        'href' => '#', // You can either use the link, or JS, or both.
+                        'iclass' => 'fa fa-user-o', // Add an icon before the label.
+                        'formname' => 'mod_booking\\form\\optiondates\\modal_change_status',
+                        'nomodal' => false,
+                        'id' => -1,
+                        'selectionmandatory' => true,
+                        'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+                            'titlestring' => 'changepresencestatus',
+                            'submitbuttonstring' => 'save',
+                            'component' => 'mod_booking',
+                            'cmid' => $cmid,
+                            'optionid' => $optionid ?? 0,
+                            'optiondateid' => $scopeid ?? 0,
+                        ],
+                    ];
+                }
+
+                $table->actionbuttons[] = [
+                    'label' => get_string('notes', 'mod_booking'), // Name of your action button.
+                    'class' => 'btn btn-primary btn-sm ml-1',
+                    'href' => '#', // You can either use the link, or JS, or both.
+                    'iclass' => 'fa fa-pencil', // Add an icon before the label.
+                    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+                    /* 'methodname' => 'mymethod', // The method needs to be added to your child of wunderbyte_table class. */
+                    'formname' => 'mod_booking\\form\\optiondates\\modal_change_notes',
+                    'nomodal' => false,
+                    'id' => -1,
+                    'selectionmandatory' => true,
+                    'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+                        'titlestring' => 'notes',
+                        'submitbuttonstring' => 'save',
+                        'component' => 'mod_booking',
+                        'cmid' => $cmid,
+                        'optionid' => $optionid ?? 0,
+                        'optiondateid' => $scopeid ?? 0,
+                    ],
+                ];
+            }
         }
+
         $html = $table->outhtml(20, false);
         return count($table->rawdata) > 0 ? $html : null;
     }

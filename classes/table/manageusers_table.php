@@ -662,7 +662,7 @@ class manageusers_table extends wunderbyte_table {
                     /* 'methodname' => 'mymethod', // The method needs to be added to your child of wunderbyte_table class. */
                     'formname' => 'mod_booking\\form\\optiondates\\modal_change_status',
                     'nomodal' => false,
-                    'id' => -1,
+                    'id' => $values->id,
                     'selectionmandatory' => false,
                     'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
                         'titlestring' => 'changepresencestatus',
@@ -687,7 +687,7 @@ class manageusers_table extends wunderbyte_table {
             /* 'methodname' => 'mymethod', // The method needs to be added to your child of wunderbyte_table class. */
             'formname' => 'mod_booking\\form\\optiondates\\modal_change_notes',
             'nomodal' => false,
-            'id' => -1,
+            'id' => $values->id,
             'selectionmandatory' => false,
             'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
                 'titlestring' => 'notes',
