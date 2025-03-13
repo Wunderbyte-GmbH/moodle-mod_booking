@@ -111,7 +111,6 @@ class notifymelist implements bo_condition {
             || (
                 class_exists('local_shopping_cart\shopping_cart')
                 && has_capability('local/shopping_cart:cashier', context_system::instance())
-                && $userid != $USER->id
             )
             || !isloggedin()
             || isguestuser()
