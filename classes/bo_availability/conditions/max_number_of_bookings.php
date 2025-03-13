@@ -102,7 +102,11 @@ class max_number_of_bookings implements bo_condition {
         // This value comes from booking instance settings, not $settings, which would be from booking option.
         $maxperuser = $booking->settings->maxperuser;
 
-        if (empty($maxperuser)) {
+        if (
+            empty($maxperuser)
+            || !isloggedin()
+            || isguestuser()
+        ) {
             $isavailable = true;
         } else {
             // Get the number of bookings, either MOD_BOOKING_STATUSPARAM_BOOKED or MOD_BOOKING_STATUSPARAM_WAITINGLIST.
