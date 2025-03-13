@@ -215,7 +215,8 @@ class singleton_service {
         $bookingsettings = self::get_instance_of_booking_settings_by_cmid($cmid);
         $bookingid = $bookingsettings->id;
 
-        if (isset($instance->bookingsbycmid[$cmid])
+        if (
+            isset($instance->bookingsbycmid[$cmid])
             || isset($instance->bookingsbybookingid[$bookingid])
             || isset($instance->bookingsettingsbycmid[$cmid])
             || isset($instance->bookingsettingsbybookingid[$bookingid])
@@ -304,7 +305,6 @@ class singleton_service {
         if (isset($instance->bookingsbycmid[$cmid])) {
             return $instance->bookingsbycmid[$cmid];
         } else {
-
             // Before instating the new booking, we need to make sure that it already exists.
             try {
                 $booking = new booking($cmid);
@@ -426,7 +426,6 @@ class singleton_service {
             } catch (Exception $e) {
                 return null;
             }
-
         }
     }
 
@@ -784,7 +783,7 @@ class singleton_service {
             ];
             $instance->index[$uniqueid][$indexid] = 1;
         } else if (!isset($instance->index[$uniqueid][$indexid])) {
-            $instance->index[$uniqueid]['counter'] ++;
+            $instance->index[$uniqueid]['counter']++;
             $instance->index[$uniqueid][$indexid] = $instance->index[$uniqueid]['counter'];
         }
 

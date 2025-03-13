@@ -25,7 +25,6 @@
 
 namespace mod_booking;
 
-use cache;
 use cache_helper;
 use coding_exception;
 use completion_info;
@@ -61,8 +60,6 @@ use mod_booking\placeholders\placeholders_info;
 use mod_booking\subbookings\subbookings_info;
 use mod_booking\task\send_completion_mails;
 use moodle_exception;
-use MoodleQuickForm;
-
 use Throwable;
 use function get_config;
 
