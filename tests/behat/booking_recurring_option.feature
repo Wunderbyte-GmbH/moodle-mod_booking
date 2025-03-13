@@ -40,8 +40,8 @@ Feature: Create recurring options as tescher and configuring it.
     And I follow "Recurring options"
     And I set the following fields to these values:
       | Repeat this option               | 1   |
-      | How many times to repeat?        | 3   |
-      | How often to repeat?             | day |
+      | Number of repetitions            | 3   |
+      | Repetition interval              | day |
       | requirepreviousoptionstobebooked | 1   |
     And I press "Save"
     And I wait until the page is ready
@@ -58,8 +58,8 @@ Feature: Create recurring options as tescher and configuring it.
     And I set the following fields to these values:
       | Booking option name              | RecurrOptUpd |
       | Repeat this option               | 1    |
-      | How many times to repeat?        | 2    |
-      | How often to repeat?             | Week |
+      | Number of repetitions            | 2    |
+      | Repetition interval              | Week |
       | requirepreviousoptionstobebooked | 1    |
     And I press "Save"
     And I wait until the page is ready
@@ -82,8 +82,8 @@ Feature: Create recurring options as tescher and configuring it.
     And I set the following fields to these values:
       | Booking option name              | RecurrOptUpdMonth |
       | Repeat this option               | 1     |
-      | How many times to repeat?        | 2     |
-      | How often to repeat?             | Month |
+      | Number of repetitions            | 2     |
+      | Repetition interval              | Month |
       | requirepreviousoptionstobebooked |       |
     And I press "Save"
     And I wait until the page is ready
@@ -141,8 +141,8 @@ Feature: Create recurring options as tescher and configuring it.
     And I expand all fieldsets
     And I set the following fields to these values:
       | Repeat this option               | 1   |
-      | How many times to repeat?        | 2   |
-      | How often to repeat?             | day |
+      | Number of repetitions            | 2   |
+      | Repetition interval              | day |
     And I press "Save"
     And I wait until the page is ready
     And I should see "RecurrOpt 1" in the ".allbookingoptionstable_r2" "css_element"
