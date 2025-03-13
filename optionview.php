@@ -47,11 +47,11 @@ $syscontext = context_system::instance();
 // If we have this setting.
 if (!get_config('booking', 'showbookingdetailstoall')) {
     require_login();
-}
 
-// If we have this setting.
-if (!get_config('booking', 'bookonlyondetailspage')) {
-    require_capability('mod/booking:view', $modcontext);
+    // If we have this setting.
+    if (!get_config('booking', 'bookonlyondetailspage')) {
+        require_capability('mod/booking:view', $modcontext);
+    }
 }
 
 $PAGE->set_context($syscontext);
