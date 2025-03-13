@@ -57,22 +57,12 @@ class modal_change_status extends dynamic_form {
     public function definition() {
         $mform = $this->_form;
 
-        $cmid = $this->_ajaxformdata['cmid'] ?? 0;
-        $optionid = $this->_ajaxformdata['optionid'] ?? 0;
-        $optiondateid = $this->_ajaxformdata['optiondateid'] ?? 0;
-        $userid = $this->_ajaxformdata['userid'] ?? 0;
+        // IDs are passed as optionid-optiondateid-userid.
+        $mform->addElement('hidden', 'checkedids', '');
+        $mform->setType('checkedids', PARAM_TEXT);
 
-        $mform->addElement('hidden', 'cmid', $cmid);
-        $mform->setType('cmid', PARAM_INT);
-
-        $mform->addElement('hidden', 'optionid', $optionid);
-        $mform->setType('optionid', PARAM_INT);
-
-        $mform->addElement('hidden', 'optiondateid', $optiondateid);
-        $mform->setType('optiondateid', PARAM_INT);
-
-        $mform->addElement('hidden', 'userid', $userid);
-        $mform->setType('userid', PARAM_INT);
+        $mform->addElement('hidden', 'id', 0);
+        $mform->setType('id', PARAM_RAW);
 
         $mform->addElement(
             'select',
@@ -103,21 +93,31 @@ class modal_change_status extends dynamic_form {
      * @return mixed
      */
     public function process_dynamic_submission() {
-
         $data = $this->get_data();
         if (empty($data->status)) {
             $data->status = 0;
         }
+        if (empty($data->checkedids)) {
+            $data->checkedids = $data->id;
+        }
+        global $DB;
+        $checkedids = explode(',', $data->checkedids);
+        // Just to make sure, we have no empty IDs here.
+        $checkedids = array_filter($checkedids, fn($checkedid) => !empty($checkedid));
 
-        $userid = $this->_ajaxformdata['userid'];
-        $optiondateid = $this->_ajaxformdata['optiondateid'];
-        $optionid = $this->_ajaxformdata['optionid'];
-
-        $optiondateanswer = new optiondate_answer($userid, $optiondateid, $optionid);
-        $optiondateanswer->add_or_update_status($data->status);
-
+        // IDs are passed in the following format: optionid-optiondateid-userid.
+        foreach ($checkedids as $checkedid) {
+            [$optionid, $optiondateid, $userid] = explode('-', $checkedid);
+            if (empty($optionid) || empty($optiondateid) || empty($userid)) {
+                continue;
+            }
+            if (!is_int((int) $optionid) || !is_int((int) $optiondateid) || !is_int((int) $userid)) {
+                continue;
+            }
+            $optiondateanswer = new optiondate_answer($userid, $optiondateid, $optionid);
+            $optiondateanswer->add_or_update_status($data->status);
+        }
         cache_helper::purge_by_event('setbackbookedusertable');
-
         return $data;
     }
 

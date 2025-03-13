@@ -826,8 +826,8 @@ class booking_answers {
                 $fields = 's1.*';
                 $from = "(
                     SELECT " .
-                        $DB->sql_concat("bod.id", "'-'", "u.id") .
-                        " uniqueid,
+                        $DB->sql_concat("bo.id", "'-'", "bod.id", "'-'", "u.id") .
+                        " id,
                         bod.id optiondateid,
                         bod.coursestarttime,
                         bod.courseendtime,
