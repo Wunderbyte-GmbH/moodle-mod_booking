@@ -110,7 +110,7 @@ class max_number_of_bookings implements bo_condition {
         } else {
             // Get the number of bookings, either MOD_BOOKING_STATUSPARAM_BOOKED or MOD_BOOKING_STATUSPARAM_WAITINGLIST.
             $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
-            $numberofbookings = $bookinganswer->get_answers_for_user($userid, $settings->bookingid);
+            $numberofbookings = $bookinganswer->get_count_of_answers_for_user($userid, $settings->bookingid);
 
             // If the $maxperuser-value is smaller then the value we are looking for, we return true.
             if ($numberofbookings < $maxperuser) {

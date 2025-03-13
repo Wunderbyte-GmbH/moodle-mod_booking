@@ -559,7 +559,7 @@ class booking_answers {
      * @param int $bookingid not cmid
      * @return int
      */
-    public function get_answers_for_user(int $userid, int $bookingid) {
+    public function get_count_of_answers_for_user(int $userid, int $bookingid) {
 
         $answers = $this->get_all_answers_for_user_cached(
             $userid,
@@ -569,6 +569,35 @@ class booking_answers {
                 MOD_BOOKING_STATUSPARAM_WAITINGLIST,
             ]
         );
+
+        // If the config setting 'maxperuserdontcountpassed' is set, we don't count passed bookings.
+        if (get_config('booking', 'maxperuserdontcountpassed')) {
+            $now = time();
+            foreach ($answers as $key => $answer) {
+                if (!empty($answer->courseendtime) && $answer->courseendtime < $now) {
+                    unset($answers[$key]);
+                }
+            }
+        }
+        // If the config setting 'maxperuserdontcountcompleted' is set, we don't count completed bookings.
+        if (get_config('booking', 'maxperuserdontcountcompleted')) {
+            foreach ($answers as $key => $answer) {
+                if (
+                    ($answer->completed == 1)
+                    || $answer->status == MOD_BOOKING_PRESENCE_STATUS_COMPLETE
+                    || $answer->status == MOD_BOOKING_PRESENCE_STATUS_ATTENDING
+                ) {
+                    unset($answers[$key]);
+                }
+            }
+        }
+        if (get_config('booking', 'maxperuserdontcountnoshow')) {
+            foreach ($answers as $key => $answer) {
+                if ($answer->status == MOD_BOOKING_PRESENCE_STATUS_NOSHOW) {
+                    unset($answers[$key]);
+                }
+            }
+        }
 
         // Do not count reserved options.
         return count($answers);
@@ -1108,6 +1137,7 @@ class booking_answers {
                 ba.userid,
                 ba.waitinglist,
                 ba.completed,
+                ba.status,
                 ba.timemodified,
                 ba.optionid,
                 ba.timecreated,
