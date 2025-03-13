@@ -49,7 +49,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class notifymelist implements bo_condition {
-
     /** @var int $id Standard Conditions have hardcoded ids. */
     public $id = MOD_BOOKING_BO_COND_NOTIFYMELIST;
 
@@ -134,7 +133,6 @@ class notifymelist implements bo_condition {
                 // If the user is already booked on waitinglist, this is also true.
                 $isavailable = true;
             }
-
         }
 
         // If it's inversed, we inverse.
@@ -257,8 +255,11 @@ class notifymelist implements bo_condition {
         $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
         $bookinginformation = $bookinganswer->return_all_booking_information($userid);
 
-        $notifyme = new button_notifyme($userid, $settings->id,
-                $bookinginformation['notbooked']['onnotifylist'] ?? false);
+        $notifyme = new button_notifyme(
+            $userid,
+            $settings->id,
+            $bookinginformation['notbooked']['onnotifylist'] ?? false
+        );
 
         return [
             'mod_booking/button_notifyme',
