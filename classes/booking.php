@@ -1182,8 +1182,18 @@ class booking {
         $innerfrom .= " $from2 ";
         $innerfrom .= " $from3 ";
 
+        // Updated pattern to capture alias names
+        $pattern1 = '/\bas\s+(\w+)/i';
         $pattern = '/as.*?,/';
-        $addgroupby = preg_replace($pattern, ',', $select1 . ",");
+
+        // Use preg_match_all to find all alias names
+        preg_match_all($pattern1, $select1, $matches);
+
+        // Extract the alias names
+        $aliasnames = $matches[1];
+
+        // Create a GROUP BY clause
+        $addgroupby = implode(', ', $aliasnames);
 
         $groupby .= !empty($addgroupby) ? ' , ' . $addgroupby : '';
 

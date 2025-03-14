@@ -1211,7 +1211,14 @@ class booking_option_settings {
                 );
             }
 
-            $select .= "cfd$counter.value as $name ";
+            $configdata = json_decode($customfield->configdata);
+            if ($configdata && !empty($configdata->multiselect)) {
+                $cfdcolname = $DB->sql_concat("','", "cfd$counter.value", "','");
+                $select .= $cfdcolname . ' as ' . $name . ' ';
+            } else {
+                $cfdcolname = "cfd$counter.value";
+                $select .= " $cfdcolname as $name ";
+            }
 
             // After the last instance, we don't add a comma.
             $select .= $counter >= count($customfields) ? "" : ", ";
