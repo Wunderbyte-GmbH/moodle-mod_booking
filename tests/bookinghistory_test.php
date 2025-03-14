@@ -149,19 +149,19 @@ final class bookinghistory_test extends advanced_testcase {
         // Book the user.
         // Cancel the booking.
         if ($testnumber == 1) {
-        // Try to book again with user1.
+            // Try to book again with user1.
             $student1 = $users['student1'];
             $this->setUser($users['student1']);
-        // Book the first user without any problem.
+            // Book the first user without any problem.
             $boinfo = new bo_info($settings);
 
-        // No answers yet.
+            // No answers yet.
             $answers = $DB->get_records('booking_answers');
             $this->assertCount(0, $answers);
             $historyrecords = $DB->get_records('booking_history');
             $this->assertCount(0, $historyrecords);
 
-        // With these options, cancelling should be possible.
+            // With these options, cancelling should be possible.
             $result = booking_bookit::bookit('option', $settings->id, $student1->id);
             [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
             $this->assertEquals($expected['bookitresults'][0], $id);
@@ -177,7 +177,7 @@ final class bookinghistory_test extends advanced_testcase {
             $status = reset($historyrecords)->status;
             $this->assertEquals($expected['historystatus'][0], $status);
 
-        // Cancellation.
+            // Cancellation.
             $result = booking_bookit::bookit('option', $settings->id, $student1->id);
             [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
             $this->assertEquals($expected['bookitresults'][2], $id);
@@ -192,14 +192,15 @@ final class bookinghistory_test extends advanced_testcase {
             $this->assertCount(2, $historyrecords);
             $status = end($historyrecords)->status;
             $this->assertEquals($expected['historystatus'][1], $status);
+
         } else if ($testnumber == 2) {
              // Try to book again with user1.
              $student1 = $users['student1'];
              $this->setUser($users['student1']);
-         // Book the first user without any problem.
+            // Book the first user without any problem.
              $boinfo = new bo_info($settings);
 
-         // No answers yet.
+            // No answers yet.
              $answers = $DB->get_records('booking_answers');
              $this->assertCount(0, $answers);
              $historyrecords = $DB->get_records('booking_history');
@@ -213,14 +214,13 @@ final class bookinghistory_test extends advanced_testcase {
             [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
             $this->assertEquals($expected['bookitresults'][1], $id);
 
-         // Now Book user2 on the waitinglist.
+            // Now Book user2 on the waitinglist.
             $student2 = $users['student2'];
             $this->setUser($users['student2']);
             $result = booking_bookit::bookit('option', $settings->id, $student2->id);
             $result = booking_bookit::bookit('option', $settings->id, $student2->id);
             [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
             $this->assertEquals($expected['bookitresults'][2], $id);
-
 
             $answers = $DB->get_records('booking_answers');
             $this->assertCount(2, $answers);
@@ -229,7 +229,7 @@ final class bookinghistory_test extends advanced_testcase {
             $status = end($historyrecords)->status;
             $this->assertEquals($expected['historystatus'][0], $status);
 
-        // Now let user2 cancel on the waitinglist.
+            // Now let user2 cancel on the waitinglist.
             $result = booking_bookit::bookit('option', $settings->id, $student2->id);
             [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
             $this->assertEquals($expected['bookitresults'][3], $id);
@@ -244,6 +244,35 @@ final class bookinghistory_test extends advanced_testcase {
             $this->assertCount(3, $historyrecords);
             $status = end($historyrecords)->status;
             $this->assertEquals($expected['historystatus'][1], $status);
+
+        } else if ($testnumber === 3) {
+            $student1 = $users['student1'];
+            $this->setUser($users['student1']);
+            // Book the first user without any problem.
+             $boinfo = new bo_info($settings);
+
+            // No answers yet.
+             $answers = $DB->get_records('booking_answers');
+             $this->assertCount(0, $answers);
+             $historyrecords = $DB->get_records('booking_history');
+             $this->assertCount(0, $historyrecords);
+
+            $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+            [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
+            $this->assertEquals($expected['bookitresults'][0], $id);
+
+            // Confrim Waitinglist.
+            $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+            $option->user_submit_response($student1, 0, 0, 0, MOD_BOOKING_VERIFIED);
+            [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
+            $this->assertEquals($expected['bookitresults'][1], $id);
+
+            $answers = $DB->get_records('booking_answers');
+            $this->assertCount(1, $answers);
+            $historyrecords = $DB->get_records('booking_history');
+            $this->assertCount(2, $historyrecords);
+            $status = end($historyrecords)->status;
+            $this->assertEquals($expected['historystatus'][0], $status);
         }
     }
 
@@ -342,6 +371,50 @@ final class bookinghistory_test extends advanced_testcase {
                     'historystatus' => [
                         MOD_BOOKING_STATUSPARAM_WAITINGLIST,
                         MOD_BOOKING_STATUSPARAM_WAITINGLIST_DELETED,
+                    ],
+                ],
+            ],
+            'userbookingwaitinglistconfirmed' => [
+                [
+                    'testnumber' => 3,
+                    'pluginsettings' => [
+                        [
+                            'component' => 'booking',
+                            'key' => 'notifymelist',
+                            'value' => 1,
+                        ],
+                    ],
+                    'coursesettings' => [
+                        'firstcourse' => [
+                            'enablecompletion' => 1,
+                        ],
+                    ],
+                    'userssettings' => [
+                        'student1' => [],
+                        'student2' => [], // Just a demo how params could be set.
+                    ],
+                    'bookingsettings' => [
+                        [
+                            'cancancelbook' => 1,
+                        ],
+                    ],
+                    'optionsettings' => [
+                        [
+                            'useprice' => 0, // Disable price for this option.
+                            'maxanswers' => 1,
+                            'maxoverbooking' => 1,
+                            'waitforconfirmation' => 1,
+                        ],
+                    ],
+                ],
+                [
+                    'bookitresults' => [
+                        MOD_BOOKING_BO_COND_ONWAITINGLIST,
+                        MOD_BOOKING_BO_COND_ALREADYBOOKED,
+                    ],
+                    'historystatus' => [
+                        MOD_BOOKING_STATUSPARAM_BOOKED, // Placeholder until STATUSPARAM_WAITINGLIST_CONFIRMED im implemented.
+                        MOD_BOOKING_STATUSPARAM_WAITINGLIST_CONFIRMED,
                     ],
                 ],
             ],
