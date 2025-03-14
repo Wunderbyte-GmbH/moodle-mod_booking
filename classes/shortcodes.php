@@ -93,10 +93,13 @@ class shortcodes {
 
         $table = self::init_table_for_courses(null, md5($pageurl));
 
-        $wherearray['recommendedin'] = "$course->shortname";
+        $additionalwhere = " (recommendedin = '$course->shortname'
+                            OR recommendedin = '$course->shortname,%'
+                            OR recommendedin = '%,$course->shortname'
+                            OR recommendedin = '%,$course->shortname,%') ";
 
         [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(0, 0, '', null, null, [], $wherearray);
+                booking::get_options_filter_sql(0, 0, '', null, null, [], [], null, [], $additionalwhere);
 
         // By default, we do not show booking options that have ended in the past.
         // Shortcode arg values get transmitted as string, so also check for "false" and "0".
