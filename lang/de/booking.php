@@ -821,7 +821,7 @@ $string['customfieldname_help'] = 'Sie können einen beliebigen Feldnamen angebe
                                     der nur während des Meetings (und kurz davor) sichtbar ist.';
 $string['customfields'] = 'Benutzerdefinierte Felder';
 $string['customfieldsforfilter'] = 'Benutzerdefinierte Felder, die als Filtermöglichkeit angezeigt werden sollen';
-$string['customfieldsplaceholdertext'] = 'Benutzerdefinierte Felder';
+$string['customfieldsplaceholdertext'] = 'Custom user profile fields & custom booking option fields can be referenced using their shortname';
 $string['customfieldtype'] = 'Feldtyp';
 $string['customfieldvalue'] = 'Wert';
 $string['customfieldvalue_help'] = 'Sie können einen beliebigen Wert für das Feld angeben (Text, Zahl oder HTML).<br>

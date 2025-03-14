@@ -259,9 +259,9 @@ class placeholders_info {
             $class = substr(strrchr($key, '\\'), 1);
 
             if (isset($specialtreatmentclasses[$class])) {
+                self::$localizedplaceholders[$specialtreatmentclasses[$class]] = $class;
                 continue;
             }
-
             // We use the localized strings as keys and the classnames as values.
             self::$localizedplaceholders[get_string($class, 'mod_booking')] = $class;
         }

@@ -30,6 +30,7 @@ use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
+use moodle_url;
 use MoodleQuickForm;
 
 defined('MOODLE_INTERNAL') || die();
@@ -209,6 +210,24 @@ class isloggedin implements bo_condition {
         $label = $this->get_description_string(false, $full, $settings);
         $style = 'btn btn-' . get_config('booking', 'loginbuttonforbookingoptionscoloroptions') ?? 'btn btn-warning';
 
+        $returnurl = "";
+        if (get_config('booking', 'showbookingdetailstoall')) {
+            $returnurl = new moodle_url(
+                '/mod/booking/editoptions.php',
+                [
+                    'id' => $settings->cmid,
+                    'optionid' => $settings->id,
+                ]
+            );
+        }
+
+        $url = new moodle_url(
+            '/login/index.php',
+            [
+                'returnto' => $returnurl,
+            ]
+        );
+
         $button = bo_info::render_button(
             $settings,
             $userid,
@@ -220,7 +239,7 @@ class isloggedin implements bo_condition {
             'option',
             true,
             '',
-            "/login/index.php",
+            $url,
             'fa-play'
         );
 
