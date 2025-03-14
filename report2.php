@@ -79,8 +79,6 @@ if (!empty($optiondateid)) {
     $r2instancecontext = context_module::instance($cmid);
 
     // Check capabilities.
-    require_capability('mod/booking:readresponses', $r2instancecontext);
-    require_capability('mod/booking:managebookedusers', $r2instancecontext);
     if (
         (
             has_capability('mod/booking:updatebooking', $r2instancecontext)
@@ -90,7 +88,11 @@ if (!empty($optiondateid)) {
             )
         ) == false
     ) {
-        throw new moodle_exception('nopermissions');
+        echo $OUTPUT->header();
+        echo $OUTPUT->heading(get_string('accessdenied', 'mod_booking'), 4);
+        echo get_string('nopermissiontoaccesspage', 'mod_booking');
+        echo $OUTPUT->footer();
+        die();
     }
 
     $r2courseurl = new moodle_url('/mod/booking/report2.php', ['courseid' => $courseid]);
@@ -186,8 +188,6 @@ if (!empty($optiondateid)) {
     $r2instancecontext = context_module::instance($cmid);
 
     // Check capabilities.
-    require_capability('mod/booking:readresponses', $r2instancecontext);
-    require_capability('mod/booking:managebookedusers', $r2instancecontext);
     if (
         (
             has_capability('mod/booking:updatebooking', $r2instancecontext)
@@ -197,7 +197,11 @@ if (!empty($optiondateid)) {
             )
         ) == false
     ) {
-        throw new moodle_exception('nopermissions');
+        echo $OUTPUT->header();
+        echo $OUTPUT->heading(get_string('accessdenied', 'mod_booking'), 4);
+        echo get_string('nopermissiontoaccesspage', 'mod_booking');
+        echo $OUTPUT->footer();
+        die();
     }
 
     // To create the correct links.
@@ -275,7 +279,6 @@ if (!empty($optiondateid)) {
     $r2coursecap = has_capability('mod/booking:managebookedusers', $r2coursecontext);
     $r2instancecap = has_capability('mod/booking:managebookedusers', $r2instancecontext);
 
-    require_capability('mod/booking:readresponses', $r2instancecontext);
     require_capability('mod/booking:managebookedusers', $r2instancecontext);
 
     // We only show links, if we have the matching capabilities.
@@ -312,7 +315,6 @@ if (!empty($optiondateid)) {
     // To create the correct links.
     $r2coursecap = has_capability('mod/booking:managebookedusers', $r2coursecontext);
 
-    require_capability('mod/booking:readresponses', $r2coursecontext);
     require_capability('mod/booking:managebookedusers', $r2coursecontext);
 
     // We only show links, if we have the matching capabilities.
@@ -337,7 +339,6 @@ if (!empty($optiondateid)) {
 
     $r2systemurl = new moodle_url('/');
 
-    require_capability('mod/booking:readresponses', $r2syscontext);
     require_capability('mod/booking:managebookedusers', $r2syscontext);
 
     // We only show links, if we have the matching capabilities.

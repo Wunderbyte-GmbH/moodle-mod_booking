@@ -57,6 +57,10 @@ class modal_change_status extends dynamic_form {
     public function definition() {
         $mform = $this->_form;
 
+        $cmid = $this->_ajaxformdata['cmid'] ?? 0;
+        $mform->addElement('hidden', 'cmid', $cmid);
+        $mform->setType('cmid', PARAM_INT);
+
         // IDs are passed as optionid-optiondateid-userid.
         $mform->addElement('hidden', 'checkedids', '');
         $mform->setType('checkedids', PARAM_TEXT);
