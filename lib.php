@@ -752,21 +752,25 @@ function booking_add_instance($booking) {
     if (isset($booking->cancelrelativedate)) {
         booking::add_data_to_json($booking, 'cancelrelativedate', $booking->cancelrelativedate);
     }
-
     if (isset($booking->allowupdatetimestamp)) {
         booking::add_data_to_json($booking, 'allowupdatetimestamp', $booking->allowupdatetimestamp);
     }
-
     if (isset($booking->viewparam)) {
         // Save list view as default value.
         booking::add_data_to_json($booking, "viewparam", MOD_BOOKING_VIEW_PARAM_LIST);
     }
-
+    if (isset($booking->switchtemplates)) {
+        // By default, template switcher is turned off.
+        booking::add_data_to_json($booking, 'switchtemplates', 0);
+    }
+    if (isset($booking->switchtemplatesselection)) {
+        // By default, all booking view templates are selected.
+        booking::add_data_to_json($booking, 'switchtemplatesselection', array_keys(booking::get_array_of_possible_views()));
+    }
     if (isset($booking->disablebooking)) {
         // This will store the correct JSON to $optionvalues->json.
         booking::add_data_to_json($booking, "disablebooking", $booking->disablebooking);
     }
-
     if (isset($booking->overwriteblockingwarnings)) {
         // This will store the correct JSON to $optionvalues->json.
         booking::add_data_to_json($booking, "overwriteblockingwarnings", $booking->overwriteblockingwarnings);
@@ -1053,12 +1057,28 @@ function booking_update_instance($booking) {
     } else {
         booking::add_data_to_json($booking, "disablecancel", 1);
     }
-    // View param (list view or card view) is also stored in JSON.
+    // View param (list view or card view) is stored in JSON.
     if (empty($booking->viewparam)) {
         // Save list view as default value.
         booking::add_data_to_json($booking, "viewparam", MOD_BOOKING_VIEW_PARAM_LIST);
     } else {
         booking::add_data_to_json($booking, "viewparam", $booking->viewparam);
+    }
+    // Template switcher value is stored in JSON: 0 is off, 1 is on.
+    if (empty($booking->switchtemplates)) {
+        // By default, template switcher is turned off.
+        booking::add_data_to_json($booking, 'switchtemplates', 0);
+        // When template switcher is off, we don't need to store selected templates.
+        booking::remove_key_from_json($booking, 'switchtemplatesselection');
+    } else {
+        booking::add_data_to_json($booking, 'switchtemplates', $booking->switchtemplates);
+        // Only if template switcher is active, we store values for selected templates.
+        if (empty($booking->switchtemplatesselection)) {
+            // By default, use all possible templates.
+            booking::add_data_to_json($booking, 'switchtemplatesselection', array_keys(booking::get_array_of_possible_views()));
+        } else {
+            booking::add_data_to_json($booking, 'switchtemplatesselection', $booking->switchtemplatesselection);
+        }
     }
     if (empty($booking->disablebooking)) {
         // This will store the correct JSON to $optionvalues->json.

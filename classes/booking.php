@@ -1922,4 +1922,21 @@ class booking {
         }
         return $presences;
     }
+
+    /**
+     * Helper function to get an array of possible views.
+     * @return array of possible views
+     */
+    public static function get_array_of_possible_views(): array {
+        // List view is always possible.
+        $viewparamoptions = [MOD_BOOKING_VIEW_PARAM_LIST => get_string('viewparam:list', 'mod_booking')];
+        // Additional views like cards view are a PRO feature.
+        if (wb_payment::pro_version_is_activated()) {
+            $viewparamoptions[MOD_BOOKING_VIEW_PARAM_CARDS] = get_string('viewparam:cards', 'mod_booking');
+            $viewparamoptions[MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT] = get_string('viewparam:listimgleft', 'mod_booking');
+            $viewparamoptions[MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT] = get_string('viewparam:listimgright', 'mod_booking');
+            $viewparamoptions[MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF] = get_string('viewparam:listimglefthalf', 'mod_booking');
+        }
+        return $viewparamoptions;
+    }
 }

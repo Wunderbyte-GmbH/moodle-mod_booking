@@ -347,6 +347,12 @@ class booking_settings {
     /** @var int $viewparam */
     public $viewparam = null;
 
+    /** @var int $switchtemplates checkbox (de-)activate template switcher */
+    public $switchtemplates = null;
+
+    /** @var array $switchtemplatesselection an array of templates for the template switcher */
+    public $switchtemplatesselection = null;
+
     /** @var int $overwriteblockingwarnings */
     public $overwriteblockingwarnings = null;
 
