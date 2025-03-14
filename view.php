@@ -26,7 +26,6 @@
  */
 
 use mod_booking\output\business_card;
-use mod_booking\output\mobile;
 use mod_booking\output\view;
 use mod_booking\singleton_service;
 
@@ -43,7 +42,7 @@ $optionid = optional_param('optionid', 0, PARAM_INT);
 $download = optional_param('download', '', PARAM_ALPHA);
 $whichview = optional_param('whichview', '', PARAM_ALPHA);
 
-list($course, $cm) = get_course_and_cm_from_cmid($cmid, 'booking');
+[$course, $cm] = get_course_and_cm_from_cmid($cmid, 'booking');
 require_course_login($course, false, $cm);
 $context = context_module::instance($cm->id);
 
@@ -69,7 +68,8 @@ $PAGE->set_context($context);
 
 // Trigger course_module_viewed event.
 $event = \mod_booking\event\course_module_viewed::create(
-    ['objectid' => $cm->instance, 'context' => $context]);
+    ['objectid' => $cm->instance, 'context' => $context]
+);
 $event->add_record_snapshot('course', $course);
 $event->trigger();
 
@@ -93,8 +93,10 @@ $output = $PAGE->get_renderer('mod_booking');
 echo $OUTPUT->header();
 
 // If we have specified a teacher as organizer, we show a "busines_card" with photo, else legacy organizer description.
-if (!empty($bookingsettings->organizatorname)
-    && ($organizerid = (int)$bookingsettings->organizatorname)) {
+if (
+    !empty($bookingsettings->organizatorname)
+    && ($organizerid = (int)$bookingsettings->organizatorname)
+) {
     $data = new business_card($bookingsettings, $organizerid);
     echo $output->render_business_card($data);
 }
@@ -102,8 +104,12 @@ if (!empty($bookingsettings->organizatorname)
 // Attachments.
 $out = [];
 $fs = get_file_storage();
-$files = $fs->get_area_files($context->id, 'mod_booking', 'myfilemanager',
-        $bookingsettings->id);
+$files = $fs->get_area_files(
+    $context->id,
+    'mod_booking',
+    'myfilemanager',
+    $bookingsettings->id
+);
 
 if (count($files) > 1) {
     echo html_writer::start_tag('div');
@@ -113,8 +119,15 @@ if (count($files) > 1) {
     foreach ($files as $file) {
         if ($file->get_filesize() > 0) {
             $filename = $file->get_filename();
-            $url = moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(),
-                $file->get_itemid(), $file->get_filepath(), $file->get_filename(), true);
+            $url = moodle_url::make_pluginfile_url(
+                $file->get_contextid(),
+                $file->get_component(),
+                $file->get_filearea(),
+                $file->get_itemid(),
+                $file->get_filepath(),
+                $file->get_filename(),
+                true
+            );
             $out[] = html_writer::link($url, $filename);
         }
     }
