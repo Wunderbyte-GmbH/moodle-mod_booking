@@ -47,7 +47,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class confirmcancel implements bo_condition {
-
     /** @var int $id Standard Conditions have hardcoded ids. */
     public $id = MOD_BOOKING_BO_COND_CONFIRMCANCEL;
 
@@ -98,20 +97,21 @@ class confirmcancel implements bo_condition {
         // If we have a price, this condition is not used.
         // The condition is only used when we are on the waiting list.
         if (!empty($settings->jsonobject->useprice)) {
-
             // Get the booking answers for this instance.
             $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
             $bookinginformation = $bookinganswer->return_all_booking_information($userid);
 
-            if (!isset($bookinginformation['onwaitinglist'])
-                && !isset($bookinginformation['iambooked']['paidwithcredits'])) {
+            if (
+                !isset($bookinginformation['onwaitinglist'])
+                && !isset($bookinginformation['iambooked']['paidwithcredits'])
+            ) {
                 $isavailable = true; // True means, it won't be shown.
             }
 
             if (
                 $isavailable
                 && empty((float)($price['price'] ?? 0))
-                && empty(get_config('mod_booking', 'displayemptyprice'))
+                && empty(get_config('booking', 'displayemptyprice'))
             ) {
                 // We might want to override this, if there is a zero price.
                 $isavailable = false;
@@ -246,8 +246,17 @@ class confirmcancel implements bo_condition {
         }
         $label = $this->get_description_string();
 
-        return bo_info::render_button($settings, $userid, $label, 'btn btn-danger ml-1', false, $fullwidth,
-            'button', 'option', false);
+        return bo_info::render_button(
+            $settings,
+            $userid,
+            $label,
+            'btn btn-danger ml-1',
+            false,
+            $fullwidth,
+            'button',
+            'option',
+            false
+        );
     }
 
     /**

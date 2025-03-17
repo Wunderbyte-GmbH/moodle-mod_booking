@@ -309,7 +309,7 @@ class cancelmyself implements bo_condition {
 
             if (
                 !empty((float)($price['price'] ?? 0))
-                || !empty(get_config('mod_booking', 'displayemptyprice'))
+                || !empty(get_config('booking', 'displayemptyprice'))
             ) {
                 // Get the booking answers for this instance.
                 $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);

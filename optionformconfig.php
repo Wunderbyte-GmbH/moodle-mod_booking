@@ -35,7 +35,7 @@ $urlparams = [
 ];
 
 if (!empty($cmid)) {
-    list($course, $cm) = get_course_and_cm_from_cmid($cmid, 'booking');
+    [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'booking');
     require_course_login($course, false, $cm);
     $context = context_module::instance($cm->id);
     $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
@@ -46,14 +46,13 @@ if (!empty($cmid)) {
 } else {
     require_login();
     $context = context_system::instance();
-    $name = get_config('bookingconfig', 'mod_booking');
+    $name = get_config('booking', 'bookingconfig');
     require_login();
     // Set page context.
     $PAGE->set_context($context);
     // Set page layout.
     $PAGE->set_pagelayout('admin');
 }
-
 
 $baseurl = new moodle_url('/mod/booking/optionformconfig.php', $urlparams);
 $PAGE->set_url($baseurl);
