@@ -114,6 +114,9 @@ class booking_settings {
     /** @var int $addtogroup */
     public $addtogroup = null;
 
+    /** @var array $addtogroupofcurrentcourse */
+    public $addtogroupofcurrentcourse = null;
+
     /** @var string $categoryid One or more category ids - separated with commas. */
     public $categoryid = null;
 

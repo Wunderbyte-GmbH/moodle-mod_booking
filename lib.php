@@ -770,6 +770,11 @@ function booking_add_instance($booking) {
         }
         booking::add_data_to_json($booking, "customfieldsforfilter", $fieldsfordb);
     }
+
+    if (isset($booking->addtogroupofcurrentcourse)) {
+        // This will store the correct JSON to $optionvalues->json.
+        booking::add_data_to_json($booking, "addtogroupofcurrentcourse", $booking->addtogroupofcurrentcourse);
+    }
     // If no policy was entered, we still have to check for HTML tags.
     if (!isset($booking->bookingpolicy) || empty(strip_tags($booking->bookingpolicy))) {
         $booking->bookingpolicy = '';
@@ -1099,6 +1104,17 @@ function booking_update_instance($booking) {
             $fieldsfordb[$field->shortname] = $field->name;
         }
         booking::add_data_to_json($booking, "customfieldsforfilter", $fieldsfordb);
+    }
+
+    if (isset($booking->addtogroupofcurrentcourse)) {
+        // This will store the correct JSON to $optionvalues->json.
+        booking::add_data_to_json($booking, "addtogroupofcurrentcourse", $booking->addtogroupofcurrentcourse);
+    }
+    if (empty($booking->addtogroupofcurrentcourse)) {
+        // This will store the correct JSON to $optionvalues->json.
+        booking::remove_key_from_json($booking, "addtogroupofcurrentcourse");
+    } else {
+        booking::add_data_to_json($booking, "addtogroupofcurrentcourse", $booking->addtogroupofcurrentcourse);
     }
 
     // Update, delete or insert answers.

@@ -64,8 +64,12 @@ $string['addsemester'] = 'Semester hinzufügen';
 $string['addtocalendar'] = 'Zum Kurs-Kalender hinzufügen';
 $string['addtocalendardesc'] = 'Kurs-Kalenderevents können von ALLEN Kursteilnehmer:innen des Kurses gesehen werden. Falls Sie nicht möchten, dass Kurs-Kalenderevents
 erstellt werden, können Sie diese Einstellung standardmäßig ausschalten und sperren. Keine Sorge: Normale Kalenderevents für gebuchte Optionen (User-Events) werden weiterhin erstellt.';
-$string['addtogroup'] = 'Nutzer:innen automatisch in Gruppe einschreiben';
+$string['addtogroup'] = 'Nutzer:innen automatisch in Gruppe des verknüpften Kurses einschreiben';
 $string['addtogroup_help'] = 'Nutzer:innen automatisch in Gruppe des in der Buchungsoption verknüpften Kurses eintragen. Die Gruppe wird nach folgendem Schema automatisch erstellt: Aktivitätsname - Name der Buchungsoption';
+$string['addtogroupofcurrentcourse'] = 'Benutzer automatisch in Gruppen des aktuellen Kurses einschreiben';
+$string['addtogroupofcurrentcourse_help'] = "Wählen Sie die Gruppe(n) des aktuellen Kurses aus, in die die Benutzer eingeschrieben werden sollen, sobald sie mindestens eine der Buchungsoptionen in dieser Instanz gebucht haben. Gruppen müssen zuvor innerhalb dieses Kurses erstellt werden.</br>
+Es ist auch möglich, Benutzer für jede gebuchte Option in eine bestimmte Gruppe einzuschreiben. Diese Gruppen werden nach der jeweiligen Buchungsoption benannt.";
+$string['addtogroupofcurrentcoursebookingoption'] = "In spezifische Gruppe für jede gebuchte Option einschreiben";
 $string['adminparameter_desc'] = "Benutze die Parameter aus den Admin Einstellungen.";
 $string['adminparametervalue'] = "Admin Parameter";
 $string['advancedoptions'] = 'Erweiterte Einstellungen';
@@ -126,7 +130,7 @@ $string['autcrheader'] = '[VERALTET] Automatisches Erstellen von Buchungsoptione
 $string['autcrwhatitis'] = 'If this option is enabled it automatically creates a new booking option and assigns
  a user as booking manager / teacher to it. Users are selected based on a custom user profile field value.';
 $string['autoenrol'] = 'Nutzer:innen automatisch einschreiben';
-$string['autoenrol_help'] = 'Fals ausgewählt werden Nutzer:innen automatisch in den Kurs eingeschrieben sobald sie die Buchung durchgeführt haben und wieder ausgetragen, wenn die Buchung storniert wird.';
+$string['autoenrol_help'] = 'Falls ausgewählt werden Nutzer:innen automatisch in den Kurs eingeschrieben sobald sie die Buchung durchgeführt haben und wieder ausgetragen, wenn die Buchung storniert wird.';
 $string['automaticcoursecreation'] = 'Automatische Erstellung von Moodle-Kursen <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['availability'] = 'Verfügbarkeit';
 $string['availabilityconditions'] = 'Verfügbarkeit einschränken';
