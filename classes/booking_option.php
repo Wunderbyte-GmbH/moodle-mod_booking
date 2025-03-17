@@ -38,6 +38,7 @@ use invalid_parameter_exception;
 use local_entities\entitiesrelation_handler;
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\event\booking_rulesexecutionfailed;
+use mod_booking\event\bookinganswer_presencechanged;
 use mod_booking\event\bookinganswer_waitingforconfirmation;
 use mod_booking\event\bookingoption_bookedviaautoenrol;
 use mod_booking\option\dates_handler;
@@ -2086,7 +2087,7 @@ class booking_option {
      * @param int $presencestatus
      */
     public function changepresencestatus($allselectedusers, $presencestatus) {
-        global $DB;
+        global $DB, $COURSE;
 
         foreach ($allselectedusers as $ui) {
             $userdata = $DB->get_record_sql(
@@ -2096,9 +2097,28 @@ class booking_option {
                 ['optionid' => $this->optionid, 'userid' => $ui]
             );
 
+            $status = MOD_BOOKING_STATUSPARAM_PRESENCE_CHANGED;
+            $answerid = $userdata->id;
+            $optionid = $userdata->optionid;
+            $bookingid = $userdata->bookingid;
+            $userid = $userdata->userid;
+            $presenceold = $userdata->status;
+
+            // TODO: Bookinghistorytable extra Field for presence and presencechange.
+            self::booking_history_insert($status, $answerid, $optionid, $bookingid, $userid);
             $userdata->status = $presencestatus;
-            // TODO: Booking_history ??
-            $DB->update_record('booking_answers', $userdata);
+
+            $coursecontext = \context_course::instance($COURSE->id);
+            $event = bookinganswer_presencechanged::create([
+                'objectid' => $this->optionid,
+                'contextid' => $coursecontext->id,
+                'relateduserid' => $ui,
+                'other' => [
+                    'presenceold' => $presenceold,
+                    'presencenew' => $presencestatus,
+                ],
+            ]);
+            $event->trigger();
         }
 
         // After updating, cache has to be invalidated.
