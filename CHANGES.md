@@ -1,5 +1,23 @@
+## Version 8.11.0 (2025031700)
+* New Feature: Recurring options
+* New feature: Change status and checkboxes in bookings tracker on session level using checkboxes.
+* Improvement: In case of an error when querying booking answers, catch the error if not in debug mode.
+* Improvement: Show invisible options in bulkoperations and add visibility filter MUSI-678 #870
+* Improvement: Notification list should never block for users with cashier capability.
+* Bugfix: If param all=true is NOT set, we show all booking options ending today or later.
+* Bugfix: Add args to bulkoperations table to make sure cache is built correctly
+* Bugfix: Possibility to hide coursestarttime & showdates filter in shortcodes standardtable
+* Bugfix: append coursestarttime to default optionfields
+* Bugfix: config setting showbookingdetailstoall actually works
+* Bugfix: Maxperuser must not block if user is not logged-in or guest user.
+* Bugfix: Restore broken functionality for config settings maxperuserdontcountpassed, maxperuserdontcountcompleted, maxperuserdontcountnoshow.
+* Bugfix: Recommendedin for multiple shortnames
+* Bugfix: customfields placeholder not showing in rules placeholder overview
+* Bugfix: Correct returnurl for isloggedin condition
+* Tests: Extend tests
+
 ## Version 8.10.9 (2025031201)
-Bugfix: Link to Moodle course in Moodle Mobile App
+* Bugfix: Link to Moodle course in Moodle Mobile App
 
 ## Version 8.10.8 (2025031200)
 * New feature: Pre-configured rule templates - users can now replace
