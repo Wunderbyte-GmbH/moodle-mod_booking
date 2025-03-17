@@ -1686,8 +1686,7 @@ class booking_option {
                 }
             }
 
-            // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
-            // TODO: Track enrolment status in booking_answers. It makes no sense to track it in booking_options.
+            // Enrol into group of related (linked) Course.
             if ($bookingsettings->addtogroup == 1) {
                 $groups = groups_get_all_groups($courseid);
                 if (
