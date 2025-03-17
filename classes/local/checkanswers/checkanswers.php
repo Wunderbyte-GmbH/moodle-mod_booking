@@ -83,8 +83,8 @@ class checkanswers {
         $additionalwhere = '';
         $params = ['contextid' => $contextid];
 
-        // Don't do anythiing when setting is not correct.
-        if (!get_config('mod_booking', 'unenroluserswithoutaccess')) {
+        // Don't do anything when setting is not active.
+        if (!get_config('booking', 'unenroluserswithoutaccess')) {
             return;
         }
 
@@ -105,13 +105,13 @@ class checkanswers {
                 WHERE ctx.path LIKE (SELECT path FROM {context} WHERE id = :contextid) || '%'
                 $additionalwhere ";
 
-        $bookingoptions = $DB->get_records_sql($sql, $params);
+        $bookingoptionrecords = $DB->get_records_sql($sql, $params);
 
-        foreach ($bookingoptions as $option) {
+        foreach ($bookingoptionrecords as $borecord) {
             $task = new check_answers();
             $task->set_custom_data(
                 [
-                    'optionid' => $option->id,
+                    'optionid' => $borecord->id,
                     'check' => $check,
                     'action' => $action,
                     'userid' => $userid,
@@ -120,9 +120,9 @@ class checkanswers {
             // For security, we schedule the taks five minutes in the future.
             // This will give the possiblity to cancel the task if needed.
             if (PHPUNIT_TEST) {
-                $executiontime = strtotime('- 5 minutes');
+                $executiontime = time(); // Now.
             } else {
-                $executiontime = strtotime('+ 5 minutes');
+                $executiontime = strtotime('+ 15 minutes');
             }
             $task->set_next_run_time($executiontime);
             manager::queue_adhoc_task($task);

@@ -119,6 +119,19 @@ class mod_booking_observer {
                 );
             }
         }
+
+        // When a user is unenrolled from a course, check if we need to delete her answer.
+        $userid = $event->relateduserid; // The user who was unenrolled.
+        $courseid = $event->courseid;
+
+        $context = context_course::instance($courseid) ?? context_system::instance();
+
+        checkanswers::create_bookinganswers_check_tasks(
+            $context->id, // System context, so everywhere.
+            checkanswers::CHECK_COURSE_ENROLLMENT,
+            checkanswers::ACTION_DELETE,
+            $userid
+        );
     }
 
     /**
@@ -488,29 +501,5 @@ class mod_booking_observer {
                 checkanswers::create_bookinganswers_check_tasks($context->id, checkanswers::CHECK_CM_VISIBILITY);
             }
         }
-    }
-
-    /**
-     * When a user is unenrolled from a course, check if we need to delete her answer.
-     *
-     * @param \core\event\user_enrolment_deleted $event
-     *
-     * @return void
-     *
-     */
-    public static function user_unenrolled(\core\event\user_enrolment_deleted $event) {
-        global $DB;
-
-        $userid = $event->relateduserid; // The user who was unenrolled.
-        $courseid = $event->courseid;
-
-        $context = context_course::instance($courseid) ?? context_system::instance();
-
-        checkanswers::create_bookinganswers_check_tasks(
-            $context->id, // System context, so everywhere.
-            checkanswers::CHECK_COURSE_ENROLLMENT,
-            checkanswers::ACTION_DELETE,
-            $userid
-        );
     }
 }

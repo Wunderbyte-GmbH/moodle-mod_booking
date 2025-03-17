@@ -33,6 +33,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 require_once($CFG->dirroot . '/user/profile/lib.php');
 
 use mod_booking\booking;
+use mod_booking\local\checkanswers\checkanswers;
 use mod_booking\price;
 use mod_booking\utils\wb_payment;
 
@@ -607,14 +608,25 @@ if ($ADMIN->fulltree) {
                 booking::get_possible_presences(true)
             )
         );
-        $settings->add(
-            new admin_setting_configcheckbox(
-                'booking/unenroluserswithoutaccess',
-                get_string('unenroluserswithoutaccess', 'mod_booking'),
-                get_string('unenroluserswithoutaccess_desc', 'mod_booking'),
-                0
-            )
+
+        // Unenrol users without access.
+        $unenroluserswithoutaccess = new admin_setting_configcheckbox(
+            'booking/unenroluserswithoutaccess',
+            get_string('unenroluserswithoutaccess', 'mod_booking'),
+            get_string('unenroluserswithoutaccess_desc', 'mod_booking'),
+            0
         );
+        // Make sure, we immediately start this task when the checkbox is activated.
+        $unenroluserswithoutaccess->set_updatedcallback(function () {
+            $syscontext = context_system::instance();
+            checkanswers::create_bookinganswers_check_tasks(
+                $syscontext->id, // System context, so everywhere.
+                checkanswers::CHECK_ALL,
+                checkanswers::ACTION_DELETE,
+                0 // Do it for all users.
+            );
+        });
+        $settings->add($unenroluserswithoutaccess);
 
         // PRO feature: Teacher settings.
         $settings->add(

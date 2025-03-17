@@ -60,7 +60,7 @@ class check_answers extends \core\task\adhoc_task {
             return;
         }
 
-        if (!get_config('mod_booking', 'unenroluserswithoutaccess')) {
+        if (!get_config('booking', 'unenroluserswithoutaccess')) {
             return;
         }
 
