@@ -503,4 +503,14 @@ class mod_booking_observer {
             }
         }
     }
+    /**
+     * React on changed presences in bookingoption.
+     *
+     * @param \mod_booking\event\bookinganswer_presencechanged $event
+     *
+     * @return void
+     *
+     */
+    public static function bookinganswer_presencechanged(\mod_booking\event\bookinganswer_presencechanged $event) {
+    }
 }
