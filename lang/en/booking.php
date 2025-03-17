@@ -994,7 +994,7 @@ $string['displaytext'] = "Display text";
 $string['dontaddpersonalevents'] = 'Dont add personal calendar events';
 $string['dontaddpersonaleventsdesc'] = 'For each booked option and for all of its sessions, personal events are created in the moodle calendar. Suppressing them improves performance for heavy load sites.';
 $string['dontmove'] = 'Don\'t move';
-$string['dontuse'] = 'Don\'t use template';
+$string['dontusetemplate'] = 'Don\'t use template';
 $string['download'] = 'Download';
 $string['downloadallresponses'] = 'Download all responses for all booking options';
 $string['downloaddemofile'] = 'Download demofile';
@@ -1540,7 +1540,7 @@ $string['nodirectbookingbecauseofprice'] = 'Booking for others is only partially
     <li>the waiting list is not globally deactivated</li>
     </ul>
     The intention of this behaviour is to prevent "mixed" bookings with and without shopping cart. Please use shopping cart cashier function to book users.';
-$string['noelement'] = "No Element";
+$string['noelement'] = "No element";
 $string['noeventtypeselected'] = 'No event type selected';
 $string['nofieldchosen'] = 'No field chosen';
 $string['nofieldofstudyfound'] = "No field of study could be determined via cohorts";
@@ -2433,7 +2433,10 @@ $string['unconfirmbookinglong'] = 'Do you really want to delete the confirmation
 $string['undocancelreason'] = "Do you really want to undo the cancellation of this booking option?";
 $string['undocancelthisbookingoption'] = "Undo cancelling of this booking option";
 $string['unenroluserswithoutaccess'] = 'Delete booking answers of users without access';
-$string['unenroluserswithoutaccess_desc'] = 'Automatically delete booking answers of users who no longer have access to a Moodle course or a booking activity. Note: This may make tracking more difficult. The deletion of the booking_answers always happens asynchronously with a few minutes delay. Therefore, unchecking the box can still prevent the deletion of bookings answers if it occurs immediately after an action (e.g., mistakenly unenrolling a user from a course).';
+$string['unenroluserswithoutaccess_desc'] = 'Automatically delete booking answers of users who no longer have access to a Moodle course
+or a booking activity. Note: This might make tracking more difficult. The deletion of the booking_answers always happens asynchronously
+with a few minutes delay. Therefore, unchecking the box can still prevent the deletion of bookings answers if it occurs immediately after an action
+(e.g. unenrolling a user from a course by mistake).';
 $string['units'] = 'Units';
 $string['unitscourses'] = 'Courses / Units';
 $string['unitsunknown'] = 'Number of units unknown';

@@ -380,7 +380,7 @@ class mod_booking_mod_form extends moodleform_mod {
 
         // Choose default template.
         $alloptiontemplates = $DB->get_records_menu('booking_options', ['bookingid' => 0], '', $fields = 'id, text', 0, 0);
-        $alloptiontemplates[0] = get_string('dontuse', 'booking');
+        $alloptiontemplates[0] = get_string('dontusetemplate', 'booking');
         $mform->addElement(
             'select',
             'templateid',

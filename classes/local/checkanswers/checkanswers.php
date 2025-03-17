@@ -26,12 +26,9 @@
 namespace mod_booking\local\checkanswers;
 use core\task\manager;
 use core_component;
-use Exception;
-use mod_booking\booking_answers;
 use mod_booking\singleton_service;
 use mod_booking\task\check_answers;
 use stdClass;
-
 
 /**
  * This class will check if booking answers are still valid.

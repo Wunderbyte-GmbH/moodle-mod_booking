@@ -983,7 +983,7 @@ $string['displaytext'] = "Text anzeigen";
 $string['dontaddpersonalevents'] = 'Keine Einträge im persönlichen Kalender erstellen.';
 $string['dontaddpersonaleventsdesc'] = 'Für jede Buchung und alle Termine werden eigene Einträge im persönlichen Kalender der TeilnehmerInnen erstellt. Für eine bessere Performance auf sehr intensiv genutzten Seiten kann diese Funktion deaktiviert werden.';
 $string['dontmove'] = 'Nicht bewegen';
-$string['dontuse'] = 'Vorlage nicht verwenden';
+$string['dontusetemplate'] = 'Vorlage nicht verwenden';
 $string['download'] = 'Download';
 $string['downloadallresponses'] = 'Alle Buchungen herunterladen';
 $string['downloaddemofile'] = 'Demofile herunterladen';
@@ -2364,7 +2364,10 @@ $string['unconfirmbookinglong'] = 'Wollen Sie die Bestätigung dieser Buchung wi
 $string['undocancelreason'] = "Möchten Sie wirklich die Stornierung dieser Buchungsoption rückgängig machen?";
 $string['undocancelthisbookingoption'] = "Stornierung rückgängig machen";
 $string['unenroluserswithoutaccess'] = 'Abmelden von Nutzer:innen ohne Zugang';
-$string['unenroluserswithoutaccess_desc'] = 'Melde NutzerInnen automatisch ab die keinen Zugang mehr zu einem Moodle Kurs oder einer Buchungsaktivität haben. Achtung: Damit wird die Nachverfolgung womöglich erschwert. Die Ausschreibung geschieht immer asynchron mit ein paar Miinuten Verzögerung. Daher kann das Entfernen des Häkchens ein Löschen der Buchungen auch dann noch verhindern, wenn es unmittelbar nach einer Aktion passiert (z.b. ein irrtümliches Ausschreiben einer Nutzer:in aus einem Kurs.';
+$string['unenroluserswithoutaccess_desc'] = 'Melde Nutzer:innen automatisch ab, die keinen Zugang mehr zu einem Moodle-Kurs oder einer Buchungsaktivität haben.
+Achtung: Damit wird die Nachverfolgung womöglich erschwert. Die Ausschreibung geschieht immer asynchron mit ein paar Minuten Verzögerung.
+Daher kann das Entfernen des Häkchens ein Löschen der Buchungen auch dann noch verhindern, wenn es unmittelbar nach einer Aktion passiert
+(z.b. ein irrtümliches Ausschreiben einer Nutzer:in aus einem Kurs.';
 $string['units'] = 'UE';
 $string['unitscourses'] = 'Kurse / UE';
 $string['unitsunknown'] = 'Anzahl UE unbekannt';

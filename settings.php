@@ -465,7 +465,7 @@ if ($ADMIN->fulltree) {
                     'booking/maxoptionsfromcategoryfield',
                     get_string('maxoptionsfromcategoryfield', 'mod_booking'),
                     get_string('maxoptionsfromcategoryfielddesc', 'mod_booking'),
-                   '',
+                    '',
                     $customfieldshortnames
                 )
             );
@@ -1295,7 +1295,7 @@ if ($ADMIN->fulltree) {
         )
     );
 
-    $alltemplates = ['0' => get_string('dontuse', 'booking')];
+    $alltemplates = ['0' => get_string('dontusetemplate', 'booking')];
     $alloptiontemplates = $DB->get_records('booking_options', ['bookingid' => 0], '', $fields = 'id, text', 0, 0);
 
     foreach ($alloptiontemplates as $key => $value) {
