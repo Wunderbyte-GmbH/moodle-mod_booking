@@ -1146,7 +1146,10 @@ function booking_update_instance($booking) {
     booking::purge_cache_for_booking_instance_by_cmid($cm->id);
 
     // Bugfix: If source of mail templates is global templates, we do not need to save instance mail templates.
-    if ($booking->mailtemplatessource == 1) {
+    if (
+        isset($booking->mailtemplatessource)
+        && $booking->mailtemplatessource == 1
+    ) {
         unset($booking->bookedtext);
         unset($booking->waitingtext);
         unset($booking->notifyemail);
