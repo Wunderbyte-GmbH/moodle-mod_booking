@@ -1943,6 +1943,9 @@ $string['recordsimporteddescription'] = '{$a} booking options imported via csv';
 $string['recreategroup'] = 'Recreate group in the target course and enrol users in group';
 $string['recurringchildoptions'] = 'Children of this booking option:';
 $string['recurringheader'] = '<i class="fa-solid fa-repeat" aria-hidden="true"></i>&nbsp;Recurring options';
+$string['recurringnotpossibleinfo'] = '<div class="alert alert-info" role="alert">
+    It’s not possible to create children for this booking option, since it’s already the child of an option.
+    </div>';
 $string['recurringoptions'] = 'Recurring booking options';
 $string['recurringparentoption'] = 'Parent of this option:';
 $string['recurringsameparentoptions'] = 'Bookingoption(s) with same parent:';

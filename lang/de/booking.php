@@ -1890,6 +1890,9 @@ $string['recordsimporteddescription'] = '{$a} Buchungsoptionen importiert via CS
 $string['recreategroup'] = 'Gruppe erneut anlegen und Nutzer:innen der Gruppe zuordnen';
 $string['recurringchildoptions'] = '"Kinder" dieser Buchungsoption:';
 $string['recurringheader'] = '<i class="fa-solid fa-repeat" aria-hidden="true"></i>&nbsp;Wiederkehrende Optionen';
+$string['recurringnotpossibleinfo'] = '<div class="alert alert-info" role="alert">
+    Für diese Buchungsoption können keine Wiederkehrenden Optionen erstellt werden, weil sie selbst ein "Kind" einer anderen Option ist.
+    </div>';
 $string['recurringoptions'] = 'Wiederkehrende Buchungs Optionen';
 $string['recurringparentoption'] = 'Vorlage dieser Buchungsoption:';
 $string['recurringsameparentoptions'] = 'Buchungsoption(en) mit gleicher Vorlage:';

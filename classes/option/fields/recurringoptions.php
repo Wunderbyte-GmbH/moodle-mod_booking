@@ -154,7 +154,7 @@ class recurringoptions extends field_base {
                 'parentid2' => $settings->parentid,
             ];
             if (!empty($settings->parentid)) {
-                $sql .= ' AND id = :parentid1 OR parentid = :parentid2';
+                $sql .= ' OR id = :parentid1 OR parentid = :parentid2';
             }
 
             $linkedlist = $DB->get_records_sql($sql, $params);
@@ -179,7 +179,7 @@ class recurringoptions extends field_base {
                 foreach ($linkedlist as $record) {
                     if ($record->parentid == $settings->id) {
                         $ischildofcurrent[] = $record;
-                    } else if ($record->id == $settings->parentid) {
+                    } else if ($record->parentid == $settings->parentid) {
                         $sameparent[] = $record;
                     } else if ($settings->parentid == $record->id) {
                         $isparentofcurrent[] = $record;
@@ -229,58 +229,63 @@ class recurringoptions extends field_base {
                 }
             }
 
-            $mform->addElement(
-                'checkbox',
-                'repeatthisbooking',
-                get_string('repeatthisbooking', 'mod_booking')
-            );
-            $mform->addElement(
-                'text',
-                'howmanytimestorepeat',
-                get_string('howmanytimestorepeat', 'mod_booking')
-            );
-            $mform->setType('howmanytimestorepeat', PARAM_INT);
-            $mform->setDefault('howmanytimestorepeat', 1);
-            $mform->disabledIf('howmanytimestorepeat', 'repeatthisbooking', 'notchecked');
-            $howoften = [
-                86400 => get_string('day'),
-                604800 => get_string('week'),
-                2592000 => get_string('month'),
-            ];
-            $mform->addElement(
-                'select',
-                'howoftentorepeat',
-                get_string(
+            if (!empty($isparentofcurrent)) {
+                // For children we don't support creating of further recurrings.
+                $mform->addElement('html', get_string('recurringnotpossibleinfo', 'mod_booking'));
+            } else {
+                $mform->addElement(
+                    'checkbox',
+                    'repeatthisbooking',
+                    get_string('repeatthisbooking', 'mod_booking')
+                );
+                $mform->addElement(
+                    'text',
+                    'howmanytimestorepeat',
+                    get_string('howmanytimestorepeat', 'mod_booking')
+                );
+                $mform->setType('howmanytimestorepeat', PARAM_INT);
+                $mform->setDefault('howmanytimestorepeat', 1);
+                $mform->disabledIf('howmanytimestorepeat', 'repeatthisbooking', 'notchecked');
+                $howoften = [
+                    86400 => get_string('day'),
+                    604800 => get_string('week'),
+                    2592000 => get_string('month'),
+                ];
+                $mform->addElement(
+                    'select',
                     'howoftentorepeat',
-                    'mod_booking'
-                ),
-                $howoften
-            );
-            $mform->setType('howoftentorepeat', PARAM_INT);
-            $mform->setDefault('howoftentorepeat', 86400);
-            $mform->disabledIf('howoftentorepeat', 'repeatthisbooking', 'notchecked');
+                    get_string(
+                        'howoftentorepeat',
+                        'mod_booking'
+                    ),
+                    $howoften
+                );
+                $mform->setType('howoftentorepeat', PARAM_INT);
+                $mform->setDefault('howoftentorepeat', 86400);
+                $mform->disabledIf('howoftentorepeat', 'repeatthisbooking', 'notchecked');
 
-            $mform->addElement(
-                'advcheckbox',
-                'requirepreviousoptionstobebooked',
-                get_string('requirepreviousoptionstobebooked', 'mod_booking')
-            );
-            $mform->setDefault('requirepreviousoptionstobebooked', 0);
-            $mform->hideIf('apply_to_children', 'repeatthisbooking', 'eq', 0);
+                $mform->addElement(
+                    'advcheckbox',
+                    'requirepreviousoptionstobebooked',
+                    get_string('requirepreviousoptionstobebooked', 'mod_booking')
+                );
+                $mform->setDefault('requirepreviousoptionstobebooked', 0);
+                $mform->hideIf('apply_to_children', 'repeatthisbooking', 'eq', 0);
 
-            $mform->addElement('static', 'recurringsaveinfo', '', get_string('recurringsaveinfo', 'mod_booking'));
-            $mform->hideIf('recurringsaveinfo', 'repeatthisbooking', 'notchecked');
+                $mform->addElement('static', 'recurringsaveinfo', '', get_string('recurringsaveinfo', 'mod_booking'));
+                $mform->hideIf('recurringsaveinfo', 'repeatthisbooking', 'notchecked');
 
-            // Hidden input to track if the form has been validated before.
-            $mform->addElement('hidden', 'validated_once', 0);
-            $mform->setDefault('validated_once', 0);
-            $mform->setType('validated_once', PARAM_INT);
+                // Hidden input to track if the form has been validated before.
+                $mform->addElement('hidden', 'validated_once', 0);
+                $mform->setDefault('validated_once', 0);
+                $mform->setType('validated_once', PARAM_INT);
 
-            $mform->addElement('advcheckbox', 'apply_to_children', get_string('confirmrecurringoption', 'mod_booking'));
-            $mform->setDefault('apply_to_children', 0);
-            $mform->hideIf('apply_to_children', 'validated_once', 'eq', 0);
-            $mform->addElement('static', 'recurringsavedatesinfo', '', get_string('recurringsavedatesinfo', 'mod_booking'));
-            $mform->hideIf('recurringsavedatesinfo', 'apply_to_children', 'eq', 0);
+                $mform->addElement('advcheckbox', 'apply_to_children', get_string('confirmrecurringoption', 'mod_booking'));
+                $mform->setDefault('apply_to_children', 0);
+                $mform->hideIf('apply_to_children', 'validated_once', 'eq', 0);
+                $mform->addElement('static', 'recurringsavedatesinfo', '', get_string('recurringsavedatesinfo', 'mod_booking'));
+                $mform->hideIf('recurringsavedatesinfo', 'apply_to_children', 'eq', 0);
+            }
         } else if ($formdata['id']) {
             $mform->addElement(
                 'header',
