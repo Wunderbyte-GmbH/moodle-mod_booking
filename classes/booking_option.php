@@ -2072,6 +2072,7 @@ class booking_option {
                 ],
             ]);
             $event->trigger();
+            $DB->update_record('booking_answers', $userdata);
         }
 
         // After updating, cache has to be invalidated.
