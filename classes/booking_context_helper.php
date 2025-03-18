@@ -17,6 +17,7 @@
 namespace mod_booking;
 
 use context_module;
+use moodle_exception;
 use moodle_page;
 use Throwable;
 
@@ -41,8 +42,8 @@ class booking_context_helper {
 
         // With shortcodes & webservice we might not have a valid context object.
         try {
-            if (empty($PAGE->url->out(false))) {
-                throw new Throwable();
+            if (!$PAGE->has_set_url()) {
+                $PAGE->set_url('/');
             }
         } catch (Throwable $e) {
             $PAGE->set_url('/');
