@@ -2106,9 +2106,13 @@ class booking_option {
             $bookingid = $userdata->bookingid;
             $userid = $userdata->userid;
             $presenceold = $userdata->status;
+            $presencechange = [
+                'presenceold' => $presenceold,
+                'presencenew' => $presencestatus,
+            ];
+            $json = json_encode($presencechange);
 
-            // TODO: Bookinghistorytable extra Field for presence and presencechange.
-            self::booking_history_insert($status, $answerid, $optionid, $bookingid, $userid);
+            self::booking_history_insert($status, $answerid, $optionid, $bookingid, $userid, $json);
             $userdata->status = $presencestatus;
 
             $coursecontext = \context_course::instance($COURSE->id);
@@ -4093,7 +4097,8 @@ class booking_option {
         int $answerid,
         int $optionid = 0,
         int $bookingid = 0,
-        int $userid = 0
+        int $userid = 0,
+        string $json = '',
     ): int {
         global $DB, $USER;
 
@@ -4105,6 +4110,7 @@ class booking_option {
             'bookingid' => $bookingid,
             'timecreated' => time(),
             'usermodified' => $USER->id,
+            'json' => $json,
         ];
         return $DB->insert_record('booking_history', $data);
     }
