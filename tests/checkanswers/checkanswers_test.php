@@ -136,7 +136,8 @@ final class checkanswers_test extends advanced_testcase {
         checkanswers::create_bookinganswers_check_tasks(1);
 
         // Four backslashes needed so it does not get lost in MariaDB.
-        $tasks = $DB->get_records('task_adhoc', ['classname' => "\\\\mod_booking\\\\task\\\\check_answers"]);
+        $taskssql = "SELECT * FROM {task_adhoc} WHERE classname LIKE '%mod_booking%task%check_answers%'";
+        $tasks = $DB->get_records_sql($taskssql);
 
         $this->assertCount(1, $tasks);
 
@@ -144,7 +145,7 @@ final class checkanswers_test extends advanced_testcase {
         singleton_service::destroy_instance();
 
         // Four backslashes needed so it does not get lost in MariaDB.
-        $tasks = $DB->get_records('task_adhoc', ['classname' => "\\\\mod_booking\\\\task\\\\check_answers"]);
+        $tasks = $DB->get_records_sql($taskssql);
 
         $this->assertCount(0, $tasks);
 
