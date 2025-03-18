@@ -51,21 +51,17 @@ class deleteanswer {
         return self::$id;
     }
 
-   /**
-    * Performs an action on a given answer.
-    *
-    * @param stdClass $answer
-    *
-    * @return bool
-    *
-    */
+    /**
+     * Performs an action on a given answer.
+     *
+     * @param stdClass $answer
+     *
+     * @return bool
+     *
+     */
     public static function perform_action(stdClass $answer) {
-
-        global $USER;
-
         $settings = singleton_service::get_instance_of_booking_option_settings($answer->optionid);
         $option = singleton_service::get_instance_of_booking_option($settings->cmid, $answer->optionid);
-
         return $option->user_delete_response($answer->userid, false, false, false, false);
     }
 }

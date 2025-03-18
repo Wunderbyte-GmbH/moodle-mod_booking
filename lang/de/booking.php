@@ -1310,7 +1310,7 @@ $string['info:teachersforoptiondates'] = 'Wechseln Sie zum <a href="{$a}" target
 $string['infoalreadybooked'] = '<div class="infoalreadybooked"><i>Sie haben diese Option bereits gebucht.</i></div>';
 $string['infonobookingoption'] = 'Um eine Buchungsoption zu erstellen, nutzen Sie den Block Einstellungen oder das Einstellungs-Icon';
 $string['infotext:installmoodlebugfix'] = 'Wunderbyte hat einen Bugfix zum Core von Moodle beigefügt. Dieser Bugfix ist in Ihrer Moodle Version noch nicht eingefügt. Sie erhalten daher an manchen Stellen Javascript Fehlermeldungen. Ab Moodle 4.1 genügt es, die laufenden Sicherheitsupdates einzuspielen.';
-$string['infotext:prolicensenecessary'] = '<a href="https://wunderbyte.at/kontakt" target="_blank">Kontaktieren Sie Wunderbyte</a>, wenn Sie eine Lizenz erwerben möchten oder holen Sie sich eine Testlizenz.';
+$string['infotext:prolicensenecessary'] = '<a href="https://showroom.wunderbyte.at/course/view.php?id=62" target="_blank">Jetzt auf Booking PRO upgraden...</a>';
 $string['infowaitinglist'] = '<div class="infowaitinglist"><i>Sie sind auf der Warteliste für diese Option.</i></div>';
 $string['installmentprice'] = 'Ratenzahlungspreis';
 $string['installmoodlebugfix'] = 'Moodle update notwendig <span class="badge bg-danger text-light"><i class="fa fa-cogs" aria-hidden="true"></i> Wichtig</span>';
@@ -1863,6 +1863,9 @@ $string['profeatures:teachers'] = '<ul>
 <li><b>Trainer:innen können mit ihrem eigenen E-Mail-Client E-Mails an gebuchte Nutzer:innen senden</b></li>
 <li><b>Rolle für Trainer:innen einer Buchungsoption festlegen</b></li>
 </ul>';
+$string['profeatures:unenroluserswithoutaccess'] = '<ul>
+<li><b>Buchungen von Nutzer:innen löschen, die keinen Zugang zum Kurs mehr haben, in dem sich die Buchung befindet.</b></li>
+</ul>';
 $string['profilepicture'] = 'Profilbild';
 $string['progressbars'] = 'Fortschrittsbalken für bereits vergangene Zeit <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['progressbars_desc'] = 'Mit diesem Feature erhalten Sie eine visuelle Darstellung der bereits vergangenen Zeit von Buchungsoptionen.';
@@ -2365,9 +2368,14 @@ $string['undocancelreason'] = "Möchten Sie wirklich die Stornierung dieser Buch
 $string['undocancelthisbookingoption'] = "Stornierung rückgängig machen";
 $string['unenroluserswithoutaccess'] = 'Abmelden von Nutzer:innen ohne Zugang';
 $string['unenroluserswithoutaccess_desc'] = 'Melde Nutzer:innen automatisch ab, die keinen Zugang mehr zu einem Moodle-Kurs oder einer Buchungsaktivität haben.
-Achtung: Damit wird die Nachverfolgung womöglich erschwert. Die Ausschreibung geschieht immer asynchron mit ein paar Minuten Verzögerung.
-Daher kann das Entfernen des Häkchens ein Löschen der Buchungen auch dann noch verhindern, wenn es unmittelbar nach einer Aktion passiert
-(z.b. ein irrtümliches Ausschreiben einer Nutzer:in aus einem Kurs.';
+<div class="text-danger">Achtung: Damit wird die Nachverfolgung womöglich erschwert. Nach Aktivierung dieses Häkchens wird einmalig systemweit überprüft,
+ob es zu löschende Buchungen gibt. Das Löschen der Buchungen geschieht immer asynchron mit ca. 15 Minuten Verzögerung.
+Wenn Sie also ein:e/n Nutzer:in irrtümlich ausschreiben, haben Sie noch einige Minuten Zeit, um dieses Häkchen zu entfernen und das automatische Löschen somit zu verhindern.</div>';
+$string['unenroluserswithoutaccessareyousure'] = 'Möchten Sie wirklich "Abmelden von Nutzer:innen ohne Zugang" aktivieren?';
+$string['unenroluserswithoutaccessareyousure_desc'] = 'Erst nach Aktivierung dieses Kontrollkästchens und Speichern können Sie die eigentliche Einstellung aktivieren.
+Das Verhalten wird nur aktiviert, wenn beide Kontrollkästchen aktiviert sind.';
+$string['unenroluserswithoutaccessheader_desc'] = 'Melde Nutzer:innen automatisch ab, die keinen Zugang mehr zu einem Moodle-Kurs oder einer Buchungsaktivität haben.
+(<b>Achtung</b>: Dies kann zu unerwünschtem Verhalten führen. Nur aktivieren, wenn wirklich benötigt.)';
 $string['units'] = 'UE';
 $string['unitscourses'] = 'Kurse / UE';
 $string['unitsunknown'] = 'Anzahl UE unbekannt';

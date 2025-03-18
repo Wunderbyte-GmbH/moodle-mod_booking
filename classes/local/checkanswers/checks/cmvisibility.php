@@ -52,14 +52,11 @@ class cmvisibility {
         return self::$id;
     }
 
-   /**
-    * Check if the user is still enrolled in the course.
-    *
-    * @param stdClass $answer
-    *
-    * @return bool
-    *
-    */
+    /**
+     * Check if the user is still enrolled in the course.
+     * @param stdClass $answer
+     * @return bool
+     */
     public static function check_answer(stdClass $answer) {
 
         global $USER;

@@ -53,14 +53,14 @@ class enrolledincourse {
         return self::$id;
     }
 
-   /**
-    * Check if the user is still enrolled in the course.
-    *
-    * @param stdClass $answer
-    *
-    * @return bool
-    *
-    */
+    /**
+     * Check if the user is still enrolled in the course.
+     *
+     * @param stdClass $answer
+     *
+     * @return bool
+     *
+     */
     public static function check_answer(stdClass $answer) {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($answer->optionid);

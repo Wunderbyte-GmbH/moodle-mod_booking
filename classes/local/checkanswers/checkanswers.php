@@ -83,8 +83,12 @@ class checkanswers {
         $additionalwhere = '';
         $params = ['contextid' => $contextid];
 
-        // Don't do anything when setting is not active.
-        if (!get_config('booking', 'unenroluserswithoutaccess')) {
+        // Don't do anything if one of the settings is not active.
+        if (
+            // For safety, we check for both settings.
+            !get_config('booking', 'unenroluserswithoutaccess')
+            || !get_config('booking', 'unenroluserswithoutaccessareyousure')
+        ) {
             return;
         }
 
@@ -135,12 +139,11 @@ class checkanswers {
      * The check will return information about the result of the check.
      *
      * @param int $optionid The booking option ID.
-     * @param int $action The check to perform.
+     * @param int $check The check to perform.
      * @param int $action The action to take.
      * @param int $userid Checks can be restricted to a given user.
      *
      * @return array
-     *
      */
     public static function process_booking_option(
         int $optionid,
@@ -183,9 +186,9 @@ class checkanswers {
      *
      * @param stdClass $answer
      * @param int $check
+     * @param bool $breakonfirst
      *
      * @return array
-     *
      */
     private static function check_answer(stdClass $answer, int $check, bool $breakonfirst = true): array {
         $checks = core_component::get_component_classes_in_namespace(
@@ -223,10 +226,9 @@ class checkanswers {
      * Get all possible actions and perform the one needed.
      *
      * @param stdClass $answer
-     * @param int $check
+     * @param int $action
      *
      * @return array
-     *
      */
     private static function perform_action(stdClass $answer, int $action): array {
         $actions = core_component::get_component_classes_in_namespace(

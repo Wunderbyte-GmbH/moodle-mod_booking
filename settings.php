@@ -609,25 +609,6 @@ if ($ADMIN->fulltree) {
             )
         );
 
-        // Unenrol users without access.
-        $unenroluserswithoutaccess = new admin_setting_configcheckbox(
-            'booking/unenroluserswithoutaccess',
-            get_string('unenroluserswithoutaccess', 'mod_booking'),
-            get_string('unenroluserswithoutaccess_desc', 'mod_booking'),
-            0
-        );
-        // Make sure, we immediately start this task when the checkbox is activated.
-        $unenroluserswithoutaccess->set_updatedcallback(function () {
-            $syscontext = context_system::instance();
-            checkanswers::create_bookinganswers_check_tasks(
-                $syscontext->id, // System context, so everywhere.
-                checkanswers::CHECK_ALL,
-                checkanswers::ACTION_DELETE,
-                0 // Do it for all users.
-            );
-        });
-        $settings->add($unenroluserswithoutaccess);
-
         // PRO feature: Teacher settings.
         $settings->add(
             new admin_setting_heading(
@@ -773,6 +754,61 @@ if ($ADMIN->fulltree) {
                 get_string('allowoverbookingheader', 'mod_booking'),
                 get_string('prolicensefeatures', 'mod_booking') .
                 get_string('profeatures:overbooking', 'mod_booking') .
+                get_string('infotext:prolicensenecessary', 'mod_booking')
+            )
+        );
+    }
+
+    // PRO feature: Unenrol users without access.
+    if ($proversion) {
+        $settings->add(
+            new admin_setting_heading(
+                'unenroluserswithoutaccessheader',
+                get_string('unenroluserswithoutaccess', 'mod_booking') . " " . get_string('badge:pro', 'mod_booking'),
+                get_string('unenroluserswithoutaccessheader_desc', 'mod_booking')
+            )
+        );
+        // Additional safety, only after activation of the first checkbox, the second one will be shown.
+        $unenroluserswithoutaccessareyousure = new admin_setting_configcheckbox(
+            'booking/unenroluserswithoutaccessareyousure',
+            get_string('unenroluserswithoutaccessareyousure', 'mod_booking'),
+            get_string('unenroluserswithoutaccessareyousure_desc', 'mod_booking'),
+            0
+        );
+        $settings->add($unenroluserswithoutaccessareyousure);
+        if (get_config('booking', 'unenroluserswithoutaccessareyousure')) {
+            // Unenrol users without access.
+            $unenroluserswithoutaccess = new admin_setting_configcheckbox(
+                'booking/unenroluserswithoutaccess',
+                get_string('unenroluserswithoutaccess', 'mod_booking'),
+                get_string('unenroluserswithoutaccess_desc', 'mod_booking'),
+                0
+            );
+            // Make sure, we immediately start this task when the checkbox is activated.
+            $unenroluserswithoutaccess->set_updatedcallback(function () {
+                if (
+                    // For safety, we check for both settings.
+                    get_config('booking', 'unenroluserswithoutaccessareyousure')
+                    && get_config('booking', 'unenroluserswithoutaccess')
+                ) {
+                    // This will create tasks for ALL affected booking answers (system-wide).
+                    checkanswers::create_bookinganswers_check_tasks(
+                        context_system::instance()->id, // System context, so everywhere.
+                        checkanswers::CHECK_ALL,
+                        checkanswers::ACTION_DELETE,
+                        0 // Do it for all users.
+                    );
+                }
+            });
+            $settings->add($unenroluserswithoutaccess);
+        }
+    } else {
+        $settings->add(
+            new admin_setting_heading(
+                'unenroluserswithoutaccessheader',
+                get_string('unenroluserswithoutaccess', 'mod_booking') . " " . get_string('badge:pro', 'mod_booking'),
+                get_string('prolicensefeatures', 'mod_booking') .
+                get_string('profeatures:unenroluserswithoutaccess', 'mod_booking') .
                 get_string('infotext:prolicensenecessary', 'mod_booking')
             )
         );

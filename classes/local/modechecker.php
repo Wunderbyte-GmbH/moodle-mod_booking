@@ -121,7 +121,8 @@ class modechecker {
 
         if (
             optional_param('info', '', PARAM_ALPHANUMEXT) === 'mod_booking_bookit'
-            || optional_param('wsfunction', '', PARAM_ALPHANUMEXT) === 'mod_booking_bookit') {
+            || optional_param('wsfunction', '', PARAM_ALPHANUMEXT) === 'mod_booking_bookit'
+        ) {
                 return true;
         }
         return false;
@@ -136,7 +137,8 @@ class modechecker {
     public static function is_load_pre_booking_page() {
         if (
             optional_param('info', '', PARAM_ALPHANUMEXT) === 'mod_booking_load_pre_booking_page'
-            || optional_param('wsfunction', '', PARAM_ALPHANUMEXT) === 'mod_booking_load_pre_booking_page') {
+            || optional_param('wsfunction', '', PARAM_ALPHANUMEXT) === 'mod_booking_load_pre_booking_page'
+        ) {
                 return true;
         }
         return false;

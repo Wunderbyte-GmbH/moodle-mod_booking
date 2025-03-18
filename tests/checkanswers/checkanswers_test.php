@@ -53,8 +53,9 @@ final class checkanswers_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
-        set_config('uselegacymailtemplates', 0, 'mod_booking');
-        set_config('unenroluserswithoutaccess', 1, 'mod_booking');
+        set_config('uselegacymailtemplates', 0, 'booking');
+        set_config('unenroluserswithoutaccessareyousure', 1, 'booking');
+        set_config('unenroluserswithoutaccess', 1, 'booking');
     }
 
     /**

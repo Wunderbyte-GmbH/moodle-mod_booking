@@ -1320,7 +1320,7 @@ $string['info:teachersforoptiondates'] = 'Go to the <a href="{$a}" target="_self
 $string['infoalreadybooked'] = '<div class="infoalreadybooked"><i>You are already booked for this option.</i></div>';
 $string['infonobookingoption'] = 'In order to add a booking option please use the settings block or the settings-icon on top of the page';
 $string['infotext:installmoodlebugfix'] = 'Wunderbyte has added a bug fix to the Moodle core. This bug fix has not yet been included in your Moodle version. Therefore, you may encounter JavaScript error messages in certain areas. Starting with Moodle 4.1, it is sufficient to apply the ongoing security updates.';
-$string['infotext:prolicensenecessary'] = '<a href="https://wunderbyte.at/en/contact" target="_blank">Contact Wunderbyte</a> if you want to buy a PRO license or get a trial license.';
+$string['infotext:prolicensenecessary'] = '<a href="https://showroom.wunderbyte.at/course/view.php?id=62" target="_blank">Get your PRO license here...</a>';
 $string['infowaitinglist'] = '<div class="infowaitinglist"><i>You are on the waiting list for this option.</i></div>';
 $string['installmentprice'] = 'Price of installment';
 $string['installmoodlebugfix'] = 'Moodle update necessary <span class="badge bg-danger text-light"><i class="fa fa-cogs" aria-hidden="true"></i> Important</span>';
@@ -1915,6 +1915,9 @@ $string['profeatures:teachers'] = '<ul>
 <li><b>teachers can send email to all booked users using own mail client</b></li>
 <li><b>teachers of booking option are assigned to fitting role</b></li>
 </ul>';
+$string['profeatures:unenroluserswithoutaccess'] = '<ul>
+<li><b>Delete bookings of users who have lost access to the course containing the booking.</b></li>
+</ul>';
 $string['profilepicture'] = 'Profile picture';
 $string['progressbars'] = 'Progress bars of time passed <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['progressbars_desc'] = 'Get a visual representation of the time which has already passed for a booking option.';
@@ -2433,10 +2436,15 @@ $string['unconfirmbookinglong'] = 'Do you really want to delete the confirmation
 $string['undocancelreason'] = "Do you really want to undo the cancellation of this booking option?";
 $string['undocancelthisbookingoption'] = "Undo cancelling of this booking option";
 $string['unenroluserswithoutaccess'] = 'Delete booking answers of users without access';
-$string['unenroluserswithoutaccess_desc'] = 'Automatically delete booking answers of users who no longer have access to a Moodle course
-or a booking activity. Note: This might make tracking more difficult. The deletion of the booking_answers always happens asynchronously
-with a few minutes delay. Therefore, unchecking the box can still prevent the deletion of bookings answers if it occurs immediately after an action
-(e.g. unenrolling a user from a course by mistake).';
+$string['unenroluserswithoutaccess_desc'] = 'Automatically unenroll users who no longer have access to a Moodle course or a Booking activity.
+<div class="text-danger">Warning: This might make tracking more difficult. Once this checkbox is activated, the system will perform a one-time
+check system-wide to see if there are bookings to be deleted. The deletion of the bookings always occurs asynchronously with a delay of
+approx. 15 minutes. So if you mistakenly unenroll a user, you have a few minutes to remove this checkbox and thereby prevent automatic deletion.</div>';
+$string['unenroluserswithoutaccessareyousure'] = 'Do you really want to activate "Delete booking answers of users without access"?';
+$string['unenroluserswithoutaccessareyousure_desc'] = 'Only after activating this checkbox and saving, you will be able to activate the actual setting.
+You need to check both checkboxes for this to take any effect.';
+$string['unenroluserswithoutaccessheader_desc'] = 'Automatically delete booking answers of users who no longer have access to a Moodle course
+or a booking activity. (<b>Be careful</b>: This can lead to unexpected behavior. Only activate this if you really need it.)';
 $string['units'] = 'Units';
 $string['unitscourses'] = 'Courses / Units';
 $string['unitsunknown'] = 'Number of units unknown';
