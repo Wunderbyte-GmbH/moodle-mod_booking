@@ -43,7 +43,6 @@ use mod_booking\subbookings\subbookings_info;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class service_provider implements \local_shopping_cart\local\callback\service_provider {
-
     /**
      * Callback function that returns the costs and the accountid
      * for the course that $userid of the buying user.
@@ -59,19 +58,19 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
         require_once($CFG->dirroot . '/mod/booking/lib.php');
 
         if ($area === 'option') {
-
             // First, we need to check if we have the right to actually load the item.
             $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
 
             $boinfo = new bo_info($settings);
-            list($id, $isavailable, $description) = $boinfo->is_available($itemid, $userid, true);
+            [$id, $isavailable, $description] = $boinfo->is_available($itemid, $userid, true);
 
             // The blocking ID has to be the price id.
             // If its already in the cart, we can also just proceed.
             // Else, we abort.
-            if ($id != MOD_BOOKING_BO_COND_PRICEISSET
-                && $id != MOD_BOOKING_BO_COND_ALREADYRESERVED) {
-
+            if (
+                $id != MOD_BOOKING_BO_COND_PRICEISSET
+                && $id != MOD_BOOKING_BO_COND_ALREADYRESERVED
+            ) {
                 if (!has_capability('local/shopping_cart:cashier', context_system::instance())) {
                     return ['error' => 'nopermissiontobook'];
                 }
@@ -84,8 +83,10 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             $serviceperiodend = $item['courseendtime'];
 
             // If cancellation is dependent on semester start, we also use semester start and end dates for the service period.
-            if (get_config('booking', 'canceldependenton') == "semesterstart"
-                && !empty($settings->semesterid)) {
+            if (
+                get_config('booking', 'canceldependenton') == "semesterstart"
+                && !empty($settings->semesterid)
+            ) {
                 // We switched here from booking settings to option settings.
 
                 if (!empty($settings->semesterid)) {
@@ -94,8 +95,10 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                     $serviceperiodstart = $semester->startdate;
                     $serviceperiodend = $semester->enddate;
                 }
-            } else if (get_config('booking', 'canceldependenton') == "bookingopeningtime"
-                || get_config('booking', 'canceldependenton') == "bookingclosingtime") {
+            } else if (
+                get_config('booking', 'canceldependenton') == "bookingopeningtime"
+                || get_config('booking', 'canceldependenton') == "bookingclosingtime"
+            ) {
                 // If cancellation is either dependent on bookingopeningtime or bookingclosingtime...
                 // ...the service period may only start at booking registration start (bookingopeningtime).
                 $serviceperiodstart = $settings->bookingopeningtime ?? $item['coursestarttime'];
@@ -109,7 +112,6 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
 
             $modifieddescription = get_config('booking', 'sccartdescription');
             if (!empty($modifieddescription)) {
-
                 $replacements = [];
                 preg_match_all('/\{(.*?)\}/', $modifieddescription, $matches);
 
@@ -123,7 +125,6 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                     $replacements['{' . $match . '}'] = $value;
                 }
                 $description = str_replace(array_keys($replacements), array_values($replacements), $modifieddescription);
-
             } else {
                 $description = $item['description'];
             }
@@ -174,7 +175,8 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                 $costcenter = reset($costcenter);
             }
 
-            $cartitem = new cartitem($item['itemid'],
+            $cartitem = new cartitem(
+                $item['itemid'],
                 $item['name'],
                 $item['price'],
                 $item['currency'],
@@ -196,7 +198,6 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
         } else {
             return ['error' => 'novalidarea'];
         }
-
     }
 
     /**
@@ -258,7 +259,6 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
         require_once($CFG->dirroot . '/mod/booking/lib.php');
 
         if ($area === 'option') {
-
             $bookingoption = booking_option::create_option_from_optionid($itemid);
             if ($userid == 0) {
                 $user = $USER;
@@ -276,7 +276,6 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                 // This will happen, when the booking is full.
                 $user = singleton_service::get_instance_of_user($userid);
                 if (!$bookingoption->user_submit_response($user, 0, 0, 0, MOD_BOOKING_VERIFIED)) {
-
                     // Log cancellation of user.
                     $event = booking_failed::create([
                         'objectid' => $itemid,
@@ -288,10 +287,8 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
 
                     return false;
                 }
-
             }
             return true;
-
         } else if (strpos($area, 'subbooking') === 0) {
             // As a subbooking can have different slots, we use the area to provide the subbooking id.
             // The syntax is "subbooking-1" for the subbooking id 1.
@@ -321,7 +318,6 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
         if ($area === 'option') {
             booking_bookit::answer_booking_option($area, $itemid, MOD_BOOKING_STATUSPARAM_DELETED, $userid);
             return true;
-
         } else if (strpos($area, 'subbooking') === 0) {
             // As a subbooking can have different slots, we use the area to provide the subbooking id.
             // The syntax is "subbooking-1" for the subbooking id 1.
@@ -371,7 +367,6 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
         // Currently, we only check this for options.
         // Maybe we will need additional areas in the future.
         if ($area == 'option') {
-
             if (empty($itemid)) {
                 return false;
             }
@@ -388,8 +383,10 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             $bookingid = $optionsettings->bookingid;
 
             // Check if cancelling was disabled for the booking option or for the whole booking instance.
-            if (booking_option::get_value_of_json_by_key($itemid, 'disablecancel') ||
-                booking::get_value_of_json_by_key($bookingid, 'disablecancel')) {
+            if (
+                booking_option::get_value_of_json_by_key($itemid, 'disablecancel') ||
+                booking::get_value_of_json_by_key($bookingid, 'disablecancel')
+            ) {
                 $allowedtocancel = false;
             }
             /* IMPORTANT: We had to remove this check as it has to be possible to override this
@@ -432,11 +429,13 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
      * @param int $userid
      * @return array
      */
-    public static function allow_add_item_to_cart(string $area, int $itemid,
-        int $userid = 0): array {
+    public static function allow_add_item_to_cart(
+        string $area,
+        int $itemid,
+        int $userid = 0
+    ): array {
 
         if ($area == "option") {
-
             booking_option::purge_cache_for_answers($itemid);
 
             $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
@@ -445,7 +444,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             // There are two cases where we can actually book.
             // We call thefunction with hadblock set to true.
             // This means that we only get those blocks that actually should prevent booking.
-            list($id, $isavailable, $description) = $boinfo->is_available($itemid, $userid, true, true);
+            [$id, $isavailable, $description] = $boinfo->is_available($itemid, $userid, true, true);
 
             // These conditions are allowed, so we need a check.
             $allowedconditions = [
@@ -456,7 +455,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             ];
 
             if ($id > 0 && !in_array($id, $allowedconditions)) {
-                switch($id) {
+                switch ($id) {
                     case MOD_BOOKING_BO_COND_FULLYBOOKED:
                         return [
                             'allow' => false,
@@ -478,7 +477,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                 }
             }
 
-            // TODO: Dont call allow_add_item_to_cart when NOT adding to cart!
+            // Todo: Dont call allow_add_item_to_cart when NOT adding to cart!
             if (
                 !(
                     $id === MOD_BOOKING_BO_COND_BOOKITBUTTON
@@ -487,7 +486,8 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             ) {
                 $user = singleton_service::get_instance_of_user($userid);
                 $item = $settings->return_booking_option_information($user);
-                $cartitem = new cartitem($itemid,
+                $cartitem = new cartitem(
+                    $itemid,
                     $item['title'],
                     $item['price'],
                     $item['currency'],

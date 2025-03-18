@@ -429,27 +429,13 @@ class bookingoption_description implements renderable, templatable {
         if (empty($settings->bookingopeningtime)) {
             $this->bookingopeningtime = null;
         } else {
-            switch (current_language()) {
-                case 'de':
-                    $this->bookingopeningtime = date('d.m.Y, H:i', $settings->bookingopeningtime);
-                    break;
-                default:
-                    $this->bookingopeningtime = date('M d, Y, H:i', $settings->bookingopeningtime);
-                    break;
-            }
+            $this->bookingopeningtime = userdate($settings->bookingopeningtime, get_string('strftimedatetime', 'langconfig'));
         }
 
         if (empty($settings->bookingclosingtime)) {
             $this->bookingclosingtime = null;
         } else {
-            switch (current_language()) {
-                case 'de':
-                    $this->bookingclosingtime = date('d.m.Y, H:i', $settings->bookingclosingtime);
-                    break;
-                default:
-                    $this->bookingclosingtime = date('M d, Y, H:i', $settings->bookingclosingtime);
-                    break;
-            }
+            $this->bookingclosingtime = userdate($settings->bookingclosingtime, get_string('strftimedatetime', 'langconfig'));
         }
 
         if (isset($settings->customfields)) {

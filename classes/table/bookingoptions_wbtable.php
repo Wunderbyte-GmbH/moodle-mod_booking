@@ -1313,15 +1313,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
             return '';
         }
 
-        switch (current_language()) {
-            case 'de':
-                $renderedbookingopeningtime = date('d.m.Y, H:i', $bookingopeningtime);
-                break;
-            default:
-                $renderedbookingopeningtime = date('M d, Y, H:i', $bookingopeningtime);
-                break;
-        }
-
+        // Get userdate for the correct locale and language.
+        $renderedbookingopeningtime = userdate($bookingopeningtime, get_string('strftimedatetime', 'langconfig'));
         if ($this->is_downloading()) {
             $ret = $renderedbookingopeningtime;
         } else {
@@ -1344,15 +1337,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
             return '';
         }
 
-        switch (current_language()) {
-            case 'de':
-                $renderedbookingclosingtime = date('d.m.Y, H:i', $bookingclosingtime);
-                break;
-            default:
-                $renderedbookingclosingtime = date('M d, Y, H:i', $bookingclosingtime);
-                break;
-        }
-
+        // Get userdate for the correct locale and language.
+        $renderedbookingclosingtime = userdate($bookingclosingtime, get_string('strftimedatetime', 'langconfig'));
         if ($this->is_downloading()) {
             $ret = $renderedbookingclosingtime;
         } else {
