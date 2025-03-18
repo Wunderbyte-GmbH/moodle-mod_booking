@@ -124,8 +124,10 @@ class booking_rules {
         if (empty($eventname)) {
             return array_filter($rules, fn($a) => in_array($a->contextid, $patharray));
         } else {
-            return array_filter($rules,
-                fn($a) => (in_array($a->contextid, $patharray) && ($a->eventname == $eventname)));
+            return array_filter(
+                $rules,
+                fn($a) => (in_array($a->contextid, $patharray) && ($a->eventname == $eventname))
+            );
         }
     }
 

@@ -27,7 +27,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class booking_settings {
-
     /** @var int $cmid of booking instance. */
     public $cmid = null;
 
@@ -410,7 +409,6 @@ class booking_settings {
 
         // If we don't get the cached object, we have to fetch it here.
         if ($dbrecord === null) {
-
             $sql = "SELECT b.*
                     FROM {course_modules} cm
                     JOIN {modules} m
@@ -421,7 +419,6 @@ class booking_settings {
                     AND cm.id = :cmid";
 
             $dbrecord = $DB->get_record_sql($sql, ["cmid" => $cmid]);
-
         }
 
         if ($dbrecord) {

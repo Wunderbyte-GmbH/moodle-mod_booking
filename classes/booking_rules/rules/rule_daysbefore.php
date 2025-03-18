@@ -400,7 +400,6 @@ class rule_daysbefore implements booking_rule {
             $sql->where .= " AND bo." . $ruledata->datefield;
             // Add one hour of tolerance.
             $sql->where .= !$testmode ? " >= ( :nowparam - 3600 + (86400 * :numberofdays ))" : " IS NOT NULL ";
-
         }
 
         $sql->from = "{booking_options} bo
