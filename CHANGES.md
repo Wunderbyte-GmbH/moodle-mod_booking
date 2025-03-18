@@ -1,3 +1,6 @@
+## Version 8.11.3 (2025031803)
+* Bugfix: Use has_set_url instead of catching error
+
 ## Version 8.11.2 (2025031802)
 * New feature: Add setting to delete booking answers based on users losing access to
 the booking instance (via course unenrolment or cm invisiblity).
