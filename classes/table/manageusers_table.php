@@ -344,6 +344,9 @@ class manageusers_table extends wunderbyte_table {
                 }
                 $option->user_submit_response($user, 0, 0, $status, MOD_BOOKING_VERIFIED);
             }
+            // Inserting into History Table.
+            booking_option::booking_history_insert(MOD_BOOKING_STATUSPARAM_WAITINGLIST_CONFIRMED, $baid, $optionid, $userid);
+
             // Event is triggered no matter if a bookinganswer with or without price was confirmed.
             $event = bookinganswer_confirmed::create(
                 [
