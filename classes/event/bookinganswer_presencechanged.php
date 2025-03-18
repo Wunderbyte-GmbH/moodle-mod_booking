@@ -73,11 +73,12 @@ class bookinganswer_presencechanged extends \core\event\base {
             'presencenew' => $this->data['other']['presencenew'],
         ];
         $ruser = singleton_service::get_instance_of_user((int) $data->relateduserid);
+        $status = MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY;
 
         $a = new stdClass();
         $a->relateduser = $ruser->firstname . " " . $ruser->lastname . " (ID: " . $data->relateduserid . ")";
-        $a->presenceold = self::resolvepresence($data->presenceold);
-        $a->presencenew = self::resolvepresence($data->presencenew);
+        $a->presenceold = $status[$data->presenceold];
+        $a->presencenew = $status[$data->presencenew];
 
         return get_string('presencechangedinfo', 'mod_booking', $a);
     }
@@ -103,33 +104,5 @@ class bookinganswer_presencechanged extends \core\event\base {
         if (!isset($this->relateduserid)) {
             throw new \coding_exception('The \'relateduserid\' must be set.');
         }
-    }
-    /**
-     * Helper Function to make Presence-variable human readable.
-     *
-     * @param int $presence
-     * @return string
-     *
-     */
-    protected function resolvepresence($presence) {
-        switch ($presence) {
-            case 0:
-                return get_string('statusnotset', 'booking');
-            case 1:
-                return get_string('statuscomplete', 'booking');
-            case 2:
-                return get_string('statusincomplete', 'booking');
-            case 3:
-                return get_string('statusnoshow', 'booking');
-            case 4:
-                return get_string('statusfailed', 'booking');
-            case 5:
-                return get_string('statusunknown', 'booking');
-            case 6:
-                return get_string('statusattending', 'booking');
-            case 7:
-                return get_string('statusexcused', 'booking');
-        }
-        return '';
     }
 }
