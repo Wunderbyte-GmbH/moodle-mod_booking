@@ -1131,15 +1131,21 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $mform->addElement('advcheckbox', 'addtogroup', get_string('addtogroup', 'booking'));
         $mform->addHelpButton('addtogroup', 'addtogroup', 'booking');
+        $mform->hideIf('addtogroup', 'autoenrol', 'notchecked');
 
         $groupoptions = [
-            -1 => get_string('addtogroupofcurrentcoursebookingoption', 'mod_booking'),
+            MOD_BOOKING_ENROL_INTO_GROUP_OF_BOOKINGOPTION => get_string('addtogroupofcurrentcoursebookingoption', 'mod_booking'),
         ];
         $groups = groups_get_all_groups($COURSE->id);
         foreach ($groups as $id => $groupdata) {
             $groupoptions[$id] = $groupdata->name;
         };
-        $enroltogroupselect = $mform->addElement('select', 'addtogroupofcurrentcourse', get_string('addtogroupofcurrentcourse', 'mod_booking'), $groupoptions);
+        $enroltogroupselect = $mform->addElement(
+            'select',
+            'addtogroupofcurrentcourse',
+            get_string('addtogroupofcurrentcourse', 'mod_booking'),
+            $groupoptions
+        );
         $enroltogroupselect->setMultiple(true);
         $mform->addHelpButton('addtogroupofcurrentcourse', 'addtogroupofcurrentcourse', 'mod_booking');
         $mform->setDefault(

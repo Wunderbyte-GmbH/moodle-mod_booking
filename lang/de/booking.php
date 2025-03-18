@@ -129,7 +129,7 @@ $string['attachment'] = 'Angehängte Dateien';
 $string['autcrheader'] = '[VERALTET] Automatisches Erstellen von Buchungsoptionen';
 $string['autcrwhatitis'] = 'If this option is enabled it automatically creates a new booking option and assigns
  a user as booking manager / teacher to it. Users are selected based on a custom user profile field value.';
-$string['autoenrol'] = 'Nutzer:innen automatisch einschreiben';
+$string['autoenrol'] = 'Nutzer:innen automatisch in verknüpften Kurs einschreiben';
 $string['autoenrol_help'] = 'Falls ausgewählt werden Nutzer:innen automatisch in den Kurs eingeschrieben sobald sie die Buchung durchgeführt haben und wieder ausgetragen, wenn die Buchung storniert wird.';
 $string['automaticcoursecreation'] = 'Automatische Erstellung von Moodle-Kursen <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['availability'] = 'Verfügbarkeit';
