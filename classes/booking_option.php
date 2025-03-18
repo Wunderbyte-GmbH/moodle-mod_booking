@@ -724,7 +724,7 @@ class booking_option {
             // All answers, fetch for user.
 
             // Make sure to log this operation into the booking_history table.
-            //self::booking_history_insert($result->waitinglist, $result->id, $result->optionid, $result->booking, $userid);
+            // self::booking_history_insert($result->waitinglist, $result->id, $result->optionid, $result->booking, $userid);.
             $DB->delete_records(
                 'booking_answers',
                 [
@@ -4053,7 +4053,7 @@ class booking_option {
      * @param int $userid
      * @param array $linkattributes
      */
-	public static function create_link_to_bookingoption(
+    public static function create_link_to_bookingoption(
         int $optionid,
         int $cmid,
         string $texttodisplay,
