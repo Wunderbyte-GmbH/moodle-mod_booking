@@ -1615,11 +1615,36 @@ class booking_option {
         }
 
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($this->bookingid);
+
         if (!$manual) {
-            if (!$bookingsettings->autoenrol) {
+            if (
+                !$bookingsettings->autoenrol
+                && !$bookingsettings->addtogroupofcurrentcourse
+            ) {
                 return; // Autoenrol not enabled.
             }
         }
+        // First check if enrolment to group of current course if active.
+        if (
+            isset($bookingsettings->addtogroupofcurrentcourse)
+            && !empty($bookingsettings->addtogroupofcurrentcourse)
+        ) {
+            // $COURSE is not a reliable source here, so we fetch the courseid via the booking.
+            $booking = singleton_service::get_instance_of_booking_by_cmid($bookingsettings->cmid);
+            $coursegroups = groups_get_all_groups($booking->course->id);
+            foreach ($bookingsettings->addtogroupofcurrentcourse as $groupid) {
+                if ($groupid == MOD_BOOKING_ENROL_INTO_GROUP_OF_BOOKINGOPTION) {
+                    $newoptionstd = $this->settings->return_settings_as_stdclass();
+                    if ($gid = $this->create_group($newoptionstd, false, $booking->course->id)) {
+                        groups_add_member($gid, $userid);
+                    }
+                    // Check for group of current bookingoption.
+                } else if (isset($coursegroups[$groupid])) {
+                    groups_add_member($groupid, $userid);
+                }
+            }
+        }
+
         $courseid = empty($courseid) ? $this->option->courseid : $courseid;
         if (empty($courseid)) {
             return; // No course specified.
@@ -1759,44 +1784,69 @@ class booking_option {
      * Create a new group for a booking option if it is not already created
      * Return the id of the group.
      * @param stdClass $newoption
+     * @param bool $groupintarget
+     * @param int $sourcecourseid
      * @return bool|number id of the group
      * @throws \moodle_exception
      */
-    public function create_group($newoption) {
+    public function create_group(object $newoption, bool $groupintarget = true, int $sourcecourseid = 0) {
         global $DB;
 
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($this->bookingid);
         $bookingsettings = $bookingsettings->return_settings_as_stdclass();
-        $newgroupdata = self::generate_group_data($bookingsettings, $newoption);
+        $courseid = $groupintarget ? $newoption->courseid : $sourcecourseid;
 
-        $groupids = array_keys(groups_get_all_groups($newoption->courseid));
+        $newgroupdata = self::generate_group_data($bookingsettings, $newoption, $courseid);
+        $existinggroups = groups_get_all_groups($courseid);
+        $groupids = array_keys($existinggroups);
         // If group name already exists, do not create it a second time, it should be unique.
-        if ($groupid = groups_get_group_by_name($newgroupdata->courseid, $newgroupdata->name)) {
+        if ($groupid = groups_get_group_by_name($courseid, $newgroupdata->name)) {
             return $groupid;
         }
         if (
-            $groupid = groups_get_group_by_name($newgroupdata->courseid, $newgroupdata->name) &&
-                !isset($this->option->id)
+            $groupid = groups_get_group_by_name($courseid, $newgroupdata->name)
+            && !isset($this->option->id)
         ) {
             $url = new moodle_url('/mod/booking/view.php', ['id' => $this->cmid]);
             throw new \moodle_exception('groupexists', 'booking', $url->out());
         }
-        if ($this->option->groupid > 0 && in_array($this->option->groupid, $groupids)) {
+        // Target group ids are stored in groupid column of option.
+        if (
+            $groupintarget
+            && $this->option->groupid > 0
+            && in_array($this->option->groupid, $groupids)
+        ) {
             // Group has been created but renamed.
             $newgroupdata->id = $this->option->groupid;
             groups_update_group($newgroupdata);
             return $this->option->groupid;
-        } else if (($this->option->groupid > 0 && !in_array($this->option->groupid, $groupids)) || $this->option->groupid == 0) {
+        } else if (
+            $groupintarget
+            && (($this->option->groupid > 0 && !in_array($this->option->groupid, $groupids))
+            || $this->option->groupid == 0)
+        ) {
             // Group has been deleted and must be created and groupid updated in DB. Or group does not yet exist.
             $data = new stdClass();
             $data->id = $this->option->id;
+            $newgroupdata->idnumber = 'targetcourseboid_' . $this->option->id;
             $data->groupid = groups_create_group($newgroupdata);
             if ($data->groupid) {
                 $DB->update_record('booking_options', $data);
             }
             return $data->groupid;
+        } else if (
+            !$groupintarget
+        ) {
+            $searchstring = 'sourcecourseboid_' . $this->option->id;
+            foreach ($existinggroups as $exisitinggroup) {
+                // For groups of current course, the linking is in the idnumber of the group data.
+                if ($exisitinggroup->idnumber == $searchstring) {
+                    return $exisitinggroup->id;
+                }
+            }
+            $newgroupdata->idnumber = $searchstring;
+            return groups_create_group($newgroupdata);
         }
-
         return false;
     }
 
@@ -1805,22 +1855,23 @@ class booking_option {
      *
      * @param stdClass $bookingsettings
      * @param stdClass $optionsettings
+     * @param int $courseid
      * @return stdClass
      * @throws \moodle_exception
      */
-    public static function generate_group_data(stdClass $bookingsettings, stdClass $optionsettings): stdClass {
+    public static function generate_group_data(stdClass $bookingsettings, stdClass $optionsettings, int $courseid): stdClass {
         global $DB;
 
         // Replace tags with content. This alters the booking settings so cloning them.
         $newbookingsettings = clone $bookingsettings;
         $newoptionsettings = clone $optionsettings;
 
-        $tags = new booking_tags($newoptionsettings->courseid);
+        $tags = new booking_tags($courseid);
         $newbookingsettings = $tags->booking_replace($newbookingsettings);
         $newoptionsettings = $tags->option_replace($newoptionsettings);
 
         $newgroupdata = new stdClass();
-        $newgroupdata->courseid = $newoptionsettings->courseid;
+        $newgroupdata->courseid = $courseid;
 
         $optionname = $DB->get_field('booking_options', 'text', ['id' => $newoptionsettings->id]);
         // Before setting name, we have to resolve the id Tag.
