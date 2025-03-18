@@ -135,14 +135,16 @@ final class checkanswers_test extends advanced_testcase {
 
         checkanswers::create_bookinganswers_check_tasks(1);
 
-        $tasks = $DB->get_records('task_adhoc', ['classname' => "\\mod_booking\\task\\check_answers"]);
+        // Four backslashes needed so it does not get lost in MariaDB.
+        $tasks = $DB->get_records('task_adhoc', ['classname' => "\\\\mod_booking\\\\task\\\\check_answers"]);
 
         $this->assertCount(1, $tasks);
 
         $this->runAdhocTasks();
         singleton_service::destroy_instance();
 
-        $tasks = $DB->get_records('task_adhoc', ['classname' => "\\mod_booking\\task\\check_answers"]);
+        // Four backslashes needed so it does not get lost in MariaDB.
+        $tasks = $DB->get_records('task_adhoc', ['classname' => "\\\\mod_booking\\\\task\\\\check_answers"]);
 
         $this->assertCount(0, $tasks);
 
