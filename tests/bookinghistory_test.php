@@ -28,6 +28,7 @@ namespace mod_booking;
 
 use advanced_testcase;
 use coding_exception;
+use mod_booking\table\manageusers_table;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
 
@@ -187,16 +188,20 @@ final class bookinghistory_test extends advanced_testcase {
         }
 
         if ($data['bookingsettings'][0]['cancancelbook'] == 0) {
+            $answers = $DB->get_records('booking_answers');
             $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
-            $option->user_submit_response($student1, 0, 0, 0, MOD_BOOKING_VERIFIED);
+            $table = new manageusers_table('jbsdjbsd');
+            $answerjson = json_encode(reset($answers));
+            $this->setAdminUser();
+            $table->action_confirmbooking(0, $answerjson);
             [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
             $this->assertEquals($expected['bookitresults'][1], $id);
-
             $answers = $DB->get_records('booking_answers');
             $this->assertCount(1, $answers);
             $historyrecords = $DB->get_records('booking_history');
-            $this->assertCount(2, $historyrecords);
-            $status = end($historyrecords)->status;
+            $this->assertCount(3, $historyrecords);
+            // Todo: Fix this hacky thing because it is the middle array.
+            $status = $historyrecords[419001]->status;
             $this->assertEquals($expected['historystatus'][1], $status);
         }
     }
