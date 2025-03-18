@@ -28,15 +28,9 @@ namespace mod_booking;
 
 use advanced_testcase;
 use coding_exception;
-use mod_booking\option\fields_info;
-use mod_booking\price;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
-use local_shopping_cart\shopping_cart;
-use local_shopping_cart\shopping_cart_history;
-use local_shopping_cart\local\cartstore;
-use local_shopping_cart\output\shoppingcart_history_list;
-use stdClass;
+
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -44,7 +38,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 require_once($CFG->dirroot . '/mod/booking/classes/price.php');
 
 /**
- * Class handling tests for booking options.
+ * Class handling tests for bookinghistory.
  *
  * @package mod_booking
  * @category test
@@ -82,7 +76,6 @@ final class bookinghistory_test extends advanced_testcase {
         global $DB, $CFG;
 
         $standarddata = self::provide_standard_data();
-        $testnumber = $data['testnumber'];
 
         // Coursesettings.
         $courses = [];
@@ -144,12 +137,11 @@ final class bookinghistory_test extends advanced_testcase {
         $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
 
         // So far for the basic setup.
-        // Now proceed to specific logic of the testcase.
+        // Now proceed to logic of the testcase.
+
 
         // Book the user.
-        // Cancel the booking.
-        if ($testnumber == 1) {
-            // Try to book again with user1.
+            // Try to book with user1.
             $student1 = $users['student1'];
             $this->setUser($users['student1']);
             // Book the first user without any problem.
@@ -161,30 +153,30 @@ final class bookinghistory_test extends advanced_testcase {
             $historyrecords = $DB->get_records('booking_history');
             $this->assertCount(0, $historyrecords);
 
-            // With these options, cancelling should be possible.
+            // User Books Course or Waitinglist depending on the settings.
             $result = booking_bookit::bookit('option', $settings->id, $student1->id);
             [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
             $this->assertEquals($expected['bookitresults'][0], $id);
 
+            // Needed for Booking without a Waitinglist.
+        if ($settings->waitforconfirmation == 0) {
             $result = booking_bookit::bookit('option', $settings->id, $student1->id);
-            [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
-            $this->assertEquals($expected['bookitresults'][1], $id);
+        }
 
-            $answers = $DB->get_records('booking_answers');
-            $this->assertCount(1, $answers);
             $historyrecords = $DB->get_records('booking_history');
             $this->assertCount(1, $historyrecords);
             $status = reset($historyrecords)->status;
             $this->assertEquals($expected['historystatus'][0], $status);
 
-            // Cancellation.
+        // Cancel User if Testcase.
+        if ($data['bookingsettings'][0]['cancancelbook'] == 1) {
             $result = booking_bookit::bookit('option', $settings->id, $student1->id);
             [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
-            $this->assertEquals($expected['bookitresults'][2], $id);
+            $this->assertEquals($expected['bookitresults'][1], $id);
 
             $result = booking_bookit::bookit('option', $settings->id, $student1->id);
             [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
-            $this->assertEquals($expected['bookitresults'][3], $id);
+            $this->assertEquals($expected['bookitresults'][2], $id);
 
             $answers = $DB->get_records('booking_answers');
             $this->assertCount(1, $answers);
@@ -192,76 +184,9 @@ final class bookinghistory_test extends advanced_testcase {
             $this->assertCount(2, $historyrecords);
             $status = end($historyrecords)->status;
             $this->assertEquals($expected['historystatus'][1], $status);
+        }
 
-        } else if ($testnumber == 2) {
-             // Try to book again with user1.
-             $student1 = $users['student1'];
-             $this->setUser($users['student1']);
-            // Book the first user without any problem.
-             $boinfo = new bo_info($settings);
-
-            // No answers yet.
-             $answers = $DB->get_records('booking_answers');
-             $this->assertCount(0, $answers);
-             $historyrecords = $DB->get_records('booking_history');
-             $this->assertCount(0, $historyrecords);
-
-            $result = booking_bookit::bookit('option', $settings->id, $student1->id);
-            [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
-            $this->assertEquals($expected['bookitresults'][0], $id);
-
-            $result = booking_bookit::bookit('option', $settings->id, $student1->id);
-            [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
-            $this->assertEquals($expected['bookitresults'][1], $id);
-
-            // Now Book user2 on the waitinglist.
-            $student2 = $users['student2'];
-            $this->setUser($users['student2']);
-            $result = booking_bookit::bookit('option', $settings->id, $student2->id);
-            $result = booking_bookit::bookit('option', $settings->id, $student2->id);
-            [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
-            $this->assertEquals($expected['bookitresults'][2], $id);
-
-            $answers = $DB->get_records('booking_answers');
-            $this->assertCount(2, $answers);
-            $historyrecords = $DB->get_records('booking_history');
-            $this->assertCount(2, $historyrecords);
-            $status = end($historyrecords)->status;
-            $this->assertEquals($expected['historystatus'][0], $status);
-
-            // Now let user2 cancel on the waitinglist.
-            $result = booking_bookit::bookit('option', $settings->id, $student2->id);
-            [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
-            $this->assertEquals($expected['bookitresults'][3], $id);
-
-            $result = booking_bookit::bookit('option', $settings->id, $student2->id);
-            [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
-            $this->assertEquals($expected['bookitresults'][4], $id);
-
-            $answers = $DB->get_records('booking_answers');
-            $this->assertCount(2, $answers);
-            $historyrecords = $DB->get_records('booking_history');
-            $this->assertCount(3, $historyrecords);
-            $status = end($historyrecords)->status;
-            $this->assertEquals($expected['historystatus'][1], $status);
-
-        } else if ($testnumber === 3) {
-            $student1 = $users['student1'];
-            $this->setUser($users['student1']);
-            // Book the first user without any problem.
-             $boinfo = new bo_info($settings);
-
-            // No answers yet.
-             $answers = $DB->get_records('booking_answers');
-             $this->assertCount(0, $answers);
-             $historyrecords = $DB->get_records('booking_history');
-             $this->assertCount(0, $historyrecords);
-
-            $result = booking_bookit::bookit('option', $settings->id, $student1->id);
-            [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
-            $this->assertEquals($expected['bookitresults'][0], $id);
-
-            // Confrim Waitinglist.
+        if ($data['bookingsettings'][0]['cancancelbook'] == 0) {
             $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
             $option->user_submit_response($student1, 0, 0, 0, MOD_BOOKING_VERIFIED);
             [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
@@ -272,7 +197,7 @@ final class bookinghistory_test extends advanced_testcase {
             $historyrecords = $DB->get_records('booking_history');
             $this->assertCount(2, $historyrecords);
             $status = end($historyrecords)->status;
-            $this->assertEquals($expected['historystatus'][0], $status);
+            $this->assertEquals($expected['historystatus'][1], $status);
         }
     }
 
@@ -285,139 +210,132 @@ final class bookinghistory_test extends advanced_testcase {
     public static function booking_common_settings_provider(): array {
 
         return [
-            'userbooksandcancels' => [
+        'userbooksandcancels' => [
 
-                [   'testnumber' => 1,
-                    'pluginsettings' => [
-                        [
-                            'component' => 'booking',
-                            'key' => 'notifymelist',
-                            'value' => 1,
-                        ],
-                    ],
-                    'coursesettings' => [
-                        'firstcourse' => [
-                            'enablecompletion' => 1,
-                        ],
-                    ],
-                    'userssettings' => [
-                        'student1' => [], // Just a demo how params could be set.
-                    ],
-                    'bookingsettings' => [
-                        [
-                            'cancancelbook' => 1,
-                        ],
-                    ],
-                    'optionsettings' => [
-                        [
-                            'useprice' => 0, // Disable price for this option.
-                        ],
+            [   'pluginsettings' => [
+                    [
+                        'component' => 'booking',
+                        'key' => 'notifymelist',
+                        'value' => 1,
                     ],
                 ],
-                [
-                    'bookitresults' => [
-                        MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
-                        MOD_BOOKING_BO_COND_ALREADYBOOKED,
-                        MOD_BOOKING_BO_COND_CONFIRMCANCEL,
-                        MOD_BOOKING_BO_COND_BOOKITBUTTON,
+                'coursesettings' => [
+                    'firstcourse' => [
+                        'enablecompletion' => 1,
                     ],
-                    'historystatus' => [
-                        MOD_BOOKING_STATUSPARAM_BOOKED,
-                        MOD_BOOKING_STATUSPARAM_BOOKED_DELETED,
+                ],
+                'userssettings' => [
+                    'student1' => [], // Just a demo how params could be set.
+                ],
+                'bookingsettings' => [
+                    [
+                        'cancancelbook' => 1,
+                    ],
+                ],
+                'optionsettings' => [
+                    [
+                        'useprice' => 0, // Disable price for this option.
                     ],
                 ],
             ],
-            'userbookswaitinglistandcancels' => [
-                [
-                    'testnumber' => 2,
-                    'pluginsettings' => [
-                        [
-                            'component' => 'booking',
-                            'key' => 'notifymelist',
-                            'value' => 1,
-                        ],
-                    ],
-                    'coursesettings' => [
-                        'firstcourse' => [
-                            'enablecompletion' => 1,
-                        ],
-                    ],
-                    'userssettings' => [
-                        'student1' => [],
-                        'student2' => [], // Just a demo how params could be set.
-                    ],
-                    'bookingsettings' => [
-                        [
-                            'cancancelbook' => 1,
-                        ],
-                    ],
-                    'optionsettings' => [
-                        [
-                            'useprice' => 0, // Disable price for this option.
-                            'maxanswers' => 1,
-                            'maxoverbooking' => 1,
-                        ],
+            [
+                'bookitresults' => [
+                    MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
+                    MOD_BOOKING_BO_COND_CONFIRMCANCEL,
+                    MOD_BOOKING_BO_COND_BOOKITBUTTON,
+                ],
+                'historystatus' => [
+                    MOD_BOOKING_STATUSPARAM_BOOKED,
+                    MOD_BOOKING_STATUSPARAM_BOOKED_DELETED,
+                ],
+            ],
+        ],
+        'userbookswaitinglistandcancels' => [
+            [   'pluginsettings' => [
+                    [
+                        'component' => 'booking',
+                        'key' => 'notifymelist',
+                        'value' => 1,
                     ],
                 ],
-                [
-                    'bookitresults' => [
-                        MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
-                        MOD_BOOKING_BO_COND_ALREADYBOOKED,
-                        MOD_BOOKING_BO_COND_ONWAITINGLIST,
-                        MOD_BOOKING_BO_COND_CONFIRMCANCEL,
-                        MOD_BOOKING_BO_COND_BOOKITBUTTON,
+                'coursesettings' => [
+                    'firstcourse' => [
+                        'enablecompletion' => 1,
+                    ],
+                ],
+                'userssettings' => [
+                    'student1' => [],
+                    'student2' => [], // Just a demo how params could be set.
+                ],
+                'bookingsettings' => [
+                    [
+                        'cancancelbook' => 1,
+                    ],
+                ],
+                'optionsettings' => [
+                    [
+                        'useprice' => 0, // Disable price for this option.
+                        'maxanswers' => 1,
+                        'maxoverbooking' => 1,
+                        'waitforconfirmation' => 1,
+                    ],
+                ],
+            ],
+            [
+                'bookitresults' => [
+                    MOD_BOOKING_BO_COND_ONWAITINGLIST,
+                    MOD_BOOKING_BO_COND_CONFIRMCANCEL,
+                    MOD_BOOKING_BO_COND_ASKFORCONFIRMATION,
 
+                ],
+                'historystatus' => [
+                    MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+                    MOD_BOOKING_STATUSPARAM_WAITINGLIST_DELETED,
+                ],
+            ],
+        ],
+        'userbookingwaitinglistconfirmed' => [
+            [   'pluginsettings' => [
+                    [
+                        'component' => 'booking',
+                        'key' => 'notifymelist',
+                        'value' => 1,
                     ],
-                    'historystatus' => [
-                        MOD_BOOKING_STATUSPARAM_WAITINGLIST,
-                        MOD_BOOKING_STATUSPARAM_WAITINGLIST_DELETED,
+                ],
+                'coursesettings' => [
+                    'firstcourse' => [
+                        'enablecompletion' => 1,
+                    ],
+                ],
+                'userssettings' => [
+                    'student1' => [],
+                    'student2' => [], // Just a demo how params could be set.
+                ],
+                'bookingsettings' => [
+                    [
+                        'cancancelbook' => 0,
+                    ],
+                ],
+                'optionsettings' => [
+                    [
+                        'useprice' => 0, // Disable price for this option.
+                        'maxanswers' => 1,
+                        'maxoverbooking' => 1,
+                        'waitforconfirmation' => 1,
                     ],
                 ],
             ],
-            'userbookingwaitinglistconfirmed' => [
-                [
-                    'testnumber' => 3,
-                    'pluginsettings' => [
-                        [
-                            'component' => 'booking',
-                            'key' => 'notifymelist',
-                            'value' => 1,
-                        ],
-                    ],
-                    'coursesettings' => [
-                        'firstcourse' => [
-                            'enablecompletion' => 1,
-                        ],
-                    ],
-                    'userssettings' => [
-                        'student1' => [],
-                        'student2' => [], // Just a demo how params could be set.
-                    ],
-                    'bookingsettings' => [
-                        [
-                            'cancancelbook' => 1,
-                        ],
-                    ],
-                    'optionsettings' => [
-                        [
-                            'useprice' => 0, // Disable price for this option.
-                            'maxanswers' => 1,
-                            'maxoverbooking' => 1,
-                            'waitforconfirmation' => 1,
-                        ],
-                    ],
+            [
+                'bookitresults' => [
+                    MOD_BOOKING_BO_COND_ONWAITINGLIST,
+                    MOD_BOOKING_BO_COND_ALREADYBOOKED,
                 ],
-                [
-                    'bookitresults' => [
-                        MOD_BOOKING_BO_COND_ONWAITINGLIST,
-                        MOD_BOOKING_BO_COND_ALREADYBOOKED,
-                    ],
-                    'historystatus' => [
-                        MOD_BOOKING_STATUSPARAM_BOOKED, // Placeholder until STATUSPARAM_WAITINGLIST_CONFIRMED im implemented.
-                        MOD_BOOKING_STATUSPARAM_WAITINGLIST_CONFIRMED,
-                    ],
+                'historystatus' => [
+                    MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+                    MOD_BOOKING_STATUSPARAM_WAITINGLIST_CONFIRMED,
                 ],
             ],
+        ],
         ];
     }
 
@@ -430,56 +348,56 @@ final class bookinghistory_test extends advanced_testcase {
      */
     private static function provide_standard_data(): array {
         return [
-            'booking' => [
-                'name' => 'Test',
-                'eventtype' => 'Test event',
-                'enablecompletion' => 1,
-                'bookedtext' => ['text' => 'text'],
-                'waitingtext' => ['text' => 'text'],
-                'notifyemail' => ['text' => 'text'],
-                'statuschangetext' => ['text' => 'text'],
-                'deletedtext' => ['text' => 'text'],
-                'pollurltext' => ['text' => 'text'],
-                'pollurlteacherstext' => ['text' => 'text'],
-                'notificationtext' => ['text' => 'text'],
-                'userleave' => ['text' => 'text'],
-                'tags' => '',
-                'completion' => 2,
-                'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
+        'booking' => [
+            'name' => 'Test',
+            'eventtype' => 'Test event',
+            'enablecompletion' => 1,
+            'bookedtext' => ['text' => 'text'],
+            'waitingtext' => ['text' => 'text'],
+            'notifyemail' => ['text' => 'text'],
+            'statuschangetext' => ['text' => 'text'],
+            'deletedtext' => ['text' => 'text'],
+            'pollurltext' => ['text' => 'text'],
+            'pollurlteacherstext' => ['text' => 'text'],
+            'notificationtext' => ['text' => 'text'],
+            'userleave' => ['text' => 'text'],
+            'tags' => '',
+            'completion' => 2,
+            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
+        ],
+        'option' => [
+            'text' => 'Test option1',
+            'coursestarttime' => strtotime('now + 1 day'),
+            'courseendtime' => strtotime('now + 2 day'),
+            'importing' => 1,
+            'useprice' => 1,
+            'default' => 50, // Default price.
+        ],
+        'users' => [ // Number of entries corresponds to number of users.
+            [
+                'name' => 'student1',
+                'params' => [],
             ],
-            'option' => [
-                'text' => 'Test option1',
-                'coursestarttime' => strtotime('now + 1 day'),
-                'courseendtime' => strtotime('now + 2 day'),
-                'importing' => 1,
-                'useprice' => 1,
-                'default' => 50, // Default price.
+            [
+                'name' => 'student2',
+                'params' => [],
             ],
-            'users' => [ // Number of entries corresponds to number of users.
-                [
-                    'name' => 'student1',
-                    'params' => [],
-                ],
-                [
-                    'name' => 'student2',
-                    'params' => [],
-                ],
-                [
-                    'name' => 'bookingmanager', // Bookingmanager always needs to be set.
-                    'params' => [],
-                ],
-                [
-                    'name' => 'teacher',
-                    'params' => [],
-                ],
+            [
+                'name' => 'bookingmanager', // Bookingmanager always needs to be set.
+                'params' => [],
             ],
+            [
+                'name' => 'teacher',
+                'params' => [],
+            ],
+        ],
         ];
     }
 
     /**
      * Mandatory clean-up after each test.
      */
-    public function tearDown(): void {
+    public function teardown(): void {
         parent::tearDown();
         // Mandatory clean-up.
         singleton_service::destroy_instance();
