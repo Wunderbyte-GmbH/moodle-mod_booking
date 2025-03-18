@@ -40,7 +40,11 @@ class booking_context_helper {
         global $PAGE;
 
         // With shortcodes & webservice we might not have a valid context object.
-        if (empty($PAGE->url)) {
+        try {
+            if (empty($PAGE->url->out(false))) {
+                throw new Throwable();
+            }
+        } catch (Throwable $e) {
             $PAGE->set_url('/');
         }
 
