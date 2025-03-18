@@ -3986,5 +3986,4 @@ class booking_option {
 
         return html_writer::link($url->out(false), $texttodisplay, $linkattributes);
     }
-
 }
