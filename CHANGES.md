@@ -1,3 +1,7 @@
+## Version 8.11.1 (2025031801)
+* Improvement: New column "json" for booking_history table
+* Bugfix: Check for mailtemplatessource check
+
 ## Version 8.11.0 (2025031700)
 * New Feature: Recurring options
 * New feature: Change status and checkboxes in bookings tracker on session level using checkboxes.
