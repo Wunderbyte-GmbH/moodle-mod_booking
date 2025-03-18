@@ -1,3 +1,10 @@
+## Version 8.11.2 (2025031802)
+* New feature: Add setting to delete booking answers based on users losing access to
+the booking instance (via course unenrolment or cm invisiblity).
+* Improvement: Harden code for booking rules (fix problem with rules in other contexts).
+* Improvement: Add callback to remove answers system-wide when checkbox unenroluserswithoutaccess is activated.
+* Bugfix: Page URL got lost in fix_booking_page_context.
+
 ## Version 8.11.1 (2025031801)
 * Improvement: New column "json" for booking_history table
 * Bugfix: Check for mailtemplatessource check
