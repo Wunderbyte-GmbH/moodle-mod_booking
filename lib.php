@@ -101,6 +101,7 @@ define('MOD_BOOKING_STATUSPARAM_NOTIFYMELIST_DELETED', 14);
 define('MOD_BOOKING_STATUSPARAM_PRESENCE_CHANGED', 15);
 
 // Define booking presence status parameters.
+define('MOD_BOOKING_PRESENCE_STATUS_NOTSET', 0);
 define('MOD_BOOKING_PRESENCE_STATUS_COMPLETE', 1);
 define('MOD_BOOKING_PRESENCE_STATUS_INCOMPLETE', 2);
 define('MOD_BOOKING_PRESENCE_STATUS_NOSHOW', 3);
@@ -110,6 +111,7 @@ define('MOD_BOOKING_PRESENCE_STATUS_ATTENDING', 6);
 define('MOD_BOOKING_PRESENCE_STATUS_EXCUSED', 7);
 
 define('MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY', [
+    MOD_BOOKING_PRESENCE_STATUS_NOTSET => get_string('statusnotset', 'mod_booking'),
     MOD_BOOKING_PRESENCE_STATUS_UNKNOWN => get_string('statusunknown', 'mod_booking'),
     MOD_BOOKING_PRESENCE_STATUS_ATTENDING => get_string('statusattending', 'mod_booking'),
     MOD_BOOKING_PRESENCE_STATUS_COMPLETE => get_string('statuscomplete', 'mod_booking'),
