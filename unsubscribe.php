@@ -39,7 +39,7 @@ $userid = required_param('userid', PARAM_INT);
 
 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 $cmid = $settings->cmid;
-list($course, $cm) = get_course_and_cm_from_cmid($cmid, 'booking');
+[$course, $cm] = get_course_and_cm_from_cmid($cmid, 'booking');
 $context = context_system::instance();
 
 $url = new moodle_url('/mod/booking/unsubscribe.php', [
@@ -65,9 +65,10 @@ switch ($action) {
         if (
             $DB->record_exists(
                 'booking_answers',
-                ['userid' => $userid,
-                'optionid' => $optionid,
-                'waitinglist' => MOD_BOOKING_STATUSPARAM_NOTIFYMELIST,
+                [
+                    'userid' => $userid,
+                    'optionid' => $optionid,
+                    'waitinglist' => MOD_BOOKING_STATUSPARAM_NOTIFYMELIST,
                 ]
             )
         ) {
@@ -87,7 +88,7 @@ switch ($action) {
                     'userid' => $userid,
                     'optionid' => $optionid,
                     'waitinglist' => MOD_BOOKING_STATUSPARAM_NOTIFYMELIST,
-                    ]
+                ]
             );
             $messagetoshow = "<div class='alert alert-success'><i class='fa fa-bell-slash-o' aria-hidden='true'></i>&nbsp;" .
                 get_string('unsubscribe:successnotificationlist', 'mod_booking', $settings->get_title_with_prefix()) .

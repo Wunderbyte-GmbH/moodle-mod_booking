@@ -27,7 +27,7 @@ namespace mod_booking\table;
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->libdir.'/tablelib.php');
+require_once($CFG->libdir . '/tablelib.php');
 
 use coding_exception;
 use dml_exception;
@@ -49,7 +49,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class bookingoptions_simple_table extends wunderbyte_table {
-
     /**
      * Cache an array of teacher names to save DB queries.
      *
@@ -68,15 +67,17 @@ class bookingoptions_simple_table extends wunderbyte_table {
     public function col_text($values) {
         // If the data is being downloaded we show the original text including the separator and unique idnumber.
         if (!$this->is_downloading()) {
-
             global $PAGE;
 
             // Use the renderer to output this column.
-            $data = new col_text_with_description($values->optionid, $values->text,
-                $values->titleprefix ?? '', $values->description);
+            $data = new col_text_with_description(
+                $values->optionid,
+                $values->text,
+                $values->titleprefix ?? '',
+                $values->description
+            );
             $output = singleton_service::get_renderer('mod_booking');
             return $output->render_col_text_with_description($data);
-
         } else {
             // If downloading, we return the option title only.
             return $values->text;
