@@ -62,6 +62,15 @@ final class booking_groupenrolment_test extends advanced_testcase {
     }
 
     /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        parent::tearDown();
+        // Mandatory clean-up.
+        singleton_service::destroy_instance();
+    }
+
+    /**
      * Test booking, cancelation, option has started etc.
      *
      * @covers \classes\booking_option::enrol_user
