@@ -1911,6 +1911,7 @@ class booking_option {
         $answers = $this->get_all_users();
         foreach ($answers as $answer) {
             $this->unenrol_user($answer->userid); // Unenrol any users enrolled via this option.
+            $this->booking_history_insert(MOD_BOOKING_STATUSPARAM_DELETED, $answer->baid, $this->optionid, $this->bookingid, $answer->userid);
         }
         if (
             !$DB->delete_records(
