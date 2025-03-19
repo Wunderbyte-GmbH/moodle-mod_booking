@@ -44,7 +44,6 @@ use stdClass;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class optiondates_with_entities implements renderable, templatable {
-
     /** @var bool $showsessions */
     public $showsessions = true;
 

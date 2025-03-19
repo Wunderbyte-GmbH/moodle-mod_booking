@@ -40,7 +40,6 @@ use user_picture;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class business_card implements renderable, templatable {
-
     /** @var string $username the note as it is saved in db */
     public $username = null;
 

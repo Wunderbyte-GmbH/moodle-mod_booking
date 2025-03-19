@@ -36,7 +36,6 @@ use templatable;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class actionslist implements renderable, templatable {
-
     /** @var int $cmid */
     public $cmid = [];
 
@@ -60,7 +59,6 @@ class actionslist implements renderable, templatable {
         $this->cmid = $cmid;
 
         foreach ($actions as $action) {
-
             $action->name = $action->boactionname;
             // Localize the names.
             $action->localizedactionname = get_string($action->action_type, 'mod_booking');

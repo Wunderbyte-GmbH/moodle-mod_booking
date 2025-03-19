@@ -36,7 +36,6 @@ use templatable;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class subbookingslist implements renderable, templatable {
-
     /** @var int $cmid */
     public $cmid = [];
 
@@ -60,7 +59,6 @@ class subbookingslist implements renderable, templatable {
         $this->cmid = $cmid;
 
         foreach ($subbookings as $subbooking) {
-
             // Localize the names.
             $subbooking->localizedsubbookingname = get_string(str_replace("_", "", $subbooking->type), 'mod_booking');
 
