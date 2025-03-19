@@ -467,6 +467,7 @@ $string['bookingduration'] = 'Duration';
 $string['bookingfailed'] = 'Booking failed';
 $string['bookingfull'] = 'There are no available places';
 $string['bookingfulldidntregister'] = 'Option is full, so I didn\'t transfer all users!';
+$string['bookinghistory'] = 'Booking history';
 $string['bookingidfilter'] = 'Booking Instance';
 $string['bookingimages'] = 'Upload header images for booking options - they need to have the exact same name as the value of the selected customfield in each booking option.';
 $string['bookingimagescustomfield'] = 'Booking option custom field to match the header images with';
@@ -605,6 +606,7 @@ $string['bulkoperations'] = 'Zeige Liste von Buchungsoptionen um Massenoperation
 $string['bulkoperationsheader'] = 'Update data for selected bookingoption(s)';
 $string['cachedef_bookedusertable'] = 'Booked users table (cache)';
 $string['cachedef_bookinganswers'] = 'Bookinganswers (Cache)';
+$string['cachedef_bookinghistorytable'] = 'Booking history table (Cache)';
 $string['cachedef_bookingoptions'] = 'Booking options (cache)';
 $string['cachedef_bookingoptionsanswers'] = 'Booking options answers (cache)';
 $string['cachedef_bookingoptionsettings'] = 'Booking option settings (cache)';
@@ -2500,6 +2502,7 @@ $string['userleavemessage'] = 'Hello {$a->participant},
 You have been unsubscribed from {$a->title}.
 ';
 $string['userleavesubject'] = 'You successfully unsubscribed from {$a->title}';
+$string['usermodified'] = 'Modified by';
 $string['username'] = "username";
 $string['usernameofbookingmanager'] = 'Choose a booking manager';
 $string['usernameofbookingmanager_help'] = 'Username of the user who will be displayed in the "From" field of the confirmation notifications. If the option "Send confirmation e-mail to booking manager" is enabled, this is the user who receives a copy of the confirmation notifications.';
