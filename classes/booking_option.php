@@ -1629,7 +1629,7 @@ class booking_option {
             isset($bookingsettings->addtogroupofcurrentcourse)
             && !empty($bookingsettings->addtogroupofcurrentcourse)
         ) {
-            // $COURSE is not a reliable source here, so we fetch the courseid via the booking.
+            // Global COURSE is not a reliable source here, so we fetch the courseid via the booking.
             $booking = singleton_service::get_instance_of_booking_by_cmid($bookingsettings->cmid);
             $coursegroups = groups_get_all_groups($booking->course->id);
             foreach ($bookingsettings->addtogroupofcurrentcourse as $groupid) {
@@ -1789,7 +1789,7 @@ class booking_option {
      * @return bool|number id of the group
      * @throws \moodle_exception
      */
-    public function create_group(object $newoption, bool $groupintarget = true, int $sourcecourseid = 0) {
+    public function create_group(stdClass $newoption, bool $groupintarget = true, int $sourcecourseid = 0) {
         global $DB;
 
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($this->bookingid);
