@@ -36,7 +36,6 @@ use html_writer;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class optiontemplatessettings_table extends table_sql {
-
     /**
      * @var int
      */
@@ -84,9 +83,9 @@ class optiontemplatessettings_table extends table_sql {
         if (!empty($this->bookinginstances)) {
             foreach ($this->bookinginstances as $instance) {
                 if ($instance->templateid == $values->optionid) {
-                    // TODO: Replace DB query with something more performant.
+                    // Todo: Replace DB query with something more performant.
                     if ($DB->record_exists('course_modules', ['id' => $instance->id])) {
-                        list($course, $cm) = get_course_and_cm_from_cmid($instance->id);
+                        [$course, $cm] = get_course_and_cm_from_cmid($instance->id);
                         $url = new moodle_url('/mod/booking/view.php', ['id' => $cm->id]);
                         $linktobinstance = html_writer::link($url, $instance->name);
                         $newline = html_writer::empty_tag('br');
@@ -110,8 +109,10 @@ class optiontemplatessettings_table extends table_sql {
         global $OUTPUT;
         $output = '';
         $delete = get_string('delete');
-        $url = new moodle_url('/mod/booking/optiontemplatessettings.php',
-            ['optionid' => $values->optionid, 'action' => 'delete', 'id' => $this->cmid]);
+        $url = new moodle_url(
+            '/mod/booking/optiontemplatessettings.php',
+            ['optionid' => $values->optionid, 'action' => 'delete', 'id' => $this->cmid]
+        );
         $output .= $OUTPUT->single_button($url, $delete, 'get');
         $edit = get_string('edit');
         $returnurl = new moodle_url('/mod/booking/optiontemplatessettings.php', ['id' => $this->cmid]);

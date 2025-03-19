@@ -29,7 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
 require_once(__DIR__ . '/../../lib.php');
-require_once($CFG->libdir.'/tablelib.php');
+require_once($CFG->libdir . '/tablelib.php');
 
 use mod_booking\option\dates_handler;
 use moodle_url;
@@ -43,7 +43,6 @@ use table_sql;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class teachers_instance_report_table extends table_sql {
-
     /** @var int $bookingid */
     public $bookingid;
 
@@ -202,8 +201,12 @@ class teachers_instance_report_table extends table_sql {
                     $dayinfo = dates_handler::prepare_day_info($record->dayofweektime);
                     if (!empty($dayinfo['starttime']) && !empty($dayinfo['endtime'])) {
                         $minutes = (strtotime('today ' . $dayinfo['endtime']) - strtotime('today ' . $dayinfo['starttime'])) / 60;
-                        $units = number_format($minutes / $this->unitlength, 1, $this->decimalseparator,
-                            $this->thousandsseparator);
+                        $units = number_format(
+                            $minutes / $this->unitlength,
+                            1,
+                            $this->decimalseparator,
+                            $this->thousandsseparator
+                        );
                         $unitstringpart = get_string('units', 'mod_booking') . ": $units";
                     } else {
                         $unitstringpart = get_string('unitsunknown', 'mod_booking');
@@ -212,8 +215,10 @@ class teachers_instance_report_table extends table_sql {
                     $unitstringpart = get_string('unitsunknown', 'mod_booking');
                 }
                 if (!$this->is_downloading()) {
-                    $optionurl = new moodle_url('/mod/booking/optiondates_teachers_report.php',
-                        ['cmid' => $this->cmid, 'optionid' => $record->optionid]);
+                    $optionurl = new moodle_url(
+                        '/mod/booking/optiondates_teachers_report.php',
+                        ['cmid' => $this->cmid, 'optionid' => $record->optionid]
+                    );
                     $optionswithdurations .= "<b><a href='$optionurl' target='_blank'>";
                 }
                 if (!empty($record->titleprefix)) {
@@ -265,7 +270,6 @@ class teachers_instance_report_table extends table_sql {
         $sumunits = 0;
         if (!empty($values->unitsrecords)) {
             foreach ($values->unitsrecords as $record) {
-
                 if (!empty($record->dayofweektime)) {
                     $dayinfo = dates_handler::prepare_day_info($record->dayofweektime);
                     if (empty($dayinfo['starttime']) || empty($dayinfo['endtime'])) {
@@ -311,12 +315,13 @@ class teachers_instance_report_table extends table_sql {
 
         $missinghoursstring = '';
         if ($records = $DB->get_records_sql($sql, $params)) {
-
             foreach ($records as $record) {
                 if (!$this->is_downloading()) {
                     $missinghoursstring .= '<hr/>';
-                    $optionurl = new moodle_url('/mod/booking/optiondates_teachers_report.php',
-                        ['cmid' => $this->cmid, 'optionid' => $record->optionid]);
+                    $optionurl = new moodle_url(
+                        '/mod/booking/optiondates_teachers_report.php',
+                        ['cmid' => $this->cmid, 'optionid' => $record->optionid]
+                    );
                     $missinghoursstring .= "<a href='$optionurl' target='_blank'>";
                 }
                 if (!empty($record->titleprefix)) {
@@ -324,13 +329,18 @@ class teachers_instance_report_table extends table_sql {
                 }
                 if (!$this->is_downloading()) {
                     $missinghoursstring .= $record->text .
-                        '</a> (<b>' . dates_handler::prettify_optiondates_start_end($record->coursestarttime,
-                        $record->courseendtime, current_language()) . '</b>) | ' . get_string('reason', 'mod_booking') . ': ' .
+                        '</a> (<b>' . dates_handler::prettify_optiondates_start_end(
+                            $record->coursestarttime,
+                            $record->courseendtime,
+                            current_language()
+                        ) . '</b>) | ' . get_string('reason', 'mod_booking') . ': ' .
                         $record->reason . '<br/>';
-                    if ($deductionrecord = $DB->get_record('booking_odt_deductions', [
+                    if (
+                        $deductionrecord = $DB->get_record('booking_odt_deductions', [
                         'optiondateid' => $record->optiondateid,
                         'userid' => $values->teacherid,
-                    ])) {
+                        ])
+                    ) {
                         $missinghoursstring .= '<i class="fa fa-minus-square-o" aria-hidden="true"></i>&nbsp;' .
                             get_string('deduction', 'mod_booking') . ' | ' .
                             get_string('deductionreason', 'mod_booking') . ': ' .
@@ -338,13 +348,18 @@ class teachers_instance_report_table extends table_sql {
                     }
                 } else {
                     $missinghoursstring .= $record->text .
-                        ' (' . dates_handler::prettify_optiondates_start_end($record->coursestarttime, $record->courseendtime,
-                        current_language()) . ') | ' . get_string('reason', 'mod_booking') . ': ' .
+                        ' (' . dates_handler::prettify_optiondates_start_end(
+                            $record->coursestarttime,
+                            $record->courseendtime,
+                            current_language()
+                        ) . ') | ' . get_string('reason', 'mod_booking') . ': ' .
                         $record->reason . PHP_EOL;
-                    if ($deductionrecord = $DB->get_record('booking_odt_deductions', [
+                    if (
+                        $deductionrecord = $DB->get_record('booking_odt_deductions', [
                         'optiondateid' => $record->optiondateid,
                         'userid' => $values->teacherid,
-                    ])) {
+                        ])
+                    ) {
                         $missinghoursstring .= get_string('deduction', 'mod_booking') . ' | ' .
                             get_string('deductionreason', 'mod_booking') . ': ' .
                             $deductionrecord->reason . PHP_EOL;
@@ -388,9 +403,7 @@ class teachers_instance_report_table extends table_sql {
 
         $substitutionsstring = '';
         if ($records = $DB->get_records_sql($sql, $params)) {
-
             foreach ($records as $record) {
-
                 // For each missing hour, we need to find out who substituted it.
                 $substitutionssql =
                     "SELECT u.id, u.firstname, u.lastname, u.email
@@ -413,8 +426,10 @@ class teachers_instance_report_table extends table_sql {
                 if ($substitutionsrecords = $DB->get_records_sql($substitutionssql, $substitutionsparams)) {
                     if (!$this->is_downloading()) {
                         $substitutionsstring .= '<hr/>';
-                        $optionurl = new moodle_url('/mod/booking/optiondates_teachers_report.php',
-                            ['cmid' => $this->cmid, 'optionid' => $record->optionid]);
+                        $optionurl = new moodle_url(
+                            '/mod/booking/optiondates_teachers_report.php',
+                            ['cmid' => $this->cmid, 'optionid' => $record->optionid]
+                        );
                         $substitutionsstring .= "<a href='$optionurl' target='_blank'>";
                     }
                     if (!empty($record->titleprefix)) {
@@ -422,16 +437,22 @@ class teachers_instance_report_table extends table_sql {
                     }
                     if (!$this->is_downloading()) {
                         $substitutionsstring .= $record->text .
-                            '</a> (' . dates_handler::prettify_optiondates_start_end($record->coursestarttime,
-                                $record->courseendtime, current_language()) . ')';
+                            '</a> (' . dates_handler::prettify_optiondates_start_end(
+                                $record->coursestarttime,
+                                $record->courseendtime,
+                                current_language()
+                            ) . ')';
                         foreach ($substitutionsrecords as $sub) {
                             $substitutionsstring .= "<br/><b>$sub->firstname $sub->lastname</b> ($sub->email)";
                         }
                         $substitutionsstring .= '<br/>';
                     } else {
                         $substitutionsstring .= $record->text .
-                            ' (' . dates_handler::prettify_optiondates_start_end($record->coursestarttime, $record->courseendtime,
-                            current_language()) . ')';
+                            ' (' . dates_handler::prettify_optiondates_start_end(
+                                $record->coursestarttime,
+                                $record->courseendtime,
+                                current_language()
+                            ) . ')';
                         foreach ($substitutionsrecords as $sub) {
                             $substitutionsstring .= "<br/>$sub->firstname $sub->lastname ($sub->email)";
                         }
