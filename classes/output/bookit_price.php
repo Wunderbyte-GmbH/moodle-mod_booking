@@ -44,7 +44,6 @@ use templatable;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class bookit_price implements renderable, templatable {
-
     /** @var array $cartitem array of cartitem */
     public array $cartitem = [];
 
@@ -87,7 +86,6 @@ class bookit_price implements renderable, templatable {
 
         // First, we see if we deal with a guest. Guests get all prices.
         if ($context && !isloggedin()) {
-
             $this->context = $context;
             $this->priceitems = price::get_prices_from_cache_or_db('option', $settings->id, $userid);
             // When we render for guest, we don't need the rest.
@@ -111,19 +109,19 @@ class bookit_price implements renderable, templatable {
                 case MOD_BOOKING_STATUSPARAM_DELETED:
                 case MOD_BOOKING_STATUSPARAM_NOTIFYMELIST:
                     if ($this->priceitem = price::get_price('option', $settings->id, $buyforuser)) {
-
-                        $cartitem = new cartitem($settings->id,
-                                         $settings->get_title_with_prefix(),
-                                         $this->priceitem['price'],
-                                         $this->priceitem['currency'],
-                                         'mod_booking',
-                                         'option',
-                                         $settings->description,
-                                         $settings->imageurl ?? '',
-                                         booking_option::return_cancel_until_date($settings->id),
-                                         $settings->coursestarttime,
-                                         $settings->courseendtime
-                                    );
+                        $cartitem = new cartitem(
+                            $settings->id,
+                            $settings->get_title_with_prefix(),
+                            $this->priceitem['price'],
+                            $this->priceitem['currency'],
+                            'mod_booking',
+                            'option',
+                            $settings->description,
+                            $settings->imageurl ?? '',
+                            booking_option::return_cancel_until_date($settings->id),
+                            $settings->coursestarttime,
+                            $settings->courseendtime
+                        );
 
                         $this->cartitem = $cartitem->as_array();
                     }
@@ -142,9 +140,7 @@ class bookit_price implements renderable, templatable {
         $returnarray = [];
 
         if ($this->context && is_guest($this->context)) {
-
             foreach ($this->priceitems as $priceitem) {
-
                 $pricecategory = price::get_active_pricecategory_from_cache_or_db($priceitem->pricecategoryidentifier);
 
                 $priceitemarray = (array)$priceitem;
@@ -154,7 +150,6 @@ class bookit_price implements renderable, templatable {
             }
 
             return $returnarray;
-
         } else if (!$this->cartitem) {
             return [];
         }

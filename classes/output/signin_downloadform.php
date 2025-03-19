@@ -36,7 +36,6 @@ use templatable;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class signin_downloadform implements renderable, templatable {
-
     /** @var int $id booking id */
     public $id = 0;
 

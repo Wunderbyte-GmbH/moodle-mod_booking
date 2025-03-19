@@ -39,7 +39,6 @@ use templatable;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class prepagemodal implements renderable, templatable {
-
     /** @var int $optionid as modal counter for more than one modals on a page. */
     public $optionid = 0;
 
@@ -70,11 +69,12 @@ class prepagemodal implements renderable, templatable {
      * @param int $userid
      */
     public function __construct(
-            $settings,
-            int $totalnumberofpages,
-            string $buttoncondition,
-            string $extrabuttoncondition = '',
-            int $userid = 0) {
+        $settings,
+        int $totalnumberofpages,
+        string $buttoncondition,
+        string $extrabuttoncondition = '',
+        int $userid = 0
+    ) {
 
         global $PAGE;
 
@@ -96,7 +96,7 @@ class prepagemodal implements renderable, templatable {
         $this->buttoncondition = $buttoncondition;
         $this->userid = $userid;
         $condition = new $buttoncondition();
-        list($template, $data) = $condition->render_button($settings, $userid, $full);
+        [$template, $data] = $condition->render_button($settings, $userid, $full);
 
         if (!empty($extrabuttoncondition)) {
             if (method_exists($extrabuttoncondition, 'instance')) {
@@ -104,7 +104,7 @@ class prepagemodal implements renderable, templatable {
             } else {
                 $extracondition = new $extrabuttoncondition();
             }
-            list($extratemplate, $extradata) = $extracondition->render_button($settings, $userid, $full);
+            [$extratemplate, $extradata] = $extracondition->render_button($settings, $userid, $full);
             if (!empty($data['main']) || $full) { // Full means has capability "bookforothers" & therefore 2 areas: top & main.
                 $extradata['top'] = $extradata["main"];
                 $extradata['main'] = $data['main'] ?? [];
@@ -129,7 +129,7 @@ class prepagemodal implements renderable, templatable {
         $rand = rand(1, 1000);
 
         return [
-            'uniquid' => md5($this->optionid. $now . $rand),
+            'uniquid' => md5($this->optionid . $now . $rand),
             'optionid' => $this->optionid,
             'totalnumberofpages' => $this->totalnumberofpages,
             'buttonhtml' => $this->buttonhtml,

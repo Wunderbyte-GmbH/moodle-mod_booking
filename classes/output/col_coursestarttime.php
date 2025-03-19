@@ -87,7 +87,6 @@ class col_coursestarttime implements renderable, templatable {
 
         // For self-learning courses, we do not show any optiondates (sessions).
         if (!empty($settings->selflearningcourse)) {
-
             $this->selflearningcourse = true;
 
             if (get_config('booking', 'selflearningcoursehideduration')) {

@@ -36,7 +36,6 @@ use templatable;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class instance_description implements renderable, templatable {
-
     /** @var string $description */
     public $description = null;
 

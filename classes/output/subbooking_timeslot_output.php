@@ -45,7 +45,6 @@ use templatable;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class subbooking_timeslot_output implements renderable, templatable {
-
     /** @var array $cartitem array of cartitem */
     public $data = [];
 
@@ -60,16 +59,15 @@ class subbooking_timeslot_output implements renderable, templatable {
     public function __construct(
         booking_option_settings $settings,
         bool $includebookinginformation,
-        int $userid = 0) {
+        int $userid = 0
+    ) {
 
         $sbdata = [];
 
         // There might be more than one relevant subbooking to handle.
         foreach ($settings->subbookings as $subbooking) {
-
             // We only treat our kind of subbookings here.
             if ($subbooking->type === 'subbooking_timeslot') {
-
                 // Get the name from the entities handler.
                 $object = json_decode($subbooking->json);
                 if (!$data = json_decode($object->data->slots, true)) {

@@ -41,7 +41,6 @@ use stdClass;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class optiondates_only implements renderable, templatable {
-
     /** @var bool $showsessions */
     public $showsessions = true;
 
@@ -66,13 +65,11 @@ class optiondates_only implements renderable, templatable {
         $this->showsessions = $numberofsessions > 0;
 
         foreach ($sessions as $session) {
-
             $session->datestring = $session->startdatetime;
 
             if ($session->startdate !== $session->enddate) {
                 $session->datestring .= " - " . $session->enddatetime;
             }
-
         }
 
         $this->sessions = $sessions;

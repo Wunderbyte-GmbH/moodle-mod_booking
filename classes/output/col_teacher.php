@@ -41,7 +41,6 @@ use templatable;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class col_teacher implements renderable, templatable {
-
     /** @var array $teachers array of teachers */
     public $teachers = [];
 

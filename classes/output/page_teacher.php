@@ -44,7 +44,6 @@ use templatable;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class page_teacher implements renderable, templatable {
-
     /** @var stdClass $teacher */
     public $teacher = null;
 
@@ -138,13 +137,15 @@ class page_teacher implements renderable, templatable {
         // However, a site admin will always see e-mail addresses.
         // If the plugin setting to show all teacher e-mails (teachersshowemails) is turned on...
         // ... then teacher e-mails will always be shown to anyone.
-        if (!empty($this->teacher->email) &&
-            ($this->teacher->maildisplay == 1
-                || has_capability('mod/booking:updatebooking', $context)
-                || get_config('booking', 'teachersshowemails')
-                || (get_config('booking', 'bookedteachersshowemails')
-                    && (booking_answers::number_actively_booked($USER->id, $this->teacher->id) > 0))
-            )) {
+        if (
+            !empty($this->teacher->email) &&
+            ($this->teacher->maildisplay == 1 ||
+                has_capability('mod/booking:updatebooking', $context) ||
+                get_config('booking', 'teachersshowemails') ||
+                (get_config('booking', 'bookedteachersshowemails') &&
+                    (booking_answers::number_actively_booked($USER->id, $this->teacher->id) > 0))
+            )
+        ) {
             $returnarray['teacher']['email'] = $this->teacher->email;
         }
 
@@ -205,7 +206,6 @@ class page_teacher implements renderable, templatable {
         // This is a special setting for a special project. Only when this project is installed...
         // ... the set semester will get precedence over all the other ones.
         if (class_exists('local_musi\observer')) {
-
             $firstbookingcmid = get_config('local_musi', 'shortcodessetinstance');
 
             foreach ($bookingidrecords as $key => $bookingidrecord) {
@@ -219,11 +219,9 @@ class page_teacher implements renderable, templatable {
         }
 
         foreach ($bookingidrecords as $bookingidrecord) {
-
             $bookingid = $bookingidrecord->bookingid;
 
             if ($booking = singleton_service::get_instance_of_booking_by_bookingid($bookingid)) {
-
                 // If a booking option is set to invisible, we just wont show the instance right away.
                 // This can not replace the check if the user actually has the rights to see it.
                 $modinfo = get_fast_modinfo($booking->course, $USER->id);
@@ -263,7 +261,6 @@ class page_teacher implements renderable, templatable {
                 }
 
                 $teacheroptiontables[] = $newtable;
-
             }
         }
 
