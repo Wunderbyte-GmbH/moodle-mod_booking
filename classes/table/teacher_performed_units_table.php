@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once(__DIR__ . '/../../lib.php');
-require_once($CFG->libdir.'/tablelib.php');
+require_once($CFG->libdir . '/tablelib.php');
 
 use mod_booking\option\dates_handler;
 use table_sql;
@@ -43,7 +43,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class teacher_performed_units_table extends table_sql {
-
     /** @var string $decimalseparator */
     public $decimalseparator = ".";
 
@@ -85,9 +84,11 @@ class teacher_performed_units_table extends table_sql {
      */
     public function col_optiondate(object $values): string {
 
-        return dates_handler::prettify_optiondates_start_end($values->coursestarttime,
-            $values->courseendtime, current_language());
-
+        return dates_handler::prettify_optiondates_start_end(
+            $values->coursestarttime,
+            $values->courseendtime,
+            current_language()
+        );
     }
 
     /**

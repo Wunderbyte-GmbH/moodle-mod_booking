@@ -27,7 +27,7 @@ namespace mod_booking\table;
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->libdir.'/tablelib.php');
+require_once($CFG->libdir . '/tablelib.php');
 
 use moodle_url;
 use table_sql;
@@ -40,7 +40,6 @@ use table_sql;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class instancetemplatessettings_table extends table_sql {
-
     /**
      * $instance templates
      *
@@ -85,7 +84,7 @@ class instancetemplatessettings_table extends table_sql {
         $deleteurl = new moodle_url('/mod/booking/instancetemplatessettings.php', ['delete' => $values->id]);
         $output .= $OUTPUT->single_button($deleteurl, $deletelabel, 'get');
 
-        // TODO: Editor for instance templates is not yet implemented.
+        // Todo: Editor for instance templates is not yet implemented.
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         /* $edit = get_string('edit');
         $url = new moodle_url('/mod/booking/edit_optiontemplates.php', array('optionid' => $values->optionid, 'id' => $this->cmid));
