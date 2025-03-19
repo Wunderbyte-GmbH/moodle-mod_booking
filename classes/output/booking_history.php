@@ -26,6 +26,7 @@
 
 namespace mod_booking\output;
 
+use local_wunderbyte_table\filters\types\datepicker;
 use local_wunderbyte_table\filters\types\standardfilter;
 use mod_booking\table\booking_history_table;
 use renderer_base;
@@ -76,6 +77,7 @@ class booking_history implements renderable, templatable {
      */
     private function get_rendered_bookinghistorytable_for_optionid(int $optionid) {
         $table = new booking_history_table("bookinghistorytable_" . $optionid);
+        $table->tabletemplate = 'local_wunderbyte_table/twtable_list';
 
         $fields = "s1.*";
         $from = "(
@@ -126,6 +128,22 @@ class booking_history implements renderable, templatable {
         // Add filters.
         $standardfilter = new standardfilter('lastname', get_string('lastname'));
         $table->add_filter($standardfilter);
+        $standardfilter = new standardfilter('firstname', get_string('firstname'));
+        $table->add_filter($standardfilter);
+
+        $datepicker = new datepicker(
+            'timecreated',
+            get_string('timespan', 'local_wunderbyte_table'),
+        );
+        // For the datepicker, we need to add special options.
+        $datepicker->add_options(
+            'in between',
+            '<',
+            get_string('apply_filter', 'local_wunderbyte_table'),
+            'now',
+            'now + 1 year'
+        );
+        $table->add_filter($datepicker);
 
         $sortablecolumns = [
             'lastname',
@@ -134,7 +152,8 @@ class booking_history implements renderable, templatable {
             'timecreated',
         ];
         $table->define_sortablecolumns($sortablecolumns);
-        $table->tabletemplate = 'local_wunderbyte_table/twtable_list';
+
+        $table->define_fulltextsearchcolumns(['lastname', 'firstname', 'email']);
 
         return $table->outhtml(20, false);
     }

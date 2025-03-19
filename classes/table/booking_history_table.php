@@ -44,15 +44,11 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  */
 class booking_history_table extends wunderbyte_table {
     /**
-     * xxx column.
+     * Column for timecreated value.
      * @param stdClass $values
      * @return string
      */
-    public function col_xxx(stdClass $values) {
-        if (!$this->is_downloading()) {
-            return 'xxx';
-        } else {
-            return 'xxx';
-        }
+    public function col_timecreated(stdClass $values) {
+        return userdate($values->timecreated);
     }
 }
