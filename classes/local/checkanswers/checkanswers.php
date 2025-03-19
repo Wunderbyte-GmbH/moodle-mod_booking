@@ -98,6 +98,8 @@ class checkanswers {
             $params['userid'] = $userid;
         }
 
+        $pathwithwildcard = $DB->sql_concat(" (SELECT path FROM {context} WHERE id = :contextid)", "'%'");
+
         $sql = "SELECT bo.id
                 FROM {booking_options} bo
                 JOIN {booking} b ON bo.bookingid = b.id
@@ -106,7 +108,7 @@ class checkanswers {
                 )
                 JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = " . CONTEXT_MODULE . "
                 $additionaljoin
-                WHERE ctx.path LIKE (SELECT path FROM {context} WHERE id = :contextid) || '%'
+                WHERE ctx.path LIKE $pathwithwildcard
                 $additionalwhere ";
 
         $bookingoptionrecords = $DB->get_records_sql($sql, $params);
