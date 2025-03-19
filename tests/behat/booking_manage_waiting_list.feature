@@ -50,6 +50,10 @@ Feature: In a course add a booking option and manage its waiting list
       | activity | course | name       | intro                  | bookingmanager | eventtype | cancancelbook |
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | 1             |
     And I change viewport size to "1366x10000"
+    ## Unfortunately, TinyMCE is slow and has misbehavior which might cause number of site-wide issues. So - we disable it.
+    And the following config values are set as admin:
+      | config        | value         |
+      | texteditors   | atto,textarea |
 
   @javascript
   Scenario: Booking option: reorder waiting list
@@ -208,3 +212,30 @@ Feature: In a course add a booking option and manage its waiting list
     And I should see "You are on the waiting list" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Undo my booking" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "(Waiting list: 1/3)" in the ".allbookingoptionstable_r1" "css_element"
+
+  @javascript
+  Scenario: Booking option: reconfiguration of waiting list
+    Given the following "mod_booking > options" exist:
+      | booking    | text                 | course | description  | importing | teachersforoption | maxanswers | maxoverbooking | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
+      | My booking | Option: waiting list | C1     | Waiting list | 1         | teacher1          | 2          | 2              | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+    And I am on the "My booking" Activity page logged in as teacher1
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Student 1 (student1@example.com)" "text"
+    And I click on "Student 2 (student2@example.com)" "text"
+    And I click on "Student 3 (student3@example.com)" "text"
+    And I click on "Student 4 (student4@example.com)" "text"
+    When I click on "Add" "button"
+    ## 2 students are on waitinglist
+    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
+    And I should see "student3@example.com" in the "#accordion-item-waitinglist" "css_element"
+    And I should see "student4@example.com" in the "#accordion-item-waitinglist" "css_element"
+    ## Adjust option settings
+    And I am on the "My booking" Activity page
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until the page is ready
+    And I set the field "Max. number of participants" to "4" 
+    And I click on "Save" "button"
+    And I wait until the page is ready
+    And I should see "4" in the ".allbookingoptionstable_r1 .col-ap-availableplaces" "css_element"
+    And I should see "Waiting list: 0/2" in the ".allbookingoptionstable_r1 .col-ap-waitingplacesavailable" "css_element"
