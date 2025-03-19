@@ -182,8 +182,8 @@ final class bookinghistory_test extends advanced_testcase {
             $this->assertEquals($expected['usermodified'], $adminuser);
             $this->assertEquals($expected['historystatus'][1], $status);
         }
-        // Cancel User if Testcase.
-        if ($data['bookingsettings'][0]['cancancelbook'] == 1 && !isset($data['additionalactions']['teachercancels'])) {
+        // Cancel User.
+        if ($data['bookingsettings'][0]['cancancelbook'] == 1 && !isset($data['additionalactions'])) {
             $result = booking_bookit::bookit('option', $settings->id, $student1->id);
             [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
             $this->assertEquals($expected['bookitresults'][1], $id);
@@ -215,6 +215,16 @@ final class bookinghistory_test extends advanced_testcase {
             $this->assertCount(3, $historyrecords);
             // Kick Historyrecord booked out of the array.
             array_pop($historyrecords);
+            $status = end($historyrecords)->status;
+            $this->assertEquals($expected['historystatus'][1], $status);
+        }
+        // Delete Bookingoption.
+        if (isset($data['additionalactions']['bookingoptiondeleted'])) {
+            $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+            $option->delete_booking_option();
+
+            $historyrecords = $DB->get_records('booking_history');
+            $this->assertCount(2, $historyrecords);
             $status = end($historyrecords)->status;
             $this->assertEquals($expected['historystatus'][1], $status);
         }
@@ -354,7 +364,7 @@ final class bookinghistory_test extends advanced_testcase {
                 ],
             ],
         ],
-        'deleteviateacher' => [
+        'cancelwithteacher' => [
 
             [   'pluginsettings' => [
                 [
@@ -396,6 +406,51 @@ final class bookinghistory_test extends advanced_testcase {
                 'historystatus' => [
                     MOD_BOOKING_STATUSPARAM_BOOKED,
                     MOD_BOOKING_STATUSPARAM_BOOKED_DELETED,
+                ],
+            ],
+        ],
+        'bookingoptiondeleted' => [
+
+            [   'pluginsettings' => [
+                [
+                    'component' => 'booking',
+                    'key' => 'notifymelist',
+                    'value' => 1,
+                ],
+            ],
+            'coursesettings' => [
+                'firstcourse' => [
+                    'enablecompletion' => 1,
+                ],
+            ],
+            'userssettings' => [
+                'student1' => [], // Just a demo how params could be set.
+            ],
+            'bookingsettings' => [
+                [
+                    'cancancelbook' => 1,
+                ],
+            ],
+            'optionsettings' => [
+                [
+                    'useprice' => 0, // Disable price for this option.
+                    'maxanswers' => 1,
+                ],
+            ],
+            'additionalactions' => [
+                'bookingoptiondeleted' => true,
+            ],
+            ],
+            [
+                'usermodified' => 2, // Because the Admin User is 2.
+                'bookitresults' => [
+                    MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
+                    MOD_BOOKING_BO_COND_CONFIRMCANCEL,
+                    MOD_BOOKING_BO_COND_BOOKITBUTTON,
+                ],
+                'historystatus' => [
+                    MOD_BOOKING_STATUSPARAM_BOOKED,
+                    MOD_BOOKING_STATUSPARAM_DELETED,
                 ],
             ],
         ],
