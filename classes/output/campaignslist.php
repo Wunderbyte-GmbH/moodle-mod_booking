@@ -38,7 +38,6 @@ use templatable;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class campaignslist implements renderable, templatable {
-
     /** @var array $campaigns */
     public $campaigns = [];
 
@@ -170,7 +169,6 @@ class campaignslist implements renderable, templatable {
                 array_values($data)[1];
             default:
                 return "";
-
         }
     }
 }

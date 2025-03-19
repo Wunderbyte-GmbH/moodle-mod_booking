@@ -38,7 +38,6 @@ use templatable;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class col_action implements renderable, templatable {
-
     /** @var string $label label for button */
     public $label = 'Add to cart';
 
@@ -55,7 +54,6 @@ class col_action implements renderable, templatable {
      */
     public function __construct(int $id) {
         $this->id = $id;
-
     }
 
     /**

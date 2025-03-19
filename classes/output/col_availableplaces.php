@@ -45,7 +45,6 @@ use templatable;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class col_availableplaces implements renderable, templatable {
-
     /** @var booking_answers $bookinganswers instance of class */
     private $bookinganswers = null;
 
@@ -91,7 +90,6 @@ class col_availableplaces implements renderable, templatable {
         );
 
         if ($canviewreport) {
-
             $this->showmanageresponses = true;
 
             // Add a link to redirect to the booking option.

@@ -38,6 +38,8 @@ use templatable;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class col_text implements renderable, templatable {
+    /** @var string $text */
+    public $text = null;
 
     /**
      * Constructor
@@ -45,7 +47,6 @@ class col_text implements renderable, templatable {
      * @param string $text
      */
     public function __construct(string $text) {
-
         $this->text = $text;
     }
 
@@ -55,7 +56,6 @@ class col_text implements renderable, templatable {
      * @return array
      */
     public function export_for_template(renderer_base $output) {
-
         return [
             'text' => $this->text,
         ];

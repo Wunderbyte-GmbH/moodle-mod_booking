@@ -39,7 +39,6 @@ use templatable;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class bookingoption_dates implements renderable, templatable {
-
     /** @var array of the users booked for this option key userid */
     public array $dates = [];
 
