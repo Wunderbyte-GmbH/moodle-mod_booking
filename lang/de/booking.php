@@ -456,6 +456,7 @@ $string['bookingduration'] = 'Dauer';
 $string['bookingfailed'] = 'Buchung gescheitert';
 $string['bookingfull'] = 'Ausgebucht';
 $string['bookingfulldidntregister'] = 'Es wurden nicht alle Nutzer:innen übertragen, da die Option bereits ausgebucht ist!';
+$string['bookinghistory'] = 'Buchungshistorie';
 $string['bookingidfilter'] = 'Buchungsinstanz';
 $string['bookingimages'] = 'Header-Bilder für Buchungsoptionen hochladen - diese müssen exakt den selben Namen haben, wie der jeweilige Wert, den das ausgewählte benutzerdefinierte Feld in der jeweiligen Buchungsoption hat.';
 $string['bookingimagescustomfield'] = 'Benutzerdefiniertes Feld von Buchungsoptionen, mit dem die Header-Bilder gematcht werden';
@@ -593,6 +594,7 @@ $string['bulkoperations'] = 'Show list of bookingoptions to enable bulk operatio
 $string['bulkoperationsheader'] = 'Daten der ausgewählten Buchungsoptionen überschreiben';
 $string['cachedef_bookedusertable'] = 'Gebuchte Nutzer:innen-Tabelle (Cache)';
 $string['cachedef_bookinganswers'] = 'Boooking Antworten (Cache)';
+$string['cachedef_bookinghistorytable'] = 'Buchungshistorie (Cache)';
 $string['cachedef_bookingoptions'] = 'Buchungsoptionen (Cache)';
 $string['cachedef_bookingoptionsanswers'] = 'Buchungen von Buchungsoptionen (Cache)';
 $string['cachedef_bookingoptionsettings'] = 'Settings für Buchungsoptionen (Cache)';
@@ -2430,6 +2432,7 @@ $string['userleavemessage'] = 'Hallo {$a->participant},
 Sie wurden erfolgreich von {$a->title} abgemeldet.
 ';
 $string['userleavesubject'] = 'Sie wurden erfolgreich abgemeldet von: {$a->title}';
+$string['usermodified'] = 'Bearbeitet von';
 $string['username'] = "Usernamen";
 $string['usernameofbookingmanager'] = 'Buchungsverwalter/in auswählen';
 $string['usernameofbookingmanager_help'] = 'Nutzername des/der Nutzer/in, der als Absender/in der Buchungsbestätigunsmitteilungen angeführt wird. Wenn die Option "Eine Kopie des Bestätigungsmail an Buchungsverwalter senden" aktiviert ist, wird die Kopie der Buchungsbestätigung an diese/n Nutzer/in gesendet.';
