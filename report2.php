@@ -29,8 +29,10 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 use mod_booking\booking;
 use mod_booking\option\dates_handler;
 use mod_booking\output\booked_users;
+use mod_booking\output\booking_history;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
+use mod_booking\output\renderer;
 
 global $PAGE, $SITE;
 
@@ -370,7 +372,16 @@ $data = new booked_users(
     true,
     $cmid
 );
+/** @var renderer $renderer */
 $renderer = $PAGE->get_renderer('mod_booking');
 echo $renderer->render_booked_users($data);
+
+// In option scope, we also show booking history.
+if ($scope === 'option') {
+    $optionid = $scopeid;
+    $historydata = new booking_history($optionid);
+    echo $renderer->render_booking_history($historydata);
+}
+$historydata = new booking_history($scopeid);
 
 echo $OUTPUT->footer();

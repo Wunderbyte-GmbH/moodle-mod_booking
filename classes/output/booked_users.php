@@ -116,6 +116,8 @@ class booked_users implements renderable, templatable {
                 $bookeduserscols[] = 'firstname';
                 $bookedusersheaders[] = get_string('firstname', 'core');
                 $bookeduserscols[] = 'email';
+                $bookedusersheaders[] = get_string('email', 'core');
+
                 if (get_config('booking', 'bookingstrackerpresencecounter')) {
                     $bookeduserscols[] = 'presencecount';
                 }
@@ -126,7 +128,6 @@ class booked_users implements renderable, templatable {
                 $userstonotifycols = ['name', 'action_delete'];
                 $deleteduserscols = ['name', 'timemodified'];
 
-                $bookedusersheaders[] = get_string('user', 'core');
                 if (get_config('booking', 'bookingstrackerpresencecounter')) {
                     $bookedusersheaders[] = get_string('presencecount', 'mod_booking');
                 }

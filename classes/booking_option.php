@@ -719,7 +719,6 @@ class booking_option {
         }
 
         if ($cancelreservation) {
-
             $ba = singleton_service::get_instance_of_booking_answers($optionsettings);
             // All answers, fetch for user.
 
@@ -4114,7 +4113,12 @@ class booking_option {
             'usermodified' => $USER->id,
             'json' => $json,
         ];
-        return $DB->insert_record('booking_history', $data);
+        $idofnewrecord = $DB->insert_record('booking_history', $data);
+
+        // Now, delete the booking history cache.
+        cache_helper::purge_by_event('setbackbookinghistorytable');
+
+        return $idofnewrecord;
     }
 
     /**
