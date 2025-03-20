@@ -79,6 +79,12 @@ class connectedcourse {
 
         $categoryid = self::retrieve_categoryid($newoption, $formdata);
 
+        $options = [];
+
+        if (!empty($formdata->createnewmoodlecoursefromtemplatewithusers)) {
+            $options[] = ['name' => 'enrolments', 'value' => true];
+        }
+
         $courseinfo = core_course_external::duplicate_course(
             $origincourseid,
             $fullnamewithprefix,

@@ -246,6 +246,14 @@ class courseid extends field_base {
         );
         $mform->hideIf('coursetemplateid', 'chooseorcreatecourse', 'neq', 3);
         $mform->addHelpButton('coursetemplateid', 'createnewmoodlecoursefromtemplate', 'mod_booking');
+
+        $mform->addElement(
+            'advcheckbox',
+            'createnewmoodlecoursefromtemplatewithusers',
+            get_string("createnewmoodlecoursefromtemplatewithusers", "booking"),
+            0
+        );
+        $mform->hideIf('createnewmoodlecoursefromtemplatewithusers', 'chooseorcreatecourse', 'neq', 3);
     }
 
     /**

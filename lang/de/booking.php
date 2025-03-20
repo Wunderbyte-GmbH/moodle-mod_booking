@@ -803,6 +803,7 @@ moodle/backup:backupcourse
 moodle/restore:restorecourse
 moodle/question:add
 ';
+$string['createnewmoodlecoursefromtemplatewithusers'] = 'Übernehme die Nutzer:innen des Vorlagenkurses in den neuen Kurs';
 $string['createoptionsfromoptiondate'] = 'Für jeden Einzeltermin eine neue Buchungsoption erstellen';
 $string['credits'] = 'Credits';
 $string['credits_help'] = 'Wie viele credits werden bei der Buchung dieser Option verbraucht';

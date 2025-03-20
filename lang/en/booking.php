@@ -822,6 +822,7 @@ moodle/backup:backupcourse
 moodle/restore:restorecourse
 moodle/question:add
 ';
+$string['createnewmoodlecoursefromtemplatewithusers'] = 'Transfer the users from the template course to the new course.';
 $string['createoptionsfromoptiondate'] = 'For each option date create a new option';
 $string['credits'] = 'Credits';
 $string['credits_help'] = 'The number of credits which will be used by booking this option.';
