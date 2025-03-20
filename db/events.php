@@ -98,4 +98,12 @@ $observers = [
         'eventname' => '\core\event\course_module_updated',
         'callback' => 'mod_booking_observer::course_module_updated',
     ],
+    [
+        'eventname' => '\core\event\group_member_added',
+        'callback' => 'mod_booking_observer::group_membership_changed',
+    ],
+    [
+        'eventname' => '\core\event\group_member_removed',
+        'callback' => 'mod_booking_observer::group_membership_changed',
+    ],
 ];

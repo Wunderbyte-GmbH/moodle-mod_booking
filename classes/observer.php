@@ -23,6 +23,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core\event\base;
 use core\event\course_module_updated;
 use mod_booking\booking;
 use mod_booking\booking_option;
@@ -495,11 +496,27 @@ class mod_booking_observer {
             $cm = get_coursemodule_from_id('booking', $event->objectid);
             if (!empty($cm->id)) {
                 booking::purge_cache_for_booking_instance_by_cmid($cm->id);
-
-                // Now we check this booking instance to see if users lost their access.
-                $context = context_module::instance($cm->id);
-                checkanswers::create_bookinganswers_check_tasks($context->id, checkanswers::CHECK_CM_VISIBILITY);
             }
         }
+    }
+
+    /**
+     * React on removal of group members and purge singleton & caches.
+     *
+     * @param base $event
+     *
+     * @return void
+     *
+     */
+    public static function group_membership_changed(base $event) {
+
+        // Now we check this booking instance to see if users lost their access.
+        $context = context_course::instance($event->courseid);
+        checkanswers::create_bookinganswers_check_tasks(
+            +$context->id,
+            checkanswers::CHECK_CM_VISIBILITY,
+            checkanswers::ACTION_DELETE,
+            $event->relateduserid
+        );
     }
 }

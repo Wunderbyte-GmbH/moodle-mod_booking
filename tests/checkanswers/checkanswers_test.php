@@ -26,6 +26,7 @@
 namespace mod_booking;
 
 use advanced_testcase;
+use cache_helper;
 use context_module;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\local\checkanswers\checkanswers;
@@ -77,6 +78,19 @@ final class checkanswers_test extends advanced_testcase {
         $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $course2 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
+
+        // Define the group data.
+        $group = new stdClass();
+        $group->courseid = $course1->id; // Set your course ID.
+        $group->name = 'Hidden Group';
+        $group->description = 'This group is used for restricting visibility.';
+        $group->idnumber = 'group_hidden_001';
+        $group->timecreated = time();
+        $group->timemodified = time();
+
+        // Insert the group into the database.
+        $groupid = groups_create_group($group);
+
         // Create users.
         $admin = $this->getDataGenerator()->create_user();
         $student1 = $this->getDataGenerator()->create_user();
@@ -107,6 +121,12 @@ final class checkanswers_test extends advanced_testcase {
         $record->courseid = $course2->id;
 
         [$course, $cm] = get_course_and_cm_from_cmid($booking1->cmid);
+
+        // Create restriction: The section of the cm should only be visible to users not enrolled in group.
+        $section = $cm->get_section_info();
+        $availability = '{"op":"!&","c":[{"type":"group","id":' . (int)$groupid . '}],"show":true}';
+        $DB->set_field('course_sections', 'availability', $availability, ['id' => $section->id]);
+        cache_helper::purge_all();
 
         // Before the creation, we need to fix the Page context.
         $PAGE->set_cm($cm, $course);
@@ -143,21 +163,28 @@ final class checkanswers_test extends advanced_testcase {
 
         $this->runAdhocTasks();
         singleton_service::destroy_instance();
+        cache_helper::purge_all();
 
         // Four backslashes needed so it does not get lost in MariaDB.
         $tasks = $DB->get_records_sql($taskssql);
 
         $this->assertCount(0, $tasks);
 
-        // We exepct student 1 to be still enrolled.
+        // We expect student 1 to be still enrolled because he is enrolled in the course.
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, false);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
-        // Student 2 should not be booked anymore.
+        // Student 2 should not be booked anymore because he is not enrolled in the course.
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, false);
         $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
 
-        // Now we turn off the visibility of the activity.
+        // Student2 is now enrolled in course and rebooked in option.
+        $this->getDataGenerator()->enrol_user($student2->id, $course1->id);
+        // Book the second student.
+        $result = booking_bookit::bookit('option', $settings->id, $student2->id);
+        $result = booking_bookit::bookit('option', $settings->id, $student2->id);
+
+        // Now we turn off the global visibility of the activity.
         set_coursemodule_visible($settings->cmid, 0);
         $cm = get_fast_modinfo($course1)->get_cm($settings->cmid);
         $event = \core\event\course_module_updated::create_from_cm($cm);
@@ -166,13 +193,36 @@ final class checkanswers_test extends advanced_testcase {
         // The eventobserver of the updated course module should be enough to create our tasks.
         $this->runAdhocTasks();
         singleton_service::destroy_instance();
+        cache_helper::purge_all();
 
+        // Students should remain enrolled.
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, false);
-        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, false);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
-        // Now we turn off the visibility of the activity.
+        // Set coursemodule visible again.
         set_coursemodule_visible($settings->cmid, 1);
         singleton_service::destroy_instance();
+        cache_helper::purge_all();
+
+        $taskssql = "SELECT * FROM {task_adhoc} WHERE classname LIKE '%mod_booking%task%check_answers%'";
+        $tasks = $DB->get_records_sql($taskssql);
+        $this->assertCount(0, $tasks);
+
+        groups_add_member($groupid, $student1->id);
+        cache_helper::purge_all();
+
+        $taskssql = "SELECT * FROM {task_adhoc} WHERE classname LIKE '%mod_booking%task%check_answers%'";
+        $tasks = $DB->get_records_sql($taskssql);
+        $this->assertCount(1, $tasks);
+        $this->runAdhocTasks();
+
+        // Student1 is not enrolled since he now belongs to the group and section is invisible for this group.
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, false);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, false);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         // Book the third student.
         $result = booking_bookit::bookit('option', $settings->id, $student3->id);
@@ -195,6 +245,7 @@ final class checkanswers_test extends advanced_testcase {
         $this->runAdhocTasks();
 
         singleton_service::destroy_instance();
+        cache_helper::purge_all();
 
         // The unenrolled user is not booked anymore.
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student3->id, false);
