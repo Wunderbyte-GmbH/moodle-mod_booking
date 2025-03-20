@@ -78,7 +78,6 @@ final class checkanswers_test extends advanced_testcase {
         $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $course2 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
-
         // Define the group data.
         $group = new stdClass();
         $group->courseid = $course1->id; // Set your course ID.
