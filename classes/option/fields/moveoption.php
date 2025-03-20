@@ -217,10 +217,12 @@ class moveoption extends field_base {
                     // We also need to update the answers, as the also have a booking id.
                     $records = $DB->get_records('booking_answers', ['optionid' => $data->id]);
                     foreach ($records as $record) {
-                        $instancechange = [
-                            'oldinstance' => $record->bookingid,
+                        $bookingchange = [
+                            'booking' => [
+                            'oldbooking' => $record->bookingid,
+                            ],
                         ];
-                        booking_option::booking_history_insert(MOD_BOOKING_STATUSPARAM_BOOKINGOPTION_MOVED, $record->id, $data->id, $cm->instance, $record->userid, $instancechange);
+                        booking_option::booking_history_insert(MOD_BOOKING_STATUSPARAM_BOOKINGOPTION_MOVED, $record->id, $data->id, $cm->instance, $record->userid, $bookingchange);
                         $DB->update_record('booking_answers', ['id' => $record->id, 'bookingid' => $cm->instance]);
                     }
 
