@@ -2104,8 +2104,10 @@ class booking_option {
             $userid = $userdata->userid;
             $presenceold = $userdata->status;
             $presencechange = [
+                'presence' => [
                 'presenceold' => $presenceold,
                 'presencenew' => $presencestatus,
+                ],
             ];
 
             self::booking_history_insert($status, $answerid, $optionid, $bookingid, $userid, $presencechange);

@@ -60,8 +60,31 @@ class booking_history_table extends wunderbyte_table {
     public function col_json(stdClass $values) {
         if (empty($values->json)) {
             return "";
-        } else {
-            return "some values to be treated";
+        } else if (str_contains($values->json, 'presence')) {
+            $info = json_decode($values->json, true);
+            $resolve = MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY;
+            $a = new stdClass();
+            $a->presenceold = $resolve[$info['presence']['presenceold']];
+            $a->presencenew = $resolve[$info['presence']['presencenew']];
+
+            return get_string('presencechangedhistory', 'mod_booking', $a);
+        } else if (str_contains($values->json, 'booking')) {
+            $info = json_decode($values->json, true);
+            $a = new stdClass();
+            $a->oldbooking = $info['booking']['oldbooking'];
+            return get_string('movedbookinghistory', 'mod_booking', $a);
         };
+    }
+
+
+    /**
+     * Column for details of operation.
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_status(stdClass $values) {
+        $status = MOD_BOOKING_ALL_POSSIBLE_STATI_ARRAY;
+        $resolved = $status[$values->status];
+        return $resolved;
     }
 }
