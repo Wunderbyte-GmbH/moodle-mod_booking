@@ -140,7 +140,6 @@ final class bookinghistory_test extends advanced_testcase {
         // So far for the basic setup.
         // Now proceed to logic of the testcase.
 
-
         // Book the user.
         // Try to book with user1.
         $student1 = $users['student1'];
@@ -228,6 +227,7 @@ final class bookinghistory_test extends advanced_testcase {
             $status = end($historyrecords)->status;
             $this->assertEquals($expected['historystatus'][1], $status);
         }
+        self::teardown();
     }
 
     /**
