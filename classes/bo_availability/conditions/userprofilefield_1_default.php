@@ -137,8 +137,10 @@ class userprofilefield_1_default implements bo_condition {
         if (!isset($this->customsettings->profilefield)) {
             $isavailable = true;
         } else {
-
-            if (isloggedin()) {
+            if (
+                isloggedin()
+                && !isguestuser()
+            ) {
                 // Profilefield is set.
                 $user = singleton_service::get_instance_of_user($userid);
                 $profilefield = $this->customsettings->profilefield;
@@ -224,6 +226,9 @@ class userprofilefield_1_default implements bo_condition {
                             if (!empty($value)) {
                                 $isavailable = true;
                             }
+                            break;
+                        default:
+                            $isavailable = true;
                             break;
                     }
                 }
@@ -331,11 +336,18 @@ class userprofilefield_1_default implements bo_condition {
                     }
                 }
 
-                $mform->addElement('advcheckbox', 'bo_cond_userprofilefield_1_default_restrict',
-                    get_string('boconduserprofilefield1defaultrestrict', 'mod_booking'));
+                $mform->addElement(
+                    'advcheckbox',
+                    'bo_cond_userprofilefield_1_default_restrict',
+                    get_string('boconduserprofilefield1defaultrestrict', 'mod_booking')
+                );
 
-                $mform->addElement('select', 'bo_cond_userprofilefield_field',
-                    get_string('boconduserprofilefieldfield', 'mod_booking'), $userprofilefieldsarray);
+                $mform->addElement(
+                    'select',
+                    'bo_cond_userprofilefield_field',
+                    get_string('boconduserprofilefieldfield', 'mod_booking'),
+                    $userprofilefieldsarray
+                );
                 $mform->hideIf('bo_cond_userprofilefield_field', 'bo_cond_userprofilefield_1_default_restrict', 'notchecked');
 
                 $operators = [
@@ -352,31 +364,51 @@ class userprofilefield_1_default implements bo_condition {
                     '()' => get_string('isempty', 'mod_booking'),
                     '(!)' => get_string('isnotempty', 'mod_booking'),
                 ];
-                $mform->addElement('select', 'bo_cond_userprofilefield_operator',
-                    get_string('boconduserprofilefieldoperator', 'mod_booking'), $operators);
+                $mform->addElement(
+                    'select',
+                    'bo_cond_userprofilefield_operator',
+                    get_string('boconduserprofilefieldoperator', 'mod_booking'),
+                    $operators
+                );
                 $mform->hideIf('bo_cond_userprofilefield_operator', 'bo_cond_userprofilefield_field', 'eq', 0);
                 $mform->hideIf('bo_cond_userprofilefield_operator', 'bo_cond_userprofilefield_1_default_restrict', 'notchecked');
 
-                $mform->addElement('text', 'bo_cond_userprofilefield_value',
-                    get_string('boconduserprofilefieldvalue', 'mod_booking'));
+                $mform->addElement(
+                    'text',
+                    'bo_cond_userprofilefield_value',
+                    get_string('boconduserprofilefieldvalue', 'mod_booking')
+                );
                 $mform->setType('bo_cond_userprofilefield_value', PARAM_RAW);
                 $mform->hideIf('bo_cond_userprofilefield_value', 'bo_cond_userprofilefield_field', 'eq', 0);
                 $mform->hideIf('bo_cond_userprofilefield_value', 'bo_cond_userprofilefield_1_default_restrict', 'notchecked');
 
-                $mform->addElement('checkbox', 'bo_cond_userprofilefield_overrideconditioncheckbox',
-                    get_string('overrideconditioncheckbox', 'mod_booking'));
+                $mform->addElement(
+                    'checkbox',
+                    'bo_cond_userprofilefield_overrideconditioncheckbox',
+                    get_string('overrideconditioncheckbox', 'mod_booking')
+                );
                 $mform->hideIf('bo_cond_userprofilefield_overrideconditioncheckbox', 'bo_cond_userprofilefield_field', 'eq', 0);
-                $mform->hideIf('bo_cond_userprofilefield_overrideconditioncheckbox', 'bo_cond_userprofilefield_1_default_restrict',
-                    'notchecked');
+                $mform->hideIf(
+                    'bo_cond_userprofilefield_overrideconditioncheckbox',
+                    'bo_cond_userprofilefield_1_default_restrict',
+                    'notchecked'
+                );
 
                 $overrideoperators = [
                     'OR' => get_string('overrideoperator:or', 'mod_booking'),
                     'AND' => get_string('overrideoperator:and', 'mod_booking'),
                 ];
-                $mform->addElement('select', 'bo_cond_userprofilefield_overrideoperator',
-                    get_string('overrideoperator', 'mod_booking'), $overrideoperators);
-                $mform->hideIf('bo_cond_userprofilefield_overrideoperator', 'bo_cond_userprofilefield_overrideconditioncheckbox',
-                    'notchecked');
+                $mform->addElement(
+                    'select',
+                    'bo_cond_userprofilefield_overrideoperator',
+                    get_string('overrideoperator', 'mod_booking'),
+                    $overrideoperators
+                );
+                $mform->hideIf(
+                    'bo_cond_userprofilefield_overrideoperator',
+                    'bo_cond_userprofilefield_overrideconditioncheckbox',
+                    'notchecked'
+                );
 
                 $overrideconditions = bo_info::get_conditions(MOD_BOOKING_CONDPARAM_CANBEOVERRIDDEN);
                 $overrideconditionsarray = [];
@@ -405,9 +437,11 @@ class userprofilefield_1_default implements bo_condition {
                                 $currentclassname = $jsoncondition->class;
                                 $currentcondition = $currentclassname::instance();
                                 // Currently conditions of the same type cannot be combined with each other.
-                                if ($jsoncondition->id != $this->id
+                                if (
+                                    $jsoncondition->id != $this->id
                                     && isset($currentcondition->overridable)
-                                    && ($currentcondition->overridable == true)) {
+                                    && ($currentcondition->overridable == true)
+                                ) {
                                     $overrideconditionsarray[$jsoncondition->id] = get_string('bocond' .
                                         str_replace("_", "", $jsoncondition->name), 'mod_booking');
                                 }
@@ -421,14 +455,24 @@ class userprofilefield_1_default implements bo_condition {
                     'tags' => false,
                     'multiple' => true,
                 ];
-                $mform->addElement('autocomplete', 'bo_cond_userprofilefield_overridecondition',
-                    get_string('overridecondition', 'mod_booking'), $overrideconditionsarray, $options);
-                $mform->hideIf('bo_cond_userprofilefield_overridecondition', 'bo_cond_userprofilefield_overrideconditioncheckbox',
-                    'notchecked');
+                $mform->addElement(
+                    'autocomplete',
+                    'bo_cond_userprofilefield_overridecondition',
+                    get_string('overridecondition', 'mod_booking'),
+                    $overrideconditionsarray,
+                    $options
+                );
+                $mform->hideIf(
+                    'bo_cond_userprofilefield_overridecondition',
+                    'bo_cond_userprofilefield_overrideconditioncheckbox',
+                    'notchecked'
+                );
             }
         } else {
             // No PRO license is active.
-            $mform->addElement('static', 'bo_cond_userprofilefield_1_default_restrict',
+            $mform->addElement(
+                'static',
+                'bo_cond_userprofilefield_1_default_restrict',
                 get_string('boconduserprofilefield1defaultrestrict', 'mod_booking'),
                 get_string('proversiononly', 'mod_booking'));
         }
@@ -513,8 +557,13 @@ class userprofilefield_1_default implements bo_condition {
      * @param bool $fullwidth
      * @return array
      */
-    public function render_button(booking_option_settings $settings,
-        $userid = 0, $full = false, $not = false, bool $fullwidth = true): array {
+    public function render_button(
+        booking_option_settings $settings,
+        $userid = 0,
+        $full = false,
+        $not = false,
+        bool $fullwidth = true
+    ): array {
 
         $label = $this->get_description_string(false, $full, $settings);
 
@@ -555,10 +604,11 @@ class userprofilefield_1_default implements bo_condition {
                 }
             }
 
-            $description = $full ? get_string('boconduserprofilefieldfullnotavailable',
+            $description = $full ? get_string(
+                'boconduserprofilefieldfullnotavailable',
                 'mod_booking',
-                $this->customsettings) :
-                get_string('boconduserprofilefieldnotavailable', 'mod_booking');
+                $this->customsettings
+            ) : get_string('boconduserprofilefieldnotavailable', 'mod_booking');
         }
         return $description;
     }

@@ -238,7 +238,6 @@ class bo_info {
                 $classname = 'mod_booking\bo_availability\conditions\\' . $condition->name;
 
                 if (class_exists($classname)) {
-
                     // We now set the id from the json for this instance.
                     // We might actually use a hardcoded condition with a negative id...
                     // ... also as customized condition with positive id.
@@ -248,14 +247,13 @@ class bo_info {
                         $instance = new $classname($condition->id);
                     }
                     $instance->customsettings = $condition;
-
                 } else {
                     // Should never happen, but just go on in case of.
                     continue;
                 }
                 /* The get description function returns availability, description,
                 insertpage (int param for prepagemodal provided) and the button. */
-                list($isavailable, $description, $insertpage, $button) = $instance->get_description($settings, $userid, $full);
+                [$isavailable, $description, $insertpage, $button] = $instance->get_description($settings, $userid, $full);
 
                 if (!$isavailable && $onlyhardblock) {
                     // If we only want hard blocks, we might want to override the result of the is_available function.
