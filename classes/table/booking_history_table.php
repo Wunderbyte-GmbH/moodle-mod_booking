@@ -25,6 +25,8 @@
 
 namespace mod_booking\table;
 
+use mod_booking\singleton_service;
+
 defined('MOODLE_INTERNAL') || die();
 
 use local_wunderbyte_table\wunderbyte_table;
@@ -60,7 +62,8 @@ class booking_history_table extends wunderbyte_table {
     public function col_json(stdClass $values) {
         if (empty($values->json)) {
             return "";
-        } else if (str_contains($values->json, 'presence')) {
+        }
+        if (str_contains($values->json, 'presence')) {
             $info = json_decode($values->json, true);
             $resolve = MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY;
             $a = new stdClass();
@@ -68,12 +71,15 @@ class booking_history_table extends wunderbyte_table {
             $a->presencenew = $resolve[$info['presence']['presencenew']];
 
             return get_string('presencechangedhistory', 'mod_booking', $a);
-        } else if (str_contains($values->json, 'booking')) {
+        }
+        if (str_contains($values->json, 'booking')) {
             $info = json_decode($values->json, true);
             $a = new stdClass();
             $a->oldbooking = $info['booking']['oldbooking'];
+            $a->newbooking = $values->bookingid;
             return get_string('movedbookinghistory', 'mod_booking', $a);
         };
+        return "";
     }
 
 
@@ -86,5 +92,15 @@ class booking_history_table extends wunderbyte_table {
         $status = MOD_BOOKING_ALL_POSSIBLE_STATI_ARRAY;
         $resolved = $status[$values->status];
         return $resolved;
+    }
+
+    /**
+     * Column for details of operation.
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_usermodified(stdClass $values) {
+        $user = singleton_service::get_instance_of_user($values->usermodified);
+        return "$user->firstname $user->lastname";
     }
 }
