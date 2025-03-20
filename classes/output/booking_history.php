@@ -84,6 +84,7 @@ class booking_history implements renderable, templatable {
             SELECT
                 bh.id,
                 bh.userid,
+                bh.bookingid,
                 u.firstname,
                 u.lastname,
                 u.email,
@@ -144,6 +145,8 @@ class booking_history implements renderable, templatable {
             'now + 1 year'
         );
         $table->add_filter($datepicker);
+        $table->showfilterontop = true;
+        $table->filteronloadinactive = true;
 
         $sortablecolumns = [
             'lastname',
@@ -155,6 +158,7 @@ class booking_history implements renderable, templatable {
 
         $table->define_fulltextsearchcolumns(['lastname', 'firstname', 'email']);
 
-        return $table->outhtml(20, false);
+        [$idstring, $tablecachehash, $html] = $table->lazyouthtml(20, true);
+        return $html;
     }
 }
