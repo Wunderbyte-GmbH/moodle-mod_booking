@@ -936,11 +936,10 @@ class booking_option {
                         continue;
                     }
                     $user = singleton_service::get_instance_of_user($currentanswer->userid);
+                    // We delete the booking answers cache - because settings (limits, etc.) could be changed!
+                    self::purge_cache_for_answers($this->optionid);
                     $this->user_submit_response($user, 0, 0, 0, MOD_BOOKING_VERIFIED);
                     $this->enrol_user_coursestart($currentanswer->userid);
-
-                    // Before sending, we delete the booking answers cache!
-                    self::purge_cache_for_answers($this->optionid);
                     $messagecontroller = new message_controller(
                         MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC,
                         MOD_BOOKING_MSGPARAM_STATUS_CHANGED,
@@ -961,11 +960,10 @@ class booking_option {
                 array_push($usersonwaitinglist, $currentanswer);
 
                 $user = singleton_service::get_instance_of_user($currentanswer->userid);
+                // We delete the booking answers cache - because settings (limits, etc.) could be changed!
+                self::purge_cache_for_answers($this->optionid);
                 $this->user_submit_response($user, 0, 0, 0, MOD_BOOKING_VERIFIED);
                 $this->unenrol_user($currentanswer->userid);
-
-                // Before sending, we delete the booking answers cache!
-                self::purge_cache_for_answers($this->optionid);
                 $messagecontroller = new message_controller(
                     MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC,
                     MOD_BOOKING_MSGPARAM_STATUS_CHANGED,
@@ -1010,11 +1008,10 @@ class booking_option {
             // If option was set to unlimited, we book all users that have been on the waiting list and inform them.
             foreach ($ba->usersonwaitinglist as $currentanswer) {
                 $user = singleton_service::get_instance_of_user($currentanswer->userid);
+                // We delete the booking answers cache - because settings (limits, etc.) could be changed!
+                self::purge_cache_for_answers($this->optionid);
                 $this->user_submit_response($user, 0, 0, 0, MOD_BOOKING_VERIFIED);
                 $this->enrol_user_coursestart($currentanswer->userid);
-
-                // Before sending, we delete the booking answers cache!
-                self::purge_cache_for_answers($this->optionid);
                 $messagecontroller = new message_controller(
                     MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC,
                     MOD_BOOKING_MSGPARAM_STATUS_CHANGED,
