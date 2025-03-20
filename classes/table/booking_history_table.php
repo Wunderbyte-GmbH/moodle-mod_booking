@@ -51,4 +51,17 @@ class booking_history_table extends wunderbyte_table {
     public function col_timecreated(stdClass $values) {
         return userdate($values->timecreated);
     }
+
+    /**
+     * Column for details of operation.
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_json(stdClass $values) {
+        if (empty($values->json)) {
+            return "";
+        } else {
+            return "some values to be treated";
+        };
+    }
 }
