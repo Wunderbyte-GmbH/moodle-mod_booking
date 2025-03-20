@@ -373,13 +373,4 @@ final class booking_groupenrolment_test extends advanced_testcase {
             ],
         ];
     }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        // Mandatory clean-up.
-        singleton_service::destroy_instance();
-    }
 }
