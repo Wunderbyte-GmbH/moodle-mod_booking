@@ -84,6 +84,16 @@ class provider implements
         );
 
         $collection->add_database_table(
+            'booking_history',
+            [
+                'userid' => 'privacy:metadata:booking_history:userid',
+                'status' => 'privacy:metadata:booking_history:status',
+                'json' => 'privacy:metadata:booking_history:json',
+            ],
+            'privacy:metadata:booking_history'
+        );
+
+        $collection->add_database_table(
             'booking_ratings',
             [
                 'userid' => 'privacy:metadata:booking_ratings:userid',
@@ -226,9 +236,10 @@ class provider implements
 
         $user = $contextlist->get_user();
 
-        list($contextsql, $contextparams) = $DB->get_in_or_equal($contextlist->get_contextids(), SQL_PARAMS_NAMED);
+        [$contextsql, $contextparams] = $DB->get_in_or_equal($contextlist->get_contextids(), SQL_PARAMS_NAMED);
 
-        $sql = "SELECT  cm.id AS cmid,
+        $sql = "SELECT  ans.id,
+                        cm.id AS cmid,
                         boo.name AS bookingname,
                         cm.course AS courseid,
                         ans.optionid AS bookedoption,
@@ -240,7 +251,9 @@ class provider implements
                         opt.text AS bookedoptiontext,
                         opt.coursestarttime AS coursestart,
                         opt.courseendtime AS courseend,
-                        rat.rate AS rating
+                        rat.rate AS rating,
+                        hist.status AS historystatus,
+                        hist.json AS historydetails
                   FROM {context} c
             INNER JOIN {course_modules} cm ON cm.id = c.instanceid AND c.contextlevel = :contextlevel
             INNER JOIN {modules} m ON m.id = cm.module AND m.name = :modname
@@ -248,6 +261,7 @@ class provider implements
             INNER JOIN {booking_answers} ans ON ans.bookingid = boo.id
             INNER JOIN {booking_options} opt ON boo.id = opt.bookingid
             LEFT JOIN {booking_ratings} rat ON opt.id = rat.optionid
+            LEFT JOIN {booking_history} hist ON ans.id = hist.answerid
                  WHERE c.id {$contextsql}
                        AND ans.userid = :userid
               ORDER BY cm.id";
@@ -267,6 +281,10 @@ class provider implements
                     $context = context_module::instance($lastcmid);
                     self::export_booking($bookingdata, $context, $user);
                 }
+                $historydata = $DB->get_records('booking_history', ['userid' => $user->id, 'answerid' => $bookinganswer->id]);
+                foreach ($historydata as $history) {
+                    $history['status'] = MOD_BOOKING_ALL_POSSIBLE_STATI_ARRAY[$history['status']];
+                }
                 $bookingdata = [
                     'bookingname' => $bookinganswer->bookingname,
                     'timebooked' => \core_privacy\local\request\transform::datetime($bookinganswer->bookingcreated),
@@ -274,6 +292,7 @@ class provider implements
                     'waitinglist' => $bookinganswer->waitinglist,
                     'status' => $bookinganswer->status,
                     'notes' => $bookinganswer->notes,
+                    'historydata' => $historydata,
                 ];
             }
             // Important, can be more than one option. Export in one nice line.
@@ -304,11 +323,10 @@ class provider implements
         if (!$context instanceof context_module) {
             return;
         }
-
         if ($cm = get_coursemodule_from_id('booking', $context->instanceid)) {
             // Delete all booking answers within the instance.
             $DB->delete_records('booking_answers', ['bookingid' => $cm->instance]);
-
+            $DB->delete_records('booking_history', ['bookingid' => $cm->instance]);
             // Delete all teachers within the instance.
             $DB->delete_records('booking_teachers', ['bookingid' => $cm->instance]);
 
@@ -350,6 +368,7 @@ class provider implements
                 WHERE bo.bookingid = :bookingid)';
             // Now we can delete all entries in booking_userevents within the instance.
             $DB->delete_records_select('booking_userevents', $usereventswhere, ['bookingid' => $cm->instance]);
+            $DB->delete_records('booking_history', ['bookingid' => $cm->instance]);
         }
     }
 
@@ -374,6 +393,7 @@ class provider implements
             }
             $instanceid = $DB->get_field('course_modules', 'instance', ['id' => $context->instanceid], MUST_EXIST);
             $DB->delete_records('booking_answers', ['bookingid' => $instanceid, 'userid' => $userid]);
+            $DB->delete_records('booking_history', ['bookingid' => $instanceid, 'userid' => $userid]);
             $DB->delete_records('booking_teachers', ['bookingid' => $instanceid, 'userid' => $userid]);
             // Also delete all entries for booking_optiondates_teachers in context for the user.
             teachers_handler::delete_booking_optiondates_teachers_by_bookingid($instanceid, $userid);
@@ -468,11 +488,12 @@ class provider implements
         }
 
         $userids = $userlist->get_userids();
-        list($usersql, $params) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+        [$usersql, $params] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
         $select = "userid $usersql";
 
         // Now delete everything related to the selected userids.
         $DB->delete_records_select('booking_answers', $select, $params);
+        $DB->delete_records_select('booking_history', $select, $params);
         $DB->delete_records_select('booking_teachers', $select, $params);
         $DB->delete_records_select('booking_optiondates_teachers', $select, $params);
         cache_helper::purge_by_event('setbackcachedteachersjournal');
