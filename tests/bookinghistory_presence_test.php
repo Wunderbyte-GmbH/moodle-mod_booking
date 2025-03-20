@@ -74,7 +74,6 @@ final class bookinghistory_presence_test extends advanced_testcase {
      */
     public function test_booking_history(array $data, array $expected): void {
         global $DB, $CFG;
-
         $standarddata = self::provide_standard_data();
 
         // Coursesettings.
@@ -156,7 +155,7 @@ final class bookinghistory_presence_test extends advanced_testcase {
             $option->changepresencestatus($alleselectedusers, 1 + $i);
             $answers = $DB->get_records('booking_history');
             $this->assertCount(2 + $i, $answers);
-            $json = (array)json_decode(end($answers)->json);
+            $json = json_decode(end($answers)->json, true);
             $this->assertEquals($expected['presencechange']['case' . $i], $json);
         }
         self::teardown();
@@ -169,83 +168,99 @@ final class bookinghistory_presence_test extends advanced_testcase {
      * @throws \UnexpectedValueException
      */
     public static function booking_common_settings_provider(): array {
-
         return [
-        'presencechanges' => [
-
-            [   'pluginsettings' => [
-                    [
-                        'component' => 'booking',
-                        'key' => 'notifymelist',
-                        'value' => 1,
+            'presencechanges' => [
+                [
+                    'pluginsettings' => [
+                        [
+                            'component' => 'booking',
+                            'key' => 'notifymelist',
+                            'value' => 1,
+                        ],
+                    ],
+                    'coursesettings' => [
+                        'firstcourse' => [
+                            'enablecompletion' => 1,
+                        ],
+                    ],
+                    'userssettings' => [
+                        'student1' => [], // Just a demo how params could be set.
+                    ],
+                    'bookingsettings' => [
+                        [
+                            'cancancelbook' => 1,
+                        ],
+                    ],
+                    'optionsettings' => [
+                        [
+                            'useprice' => 0, // Disable price for this option.
+                        ],
                     ],
                 ],
-                'coursesettings' => [
-                    'firstcourse' => [
-                        'enablecompletion' => 1,
+                [
+                    'bookitresults' => [
+                        MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
                     ],
-                ],
-                'userssettings' => [
-                    'student1' => [], // Just a demo how params could be set.
-                ],
-                'bookingsettings' => [
-                    [
-                        'cancancelbook' => 1,
-                    ],
-                ],
-                'optionsettings' => [
-                    [
-                        'useprice' => 0, // Disable price for this option.
+                    'presencechange' => [
+                        'case0' => [
+                            "presence" => [
+                                "presenceold" => "0",
+                                "presencenew" => "1",
+                            ],
+                        ],
+                        'case1' => [
+                            "presence" => [
+                                "presenceold" => "1",
+                                "presencenew" => "2",
+                            ],
+                        ],
+                        'case2' => [
+                            "presence" => [
+                                "presenceold" => "2",
+                                "presencenew" => "3",
+                            ],
+                        ],
+                        'case3' => [
+                            "presence" => [
+                                "presenceold" => "3",
+                                "presencenew" => "4",
+                            ],
+                        ],
+                        'case4' => [
+                            "presence" => [
+                                "presenceold" => "4",
+                                "presencenew" => "5",
+                            ],
+                        ],
+                        'case5' => [
+                            "presence" => [
+                                "presenceold" => "5",
+                                "presencenew" => "6",
+                            ],
+                        ],
+                        'case6' => [
+                            "presence" => [
+                                "presenceold" => "6",
+                                "presencenew" => "7",
+                            ],
+                        ],
+                        'case7' => [
+                            "presence" => [
+                                "presenceold" => "7",
+                                "presencenew" => "8",
+                            ],
+                        ],
+                        'case8' => [
+                            "presence" => [
+                                "presenceold" => "8",
+                                "presencenew" => "9",
+                            ],
+                        ],
                     ],
                 ],
             ],
-            [
-                'bookitresults' => [
-                    MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
-                ],
-                'presencechange' => [
-                    'case0' => [
-                        "presenceold" => "0",
-                        "presencenew" => "1",
-                    ],
-                    'case1' => [
-                        "presenceold" => "1",
-                        "presencenew" => "2",
-                    ],
-                    'case2' => [
-                        "presenceold" => "2",
-                        "presencenew" => "3",
-                    ],
-                    'case3' => [
-                        "presenceold" => "3",
-                        "presencenew" => "4",
-                    ],
-                    'case4' => [
-                        "presenceold" => "4",
-                        "presencenew" => "5",
-                    ],
-                    'case5' => [
-                        "presenceold" => "5",
-                        "presencenew" => "6",
-                    ],
-                    'case6' => [
-                        "presenceold" => "6",
-                        "presencenew" => "7",
-                    ],
-                    'case7' => [
-                        "presenceold" => "7",
-                        "presencenew" => "8",
-                    ],
-                    'case8' => [
-                        "presenceold" => "8",
-                        "presencenew" => "9",
-                    ],
-                ],
-            ],
-        ],
         ];
     }
-
 
     /**
      * Provides the data that's constant for the test.
