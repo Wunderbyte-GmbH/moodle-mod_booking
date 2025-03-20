@@ -2111,9 +2111,8 @@ class booking_option {
                 'presenceold' => $presenceold,
                 'presencenew' => $presencestatus,
             ];
-            $json = json_encode($presencechange);
 
-            self::booking_history_insert($status, $answerid, $optionid, $bookingid, $userid, $json);
+            self::booking_history_insert($status, $answerid, $optionid, $bookingid, $userid, $presencechange);
             $userdata->status = $presencestatus;
 
             $coursecontext = \context_course::instance($COURSE->id);
@@ -4089,6 +4088,7 @@ class booking_option {
      * @param int $optionid
      * @param int $bookingid
      * @param int $userid
+     * @param array $additionalinfos
      *
      * @return int The id of the record inserted.
      *
@@ -4099,9 +4099,10 @@ class booking_option {
         int $optionid = 0,
         int $bookingid = 0,
         int $userid = 0,
-        string $json = '',
+        array $additionalinfos = [],
     ): int {
         global $DB, $USER;
+        $json = json_encode($additionalinfos, true);
 
         $data = (object) [
             'status' => $status,

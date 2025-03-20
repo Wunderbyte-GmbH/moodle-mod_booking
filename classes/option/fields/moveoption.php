@@ -25,6 +25,7 @@
 namespace mod_booking\option\fields;
 
 use Exception;
+use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields;
 use mod_booking\option\fields_info;
@@ -216,6 +217,10 @@ class moveoption extends field_base {
                     // We also need to update the answers, as the also have a booking id.
                     $records = $DB->get_records('booking_answers', ['optionid' => $data->id]);
                     foreach ($records as $record) {
+                        $instancechange = [
+                            'oldinstance' => $record->bookingid,
+                        ];
+                        booking_option::booking_history_insert(MOD_BOOKING_STATUSPARAM_BOOKINGOPTION_MOVED, $record->id, $data->id, $cm->instance, $record->userid, $instancechange);
                         $DB->update_record('booking_answers', ['id' => $record->id, 'bookingid' => $cm->instance]);
                     }
 
