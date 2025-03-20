@@ -74,14 +74,15 @@ class cmvisibility {
         if (!$cm) {
             return false;
         }
-
-        $visible = $cm->uservisible;
+        // Blocking condition is: CM should generally be visible but not for this user.
+        // Check for accessability, so the blocking condition inverted.
+        $access = !($cm->visible == "1" && !$cm->get_user_visible());
 
         if (!empty($originaluser)) {
             // Restore the original user context.
             $USER = $originaluser;
         }
 
-        return $visible;
+        return $access;
     }
 }
