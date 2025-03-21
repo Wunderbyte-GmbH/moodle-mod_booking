@@ -651,7 +651,11 @@ class userprofilefield_2_custom implements bo_condition {
 
         $conditionobject = new stdClass();
 
-        if (!empty($fromform->bo_cond_userprofilefield_2_custom_restrict)) {
+        if (
+            !empty($fromform->bo_cond_userprofilefield_2_custom_restrict)
+            && !empty($fromform->bo_cond_customuserprofilefield_field)
+            && !empty($fromform->bo_cond_customuserprofilefield_operator)
+        ) {
             // Remove the namespace from classname.
             $classname = __CLASS__;
             $classnameparts = explode('\\', $classname);
