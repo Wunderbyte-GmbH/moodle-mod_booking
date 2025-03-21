@@ -224,7 +224,7 @@ class isloggedin implements bo_condition {
         $url = new moodle_url(
             '/login/index.php',
             [
-                'returnto' => $returnurl,
+                'returnto' => $returnurl->out(false),
             ]
         );
 
