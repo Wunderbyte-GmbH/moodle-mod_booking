@@ -503,7 +503,11 @@ class userprofilefield_1_default implements bo_condition {
 
         $conditionobject = new stdClass();
 
-        if (!empty($fromform->bo_cond_userprofilefield_1_default_restrict)) {
+        if (
+            !empty($fromform->bo_cond_userprofilefield_1_default_restrict)
+            && !empty($fromform->bo_cond_userprofilefield_field)
+            && !empty($fromform->bo_cond_userprofilefield_operator)
+        ) {
             // Remove the namespace from classname.
             $classname = __CLASS__;
             $classnameparts = explode('\\', $classname);
