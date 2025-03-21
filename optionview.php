@@ -44,55 +44,14 @@ $returnurl = optional_param('returnurl', '', PARAM_URL);
 $modcontext = context_module::instance($cmid);
 $syscontext = context_system::instance();
 
-// If we have this setting.
-if (!get_config('booking', 'showbookingdetailstoall')) {
-    require_login();
-
-    // If we have this setting.
-    if (!get_config('booking', 'bookonlyondetailspage')) {
-        require_capability('mod/booking:view', $modcontext);
-    }
-}
-
 $PAGE->set_context($syscontext);
 
 $url = new moodle_url('/mod/booking/optionview.php', ['cmid' => $cmid, 'optionid' => $optionid]);
 $PAGE->set_url($url);
 
-// If the user is logged-in, we check if (s)he has accepted the site policy.
-if (isloggedin() && !isguestuser()) {
-    $currentpolicyversionids = \tool_policy\api::get_current_versions_ids();
-    if (!empty($currentpolicyversionids)) {
-        foreach ($currentpolicyversionids as $currentpolicyversionid) {
-            if (\tool_policy\api::get_agreement_optional($currentpolicyversionid)) {
-                continue;
-            }
-            $acceptance = \tool_policy\api::get_user_version_acceptance($USER->id, $currentpolicyversionid);
-            if (empty($acceptance)) {
-                // If the user did not yet accept, we redirect to the policy page.
-                $policyurl = new moodle_url('/admin/tool/policy/index.php', ['returnurl' => $url]);
-                redirect($policyurl);
-            }
-        }
-    }
-}
-
 $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
-
-// Make sure, we respect module visibility and activity restrictions on the booking instance.
-$modinfo = get_fast_modinfo($booking->course);
-$cm = $modinfo->get_cm($cmid);
-if (!$cm->uservisible && !get_config('booking', 'bookonlyondetailspage')) {
-    echo $OUTPUT->header();
-    echo html_writer::div(
-        get_string('invisibleoption:notallowed', 'mod_booking'),
-        "alert alert-danger"
-    );
-    echo $OUTPUT->footer();
-    die();
-}
-
 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
 if ($settings && !empty($settings->id)) {
     if ($userid == $USER->id || $userid == 0) {
         $user = $USER;
@@ -100,8 +59,48 @@ if ($settings && !empty($settings->id)) {
         $user = singleton_service::get_instance_of_user($userid);
     }
 
+    $ba = singleton_service::get_instance_of_booking_answers($settings);
 
-    $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
+    if (isloggedin() && !isguestuser()) {
+        $user = $USER;
+    }
+
+    // There can be cases where we are booked, but don't have the right to see.
+    // We override this here. If we are booked, we can also see details.
+    if (
+        (
+            isloggedin()
+            && !isguestuser()
+            && $USER->id == $user->id
+            && $ba->user_status($USER->id) > MOD_BOOKING_STATUSPARAM_RESERVED
+        )
+        && !get_config('booking', 'showbookingdetailstoall')
+    ) {
+        require_login();
+
+        // If we have this setting.
+        if (!get_config('booking', 'bookonlyondetailspage')) {
+            require_capability('mod/booking:view', $modcontext);
+        }
+    }
+
+    // If the user is logged-in, we check if (s)he has accepted the site policy.
+    if (isloggedin() && !isguestuser()) {
+        $currentpolicyversionids = \tool_policy\api::get_current_versions_ids();
+        if (!empty($currentpolicyversionids)) {
+            foreach ($currentpolicyversionids as $currentpolicyversionid) {
+                if (\tool_policy\api::get_agreement_optional($currentpolicyversionid)) {
+                    continue;
+                }
+                $acceptance = \tool_policy\api::get_user_version_acceptance($USER->id, $currentpolicyversionid);
+                if (empty($acceptance)) {
+                    // If the user did not yet accept, we redirect to the policy page.
+                    $policyurl = new moodle_url('/admin/tool/policy/index.php', ['returnurl' => $url]);
+                    redirect($policyurl);
+                }
+            }
+        }
+    }
 
     $PAGE->set_title(format_string($settings->get_title_with_prefix()));
     $PAGE->set_pagelayout('base');
