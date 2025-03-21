@@ -83,13 +83,7 @@ class shortcodes {
             return get_string('infotext:prolicensenecessary', 'mod_booking');
         }
 
-        if (
-            !isset($args['perpage'])
-            || !is_int((int)$args['perpage'])
-            || !$perpage = ($args['perpage'])
-        ) {
-            $perpage = 100;
-        }
+        $perpage = self::check_perpage($args);
 
         $pageurl = $course->shortname . $PAGE->url->out();
 
@@ -200,13 +194,7 @@ class shortcodes {
             return get_string('infotext:prolicensenecessary', 'mod_booking');
         }
 
-        if (
-            !isset($args['perpage'])
-            || !is_int((int)$args['perpage'])
-            || !$perpage = ($args['perpage'])
-        ) {
-            $perpage = 100;
-        }
+        $perpage = self::check_perpage($args);
 
         $pageurl = $course->shortname . $PAGE->url->out();
 
@@ -418,13 +406,7 @@ class shortcodes {
             return get_string('infotext:prolicensenecessary', 'mod_booking');
         }
 
-        if (
-            !isset($args['perpage'])
-            || !is_int((int)$args['perpage'])
-            || !$perpage = ($args['perpage'])
-        ) {
-            $perpage = 100;
-        }
+        $perpage = self::check_perpage($args);
 
         // First: determine the cohort we want to use.
         // If not specified in the shortcode, we take the one the user is subscribed to.
@@ -621,13 +603,7 @@ class shortcodes {
             return get_string('shortcodenotsupportedonyourdb', 'mod_booking');
         }
 
-        if (
-            !isset($args['perpage'])
-            || !is_int((int)$args['perpage'])
-            || !$perpage = ($args['perpage'])
-        ) {
-            $perpage = 100;
-        }
+        $perpage = self::check_perpage($args);
 
         // First: determine the cohort we want to use.
         // If not specified in the shortcode, we take the one the user is subscribed to.
@@ -741,13 +717,8 @@ class shortcodes {
             return get_string('nopermissiontoaccesscontent', 'mod_booking');
         }
 
-        if (
-            !isset($args['perpage'])
-            || !is_int((int)$args['perpage'])
-            || !$perpage = ($args['perpage'])
-        ) {
-            $perpage = 100;
-        }
+        $perpage = self::check_perpage($args);
+
         cache_helper::purge_by_event('changesinwunderbytetable');
         // Add the arguments to make sure cache is built correctly.
         $argsstring = bin2hex(implode($args));
@@ -969,6 +940,62 @@ class shortcodes {
     }
 
     /**
+     * Setting options from shortcodes arguments common for all children of wunderbyte_table .
+     *
+     * @param wunderbyte_table $table reference to table
+     * @param array $args
+     *
+     * @return void
+     *
+     */
+    public static function set_common_table_options_from_arguments($table, $args) {
+        $defaultorder = SORT_ASC; // Default.
+        if (!empty($args['sortorder'])) {
+            if (strtolower($args['sortorder']) === "desc") {
+                $defaultorder = SORT_DESC;
+            }
+        }
+        if (!empty($args['sortby'])) {
+            $table->sortable(true, $args['sortby'], $defaultorder);
+        } else {
+            $table->sortable(true, 'text', $defaultorder);
+        }
+
+        if (isset($args['pageable']) && ($args['pageable'] == 1 || $args['pageable'] == true)) {
+            $table->pageable(true);
+            $table->stickyheader = true;
+        }
+
+        if (!isset($args['pageable']) || $args['pageable'] == 0 || $args['pageable'] == "false" || $args['pageable'] == false) {
+            $infinitescrollpage = is_numeric($args['infinitescrollpage'] ?? '') ? (int)$args['infinitescrollpage'] : 30;
+            // This allows us to use infinite scrolling, No pages will be used.
+            $table->infinitescroll = $infinitescrollpage;
+        }
+
+        if (isset($args['requirelogin']) && $args['requirelogin'] == "false") {
+            $table->requirelogin = false;
+        }
+    }
+    /**
+     * Checking Perpage Argument from Shortcode for all children of wunderbyte_table .
+     *
+     * @param array $args
+     *
+     * @return int $perapage
+     *
+     */
+    public static function check_perpage($args) {
+        if (
+            !isset($args['perpage'])
+            || !is_int((int)$args['perpage'])
+            || !$perpage = ($args['perpage'])
+        ) {
+            return $perpage = 100;
+        }
+        return $perpage = (int)$args['perpage'];
+    }
+
+    /**
      * Modify there wherearray via arguments.
      *
      * @param array $args reference to args
@@ -985,6 +1012,8 @@ class shortcodes {
         $additonalwhere = '';
         if (!empty($customfields) && !empty($args)) {
             foreach ($args as $key => $value) {
+                // Logik
+
                 foreach ($customfields as $customfield) {
                     if ($customfield->shortname == $key) {
                         $configdata = json_decode($customfield->configdata ?? '[]');
@@ -1022,5 +1051,16 @@ class shortcodes {
         }
 
         return $additonalwhere;
+    }
+    /**
+     * Helper function to remove quotation marks from args.
+     * @param array &$args reference to arguments array
+     */
+    private static function fix_args(array &$args) {
+        foreach ($args as $key => &$value) {
+            // Get rid of quotation marks.
+            $value = str_replace('"', '', $value);
+            $value = str_replace("'", "", $value);
+        }
     }
 }
