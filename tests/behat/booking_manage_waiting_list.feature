@@ -234,7 +234,7 @@ Feature: In a course add a booking option and manage its waiting list
     And I am on the "My booking" Activity page
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I wait until the page is ready
-    And I set the field "Max. number of participants" to "4" 
+    And I set the field "Max. number of participants" to "4"
     And I click on "Save" "button"
     And I wait until the page is ready
     And I should see "4" in the ".allbookingoptionstable_r1 .col-ap-availableplaces" "css_element"
