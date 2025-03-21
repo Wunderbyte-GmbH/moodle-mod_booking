@@ -41,7 +41,12 @@
             {{info}}
             {{#courselink}}
                 <br>
-                <a href="{{courselink}}">{{#str}} linktocourse, mod_booking{{/str}} </a>
+                <a href="{{courselink}}">{{#str}} linktocourse, mod_booking {{/str}} </a>
             {{/courselink}}
+
+            {{#bodetailslink}}
+                <br>
+                <a href="{{bodetailslink}}">{{#str}} linkgotobookingoption, mod_booking, {{namebookingoption}} {{/str}} </a>
+            {{/bodetailslink}}
         </div>
 </div>

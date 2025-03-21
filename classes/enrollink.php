@@ -292,6 +292,41 @@ class enrollink {
     }
 
     /**
+     * Get the booking details url.
+     *
+     * @return string
+     *
+     */
+    public function get_bookingdetailslink_url(): string {
+
+        $optionid = $this->bundle->optionid;
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+        $url = new moodle_url(
+            '/mod/booking/optionview.php',
+            [
+                'cmid' => $settings->cmid,
+                'optionid' => $settings->id,
+            ]
+        );
+        return $url->out(false);
+    }
+
+    /**
+     * Get the bookingoption title.
+     *
+     * @return string
+     *
+     */
+    public function get_bookingoptiontitle(): string {
+
+        $optionid = $this->bundle->optionid;
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+        return $settings->get_title_with_prefix();
+    }
+
+    /**
      * Check if enrolment is blocked.
      *
      *
