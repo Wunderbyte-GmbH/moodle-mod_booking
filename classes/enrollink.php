@@ -150,14 +150,16 @@ class enrollink {
         if (isguestuser()) {
             return MOD_BOOKING_AUTOENROL_STATUS_LOGGED_IN_AS_GUEST;
         }
-        $context = context_course::instance($this->bundle->courseid);
-        $courseenrolmentstatus = MOD_BOOKING_AUTOENROL_STATUS_EXCEPTION;
-        // 1. Enrolling to the linked course.
-        // Make sure, the user isn't booked to the course yet.
-        if (
-            is_enrolled($context, $userid)
-        ) {
-            return MOD_BOOKING_AUTOENROL_STATUS_ALREADY_ENROLLED;
+        if (!empty($this->bundle->courseid)) {
+            $context = context_course::instance($this->bundle->courseid);
+            $courseenrolmentstatus = MOD_BOOKING_AUTOENROL_STATUS_EXCEPTION;
+            // 1. Enrolling to the linked course.
+            // Make sure, the user isn't booked to the course yet.
+            if (
+                is_enrolled($context, $userid)
+            ) {
+                return MOD_BOOKING_AUTOENROL_STATUS_ALREADY_ENROLLED;
+            }
         }
 
         $cmid = $this->get_bo_contextid();
