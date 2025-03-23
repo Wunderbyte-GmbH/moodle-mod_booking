@@ -96,6 +96,12 @@ class webservice_import {
 
         $data->importing = 1;
 
+        foreach ($data as $key => $value) {
+            if (empty($value)) {
+                unset($data->{$key});
+            }
+        }
+
         $bookingoptionid = booking_option::update($data, $context ?? null);
 
         return ['status' => 1];
