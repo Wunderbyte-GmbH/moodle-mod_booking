@@ -114,10 +114,10 @@ class teachers_handler {
                 }
                 $user = singleton_service::get_instance_of_user((int)$value);
                 $details = [
-                    'id' => $user->id,
-                    'email' => $user->email,
-                    'firstname' => $user->firstname,
-                    'lastname' => $user->lastname,
+                    'id' => $user->id ?? 0,
+                    'email' => $user->email ?? '',
+                    'firstname' => $user->firstname ?? '',
+                    'lastname' => $user->lastname ?? '',
                 ];
                 return $OUTPUT->render_from_template(
                     'mod_booking/form-user-selector-suggestion',

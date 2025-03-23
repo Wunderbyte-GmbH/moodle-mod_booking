@@ -31,6 +31,7 @@ use mod_booking\booking_campaigns\booking_campaign;
 use moodle_exception;
 use stdClass;
 use moodle_url;
+use Throwable;
 
 /**
  * Settings class for booking option instances.
@@ -720,15 +721,19 @@ class booking_option_settings {
         );
 
         foreach ($teachers as $key => $teacher) {
-            $context = context_user::instance($teacher->userid, MUST_EXIST);
-            $descriptiontext = file_rewrite_pluginfile_urls(
-                $teacher->description,
-                'pluginfile.php',
-                $context->id,
-                'user',
-                'profile',
-                null,
-            );
+            try {
+                $context = context_user::instance($teacher->userid, MUST_EXIST);
+                $descriptiontext = file_rewrite_pluginfile_urls(
+                    $teacher->description,
+                    'pluginfile.php',
+                    $context->id,
+                    'user',
+                    'profile',
+                    null,
+                );
+            } catch (Throwable $e) {
+                $descriptiontext = $teacher->description;
+            }
 
             $teachers[$key]->description = $descriptiontext;
             $teachers[$key]->descriptionformat = $teacher->descriptionformat;
@@ -1482,7 +1487,7 @@ class booking_option_settings {
             'teachers' => array_values(array_map(fn($a) => [
                 'firstname' => $a->firstname,
                 'lastname' => $a->lastname,
-                'email' => str_replace('@', '&#64;', $a->email),
+                'email' => str_replace('@', '&#64;', $a->email ?? ''),
             ], $this->teachers)),
         ];
 
