@@ -515,8 +515,6 @@ class mod_booking_mod_form extends moodleform_mod {
             'timecreated' => get_string('timecreated', 'mod_booking'),
         ];
 
-
-
         $optionsfields = [
             'description' => get_string('description', 'mod_booking'),
             'statusdescription' => get_string('textdependingonstatus', 'mod_booking'),
@@ -609,7 +607,8 @@ class mod_booking_mod_form extends moodleform_mod {
         if (!empty($customfields)) {
             $customfieldshortnames = [];
             foreach ($customfields as $cf) {
-                $customfieldshortnames[$cf->shortname] = "$cf->name ($cf->shortname)";
+                $name = format_string($cf->name);
+                $customfieldshortnames[$cf->shortname] = "$name ($cf->shortname)";
             }
             $mform->addElement(
                 'select',
@@ -628,6 +627,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'tags' => false,
             'noselectionstring' => get_string('optionsdownloadfields', 'mod_booking'),
         ];
+        $optionsdownloadfields = array_merge($optionsdownloadfields, $customfieldshortnames);
         $mform->addElement(
             'autocomplete',
             'optionsdownloadfields',
