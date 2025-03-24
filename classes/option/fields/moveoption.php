@@ -222,7 +222,14 @@ class moveoption extends field_base {
                             'oldbooking' => $record->bookingid,
                             ],
                         ];
-                        booking_option::booking_history_insert(MOD_BOOKING_STATUSPARAM_BOOKINGOPTION_MOVED, $record->id, $data->id, $cm->instance, $record->userid, $bookingchange);
+                        booking_option::booking_history_insert(
+                            MOD_BOOKING_STATUSPARAM_BOOKINGOPTION_MOVED,
+                            $record->id,
+                            $data->id,
+                            $cm->instance,
+                            $record->userid,
+                            $bookingchange
+                        );
                         $DB->update_record('booking_answers', ['id' => $record->id, 'bookingid' => $cm->instance]);
                     }
 
