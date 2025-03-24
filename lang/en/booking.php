@@ -621,6 +621,12 @@ $string['cachedef_electivebookingorder'] = 'Elective booking order (Cache)';
 $string['cachedef_eventlogtable'] = 'Event log table (Cache)';
 $string['cachedef_mybookingoptionstable'] = 'My bookingoptions table (Cache)';
 $string['cachedef_subbookingforms'] = 'Subbooking Forms (Cache)';
+$string['cachesettings'] = 'Cache Settings';
+$string['cachesettings_desc'] = 'These changes have a significant impact on performance. Please only make changes here if you know exactly what you are doing.';
+$string['cacheturnoffforbookinganswers'] = 'No caching of responses (user bookings)';
+$string['cacheturnoffforbookinganswers_desc'] = 'This setting significantly increases the load on the database. However, if there are massive problems with the cache configuration, this setting can still be advantageous.';
+$string['cacheturnoffforbookingsettings'] = 'No caching of booking option settings';
+$string['cacheturnoffforbookingsettings_desc'] = 'This setting significantly increases the load on the database. However, if there are massive problems with the cache configuration, this setting can still be advantageous.';
 $string['caladdascourseevent'] = 'Add to calendar (visible only to course participants)';
 $string['caladdassiteevent'] = 'Add to calendar (visible to all users)';
 $string['caldonotadd'] = 'Do not add to course calendar';
@@ -1885,6 +1891,10 @@ $string['profeatures:availabilityinfotexts'] = '<ul>
 </ul>';
 $string['profeatures:boactions'] = '<ul>
 <li><b>activate actions after booking</b></li>
+</ul>';
+$string['profeatures:cachesettings'] = '<ul>
+<li><b>No caching of bookingoption settings</b></li>
+<li><b>No caching of booking answers</b></li>
 </ul>';
 $string['profeatures:cancellationsettings'] = '<ul>
 <li><b>adjustable cancellation period</b></li>

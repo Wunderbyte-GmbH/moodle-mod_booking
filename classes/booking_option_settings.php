@@ -300,13 +300,17 @@ class booking_option_settings {
      */
     public function __construct(int $optionid, ?stdClass $dbrecord = null) {
 
-        // Even if we have a record, we still get the cache...
-        // Because in the cache, we have also information from other tables.
+        $savecache = false;
+        $cachedoption = false;
         $cache = \cache::make('mod_booking', 'bookingoptionsettings');
-        if (!$cachedoption = $cache->get($optionid)) {
-            $savecache = true;
-        } else {
-            $savecache = false;
+        if (!get_config('booking', 'cacheturnoffforbookingsettings')) {
+            // Even if we have a record, we still get the cache...
+            // Because in the cache, we have also information from other tables.
+            if (
+                !$cachedoption = $cache->get($optionid)
+            ) {
+                $savecache = true;
+            }
         }
 
         // If there is no cache present...
