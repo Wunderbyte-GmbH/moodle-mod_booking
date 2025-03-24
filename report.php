@@ -671,6 +671,10 @@ if (!$tableallbookings->is_downloading()) {
                 $columns[] = 'currency';
                 $headers[] = get_string('currency', 'local_shopping_cart');
                 break;
+            case 'email':
+                $columns[] = 'email';
+                $headers[] = get_string('email' , 'mod_booking');
+                break;
         }
     }
     $customfields = '';
@@ -742,6 +746,7 @@ if (!$tableallbookings->is_downloading()) {
             u.institution,
             u.city,
             u.department,
+            u.email,
             ba.completed,
             ba.status,
             ba.timecreated,
