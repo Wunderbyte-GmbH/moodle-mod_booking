@@ -124,6 +124,19 @@ class all_userbookings extends \table_sql {
     }
 
     /**
+     * For email column.
+     * @param mixed $values
+     * @return string
+     * @throws coding_exception
+     */
+    protected function col_email($values) {
+        if ($this->is_downloading()) {
+            return $values->email;
+        }
+        return $values->email;
+    }
+
+    /**
      * Fullname column.
      * @param object $values
      * @return string
