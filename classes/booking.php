@@ -30,6 +30,7 @@ use course_modinfo;
 use html_writer;
 use local_entities\local\entities\entitydate;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\customfield\booking_handler;
 use mod_booking\local\modechecker;
 use mod_booking\teachers_handler;
 use mod_booking\utils\wb_payment;
@@ -827,6 +828,16 @@ class booking {
                     if (class_exists('local_shopping_cart\shopping_cart')) {
                         $headers[] = get_string('price', 'mod_booking');
                         $columns[] = 'price';
+                    }
+                    break;
+                default:
+                    $customfields = booking_handler::get_customfields();
+                    foreach ($customfields as $customfield) {
+                        if ($value !== $customfield->shortname) {
+                            continue;
+                        }
+                        $headers[] = format_string($customfield->name);
+                        $columns[] = $value;
                     }
                     break;
             }
