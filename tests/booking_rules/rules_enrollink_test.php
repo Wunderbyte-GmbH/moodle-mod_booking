@@ -189,7 +189,7 @@ final class rules_enrollink_test extends advanced_testcase {
         // Try to book option1 by the teacher1.
         $this->setUser($teacher1);
         singleton_service::destroy_user($teacher1->id);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $teacher1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $teacher1->id);
         $this->assertEquals(MOD_BOOKING_BO_COND_JSON_CUSTOMFORM, $id);
 
         $price = price::get_price('option', $settings->id);
@@ -234,13 +234,13 @@ final class rules_enrollink_test extends advanced_testcase {
         $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
         $option->user_submit_response($teacher1, 0, 0, 0, MOD_BOOKING_VERIFIED);
         // Teacher1 should be booked now.
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $teacher1->id, true);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $teacher1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         // Book student1 as well (skip paynent process for him).
         $option->user_submit_response($student1, 0, 0, 0, MOD_BOOKING_VERIFIED);
         // Teacher1 should be booked now.
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         // Get messages.
