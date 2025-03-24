@@ -182,7 +182,7 @@ class fields_info {
      * Add all available fields in the right order.
      * @param MoodleQuickForm $mform
      * @param array $formdata
-     * @return void
+     * @return array
      */
     public static function instance_form_definition(MoodleQuickForm &$mform, array &$formdata) {
 
@@ -197,19 +197,16 @@ class fields_info {
 
         $classes = self::get_field_classes($context->id);
 
-        if (empty($classes)) {
-            $mform->addElement('html', '<div class="alert alert-warning">' .
-                get_string('error:formcapabilitymissing', 'mod_booking') .
-                '</div>');
-        } else {
-            foreach ($classes as $classname) {
-                // We want to ignore some classes here.
-                if (self::ignore_class((object)$formdata, $classname)) {
-                    continue;
-                }
-                $classname::instance_form_definition($mform, $formdata, []);
+        foreach ($classes as $key => $classname) {
+            // We want to ignore some classes here.
+            if (self::ignore_class((object)$formdata, $classname)) {
+                unset($classes[$key]);
+                continue;
             }
+            $classname::instance_form_definition($mform, $formdata, []);
         }
+
+        return $classes;
     }
 
     /**
