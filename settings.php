@@ -1685,6 +1685,45 @@ if ($ADMIN->fulltree) {
         // Global mail templates (PRO).
         $settings->add(
             new admin_setting_heading(
+                'cachesettings_heading',
+                get_string('cachesettings', 'mod_booking'),
+                get_string('cachesettings_desc', 'mod_booking')
+            )
+        );
+
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/cacheturnoffforbookingsettings',
+                get_string('cacheturnoffforbookingsettings', 'mod_booking'),
+                get_string('cacheturnoffforbookingsettings_desc', 'mod_booking', $linktorules),
+                0
+            )
+        );
+
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/cacheturnoffforbookinganswers',
+                get_string('cacheturnoffforbookinganswers', 'mod_booking'),
+                get_string('cacheturnoffforbookinganswers_desc', 'mod_booking', $linktorules),
+                0
+            )
+        );
+    } else {
+        $settings->add(
+            new admin_setting_heading(
+                'cachesettings_heading',
+                get_string('cachesettings', 'mod_booking'),
+                get_string('prolicensefeatures', 'mod_booking') .
+                get_string('profeatures:cachesettings', 'mod_booking') .
+                get_string('infotext:prolicensenecessary', 'mod_booking')
+            )
+        );
+    }
+
+    if ($proversion) {
+        // Global mail templates (PRO).
+        $settings->add(
+            new admin_setting_heading(
                 'mobile_settings',
                 get_string('mobilesettings', 'mod_booking'),
                 get_string('mobilesettings_desc', 'mod_booking')

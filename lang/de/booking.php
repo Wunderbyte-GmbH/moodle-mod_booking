@@ -609,6 +609,12 @@ $string['cachedef_electivebookingorder'] = 'Elective booking order (Cache)';
 $string['cachedef_eventlogtable'] = 'Eventlog-Tabelle (Cache)';
 $string['cachedef_mybookingoptionstable'] = 'Meine Buchungsoptionen (Cache)';
 $string['cachedef_subbookingforms'] = 'Subbooking Forms (Cache)';
+$string['cachesettings'] = 'Cache Einstellungen';
+$string['cachesettings_desc'] = 'Diese Änderungen haben massive Auswirkungen auf die Performance. Bitte ändern Sie hier nur etwas, wenn Sie genau wissen, was Sie tun.';
+$string['cacheturnoffforbookinganswers'] = 'Kein Caching der Antworten (der Buchungen durch Nutzer:innen)';
+$string['cacheturnoffforbookinganswers_desc'] = 'Die Last auf die Datenbank wird durch diese Einstellung massiv erhöht. Bei schweren Problemen mit der Cache Kofiguration kann diese Einstellung dennoch vorteilhaft sein.';
+$string['cacheturnoffforbookingsettings'] = 'Kein Caching der Einstellungen der Buchungsoptionen';
+$string['cacheturnoffforbookingsettings_desc'] = 'Die Last auf die Datenbank wird durch diese Einstellung massiv erhöht. Bei schweren Problemen mit der Cache Kofiguration kann diese Einstellung dennoch Vorteilhaft sein.';
 $string['caladdascourseevent'] = 'Zum Kalender hinzufügen (nur für Kursteilnehmer:innen sichtbar)';
 $string['caladdassiteevent'] = 'Zum Kalender hinzufügen (für alle Nutzer:innen sichtbar)';
 $string['caldonotadd'] = 'Nicht zum Kurs-Kalender hinzufügen';
@@ -1837,6 +1843,10 @@ $string['profeatures:boactions'] = '<ul>
 $string['profeatures:cancellationsettings'] = '<ul>
 <li><b>Veränderbare Stornierungsfrist</b></li>
 <li><b>Stornierungs Cool Off Period (Sekunden)</b></li>
+</ul>';
+$string['profeatures:cachesettings'] = '<ul>
+<li><b>Kein Caching der Buchungsoptions-Einstellungen</b></li>
+<li><b>Kein Caching der Buchungsantworten (Buchungen)</b></li>
 </ul>';
 $string['profeatures:duplicationrestoreoption'] = '<ul>
 <li><b>Moodle-Kurs duplizieren, wenn eine Buchungsoption dupliziert wird</b></li>

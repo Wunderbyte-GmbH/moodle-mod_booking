@@ -100,7 +100,11 @@ class booking_answers {
         $this->bookingoptionsettings = $bookingoptionsettings;
 
         $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
-        $data = $cache->get($optionid);
+        if (!get_config('booking', 'cacheturnoffforbookinganswers')) {
+            $data = $cache->get($optionid);
+        } else {
+            $data = false;
+        }
 
         if (!$data) {
             // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
@@ -174,8 +178,9 @@ class booking_answers {
                 'usersdeleted' => $this->usersdeleted,
                 'userstonotify' => $this->userstonotify,
             ];
-
-            $cache->set($optionid, $data);
+            if (!get_config('booking', 'cacheturnoffforbookinganswers')) {
+                $cache->set($optionid, $data);
+            }
         } else {
             $this->answers = $data->answers;
             $this->users = $data->users;
@@ -1013,7 +1018,11 @@ class booking_answers {
             // If we don't have the answers in the singleton, we look in the cache.
             if (empty($answers)) {
                 $cache = \cache::make('mod_booking', 'bookinganswers');
-                $data = $cache->get('myanswers');
+                if (!get_config('booking', 'cacheturnoffforbookinganswers')) {
+                    $data = $cache->get('myanswers');
+                } else {
+                    $data = false;
+                }
                 $statustofetch = [];
                 $answers = [];
                 // We don't have any answers, we get the ones we need.
@@ -1047,7 +1056,9 @@ class booking_answers {
 
                 $answers = $data['answers'];
                 singleton_service::set_answers_for_user($userid, $data);
-                $cache->set('myanswers', $data);
+                if (!get_config('booking', 'cacheturnoffforbookinganswers')) {
+                    $cache->set('myanswers', $data);
+                }
             }
         } catch (Throwable $e) {
             if ($CFG->debug === E_ALL) {
