@@ -80,9 +80,15 @@ class option_form extends dynamic_form {
         $mform->setType('scrollpos', PARAM_INT);
 
         // Add all available fields in the right order.
-        fields_info::instance_form_definition($mform, $formdata);
+        $classes = fields_info::instance_form_definition($mform, $formdata);
 
-        $this->add_action_buttons(true, get_string('save'));
+        if (!empty($classes)) {
+            $this->add_action_buttons(true, get_string('save'));
+        } else {
+            $mform->addElement('html', '<div class="alert alert-warning">' .
+                get_string('error:formcapabilitymissing', 'mod_booking') .
+                '</div>');
+        }
     }
 
     /**
