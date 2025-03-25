@@ -32,26 +32,26 @@ Feature: As admin - apply bulk operations under booking options.
       | 2        | discount1  | Disc1 | 77           | 0        | 2                 |
       | 3        | discount2  | Disc2 | 66           | 0        | 3                 |
     And the following "mod_booking > options" exist:
-      | booking     | text       | course | description    | importing | maxanswers | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | useprice | spt1     |
-      | BookingCMP  | Option01-t | C1     | Price-tenis    | 1         | 1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 1        | tenis    |
-      | BookingCMP  | Option02-f | C1     | Price-football | 1         | 2          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 1        | football |
-      | BookingCMP  | Option03-y | C1     | Yoga-noprice   | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | yoga     |
-      | BookingCMP  | Option04-c | C1     | Price-chess    | 1         | 1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 1        | chess    |
-      | BookingCMP  | Option05-r | C1     | Price-rugby    | 1         | 2          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 1        | rugby    |
-      | BookingCMP  | Option06-d | C1     | Darth-noprice  | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | darth    |
-      | BookingCMP  | Option07-a | C1     | Price-auto     | 1         | 1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 1        | auto     |
-      | BookingCMP  | Option08-m | C1     | Price-moto     | 1         | 2          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 1        | moto     |
-      | BookingCMP  | Option09-p | C1     | Polo-noprice   | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | polo     |
-      | BookingCMP  | Option10-b | C1     | Price-box      | 1         | 1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 1        | box      |
-      | BookingCMP  | Option11-j | C1     | Price-jump     | 1         | 2          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 1        | jump     |
-      | BookingCMP  | Option12-s | C1     | Ski-noprice    | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | ski      |
+      | booking     | text       | course | description    | importing | maxanswers | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | useprice | spt1     | institution |
+      | BookingCMP  | Option01-t | C1     | Price-tenis    | 1         | 1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 1        | tenis    | hall 2      |
+      | BookingCMP  | Option02-f | C1     | Price-football | 1         | 2          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 1        | football | place 2     |
+      | BookingCMP  | Option03-y | C1     | Yoga-noprice   | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | yoga     | OUTSIDE     |
+      | BookingCMP  | Option04-c | C1     | Price-chess    | 1         | 1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 1        | chess    | hall 1      |
+      | BookingCMP  | Option05-r | C1     | Price-rugby    | 1         | 2          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 1        | rugby    | hall 1      |
+      | BookingCMP  | Option06-d | C1     | Darth-noprice  | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | darth    | hall 2      |
+      | BookingCMP  | Option07-a | C1     | Price-auto     | 1         | 1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 1        | auto     | hall 2      |
+      | BookingCMP  | Option08-m | C1     | Price-moto     | 1         | 2          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 1        | moto     | hall 2      |
+      | BookingCMP  | Option09-p | C1     | Polo-noprice   | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | polo     | hall 2      |
+      | BookingCMP  | Option10-b | C1     | Price-box      | 1         | 1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 1        | box      | hall 2      |
+      | BookingCMP  | Option11-j | C1     | Price-jump     | 1         | 2          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 1        | jump     | hall 2      |
+      | BookingCMP  | Option12-s | C1     | Ski-noprice    | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | ski      | hall 2      |
     And the following "activity" exists:
       | activity       | page                               |
       | course         | C1                                 |
       | idnumber       | bulkoptionpage1                    |
       | name           | BookingOptionsBulk                 |
       | intro          | Booking Options Bulk Page          |
-      | content        | [bulkoperations customfields=spt1] |
+      | content        | [bulkoperations customfields=spt1 filter=institution,coursestarttime,spt1] |
       | contentformat  | 0                                  |
     And I change viewport size to "1366x12000"
     ## Unfortunately, TinyMCE is slow and has misbehavior which might cause number of site-wide issues. So - we disable it.
@@ -63,20 +63,31 @@ Feature: As admin - apply bulk operations under booking options.
   Scenario: Booking bulkoperations: create list and perform its basic management
     Given I am on the "bulkoptionpage1" Activity page logged in as admin
     ## Verify options visibility along with customfields
-    And I should see "Option12-s" in the "//tr[contains(@id, '_optionbulkoperationstable_spt1_r1')]" "xpath_element"
-    And I should see "Option10-b" in the "//tr[contains(@id, '_optionbulkoperationstable_spt1_r3')]" "xpath_element"
-    And I should see "box" in the "//tr[contains(@id, '_optionbulkoperationstable_spt1_r3')]" "xpath_element"
-    And I should see "ski" in the "//tr[contains(@id, '_optionbulkoperationstable_spt1_r1')]" "xpath_element"
+    And I should see "Option12-s" in the "//tr[contains(@id, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431')]" "xpath_element"
+    And I should see "Option10-b" in the "//tr[contains(@id, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431_r3')]" "xpath_element"
+    And I should see "box" in the "//tr[contains(@id, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431_r3')]" "xpath_element"
+    And I should see "ski" in the "//tr[contains(@id, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431_r1')]" "xpath_element"
     ## Testing filtering
     And I click on "Filter table" "button" in the ".wunderbyte_table_filter_on" "css_element"
     ## Filtering by title
     And I click on "Title" "button"
     And I should see "Option11-j" in the ".wunderbyteTableFilter" "css_element"
     And I set the field "Option11-j" in the ".wunderbyteTableFilter" "css_element" to "checked"
-    And I should see "Option11-j" in the "//tr[contains(@id, '_optionbulkoperationstable_spt1_r1')]" "xpath_element"
-    And "//tr[contains(@id, '_optionbulkoperationstable_spt1_r2')]" "xpath_element" should not exist
+    And I should see "Option11-j" in the "//tr[contains(@id, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431_r1')]" "xpath_element"
+    And "//tr[contains(@id, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431_r2')]" "xpath_element" should not exist
     And I set the field "Option11-j" in the ".wunderbyteTableFilter" "css_element" to ""
-    And I should see "Option10-b" in the "//tr[contains(@id, '_optionbulkoperationstable_spt1_r3')]" "xpath_element"
+    And I should see "Option10-b" in the "//tr[contains(@id, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431_r3')]" "xpath_element"
+    And I click on "Start time of the course" "button"
+    ##And I should see "Apply filter" in the ".wunderbyteTableFilter" "css_element"
+    And I click on "spt1" "button"
+    And I should see "auto (1)" in the ".wunderbyteTableFilter" "css_element"
+    And  I set the field "auto (1)" in the ".wunderbyteTableFilter" "css_element" to "checked"
+    And I should see "Option07-a" in the "//tr[contains(@id, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431_r1')]" "xpath_element"
+    And I set the field "auto (1)" in the ".wunderbyteTableFilter" "css_element" to ""
+    And I click on "Institution" "button"
+    And  I set the field "place 2 (1)" in the ".wunderbyteTableFilter" "css_element" to "checked"
+    And I should see "Option02-f" in the "//tr[contains(@id, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431_r1')]" "xpath_element"
+    And I set the field "place 2 (1)" in the ".wunderbyteTableFilter" "css_element" to ""
     ## Hide filter - required for a new filter tool
     ## Workaround for case when hidden "search" "input" intercepts focus - so we cannot press "Teachers" "button"
     And I click on "//aside[contains(@class, 'wunderbyte_table_components')]" "xpath_element"
@@ -84,39 +95,39 @@ Feature: As admin - apply bulk operations under booking options.
     And I click on "Sport1" "button"
     And I should see "chess" in the ".wunderbyteTableFilter" "css_element"
     And I set the field "chess" in the ".wunderbyteTableFilter" "css_element" to "checked"
-    And I should see "chess" in the "//tr[contains(@id, '_optionbulkoperationstable_spt1_r1')]" "xpath_element"
-    And "//tr[contains(@id, '_optionbulkoperationstable_spt1_r2')]" "xpath_element" should not exist
+    And I should see "chess" in the "//tr[contains(@id, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431_r1')]" "xpath_element"
+    And "//tr[contains(@id, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431_r2')]" "xpath_element" should not exist
     ## Hide filter - required for a new filter tool
     ## Workaround for case when hidden "search" "input" intercepts focus - so we cannot press "Teachers" "button"
     And I click on "//aside[contains(@class, 'wunderbyte_table_components')]" "xpath_element"
     And I click on "Show all records" "text" in the ".wb-records-count-label" "css_element"
     And I should see "12 of 12 records found"
     ## Testing searching
-    And I set the field with xpath "//input[contains(@name, '_optionbulkoperationstable_spt1')]" to "Option0"
+    And I set the field with xpath "//input[contains(@name, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431')]" to "Option0"
     And I should see "9 of 12 records found"
-    And I should see "Option09-p" in the "//tr[contains(@id, '_optionbulkoperationstable_spt1_r1')]" "xpath_element"
-    And I should see "Option01-t" in the "//tr[contains(@id, '_optionbulkoperationstable_spt1_r9')]" "xpath_element"
-    And "//tr[contains(@id, '_optionbulkoperationstable_spt1_r10')]" "xpath_element" should not exist
-    And I set the field with xpath "//input[contains(@name, '_optionbulkoperationstable_spt1')]" to ""
+    And I should see "Option09-p" in the "//tr[contains(@id, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431_r1')]" "xpath_element"
+    And I should see "Option01-t" in the "//tr[contains(@id, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431_r9')]" "xpath_element"
+    And "//tr[contains(@id, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431_r10')]" "xpath_element" should not exist
+    And I set the field with xpath "//input[contains(@name, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431')]" to ""
     ## Testing sorting
     And I click on "th.id.wb-table-column.desc" "css_element"
     And I wait until the page is ready
-    And I should see "Option01-t" in the "//tr[contains(@id, '_optionbulkoperationstable_spt1_r1')]" "xpath_element"
-    And I should see "Option12-s" in the "//tr[contains(@id, '_optionbulkoperationstable_spt1_r12')]" "xpath_element"
+    And I should see "Option01-t" in the "//tr[contains(@id, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431_r1')]" "xpath_element"
+    And I should see "Option12-s" in the "//tr[contains(@id, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431_r12')]" "xpath_element"
     ## Testing pagination
     And "//nav[@aria-label='Page']" "xpath_element" should not exist
     And I set the field with xpath "//select[contains(@name, 'selectrowsperpage-')]" to "Show 10 rows"
     And "//nav[@aria-label='Page']" "xpath_element" should exist
     And I click on "2" "text" in the "ul.pagination" "css_element"
-    And I should see "Option11-j" in the "//tr[contains(@id, '_optionbulkoperationstable_spt1_r1')]" "xpath_element"
+    And I should see "Option11-j" in the "//tr[contains(@id, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431_r1')]" "xpath_element"
     And I should not see "Option10-b"
 
   @javascript
   Scenario: Booking bulkoperations: processing of booking options
     Given I am on the "bulkoptionpage1" Activity page logged in as admin
     ## Edit a single option
-    And I should see "Option12-s" in the "//tr[contains(@id, '_optionbulkoperationstable_spt1_r1')]" "xpath_element"
-    And I click on "Edit booking option" "link" in the "//tr[contains(@id, '_optionbulkoperationstable_spt1_r1')]" "xpath_element"
+    And I should see "Option12-s" in the "//tr[contains(@id, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431_r1')]" "xpath_element"
+    And I click on "Edit booking option" "link" in the "//tr[contains(@id, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431_r1')]" "xpath_element"
     ## And I wait to be redirected
     And I wait "1" seconds
     ## And I should see "BookingCMP" in the ".h2" "css_element"
@@ -124,10 +135,10 @@ Feature: As admin - apply bulk operations under booking options.
     And I should see "You are editing \"Option12-s\"."
     And I set the field "Booking option name" to "Option12-ski"
     And I press "Save"
-    And I should see "Option12-ski" in the "//tr[contains(@id, '_optionbulkoperationstable_spt1_r1')]" "xpath_element"
+    And I should see "Option12-ski" in the "//tr[contains(@id, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431_r1')]" "xpath_element"
     ## Edit multiple options
-    And I set the field with xpath "//tr[contains(@id, '_optionbulkoperationstable_spt1_r1')]//input[contains(@name, '_optionbulkoperationstable_spt1-')]" to "checked"
-    And I set the field with xpath "//tr[contains(@id, '_optionbulkoperationstable_spt1_r3')]//input[contains(@name, '_optionbulkoperationstable_spt1-')]" to "checked"
+    And I set the field with xpath "//tr[contains(@id, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431_r1')]//input[contains(@name, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431-')]" to "checked"
+    And I set the field with xpath "//tr[contains(@id, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431_r3')]//input[contains(@name, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431-')]" to "checked"
     And I click on "Edit Bookingoptions" "text" in the ".wunderbyteTableClass" "css_element"
     And I set the field "Select field of booking option" to "Teachers"
     And I click on "btn_bookingruletemplates" "button" in the ".modal-body" "css_element"
@@ -135,8 +146,8 @@ Feature: As admin - apply bulk operations under booking options.
     And I set the field "Assign teachers:" to "Teacher 1"
     And I click on "Confirm" "button"
     ## Send multiple emails
-    And I set the field with xpath "//tr[contains(@id, '_optionbulkoperationstable_spt1_r1')]//input[contains(@name, '_optionbulkoperationstable_spt1-')]" to "checked"
-    And I set the field with xpath "//tr[contains(@id, '_optionbulkoperationstable_spt1_r3')]//input[contains(@name, '_optionbulkoperationstable_spt1-')]" to "checked"
+    And I set the field with xpath "//tr[contains(@id, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431_r1')]//input[contains(@name, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431-')]" to "checked"
+    And I set the field with xpath "//tr[contains(@id, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431_r3')]//input[contains(@name, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431-')]" to "checked"
     And I click on "Send mail to teacher(s)" "text" in the ".wunderbyteTableClass" "css_element"
     And I wait "1" seconds
     And I set the field "Subject" to "Bulkoperations-subj"
