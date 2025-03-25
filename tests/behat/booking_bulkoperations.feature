@@ -140,8 +140,8 @@ Feature: As admin - apply bulk operations under booking options.
     And I press "Save"
     And I should see "Option12-ski" in the "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r1')]" "xpath_element"
     ## Edit multiple options
-    And I set the field with xpath "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r1')]//input[contains(@name, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431-')]" to "checked"
-    And I set the field with xpath "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r3')]//input[contains(@name, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431-')]" to "checked"
+    And I set the field with xpath "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r1')]//input[@type='checkbox' and contains(@name, '_optionbulkoperationstable_')]" to "checked"
+    And I set the field with xpath "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r3')]//input[@type='checkbox' and contains(@name, '_optionbulkoperationstable_')]" to "checked"
     And I click on "Edit Bookingoptions" "text" in the ".wunderbyteTableClass" "css_element"
     And I set the field "Select field of booking option" to "Teachers"
     And I click on "btn_bookingruletemplates" "button" in the ".modal-body" "css_element"
@@ -149,8 +149,8 @@ Feature: As admin - apply bulk operations under booking options.
     And I set the field "Assign teachers:" to "Teacher 1"
     And I click on "Confirm" "button"
     ## Send multiple emails
-    And I set the field with xpath "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r1')]//input[contains(@name, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431-')]" to "checked"
-    And I set the field with xpath "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r3')]//input[contains(@name, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431-')]" to "checked"
+    And I set the field with xpath "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r1')]//input[@type='checkbox' and contains(@name, '_optionbulkoperationstable_')]" to "checked"
+    And I set the field with xpath "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r3')]//input[@type='checkbox' and contains(@name, '_optionbulkoperationstable_')]" to "checked"
     And I click on "Send mail to teacher(s)" "text" in the ".wunderbyteTableClass" "css_element"
     And I wait "1" seconds
     And I set the field "Subject" to "Bulkoperations-subj"
