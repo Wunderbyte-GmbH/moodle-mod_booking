@@ -604,8 +604,8 @@ class mod_booking_mod_form extends moodleform_mod {
 
         // Custom fields to be shown on detail page (optionview.php).
         $customfields = booking_handler::get_customfields();
+        $customfieldshortnames = [];
         if (!empty($customfields)) {
-            $customfieldshortnames = [];
             foreach ($customfields as $cf) {
                 $name = format_string($cf->name);
                 $customfieldshortnames[$cf->shortname] = "$name ($cf->shortname)";
