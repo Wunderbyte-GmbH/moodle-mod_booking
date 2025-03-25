@@ -4103,7 +4103,7 @@ class booking_option {
         int $optionid = 0,
         int $bookingid = 0,
         int $userid = 0,
-        array $additionalinfos = [],
+        array $additionalinfos = []
     ): int {
         global $DB, $USER;
         $json = json_encode($additionalinfos, true);
