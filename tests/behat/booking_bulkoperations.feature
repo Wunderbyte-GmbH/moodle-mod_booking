@@ -32,26 +32,26 @@ Feature: As admin - apply bulk operations under booking options.
       | 2        | discount1  | Disc1 | 77           | 0        | 2                 |
       | 3        | discount2  | Disc2 | 66           | 0        | 3                 |
     And the following "mod_booking > options" exist:
-      | booking     | text       | course | description    | importing | maxanswers | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | useprice | spt1     | institution |
-      | BookingCMP  | Option01-t | C1     | Price-tenis    | 1         | 1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 1        | tenis    | hall 2      |
-      | BookingCMP  | Option02-f | C1     | Price-football | 1         | 2          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 1        | football | place 2     |
-      | BookingCMP  | Option03-y | C1     | Yoga-noprice   | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | yoga     | OUTSIDE     |
-      | BookingCMP  | Option04-c | C1     | Price-chess    | 1         | 1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 1        | chess    | hall 1      |
-      | BookingCMP  | Option05-r | C1     | Price-rugby    | 1         | 2          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 1        | rugby    | hall 1      |
-      | BookingCMP  | Option06-d | C1     | Darth-noprice  | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | darth    | hall 2      |
-      | BookingCMP  | Option07-a | C1     | Price-auto     | 1         | 1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 1        | auto     | hall 2      |
-      | BookingCMP  | Option08-m | C1     | Price-moto     | 1         | 2          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 1        | moto     | hall 2      |
-      | BookingCMP  | Option09-p | C1     | Polo-noprice   | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | polo     | hall 2      |
-      | BookingCMP  | Option10-b | C1     | Price-box      | 1         | 1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 1        | box      | hall 2      |
-      | BookingCMP  | Option11-j | C1     | Price-jump     | 1         | 2          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 1        | jump     | hall 2      |
-      | BookingCMP  | Option12-s | C1     | Ski-noprice    | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | ski      | hall 2      |
+      | booking     | text       | course | description    | importing | maxanswers | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | useprice | spt1     | institution | prefix |
+      | BookingCMP  | Option01-t | C1     | Price-tenis    | 1         | 1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 1        | tenis    | hall 2      | 0001   |
+      | BookingCMP  | Option02-f | C1     | Price-football | 1         | 2          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 1        | football | place 2     | 123-s  |
+      | BookingCMP  | Option03-y | C1     | Yoga-noprice   | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | yoga     | OUTSIDE     | 23-s   |
+      | BookingCMP  | Option04-c | C1     | Price-chess    | 1         | 1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 1        | chess    | hall 1      | 2345-c |
+      | BookingCMP  | Option05-r | C1     | Price-rugby    | 1         | 2          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 1        | rugby    | hall 1      | 1-g    |
+      | BookingCMP  | Option06-d | C1     | Darth-noprice  | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | darth    | hall 2      | 14-t   |
+      | BookingCMP  | Option07-a | C1     | Price-auto     | 1         | 1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 1        | auto     | hall 2      | 0002   |
+      | BookingCMP  | Option08-m | C1     | Price-moto     | 1         | 2          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 1        | moto     | hall 2      | 0003   |
+      | BookingCMP  | Option09-p | C1     | Polo-noprice   | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | polo     | hall 2      | 0004   |
+      | BookingCMP  | Option10-b | C1     | Price-box      | 1         | 1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 1        | box      | hall 2      | 0005   |
+      | BookingCMP  | Option11-j | C1     | Price-jump     | 1         | 2          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 1        | jump     | hall 2      | 0006   |
+      | BookingCMP  | Option12-s | C1     | Ski-noprice    | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | ski      | hall 2      | 0007   |
     And the following "activity" exists:
       | activity       | page                               |
       | course         | C1                                 |
       | idnumber       | bulkoptionpage1                    |
       | name           | BookingOptionsBulk                 |
       | intro          | Booking Options Bulk Page          |
-      | content        | [bulkoperations customfields=spt1 filter=institution,coursestarttime,spt1] |
+      | content        | [bulkoperations customfields=spt1 filter=institution,coursestarttime,spt1 intrangefilter=prefix] |
       | contentformat  | 0                                  |
     And I change viewport size to "1366x12000"
     ## Unfortunately, TinyMCE is slow and has misbehavior which might cause number of site-wide issues. So - we disable it.
@@ -88,6 +88,7 @@ Feature: As admin - apply bulk operations under booking options.
     And  I set the field "place 2 (1)" in the ".wunderbyteTableFilter" "css_element" to "checked"
     And I should see "Option02-f" in the "//tr[contains(@id, '_optionbulkoperationstable_73707431696e737469747574696f6e2c636f75727365737461727474696d652c73707431_r1')]" "xpath_element"
     And I set the field "place 2 (1)" in the ".wunderbyteTableFilter" "css_element" to ""
+    ## Check prefix i.e. for range 1-23 and see if results match: should display all numbers from this range.
     ## Hide filter - required for a new filter tool
     ## Workaround for case when hidden "search" "input" intercepts focus - so we cannot press "Teachers" "button"
     And I click on "//aside[contains(@class, 'wunderbyte_table_components')]" "xpath_element"
