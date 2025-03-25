@@ -1840,13 +1840,13 @@ $string['profeatures:availabilityinfotexts'] = '<ul>
 $string['profeatures:boactions'] = '<ul>
 <li><b>Aktionen nach der Buchung aktivieren</b></li>
 </ul>';
-$string['profeatures:cancellationsettings'] = '<ul>
-<li><b>Veränderbare Stornierungsfrist</b></li>
-<li><b>Stornierungs Cool Off Period (Sekunden)</b></li>
-</ul>';
 $string['profeatures:cachesettings'] = '<ul>
 <li><b>Kein Caching der Buchungsoptions-Einstellungen</b></li>
 <li><b>Kein Caching der Buchungsantworten (Buchungen)</b></li>
+</ul>';
+$string['profeatures:cancellationsettings'] = '<ul>
+<li><b>Veränderbare Stornierungsfrist</b></li>
+<li><b>Stornierungs Cool Off Period (Sekunden)</b></li>
 </ul>';
 $string['profeatures:duplicationrestoreoption'] = '<ul>
 <li><b>Moodle-Kurs duplizieren, wenn eine Buchungsoption dupliziert wird</b></li>
