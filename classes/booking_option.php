@@ -3812,6 +3812,8 @@ class booking_option {
         }
 
         $feedbackpostchanges = fields_info::save_fields_post($data, $newoption, $updateparam);
+        // We have to load waitforconfirmation status in order to know if sync_waiting_list.
+        $newoption->waitforconfirmation = self::get_value_of_json_by_key($newoption->id, "waitforconfirmation");
 
         // Only now, we can purge.
         self::purge_cache_for_option($newoption->id);
