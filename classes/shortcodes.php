@@ -31,6 +31,7 @@ use context_system;
 use core_cohort\reportbuilder\local\entities\cohort;
 use Exception;
 use html_writer;
+use local_wunderbyte_table\filters\types\datepicker;
 use local_wunderbyte_table\filters\types\intrange;
 use local_wunderbyte_table\filters\types\standardfilter;
 use local_wunderbyte_table\wunderbyte_table;
@@ -856,12 +857,41 @@ class shortcodes {
                 }
             }
         }
-
+        $datepickerfiltercolumns = ['coursestarttime', 'courseendtime', 'bookingopeningtime'];
         // Exclude column action from columns for filter, sorting, search.
         $filtercolumns = array_diff_key($columns, array_flip(['action']));
-        foreach ($filtercolumns as $key => $localized) {
-            $standardfilter = new standardfilter($key, $localized);
-            if ($key === 'invisible') {
+
+        if (isset($args['filter'])) {
+            $filterargs = explode(",", $args['filter']);
+            $stringmanager = get_string_manager();
+            foreach ($filterargs as $key => $colname) {
+                // Check if it's an intrangefilter.
+                if (in_array($colname, $datepickerfiltercolumns)) {
+                    if ($stringmanager->string_exists($colname, 'mod_booking')) {
+                        $localizedstring = get_string($colname, 'mod_booking');
+                    } else {
+                        $localizedstring = "";
+                    }
+                    $datepicker = new datepicker($colname, $localizedstring);
+                    $datepicker->add_options(
+                        'in between',
+                        '<',
+                        get_string('apply_filter', 'local_wunderbyte_table'),
+                        'now',
+                        'now + 1 year'
+                    );
+                    $table->add_filter($datepicker);
+                    unset($filterargs[$key]);
+                } else {
+                    // Prepare standardfilter.
+                    $localized = $stringmanager->string_exists($colname, 'mod_booking') ? get_string($colname, 'mod_booking') : $colname;
+                    $filtercolumns[$colname] = $localized;
+                }
+            }
+        }
+        foreach ($filtercolumns as $colname => $localized) {
+            $standardfilter = new standardfilter($colname, $localized);
+            if ($colname === 'invisible') {
                 $standardfilter->add_options([
                     "0" => get_string('optionvisible', 'mod_booking'),
                     "1" => get_string('optioninvisible', 'mod_booking'),
