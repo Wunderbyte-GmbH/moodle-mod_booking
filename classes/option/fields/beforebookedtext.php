@@ -38,7 +38,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class beforebookedtext extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -136,8 +135,13 @@ class beforebookedtext extends field_base {
             fields_info::add_header_to_mform($mform, self::$header);
         }
 
-        $mform->addElement('editor', 'beforebookedtext', get_string("beforebookedtext", "booking"),
-                    null, null);
+        $mform->addElement(
+            'editor',
+            'beforebookedtext',
+            get_string("beforebookedtext", "booking"),
+            null,
+            null
+        );
         $mform->setType('beforebookedtext', PARAM_CLEANHTML);
         $mform->addHelpButton('beforebookedtext', 'beforebookedtext', 'mod_booking');
     }

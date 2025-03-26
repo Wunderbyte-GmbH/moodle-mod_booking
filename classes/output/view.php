@@ -770,10 +770,44 @@ class view implements renderable, templatable {
             $wbtable->showdownloadbutton = true;
         }
 
-        // Get view param from JSON of booking instance settings.
+        // Get cd param from JSON of booking instance settings.
         $viewparam = (int)booking::get_value_of_json_by_key($bookingsettings->id, 'viewparam');
         if (empty($viewparam)) {
             $viewparam = MOD_BOOKING_VIEW_PARAM_LIST; // List view is the default view.
+        }
+
+        if ($bookingsettings->switchtemplates) {
+            // If template switcher is turned on, we add it.
+            $wbtable->add_template_to_switcher(
+                'mod_booking/table_list',
+                get_string('viewparam:list', 'mod_booking'),
+                $viewparam === MOD_BOOKING_VIEW_PARAM_LIST ? true : false,
+                MOD_BOOKING_VIEW_PARAM_LIST
+            );
+            $wbtable->add_template_to_switcher(
+                'mod_booking/table_cards',
+                get_string('viewparam:cards', 'mod_booking'),
+                $viewparam === MOD_BOOKING_VIEW_PARAM_CARDS ? true : false,
+                MOD_BOOKING_VIEW_PARAM_CARDS
+            );
+            $wbtable->add_template_to_switcher(
+                'mod_booking/table_list',
+                get_string('viewparam:listimgleft', 'mod_booking'),
+                $viewparam === MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT ? true : false,
+                MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT
+            );
+            $wbtable->add_template_to_switcher(
+                'mod_booking/table_list',
+                get_string('viewparam:listimgright', 'mod_booking'),
+                $viewparam === MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT ? true : false,
+                MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT
+            );
+            $wbtable->add_template_to_switcher(
+                'mod_booking/table_list',
+                get_string('viewparam:listimglefthalf', 'mod_booking'),
+                $viewparam === MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF ? true : false,
+                MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF
+            );
         }
 
         self::apply_standard_params_for_bookingtable($wbtable, $optionsfields, $filter, $search, $sort, true, true, $viewparam);
@@ -813,7 +847,11 @@ class view implements renderable, templatable {
         // Without defining sorting won't work!
         $wbtable->define_columns(['titleprefix', 'coursestarttime', 'courseendtime']);
 
-        // TODO: If template switcher is active, we need to check the current template and set viewparam accordingly.
+        // If template switcher is active, we need to use the table's viewparam.
+        $chosenviewparam = get_user_preferences('wbtable_chosen_template_viewparam_' . $wbtable->uniqueid);
+        if (!empty($wbtable->switchtemplates) && is_int($chosenviewparam)) {
+            $viewparam = $chosenviewparam;
+        }
 
         // Switch view type (cards view or list view).
         switch ($viewparam) {
