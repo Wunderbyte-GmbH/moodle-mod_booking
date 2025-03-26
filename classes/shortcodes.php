@@ -449,7 +449,7 @@ class shortcodes {
 
         [$inorequal, $params] = $DB->get_in_or_equal($groupnames);
 
-        $sql = "SELECT c.id, c.shortname
+        $sql = "SELECT DISTINCT c.id, c.shortname
                 FROM {course} c
                 JOIN {groups} g
                 ON g.courseid = c.id
