@@ -33,7 +33,7 @@ Feature: As admin - apply bulk operations under booking options.
       | 2        | discount1  | Disc1 | 77           | 0        | 2                 |
       | 3        | discount2  | Disc2 | 66           | 0        | 3                 |
     And the following "mod_booking > options" exist:
-      | booking     | text       | course | description    | importing | maxanswers | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | useprice | spt1     | institution | prefix |
+      | booking     | text       | course | description    | importing | maxanswers | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | useprice | spt1     | institution | titleprefix |
       | BookingCMP  | Option01-t | C1     | Price-tenis    | 1         | 1          | 0              | 0              | 1652320861        | 1652839261      | 1        | tenis    | hall 2      | 0001   |
       | BookingCMP  | Option02-f | C1     | Price-football | 1         | 2          | 0              | 0              | 1683907261        | 1684425661      | 1        | football | place 2     | 123-s  |
       | BookingCMP  | Option03-y | C1     | Yoga-noprice   | 1         | 3          | 0              | 0              | 1652320861        | 1652839261      | 0        | yoga     | OUTSIDE     | 23-s   |
@@ -54,7 +54,7 @@ Feature: As admin - apply bulk operations under booking options.
       | idnumber       | bulkoptionpage1                    |
       | name           | BookingOptionsBulk                 |
       | intro          | Booking Options Bulk Page          |
-      | content        | [bulkoperations customfields=spt1 filter=institution,coursestarttime,spt1 intrangefilter=prefix] |
+      | content        | [bulkoperations customfields=spt1 filter=institution,coursestarttime,spt1 intrangefilter=titleprefix] |
       | contentformat  | 0                                  |
     And I change viewport size to "1366x6000"
     ## Unfortunately, TinyMCE is slow and has misbehavior which might cause number of site-wide issues. So - we disable it.
@@ -108,12 +108,30 @@ Feature: As admin - apply bulk operations under booking options.
     And I set the field "auto (1)" in the ".wunderbyteTableFilter" "css_element" to ""
     ## Filtering by Institution
     And I click on "Institution" "button"
-    And  I set the field "place 2 (1)" in the ".wunderbyteTableFilter" "css_element" to "checked"
+    And I set the field "place 2 (1)" in the ".wunderbyteTableFilter" "css_element" to "checked"
+    And I wait until the page is ready
     And I should see "Option02-f" in the "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r1')]" "xpath_element"
     And "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r2')]" "xpath_element" should not exist
-    ## And I set the field "place 2 (1)" in the ".wunderbyteTableFilter" "css_element" to ""
+    And I set the field "place 2 (1)" in the ".wunderbyteTableFilter" "css_element" to ""
+    And I wait until the page is ready
     ## Filtering by intrange
-    ## Check prefix i.e. for range 1-23 and see if results match: should display all numbers from this range.
+    And I click on "Prefix" "button"
+    And I set the field "intrange-start-titleprefix" in the "#id_collapse_titleprefix" "css_element" to "1"
+    And I set the field "intrange-end-titleprefix" in the "#id_collapse_titleprefix" "css_element" to "3"
+    And I set the field "Apply Filter" in the "#id_collapse_titleprefix" "css_element" to "checked"
+    And I wait until the page is ready
+    And I should see "4 of 12 records found"
+    And I should see "Option08-m" in the "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r1')]" "xpath_element"
+    And I should see "Option01-t" in the "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r4')]" "xpath_element"
+    And "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r5')]" "xpath_element" should not exist
+    ##And I click on "Show all records" "text" in the ".wb-records-count-label" "css_element"
+    And I set the field "Apply Filter" in the "#id_collapse_titleprefix" "css_element" to ""
+    And I wait until the page is ready
+    ## Filtering by booking instance
+    And I click on "Booking Instance" "button"
+    And I set the field "BookingXYZ" in the "#id_collapse_bookingid" "css_element" to "checked"
+    And I wait until the page is ready
+    And I should see "3 of 12 records found"
     ## Hide filter panel and remove all filters
     And I click on "//aside[contains(@class, 'wunderbyte_table_components')]" "xpath_element"
     And I click on "Show all records" "text" in the ".wb-records-count-label" "css_element"
