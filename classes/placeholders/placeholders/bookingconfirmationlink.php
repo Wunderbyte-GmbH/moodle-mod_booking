@@ -18,7 +18,7 @@
  * Handle fields for booking option.
  *
  * @package mod_booking
- * @copyright 2024 Wunderbyte GmbH <info@wunderbyte.at>
+ * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
