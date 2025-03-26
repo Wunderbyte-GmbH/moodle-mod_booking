@@ -122,10 +122,14 @@ class notifymelist implements bo_condition {
             $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
             $bookinginformation = $bookinganswer->return_all_booking_information($userid);
             // If the user is not yet booked, and option is not fully booked, we return true.
+            $freeonwaitinglist = $bookinginformation['notbooked']['freeonwaitinglist'] ?? 0;
             if (isset($bookinginformation['notbooked'])) {
                 if ($bookinginformation['notbooked']['fullybooked'] === false) {
                     $isavailable = true;
-                } else if ($bookinginformation['notbooked']['freeonwaitinglist'] ?? 0 > 0) {
+                } else if (
+                    ($freeonwaitinglist > 0)
+                    || $freeonwaitinglist == -1
+                ) {
                     $isavailable = true;
                 }
             } else if (isset($bookinganswer->usersonwaitinglist[$userid])) {

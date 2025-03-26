@@ -1454,7 +1454,9 @@ $string['maxoptionsfrominstance'] = 'Einschränkung gilt nur für Buchungen dies
 $string['maxoptionsstring'] = 'Sie haben bereits die maximale Anzahl an Buchungen dieses Types erreicht.';
 $string['maxoptionsstringdetailed'] = 'Sie haben bereits die maximale Anzahl von {$a->max} Buchungen des Types "{$a->type}" (in Kategorie "{$a->category}") erreicht: <br> {$a->maxoptions}';
 $string['maxoverbooking'] = 'Maximale Anzahl der Wartelistenplätze';
+$string['maxoverbooking_help'] = 'Geben Sie "-1" ein für unbegrenzte Warteliste und "0" wenn Sie keine Warteliste erlauben möchten.';
 $string['maxparticipantsnumber'] = 'Maximale Teilnehmeranzahl';
+$string['maxparticipantsnumber_help'] = '"0" bedeutet unbegrenzt';
 $string['maxperuser'] = 'Maximale Anzahl an Buchungen pro User';
 $string['maxperuser_help'] = 'Die maximale Anzahl an Buchungen, die ein/e Nutzer/in auf einmal buchen kann.
 <b>Achtung:</b> In den Booking-Plugin-Einstellungen können Sie auswählen, ob Nutzer:innen, die teilgenommen
@@ -1478,7 +1480,8 @@ $string['messagesubject'] = 'Betreff';
 $string['messagetext'] = 'Nachricht';
 $string['messagingteacherimpossible'] = 'Sie können dieser Trainerin / diesem Trainer keine Nachrichten senden,
  weil Sie in keinen Kurs von ihr/ihm eingeschrieben sind.';
-$string['minanswers'] = 'Mindestteilnehmerzahl';
+$string['minanswers'] = 'Mindestteilnehmer/innenzahl';
+$string['minanswers_help'] = '"0" bedeutet keine Mindestteilnehmer/innenzahl';
 $string['minutes'] = '{$a} Minuten';
 $string['missinghours'] = 'Fehlstunden';
 $string['missinglabel'] = 'Im importierten File fehlt die verpflichtede Spalte {$a}. Daten können nicht importiert werden.';

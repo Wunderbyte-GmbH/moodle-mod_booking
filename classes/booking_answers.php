@@ -282,6 +282,8 @@ class booking_answers {
         if ($maxoverbooking > 0) {
             $returnarray['maxoverbooking'] = $maxoverbooking;
             $returnarray['freeonwaitinglist'] = $maxoverbooking - $returnarray['waiting'];
+        } else if ($maxoverbooking == -1) {
+            $returnarray['freeonwaitinglist'] = -1;
         }
 
         if (!empty($this->bookingoptionsettings->minanswers) && $this->bookingoptionsettings->minanswers > 0) {
@@ -689,8 +691,12 @@ class booking_answers {
             }
 
             $waitinglistlowpercentage = get_config('booking', 'waitinglistlowpercentage');
-            $actualwlpercentage = ($bookinginformation['freeonwaitinglist'] /
+            if ($bookinginformation['freeonwaitinglist'] == -1) {
+                $actualwlpercentage = 100;
+            } else {
+                $actualwlpercentage = ($bookinginformation['freeonwaitinglist'] /
                 $bookinginformation['maxoverbooking']) * 100;
+            }
 
             if ($bookinginformation['freeonwaitinglist'] == 0) {
                 // No places left.

@@ -128,6 +128,7 @@ class maxanswers extends field_base {
         }
 
         $mform->addElement('text', 'maxanswers', get_string('maxparticipantsnumber', 'mod_booking'));
+        $mform->addHelpButton('maxanswers', 'maxparticipantsnumber', 'mod_booking');
         $mform->setType('maxanswers', PARAM_INT);
     }
 
