@@ -849,7 +849,7 @@ class view implements renderable, templatable {
 
         // If template switcher is active, we need to use the table's viewparam.
         $chosenviewparam = get_user_preferences('wbtable_chosen_template_viewparam_' . $wbtable->uniqueid);
-        if (!empty($wbtable->switchtemplates) && is_int($chosenviewparam)) {
+        if (!empty($wbtable->switchtemplates) && is_number($chosenviewparam)) {
             $viewparam = $chosenviewparam;
         }
 
