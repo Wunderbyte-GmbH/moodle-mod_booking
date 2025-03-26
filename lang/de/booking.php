@@ -538,6 +538,7 @@ $string['bookingrules'] = 'Buchung: Regeln';
 $string['bookingrulesnootherfound'] = 'Keine anderen Regeln gefunden';
 $string['bookingrulesothercontextheading'] = 'Links to rules in other contexts';
 $string['bookingruleswithbadge'] = 'Buchung: Regeln <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
+$string['bookingruletemplate'] = 'Vorgefertigte Templates für Regeln deaktivieren';
 $string['bookingruletemplates'] = 'Lade eine Template-Regel';
 $string['bookings'] = 'Buchungen';
 $string['bookingsaved'] = '<b>Vielen Dank für Ihre Buchung!</b> <br /> Ihre Buchung wurde erfolgreich gespeichert und ist somit abgeschlossen. Sie können nun weitere Online-Seminare buchen oder bereits getätigte Buchungen verwalten';
