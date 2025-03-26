@@ -551,6 +551,7 @@ $string['bookingrulesothercontextheading'] = 'Links to rules in other contexts:'
 $string['bookingruleswithbadge'] = 'Booking: Rules <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['bookingruletemplate'] = 'Deactivate preconfigured templates for rules.';
 $string['bookingruletemplates'] = 'Load a template rule';
+$string['bookingruletemplatesactive'] = 'Activate preconfigured templates for rules.';
 $string['bookings'] = 'Bookings';
 $string['bookingsaved'] = 'Your booking was successfully saved. You can now proceed to book other courses.';
 $string['bookingsettings'] = 'Booking: Main settings';
