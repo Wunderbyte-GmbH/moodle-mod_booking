@@ -2115,12 +2115,11 @@ class booking_option {
                 'presencenew' => $presencestatus,
                 ],
             ];
-
-            self::booking_history_insert($status, $answerid, $optionid, $bookingid, $userid, $presencechange);
             $userdata->status = $presencestatus;
-
-            $coursecontext = \context_course::instance($COURSE->id);
-            $event = bookinganswer_presencechanged::create([
+            if ($presenceold != $presencestatus) {
+                self::booking_history_insert($status, $answerid, $optionid, $bookingid, $userid, $presencechange);
+                $coursecontext = \context_course::instance($COURSE->id);
+                $event = bookinganswer_presencechanged::create([
                 'objectid' => $this->optionid,
                 'contextid' => $coursecontext->id,
                 'relateduserid' => $ui,
@@ -2128,8 +2127,9 @@ class booking_option {
                     'presenceold' => $presenceold,
                     'presencenew' => $presencestatus,
                 ],
-            ]);
-            $event->trigger();
+                ]);
+                $event->trigger();
+            }
             $DB->update_record('booking_answers', $userdata);
         }
 
