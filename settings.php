@@ -1048,6 +1048,14 @@ if ($ADMIN->fulltree) {
                 1
             )
         );
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/bookingruletemplate',
+                get_string('bookingruletemplate', 'mod_booking'),
+                '',
+                0
+            )
+        );
     }
 
     $settings->add(
