@@ -884,7 +884,8 @@ class shortcodes {
                     unset($filterargs[$key]);
                 } else {
                     // Prepare standardfilter.
-                    $localized = $stringmanager->string_exists($colname, 'mod_booking') ? get_string($colname, 'mod_booking') : $colname;
+                    $localized = $stringmanager->string_exists($colname, 'mod_booking')
+                        ? get_string($colname, 'mod_booking') : $colname;
                     $filtercolumns[$colname] = $localized;
                 }
             }
