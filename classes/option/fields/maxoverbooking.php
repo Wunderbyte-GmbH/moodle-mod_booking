@@ -89,7 +89,8 @@ class maxoverbooking extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         if (!empty($formdata->maxoverbooking)) {
             $newoption->limitanswers = 1;
@@ -127,6 +128,7 @@ class maxoverbooking extends field_base {
             }
 
             $mform->addElement('text', 'maxoverbooking', get_string('maxoverbooking', 'mod_booking'));
+            $mform->addHelpButton('maxoverbooking', 'maxoverbooking', 'mod_booking');
             $mform->setType('maxoverbooking', PARAM_INT);
         }
     }

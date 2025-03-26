@@ -2180,7 +2180,11 @@ class booking_option {
                 && !$bookingstatus['fullybooked']
             ) {
                 $status = MOD_BOOKING_STATUSPARAM_BOOKED;
-            } else if (isset($bookingstatus['freeonwaitinglist']) && $bookingstatus['freeonwaitinglist'] > 0) {
+            } else if (
+                isset($bookingstatus['freeonwaitinglist'])
+                && ($bookingstatus['freeonwaitinglist'] > 0
+                || $bookingstatus['freeonwaitinglist'] == -1)
+            ) {
                 $status = MOD_BOOKING_STATUSPARAM_WAITINGLIST;
             } else {
                 if ($allowoverbooking) {

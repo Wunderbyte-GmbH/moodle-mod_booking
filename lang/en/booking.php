@@ -1459,7 +1459,9 @@ $string['maxoptionsfrominstance'] = 'Limitation applies only to bookings of this
 $string['maxoptionsstring'] = 'You have reached the maximum of bookings of this type.';
 $string['maxoptionsstringdetailed'] = 'You have reached the maximum of {$a->max} bookings of type "{$a->type}" (in category "{$a->category}"): <br> {$a->maxoptions}';
 $string['maxoverbooking'] = 'Max. number of places on waiting list';
+$string['maxoverbooking_help'] = 'Enter "-1" for unlimited waitinglist and "0" to disable waitinglist.';
 $string['maxparticipantsnumber'] = 'Max. number of participants';
+$string['maxparticipantsnumber_help'] = 'Enter "0" for unlimited';
 $string['maxperuser'] = 'Max current bookings per user';
 $string['maxperuser_help'] = 'The maximum number of bookings an individual user can make in this activity at once.
 <b>Attention:</b> In the Booking plugin settings, you can choose if users who completed or attended and booking options
@@ -1484,6 +1486,7 @@ $string['messagetext'] = 'Message';
 $string['messagingteacherimpossible'] = 'You cannot send messages to this teacher
  because you are not enrolled in any courses of her/him.';
 $string['minanswers'] = 'Min. number of participants';
+$string['minanswers_help'] = '"0" means no minimum';
 $string['minutes'] = '{$a} minutes';
 $string['missinghours'] = 'Missing hours';
 $string['missinglabel'] = 'Imported CSV does not contain mandatory column {$a}. Data can not be imported.';
