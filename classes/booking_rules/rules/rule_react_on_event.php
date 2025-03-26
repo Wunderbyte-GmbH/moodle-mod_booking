@@ -131,6 +131,7 @@ class rule_react_on_event implements booking_rule {
             'rest_script_success',
             'enrollink_triggered',
             'bookingoption_bookedviaautoenrol',
+            'bookinganswer_presencechanged',
         ];
 
         // Get a list of all booking events.
