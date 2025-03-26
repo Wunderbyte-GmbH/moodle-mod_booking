@@ -82,7 +82,7 @@ class all_userbookings extends \table_sql {
 
     /**
      * This function is called for each data row to allow processing of the username value.
-     * @param mixed $values
+     * @param object $values
      * @return string
      * @throws coding_exception
      */
@@ -96,7 +96,7 @@ class all_userbookings extends \table_sql {
 
     /**
      * For status column.
-     * @param mixed $values
+     * @param object $values
      * @return string
      * @throws coding_exception
      */
@@ -125,14 +125,10 @@ class all_userbookings extends \table_sql {
 
     /**
      * For email column.
-     * @param mixed $values
+     * @param object $values
      * @return string
-     * @throws coding_exception
      */
     protected function col_email($values) {
-        if ($this->is_downloading()) {
-            return $values->email;
-        }
         return $values->email;
     }
 
@@ -160,7 +156,7 @@ class all_userbookings extends \table_sql {
 
     /**
      * Numrec column.
-     * @param mixed $values
+     * @param object $values
      * @return mixed
      */
     protected function col_numrec($values) {
@@ -173,7 +169,7 @@ class all_userbookings extends \table_sql {
 
     /**
      * Completed column.
-     * @param mixed $values
+     * @param object $values
      * @return mixed
      * @throws coding_exception
      */
@@ -191,7 +187,7 @@ class all_userbookings extends \table_sql {
 
     /**
      * Rating column.
-     * @param mixed $values
+     * @param object $values
      * @return string
      */
     protected function col_rating($values) {
@@ -224,7 +220,7 @@ class all_userbookings extends \table_sql {
 
     /**
      * Courseendtimecolumn.
-     * @param mixed $values
+     * @param object $values
      * @return string
      * @throws coding_exception
      */
@@ -238,7 +234,7 @@ class all_userbookings extends \table_sql {
 
     /**
      * Waitinglist column.
-     * @param mixed $values
+     * @param object $values
      * @return mixed
      * @throws coding_exception
      */
@@ -258,7 +254,7 @@ class all_userbookings extends \table_sql {
 
     /**
      * City column.
-     * @param mixed $values
+     * @param object $values
      * @return mixed
      * @throws coding_exception
      */
@@ -271,7 +267,7 @@ class all_userbookings extends \table_sql {
 
     /**
      * Selected column.
-     * @param mixed $values
+     * @param object $values
      * @return string
      * @throws coding_exception
      */
@@ -287,7 +283,7 @@ class all_userbookings extends \table_sql {
 
     /**
      * Notes column.
-     * @param mixed $values
+     * @param object $values
      * @return mixed
      * @throws coding_exception
      */
@@ -308,7 +304,7 @@ class all_userbookings extends \table_sql {
     /**
      * Renders image of user.
      *
-     * @param mixed $values
+     * @param object $values
      *
      * @return string
      *
@@ -329,7 +325,7 @@ class all_userbookings extends \table_sql {
     /**
      * Renders image of user.
      *
-     * @param mixed $values
+     * @param object $values
      *
      * @return string
      *
