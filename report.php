@@ -673,7 +673,7 @@ if (!$tableallbookings->is_downloading()) {
                 break;
             case 'email':
                 $columns[] = 'email';
-                $headers[] = get_string('email' , 'mod_booking');
+                $headers[] = get_string('email', 'mod_booking');
                 break;
         }
     }
