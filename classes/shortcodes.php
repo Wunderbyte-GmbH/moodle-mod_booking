@@ -731,7 +731,7 @@ class shortcodes {
         }
         cache_helper::purge_by_event('changesinwunderbytetable');
         // Add the arguments to make sure cache is built correctly.
-        $argsstring = implode($args);
+        $argsstring = bin2hex(implode($args));
         $table = new bulkoperations_table(bin2hex(random_bytes(8)) . '_optionbulkoperationstable_' . $argsstring);
         $columns = [
             'id' => get_string('id', 'local_wunderbyte_table'),
