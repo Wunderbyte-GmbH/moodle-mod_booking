@@ -157,8 +157,8 @@ final class recurringoptions_test extends advanced_testcase {
 
         $optionarray = array_values($optiondates);
         $this->assertEquals('Test option1', $optionarray[0]->text);
-        $this->assertEquals('Test option1 1', $optionarray[1]->text);
-        $this->assertEquals('Test option1 2', $optionarray[2]->text);
+        $this->assertEquals('Test option1', $optionarray[1]->text);
+        $this->assertEquals('Test option1', $optionarray[2]->text);
 
         $expectedstarttime = strtotime($record->coursestarttime);
 

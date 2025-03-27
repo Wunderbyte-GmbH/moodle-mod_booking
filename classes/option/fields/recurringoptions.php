@@ -351,7 +351,7 @@ class recurringoptions extends field_base {
             for ($i = 1; $i <= $data->howmanytimestorepeat; $i++) {
                 // Handle dates.
                 unset($templateoption->id, $templateoption->identifier, $templateoption->optionid);
-                $templateoption->text = $title . " $i";
+                $templateoption->text = $title;
                 foreach ($newoptiondates as $newoptiondate) {
                     $key = MOD_BOOKING_FORM_OPTIONDATEID . $newoptiondate["index"];
                     $templateoption->{$key} = 0;
