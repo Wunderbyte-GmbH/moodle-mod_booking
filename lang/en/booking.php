@@ -1342,6 +1342,7 @@ $string['infoalreadybooked'] = '<div class="infoalreadybooked"><i>You are alread
 $string['infonobookingoption'] = 'In order to add a booking option please use the settings block or the settings-icon on top of the page';
 $string['infotext:installmoodlebugfix'] = 'Wunderbyte has added a bug fix to the Moodle core. This bug fix has not yet been included in your Moodle version. Therefore, you may encounter JavaScript error messages in certain areas. Starting with Moodle 4.1, it is sufficient to apply the ongoing security updates.';
 $string['infotext:prolicensenecessary'] = '<a href="https://showroom.wunderbyte.at/course/view.php?id=62" target="_blank">Get your PRO license here...</a>';
+$string['infotext:prolicensenecessarytextandlink'] = 'You need a Booking PRO license if you want to use this feature <a href="https://showroom.wunderbyte.at/course/view.php?id=62" target="_blank">Get your PRO license here...</a>';
 $string['infowaitinglist'] = '<div class="infowaitinglist"><i>You are on the waiting list for this option.</i></div>';
 $string['installmentprice'] = 'Price of installment';
 $string['installmoodlebugfix'] = 'Moodle update necessary <span class="badge bg-danger text-light"><i class="fa fa-cogs" aria-hidden="true"></i> Important</span>';
@@ -1981,8 +1982,10 @@ $string['recordsimporteddescription'] = '{$a} booking options imported via csv';
 $string['recreategroup'] = 'Recreate group in the target course and enrol users in group';
 $string['recurringchildoptions'] = 'Children of this booking option:';
 $string['recurringheader'] = '<i class="fa-solid fa-repeat" aria-hidden="true"></i>&nbsp;Recurring options';
+$string['recurringmultiparenting'] = 'Create recurring options repeatedly from same parent';
+$string['recurringmultiparenting_desc'] = 'If a booking option is already a "parent" should it be possible to create another set of recurring options?';
 $string['recurringnotpossibleinfo'] = '<div class="alert alert-info" role="alert">
-    It’s not possible to create children for this booking option, since it’s already the child of an option.
+    It’s not possible to create children for this booking option, since it’s already linked to other options (as mother or as child).
     </div>';
 $string['recurringoptions'] = 'Recurring booking options';
 $string['recurringparentoption'] = 'Parent of this option:';
@@ -1993,6 +1996,8 @@ $string['recurringsavedatesinfo'] = '<div class="alert alert-info" role="alert">
 $string['recurringsaveinfo'] = '<div class="alert alert-info" role="alert">
                                 <strong>Attention:</strong> Please save any changes before creating recurring booking options. Otherwise, your changes will not be applied to the new options.
                                 </div>';
+$string['recurringsettingsheader'] = 'Recurring Booking options  <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
+$string['recurringsettingsheader_desc'] = 'Settings for booking options and possible children';
 $string['relatedcourseidneeded'] = 'A related course is needed because of your availabilty condition(s).';
 $string['reminder1sent'] = 'First reminder sent';
 $string['reminder2sent'] = 'Second reminder sent';
