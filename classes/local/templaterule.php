@@ -47,12 +47,7 @@ class templaterule {
         global $DB;
         $selectoptions = [
             '0' => get_string('bookingdefaulttemplate', 'mod_booking'),
-            ];
-        if (get_config('booking', 'bookingruletemplatesactive')) {
-            $templates = core_component::get_component_classes_in_namespace(
-                "mod_booking",
-                'booking_rules\\rules\\templates'
-            );
+        ];
 
         // Add default templates.
         if (!get_config('booking', 'bookingruletemplate')) {
