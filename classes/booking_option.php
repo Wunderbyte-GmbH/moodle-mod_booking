@@ -2096,19 +2096,21 @@ class booking_option {
         global $DB, $COURSE;
 
         foreach ($allselectedusers as $ui) {
-            $userdata = $DB->get_record_sql(
-                "SELECT *
-                FROM {booking_answers}
-                WHERE optionid = :optionid AND userid = :userid AND waitinglist < 2",
-                ['optionid' => $this->optionid, 'userid' => $ui]
-            );
-
+            $settings = singleton_service::get_instance_of_booking_option_settings($this->id);
+            $ba = singleton_service::get_instance_of_booking_answers($settings);
+            $userdata = isset($ba->users[$ui]) ? $ba->users[$ui] : false;
+            if (!$userdata) {
+                continue;
+            }
+            $presenceold = $userdata->status;
+            if ($presenceold == $presencestatus) {
+                continue;
+            }
             $status = MOD_BOOKING_STATUSPARAM_PRESENCE_CHANGED;
             $answerid = $userdata->id;
             $optionid = $userdata->optionid;
             $bookingid = $userdata->bookingid;
             $userid = $userdata->userid;
-            $presenceold = $userdata->status;
             $presencechange = [
                 'presence' => [
                 'presenceold' => $presenceold,
@@ -2116,20 +2118,21 @@ class booking_option {
                 ],
             ];
             $userdata->status = $presencestatus;
-            if ($presenceold != $presencestatus) {
-                self::booking_history_insert($status, $answerid, $optionid, $bookingid, $userid, $presencechange);
-                $coursecontext = \context_course::instance($COURSE->id);
-                $event = bookinganswer_presencechanged::create([
-                'objectid' => $this->optionid,
-                'contextid' => $coursecontext->id,
-                'relateduserid' => $ui,
-                'other' => [
-                    'presenceold' => $presenceold,
-                    'presencenew' => $presencestatus,
-                ],
-                ]);
-                $event->trigger();
-            }
+            $userdata->timemodified = time();
+
+            self::booking_history_insert($status, $answerid, $optionid, $bookingid, $userid, $presencechange);
+            $coursecontext = \context_course::instance($COURSE->id);
+            $event = bookinganswer_presencechanged::create([
+            'objectid' => $this->optionid,
+            'contextid' => $coursecontext->id,
+            'relateduserid' => $ui,
+            'other' => [
+                'presenceold' => $presenceold,
+                'presencenew' => $presencestatus,
+            ],
+            ]);
+            $event->trigger();
+
             $DB->update_record('booking_answers', $userdata);
         }
 
@@ -3852,7 +3855,7 @@ class booking_option {
 
         if (!empty($newoption->id)) {
             // Save the changes to DB.
-            if (!$DB->update_record("booking_options", $newoption)) {
+            if (!$DB->update_record('booking_options', $newoption)) {
                 throw new moodle_exception('updateofoptionwentwrong', 'mod_booking');
             }
         } else {
