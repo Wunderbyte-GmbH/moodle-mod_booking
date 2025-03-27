@@ -35,6 +35,7 @@ use mod_booking\option\field_base;
 use mod_booking\singleton_service;
 use mod_booking\subbookings\subbookings_info;
 use mod_booking\utils\wb_payment;
+use moodle_exception;
 use moodle_url;
 use MoodleQuickForm;
 use stdClass;
@@ -289,6 +290,32 @@ class recurringoptions extends field_base {
                 $mform->addElement('static', 'recurringsavedatesinfo', '', get_string('recurringsavedatesinfo', 'mod_booking'));
                 $mform->hideIf('recurringsavedatesinfo', 'apply_to_children', 'eq', 0);
             }
+            if (!empty($ischildofcurrent)) {
+                // Only mothers contain these options. Achtung wegen Setting haben es hier nicht alle Mothers!!
+                $mform->addElement(
+                    'checkbox',
+                    'unlinkallchildren',
+                    get_string('unlinkallchildren', 'mod_booking')
+                );
+                $mform->addElement('static', 'allchildrenactioninfo1', '', get_string('recurringactioninfo', 'mod_booking'));
+                $mform->hideIf('allchildrenactioninfo1', 'unlinkallchildren', 'notchecked');
+
+                $mform->addElement(
+                    'checkbox',
+                    'deleteallchildren',
+                    get_string('deleteallchildren', 'mod_booking')
+                );
+                $mform->addElement('static', 'allchildrenactioninfo2', '', get_string('recurringactioninfo', 'mod_booking'));
+                $mform->hideIf('allchildrenactioninfo2', 'deleteallchildren', 'notchecked');
+            } else if (!empty($isparentofcurrent)) { // Children get info to find actions at mother.
+                $mform->addElement(
+                    'checkbox',
+                    'unsetchild',
+                    get_string('unsetchild', 'mod_booking')
+                );
+                $mform->addElement('static', 'allchildrenactioninfo', '', get_string('recurringactioninfo', 'mod_booking'));
+                $mform->hideIf('deleteallchildreninfo', 'unsetchild', 'notchecked');
+            }
         } else if ($formdata['id']) {
             $mform->addElement(
                 'header',
@@ -318,6 +345,25 @@ class recurringoptions extends field_base {
         ) {
             $validationelement = $mform->getElement('validated_once');
             $validationelement->setValue(1);
+        }
+
+        if (!empty($formdata['deleteallchildren'])) {
+            self::allchildrenaction(
+                $formdata['optionid'],
+                MOD_BOOKING_ALL_CHILDRED_DELETE,
+                $formdata['cmid']
+            );
+        } else if (!empty($formdata['unlinkallchildren'])) {
+            self::allchildrenaction(
+                $formdata['optionid'],
+                MOD_BOOKING_ALL_CHILDRED_UNLINK,
+                $formdata['cmid']
+            );
+        }
+        if (!empty($formdata['unsetchild'])) {
+            self::unset_child(
+                $formdata['optionid']
+            );
         }
     }
 
@@ -539,5 +585,63 @@ class recurringoptions extends field_base {
         }
 
         return $interval; // Return the consistent interval.
+    }
+
+    /**
+     * Treat all children with an action, either unlink or delete.
+     *
+     * @param int $optionid
+     * @param int $action
+     * @param int $cmid // Optional.
+     *
+     * @return bool
+     *
+     */
+    private static function allchildrenaction(int $optionid, int $action, int $cmid = 0): bool {
+        global $DB;
+
+        $children = $DB->get_records_select(
+            'booking_options',
+            'parentid = :parentid',
+            ['parentid' => $optionid],
+            'id, parentid'
+        );
+        try {
+            foreach ($children as $child) {
+                switch ($action) {
+                    case MOD_BOOKING_ALL_CHILDRED_UNLINK: // Unlink.
+                        $child->parentid = 0;
+                        booking_option::update((array) $child);
+                        break;
+                    case MOD_BOOKING_ALL_CHILDRED_DELETE: // Delete.
+                        if (empty($cmid)) {
+                            $settings = singleton_service::get_instance_of_booking_by_optionid($optionid);
+                            $cmid = $settings->cmid;
+                        }
+                        $bo = new booking_option($cmid, $child->id);
+                        $bo->delete_booking_option();
+                        break;
+                }
+            };
+        } catch (moodle_exception $e) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Unlink a child from its parent.
+     *
+     * @param int $childid
+     *
+     * @return void
+     *
+     */
+    private static function unset_child(int $childid) {
+        $data = [
+            'optionid' => $childid,
+            'parentid' => 0,
+        ];
+        booking_option::update($data);
     }
 }

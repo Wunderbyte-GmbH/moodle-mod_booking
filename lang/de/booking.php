@@ -942,6 +942,7 @@ $string['definefieldofstudy'] = 'Sie können hier alle Buchungsoptionen aus dem 
  Gruppe "Philosophie" ist, werden ihm:ihr alle Buchungsoptionen aus Kursen angezeigt, in denen mindestens einer der "Philosophie"-Kurse empfohlen wird.';
 $string['delcustfield'] = 'Dieses Feld und alle dazugehörenden Einstellungen in den Buchungsoptionen löschen';
 $string['delete'] = 'Löschen';
+$string['deleteallchildren'] = 'Alle folgenden Buchungsoptionen löschen';
 $string['deletebooking'] = 'Buchung löschen';
 $string['deletebookingaction'] = 'Diese Aktion nach der Buchung löschen';
 $string['deletebookingcampaign'] = 'Kampagne löschen';
@@ -1927,6 +1928,7 @@ $string['recommendedin'] = "Shortcode um Buchungsoptionen in bestimmten Kursen z
 $string['recordsimported'] = 'Buchungsoptionen importiert via CSV';
 $string['recordsimporteddescription'] = '{$a} Buchungsoptionen importiert via CSV';
 $string['recreategroup'] = 'Gruppe erneut anlegen und Nutzer:innen der Gruppe zuordnen';
+$string['recurringactioninfo'] = 'Diese Aktion wird ausgeführt, wenn Sie das Formular absenden (indem Sie auf "Speichern" klicken). <b>Achtung!</b> Diese Aktion kann nicht rückgängig gemacht werden.';
 $string['recurringchildoptions'] = 'Abhängige Buchungsoptionen dieser Buchungsoption:';
 $string['recurringheader'] = '<i class="fa-solid fa-repeat" aria-hidden="true"></i>&nbsp;Wiederkehrende Optionen';
 $string['recurringmultiparenting'] = 'Wiederholende Optionen von selber Vorlage erzeugen';
@@ -2431,6 +2433,7 @@ $string['unitscourses'] = 'Kurse / UE';
 $string['unitsunknown'] = 'Anzahl UE unbekannt';
 $string['unlimitedcredits'] = 'Verwende keine Credits';
 $string['unlimitedplaces'] = 'Unbegrenzt';
+$string['unlinkallchildren'] = 'Verknüpfung von folgenden Buchungsoptionen löschen';
 $string['unsubscribe:alreadyunsubscribed'] = 'Sie sind bereits abgemeldet.';
 $string['unsubscribe:errorotheruser'] = 'Es ist nicht erlaubt, E-Mail-Abmeldungen für fremde Benutzer:innen durchzuführen!';
 $string['unsubscribe:successnotificationlist'] = 'Sie wurden erfolgreich von den E-Mail-Benachrichtigungen für "{$a}" abgemeldet.';
