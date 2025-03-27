@@ -459,7 +459,8 @@ if ($ADMIN->fulltree) {
         if ($maxoptionsfromcategory) {
             $customfieldshortnames = [];
             foreach ($customfields as $cf) {
-                $customfieldshortnames[$cf->shortname] = "$cf->name ($cf->shortname)";
+                $name = format_string($cf->name);
+                $customfieldshortnames[$cf->shortname] = "$name ($cf->shortname)";
             }
             $settings->add(
                 new admin_setting_configselect(

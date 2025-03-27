@@ -1059,10 +1059,11 @@ class mod_booking_mod_form extends moodleform_mod {
         if ($enabled && !empty($field)) {
             global $DB;
             $customfield = singleton_service::get_customfield_field_by_shortname($field);
+            $customfieldname = format_string($customfield->name);
             $mform->addElement(
                 'text',
                 'maxoptionsfromcategorycount',
-                get_string('maxoptionsfromcategorycount', 'booking', $customfield->name),
+                get_string('maxoptionsfromcategorycount', 'booking', $customfieldname),
                 0
             );
             $savedsettings = booking::get_value_of_json_by_key($bookingid, 'maxoptionsfromcategory') ?? '';
@@ -1101,7 +1102,7 @@ class mod_booking_mod_form extends moodleform_mod {
             $mform->addElement(
                 'select',
                 'maxoptionsfromcategoryvalue',
-                get_string('maxoptionsfromcategoryvalue', 'booking', $customfield->name),
+                get_string('maxoptionsfromcategoryvalue', 'booking', $customfieldname),
                 $options
             );
             $mform->getElement('maxoptionsfromcategoryvalue')->setMultiple(true);
