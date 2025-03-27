@@ -1327,6 +1327,7 @@ $string['infoalreadybooked'] = '<div class="infoalreadybooked"><i>Sie haben dies
 $string['infonobookingoption'] = 'Um eine Buchungsoption zu erstellen, nutzen Sie den Block Einstellungen oder das Einstellungs-Icon';
 $string['infotext:installmoodlebugfix'] = 'Wunderbyte hat einen Bugfix zum Core von Moodle beigefügt. Dieser Bugfix ist in Ihrer Moodle Version noch nicht eingefügt. Sie erhalten daher an manchen Stellen Javascript Fehlermeldungen. Ab Moodle 4.1 genügt es, die laufenden Sicherheitsupdates einzuspielen.';
 $string['infotext:prolicensenecessary'] = '<a href="https://showroom.wunderbyte.at/course/view.php?id=62" target="_blank">Jetzt auf Booking PRO upgraden...</a>';
+$string['infotext:prolicensenecessarytextandlink'] = 'Sie benötigen Booking PRO, um dieses Feature nutzen zu können. <a href="https://showroom.wunderbyte.at/course/view.php?id=62" target="_blank">Get your PRO license here...</a>';
 $string['infowaitinglist'] = '<div class="infowaitinglist"><i>Sie sind auf der Warteliste für diese Option.</i></div>';
 $string['installmentprice'] = 'Ratenzahlungspreis';
 $string['installmoodlebugfix'] = 'Moodle update notwendig <span class="badge bg-danger text-light"><i class="fa fa-cogs" aria-hidden="true"></i> Wichtig</span>';
@@ -1922,6 +1923,8 @@ $string['recordsimporteddescription'] = '{$a} Buchungsoptionen importiert via CS
 $string['recreategroup'] = 'Gruppe erneut anlegen und Nutzer:innen der Gruppe zuordnen';
 $string['recurringchildoptions'] = 'Abhängige Buchungsoptionen dieser Buchungsoption:';
 $string['recurringheader'] = '<i class="fa-solid fa-repeat" aria-hidden="true"></i>&nbsp;Wiederkehrende Optionen';
+$string['recurringmultiparenting'] = 'Wiederholende Optionen von selber Vorlage erzeugen';
+$string['recurringmultiparenting_desc'] = 'Wenn eine Buchungsoptions bereits Vorlage für folgende Optionen ist, soll es möglich sein, aus ihrer Grundlage noch weitere zu generieren?';
 $string['recurringnotpossibleinfo'] = '<div class="alert alert-info" role="alert">
     Für diese Buchungsoption können keine Wiederkehrenden Optionen erstellt werden, weil sie selbst von einer anderen Buchungsoption abhängig ist.
     </div>';
@@ -1934,6 +1937,8 @@ $string['recurringsavedatesinfo'] = '<div class="alert alert-info" role="alert">
 $string['recurringsaveinfo'] = '<div class="alert alert-info" role="alert">
                                 <strong>Achtung:</strong> Bitte speichern Sie allfällie Änderungen bevor Sie wiederkehrende Buchungsoption anlegen. Ihre Änderungen werden sonst in den neuen Buchungen nicht übernommen.
                                 </div>';
+$string['recurringsettingsheader'] = 'Wiederkehrende Buchungsoptionen <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
+$string['recurringsettingsheader_desc'] = 'Einstellungen für Wiederkehrende Optionen und ihre Vorlagen';
 $string['relatedcourseidneeded'] = 'Aufgrund Ihrer Verfügbarkeits-Einstellungen muss ein verknüpfter Moodle-Kurs angegeben werden.';
 $string['reminder1sent'] = 'Erste Benachrichtigung versendet';
 $string['reminder2sent'] = 'Zweite Benachrichtigung versendet';

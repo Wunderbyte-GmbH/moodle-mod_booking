@@ -1344,6 +1344,33 @@ if ($ADMIN->fulltree) {
             )
         );
     }
+
+    if ($proversion) {
+        $settings->add(
+            new admin_setting_heading(
+                'recurringsettingsheader',
+                get_string('recurringsettingsheader', 'mod_booking'),
+                get_string('recurringsettingsheader_desc', 'mod_booking')
+            )
+        );
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'recurringmultiparenting',
+                get_string('recurringmultiparenting', 'mod_booking'),
+                get_string('recurringmultiparenting_desc', 'mod_booking'),
+                0
+            )
+        );
+    } else {
+        $settings->add(
+            new admin_setting_heading(
+                'recurringsettingsheader',
+                get_string('recurringsettingsheader', 'mod_booking'),
+                get_string('infotext:prolicensenecessarytextandlink', 'mod_booking')
+            )
+        );
+    }
+
     $settings->add(
         new admin_setting_heading(
             'optiontemplatessettings_heading',
