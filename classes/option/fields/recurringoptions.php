@@ -229,7 +229,10 @@ class recurringoptions extends field_base {
                 }
             }
 
-            if (!empty($isparentofcurrent)) {
+            if (
+                !empty($isparentofcurrent)
+                || (!get_config('mod_booking', 'recurringmultiparenting') && !empty($ischildofcurrent))
+            ) {
                 // For children we don't support creating of further recurrings.
                 $mform->addElement('html', get_string('recurringnotpossibleinfo', 'mod_booking'));
             } else {
