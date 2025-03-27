@@ -2098,27 +2098,27 @@ class booking_option {
         foreach ($allselectedusers as $ui) {
             $settings = singleton_service::get_instance_of_booking_option_settings($this->id);
             $ba = singleton_service::get_instance_of_booking_answers($settings);
-            $userdata = isset($ba->users[$ui]) ? $ba->users[$ui] : false;
-            if (!$userdata) {
+            $answerdata = isset($ba->users[$ui]) ? $ba->users[$ui] : false;
+            if (!$answerdata) {
                 continue;
             }
-            $presenceold = $userdata->status;
+            $presenceold = $answerdata->status;
             if ($presenceold == $presencestatus) {
                 continue;
             }
             $status = MOD_BOOKING_STATUSPARAM_PRESENCE_CHANGED;
-            $answerid = $userdata->baid;
-            $optionid = $userdata->optionid;
+            $answerid = $answerdata->baid;
+            $optionid = $answerdata->optionid;
             $bookingid = $settings->bookingid;
-            $userid = $userdata->userid;
+            $userid = $answerdata->userid;
             $presencechange = [
                 'presence' => [
                 'presenceold' => $presenceold,
                 'presencenew' => $presencestatus,
                 ],
             ];
-            $userdata->status = $presencestatus;
-            $userdata->timemodified = time();
+            $answerdata->status = $presencestatus;
+            $answerdata->timemodified = time();
 
             self::booking_history_insert($status, $answerid, $optionid, $bookingid, $userid, $presencechange);
             $coursecontext = \context_course::instance($COURSE->id);
@@ -2132,7 +2132,8 @@ class booking_option {
             ],
             ]);
             $event->trigger();
-            $userdata->id = $userdata->baid;
+            $userdata = $answerdata;
+            $userdata->id = $answerdata->baid;
             unset($userdata->baid);
             $DB->update_record('booking_answers', $userdata);
         }
