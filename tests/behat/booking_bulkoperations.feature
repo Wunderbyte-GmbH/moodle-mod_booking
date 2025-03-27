@@ -169,7 +169,7 @@ Feature: As admin - apply bulk operations under booking options.
     And I wait "1" seconds
     ## And I should see "BookingCMP" in the ".h2" "css_element"
     And I should see "BookingCMP"
-    And I should see "You are editing \"Option12-s\"."
+    And I should see "You are editing \"0007 - Option12-s\"."
     And I set the field "Booking option name" to "Option12-ski"
     And I press "Save"
     And I should see "Option12-ski" in the "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r1')]" "xpath_element"
