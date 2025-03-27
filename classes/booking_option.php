@@ -2107,9 +2107,9 @@ class booking_option {
                 continue;
             }
             $status = MOD_BOOKING_STATUSPARAM_PRESENCE_CHANGED;
-            $answerid = $userdata->id;
+            $answerid = $userdata->baid;
             $optionid = $userdata->optionid;
-            $bookingid = $userdata->bookingid;
+            $bookingid = $settings->bookingid;
             $userid = $userdata->userid;
             $presencechange = [
                 'presence' => [
@@ -2132,7 +2132,8 @@ class booking_option {
             ],
             ]);
             $event->trigger();
-
+            $userdata->id = $userdata->baid;
+            unset($userdata->baid);
             $DB->update_record('booking_answers', $userdata);
         }
 
