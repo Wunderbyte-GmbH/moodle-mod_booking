@@ -1053,7 +1053,7 @@ if ($ADMIN->fulltree) {
                 'booking/bookingruletemplate',
                 get_string('bookingruletemplate', 'mod_booking'),
                 '',
-                0
+                1
             )
         );
     }

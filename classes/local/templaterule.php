@@ -47,7 +47,9 @@ class templaterule {
         global $DB;
         $selectoptions = [
             '0' => get_string('bookingdefaulttemplate', 'mod_booking'),
-            ];
+        ];
+
+        // Add default templates.
         if (!get_config('booking', 'bookingruletemplate')) {
             $templates = core_component::get_component_classes_in_namespace(
                 "mod_booking",
@@ -60,11 +62,12 @@ class templaterule {
                 $selectoptions[$id] = $class->get_name();
             }
         }
-            $records = $DB->get_records_sql(
-                "SELECT boru.id, boru.rulejson
-          FROM {booking_rules} boru
-          WHERE boru.useastemplate = 1"
-            );
+
+        $records = $DB->get_records_sql(
+            "SELECT boru.id, boru.rulejson
+            FROM {booking_rules} boru
+            WHERE boru.useastemplate = 1"
+        );
 
         foreach ($records as $record) {
             $record->rulejson = json_decode($record->rulejson);
