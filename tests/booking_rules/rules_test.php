@@ -1725,6 +1725,89 @@ final class rules_test extends advanced_testcase {
         rules_info::$rulestoexecute = [];
         booking_rules::$rules = [];
     }
+    /**
+     * Test rules for "presencechanged"
+     *
+     * @covers \mod_booking\event\bookinganswer_presencechanged
+     * @covers \mod_booking\booking_rules\rules\rule_react_on_event
+     * @covers \mod_booking\booking_rules\actions\send_mail
+     * @covers \mod_booking\booking_rules\condition\select_user_from_event
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_rule_on_presencechanged(array $bdata): void {
+        global $DB, $CFG;
+        // Create course.
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        // Create users.
+        $student1 = $this->getDataGenerator()->create_user();
+        $teacher1 = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course1->id;
+        $bdata['bookingmanager'] = $teacher1->username;
+
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+        $this->getDataGenerator()->enrol_user($student1->id, $course1->id, 'student');
+        $this->getDataGenerator()->enrol_user($teacher1->id, $course1->id, 'teacher');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $boevent = '"boevent":"\\\\mod_booking\\\\event\\\\bookinganswer_presencechanged"';
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Test option1';
+        $record->chooseorcreatecourse = 1; // Reqiured.
+        $record->courseid = $course1->id;
+        $record->maxanswers = 2;
+        $record->useprice = 0; // Use price from the default category.
+        $record->waitforconfirmation = 0;
+
+        // Create the rule.
+        $ruledata = [
+            'name' => 'presencechanged',
+            'conditionname' => 'select_user_from_event',
+            'contextid' => 1,
+            'conditiondata' => '{"userfromeventtype":"relateduserid"}',
+            'actionname' => 'send_mail',
+            'actiondata' => '{"subject":"presencechangedsub","template":"presencechangedmsg","templateformat":"1"}',
+            'rulename' => 'rule_react_on_event',
+            'ruledata' => '{' . $boevent . ',"aftercompletion":"","condition":"0"}',
+        ];
+        $rule = $plugingenerator->create_rule($ruledata);
+        $option = $plugingenerator->create_option($record);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $bookingoption = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        $boinfo = new bo_info($settings);
+
+
+        // Execute tasks, get messages and validate it.
+        $this->setUser($student1);
+        $bookuser = booking_bookit::bookit('option', $settings->id, $student1->id);
+        $bookuser = booking_bookit::bookit('option', $settings->id, $student1->id);
+        $alleselectuedusers = [$student1->id];
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->setAdminUser();
+        $bookingoption->changepresencestatus($alleselectuedusers, 3);
+        // Get messages.
+        $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $this->assertCount(1, $messages);
+
+        $message = array_pop($messages);
+        $customdata = $message->get_custom_data();
+        $this->assertEquals($student1->id, $customdata->userid);
+        $this->assertEquals("presencechangedsub", $customdata->customsubject);
+        $this->assertEquals("presencechangedmsg", $customdata->custommessage);
+        $this->assertStringContainsString($boevent, $customdata->rulejson);
+        $this->assertStringContainsString($ruledata['conditiondata'], $customdata->rulejson);
+        self::teardown();
+    }
 
     /**
      * Data provider for condition_bookingpolicy_test
