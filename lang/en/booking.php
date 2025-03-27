@@ -944,6 +944,7 @@ $string['definefieldofstudy'] = 'You can show here all booking options from the 
  to "philosophy", she will see all the booking options in which at least one of the "philosohpy"-courses is recommended.';
 $string['delcustfield'] = 'Delete this field and all associated field settings in the booking options';
 $string['delete'] = 'Delete';
+$string['deleteallchildren'] = 'Delete all children of this option';
 $string['deletebooking'] = 'Delete this booking';
 $string['deletebookingaction'] = 'Delete this after booking action';
 $string['deletebookingcampaign'] = 'Delete campaign';
@@ -1974,6 +1975,7 @@ $string['recommendedin'] = "Shortcode to show a list of booking options which sh
 $string['recordsimported'] = 'Booking options imported via csv';
 $string['recordsimporteddescription'] = '{$a} booking options imported via csv';
 $string['recreategroup'] = 'Recreate group in the target course and enrol users in group';
+$string['recurringactioninfo'] = 'This action will be executed when you save this form (by clicking on "Save" button). <b>Be careful</b>, this can not be undone!';
 $string['recurringchildoptions'] = 'Children of this booking option:';
 $string['recurringheader'] = '<i class="fa-solid fa-repeat" aria-hidden="true"></i>&nbsp;Recurring options';
 $string['recurringmultiparenting'] = 'Create recurring options repeatedly from same parent';
@@ -2486,6 +2488,7 @@ $string['unitscourses'] = 'Courses / Units';
 $string['unitsunknown'] = 'Number of units unknown';
 $string['unlimitedcredits'] = 'Don\'t use credits';
 $string['unlimitedplaces'] = 'Unlimited';
+$string['unlinkallchildren'] = 'Delete linking of all children';
 $string['unsubscribe:alreadyunsubscribed'] = 'You are already unsubscribed.';
 $string['unsubscribe:errorotheruser'] = 'You are not allowed to unsubscribe a different user than yourself!';
 $string['unsubscribe:successnotificationlist'] = 'You were unsubscribed successfully from e-mail notifications for "{$a}".';

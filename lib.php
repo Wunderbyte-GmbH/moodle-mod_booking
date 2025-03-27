@@ -376,6 +376,10 @@ define('MOD_BOOKING_CANCANCELBOOK_UNLIMITED', 2);
 // Enrol into group of current course.
 define('MOD_BOOKING_ENROL_INTO_GROUP_OF_BOOKINGOPTION', -1);
 
+// Recurring options.
+define('MOD_BOOKING_ALL_CHILDRED_UNLINK', 1);
+define('MOD_BOOKING_ALL_CHILDRED_DELETE', 2);
+
 /**
  * Booking get coursemodule info.
  *
