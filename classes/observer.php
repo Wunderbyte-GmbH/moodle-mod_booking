@@ -25,6 +25,8 @@
 
 use core\event\base;
 use core\event\course_module_updated;
+use local_wunderbyte_table\event\template_switched;
+use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
 use mod_booking\booking_option;
 use mod_booking\booking_rules\rules_info;
@@ -514,10 +516,29 @@ class mod_booking_observer {
         // Now we check this booking instance to see if users lost their access.
         $context = context_course::instance($event->courseid);
         checkanswers::create_bookinganswers_check_tasks(
-            +$context->id,
+            $context->id,
             checkanswers::CHECK_CM_VISIBILITY,
             checkanswers::ACTION_DELETE,
             $event->relateduserid
         );
+    }
+
+    /**
+     * React on template_switched which is triggered by template switcher.
+     *
+     * @param template_switched $event
+     */
+    public static function template_switched(template_switched $event) {
+        $data = $event->get_data();
+        $idstring = $data["other"]["tablename"];
+        if (!empty($idstring)) {
+            $table = wunderbyte_table::instantiate_from_tablecache_hash($idstring);
+            // TODO: Continue here...
+        }
+        /*if (strpos($this->tabletemplate, 'list') !== false) {
+            $optionsfields = array_keys($this->columns);
+            view::apply_standard_params_for_bookingtable($this, $optionsfields, false, false, false, true, true, 0);
+
+        }*/
     }
 }

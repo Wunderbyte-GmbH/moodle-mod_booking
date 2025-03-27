@@ -168,7 +168,6 @@ class isbookable implements bo_condition {
             // Overwrite Buttontype if needed.
         } else {
             $description = $this->get_description_string($isavailable, $full, $settings);
-
         }
 
         return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_MYALERT];

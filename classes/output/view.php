@@ -848,7 +848,7 @@ class view implements renderable, templatable {
         $wbtable->define_columns(['titleprefix', 'coursestarttime', 'courseendtime']);
 
         // If template switcher is active, we need to use the table's viewparam.
-        $chosenviewparam = get_user_preferences('wbtable_chosen_template_viewparam_' . $wbtable->uniqueid);
+        $chosenviewparam = get_user_preferences('wbtable_chosen_template_viewparam_' . $wbtable->idstring);
         if (!empty($wbtable->switchtemplates) && is_number($chosenviewparam)) {
             $viewparam = $chosenviewparam;
         }
