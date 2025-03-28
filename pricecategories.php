@@ -1,4 +1,6 @@
 <?php
+
+use mod_booking\pricecategory_handler;
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -13,7 +15,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
  * Price categories settings
  *
@@ -23,171 +24,41 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use core_calendar\local\event\entities\event;
-use mod_booking\form\pricecategories_form;
+ require_once(__DIR__ . '/../../config.php');
+ require_once($CFG->libdir . '/adminlib.php');
+ require_once(__DIR__ . '/classes/local/pricecategory_handler.php');
 
-require_once(__DIR__ . '/../../config.php');
-require_once($CFG->libdir . '/adminlib.php');
 
-global $OUTPUT;
+ global $OUTPUT, $PAGE, $USER;
 
-// No guest autologin.
-require_login(0, false);
+ // Sicherstellen, dass der Nutzer angemeldet ist.
+ require_login();
+ admin_externalpage_setup('modbookingpricecategories');
 
-admin_externalpage_setup('modbookingpricecategories');
+ // URLs definieren.
+ $pageurl = new moodle_url('/mod/booking/pricecategories.php');
+ $settingsurl = new moodle_url('/admin/category.php', ['category' => 'modbookingfolder']);
 
-$settingsurl = new moodle_url('/admin/category.php', ['category' => 'modbookingfolder']);
+ // Seite konfigurieren.
+ $PAGE->set_url($pageurl);
+ $PAGE->set_title(get_string('pricecategories', 'mod_booking'));
+ $PAGE->set_heading(get_string('pricecategory', 'mod_booking'));
 
-$pageurl = new moodle_url('/mod/booking/pricecategories.php');
-$PAGE->set_url($pageurl);
+ // Handler initialisieren.
+ $handler = new pricecategory_handler();
 
-$PAGE->set_title(
-    format_string($SITE->shortname) . ': ' . get_string('pricecategories', 'booking')
-);
-
-$mform = new pricecategories_form($pageurl);
-
-if ($mform->is_cancelled()) {
-    // If cancelled, go back to general booking settings.
-    redirect($settingsurl);
-
-} else if ($data = $mform->get_data()) {
-
-    $existingpricecategories = $DB->get_records('booking_pricecategories');
-
-    if (empty($existingpricecategories)) {
-        // There are no price categories yet.
-        // Currently there can be up to nine price categories.
-        for ($i = 1; $i <= MOD_BOOKING_MAX_PRICE_CATEGORIES; $i++) {
-
-            $pricecategoryordernumx = 'pricecategoryordernum' . $i;
-            $pricecategoryidentifierx = 'pricecategoryidentifier' . $i;
-            $pricecategorynamex = 'pricecategoryname' . $i;
-            $defaultvaluex = 'defaultvalue' . $i;
-            $pricecatsortorderx = 'pricecatsortorder' . $i;
-            $disablepricecategoryx = 'disablepricecategory' . $i;
-
-            // Only add price categories if a name was entered.
-            if (!empty($data->{$pricecategoryidentifierx})) {
-                $pricecategory = new stdClass();
-                $pricecategory->ordernum = $data->{$pricecategoryordernumx};
-                $pricecategory->identifier = $data->{$pricecategoryidentifierx};
-                $pricecategory->name = $data->{$pricecategorynamex};
-                $pricecategory->defaultvalue = $data->{$defaultvaluex};
-                $pricecategory->pricecatsortorder = $data->{$pricecatsortorderx};
-                $pricecategory->disabled = $data->{$disablepricecategoryx};
-
-                $DB->insert_record('booking_pricecategories', $pricecategory);
-            }
-        }
-    } else {
-
-        // There are already existing price categories.
-        // So we need to check for changes.
-        $oldpricecategories = $DB->get_records('booking_pricecategories');
-
-        if ($pricecategorychanges = pricecategories_get_changes($oldpricecategories, $data)) {
-            foreach ($pricecategorychanges['updates'] as $record) {
-                $DB->update_record('booking_pricecategories', $record);
-
-                $oldidentifier = $oldpricecategories[$record->id]->identifier;
-                $newidentifier = $record->identifier;
-
-                // If identifier has changed, we also need to update associated prices.
-                if ($oldidentifier != $newidentifier) {
-                    $event = \mod_booking\event\pricecategory_changed::create(
-                        ['objectid' => $record->id,
-                            'context' => \context_system::instance(),
-                            'relateduserid' => $USER->id,
-                            'other' => [
-                                'oldidentifier' => $oldidentifier,
-                                'newidentifier' => $newidentifier,
-                            ],
-                        ]
-                    );
-                    $event->trigger();
-                }
-            }
-            if (count($pricecategorychanges['inserts']) > 0) {
-                $DB->insert_records('booking_pricecategories', $pricecategorychanges['inserts']);
-            }
-        }
-    }
-
-    // In any case, invalidate the cache after updating price categories.
+ // Formularverarbeitung.
+if (($data = data_submitted()) && confirm_sesskey()) {
+    $handler->process_pricecategories_form($data);
     cache_helper::purge_by_event('setbackpricecategories');
-
     redirect($pageurl, get_string('pricecategoriessaved', 'booking'), 5);
-
-} else {
-    echo $OUTPUT->header();
-    echo $OUTPUT->heading(new lang_string('pricecategory', 'mod_booking'));
-
-    echo get_string('pricecategoriessubtitle', 'booking');
-
-    // Show the mform.
-    $mform->display();
-
-    echo $OUTPUT->footer();
 }
 
-/**
- * Helper function to return arrays containing all relevant pricecategories update changes.
- * The returned arrays will have the prepared stdClasses for update and insert in booking_pricecategories table.
- *
- * @param mixed $oldpricecategories the existing price categories
- * @param stdClass $data the form data
- *
- * @return array
- */
-function pricecategories_get_changes($oldpricecategories, $data) {
+ // Seite ausgeben.
+ echo $OUTPUT->header();
+ echo $OUTPUT->heading(get_string('pricecategory', 'mod_booking'));
+ echo get_string('pricecategoriessubtitle', 'mod_booking');
 
-    $updates = [];
-    $inserts = [];
+ $handler->display_form($pageurl); // Die Methode `display_form` muss im Handler existieren.
 
-    $existingordernumbers = [];
-
-    foreach ($oldpricecategories as $oldpricecategory) {
-        $existingordernumbers[] = $oldpricecategory->ordernum;
-    }
-
-    foreach ($data as $key => $value) {
-        if (preg_match('/pricecategoryid[0-9]/', $key)) {
-            $counter = (int)substr($key, -1);
-
-            if (in_array($counter, $existingordernumbers)) {
-
-                // Create price category object and add to updates.
-                $pricecategory = new stdClass();
-                $pricecategory->id = $value;
-                $pricecategory->ordernum = $data->{'pricecategoryordernum' . $counter};
-                $pricecategory->identifier = $data->{'pricecategoryidentifier' . $counter};
-                $pricecategory->name = $data->{'pricecategoryname' . $counter};
-                $pricecategory->defaultvalue = $data->{'defaultvalue' . $counter};
-                $pricecategory->pricecatsortorder = $data->{'pricecatsortorder' . $counter};
-                $pricecategory->disabled = $data->{'disablepricecategory' . $counter};
-
-                $updates[] = $pricecategory;
-
-            } else {
-                // Create new price category and add to inserts.
-                if (!empty($data->{'pricecategoryidentifier' . $counter})) {
-                    $pricecategory = new stdClass();
-                    $pricecategory->ordernum = $data->{'pricecategoryordernum' . $counter};
-                    $pricecategory->identifier = $data->{'pricecategoryidentifier' . $counter};
-                    $pricecategory->name = $data->{'pricecategoryname' . $counter};
-                    $pricecategory->defaultvalue = $data->{'defaultvalue' . $counter};
-                    $pricecategory->pricecatsortorder = $data->{'pricecatsortorder' . $counter};
-                    $pricecategory->disabled = $data->{'disablepricecategory' . $counter};
-
-                    $inserts[] = $pricecategory;
-                }
-            }
-        }
-    }
-
-    return [
-            'inserts' => $inserts,
-            'updates' => $updates,
-    ];
-}
+ echo $OUTPUT->footer();
