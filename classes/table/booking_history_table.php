@@ -93,7 +93,7 @@ class booking_history_table extends wunderbyte_table {
      * @return string
      */
     public function col_status(stdClass $values) {
-        $status = MOD_BOOKING_ALL_POSSIBLE_STATI_ARRAY;
+        $status = booking::get_history_status_map();
         $resolved = $status[$values->status];
         return $resolved;
     }

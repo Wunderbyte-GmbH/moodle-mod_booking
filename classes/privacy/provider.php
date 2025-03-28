@@ -39,6 +39,7 @@ use core_privacy\local\request\writer;
 use dml_exception;
 use mod_booking\teachers_handler;
 use stdClass;
+use mod_booking\booking;
 
 /**
  * Class privacy provider implementation for mod_booking.
@@ -283,7 +284,7 @@ class provider implements
                 }
                 $historydata = $DB->get_records('booking_history', ['userid' => $user->id, 'answerid' => $bookinganswer->id]);
                 foreach ($historydata as $history) {
-                    $history['status'] = MOD_BOOKING_ALL_POSSIBLE_STATI_ARRAY[$history['status']];
+                    $history['status'] = booking::get_history_status_map()[$history['status']];
                 }
                 $bookingdata = [
                     'bookingname' => $bookinganswer->bookingname,

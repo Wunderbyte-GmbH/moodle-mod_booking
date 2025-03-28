@@ -1940,4 +1940,28 @@ class booking {
             MOD_BOOKING_PRESENCE_STATUS_EXCUSED => get_string('statusexcused', 'mod_booking'),
         ];
     }
+
+    /**
+     * Helper function to map all history statuses.
+     *
+     * @return array of all history statuses
+     */
+    public static function get_history_status_map() {
+        return [
+            MOD_BOOKING_STATUSPARAM_BOOKED => get_string('booked', 'mod_booking'),
+            MOD_BOOKING_STATUSPARAM_WAITINGLIST => get_string('waitinglist', 'mod_booking'),
+            MOD_BOOKING_STATUSPARAM_RESERVED => get_string('vuebookingstatsreserved', 'mod_booking'),
+            MOD_BOOKING_STATUSPARAM_NOTIFYMELIST => get_string('bocondnotifymelist', 'mod_booking'),
+            MOD_BOOKING_STATUSPARAM_NOTBOOKED => get_string('notbooked', 'mod_booking'),
+            MOD_BOOKING_STATUSPARAM_DELETED => get_string('deleted', 'mod_booking'),
+            MOD_BOOKING_STATUSPARAM_BOOKED_DELETED => get_string('bookeddeleted', 'mod_booking'),
+            MOD_BOOKING_STATUSPARAM_WAITINGLIST_DELETED => get_string('waitinglistdeleted', 'mod_booking'),
+            MOD_BOOKING_STATUSPARAM_WAITINGLIST_CONFIRMED => get_string('waitinglistconfirmed', 'mod_booking'),
+            MOD_BOOKING_STATUSPARAM_RESERVED_DELETED => get_string('reserveddeleted', 'mod_booking'),
+            MOD_BOOKING_STATUSPARAM_NOTIFYMELIST_DELETED => get_string('notifymelistdeleted', 'mod_booking'),
+            MOD_BOOKING_STATUSPARAM_PRESENCE_CHANGED => get_string('presencechanged', 'mod_booking'),
+            MOD_BOOKING_STATUSPARAM_BOOKINGOPTION_MOVED => get_string('optionmoved', 'mod_booking'),
+        ];
+    }
+
 }
