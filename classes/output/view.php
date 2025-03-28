@@ -140,8 +140,8 @@ class view implements renderable, templatable {
     /** @var bool $showheaderimageright */
     private $showheaderimageright = null;
 
-      /** @var bool $showheaderimagelefthalf */
-      private $showheaderimagelefthalf = null;
+    /** @var bool $showheaderimagelefthalf */
+    private $showheaderimagelefthalf = null;
 
     /** @var bool $noheaderimage */
     private $noheaderimage = null;
@@ -1469,6 +1469,7 @@ class view implements renderable, templatable {
             'showfieldofstudy' => $this->showfieldofstudy,
             'elective' => empty($this->renderelectivetable) ? false : $this->electivemodal,
             'showheaderimageleft' => $this->showheaderimageleft,
+            'showheaderimagelefthalf' => $this->showheaderimagelefthalf,
             'showheaderimageright' => $this->showheaderimageright,
             'noheaderimage' => $this->noheaderimage,
         ];

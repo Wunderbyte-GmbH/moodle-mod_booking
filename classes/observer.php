@@ -33,6 +33,7 @@ use mod_booking\booking_rules\rules_info;
 use mod_booking\calendar;
 use mod_booking\elective;
 use mod_booking\local\checkanswers\checkanswers;
+use mod_booking\output\view;
 use mod_booking\singleton_service;
 
 /**
@@ -530,15 +531,34 @@ class mod_booking_observer {
      */
     public static function template_switched(template_switched $event) {
         $data = $event->get_data();
-        $idstring = $data["other"]["tablename"];
-        if (!empty($idstring)) {
-            $table = wunderbyte_table::instantiate_from_tablecache_hash($idstring);
-            // TODO: Continue here...
+        $encodedtbale = $data["other"]["tablename"];
+        $viewparam = $data["other"]["viewparam"];
+        if (!empty($encodedtbale)) {
+            $table = wunderbyte_table::instantiate_from_tablecache_hash($encodedtbale);
+            $columns = array_keys($table->columns);
+            unset($columns['id']);
+            switch ($viewparam) {
+                case 1: // MOD_BOOKING_VIEW_PARAM_CARDS.
+                    view::generate_table_for_cards($table, $columns);
+                    break;
+                case 2: // MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT.
+                    $table->set_template_data('showheaderimageleft', true);
+                    view::generate_table_for_list($table, $columns);
+                    break;
+                case 3: // MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT.
+                    $table->set_template_data('showheaderimageright', true);
+                    view::generate_table_for_list($table, $columns);
+                    break;
+                case 4: // MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF.
+                    $table->set_template_data('showheaderimagelefthalf', true);
+                    view::generate_table_for_list($table, $columns);
+                    break;
+                case 0: // MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF.
+                default:
+                    $table->set_template_data('noheaderimage', true);
+                    view::generate_table_for_list($table, $columns);
+                    break;
+            }
         }
-        /*if (strpos($this->tabletemplate, 'list') !== false) {
-            $optionsfields = array_keys($this->columns);
-            view::apply_standard_params_for_bookingtable($this, $optionsfields, false, false, false, true, true, 0);
-
-        }*/
     }
 }
