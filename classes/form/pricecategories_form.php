@@ -25,15 +25,13 @@
 
 namespace mod_booking\form;
 
-use mod_booking\pricecategory_handler;
-
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once("$CFG->libdir/formslib.php");
 
 use moodleform;
-use stdClass;
+use mod_booking\pricecategories_handler;
 
 /**
  * Add price categories form.
@@ -52,8 +50,8 @@ class pricecategories_form extends moodleform {
         $mform = $this->_form;
 
         // Now, loop through already existing price categories.
-        $pchandler = new pricecategory_handler();
-        $pricecategories = $pchandler->get_pricecategories();
+        $pchanlder = new pricecategories_handler();
+        $pricecategories = $pchanlder->get_pricecategories();
 
         $j = 1;
         foreach ($pricecategories as $pricecategory) {
