@@ -159,14 +159,15 @@ class singleton_service {
     /**
      * Service to store the array of answers in the singleton.
      * @param int $userid
+     * @param int $bookingid
      * @return array
      */
-    public static function get_answers_for_user($userid): array {
+    public static function get_answers_for_user(int $userid, int $bookingid): array {
 
         $instance = self::get_instance();
 
-        if (isset($instance->bookinganswersforuser[$userid])) {
-            return $instance->bookinganswersforuser[$userid];
+        if (isset($instance->bookinganswersforuser[$bookingid][$userid])) {
+            return $instance->bookinganswersforuser[$bookingid][$userid];
         } else {
             return [];
         }
@@ -175,14 +176,15 @@ class singleton_service {
     /**
      * Service to store the array of answers in the singleton.
      * @param int $userid
+     * @param int $bookingid
      * @return array
      */
-    public static function destroy_answers_for_user($userid): array {
+    public static function destroy_answers_for_user(int $userid, int $bookingid): array {
 
         $instance = self::get_instance();
 
-        if (isset($instance->bookinganswersforuser[$userid])) {
-            unset($instance->bookinganswersforuser[$userid]);
+        if (isset($instance->bookinganswersforuser[$bookingid][$userid])) {
+            unset($instance->bookinganswersforuser[$bookingid][$userid]);
         }
         return [];
     }
@@ -190,14 +192,15 @@ class singleton_service {
     /**
      * Service to store the array of answers in the singleton.
      * @param int $userid
+     * @param int $bookingid
      * @param array $data
      * @return bool
      */
-    public static function set_answers_for_user($userid, $data): bool {
+    public static function set_answers_for_user(int $userid, int $bookingid, array $data): bool {
 
         $instance = self::get_instance();
 
-        $instance->bookinganswersforuser[$userid] = $data;
+        $instance->bookinganswersforuser[$bookingid][$userid] = $data;
 
         return true;
     }
@@ -276,15 +279,15 @@ class singleton_service {
 
     /**
      * When invalidating the cache, we need to also destroy the singleton of the user who booked.
-     *
+     * @param int $bookingid
      * @param int $userid
      * @return bool
      */
-    public static function destroy_booking_answers_for_user($userid) {
+    public static function destroy_booking_answers_for_user_in_booking_instance(int $bookingid, int $userid) {
         $instance = self::get_instance();
 
-        if (isset($instance->bookinganswersforuser[$userid])) {
-            unset($instance->bookinganswersforuser[$userid]);
+        if (isset($instance->bookinganswersforuser[$bookingid][$userid])) {
+            unset($instance->bookinganswersforuser[$bookingid][$userid]);
 
             return true;
         } else {

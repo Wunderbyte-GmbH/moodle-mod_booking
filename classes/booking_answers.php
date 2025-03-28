@@ -1015,7 +1015,7 @@ class booking_answers {
         global $DB, $CFG;
 
         $answers = [];
-        $data = singleton_service::get_answers_for_user($userid);
+        $data = singleton_service::get_answers_for_user($userid, $bookingid);
         if (isset($data['answers'])) {
             $answers = $data['answers'];
         }
@@ -1064,7 +1064,7 @@ class booking_answers {
                 }
 
                 $answers = $data['answers'];
-                singleton_service::set_answers_for_user($userid, $data);
+                singleton_service::set_answers_for_user($userid, $bookingid, $data);
                 if (!get_config('booking', 'cacheturnoffforbookinganswers')) {
                     $cache->set($cachekey, $data);
                 }
