@@ -26,6 +26,7 @@
 namespace mod_booking\table;
 use mod_booking\enrollink;
 use mod_booking\event\bookinganswer_confirmed;
+use mod_booking\booking;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -187,8 +188,9 @@ class manageusers_table extends wunderbyte_table {
      * @return string
      */
     public function col_status(stdClass $values) {
-        if (isset(MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY[$values->status])) {
-            return MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY[$values->status];
+        $statuses = booking::get_presence_status_map();
+        if (isset($statuses[$values->status])) {
+            return $statuses[$values->status];
         } else {
             return '';
         }

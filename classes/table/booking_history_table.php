@@ -26,6 +26,7 @@
 namespace mod_booking\table;
 
 use mod_booking\singleton_service;
+use mod_booking\booking;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -65,10 +66,10 @@ class booking_history_table extends wunderbyte_table {
         }
         if (str_contains($values->json, 'presence')) {
             $info = json_decode($values->json, true);
-            $resolve = MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY;
+            $statuses = booking::get_presence_status_map();
             $a = new stdClass();
-            $a->presenceold = $resolve[$info['presence']['presenceold']];
-            $a->presencenew = $resolve[$info['presence']['presencenew']];
+            $a->presenceold = $statuses[$info['presence']['presenceold']];
+            $a->presencenew = $statuses[$info['presence']['presencenew']];
 
             return get_string('presencechangedhistory', 'mod_booking', $a);
         }
@@ -77,9 +78,12 @@ class booking_history_table extends wunderbyte_table {
             $a = new stdClass();
             $a->oldbooking = $info['booking']['oldbooking'];
             $a->newbooking = $values->bookingid;
-            return get_string('movedbookinghistory', 'mod_booking', $a);
-        };
-        return "";
+            $value = get_string('movedbookinghistory', 'mod_booking', $a);
+        } else {
+            $classname = substr(strrchr(get_called_class(), '\\'), 1);
+            $value = get_string('sthwentwrongwithplaceholder', 'mod_booking', $classname);
+        }
+        return $value;
     }
 
 

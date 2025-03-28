@@ -25,6 +25,7 @@
 namespace mod_booking\event;
 
 use mod_booking\singleton_service;
+use mod_booking\booking;
 use stdClass;
 
 /**
@@ -73,12 +74,12 @@ class bookinganswer_presencechanged extends \core\event\base {
             'presencenew' => $this->data['other']['presencenew'],
         ];
         $ruser = singleton_service::get_instance_of_user((int) $data->relateduserid);
-        $status = MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY;
+        $statuses = booking::get_presence_status_map();
 
         $a = new stdClass();
         $a->relateduser = $ruser->firstname . " " . $ruser->lastname . " (ID: " . $data->relateduserid . ")";
-        $a->presenceold = $status[$data->presenceold];
-        $a->presencenew = $status[$data->presencenew];
+        $a->presenceold = $statuses[$data->presenceold];
+        $a->presencenew = $statuses[$data->presencenew];
 
         return get_string('presencechangedinfo', 'mod_booking', $a);
     }

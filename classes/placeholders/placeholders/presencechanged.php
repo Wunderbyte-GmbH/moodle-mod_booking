@@ -82,10 +82,10 @@ class presencechanged {
             if (!isset($other['presenceold'], $other['presencenew'])) {
                 return get_string('sthwentwrongwithplaceholder', 'mod_booking', 'Missing presence data');
             }
-            $resolve = MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY;
+            $statuses = booking::get_presence_status_map();
             $a = new stdClass();
-            $a->presenceold = $resolve[$other['presenceold']];
-            $a->presencenew = $resolve[$other['presencenew']];
+            $a->presenceold = $statuses[$other['presenceold']];
+            $a->presencenew = $statuses[$other['presencenew']];
 
             return get_string('presencechangedhistory', 'mod_booking', $a);
         }

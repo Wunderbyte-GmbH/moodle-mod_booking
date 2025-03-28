@@ -1906,20 +1906,38 @@ class booking {
                 || (count($storedpresences) == 1 && empty($storedpresences[0]))
             ) {
                 // Fallback: If no presences were set at all, use all possible presences.
-                foreach (MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY as $key => $value) {
+                foreach (self::get_presence_status_map() as $key => $value) {
                     $presences[$key] = $value;
                 }
             } else {
                 foreach ($storedpresences as $id) {
-                    $presences[$id] = MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY[$id];
+                    $presences[$id] = self::get_presence_status_map()[$id];
                 }
             }
         } else {
             // Without PRO version, use all possible presences.
-            foreach (MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY as $key => $value) {
+            foreach (self::get_presence_status_map() as $key => $value) {
                 $presences[$key] = $value;
             }
         }
         return $presences;
+    }
+
+    /**
+     * Helper function to map all presence statuses.
+     *
+     * @return array of all presence statuses
+     */
+    public static function get_presence_status_map() {
+        return [
+            MOD_BOOKING_PRESENCE_STATUS_NOTSET => get_string('statusnotset', 'mod_booking'),
+            MOD_BOOKING_PRESENCE_STATUS_UNKNOWN => get_string('statusunknown', 'mod_booking'),
+            MOD_BOOKING_PRESENCE_STATUS_ATTENDING => get_string('statusattending', 'mod_booking'),
+            MOD_BOOKING_PRESENCE_STATUS_COMPLETE => get_string('statuscomplete', 'mod_booking'),
+            MOD_BOOKING_PRESENCE_STATUS_INCOMPLETE => get_string('statusincomplete', 'mod_booking'),
+            MOD_BOOKING_PRESENCE_STATUS_NOSHOW => get_string('statusnoshow', 'mod_booking'),
+            MOD_BOOKING_PRESENCE_STATUS_FAILED => get_string('statusfailed', 'mod_booking'),
+            MOD_BOOKING_PRESENCE_STATUS_EXCUSED => get_string('statusexcused', 'mod_booking'),
+        ];
     }
 }
