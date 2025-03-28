@@ -624,9 +624,6 @@ class singleton_service {
      * @return array
      */
     public static function destroy_all_campaigns(): array {
-
-        global $DB;
-
         $instance = self::get_instance();
         unset($instance->campaigns);
 
