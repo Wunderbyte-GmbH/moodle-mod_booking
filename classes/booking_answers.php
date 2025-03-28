@@ -994,7 +994,7 @@ class booking_answers {
      * The request is cached and uses singleton pattern.
      *
      * @param int $userid
-     * @param int $cmid
+     * @param int $bookingid
      * @param array $status
      * @param bool $excludeselflearningcourses
      *
@@ -1003,7 +1003,7 @@ class booking_answers {
      */
     private function get_all_answers_for_user_cached(
         int $userid,
-        int $cmid = 0,
+        int $bookingid = 0,
         array $status = [
             MOD_BOOKING_STATUSPARAM_BOOKED,
             MOD_BOOKING_STATUSPARAM_WAITINGLIST,
@@ -1020,12 +1020,15 @@ class booking_answers {
             $answers = $data['answers'];
         }
 
+        // This is important so we only get instance-specific cache!
+        $cachekey = "myanswers$bookingid";
+
         try {
             // If we don't have the answers in the singleton, we look in the cache.
             if (empty($answers)) {
                 $cache = \cache::make('mod_booking', 'bookinganswers');
                 if (!get_config('booking', 'cacheturnoffforbookinganswers')) {
-                    $data = $cache->get('myanswers');
+                    $data = $cache->get($cachekey);
                 } else {
                     $data = false;
                 }
@@ -1033,7 +1036,7 @@ class booking_answers {
                 $answers = [];
                 // We don't have any answers, we get the ones we need.
                 if (!$data) {
-                    [$sql, $params] = $this->return_sql_to_get_answers(0, $userid, $status);
+                    [$sql, $params] = $this->return_sql_to_get_answers(0, $bookingid, $userid, $status);
 
                     $answers = $DB->get_records_sql($sql, $params);
 
@@ -1052,7 +1055,7 @@ class booking_answers {
                     }
 
                     if (!empty($statustofetch)) {
-                        [$sql, $params] = $this->return_sql_to_get_answers(0, $userid, $statustofetch);
+                        [$sql, $params] = $this->return_sql_to_get_answers(0, $bookingid, $userid, $statustofetch);
                         $answers = $DB->get_records_sql($sql, $params);
                     }
 
@@ -1063,7 +1066,7 @@ class booking_answers {
                 $answers = $data['answers'];
                 singleton_service::set_answers_for_user($userid, $data);
                 if (!get_config('booking', 'cacheturnoffforbookinganswers')) {
-                    $cache->set('myanswers', $data);
+                    $cache->set($cachekey, $data);
                 }
             }
         } catch (Throwable $e) {
@@ -1110,14 +1113,15 @@ class booking_answers {
      * This returns the sql to fetch all the answers. Might be restricted fo booking optinos or for users or none.
      *
      * @param int $optionid
+     * @param int $bookingid
      * @param int $userid
      * @param array $status
      *
      * @return array
-     *
      */
     private function return_sql_to_get_answers(
         int $optionid = 0,
+        int $bookingid = 0,
         int $userid = 0,
         array $status = [
             MOD_BOOKING_STATUSPARAM_BOOKED,
@@ -1139,6 +1143,11 @@ class booking_answers {
             $wherearray[] = ' ba.optionid = :optionid ';
         }
 
+        if (!empty($bookingid)) {
+            $params['bookingid'] = $bookingid;
+            $wherearray[] = ' ba.bookingid = :bookingid ';
+        }
+
         if (!empty($userid)) {
             $params['userid'] = $userid;
             $wherearray[] = ' ba.userid = :userid ';
@@ -1156,6 +1165,7 @@ class booking_answers {
                 ba.completed,
                 ba.status,
                 ba.timemodified,
+                ba.bookingid,
                 ba.optionid,
                 ba.timecreated,
                 ba.json,

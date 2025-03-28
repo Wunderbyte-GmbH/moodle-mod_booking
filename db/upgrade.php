@@ -4911,7 +4911,6 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2025022800, 'booking');
     }
     if ($oldversion < 2025031100) {
-
         // Define table booking_history to be created.
         $table = new xmldb_table('booking_history');
 
@@ -4938,7 +4937,6 @@ function xmldb_booking_upgrade($oldversion) {
     }
 
     if ($oldversion < 2025031801) {
-
         // Define field id to be added to booking_history.
         $table = new xmldb_table('booking_history');
         $field = new xmldb_field('json', XMLDB_TYPE_CHAR, '1000', null, null, null, null, 'timecreated');
