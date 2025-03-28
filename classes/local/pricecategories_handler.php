@@ -23,7 +23,7 @@ namespace mod_booking;
  * @author     David Ala
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class pricecategory_handler {
+class pricecategories_handler {
     /**
      * Process form data and update price categories.
      *
@@ -156,7 +156,7 @@ class pricecategory_handler {
     /**
      * Displays the price categories form.
      *
-     * @param moodle_url $pageurl The page URL.
+     * @param \moodle_url $pageurl The page URL.
      */
     public function display_form($pageurl) {
         global $OUTPUT;
