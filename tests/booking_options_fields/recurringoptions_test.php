@@ -62,14 +62,17 @@ final class recurringoptions_test extends advanced_testcase {
     }
 
     /**
-     * Test booking, cancelation, option has started etc.
+     * Test creation and update of recurring options.
      *
      * @covers \condition\bookitbutton::is_available
      * @covers \condition\alreadybooked::is_available
      * @covers \condition\fullybooked::is_available
      * @covers \condition\confirmation::render_page
-     * @covers \condition\notifymelist::is_available
-     * @covers \condition\isloggedin::is_available
+     * @covers \option\fields\recurringoptions::save_data
+     * @covers \option\fields\recurringoptions::definition_after_data
+     * @covers \option\fields\recurringoptions::update_children
+     * @covers \option\fields\recurringoptions::find_constant_delta
+     * @covers \booking_option::update
      *
      * @param array $data
      * @param array $expected
@@ -262,8 +265,131 @@ final class recurringoptions_test extends advanced_testcase {
             }
         }
     }
+
     /**
-     * Data provider for condition_bookingpolicy_test
+     * Test allchildrenaction to see if unlinking and deletion of children is working as expected.
+     *
+     * @covers \condition\bookitbutton::is_available
+     * @covers \condition\alreadybooked::is_available
+     * @covers \condition\fullybooked::is_available
+     * @covers \condition\confirmation::render_page
+     * @covers \option\fields\recurringoptions::save_data
+     * @covers \option\fields\recurringoptions::definition_after_data
+     * @covers \option\fields\recurringoptions::update_children
+     * @covers \option\fields\recurringoptions::find_constant_delta
+     * @covers \option\fields\recurringoptions::allchildrenaction
+     * @covers \booking_option::update
+     *
+     * @param mixed $data
+     * @param mixed $expected
+     *
+     * @dataProvider booking_allchildrenaction_settings_provider
+     *
+     * @return void
+     *
+     */
+    public function test_allchildrenaction($data, $expected): void {
+        global $DB, $CFG;
+        $bdata = self::provide_bdata();
+
+        // Setup test data.
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        // Create users.
+        $admin = $this->getDataGenerator()->create_user();
+        $student1 = $this->getDataGenerator()->create_user();
+        $student2 = $this->getDataGenerator()->create_user();
+        $teacher = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($student1->id, $course->id);
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id);
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course->id);
+
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $pricecategorydata1 = (object) [
+            'ordernum' => 1,
+            'name' => 'default',
+            'identifier' => 'default',
+            'defaultvalue' => 30,
+            'pricecatsortorder' => 1,
+        ];
+        $plugingenerator->create_pricecategory($pricecategorydata1);
+        $encodedkey = bin2hex($pricecategorydata1->identifier);
+
+        // Create an initial booking option.
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option1';
+        $record->courseid = $course->id;
+        $record->importing = 1;
+        $record->coursestarttime = '2025-01-01 10:00:00';
+        $record->courseendtime = '2025-01-01 12:00:00';
+        $record->useprice = 1;
+        $record->default = 50;
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option1 = $plugingenerator->create_option($record);
+
+        // One bookingoption was created.
+        $bookingoptions = $DB->get_records('booking_options');
+        $this->assertEquals(1, count($bookingoptions));
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        // To avoid retrieving the singleton with the wrong settings, we destroy it.
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
+
+        // Update option to trigger recurrence.
+        $record->id = $option1->id;
+        $record->cmid = $settings->cmid;
+        $record->importing = 1;
+
+        // Standard data is sufficent for this test.
+        $record->repeatthisbooking = 1;
+        $record->howmanytimestorepeat = 2;
+        $record->howoftentorepeat = 7 * 24 * 60 * 60; // 1 week in seconds;
+        $record->requirepreviousoptionstobebooked = "0";
+
+        booking_option::update($record);
+
+        // Two children were created, which makes a total of three booking options.
+        $bookingoptions = $DB->get_records('booking_options');
+        $this->assertEquals(3, count($bookingoptions));
+
+        // One bookingoption and 2 children.
+        $children = array_filter($bookingoptions, fn($bo) => $bo->parentid == $option1->id);
+        $this->assertEquals(2, count($children));
+
+        // Now proceed with the actual testing of the allchildrenfunction.
+        // Update option to trigger recurrence.
+        // We can reuse the record from before.
+        $record = new stdClass();
+        $record->id = $option1->id;
+        $record->cmid = $settings->cmid;
+        $record->importing = 1;
+        $record->repeatthisbooking = "0";
+        $actiontype = $data['actiontype'];
+        $record->$actiontype = "1";
+
+        booking_option::update($record);
+        $bookingoptions = $DB->get_records('booking_options');
+        $children = array_filter($bookingoptions, fn($bo) => $bo->parentid == $option1->id);
+        $this->assertEquals($expected['numberofoptionsafteraction'], count($bookingoptions));
+        if (!empty($children)) {
+            $this->assertEquals($expected['numberofchildrenafteraction'], count($children));
+        }
+    }
+
+    /**
+     * Data provider for test_create_recurrignoptions
      *
      * @return array
      * @throws \UnexpectedValueException
@@ -297,6 +423,37 @@ final class recurringoptions_test extends advanced_testcase {
                     'delta1' => '1 day',
                     'delta2' => '2 days',
                     'previouslybooked' => false,
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Data provider for test_create_recurrignoptions
+     *
+     * @return array
+     * @throws \UnexpectedValueException
+     */
+    public static function booking_allchildrenaction_settings_provider(): array {
+
+        return [
+            'deleteallchildren' => [
+                [
+                    'actiontype' => 'deleteallchildren',
+                ],
+                [
+                    'numberofoptionsafteraction' => 1,
+                    'numberofchildrenafteraction' => 0,
+                ],
+            ],
+            'unlinkallchildred' => [
+                [
+                    'actiontype' => 'unlinkallchildren',
+                ],
+                [
+                    'numberofoptionsafteraction' => 3,
+                    'numberofchildrenafteraction' => 0,
+                    'numberoflinkedchildren' => 0,
                 ],
             ],
         ];
