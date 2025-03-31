@@ -38,7 +38,7 @@ $urlparams = [
 
 $params = []; // SQL params.
 
-list($course, $cm) = get_course_and_cm_from_cmid($cmid, 'booking');
+[$course, $cm] = get_course_and_cm_from_cmid($cmid, 'booking');
 require_course_login($course, false, $cm);
 $context = context_module::instance($cm->id);
 
@@ -58,13 +58,15 @@ if ((has_capability('mod/booking:updatebooking', $context) || has_capability('mo
     die();
 }
 
-if (!$cmidobj = $DB->get_record_sql(
-   "SELECT cm.id FROM {course_modules} cm
+if (
+    !$cmidobj = $DB->get_record_sql(
+        "SELECT cm.id FROM {course_modules} cm
     JOIN {modules} m
     ON m.id = cm.module
     WHERE m.name = 'booking' AND cm.id = :cmid",
-    ['cmid' => $cmid]
-)) {
+        ['cmid' => $cmid]
+    )
+) {
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string('error'), 4);
     echo get_string('error:invalidcmid', 'mod_booking');
@@ -107,7 +109,6 @@ $mform->set_data(['cmid' => $cmid]);
 
 // Form processing and displaying is done here.
 if ($fromform = $mform->get_data()) {
-
     if (empty($fromform->teacherid)) {
         $teacherid = 0;
     } else {
@@ -118,7 +119,6 @@ if ($fromform = $mform->get_data()) {
 }
 
 if (!$teachersinstancereporttable->is_downloading()) {
-
     // Headers.
     $teachersinstancereporttable->define_headers([
         get_string('teacher', 'mod_booking'),
@@ -147,8 +147,9 @@ if (!$teachersinstancereporttable->is_downloading()) {
     echo $OUTPUT->heading(get_string('teachingreportforinstance', 'mod_booking') .
         $bookingsettings->name);
 
+    $settingsurl = new moodle_url('/admin/settings.php', ['section' => 'modsettingbooking']);
     echo '<div class="alert alert-secondary alert-dismissible fade show" role="alert">' .
-        get_string('teachersinstancereport:subtitle', 'mod_booking') .
+        get_string('teachersinstancereport:subtitle', 'mod_booking', $settingsurl->out(false)) .
         '<button type="button" class="close" data-dismiss="alert" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -185,9 +186,7 @@ if (!$teachersinstancereporttable->is_downloading()) {
     $teachersinstancereporttable->out(TABLE_SHOW_ALL_PAGE_SIZE, false);
 
     echo $OUTPUT->footer();
-
 } else {
-
     // Headers.
     $teachersinstancereporttable->define_headers([
         get_string('lastname'),

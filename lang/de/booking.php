@@ -2296,7 +2296,7 @@ Wenn Sie hier Trainer:innen löschen, werden diese im Training-Journal <b>von JE
 $string['teachersinstanceconfig'] = 'Bearbeite Buchungsoptionsformular';
 $string['teachersinstancereport'] = 'Trainer:innen-Gesamtbericht';
 $string['teachersinstancereport:subtitle'] = '<strong>Hinweis:</strong> Die Anzahl der UE berechnet sich anhand des gesetzten Terminserien-Textfeldes (z.B. "Mo, 16:00-17:30")
-und der in den <a href="{$CFG->wwwroot}/admin/settings.php?section=modsettingbooking" target="_blank">Einstellungen festgelegten Dauer</a> einer UE. Für Blockveranstaltungen oder
+und der in den <a href="{$a}" target="_blank">Einstellungen festgelegten Dauer</a> einer UE. Für Blockveranstaltungen oder
 Buchungsoptionen bei denen das Feld nicht gesetzt ist, können die UE nicht berechnet werden!';
 $string['teacherslinkonteacher'] = 'Links zu Trainer:innen-Seiten hinzufügen';
 $string['teacherslinkonteacher_desc'] = 'Sind bei einer Buchungsoption Trainer:innen definiert, so werden die Namen automatisch mit einer Überblicksseite für diese Trainer:innen verknüpft.';
@@ -2312,7 +2312,7 @@ $string['teachingreportforinstance'] = 'Trainer:innen-Gesamtbericht für ';
 $string['teachingreportfortrainer'] = 'Leistungs-Report für Trainer:in';
 $string['teachingreportfortrainer:subtitle'] = '<strong>Hinweis:</strong> Sie können die Dauer einer Unterrichtseinheit
 in den Einstellungen anpassen. (Z.B. 45 statt 60 Minuten).<br/>
-<a href="{$CFG->wwwroot}/admin/settings.php?section=modsettingbooking" target="_blank">
+<a href="{$a}" target="_blank">
 &gt;&gt; Zu den Einstellungen...
 </a>';
 $string['teamsmeeting'] = 'Teams-Meeting';

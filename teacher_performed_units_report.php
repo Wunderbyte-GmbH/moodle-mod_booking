@@ -88,7 +88,6 @@ $mform->set_data(['teacherid' => $teacherid]);
 
 // Form processing and displaying is done here.
 if ($fromform = $mform->get_data()) {
-
     if (!empty($fromform->filterstartdate) && !empty($fromform->filterenddate)) {
         $filterstartdate = $fromform->filterstartdate;
         // Add 23:59:59 (in seconds) to the end time.
@@ -103,14 +102,14 @@ if ($fromform = $mform->get_data()) {
 }
 
 if (!$teacherperformedunitstable->is_downloading()) {
-
     // Table will be shown normally.
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string('teachingreportfortrainer', 'mod_booking') . ': '
         . $teacherobj->firstname . " " . $teacherobj->lastname);
 
+    $settingsurl = new moodle_url('/admin/settings.php', ['section' => 'modsettingbooking']);
     echo '<div class="alert alert-secondary alert-dismissible fade show" role="alert">' .
-        get_string('teachingreportfortrainer:subtitle', 'mod_booking') .
+        get_string('teachingreportfortrainer:subtitle', 'mod_booking', $settingsurl->out(false)) .
         '<button type="button" class="close" data-dismiss="alert" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -181,7 +180,6 @@ if (!$teacherperformedunitstable->is_downloading()) {
     $teacherperformedunitstable->out(TABLE_SHOW_ALL_PAGE_SIZE, false);
 
     echo $OUTPUT->footer();
-
 } else {
     // The table is being downloaded.
 
