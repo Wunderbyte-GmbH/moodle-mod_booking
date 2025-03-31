@@ -1989,7 +1989,7 @@ final class condition_all_test extends advanced_testcase {
 
         singleton_service::destroy_answers_for_user($student1->id); // Destroy all answers for this user.
 
-        // Now try to book an option that doesn't contain the nooverlapping flab BUT overlaps with previously booked option 3.
+        // Now try to book an option that doesn't contain the nooverlapping flag BUT overlaps with previously booked option 3.
         [$id, $isavailable, $description] = $boinfo4->is_available($settings4->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_JSON_NOOVERLAPPINGPROXY, $id);
 
