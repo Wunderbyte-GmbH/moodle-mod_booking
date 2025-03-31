@@ -25,15 +25,11 @@
 namespace mod_booking\option\fields;
 
 use context_module;
-use html_writer;
-use mod_booking\bo_actions\actions_info;
 use mod_booking\booking_option;
-use mod_booking\booking_option_settings;
 use mod_booking\dates;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use mod_booking\singleton_service;
-use mod_booking\subbookings\subbookings_info;
 use mod_booking\utils\wb_payment;
 use moodle_exception;
 use moodle_url;
@@ -346,25 +342,6 @@ class recurringoptions extends field_base {
             $validationelement = $mform->getElement('validated_once');
             $validationelement->setValue(1);
         }
-
-        if (!empty($formdata['deleteallchildren'])) {
-            self::allchildrenaction(
-                $formdata['optionid'],
-                MOD_BOOKING_ALL_CHILDRED_DELETE,
-                $formdata['cmid']
-            );
-        } else if (!empty($formdata['unlinkallchildren'])) {
-            self::allchildrenaction(
-                $formdata['optionid'],
-                MOD_BOOKING_ALL_CHILDRED_UNLINK,
-                $formdata['cmid']
-            );
-        }
-        if (!empty($formdata['unsetchild'])) {
-            self::unset_child(
-                $formdata['optionid']
-            );
-        }
     }
 
     /**
@@ -418,7 +395,53 @@ class recurringoptions extends field_base {
                 $restrictoptionid = booking_option::update((object) $templateoption, $context);
             }
         }
-
+        if (!empty($data->deleteallchildren)) {
+            $childrenids = self::allchildrenaction(
+                    $data->id,
+                    MOD_BOOKING_ALL_CHILDRED_DELETE,
+                    $data->cmid
+                );
+            if (!empty($childrenids)) {
+                $changes = [
+                    'changes' => [
+                        'fieldname' => "recurringoptions",
+                        'oldvalue' => "linkedchildrendeleted: " . implode(", ", $childrenids),
+                        'newvalue' => "",
+                        'formkey' => "recurringoptions",
+                    ],
+                ];
+            };
+        } else if (!empty($data->unlinkallchildren)) {
+            $childrenids = self::allchildrenaction(
+                    $data->id,
+                    MOD_BOOKING_ALL_CHILDRED_UNLINK,
+                    $data->cmid
+                );
+            if (!empty($childrenids)) {
+                $changes = [
+                    'changes' => [
+                        'fieldname' => "recurringoptions",
+                        'oldvalue' => "linkedchildren: " . implode(", ", $childrenids),
+                        'newvalue' => "",
+                        'formkey' => "recurringoptions",
+                    ],
+                ];
+            };
+        }
+        if (!empty($formdata['unsetchild'])) {
+            self::unset_child(
+                $data->optionid
+            );
+            $changes = [
+                'changes' => [
+                    'fieldname' => "recurringoptions",
+                    'oldvalue' => "childremoved: " . $data->optionid,
+                    'newvalue' => "",
+                    'formkey' => "recurringoptions",
+                ],
+            ];
+        }
+        // TODO eventually improve info about changes.
         return $changes;
     }
 
@@ -594,10 +617,10 @@ class recurringoptions extends field_base {
      * @param int $action
      * @param int $cmid // Optional.
      *
-     * @return bool
+     * @return array
      *
      */
-    private static function allchildrenaction(int $optionid, int $action, int $cmid = 0): bool {
+    private static function allchildrenaction(int $optionid, int $action, int $cmid = 0): array {
         global $DB;
 
         $children = $DB->get_records_select(
@@ -624,9 +647,8 @@ class recurringoptions extends field_base {
                 }
             };
         } catch (moodle_exception $e) {
-            return false;
         }
-        return true;
+        return array_keys($children);
     }
 
     /**
