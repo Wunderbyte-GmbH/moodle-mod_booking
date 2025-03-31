@@ -531,12 +531,24 @@ class mod_booking_observer {
      */
     public static function template_switched(template_switched $event) {
         $data = $event->get_data();
-        $encodedtbale = $data["other"]["tablename"];
+        $encodedtable = $data["other"]["tablecachehash"];
+        $template = $data["other"]["template"];
         $viewparam = $data["other"]["viewparam"];
-        if (!empty($encodedtbale)) {
-            $table = wunderbyte_table::instantiate_from_tablecache_hash($encodedtbale);
+        // Only apply this for Booking templates!
+        if (
+            !empty($encodedtable)
+            && in_array($template, [
+                'mod_booking/table_list',
+                'mod_booking/table_cards',
+            ])
+        ) {
+            $table = wunderbyte_table::instantiate_from_tablecache_hash($encodedtable);
             $columns = array_keys($table->columns);
             unset($columns['id']);
+
+            // Important: Unset old template data, before switching!
+            $table->unset_template_data();
+
             switch ($viewparam) {
                 case 1: // MOD_BOOKING_VIEW_PARAM_CARDS.
                     view::generate_table_for_cards($table, $columns);
@@ -559,6 +571,7 @@ class mod_booking_observer {
                     view::generate_table_for_list($table, $columns);
                     break;
             }
+            $table->return_encoded_table(true);
         }
     }
 }
