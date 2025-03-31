@@ -2363,7 +2363,7 @@ When deleting teachers here, they will be <b>removed from each date in the futur
 $string['teachersinstanceconfig'] = 'Edit booking option form';
 $string['teachersinstancereport'] = 'Teachers report';
 $string['teachersinstancereport:subtitle'] = '<strong>Hint:</strong> The number of units of a course (booking option) is calculated by the duration of an educational unit
- which you can <a href="{$CFG->wwwroot}/admin/settings.php?section=modsettingbooking" target="_blank">set in the booking settings</a> and the specified date series string (e.g. "Tue, 16:00-17:30").
+ which you can <a href="{$a}" target="_blank">set in the booking settings</a> and the specified date series string (e.g. "Tue, 16:00-17:30").
  For blocked events or booking options missing this string, the number of units cannot be calculated!';
 $string['teacherslinkonteacher'] = 'Add links to teacher pages';
 $string['teacherslinkonteacher_desc'] = 'When there are teachers added to booking options, this setting will add a link to an overview page for each teacher.';
@@ -2378,7 +2378,7 @@ $string['teachingreportforinstance'] = 'Teaching overview report for ';
 $string['teachingreportfortrainer'] = 'Report of performed teaching units for trainer';
 $string['teachingreportfortrainer:subtitle'] = '<strong>Hint:</strong> You can change the duration of
 an educational unit in the plugin settings (e.g. 45 instead of 60 minutes).<br/>
-<a href="{$CFG->wwwroot}/admin/settings.php?section=modsettingbooking" target="_blank">
+<a href="{$a}" target="_blank">
 &gt;&gt; Go to plugin settings...
 </a>';
 $string['teamsmeeting'] = 'Teams meeting';
