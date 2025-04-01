@@ -3986,7 +3986,25 @@ class booking_option {
                 isset($data->apply_to_children)
                 && !empty($data->apply_to_children)
             ) {
-                recurringoptions::update_children($newoption->id, $changes, $data, $originaloption);
+                recurringoptions::update_options(
+                    $newoption->id,
+                    $changes,
+                    $data,
+                    $originaloption,
+                    MOD_BOOKING_RECURRING_UPDATE_CHILDREN
+                );
+            }
+            if (
+                isset($data->apply_to_siblings)
+                && !empty($data->apply_to_siblings)
+            ) {
+                recurringoptions::update_options(
+                    $newoption->id,
+                    $changes,
+                    $data,
+                    $originaloption,
+                    MOD_BOOKING_RECURRING_UPDATE_SIBLINGS
+                );
             }
 
             // If we have no cmid, it's most possibly a template.

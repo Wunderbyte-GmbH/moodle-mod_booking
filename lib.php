@@ -382,6 +382,8 @@ define('MOD_BOOKING_ENROL_GROUPTYPE_TARGETCOURSE', 'targetcourseboid_');
 // Recurring options.
 define('MOD_BOOKING_ALL_CHILDRED_UNLINK', 1);
 define('MOD_BOOKING_ALL_CHILDRED_DELETE', 2);
+define('MOD_BOOKING_RECURRING_UPDATE_CHILDREN', 1);
+define('MOD_BOOKING_RECURRING_UPDATE_SIBLINGS', 2);
 
 /**
  * Booking get coursemodule info.
