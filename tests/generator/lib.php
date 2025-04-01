@@ -223,7 +223,12 @@ class mod_booking_generator extends testing_module_generator {
 
         $record = (object) $record;
 
-        $record->id = $DB->insert_record('booking_pricecategories', $record);
+        if (!$DB->record_exists('booking_pricecategories', ['identifier' => $record->identifier])) {
+            $record->id = $DB->insert_record('booking_pricecategories', $record);
+        } else {
+            $record->id = $DB->get_record('booking_pricecategories', ['identifier' => $record->identifier]);
+            $DB->update_record('booking_pricecategories', $record);
+        }
 
         return $record;
     }
