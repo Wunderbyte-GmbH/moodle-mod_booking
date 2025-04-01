@@ -229,10 +229,9 @@ class recurringoptions extends field_base {
             if (
                 !empty($isparentofcurrent)
                 || (!get_config('mod_booking', 'recurringmultiparenting') && !empty($ischildofcurrent))
-            ) {
-                // For children we don't support creating of further recurrings.
+            ) { // For children we don't support creating of further recurrings.
                 $mform->addElement('html', get_string('recurringnotpossibleinfo', 'mod_booking'));
-            } else {
+            } else { // Add possibility to create further recurrings.
                 $mform->addElement(
                     'checkbox',
                     'repeatthisbooking',
@@ -279,15 +278,14 @@ class recurringoptions extends field_base {
                 $mform->addElement('hidden', 'validated_once', 0);
                 $mform->setDefault('validated_once', 0);
                 $mform->setType('validated_once', PARAM_INT);
-
+            }
+            if (!empty($ischildofcurrent)) { // Mothers contain additional options to unlink or delete children.
                 $mform->addElement('advcheckbox', 'apply_to_children', get_string('confirmrecurringoption', 'mod_booking'));
                 $mform->setDefault('apply_to_children', 0);
                 $mform->hideIf('apply_to_children', 'validated_once', 'eq', 0);
                 $mform->addElement('static', 'recurringsavedatesinfo', '', get_string('recurringsavedatesinfo', 'mod_booking'));
                 $mform->hideIf('recurringsavedatesinfo', 'apply_to_children', 'eq', 0);
-            }
-            if (!empty($ischildofcurrent)) {
-                // Only mothers contain these options. Achtung wegen Setting haben es hier nicht alle Mothers!!
+
                 $mform->addElement(
                     'checkbox',
                     'unlinkallchildren',
@@ -303,7 +301,7 @@ class recurringoptions extends field_base {
                 );
                 $mform->addElement('static', 'allchildrenactioninfo2', '', get_string('recurringactioninfo', 'mod_booking'));
                 $mform->hideIf('allchildrenactioninfo2', 'deleteallchildren', 'notchecked');
-            } else if (!empty($isparentofcurrent)) { // Children get info to find actions at mother.
+            } else if (!empty($isparentofcurrent)) { // Child can be unlinked.
                 $mform->addElement(
                     'checkbox',
                     'unsetchild',
@@ -312,7 +310,17 @@ class recurringoptions extends field_base {
                 $mform->addElement('static', 'allchildrenactioninfo', '', get_string('recurringactioninfo', 'mod_booking'));
                 $mform->hideIf('deleteallchildreninfo', 'unsetchild', 'notchecked');
             }
+            if (
+                !empty($sameparent)
+            ) {
+                $mform->addElement('advcheckbox', 'apply_to_siblings', get_string('confirmrecurringoptionsiblings', 'mod_booking'));
+                $mform->setDefault('apply_to_siblings', 0);
+                $mform->hideIf('apply_to_siblings', 'validated_once', 'eq', 0);
+                $mform->addElement('static', 'recurringsavedatesinfo', '', get_string('recurringsavedatesinfo', 'mod_booking'));
+                $mform->hideIf('recurringsavedatesinfo', 'apply_to_siblings', 'eq', 0);
+            }
         } else if ($formdata['id']) {
+            // In case there is no active PRO License disable the whole section.
             $mform->addElement(
                 'header',
                 'recurringheader',
@@ -461,36 +469,76 @@ class recurringoptions extends field_base {
     }
 
     /**
-     * If there are changes, apply them to the children.
+     * Update options either children or following siblings.
      *
      * @param int $optionid
      * @param array $changes
      * @param object $data
      * @param object $oldoption
+     * @param int $typeofoptions
      *
+     * @return void
      *
      */
-    public static function update_children(
+    public static function update_options(
         int $optionid,
         array $changes,
         object $data,
-        object $oldoption
+        object $oldoption,
+        int $typeofoptions
     ) {
         global $DB;
-        $children = $DB->get_records('booking_options', ['parentid' => $optionid]);
+        switch ($typeofoptions) {
+            case MOD_BOOKING_RECURRING_UPDATE_CHILDREN:
+                $records = $DB->get_records('booking_options', ['parentid' => $optionid]);
+                break;
+            case MOD_BOOKING_RECURRING_UPDATE_SIBLINGS:
+                $conditions = [
+                    'parentid' => $oldoption->parentid,
+                ];
+                $select = "parentid = :parentid";
+                if (!empty($oldoption->coursestarttime)) {
+                    $conditions['coursestarttime'] = $oldoption->coursestarttime;
+                    $select .= " AND coursestarttime >= :coursestarttime";
+                }
+                $records = $DB->get_records_select(
+                    'booking_options',
+                    $select,
+                    $conditions
+                );
+                break;
+        }
+        self::update_records($changes, $data, $oldoption, $records);
+    }
 
-        if (!empty($children)) {
+    /**
+     * If there are changes, apply them to the children.
+     *
+     * @param array $changes
+     * @param object $data
+     * @param object $oldoption
+     * @param array $records
+     *
+     *
+     */
+    private static function update_records(
+        array $changes,
+        object $data,
+        object $oldoption,
+        array $records
+    ) {
+        if (!empty($records)) {
             $context = context_module::instance($data->cmid);
 
             $delta = 0;
             if (isset($changes['mod_booking\option\fields\optiondates'])) {
                 // Check for delta, see if its everywhere the same. If not, 0 returned.
-                $delta = self::find_constant_delta($oldoption, $children);
+                $delta = self::find_constant_delta($oldoption, $records);
                 $d = 0;
                 [$newparentoptiondates, $highesindex] = dates::get_list_of_submitted_dates((array)$data);
             }
 
-            foreach ($children as $index => $child) {
+            foreach ($records as $index => $child) {
                 // Loop through the changes.
                 $childdata = (object)[
                     'id' => $child->id,
@@ -647,6 +695,7 @@ class recurringoptions extends field_base {
                 }
             };
         } catch (moodle_exception $e) {
+            return [];
         }
         return array_keys($children);
     }

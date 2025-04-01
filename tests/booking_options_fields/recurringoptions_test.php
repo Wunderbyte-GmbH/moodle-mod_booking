@@ -70,7 +70,8 @@ final class recurringoptions_test extends advanced_testcase {
      * @covers \condition\confirmation::render_page
      * @covers \option\fields\recurringoptions::save_data
      * @covers \option\fields\recurringoptions::definition_after_data
-     * @covers \option\fields\recurringoptions::update_children
+     * @covers \option\fields\recurringoptions::update_options
+     * @covers \option\fields\recurringoptions::update_records
      * @covers \option\fields\recurringoptions::find_constant_delta
      * @covers \booking_option::update
      *
@@ -186,7 +187,7 @@ final class recurringoptions_test extends advanced_testcase {
         unset($record->coursestarttime);
         unset($record->courseendtime);
 
-        // Update the parent option with new values.
+        // Update the parent option with new values and apply to children.
         $record->maxanswers = 20;
         $record->maxoverbooking = 10;
         $record->text = 'Test Parent';
@@ -264,6 +265,79 @@ final class recurringoptions_test extends advanced_testcase {
                 }
             }
         }
+        // Update siblings.
+        $children = array_filter($updatedoptions, fn ($r) => !empty($r->parentid));
+        $firstchild = reset($children);
+
+        $firstchild->cmid = $settings->cmid;
+        $firstchild->maxanswers = 30;
+        $firstchild->maxoverbooking = 30;
+        $firstchild->text = 'Test Sibling';
+        $firstchild->description = 'Test Booking Description Sibling Change';
+        $firstchild->coursestarttime = strtotime('2025-01-05 10:00:00');
+        $firstchild->courseendtime = strtotime('2025-30-05 10:00:00');
+        $firstchild->daystonotify_1 = "0";
+        $firstchild->coursestarttime_1 = strtotime('2025-01-05 10:00:00');
+        $firstchild->courseendtime_1 = strtotime('2025-15-05 10:00:00');
+        $firstchild->daystonotify_2 = "0";
+        $firstchild->coursestarttime_2 = strtotime('2025-29-05 10:00:00');
+        $firstchild->courseendtime_2 = strtotime('2025-30-05 10:00:00');
+        $firstchild->apply_to_siblings = 1;
+        booking_option::update($firstchild);
+
+        $updated = array_filter($children, fn($c) => $c->id !== $firstchild->id);
+        $select = "";
+        $conditions = [];
+        $counter = 1;
+        foreach ($updated as $key => $record) {
+            if (!empty($select)) {
+                $select .= " OR ";
+            }
+            $select .= "id = :id$counter";
+            $conditions["id$counter"] = $key;
+            $counter++;
+        }
+        $updatedoptions = $DB->get_records_select('booking_options', $select, $conditions);
+        foreach ($updatedoptions as $index => $child) {
+            $this->assertEquals(
+                $firstchild->maxanswers,
+                $child->maxanswers,
+                "Child {$child->id} maxanswers not updated correctly."
+            );
+            $this->assertEquals(
+                $firstchild->maxoverbooking,
+                $child->maxoverbooking,
+                "Child {$child->id} maxoverbooking not updated correctly."
+            );
+            $this->assertEquals(
+                $firstchild->text,
+                $child->text,
+                "Child {$child->id} title not updated correctly."
+            );
+            $this->assertEquals(
+                $firstchild->description,
+                $child->description,
+                "Child {$child->id} description not updated correctly."
+            );
+
+            // Verify if all sessions were updated correctly.
+            $updateddata = (object)[
+                'id' => $firstchild->id,
+                'cmid' => $settings->cmid,
+            ];
+            fields_info::set_data($updateddata);
+            [$childdates, $highesindexchild] = dates::get_list_of_submitted_dates((array)$updateddata);
+            foreach ($childdates as $optiondate) {
+                if (
+                    empty($optiondate->coursestarttime)
+                    && empty($optiondate->courseendtime)
+                ) {
+                    continue;
+                }
+                $this->assertTrue(in_array($optiondate->coursestarttime, (array)$firstchild));
+                $this->assertTrue(in_array($optiondate->courseendtime, (array)$firstchild));
+            }
+        }
     }
 
     /**
@@ -275,7 +349,8 @@ final class recurringoptions_test extends advanced_testcase {
      * @covers \condition\confirmation::render_page
      * @covers \option\fields\recurringoptions::save_data
      * @covers \option\fields\recurringoptions::definition_after_data
-     * @covers \option\fields\recurringoptions::update_children
+     * @covers \option\fields\recurringoptions::update_options
+     * @covers \option\fields\recurringoptions::update_records
      * @covers \option\fields\recurringoptions::find_constant_delta
      * @covers \option\fields\recurringoptions::allchildrenaction
      * @covers \booking_option::update
