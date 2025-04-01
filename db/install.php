@@ -32,7 +32,7 @@
 function xmldb_booking_install() {
     global $DB;
      // Check if the table exists before inserting.
-    if (!PHPUNIT_TEST && !BEHAT_TEST && $DB->get_manager()->table_exists('booking_pricecategories')) {
+    if (!PHPUNIT_TEST && !BEHAT_SITE_RUNNING && $DB->get_manager()->table_exists('booking_pricecategories')) {
         // Define the default price category.
         $defaultcategory = new stdClass();
         $defaultcategory->name = 'Standard Price';
