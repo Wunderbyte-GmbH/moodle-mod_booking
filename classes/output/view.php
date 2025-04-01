@@ -777,40 +777,62 @@ class view implements renderable, templatable {
         }
 
         if ($bookingsettings->switchtemplates) {
+            $selectedtemplates = $bookingsettings->switchtemplatesselection ?? [];
             // If template switcher is turned on, we add it.
-            $wbtable->add_template_to_switcher(
-                'mod_booking/table_list',
-                get_string('viewparam:list', 'mod_booking'),
-                $viewparam === MOD_BOOKING_VIEW_PARAM_LIST ? true : false,
-                MOD_BOOKING_VIEW_PARAM_LIST
-            );
-            $wbtable->add_template_to_switcher(
-                'mod_booking/table_cards',
-                get_string('viewparam:cards', 'mod_booking'),
-                $viewparam === MOD_BOOKING_VIEW_PARAM_CARDS ? true : false,
-                MOD_BOOKING_VIEW_PARAM_CARDS
-            );
-            $wbtable->add_template_to_switcher(
-                'mod_booking/table_list',
-                get_string('viewparam:listimgleft', 'mod_booking'),
-                $viewparam === MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT ? true : false,
-                MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT
-            );
-            $wbtable->add_template_to_switcher(
-                'mod_booking/table_list',
-                get_string('viewparam:listimgright', 'mod_booking'),
-                $viewparam === MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT ? true : false,
-                MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT
-            );
-            $wbtable->add_template_to_switcher(
-                'mod_booking/table_list',
-                get_string('viewparam:listimglefthalf', 'mod_booking'),
-                $viewparam === MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF ? true : false,
-                MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF
-            );
+            // Only add templates that have been selected in instance.
+            if (in_array(MOD_BOOKING_VIEW_PARAM_LIST, $selectedtemplates)) {
+                $wbtable->add_template_to_switcher(
+                    'mod_booking/table_list',
+                    get_string('viewparam:list', 'mod_booking'),
+                    $viewparam === MOD_BOOKING_VIEW_PARAM_LIST ? true : false,
+                    MOD_BOOKING_VIEW_PARAM_LIST
+                );
+            }
+            if (in_array(MOD_BOOKING_VIEW_PARAM_CARDS, $selectedtemplates)) {
+                $wbtable->add_template_to_switcher(
+                    'mod_booking/table_cards',
+                    get_string('viewparam:cards', 'mod_booking'),
+                    $viewparam === MOD_BOOKING_VIEW_PARAM_CARDS ? true : false,
+                    MOD_BOOKING_VIEW_PARAM_CARDS
+                );
+            }
+            if (in_array(MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT, $selectedtemplates)) {
+                $wbtable->add_template_to_switcher(
+                    'mod_booking/table_list',
+                    get_string('viewparam:listimgleft', 'mod_booking'),
+                    $viewparam === MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT ? true : false,
+                    MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT
+                );
+            }
+            if (in_array(MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT, $selectedtemplates)) {
+                $wbtable->add_template_to_switcher(
+                    'mod_booking/table_list',
+                    get_string('viewparam:listimgright', 'mod_booking'),
+                    $viewparam === MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT ? true : false,
+                    MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT
+                );
+            }
+            if (in_array(MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF, $selectedtemplates)) {
+                $wbtable->add_template_to_switcher(
+                    'mod_booking/table_list',
+                    get_string('viewparam:listimglefthalf', 'mod_booking'),
+                    $viewparam === MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF ? true : false,
+                    MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF
+                );
+            }
         }
 
-        self::apply_standard_params_for_bookingtable($wbtable, $optionsfields, $filter, $search, $sort, true, true, $viewparam);
+        self::apply_standard_params_for_bookingtable(
+            $wbtable,
+            $optionsfields,
+            $filter,
+            $search,
+            $sort,
+            true,
+            true,
+            $viewparam,
+            $this->cmid
+        );
     }
 
 
@@ -825,6 +847,7 @@ class view implements renderable, templatable {
      * @param bool $reload
      * @param bool $filterinactive
      * @param int $viewparam list view or card view
+     * @param int $cmid optional cmid of booking instance
      * @return void
      * @throws moodle_exception
      * @throws coding_exception
@@ -837,10 +860,17 @@ class view implements renderable, templatable {
         bool $sort = true,
         bool $reload = true,
         bool $filterinactive = true,
-        int $viewparam = MOD_BOOKING_VIEW_PARAM_LIST
+        int $viewparam = MOD_BOOKING_VIEW_PARAM_LIST,
+        int $cmid = 0
     ) {
 
         global $PAGE;
+
+        if (!empty($cmid)) {
+            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+            $selectedtemplates = $bookingsettings->switchtemplatesselection ?? [];
+        }
+
         // Activate sorting.
         $wbtable->cardsort = true;
 
@@ -851,6 +881,13 @@ class view implements renderable, templatable {
         $chosenviewparam = get_user_preferences('wbtable_chosen_template_viewparam_' . $wbtable->uniqueid);
         if (!empty($wbtable->switchtemplates) && is_number($chosenviewparam)) {
             $viewparam = $chosenviewparam;
+            // Extra safety, if the selected templates in instance change, we use the first one available.
+            if (!empty($selectedtemplates)) {
+                if (!in_array($viewparam, $selectedtemplates)) {
+                    $viewparam = (int)$selectedtemplates[0] ?? MOD_BOOKING_VIEW_PARAM_LIST;
+                    set_user_preference('wbtable_chosen_template_viewparam_' . $wbtable->uniqueid, $viewparam);
+                }
+            }
         }
 
         // Switch view type (cards view or list view).
