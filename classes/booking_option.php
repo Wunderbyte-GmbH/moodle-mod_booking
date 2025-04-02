@@ -939,6 +939,9 @@ class booking_option {
             // We want to enrol people who have been waiting longer first.
             usort($usersonwaitinglist, fn($a, $b) => $a->timemodified < $b->timemodified ? -1 : 1);
             if ($noofuserstobook > 0 && !empty($ba->usersonwaitinglist)) {
+                // We delete the booking answers cache - because settings (limits, etc.) could be changed!
+                self::purge_cache_for_answers($this->optionid);
+
                 while ($noofuserstobook > 0) {
                     $noofuserstobook--; // Decrement.
                     $currentanswer = array_shift($usersonwaitinglist);
@@ -969,6 +972,9 @@ class booking_option {
             // 2. Update and inform users who have been put on the waiting list because of changed limits.
             $usersonlist = array_merge($ba->usersonlist, $ba->usersreserved);
             usort($usersonlist, fn($a, $b) => $a->timemodified < $b->timemodified ? -1 : 1);
+            // We delete the booking answers cache - because settings (limits, etc.) could be changed!
+            self::purge_cache_for_answers($this->optionid);
+
             while (booking_answers::count_places($usersonlist) > $settings->maxanswers) {
                 $currentanswer = array_pop($usersonlist);
                 array_push($usersonwaitinglist, $currentanswer);
@@ -3894,7 +3900,6 @@ class booking_option {
         if (
             !empty($originaloption->id) // If we have an old option at all.
             && !empty($originaloption->bookingid) // If it's not a template.
-            && empty($newoption->waitforconfirmation)
             && ($originaloption->maxanswers ?? 0) < ($newoption->maxanswers ?? 0) // Only then we show if we need to sync.
         ) {
             // We have more places now, so we can sync without danger.
@@ -3902,9 +3907,12 @@ class booking_option {
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
             $ba = singleton_service::get_instance_of_booking_answers($originaloption);
-            $fullybooked = $ba->is_fully_booked();
             // Check if the option is fully booked.
-            $option->sync_waiting_list();
+            $fullybooked = $ba->is_fully_booked();
+            // Do not sync waitinglist if it is enforced.
+            if (empty($newoption->waitforconfirmation)) {
+                $option->sync_waiting_list();
+            }
 
             // If it was fully booked, we need to trigger the places free again event.
             self::check_if_free_to_book_again($settings, 0, $fullybooked);
