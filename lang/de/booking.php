@@ -768,9 +768,9 @@ $string['confirmoptioncompletion'] = 'Abschluss bestätigen';
 $string['confirmoptioncreation'] = 'Wollen Sie diese Buchungsoption splitten sodass aus jedem Einzeltermin eine eigene
  Buchungsoption erstellt wird?';
 $string['confirmrecurringoption'] = 'Diese Änderungen auch für alle abgeleiteten Buchungsoptionen anwenden?';
-$string['confirmrecurringoptionerror'] = 'Sie können mit oder ohne Aktivierung dieser Checkbox fortfahren.';
-$string['confirmrecurringoptionoverwrite'] = 'Alle Felder abgleichen';
+$string['confirmrecurringoptionerror'] = 'Sie können mit jeder dieser Optionen fortfahren.';
 $string['confirmrecurringoptionapplychanges'] = 'Aktuelle Änderungen übernehmen';
+$string['confirmrecurringoptionoverwrite'] = 'Alle Felder abgleichen';
 $string['connectedbooking'] = '[VERALTET] Vorgeschaltete Buchung';
 $string['connectedbooking_help'] = 'Buchung von der Teilnehmer:innen übernommen werden. Es kann bestimmt werden wie viele Teilnehmer:innen übernommen werden.';
 $string['connectedmoodlecourse'] = 'Verbundener Moodle-Kurs';
@@ -1932,21 +1932,18 @@ $string['recordsimported'] = 'Buchungsoptionen importiert via CSV';
 $string['recordsimporteddescription'] = '{$a} Buchungsoptionen importiert via CSV';
 $string['recreategroup'] = 'Gruppe erneut anlegen und Nutzer:innen der Gruppe zuordnen';
 $string['recurringactioninfo'] = 'Diese Aktion wird ausgeführt, wenn Sie das Formular absenden (indem Sie auf "Speichern" klicken). <b>Achtung!</b> Diese Aktion kann nicht rückgängig gemacht werden.';
-$string['recurringchildoptions'] = 'Abhängige Buchungsoptionen dieser Buchungsoption:';
+$string['recurringchildoptions'] = 'Abgeleitete Buchungsoptionen dieser Buchungsoption:';
 $string['recurringheader'] = '<i class="fa-solid fa-repeat" aria-hidden="true"></i>&nbsp;Wiederkehrende Optionen';
 $string['recurringmultiparenting'] = 'Wiederholende Optionen von selber Vorlage erzeugen';
 $string['recurringmultiparenting_desc'] = 'Wenn eine Buchungsoptions bereits Vorlage für folgende Optionen ist, soll es möglich sein, aus ihrer Grundlage noch weitere zu generieren?';
 $string['recurringnotpossibleinfo'] = '<div class="alert alert-info" role="alert">
-    Für diese Buchungsoption können keine Wiederkehrenden Optionen erstellt werden, weil sie selbst von einer anderen Buchungsoption abhängig ist.
+    Für diese Buchungsoption können keine Wiederkehrenden Optionen erstellt werden, weil sie selbst von einer anderen Buchungsoption abgeleitet ist.
     </div>';
 $string['recurringoptions'] = 'Wiederkehrende Buchungs Optionen';
 $string['recurringparentoption'] = 'Vorlage dieser Buchungsoption:';
 $string['recurringsameparentoptions'] = 'Buchungsoption(en) mit gleicher Vorlage:';
-$string['recurringsavedatesinfo'] = '<div class="alert alert-info" role="alert">
-                                    <strong>Achtung:</strong> Jegliche Änderungen das Datum betreffend werden nur übernommen, wenn der zeitliche Abstand zwischen dieser und allen folgenden Buchungsoptionen identisch ist.
-                                    </div>';
 $string['recurringsaveinfo'] = '<div class="alert alert-info" role="alert">
-                                <strong>Achtung:</strong> Bitte speichern Sie allfällie Änderungen bevor Sie wiederkehrende Buchungsoption anlegen. Ihre Änderungen werden sonst in den neuen Buchungen nicht übernommen.
+                                <strong>Achtung:</strong> Bitte speichern Sie allfällige Änderungen bevor Sie wiederkehrende Buchungsoption anlegen. Ihre Änderungen werden sonst in den neuen Buchungen nicht übernommen.
                                 </div>';
 $string['recurringselectapplysiblings'] = 'Sollen diese Änderungen auch für alle folgenden Buchungsoptionen mit der gleichen Vorlage übernehmen?';
 $string['recurringsettingsheader'] = 'Wiederkehrende Buchungsoptionen <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
