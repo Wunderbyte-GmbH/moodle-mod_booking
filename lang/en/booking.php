@@ -710,6 +710,8 @@ $string['cdo:buttoncolor:success'] = 'Success (green)';
 $string['cdo:buttoncolor:warning'] = 'Warning (yellow)';
 $string['cdo:coursestarttime'] = 'Start of the booking option (coursestarttime)';
 $string['cdo:semesterstart'] = 'Semester start';
+$string['certificate'] = 'Certificate';
+$string['certificateheader'] = 'Moodle certificate';
 $string['cfcostcenter'] = "Custom booking option field for cost center";
 $string['cfcostcenter_desc'] = "If you use cost centers, you have to specify which custom
 booking option field is used to store the cost center.";

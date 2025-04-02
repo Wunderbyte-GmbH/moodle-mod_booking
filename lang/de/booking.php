@@ -698,6 +698,8 @@ $string['cdo:buttoncolor:success'] = 'Success (Grün)';
 $string['cdo:buttoncolor:warning'] = 'Warning (Gelb)';
 $string['cdo:coursestarttime'] = 'Beginn der Buchungsoption (coursestarttime)';
 $string['cdo:semesterstart'] = 'Semesterstart';
+$string['certificate'] = 'Zertifikat';
+$string['certificateheader'] = 'Moodle zertifikat';
 $string['cfcostcenter'] = "Benutzerdefiniertes Buchungsoptionsfeld für die Kostenstelle";
 $string['cfcostcenter_desc'] = "Wenn Sie Kostenstellen verwenden, müssen Sie hier angeben,
 in welchem benutzerdefinierten Buchungsoptionsfeld diese gespeichert werden.";
