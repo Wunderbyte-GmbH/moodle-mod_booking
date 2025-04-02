@@ -781,9 +781,9 @@ $string['confirmoptioncreation'] = 'Do you want to split this booking option so 
  from each individual date of this booking option?';
 $string['confirmpresence'] = "Confirm presence";
 $string['confirmrecurringoption'] = 'Apply these changes to all children of this bookingoptions as well?';
-$string['confirmrecurringoptionerror'] = 'You can proceed with or without this checkbox checked.';
-$string['confirmrecurringoptionoverwrite'] = 'Overwrite all settings';
+$string['confirmrecurringoptionerror'] = 'You can proceed with any of these options';
 $string['confirmrecurringoptionapplychanges'] = 'Apply current changes';
+$string['confirmrecurringoptionoverwrite'] = 'Overwrite all settings';
 $string['confirmusers'] = 'Confirm users activity';
 $string['confirmuserswith'] = 'Confirm users who completed activity or received badge';
 $string['connectedbooking'] = '[DEPRECATED] Connected booking';
@@ -1995,9 +1995,6 @@ $string['recurringnotpossibleinfo'] = '<div class="alert alert-info" role="alert
 $string['recurringoptions'] = 'Recurring booking options';
 $string['recurringparentoption'] = 'Parent of this option:';
 $string['recurringsameparentoptions'] = 'Bookingoption(s) with same parent:';
-$string['recurringsavedatesinfo'] = '<div class="alert alert-info" role="alert">
-                                    <strong>Attention:</strong> Any changes related to dates will only be applied if the time interval between this and all following booking options is equal.
-                                    </div>';
 $string['recurringsaveinfo'] = '<div class="alert alert-info" role="alert">
                                 <strong>Attention:</strong> Please save any changes before creating recurring booking options. Otherwise, your changes will not be applied to the new options.
                                 </div>';
