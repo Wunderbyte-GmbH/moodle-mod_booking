@@ -782,7 +782,8 @@ $string['confirmoptioncreation'] = 'Do you want to split this booking option so 
 $string['confirmpresence'] = "Confirm presence";
 $string['confirmrecurringoption'] = 'Apply these changes to all children of this bookingoptions as well?';
 $string['confirmrecurringoptionerror'] = 'You can proceed with or without this checkbox checked.';
-$string['confirmrecurringoptionsiblings'] = 'Apply these changes to all following bookingoptions (with same parent) as well?';
+$string['confirmrecurringoptionoverwrite'] = 'Overwrite all settings';
+$string['confirmrecurringoptionapplychanges'] = 'Apply current changes';
 $string['confirmusers'] = 'Confirm users activity';
 $string['confirmuserswith'] = 'Confirm users who completed activity or received badge';
 $string['connectedbooking'] = '[DEPRECATED] Connected booking';
@@ -1016,6 +1017,7 @@ $string['displayloginbuttonforbookingoptions_desc'] = 'Will be displayed for use
 $string['displaytext'] = "Display text";
 $string['dontaddpersonalevents'] = 'Dont add personal calendar events';
 $string['dontaddpersonaleventsdesc'] = 'For each booked option and for all of its sessions, personal events are created in the moodle calendar. Suppressing them improves performance for heavy load sites.';
+$string['dontapply'] = 'Don\'t apply';
 $string['dontmove'] = 'Don\'t move';
 $string['dontusetemplate'] = 'Don\'t use template';
 $string['download'] = 'Download';
@@ -1999,6 +2001,7 @@ $string['recurringsavedatesinfo'] = '<div class="alert alert-info" role="alert">
 $string['recurringsaveinfo'] = '<div class="alert alert-info" role="alert">
                                 <strong>Attention:</strong> Please save any changes before creating recurring booking options. Otherwise, your changes will not be applied to the new options.
                                 </div>';
+$string['recurringselectapplysiblings'] = 'Apply changes to all following options with same parent?';
 $string['recurringsettingsheader'] = 'Recurring Booking options  <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['recurringsettingsheader_desc'] = 'Settings for booking options and possible children';
 $string['relatedcourseidneeded'] = 'A related course is needed because of your availabilty condition(s).';
@@ -2502,6 +2505,7 @@ $string['unitsunknown'] = 'Number of units unknown';
 $string['unlimitedcredits'] = 'Don\'t use credits';
 $string['unlimitedplaces'] = 'Unlimited';
 $string['unlinkallchildren'] = 'Delete linking of all children';
+$string['unsetchild'] = 'Delete linking to parent';
 $string['unsubscribe:alreadyunsubscribed'] = 'You are already unsubscribed.';
 $string['unsubscribe:errorotheruser'] = 'You are not allowed to unsubscribe a different user than yourself!';
 $string['unsubscribe:successnotificationlist'] = 'You were unsubscribed successfully from e-mail notifications for "{$a}".';

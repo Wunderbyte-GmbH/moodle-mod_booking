@@ -769,7 +769,8 @@ $string['confirmoptioncreation'] = 'Wollen Sie diese Buchungsoption splitten sod
  Buchungsoption erstellt wird?';
 $string['confirmrecurringoption'] = 'Diese Änderungen auch für alle abgeleiteten Buchungsoptionen anwenden?';
 $string['confirmrecurringoptionerror'] = 'Sie können mit oder ohne Aktivierung dieser Checkbox fortfahren.';
-$string['confirmrecurringoptionsiblings'] = 'Diese Änderungen auch für alle folgenden Buchungsoptionen (mit gleicher Vorlage) anwenden?';
+$string['confirmrecurringoptionoverwrite'] = 'Alle Felder abgleichen';
+$string['confirmrecurringoptionapplychanges'] = 'Aktuelle Änderungen übernehmen';
 $string['connectedbooking'] = '[VERALTET] Vorgeschaltete Buchung';
 $string['connectedbooking_help'] = 'Buchung von der Teilnehmer:innen übernommen werden. Es kann bestimmt werden wie viele Teilnehmer:innen übernommen werden.';
 $string['connectedmoodlecourse'] = 'Verbundener Moodle-Kurs';
@@ -1005,6 +1006,7 @@ $string['displayloginbuttonforbookingoptions_desc'] = 'Wird nur für nicht einge
 $string['displaytext'] = "Text anzeigen";
 $string['dontaddpersonalevents'] = 'Keine Einträge im persönlichen Kalender erstellen.';
 $string['dontaddpersonaleventsdesc'] = 'Für jede Buchung und alle Termine werden eigene Einträge im persönlichen Kalender der TeilnehmerInnen erstellt. Für eine bessere Performance auf sehr intensiv genutzten Seiten kann diese Funktion deaktiviert werden.';
+$string['dontapply'] = 'Nicht anwenden';
 $string['dontmove'] = 'Nicht bewegen';
 $string['dontusetemplate'] = 'Vorlage nicht verwenden';
 $string['download'] = 'Download';
@@ -1946,6 +1948,7 @@ $string['recurringsavedatesinfo'] = '<div class="alert alert-info" role="alert">
 $string['recurringsaveinfo'] = '<div class="alert alert-info" role="alert">
                                 <strong>Achtung:</strong> Bitte speichern Sie allfällie Änderungen bevor Sie wiederkehrende Buchungsoption anlegen. Ihre Änderungen werden sonst in den neuen Buchungen nicht übernommen.
                                 </div>';
+$string['recurringselectapplysiblings'] = 'Sollen diese Änderungen auch für alle folgenden Buchungsoptionen mit der gleichen Vorlage übernehmen?';
 $string['recurringsettingsheader'] = 'Wiederkehrende Buchungsoptionen <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['recurringsettingsheader_desc'] = 'Einstellungen für Wiederkehrende Optionen und ihre Vorlagen';
 $string['relatedcourseidneeded'] = 'Aufgrund Ihrer Verfügbarkeits-Einstellungen muss ein verknüpfter Moodle-Kurs angegeben werden.';
@@ -2435,6 +2438,7 @@ $string['unitsunknown'] = 'Anzahl UE unbekannt';
 $string['unlimitedcredits'] = 'Verwende keine Credits';
 $string['unlimitedplaces'] = 'Unbegrenzt';
 $string['unlinkallchildren'] = 'Verknüpfung von folgenden Buchungsoptionen löschen';
+$string['unsetchild'] = 'Verknüpfung mit Vorlage löschen';
 $string['unsubscribe:alreadyunsubscribed'] = 'Sie sind bereits abgemeldet.';
 $string['unsubscribe:errorotheruser'] = 'Es ist nicht erlaubt, E-Mail-Abmeldungen für fremde Benutzer:innen durchzuführen!';
 $string['unsubscribe:successnotificationlist'] = 'Sie wurden erfolgreich von den E-Mail-Benachrichtigungen für "{$a}" abgemeldet.';
