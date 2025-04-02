@@ -27,15 +27,11 @@ declare(strict_types=1);
 namespace mod_booking\external;
 
 use cache;
-use external_multiple_structure;
-use core_form\external\dynamic_form;
-use external_api;
-use external_function_parameters;
-use external_single_structure;
-use external_value;
-use external_warnings;
-use mod_booking\output\mobile;
-use stdClass;
+use core_external\external_multiple_structure;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_single_structure;
+use core_external\external_value;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -50,7 +46,6 @@ require_once($CFG->libdir . '/externallib.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class get_submission_mobile extends external_api {
-
     /**
      * Describes the parameters for update_bookingnotes.
      *
@@ -69,8 +64,10 @@ class get_submission_mobile extends external_api {
                       'value' => new external_value(PARAM_RAW, 'data value'),
                   ]
               ),
-              'The data to be saved', VALUE_DEFAULT, []
-            ),
+              'The data to be saved',
+              VALUE_DEFAULT,
+              []
+          ),
         ]);
     }
 
@@ -116,8 +113,7 @@ class get_submission_mobile extends external_api {
             'message' => new external_value(PARAM_RAW, 'Message if any', VALUE_DEFAULT, ''),
             'template' => new external_value(PARAM_TEXT, 'Button template', VALUE_DEFAULT, ''),
             'json' => new external_value(PARAM_RAW, 'Data as json', VALUE_DEFAULT, ''),
-            ]
-        );
+            ]);
     }
 
     /**

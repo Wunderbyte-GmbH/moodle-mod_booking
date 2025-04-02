@@ -26,11 +26,11 @@ declare(strict_types=1);
 
 namespace mod_booking\external;
 
-use external_api;
-use external_function_parameters;
-use external_single_structure;
-use external_value;
-use external_warnings;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_single_structure;
+use core_external\external_value;
+use core_external\external_warnings;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -46,7 +46,6 @@ require_once($CFG->libdir . '/externallib.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class update_bookingnotes extends external_api {
-
     /**
      * Describes the parameters for update_bookingnotes.
      *
@@ -56,8 +55,7 @@ class update_bookingnotes extends external_api {
         return new external_function_parameters([
             'baid' => new external_value(PARAM_INT, 'ID of the booking answer'),
             'note' => new external_value(PARAM_TEXT, 'Note added to the booking answer', VALUE_DEFAULT, ''),
-            ]
-        );
+            ]);
     }
 
     /**
@@ -103,7 +101,6 @@ class update_bookingnotes extends external_api {
             'warnings' => new external_warnings(),
             'note' => new external_value(PARAM_TEXT, 'The updated note'),
             'baid' => new external_value(PARAM_INT, 'ID of the booking answer'),
-            ]
-        );
+            ]);
     }
 }
