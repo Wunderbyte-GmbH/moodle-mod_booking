@@ -60,7 +60,10 @@ class pricecategories_form extends moodleform {
             $mform->addElement('hidden', 'pricecategoryordernum' . $j, $j);
             $mform->setType('pricecategoryordernum' . $j, PARAM_INT);
             if ($pricecategory->identifier != 'default') {
-                $mform->addElement('text', 'pricecategoryidentifier' . $j, get_string('pricecategoryidentifier', 'booking') . ' ' . $j);
+                $mform->addElement('text', 'pricecategoryidentifier' . $j, get_string(
+                    'pricecategoryidentifier',
+                    'booking'
+                ) . ' ' . $j);
                 $mform->setType('pricecategoryidentifier' . $j, PARAM_TEXT);
                 $mform->setDefault('pricecategoryidentifier' . $j, $pricecategory->identifier);
                 $mform->addHelpButton('pricecategoryidentifier' . $j, 'pricecategoryidentifier', 'booking');
