@@ -1847,9 +1847,7 @@ final class condition_all_test extends advanced_testcase {
         [$id, $isavailable, $description] = $boinfo3->is_available($settings3->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
-        $bookingid = singleton_service::get_instance_of_booking_by_optionid($settings3->id)->id;
-
-        singleton_service::destroy_answers_for_user($student1->id, $bookingid);
+        singleton_service::destroy_answers_for_user($student1->id); // Destroy all answers for this user.
         // Now try to book an option that doesn't contain the nooverlapping flab BUT overlaps with previously booked option 3.
         [$id, $isavailable, $description] = $boinfo4->is_available($settings4->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_JSON_NOOVERLAPPINGPROXY, $id);
@@ -1989,8 +1987,7 @@ final class condition_all_test extends advanced_testcase {
         [$id, $isavailable, $description] = $boinfo3->is_available($settings3->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
-        $bookingid = singleton_service::get_instance_of_booking_by_optionid($settings3->id)->id;
-        singleton_service::destroy_answers_for_user($student1->id, $bookingid);
+        singleton_service::destroy_answers_for_user($student1->id); // Destroy all answers for this user.
 
         // Now try to book an option that doesn't contain the nooverlapping flab BUT overlaps with previously booked option 3.
         [$id, $isavailable, $description] = $boinfo4->is_available($settings4->id, $student1->id, true);
