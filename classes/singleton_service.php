@@ -176,14 +176,23 @@ class singleton_service {
     /**
      * Service to store the array of answers in the singleton.
      * @param int $userid
-     * @param int $bookingid
+     * @param int $bookingid if not provided, 0 is used to destroy system wide.
      * @return array
      */
-    public static function destroy_answers_for_user(int $userid, int $bookingid): array {
+    public static function destroy_answers_for_user(int $userid, int $bookingid = 0): array {
 
         $instance = self::get_instance();
-
-        if (isset($instance->bookinganswersforuser[$bookingid][$userid])) {
+        if (empty($bookingid)) {
+            // Without bookingid, we need to destroy all answers for the user.
+            if (!empty($instance->bookinganswersforuser)) {
+                foreach ($instance->bookinganswersforuser as $key => $value) {
+                    if (isset($value[$userid])) {
+                        unset($instance->bookinganswersforuser[$key][$userid]);
+                    }
+                }
+            }
+        } else if (isset($instance->bookinganswersforuser[$bookingid][$userid])) {
+            // If a bookingid is provided, we need to destroy only the answers for that booking instance.
             unset($instance->bookinganswersforuser[$bookingid][$userid]);
         }
         return [];
