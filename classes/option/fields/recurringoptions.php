@@ -280,8 +280,13 @@ class recurringoptions extends field_base {
                 $mform->setType('validated_once', PARAM_INT);
             }
             if (!empty($ischildofcurrent)) { // Mothers contain additional options to unlink or delete children.
-                $mform->addElement('advcheckbox', 'apply_to_children', get_string('confirmrecurringoption', 'mod_booking'));
-                $mform->setDefault('apply_to_children', 0);
+                $applyselectoptions = [
+                    MOD_BOOKING_RECURRING_DONTUPDATE => get_string('dontapply', 'mod_booking'),
+                    MOD_BOOKING_RECURRING_APPLY_TO_CHILDREN => get_string('confirmrecurringoptionapplychanges', 'mod_booking'),
+                    MOD_BOOKING_RECURRING_OVERWRITE_CHILDREN => get_string('confirmrecurringoptionoverwrite', 'mod_booking'),
+                ];
+                $mform->addElement('select', 'apply_to_children', get_string('confirmrecurringoption', 'mod_booking'), $applyselectoptions);
+                $mform->setDefault('apply_to_children', MOD_BOOKING_RECURRING_DONTUPDATE);
                 $mform->hideIf('apply_to_children', 'validated_once', 'eq', 0);
                 $mform->addElement('static', 'recurringsavedatesinfo', '', get_string('recurringsavedatesinfo', 'mod_booking'));
                 $mform->hideIf('recurringsavedatesinfo', 'apply_to_children', 'eq', 0);
@@ -313,8 +318,13 @@ class recurringoptions extends field_base {
             if (
                 !empty($sameparent)
             ) {
-                $mform->addElement('advcheckbox', 'apply_to_siblings', get_string('confirmrecurringoptionsiblings', 'mod_booking'));
-                $mform->setDefault('apply_to_siblings', 0);
+                $applyselectoptions = [
+                    MOD_BOOKING_RECURRING_DONTUPDATE => get_string('dontapply', 'mod_booking'),
+                    MOD_BOOKING_RECURRING_APPLY_TO_SIBLINGS => get_string('confirmrecurringoptionapplychanges', 'mod_booking'),
+                    MOD_BOOKING_RECURRING_OVERWRITE_SIBLINGS => get_string('confirmrecurringoptionoverwrite', 'mod_booking'),
+                ];
+                $mform->addElement('select', 'apply_to_siblings', get_string('recurringselectapplysiblings'), $applyselectoptions);
+                $mform->setDefault('apply_to_siblings', MOD_BOOKING_RECURRING_DONTUPDATE);
                 $mform->hideIf('apply_to_siblings', 'validated_once', 'eq', 0);
                 $mform->addElement('static', 'recurringsavedatesinfo', '', get_string('recurringsavedatesinfo', 'mod_booking'));
                 $mform->hideIf('recurringsavedatesinfo', 'apply_to_siblings', 'eq', 0);
@@ -488,9 +498,13 @@ class recurringoptions extends field_base {
         int $typeofoptions
     ) {
         global $DB;
+        $overwrite = false;
         switch ($typeofoptions) {
             case MOD_BOOKING_RECURRING_UPDATE_CHILDREN:
                 $records = $DB->get_records('booking_options', ['parentid' => $optionid]);
+                if ($data->apply_to_children == MOD_BOOKING_RECURRING_OVERWRITE_CHILDREN) {
+                    $overwrite = true;
+                }
                 break;
             case MOD_BOOKING_RECURRING_UPDATE_SIBLINGS:
                 $conditions = [
@@ -506,9 +520,12 @@ class recurringoptions extends field_base {
                     $select,
                     $conditions
                 );
+                if ($data->apply_to_siblings == MOD_BOOKING_RECURRING_OVERWRITE_SIBLINGS) {
+                    $overwrite = true;
+                }
                 break;
         }
-        self::update_records($changes, $data, $oldoption, $records);
+        self::update_records($changes, $data, $oldoption, $records, $overwrite);
     }
 
     /**
@@ -518,6 +535,7 @@ class recurringoptions extends field_base {
      * @param object $data
      * @param object $oldoption
      * @param array $records
+     * @param bool $overwrite
      *
      *
      */
@@ -525,7 +543,8 @@ class recurringoptions extends field_base {
         array $changes,
         object $data,
         object $oldoption,
-        array $records
+        array $records,
+        bool $overwrite = false
     ) {
         if (!empty($records)) {
             $context = context_module::instance($data->cmid);
@@ -546,15 +565,19 @@ class recurringoptions extends field_base {
                 ];
                 fields_info::set_data($childdata);
                 $update = false;
-
                 foreach ($changes as $change) {
                     if (empty($change['changes'])) {
                         continue;
                     }
                     if (
-                        isset($change['changes']['fieldname'])
-                        && $change['changes']['fieldname'] == 'dates'
+                        (isset($change['changes']['fieldname'])
+                        && $change['changes']['fieldname'] == 'dates')
+                        || $overwrite
                     ) {
+                        if ($overwrite) {
+                            // In case that overwrite is set, dates are recalculated.
+                            $delta = $data->howoftentorepeat;
+                        }
                         if (empty($delta)) {
                             // No consistent delta, changes in dates not applied.
                             continue;
@@ -586,7 +609,9 @@ class recurringoptions extends field_base {
                             }
                         }
                         booking_option::update($childdata, $context);
-                    } else {
+                    } else if (!$overwrite) {
+                        // Decide only here if overwrite is applied, because changes in dates should be applied.
+
                         $fieldname = $change['changes']['formkey'] ?? '';
                         $newvalue = $change['changes']['newvalue'] ?? '';
 
@@ -597,10 +622,20 @@ class recurringoptions extends field_base {
                         }
                     }
                 }
+                if ($overwrite) {
+                    $childdata = $data;
+                    $childdata->id = $child->id;
+                    // Make sure to unset further recurring options in dependent options.
+                    $recurringkeys = ['apply_to_children', 'apply_to_siblings', 'unlinkallchildren', 'deleteallchildren', 'unsetchild'];
+                    foreach ($recurringkeys as $key) {
+                        unset($childdata->$key);
+                    }
+                    $update = true;
+                }
                 // Update the data record after all changes are made.
                 if ($update) {
                     $childdata->parentid = $data->optionid ?? $child->parentid ?? 0;
-                    $childdata->importing = 1;
+                    $childdata->importing = $overwrite ? 0 : 1;
                     booking_option::update($childdata, $context);
                 }
             }
