@@ -274,10 +274,6 @@ class recurringoptions extends field_base {
                 $mform->addElement('static', 'recurringsaveinfo', '', get_string('recurringsaveinfo', 'mod_booking'));
                 $mform->hideIf('recurringsaveinfo', 'repeatthisbooking', 'notchecked');
 
-                // Hidden input to track if the form has been validated before.
-                $mform->addElement('hidden', 'validated_once', 0);
-                $mform->setDefault('validated_once', 0);
-                $mform->setType('validated_once', PARAM_INT);
             }
             if (!empty($ischildofcurrent)) { // Mothers contain additional options to unlink or delete children.
                 $applyselectoptions = [
@@ -288,8 +284,6 @@ class recurringoptions extends field_base {
                 $mform->addElement('select', 'apply_to_children', get_string('confirmrecurringoption', 'mod_booking'), $applyselectoptions);
                 $mform->setDefault('apply_to_children', MOD_BOOKING_RECURRING_DONTUPDATE);
                 $mform->hideIf('apply_to_children', 'validated_once', 'eq', 0);
-                $mform->addElement('static', 'recurringsavedatesinfo', '', get_string('recurringsavedatesinfo', 'mod_booking'));
-                $mform->hideIf('recurringsavedatesinfo', 'apply_to_children', 'eq', 0);
 
                 $mform->addElement(
                     'checkbox',
@@ -326,8 +320,6 @@ class recurringoptions extends field_base {
                 $mform->addElement('select', 'apply_to_siblings', get_string('recurringselectapplysiblings'), $applyselectoptions);
                 $mform->setDefault('apply_to_siblings', MOD_BOOKING_RECURRING_DONTUPDATE);
                 $mform->hideIf('apply_to_siblings', 'validated_once', 'eq', 0);
-                $mform->addElement('static', 'recurringsavedatesinfo', '', get_string('recurringsavedatesinfo', 'mod_booking'));
-                $mform->hideIf('recurringsavedatesinfo', 'apply_to_siblings', 'eq', 0);
             }
         } else if ($formdata['id']) {
             // In case there is no active PRO License disable the whole section.
@@ -343,6 +335,10 @@ class recurringoptions extends field_base {
                 get_string('licensekeycfgdesc', 'mod_booking')
             );
         }
+        // Hidden input to track if the form has been validated before.
+        $mform->addElement('hidden', 'validated_once', 0);
+        $mform->setDefault('validated_once', 0);
+        $mform->setType('validated_once', PARAM_INT);
     }
 
     /**
@@ -431,10 +427,10 @@ class recurringoptions extends field_base {
             };
         } else if (!empty($data->unlinkallchildren)) {
             $childrenids = self::allchildrenaction(
-                    $data->id,
-                    MOD_BOOKING_ALL_CHILDRED_UNLINK,
-                    $data->cmid
-                );
+                $data->id,
+                MOD_BOOKING_ALL_CHILDRED_UNLINK,
+                $data->cmid
+            );
             if (!empty($childrenids)) {
                 $changes = [
                     'changes' => [
@@ -472,8 +468,13 @@ class recurringoptions extends field_base {
      */
     public static function validation(array $data, array $files, array &$errors) {
 
-        if (empty($data['validated_once']) && !empty($data['has_children'])) {
-            $errors['apply_to_children'] = get_string('confirmrecurringoptionerror', 'mod_booking');
+        if (empty($data['validated_once'])) {
+            if (isset($data['apply_to_children']) && !empty($data['apply_to_children'])) {
+                $errors['apply_to_children'] = get_string('confirmrecurringoptionerror', 'mod_booking');
+            }
+            if (isset($data['apply_to_siblings']) && !empty($data['apply_to_siblings'])) {
+                $errors['apply_to_siblings'] = get_string('confirmrecurringoptionerror', 'mod_booking');
+            }
         }
         return $errors;
     }
@@ -541,23 +542,18 @@ class recurringoptions extends field_base {
      */
     private static function update_records(
         array $changes,
-        object $data,
+        object $originaldata,
         object $oldoption,
         array $records,
         bool $overwrite = false
     ) {
         if (!empty($records)) {
-            $context = context_module::instance($data->cmid);
+            $context = context_module::instance($originaldata->cmid);
 
-            $delta = 0;
-            if (isset($changes['mod_booking\option\fields\optiondates'])) {
-                // Check for delta, see if its everywhere the same. If not, 0 returned.
-                $delta = self::find_constant_delta($oldoption, $records);
-                $d = 0;
-                [$newparentoptiondates, $highesindex] = dates::get_list_of_submitted_dates((array)$data);
-            }
+            [$newparentoptiondates, $highesindex] = dates::get_list_of_submitted_dates((array)$originaldata);
 
             foreach ($records as $index => $child) {
+                $data = clone $originaldata;
                 // Loop through the changes.
                 $childdata = (object)[
                     'id' => $child->id,
@@ -635,62 +631,13 @@ class recurringoptions extends field_base {
                 // Update the data record after all changes are made.
                 if ($update) {
                     $childdata->parentid = $data->optionid ?? $child->parentid ?? 0;
-                    $childdata->importing = $overwrite ? 0 : 1;
-                    booking_option::update($childdata, $context);
+                    if (empty($overwrite)) {
+                        $childdata->importing = 1;
+                    }
+                    booking_option::update((object) $childdata, $context);
                 }
             }
         }
-    }
-
-    /**
-     * Check if there is a constant delta between the parent and all children records. Otherwise return 0.
-     *
-     * @param object $parent
-     * @param array $children
-     *
-     * @return int
-     *
-     */
-    private static function find_constant_delta(object $parent, array &$children): int {
-        $parent->coursestarttime = (int)$parent->coursestarttime;
-        foreach ($children as $child) {
-            $child->coursestarttime = (int)$child->coursestarttime;
-        }
-        // Ensure the parent record has a valid coursestarttime.
-        if (!isset($parent->coursestarttime) || empty($parent->coursestarttime)) {
-            return 0;
-        }
-
-        // Filter out children that don't have a valid coursestarttime.
-        $children = array_filter($children, function ($child) {
-            return isset($child->coursestarttime) && !empty($child->coursestarttime);
-        });
-
-        // If there is less than 1 valid child, we cannot determine a difference.
-        if (count($children) < 1) {
-            return 0;
-        }
-
-        // Sort the array by coursestarttime in ascending order.
-        usort($children, function ($a, $b) {
-            return $a->coursestarttime <=> $b->coursestarttime;
-        });
-
-        // Re-index the array to have sequential numeric keys.
-        $children = array_values($children);
-
-        // Calculate the expected interval based on the first two children.
-        $interval = $children[0]->coursestarttime - $parent->coursestarttime;
-
-        // Check if the interval remains constant for all subsequent children.
-        for ($i = 0; $i < count($children) - 1; $i++) {
-            $diff = $children[$i + 1]->coursestarttime - $children[$i]->coursestarttime;
-            if ($diff !== $interval) {
-                return 0; // If any difference is inconsistent, return false.
-            }
-        }
-
-        return $interval; // Return the consistent interval.
     }
 
     /**
