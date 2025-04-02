@@ -94,13 +94,14 @@ class checkanswers {
 
         if (!empty($userid)) {
             $additionaljoin = "JOIN {booking_answers} ba ON bo.id = ba.optionid";
-            $additionalwhere = " AND ba.userid = :userid ";
+            // The check for < 5 is important here as we don't care about already deleted answers.
+            $additionalwhere = " AND ba.userid = :userid AND ba.waitinglist < 5 ";
             $params['userid'] = $userid;
         }
 
         $pathwithwildcard = $DB->sql_concat(" (SELECT path FROM {context} WHERE id = :contextid)", "'%'");
 
-        $sql = "SELECT bo.id
+        $sql = "SELECT DISTINCT bo.id
                 FROM {booking_options} bo
                 JOIN {booking} b ON bo.bookingid = b.id
                 JOIN {course_modules} cm ON cm.instance = b.id AND cm.module = (
