@@ -1759,6 +1759,9 @@ final class rules_test extends advanced_testcase {
     public function test_rule_on_freeplace_on_intervals_when_maxanswer_increased_and_waitinglist_forced(array $bdata): void {
         global $DB, $CFG;
 
+        set_config('timezone', 'Europe/Kyiv');
+        set_config('forcetimezone', 'Europe/Kyiv');
+
         time_mock::set_mock_time(strtotime('-4 days'));
         time_mock::init();
         $time = time_mock::get_mock_time();
@@ -1856,6 +1859,7 @@ final class rules_test extends advanced_testcase {
 
         // Book the student2 via waitinglist with intervals.
         time_mock::set_mock_time(strtotime('-3 days'));
+        $time = time_mock::get_mock_time();
         $this->setUser($student2);
         singleton_service::destroy_user($student2->id);
         $result = booking_bookit::bookit('option', $settings->id, $student2->id);
@@ -1864,6 +1868,7 @@ final class rules_test extends advanced_testcase {
 
         // Book the student3 via waitinglist.
         time_mock::set_mock_time(strtotime('-2 days'));
+        $time = time_mock::get_mock_time();
         $this->setUser($student3);
         singleton_service::destroy_user($student3->id);
         $result = booking_bookit::bookit('option', $settings->id, $student3->id);
@@ -1872,6 +1877,7 @@ final class rules_test extends advanced_testcase {
 
         // Book the student4 via waitinglist.
         time_mock::set_mock_time(strtotime('-1 day'));
+        $time = time_mock::get_mock_time();
         $this->setUser($student4);
         singleton_service::destroy_user($student4->id);
         $result = booking_bookit::bookit('option', $settings->id, $student4->id);
@@ -1880,7 +1886,7 @@ final class rules_test extends advanced_testcase {
 
         // Continue as admin.
         $this->setAdminUser();
-        time_mock::set_mock_time(); // Set "now".
+        time_mock::set_mock_time(strtotime('now')); // Set "now".
         $time = time_mock::get_mock_time();
         // Update booking.
         $record->id = $option->id;
@@ -1958,6 +1964,7 @@ final class rules_test extends advanced_testcase {
         }
 
         time_mock::set_mock_time(strtotime('+1 day'));
+        $time = time_mock::get_mock_time();
 
         // Run adhock tasks.
         $sink = $this->redirectMessages();
@@ -1982,6 +1989,8 @@ final class rules_test extends advanced_testcase {
         // Mandatory to deal with static variable in the booking_rules.
         rules_info::$rulestoexecute = [];
         booking_rules::$rules = [];
+        time_mock::set_mock_time(strtotime('now')); // Set "now".
+        $time = time_mock::get_mock_time();
     }
 
     /**
