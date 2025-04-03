@@ -76,7 +76,6 @@ class recurringoptions extends field_base {
      * @var array
      */
     public static $alternativeimportidentifiers = [
-        "parentid",
         "repeatthisbooking",
     ];
 
@@ -602,9 +601,7 @@ class recurringoptions extends field_base {
                     $recurringkeys = [
                         'apply_to_children',
                         'apply_to_siblings',
-                        'unlinkallchildren',
-                        'deleteallchildren',
-                        'unsetchild',
+                        'unlinkchild',
                         'identifier',
                     ];
                     foreach ($recurringkeys as $key) {
