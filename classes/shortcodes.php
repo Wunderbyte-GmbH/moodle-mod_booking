@@ -30,6 +30,7 @@ use cache_helper;
 use context_module;
 use context_system;
 use core_cohort\reportbuilder\local\entities\cohort;
+use enrol_self\self_test;
 use Exception;
 use html_writer;
 use local_wunderbyte_table\filters\types\datepicker;
@@ -563,6 +564,142 @@ class shortcodes {
     }
 
     /**
+     * Prints out list of my booked bookingoptions.
+     *
+     * @param string $shortcode
+     * @param array $args
+     * @param string|null $content
+     * @param object $env
+     * @param Closure $next
+     * @return string
+     */
+    public static function mycourseslist($shortcode, $args, $content, $env, $next) {
+
+        global $USER, $PAGE;
+        $userid = $USER->id;
+        self::fix_args($args);
+        $wherearray = [];
+
+        if (get_config('booking', 'shortcodesoff')) {
+            return "<div class='alert alert-warning'>" .
+                get_string('shortcodesoffwarning', 'mod_booking', $shortcode) .
+            "</div>";
+        }
+        if (!wb_payment::pro_version_is_activated()) {
+            return get_string('infotext:prolicensenecessary', 'mod_booking');
+        }
+
+        $course = $PAGE->course;
+        $perpage = self::check_perpage($args);
+        $pageurl = $course->shortname . $PAGE->url->out();
+
+        $perpage = self::check_perpage($args);
+        $table = self::init_table_for_courses();
+        if (!empty($args['cmid'])) {
+            $booking = singleton_service::get_instance_of_booking_settings_by_cmid((int)$args['cmid']);
+            $wherearray['bookingid'] = (int)$booking->id;
+        }
+
+        self::set_wherearray_from_arguments($args, $wherearray);
+
+        $table = self::init_table_for_courses(null, md5($pageurl));
+
+        // Additional where condition for both card and list views.
+        $additionalwhere = self::set_wherearray_from_arguments($args, $wherearray) ?? '';
+
+        [$fields, $from, $where, $params, $filter] =
+                booking::get_options_filter_sql(
+                    0,
+                    0,
+                    '',
+                    null,
+                    null,
+                    [],
+                    $wherearray,
+                    $userid,
+                    [MOD_BOOKING_STATUSPARAM_BOOKED],
+                    $additionalwhere
+                );
+
+                $table->set_filter_sql($fields, $from, $where, $filter, $params);
+
+                // These are all possible options to be displayed in the bookingtable.
+                $possibleoptions = [
+                    "description",
+                    "statusdescription",
+                    "attachment",
+                    "teacher",
+                    "responsiblecontact",
+                    "showdates",
+                    "dayofweektime",
+                    "location",
+                    "institution",
+                    "minanswers",
+                    "bookingopeningtime",
+                    "bookingclosingtime",
+                ];
+                // When calling recommendedin in the frontend we can define exclude params to set options, we don't want to display.
+
+                if (!empty($args['exclude'])) {
+                    $exclude = explode(',', $args['exclude']);
+                    $optionsfields = array_diff($possibleoptions, $exclude);
+                } else {
+                    $optionsfields = $possibleoptions;
+                }
+
+                $defaultorder = SORT_ASC; // Default.
+                if (!empty($args['sortorder'])) {
+                    if (strtolower($args['sortorder']) === "desc") {
+                        $defaultorder = SORT_DESC;
+                    }
+                }
+                if (!empty($args['sortby'])) {
+                    $table->sortable(true, $args['sortby'], $defaultorder);
+                } else {
+                    $table->sortable(true, 'text', $defaultorder);
+                }
+
+                $showfilter = !empty($args['filter']) ? true : false;
+                $showsort = !empty($args['sort']) ? true : false;
+                $showsearch = !empty($args['search']) ? true : false;
+
+                view::apply_standard_params_for_bookingtable(
+                    $table,
+                    $optionsfields,
+                    $showfilter,
+                    $showsearch,
+                    $showsort,
+                    false,
+                    true,
+                    MOD_BOOKING_VIEW_PARAM_LIST,
+                );
+
+                // Possibility to add customfieldfilter.
+                $customfieldfilter = explode(',', ($args['customfieldfilter'] ?? ''));
+        if (!empty($customfieldfilter)) {
+            self::apply_customfieldfilter($table, $customfieldfilter);
+        }
+
+                $table->showcountlabel = $showfilter ? true : false;
+
+        if (
+                    isset($args['filterontop'])
+                    && (
+                        $args['filterontop'] == '1'
+                        || $args['filterontop'] == 'true'
+                    )
+        ) {
+            $table->showfilterontop = true;
+        } else {
+            $table->showfilterontop = false;
+        }
+
+                $out = $table->outhtml($perpage, true);
+
+                return $out;
+    }
+
+    /**
      * This shortcode covers a special case.
      * It shows all the booking options of a field of study...
      * ... regardless if they are in one or many booking instances.
@@ -587,7 +724,7 @@ class shortcodes {
         // If shortcodes are turned off, we return the shortcode as it is.
         if (get_config('booking', 'shortcodesoff')) {
             return "<div class='alert alert-warning'>" .
-                get_string('shortcodesoffwarning', 'mod_booking', $shortcode) .
+            get_string('shortcodesoffwarning', 'mod_booking', $shortcode) .
             "</div>";
         }
 
@@ -596,8 +733,8 @@ class shortcodes {
         }
 
         $supporteddbs = [
-            'pgsql_native_moodle_database',
-            'mariadb_native_moodle_database',
+        'pgsql_native_moodle_database',
+        'mariadb_native_moodle_database',
         ];
 
         if (!in_array(get_class($DB), $supporteddbs)) {
@@ -662,18 +799,18 @@ class shortcodes {
 
         // These are all possible options to be displayed in the bookingtable.
         $possibleoptions = [
-            "description",
-            "statusdescription",
-            "attachment",
-            "teacher",
-            "responsiblecontact",
-            "showdates",
-            "dayofweektime",
-            "location",
-            "institution",
-            "minanswers",
-            "bookingopeningtime",
-            "bookingclosingtime",
+        "description",
+        "statusdescription",
+        "attachment",
+        "teacher",
+        "responsiblecontact",
+        "showdates",
+        "dayofweektime",
+        "location",
+        "institution",
+        "minanswers",
+        "bookingopeningtime",
+        "bookingclosingtime",
         ];
         // When calling recommendedin in the frontend we can define exclude params to set options, we don't want to display.
 
@@ -710,7 +847,7 @@ class shortcodes {
         // If shortcodes are turned off, we return the shortcode as it is.
         if (get_config('booking', 'shortcodesoff')) {
             return "<div class='alert alert-warning'>" .
-                get_string('shortcodesoffwarning', 'mod_booking', $shortcode) .
+            get_string('shortcodesoffwarning', 'mod_booking', $shortcode) .
             "</div>";
         }
 
@@ -725,10 +862,10 @@ class shortcodes {
         $argsstring = bin2hex(implode($args));
         $table = new bulkoperations_table(bin2hex(random_bytes(8)) . '_optionbulkoperationstable_' . $argsstring);
         $columns = [
-            'id' => get_string('id', 'local_wunderbyte_table'),
-            'text' => get_string('title', 'mod_booking'),
-            'action' => get_string('edit'),
-            'invisible' => get_string('invisible', 'mod_booking'),
+        'id' => get_string('id', 'local_wunderbyte_table'),
+        'text' => get_string('title', 'mod_booking'),
+        'action' => get_string('edit'),
+        'invisible' => get_string('invisible', 'mod_booking'),
         ];
         // Add defined customfields from args to columns.
         if (isset($args['customfields'])) {
@@ -777,36 +914,36 @@ class shortcodes {
         $context = context_system::instance();
         // Templates are excluded here.
         [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(0, 0, '', null, $context, [], [], null, [], ' bookingid > 0');
+            booking::get_options_filter_sql(0, 0, '', null, $context, [], [], null, [], ' bookingid > 0');
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
         $table->actionbuttons[] = [
-            'label' => get_string('editbookingoptions', 'mod_booking'),
-            'class' => 'btn btn-warning',
-            'href' => '#',
-            'formname' => 'mod_booking\\form\\option_form_bulk',
-            'nomodal' => false,
-            'selectionmandatory' => true,
-            'id' => '-1',
-            'data' => [
-                'title' => get_string('bulkoperationsheader', 'mod_booking'),
-            ],
+        'label' => get_string('editbookingoptions', 'mod_booking'),
+        'class' => 'btn btn-warning',
+        'href' => '#',
+        'formname' => 'mod_booking\\form\\option_form_bulk',
+        'nomodal' => false,
+        'selectionmandatory' => true,
+        'id' => '-1',
+        'data' => [
+            'title' => get_string('bulkoperationsheader', 'mod_booking'),
+        ],
         ];
         $table->actionbuttons[] = [
-            'label' => get_string('sendmailtoteachers', 'mod_booking'),
-            'class' => 'btn btn-info',
-            'href' => '#',
-            'formname' => 'mod_booking\\form\\send_mail_to_teachers',
-            'nomodal' => false,
-            'selectionmandatory' => true,
-            'id' => '-1',
-            'data' => [
-                'title' => get_string('sendmailheading', 'mod_booking'),
-                'titlestring' => 'blabla',
-                'bodystring' => 'adddatabody',
-                'submitbuttonstring' => get_string('send', 'mod_booking'),
-            ],
+        'label' => get_string('sendmailtoteachers', 'mod_booking'),
+        'class' => 'btn btn-info',
+        'href' => '#',
+        'formname' => 'mod_booking\\form\\send_mail_to_teachers',
+        'nomodal' => false,
+        'selectionmandatory' => true,
+        'id' => '-1',
+        'data' => [
+            'title' => get_string('sendmailheading', 'mod_booking'),
+            'titlestring' => 'blabla',
+            'bodystring' => 'adddatabody',
+            'submitbuttonstring' => get_string('send', 'mod_booking'),
+        ],
         ];
         $table->pageable(true);
         $table->stickyheader = true;
@@ -875,7 +1012,7 @@ class shortcodes {
                 } else {
                     // Prepare standardfilter.
                     $localized = $stringmanager->string_exists($colname, 'mod_booking')
-                        ? get_string($colname, 'mod_booking') : $colname;
+                    ? get_string($colname, 'mod_booking') : $colname;
                     $filtercolumns[$colname] = $localized;
                 }
             }
@@ -884,9 +1021,9 @@ class shortcodes {
             $standardfilter = new standardfilter($colname, $localized);
             if ($colname === 'invisible') {
                 $standardfilter->add_options([
-                    "0" => get_string('optionvisible', 'mod_booking'),
-                    "1" => get_string('optioninvisible', 'mod_booking'),
-                    "2" => get_string('optionvisibledirectlink', 'mod_booking'),
+                "0" => get_string('optionvisible', 'mod_booking'),
+                "1" => get_string('optioninvisible', 'mod_booking'),
+                "2" => get_string('optionvisibledirectlink', 'mod_booking'),
                 ]);
             }
             $table->add_filter($standardfilter);
