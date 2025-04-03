@@ -1958,6 +1958,27 @@ final class rules_test extends advanced_testcase {
                 $this->assertEquals($student2->id, $message->useridto);
             }
         }
+
+        time_mock::set_mock_time(strtotime('+1 day'));
+
+        // Run adhock tasks.
+        $sink = $this->redirectMessages();
+        $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        ob_start();
+        $this->runAdhocTasks();
+        $messages = $sink->get_messages();
+        $res = ob_get_clean();
+        $sink->close();
+
+        $this->assertCount(1, $messages);
+        // Validate ACTUAL task messages. Might be free order.
+        foreach ($messages as $key => $message) {
+            // Validate 1 task messages on the bookingoption_freetobookagain with delay event.
+            $this->assertEquals("freeplacedelaysubj", $message->subject);
+            $this->assertEquals("freeplacedelaymsg", $message->fullmessage);
+            $this->assertEquals($student3->id, $message->useridto);
+        }
+
         // Mandatory to solve potential cache issues.
         singleton_service::destroy_instance();
         // Mandatory to deal with static variable in the booking_rules.
