@@ -385,7 +385,6 @@ class recurringoptions extends field_base {
             fields_info::set_data($templateoption);
             $templateoption->parentid = $option->id;
             $restrictoptionid = $option->id;
-            $optionjson = json_decode($option->json);
             [$newoptiondates, $highesindex] = dates::get_list_of_submitted_dates((array)$templateoption);
 
             for ($i = 1; $i <= $data->howmanytimestorepeat; $i++) {
@@ -407,12 +406,11 @@ class recurringoptions extends field_base {
                 }
 
                 // Add info about delta and index of option to jsondata.
-                $childdata = [
+                $childdata = (object) [
                     'delta' => $delta,
                     'index' => $i,
                 ];
-                $optionjson->recurringchilddata = $childdata;
-                $templateoption->json = json_encode($optionjson);
+                booking_option::add_data_to_json($templateoption, 'recurringchilddata', $childdata);
                 $restrictoptionid = booking_option::update((object) $templateoption, $context);
             }
         }
@@ -612,10 +610,8 @@ class recurringoptions extends field_base {
                     }
 
                     // Make sure to keep specific data in child.
-                    $originalchildjson = json_decode($child->json);
-                    $json = json_decode($data->json);
-                    $json->recurringchilddata = $originalchildjson->recurringchilddata;
-                    $childdata->json = json_encode($json);
+                    $json = json_decode($child->json);
+                    booking_option::add_data_to_json($childdata, 'recurringchilddata', $json->recurringchilddata);
                     $update = true;
                 }
                 // Update the data record after all changes are made.
