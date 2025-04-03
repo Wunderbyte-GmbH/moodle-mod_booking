@@ -1892,9 +1892,11 @@ final class rules_test extends advanced_testcase {
         singleton_service::destroy_booking_option_singleton($option->id);
 
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
-        $bookinganswers = singleton_service::get_instance_of_booking_answers($settings)->answers;
-        $this->assertIsArray($bookinganswers);
-        $this->assertCount(4, $bookinganswers);
+        $ba = singleton_service::get_instance_of_booking_answers($settings);
+        $this->assertIsArray($ba->usersonlist);
+        $this->assertCount(1, $ba->usersonlist);
+        $this->assertIsArray($ba->usersonwaitinglist);
+        $this->assertCount(3, $ba->usersonwaitinglist);
         // Execute tasks, get messages and validate it.
         // Get all scheduled task messages.
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
