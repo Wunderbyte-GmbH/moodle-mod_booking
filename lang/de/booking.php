@@ -1548,6 +1548,7 @@ $string['mustfilloutuserinfobeforebooking'] = 'Bevor Sie buchen, füllen Sie bit
 $string['mustnotcombine'] = 'Ausgeschlossene Buchungsoptionen';
 $string['mustnotcombine_help'] = 'Buchungsoptionen mit denen diese Buchungsoption nicht kombiniert werden kann';
 $string['mybookingoptions'] = 'Meine Buchungen';
+$string['mycourselist'] = 'Zeige meine Buchungsoptionen';
 $string['myinstitution'] = 'Meine Institution';
 $string['name'] = 'Name';
 $string['newcourse'] = 'Neuen Kurs erstellen...';
