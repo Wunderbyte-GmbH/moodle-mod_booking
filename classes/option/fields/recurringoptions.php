@@ -305,11 +305,11 @@ class recurringoptions extends field_base {
             } else if (!empty($isparentofcurrent)) { // Child can be unlinked.
                 $mform->addElement(
                     'checkbox',
-                    'unsetchild',
-                    get_string('unsetchild', 'mod_booking')
+                    'unlinkchild',
+                    get_string('unlinkchild', 'mod_booking')
                 );
                 $mform->addElement('static', 'allchildrenactioninfo', '', get_string('recurringactioninfo', 'mod_booking'));
-                $mform->hideIf('deleteallchildreninfo', 'unsetchild', 'notchecked');
+                $mform->hideIf('deleteallchildreninfo', 'unlinkchild', 'notchecked');
             }
             if (
                 !empty($sameparent)
@@ -449,7 +449,7 @@ class recurringoptions extends field_base {
                 ];
             };
         }
-        if (!empty($formdata['unsetchild'])) {
+        if (!empty($data->unlinkchild)) {
             self::unlink_child(
                 $data->optionid
             );
@@ -702,8 +702,7 @@ class recurringoptions extends field_base {
             foreach ($children as $child) {
                 switch ($action) {
                     case MOD_BOOKING_ALL_CHILDRED_UNLINK: // Unlink.
-                        $child->parentid = 0;
-                        booking_option::update((array) $child);
+                        self::unlink_child($child->id);
                         break;
                     case MOD_BOOKING_ALL_CHILDRED_DELETE: // Delete.
                         if (empty($cmid)) {
@@ -735,15 +734,10 @@ class recurringoptions extends field_base {
             'cmid' => $option->cmid,
             'id' => $childid, // In the context of option_form class, id always refers to optionid.
             'optionid' => $childid, // Just kept on for legacy reasons.
-            // bookingid?
         ];
-        $childdata = fields_info::set_data($optiondata);
-        $data = [
-            'optionid' => $childid,
-            'parentid' => 0,
-        ];
-
-        booking_option::remove_key_from_json($option, 'recurringchilddata');
-        booking_option::update($data);
+        fields_info::set_data($optiondata);
+        booking_option::remove_key_from_json($optiondata, 'recurringchilddata');
+        $optiondata->parentid = 0;
+        booking_option::update($optiondata);
     }
 }
