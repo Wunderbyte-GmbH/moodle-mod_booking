@@ -1555,6 +1555,7 @@ $string['mustnotcombine_help'] = 'Booking options which can\'t be  combined with
 $string['mybookingoptions'] = 'My booked options';
 $string['mybookingsbooking'] = 'Booking (Course)';
 $string['mybookingsoption'] = 'Option';
+$string['mycourselist'] = 'Show my Booking options. ';
 $string['myinstitution'] = 'My institution';
 $string['name'] = 'Name';
 $string['newcourse'] = 'Create new course...';
