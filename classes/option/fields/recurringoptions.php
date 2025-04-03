@@ -416,10 +416,10 @@ class recurringoptions extends field_base {
         }
         if (!empty($data->deleteallchildren)) {
             $childrenids = self::allchildrenaction(
-                    $data->id,
-                    MOD_BOOKING_ALL_CHILDRED_DELETE,
-                    $data->cmid
-                );
+                $data->id,
+                MOD_BOOKING_ALL_CHILDRED_DELETE,
+                $data->cmid
+            );
             if (!empty($childrenids)) {
                 $changes = [
                     'changes' => [
@@ -617,9 +617,6 @@ class recurringoptions extends field_base {
                 // Update the data record after all changes are made.
                 if ($update) {
                     $childdata->parentid = $data->optionid ?? $child->parentid ?? 0;
-                    if (empty($overwrite)) {
-                        $childdata->importing = 1;
-                    }
                     booking_option::update((object) $childdata, $context);
                 }
             }
@@ -650,11 +647,13 @@ class recurringoptions extends field_base {
 
         [$childoptiondates, $highesindexchild] = dates::get_list_of_submitted_dates((array)$childdatatoupdate);
 
+        // Unset all dates.
         for ($i = 1; $i <= $highesindexchild; $i++) {
-            $key = MOD_BOOKING_FORM_OPTIONDATEID . $i;
-            if (isset($childdatatoupdate->$key)) {
-                unset($childdatatoupdate->$key);
-            }
+            unset($childdatatoupdate->{MOD_BOOKING_FORM_OPTIONDATEID . $i});
+            unset($childdatatoupdate->{MOD_BOOKING_FORM_COURSESTARTTIME . $i});
+            unset($childdatatoupdate->{MOD_BOOKING_FORM_COURSEENDTIME . $i});
+            unset($childdatatoupdate->{MOD_BOOKING_FORM_DAYSTONOTIFY . $i});
+        }
         if (empty($delta) || empty($index)) {
             // No delta or index, don't update the dates.
             return;

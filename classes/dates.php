@@ -275,7 +275,6 @@ class dates {
                 empty($settings->selflearningcourse)
                 && !isset($defaultvalues->coursestarttime_1)
             ) {
-                // This is the problem, when we import the changes for the recurring actions, data is fetched from here.
                 $sessions = $settings->sessions;
             } else {
                 $sessions = [];
