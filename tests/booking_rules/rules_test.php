@@ -1754,7 +1754,6 @@ final class rules_test extends advanced_testcase {
      * @throws \coding_exception
      * @throws \dml_exception
      *
-     * @runInSeparateProcess
      * @dataProvider booking_common_settings_provider
      */
     public function test_rule_on_freeplace_on_intervals_when_maxanswer_increased_and_waitinglist_forced(array $bdata): void {
@@ -1798,9 +1797,9 @@ final class rules_test extends advanced_testcase {
             'name' => 'intervlqs',
             'conditionname' => 'select_student_in_bo',
             'contextid' => 1,
-            'conditiondata' => '{"borole":"smallerthan1"}',
+            'conditiondata' => '{"borole":"1"}',
             'actionname' => 'send_mail_interval',
-            'actiondata' => '{"interval":1,"subject":"freeplacedelaysubj","template":"freeplacedelaymsg","templateformat":"1"}',
+            'actiondata' => '{"interval":1440,"subject":"freeplacedelaysubj","template":"freeplacedelaymsg","templateformat":"1"}',
             'rulename' => 'rule_react_on_event',
             'ruledata' => '{' . $boevent1 . ',"aftercompletion":0,"cancelrules":[],"condition":"2"}',
         ];
@@ -1919,15 +1918,15 @@ final class rules_test extends advanced_testcase {
                 // TODO: now it is admin (id==2)?
                 //$this->assertEquals($student1->id, $rulejson->datafromevent->userid);
             } else {
-                // Validate 3 task messages on the bookingoption_freetobookagain with delay event.
-                // TODO for some reasons - only student1 and student2 being informed - expected student2,3,4 ?
+                // Validate 2 task messages on the bookingoption_freetobookagain with delay event
+                // ... student2 and student3 should be informed.
                 $this->assertEquals("freeplacedelaysubj", $customdata->customsubject);
                 $this->assertEquals("freeplacedelaymsg", $customdata->custommessage);
-                $this->assertContains($customdata->userid, [$student1->id, $student2->id, $student3->id, $student4->id]);
+                $this->assertContains($customdata->userid, [$student2->id, $student3->id]);
                 $this->assertStringContainsString($boevent1, $customdata->rulejson);
                 $this->assertStringContainsString($ruledata1['conditiondata'], $customdata->rulejson);
                 $this->assertStringContainsString($ruledata1['actiondata'], $customdata->rulejson);
-                $this->assertContains($task->get_userid(), [$student1->id, $student2->id, $student3->id, $student4->id]);
+                $this->assertContains($task->get_userid(), [$student2->id, $student3->id]);
                 $rulejson = json_decode($customdata->rulejson);
                 $this->assertEmpty($rulejson->datafromevent->relateduserid);
                 // TODO: now it is admin (id==2)?
@@ -1956,7 +1955,6 @@ final class rules_test extends advanced_testcase {
                 // Validate 1 task messages on the bookingoption_freetobookagain with delay event.
                 $this->assertEquals("freeplacedelaysubj", $message->subject);
                 $this->assertEquals("freeplacedelaymsg", $message->fullmessage);
-                // TODO: Actual result is student1 when student2 expected.
                 $this->assertEquals($student2->id, $message->useridto);
             }
         }
