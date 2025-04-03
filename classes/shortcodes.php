@@ -857,18 +857,18 @@ class shortcodes {
 
         // These are all possible options to be displayed in the bookingtable.
         $possibleoptions = [
-            "description",
-            "statusdescription",
-            "attachment",
-            "teacher",
-            "responsiblecontact",
-            "showdates",
-            "dayofweektime",
-            "location",
-            "institution",
-            "minanswers",
-            "bookingopeningtime",
-            "bookingclosingtime",
+        "description",
+        "statusdescription",
+        "attachment",
+        "teacher",
+        "responsiblecontact",
+        "showdates",
+        "dayofweektime",
+        "location",
+        "institution",
+        "minanswers",
+        "bookingopeningtime",
+        "bookingclosingtime",
         ];
         // When calling recommendedin in the frontend we can define exclude params to set options, we don't want to display.
 
