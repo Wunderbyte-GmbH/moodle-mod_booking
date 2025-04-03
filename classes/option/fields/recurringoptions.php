@@ -101,7 +101,6 @@ class recurringoptions extends field_base {
         int $updateparam,
         $returnvalue = null
     ): array {
-        $newoption->parentid = $formdata->parentid ?? 0;
 
         return [];
     }
