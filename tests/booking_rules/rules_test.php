@@ -1900,7 +1900,7 @@ final class rules_test extends advanced_testcase {
         // Get all scheduled task messages.
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
 
-        $this->assertCount(5, $tasks); // TODO: expected 6 - actual 5 ?
+        $this->assertCount(5, $tasks);
         // Validate task messages. Might be free order.
         foreach ($tasks as $key => $task) {
             $customdata = $task->get_custom_data();
@@ -1915,8 +1915,7 @@ final class rules_test extends advanced_testcase {
                 $this->assertContains($task->get_userid(), [$student2->id, $student3->id, $student4->id]);
                 $rulejson = json_decode($customdata->rulejson);
                 $this->assertEmpty($rulejson->datafromevent->relateduserid);
-                // TODO: now it is admin (id==2)?
-                //$this->assertEquals($student1->id, $rulejson->datafromevent->userid);
+                $this->assertEquals(2, $rulejson->datafromevent->userid);
             } else {
                 // Validate 2 task messages on the bookingoption_freetobookagain with delay event
                 // ... student2 and student3 should be informed.
@@ -1929,8 +1928,7 @@ final class rules_test extends advanced_testcase {
                 $this->assertContains($task->get_userid(), [$student2->id, $student3->id]);
                 $rulejson = json_decode($customdata->rulejson);
                 $this->assertEmpty($rulejson->datafromevent->relateduserid);
-                // TODO: now it is admin (id==2)?
-                //$this->assertEquals($student1->id, $rulejson->datafromevent->userid);
+                $this->assertEquals(2, $rulejson->datafromevent->userid);
             }
         }
 
