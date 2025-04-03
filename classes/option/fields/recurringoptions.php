@@ -349,8 +349,16 @@ class recurringoptions extends field_base {
      * @return void
      */
     public static function definition_after_data(MoodleQuickForm &$mform, $formdata) {
+        $nosubmit = false;
+        foreach ($mform->_noSubmitButtons as $key) {
+            if (isset($formdata[$key])) {
+                $nosubmit = true;
+                break;
+            }
+        }
         if (
-            isset($formdata['validated_once'])
+            !$nosubmit
+            && isset($formdata['validated_once'])
             && ($mform->_flagSubmitted ?? false)
             && empty($formdata['validated_once'])
         ) {
