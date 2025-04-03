@@ -791,8 +791,8 @@ class booking_answers {
         global $DB;
         if (!in_array($scope, ["option", "optiondate"])) {
             $advancedsqlstart = "SELECT
-                ba.optionid AS id,
-                ba.optionid,
+                bo.id,
+                bo.id as optionid,
                 ba.waitinglist,
                 cm.id AS cmid,
                 c.id AS courseid,
@@ -803,9 +803,9 @@ class booking_answers {
                 COUNT(ba.id) answerscount,
                 SUM(pcnt.presencecount) presencecount,
                 '" . $scope . "' AS scope
-            FROM {booking_answers} ba
-            JOIN {booking_options} bo ON bo.id = ba.optionid
-            JOIN {user} u ON ba.userid = u.id
+            FROM {booking_options} bo
+            LEFT JOIN {booking_answers} ba ON bo.id = ba.optionid
+            LEFT JOIN {user} u ON ba.userid = u.id
             JOIN {course_modules} cm ON bo.bookingid = cm.instance
             JOIN {booking} b ON b.id = bo.bookingid
             JOIN {course} c ON c.id = b.course
@@ -818,11 +818,18 @@ class booking_answers {
             ) pcnt
             ON pcnt.optionid = ba.optionid AND pcnt.userid = u.id";
 
-            $advancedsqlwhere = "WHERE
+            if ($statusparam === 0) {
+                $advancedsqlwhere = "WHERE
+                    m.name = 'booking'
+                    AND (ba.waitinglist = 0 OR ba.waitinglist IS NULL)";
+            } else {
+                $advancedsqlwhere = "WHERE
                 m.name = 'booking'
                 AND ba.waitinglist = :statusparam";
+            }
 
-            $advancedsqlgroupby = "GROUP BY cm.id, c.id, c.fullname, ba.optionid, ba.waitinglist, bo.titleprefix, bo.text, b.name";
+
+            $advancedsqlgroupby = "GROUP BY cm.id, c.id, c.fullname, bo.id, ba.waitinglist, bo.titleprefix, bo.text, b.name";
 
             $advancedsqlend = "ORDER BY bo.titleprefix, bo.text ASC
                 LIMIT 10000000000";
