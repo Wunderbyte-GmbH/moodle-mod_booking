@@ -962,17 +962,6 @@ class shortcodes {
             $table->sortable(true, 'text', $defaultorder);
         }
 
-        if (isset($args['pageable']) && ($args['pageable'] == 1 || $args['pageable'] == true)) {
-            $table->pageable(true);
-            $table->stickyheader = true;
-        }
-
-        if (!isset($args['pageable']) || $args['pageable'] == 0 || $args['pageable'] == "false" || $args['pageable'] == false) {
-            $infinitescrollpage = is_numeric($args['infinitescrollpage'] ?? '') ? (int)$args['infinitescrollpage'] : 30;
-            // This allows us to use infinite scrolling, No pages will be used.
-            $table->infinitescroll = $infinitescrollpage;
-        }
-
         if (isset($args['requirelogin']) && $args['requirelogin'] == "false") {
             $table->requirelogin = false;
         }
@@ -1014,7 +1003,6 @@ class shortcodes {
         if (!empty($customfields) && !empty($args)) {
             foreach ($args as $key => $value) {
                 // Logik
-
                 foreach ($customfields as $customfield) {
                     if ($customfield->shortname == $key) {
                         $configdata = json_decode($customfield->configdata ?? '[]');
@@ -1057,7 +1045,7 @@ class shortcodes {
      * Helper function to remove quotation marks from args.
      * @param array &$args reference to arguments array
      */
-    private static function fix_args(array &$args) {
+    private static function fix_args(array $args) {
         foreach ($args as $key => &$value) {
             // Get rid of quotation marks.
             $value = str_replace('"', '', $value);
