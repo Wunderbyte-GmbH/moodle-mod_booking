@@ -101,6 +101,9 @@ class recurringoptions extends field_base {
         int $updateparam,
         $returnvalue = null
     ): array {
+        if (isset($formdata->parentid)) {
+            $newoption->parentid = $formdata->parentid;
+        }
 
         return [];
     }
@@ -131,17 +134,16 @@ class recurringoptions extends field_base {
             if ($applyheader) {
                 fields_info::add_header_to_mform($mform, self::$header);
             }
-            $mform->addElement(
-                'hidden',
-                'parentid',
-            );
-            $mform->setType('parentid', PARAM_INT);
+            // $mform->addElement(
+            //     'hidden',
+            //     'parentid',
+            // );
+            // $mform->setType('parentid', PARAM_INT);
 
             $settings = singleton_service::get_instance_of_booking_option_settings($formdata['id']);
 
             // Fetch parents and children of this option.
             // Parents / Children header.
-
             // Either parentid is current optionid or id is current parentid. Case with same parent.
             $sql = 'SELECT * FROM {booking_options}
                     WHERE parentid = :id';
@@ -448,7 +450,7 @@ class recurringoptions extends field_base {
             };
         }
         if (!empty($formdata['unsetchild'])) {
-            self::unset_child(
+            self::unlink_child(
                 $data->optionid
             );
             $changes = [
@@ -517,16 +519,16 @@ class recurringoptions extends field_base {
                     'parentid' => $oldoption->parentid,
                 ];
                 $select = "parentid = :parentid";
-                if (!empty($oldoption->coursestarttime)) {
-                    $conditions['coursestarttime'] = $oldoption->coursestarttime;
-                    $select .= " AND coursestarttime >= :coursestarttime";
-                }
-                $records = $DB->get_records_select(
+                $allsiblings = $DB->get_records_select(
                     'booking_options',
                     $select,
                     $conditions
                 );
-                if ($data->apply_to_siblings == MOD_BOOKING_RECURRING_OVERWRITE_SIBLINGS) {
+                $optionjson = json_decode($allsiblings[$oldoption->id]->json);
+                $i = $optionjson->recurringchilddata->index ?? 0;
+
+                $records = array_filter($allsiblings, fn($r) => (($ri = json_decode($r->json)->recurringchilddata->index ?? 0) === 0) || $ri > $i);
+                if ($optionjson->apply_to_siblings == MOD_BOOKING_RECURRING_OVERWRITE_SIBLINGS) {
                     $overwrite = true;
                 }
                 break;
@@ -616,7 +618,8 @@ class recurringoptions extends field_base {
                 }
                 // Update the data record after all changes are made.
                 if ($update) {
-                    $childdata->parentid = $data->optionid ?? $child->parentid ?? 0;
+                    // Keep parentid if it's already set. Otherwise we fallback and use the id of the template (parent) option.
+                    $childdata->parentid = $child->parentid ?? $data->optionid ?? 0;
                     booking_option::update((object) $childdata, $context);
                 }
             }
@@ -726,11 +729,21 @@ class recurringoptions extends field_base {
      * @return void
      *
      */
-    private static function unset_child(int $childid) {
+    private static function unlink_child(int $childid) {
+        $option = singleton_service::get_instance_of_booking_by_optionid($childid);
+        $optiondata = (object)[
+            'cmid' => $option->cmid,
+            'id' => $childid, // In the context of option_form class, id always refers to optionid.
+            'optionid' => $childid, // Just kept on for legacy reasons.
+            // bookingid?
+        ];
+        $childdata = fields_info::set_data($optiondata);
         $data = [
             'optionid' => $childid,
             'parentid' => 0,
         ];
+
+        booking_option::remove_key_from_json($option, 'recurringchilddata');
         booking_option::update($data);
     }
 }
