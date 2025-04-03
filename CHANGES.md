@@ -1,3 +1,40 @@
+## Version 8.11.4-release (2025032303)
+* Improvement: New setting addtogroupofcurrentcourse.
+* Improvement: Create groups according to settings in booking instance.
+* Improvement: Add checkbox to keep users in course created from template.
+* Improvement: Check answer for group enrolments and uservisibility only.
+* Improvement: Fix logic to how to access the page: booked users can always see it.
+* Improvement: Better enrollink workflow: go directly to the right booking option or course.
+* Improvement: Make sure update over Webservice is possible only for some columns.
+* Improvement: Display statusdescription in bookingoption detailview.
+* Improvement: Format string for customfields in settings.
+* Bugfix: Booking opening and closing time should be rendered for any locale.
+* Bugfix: Use four backslashes to escape them correctly even for MariaDB.
+* Bugfix: Use wildcards in SQL instead of backslashes in order to avoid bug with MariaDB.
+* Bugfix: Avoid Postgres specific jargon in sql query.
+* Bugfix: Fix duplicated tearDown function.
+* Bugfix: Fallbacks for availabilty condtions userprofilefields & linting.
+* Bugfix: fix bug when 1 user always remains on waitinglist if maxanswers has been updated.
+* Bugfix: Make sure that we don't get an error when there is no course linked to then booking option on enroll functionality.
+* Bugfix: Make sure that we don't save empty values to profilecustomfield2 condition.
+* Bugfix: Make sure that we don't save empty values to profilefield1 condition.
+* Bugfix: Harden course backup imports from other instance.
+* Bugfix: maxperuser condition counted system-wide answers - it MUST be instance-specific.
+* Bugfix: Singleton for bookinganswersforuser needs to be instance-specific too!
+* Bugfix: Don't display save/cancel buttons for empty form.
+* Bugfix: Make sure variable customfieldshortnames is declared in mod_form
+* Bugfix: Keep users on waiting list if setting to wait for confirmation is turned on.
+* Bugfix: Enrollinkfeature check already booked
+* Bugfix: Make first column unique in course sql for fieldofstudy tab.
+* Bugfix: Quickfix for bulkoperation arguments use sanitized key for tableid.
+* Bugfix: Fix broken links.
+* Bugfix: Fix broken PHPUnit test for overlapping condition.
+* Bugfix: Fix SQL for checkanswers task (avoid duplicates in id column, ignore already deleted answers).
+* Bugfix: In sync_waiting_list we also need to purge answers cache before sending mails.
+* Tests: Add test for group enrolment in current course.
+* Tests: Include tearDown function to delete singleton instance.
+* Tests: new behat Scenario: Booking option: reconfiguration of waiting list.
+
 ## Version 8.11.3 (2025031803)
 * Bugfix: Use has_set_url instead of catching error
 
