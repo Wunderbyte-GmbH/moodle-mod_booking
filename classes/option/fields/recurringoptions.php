@@ -26,6 +26,7 @@ namespace mod_booking\option\fields;
 
 use context_module;
 use mod_booking\booking_option;
+use mod_booking\booking_option_settings;
 use mod_booking\dates;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
@@ -385,13 +386,12 @@ class recurringoptions extends field_base {
             fields_info::set_data($templateoption);
             $templateoption->parentid = $option->id;
             $restrictoptionid = $option->id;
+            $optionjson = json_decode($option->json);
             [$newoptiondates, $highesindex] = dates::get_list_of_submitted_dates((array)$templateoption);
 
-            $title = $templateoption->text;
             for ($i = 1; $i <= $data->howmanytimestorepeat; $i++) {
                 // Handle dates.
                 unset($templateoption->id, $templateoption->identifier, $templateoption->optionid);
-                $templateoption->text = $title;
                 foreach ($newoptiondates as $newoptiondate) {
                     $key = MOD_BOOKING_FORM_OPTIONDATEID . $newoptiondate["index"];
                     $templateoption->{$key} = 0;
@@ -406,6 +406,14 @@ class recurringoptions extends field_base {
                     $templateoption->bo_cond_previouslybooked_restrict = "1";
                     $templateoption->bo_cond_previouslybooked_optionid = "$restrictoptionid";
                 }
+
+                // Add info about delta and index of option to jsondata.
+                $childdata = [
+                    'delta' => $delta,
+                    'index' => $i,
+                ];
+                $optionjson->recurringchilddata = $childdata;
+                $templateoption->json = json_encode($optionjson);
                 $restrictoptionid = booking_option::update((object) $templateoption, $context);
             }
         }
@@ -469,10 +477,10 @@ class recurringoptions extends field_base {
     public static function validation(array $data, array $files, array &$errors) {
 
         if (empty($data['validated_once'])) {
-            if (isset($data['apply_to_children']) && !empty($data['apply_to_children'])) {
+            if (isset($data['apply_to_children'])) {
                 $errors['apply_to_children'] = get_string('confirmrecurringoptionerror', 'mod_booking');
             }
-            if (isset($data['apply_to_siblings']) && !empty($data['apply_to_siblings'])) {
+            if (isset($data['apply_to_siblings'])) {
                 $errors['apply_to_siblings'] = get_string('confirmrecurringoptionerror', 'mod_booking');
             }
         }
@@ -561,71 +569,54 @@ class recurringoptions extends field_base {
                 ];
                 fields_info::set_data($childdata);
                 $update = false;
-                foreach ($changes as $change) {
-                    if (empty($change['changes'])) {
-                        continue;
-                    }
-                    if (
-                        (isset($change['changes']['fieldname'])
-                        && $change['changes']['fieldname'] == 'dates')
-                        || $overwrite
-                    ) {
-                        if ($overwrite) {
-                            // In case that overwrite is set, dates are recalculated.
-                            $delta = $data->howoftentorepeat;
-                        }
-                        if (empty($delta)) {
-                            // No consistent delta, changes in dates not applied.
+                if (!$overwrite) {
+                    foreach ($changes as $change) {
+                        if (empty($change['changes'])) {
                             continue;
-                        } else {
-                            $update = true;
-                            [$childoptiondates, $highesindexchild] = dates::get_list_of_submitted_dates((array)$childdata);
-
-                            for ($i = 1; $i <= $highesindexchild; $i++) {
-                                $key = MOD_BOOKING_FORM_OPTIONDATEID . $i;
-                                if (isset($childdata->$key)) {
-                                    unset($childdata->$key);
-                                }
-                            }
-
-                            $d += $delta;
-                            foreach ($newparentoptiondates as $newparentoptiondate) {
-                                // Set the timestamp including the corresponding delta.
-                                $key = MOD_BOOKING_FORM_OPTIONDATEID . $newparentoptiondate["index"];
-                                $childdata->{$key} = 0;
-                                $key = MOD_BOOKING_FORM_COURSESTARTTIME . $newparentoptiondate["index"];
-                                $coursestarttimekey = rtrim(MOD_BOOKING_FORM_COURSESTARTTIME, "_");
-                                $childdata->{$key} = (int) $newparentoptiondate[$coursestarttimekey] + $d;
-                                $key = MOD_BOOKING_FORM_COURSEENDTIME . $newparentoptiondate["index"];
-                                $courseendtimekey = rtrim(MOD_BOOKING_FORM_COURSEENDTIME, "_");
-                                $childdata->{$key} = (int) $newparentoptiondate[$courseendtimekey] + $d;
-                                $key = MOD_BOOKING_FORM_DAYSTONOTIFY . $newparentoptiondate["index"];
-                                $dayskey = rtrim(MOD_BOOKING_FORM_DAYSTONOTIFY, "_");
-                                $childdata->{$key} = $newparentoptiondate[$dayskey];
-                            }
                         }
-                        booking_option::update($childdata, $context);
-                    } else if (!$overwrite) {
-                        // Decide only here if overwrite is applied, because changes in dates should be applied.
-
-                        $fieldname = $change['changes']['formkey'] ?? '';
-                        $newvalue = $change['changes']['newvalue'] ?? '';
-
-                        // If the field exists and the value is different, update it.
-                        if (isset($childdata->$fieldname) && $childdata->$fieldname !== $newvalue) {
-                            $childdata->$fieldname = $newvalue;
+                        if (
+                            (isset($change['changes']['fieldname'])
+                            && $change['changes']['fieldname'] == 'dates')
+                        ) {
+                            self::update_recurring_date_sessions($childdata, $newparentoptiondates);
                             $update = true;
+                        } else if (!$overwrite) {
+                            // Decide only here if overwrite is applied, because changes in dates should be applied.
+                            $fieldname = $change['changes']['formkey'] ?? '';
+                            $newvalue = $change['changes']['newvalue'] ?? '';
+
+                            // If the field exists and the value is different, update it.
+                            if (isset($childdata->$fieldname) && $childdata->$fieldname !== $newvalue) {
+                                $childdata->$fieldname = $newvalue;
+                                $update = true;
+                            }
                         }
                     }
-                }
-                if ($overwrite) {
+                } else {
+                    $childdatastore = clone $childdata;
                     $childdata = $data;
                     $childdata->id = $child->id;
+                    $settings = singleton_service::get_instance_of_booking_option_settings($childdata->id);
+                    self::update_recurring_date_sessions($childdata, $newparentoptiondates, $childdatastore);
+
                     // Make sure to unset further recurring options in dependent options.
-                    $recurringkeys = ['apply_to_children', 'apply_to_siblings', 'unlinkallchildren', 'deleteallchildren', 'unsetchild'];
+                    $recurringkeys = [
+                        'apply_to_children',
+                        'apply_to_siblings',
+                        'unlinkallchildren',
+                        'deleteallchildren',
+                        'unsetchild',
+                        'identifier',
+                    ];
                     foreach ($recurringkeys as $key) {
                         unset($childdata->$key);
                     }
+
+                    // Make sure to keep specific data in child.
+                    $originalchildjson = json_decode($child->json);
+                    $json = json_decode($data->json);
+                    $json->recurringchilddata = $originalchildjson->recurringchilddata;
+                    $childdata->json = json_encode($json);
                     $update = true;
                 }
                 // Update the data record after all changes are made.
@@ -637,6 +628,57 @@ class recurringoptions extends field_base {
                     booking_option::update((object) $childdata, $context);
                 }
             }
+        }
+    }
+
+    /**
+     * Create recurring date sessions.
+     *
+     * @param object $childdatatoupdate
+     * @param array $newparentoptiondates
+     * @param object|null $childdatatoread
+     *
+     * @return void
+     *
+     */
+    private static function update_recurring_date_sessions(
+        object &$childdatatoupdate,
+        array $newparentoptiondates,
+        $childdatatoread = null
+    ) {
+        // In case there is change in dates or everything is overwritten, apply all dates with delta.
+
+        $childdatatoread = $childdatatoread ?? $childdatatoupdate;
+        $json = json_decode($childdatatoread->json);
+        $delta = $json->recurringchilddata->delta ?? '';
+        $index = $json->recurringchilddata->index ?? 0;
+
+        [$childoptiondates, $highesindexchild] = dates::get_list_of_submitted_dates((array)$childdatatoupdate);
+
+        for ($i = 1; $i <= $highesindexchild; $i++) {
+            $key = MOD_BOOKING_FORM_OPTIONDATEID . $i;
+            if (isset($childdatatoupdate->$key)) {
+                unset($childdatatoupdate->$key);
+            }
+        if (empty($delta) || empty($index)) {
+            // No delta or index, don't update the dates.
+            return;
+        }
+
+        $d = $delta;
+        foreach ($newparentoptiondates as $newparentoptiondate) {
+            // Set the timestamp including the corresponding delta.
+            $key = MOD_BOOKING_FORM_OPTIONDATEID . $newparentoptiondate["index"];
+            $childdatatoupdate->{$key} = 0;
+            $key = MOD_BOOKING_FORM_COURSESTARTTIME . $newparentoptiondate["index"];
+            $coursestarttimekey = rtrim(MOD_BOOKING_FORM_COURSESTARTTIME, "_");
+            $childdatatoupdate->{$key} = (int) $newparentoptiondate[$coursestarttimekey] + $d;
+            $key = MOD_BOOKING_FORM_COURSEENDTIME . $newparentoptiondate["index"];
+            $courseendtimekey = rtrim(MOD_BOOKING_FORM_COURSEENDTIME, "_");
+            $childdatatoupdate->{$key} = (int) $newparentoptiondate[$courseendtimekey] + $d;
+            $key = MOD_BOOKING_FORM_DAYSTONOTIFY . $newparentoptiondate["index"];
+            $dayskey = rtrim(MOD_BOOKING_FORM_DAYSTONOTIFY, "_");
+            $childdatatoupdate->{$key} = $newparentoptiondate[$dayskey];
         }
     }
 

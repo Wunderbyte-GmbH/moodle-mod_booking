@@ -153,122 +153,162 @@ final class recurringoptions_test extends advanced_testcase {
         $createdoptions = $DB->get_records('booking_options', ['bookingid' => $booking1->id]);
         $this->assertCount($expected['totaloptions'], $createdoptions, 'Recurring options were not created correctly.');
 
-        // Fetch created options and check naming.
-        $optiondates = $DB->get_records_sql(
-            "SELECT id, text, coursestarttime, courseendtime FROM {booking_options} WHERE bookingid = ? ORDER BY id ASC",
-            [$booking1->id]
-        );
-
-        $optionarray = array_values($optiondates);
-        $this->assertEquals('Test option1', $optionarray[0]->text);
-        $this->assertEquals('Test option1', $optionarray[1]->text);
-        $this->assertEquals('Test option1', $optionarray[2]->text);
-
-        $expectedstarttime = strtotime($record->coursestarttime);
-
-        $this->assertEquals($expectedstarttime, $optionarray[0]->coursestarttime);
-        $this->assertEquals(strtotime($expected['delta1'], $expectedstarttime), $optionarray[1]->coursestarttime);
-        $this->assertEquals(strtotime($expected['delta2'], $expectedstarttime), $optionarray[2]->coursestarttime);
-
-        $expectedendttime = strtotime($record->courseendtime);
-
-        $this->assertEquals($expectedendttime, $optionarray[0]->courseendtime);
-        $this->assertEquals(strtotime($expected['delta1'], $expectedendttime), $optionarray[1]->courseendtime);
-        $this->assertEquals(strtotime($expected['delta2'], $expectedendttime), $optionarray[2]->courseendtime);
-
-        $price = price::get_price('option', $optionarray[0]->id);
+        // Check for children if data is applied correctly.
         $priceoriginal = price::get_price('option', $record->id);
+        foreach ($createdoptions as $id => $option) {
+            if ($id == $option1->id) {
+                // Skip the parent.
+                continue;
+            }
+            // Data is stored correctly in json of child.
+            $optionjson = json_decode($option->json);
+            $this->assertEquals($data['howoftentorepeat'], $optionjson->recurringchilddata->delta);
 
-        $this->assertEquals($price['price'], $priceoriginal['price']);
+            // Title.
+            $this->assertEquals($record->text, $option->text);
 
-        // Logic regarding changes made on parent and reflecting on children.
-        // Unset keys regarding repeating, coursestarttime and courseendtime.
-        unset($record->repeatthisbooking, $record->howmanytimestorepeat, $record->howoftentorepeat);
-        unset($record->coursestarttime);
-        unset($record->courseendtime);
+            // Starttime and Endtime correspond to delta and index as defined in json.
+            $expectedstartingtime = strtotime($record->coursestarttime) + ($optionjson->recurringchilddata->delta * $optionjson->recurringchilddata->index);
+            $this->assertEquals($expectedstartingtime, $option->coursestarttime);
+            $expectedendtime = strtotime($record->courseendtime) + ($optionjson->recurringchilddata->delta * $optionjson->recurringchilddata->index);
+            $this->assertEquals($expectedendtime, $option->courseendtime);
+
+            // Price.
+            $optionprice = price::get_price('option', $option->id);
+            $this->assertEquals($priceoriginal['price'], $optionprice['price']);
+
+            // Parentid is stored.
+            $this->assertEquals($record->id, $option->parentid);
+        }
+
+        // A first small update of the parent record, that's not applied to children.
+        $firstupdate = [
+            'beforebookedtext' => $data['updatedbeforebookedtext'],
+            'cmid' => $settings->cmid,
+            'id' => $record->id,
+            'importing' => 1,
+        ];
+        booking_option::update($firstupdate);
+
+        // This change should not be applied to children.
+        $children = $DB->get_records('booking_options', ['bookingid' => $booking1->id, 'parentid' => $record->id]);
+        foreach ($children as $child) {
+            $this->assertNotEquals($firstupdate['beforebookedtext'], $child->beforebookedtext ?? '');
+        }
 
         // Update the parent option with new values and apply to children.
+        $record = (object) [
+            'cmid' => $settings->cmid,
+            'id' => $record->id,
+        ];
+        fields_info::set_data($record);
         $record->maxanswers = 20;
         $record->maxoverbooking = 10;
         $record->text = 'Test Parent';
         $record->description = 'Test Booking Description';
-        $record->coursestarttime = strtotime('2025-01-03 10:00:00');
-        $record->courseendtime = strtotime('2025-30-03 10:00:00');
+        $record->coursestarttime = strtotime('now');
+        $record->courseendtime = strtotime('now + 10 day');
         $record->daystonotify_1 = "0";
-        $record->coursestarttime_1 = strtotime('2025-01-03 10:00:00');
-        $record->courseendtime_1 = strtotime('2025-15-03 10:00:00');
+        $record->coursestarttime_1 = strtotime('now');
+        $record->courseendtime_1 = strtotime('now + 2 day');
         $record->daystonotify_2 = "0";
-        $record->coursestarttime_2 = strtotime('2025-29-03 10:00:00');
-        $record->courseendtime_2 = strtotime('2025-30-03 10:00:00');
-        $record->apply_to_children = 1;
+        $record->coursestarttime_2 = strtotime('now + 1 day');
+        $record->courseendtime_2 = strtotime('now + 10 day');
+        $record->apply_to_children = $data['apply_to_children'];
         booking_option::update($record);
 
-        // Fetch updated options.
-        $updatedoptions = $DB->get_records_sql(
-            "SELECT id, parentid, maxanswers, maxoverbooking, text, description, coursestarttime, courseendtime
-            FROM {booking_options}
-            WHERE bookingid = ? ORDER BY id ASC",
-            [$booking1->id]
-        );
+        // Parent now containing two sessions.
+        $settings = singleton_service::get_instance_of_booking_option_settings($record->id);
+        $this->assertCount(2, $settings->sessions);
 
-        $parentid = $optionarray[0]->id;
+        $children = $DB->get_records('booking_options', ['bookingid' => $booking1->id, 'parentid' => $record->id]);
 
-        $updatedarray = array_values($updatedoptions);
+        foreach ($children as $index => $child) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($child->id);
 
-        foreach ($updatedarray as $index => $child) {
-            if ($child->parentid == $parentid) {
-                $this->assertEquals(
-                    $record->maxanswers,
-                    $child->maxanswers,
-                    "Child {$child->id} maxanswers not updated correctly."
-                );
-                $this->assertEquals(
-                    $record->maxoverbooking,
-                    $child->maxoverbooking,
-                    "Child {$child->id} maxoverbooking not updated correctly."
-                );
-                $this->assertEquals(
-                    $record->text,
-                    $child->text,
-                    "Child {$child->id} title not updated correctly."
-                );
-                $this->assertEquals(
-                    $record->description,
-                    $child->description,
-                    "Child {$child->id} description not updated correctly."
-                );
+            // Here is a difference in overwriting.
+            $this->assertEquals(
+                $expected['beforebookedtext'],
+                $child->beforebookedtext,
+                "Overwrite children not working correctly."
+            );
 
-                // Verify if all sessions were updated correctly.
-                $childdata = (object)[
-                    'id' => $child->id,
-                    'cmid' => $record->cmid,
-                ];
-                fields_info::set_data($childdata);
-                [$childdates, $highesindexchild] = dates::get_list_of_submitted_dates((array)$childdata);
-                foreach ($childdates as $optiondate) {
-                    if (
-                        empty($optiondate->coursestarttime)
-                        && empty($optiondate->courseendtime)
-                    ) {
-                        continue;
-                    }
-                    $this->assertTrue(in_array($optiondate->coursestarttime, (array)$record));
-                    $this->assertTrue(in_array($optiondate->courseendtime, (array)$record));
+            $this->assertEquals(
+                $record->maxanswers,
+                $child->maxanswers,
+                "Child {$child->id} maxanswers not updated correctly."
+            );
+            $this->assertEquals(
+                $record->maxoverbooking,
+                $child->maxoverbooking,
+                "Child {$child->id} maxoverbooking not updated correctly."
+            );
+            $this->assertEquals(
+                $record->text,
+                $child->text,
+                "Child {$child->id} title not updated correctly."
+            );
+            $this->assertEquals(
+                $record->description,
+                $child->description,
+                "Child {$child->id} description not updated correctly."
+            );
+
+            // Verify if all sessions were updated correctly.
+            $childdata = (object)[
+                'id' => $child->id,
+                'cmid' => $record->cmid,
+            ];
+            fields_info::set_data($childdata);
+            [$childdates, $highesindexchild] = dates::get_list_of_submitted_dates((array)$childdata);
+            $this->assertCount(2, $childdates);
+            foreach ($childdates as $optiondate) {
+                if (
+                    empty($optiondate['coursestarttime'])
+                    && empty($optiondate['courseendtime'])
+                ) {
+                    continue;
                 }
-                // Verify that previouslybooked condition was applied.
-                if ($expected['previouslybooked']) {
-                    $this->assertNotEmpty($childdata->bo_cond_previouslybooked_restrict);
-                    // This could be extended to make sure, it's really the right optionids here.
-                    $this->assertIsNumeric($childdata->bo_cond_previouslybooked_optionid);
-                } else {
-                    $this->assertFalse(property_exists($childdata, 'bo_cond_previouslybooked_restrict'));
-                }
+                $delta = $data['howoftentorepeat'];
+                $childjson = json_decode($child->json);
+                $index = $childjson->recurringchilddata->index;
+
+                $expectedstarttime = (int) $optiondate['coursestarttime'] - ($delta * $index);
+                $expectedendtime = (int) $optiondate['courseendtime'] - ($delta * $index);
+                $startkey = MOD_BOOKING_FORM_COURSESTARTTIME . $optiondate['index'];
+                $endkey = MOD_BOOKING_FORM_COURSEENDTIME . $optiondate['index'];
+                $this->assertEquals($expectedstarttime, $record->$startkey);
+                $this->assertEquals($expectedendtime, $record->$endkey);
+            }
+
+            // Verify that previouslybooked condition was applied.
+            if ($expected['previouslybooked']) {
+                $this->assertNotEmpty($childdata->bo_cond_previouslybooked_restrict);
+                // This could be extended to make sure, it's really the right optionids here.
+                $this->assertIsNumeric($childdata->bo_cond_previouslybooked_optionid);
+            } else {
+                $this->assertFalse(property_exists($childdata, 'bo_cond_previouslybooked_restrict'));
             }
         }
         // Update siblings.
-        $children = array_filter($updatedoptions, fn ($r) => !empty($r->parentid));
         $firstchild = reset($children);
 
+        // First an update, that is only saved but not applied to the siblings.
+        // This is to test the overwrite_siblings function. We create a change in titleprefix previous to update.
+        $firstupdate = [
+            'titleprefix' => $data['updatedprefix'],
+            'cmid' => $settings->cmid,
+            'id' => $firstchild->id,
+            'importing' => 1,
+        ];
+        booking_option::update($firstupdate);
+
+        $firstchild = (object) [
+            'cmid' => $settings->cmid,
+            'id' => $firstchild->id,
+        ];
+        fields_info::set_data($firstchild);
+        // Now update with siblings included.
         $firstchild->cmid = $settings->cmid;
         $firstchild->maxanswers = 30;
         $firstchild->maxoverbooking = 30;
@@ -282,8 +322,9 @@ final class recurringoptions_test extends advanced_testcase {
         $firstchild->daystonotify_2 = "0";
         $firstchild->coursestarttime_2 = strtotime('2025-29-05 10:00:00');
         $firstchild->courseendtime_2 = strtotime('2025-30-05 10:00:00');
-        $firstchild->apply_to_siblings = 1;
+        $firstchild->apply_to_siblings = $data['apply_to_siblings'];
         booking_option::update($firstchild);
+        $record = $DB->get_record('booking_options', ['id' => $firstchild->id]);
 
         $updated = array_filter($children, fn($c) => $c->id !== $firstchild->id);
         $select = "";
@@ -299,6 +340,12 @@ final class recurringoptions_test extends advanced_testcase {
         }
         $updatedoptions = $DB->get_records_select('booking_options', $select, $conditions);
         foreach ($updatedoptions as $index => $child) {
+            $this->assertEquals(
+                $expected['titleprefix'],
+                $child->titleprefix,
+                "Overwrite siblings not working correctly."
+            );
+
             $this->assertEquals(
                 $firstchild->maxanswers,
                 $child->maxanswers,
@@ -319,24 +366,6 @@ final class recurringoptions_test extends advanced_testcase {
                 $child->description,
                 "Child {$child->id} description not updated correctly."
             );
-
-            // Verify if all sessions were updated correctly.
-            $updateddata = (object)[
-                'id' => $firstchild->id,
-                'cmid' => $settings->cmid,
-            ];
-            fields_info::set_data($updateddata);
-            [$childdates, $highesindexchild] = dates::get_list_of_submitted_dates((array)$updateddata);
-            foreach ($childdates as $optiondate) {
-                if (
-                    empty($optiondate->coursestarttime)
-                    && empty($optiondate->courseendtime)
-                ) {
-                    continue;
-                }
-                $this->assertTrue(in_array($optiondate->coursestarttime, (array)$firstchild));
-                $this->assertTrue(in_array($optiondate->courseendtime, (array)$firstchild));
-            }
         }
     }
 
@@ -397,7 +426,6 @@ final class recurringoptions_test extends advanced_testcase {
             'pricecatsortorder' => 1,
         ];
         $plugingenerator->create_pricecategory($pricecategorydata1);
-        $encodedkey = bin2hex($pricecategorydata1->identifier);
 
         // Create an initial booking option.
         $record = new stdClass();
@@ -443,9 +471,8 @@ final class recurringoptions_test extends advanced_testcase {
         $children = array_filter($bookingoptions, fn($bo) => $bo->parentid == $option1->id);
         $this->assertEquals(2, count($children));
 
-        // Now proceed with the actual testing of the allchildrenfunction.
+        // Now proceed with testing the allchildrenfunction.
         // Update option to trigger recurrence.
-        // We can reuse the record from before.
         $record = new stdClass();
         $record->id = $option1->id;
         $record->cmid = $settings->cmid;
@@ -472,18 +499,24 @@ final class recurringoptions_test extends advanced_testcase {
     public static function booking_common_settings_provider(): array {
 
         return [
-            'one_week_delta_with_previouslybooked' => [
+            'one_week_delta_with_previouslybooked_overwriting' => [
                 [
                     'repeatthisbooking' => 1,
                     'howmanytimestorepeat' => 2, // Repeat twice.
                     'howoftentorepeat' => 7 * 24 * 60 * 60, // 1 week in seconds.
                     'requirepreviousoptionstobebooked' => "1",
+                    'apply_to_siblings' => MOD_BOOKING_RECURRING_OVERWRITE_SIBLINGS,
+                    'updatedprefix' => "pre",
+                    'updatedbeforebookedtext' => "before booked",
+                    'apply_to_children' => MOD_BOOKING_RECURRING_OVERWRITE_CHILDREN,
                 ],
                 [
                     'totaloptions' => 3,
                     'delta1' => '1 week',
                     'delta2' => '2 weeks',
                     'previouslybooked' => true,
+                    'titleprefix' => "pre",
+                    'beforebookedtext' => "before booked",
                 ],
             ],
             'one_day_delta_simple' => [
@@ -492,12 +525,18 @@ final class recurringoptions_test extends advanced_testcase {
                     'howmanytimestorepeat' => 3, // Repeat three times.
                     'howoftentorepeat' => 24 * 60 * 60, // 1 day in seconds.
                     'requirepreviousoptionstobebooked' => "0",
+                    'apply_to_siblings' => MOD_BOOKING_RECURRING_APPLY_TO_SIBLINGS,
+                    'updatedprefix' => "pre",
+                    'updatedbeforebookedtext' => "before booked",
+                    'apply_to_children' => MOD_BOOKING_RECURRING_APPLY_TO_CHILDREN,
                 ],
                 [
                     'totaloptions' => 4,
                     'delta1' => '1 day',
                     'delta2' => '2 days',
                     'previouslybooked' => false,
+                    'titleprefix' => "",
+                    'beforebookedtext' => "",
                 ],
             ],
         ];
