@@ -1,5 +1,5 @@
 @mod @mod_booking @booking_recurring_option
-Feature: Create recurring options as tescher and configuring it.
+Feature: Create recurring options as teacher and configuring it.
 
   Background:
     Given the following "users" exist:

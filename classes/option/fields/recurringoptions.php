@@ -629,7 +629,6 @@ class recurringoptions extends field_base {
                         'apply_to_children',
                         'apply_to_siblings',
                         'unlinkchild',
-                        'identifier',
                     ];
                     foreach ($recurringkeys as $key) {
                         unset($childdata->$key);
