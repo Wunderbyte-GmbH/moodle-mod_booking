@@ -526,6 +526,7 @@ $string['bookingplacesinfotextsinfo'] = 'Show short info messages instead of the
 $string['bookingplaceslowmessage'] = 'Only a few places left!';
 $string['bookingplaceslowpercentage'] = 'Percentage for booking places low message';
 $string['bookingplaceslowpercentagedesc'] = 'If the available booking places reach or get below this percentage a booking places low message will be shown.';
+$string['bookingplacesunlimitedmessage'] = 'Availble immediately';
 $string['bookingpoints'] = 'Course points';
 $string['bookingpolicy'] = 'Booking policy';
 $string['bookingpolicyagree'] = 'I have read, understood and agree to the booking policy.';

@@ -515,6 +515,7 @@ $string['bookingplacesinfotextsinfo'] = 'Kurze Infotexte anstatt der konkreten Z
 $string['bookingplaceslowmessage'] = 'Nur noch wenige Plätze verfügbar!';
 $string['bookingplaceslowpercentage'] = 'Buchungsplätze: Prozentsatz für "Nur noch wenige Plätze verfügbar"-Nachricht';
 $string['bookingplaceslowpercentagedesc'] = 'Wenn die Anzahl verbookingstrackerpresencecounterfügbarer Buchungsplätze diesen Prozentsatz erreicht oder unter diesen Prozentsatz sinkt, wird eine Nachricht angezeigt, dass nur noch wenige Plätze verfügbar sind.';
+$string['bookingplacesunlimitedmessage'] = 'Sofort verfügbar';
 $string['bookingpoints'] = 'Kurspunkte';
 $string['bookingpolicy'] = 'Buchungsbedingungen - Booking Policy';
 $string['bookingpolicyagree'] = 'Ich habe die Buchungsbedingungen gelesen und erkläre mich damit einverstanden.';

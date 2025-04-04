@@ -652,15 +652,15 @@ class booking_answers {
         $context = context_system::instance();
 
         if (
+            !has_capability('mod/booking:updatebooking', $context)
+            && get_config('booking', 'bookingplacesinfotexts')
+        ) {
+            $bookinginformation['showbookingplacesinfotext'] = true;
+        }
+
+        if (
             !empty($bookinginformation['maxanswers'])
         ) {
-            if (
-                !has_capability('mod/booking:updatebooking', $context)
-                && get_config('booking', 'bookingplacesinfotexts')
-            ) {
-                $bookinginformation['showbookingplacesinfotext'] = true;
-            }
-
             $bookingplaceslowpercentage = get_config('booking', 'bookingplaceslowpercentage');
             $actualpercentage = ($bookinginformation['freeonlist'] / $bookinginformation['maxanswers']) * 100;
 
@@ -679,6 +679,18 @@ class booking_answers {
                 $bookinginformation['bookingplacesinfotext'] = get_string('bookingplacesenoughmessage', 'mod_booking');
                 $bookinginformation['bookingplacesclass'] = 'text-success avail';
                 $bookinginformation['bookingplacesiconclass'] = 'avail';
+            }
+        } else {
+            $bookinginformation['bookingplacesinfotext'] = get_string('bookingplacesunlimitedmessage', 'mod_booking');
+            $bookinginformation['bookingplacesclass'] = 'text-success avail';
+            $bookinginformation['bookingplacesiconclass'] = 'avail';
+
+            if (
+                !has_capability('mod/booking:updatebooking', $context)
+                && get_config('booking', 'bookingplacesinfotexts')
+            ) {
+                // We need to set maxanswers to true, to actually show the text when maxanswer is 0 (unlimited).
+                $bookinginformation['maxanswers'] = true;
             }
         }
         // Waiting list places.
