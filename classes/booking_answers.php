@@ -840,7 +840,6 @@ class booking_answers {
                 AND ba.waitinglist = :statusparam";
             }
 
-
             $advancedsqlgroupby = "GROUP BY cm.id, c.id, c.fullname, bo.id, ba.waitinglist, bo.titleprefix, bo.text, b.name";
 
             $advancedsqlend = "ORDER BY bo.titleprefix, bo.text ASC
