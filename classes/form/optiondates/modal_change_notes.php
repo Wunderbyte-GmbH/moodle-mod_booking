@@ -67,8 +67,17 @@ class modal_change_notes extends dynamic_form {
         $mform->addElement('hidden', 'id', 0);
         $mform->setType('id', PARAM_RAW);
 
-        $mform->addElement('textarea', 'notes', get_string('notes', 'mod_booking'));
-        $mform->setType('notes', PARAM_TEXT);
+        if (!empty($this->_ajaxformdata['checkedids'])) {
+            $mform->addElement('textarea', 'notes', get_string('notes', 'mod_booking'));
+            $mform->setType('notes', PARAM_TEXT);
+        } else {
+            $mform->addElement(
+                'html',
+                '<div class="alert alert-warning">'
+                . get_string('norowsselected', 'mod_booking')
+                . '</div>'
+            );
+        }
     }
 
     /**
@@ -101,6 +110,11 @@ class modal_change_notes extends dynamic_form {
         $checkedids = explode(',', $data->checkedids);
         // Just to make sure, we have no empty IDs here.
         $checkedids = array_filter($checkedids, fn($checkedid) => !empty($checkedid));
+
+        // If it's still empty at this point, we just return.
+        if (empty($checkedids)) {
+            return $data;
+        }
 
         // IDs are passed in the following format: optionid-optiondateid-userid.
         foreach ($checkedids as $checkedid) {

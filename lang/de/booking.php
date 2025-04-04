@@ -1586,6 +1586,7 @@ $string['nopriceisset'] = 'Kein Preis für Preiskategorie {$a} vorhanden';
 $string['noratings'] = 'Bewertungen deaktiviert';
 $string['noresultsviewable'] = 'Die Ergebnisse sind momentan nicht einsehbar';
 $string['norighttobook'] = 'Sie haben zur Zeit keine Berechtigung Buchungen vorzunehmen. Loggen Sie sich ein, schreiben Sie sich in diesen Kurs ein oder kontaktieren Sie den/die Administrator/in.';
+$string['norowsselected'] = 'Sie haben noch nichts ausgewählt. Bitte schließen Sie dieses Fenster und wählen Sie zunächst die Zeilen aus, die Sie bearbeiten möchten.';
 $string['noselection'] = 'Keine Auswahl';
 $string['nosemester'] = 'Kein Semester gewählt';
 $string['nosubscribers'] = 'Keine Trainer:innen zugewiesen!';

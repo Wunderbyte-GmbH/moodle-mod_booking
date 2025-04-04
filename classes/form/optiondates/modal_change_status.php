@@ -68,14 +68,23 @@ class modal_change_status extends dynamic_form {
         $mform->addElement('hidden', 'id', 0);
         $mform->setType('id', PARAM_RAW);
 
-        $mform->addElement(
-            'select',
-            'status',
-            get_string('presence', 'mod_booking'),
-            booking::get_possible_presences(true)
-        );
-        $mform->setType('status', PARAM_INT);
-        $mform->setDefault('status', 0); // Empty string.
+        if (!empty($this->_ajaxformdata['checkedids'])) {
+            $mform->addElement(
+                'select',
+                'status',
+                get_string('presence', 'mod_booking'),
+                booking::get_possible_presences(true)
+            );
+            $mform->setType('status', PARAM_INT);
+            $mform->setDefault('status', 0); // Empty string.
+        } else {
+            $mform->addElement(
+                'html',
+                '<div class="alert alert-warning">'
+                . get_string('norowsselected', 'mod_booking')
+                . '</div>'
+            );
+        }
     }
 
     /**
@@ -108,6 +117,11 @@ class modal_change_status extends dynamic_form {
         $checkedids = explode(',', $data->checkedids);
         // Just to make sure, we have no empty IDs here.
         $checkedids = array_filter($checkedids, fn($checkedid) => !empty($checkedid));
+
+        // If it's still empty at this point, we just return.
+        if (empty($checkedids)) {
+            return $data;
+        }
 
         // IDs are passed in the following format: optionid-optiondateid-userid.
         foreach ($checkedids as $checkedid) {

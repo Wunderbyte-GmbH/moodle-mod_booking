@@ -106,8 +106,13 @@ class booked_users implements renderable, templatable {
                 }
                 $bookeduserscols[] = 'notes';
                 $bookedusersheaders[] = get_string('notes', 'mod_booking');
-                $bookeduserscols[] = 'actions';
-                $bookedusersheaders[] = get_string('actions', 'mod_booking');
+
+                // It's redundant because we also have bulk actions.
+                // So for now, we do not show the action column.
+                // But we still kept the code in col_action case we need it in the future.
+                // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+                /* $bookeduserscols[] = 'actions';
+                $bookedusersheaders[] = get_string('actions', 'mod_booking'); */
                 break;
             case 'option':
                 // Define columns and headers for the tables.
