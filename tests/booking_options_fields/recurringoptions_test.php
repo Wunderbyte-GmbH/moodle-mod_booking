@@ -168,9 +168,11 @@ final class recurringoptions_test extends advanced_testcase {
             $this->assertEquals($record->text, $option->text);
 
             // Starttime and Endtime correspond to delta and index as defined in json.
-            $expectedstartingtime = strtotime($record->coursestarttime) + ($optionjson->recurringchilddata->delta * $optionjson->recurringchilddata->index);
+            $expectedstartingtime = strtotime($record->coursestarttime)
+                + ($optionjson->recurringchilddata->delta * $optionjson->recurringchilddata->index);
             $this->assertEquals($expectedstartingtime, $option->coursestarttime);
-            $expectedendtime = strtotime($record->courseendtime) + ($optionjson->recurringchilddata->delta * $optionjson->recurringchilddata->index);
+            $expectedendtime = strtotime($record->courseendtime)
+                + ($optionjson->recurringchilddata->delta * $optionjson->recurringchilddata->index);
             $this->assertEquals($expectedendtime, $option->courseendtime);
 
             // Price.
