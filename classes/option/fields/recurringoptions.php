@@ -393,14 +393,13 @@ class recurringoptions extends field_base {
             $templateoption->parentid = $option->id;
             $restrictoptionid = $option->id;
             [$newoptiondates, $highesindex] = dates::get_list_of_submitted_dates((array)$templateoption);
-
+            $delta = $data->howoftentorepeat;
             for ($i = 1; $i <= $data->howmanytimestorepeat; $i++) {
                 // Handle dates.
                 unset($templateoption->id, $templateoption->identifier, $templateoption->optionid);
                 foreach ($newoptiondates as $newoptiondate) {
                     $key = MOD_BOOKING_FORM_OPTIONDATEID . $newoptiondate["index"];
                     $templateoption->{$key} = 0;
-                    $delta = $data->howoftentorepeat;
                     $key = MOD_BOOKING_FORM_COURSESTARTTIME . $newoptiondate["index"];
                     $templateoption->{$key} += $delta;
                     $key = MOD_BOOKING_FORM_COURSEENDTIME . $newoptiondate["index"];
@@ -418,6 +417,15 @@ class recurringoptions extends field_base {
                     'index' => $i,
                 ];
                 booking_option::add_data_to_json($templateoption, 'recurringchilddata', $childdata);
+
+                // Apply delay in bookingopening- and bookingclosingtime.
+                if (isset($data->bookingopeningtime)) {
+                    $templateoption->bookingopeningtime = $data->bookingopeningtime + ($delta * $i);
+                }
+                if (isset($data->bookingclosingtime)) {
+                    $templateoption->bookingclosingtime = $data->bookingclosingtime + ($delta * $i);
+                }
+
                 $restrictoptionid = booking_option::update((object) $templateoption, $context);
             }
         }
@@ -581,30 +589,40 @@ class recurringoptions extends field_base {
                         if (empty($change['changes'])) {
                             continue;
                         }
-                        if (
-                            (isset($change['changes']['fieldname'])
-                            && $change['changes']['fieldname'] == 'dates')
-                        ) {
-                            self::update_recurring_date_sessions($childdata, $newparentoptiondates);
-                            $update = true;
-                        } else if (!$overwrite) {
-                            // Decide only here if overwrite is applied, because changes in dates should be applied.
-                            $fieldname = $change['changes']['formkey'] ?? '';
-                            $newvalue = $change['changes']['newvalue'] ?? '';
-
-                            // If the field exists and the value is different, update it.
-                            if (isset($childdata->$fieldname) && $childdata->$fieldname !== $newvalue) {
-                                $childdata->$fieldname = $newvalue;
+                        switch ($change['changes']['fieldname']) {
+                            case "dates":
+                                self::update_recurring_date_sessions($childdata, $newparentoptiondates);
                                 $update = true;
-                            }
+                                break;
+                            case "bookingopeningtime":
+                                self::apply_delta_to_field('bookingopeningtime', $childdata, $originaldata);
+                                $update = true;
+                                break;
+                            case "bookingclosingtime":
+                                self::apply_delta_to_field('bookingclosingtime', $childdata, $originaldata);
+                                $update = true;
+                                break;
+                            default:
+                                $fieldname = $change['changes']['formkey'] ?? '';
+                                $newvalue = $change['changes']['newvalue'] ?? '';
+
+                                // If the field exists and the value is different, update it.
+                                if (isset($childdata->$fieldname) && $childdata->$fieldname !== $newvalue) {
+                                    $childdata->$fieldname = $newvalue;
+                                    $update = true;
+                                }
+                                break;
                         }
                     }
                 } else {
+                    // This is case overwrite.
                     $childdatastore = clone $childdata;
                     $childdata = $data;
                     $childdata->id = $child->id;
-                    $settings = singleton_service::get_instance_of_booking_option_settings($childdata->id);
+
                     self::update_recurring_date_sessions($childdata, $newparentoptiondates, $childdatastore);
+                    self::apply_delta_to_field('bookingopeningtime', $childdata, $originaldata);
+                    self::apply_delta_to_field('bookingclosingtime', $childdata, $originaldata);
 
                     // Make sure to unset further recurring options in dependent options.
                     $recurringkeys = [
@@ -630,6 +648,31 @@ class recurringoptions extends field_base {
                 }
             }
         }
+    }
+
+    /**
+     * Apply the defined delta of a child to a datefield.
+     *
+     * @param string $fieldname
+     * @param object $datatoupdate
+     * @param object $originaldata
+     *
+     * @return bool
+     *
+     */
+    private static function apply_delta_to_field(string $fieldname, object &$datatoupdate, object $originaldata) {
+        if (empty($originaldata->$fieldname)) {
+            $datatoupdate->$fieldname = 0;
+            return true;
+        }
+        $data = json_decode($datatoupdate->json);
+        if (!$data || !isset($data->recurringchilddata)) {
+            return false;
+        }
+        $d = $data->recurringchilddata->delta;
+        $i = $data->recurringchilddata->index;
+        $datatoupdate->{$fieldname} = $originaldata->$fieldname + ($d * $i);
+        return true;
     }
 
     /**
