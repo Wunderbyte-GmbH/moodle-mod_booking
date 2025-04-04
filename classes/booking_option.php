@@ -2095,6 +2095,9 @@ class booking_option {
         $cfhandler = booking_handler::create();
         $cfhandler->delete_instance($this->optionid);
 
+        // Delete Rules.
+        $DB->delete_records('booking_rules', ['contextid' => $this->booking->get_context()->id]);
+
         // Delete sessions (option dates).
         if (!$DB->delete_records('booking_optiondates', ['optionid' => $this->optionid])) {
             $result = false;
