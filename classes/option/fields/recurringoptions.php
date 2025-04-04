@@ -544,7 +544,7 @@ class recurringoptions extends field_base {
                     $allsiblings,
                     fn($r) => (($ri = json_decode($r->json)->recurringchilddata->index ?? 0) === 0) || $ri > $i
                 );
-                if ($optionjson->apply_to_siblings == MOD_BOOKING_RECURRING_OVERWRITE_SIBLINGS) {
+                if ($data->apply_to_siblings == MOD_BOOKING_RECURRING_OVERWRITE_SIBLINGS) {
                     $overwrite = true;
                 }
                 break;
@@ -711,7 +711,7 @@ class recurringoptions extends field_base {
             return;
         }
 
-        $d = $delta;
+        $d = $delta * $index;
         foreach ($newparentoptiondates as $newparentoptiondate) {
             // Set the timestamp including the corresponding delta.
             $key = MOD_BOOKING_FORM_OPTIONDATEID . $newparentoptiondate["index"];
