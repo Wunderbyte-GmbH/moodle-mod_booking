@@ -1989,6 +1989,8 @@ $string['recurringsavedatesinfo'] = '<div class="alert alert-info" role="alert">
 $string['recurringsaveinfo'] = '<div class="alert alert-info" role="alert">
                                 <strong>Attention:</strong> Please save any changes before creating recurring booking options. Otherwise, your changes will not be applied to the new options.
                                 </div>';
+$string['redirectonlogintocourse'] = 'Redirect logged-out users to course';
+$string['redirectonlogintocourse_desc'] = 'If enabled, users will be redirected to the booked course after logging in instead of the booking details page.';
 $string['relatedcourseidneeded'] = 'A related course is needed because of your availabilty condition(s).';
 $string['reminder1sent'] = 'First reminder sent';
 $string['reminder2sent'] = 'Second reminder sent';

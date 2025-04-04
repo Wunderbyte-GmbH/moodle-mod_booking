@@ -1936,6 +1936,8 @@ $string['recurringsavedatesinfo'] = '<div class="alert alert-info" role="alert">
 $string['recurringsaveinfo'] = '<div class="alert alert-info" role="alert">
                                 <strong>Achtung:</strong> Bitte speichern Sie allfällie Änderungen bevor Sie wiederkehrende Buchungsoption anlegen. Ihre Änderungen werden sonst in den neuen Buchungen nicht übernommen.
                                 </div>';
+$string['redirectonlogintocourse'] = 'Weiterleitung von nicht eingeloggten Nutzern zum Kurs';
+$string['redirectonlogintocourse_desc'] = 'Falls aktiviert, werden Nutzer nach dem Login zum gebuchten Kurs weitergeleitet, anstatt zur Buchungsdetailseite.';
 $string['relatedcourseidneeded'] = 'Aufgrund Ihrer Verfügbarkeits-Einstellungen muss ein verknüpfter Moodle-Kurs angegeben werden.';
 $string['reminder1sent'] = 'Erste Benachrichtigung versendet';
 $string['reminder2sent'] = 'Zweite Benachrichtigung versendet';
