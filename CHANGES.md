@@ -1,5 +1,16 @@
 ## Version 8.12.0 (2025040400)
-* Todo: Todo.
+* New feature: Switch between table templates (individually for each user).
+* Improvement: Introduced a setting to activate preconfigured rule templates.
+* Improvement: Enabled unlimited waiting list support.
+* Improvement: Added multiple filter options to bulk operations.
+* Improvement: Status description now displayed in the booking option detail view.
+* Improvement: Add customfields to optionsdownloadfields.
+* Improvement: Show all booking options in bookings tracker even if they contain no bookings (booking answers).
+* Bugfix: Fixed issue where bookings could only occur after confirmation, affecting the waiting list behavior.
+* Bugfix: Ensured that the responsible contact is enrolled in the correct course selected in the form (not in the old course from settings class).
+* Bugfix: In sync_waiting_list we also need to purge answers cache before sending mails.
+* Bugfix: maxperuser condition counted system-wide answers - it MUST be instance-specific.
+* Tests: Extended test coverage to include recent changes.
 
 ## Version 8.11.3 (2025031803)
 * Bugfix: Use has_set_url instead of catching error
