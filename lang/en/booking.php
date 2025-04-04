@@ -781,8 +781,8 @@ $string['confirmoptioncreation'] = 'Do you want to split this booking option so 
  from each individual date of this booking option?';
 $string['confirmpresence'] = "Confirm presence";
 $string['confirmrecurringoption'] = 'Apply these changes to all children of this bookingoptions as well?';
-$string['confirmrecurringoptionerror'] = 'You can proceed with any of these options';
 $string['confirmrecurringoptionapplychanges'] = 'Apply current changes';
+$string['confirmrecurringoptionerror'] = 'You can proceed with any of these options';
 $string['confirmrecurringoptionoverwrite'] = 'Overwrite all settings';
 $string['confirmusers'] = 'Confirm users activity';
 $string['confirmuserswith'] = 'Confirm users who completed activity or received badge';

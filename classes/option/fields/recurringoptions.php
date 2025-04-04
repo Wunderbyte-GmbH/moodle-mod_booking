@@ -133,12 +133,6 @@ class recurringoptions extends field_base {
             if ($applyheader) {
                 fields_info::add_header_to_mform($mform, self::$header);
             }
-            // $mform->addElement(
-            //     'hidden',
-            //     'parentid',
-            // );
-            // $mform->setType('parentid', PARAM_INT);
-
             $settings = singleton_service::get_instance_of_booking_option_settings($formdata['id']);
 
             // Fetch parents and children of this option.
@@ -274,7 +268,6 @@ class recurringoptions extends field_base {
 
                 $mform->addElement('static', 'recurringsaveinfo', '', get_string('recurringsaveinfo', 'mod_booking'));
                 $mform->hideIf('recurringsaveinfo', 'repeatthisbooking', 'notchecked');
-
             }
             if (!empty($ischildofcurrent)) { // Mothers contain additional options to unlink or delete children.
                 $applyselectoptions = [
@@ -282,7 +275,12 @@ class recurringoptions extends field_base {
                     MOD_BOOKING_RECURRING_APPLY_TO_CHILDREN => get_string('confirmrecurringoptionapplychanges', 'mod_booking'),
                     MOD_BOOKING_RECURRING_OVERWRITE_CHILDREN => get_string('confirmrecurringoptionoverwrite', 'mod_booking'),
                 ];
-                $mform->addElement('select', 'apply_to_children', get_string('confirmrecurringoption', 'mod_booking'), $applyselectoptions);
+                $mform->addElement(
+                    'select',
+                    'apply_to_children',
+                    get_string('confirmrecurringoption', 'mod_booking'),
+                    $applyselectoptions
+                );
                 $mform->setDefault('apply_to_children', MOD_BOOKING_RECURRING_DONTUPDATE);
                 $mform->hideIf('apply_to_children', 'validated_once', 'eq', 0);
 
@@ -534,7 +532,10 @@ class recurringoptions extends field_base {
                 $optionjson = json_decode($allsiblings[$oldoption->id]->json);
                 $i = $optionjson->recurringchilddata->index ?? 0;
 
-                $records = array_filter($allsiblings, fn($r) => (($ri = json_decode($r->json)->recurringchilddata->index ?? 0) === 0) || $ri > $i);
+                $records = array_filter(
+                    $allsiblings,
+                    fn($r) => (($ri = json_decode($r->json)->recurringchilddata->index ?? 0) === 0) || $ri > $i
+                );
                 if ($optionjson->apply_to_siblings == MOD_BOOKING_RECURRING_OVERWRITE_SIBLINGS) {
                     $overwrite = true;
                 }
