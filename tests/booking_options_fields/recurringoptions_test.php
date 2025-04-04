@@ -265,22 +265,25 @@ final class recurringoptions_test extends advanced_testcase {
             [$childdates, $highesindexchild] = dates::get_list_of_submitted_dates((array)$childdata);
             $this->assertCount(2, $childdates);
             foreach ($childdates as $optiondate) {
+                // This is each session in the child.
                 if (
                     empty($optiondate['coursestarttime'])
                     && empty($optiondate['courseendtime'])
                 ) {
                     continue;
                 }
-                $delta = $data['howoftentorepeat'];
+
                 $childjson = json_decode($child->json);
                 $index = $childjson->recurringchilddata->index;
+                $delta = $childjson->recurringchilddata->delta;
 
-                $expectedstarttime = (int) $optiondate['coursestarttime'] - ($delta * $index);
-                $expectedendtime = (int) $optiondate['courseendtime'] - ($delta * $index);
                 $startkey = MOD_BOOKING_FORM_COURSESTARTTIME . $optiondate['index'];
                 $endkey = MOD_BOOKING_FORM_COURSEENDTIME . $optiondate['index'];
-                $this->assertEquals($expectedstarttime, $record->$startkey);
-                $this->assertEquals($expectedendtime, $record->$endkey);
+                $expectedstarttime = $record->$startkey + ($delta * $index);
+                $expectedendtime = $record->$endkey + ($delta * $index);
+
+                $this->assertEquals($expectedstarttime, $optiondate['coursestarttime']);
+                $this->assertEquals($expectedendtime, $optiondate['courseendtime']);
             }
 
             // Verify that previouslybooked condition was applied.
