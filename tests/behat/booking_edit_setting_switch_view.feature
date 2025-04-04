@@ -1,5 +1,5 @@
-@mod @mod_booking @booking_edit_setting
-Feature: Edit booking's organizer, info and semester settings as a teacher or admin.
+@mod @mod_booking @booking_edit_setting_switch_view
+Feature: Edit booking's settings for the view swithing as a teacher and use it as a student.
 
   Background:
     Given the following "users" exist:
@@ -40,7 +40,7 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     And I follow "Settings"
     And I set the field "Users can switch between views" to "checked"
     And I press "Save and display"
-    ## Validate Card view
+    ## Validate Cards view
     And I set the field "wbtabletemplateswitcher" to "Cards view"
     And I wait "2" seconds
     And ".allbookingoptionstable .mod-booking-view-card-image-and-body-area" "css_element" should exist
@@ -77,3 +77,29 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     ## Validate if view settings were preserved for student1
     And I am on the "My booking" Activity page logged in as student1
     And ".allbookingoptionstable .mod-booking-view-card-image-and-body-area" "css_element" should exist
+
+  @javascript
+  Scenario: Booking settings - manage template view switcher
+    Given I am on the "My booking" Activity page logged in as teacher1
+    And I follow "Settings"
+    And I set the field "Users can switch between views" to "checked"
+    And I press "Save and display"
+    And I log out
+    ## Change view for student1
+    And I am on the "My booking" Activity page logged in as student1
+    And I set the field "wbtabletemplateswitcher" to "Cards view"
+    And I wait "2" seconds
+    And ".allbookingoptionstable .mod-booking-view-card-image-and-body-area" "css_element" should exist
+    And I log out
+    ## Remove Cards view as teacher1
+    And I am on the "My booking" Activity page logged in as teacher1
+    And I follow "Settings"
+    And I click on "Cards view" "text" in the ".form-autocomplete-selection.form-autocomplete-multiple" "css_element"
+    And I press "Save and display"
+    And I log out
+    ## Validate default view being forced
+    And I am on the "My booking" Activity page logged in as student1
+    And I wait "25" seconds
+    And ".allbookingoptionstable .mod-booking-view-card-image-and-body-area" "css_element" should not exist
+    And ".allbookingoptionstable .wunderbyte-table-list .allbookingoptionstable_r1 .col-md-9" "css_element" should exist
+    And I log out
