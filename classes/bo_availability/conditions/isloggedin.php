@@ -221,6 +221,10 @@ class isloggedin implements bo_condition {
             );
         }
 
+        if (get_config('booking', 'redirectonlogintocourse') && !empty($settings->courseid)) {
+            $returnurl = new moodle_url('/course/view.php', ['id' => $settings->courseid]);
+        }
+
         $url = new moodle_url(
             '/login/index.php',
             [
