@@ -27,6 +27,7 @@
 namespace mod_booking;
 
 use cache_helper;
+use context_module;
 use context_system;
 use core_cohort\reportbuilder\local\entities\cohort;
 use Exception;
@@ -536,16 +537,21 @@ class shortcodes {
 
         $out = '';
 
-        $wherearray = ['courseid' => (int)$COURSE->id];
-
-        // Even though this is huge and fetches way to much data, we still use it as it will take care of invisible options etc.
-        [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(0, 0, '', null, null, [], $wherearray);
-
-        $optionids = $DB->get_records_sql(" SELECT $fields FROM $from WHERE $where", $params);
+        $optionids = $DB->get_records(
+            'booking_options',
+            ['courseid' => $COURSE->id]
+        );
 
         foreach ($optionids as $option) {
+            // Only if the user has the right to see the link back, we show it.
             $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+
+            if ($option->invisible == 1) {
+                $context = context_module::instance($settings->cmid);
+                if (!has_capability('mod/booking:view', $context)) {
+                    continue;
+                }
+            }
 
             if (!modechecker::is_ajax_or_webservice_request()) {
                 $returnurl = $PAGE->url->out();
