@@ -48,7 +48,7 @@ class connectedcourse {
      */
     public static function create_course_from_template_course(stdClass &$newoption, stdClass &$formdata) {
 
-        global $DB;
+        global $DB, $USER;
 
         $settings = singleton_service::get_instance_of_booking_option_settings($formdata->id);
 
@@ -85,6 +85,10 @@ class connectedcourse {
             $options[] = ['name' => 'enrolments', 'value' => true];
         }
 
+        // We need to switch the user.
+        $previoususer = $USER;
+        $USER = get_admin();
+
         $courseinfo = core_course_external::duplicate_course(
             $origincourseid,
             $fullnamewithprefix,
@@ -101,6 +105,8 @@ class connectedcourse {
 
             \core_tag_tag::delete_instances_by_id(array_keys($tags));
         }
+
+        $USER = $previoususer;
     }
 
     /**
@@ -235,7 +241,7 @@ class connectedcourse {
      * @return array
      */
     public static function return_tagged_template_courses(string $query = '') {
-        global $DB;
+        global $DB, $USER;
         $where = "c.id IN (SELECT t.itemid FROM {tag_instance} t";
         $configs = get_config('booking', 'templatetags');
 
@@ -291,9 +297,7 @@ class connectedcourse {
             $context = context_course::instance($course->id);
             if (
                 !has_capability('moodle/course:view', $context)
-                || !has_capability('moodle/backup:backupcourse', $context)
-                || !has_capability('moodle/restore:restorecourse', $context)
-                || !has_capability('moodle/question:add', $context)
+                && !is_enrolled($context, $USER->id)
             ) {
                 unset($courses[$key]);
             }
