@@ -559,7 +559,9 @@ $string['bookingsettings'] = 'Booking: Main settings';
 $string['bookingstracker'] = "Bookings tracker";
 $string['bookingstracker_desc'] = "Here you can activate the bookings tracker.
 It allows authorized users to manage bookings for the entire site at various hierarchical booking levels
-(optiondates, booking options, booking instance, Moodle course, site-wide).";
+(optiondates, booking options, booking instance, Moodle course, site-wide) and change the presence status
+booked users.";
+$string['bookingstrackerdelete'] = 'Unsubscribe';
 $string['bookingstrackerpresencecounter'] = 'Count presences';
 $string['bookingstrackerpresencecounter_desc'] = 'Display a counter that shows the total number of presences.
 Define in the next setting which presence status should be counted.';
@@ -732,6 +734,7 @@ $string['chooseperiod'] = 'Select time period';
 $string['chooseperiod_help'] = 'Select a time period within to create the date series.';
 $string['choosesemester'] = "Choose semester";
 $string['choosesemester_help'] = "Choose the semester for which the holiday(s) should be created.";
+$string['choosesession'] = 'Choose date (session)...';
 $string['choosetags'] = 'Choose tags';
 $string['choosetags_desc'] = 'Courses marked with these tags can be used as templates. If a booking option is linked to such a template, a copy of the template course will be automatically created upon first saving.';
 $string['close'] = 'Close';
@@ -1439,7 +1442,7 @@ $string['mailtemplatessource'] = 'Set source of mail templates';
 $string['mailtemplatessource_help'] = '<b>Caution:</b> If you choose global e-mail templates, the instance-specific mail
 templates won\'t be used. Instead the e-mail templates specified in the booking plugin settings will be used. <br><br>
 Please make sure that there are existing e-mail templates in the booking settings for each e-mail type.';
-$string['managebookedusers_heading'] = 'Manage bookings for "{$a}"';
+$string['managebookedusers_heading'] = 'Manage bookings for <b>{$a->scopestring}</b>: "{$a->title}"';
 $string['managebooking'] = 'Manage';
 $string['managebookinginstancetemplates'] = 'Manage booking instance templates';
 $string['managecustomreporttemplates'] = 'Manage custom report templates';
@@ -2208,6 +2211,7 @@ $string['sendmessage'] = 'Send message';
 $string['sendpollurltoteachers'] = 'Send poll url';
 $string['sendreminderemail'] = "Send reminder e-mail";
 $string['sendreminderemailsuccess'] = 'Notification e-mail has been sent!';
+$string['session'] = 'Date';
 $string['sessionnotifications'] = 'E-mail notifications for each session';
 $string['sessionremindermailmessage'] = '<p>Keep in mind: You are booked for the following session:</p>
 <p>{$a->optiontimes}</p>

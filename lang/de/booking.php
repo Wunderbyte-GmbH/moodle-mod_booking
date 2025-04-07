@@ -548,7 +548,9 @@ $string['bookingsettings'] = 'Buchung: Einstellungen';
 $string['bookingstracker'] = "Buchungstracker";
 $string['bookingstracker_desc'] = "Hier können Sie den Buchungstracker aktivieren.
 Er erlaubt es berechtigten Benutzer/innen, die Buchungen der gesamten Seite auf verschiedenen hierarchischen Buchungsebenen
-(Termin, Buchungsoption, Buchungsinstanz, Moodle-Kurs, gesamte Plattform) zu verwalten.";
+(Termin, Buchungsoption, Buchungsinstanz, Moodle-Kurs, gesamte Plattform) zu verwalten und für gebuchte Benutzer/innen
+die Anwesenheiten zu hinterlegen.";
+$string['bookingstrackerdelete'] = 'Abmelden';
 $string['bookingstrackerpresencecounter'] = 'Anwesenheiten zählen';
 $string['bookingstrackerpresencecounter_desc'] = 'Zähler anzeigen, der die Gesamtzahl der Anwesenheiten anzeigt.
 Definieren Sie in der nächsten Einstellung, welcher Anwesenheitsstatus gezählt werden soll.';
@@ -720,6 +722,7 @@ $string['chooseperiod'] = 'Zeitraum auswählen';
 $string['chooseperiod_help'] = 'Wählen Sie den Zeitraum innerhalb dessen die Terminserie erstellt werden soll.';
 $string['choosesemester'] = "Semester auswählen";
 $string['choosesemester_help'] = "Wählen Sie das Semester aus, für das der oder die Feiertag(e) erstellt werden sollen.";
+$string['choosesession'] = 'Termin (Session) auswählen...';
 $string['choosetags'] = 'Wähle Tags';
 $string['choosetags_desc'] = 'Kurse, die mit diesen Tags markiert sind, können als Vorlagen verwendet werden. Wird eine Buchungsoption mit so einer Vorlage verknüpft, wird beim ersten Speichern automatisch eine Kopie des Vorlagen-Kurses erstellt.';
 $string['close'] = 'Schließen';
@@ -1433,7 +1436,7 @@ $string['mailtemplatessource'] = 'Quelle von E-Mail-Vorlagen festlegen';
 $string['mailtemplatessource_help'] = '<b>Achtung:</b> Wenn Sie globale E-Mail-Vorlagen wählen, werden die Instanz-spezifischen
 E-Mail-Vorlagen nicht verwendet, sondern die E-Mail-Vorlagen, die in den Einstellungen des Buchungs-Plugins angelegt
 wurden. <br><br>Bitte stellen Sie sicher, dass zu allen E-Mail-Typen eine Vorlage vorhanden ist.';
-$string['managebookedusers_heading'] = 'Buchungen verwalten für "{$a}"';
+$string['managebookedusers_heading'] = 'Buchungen verwalten für <b>{$a->scopestring}</b>: "{$a->title}"';
 $string['managebooking'] = 'Verwalten';
 $string['managebookinginstancetemplates'] = 'Buchungsinstanz-Vorlagen verwalten';
 $string['managecustomreporttemplates'] = 'Vorlagen für benutzerdefinierte Berichte verwalten';
@@ -2147,6 +2150,7 @@ $string['sendmailtobooker_help'] = 'Diese Option aktivieren, um Buchungsbestäti
 $string['sendmailtoteachers'] = 'E-Mail an TrainerInnen senden';
 $string['sendmessage'] = 'Nachricht senden';
 $string['sendreminderemailsuccess'] = 'Benachrichtung wurde per E-Mail versandt';
+$string['session'] = 'Termin';
 $string['sessionnotifications'] = 'E-Mail-Benachrichtigungen für Einzeltermine';
 $string['sessionremindermailmessage'] = '<p>Erinnerung: Sie haben den folgenden Termin gebucht:</p>
 <p>{$a->optiontimes}</p>

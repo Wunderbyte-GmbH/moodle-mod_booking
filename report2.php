@@ -115,8 +115,11 @@ if (!empty($optiondateid)) {
     );
 
     // We only show links, if we have the matching capabilities.
-    $heading = get_string('managebookedusers_heading', 'mod_booking', $optionsettings->get_title_with_prefix()) .
-        " - " . $prettydatestring;
+    $a = new stdClass();
+    $a->scopestring = get_string('report2labeloptiondate', 'mod_booking');
+    $a->title = $optionsettings->get_title_with_prefix() . " - " . $prettydatestring;
+    $heading = get_string('managebookedusers_heading', 'mod_booking', $a);
+
     $navhtml = "<div class='report2-nav mb-3 flex-wrap-container'>" .
         ($r2syscap ? "<a href='{$r2systemurl}' class='report2-system-border'>" :
             "<span class='report2-system-border'>") .
@@ -155,7 +158,7 @@ if (!empty($optiondateid)) {
             ]);
             $optiondate['dateurl'] = $dateurl->out(false);
         }
-        $firstentry['prettydate'] = get_string('choose...', 'mod_booking');
+        $firstentry['prettydate'] = get_string('choosesession', 'mod_booking');
         $firstentry['dateurl'] = $PAGE->url; // The current page.
         array_unshift($optiondates, $firstentry);
         $data['optiondates'] = array_values((array) $optiondates);
@@ -211,7 +214,11 @@ if (!empty($optiondateid)) {
     $r2instancecap = has_capability('mod/booking:managebookedusers', $r2instancecontext);
 
     // We only show links, if we have the matching capabilities.
-    $heading = get_string('managebookedusers_heading', 'mod_booking', $optionsettings->get_title_with_prefix());
+    $a = new stdClass();
+    $a->scopestring = get_string('report2labeloption', 'mod_booking');
+    $a->title = $optionsettings->get_title_with_prefix();
+    $heading = get_string('managebookedusers_heading', 'mod_booking', $a);
+
     $navhtml = "<div class='report2-nav mb-3 flex-wrap-container'>" .
         ($r2syscap ? "<a href='{$r2systemurl}' class='report2-system-border'>" :
             "<span class='report2-system-border'>") .
@@ -284,7 +291,11 @@ if (!empty($optiondateid)) {
     require_capability('mod/booking:managebookedusers', $r2instancecontext);
 
     // We only show links, if we have the matching capabilities.
-    $heading = get_string('managebookedusers_heading', 'mod_booking', $bookingsettings->name);
+    $a = new stdClass();
+    $a->scopestring = get_string('report2labelinstance', 'mod_booking');
+    $a->title = $bookingsettings->name;
+    $heading = get_string('managebookedusers_heading', 'mod_booking', $a);
+
     $navhtml =
         ($r2syscap ? "<a href='{$r2systemurl}' class='report2-system-border'>" :
             "<span class='report2-system-border'>") .
@@ -320,7 +331,11 @@ if (!empty($optiondateid)) {
     require_capability('mod/booking:managebookedusers', $r2coursecontext);
 
     // We only show links, if we have the matching capabilities.
-    $heading = get_string('managebookedusers_heading', 'mod_booking', $course->fullname);
+    $a = new stdClass();
+    $a->scopestring = get_string('report2labelcourse', 'mod_booking');
+    $a->title = $course->fullname;
+    $heading = get_string('managebookedusers_heading', 'mod_booking', $a);
+
     $navhtml =
         ($r2syscap ? "<a href='{$r2systemurl}' class='report2-system-border'>" :
             "<span class='report2-system-border'>") .
@@ -344,7 +359,11 @@ if (!empty($optiondateid)) {
     require_capability('mod/booking:managebookedusers', $r2syscontext);
 
     // We only show links, if we have the matching capabilities.
-    $heading = get_string('managebookedusers_heading', 'mod_booking', $SITE->fullname);
+    $a = new stdClass();
+    $a->scopestring = get_string('report2labelsystem', 'mod_booking');
+    $a->title = $SITE->fullname;
+    $heading = get_string('managebookedusers_heading', 'mod_booking', $a);
+
     $navhtml =
         "<a href='$r2systemurl' class='report2-system-border'>" .
         $linkicon . $SITE->fullname .
