@@ -2224,6 +2224,7 @@ $string['sqlfiltercheckstring'] = 'Bookingoption ausblenden wenn diese Bedingung
 $string['startdate'] = "Startdatum";
 $string['starttime'] = "Startzeit";
 $string['starttimenotset'] = 'Kursbeginn nicht festgelegt';
+$string['status'] = 'Sichtbarkeitsstatus';
 $string['statusattending'] = "Teilgenommen";
 $string['statuschangetext'] = 'Statusänderungsbenachrichtigung';
 $string['statuschangetextmessage'] = 'Guten Tag, {$a->participant}!
