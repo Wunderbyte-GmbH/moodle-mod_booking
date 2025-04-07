@@ -99,6 +99,7 @@ Feature: Create recurring options as teacher and configuring it.
     And I set the field "apply_to_children" to "Overwrite all settings"
     And I press "Save"
     ## Verify that dates of child options have been updated
+    And I rename my bookingoption children
     And I should see "RecurrOptUpd1" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "RecurrOptUpd1" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "18 March 2045, 3:20 PM" in the ".allbookingoptionstable_r2" "css_element"
