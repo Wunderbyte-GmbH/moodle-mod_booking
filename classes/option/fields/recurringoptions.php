@@ -674,6 +674,19 @@ class recurringoptions extends field_base {
         $d = $data->recurringchilddata->delta;
         $i = $data->recurringchilddata->index;
         $datatoupdate->{$fieldname} = $originaldata->$fieldname + ($d * $i);
+
+        if (
+            $fieldname == 'bookingopeningtime'
+            && !(empty($datatoupdate->{$fieldname}))
+        ) {
+            $datatoupdate->restrictanswerperiodopening = 1;
+        }
+        if (
+            $fieldname == 'bookingclosingtime'
+            && !(empty($datatoupdate->{$fieldname}))
+        ) {
+            $datatoupdate->restrictanswerperiodclosing = 1;
+        }
         return true;
     }
 
