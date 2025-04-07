@@ -139,4 +139,29 @@ class behat_booking extends behat_base {
             maxoptionsfromcategory::reset_instance();
             singleton_service::destroy_instance();
     }
+
+    /**
+     * Rename bookingoption children
+     * @Given /^I rename my bookingoption children$/
+     * @return void
+     */
+    public function i_rename_my_bookingoption_children() {
+        global $DB;
+        $sql = "
+            SELECT * FROM {booking_options}
+            WHERE parentid > 0
+            ORDER BY coursestarttime ASC
+        ";
+        $children = $DB->get_records_sql($sql, []);
+
+        $i = 1;
+        foreach ($children as $child) {
+            $data = [
+                'text' => 'child ' . $i,
+                'id' => $child->id,
+            ];
+            $DB->update_record('booking_options', $data);
+            $i++;
+        };
+    }
 }
