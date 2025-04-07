@@ -237,7 +237,10 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $data->calendarid = 0;
 
         // Unique identifier must not be copied, instead we create a new random one.
-        $data->identifier = booking_option::create_truly_unique_option_identifier();
+        if (empty($data->identifier) || $DB->record_exists('booking_options', ['identifier' => $data->identifier])) {
+            // If the identifier already exists, we need to create a new one.
+            $data->identifier = booking_option::create_truly_unique_option_identifier();
+        }
 
         $newitemid = $DB->insert_record('booking_options', $data);
 
