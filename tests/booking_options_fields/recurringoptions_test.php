@@ -216,6 +216,10 @@ final class recurringoptions_test extends advanced_testcase {
         $record->daystonotify_2 = "0";
         $record->coursestarttime_2 = strtotime('now + 1 day');
         $record->courseendtime_2 = strtotime('now + 10 day');
+        $record->restrictanswerperiodopening = 1;
+        $record->restrictanswerperiodclosing = 1;
+        $record->bookingopeningtime = strtotime('now - 1 day');
+        $record->bookingclosingtime = strtotime('now + 1 day');
         $record->apply_to_children = $data['apply_to_children'];
         booking_option::update($record);
 
@@ -255,6 +259,16 @@ final class recurringoptions_test extends advanced_testcase {
                 $child->description,
                 "Child {$child->id} description not updated correctly."
             );
+
+            $json = json_decode($child->json);
+            $index = $json->recurringchilddata->index;
+            $delta = $json->recurringchilddata->delta;
+            // Bookingopening- and -closingtime.
+            $expectedopeningtime = $record->bookingopeningtime + ($delta * $index);
+            $expectedclosingtime = $record->bookingclosingtime + ($delta * $index);
+
+            $this->assertEquals($expectedopeningtime, $child->bookingopeningtime);
+            $this->assertEquals($expectedclosingtime, $child->bookingclosingtime);
 
             // Verify if all sessions were updated correctly.
             $childdata = (object)[
@@ -319,14 +333,14 @@ final class recurringoptions_test extends advanced_testcase {
         $firstchild->maxoverbooking = 30;
         $firstchild->text = 'Test Sibling';
         $firstchild->description = 'Test Booking Description Sibling Change';
-        $firstchild->coursestarttime = strtotime('2025-01-05 10:00:00');
-        $firstchild->courseendtime = strtotime('2025-30-05 10:00:00');
+        $firstchild->coursestarttime = strtotime('now + 1 day');
+        $firstchild->courseendtime = strtotime('now + 4 day');
         $firstchild->daystonotify_1 = "0";
-        $firstchild->coursestarttime_1 = strtotime('2025-01-05 10:00:00');
-        $firstchild->courseendtime_1 = strtotime('2025-15-05 10:00:00');
+        $firstchild->coursestarttime_1 = strtotime('now + 1 day');
+        $firstchild->courseendtime_1 = strtotime('now + 2 day');
         $firstchild->daystonotify_2 = "0";
-        $firstchild->coursestarttime_2 = strtotime('2025-29-05 10:00:00');
-        $firstchild->courseendtime_2 = strtotime('2025-30-05 10:00:00');
+        $firstchild->coursestarttime_2 = strtotime('now + 1 day');
+        $firstchild->courseendtime_2 = strtotime('now + 4 day');
         $firstchild->apply_to_siblings = $data['apply_to_siblings'];
         booking_option::update($firstchild);
         $record = $DB->get_record('booking_options', ['id' => $firstchild->id]);
