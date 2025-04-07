@@ -620,10 +620,6 @@ class recurringoptions extends field_base {
                     $childdata = $data;
                     $childdata->id = $child->id;
 
-                    self::update_recurring_date_sessions($childdata, $newparentoptiondates, $childdatastore);
-                    self::apply_delta_to_field('bookingopeningtime', $childdata, $originaldata);
-                    self::apply_delta_to_field('bookingclosingtime', $childdata, $originaldata);
-
                     // Make sure to unset further recurring options in dependent options.
                     $recurringkeys = [
                         'apply_to_children',
@@ -634,14 +630,21 @@ class recurringoptions extends field_base {
                         unset($childdata->$key);
                     }
 
+                    self::update_recurring_date_sessions($childdata, $newparentoptiondates, $childdatastore);
+
                     // Make sure to keep specific data in child.
                     $json = json_decode($child->json);
                     booking_option::add_data_to_json($childdata, 'recurringchilddata', $json->recurringchilddata);
+
+                    // Apply delta once json is set correctly.
+                    self::apply_delta_to_field('bookingopeningtime', $childdata, $originaldata);
+                    self::apply_delta_to_field('bookingclosingtime', $childdata, $originaldata);
                     $update = true;
                 }
                 // Update the data record after all changes are made.
                 if ($update) {
                     // Keep parentid if it's already set. Otherwise we fallback and use the id of the template (parent) option.
+                    $childdata->identifier = $child->identifier ?? '';
                     $childdata->parentid = $child->parentid ?? $data->optionid ?? 0;
                     booking_option::update((object) $childdata, $context);
                 }
