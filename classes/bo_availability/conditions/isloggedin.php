@@ -26,6 +26,7 @@
 
 namespace mod_booking\bo_availability\conditions;
 
+use context_module;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
@@ -45,7 +46,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class isloggedin implements bo_condition {
-
     /** @var int $id Standard Conditions have hardcoded ids. */
     public $id = MOD_BOOKING_BO_COND_ISLOGGEDIN;
 
@@ -207,6 +207,9 @@ class isloggedin implements bo_condition {
         bool $fullwidth = true
     ): array {
 
+        $course = get_course_and_cm_from_cmid($settings->cmid)[0];
+        $courseid = $course->id;
+
         $label = $this->get_description_string(false, $full, $settings);
         $style = 'btn btn-' . get_config('booking', 'loginbuttonforbookingoptionscoloroptions') ?? 'btn btn-warning';
 
@@ -221,14 +224,15 @@ class isloggedin implements bo_condition {
             );
         }
 
-        if (get_config('booking', 'redirectonlogintocourse') && !empty($settings->courseid)) {
-            $returnurl = new moodle_url('/course/view.php', ['id' => $settings->courseid]);
+        if (get_config('booking', 'redirectonlogintocourse') && isset($courseid)) {
+            $returnurl = new moodle_url('/course/view.php', ['id' => $courseid]);
         }
 
         $url = new moodle_url(
             '/login/index.php',
             [
-                'returnto' => $returnurl,
+                'returnto' => 'url',
+                'returnurl' => $returnurl,
             ]
         );
 
