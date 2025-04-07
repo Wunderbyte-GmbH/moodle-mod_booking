@@ -203,29 +203,7 @@ class shortcodes {
             return get_string('definecmidforshortcode', 'mod_booking');
         }
 
-        $viewparam = MOD_BOOKING_VIEW_PARAM_LIST; // Default value.
-        if (isset($args['type'])) {
-            switch ($args['type']) {
-                // Cards are currently not yet supported in shortcode.
-                // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-                /*case 'cards':
-                    $viewparam = MOD_BOOKING_VIEW_PARAM_CARDS;
-                    break;*/
-                case 'imageleft':
-                    $viewparam = MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT;
-                    break;
-                case 'imageright':
-                    $viewparam = MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT;
-                    break;
-                case 'imagelefthalf':
-                    $viewparam = MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF;
-                    break;
-                case 'list':
-                default:
-                    $viewparam = MOD_BOOKING_VIEW_PARAM_LIST;
-                    break;
-            }
-        }
+        $viewparam = self::get_viewparam($args);
 
         $booking = singleton_service::get_instance_of_booking_settings_by_cmid((int)$args['cmid']);
 
@@ -599,6 +577,9 @@ class shortcodes {
             $wherearray['bookingid'] = (int)$booking->id;
         }
 
+        $viewparam = self::get_viewparam($args);
+
+
         self::set_wherearray_from_arguments($args, $wherearray);
 
         $table = self::init_table_for_courses(null, md5($pageurl));
@@ -670,7 +651,7 @@ class shortcodes {
                     $showsort,
                     false,
                     true,
-                    MOD_BOOKING_VIEW_PARAM_LIST,
+                    $viewparam,
                 );
 
                 // Possibility to add customfieldfilter.
@@ -1187,5 +1168,38 @@ class shortcodes {
             $value = str_replace('"', '', $value);
             $value = str_replace("'", "", $value);
         }
+    }
+    /**
+     * Helperfunction to get the Viewparam.
+     *
+     * @param array $args
+     *
+     * @return int $viewparam
+     *
+     */
+    private static function get_viewparam($args) {
+        // Default is list.
+        $viewparam = MOD_BOOKING_VIEW_PARAM_LIST;
+        if (!isset($args['type'])) {
+            return $viewparam;
+        }
+        switch ($args['type']) {
+            // Cards are currently not yet supported in shortcode.
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /*case 'cards':
+                $viewparam = MOD_BOOKING_VIEW_PARAM_CARDS;*/
+            case 'imageleft':
+                $viewparam = MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT;
+                break;
+            case 'imageright':
+                $viewparam = MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT;
+                break;
+            case 'imagelefthalf':
+                $viewparam = MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF;
+                break;
+            case 'list':
+                break;
+        }
+        return $viewparam;
     }
 }
