@@ -132,3 +132,17 @@ Feature: Create recurring options as teacher and configuring it.
     And I should see "RecurrOptUpd2" in the ".allbookingoptionstable_r3" "css_element"
     ## Verify that date of 2nd child option has NOT been updated
     And I should see "20 March 2045, 3:20 PM" in the ".allbookingoptionstable_r3" "css_element"
+    ## Update names of 2nd and 3rd childs' only
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r2" "css_element"
+    And I set the field "Booking option name" to "RecurrOptUpd3"
+    And I press "Save"
+    And I set the field "apply_to_siblings" to "Apply current changes"
+    And I press "Save"
+    And I wait until the page is ready
+    ## Verify that names of 2nd and 3rd child options has been updated
+    And I should see "RecurrOptUpd2" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "RecurrOptUpd3" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "RecurrOptUpd3" in the ".allbookingoptionstable_r3" "css_element"
+    ## Verify that dates of 2nd and 3rd child options has NOT been updated
+    And I should see "18 March 2045, 3:20 PM" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "20 March 2045, 3:20 PM" in the ".allbookingoptionstable_r3" "css_element"
