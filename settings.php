@@ -556,6 +556,7 @@ if ($ADMIN->fulltree) {
             0
         )
     );
+
     $settings->add(
         new admin_setting_configcheckbox(
             'booking/redirectonlogintocourse',
