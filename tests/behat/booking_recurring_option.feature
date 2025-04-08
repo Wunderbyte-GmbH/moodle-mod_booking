@@ -25,17 +25,17 @@ Feature: Create recurring options as teacher and configuring it.
     And the following "activities" exist:
       | activity | course | name      | intro         | bookingmanager | eventtype | Default view for booking options |
       | booking  | C1     | MyBooking | booking descr | teacher1       | Webinar   | All bookings                     |
-    And the following "mod_booking > options" exist:
-      | booking   | text      | course | description | limitanswers | maxanswers | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
-      | MyBooking | RecurrOpt | C1     | recurring   | 1            | 4          | 0              | 0              | 2373200400        | 2373208200      | 0              | 0              | 2383200400        | 2383300400      |
-    ## 2045/03/15 14:20 - 2045/03/15 16:30 UTC
-    ## 2045/07/09 08:06 - 2045/07/10 11:53 UTC
     And I change viewport size to "1366x10000"
 
   @javascript
   Scenario: Booking: add few recurring options as a teacher and verify as student
-    Given I am on the "MyBooking" Activity page logged in as teacher1
-    ## Create 1st set of recurring options
+    Given the following "mod_booking > options" exist:
+      | booking   | text      | course | description | limitanswers | maxanswers | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | MyBooking | RecurrOpt | C1     | recurring   | 1            | 4          | 0              | 0              | 2373200400        | 2373208200      | 0              | 0              | 2383200400        | 2383300400      |
+    ## 2045/03/15 14:20 - 2045/03/15 16:30 UTC
+    ## 2045/07/09 08:06 - 2045/07/10 11:53 UTC
+    And I am on the "MyBooking" Activity page logged in as teacher1
+    ## Create 1st set of recurring options and validate it
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Recurring options"
     And I set the following fields to these values:
@@ -45,40 +45,64 @@ Feature: Create recurring options as teacher and configuring it.
       | requirepreviousoptionstobebooked | 1     |
     And I press "Save"
     And I should see "15 March 2045, 3:20 PM" in the ".allbookingoptionstable_r1" "css_element"
-    ## TODO: below passed OK for php > 8.0 Might be seen as incorrect - What kind of DST issue ?
-    ##And I should see "9 July 2045, 10:06 AM" in the ".allbookingoptionstable_r1" "css_element"
-    ## TODO: below passed OK for php <= 8.0 Might be seen as incorrect - What kind of DST issue ?
-    ## And I should see "9 July 2045, 9:06 AM" in the ".allbookingoptionstable_r1" "css_element"
-    ## Because of the above summmer time (DST) issue we are testing date only for now:
     And I should see "9 July 2045" in the ".allbookingoptionstable_r1" "css_element"
-    ## TODO: Potential interval issue (30 days - not 1 month).
     And I should see "RecurrOpt" in the ".allbookingoptionstable_r2" "css_element"
-    And I should see "14 April 2045, 4:20 PM" in the ".allbookingoptionstable_r2" "css_element"
-    And I should see "8 August 2045, 10:06 AM" in the ".allbookingoptionstable_r2" "css_element"
-    ## Because of summmer time (DST) issue we are testing date only for now:
+    And I should see "15 April 2045, 3:20 PM" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "9 August 2045, 10:06 AM" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "RecurrOpt" in the ".allbookingoptionstable_r3" "css_element"
-    And I should see "14 May 2045" in the ".allbookingoptionstable_r3" "css_element"
-    And I should see "7 September 2045" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "15 May 2045, 3:20 PM" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "9 September 2045, 10:06 AM" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "15 June 2045, 3:20 PM" in the ".allbookingoptionstable_r4" "css_element"
+    And I should see "9 October 2045, 10:06 AM" in the ".allbookingoptionstable_r4" "css_element"
+    ## Create 2nd set of recurring options and validate it
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I follow "Recurring options"
+    And I set the following fields to these values:
+      | Repeat this option               | 1     |
+      | Number of repetitions            | 2     |
+      | Repetition interval              | Week  |
+      | requirepreviousoptionstobebooked |       |
+    And I press "Save"
+    And I set the field "apply_to_children" to "Don't apply"
+    And I press "Save"
+    And I should see "RecurrOpt" in the ".allbookingoptionstable_r5" "css_element"
+    And I should see "22 March 2045, 3:20 PM" in the ".allbookingoptionstable_r5" "css_element"
+    And I should see "16 July 2045, 10:06 AM" in the ".allbookingoptionstable_r5" "css_element"
+    And I should see "RecurrOpt" in the ".allbookingoptionstable_r6" "css_element"
+    And I should see "29 March 2045, 3:20 PM" in the ".allbookingoptionstable_r6" "css_element"
+    And I should see "23 July 2045, 10:06 AM" in the ".allbookingoptionstable_r6" "css_element"
     And I log out
     ## Validate recurring options as student
     And I am on the "MyBooking" Activity page logged in as student1
     And I should see "RecurrOpt" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "15 March 2045, 3:20 PM" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "9 July 2045, 10:06 AM" in the ".allbookingoptionstable_r1" "css_element"
-    ## 1) Summmer time (DST) issue. 2) Potential interval issue.
     And I should see "RecurrOpt" in the ".allbookingoptionstable_r2" "css_element"
-    And I should see "14 April 2045, 4:20 PM" in the ".allbookingoptionstable_r2" "css_element"
-    And I should see "8 August 2045, 10:06 AM" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "15 April 2045, 3:20 PM" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "9 August 2045, 10:06 AM" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "Only users who have previously booked this option are allowed to book." in the ".allbookingoptionstable_r2" "css_element"
-    ## Because of summmer time (DST) issue we are testing date only for now:
     And I should see "RecurrOpt" in the ".allbookingoptionstable_r3" "css_element"
-    And I should see "14 May 2045" in the ".allbookingoptionstable_r3" "css_element"
-    And I should see "7 September 2045" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "15 May 2045, 3:20 PM" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "9 September 2045, 10:06 AM" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Only users who have previously booked this option are allowed to book." in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "RecurrOpt" in the ".allbookingoptionstable_r5" "css_element"
+    And I should see "22 March 2045, 3:20 PM" in the ".allbookingoptionstable_r5" "css_element"
+    And I should see "16 July 2045, 10:06 AM" in the ".allbookingoptionstable_r5" "css_element"
+    And I should not see "Only users who have previously booked this option are allowed to book." in the ".allbookingoptionstable_r5" "css_element"
+    And I should see "RecurrOpt" in the ".allbookingoptionstable_r6" "css_element"
+    And I should see "29 March 2045, 3:20 PM" in the ".allbookingoptionstable_r6" "css_element"
+    And I should see "23 July 2045, 10:06 AM" in the ".allbookingoptionstable_r6" "css_element"
+    And I should not see "Only users who have previously booked this option are allowed to book." in the ".allbookingoptionstable_r6" "css_element"
 
   @javascript
   Scenario: Booking: add daily recurring options as a teacher and edit dates and titles
-    Given I am on the "MyBooking" Activity page logged in as teacher1
+    Given the following "mod_booking > options" exist:
+      | booking   | text      | course | description | limitanswers | maxanswers | availability | restrictanswerperiodopening | bookingopeningtime | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
+      | MyBooking | RecurrOpt | C1     | recurring   | 1            | 4          | 1            | 1                           | 2373000400         | 0              | 0              | 2373200400        | 2373208200      | 0              | 0              | 2383200400        | 2383300400      |
+    ## 2045/03/13 06:45 (bookingopeningtime)
+    ## 2045/03/15 14:20 - 2045/03/15 16:30 UTC
+    ## 2045/07/09 08:06 - 2045/07/10 11:53 UTC 
+    And I am on the "MyBooking" Activity page logged in as teacher1
     ## Create recurring options
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I expand all fieldsets
@@ -89,8 +113,10 @@ Feature: Create recurring options as teacher and configuring it.
     And I press "Save"
     And I should see "RecurrOpt" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "16 March 2045, 3:20 PM" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "Bookable from: 13 April 2045, 7:46 AM" in the ".allbookingoptionstable_r2 .bookingopeningtime" "css_element"
     And I should see "RecurrOpt" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "17 March 2045, 3:20 PM" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Bookable from: 13 June 2045, 7:46 AM" in the ".allbookingoptionstable_r4 .bookingopeningtime" "css_element"
     ## Update existing recuring options
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I expand all fieldsets
