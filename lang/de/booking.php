@@ -2410,6 +2410,7 @@ $string['unconfirmbooking'] = 'Lösche Bestätigung dieser Buchung';
 $string['unconfirmbookinglong'] = 'Wollen Sie die Bestätigung dieser Buchung wirklich aufheben?';
 $string['undocancelreason'] = "Möchten Sie wirklich die Stornierung dieser Buchungsoption rückgängig machen?";
 $string['undocancelthisbookingoption'] = "Stornierung rückgängig machen";
+$string['unenrolfromgroupofcurrentcourse'] = 'Beim Abmelden von der Buchungsoption auch aus der spezifischen Gruppe abmelden?';
 $string['unenroluserswithoutaccess'] = 'Abmelden von Nutzer:innen ohne Zugang';
 $string['unenroluserswithoutaccess_desc'] = 'Melde Nutzer:innen automatisch ab, die keinen Zugang mehr zu einem Moodle-Kurs oder einer Buchungsaktivität haben.
 <div class="text-danger">Achtung: Damit wird die Nachverfolgung womöglich erschwert. Nach Aktivierung dieses Häkchens wird einmalig systemweit überprüft,

@@ -2477,6 +2477,7 @@ $string['unconfirmbooking'] = 'Delete confirmation of this booking';
 $string['unconfirmbookinglong'] = 'Do you really want to delete the confirmation of this booking?';
 $string['undocancelreason'] = "Do you really want to undo the cancellation of this booking option?";
 $string['undocancelthisbookingoption'] = "Undo cancelling of this booking option";
+$string['unenrolfromgroupofcurrentcourse'] = 'Unenrol from specific group when user is unenroled from corresponding bookingoption?';
 $string['unenroluserswithoutaccess'] = 'Delete booking answers of users without access';
 $string['unenroluserswithoutaccess_desc'] = 'Automatically unenroll users who no longer have access to a Moodle course or a Booking activity.
 <div class="text-danger">Warning: This might make tracking more difficult. Once this checkbox is activated, the system will perform a one-time
