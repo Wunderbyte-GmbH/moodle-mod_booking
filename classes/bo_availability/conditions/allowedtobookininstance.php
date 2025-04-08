@@ -236,6 +236,7 @@ class allowedtobookininstance implements bo_condition {
                 'bo_cond_allowedtobookininstance_capabilitynotneeded',
                 get_string('bocondallowedtobookininstanceanyways', 'mod_booking')
             );
+            $mform->setDefault('bo_cond_allowedtobookininstance_capabilitynotneeded', 1);
             $mform->hideIf(
                 'bo_cond_allowedtobookininstance_capabilitynotneeded',
                 'bo_cond_allowedtobookininstance_restrict',
