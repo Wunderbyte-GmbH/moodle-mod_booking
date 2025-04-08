@@ -201,18 +201,21 @@ class recurringoptions extends field_base {
                 $htmlcontent = '';
 
                 if (!empty($isparentofcurrent)) {
+                    $htmlcontent .= '<div title="' . get_string('recurringparentoption', 'mod_booking') . '">';
                     $htmlcontent .= '<h7>' . get_string('recurringparentoption', 'mod_booking') . '</h7><br>';
-                    $htmlcontent .= implode('<br>', $generatelinks($isparentofcurrent)) . '<br><br>';
+                    $htmlcontent .= implode('<br>', $generatelinks($isparentofcurrent)) . '<br><br></div>';
                 }
 
                 if (!empty($sameparent)) {
+                    $htmlcontent .= '<div title="' . get_string('recurringsameparentoptions', 'mod_booking') . '">';
                     $htmlcontent .= '<h7>' . get_string('recurringsameparentoptions', 'mod_booking') . '</h7><br>';
-                    $htmlcontent .= implode('<br>', $generatelinks($sameparent)) . '<br><br>';
+                    $htmlcontent .= implode('<br>', $generatelinks($sameparent)) . '<br><br></div>';
                 }
 
                 if (!empty($ischildofcurrent)) {
+                    $htmlcontent .= '<div title="' . get_string('recurringchildoptions', 'mod_booking') . '">';
                     $htmlcontent .= '<h7>' . get_string('recurringchildoptions', 'mod_booking') . '</h7><br>';
-                    $htmlcontent .= implode('<br>', $generatelinks($ischildofcurrent)) . '<br><br>';
+                    $htmlcontent .= implode('<br>', $generatelinks($ischildofcurrent)) . '<br><br></div>';
                 }
 
                 // Add the structured HTML to the form.
