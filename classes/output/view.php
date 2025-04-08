@@ -287,7 +287,7 @@ class view implements renderable, templatable {
             // If we show this table first, we don't load it lazy.
             $lazy = $whichview !== 'optionsiamresponsiblefor';
             $this->renderedresponsiblecontacttable =
-                $this->get_rendered_table_for_responsible_contact($USER->id, true, true, true, $lazy);
+                $this->get_rendered_table_for_responsible_contact($USER->id, true, true, $lazy);
         }
 
         // Only the booking options of my institution.
