@@ -206,9 +206,8 @@ class isloggedin implements bo_condition {
         bool $not = false,
         bool $fullwidth = true
     ): array {
-
-        $course = get_course_and_cm_from_cmid($settings->cmid)[0];
-        $courseid = $course->id;
+        global $SESSION;
+        $courseid = $settings->courseid;
 
         $label = $this->get_description_string(false, $full, $settings);
         $style = 'btn btn-' . get_config('booking', 'loginbuttonforbookingoptionscoloroptions') ?? 'btn btn-warning';
@@ -216,26 +215,22 @@ class isloggedin implements bo_condition {
         $returnurl = "";
         if (get_config('booking', 'showbookingdetailstoall')) {
             $returnurl = new moodle_url(
-                '/mod/booking/editoptions.php',
+                '/mod/booking/optionview.php',
                 [
-                    'id' => $settings->cmid,
                     'optionid' => $settings->id,
+                    'cmid' => $settings->cmid,
                 ]
             );
         }
 
-        if (get_config('booking', 'redirectonlogintocourse') && isset($courseid)) {
-            $returnurl = new moodle_url('/course/view.php', ['id' => $courseid]);
+        if (get_config('booking', 'redirectonlogintocourse') && !empty($courseid)) {
+            $url = new moodle_url('/course/view.php', ['id' => $courseid]);
+        } else {
+            $url = new moodle_url('/login/index.php');
+            if (!empty($returnurl)) {
+                $SESSION->wantsurl = $returnurl->out(false);
+            }
         }
-
-        $url = new moodle_url(
-            '/login/index.php',
-            [
-                'returnto' => 'url',
-                'returnurl' => $returnurl,
-            ]
-        );
-
         $button = bo_info::render_button(
             $settings,
             $userid,
