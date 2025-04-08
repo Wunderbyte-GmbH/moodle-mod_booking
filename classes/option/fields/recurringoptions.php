@@ -316,7 +316,12 @@ class recurringoptions extends field_base {
                     MOD_BOOKING_RECURRING_APPLY_TO_SIBLINGS => get_string('confirmrecurringoptionapplychanges', 'mod_booking'),
                     MOD_BOOKING_RECURRING_OVERWRITE_SIBLINGS => get_string('confirmrecurringoptionoverwrite', 'mod_booking'),
                 ];
-                $mform->addElement('select', 'apply_to_siblings', get_string('recurringselectapplysiblings', 'mod_booking'), $applyselectoptions);
+                $mform->addElement(
+                    'select',
+                    'apply_to_siblings',
+                    get_string('recurringselectapplysiblings', 'mod_booking'),
+                    $applyselectoptions
+                );
                 $mform->setDefault('apply_to_siblings', MOD_BOOKING_RECURRING_DONTUPDATE);
                 $mform->hideIf('apply_to_siblings', 'validated_once', 'eq', 0);
             }
@@ -556,7 +561,7 @@ class recurringoptions extends field_base {
      * If there are changes, apply them to the children.
      *
      * @param array $changes
-     * @param object $data
+     * @param object $originaldata
      * @param object $oldoption
      * @param array $records
      * @param bool $overwrite
