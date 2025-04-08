@@ -15,6 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace mod_booking;
+
+use mod_booking\event\pricecategory_changed;
+use mod_booking\form\pricecategories_form;
 /**
  * Handles price category operations.
  *
@@ -32,17 +35,16 @@ class pricecategories_handler {
     public function process_pricecategories_form($data) {
         global $DB, $USER;
         // Get existing price categories.
+        $oldcategories = $DB->get_records('booking_pricecategories');
+        $changes = $this->get_pricecategory_changes($oldcategories, $data);
 
-            $oldcategories = $DB->get_records('booking_pricecategories');
-            $changes = $this->get_pricecategory_changes($oldcategories, $data);
-
-            // Update existing price categories.
+        // Update existing price categories.
         foreach ($changes['updates'] as $record) {
             $DB->update_record('booking_pricecategories', $record);
             $this->trigger_category_change_event($oldcategories[$record->id]->identifier, $record->identifier, $record->id);
         }
 
-            // Insert new price categories.
+        // Insert new price categories.
         if (!empty($changes['inserts'])) {
             $DB->insert_records('booking_pricecategories', $changes['inserts']);
         }
@@ -75,11 +77,11 @@ class pricecategories_handler {
      * @param string $newidentifier
      * @param int $id
      */
-    private function trigger_category_change_event($oldidentifier, $newidentifier, $id) {
+    private function trigger_pricecategory_change_event($oldidentifier, $newidentifier, $id) {
         global $USER;
 
         if ($oldidentifier !== $newidentifier) {
-            $event = \mod_booking\event\pricecategory_changed::create([
+            $event = pricecategory_changed::create([
                 'objectid' => $id,
                 'context' => \context_system::instance(),
                 'relateduserid' => $USER->id,
@@ -161,7 +163,7 @@ class pricecategories_handler {
     public function display_form($pageurl) {
         global $OUTPUT;
 
-        $mform = new \mod_booking\form\pricecategories_form($pageurl);
+        $mform = new pricecategories_form($pageurl);
         $mform->display();
     }
 }
