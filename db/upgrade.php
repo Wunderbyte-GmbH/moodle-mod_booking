@@ -3193,10 +3193,19 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Adding fields to table.
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'id');
-        $table->add_field('pricecategoryidentifier', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'optionid');
-        $table->add_field('price', XMLDB_TYPE_NUMBER, '10, 2', null, null, null, '0', 'pricecategoryidentifier');
-        $table->add_field('currency', XMLDB_TYPE_CHAR, '10', null, null, null, '', 'price');
+        $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', new xmldb_field('id'));
+        $table->add_field(
+            'pricecategoryidentifier',
+            XMLDB_TYPE_CHAR,
+            '255',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            null,
+            new xmldb_field('optionid')
+        );
+        $table->add_field('price', XMLDB_TYPE_NUMBER, '10, 2', null, null, null, '0', new xmldb_field('pricecategoryidentifier'));
+        $table->add_field('currency', XMLDB_TYPE_CHAR, '10', null, null, null, '', new xmldb_field('price'));
 
         // Adding keys to table.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
@@ -3216,11 +3225,11 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Adding fields to table.
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null, null);
-        $table->add_field('ordernum', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0', 'id');
-        $table->add_field('identifier', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'ordernum');
-        $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'identifier');
-        $table->add_field('defaultvalue', XMLDB_TYPE_NUMBER, '10, 2', null, null, null, '0', 'name');
-        $table->add_field('disabled', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'defaultvalue');
+        $table->add_field('ordernum', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0', new xmldb_field('id'));
+        $table->add_field('identifier', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, new xmldb_field('ordernum'));
+        $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, new xmldb_field('identifier'));
+        $table->add_field('defaultvalue', XMLDB_TYPE_NUMBER, '10, 2', null, null, null, '0', new xmldb_field('name'));
+        $table->add_field('disabled', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', new xmldb_field('defaultvalue'));
 
         // Adding keys to table.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
@@ -3240,10 +3249,10 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Adding fields to table.
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null, null);
-        $table->add_field('identifier', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'id');
-        $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'identifier');
-        $table->add_field('startdate', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'name');
-        $table->add_field('enddate', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'startdate');
+        $table->add_field('identifier', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, new xmldb_field('id'));
+        $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, new xmldb_field('identifier'));
+        $table->add_field('startdate', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', new xmldb_field('name'));
+        $table->add_field('enddate', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', new xmldb_field('startdate'));
 
         // Adding keys to table.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
@@ -3355,10 +3364,10 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Adding fields to table.
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null, null);
-        $table->add_field('semesteridentifier', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'id');
-        $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'semesteridentifier');
-        $table->add_field('startdate', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'name');
-        $table->add_field('enddate', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'startdate');
+        $table->add_field('semesteridentifier', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, new xmldb_field('id'));
+        $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, null, null, null, new xmldb_field('semesteridentifier'));
+        $table->add_field('startdate', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', new xmldb_field('name'));
+        $table->add_field('enddate', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', new xmldb_field('startdate'));
 
         // Adding keys to table.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
@@ -4948,6 +4957,21 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2025031801, 'booking');
+    }
+
+    if ($oldversion < 2025040800) {
+        // If the default price category does not yet exist, we create it.
+        if (!$DB->record_exists('booking_pricecategories', ['identifier' => 'default'])) {
+            // Define the default price category.
+            $defaultcategory = new stdClass();
+            $defaultcategory->ordernum = 1;
+            $defaultcategory->identifier = 'default';
+            $defaultcategory->name = 'Price';
+            $defaultcategory->defaultvalue = 0.00;
+            $DB->insert_record('booking_pricecategories', $defaultcategory);
+        }
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2025040800, 'booking');
     }
 
     return true;

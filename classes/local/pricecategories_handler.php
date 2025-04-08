@@ -18,6 +18,7 @@ namespace mod_booking;
 
 use mod_booking\event\pricecategory_changed;
 use mod_booking\form\pricecategories_form;
+use stdClass;
 /**
  * Handles price category operations.
  *
@@ -41,7 +42,7 @@ class pricecategories_handler {
         // Update existing price categories.
         foreach ($changes['updates'] as $record) {
             $DB->update_record('booking_pricecategories', $record);
-            $this->trigger_category_change_event($oldcategories[$record->id]->identifier, $record->identifier, $record->id);
+            $this->trigger_pricecategory_changed_event($oldcategories[$record->id]->identifier, $record->identifier, $record->id);
         }
 
         // Insert new price categories.
@@ -59,7 +60,7 @@ class pricecategories_handler {
     private function insert_pricecategory($data, $index) {
         global $DB;
 
-        $pricecategory = new \stdClass();
+        $pricecategory = new stdClass();
         $pricecategory->ordernum = $data->{"pricecategoryordernum$index"};
         $pricecategory->identifier = $data->{"pricecategoryidentifier$index"};
         $pricecategory->name = $data->{"pricecategoryname$index"};
@@ -77,7 +78,7 @@ class pricecategories_handler {
      * @param string $newidentifier
      * @param int $id
      */
-    private function trigger_pricecategory_change_event($oldidentifier, $newidentifier, $id) {
+    private function trigger_pricecategory_changed_event($oldidentifier, $newidentifier, $id) {
         global $USER;
 
         if ($oldidentifier !== $newidentifier) {
@@ -115,7 +116,7 @@ class pricecategories_handler {
                 $counter = (int)substr($key, -1);
 
                 if (in_array($counter, $existingordernumbers)) {
-                    $pricecategory = new \stdClass();
+                    $pricecategory = new stdClass();
                     $pricecategory->id = $value;
                     $pricecategory->ordernum = $data->{"pricecategoryordernum$counter"};
                     $pricecategory->identifier = $data->{"pricecategoryidentifier$counter"};
@@ -127,7 +128,7 @@ class pricecategories_handler {
                     $updates[] = $pricecategory;
                 } else {
                     if (!empty($data->{"pricecategoryidentifier$counter"})) {
-                        $pricecategory = new \stdClass();
+                        $pricecategory = new stdClass();
                         $pricecategory->ordernum = $data->{"pricecategoryordernum$counter"};
                         $pricecategory->identifier = $data->{"pricecategoryidentifier$counter"};
                         $pricecategory->name = $data->{"pricecategoryname$counter"};

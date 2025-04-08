@@ -15,32 +15,29 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Booking module databese install script
+ * Booking module databese install script.
  *
  * @package    mod_booking
- * @copyright  2009-2023 David Bogner
+ * @copyright  2009-2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 /**
- * Xmldb booking install
- *
- *
+ * XMLDB Booking install function.
  * @return void
- *
  */
 function xmldb_booking_install() {
     global $DB;
      // Check if the table exists before inserting.
     if (!PHPUNIT_TEST && !BEHAT_SITE_RUNNING && $DB->get_manager()->table_exists('booking_pricecategories')) {
-        // Define the default price category.
-        $defaultcategory = new stdClass();
-        $defaultcategory->name = 'Standard Price';
-        $defaultcategory->price = 0.00;
-        $defaultcategory->identifier = 'default';
-
         // Check if a default category already exists.
-        if (!$DB->record_exists('booking_pricecategories', ['identifier' => $defaultcategory->identifier])) {
+        if (!$DB->record_exists('booking_pricecategories', ['identifier' => 'default'])) {
+            // Define the default price category.
+            $defaultcategory = new stdClass();
+            $defaultcategory->ordernum = 1;
+            $defaultcategory->identifier = 'default';
+            $defaultcategory->name = 'Price';
+            $defaultcategory->defaultvalue = 0.00;
             $DB->insert_record('booking_pricecategories', $defaultcategory);
         }
     }
