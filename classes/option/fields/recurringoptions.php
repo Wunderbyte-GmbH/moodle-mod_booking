@@ -241,9 +241,9 @@ class recurringoptions extends field_base {
                 $mform->setDefault('howmanytimestorepeat', 1);
                 $mform->disabledIf('howmanytimestorepeat', 'repeatthisbooking', 'notchecked');
                 $howoften = [
-                    86400 => get_string('day'),
-                    604800 => get_string('week'),
-                    2592000 => get_string('month'),
+                    'day' => get_string('day'),
+                    'week' => get_string('week'),
+                    'month' => get_string('month'),
                 ];
                 $mform->addElement(
                     'select',
@@ -254,8 +254,8 @@ class recurringoptions extends field_base {
                     ),
                     $howoften
                 );
-                $mform->setType('howoftentorepeat', PARAM_INT);
-                $mform->setDefault('howoftentorepeat', 86400);
+                $mform->setType('howoftentorepeat', PARAM_TEXT);
+                $mform->setDefault('howoftentorepeat', 'day');
                 $mform->disabledIf('howoftentorepeat', 'repeatthisbooking', 'notchecked');
 
                 $mform->addElement(
@@ -406,9 +406,9 @@ class recurringoptions extends field_base {
                     $key = MOD_BOOKING_FORM_OPTIONDATEID . $newoptiondate["index"];
                     $templateoption->{$key} = 0;
                     $key = MOD_BOOKING_FORM_COURSESTARTTIME . $newoptiondate["index"];
-                    $templateoption->{$key} += $delta;
+                    $templateoption->{$key} = strtotime("+ 1 $delta", $templateoption->{$key});
                     $key = MOD_BOOKING_FORM_COURSEENDTIME . $newoptiondate["index"];
-                    $templateoption->{$key} += $delta;
+                    $templateoption->{$key} = strtotime("+ 1 $delta", $templateoption->{$key});
                 }
                 // Handle setting: condition that previous option needs to be booked.
                 if ($data->requirepreviousoptionstobebooked == 1) {
@@ -425,10 +425,10 @@ class recurringoptions extends field_base {
 
                 // Apply delay in bookingopening- and bookingclosingtime.
                 if (isset($data->bookingopeningtime)) {
-                    $templateoption->bookingopeningtime = $data->bookingopeningtime + ($delta * $i);
+                    $templateoption->bookingopeningtime = strtotime("+ $i $delta", $data->bookingopeningtime);
                 }
                 if (isset($data->bookingclosingtime)) {
-                    $templateoption->bookingclosingtime = $data->bookingclosingtime + ($delta * $i);
+                    $templateoption->bookingclosingtime = strtotime("+ $i $delta", $data->bookingclosingtime);
                 }
 
                 $restrictoptionid = booking_option::update((object) $templateoption, $context);
@@ -678,7 +678,7 @@ class recurringoptions extends field_base {
         }
         $d = $data->recurringchilddata->delta;
         $i = $data->recurringchilddata->index;
-        $datatoupdate->{$fieldname} = $originaldata->$fieldname + ($d * $i);
+        $datatoupdate->{$fieldname} = strtotime("(+ $i $d)", $originaldata->$fieldname);
 
         if (
             $fieldname == 'bookingopeningtime'
@@ -731,17 +731,17 @@ class recurringoptions extends field_base {
             return;
         }
 
-        $d = $delta * $index;
+        $d = "+ $index $delta";
         foreach ($newparentoptiondates as $newparentoptiondate) {
             // Set the timestamp including the corresponding delta.
             $key = MOD_BOOKING_FORM_OPTIONDATEID . $newparentoptiondate["index"];
             $childdatatoupdate->{$key} = 0;
             $key = MOD_BOOKING_FORM_COURSESTARTTIME . $newparentoptiondate["index"];
             $coursestarttimekey = rtrim(MOD_BOOKING_FORM_COURSESTARTTIME, "_");
-            $childdatatoupdate->{$key} = (int) $newparentoptiondate[$coursestarttimekey] + $d;
+            $childdatatoupdate->{$key} = strtotime($d, $newparentoptiondate[$coursestarttimekey]);
             $key = MOD_BOOKING_FORM_COURSEENDTIME . $newparentoptiondate["index"];
             $courseendtimekey = rtrim(MOD_BOOKING_FORM_COURSEENDTIME, "_");
-            $childdatatoupdate->{$key} = (int) $newparentoptiondate[$courseendtimekey] + $d;
+            $childdatatoupdate->{$key} = strtotime($d, $newparentoptiondate[$courseendtimekey]);
             $key = MOD_BOOKING_FORM_DAYSTONOTIFY . $newparentoptiondate["index"];
             $dayskey = rtrim(MOD_BOOKING_FORM_DAYSTONOTIFY, "_");
             $childdatatoupdate->{$key} = $newparentoptiondate[$dayskey];
