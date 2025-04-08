@@ -1,3 +1,19 @@
+## Version 8.12.1 (2025040801)
+* New feature: Default price category will be created on update (or new installation).
+* Improvement: Unenrol from sourcecoursegroup if unenroled from bookingoption.
+* Improvement: Refactored Pricecategories
+* Improvement: Status and pricecategory changed to optionfields.
+* Improvement: Usability improvements for bookings tracker.
+* Improvement: On restoring, we use the old identifiers, if they are not yet used.
+* Improvement: Back to course link works also for "visible with link" options
+* Improvement: Use admin user for course duplication on template usage
+* Improvement: Add Infotext for unlimited and don't show the number of booked places when it's on
+* Improvement: In bookings tracker, show warning if no row is selected and bulk action is executed, remove col_actions (bulk actions are enough).
+* Bugfix: Always remember templates in user preferences.
+* Bugfix: Cancel button fallback on returnurl
+* Tests: Extend tests.
+* Tests: reset time_mock::set_mock_time(strtotime('now')); // Set "now"..
+
 ## Version 8.12.0 (2025040400)
 * New feature: Switch between table templates (individually for each user).
 * Improvement: Introduced a setting to activate preconfigured rule templates.
