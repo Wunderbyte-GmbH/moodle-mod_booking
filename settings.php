@@ -1355,7 +1355,7 @@ if ($ADMIN->fulltree) {
         );
         $settings->add(
             new admin_setting_configcheckbox(
-                'recurringmultiparenting',
+                'booking/recurringmultiparenting',
                 get_string('recurringmultiparenting', 'mod_booking'),
                 get_string('recurringmultiparenting_desc', 'mod_booking'),
                 0
