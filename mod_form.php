@@ -1187,6 +1187,16 @@ class mod_booking_mod_form extends moodleform_mod {
             'addtogroupofcurrentcourse',
             booking::get_value_of_json_by_key($bookingid, 'addtogroupofcurrentcourse') ?? []
         );
+        $mform->addElement(
+            'advcheckbox',
+            'unenrolfromgroupofcurrentcourse',
+            get_string('unenrolfromgroupofcurrentcourse', 'mod_booking'),
+        );
+
+        $mform->setDefault(
+            'unenrolfromgroupofcurrentcourse',
+            booking::get_value_of_json_by_key($bookingid, 'unenrolfromgroupofcurrentcourse') ?? 1
+        );
 
         $opts = [0 => get_string('unlimitedplaces', 'mod_booking')];
         $extraopts = array_combine(range(1, 100), range(1, 100));
