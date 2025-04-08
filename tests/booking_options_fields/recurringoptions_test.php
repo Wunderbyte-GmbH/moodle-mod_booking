@@ -168,11 +168,11 @@ final class recurringoptions_test extends advanced_testcase {
             $this->assertEquals($record->text, $option->text);
 
             // Starttime and Endtime correspond to delta and index as defined in json.
-            $expectedstartingtime = strtotime($record->coursestarttime)
-                + ($optionjson->recurringchilddata->delta * $optionjson->recurringchilddata->index);
+            $i = $optionjson->recurringchilddata->index;
+            $d = $optionjson->recurringchilddata->delta;
+            $expectedstartingtime = strtotime("+ $i $d", (int) $record->coursestarttime);
             $this->assertEquals($expectedstartingtime, $option->coursestarttime);
-            $expectedendtime = strtotime($record->courseendtime)
-                + ($optionjson->recurringchilddata->delta * $optionjson->recurringchilddata->index);
+            $expectedendtime = strtotime("+ $i $d", (int) $record->courseendtime);
             $this->assertEquals($expectedendtime, $option->courseendtime);
 
             // Price.
@@ -264,8 +264,8 @@ final class recurringoptions_test extends advanced_testcase {
             $index = $json->recurringchilddata->index;
             $delta = $json->recurringchilddata->delta;
             // Bookingopening- and -closingtime.
-            $expectedopeningtime = $record->bookingopeningtime + ($delta * $index);
-            $expectedclosingtime = $record->bookingclosingtime + ($delta * $index);
+            $expectedopeningtime = strtotime("+ $i $d", (int) $record->bookingopeningtime);
+            $expectedclosingtime = strtotime("+ $i $d", (int) $record->bookingclosingtime);
 
             $this->assertEquals($expectedopeningtime, $child->bookingopeningtime);
             $this->assertEquals($expectedclosingtime, $child->bookingclosingtime);
