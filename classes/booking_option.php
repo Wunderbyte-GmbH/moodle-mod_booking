@@ -3979,33 +3979,17 @@ class booking_option {
         });
         $changes = array_merge($feedbackpost, $feedbackformchanges);
         $cmid = $originaloption->cmid ?? $data->cmid ?? 0;
+
         // Only react on changes if update is triggered via formsave (see comment at beginning of function - cases A) & B))...
         // ... since otherwise previous data is unreliable.
         if (!empty($changes) && $updateparam == MOD_BOOKING_UPDATE_OPTIONS_PARAM_DEFAULT) {
-            if (
-                isset($data->apply_to_children)
-                && !empty($data->apply_to_children)
-            ) {
-                recurringoptions::update_options(
-                    $newoption->id,
-                    $changes,
-                    $data,
-                    $originaloption,
-                    MOD_BOOKING_RECURRING_UPDATE_CHILDREN
-                );
-            }
-            if (
-                isset($data->apply_to_siblings)
-                && !empty($data->apply_to_siblings)
-            ) {
-                recurringoptions::update_options(
-                    $newoption->id,
-                    $changes,
-                    $data,
-                    $originaloption,
-                    MOD_BOOKING_RECURRING_UPDATE_SIBLINGS
-                );
-            }
+
+            fields_info::all_changes_collected_actions(
+                $changes,
+                $data,
+                $newoption,
+                $originaloption
+            );
 
             // If we have no cmid, it's most possibly a template.
             if (!empty($cmid) && $newoption->bookingid != 0) {

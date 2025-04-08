@@ -18,7 +18,7 @@
  * Control and manage booking dates.
  *
  * @package mod_booking
- * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -37,11 +37,16 @@ use moodle_url;
 use MoodleQuickForm;
 use stdClass;
 
+defined('MOODLE_INTERNAL') || die();
+
+global $CFG;
+require_once($CFG->dirroot . '/mod/booking/lib.php');
+
 /**
  * Class to handle one property of the booking_option_settings class.
  *
  * @copyright Wunderbyte GmbH <info@wunderbyte.at>
- * @author Georg Maißer
+ * @author Magdalena Holczik, Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class recurringoptions extends field_base {
@@ -483,7 +488,6 @@ class recurringoptions extends field_base {
                 ],
             ];
         }
-        // TODO eventually improve info about changes.
         return $changes;
     }
 
@@ -811,5 +815,49 @@ class recurringoptions extends field_base {
         booking_option::remove_key_from_json($optiondata, 'recurringchilddata');
         $optiondata->parentid = 0;
         booking_option::update($optiondata);
+    }
+
+    /**
+     * Once all changes are collected, also those triggered in save data, this is a possible hook for the fields.
+     *
+     * @param array $changes
+     * @param object $data
+     * @param object $newoption
+     * @param object $originaloption
+     *
+     * @return void
+     *
+     */
+    public static function changes_collected_action(
+        array $changes,
+        object $data,
+        object $newoption,
+        object $originaloption
+    ) {
+        if (
+            isset($data->apply_to_children)
+            && !empty($data->apply_to_children)
+        ) {
+            self::update_options(
+                $newoption->id,
+                $changes,
+                $data,
+                $originaloption,
+                MOD_BOOKING_RECURRING_UPDATE_CHILDREN
+            );
+        }
+
+        if (
+            isset($data->apply_to_siblings)
+            && !empty($data->apply_to_siblings)
+        ) {
+            self::update_options(
+                $newoption->id,
+                $changes,
+                $data,
+                $originaloption,
+                MOD_BOOKING_RECURRING_UPDATE_SIBLINGS
+            );
+        }
     }
 }
