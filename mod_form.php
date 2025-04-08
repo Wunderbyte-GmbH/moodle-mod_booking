@@ -508,7 +508,7 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $responsesfields = [
             'completed' => get_string('completed', 'mod_booking'),
-            'status' => get_string('presence', 'mod_booking'),
+            'invisible' => get_string('invisible', 'mod_booking'),
             'rating' => get_string('rating', 'core_rating'),
             'numrec' => get_string('numrec', 'mod_booking'),
             'places' => get_string('places', 'mod_booking'),
@@ -538,7 +538,6 @@ class mod_booking_mod_form extends moodleform_mod {
             'lastname' => get_string("lastname"), 'email' => get_string("email"),
             'completed' => get_string("completed", "mod_booking"),
             'waitinglist' => get_string("waitinglist", "booking"),
-            'status' => get_string('presence', 'mod_booking'),
             'groups' => get_string("group"),
             'notes' => get_string('notes', 'mod_booking'),
             'idnumber' => get_string("idnumber"),
@@ -578,7 +577,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'bookingopeningtime' => get_string('bookingopeningtime', 'mod_booking'),
             'bookingclosingtime' => get_string('bookingclosingtime', 'mod_booking'),
             'places' => get_string('places', 'mod_booking'),
-            'invisible' => get_string('invisible', 'mod_booking'),
+            'invisible' => get_string('visibilitystatus', 'mod_booking'),
         ];
 
         if (class_exists('local_shopping_cart\shopping_cart')) {
