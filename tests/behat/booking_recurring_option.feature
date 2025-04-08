@@ -101,7 +101,7 @@ Feature: Create recurring options as teacher and configuring it.
       | MyBooking | RecurrOpt | C1     | recurring   | 1            | 4          | 1            | 1                           | 2373000400         | 0              | 0              | 2373200400        | 2373208200      | 0              | 0              | 2383200400        | 2383300400      |
     ## 2045/03/13 06:45 (bookingopeningtime)
     ## 2045/03/15 14:20 - 2045/03/15 16:30 UTC
-    ## 2045/07/09 08:06 - 2045/07/10 11:53 UTC 
+    ## 2045/07/09 08:06 - 2045/07/10 11:53 UTC
     And I am on the "MyBooking" Activity page logged in as teacher1
     ## Create recurring options
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
@@ -111,12 +111,13 @@ Feature: Create recurring options as teacher and configuring it.
       | Number of repetitions            | 2   |
       | Repetition interval              | day |
     And I press "Save"
+    And I should see "Bookable from: 13 March 2045, 7:46 AM" in the ".allbookingoptionstable_r1 .bookingopeningtime" "css_element"
     And I should see "RecurrOpt" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "16 March 2045, 3:20 PM" in the ".allbookingoptionstable_r2" "css_element"
-    And I should see "Bookable from: 13 April 2045, 7:46 AM" in the ".allbookingoptionstable_r2 .bookingopeningtime" "css_element"
+    And I should see "Bookable from: 14 March 2045, 7:46 AM" in the ".allbookingoptionstable_r2 .bookingopeningtime" "css_element"
     And I should see "RecurrOpt" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "17 March 2045, 3:20 PM" in the ".allbookingoptionstable_r3" "css_element"
-    And I should see "Bookable from: 13 June 2045, 7:46 AM" in the ".allbookingoptionstable_r4 .bookingopeningtime" "css_element"
+    And I should see "Bookable from: 15 March 2045, 7:46 AM" in the ".allbookingoptionstable_r3 .bookingopeningtime" "css_element"
     ## Update existing recuring options
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I expand all fieldsets
