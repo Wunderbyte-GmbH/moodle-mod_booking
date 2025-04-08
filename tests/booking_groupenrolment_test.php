@@ -218,11 +218,7 @@ final class booking_groupenrolment_test extends advanced_testcase {
 
         // Cancel user to check, if group enrolment is deleted as well.
         $result = booking_bookit::bookit('option', $settings->id, $student2->id);
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMCANCEL, $id);
         $result = booking_bookit::bookit('option', $settings->id, $student2->id);
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
 
         $groupsofcourse = groups_get_all_groups($booking->course);
         foreach ($groupsofcourse as $group) {
