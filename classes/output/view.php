@@ -1269,6 +1269,9 @@ class view implements renderable, templatable {
 
         // At last, we set the correct template!
         $wbtable->tabletemplate = 'mod_booking/table_cards';
+
+        // We also need to set the user preference for the template.
+        set_user_preference('wbtable_chosen_template_' . $wbtable->uniqueid, 'mod_booking/table_cards');
     }
 
     /**
@@ -1472,6 +1475,8 @@ class view implements renderable, templatable {
 
         // At last, we set the correct template!
         $wbtable->tabletemplate = 'mod_booking/table_list';
+
+        set_user_preference('wbtable_chosen_template_' . $wbtable->uniqueid, 'mod_booking/table_list');
     }
 
     /**
