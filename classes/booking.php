@@ -820,9 +820,9 @@ class booking {
                     $headers[] = get_string('bookingclosingtime', 'mod_booking');
                     $columns[] = 'bookingclosingtime';
                     break;
-                case 'status':
+                case 'invisible':
                         $columns[] = 'invisible';
-                        $headers[] = get_string('status', 'mod_booking');
+                        $headers[] = get_string('visibilitystatus', 'mod_booking');
                     break;
                 case 'price': // This is only possible, if local shoppingcart is installed.
                     if (class_exists('local_shopping_cart\shopping_cart')) {

@@ -577,7 +577,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'bookingopeningtime' => get_string('bookingopeningtime', 'mod_booking'),
             'bookingclosingtime' => get_string('bookingclosingtime', 'mod_booking'),
             'places' => get_string('places', 'mod_booking'),
-            'status' => get_string('status', 'mod_booking'),
+            'invisible' => get_string('visibilitystatus', 'mod_booking'),
         ];
 
         if (class_exists('local_shopping_cart\shopping_cart')) {
