@@ -376,6 +376,8 @@ define('MOD_BOOKING_CANCANCELBOOK_UNLIMITED', 2);
 
 // Enrol into group of current course.
 define('MOD_BOOKING_ENROL_INTO_GROUP_OF_BOOKINGOPTION', -1);
+define('MOD_BOOKING_ENROL_GROUPTYPE_SOURCECOURSE', 'sourcecourseboid_');
+define('MOD_BOOKING_ENROL_GROUPTYPE_TARGETCOURSE', 'targetcourseboid_');
 
 /**
  * Booking get coursemodule info.
@@ -809,6 +811,11 @@ function booking_add_instance($booking) {
         // This will store the correct JSON to $optionvalues->json.
         booking::add_data_to_json($booking, "addtogroupofcurrentcourse", $booking->addtogroupofcurrentcourse);
     }
+    if (isset($booking->unenrolfromgroupofcurrentcourse)) {
+        // This will store the correct JSON to $optionvalues->json.
+        booking::add_data_to_json($booking, "unenrolfromgroupofcurrentcourse", 1);
+    }
+
     // If no policy was entered, we still have to check for HTML tags.
     if (!isset($booking->bookingpolicy) || empty(strip_tags($booking->bookingpolicy))) {
         $booking->bookingpolicy = '';
@@ -1156,10 +1163,6 @@ function booking_update_instance($booking) {
         booking::add_data_to_json($booking, "customfieldsforfilter", $fieldsfordb);
     }
 
-    if (isset($booking->addtogroupofcurrentcourse)) {
-        // This will store the correct JSON to $optionvalues->json.
-        booking::add_data_to_json($booking, "addtogroupofcurrentcourse", $booking->addtogroupofcurrentcourse);
-    }
     if (empty($booking->addtogroupofcurrentcourse)) {
         // This will store the correct JSON to $optionvalues->json.
         booking::remove_key_from_json($booking, "addtogroupofcurrentcourse");
@@ -1167,6 +1170,12 @@ function booking_update_instance($booking) {
         booking::add_data_to_json($booking, "addtogroupofcurrentcourse", $booking->addtogroupofcurrentcourse);
     }
 
+    if (empty($booking->unenrolfromgroupofcurrentcourse)) {
+        // This will store the correct JSON to $optionvalues->json.
+        booking::remove_key_from_json($booking, "unenrolfromgroupofcurrentcourse");
+    } else {
+        booking::add_data_to_json($booking, "unenrolfromgroupofcurrentcourse", 1);
+    }
     // Update, delete or insert answers.
     if (!empty($booking->option)) {
         foreach ($booking->option as $key => $value) {

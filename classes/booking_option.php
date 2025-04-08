@@ -1769,6 +1769,8 @@ class booking_option {
      */
     public function unenrol_user($userid) {
         global $DB;
+        // Trigger given unenrolactions.
+        $this->sourcecoursegroup_unenrol_actions($userid);
 
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($this->bookingid);
 
@@ -1857,7 +1859,7 @@ class booking_option {
             // Group has been deleted and must be created and groupid updated in DB. Or group does not yet exist.
             $data = new stdClass();
             $data->id = $this->option->id;
-            $newgroupdata->idnumber = 'targetcourseboid_' . $this->option->id;
+            $newgroupdata->idnumber = MOD_BOOKING_ENROL_GROUPTYPE_TARGETCOURSE . $this->option->id;
             $data->groupid = groups_create_group($newgroupdata);
             if ($data->groupid) {
                 $DB->update_record('booking_options', $data);
@@ -1866,7 +1868,7 @@ class booking_option {
         } else if (
             !$groupintarget
         ) {
-            $searchstring = 'sourcecourseboid_' . $this->option->id;
+            $searchstring = MOD_BOOKING_ENROL_GROUPTYPE_SOURCECOURSE . $this->option->id;
             foreach ($existinggroups as $exisitinggroup) {
                 // For groups of current course, the linking is in the idnumber of the group data.
                 if ($exisitinggroup->idnumber == $searchstring) {
@@ -1877,6 +1879,27 @@ class booking_option {
             return groups_create_group($newgroupdata);
         }
         return false;
+    }
+
+    /**
+     * Unenrol users from group in source course according to corresponding setting.
+     *
+     * @param int $userid
+     *
+     * @return void
+     *
+     */
+    private function sourcecoursegroup_unenrol_actions(int $userid) {
+        $bsettings = json_decode($this->booking->settings->json);
+        if (false && empty($bsettings->unenrolfromgroupofcurrentcourse)) {
+            return;
+        }
+        $bsettings = json_decode($this->booking->settings->json);
+        $groups = groups_get_all_groups($this->booking->course->id);
+        $groups = array_filter($groups, fn ($g) => $g->idnumber == MOD_BOOKING_ENROL_GROUPTYPE_SOURCECOURSE . $this->option->id);
+        foreach ($groups as $groupid => $group) {
+            groups_remove_member($groupid, $userid);
+        }
     }
 
     /**
