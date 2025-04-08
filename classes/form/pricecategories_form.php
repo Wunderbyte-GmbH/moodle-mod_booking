@@ -50,8 +50,8 @@ class pricecategories_form extends moodleform {
         $mform = $this->_form;
 
         // Now, loop through already existing price categories.
-        $pchanlder = new pricecategories_handler();
-        $pricecategories = $pchanlder->get_pricecategories();
+        $pchandler = new pricecategories_handler();
+        $pricecategories = $pchandler->get_pricecategories();
 
         $j = 1;
         foreach ($pricecategories as $pricecategory) {
