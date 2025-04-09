@@ -112,7 +112,6 @@ export const initbookitbutton = (itemid, area) => {
                         console.log(err);
                     });
 
-
                 } else if (e.target.classList.contains('btn')) {
 
                     if (!e.target.href || e.target.href.length < 2) {

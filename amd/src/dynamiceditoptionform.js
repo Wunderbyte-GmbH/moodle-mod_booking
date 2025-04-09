@@ -37,7 +37,6 @@ const SELECTORS = {
     PAGE: '[id="page"]'
 };
 
-
 export const init = (cmid, id, optionid, bookingid, copyoptionid, returnurl) => {
     // Initialize the form - pass the container element and the form class name.
 
@@ -121,7 +120,6 @@ export const init = (cmid, id, optionid, bookingid, copyoptionid, returnurl) => 
         }
     });
     hidecheckbox(checkbox1, checkbox2, closest, conditionalCheckbox, false);
-
 
     const page = document.querySelector(SELECTORS.PAGE);
 
