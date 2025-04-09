@@ -2001,6 +2001,8 @@ $string['recurringsaveinfo'] = '<div class="alert alert-info" role="alert">
 $string['recurringselectapplysiblings'] = 'Apply changes to all following options with same parent?';
 $string['recurringsettingsheader'] = 'Recurring Booking options  <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['recurringsettingsheader_desc'] = 'Settings for booking options and possible children';
+$string['redirectonlogintocourse'] = 'Redirect logged-out users to course';
+$string['redirectonlogintocourse_desc'] = 'If enabled, users will be redirected to the booked course after logging in instead of the booking details page.';
 $string['relatedcourseidneeded'] = 'A related course is needed because of your availabilty condition(s).';
 $string['reminder1sent'] = 'First reminder sent';
 $string['reminder2sent'] = 'Second reminder sent';

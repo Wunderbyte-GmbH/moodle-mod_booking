@@ -1948,6 +1948,8 @@ $string['recurringsaveinfo'] = '<div class="alert alert-info" role="alert">
 $string['recurringselectapplysiblings'] = 'Sollen diese Änderungen auch für alle folgenden Buchungsoptionen mit der gleichen Vorlage übernehmen?';
 $string['recurringsettingsheader'] = 'Wiederkehrende Buchungsoptionen <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['recurringsettingsheader_desc'] = 'Einstellungen für Wiederkehrende Optionen und ihre Vorlagen';
+$string['redirectonlogintocourse'] = 'Weiterleitung von nicht eingeloggten Nutzern zum Kurs';
+$string['redirectonlogintocourse_desc'] = 'Falls aktiviert, werden Nutzer nach dem Login zum gebuchten Kurs weitergeleitet, anstatt zur Buchungsdetailseite.';
 $string['relatedcourseidneeded'] = 'Aufgrund Ihrer Verfügbarkeits-Einstellungen muss ein verknüpfter Moodle-Kurs angegeben werden.';
 $string['reminder1sent'] = 'Erste Benachrichtigung versendet';
 $string['reminder2sent'] = 'Zweite Benachrichtigung versendet';
