@@ -178,7 +178,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $subbookingoptions->add_child($subbookingoption);
 
         $booking->add_child($history);
-        $history->add_child($subbookingoption);
+        $history->add_child($historyitem);
 
         // Define sources.
         $booking->set_source_table('booking', ['id' => backup::VAR_ACTIVITYID]);
@@ -190,7 +190,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $other->set_source_table('booking_other', ['optionid' => backup::VAR_PARENTID]);
         $optiondate->set_source_table('booking_optiondates', ['bookingid' => backup::VAR_PARENTID]);
         $customfield->set_source_table('booking_customfields', ['bookingid' => backup::VAR_PARENTID]);
-        $history->set_source_table('booking_history', ['bookingid' => backup::VAR_PARENTID]);
+        $historyitem->set_source_table('booking_history', ['bookingid' => backup::VAR_PARENTID]);
 
         // Only backup (or duplicate) teachers, if config setting is set.
         if (get_config('booking', 'duplicationrestoreteachers')) {
