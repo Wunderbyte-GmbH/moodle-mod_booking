@@ -26,11 +26,9 @@
 
 namespace mod_booking\bo_availability\conditions;
 
-use context_module;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
-use mod_booking\singleton_service;
 use moodle_url;
 use MoodleQuickForm;
 
@@ -217,19 +215,26 @@ class isloggedin implements bo_condition {
             $returnurl = new moodle_url(
                 '/mod/booking/optionview.php',
                 [
-                    'optionid' => $settings->id,
-                    'cmid' => $settings->cmid,
+                  'optionid' => $settings->id,
+                 'cmid' => $settings->cmid,
                 ]
             );
         }
 
         if (get_config('booking', 'redirectonlogintocourse') && !empty($courseid)) {
-            $url = new moodle_url('/course/view.php', ['id' => $courseid]);
-        } else {
-            $url = new moodle_url('/login/index.php');
-            if (!empty($returnurl)) {
+            $returnurl = new moodle_url(
+                '/mod/booking/optionview.php',
+                [
+                    'optionid' => $settings->id,
+                    'cmid' => $settings->cmid,
+                    'redirecttocourse' => 1,
+                ]
+            );
+
+        }
+        $url = new moodle_url('/login/index.php');
+        if (!empty($returnurl)) {
                 $SESSION->wantsurl = $returnurl->out(false);
-            }
         }
         $button = bo_info::render_button(
             $settings,

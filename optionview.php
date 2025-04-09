@@ -40,6 +40,7 @@ $userid = optional_param('userid', 0, PARAM_INT);
 
 $returnto = optional_param('returnto', '', PARAM_ALPHA);
 $returnurl = optional_param('returnurl', '', PARAM_URL);
+$redirecttocourse = optional_param('redirecttocourse', 0, PARAM_INT);
 
 $modcontext = context_module::instance($cmid);
 $syscontext = context_system::instance();
@@ -51,6 +52,13 @@ $PAGE->set_url($url);
 
 $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+$ba = singleton_service::get_instance_of_booking_answers($settings);
+$courseid = $settings->courseid;
+
+if ($redirecttocourse === 1 && isset($ba->usersonlist[$USER->id])) {
+    $url = new moodle_url('/course/view.php', ['id' => $courseid]);
+    redirect($url->out());
+}
 
 if ($settings && !empty($settings->id)) {
     if ($userid == $USER->id || $userid == 0) {
