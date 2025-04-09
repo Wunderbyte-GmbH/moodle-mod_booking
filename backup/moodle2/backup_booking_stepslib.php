@@ -132,6 +132,13 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $subbookingoption = new backup_nested_element('subbookingoption', ['id'],
                 ['optionid', 'name', 'type', 'json', 'block']);
 
+        $history = new backup_nested_element('history');
+        $historyitem = new backup_nested_element(
+                'historyitem',
+                ['id'],
+                ['bookingid', 'optionid', 'answerid', 'userid', 'status', 'json']
+        );
+
         // Build the tree.
         $booking->add_child($options);
         $options->add_child($option);
@@ -170,6 +177,9 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $option->add_child($subbookingoptions);
         $subbookingoptions->add_child($subbookingoption);
 
+        $booking->add_child($history);
+        $history->add_child($subbookingoption);
+
         // Define sources.
         $booking->set_source_table('booking', ['id' => backup::VAR_ACTIVITYID]);
 
@@ -180,6 +190,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $other->set_source_table('booking_other', ['optionid' => backup::VAR_PARENTID]);
         $optiondate->set_source_table('booking_optiondates', ['bookingid' => backup::VAR_PARENTID]);
         $customfield->set_source_table('booking_customfields', ['bookingid' => backup::VAR_PARENTID]);
+        $history->set_source_table('booking_history', ['bookingid' => backup::VAR_PARENTID]);
 
         // Only backup (or duplicate) teachers, if config setting is set.
         if (get_config('booking', 'duplicationrestoreteachers')) {
