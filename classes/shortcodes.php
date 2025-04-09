@@ -479,7 +479,7 @@ class shortcodes {
      * @param string|null $content
      * @param object $env
      * @param Closure $next
-     * @return string
+     * @return string $out
      */
     public static function linkbacktocourse($shortcode, $args, $content, $env, $next) {
 
@@ -541,6 +541,173 @@ class shortcodes {
     }
 
     /**
+     * Shortcode for all Booking Options.
+     *
+     * @param mixed $shortcode
+     * @param mixed $args
+     * @param mixed $content
+     * @param mixed $env
+     * @param mixed $next
+     *
+     * @return string $out
+     *
+     */
+    public static function allbookingoptions($shortcode, $args, $content, $env, $next) {
+        global $PAGE, $DB;
+
+        // If shortcodes are turned off, we return the shortcode as it is.
+        if (get_config('booking', 'shortcodesoff')) {
+            return "<div class='alert alert-warning'>" .
+                get_string('shortcodesoffwarning', 'mod_booking', $shortcode) .
+            "</div>";
+        }
+        $course = $PAGE->course;
+
+        if (!wb_payment::pro_version_is_activated()) {
+            return get_string('infotext:prolicensenecessary', 'mod_booking');
+        }
+
+        $perpage = self::check_perpage($args);
+
+        $pageurl = $course->shortname . $PAGE->url->out();
+        $context = null;
+        $viewparam = self::get_viewparam($args);
+        $wherearray = [];
+
+        if (!empty($args['cmid'])) {
+            $bookings = [];
+            $cmids = array_map('intval', explode(',', $args['cmid']));
+            foreach ($cmids as $cmid) {
+                $booking = singleton_service::get_instance_of_booking_settings_by_cmid((int)$cmid);
+                $bookings[] = $booking->id;
+            }
+                [$inorequal, $additionalparams] = $DB->get_in_or_equal($bookings, SQL_PARAMS_NAMED);
+                $bookingidwhere = " (bookingid $inorequal)";
+        } else {
+            $booking = self::get_booking($args);
+            $context = $booking->context;
+            $wherearray = ['bookingid' => (int)$booking->id];
+            $bookingidwhere = "";
+        }
+
+
+        $table = self::init_table_for_courses(null, md5($pageurl));
+
+        // Additional where condition for both card and list views.
+        $additionalwhere = self::set_wherearray_from_arguments($args, $wherearray) ?? '';
+        $additionalwhere = $additionalwhere . $bookingidwhere;
+
+        [$fields, $from, $where, $params, $filter] =
+                booking::get_options_filter_sql(
+                    0,
+                    0,
+                    '',
+                    null,
+                    $context,
+                    [],
+                    $wherearray,
+                    null,
+                    [MOD_BOOKING_STATUSPARAM_BOOKED],
+                    $additionalwhere
+                );
+
+        // By default, we do not show booking options that lie in the past.
+        // Shortcode arg values get transmitted as string, so also check for "false" and "0".
+        if (empty($args['all']) || $args['all'] == "false" || $args['all'] == "0") {
+            $startoftoday = strtotime('today'); // Will be 00:00:00 of the current day.
+            $where .= " AND courseendtime > $startoftoday ";
+        }
+
+        if (!empty($additionalparams)) {
+            foreach ($additionalparams as $key => $value) {
+                $params[$key] = $value;
+            }
+        }
+
+        $table->set_filter_sql($fields, $from, $where, $filter, $params);
+
+        // These are all possible options to be displayed in the bookingtable.
+        $possibleoptions = [
+            "description",
+            "statusdescription",
+            "attachment",
+            "teacher",
+            "responsiblecontact",
+            "showdates",
+            "dayofweektime",
+            "location",
+            "institution",
+            "minanswers",
+            "bookingopeningtime",
+            "bookingclosingtime",
+        ];
+        // When calling recommendedin in the frontend we can define exclude params to set options, we don't want to display.
+
+        if (!empty($args['exclude'])) {
+            $exclude = explode(',', $args['exclude']);
+            $optionsfields = array_diff($possibleoptions, $exclude);
+        } else {
+            $optionsfields = $possibleoptions;
+        }
+
+        $defaultorder = SORT_ASC; // Default.
+        if (!empty($args['sortorder'])) {
+            if (strtolower($args['sortorder']) === "desc") {
+                $defaultorder = SORT_DESC;
+            }
+        }
+        if (!empty($args['sortby'])) {
+            $table->sortable(true, $args['sortby'], $defaultorder);
+        } else {
+            $table->sortable(true, 'text', $defaultorder);
+        }
+
+        $showfilter = !empty($args['filter']) ? true : false;
+        $showsort = !empty($args['sort']) ? true : false;
+        $showsearch = !empty($args['search']) ? true : false;
+
+        view::apply_standard_params_for_bookingtable(
+            $table,
+            $optionsfields,
+            $showfilter,
+            $showsearch,
+            $showsort,
+            false,
+            true,
+            $viewparam
+        );
+
+        // Possibility to add customfieldfilter.
+        $customfieldfilter = explode(',', ($args['customfieldfilter'] ?? ''));
+        if (!empty($customfieldfilter)) {
+            self::apply_customfieldfilter($table, $customfieldfilter);
+        }
+
+        $table->showcountlabel = $showfilter ? true : false;
+
+        if (
+            isset($args['filterontop'])
+            && (
+                $args['filterontop'] == '1'
+                || $args['filterontop'] == 'true'
+            )
+        ) {
+            $table->showfilterontop = true;
+        } else {
+            $table->showfilterontop = false;
+        }
+
+        // If "rightside" is in the "exclude" array, then we do not show the rightside area (containing the "Book now" button).
+        if (!empty($exclude) && in_array('rightside', $exclude)) {
+            unset($table->subcolumns['rightside']);
+        }
+
+        $out = $table->outhtml($perpage, true);
+
+        return $out;
+    }
+
+    /**
      * Prints out list of my booked bookingoptions.
      *
      * @param string $shortcode
@@ -579,8 +746,6 @@ class shortcodes {
 
         $viewparam = self::get_viewparam($args);
 
-
-        self::set_wherearray_from_arguments($args, $wherearray);
 
         $table = self::init_table_for_courses(null, md5($pageurl));
 
@@ -1155,7 +1320,6 @@ class shortcodes {
                 }
             }
         }
-
         return $additonalwhere;
     }
     /**
@@ -1187,7 +1351,8 @@ class shortcodes {
             // Cards are currently not yet supported in shortcode.
             // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
             /*case 'cards':
-                $viewparam = MOD_BOOKING_VIEW_PARAM_CARDS;*/
+                $viewparam = MOD_BOOKING_VIEW_PARAM_CARDS;
+                break;*/
             case 'imageleft':
                 $viewparam = MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT;
                 break;
@@ -1201,5 +1366,64 @@ class shortcodes {
                 break;
         }
         return $viewparam;
+    }
+    /**
+     * Get CMID's for get booking.
+     *
+     * @return array
+     *
+     */
+    private static function get_booking_instance_options() {
+        global $DB;
+        $allowedinstances = [];
+
+        if (
+            $records = $DB->get_records_sql(
+                "SELECT cm.id cmid, b.name bookingname
+            FROM {course_modules} cm
+            LEFT JOIN {booking} b
+            ON b.id = cm.instance
+            WHERE cm.module IN (
+                SELECT id
+                FROM {modules} m
+                WHERE m.name = 'booking'
+            )"
+            )
+        ) {
+            foreach ($records as $record) {
+                $allowedinstances[$record->cmid] = "$record->bookingname (ID: $record->cmid)";
+                $defaultcmid = $record->cmid;
+            }
+        }
+         return [$allowedinstances, $defaultcmid];
+    }
+
+    /**
+     * Get Booking if no CMID is in args.
+     *
+     * @param array $args
+     *
+     * @return mixed booking
+     *
+     */
+    private static function get_booking($args) {
+        self::fix_args($args);
+
+        // Fetch allowed instances and default cmid.
+        [$allowedinstances, $defaultcmid] = self::get_booking_instance_options();
+
+        // Use default if no ID is passed.
+        $cmid = isset($args['id']) ? (int)$args['id'] : (int)$defaultcmid;
+
+        // Validate cmid.
+        if ($cmid <= 0 || !array_key_exists($cmid, $allowedinstances)) {
+            return 'Invalid or missing booking instance ID';
+        }
+
+        // Try to retrieve the booking instance.
+        if (!$booking = singleton_service::get_instance_of_booking_by_cmid($cmid)) {
+            return 'Couldn\'t find booking instance with ID ' . $cmid;
+        }
+        return $booking;
     }
 }
