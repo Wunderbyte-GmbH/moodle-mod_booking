@@ -853,7 +853,7 @@ class booking_answers {
                 $optiondateid = $scopeid;
                 // We need to set a limit for the query in mysqlfamily.
                 $fields = 's1.*';
-                $from = "(
+                $from = " (
                     SELECT " .
                         $DB->sql_concat("bo.id", "'-'", "bod.id", "'-'", "u.id") .
                         " id,
@@ -916,34 +916,38 @@ class booking_answers {
                 }
 
                 // We need to set a limit for the query in mysqlfamily.
-                $fields = 's1.*, ROW_NUMBER() OVER (ORDER BY s1.timemodified, s1.id DESC) AS rank';
-                $from = "(
-                    SELECT
-                        ba.id,
-                        u.id AS userid,
-                        u.username,
-                        u.firstname,
-                        u.lastname,
-                        u.email,
-                        ba.waitinglist,
-                        $selectpresencecount
-                        ba.timemodified,
-                        ba.timecreated,
-                        ba.optionid,
-                        ba.json,
-                        '" . $scope . "' AS scope
-                    FROM {booking_answers} ba
-                    JOIN {user} u ON ba.userid = u.id
-                    $presencecountsqlpart
-                    WHERE ba.optionid=:optionid AND ba.waitinglist=:statusparam
-                    ORDER BY u.lastname DESC, u.firstname DESC, ba.timemodified DESC
-                    LIMIT 10000000000
+                $fields = 's1.*';
+                $from = "
+                (
+                    SELECT s2.*, ROW_NUMBER() OVER (ORDER BY s2.timemodified, s2.id DESC) AS rank
+                    FROM (
+                        SELECT
+                            ba.id,
+                            u.id AS userid,
+                            u.username,
+                            u.firstname,
+                            u.lastname,
+                            u.email,
+                            ba.waitinglist,
+                            $selectpresencecount
+                            ba.timemodified,
+                            ba.timecreated,
+                            ba.optionid,
+                            ba.json,
+                            '" . $scope . "' AS scope
+                        FROM {booking_answers} ba
+                        JOIN {user} u ON ba.userid = u.id
+                        $presencecountsqlpart
+                        WHERE ba.optionid=:optionid AND ba.waitinglist=:statusparam
+                        ORDER BY u.lastname DESC, u.firstname DESC, ba.timemodified DESC
+                        LIMIT 10000000000
+                    ) s2
                 ) s1";
                 break;
             case 'instance':
                 $cmid = $scopeid;
                 $fields = 's1.*';
-                $from = "(
+                $from = " (
                     $advancedsqlstart
                     $advancedsqlwhere
                     AND cm.id = :cmid
@@ -959,7 +963,7 @@ class booking_answers {
             case 'course':
                 $courseid = $scopeid;
                 $fields = 's1.*';
-                $from = "(
+                $from = " (
                     $advancedsqlstart
                     $advancedsqlwhere
                     AND c.id = :courseid
@@ -975,7 +979,7 @@ class booking_answers {
             case 'system':
             default:
                 $fields = 's1.*';
-                $from = "(
+                $from = " (
                     $advancedsqlstart
                     $advancedsqlwhere
                     $advancedsqlgroupby

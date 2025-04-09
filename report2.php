@@ -142,7 +142,7 @@ if (!empty($optiondateid)) {
 
     // Create a navigation dropdown for all optiondates (sessions) of the booking option.
     $optiondates = $optionsettings->sessions;
-    if (!empty($optiondates) && count($optiondates) > 1) {
+    if (!empty($optiondates) && count($optiondates) > 0) {
         $data['optiondatesexist'] = true;
         foreach ($optiondates as &$optiondate) {
             $optiondate = (array) $optiondate;
@@ -241,7 +241,7 @@ if (!empty($optiondateid)) {
 
     // Create a navigation dropdown for all optiondates (sessions) of the booking option.
     $optiondates = $optionsettings->sessions;
-    if (!empty($optiondates) && count($optiondates) > 1) {
+    if (!empty($optiondates) && count($optiondates) > 0) {
         $data['optiondatesexist'] = true;
         foreach ($optiondates as &$optiondate) {
             $optiondate = (array) $optiondate;
@@ -257,7 +257,7 @@ if (!empty($optiondateid)) {
             ]);
             $optiondate['dateurl'] = $dateurl->out(false);
         }
-        $firstentry['prettydate'] = get_string('choose...', 'mod_booking');
+        $firstentry['prettydate'] = get_string('choosesession', 'mod_booking');
         $firstentry['dateurl'] = $PAGE->url; // The current page.
         array_unshift($optiondates, $firstentry);
         $data['optiondates'] = array_values((array) $optiondates);

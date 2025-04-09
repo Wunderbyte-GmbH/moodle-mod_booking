@@ -1896,6 +1896,7 @@ class booking {
      * @return array of possible presence statuses
      */
     public static function get_possible_presences(bool $withempty = true) {
+        $allpossiblepresences = self::get_array_of_possible_presence_statuses();
         if ($withempty) {
             $presences[0] = '';
         }
@@ -1906,17 +1907,17 @@ class booking {
                 || (count($storedpresences) == 1 && empty($storedpresences[0]))
             ) {
                 // Fallback: If no presences were set at all, use all possible presences.
-                foreach (MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY as $key => $value) {
+                foreach ($allpossiblepresences as $key => $value) {
                     $presences[$key] = $value;
                 }
             } else {
                 foreach ($storedpresences as $id) {
-                    $presences[$id] = MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY[$id];
+                    $presences[$id] = $allpossiblepresences[$id];
                 }
             }
         } else {
             // Without PRO version, use all possible presences.
-            foreach (MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY as $key => $value) {
+            foreach ($allpossiblepresences as $key => $value) {
                 $presences[$key] = $value;
             }
         }
@@ -1938,5 +1939,22 @@ class booking {
             $viewparamoptions[MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF] = get_string('viewparam:listimglefthalf', 'mod_booking');
         }
         return $viewparamoptions;
+    }
+
+    /**
+     * Helper function to get an array of possible presence statuses.
+     * @return array of possible presence statuses
+     */
+    public static function get_array_of_possible_presence_statuses(): array {
+        return [
+            MOD_BOOKING_PRESENCE_STATUS_NOTSET => get_string('statusnotset', 'mod_booking'),
+            MOD_BOOKING_PRESENCE_STATUS_UNKNOWN => get_string('statusunknown', 'mod_booking'),
+            MOD_BOOKING_PRESENCE_STATUS_ATTENDING => get_string('statusattending', 'mod_booking'),
+            MOD_BOOKING_PRESENCE_STATUS_COMPLETE => get_string('statuscomplete', 'mod_booking'),
+            MOD_BOOKING_PRESENCE_STATUS_INCOMPLETE => get_string('statusincomplete', 'mod_booking'),
+            MOD_BOOKING_PRESENCE_STATUS_NOSHOW => get_string('statusnoshow', 'mod_booking'),
+            MOD_BOOKING_PRESENCE_STATUS_FAILED => get_string('statusfailed', 'mod_booking'),
+            MOD_BOOKING_PRESENCE_STATUS_EXCUSED => get_string('statusexcused', 'mod_booking'),
+        ];
     }
 }

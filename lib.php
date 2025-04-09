@@ -128,17 +128,6 @@ define('MOD_BOOKING_PRESENCE_STATUS_UNKNOWN', 5);
 define('MOD_BOOKING_PRESENCE_STATUS_ATTENDING', 6);
 define('MOD_BOOKING_PRESENCE_STATUS_EXCUSED', 7);
 
-define('MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY', [
-    MOD_BOOKING_PRESENCE_STATUS_NOTSET => get_string('statusnotset', 'mod_booking'),
-    MOD_BOOKING_PRESENCE_STATUS_UNKNOWN => get_string('statusunknown', 'mod_booking'),
-    MOD_BOOKING_PRESENCE_STATUS_ATTENDING => get_string('statusattending', 'mod_booking'),
-    MOD_BOOKING_PRESENCE_STATUS_COMPLETE => get_string('statuscomplete', 'mod_booking'),
-    MOD_BOOKING_PRESENCE_STATUS_INCOMPLETE => get_string('statusincomplete', 'mod_booking'),
-    MOD_BOOKING_PRESENCE_STATUS_NOSHOW => get_string('statusnoshow', 'mod_booking'),
-    MOD_BOOKING_PRESENCE_STATUS_FAILED => get_string('statusfailed', 'mod_booking'),
-    MOD_BOOKING_PRESENCE_STATUS_EXCUSED => get_string('statusexcused', 'mod_booking'),
-]);
-
 // Params to define behavior of booking_option::update.
 define('MOD_BOOKING_UPDATE_OPTIONS_PARAM_DEFAULT', 1);
 define('MOD_BOOKING_UPDATE_OPTIONS_PARAM_REDUCED', 2);

@@ -103,7 +103,7 @@ class renderer extends plugin_renderer_base {
                     'class' => 'actionbutton',
             ]
         );
-        $actioncell->text .= html_writer::end_tag('div', []);
+        $actioncell->text .= html_writer::end_tag('div');
         $actioncell->attributes['class'] = 'actions';
         $potentialcell = new html_table_cell();
         $potentialcell->text = $potentialuc->display(true);
