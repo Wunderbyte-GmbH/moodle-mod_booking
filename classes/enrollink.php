@@ -574,4 +574,22 @@ class enrollink {
         }
         return false;
     }
+
+    /**
+     * Get the id of enrollink from booking answer id.
+     *
+     * @param int $baid
+     *
+     * @return string
+     *
+     */
+    public static function get_erlid_from_baid(int $baid): string {
+        global $DB;
+
+        return $DB->get_field(
+            'booking_enrollink_bundles',
+            'erlid',
+            ['baid' => $baid]
+        );
+    }
 }
