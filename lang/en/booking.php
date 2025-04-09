@@ -2453,6 +2453,7 @@ $string['thursday'] = 'Thursday';
 $string['timecreated'] = 'Time created';
 $string['timefilter:bookingtime'] = 'Booking time';
 $string['timefilter:coursetime'] = 'Course time';
+$string['timemadevisible'] = 'Made visible at';
 $string['timemodified'] = 'Time modified';
 $string['timerestrict'] = 'Restrict answering to this time period: This is deprecated and will be removed. Please use "Restrict Access" settings for making the booking activity available for a certain period';
 $string['title'] = "Title";

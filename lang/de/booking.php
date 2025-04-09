@@ -2388,6 +2388,7 @@ $string['thursday'] = 'Donnerstag';
 $string['timecreated'] = 'Erstellungsdatum';
 $string['timefilter:bookingtime'] = 'Anmeldezeiten';
 $string['timefilter:coursetime'] = 'Kurszeiten';
+$string['timemadevisible'] = 'Zeitpunkt der letzten Sichtbar-Schaltung';
 $string['timemodified'] = 'Bearbeitungszeit';
 $string['timerestrict'] = 'Buchungsoption auf diesen Zeitraum beschränken: Diese Option ist veraltet und sollte nicht mehr verwendet werden. Stattdessen verwenden Sie bitte die Optionen unter "Voraussetzungen", um die Buchungen für einen bestimmten Zeitraum zu beschränken.';
 $string['title'] = "Titel";
