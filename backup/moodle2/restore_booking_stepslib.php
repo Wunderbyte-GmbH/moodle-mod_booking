@@ -54,7 +54,7 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         );
         $paths[] = new restore_path_element(
             'booking_history',
-            '/activity/booking/history/historyitems'
+            '/activity/booking/history/historyitem'
         );
         $paths[] = new restore_path_element(
             'booking_other',
