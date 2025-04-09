@@ -1,3 +1,7 @@
+## Version 8.12.2 (2025040900)
+* Improvement: Multiple refinements for recurring options feature.
+* Bugfix: Always enrol teachers into current course, not template
+
 ## Version 8.12.1 (2025040801)
 * New feature: Default price category will be created on update (or new installation).
 * Improvement: Unenrol from sourcecoursegroup if unenroled from bookingoption.
