@@ -53,6 +53,10 @@ class restore_booking_activity_structure_step extends restore_activity_structure
             '/activity/booking/tags/tag'
         );
         $paths[] = new restore_path_element(
+            'booking_history',
+            '/activity/booking/history/historyitems'
+        );
+        $paths[] = new restore_path_element(
             'booking_other',
             '/activity/booking/options/option/others/other'
         );
@@ -68,7 +72,6 @@ class restore_booking_activity_structure_step extends restore_activity_structure
                 'booking_option',
                 '/activity/booking/options/option'
             );
-
             $paths[] = new restore_path_element(
                 'booking_optiondate',
                 '/activity/booking/optiondates/optiondate'
@@ -450,6 +453,24 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $DB->insert_record('booking_other', $data);
         // No need to save this mapping as far as nothing depends on it.
     }
+    /**
+     * Processes booking history data.
+     *
+     * @param array $data The instance data from the backup file.
+     * @throws dml_exception
+     */
+    protected function process_booking_history($data) {
+        global $DB;
+        $data = (object)$data;
+
+        $data->bookingid = $this->get_new_parentid('booking');
+        $data->optionid = $this->get_mappingid('booking_option', $data->optionid);
+        $data->answerid = $this->get_mappingid('booking_answers', $data->answerid);
+        $data->userid = $this->get_mappingid('user', $data->userid);
+
+        $DB->insert_record('booking_history', $data);
+    }
+
 
     /**
      * Processes booking entity data for booking options.
