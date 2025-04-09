@@ -159,6 +159,7 @@
         <FIELD NAME="semesterid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="ID of an associated semester."/>
         <FIELD NAME="dayofweektime" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="String for reoccurring date series, e.g. 'FR 11:00-12:00'"/>
         <FIELD NAME="invisible" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="If set to 0 (default), it's visible to everyone. If set to 1, it's visible to entitled users only."/>
+        <FIELD NAME="timemadevisible" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Last time when the booking option was made visible."/>
         <FIELD NAME="annotation" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="identifier" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Unique identifier of the booking option."/>
         <FIELD NAME="titleprefix" TYPE="char" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Prefix to be shown before the title of the booking option."/>

@@ -178,6 +178,9 @@ class booking_option_settings {
     /** @var int $invisible */
     public $invisible = null;
 
+    /** @var int $timemadevisible */
+    public $timemadevisible = 0;
+
     /** @var int $annotation */
     public $annotation = null;
 
@@ -427,6 +430,7 @@ class booking_option_settings {
             $this->semesterid = $dbrecord->semesterid;
             $this->dayofweektime = $dbrecord->dayofweektime;
             $this->invisible = $dbrecord->invisible;
+            $this->timemadevisible = $dbrecord->timemadevisible;
             $this->annotation = $dbrecord->annotation;
             $this->dayofweek = $dbrecord->dayofweek;
             $this->availability = $dbrecord->availability;

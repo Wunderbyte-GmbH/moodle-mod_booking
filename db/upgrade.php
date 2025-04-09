@@ -4974,5 +4974,18 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2025040800, 'booking');
     }
 
+    if ($oldversion < 2025040901) {
+        // Define field timemadevisible to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('timemadevisible', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'invisible');
+
+        // Conditionally launch add field timemadevisible.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2025040901, 'booking');
+    }
+
     return true;
 }
