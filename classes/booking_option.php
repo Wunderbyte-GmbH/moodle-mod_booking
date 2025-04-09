@@ -37,6 +37,7 @@ use html_writer;
 use invalid_parameter_exception;
 use local_entities\entitiesrelation_handler;
 use mod_booking\bo_availability\conditions\customform;
+use mod_booking\bo_availability\conditions\optionhasstarted;
 use mod_booking\event\booking_rulesexecutionfailed;
 use mod_booking\event\bookinganswer_presencechanged;
 use mod_booking\event\bookinganswer_waitingforconfirmation;
@@ -911,12 +912,16 @@ class booking_option {
 
         $context = context_module::instance(($this->cmid));
         $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
+        $optionhasstarted = new optionhasstarted();
 
-        // If waiting list is turned off globally, we return right away.
         if (
-            get_config('booking', 'turnoffwaitinglist') ||
-            (get_config('booking', 'turnoffwaitinglistaftercoursestart') && time() > $settings->coursestarttime)
+            // If waiting list is turned off globally...
+            // ... or optionhasstarted does not allow users to be booked after the start of the option..
+            get_config('booking', 'turnoffwaitinglist')
+            || (get_config('booking', 'turnoffwaitinglistaftercoursestart') && time() > $settings->coursestarttime)
+            || !$optionhasstarted->is_available($settings, 0)
         ) {
+            // ... we return right away.
             return;
         }
 
