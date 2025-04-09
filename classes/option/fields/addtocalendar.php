@@ -136,23 +136,6 @@ class addtocalendar extends field_base {
      */
     public static function save_data(stdClass &$data, stdClass &$option) {
 
-        global $DB;
-
-        if (isset($data->addtocalendar) && $data->addtocalendar == 1) {
-            $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
-            // We need to make sure not to run the calendar function on a tmeplate without a cmid.
-            if (
-                !empty($settings->cmid)
-                && ($optiondates = $DB->get_records('booking_optiondates', ['optionid' => $option->id]))
-            ) {
-                foreach ($optiondates as $optiondate) {
-                    if ($DB->record_exists('event', ['id' => $optiondate->eventid])) {
-                        continue;
-                    }
-                    calendar::booking_optiondate_add_to_cal($settings->cmid, $option->id, $optiondate, $settings->calendarid);
-                }
-            }
-        };
     }
 
     /**
@@ -189,5 +172,41 @@ class addtocalendar extends field_base {
             // If the setting is locked in settings.php it will be frozen.
             $mform->freeze('addtocalendar');
         }
+    }
+
+    /**
+     * Once all changes are collected, also those triggered in save data, this is a possible hook for the fields.
+     *
+     * @param array $changes
+     * @param object $data
+     * @param object $newoption
+     * @param object $originaloption
+     *
+     * @return void
+     *
+     */
+    public static function changes_collected_action(
+        array $changes,
+        object $data,
+        object $newoption,
+        object $originaloption
+    ) {
+        global $DB;
+
+        if (isset($data->addtocalendar) && $data->addtocalendar == 1) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($newoption->id);
+            // We need to make sure not to run the calendar function on a tmeplate without a cmid.
+            if (
+                !empty($settings->cmid)
+                && ($optiondates = $DB->get_records('booking_optiondates', ['optionid' => $newoption->id]))
+            ) {
+                foreach ($optiondates as $optiondate) {
+                    if ($DB->record_exists('event', ['id' => $optiondate->eventid])) {
+                        continue;
+                    }
+                    calendar::booking_optiondate_add_to_cal($settings->cmid, $newoption->id, $optiondate, $settings->calendarid);
+                }
+            }
+        };
     }
 }
