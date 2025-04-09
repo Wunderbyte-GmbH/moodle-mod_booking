@@ -302,6 +302,20 @@ class all_userbookings extends \table_sql {
     }
 
     /**
+     * Returns link that was generated as enrollink.
+     *
+     * @param object $values
+     *
+     * @return string
+     *
+     */
+    public function col_enrollink($values): string {
+        $erlid = enrollink::get_erlid_from_baid($values->id) ?? "";
+        $value = empty($erlid) ? "" : \mod_booking\enrollink::create_enrollink($erlid);
+        return $value;
+    }
+
+    /**
      * Renders image of user.
      *
      * @param object $values

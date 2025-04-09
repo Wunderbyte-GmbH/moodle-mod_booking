@@ -696,6 +696,11 @@ if (!$tableallbookings->is_downloading()) {
     $customform = customform::return_formelements($settings);
 
     foreach ($customform as $counter => $customformfield) {
+        if ($customformfield->formtype === 'enrolusersaction') {
+            $columns[] = 'enrollink';
+            $headers[] = get_string('enrollink', 'booking');
+        }
+
         $label = !empty($customformfield->label) ? $customformfield->label : 'label_' . $counter;
         $columns[] = 'formfield_' . $counter;
         $headers[] = format_string($label);
