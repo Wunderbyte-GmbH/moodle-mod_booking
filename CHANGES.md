@@ -1,3 +1,10 @@
+## Version 8.12.3 (2025041000)
+* Improvement: Display given enrollink in report.php
+* Improvement: Add booking_history to course backup
+* Improvement: Add search, sorting and filter to Bookings tracker and always enable presence.
+* Improvement: Better distinction between availabilities.
+* Bugfix: Check condition before booking users to waitinglist
+
 ## Version 8.12.2 (2025040900)
 * Improvement: Multiple refinements for recurring options feature.
 * Bugfix: Always enrol teachers into current course, not template
