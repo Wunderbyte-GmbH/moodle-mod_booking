@@ -151,7 +151,7 @@ class booked_users implements renderable, templatable {
                 ];
                 $deletedusersheaders = [
                     get_string('user', 'core'),
-                    get_string('date', 'core'),
+                    get_string('timemodified', 'mod_booking'),
                 ];
 
                 if (get_config('booking', 'waitinglistshowplaceonwaitinglist')) {
@@ -335,13 +335,28 @@ class booked_users implements renderable, templatable {
             // Add fulltext search.
             $table->define_fulltextsearchcolumns(['firstname', 'lastname', 'email']);
 
+            switch ($statusparam) {
+                case MOD_BOOKING_STATUSPARAM_DELETED:
+                    $sortablecolumns = [
+                        'firstname' => get_string('firstname'),
+                        'lastname' => get_string('lastname'),
+                        'email' => get_string('email'),
+                        'timemodified' => get_string('timemodified', 'mod_booking'),
+                    ];
+                    $table->sort_default_column = 'timemodified';
+                    $table->sort_default_order = SORT_DESC;
+                    break;
+                default:
+                    $sortablecolumns = [
+                        'firstname' => get_string('firstname'),
+                        'lastname' => get_string('lastname'),
+                        'email' => get_string('email'),
+                        'presencecount' => get_string('presencecount', 'mod_booking'),
+                    ];
+                    break;
+            }
+
             // Add sorting.
-            $sortablecolumns = [
-                'firstname' => get_string('firstname'),
-                'lastname' => get_string('lastname'),
-                'email' => get_string('email'),
-                'presencecount' => get_string('presencecount', 'mod_booking'),
-            ];
             $table->define_sortablecolumns($sortablecolumns);
 
             if ($statusparam != MOD_BOOKING_STATUSPARAM_DELETED) {
