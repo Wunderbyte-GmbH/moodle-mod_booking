@@ -1121,11 +1121,26 @@ class booking_option {
             return false;
         }
 
-        // We check if we can still book the user.
-        // False means, that it can't be booked.
-        // 0 means, that we can book right away
-        // 1 means, that there is only a place on the waiting list.
-        $waitinglist = $this->check_if_limit($user->id, self::option_allows_overbooking_for_user($this->optionid, $user->id));
+        $isavailable = self::option_allows_booking_for_user($this->optionid, $user->id);
+        switch ($status) {
+            case MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE:
+                $waitinglist = MOD_BOOKING_STATUSPARAM_BOOKED;
+                break;
+            case MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_CONDITIONS_BLOCKING:
+                // Return if any condition is blocking.
+                if (!$isavailable) {
+                    return false;
+                };
+            default:
+                // We check if we can still book the user.
+                // False means, that it can't be booked.
+                // 0 means, that we can book right away
+                // 1 means, that there is only a place on the waiting list.
+                $waitinglist = $this->check_if_limit(
+                    $user->id,
+                    $isavailable
+                );
+        }
         // With the second param, we check if overbooking is allowed.
 
         // The $status == 2 means confirm. Under some circumstances, waitinglist can be false here.
@@ -1148,7 +1163,7 @@ class booking_option {
             case MOD_BOOKING_BO_SUBMIT_STATUS_UN_CONFIRM: // Means unconfirm on waitinglist.
                 $waitinglist = MOD_BOOKING_STATUSPARAM_WAITINGLIST;
                 break;
-            case MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL: // Means autoenrol.
+            default: // Applies for MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL & MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION.
                 $waitinglist = MOD_BOOKING_STATUSPARAM_BOOKED;
         }
 
@@ -1217,6 +1232,14 @@ class booking_option {
             }
         }
 
+        // Use the waitinglist as status for booking history.
+        if (
+            $status === MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_CONDITIONS_BLOCKING
+            || $status === MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE
+            || $status === MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_NOOVERBOOKING
+        ) {
+            $historystatus = MOD_BOOKING_STATUSPARAM_BOOKOTHEROPTIONS;
+        }
         $baid = self::write_user_answer_to_db(
             $this->booking->id,
             $frombookingid,
@@ -1226,7 +1249,8 @@ class booking_option {
             $currentanswerid,
             $timecreated,
             $status,
-            $erlid
+            $erlid,
+            $historystatus ?? 0
         );
 
         if (
@@ -1310,7 +1334,8 @@ class booking_option {
         $currentanswerid = null,
         $timecreated = null,
         $confirmwaitinglist = 0,
-        $erlid = ""
+        $erlid = "",
+        $historystatus = 0
     ) {
 
         global $DB, $USER;
@@ -1367,9 +1392,9 @@ class booking_option {
                 new \moodle_exception("dmlwriteexception");
             }
         }
-        $ba = singleton_service::get_instance_of_booking_answers($settings);
 
-        self::booking_history_insert($newanswer->waitinglist, $newanswer->id, $newanswer->optionid, $newanswer->bookingid, $userid);
+        $status = empty($historystatus) ? $newanswer->waitinglist : $historystatus;
+        self::booking_history_insert($status, $newanswer->id, $newanswer->optionid, $newanswer->bookingid, $userid);
 
         // After writing an answer, cache has to be invalidated.
         self::purge_cache_for_answers($optionid);
@@ -1482,7 +1507,7 @@ class booking_option {
 
         // At this point, we trigger the after booking actions.
         // Depending on the status, we have different ways of continueing.
-        if (actions_info::apply_actions($this->settings) == 1) {
+        if (actions_info::apply_actions($this->settings, $user->id) == 1) {
             return true;
         }
 
@@ -3546,7 +3571,7 @@ class booking_option {
      * @param int $userid if not provided, use logged-in $USER->id
      * @return bool true if overbooking is allowed
      */
-    public static function option_allows_overbooking_for_user(int $optionid, int $userid = 0): bool {
+    public static function option_allows_booking_for_user(int $optionid, int $userid = 0): bool {
 
         if (empty($userid)) {
             global $USER;

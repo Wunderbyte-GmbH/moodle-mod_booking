@@ -59,7 +59,7 @@ class actionslist implements renderable, templatable {
         $this->cmid = $cmid;
 
         foreach ($actions as $action) {
-            $action->name = $action->boactionname;
+            $action->name = $action->boactionname ?? $action->action_type;
             // Localize the names.
             $action->localizedactionname = get_string($action->action_type, 'mod_booking');
 
