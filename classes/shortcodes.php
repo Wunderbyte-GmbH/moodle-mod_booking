@@ -68,24 +68,14 @@ class shortcodes {
     public static function recommendedin($shortcode, $args, $content, $env, $next) {
 
         global $PAGE;
-
-        // If shortcodes are turned off, we return the shortcode as it is.
-        if (get_config('booking', 'shortcodesoff')) {
-            return "<div class='alert alert-warning'>" .
-                get_string('shortcodesoffwarning', 'mod_booking', $shortcode) .
-            "</div>";
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true);
+        if (!empty($error)) {
+            return $error;
         }
 
         $course = $PAGE->course;
-
-        if (!wb_payment::pro_version_is_activated()) {
-            return get_string('infotext:prolicensenecessary', 'mod_booking');
-        }
-
         $perpage = self::check_perpage($args);
-
         $pageurl = $course->shortname . $PAGE->url->out();
-
         $table = self::init_table_for_courses(null, md5($pageurl));
 
         $additionalwhere = " (recommendedin = '$course->shortname'
@@ -179,20 +169,11 @@ class shortcodes {
     public static function courselist($shortcode, $args, $content, $env, $next) {
 
         global $PAGE;
-
-        // If shortcodes are turned off, we return the shortcode as it is.
-        if (get_config('booking', 'shortcodesoff')) {
-            return "<div class='alert alert-warning'>" .
-                get_string('shortcodesoffwarning', 'mod_booking', $shortcode) .
-            "</div>";
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true);
+        if (!empty($error)) {
+            return $error;
         }
-
         $course = $PAGE->course;
-
-        if (!wb_payment::pro_version_is_activated()) {
-            return get_string('infotext:prolicensenecessary', 'mod_booking');
-        }
-
         $perpage = self::check_perpage($args);
 
         $pageurl = $course->shortname . $PAGE->url->out();
@@ -371,18 +352,10 @@ class shortcodes {
     public static function fieldofstudyoptions($shortcode, $args, $content, $env, $next) {
 
         global $COURSE, $USER, $DB, $CFG;
-
-        // If shortcodes are turned off, we return the shortcode as it is.
-        if (get_config('booking', 'shortcodesoff')) {
-            return "<div class='alert alert-warning'>" .
-                get_string('shortcodesoffwarning', 'mod_booking', $shortcode) .
-            "</div>";
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true);
+        if (!empty($error)) {
+            return $error;
         }
-
-        if (!wb_payment::pro_version_is_activated()) {
-            return get_string('infotext:prolicensenecessary', 'mod_booking');
-        }
-
         $perpage = self::check_perpage($args);
 
         // First: determine the cohort we want to use.
@@ -483,15 +456,9 @@ class shortcodes {
 
         global $COURSE, $USER, $DB, $CFG, $PAGE;
 
-        // If shortcodes are turned off, we return the shortcode as it is.
-        if (get_config('booking', 'shortcodesoff')) {
-            return "<div class='alert alert-warning'>" .
-                get_string('shortcodesoffwarning', 'mod_booking', $shortcode) .
-            "</div>";
-        }
-
-        if (!wb_payment::pro_version_is_activated()) {
-            return get_string('infotext:prolicensenecessary', 'mod_booking');
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true);
+        if (!empty($error)) {
+            return $error;
         }
 
         $out = '';
@@ -553,12 +520,11 @@ class shortcodes {
     public static function allbookingoptions($shortcode, $args, $content, $env, $next) {
         global $PAGE, $DB;
 
-        // If shortcodes are turned off, we return the shortcode as it is.
-        if (get_config('booking', 'shortcodesoff')) {
-            return "<div class='alert alert-warning'>" .
-                get_string('shortcodesoffwarning', 'mod_booking', $shortcode) .
-            "</div>";
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true);
+        if (!empty($error)) {
+            return $error;
         }
+
         $course = $PAGE->course;
 
         if (!wb_payment::pro_version_is_activated()) {
@@ -714,21 +680,16 @@ class shortcodes {
      * @return string
      */
     public static function mycourselist($shortcode, $args, $content, $env, $next) {
-
         global $USER, $PAGE;
+
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true);
+        if (!empty($error)) {
+            return $error;
+        }
+
         $userid = $USER->id;
         self::fix_args($args);
         $wherearray = [];
-
-        if (get_config('booking', 'shortcodesoff')) {
-            return "<div class='alert alert-warning'>" .
-                get_string('shortcodesoffwarning', 'mod_booking', $shortcode) .
-            "</div>";
-        }
-        if (!wb_payment::pro_version_is_activated()) {
-            return get_string('infotext:prolicensenecessary', 'mod_booking');
-        }
-
         $course = $PAGE->course;
         $perpage = self::check_perpage($args);
         $pageurl = $course->shortname . $PAGE->url->out();
@@ -861,15 +822,9 @@ class shortcodes {
 
         global $PAGE, $USER, $DB, $CFG;
 
-        // If shortcodes are turned off, we return the shortcode as it is.
-        if (get_config('booking', 'shortcodesoff')) {
-            return "<div class='alert alert-warning'>" .
-            get_string('shortcodesoffwarning', 'mod_booking', $shortcode) .
-            "</div>";
-        }
-
-        if (!wb_payment::pro_version_is_activated()) {
-            return get_string('infotext:prolicensenecessary', 'mod_booking');
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true);
+        if (!empty($error)) {
+            return $error;
         }
 
         $supporteddbs = [
@@ -984,11 +939,9 @@ class shortcodes {
 
         global $PAGE;
 
-        // If shortcodes are turned off, we return the shortcode as it is.
-        if (get_config('booking', 'shortcodesoff')) {
-            return "<div class='alert alert-warning'>" .
-            get_string('shortcodesoffwarning', 'mod_booking', $shortcode) .
-            "</div>";
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true);
+        if (!empty($error)) {
+            return $error;
         }
 
         if (!is_siteadmin()) {
@@ -1308,7 +1261,6 @@ class shortcodes {
                             $argument = trim($argument);
                             $wherearray[$key] = $argument;
                         }
-
                         break;
                     }
                 }
