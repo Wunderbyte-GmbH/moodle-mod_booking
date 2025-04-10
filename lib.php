@@ -2299,6 +2299,9 @@ function booking_delete_instance($id) {
         $bookingoption->delete_booking_option();
     }
 
+      // Delete Rules in instance.
+      $DB->delete_records('booking_rules', ['contextid' => $context->id]);
+
     // Delete option header images.
     // Delete image files belonging to the option.
     $imgfilesql = "SELECT id, contextid, filepath, filename, userid, source, author, license
