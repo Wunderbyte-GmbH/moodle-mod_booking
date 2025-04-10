@@ -28,12 +28,12 @@ use mod_booking\option\field_base;
 use mod_booking\option\fields_info;
 use mod_booking\settings\optionformconfig\optionformconfig_info;
 use context_module;
-use html_writer;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
 use MoodleQuickForm;
 use stdClass;
 use moodle_exception;
+use dml_exception;
 
 /**
  * Class to handle one property of the booking_option_settings class.
@@ -43,7 +43,6 @@ use moodle_exception;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class formconfig extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -97,7 +96,8 @@ class formconfig extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         return [];
     }
@@ -139,21 +139,22 @@ class formconfig extends field_base {
             $capstringidentifier = optionformconfig_info::return_capability_for_user($context->id);
             if (!empty($capstringidentifier)) {
                 $capability = get_string($capstringidentifier, 'mod_booking');
-                $mform->addElement('static', 'formconfiglabel', '', get_string('youareusingconfig', 'mod_booking', $capability));
-
+                $mform->addElement(
+                    'html',
+                    '<div class="formconfiglabel text-muted small ml-4">'
+                    . get_string('youareusingconfig', 'mod_booking', $capability) . '</div>'
+                );
                 $msg = optionformconfig_info::return_message_stored_optionformconfig($context->id);
                 $mform->addElement(
-                    'static',
-                    'formconfiglabel_more',
-                    '',
-                    $msg
+                    'html',
+                    '<div class="formconfiglabel_more text-muted small ml-4 mb-3">'
+                    . $msg . '</div>'
                 );
             } else {
                 $mform->addElement(
-                    'static',
-                    'formconfiglabel_more',
-                    '',
-                    get_string('nopermissiontoaccesspage', 'mod_booking')
+                    'html',
+                    '<div class="formconfiglabel_more text-muted small ml-4 mb-3">'
+                    . get_string('nopermissiontoaccesspage', 'mod_booking') . '</div>'
                 );
             }
         }
@@ -167,6 +168,5 @@ class formconfig extends field_base {
      * @throws dml_exception
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
-
     }
 }

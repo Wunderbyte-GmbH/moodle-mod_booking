@@ -262,7 +262,7 @@ class manageusers_table extends wunderbyte_table {
         // First we fetch the rawdata.
         $this->query_db_cached($this->pagesize, true);
 
-        // We know that we already ordered for timemodfied. The lastitem will have the highest time modified...
+        // We know that we already ordered for timemodified. The lastitem will have the highest time modified...
         // The first item the lowest.
 
         $newtimemodified = 0;

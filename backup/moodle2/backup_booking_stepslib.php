@@ -72,7 +72,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
             ['id'],
             ['text', 'maxanswers', 'maxoverbooking', 'minanswers', 'bookingopeningtime', 'bookingclosingtime', 'courseid',
                 'coursestarttime', 'courseendtime', 'enrolmentstatus', 'description', 'descriptionformat',
-                'limitanswers', 'timemodified', 'addtocalendar', 'calendarid', 'pollurl',
+                'limitanswers', 'timecreated', 'timemodified', 'addtocalendar', 'calendarid', 'pollurl',
                 'groupid', 'sent', 'sent2', 'sentteachers', 'location', 'institution', 'address',
                 'pollurlteachers', 'howmanyusers', 'pollsend', 'removeafterminutes',
                 'notificationtext', 'notificationtextformat', 'disablebookingusers',
@@ -175,9 +175,9 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
 
         $history = new backup_nested_element('history');
         $historyitem = new backup_nested_element(
-                'historyitem',
-                ['id'],
-                ['bookingid', 'optionid', 'answerid', 'userid', 'status', 'json']
+            'historyitem',
+            ['id'],
+            ['bookingid', 'optionid', 'answerid', 'userid', 'status', 'json']
         );
 
         // Build the tree.

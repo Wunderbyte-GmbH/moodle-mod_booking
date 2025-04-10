@@ -42,7 +42,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class booking_user_selector_base extends user_selector_base {
-
     /**
      * The id of the booking this selector is being used for.
      *
@@ -144,7 +143,6 @@ abstract class booking_user_selector_base extends user_selector_base {
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class booking_potential_user_selector extends booking_user_selector_base {
-
     /** @var array $options */
     public $options;
 
@@ -175,35 +173,44 @@ class booking_potential_user_selector extends booking_user_selector_base {
         $bookanyone = get_user_preferences('bookanyone', false);
 
         $onlygroupmembers = false;
-        if (groups_get_activity_groupmode($this->cm) == SEPARATEGROUPS &&
-                !has_capability('moodle/site:accessallgroups',
-                        \context_course::instance($this->course->id))) {
+        if (
+            groups_get_activity_groupmode($this->cm) == SEPARATEGROUPS &&
+                !has_capability(
+                    'moodle/site:accessallgroups',
+                    \context_course::instance($this->course->id)
+                )
+        ) {
             $onlygroupmembers = true;
         }
 
         $fields = "SELECT " . $this->required_fields_sql("u");
 
         $countfields = 'SELECT COUNT(1)';
-        list($searchcondition, $searchparams) = $this->search_sql($search, 'u');
+        [$searchcondition, $searchparams] = $this->search_sql($search, 'u');
         $groupsql = '';
         if ($onlygroupmembers) {
-            list($groupsql, $groupparams) = \mod_booking\booking::booking_get_groupmembers_sql($this->course->id);
-            list($enrolledsql, $eparams) = get_enrolled_sql($this->options['accesscontext'], null, null, true);
-            $groupsql = " AND u.id IN (" . $groupsql.")";
+            [$groupsql, $groupparams] = \mod_booking\booking::booking_get_groupmembers_sql($this->course->id);
+            [$enrolledsql, $eparams] = get_enrolled_sql($this->options['accesscontext'], null, null, true);
+            $groupsql = " AND u.id IN (" . $groupsql . ")";
             $params = array_merge($eparams, $groupparams);
         } else {
-            list($enrolledsql, $params) = get_enrolled_sql($this->options['accesscontext'], null, null, true);
+            [$enrolledsql, $params] = get_enrolled_sql($this->options['accesscontext'], null, null, true);
         }
 
         $option = new stdClass();
         $option->id = $this->options['optionid'];
         $option->bookingid = $this->options['bookingid'];
 
-        if (booking_check_if_teacher($option) && !has_capability(
-                'mod/booking:readallinstitutionusers', $this->options['accesscontext'])) {
-
-            $institution = $DB->get_record('booking_options',
-                    ['id' => $this->options['optionid']]);
+        if (
+            booking_check_if_teacher($option) && !has_capability(
+                'mod/booking:readallinstitutionusers',
+                $this->options['accesscontext']
+            )
+        ) {
+            $institution = $DB->get_record(
+                'booking_options',
+                ['id' => $this->options['optionid']]
+            );
 
             $searchparams['onlyinstitution'] = $institution->institution;
             $searchcondition .= ' AND u.institution LIKE :onlyinstitution';
@@ -236,19 +243,23 @@ class booking_potential_user_selector extends booking_user_selector_base {
 
         $searchparams['statusparamdeleted'] = MOD_BOOKING_STATUSPARAM_DELETED;
 
-        list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
+        [$sort, $sortparams] = users_order_by_sql('u', $search, $this->accesscontext);
         $order = ' ORDER BY ' . $sort;
 
         if (!$this->is_validating()) {
-            $potentialmemberscount = $DB->count_records_sql($countfields . $sql,
-                    array_merge($searchparams, $params));
+            $potentialmemberscount = $DB->count_records_sql(
+                $countfields . $sql,
+                array_merge($searchparams, $params)
+            );
             if ($potentialmemberscount > $this->maxusersperpage) {
                 return $this->too_many_results($search, $potentialmemberscount);
             }
         }
 
-        $availableusers = $DB->get_records_sql($fields . $sql . $order,
-                array_merge($searchparams, $params, $sortparams));
+        $availableusers = $DB->get_records_sql(
+            $fields . $sql . $order,
+            array_merge($searchparams, $params, $sortparams)
+        );
 
         if (empty($availableusers)) {
             return [];
@@ -281,7 +292,6 @@ class booking_potential_user_selector extends booking_user_selector_base {
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class booking_existing_user_selector extends booking_user_selector_base {
-
     /**
      * $potentialusers
      *
@@ -322,13 +332,13 @@ class booking_existing_user_selector extends booking_user_selector_base {
         // Only active enrolled or everybody on the frontpage.
         $fields = "SELECT " . $this->required_fields_sql("u");
         $countfields = 'SELECT COUNT(1)';
-        list($searchcondition, $searchparams) = $this->search_sql($search, 'u');
-        list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
+        [$searchcondition, $searchparams] = $this->search_sql($search, 'u');
+        [$sort, $sortparams] = users_order_by_sql('u', $search, $this->accesscontext);
         $order = ' ORDER BY ' . $sort;
 
         if (!empty($this->potentialusers)) {
-            $potentialuserids = array_keys ($this->potentialusers);
-            list($subscriberssql, $subscribeparams) = $DB->get_in_or_equal($potentialuserids, SQL_PARAMS_NAMED, "in_");
+            $potentialuserids = array_keys($this->potentialusers);
+            [$subscriberssql, $subscribeparams] = $DB->get_in_or_equal($potentialuserids, SQL_PARAMS_NAMED, "in_");
         } else {
             return [];
         }
@@ -337,11 +347,16 @@ class booking_existing_user_selector extends booking_user_selector_base {
         $option->id = $this->options['optionid'];
         $option->bookingid = $this->options['bookingid'];
 
-        if (booking_check_if_teacher($option) && !has_capability(
-                'mod/booking:readallinstitutionusers', $this->options['accesscontext'])) {
-
-            $institution = $DB->get_record('booking_options',
-                    ['id' => $this->options['optionid']]);
+        if (
+            booking_check_if_teacher($option) && !has_capability(
+                'mod/booking:readallinstitutionusers',
+                $this->options['accesscontext']
+            )
+        ) {
+            $institution = $DB->get_record(
+                'booking_options',
+                ['id' => $this->options['optionid']]
+            );
 
             $searchparams['onlyinstitution'] = $institution->institution;
             $searchcondition .= ' AND u.institution LIKE :onlyinstitution';
@@ -359,8 +374,10 @@ class booking_existing_user_selector extends booking_user_selector_base {
             }
         }
 
-        $availableusers = $DB->get_records_sql($fields . $sql . $order,
-                array_merge($searchparams, $sortparams, $subscribeparams));
+        $availableusers = $DB->get_records_sql(
+            $fields . $sql . $order,
+            array_merge($searchparams, $sortparams, $subscribeparams)
+        );
 
         if (empty($availableusers)) {
             return [];
@@ -419,7 +436,8 @@ function booking_updatestartenddate($optionid) {
             'SELECT MIN(coursestarttime) AS coursestarttime, MAX(courseendtime) AS courseendtime
              FROM {booking_optiondates}
              WHERE optionid = ?',
-            [$optionid]);
+            [$optionid]
+        );
 
         $optionobj = new stdClass();
         $optionobj->id = $optionid;
@@ -464,8 +482,12 @@ function get_rendered_customfields($optiondateid) {
  * @param bool $forbookeduser
  * @return string The rendered HTML of the full description.
  */
-function get_rendered_eventdescription(int $optionid, int $cmid,
-    int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE, bool $forbookeduser = false): string {
+function get_rendered_eventdescription(
+    int $optionid,
+    int $cmid,
+    int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE,
+    bool $forbookeduser = false
+): string {
 
     global $PAGE;
 
@@ -528,7 +550,6 @@ function option_optiondate_update_event(int $optionid, int $cmid, ?stdClass $opt
     if ($optiondate && !empty($settings->id)) {
         // Check if we have already associated userevents.
         if (!isset($optiondate->eventid) || (!$event = $DB->get_record('event', ['id' => $optiondate->eventid]))) {
-
             // If we don't find the event here, we might still be just switching to multisession.
             // Let's create the event anew.
             $bocreatedevent = bookingoptiondate_created::create(['context' => context_module::instance($cmid),
@@ -541,7 +562,6 @@ function option_optiondate_update_event(int $optionid, int $cmid, ?stdClass $opt
             // We have to return false if we have switched from multisession to create the right events.
             return false;
         } else {
-
             // Get all the userevents.
             $sql = "SELECT e.* FROM {booking_userevents} ue
               JOIN {event} e
@@ -589,11 +609,19 @@ function option_optiondate_update_event(int $optionid, int $cmid, ?stdClass $opt
     // We use $data here for $option and $optiondate, the necessary keys are the same.
     foreach ($allevents as $eventrecord) {
         if ($eventrecord->eventtype == 'user') {
-            $eventrecord->description = get_rendered_eventdescription($settings->id, $cmid,
-                MOD_BOOKING_DESCRIPTION_CALENDAR, true);
+            $eventrecord->description = get_rendered_eventdescription(
+                $settings->id,
+                $cmid,
+                MOD_BOOKING_DESCRIPTION_CALENDAR,
+                true
+            );
         } else {
-            $eventrecord->description = get_rendered_eventdescription($settings->id, $cmid,
-                MOD_BOOKING_DESCRIPTION_CALENDAR, false);
+            $eventrecord->description = get_rendered_eventdescription(
+                $settings->id,
+                $cmid,
+                MOD_BOOKING_DESCRIPTION_CALENDAR,
+                false
+            );
         }
         $eventrecord->name = $settings->get_title_with_prefix();
         $eventrecord->timestart = $data->coursestarttime;
