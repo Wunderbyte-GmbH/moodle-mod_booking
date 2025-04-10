@@ -106,8 +106,22 @@ class shortcodes_handler {
             "</div>";
         return $answerarray;
     }
+    /**
+     * [Description for license_is_activated]
+     *
+     * @param mixed $shortcode
+     * @param mixed $answerarray
+     *
+     * @return [type]
+     *
+     */
     private static function license_is_activated($shortcode, $answerarray) {
-
+        if (wb_payment::pro_version_is_activated()) {
+            return $answerarray;
+        }
+        $answerarray['error'] = 1;
+        $answerarray['message'] = get_string('infotext:prolicensenecessary', 'mod_booking');
+        return $answerarray;
     }
     /**
      * [Description for requires_args]
