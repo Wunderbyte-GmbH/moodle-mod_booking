@@ -156,7 +156,7 @@ legacy mail templates with booking rules by using the new templates.
 * New feature: presence counter feature in report2
 * New feature: Show tab on booking view.php with options where the logged-in user is a responsible contact.
 * New feature: Add possibility to download booked users in bookings tracker in different scopes.
-* Improvement: Use is_available of bo_info to check for actual condition results in function option_allows_overbooking_for_user.
+* Improvement: Use is_available of bo_info to check for actual condition results in function option_allows_booking_for_user.
 * Improvement: Skip rules from option (opt in, opt out)
 * Improvement: When PRO is active but selflearningcourse feature is not, we show a link to config settings (within help text)
 * Improvement: Better capability checks for report2.
@@ -1348,7 +1348,7 @@ With cards view, we always have modals.
 
 ## Version 8.1.2 (2024011600)
 **Bugfixes:**
-* Bugfix: No userid needed in option_allows_overbooking_for_user (we always use logged-in user here).
+* Bugfix: No userid needed in option_allows_booking_for_user (we always use logged-in user here).
 * Bugfix: Fix exception for old options with only one date stored in the booking option.
 * Bugfix: Fix automatic creation of new Moodle courses with new option form.
 
