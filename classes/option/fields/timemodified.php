@@ -15,31 +15,31 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Control and manage booking dates.
+ * Class to handle one property of the booking_option_settings class.
  *
  * @package mod_booking
- * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @copyright Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_booking\option\fields;
 
-use mod_booking\booking_option;
-use mod_booking\option\fields;
-use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
+use mod_booking\option\fields_info;
+use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
 
 /**
  * Class to handle one property of the booking_option_settings class.
  *
+ * @package mod_booking
  * @copyright Wunderbyte GmbH <info@wunderbyte.at>
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class timemodified extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -91,12 +91,16 @@ class timemodified extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
+        parent::prepare_save_field($formdata, $newoption, $updateparam, 0);
 
+        $instance = new timemodified();
+        $changes = $instance->check_for_changes($formdata, $instance);
         // We always store the current time in the time modified field, no matter what.
-        $newoption->timemodfied = time();
+        $newoption->timemodified = time();
 
-        return [];
+        return $changes;
     }
 
     /**
@@ -115,6 +119,23 @@ class timemodified extends field_base {
         $fieldstoinstanciate = [],
         $applyheader = true
     ) {
-        // Do nothing.
+        // Standardfunctionality to add a header to the mform (only if its not yet there).
+        if ($applyheader) {
+            fields_info::add_header_to_mform($mform, self::$header);
+        }
+
+        $optionid = $formdata['id'] ?? $formdata['optionid'] ?? 0;
+
+        if (!empty($optionid)) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+            $lasttimemodified = $settings->timemodified;
+            $readabletimemodified = userdate($lasttimemodified, get_string('strftimedaydatetime', 'langconfig'));
+            $mform->addElement(
+                'html',
+                '<div class="bookingoption-form-timemodified text-muted small ml-4 mb-3">'
+                . get_string('timemodified', 'mod_booking') . ": "
+                . $readabletimemodified . '</div>'
+            );
+        }
     }
 }

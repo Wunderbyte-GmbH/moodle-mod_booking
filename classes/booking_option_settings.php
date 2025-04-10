@@ -100,6 +100,9 @@ class booking_option_settings {
     /** @var int $limitanswers */
     public $limitanswers = null;
 
+    /** @var int $timecreated */
+    public $timecreated = null;
+
     /** @var int $timemodified */
     public $timemodified = null;
 
@@ -358,7 +361,6 @@ class booking_option_settings {
                     JOIN {course_modules} cm ON bo.bookingid=cm.instance
                     JOIN {modules} m ON m.id=cm.module
                     WHERE m.name='booking'
-
                     AND bo.id=:id";
             $cmid = $DB->get_field_sql($sql, $params);
 
@@ -369,7 +371,7 @@ class booking_option_settings {
             }
 
             [$select, $from, $where, $params] = booking::get_options_filter_sql(
-                null,
+                0,
                 1,
                 null,
                 '*',
@@ -404,6 +406,7 @@ class booking_option_settings {
             $this->description = $dbrecord->description;
             $this->descriptionformat = $dbrecord->descriptionformat;
             $this->limitanswers = $dbrecord->limitanswers;
+            $this->timecreated = $dbrecord->timecreated;
             $this->timemodified = $dbrecord->timemodified;
             $this->addtocalendar = $dbrecord->addtocalendar;
             $this->calendarid = $dbrecord->calendarid;

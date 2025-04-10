@@ -2385,11 +2385,11 @@ $string['thankyouwaitinglist'] = '<i class="fa fa-3x fa-clock-o text-primary" ar
 Sie wurden zur Warteliste von <b>{$a}</b> hinzugefügt. Sollte jemand ausfallen, rücken Sie automatisch nach.';
 $string['thisinstance'] = 'Diese Buchung';
 $string['thursday'] = 'Donnerstag';
-$string['timecreated'] = 'Erstellungsdatum';
+$string['timecreated'] = 'Erstellt';
 $string['timefilter:bookingtime'] = 'Anmeldezeiten';
 $string['timefilter:coursetime'] = 'Kurszeiten';
 $string['timemadevisible'] = 'Zeitpunkt der letzten Sichtbar-Schaltung';
-$string['timemodified'] = 'Bearbeitungszeit';
+$string['timemodified'] = 'Zuletzt bearbeitet';
 $string['timerestrict'] = 'Buchungsoption auf diesen Zeitraum beschränken: Diese Option ist veraltet und sollte nicht mehr verwendet werden. Stattdessen verwenden Sie bitte die Optionen unter "Voraussetzungen", um die Buchungen für einen bestimmten Zeitraum zu beschränken.';
 $string['title'] = "Titel";
 $string['titleprefix'] = 'Präfix';
