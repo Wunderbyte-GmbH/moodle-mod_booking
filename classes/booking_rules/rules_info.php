@@ -404,6 +404,9 @@ class rules_info {
         $contextid = $event->contextid;
         $records = booking_rules::get_list_of_saved_rules_by_context($contextid, $eventname);
 
+        // There are cases where an event is triggered twice in a very narrow timespan.
+        $data['timecreated'] = strtotime(date('Y-m-d H:00:00',  ($data['timecreated'] ?? time()) + 3600));
+
         // Now we check all the existing rules from booking.
         foreach ($records as $record) {
             $rule = self::get_rule($record->rulename);
