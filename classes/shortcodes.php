@@ -29,8 +29,6 @@ namespace mod_booking;
 use cache_helper;
 use context_module;
 use context_system;
-use core_cohort\reportbuilder\local\entities\cohort;
-use enrol_self\self_test;
 use Exception;
 use html_writer;
 use local_wunderbyte_table\filters\types\datepicker;
@@ -480,7 +478,7 @@ class shortcodes {
      * @param string|null $content
      * @param object $env
      * @param Closure $next
-     * @return string $out
+     * @return string
      */
     public static function linkbacktocourse($shortcode, $args, $content, $env, $next) {
 
@@ -569,9 +567,7 @@ class shortcodes {
         }
 
         $perpage = self::check_perpage($args);
-
         $pageurl = $course->shortname . $PAGE->url->out();
-        $context = null;
         $viewparam = self::get_viewparam($args);
         $wherearray = [];
 
@@ -584,7 +580,9 @@ class shortcodes {
             $cmids = array_map('intval', explode(',', $args['cmid']));
             foreach ($cmids as $cmid) {
                 $booking = singleton_service::get_instance_of_booking_settings_by_cmid((int)$cmid);
-                $bookings[] = $booking->id;
+                if (isset($booking->id)) {
+                    $bookings[] = $booking->id;
+                }
             }
                 [$inorequal, $additionalparams] = $DB->get_in_or_equal($bookings, SQL_PARAMS_NAMED);
                 $bookingidwhere = " (bookingid $inorequal)";
@@ -602,7 +600,7 @@ class shortcodes {
                     0,
                     '',
                     null,
-                    $context,
+                    null,
                     [],
                     $wherearray,
                     null,
@@ -716,7 +714,7 @@ class shortcodes {
      * @param Closure $next
      * @return string
      */
-    public static function mycourseslist($shortcode, $args, $content, $env, $next) {
+    public static function mycourselist($shortcode, $args, $content, $env, $next) {
 
         global $USER, $PAGE;
         $userid = $USER->id;
@@ -765,43 +763,43 @@ class shortcodes {
                     $additionalwhere
                 );
 
-                $table->set_filter_sql($fields, $from, $where, $filter, $params);
+        $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
-                // These are all possible options to be displayed in the bookingtable.
-                $possibleoptions = [
-                    "description",
-                    "statusdescription",
-                    "attachment",
-                    "teacher",
-                    "responsiblecontact",
-                    "showdates",
-                    "dayofweektime",
-                    "location",
-                    "institution",
-                    "minanswers",
-                    "bookingopeningtime",
-                    "bookingclosingtime",
-                ];
-                // When calling recommendedin in the frontend we can define exclude params to set options, we don't want to display.
+        // These are all possible options to be displayed in the bookingtable.
+        $possibleoptions = [
+            "description",
+            "statusdescription",
+            "attachment",
+            "teacher",
+            "responsiblecontact",
+            "showdates",
+            "dayofweektime",
+            "location",
+            "institution",
+            "minanswers",
+            "bookingopeningtime",
+            "bookingclosingtime",
+        ];
+        // When calling recommendedin in the frontend we can define exclude params to set options, we don't want to display.
 
-                if (!empty($args['exclude'])) {
-                    $exclude = explode(',', $args['exclude']);
-                    $optionsfields = array_diff($possibleoptions, $exclude);
-                } else {
-                    $optionsfields = $possibleoptions;
-                }
+        if (!empty($args['exclude'])) {
+            $exclude = explode(',', $args['exclude']);
+            $optionsfields = array_diff($possibleoptions, $exclude);
+        } else {
+            $optionsfields = $possibleoptions;
+        }
 
                 $defaultorder = SORT_ASC; // Default.
-                if (!empty($args['sortorder'])) {
-                    if (strtolower($args['sortorder']) === "desc") {
-                        $defaultorder = SORT_DESC;
-                    }
-                }
-                if (!empty($args['sortby'])) {
-                    $table->sortable(true, $args['sortby'], $defaultorder);
-                } else {
-                    $table->sortable(true, 'text', $defaultorder);
-                }
+        if (!empty($args['sortorder'])) {
+            if (strtolower($args['sortorder']) === "desc") {
+                $defaultorder = SORT_DESC;
+            }
+        }
+        if (!empty($args['sortby'])) {
+            $table->sortable(true, $args['sortby'], $defaultorder);
+        } else {
+            $table->sortable(true, 'text', $defaultorder);
+        }
 
                 $showfilter = !empty($args['filter']) ? true : false;
                 $showsort = !empty($args['sort']) ? true : false;
@@ -837,7 +835,6 @@ class shortcodes {
         } else {
             $table->showfilterontop = false;
         }
-
                 $out = $table->outhtml($perpage, true);
 
                 return $out;
@@ -943,18 +940,18 @@ class shortcodes {
 
         // These are all possible options to be displayed in the bookingtable.
         $possibleoptions = [
-        "description",
-        "statusdescription",
-        "attachment",
-        "teacher",
-        "responsiblecontact",
-        "showdates",
-        "dayofweektime",
-        "location",
-        "institution",
-        "minanswers",
-        "bookingopeningtime",
-        "bookingclosingtime",
+            "description",
+            "statusdescription",
+            "attachment",
+            "teacher",
+            "responsiblecontact",
+            "showdates",
+            "dayofweektime",
+            "location",
+            "institution",
+            "minanswers",
+            "bookingopeningtime",
+            "bookingclosingtime",
         ];
         // When calling recommendedin in the frontend we can define exclude params to set options, we don't want to display.
 
@@ -1283,7 +1280,6 @@ class shortcodes {
         $additonalwhere = '';
         if (!empty($customfields) && !empty($args)) {
             foreach ($args as $key => $value) {
-                // Logik
                 foreach ($customfields as $customfield) {
                     if ($customfield->shortname == $key) {
                         $configdata = json_decode($customfield->configdata ?? '[]');
@@ -1365,34 +1361,5 @@ class shortcodes {
                 break;
         }
         return $viewparam;
-    }
-
-    /**
-     * Get Booking if no CMID is in args.
-     *
-     * @param array $args
-     *
-     * @return mixed booking
-     *
-     */
-    private static function get_booking($args) {
-        self::fix_args($args);
-
-        // Fetch allowed instances and default cmid.
-        [$allowedinstances, $defaultcmid] = self::get_booking_instance_options();
-
-        // Use default if no ID is passed.
-        $cmid = isset($args['id']) ? (int)$args['id'] : (int)$defaultcmid;
-
-        // Validate cmid.
-        if ($cmid <= 0 || !array_key_exists($cmid, $allowedinstances)) {
-            return 'Invalid or missing booking instance ID';
-        }
-
-        // Try to retrieve the booking instance.
-        if (!$booking = singleton_service::get_instance_of_booking_by_cmid($cmid)) {
-            return 'Couldn\'t find booking instance with ID ' . $cmid;
-        }
-        return $booking;
     }
 }
