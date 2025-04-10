@@ -33,8 +33,10 @@ use mod_booking\booking_rules\rules_info;
 use mod_booking\calendar;
 use mod_booking\elective;
 use mod_booking\local\checkanswers\checkanswers;
+use mod_booking\option\fields\certificate;
 use mod_booking\output\view;
 use mod_booking\singleton_service;
+use tool_certificate\template;
 
 /**
  * Class to handle event observer for mod_booking.
@@ -326,11 +328,19 @@ class mod_booking_observer {
 
         $optionid = $event->objectid;
         $cmid = $event->other['cmid'];
-        $selecteduserid = $event->relateduserid;
 
         $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
+        // TODO: Add creation of certificate from Template for a given user.
+        $selecteduserid = $event->relateduserid;
 
-        if (empty($bookingoption->booking->settings->sendmail)) {
+        if (class_exists('tool_certificate\certificate')) {
+            certificate::issue_certificate($optionid, $selecteduserid);
+        }
+
+        if (
+            empty($bookingoption->booking->settings->sendmail)
+            || !get_config('uselegacymailtemplates', 'booking')
+        ) {
             // If sendmail is not set or not active, we don't do anything.
             return;
         }

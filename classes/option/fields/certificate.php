@@ -28,8 +28,11 @@ use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
+use mod_booking\singleton_service;
+use tool_certificate\certificate as toolCertificate;
 use MoodleQuickForm;
 use stdClass;
+use tool_certificate\template;
 
 /**
  * Class to handle one property of the booking_option_settings class.
@@ -78,6 +81,14 @@ class certificate extends field_base {
     public static $incompatiblefields = [];
 
     /**
+     * List the expiration fields to be stored in json files.
+     *
+     * @var array
+     */
+    public static $certificatedatekeys = ['expirydateabsolute', 'expirydaterelative', 'expirydatetype'];
+
+
+    /**
      * This function interprets the value from the form and, if useful...
      * ... relays it to the new option class for saving or updating.
      * @param stdClass $formdata
@@ -92,6 +103,11 @@ class certificate extends field_base {
         int $updateparam,
         $returnvalue = null
     ): array {
+
+        if (!class_exists('tool_certificate\certificate')) {
+            return [];
+        }
+
         $instance = new certificate();
         $changes = [];
         $key = fields_info::get_class_name(static::class);
@@ -101,6 +117,19 @@ class certificate extends field_base {
             booking_option::add_data_to_json($newoption, $key, $formdata->{$key});
         } else {
             booking_option::remove_key_from_json($newoption, $key);
+        }
+
+        // Add expiration key to json.
+        $keys = self::$certificatedatekeys;
+        // Process each field and save it to json.
+        foreach ($keys as $key) {
+            $valueexpirydate = $formdata->{$key} ?? null;
+
+            if (!empty($valueexpirydate)) {
+                booking_option::add_data_to_json($newoption, $key, $formdata->{$key});
+            } else {
+                booking_option::remove_key_from_json($newoption, $key);
+            }
         }
 
         $certificatechanges = $instance->check_for_changes($formdata, $instance, null, $key, $value);
@@ -130,17 +159,16 @@ class certificate extends field_base {
         $applyheader = true
     ) {
 
+        if (!class_exists('tool_certificate\certificate')) {
+            return;
+        }
+
         global $DB;
 
         // Standardfunctionality to add a header to the mform (only if its not yet there).
         if ($applyheader) {
             fields_info::add_header_to_mform($mform, self::$header);
         }
-
-        // $mform->addElement('text', 'certificate', get_string(identifier: 'certificate', 'mod_booking'), ['size' => '64']);
-        // $mform->setType('certificate', PARAM_TEXT);
-        // $mform->addHelpButton('certificate', 'feedbackurl', 'mod_booking');
-
 
         $records = $DB->get_records('tool_certificate_templates', []);
         $selection = [0 => 'no certicate selected'];
@@ -150,6 +178,8 @@ class certificate extends field_base {
 
         $mform->addElement('autocomplete', 'certificate', get_string('certificate', 'mod_booking'), $selection, []);
         $mform->setType('certificate', PARAM_INT);
+
+        toolCertificate::add_expirydate_to_form($mform);
     }
 
     /**
@@ -171,15 +201,78 @@ class certificate extends field_base {
      * @return void
      * @throws dml_exception
      */
+    /**
+     * [Description for set_data]
+     *
+     * @param stdClass $data
+     * @param booking_option_settings $settings
+     *
+     * @return [type]
+     *
+     */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
+        if (!class_exists('tool_certificate\certificate')) {
+            return;
+        }
+        // Add expiration key to set_data.
+        $keys = self::$certificatedatekeys;
+        // Process each field and save it to set_data.
+        foreach ($keys as $key) {
+            $valueexpirydate = $formdata->{$key} ?? null;
+
+
+            if (!empty($valueexpirydate) && !empty($data->importing)) {
+                $data->{$key} = $data->{$key} ?? booking_option::get_value_of_json_by_key((int) $data->id, $key) ?? 0;
+            } else {
+                $data->{$key} = booking_option::get_value_of_json_by_key((int) $data->id, $key) ?? 0;
+            }
+        }
         $key = fields_info::get_class_name(static::class);
         // Normally, we don't call set data after the first time loading.
-
         if (!empty($data->importing)) {
-            $data->{$key} = $data->{$key} ?? booking_option::get_value_of_json_by_key($data->id, $key) ?? 0;
+            $data->{$key} = $data->{$key} ?? booking_option::get_value_of_json_by_key((int) $data->id, $key) ?? 0;
         } else {
-            $data->{$key} = booking_option::get_value_of_json_by_key($data->id, $key) ?? 0;
+            $data->{$key} = booking_option::get_value_of_json_by_key((int) $data->id, $key) ?? 0;
+        }
+    }
+
+    /**
+     * [Description for issue_certificate]
+     *
+     * @param int $optionid
+     * @param int $userid
+     * @param
+     *
+     * @return void
+     *
+     */
+    public static function issue_certificate(int $optionid, int $userid) {
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+        if (!class_exists('tool_certificate\certificate')) {
+            return;
+        }
+        // 2. get certificate id.
+        $certificateid = booking_option::get_value_of_json_by_key($optionid, 'certificate') ?? 0;
+
+        if (empty($certificateid)) {
+            return;
+        }
+
+        // 3. find out which method is used to issue a certificate.
+        $template = template::instance($certificateid);
+
+        // Certificate expiry date key.
+        $expirydatetype = booking_option::get_value_of_json_by_key($optionid, 'expirydatetype');
+        $expirydateabsolute = booking_option::get_value_of_json_by_key($optionid, 'expirydateabsolute');
+        $expirydaterelative = booking_option::get_value_of_json_by_key($optionid, 'expirydaterelative');
+        $certificateexpirydate = toolCertificate::calculate_expirydate($expirydatetype, $expirydateabsolute, $expirydaterelative);
+
+        // 4. Create Certificate.
+        if ($template->can_issue($userid)) {
+            $result = $template->issue_certificate($userid, $certificateexpirydate, ['bookingoptionname' => $settings->get_title_with_prefix()]);
         }
     }
 }
