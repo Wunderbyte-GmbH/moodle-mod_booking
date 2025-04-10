@@ -574,6 +574,10 @@ class shortcodes {
         $viewparam = self::get_viewparam($args);
         $wherearray = [];
 
+        if (empty($args['cmid']) && !empty($args['id'])) {
+            $args['cmid'] = $args['id'];
+        }
+        $bookingidwhere = "";
         if (!empty($args['cmid'])) {
             $bookings = [];
             $cmids = array_map('intval', explode(',', $args['cmid']));
@@ -583,13 +587,7 @@ class shortcodes {
             }
                 [$inorequal, $additionalparams] = $DB->get_in_or_equal($bookings, SQL_PARAMS_NAMED);
                 $bookingidwhere = " (bookingid $inorequal)";
-        } else {
-            $booking = self::get_booking($args);
-            $context = $booking->context;
-            $wherearray = ['bookingid' => (int)$booking->id];
-            $bookingidwhere = "";
         }
-
 
         $table = self::init_table_for_courses(null, md5($pageurl));
 
@@ -1366,36 +1364,6 @@ class shortcodes {
                 break;
         }
         return $viewparam;
-    }
-    /**
-     * Get CMID's for get booking.
-     *
-     * @return array
-     *
-     */
-    private static function get_booking_instance_options() {
-        global $DB;
-        $allowedinstances = [];
-
-        if (
-            $records = $DB->get_records_sql(
-                "SELECT cm.id cmid, b.name bookingname
-            FROM {course_modules} cm
-            LEFT JOIN {booking} b
-            ON b.id = cm.instance
-            WHERE cm.module IN (
-                SELECT id
-                FROM {modules} m
-                WHERE m.name = 'booking'
-            )"
-            )
-        ) {
-            foreach ($records as $record) {
-                $allowedinstances[$record->cmid] = "$record->bookingname (ID: $record->cmid)";
-                $defaultcmid = $record->cmid;
-            }
-        }
-         return [$allowedinstances, $defaultcmid];
     }
 
     /**
