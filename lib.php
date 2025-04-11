@@ -2594,16 +2594,14 @@ function mod_booking_tool_certificate_fields() {
     if (!class_exists('tool_certificate\customfield\issue_handler')) {
         return;
     }
-
     $handler = tool_certificate\customfield\issue_handler::create();
-
-    // TODO: the only currently supported field types are text/textarea (numeric will fallback to text).
-    $handler->ensure_field_exists('bookingid', 'numeric',
-        "Test", true, 1);
-
-    $handler->ensure_field_exists('bookingoptionname', 'text',
-        "Test", true, "T");
-
+    $handler->ensure_field_exists(
+        'bookingoptionname',
+        'text',
+        "Bookingoptionname",
+        true,
+        1,
+    );
 }
 
 
