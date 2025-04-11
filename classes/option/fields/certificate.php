@@ -171,7 +171,7 @@ class certificate extends field_base {
         }
 
         $records = $DB->get_records('tool_certificate_templates', []);
-        $selection = [0 => 'no certicate selected'];
+        $selection = [0 => 'no certificate selected'];
         foreach ($records as $record) {
             $selection[$record->id] = $record->name;
         }
@@ -265,14 +265,18 @@ class certificate extends field_base {
         $template = template::instance($certificateid);
 
         // Certificate expiry date key.
-        $expirydatetype = booking_option::get_value_of_json_by_key($optionid, 'expirydatetype');
-        $expirydateabsolute = booking_option::get_value_of_json_by_key($optionid, 'expirydateabsolute');
-        $expirydaterelative = booking_option::get_value_of_json_by_key($optionid, 'expirydaterelative');
+        $expirydatetype = booking_option::get_value_of_json_by_key($optionid, 'expirydatetype') ?? 0;
+        $expirydateabsolute = booking_option::get_value_of_json_by_key($optionid, 'expirydateabsolute') ?? 0;
+        $expirydaterelative = booking_option::get_value_of_json_by_key($optionid, 'expirydaterelative') ?? 0;
         $certificateexpirydate = toolCertificate::calculate_expirydate($expirydatetype, $expirydateabsolute, $expirydaterelative);
 
         // 4. Create Certificate.
         if ($template->can_issue($userid)) {
-            $result = $template->issue_certificate($userid, $certificateexpirydate, ['bookingoptionname' => $settings->get_title_with_prefix()]);
+            $result = $template->issue_certificate(
+                $userid,
+                $certificateexpirydate,
+                ['bookingoptionname' => $settings->get_title_with_prefix(), 'bookingid' => $settings->bookingid]
+            );
         }
     }
 }
