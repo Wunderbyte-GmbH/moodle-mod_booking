@@ -330,7 +330,6 @@ class mod_booking_observer {
         $cmid = $event->other['cmid'];
 
         $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
-        // TODO: Add creation of certificate from Template for a given user.
         $selecteduserid = $event->relateduserid;
 
         if (class_exists('tool_certificate\certificate')) {
