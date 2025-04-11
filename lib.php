@@ -2585,6 +2585,28 @@ function clean_string(string $text) {
     return preg_replace(array_keys($utf8), array_values($utf8), $text);
 }
 
+/**
+ * Callback for tool_certificate - the fields available for the certificates
+ */
+function mod_booking_tool_certificate_fields() {
+    global $CFG;
+
+    if (!class_exists('tool_certificate\customfield\issue_handler')) {
+        return;
+    }
+
+    $handler = tool_certificate\customfield\issue_handler::create();
+
+    // TODO: the only currently supported field types are text/textarea (numeric will fallback to text).
+    $handler->ensure_field_exists('bookingid', 'numeric',
+        "Test", true, 1);
+
+    $handler->ensure_field_exists('bookingoptionname', 'text',
+        "Test", true, "T");
+
+}
+
+
 // With this function, we can execute code at the last moment.
 register_shutdown_function(function () {
     // Bugfix: Make sure this does not break the update process if class is not existing yet.
