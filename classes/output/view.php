@@ -28,6 +28,7 @@ namespace mod_booking\output;
 use coding_exception;
 use context_module;
 use context_system;
+use dml_exception;
 use local_wunderbyte_table\filters\types\datepicker;
 use local_wunderbyte_table\filters\types\standardfilter;
 use local_wunderbyte_table\wunderbyte_table;
@@ -36,6 +37,7 @@ use mod_booking\customfield\booking_handler;
 use mod_booking\elective;
 use mod_booking\singleton_service;
 use mod_booking\table\bookingoptions_wbtable;
+use mod_booking\utils\wb_payment;
 use moodle_exception;
 use moodle_url;
 use renderer_base;
@@ -95,6 +97,9 @@ class view implements renderable, templatable {
     /** @var string $renderedfieldofstudyoptionstable the rendered table of all options from my field of study */
     private $renderedfieldofstudyoptionstable = null;
 
+    /** @var string $renderedwhatsnewtable the rendered "What's new?" table */
+    private $renderedwhatsnewtable = null;
+
     /** @var string $myinstitutionname */
     private $myinstitutionname = null;
 
@@ -125,13 +130,16 @@ class view implements renderable, templatable {
     /** @var string $showinvisible */
     private $showinvisible = null;
 
-    /** @var string $showinvisible */
+    /** @var string $showfieldofstudy */
     private $showfieldofstudy = null;
 
-    /** @var string $elective */
+    /** @var string $showwhatsnew */
+    private $showwhatsnew = null;
+
+    /** @var string $renderelectivetable */
     private $renderelectivetable = null;
 
-    /** @var array $elective */
+    /** @var array $electivemodal */
     private $electivemodal = null;
 
     /** @var bool $showheaderimageleft */
@@ -145,6 +153,9 @@ class view implements renderable, templatable {
 
     /** @var bool $noheaderimage */
     private $noheaderimage = null;
+
+    /** @var string $whatsnewtabtitle */
+    private $whatsnewtabtitle = null;
 
     /**
      * Constructor
@@ -224,6 +235,12 @@ class view implements renderable, templatable {
                 break;
             case 'showfieldofstudy':
                 $this->showfieldofstudy = true;
+                break;
+            case 'showwhatsnew':
+                // The "What's new?" tab is a PRO feature.
+                if (wb_payment::pro_version_is_activated()) {
+                    $this->showwhatsnew = true;
+                }
                 break;
             case 'shownothing':
                 // Don't do anything.
@@ -319,6 +336,18 @@ class view implements renderable, templatable {
             $this->renderedfieldofstudyoptionstable
                 = format_text('[fieldofstudyoptions sortby="coursestarttime" sortorder="asc"]');
         }
+
+        // PRO feature: "What's new?" tab.
+        if (wb_payment::pro_version_is_activated()) {
+            if (in_array('showwhatsnew', $showviews)) {
+                // If we show this table first, we don't load it lazy.
+                $lazy = $whichview !== 'showwhatsnew';
+                $this->renderedwhatsnewtable = $this->get_rendered_whatsnew_table($lazy);
+
+                // Get the tab title.
+                $this->whatsnewtabtitle = get_string('whatsnew', 'mod_booking');
+            }
+        }
     }
 
     /**
@@ -395,8 +424,11 @@ class view implements renderable, templatable {
         // Create the table.
         $activebookingoptionstable = new bookingoptions_wbtable("cmid_{$cmid} activebookingoptionstable");
 
-        $wherearray = ['bookingid' => (int)$booking->id];
-        $additionalwhere = '((courseendtime > :timenow OR courseendtime = 0) AND status = 0)';
+        $wherearray = [
+            'bookingid' => (int)$booking->id,
+            'status' => 0, // Active. Not cancelled.
+        ];
+        $additionalwhere = '(courseendtime > :timenow OR courseendtime = 0)';
 
         [$fields, $from, $where, $params, $filter] =
             booking::get_options_filter_sql(
@@ -712,6 +744,57 @@ class view implements renderable, templatable {
             $out = $invisibleoptionstable->outhtml($booking->get_pagination_setting(), true);
         }
 
+        return $out;
+    }
+
+    /**
+     * Render table for the "What's new?" tab.
+     * @param bool $lazy for lazy-loading
+     * @return string the rendered table
+     */
+    public function get_rendered_whatsnew_table($lazy = false) {
+        $cmid = $this->cmid;
+
+        $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
+
+        // Create the table.
+        $whatsnewtable = new bookingoptions_wbtable("cmid_{$cmid} whatsnewtable");
+
+        $wherearray = [
+            'bookingid' => (int)$booking->id,
+            'status' => 0, // Active. Not cancelled.
+            'invisible' => 0, // Never show invisible options in this table.
+        ];
+        $additionalwhere = '(timemadevisible > :comparedate)';
+
+        [$fields, $from, $where, $params, $filter] =
+            booking::get_options_filter_sql(
+                0,
+                0,
+                '',
+                null,
+                $booking->context,
+                [],
+                $wherearray,
+                null,
+                [MOD_BOOKING_STATUSPARAM_BOOKED],
+                $additionalwhere
+            );
+
+        // Timenow is today at at 00.00.
+        $params['comparedate'] = (int)strtotime('today 00:00') - (int)get_config('booking', 'tabwhatsnewdays') * 86400;
+        $whatsnewtable->set_filter_sql($fields, $from, $where, $filter, $params);
+
+        // Initialize the default columnes, headers, settings and layout for the table.
+        // In the future, we can parametrize this function so we can use it on many different places.
+        $this->wbtable_initialize_layout($whatsnewtable, true, true, true);
+
+        if ($lazy) {
+            [$idstring, $encodedtable, $out]
+                = $whatsnewtable->lazyouthtml($booking->get_pagination_setting(), true);
+        } else {
+            $out = $whatsnewtable->outhtml($booking->get_pagination_setting(), true);
+        }
         return $out;
     }
 
@@ -1488,6 +1571,7 @@ class view implements renderable, templatable {
 
         return [
             'alloptionstable' => $this->renderedalloptionstable,
+            'whatsnewtable' => $this->renderedwhatsnewtable,
             'activeoptionstable' => $this->renderedactiveoptionstable,
             'myoptionstable' => $this->renderedmyoptionstable,
             'responsiblecontacttable' => $this->renderedresponsiblecontacttable,
@@ -1509,11 +1593,13 @@ class view implements renderable, templatable {
             'showvisible' => $this->showvisible,
             'showinvisible' => $this->showinvisible,
             'showfieldofstudy' => $this->showfieldofstudy,
+            'showwhatsnew' => $this->showwhatsnew,
             'elective' => empty($this->renderelectivetable) ? false : $this->electivemodal,
             'showheaderimageleft' => $this->showheaderimageleft,
             'showheaderimagelefthalf' => $this->showheaderimagelefthalf,
             'showheaderimageright' => $this->showheaderimageright,
             'noheaderimage' => $this->noheaderimage,
+            'whatsnewtabtitle' => $this->whatsnewtabtitle,
         ];
     }
 }

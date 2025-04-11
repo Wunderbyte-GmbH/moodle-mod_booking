@@ -22,7 +22,6 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use mod_booking\booking_option;
 use mod_booking\customfield\booking_handler;
 
 defined('MOODLE_INTERNAL') || die();
@@ -36,6 +35,9 @@ use mod_booking\booking;
 use mod_booking\local\checkanswers\checkanswers;
 use mod_booking\price;
 use mod_booking\utils\wb_payment;
+
+/** @var \admin_settingpage $settings */
+$settings;
 
 $ADMIN->add(
     'modsettings',
@@ -574,13 +576,39 @@ if ($ADMIN->fulltree) {
     );
 
     if ($proversion) {
+        // PRO feature: "What's new" tab.
+        $settings->add(
+            new admin_setting_heading(
+                'tabwhatsnewheading',
+                get_string('tabwhatsnew', 'mod_booking') . " " . get_string('badge:pro', 'mod_booking'),
+                get_string('tabwhatsnew_desc', 'mod_booking')
+            )
+        );
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/tabwhatsnew',
+                get_string('tabwhatsnew', 'mod_booking'),
+                '',
+                0
+            )
+        );
+        $tabwhatsnewdaysarr = array_combine(range(0, 365), array_map('strval', range(0, 365)));
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/tabwhatsnewdays',
+                get_string('tabwhatsnewdays', 'mod_booking'),
+                get_string('tabwhatsnewdays_desc', 'mod_booking'),
+                30,
+                $tabwhatsnewdaysarr
+            )
+        );
+
         // PRO feature: Bookings tracker.
         $settings->add(
             new admin_setting_heading(
                 'bookingstrackerheading',
                 get_string('bookingstracker', 'mod_booking')
-                    . " " . get_string('badge:pro', 'mod_booking')
-                    . " " . get_string('badge:exp', 'mod_booking'),
+                    . " " . get_string('badge:pro', 'mod_booking'),
                 ""
             )
         );
@@ -669,6 +697,24 @@ if ($ADMIN->fulltree) {
             )
         );
     } else {
+        $settings->add(
+            new admin_setting_heading(
+                'tabwhatsnew',
+                get_string('tabwhatsnew', 'mod_booking'),
+                get_string('prolicensefeatures', 'mod_booking') .
+                get_string('profeatures:tabwhatsnew', 'mod_booking') .
+                get_string('infotext:prolicensenecessary', 'mod_booking')
+            )
+        );
+        $settings->add(
+            new admin_setting_heading(
+                'bookingstrackerheading',
+                get_string('bookingstracker', 'mod_booking'),
+                get_string('prolicensefeatures', 'mod_booking') .
+                get_string('profeatures:bookingstracker', 'mod_booking') .
+                get_string('infotext:prolicensenecessary', 'mod_booking')
+            )
+        );
         $settings->add(
             new admin_setting_heading(
                 'teachersettings',
@@ -1757,7 +1803,7 @@ if ($ADMIN->fulltree) {
     }
 
     if ($proversion) {
-        // Global mail templates (PRO).
+        // Mobile settings (PRO).
         $settings->add(
             new admin_setting_heading(
                 'mobile_settings',
