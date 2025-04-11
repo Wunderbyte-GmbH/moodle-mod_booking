@@ -339,9 +339,10 @@ class mod_booking_mod_form extends moodleform_mod {
             'showinvisible' => get_string('invisibleoptions', 'mod_booking'),
         ];
 
-        // The "field of study" tab is a PRO feature.
         if ($isproversion) {
+            // Some tabs are only available in PRO version.
             $whichviewopts['showfieldofstudy'] = get_string('showmyfieldofstudyonly', 'mod_booking');
+            $whichviewopts['showwhatsnew'] = get_string('whatsnew', 'mod_booking');
         }
 
         // View selections to show on booking options overview.

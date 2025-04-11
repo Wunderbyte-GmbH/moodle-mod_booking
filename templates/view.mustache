@@ -25,6 +25,7 @@
 
    Example context (json):
    {
+      "whatsnewtable" : null,
       "alloptionstable" : "HTML alloptionstable",
       "activeoptionstable" : "HTML activeoptionstable",
       "myoptionstable" : "HTML myoptionstable",
@@ -51,6 +52,14 @@
         </button>
       </li>
     {{/showonlyone}}
+    {{#whatsnewtable}}
+      <li class="nav-item mr-1" role="presentation">
+        <button class="nav-link {{#showwhatsnew}}active{{/showwhatsnew}}" id="whatsnew-tab" data-toggle="pill" data-target="#whatsnew"
+          type="button" role="tab" aria-controls="whatsnew" aria-selected="true">
+          {{#whatsnewtabtitle}}{{.}}{{/whatsnewtabtitle}}
+        </button>
+      </li>
+    {{/whatsnewtable}}
     {{#alloptionstable}}
       <li class="nav-item mr-1" role="presentation">
         <button class="nav-link {{#showall}}active{{/showall}}" id="all-options-tab" data-toggle="pill" data-target="#all-options"
@@ -137,6 +146,9 @@
     {{#showonlyone}}
       <div class="tab-pane fade show active" id="showonlyone" role="tabpanel" aria-labelledby="showonlyone-tab">{{{showonlyonetable}}}</div>
     {{/showonlyone}}
+    {{#whatsnewtable}}
+      <div class="tab-pane fade {{#showwhatsnew}}show active{{/showwhatsnew}}" id="whatsnew" role="tabpanel" aria-labelledby="whatsnew-tab">{{{whatsnewtable}}}</div>
+    {{/whatsnewtable}}
     {{#alloptionstable}}
       <div class="tab-pane fade {{#showall}}show active{{/showall}}" id="all-options" role="tabpanel" aria-labelledby="all-options-tab">{{{alloptionstable}}}</div>
     {{/alloptionstable}}

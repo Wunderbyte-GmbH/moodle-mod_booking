@@ -1918,6 +1918,13 @@ $string['profeatures:availabilityinfotexts'] = '<ul>
 $string['profeatures:boactions'] = '<ul>
 <li><b>activate actions after booking</b></li>
 </ul>';
+$string['profeatures:bookingstracker'] = '<ul>
+<li><b>Allow users to manage bookings across the entire site on various hierarchical booking levels
+(date, booking option, booking instance, Moodle course, entire platform)
+and record attendance for booked users.</b></li>
+<li><b>Track attendance - You can specify for each date (session) which users were present.</b></li>
+<li><b>Select the attendance status you wish to track.</b></li>
+</ul>';
 $string['profeatures:cachesettings'] = '<ul>
 <li><b>No caching of bookingoption settings</b></li>
 <li><b>No caching of booking answers</b></li>
@@ -1947,6 +1954,11 @@ $string['profeatures:selflearningcourse'] = '<ul>
 </ul>';
 $string['profeatures:subbookings'] = '<ul>
 <li><b>activate subbookings</b></li>
+</ul>';
+$string['profeatures:tabwhatsnew'] = '<ul>
+<li><b>Tab "What\'s new?" for recently made visible (or newly published) booking options</b></li>
+<li><b>The number of days for which a booking option is considered "new" can be configured</b></li>
+<li><b>Tab can be named individually.</b></li>
 </ul>';
 $string['profeatures:teachers'] = '<ul>
 <li><b>add links to teacher pages</b></li>
@@ -2372,6 +2384,14 @@ $string['tableheadermaxoverbooking'] = 'Waiting list places';
 $string['tableheaderminanswers'] = 'Min. number of participants';
 $string['tableheaderteacher'] = 'Teacher(s)';
 $string['tableheadertext'] = 'Course name';
+$string['tabwhatsnew'] = 'Booking tab: "What\'s new?"';
+$string['tabwhatsnew_desc'] = 'You can use this tab to show users all new bookings that have been
+set to visible OR have been created within a certain number of days (counted from today) which you can define here.
+<span class="text-danger">Please remember to add the tab in the settings of your Booking instances after activating it.</span>';
+$string['tabwhatsnewdays'] = 'Number of days for "What\'s new?"';
+$string['tabwhatsnewdays_desc'] = 'Enter the number of days into the past until when a Booking option is considered as new.
+Example: If you choose 30 then a booking option which has been set to visible or created longer than 30 days ago will not
+show up in the "What\'s new?"-Tab. 0 means that only booking options having been created or set to visible today will be shown.';
 $string['tagdeleted'] = 'Tag template was deleted!';
 $string['tagsuccessfullysaved'] = 'Tag was saved.';
 $string['tagtag'] = 'Tag';
@@ -2645,6 +2665,7 @@ $string['waitingtextsubjectbookingmanager'] = 'Booking status for {$a->title} ha
 $string['waitspaceavailable'] = 'Places on waiting list available';
 $string['wednesday'] = 'Wednesday';
 $string['week'] = "Week";
+$string['whatsnew'] = 'What\'s new?';
 $string['whichview'] = 'Default view for booking options';
 $string['whichviewerror'] = 'You have to include the default view in: Views to show in the booking options overview';
 $string['withselected'] = 'With selected users:';

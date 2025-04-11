@@ -108,8 +108,8 @@ class booking {
 
         if (!$this->cm) {
             // ERROR: The instance does not exist.
-            // But we do not want our site to crash, so we return null.
-            return null;
+            // But we do not want our site to crash, so we simply return.
+            return;
         }
 
         // In the constructur, we call the booking_settings, where we get the values from db or cache.
@@ -119,7 +119,7 @@ class booking {
         $this->id = $this->settings->id;
 
         $this->course = get_course($this->cm->course);
-        $this->context = \context_module::instance($cmid);
+        $this->context = context_module::instance($cmid);
 
         // If the course has groups and I do not have the capability to see all groups, show only
         // users of my groups.
@@ -402,10 +402,10 @@ class booking {
      */
     public function get_canbook_userids() {
 
-        $this->canbookusers = get_enrolled_users($this->context, 'mod/booking:choose', null, 'u.id');
+        $this->canbookusers = get_enrolled_users($this->context, 'mod/booking:choose', 0, 'u.id');
 
         // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
-        // TODO check if course has guest access if not get all enrolled users and check with...
+        // Todo check if course has guest access if not get all enrolled users and check with...
         // ...has_capability if user has right to book.
         // CODEBEGIN $this->canbookusers = get_users_by_capability($this->context, 'mod/booking:choose', CODEEND.
         // CODEBEGIN 'u.id', 'u.lastname ASC, u.firstname ASC', '', '', '', CODEEND.
@@ -488,8 +488,7 @@ class booking {
      *
      * @param string $searchtext
      *
-     * @return void
-     *
+     * @return int
      */
     public function get_all_options_count($searchtext = '') {
         global $DB;
@@ -556,8 +555,7 @@ class booking {
      * @param mixed $bookingid
      * @param string $searchtext
      *
-     * @return void
-     *
+     * @return int
      */
     public function get_active_optionids_count($bookingid, $searchtext = '') {
         global $DB;
@@ -628,7 +626,7 @@ class booking {
      *
      * @param string $searchstring
      *
-     * @return void
+     * @return int
      *
      */
     public function get_my_bookingids_count($searchstring = '') {
@@ -1315,7 +1313,7 @@ class booking {
      *
      * @param int $teacherid
      * @param int $bookingid booking instance id - not cmid!
-     * @return void
+     * @return array
      */
     public static function get_all_options_of_teacher_sql(int $teacherid, int $bookingid) {
 
@@ -1338,7 +1336,7 @@ class booking {
      * @param string $searchtext
      * @param string $fields
      * @param array $booked
-     * @return void
+     * @return array
      */
     public function get_my_options_sql(
         $limitfrom = 0,
@@ -1406,7 +1404,7 @@ class booking {
 
         // See github issue: https://github.com/Wunderbyte-GmbH/moodle-mod_booking/issues/305.
         // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
-        // TODO: We currently encode the whole URL, but we should only encode the params.
+        // Todo: We currently encode the whole URL, but we should only encode the params.
         // Encoding the whole URL makes migration to a new WWWROOT impossible.
 
         $encodedurl = base64_encode($moodleurl->out(false));
@@ -1429,12 +1427,12 @@ class booking {
     public static function return_array_of_entity_dates(array $areas): array {
 
         // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
-        // TODO: Now that the SQL has been changed, we need to fix this function!
+        // Todo: Now that the SQL has been changed, we need to fix this function!
 
         global $DB, $USER, $PAGE;
 
         // Get the SQL to retrieve all the right IDs.
-        $sql = self::return_sql_for_options_dates($areas);
+        $sql = self::return_sql_for_options_dates();
         $params = [];
 
         if (!empty($areas['option'])) {

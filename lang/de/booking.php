@@ -1866,6 +1866,13 @@ $string['profeatures:availabilityinfotexts'] = '<ul>
 $string['profeatures:boactions'] = '<ul>
 <li><b>Aktionen nach der Buchung aktivieren</b></li>
 </ul>';
+$string['profeatures:bookingstracker'] = '<ul>
+<li><b>Benutzer:innen erlauben, die Buchungen der gesamten Seite auf verschiedenen hierarchischen Buchungsebenen
+(Termin, Buchungsoption, Buchungsinstanz, Moodle-Kurs, gesamte Plattform) zu verwalten
+und für gebuchte Benutzer:innen die Anwesenheiten zu hinterlegen.</b></li>
+<li><b>Anwesenheiten zählen - Sie können bei jedem Termin einzeln angeben, wer anwesend war.</b></li>
+<li><b>Wählen Sie selbst den Anwesenheitsstatus, der gezählt werden soll.</b></li>
+</ul>';
 $string['profeatures:cachesettings'] = '<ul>
 <li><b>Kein Caching der Buchungsoptions-Einstellungen</b></li>
 <li><b>Kein Caching der Buchungsantworten (Buchungen)</b></li>
@@ -1895,6 +1902,11 @@ $string['profeatures:selflearningcourse'] = '<ul>
 </ul>';
 $string['profeatures:subbookings'] = '<ul>
 <li><b>Zusatzbuchungen aktivieren</b></li>
+</ul>';
+$string['profeatures:tabwhatsnew'] = '<ul>
+<li><b>Eigener Tab für kürzlich sichtbar geschaltene (oder neu veröffentlichte) Buchungsoptionen</b></li>
+<li><b>Anzahl der Tage, wie lange eine Buchungsoption als "neu" gilt, kann eingestellt werden</b></li>
+<li><b>Tab kann individuell benannt werden.</b></li>
 </ul>';
 $string['profeatures:teachers'] = '<ul>
 <li><b>Fügen Sie Links zu Trainer:innen-Seiten hinzu</b></li>
@@ -2308,6 +2320,14 @@ $string['tableheadermaxoverbooking'] = 'Wartelistenplätze';
 $string['tableheaderminanswers'] = 'Mindestteilnehmerzahl';
 $string['tableheaderteacher'] = 'Trainer:in(nen)';
 $string['tableheadertext'] = 'Kursbezeichnung';
+$string['tabwhatsnew'] = 'Buchungs-Tab: "Was ist neu?"';
+$string['tabwhatsnew_desc'] = 'Sie können diesen Tab verwenden, um Benutzer:innen alle neuen Buchungen anzuzeigen,
+die innerhalb der letzten X Tage (die Anzahl können Sie hier angeben) auf sichtbar gesetzt ODER erstellt wurden.
+<span class="text-danger">Denken Sie daran, den Tab in den Einstellungen Ihrer Buchungsinstanz hinzuzufügen, nachdem Sie ihn aktiviert haben.</span>';
+$string['tabwhatsnewdays'] = 'Anzahl Tage für "Was ist neu?"';
+$string['tabwhatsnewdays_desc'] = 'Geben Sie die Anzahl an Tagen in der Vergangenheit an bis wann eine Buchungsoption als neu gilt.
+Beispiel: Wenn Sie hier 30 angeben, dann werden Buchungsoptionen, die vor mehr als 30 Tagen auf sichtbar gestellt (oder erstellt) wurden,
+im "Was ist neu?"-Tab nicht angezeigt. 0 bedeutet, dass nur Buchungsoptionen angezeigt werden, die heute erstellt oder auf sichtbar gestellt wurden.';
 $string['tagsuccessfullysaved'] = 'Schlagwort erfolgreich gespeichert.';
 $string['tagtag'] = 'Schlagwort';
 $string['tagtemplates'] = 'Schlagwort Vorlagen';
@@ -2575,6 +2595,7 @@ $string['waitingtextsubjectbookingmanager'] = 'Wartelistenbuchung für {$a->titl
 $string['waitspaceavailable'] = 'Wartelistenplätze verfügbar';
 $string['wednesday'] = 'Mittwoch';
 $string['week'] = "Woche";
+$string['whatsnew'] = 'Was ist neu?';
 $string['whichview'] = 'Standardansicht in der Buchungsoptionsübersicht';
 $string['whichviewerror'] = 'Die Standardansicht muss auch in den Ansichten der Buchungsoptionsübersicht ausgewählt werden';
 $string['withselected'] = 'Ausgewählte Nutzer:innen';
