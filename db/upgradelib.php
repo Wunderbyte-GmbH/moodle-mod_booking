@@ -182,7 +182,7 @@ function remove_completiongradeitemnumber_2025010803() {
  * Initialize the timecreated field for booking_options.
  * @return void
  */
-function booking_options_initialize_timecreated_2025041001() {
+function booking_options_initialize_timecreated() {
     global $DB;
 
     $sql = "UPDATE {booking_options}
