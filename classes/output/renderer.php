@@ -103,7 +103,7 @@ class renderer extends plugin_renderer_base {
                     'class' => 'actionbutton',
             ]
         );
-        $actioncell->text .= html_writer::end_tag('div', []);
+        $actioncell->text .= html_writer::end_tag('div');
         $actioncell->attributes['class'] = 'actions';
         $potentialcell = new html_table_cell();
         $potentialcell->text = $potentialuc->display(true);
@@ -688,6 +688,18 @@ class renderer extends plugin_renderer_base {
         $o = '';
         $data = $data->export_for_template($this);
         $o .= $this->render_from_template('mod_booking/booked_users', $data);
+        return $o;
+    }
+
+    /**
+     * Render booking history table.
+     * @param object $data
+     * @return string
+     */
+    public function render_booking_history($data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/booking_history', $data);
         return $o;
     }
 

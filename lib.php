@@ -93,7 +93,33 @@ define('MOD_BOOKING_STATUSPARAM_NOTIFYMELIST', 3); // Get message when place is 
 define('MOD_BOOKING_STATUSPARAM_NOTBOOKED', 4);
 define('MOD_BOOKING_STATUSPARAM_DELETED', 5);
 
+// Values for Booking history.
+define('MOD_BOOKING_STATUSPARAM_BOOKED_DELETED', 10);
+define('MOD_BOOKING_STATUSPARAM_WAITINGLIST_DELETED', 11);
+define('MOD_BOOKING_STATUSPARAM_WAITINGLIST_CONFIRMED', 12);
+define('MOD_BOOKING_STATUSPARAM_RESERVED_DELETED', 13);
+define('MOD_BOOKING_STATUSPARAM_NOTIFYMELIST_DELETED', 14);
+define('MOD_BOOKING_STATUSPARAM_PRESENCE_CHANGED', 15);
+define('MOD_BOOKING_STATUSPARAM_BOOKINGOPTION_MOVED', 16);
+
+define('MOD_BOOKING_ALL_POSSIBLE_STATI_ARRAY', [
+    MOD_BOOKING_STATUSPARAM_BOOKED => get_string('booked', 'mod_booking'),
+    MOD_BOOKING_STATUSPARAM_WAITINGLIST => get_string('waitinglist', 'mod_booking'),
+    MOD_BOOKING_STATUSPARAM_RESERVED => get_string('vuebookingstatsreserved', 'mod_booking'),
+    MOD_BOOKING_STATUSPARAM_NOTIFYMELIST => get_string('bocondnotifymelist', 'mod_booking'),
+    MOD_BOOKING_STATUSPARAM_NOTBOOKED => get_string('notbooked', 'mod_booking'),
+    MOD_BOOKING_STATUSPARAM_DELETED => get_string('deleted', 'mod_booking'),
+    MOD_BOOKING_STATUSPARAM_BOOKED_DELETED => get_string('bookeddeleted', 'mod_booking'),
+    MOD_BOOKING_STATUSPARAM_WAITINGLIST_DELETED => get_string('waitinglistdeleted', 'mod_booking'),
+    MOD_BOOKING_STATUSPARAM_WAITINGLIST_CONFIRMED => get_string('waitinglistconfirmed', 'mod_booking'),
+    MOD_BOOKING_STATUSPARAM_RESERVED_DELETED => get_string('reserveddeleted', 'mod_booking'),
+    MOD_BOOKING_STATUSPARAM_NOTIFYMELIST_DELETED => get_string('notifymelistdeleted', 'mod_booking'),
+    MOD_BOOKING_STATUSPARAM_PRESENCE_CHANGED => get_string('presencechanged', 'mod_booking'),
+    MOD_BOOKING_STATUSPARAM_BOOKINGOPTION_MOVED => get_string('optionmoved', 'mod_booking'),
+]);
+
 // Define booking presence status parameters.
+define('MOD_BOOKING_PRESENCE_STATUS_NOTSET', 0);
 define('MOD_BOOKING_PRESENCE_STATUS_COMPLETE', 1);
 define('MOD_BOOKING_PRESENCE_STATUS_INCOMPLETE', 2);
 define('MOD_BOOKING_PRESENCE_STATUS_NOSHOW', 3);
@@ -101,16 +127,6 @@ define('MOD_BOOKING_PRESENCE_STATUS_FAILED', 4);
 define('MOD_BOOKING_PRESENCE_STATUS_UNKNOWN', 5);
 define('MOD_BOOKING_PRESENCE_STATUS_ATTENDING', 6);
 define('MOD_BOOKING_PRESENCE_STATUS_EXCUSED', 7);
-
-define('MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY', [
-    MOD_BOOKING_PRESENCE_STATUS_UNKNOWN => get_string('statusunknown', 'mod_booking'),
-    MOD_BOOKING_PRESENCE_STATUS_ATTENDING => get_string('statusattending', 'mod_booking'),
-    MOD_BOOKING_PRESENCE_STATUS_COMPLETE => get_string('statuscomplete', 'mod_booking'),
-    MOD_BOOKING_PRESENCE_STATUS_INCOMPLETE => get_string('statusincomplete', 'mod_booking'),
-    MOD_BOOKING_PRESENCE_STATUS_NOSHOW => get_string('statusnoshow', 'mod_booking'),
-    MOD_BOOKING_PRESENCE_STATUS_FAILED => get_string('statusfailed', 'mod_booking'),
-    MOD_BOOKING_PRESENCE_STATUS_EXCUSED => get_string('statusexcused', 'mod_booking'),
-]);
 
 // Params to define behavior of booking_option::update.
 define('MOD_BOOKING_UPDATE_OPTIONS_PARAM_DEFAULT', 1);
@@ -349,6 +365,19 @@ define('MOD_BOOKING_CANCANCELBOOK_UNLIMITED', 2);
 
 // Enrol into group of current course.
 define('MOD_BOOKING_ENROL_INTO_GROUP_OF_BOOKINGOPTION', -1);
+define('MOD_BOOKING_ENROL_GROUPTYPE_SOURCECOURSE', 'sourcecourseboid_');
+define('MOD_BOOKING_ENROL_GROUPTYPE_TARGETCOURSE', 'targetcourseboid_');
+
+// Recurring options.
+define('MOD_BOOKING_ALL_CHILDRED_UNLINK', 1);
+define('MOD_BOOKING_ALL_CHILDRED_DELETE', 2);
+define('MOD_BOOKING_RECURRING_UPDATE_CHILDREN', 1);
+define('MOD_BOOKING_RECURRING_UPDATE_SIBLINGS', 2);
+define('MOD_BOOKING_RECURRING_DONTUPDATE', 0);
+define('MOD_BOOKING_RECURRING_APPLY_TO_CHILDREN', 1);
+define('MOD_BOOKING_RECURRING_OVERWRITE_CHILDREN', 2);
+define('MOD_BOOKING_RECURRING_APPLY_TO_SIBLINGS', 3);
+define('MOD_BOOKING_RECURRING_OVERWRITE_SIBLINGS', 4);
 
 /**
  * Booking get coursemodule info.
@@ -726,21 +755,25 @@ function booking_add_instance($booking) {
     if (isset($booking->cancelrelativedate)) {
         booking::add_data_to_json($booking, 'cancelrelativedate', $booking->cancelrelativedate);
     }
-
     if (isset($booking->allowupdatetimestamp)) {
         booking::add_data_to_json($booking, 'allowupdatetimestamp', $booking->allowupdatetimestamp);
     }
-
     if (isset($booking->viewparam)) {
         // Save list view as default value.
         booking::add_data_to_json($booking, "viewparam", MOD_BOOKING_VIEW_PARAM_LIST);
     }
-
+    if (isset($booking->switchtemplates)) {
+        // By default, template switcher is turned off.
+        booking::add_data_to_json($booking, 'switchtemplates', 0);
+    }
+    if (isset($booking->switchtemplatesselection)) {
+        // By default, all booking view templates are selected.
+        booking::add_data_to_json($booking, 'switchtemplatesselection', array_keys(booking::get_array_of_possible_views()));
+    }
     if (isset($booking->disablebooking)) {
         // This will store the correct JSON to $optionvalues->json.
         booking::add_data_to_json($booking, "disablebooking", $booking->disablebooking);
     }
-
     if (isset($booking->overwriteblockingwarnings)) {
         // This will store the correct JSON to $optionvalues->json.
         booking::add_data_to_json($booking, "overwriteblockingwarnings", $booking->overwriteblockingwarnings);
@@ -778,6 +811,11 @@ function booking_add_instance($booking) {
         // This will store the correct JSON to $optionvalues->json.
         booking::add_data_to_json($booking, "addtogroupofcurrentcourse", $booking->addtogroupofcurrentcourse);
     }
+    if (isset($booking->unenrolfromgroupofcurrentcourse)) {
+        // This will store the correct JSON to $optionvalues->json.
+        booking::add_data_to_json($booking, "unenrolfromgroupofcurrentcourse", 1);
+    }
+
     // If no policy was entered, we still have to check for HTML tags.
     if (!isset($booking->bookingpolicy) || empty(strip_tags($booking->bookingpolicy))) {
         $booking->bookingpolicy = '';
@@ -1027,12 +1065,28 @@ function booking_update_instance($booking) {
     } else {
         booking::add_data_to_json($booking, "disablecancel", 1);
     }
-    // View param (list view or card view) is also stored in JSON.
+    // View param (list view or card view) is stored in JSON.
     if (empty($booking->viewparam)) {
         // Save list view as default value.
         booking::add_data_to_json($booking, "viewparam", MOD_BOOKING_VIEW_PARAM_LIST);
     } else {
         booking::add_data_to_json($booking, "viewparam", $booking->viewparam);
+    }
+    // Template switcher value is stored in JSON: 0 is off, 1 is on.
+    if (empty($booking->switchtemplates)) {
+        // By default, template switcher is turned off.
+        booking::add_data_to_json($booking, 'switchtemplates', 0);
+        // When template switcher is off, we don't need to store selected templates.
+        booking::remove_key_from_json($booking, 'switchtemplatesselection');
+    } else {
+        booking::add_data_to_json($booking, 'switchtemplates', $booking->switchtemplates);
+        // Only if template switcher is active, we store values for selected templates.
+        if (empty($booking->switchtemplatesselection)) {
+            // By default, use all possible templates.
+            booking::add_data_to_json($booking, 'switchtemplatesselection', array_keys(booking::get_array_of_possible_views()));
+        } else {
+            booking::add_data_to_json($booking, 'switchtemplatesselection', $booking->switchtemplatesselection);
+        }
     }
     if (empty($booking->disablebooking)) {
         // This will store the correct JSON to $optionvalues->json.
@@ -1109,10 +1163,6 @@ function booking_update_instance($booking) {
         booking::add_data_to_json($booking, "customfieldsforfilter", $fieldsfordb);
     }
 
-    if (isset($booking->addtogroupofcurrentcourse)) {
-        // This will store the correct JSON to $optionvalues->json.
-        booking::add_data_to_json($booking, "addtogroupofcurrentcourse", $booking->addtogroupofcurrentcourse);
-    }
     if (empty($booking->addtogroupofcurrentcourse)) {
         // This will store the correct JSON to $optionvalues->json.
         booking::remove_key_from_json($booking, "addtogroupofcurrentcourse");
@@ -1120,6 +1170,12 @@ function booking_update_instance($booking) {
         booking::add_data_to_json($booking, "addtogroupofcurrentcourse", $booking->addtogroupofcurrentcourse);
     }
 
+    if (empty($booking->unenrolfromgroupofcurrentcourse)) {
+        // This will store the correct JSON to $optionvalues->json.
+        booking::remove_key_from_json($booking, "unenrolfromgroupofcurrentcourse");
+    } else {
+        booking::add_data_to_json($booking, "unenrolfromgroupofcurrentcourse", 1);
+    }
     // Update, delete or insert answers.
     if (!empty($booking->option)) {
         foreach ($booking->option as $key => $value) {

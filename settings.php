@@ -459,7 +459,8 @@ if ($ADMIN->fulltree) {
         if ($maxoptionsfromcategory) {
             $customfieldshortnames = [];
             foreach ($customfields as $cf) {
-                $customfieldshortnames[$cf->shortname] = "$cf->name ($cf->shortname)";
+                $name = format_string($cf->name);
+                $customfieldshortnames[$cf->shortname] = "$name ($cf->shortname)";
             }
             $settings->add(
                 new admin_setting_configselect(
@@ -1048,6 +1049,14 @@ if ($ADMIN->fulltree) {
                 1
             )
         );
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/bookingruletemplatesactive',
+                get_string('bookingruletemplatesactive', 'mod_booking'),
+                '',
+                1
+            )
+        );
     }
 
     $settings->add(
@@ -1335,6 +1344,33 @@ if ($ADMIN->fulltree) {
             )
         );
     }
+
+    if ($proversion) {
+        $settings->add(
+            new admin_setting_heading(
+                'recurringsettingsheader',
+                get_string('recurringsettingsheader', 'mod_booking'),
+                get_string('recurringsettingsheader_desc', 'mod_booking')
+            )
+        );
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/recurringmultiparenting',
+                get_string('recurringmultiparenting', 'mod_booking'),
+                get_string('recurringmultiparenting_desc', 'mod_booking'),
+                0
+            )
+        );
+    } else {
+        $settings->add(
+            new admin_setting_heading(
+                'recurringsettingsheader',
+                get_string('recurringsettingsheader', 'mod_booking'),
+                get_string('infotext:prolicensenecessarytextandlink', 'mod_booking')
+            )
+        );
+    }
+
     $settings->add(
         new admin_setting_heading(
             'optiontemplatessettings_heading',
@@ -1679,6 +1715,45 @@ if ($ADMIN->fulltree) {
         $description = get_string('signinextracols_desc', 'mod_booking') . " $i";
         $setting = new admin_setting_configtext($name, $visiblename, $description, '');
         $settings->add($setting);
+    }
+
+    if ($proversion) {
+        // Global mail templates (PRO).
+        $settings->add(
+            new admin_setting_heading(
+                'cachesettings_heading',
+                get_string('cachesettings', 'mod_booking'),
+                get_string('cachesettings_desc', 'mod_booking')
+            )
+        );
+
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/cacheturnoffforbookingsettings',
+                get_string('cacheturnoffforbookingsettings', 'mod_booking'),
+                get_string('cacheturnoffforbookingsettings_desc', 'mod_booking', $linktorules),
+                0
+            )
+        );
+
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/cacheturnoffforbookinganswers',
+                get_string('cacheturnoffforbookinganswers', 'mod_booking'),
+                get_string('cacheturnoffforbookinganswers_desc', 'mod_booking', $linktorules),
+                0
+            )
+        );
+    } else {
+        $settings->add(
+            new admin_setting_heading(
+                'cachesettings_heading',
+                get_string('cachesettings', 'mod_booking'),
+                get_string('prolicensefeatures', 'mod_booking') .
+                get_string('profeatures:cachesettings', 'mod_booking') .
+                get_string('infotext:prolicensenecessary', 'mod_booking')
+            )
+        );
     }
 
     if ($proversion) {

@@ -120,6 +120,7 @@ class minanswers extends field_base {
         }
 
         $mform->addElement('text', 'minanswers', get_string('minanswers', 'mod_booking'));
+        $mform->addHelpButton('minanswers', 'minanswers', 'mod_booking');
         $mform->setType('minanswers', PARAM_INT);
         $mform->setDefault('minanswers', 0);
     }

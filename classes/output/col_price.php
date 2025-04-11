@@ -45,7 +45,6 @@ use templatable;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class col_price implements renderable, templatable {
-
     /** @var array $cartitem array of cartitem */
     public $cartitem = [];
 
@@ -82,7 +81,6 @@ class col_price implements renderable, templatable {
 
         // First, we see if we deal with a guest. Guests get all prices.
         if ($context && !isloggedin()) {
-
             $this->context = $context;
             $this->priceitems = price::get_prices_from_cache_or_db('option', $values->id);
             // When we render for guest, we don't need the rest.
@@ -109,14 +107,14 @@ class col_price implements renderable, templatable {
                 case MOD_BOOKING_STATUSPARAM_DELETED:
                 case MOD_BOOKING_STATUSPARAM_NOTIFYMELIST:
                     if ($this->priceitem = price::get_price('option', $values->id, $buyforuser)) {
-
-                        $cartitem = new cartitem($values->id,
-                                         $settings->get_title_with_prefix(),
-                                         $this->priceitem['price'],
-                                         $this->priceitem['currency'],
-                                         'mod_booking',
-                                         $values->description
-                                    );
+                        $cartitem = new cartitem(
+                            $values->id,
+                            $settings->get_title_with_prefix(),
+                            $this->priceitem['price'],
+                            $this->priceitem['currency'],
+                            'mod_booking',
+                            $values->description
+                        );
 
                         $this->cartitem = $cartitem->as_array();
                     }
@@ -135,10 +133,8 @@ class col_price implements renderable, templatable {
         $returnarray = [];
 
         if ($this->context && is_guest($this->context)) {
-
             $sortedpriceitems = [];
             foreach ($this->priceitems as $priceitem) {
-
                 $pricecategory = price::get_active_pricecategory_from_cache_or_db($priceitem->pricecategoryidentifier);
 
                 $priceitemarray = (array)$priceitem;
@@ -157,7 +153,6 @@ class col_price implements renderable, templatable {
             $returnarray['priceitems'] = $sortedpriceitems;
 
             return $returnarray;
-
         } else if (!$this->cartitem) {
             return [];
         }

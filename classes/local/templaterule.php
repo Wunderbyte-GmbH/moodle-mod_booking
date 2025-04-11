@@ -39,34 +39,32 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class templaterule {
-
     /**
      * Validates each submission entry.
      * @return array
      */
     public static function get_template_rules() {
         global $DB;
-
         $selectoptions = [
             '0' => get_string('bookingdefaulttemplate', 'mod_booking'),
-        ];
+            ];
+        if (get_config('booking', 'bookingruletemplatesactive')) {
+            $templates = core_component::get_component_classes_in_namespace(
+                "mod_booking",
+                'booking_rules\\rules\\templates'
+            );
 
-        $templates = core_component::get_component_classes_in_namespace(
-            "mod_booking",
-            'booking_rules\\rules\\templates'
-        );
-
-        foreach ($templates as $classname => $namespace) {
-            $class = new $classname();
-            $id = - $classname::$templateid;
-            $selectoptions[$id] = $class->get_name();
+            foreach ($templates as $classname => $namespace) {
+                $class = new $classname();
+                $id = - $classname::$templateid;
+                $selectoptions[$id] = $class->get_name();
+            }
         }
-
-        $records = $DB->get_records_sql(
-            "SELECT boru.id, boru.rulejson
+            $records = $DB->get_records_sql(
+                "SELECT boru.id, boru.rulejson
           FROM {booking_rules} boru
           WHERE boru.useastemplate = 1"
-        );
+            );
 
         foreach ($records as $record) {
             $record->rulejson = json_decode($record->rulejson);
@@ -92,7 +90,6 @@ class templaterule {
         );
         foreach ($templates as $classname => $namespace) {
             if ($classname::$templateid == $templateid) {
-
                 $class = new $classname();
                 $record = $class->return_template();
             }

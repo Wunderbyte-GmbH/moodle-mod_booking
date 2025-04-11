@@ -42,7 +42,6 @@ use moodle_url;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class bookingoption_changes implements renderable, templatable {
-
     /** @var array $changesarray an array containing fieldname, oldvalue and newvalue of changes */
     public $changesarray = null;
 
@@ -81,7 +80,7 @@ class bookingoption_changes implements renderable, templatable {
                     $fieldsclass = new $classname();
                     $changes = $fieldsclass->get_changes_description($entry);
                 } else if ($fieldname == "pollurlteachers") {
-                    // TODO create dummy fields class to access abstract method get_changes_description generically.
+                    // Todo: Create dummy fields class to access abstract method get_changes_description generically.
                     $fieldsclass = new pollurl();
                     $changes = $fieldsclass->get_changes_description($entry);
                     $changes['fieldname'] = get_string($fieldname, 'mod_booking');
@@ -92,7 +91,6 @@ class bookingoption_changes implements renderable, templatable {
 
                 // Now add the current change to the newchangesarray.
                 $newchangesarray[] = $changes;
-
             } else {
                 // Custom fields with links to video meeting sessions.
                 if (
@@ -141,7 +139,5 @@ class bookingoption_changes implements renderable, templatable {
         return [
             'changes' => $newchangesarray,
         ];
-
     }
-
 }

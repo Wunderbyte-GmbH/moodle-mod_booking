@@ -76,7 +76,16 @@ export const init = (cmid, id, optionid, bookingid, copyoptionid, returnurl) => 
             window.location.href = returnurl;
         } else {
             // Just in case we have no returnurl.
-            dynamicForm.load([cmid, id, optionid, bookingid, copyoptionid, returnurl]);
+            dynamicForm.load(
+                {
+                    cmid: cmid,
+                    id: id,
+                    optionid: optionid,
+                    bookingid: bookingid,
+                    copyoptionid: copyoptionid,
+                    returnurl: returnurl
+                }
+            );
         }
     });
     dynamicForm.addEventListener(dynamicForm.events.SERVER_VALIDATION_ERROR, () => {

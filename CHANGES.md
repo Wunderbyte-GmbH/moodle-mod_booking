@@ -1,39 +1,43 @@
-## Version 8.11.4-release (2025032303)
-* Improvement: New setting addtogroupofcurrentcourse.
-* Improvement: Create groups according to settings in booking instance.
-* Improvement: Add checkbox to keep users in course created from template.
-* Improvement: Check answer for group enrolments and uservisibility only.
-* Improvement: Fix logic to how to access the page: booked users can always see it.
-* Improvement: Better enrollink workflow: go directly to the right booking option or course.
-* Improvement: Make sure update over Webservice is possible only for some columns.
-* Improvement: Display statusdescription in bookingoption detailview.
-* Improvement: Format string for customfields in settings.
-* Bugfix: Booking opening and closing time should be rendered for any locale.
-* Bugfix: Use four backslashes to escape them correctly even for MariaDB.
-* Bugfix: Use wildcards in SQL instead of backslashes in order to avoid bug with MariaDB.
-* Bugfix: Avoid Postgres specific jargon in sql query.
-* Bugfix: Fix duplicated tearDown function.
-* Bugfix: Fallbacks for availabilty condtions userprofilefields & linting.
-* Bugfix: fix bug when 1 user always remains on waitinglist if maxanswers has been updated.
-* Bugfix: Make sure that we don't get an error when there is no course linked to then booking option on enroll functionality.
-* Bugfix: Make sure that we don't save empty values to profilecustomfield2 condition.
-* Bugfix: Make sure that we don't save empty values to profilefield1 condition.
-* Bugfix: Harden course backup imports from other instance.
-* Bugfix: maxperuser condition counted system-wide answers - it MUST be instance-specific.
-* Bugfix: Singleton for bookinganswersforuser needs to be instance-specific too!
-* Bugfix: Don't display save/cancel buttons for empty form.
-* Bugfix: Make sure variable customfieldshortnames is declared in mod_form
-* Bugfix: Keep users on waiting list if setting to wait for confirmation is turned on.
-* Bugfix: Enrollinkfeature check already booked
-* Bugfix: Make first column unique in course sql for fieldofstudy tab.
-* Bugfix: Quickfix for bulkoperation arguments use sanitized key for tableid.
-* Bugfix: Fix broken links.
-* Bugfix: Fix broken PHPUnit test for overlapping condition.
-* Bugfix: Fix SQL for checkanswers task (avoid duplicates in id column, ignore already deleted answers).
+## Version 8.12.3 (2025041000)
+* Improvement: Display given enrollink in report.php
+* Improvement: Add booking_history to course backup
+* Improvement: Add search, sorting and filter to Bookings tracker and always enable presence.
+* Improvement: Better distinction between availabilities.
+* Bugfix: Check condition before booking users to waitinglist
+
+## Version 8.12.2 (2025040900)
+* Improvement: Multiple refinements for recurring options feature.
+* Bugfix: Always enrol teachers into current course, not template
+
+## Version 8.12.1 (2025040801)
+* New feature: Default price category will be created on update (or new installation).
+* Improvement: Unenrol from sourcecoursegroup if unenroled from bookingoption.
+* Improvement: Refactored Pricecategories
+* Improvement: Status and pricecategory changed to optionfields.
+* Improvement: Usability improvements for bookings tracker.
+* Improvement: On restoring, we use the old identifiers, if they are not yet used.
+* Improvement: Back to course link works also for "visible with link" options
+* Improvement: Use admin user for course duplication on template usage
+* Improvement: Add Infotext for unlimited and don't show the number of booked places when it's on
+* Improvement: In bookings tracker, show warning if no row is selected and bulk action is executed, remove col_actions (bulk actions are enough).
+* Bugfix: Always remember templates in user preferences.
+* Bugfix: Cancel button fallback on returnurl
+* Tests: Extend tests.
+* Tests: reset time_mock::set_mock_time(strtotime('now')); // Set "now"..
+
+## Version 8.12.0 (2025040400)
+* New feature: Switch between table templates (individually for each user).
+* Improvement: Introduced a setting to activate preconfigured rule templates.
+* Improvement: Enabled unlimited waiting list support.
+* Improvement: Added multiple filter options to bulk operations.
+* Improvement: Status description now displayed in the booking option detail view.
+* Improvement: Add customfields to optionsdownloadfields.
+* Improvement: Show all booking options in bookings tracker even if they contain no bookings (booking answers).
+* Bugfix: Fixed issue where bookings could only occur after confirmation, affecting the waiting list behavior.
+* Bugfix: Ensured that the responsible contact is enrolled in the correct course selected in the form (not in the old course from settings class).
 * Bugfix: In sync_waiting_list we also need to purge answers cache before sending mails.
-* Tests: Add test for group enrolment in current course.
-* Tests: Include tearDown function to delete singleton instance.
-* Tests: new behat Scenario: Booking option: reconfiguration of waiting list.
+* Bugfix: maxperuser condition counted system-wide answers - it MUST be instance-specific.
+* Tests: Extended test coverage to include recent changes.
 
 ## Version 8.11.3 (2025031803)
 * Bugfix: Use has_set_url instead of catching error

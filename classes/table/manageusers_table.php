@@ -24,20 +24,19 @@
  */
 
 namespace mod_booking\table;
+use core\exception\moodle_exception;
 use mod_booking\enrollink;
 use mod_booking\event\bookinganswer_confirmed;
 
 defined('MOODLE_INTERNAL') || die();
 
-use cache;
-use cache_helper;
-use coding_exception;
 use context_system;
 use context_module;
 use local_wunderbyte_table\output\table;
 use local_wunderbyte_table\wunderbyte_table;
 use moodle_url;
 use stdClass;
+use mod_booking\booking;
 use mod_booking\booking_option;
 use mod_booking\output\col_teacher;
 use mod_booking\singleton_service;
@@ -187,8 +186,9 @@ class manageusers_table extends wunderbyte_table {
      * @return string
      */
     public function col_status(stdClass $values) {
-        if (isset(MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY[$values->status])) {
-            return MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY[$values->status];
+        $possiblepresences = booking::get_array_of_possible_presence_statuses();
+        if (isset($possiblepresences[$values->status])) {
+            return $possiblepresences[$values->status];
         } else {
             return '';
         }
@@ -314,6 +314,9 @@ class manageusers_table extends wunderbyte_table {
         $context = context_module::instance($settings->cmid);
 
         if (has_capability('mod/booking:bookforothers', $context)) {
+            // Inserting into History Table.
+            booking_option::booking_history_insert(MOD_BOOKING_STATUSPARAM_WAITINGLIST_CONFIRMED, $baid, $optionid, $userid);
+
             $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
             $user = singleton_service::get_instance_of_user($userid);
 
@@ -344,6 +347,7 @@ class manageusers_table extends wunderbyte_table {
                 }
                 $option->user_submit_response($user, 0, 0, $status, MOD_BOOKING_VERIFIED);
             }
+
             // Event is triggered no matter if a bookinganswer with or without price was confirmed.
             $event = bookinganswer_confirmed::create(
                 [
@@ -650,32 +654,28 @@ class manageusers_table extends wunderbyte_table {
         $cmid = $settings->cmid ?? 0;
 
         if (!empty($cmid)) {
-            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
-            $enablepresence = $bookingsettings->enablepresence ?? 0;
-            if ($enablepresence) {
-                $data[] = [
-                    'label' => get_string('presence', 'mod_booking'), // Name of your action button.
-                    'class' => 'btn btn-light btn-sm',
-                    'href' => '#', // You can either use the link, or JS, or both.
-                    'iclass' => 'fa fa-user-o', // Add an icon before the label.
-                    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-                    /* 'methodname' => 'mymethod', // The method needs to be added to your child of wunderbyte_table class. */
-                    'formname' => 'mod_booking\\form\\optiondates\\modal_change_status',
-                    'nomodal' => false,
-                    'id' => $values->id,
-                    'selectionmandatory' => false,
-                    'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
-                        'titlestring' => 'changepresencestatus',
-                        'submitbuttonstring' => 'save',
-                        'component' => 'mod_booking',
-                        'cmid' => $cmid,
-                        'optionid' => $values->optionid ?? 0,
-                        'optiondateid' => $values->optiondateid ?? 0,
-                        'userid' => $values->userid ?? 0,
-                        'status' => $values->status ?? 0,
-                    ],
-                ];
-            }
+            $data[] = [
+                'label' => get_string('presence', 'mod_booking'), // Name of your action button.
+                'class' => 'btn btn-light btn-sm',
+                'href' => '#', // You can either use the link, or JS, or both.
+                'iclass' => 'fa fa-user-o', // Add an icon before the label.
+                // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+                /* 'methodname' => 'mymethod', // The method needs to be added to your child of wunderbyte_table class. */
+                'formname' => 'mod_booking\\form\\optiondates\\modal_change_status',
+                'nomodal' => false,
+                'id' => $values->id,
+                'selectionmandatory' => false,
+                'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+                    'titlestring' => 'changepresencestatus',
+                    'submitbuttonstring' => 'save',
+                    'component' => 'mod_booking',
+                    'cmid' => $cmid,
+                    'optionid' => $values->optionid ?? 0,
+                    'optiondateid' => $values->optiondateid ?? 0,
+                    'userid' => $values->userid ?? 0,
+                    'status' => $values->status ?? 0,
+                ],
+            ];
         }
 
         $data[] = [

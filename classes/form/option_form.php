@@ -231,6 +231,10 @@ class option_form extends dynamic_form {
      * @return moodle_url
      */
     protected function get_page_url_for_dynamic_submission(): moodle_url {
-        return new moodle_url('/mod/booking/editoption.php');
+
+        // Strangely, we get the ajax formdata here without a key.
+        $cmid = $this->_ajaxformdata['cmid'] ?? 0;
+        $optionid = $this->_ajaxformdata['id'] ?? 0;
+        return new moodle_url('/mod/booking/editoption.php', ['id' => $cmid, 'optionid' => $optionid]);
     }
 }

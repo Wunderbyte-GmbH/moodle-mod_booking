@@ -42,7 +42,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class bookingopeningtime extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -96,7 +95,8 @@ class bookingopeningtime extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         $key = fields_info::get_class_name(static::class);
         $value = $formdata->{$key} ?? null;
@@ -155,7 +155,6 @@ class bookingopeningtime extends field_base {
         $fieldstoinstanciate = [],
         $applyheader = true
     ) {
-
     }
 
     /**
@@ -172,7 +171,6 @@ class bookingopeningtime extends field_base {
         // Importing needs special treatment.
         if (!empty($data->importing)) {
             if (isset($data->{$key})) {
-
                 $value = strtotime($data->{$key});
                 $data->{$key} = $value;
                 $data->restrictanswerperiodopening = 1;
@@ -180,9 +178,7 @@ class bookingopeningtime extends field_base {
             if (($data->sqlfilter ?? 0) == MOD_BOOKING_SQL_FILTER_ACTIVE_BO_TIME) {
                 $data->bo_cond_booking_time_sqlfiltercheck = 1;
             }
-
         } else {
-
             // Normally, we don't call set data after the first time loading.
             if (isset($data->{$key}) && !empty($data->{$key})) {
                 $data->restrictanswerperiodopening = 1;

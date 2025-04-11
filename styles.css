@@ -559,3 +559,8 @@ We need this for teachers for example. */
 .bookingoption-edit-button {
     text-decoration: none;
 }
+
+/* GH-936 Better distinction between availabilities. */
+div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotneeded"]) {
+    left: 20px;
+}

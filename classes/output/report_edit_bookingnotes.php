@@ -37,7 +37,6 @@ use templatable;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class report_edit_bookingnotes implements renderable, templatable {
-
     /** @var string $note the note as it is saved in db */
     public $note = null;
 

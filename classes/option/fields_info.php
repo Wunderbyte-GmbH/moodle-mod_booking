@@ -414,4 +414,43 @@ class fields_info {
         }
         return false;
     }
+
+    /**
+     * Once all changes are collected, also those triggered in save data, this is a possible hook for the fields.
+     *
+     * @param array $changes
+     * @param object $data
+     * @param object $newoption
+     * @param object $originaloption
+     *
+     * @return void
+     *
+     */
+    public static function all_changes_collected_actions(
+        array $changes,
+        object $data,
+        object $newoption,
+        object $originaloption
+    ) {
+        if (!empty($data->cmid)) {
+            $context = context_module::instance($data->cmid);
+        } else if (!empty($formdata['optionid'])) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($newoption->id);
+            $context = context_module::instance($settings->cmid);
+        } else {
+            throw new moodle_exception('formconfig.php: missing context in function instance_form_definition');
+        }
+        $classes = self::get_field_classes($context->id);
+
+        foreach ($classes as $classname) {
+            $classname::changes_collected_action(
+                $changes,
+                $data,
+                $newoption,
+                $originaloption
+            );
+        }
+        return;
+    }
+
 }

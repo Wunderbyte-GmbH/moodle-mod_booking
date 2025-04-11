@@ -181,14 +181,9 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
 
-        $viewparamoptions = [MOD_BOOKING_VIEW_PARAM_LIST => get_string('viewparam:list', 'mod_booking')];
-        // Additional views like cards view are a PRO feature.
-        if ($isproversion) {
-            $viewparamoptions[MOD_BOOKING_VIEW_PARAM_CARDS] = get_string('viewparam:cards', 'mod_booking');
-            $viewparamoptions[MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT] = get_string('viewparam:listimgleft', 'mod_booking');
-            $viewparamoptions[MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT] = get_string('viewparam:listimgright', 'mod_booking');
-            $viewparamoptions[MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF] = get_string('viewparam:listimglefthalf', 'mod_booking');
-        }
+        // Get the possible views.
+        $viewparamoptions = booking::get_array_of_possible_views();
+
         // Default view param (0...List view, 1...Cards view).
         $mform->addElement(
             'select',
@@ -202,7 +197,41 @@ class mod_booking_mod_form extends moodleform_mod {
             (int)booking::get_value_of_json_by_key($bookingid, 'viewparam') ?? MOD_BOOKING_VIEW_PARAM_LIST
         );
 
-        if (!$isproversion) {
+        if ($isproversion) {
+            $mform->addElement(
+                'advcheckbox',
+                'switchtemplates',
+                get_string('switchtemplates', 'mod_booking')
+            );
+            $mform->addHelpButton('switchtemplates', 'switchtemplates', 'mod_booking');
+            $mform->setType('switchtemplates', PARAM_INT);
+            $mform->setDefault(
+                'switchtemplates',
+                (int)booking::get_value_of_json_by_key($bookingid, 'switchtemplates') ?? 0
+            );
+
+            // Options for the switchtemplates selection autocomplete.
+            $swtopts = [
+                'noselectionstring' => get_string('choose...', 'mod_booking'),
+                'tags' => true,
+                'multiple' => true,
+            ];
+            $mform->addElement(
+                'autocomplete',
+                'switchtemplatesselection',
+                get_string('switchtemplatesselection', 'mod_booking'),
+                $viewparamoptions,
+                $swtopts
+            );
+            $mform->addHelpButton('switchtemplatesselection', 'switchtemplatesselection', 'mod_booking');
+            $switchtemplatesselection = (array)booking::get_value_of_json_by_key($bookingid, 'switchtemplatesselection');
+            if (empty($switchtemplatesselection)) {
+                $switchtemplatesselection = array_keys($viewparamoptions);
+            }
+            $mform->setDefault('switchtemplatesselection', $switchtemplatesselection);
+            $mform->hideIf('switchtemplatesselection', 'switchtemplates', 'neq', 1);
+        } else {
+            // No PRO version.
             $mform->addElement('html', '<div class="mb-3" style="margin-left: 13rem;">' . get_string('badge:pro', 'mod_booking') .
                 " <span class='small'>" . get_string('proversion:extraviews', 'mod_booking') . '</span></div>');
         }
@@ -479,7 +508,7 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $responsesfields = [
             'completed' => get_string('completed', 'mod_booking'),
-            'status' => get_string('presence', 'mod_booking'),
+            'invisible' => get_string('invisible', 'mod_booking'),
             'rating' => get_string('rating', 'core_rating'),
             'numrec' => get_string('numrec', 'mod_booking'),
             'places' => get_string('places', 'mod_booking'),
@@ -492,6 +521,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'notes' => get_string('notes', 'mod_booking'),
             'userpic' => get_string('userpic'),
             'indexnumber' => get_string('indexnumber', 'mod_booking'),
+            'email' => get_string('email', 'mod_booking'),
         ];
 
         $reportfields = [ // This is the download file.
@@ -508,16 +538,11 @@ class mod_booking_mod_form extends moodleform_mod {
             'lastname' => get_string("lastname"), 'email' => get_string("email"),
             'completed' => get_string("completed", "mod_booking"),
             'waitinglist' => get_string("waitinglist", "booking"),
-            'status' => get_string('presence', 'mod_booking'), 'groups' => get_string("group"),
+            'groups' => get_string("group"),
             'notes' => get_string('notes', 'mod_booking'),
             'idnumber' => get_string("idnumber"),
             'timecreated' => get_string('timecreated', 'mod_booking'),
         ];
-
-        if (class_exists('local_shopping_cart\shopping_cart')) {
-            $reportfields['price'] = get_string('price', 'mod_booking');
-            $responsesfields['price'] = get_string('price', 'mod_booking');
-        }
 
         $optionsfields = [
             'description' => get_string('description', 'mod_booking'),
@@ -552,7 +577,14 @@ class mod_booking_mod_form extends moodleform_mod {
             'bookingopeningtime' => get_string('bookingopeningtime', 'mod_booking'),
             'bookingclosingtime' => get_string('bookingclosingtime', 'mod_booking'),
             'places' => get_string('places', 'mod_booking'),
+            'invisible' => get_string('visibilitystatus', 'mod_booking'),
         ];
+
+        if (class_exists('local_shopping_cart\shopping_cart')) {
+            $reportfields['price'] = get_string('price', 'mod_booking');
+            $responsesfields['price'] = get_string('price', 'mod_booking');
+            $optionsdownloadfields['price'] = get_string('price', 'mod_booking');
+        }
 
         $signinsheetfields = ['fullname' => get_string('fullname', 'mod_booking'),
             'institution' => get_string('institution', 'mod_booking'),
@@ -604,7 +636,8 @@ class mod_booking_mod_form extends moodleform_mod {
         $customfieldshortnames = [];
         if (!empty($customfields)) {
             foreach ($customfields as $cf) {
-                $customfieldshortnames[$cf->shortname] = "$cf->name ($cf->shortname)";
+                $name = format_string($cf->name);
+                $customfieldshortnames[$cf->shortname] = "$name ($cf->shortname)";
             }
             $mform->addElement(
                 'select',
@@ -623,6 +656,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'tags' => false,
             'noselectionstring' => get_string('optionsdownloadfields', 'mod_booking'),
         ];
+        $optionsdownloadfields = array_merge($optionsdownloadfields, $customfieldshortnames);
         $mform->addElement(
             'autocomplete',
             'optionsdownloadfields',
@@ -1053,10 +1087,11 @@ class mod_booking_mod_form extends moodleform_mod {
         if ($enabled && !empty($field)) {
             global $DB;
             $customfield = singleton_service::get_customfield_field_by_shortname($field);
+            $customfieldname = format_string($customfield->name);
             $mform->addElement(
                 'text',
                 'maxoptionsfromcategorycount',
-                get_string('maxoptionsfromcategorycount', 'booking', $customfield->name),
+                get_string('maxoptionsfromcategorycount', 'booking', $customfieldname),
                 0
             );
             $savedsettings = booking::get_value_of_json_by_key($bookingid, 'maxoptionsfromcategory') ?? '';
@@ -1095,7 +1130,7 @@ class mod_booking_mod_form extends moodleform_mod {
             $mform->addElement(
                 'select',
                 'maxoptionsfromcategoryvalue',
-                get_string('maxoptionsfromcategoryvalue', 'booking', $customfield->name),
+                get_string('maxoptionsfromcategoryvalue', 'booking', $customfieldname),
                 $options
             );
             $mform->getElement('maxoptionsfromcategoryvalue')->setMultiple(true);
@@ -1151,6 +1186,16 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setDefault(
             'addtogroupofcurrentcourse',
             booking::get_value_of_json_by_key($bookingid, 'addtogroupofcurrentcourse') ?? []
+        );
+        $mform->addElement(
+            'advcheckbox',
+            'unenrolfromgroupofcurrentcourse',
+            get_string('unenrolfromgroupofcurrentcourse', 'mod_booking'),
+        );
+
+        $mform->setDefault(
+            'unenrolfromgroupofcurrentcourse',
+            booking::get_value_of_json_by_key($bookingid, 'unenrolfromgroupofcurrentcourse') ?? 1
         );
 
         $opts = [0 => get_string('unlimitedplaces', 'mod_booking')];

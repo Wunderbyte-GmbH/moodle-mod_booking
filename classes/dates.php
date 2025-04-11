@@ -271,7 +271,10 @@ class dates {
         } else if (!empty($defaultvalues->id)) {
             $settings = singleton_service::get_instance_of_booking_option_settings($defaultvalues->id);
             // Make sure, no sessions are created for self-learning courses.
-            if (empty($settings->selflearningcourse)) {
+            if (
+                empty($settings->selflearningcourse)
+                && !isset($defaultvalues->coursestarttime_1)
+            ) {
                 $sessions = $settings->sessions;
             } else {
                 $sessions = [];
@@ -341,7 +344,6 @@ class dates {
             $defaultvalues->datescounter = $datescounter;
         } else {
             // We might have clicked a delete nosubmit button.
-
             $regexkey = '/^' . MOD_BOOKING_FORM_DELETEDATE . '/';
             $datestodelete = preg_grep($regexkey, array_keys((array)$defaultvalues));
 

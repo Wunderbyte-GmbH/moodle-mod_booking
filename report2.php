@@ -29,8 +29,10 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 use mod_booking\booking;
 use mod_booking\option\dates_handler;
 use mod_booking\output\booked_users;
+use mod_booking\output\booking_history;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
+use mod_booking\output\renderer;
 
 global $PAGE, $SITE;
 
@@ -113,8 +115,11 @@ if (!empty($optiondateid)) {
     );
 
     // We only show links, if we have the matching capabilities.
-    $heading = get_string('managebookedusers_heading', 'mod_booking', $optionsettings->get_title_with_prefix()) .
-        " - " . $prettydatestring;
+    $a = new stdClass();
+    $a->scopestring = get_string('report2labeloptiondate', 'mod_booking');
+    $a->title = $optionsettings->get_title_with_prefix() . " - " . $prettydatestring;
+    $heading = get_string('managebookedusers_heading', 'mod_booking', $a);
+
     $navhtml = "<div class='report2-nav mb-3 flex-wrap-container'>" .
         ($r2syscap ? "<a href='{$r2systemurl}' class='report2-system-border'>" :
             "<span class='report2-system-border'>") .
@@ -137,7 +142,7 @@ if (!empty($optiondateid)) {
 
     // Create a navigation dropdown for all optiondates (sessions) of the booking option.
     $optiondates = $optionsettings->sessions;
-    if (!empty($optiondates) && count($optiondates) > 1) {
+    if (!empty($optiondates) && count($optiondates) > 0) {
         $data['optiondatesexist'] = true;
         foreach ($optiondates as &$optiondate) {
             $optiondate = (array) $optiondate;
@@ -153,7 +158,7 @@ if (!empty($optiondateid)) {
             ]);
             $optiondate['dateurl'] = $dateurl->out(false);
         }
-        $firstentry['prettydate'] = get_string('choose...', 'mod_booking');
+        $firstentry['prettydate'] = get_string('choosesession', 'mod_booking');
         $firstentry['dateurl'] = $PAGE->url; // The current page.
         array_unshift($optiondates, $firstentry);
         $data['optiondates'] = array_values((array) $optiondates);
@@ -209,7 +214,11 @@ if (!empty($optiondateid)) {
     $r2instancecap = has_capability('mod/booking:managebookedusers', $r2instancecontext);
 
     // We only show links, if we have the matching capabilities.
-    $heading = get_string('managebookedusers_heading', 'mod_booking', $optionsettings->get_title_with_prefix());
+    $a = new stdClass();
+    $a->scopestring = get_string('report2labeloption', 'mod_booking');
+    $a->title = $optionsettings->get_title_with_prefix();
+    $heading = get_string('managebookedusers_heading', 'mod_booking', $a);
+
     $navhtml = "<div class='report2-nav mb-3 flex-wrap-container'>" .
         ($r2syscap ? "<a href='{$r2systemurl}' class='report2-system-border'>" :
             "<span class='report2-system-border'>") .
@@ -232,7 +241,7 @@ if (!empty($optiondateid)) {
 
     // Create a navigation dropdown for all optiondates (sessions) of the booking option.
     $optiondates = $optionsettings->sessions;
-    if (!empty($optiondates) && count($optiondates) > 1) {
+    if (!empty($optiondates) && count($optiondates) > 0) {
         $data['optiondatesexist'] = true;
         foreach ($optiondates as &$optiondate) {
             $optiondate = (array) $optiondate;
@@ -248,7 +257,7 @@ if (!empty($optiondateid)) {
             ]);
             $optiondate['dateurl'] = $dateurl->out(false);
         }
-        $firstentry['prettydate'] = get_string('choose...', 'mod_booking');
+        $firstentry['prettydate'] = get_string('choosesession', 'mod_booking');
         $firstentry['dateurl'] = $PAGE->url; // The current page.
         array_unshift($optiondates, $firstentry);
         $data['optiondates'] = array_values((array) $optiondates);
@@ -282,7 +291,11 @@ if (!empty($optiondateid)) {
     require_capability('mod/booking:managebookedusers', $r2instancecontext);
 
     // We only show links, if we have the matching capabilities.
-    $heading = get_string('managebookedusers_heading', 'mod_booking', $bookingsettings->name);
+    $a = new stdClass();
+    $a->scopestring = get_string('report2labelinstance', 'mod_booking');
+    $a->title = $bookingsettings->name;
+    $heading = get_string('managebookedusers_heading', 'mod_booking', $a);
+
     $navhtml =
         ($r2syscap ? "<a href='{$r2systemurl}' class='report2-system-border'>" :
             "<span class='report2-system-border'>") .
@@ -318,7 +331,11 @@ if (!empty($optiondateid)) {
     require_capability('mod/booking:managebookedusers', $r2coursecontext);
 
     // We only show links, if we have the matching capabilities.
-    $heading = get_string('managebookedusers_heading', 'mod_booking', $course->fullname);
+    $a = new stdClass();
+    $a->scopestring = get_string('report2labelcourse', 'mod_booking');
+    $a->title = $course->fullname;
+    $heading = get_string('managebookedusers_heading', 'mod_booking', $a);
+
     $navhtml =
         ($r2syscap ? "<a href='{$r2systemurl}' class='report2-system-border'>" :
             "<span class='report2-system-border'>") .
@@ -342,7 +359,11 @@ if (!empty($optiondateid)) {
     require_capability('mod/booking:managebookedusers', $r2syscontext);
 
     // We only show links, if we have the matching capabilities.
-    $heading = get_string('managebookedusers_heading', 'mod_booking', $SITE->fullname);
+    $a = new stdClass();
+    $a->scopestring = get_string('report2labelsystem', 'mod_booking');
+    $a->title = $SITE->fullname;
+    $heading = get_string('managebookedusers_heading', 'mod_booking', $a);
+
     $navhtml =
         "<a href='$r2systemurl' class='report2-system-border'>" .
         $linkicon . $SITE->fullname .
@@ -370,7 +391,16 @@ $data = new booked_users(
     true,
     $cmid
 );
+/** @var renderer $renderer */
 $renderer = $PAGE->get_renderer('mod_booking');
 echo $renderer->render_booked_users($data);
+
+// In option scope, we also show booking history.
+if ($scope === 'option') {
+    $optionid = $scopeid;
+    $historydata = new booking_history($optionid);
+    echo $renderer->render_booking_history($historydata);
+}
+$historydata = new booking_history($scopeid);
 
 echo $OUTPUT->footer();

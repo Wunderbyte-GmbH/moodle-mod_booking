@@ -30,6 +30,7 @@ use course_modinfo;
 use html_writer;
 use local_entities\local\entities\entitydate;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\customfield\booking_handler;
 use mod_booking\local\modechecker;
 use mod_booking\teachers_handler;
 use mod_booking\utils\wb_payment;
@@ -818,6 +819,26 @@ class booking {
                 case 'bookingclosingtime':
                     $headers[] = get_string('bookingclosingtime', 'mod_booking');
                     $columns[] = 'bookingclosingtime';
+                    break;
+                case 'invisible':
+                        $columns[] = 'invisible';
+                        $headers[] = get_string('visibilitystatus', 'mod_booking');
+                    break;
+                case 'price': // This is only possible, if local shoppingcart is installed.
+                    if (class_exists('local_shopping_cart\shopping_cart')) {
+                        $columns[] = 'price';
+                        $headers[] = get_string('price', 'mod_booking');
+                    }
+                    break;
+                default:
+                    $customfields = booking_handler::get_customfields();
+                    foreach ($customfields as $customfield) {
+                        if ($value !== $customfield->shortname) {
+                            continue;
+                        }
+                        $headers[] = format_string($customfield->name);
+                        $columns[] = $value;
+                    }
                     break;
             }
         }
@@ -1875,6 +1896,7 @@ class booking {
      * @return array of possible presence statuses
      */
     public static function get_possible_presences(bool $withempty = true) {
+        $allpossiblepresences = self::get_array_of_possible_presence_statuses();
         if ($withempty) {
             $presences[0] = '';
         }
@@ -1885,20 +1907,54 @@ class booking {
                 || (count($storedpresences) == 1 && empty($storedpresences[0]))
             ) {
                 // Fallback: If no presences were set at all, use all possible presences.
-                foreach (MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY as $key => $value) {
+                foreach ($allpossiblepresences as $key => $value) {
                     $presences[$key] = $value;
                 }
             } else {
                 foreach ($storedpresences as $id) {
-                    $presences[$id] = MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY[$id];
+                    $presences[$id] = $allpossiblepresences[$id];
                 }
             }
         } else {
             // Without PRO version, use all possible presences.
-            foreach (MOD_BOOKING_ALL_POSSIBLE_PRESENCES_ARRAY as $key => $value) {
+            foreach ($allpossiblepresences as $key => $value) {
                 $presences[$key] = $value;
             }
         }
         return $presences;
+    }
+
+    /**
+     * Helper function to get an array of possible views.
+     * @return array of possible views
+     */
+    public static function get_array_of_possible_views(): array {
+        // List view is always possible.
+        $viewparamoptions = [MOD_BOOKING_VIEW_PARAM_LIST => get_string('viewparam:list', 'mod_booking')];
+        // Additional views like cards view are a PRO feature.
+        if (wb_payment::pro_version_is_activated()) {
+            $viewparamoptions[MOD_BOOKING_VIEW_PARAM_CARDS] = get_string('viewparam:cards', 'mod_booking');
+            $viewparamoptions[MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT] = get_string('viewparam:listimgleft', 'mod_booking');
+            $viewparamoptions[MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT] = get_string('viewparam:listimgright', 'mod_booking');
+            $viewparamoptions[MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF] = get_string('viewparam:listimglefthalf', 'mod_booking');
+        }
+        return $viewparamoptions;
+    }
+
+    /**
+     * Helper function to get an array of possible presence statuses.
+     * @return array of possible presence statuses
+     */
+    public static function get_array_of_possible_presence_statuses(): array {
+        return [
+            MOD_BOOKING_PRESENCE_STATUS_NOTSET => get_string('statusnotset', 'mod_booking'),
+            MOD_BOOKING_PRESENCE_STATUS_UNKNOWN => get_string('statusunknown', 'mod_booking'),
+            MOD_BOOKING_PRESENCE_STATUS_ATTENDING => get_string('statusattending', 'mod_booking'),
+            MOD_BOOKING_PRESENCE_STATUS_COMPLETE => get_string('statuscomplete', 'mod_booking'),
+            MOD_BOOKING_PRESENCE_STATUS_INCOMPLETE => get_string('statusincomplete', 'mod_booking'),
+            MOD_BOOKING_PRESENCE_STATUS_NOSHOW => get_string('statusnoshow', 'mod_booking'),
+            MOD_BOOKING_PRESENCE_STATUS_FAILED => get_string('statusfailed', 'mod_booking'),
+            MOD_BOOKING_PRESENCE_STATUS_EXCUSED => get_string('statusexcused', 'mod_booking'),
+        ];
     }
 }

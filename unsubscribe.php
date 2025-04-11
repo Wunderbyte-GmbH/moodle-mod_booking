@@ -39,7 +39,7 @@ $userid = required_param('userid', PARAM_INT);
 
 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 $cmid = $settings->cmid;
-list($course, $cm) = get_course_and_cm_from_cmid($cmid, 'booking');
+[$course, $cm] = get_course_and_cm_from_cmid($cmid, 'booking');
 $context = context_system::instance();
 
 $url = new moodle_url('/mod/booking/unsubscribe.php', [
@@ -54,7 +54,6 @@ $messagetoshow = "<div class='alert alert-danger'>unknown error</div>";
 
 switch ($action) {
     case 'notification':
-
         // Unsubscribing is currently only possible for oneself.
         // So we prevent misuse (a user with bad intentions could unsubscribe another user).
         if ($userid != $USER->id) {
@@ -62,18 +61,35 @@ switch ($action) {
                 "</div>";
             break;
         }
-
         // As the deletion here has no further consequences, we can do it directly in DB.
-        if ($DB->record_exists('booking_answers',
-            ['userid' => $userid,
-            'optionid' => $optionid,
-            'waitinglist' => MOD_BOOKING_STATUSPARAM_NOTIFYMELIST,
-        ])) {
-            $DB->delete_records('booking_answers',
-                ['userid' => $userid,
-                'optionid' => $optionid,
-                'waitinglist' => MOD_BOOKING_STATUSPARAM_NOTIFYMELIST,
-            ]);
+        if (
+            $DB->record_exists(
+                'booking_answers',
+                [
+                    'userid' => $userid,
+                    'optionid' => $optionid,
+                    'waitinglist' => MOD_BOOKING_STATUSPARAM_NOTIFYMELIST,
+                ]
+            )
+        ) {
+            $ba = singleton_service::get_instance_of_booking_answers($optionid);
+            // Log the deletion in the booking history.
+            booking_option::booking_history_insert(
+                MOD_BOOKING_STATUSPARAM_DELETED,
+                0,
+                $optionid,
+                0,
+                $userid
+            );
+
+            $DB->delete_records(
+                'booking_answers',
+                [
+                    'userid' => $userid,
+                    'optionid' => $optionid,
+                    'waitinglist' => MOD_BOOKING_STATUSPARAM_NOTIFYMELIST,
+                ]
+            );
             $messagetoshow = "<div class='alert alert-success'><i class='fa fa-bell-slash-o' aria-hidden='true'></i>&nbsp;" .
                 get_string('unsubscribe:successnotificationlist', 'mod_booking', $settings->get_title_with_prefix()) .
                 "</div>";

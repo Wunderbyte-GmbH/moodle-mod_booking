@@ -100,7 +100,11 @@ class booking_answers {
         $this->bookingoptionsettings = $bookingoptionsettings;
 
         $cache = \cache::make('mod_booking', 'bookingoptionsanswers');
-        $data = $cache->get($optionid);
+        if (!get_config('booking', 'cacheturnoffforbookinganswers')) {
+            $data = $cache->get($optionid);
+        } else {
+            $data = false;
+        }
 
         if (!$data) {
             // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
@@ -174,8 +178,9 @@ class booking_answers {
                 'usersdeleted' => $this->usersdeleted,
                 'userstonotify' => $this->userstonotify,
             ];
-
-            $cache->set($optionid, $data);
+            if (!get_config('booking', 'cacheturnoffforbookinganswers')) {
+                $cache->set($optionid, $data);
+            }
         } else {
             $this->answers = $data->answers;
             $this->users = $data->users;
@@ -277,6 +282,8 @@ class booking_answers {
         if ($maxoverbooking > 0) {
             $returnarray['maxoverbooking'] = $maxoverbooking;
             $returnarray['freeonwaitinglist'] = $maxoverbooking - $returnarray['waiting'];
+        } else if ($maxoverbooking == -1) {
+            $returnarray['freeonwaitinglist'] = -1;
         }
 
         if (!empty($this->bookingoptionsettings->minanswers) && $this->bookingoptionsettings->minanswers > 0) {
@@ -645,15 +652,15 @@ class booking_answers {
         $context = context_system::instance();
 
         if (
+            !has_capability('mod/booking:updatebooking', $context)
+            && get_config('booking', 'bookingplacesinfotexts')
+        ) {
+            $bookinginformation['showbookingplacesinfotext'] = true;
+        }
+
+        if (
             !empty($bookinginformation['maxanswers'])
         ) {
-            if (
-                !has_capability('mod/booking:updatebooking', $context)
-                && get_config('booking', 'bookingplacesinfotexts')
-            ) {
-                $bookinginformation['showbookingplacesinfotext'] = true;
-            }
-
             $bookingplaceslowpercentage = get_config('booking', 'bookingplaceslowpercentage');
             $actualpercentage = ($bookinginformation['freeonlist'] / $bookinginformation['maxanswers']) * 100;
 
@@ -673,6 +680,18 @@ class booking_answers {
                 $bookinginformation['bookingplacesclass'] = 'text-success avail';
                 $bookinginformation['bookingplacesiconclass'] = 'avail';
             }
+        } else {
+            $bookinginformation['bookingplacesinfotext'] = get_string('bookingplacesunlimitedmessage', 'mod_booking');
+            $bookinginformation['bookingplacesclass'] = 'text-success avail';
+            $bookinginformation['bookingplacesiconclass'] = 'avail';
+
+            if (
+                !has_capability('mod/booking:updatebooking', $context)
+                && get_config('booking', 'bookingplacesinfotexts')
+            ) {
+                // We need to set maxanswers to true, to actually show the text when maxanswer is 0 (unlimited).
+                $bookinginformation['maxanswers'] = true;
+            }
         }
         // Waiting list places.
         if (!empty($bookinginformation['maxoverbooking'])) {
@@ -684,8 +703,12 @@ class booking_answers {
             }
 
             $waitinglistlowpercentage = get_config('booking', 'waitinglistlowpercentage');
-            $actualwlpercentage = ($bookinginformation['freeonwaitinglist'] /
+            if ($bookinginformation['freeonwaitinglist'] == -1) {
+                $actualwlpercentage = 100;
+            } else {
+                $actualwlpercentage = ($bookinginformation['freeonwaitinglist'] /
                 $bookinginformation['maxoverbooking']) * 100;
+            }
 
             if ($bookinginformation['freeonwaitinglist'] == 0) {
                 // No places left.
@@ -780,8 +803,8 @@ class booking_answers {
         global $DB;
         if (!in_array($scope, ["option", "optiondate"])) {
             $advancedsqlstart = "SELECT
-                ba.optionid AS id,
-                ba.optionid,
+                bo.id,
+                bo.id as optionid,
                 ba.waitinglist,
                 cm.id AS cmid,
                 c.id AS courseid,
@@ -792,9 +815,9 @@ class booking_answers {
                 COUNT(ba.id) answerscount,
                 SUM(pcnt.presencecount) presencecount,
                 '" . $scope . "' AS scope
-            FROM {booking_answers} ba
-            JOIN {booking_options} bo ON bo.id = ba.optionid
-            JOIN {user} u ON ba.userid = u.id
+            FROM {booking_options} bo
+            LEFT JOIN {booking_answers} ba ON bo.id = ba.optionid
+            LEFT JOIN {user} u ON ba.userid = u.id
             JOIN {course_modules} cm ON bo.bookingid = cm.instance
             JOIN {booking} b ON b.id = bo.bookingid
             JOIN {course} c ON c.id = b.course
@@ -807,11 +830,17 @@ class booking_answers {
             ) pcnt
             ON pcnt.optionid = ba.optionid AND pcnt.userid = u.id";
 
-            $advancedsqlwhere = "WHERE
+            if ($statusparam === 0) {
+                $advancedsqlwhere = "WHERE
+                    m.name = 'booking'
+                    AND (ba.waitinglist = 0 OR ba.waitinglist IS NULL)";
+            } else {
+                $advancedsqlwhere = "WHERE
                 m.name = 'booking'
                 AND ba.waitinglist = :statusparam";
+            }
 
-            $advancedsqlgroupby = "GROUP BY cm.id, c.id, c.fullname, ba.optionid, ba.waitinglist, bo.titleprefix, bo.text, b.name";
+            $advancedsqlgroupby = "GROUP BY cm.id, c.id, c.fullname, bo.id, ba.waitinglist, bo.titleprefix, bo.text, b.name";
 
             $advancedsqlend = "ORDER BY bo.titleprefix, bo.text ASC
                 LIMIT 10000000000";
@@ -824,7 +853,7 @@ class booking_answers {
                 $optiondateid = $scopeid;
                 // We need to set a limit for the query in mysqlfamily.
                 $fields = 's1.*';
-                $from = "(
+                $from = " (
                     SELECT " .
                         $DB->sql_concat("bo.id", "'-'", "bod.id", "'-'", "u.id") .
                         " id,
@@ -887,34 +916,38 @@ class booking_answers {
                 }
 
                 // We need to set a limit for the query in mysqlfamily.
-                $fields = 's1.*, ROW_NUMBER() OVER (ORDER BY s1.timemodified, s1.id DESC) AS rank';
-                $from = "(
-                    SELECT
-                        ba.id,
-                        u.id AS userid,
-                        u.username,
-                        u.firstname,
-                        u.lastname,
-                        u.email,
-                        ba.waitinglist,
-                        $selectpresencecount
-                        ba.timemodified,
-                        ba.timecreated,
-                        ba.optionid,
-                        ba.json,
-                        '" . $scope . "' AS scope
-                    FROM {booking_answers} ba
-                    JOIN {user} u ON ba.userid = u.id
-                    $presencecountsqlpart
-                    WHERE ba.optionid=:optionid AND ba.waitinglist=:statusparam
-                    ORDER BY u.lastname DESC, u.firstname DESC, ba.timemodified DESC
-                    LIMIT 10000000000
+                $fields = 's1.*';
+                $from = "
+                (
+                    SELECT s2.*, ROW_NUMBER() OVER (ORDER BY s2.timemodified, s2.id DESC) AS rank
+                    FROM (
+                        SELECT
+                            ba.id,
+                            u.id AS userid,
+                            u.username,
+                            u.firstname,
+                            u.lastname,
+                            u.email,
+                            ba.waitinglist,
+                            $selectpresencecount
+                            ba.timemodified,
+                            ba.timecreated,
+                            ba.optionid,
+                            ba.json,
+                            '" . $scope . "' AS scope
+                        FROM {booking_answers} ba
+                        JOIN {user} u ON ba.userid = u.id
+                        $presencecountsqlpart
+                        WHERE ba.optionid=:optionid AND ba.waitinglist=:statusparam
+                        ORDER BY u.lastname DESC, u.firstname DESC, ba.timemodified DESC
+                        LIMIT 10000000000
+                    ) s2
                 ) s1";
                 break;
             case 'instance':
                 $cmid = $scopeid;
                 $fields = 's1.*';
-                $from = "(
+                $from = " (
                     $advancedsqlstart
                     $advancedsqlwhere
                     AND cm.id = :cmid
@@ -930,7 +963,7 @@ class booking_answers {
             case 'course':
                 $courseid = $scopeid;
                 $fields = 's1.*';
-                $from = "(
+                $from = " (
                     $advancedsqlstart
                     $advancedsqlwhere
                     AND c.id = :courseid
@@ -946,7 +979,7 @@ class booking_answers {
             case 'system':
             default:
                 $fields = 's1.*';
-                $from = "(
+                $from = " (
                     $advancedsqlstart
                     $advancedsqlwhere
                     $advancedsqlgroupby

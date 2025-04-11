@@ -39,10 +39,9 @@ $confirm = optional_param('confirm', 0, PARAM_INT);
 $sesskey = optional_param('sesskey', '', PARAM_INT);
 $mode = optional_param('mode', '', PARAM_RAW);
 
-$returnurl = optional_param('returnurl', '', PARAM_LOCALURL);
-
-// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-/* $PAGE->requires->jquery_plugin('ui-css'); */
+// Fallback url when there is no returnurl.
+$returnurl = new moodle_url('/mod/booking/view.php', ['id' => $cmid]);
+$returnurl = optional_param('returnurl', $returnurl->out(), PARAM_LOCALURL);
 
 [$course, $cm] = get_course_and_cm_from_cmid($cmid);
 

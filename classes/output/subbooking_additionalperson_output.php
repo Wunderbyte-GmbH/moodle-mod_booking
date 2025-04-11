@@ -40,7 +40,6 @@ use templatable;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class subbooking_additionalperson_output implements renderable, templatable {
-
     /** @var array $data */
     public $data = [];
 
@@ -56,7 +55,6 @@ class subbooking_additionalperson_output implements renderable, templatable {
 
         // There might be more than one relevant subbooking to handle.
         foreach ($settings->subbookings as $subbooking) {
-
             // We only treat our kind of subbookings here.
             if ($subbooking->type !== 'subbooking_additionalperson') {
                 continue;

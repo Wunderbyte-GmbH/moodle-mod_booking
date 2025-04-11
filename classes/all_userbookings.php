@@ -82,7 +82,7 @@ class all_userbookings extends \table_sql {
 
     /**
      * This function is called for each data row to allow processing of the username value.
-     * @param mixed $values
+     * @param object $values
      * @return string
      * @throws coding_exception
      */
@@ -96,7 +96,7 @@ class all_userbookings extends \table_sql {
 
     /**
      * For status column.
-     * @param mixed $values
+     * @param object $values
      * @return string
      * @throws coding_exception
      */
@@ -124,6 +124,15 @@ class all_userbookings extends \table_sql {
     }
 
     /**
+     * For email column.
+     * @param object $values
+     * @return string
+     */
+    protected function col_email($values) {
+        return $values->email;
+    }
+
+    /**
      * Fullname column.
      * @param object $values
      * @return string
@@ -147,7 +156,7 @@ class all_userbookings extends \table_sql {
 
     /**
      * Numrec column.
-     * @param mixed $values
+     * @param object $values
      * @return mixed
      */
     protected function col_numrec($values) {
@@ -160,7 +169,7 @@ class all_userbookings extends \table_sql {
 
     /**
      * Completed column.
-     * @param mixed $values
+     * @param object $values
      * @return mixed
      * @throws coding_exception
      */
@@ -178,7 +187,7 @@ class all_userbookings extends \table_sql {
 
     /**
      * Rating column.
-     * @param mixed $values
+     * @param object $values
      * @return string
      */
     protected function col_rating($values) {
@@ -211,7 +220,7 @@ class all_userbookings extends \table_sql {
 
     /**
      * Courseendtimecolumn.
-     * @param mixed $values
+     * @param object $values
      * @return string
      * @throws coding_exception
      */
@@ -225,7 +234,7 @@ class all_userbookings extends \table_sql {
 
     /**
      * Waitinglist column.
-     * @param mixed $values
+     * @param object $values
      * @return mixed
      * @throws coding_exception
      */
@@ -245,7 +254,7 @@ class all_userbookings extends \table_sql {
 
     /**
      * City column.
-     * @param mixed $values
+     * @param object $values
      * @return mixed
      * @throws coding_exception
      */
@@ -258,7 +267,7 @@ class all_userbookings extends \table_sql {
 
     /**
      * Selected column.
-     * @param mixed $values
+     * @param object $values
      * @return string
      * @throws coding_exception
      */
@@ -274,7 +283,7 @@ class all_userbookings extends \table_sql {
 
     /**
      * Notes column.
-     * @param mixed $values
+     * @param object $values
      * @return mixed
      * @throws coding_exception
      */
@@ -293,9 +302,23 @@ class all_userbookings extends \table_sql {
     }
 
     /**
+     * Returns link that was generated as enrollink.
+     *
+     * @param object $values
+     *
+     * @return string
+     *
+     */
+    public function col_enrollink($values): string {
+        $erlid = enrollink::get_erlid_from_baid($values->id) ?? "";
+        $value = empty($erlid) ? "" : \mod_booking\enrollink::create_enrollink($erlid);
+        return $value;
+    }
+
+    /**
      * Renders image of user.
      *
-     * @param mixed $values
+     * @param object $values
      *
      * @return string
      *
@@ -316,7 +339,7 @@ class all_userbookings extends \table_sql {
     /**
      * Renders image of user.
      *
-     * @param mixed $values
+     * @param object $values
      *
      * @return string
      *

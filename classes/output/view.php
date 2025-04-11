@@ -140,8 +140,8 @@ class view implements renderable, templatable {
     /** @var bool $showheaderimageright */
     private $showheaderimageright = null;
 
-      /** @var bool $showheaderimagelefthalf */
-      private $showheaderimagelefthalf = null;
+    /** @var bool $showheaderimagelefthalf */
+    private $showheaderimagelefthalf = null;
 
     /** @var bool $noheaderimage */
     private $noheaderimage = null;
@@ -287,7 +287,7 @@ class view implements renderable, templatable {
             // If we show this table first, we don't load it lazy.
             $lazy = $whichview !== 'optionsiamresponsiblefor';
             $this->renderedresponsiblecontacttable =
-                $this->get_rendered_table_for_responsible_contact($USER->id, true, true, true, $lazy);
+                $this->get_rendered_table_for_responsible_contact($USER->id, true, true, $lazy);
         }
 
         // Only the booking options of my institution.
@@ -340,7 +340,7 @@ class view implements renderable, templatable {
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
-        $this->wbtable_initialize_list_layout($allbookingoptionstable, true, true, true);
+        $this->wbtable_initialize_layout($allbookingoptionstable, true, true, true);
 
         $out = $allbookingoptionstable->outhtml($booking->get_pagination_setting(), true);
 
@@ -370,7 +370,7 @@ class view implements renderable, templatable {
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
-        $this->wbtable_initialize_list_layout($allbookingoptionstable, true, true, true);
+        $this->wbtable_initialize_layout($allbookingoptionstable, true, true, true);
 
         if ($lazy) {
             [$idstring, $encodedtable, $out]
@@ -419,7 +419,7 @@ class view implements renderable, templatable {
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
-        $this->wbtable_initialize_list_layout($activebookingoptionstable, true, true, true);
+        $this->wbtable_initialize_layout($activebookingoptionstable, true, true, true);
 
         if ($lazy) {
             [$idstring, $encodedtable, $out]
@@ -452,7 +452,7 @@ class view implements renderable, templatable {
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
-        $this->wbtable_initialize_list_layout($mybookingoptionstable, true, true, true);
+        $this->wbtable_initialize_layout($mybookingoptionstable, true, true, true);
 
         // For mybookingstable we need to apply a different cache, because it changes with every booking of a user.
         $mybookingoptionstable->define_cache('mod_booking', 'mybookingoptionstable');
@@ -499,7 +499,7 @@ class view implements renderable, templatable {
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
-        $this->wbtable_initialize_list_layout($teacheroptionstable, $tfilter, $tsearch, $tsort);
+        $this->wbtable_initialize_layout($teacheroptionstable, $tfilter, $tsearch, $tsort);
 
         $teacheroptionstable->showreloadbutton = false; // No reload button on teacher pages.
         $teacheroptionstable->requirelogin = false; // Teacher pages need to be accessible without login.
@@ -556,7 +556,7 @@ class view implements renderable, templatable {
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
-        $this->wbtable_initialize_list_layout($responsiblecontacttable, $tfilter, $tsearch, $tsort);
+        $this->wbtable_initialize_layout($responsiblecontacttable, $tfilter, $tsearch, $tsort);
 
         $responsiblecontacttable->showreloadbutton = false; // No reload button on teacher pages.
         $responsiblecontacttable->requirelogin = true;
@@ -602,7 +602,7 @@ class view implements renderable, templatable {
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
-        $this->wbtable_initialize_list_layout($showonlyonetable, false, false, false);
+        $this->wbtable_initialize_layout($showonlyonetable, false, false, false);
 
         $out = $showonlyonetable->outhtml(1, true);
 
@@ -633,7 +633,7 @@ class view implements renderable, templatable {
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
-        $this->wbtable_initialize_list_layout($myinstitutiontable, true, true, true);
+        $this->wbtable_initialize_layout($myinstitutiontable, true, true, true);
 
         if ($lazy) {
             [$idstring, $encodedtable, $out]
@@ -668,7 +668,7 @@ class view implements renderable, templatable {
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
-        $this->wbtable_initialize_list_layout($visibleoptionstable, true, true, true);
+        $this->wbtable_initialize_layout($visibleoptionstable, true, true, true);
 
         if ($lazy) {
             [$idstring, $encodedtable, $out]
@@ -703,7 +703,7 @@ class view implements renderable, templatable {
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
-        $this->wbtable_initialize_list_layout($invisibleoptionstable, true, true, true);
+        $this->wbtable_initialize_layout($invisibleoptionstable, true, true, true);
 
         if ($lazy) {
             [$idstring, $encodedtable, $out]
@@ -716,13 +716,13 @@ class view implements renderable, templatable {
     }
 
     /**
-     * Helper function to set the default layout for the table (list view).
+     * Helper function to initialize the layout for the table.
      * @param wunderbyte_table $wbtable reference to the table class that should be initialized
      * @param bool $filter
      * @param bool $search
      * @param bool $sort
      */
-    public function wbtable_initialize_list_layout(
+    public function wbtable_initialize_layout(
         wunderbyte_table &$wbtable,
         bool $filter = true,
         bool $search = true,
@@ -770,13 +770,69 @@ class view implements renderable, templatable {
             $wbtable->showdownloadbutton = true;
         }
 
-        // Get view param from JSON of booking instance settings.
+        // Get cd param from JSON of booking instance settings.
         $viewparam = (int)booking::get_value_of_json_by_key($bookingsettings->id, 'viewparam');
         if (empty($viewparam)) {
             $viewparam = MOD_BOOKING_VIEW_PARAM_LIST; // List view is the default view.
         }
 
-        self::apply_standard_params_for_bookingtable($wbtable, $optionsfields, $filter, $search, $sort, true, true, $viewparam);
+        if ($bookingsettings->switchtemplates) {
+            $selectedtemplates = $bookingsettings->switchtemplatesselection ?? [];
+            // If template switcher is turned on, we add it.
+            // Only add templates that have been selected in instance.
+            if (in_array(MOD_BOOKING_VIEW_PARAM_LIST, $selectedtemplates)) {
+                $wbtable->add_template_to_switcher(
+                    'mod_booking/table_list',
+                    get_string('viewparam:list', 'mod_booking'),
+                    $viewparam === MOD_BOOKING_VIEW_PARAM_LIST ? true : false,
+                    MOD_BOOKING_VIEW_PARAM_LIST
+                );
+            }
+            if (in_array(MOD_BOOKING_VIEW_PARAM_CARDS, $selectedtemplates)) {
+                $wbtable->add_template_to_switcher(
+                    'mod_booking/table_cards',
+                    get_string('viewparam:cards', 'mod_booking'),
+                    $viewparam === MOD_BOOKING_VIEW_PARAM_CARDS ? true : false,
+                    MOD_BOOKING_VIEW_PARAM_CARDS
+                );
+            }
+            if (in_array(MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT, $selectedtemplates)) {
+                $wbtable->add_template_to_switcher(
+                    'mod_booking/table_list',
+                    get_string('viewparam:listimgleft', 'mod_booking'),
+                    $viewparam === MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT ? true : false,
+                    MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT
+                );
+            }
+            if (in_array(MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT, $selectedtemplates)) {
+                $wbtable->add_template_to_switcher(
+                    'mod_booking/table_list',
+                    get_string('viewparam:listimgright', 'mod_booking'),
+                    $viewparam === MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT ? true : false,
+                    MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT
+                );
+            }
+            if (in_array(MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF, $selectedtemplates)) {
+                $wbtable->add_template_to_switcher(
+                    'mod_booking/table_list',
+                    get_string('viewparam:listimglefthalf', 'mod_booking'),
+                    $viewparam === MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF ? true : false,
+                    MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF
+                );
+            }
+        }
+
+        self::apply_standard_params_for_bookingtable(
+            $wbtable,
+            $optionsfields,
+            $filter,
+            $search,
+            $sort,
+            true,
+            true,
+            $viewparam,
+            $this->cmid
+        );
     }
 
 
@@ -791,6 +847,7 @@ class view implements renderable, templatable {
      * @param bool $reload
      * @param bool $filterinactive
      * @param int $viewparam list view or card view
+     * @param int $cmid optional cmid of booking instance
      * @return void
      * @throws moodle_exception
      * @throws coding_exception
@@ -803,15 +860,35 @@ class view implements renderable, templatable {
         bool $sort = true,
         bool $reload = true,
         bool $filterinactive = true,
-        int $viewparam = MOD_BOOKING_VIEW_PARAM_LIST
+        int $viewparam = MOD_BOOKING_VIEW_PARAM_LIST,
+        int $cmid = 0
     ) {
 
         global $PAGE;
+
+        if (!empty($cmid)) {
+            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+            $selectedtemplates = $bookingsettings->switchtemplatesselection ?? [];
+        }
+
         // Activate sorting.
         $wbtable->cardsort = true;
 
         // Without defining sorting won't work!
         $wbtable->define_columns(['titleprefix', 'coursestarttime', 'courseendtime']);
+
+        // If template switcher is active, we need to use the table's viewparam.
+        $chosenviewparam = get_user_preferences('wbtable_chosen_template_viewparam_' . $wbtable->uniqueid);
+        if (!empty($wbtable->switchtemplates) && is_number($chosenviewparam)) {
+            $viewparam = $chosenviewparam;
+            // Extra safety, if the selected templates in instance change, we use the first one available.
+            if (!empty($selectedtemplates)) {
+                if (!in_array($viewparam, $selectedtemplates)) {
+                    $viewparam = (int)$selectedtemplates[0] ?? MOD_BOOKING_VIEW_PARAM_LIST;
+                    set_user_preference('wbtable_chosen_template_viewparam_' . $wbtable->uniqueid, $viewparam);
+                }
+            }
+        }
 
         // Switch view type (cards view or list view).
         switch ($viewparam) {
@@ -1192,6 +1269,9 @@ class view implements renderable, templatable {
 
         // At last, we set the correct template!
         $wbtable->tabletemplate = 'mod_booking/table_cards';
+
+        // We also need to set the user preference for the template.
+        set_user_preference('wbtable_chosen_template_' . $wbtable->uniqueid, 'mod_booking/table_cards');
     }
 
     /**
@@ -1395,6 +1475,8 @@ class view implements renderable, templatable {
 
         // At last, we set the correct template!
         $wbtable->tabletemplate = 'mod_booking/table_list';
+
+        set_user_preference('wbtable_chosen_template_' . $wbtable->uniqueid, 'mod_booking/table_list');
     }
 
     /**
@@ -1429,6 +1511,7 @@ class view implements renderable, templatable {
             'showfieldofstudy' => $this->showfieldofstudy,
             'elective' => empty($this->renderelectivetable) ? false : $this->electivemodal,
             'showheaderimageleft' => $this->showheaderimageleft,
+            'showheaderimagelefthalf' => $this->showheaderimagelefthalf,
             'showheaderimageright' => $this->showheaderimageright,
             'noheaderimage' => $this->noheaderimage,
         ];

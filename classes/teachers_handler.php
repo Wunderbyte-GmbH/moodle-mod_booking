@@ -301,7 +301,7 @@ class teachers_handler {
             // Always enrol into current course with defined role.
             $teacherrole = get_config('booking', 'definedteacherrole');
             if ($teacherrole) {
-                $option->enrol_user($userid, true, $teacherrole, true, $COURSE->id);
+                $option->enrol_user($userid, true, $teacherrole, true, $bookingsettings->course);
             }
 
             // Even if teacher already exists in DB, we still might want to enrol him/her into a NEW course.

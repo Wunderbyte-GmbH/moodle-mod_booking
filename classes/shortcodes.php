@@ -27,10 +27,12 @@
 namespace mod_booking;
 
 use cache_helper;
+use context_module;
 use context_system;
 use core_cohort\reportbuilder\local\entities\cohort;
 use Exception;
 use html_writer;
+use local_wunderbyte_table\filters\types\datepicker;
 use local_wunderbyte_table\filters\types\intrange;
 use local_wunderbyte_table\filters\types\standardfilter;
 use local_wunderbyte_table\wunderbyte_table;
@@ -449,7 +451,7 @@ class shortcodes {
 
         [$inorequal, $params] = $DB->get_in_or_equal($groupnames);
 
-        $sql = "SELECT c.id, c.shortname
+        $sql = "SELECT DISTINCT c.id, c.shortname
                 FROM {course} c
                 JOIN {groups} g
                 ON g.courseid = c.id
@@ -535,16 +537,21 @@ class shortcodes {
 
         $out = '';
 
-        $wherearray = ['courseid' => (int)$COURSE->id];
-
-        // Even though this is huge and fetches way to much data, we still use it as it will take care of invisible options etc.
-        [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(0, 0, '', null, null, [], $wherearray);
-
-        $optionids = $DB->get_records_sql(" SELECT $fields FROM $from WHERE $where", $params);
+        $optionids = $DB->get_records(
+            'booking_options',
+            ['courseid' => $COURSE->id]
+        );
 
         foreach ($optionids as $option) {
+            // Only if the user has the right to see the link back, we show it.
             $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+
+            if ($option->invisible == 1) {
+                $context = context_module::instance($settings->cmid);
+                if (!has_capability('mod/booking:view', $context)) {
+                    continue;
+                }
+            }
 
             if (!modechecker::is_ajax_or_webservice_request()) {
                 $returnurl = $PAGE->url->out();
@@ -731,7 +738,7 @@ class shortcodes {
         }
         cache_helper::purge_by_event('changesinwunderbytetable');
         // Add the arguments to make sure cache is built correctly.
-        $argsstring = implode($args);
+        $argsstring = bin2hex(implode($args));
         $table = new bulkoperations_table(bin2hex(random_bytes(8)) . '_optionbulkoperationstable_' . $argsstring);
         $columns = [
             'id' => get_string('id', 'local_wunderbyte_table'),
@@ -856,12 +863,42 @@ class shortcodes {
                 }
             }
         }
-
+        $datepickerfiltercolumns = ['coursestarttime', 'courseendtime', 'bookingopeningtime'];
         // Exclude column action from columns for filter, sorting, search.
         $filtercolumns = array_diff_key($columns, array_flip(['action']));
-        foreach ($filtercolumns as $key => $localized) {
-            $standardfilter = new standardfilter($key, $localized);
-            if ($key === 'invisible') {
+
+        if (isset($args['filter'])) {
+            $filterargs = explode(",", $args['filter']);
+            $stringmanager = get_string_manager();
+            foreach ($filterargs as $key => $colname) {
+                // Check if it's an intrangefilter.
+                if (in_array($colname, $datepickerfiltercolumns)) {
+                    if ($stringmanager->string_exists($colname, 'mod_booking')) {
+                        $localizedstring = get_string($colname, 'mod_booking');
+                    } else {
+                        $localizedstring = "";
+                    }
+                    $datepicker = new datepicker($colname, $localizedstring);
+                    $datepicker->add_options(
+                        'in between',
+                        '<',
+                        get_string('apply_filter', 'local_wunderbyte_table'),
+                        'now',
+                        'now + 1 year'
+                    );
+                    $table->add_filter($datepicker);
+                    unset($filterargs[$key]);
+                } else {
+                    // Prepare standardfilter.
+                    $localized = $stringmanager->string_exists($colname, 'mod_booking')
+                        ? get_string($colname, 'mod_booking') : $colname;
+                    $filtercolumns[$colname] = $localized;
+                }
+            }
+        }
+        foreach ($filtercolumns as $colname => $localized) {
+            $standardfilter = new standardfilter($colname, $localized);
+            if ($colname === 'invisible') {
                 $standardfilter->add_options([
                     "0" => get_string('optionvisible', 'mod_booking'),
                     "1" => get_string('optioninvisible', 'mod_booking'),

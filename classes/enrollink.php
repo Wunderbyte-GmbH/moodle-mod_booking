@@ -150,20 +150,17 @@ class enrollink {
         if (isguestuser()) {
             return MOD_BOOKING_AUTOENROL_STATUS_LOGGED_IN_AS_GUEST;
         }
-        if (!empty($this->bundle->courseid)) {
-            $context = context_course::instance($this->bundle->courseid);
-            $courseenrolmentstatus = MOD_BOOKING_AUTOENROL_STATUS_EXCEPTION;
-            // 1. Enrolling to the linked course.
-            // Make sure, the user isn't booked to the course yet.
-            if (
-                is_enrolled($context, $userid)
-            ) {
+
+        $cmid = $this->get_bo_contextid();
+        $bo = singleton_service::get_instance_of_booking_option($cmid, $this->bundle->optionid);
+        $settings = singleton_service::get_instance_of_booking_option_settings($bo->id);
+        $ba = singleton_service::get_instance_of_booking_answers($settings);
+        foreach ($ba->users as $bauserid => $userdata) {
+            if ($userid == $bauserid) {
                 return MOD_BOOKING_AUTOENROL_STATUS_ALREADY_ENROLLED;
             }
         }
 
-        $cmid = $this->get_bo_contextid();
-        $bo = singleton_service::get_instance_of_booking_option($cmid, $this->bundle->optionid);
         try {
             $user = singleton_service::get_instance_of_user($userid);
             $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
@@ -576,5 +573,23 @@ class enrollink {
             }
         }
         return false;
+    }
+
+    /**
+     * Get the id of enrollink from booking answer id.
+     *
+     * @param int $baid
+     *
+     * @return string
+     *
+     */
+    public static function get_erlid_from_baid(int $baid): string {
+        global $DB;
+
+        return $DB->get_field(
+            'booking_enrollink_bundles',
+            'erlid',
+            ['baid' => $baid]
+        );
     }
 }

@@ -39,7 +39,6 @@ use templatable;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class bookit_button implements renderable, templatable {
-
     /** @var array $data */
     public $data = [];
 

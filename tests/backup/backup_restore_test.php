@@ -22,6 +22,7 @@ use restore_controller;
 use backup;
 use stdClass;
 use context_system;
+use mod_booking\bo_availability\bo_info;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -59,7 +60,7 @@ final class backup_restore_test extends advanced_testcase {
      * @dataProvider booking_backup_restore_settings_provider
      */
     public function test_backup_restore_bookings_with_options_quiz_into_other_course(array $bdata): void {
-        global $USER;
+        global $DB, $USER;
 
         $this->setAdminUser();
 
@@ -70,9 +71,13 @@ final class backup_restore_test extends advanced_testcase {
         $course1 = $generator->create_course(['enablecompletion' => 1]);
         $course2 = $generator->create_course(['enablecompletion' => 1]);
         $teacher = $this->getDataGenerator()->create_user(); // Booking manager.
+        $student1 = $this->getDataGenerator()->create_user();
+        $student2 = $this->getDataGenerator()->create_user();
 
         $generator->enrol_user($teacher->id, $course1->id, 'editingteacher');
         $generator->enrol_user($teacher->id, $course2->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($student1->id, $course1->id, 'student');
+        $this->getDataGenerator()->enrol_user($student2->id, $course1->id, 'student');
 
         // Create custom booking field.
         $categorydata = new stdClass();
@@ -136,15 +141,46 @@ final class backup_restore_test extends advanced_testcase {
         $record->customfield_spt1 = 'tennis';
         $options[3] = $plugingenerator->create_option($record);
 
+        // History item1: book student1 directly into the option.
+        $settings = singleton_service::get_instance_of_booking_option_settings($options[0]->id);
+        $boinfo = new bo_info($settings);
+        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        $option->user_submit_response($student1, 0, 0, 0, MOD_BOOKING_VERIFIED);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // History item2: Add "dummy" booking_history entry manually.
+        $originalhistory = (object)[
+            'bookingid' => $bookings[0]->id,
+            'optionid' => $options[0]->id,
+            'answerid' => null,
+            'userid' => $teacher->id,
+            'status' => 0,
+            'usermodified' => $teacher->id,
+            'timecreated' => time(),
+            'json' => '{"info":"test"}',
+        ];
+        $originalhistory->id = $DB->insert_record('booking_history', $originalhistory);
+
+        // Validate booking history.
+        $oldhistory = $DB->get_records('booking_history', ['bookingid' => $bookings[0]->id]);
+        $this->assertCount(2, $oldhistory);
+
         // Step 2: Backup the first course.
         $bc = new backup_controller(
             backup::TYPE_1COURSE,
             $course1->id,
             backup::FORMAT_MOODLE,
-            backup::INTERACTIVE_NO,
+            backup::INTERACTIVE_YES,
             backup::MODE_IMPORT,
-            $teacher->id
+            $USER->id
         );
+
+        // Include users (and, consequently - booked answers) into the backup.
+        $bc->get_plan()->get_setting('users')->set_status(\backup_setting::NOT_LOCKED);
+        $bc->get_plan()->get_setting('users')->set_value(true);
+        $bc->get_plan()->get_setting('anonymize')->set_value(false);
+        $bc->finish_ui();
         $backupid = $bc->get_backupid();
         $bc->execute_plan();
         $bc->destroy();
@@ -153,11 +189,15 @@ final class backup_restore_test extends advanced_testcase {
         $rc = new restore_controller(
             $backupid,
             $course2->id,
-            backup::INTERACTIVE_NO,
+            backup::INTERACTIVE_YES,
             backup::MODE_IMPORT,
-            $teacher->id,
+            $USER->id,
             backup::TARGET_CURRENT_ADDING
         );
+        // Include users (and, consequently - booked answers) during restore.
+        $rc->get_plan()->get_setting('users')->set_status(\backup_setting::NOT_LOCKED);
+        $rc->get_plan()->get_setting('users')->set_value(true);
+        $rc->finish_ui();
         $rc->execute_precheck();
         $rc->execute_plan();
         $rc->destroy();
@@ -186,6 +226,26 @@ final class backup_restore_test extends advanced_testcase {
         $session2 = array_shift($sessions);
         $this->assertEquals($options[0]->coursestarttime_1, $session2->coursestarttime);
         $this->assertEquals($options[0]->courseendtime_1, $session2->courseendtime);
+
+        // Verify answers for the restored option.
+        $option20answers = singleton_service::get_instance_of_booking_answers($optionsettings);
+        $this->assertCount(1, $option20answers->answers);
+        // Verify history items for the restored option.
+        $newhistory = $DB->get_records('booking_history', ['bookingid' => $booking21->instance]);
+        $this->assertCount(2, $newhistory);
+        $historyitem = array_shift($newhistory);
+        $this->assertEquals($historyitem->userid, $student1->id);
+        $this->assertEquals($historyitem->optionid, $option20->id);
+        $this->assertEquals($historyitem->bookingid, $booking21->instance);
+        $this->assertEquals($historyitem->status, 0);
+        $this->assertEquals($historyitem->json, "[]");
+        $historyitem = array_shift($newhistory);
+        $this->assertEquals($historyitem->userid, $teacher->id);
+        $this->assertEquals($historyitem->optionid, $option20->id);
+        $this->assertEquals($historyitem->bookingid, $booking21->instance);
+        $this->assertEquals($historyitem->status, 0);
+        $this->assertEquals($historyitem->answerid, 0);
+        $this->assertEquals($historyitem->json, $originalhistory->json);
 
         $option21 = array_shift($options2);
         $this->assertEquals($options[1]->text, $option21->text);

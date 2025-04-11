@@ -27,6 +27,10 @@ defined('MOODLE_INTERNAL') || die();
 
 $observers = [
     [
+        'eventname' => '\local_wunderbyte_table\event\template_switched',
+        'callback' => 'mod_booking_observer::template_switched',
+    ],
+    [
         'eventname' => '\core\event\user_created',
         'callback' => 'mod_booking_observer::user_created',
     ],
@@ -87,10 +91,6 @@ $observers = [
         'callback' => 'mod_booking_observer::pricecategory_changed',
     ],
     [
-        'eventname' => '*',
-        'callback' => 'mod_booking_observer::execute_rule',
-    ],
-    [
         'eventname' => '\core\event\course_completed',
         'callback' => 'mod_booking_observer::course_completed',
     ],
@@ -105,5 +105,9 @@ $observers = [
     [
         'eventname' => '\core\event\group_member_removed',
         'callback' => 'mod_booking_observer::group_membership_changed',
+    ],
+    [
+        'eventname' => '*',
+        'callback' => 'mod_booking_observer::execute_rule',
     ],
 ];

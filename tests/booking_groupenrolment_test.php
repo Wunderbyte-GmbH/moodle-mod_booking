@@ -215,6 +215,21 @@ final class booking_groupenrolment_test extends advanced_testcase {
         ) {
             $this->assertTrue(count($newgroups) == $nnewgroups);
         }
+
+        // Cancel user to check, if group enrolment is deleted as well.
+        $result = booking_bookit::bookit('option', $settings->id, $student2->id);
+        $result = booking_bookit::bookit('option', $settings->id, $student2->id);
+
+        $groupsofcourse = groups_get_all_groups($booking->course);
+        foreach ($groupsofcourse as $group) {
+            $members = groups_get_members($group->id);
+            if (
+                !empty($data['bookingsettings']['unenrolfromgroupofcurrentcourse'])
+                && str_contains($group->idnumber, MOD_BOOKING_ENROL_GROUPTYPE_SOURCECOURSE)
+            ) {
+                $this->assertArrayNotHasKey($student2->id, $members);
+            };
+        }
     }
 
     /**
@@ -231,6 +246,9 @@ final class booking_groupenrolment_test extends advanced_testcase {
                         'firstcourse' => [
                             'enablecompletion' => 1,
                         ],
+                    ],
+                    'bookingsettings' => [
+                        'cancancelbook' => 1,
                     ],
                     'additionalsettings' => [
                         'existingcoursegroups' => [
@@ -252,6 +270,7 @@ final class booking_groupenrolment_test extends advanced_testcase {
                     ],
                     'bookingsettings' => [
                         'addtogroupofcurrentcourse' => [], // In this test, we uns only one booking instance.
+                        'cancancelbook' => 1,
                     ],
                     'additionalsettings' => [
                         'existingcoursegroups' => [
@@ -267,7 +286,7 @@ final class booking_groupenrolment_test extends advanced_testcase {
                     ],
                 ],
             ],
-            'enroltogroupofoption' => [
+            'enroltogroupofoptionandunenrol' => [
                 [
                     'coursesettings' => [
                         'firstcourse' => [
@@ -278,6 +297,8 @@ final class booking_groupenrolment_test extends advanced_testcase {
                         'addtogroupofcurrentcourse' => [
                             MOD_BOOKING_ENROL_INTO_GROUP_OF_BOOKINGOPTION,
                         ], // In this test, we uns only one booking instance.
+                        'cancancelbook' => 1,
+                        'unenrolfromgroupofcurrentcourse' => "1",
                     ],
                     'additionalsettings' => [
                         'existingcoursegroups' => [
@@ -291,7 +312,7 @@ final class booking_groupenrolment_test extends advanced_testcase {
                     ],
                 ],
             ],
-            'enroltobothtypeofgroups' => [
+            'enroltobothtypeofgroupsandunenrol' => [
                 [
                     'coursesettings' => [
                         'firstcourse' => [
@@ -302,6 +323,8 @@ final class booking_groupenrolment_test extends advanced_testcase {
                         'addtogroupofcurrentcourse' => [
                             MOD_BOOKING_ENROL_INTO_GROUP_OF_BOOKINGOPTION,
                         ], // In this test, we uns only one booking instance.
+                        'cancancelbook' => 1,
+                        'unenrolfromgroupofcurrentcourse' => "1",
                     ],
                     'additionalsettings' => [
                         'existingcoursegroups' => [

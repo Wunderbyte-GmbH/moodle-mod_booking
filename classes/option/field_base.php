@@ -194,6 +194,26 @@ abstract class field_base implements fields {
     }
 
     /**
+     * Once all changes are collected, also those triggered in save data, this is a possible hook for the fields.
+     *
+     * @param array $changes
+     * @param object $data
+     * @param object $newoption
+     * @param object $originaloption
+     *
+     * @return void
+     *
+     */
+    public static function changes_collected_action(
+        array $changes,
+        object $data,
+        object $newoption,
+        object $originaloption
+    ) {
+        return;
+    }
+
+    /**
      * Check if there is a difference between the former and the new values of the formdata.
      *
      * @param stdClass $formdata

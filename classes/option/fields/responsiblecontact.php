@@ -211,7 +211,7 @@ class responsiblecontact extends field_base {
                     if (empty($roleid)) {
                         $roleid = 0;
                     }
-                    $courseid = $settings->courseid;
+                    $courseid = $formdata->courseid;
                     if (!empty($courseid)) {
                         $bookingoption->enrol_user($userid, false, $roleid, false, $courseid, true);
                     }

@@ -25,12 +25,15 @@
 
 use core\event\base;
 use core\event\course_module_updated;
+use local_wunderbyte_table\event\template_switched;
+use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
 use mod_booking\booking_option;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\calendar;
 use mod_booking\elective;
 use mod_booking\local\checkanswers\checkanswers;
+use mod_booking\output\view;
 use mod_booking\singleton_service;
 
 /**
@@ -82,6 +85,7 @@ class mod_booking_observer {
         $params = ['userid' => $event->relateduserid];
 
         $DB->delete_records_select('booking_answers', 'userid = :userid', $params);
+        $DB->delete_records_select('booking_history', 'userid = :userid', $params);
         $DB->delete_records_select('booking_teachers', 'userid = :userid', $params);
         $DB->delete_records_select('booking_optiondates_teachers', 'userid = :userid', $params);
         cache_helper::purge_by_event('setbackcachedteachersjournal');
@@ -513,10 +517,61 @@ class mod_booking_observer {
         // Now we check this booking instance to see if users lost their access.
         $context = context_course::instance($event->courseid);
         checkanswers::create_bookinganswers_check_tasks(
-            +$context->id,
+            $context->id,
             checkanswers::CHECK_CM_VISIBILITY,
             checkanswers::ACTION_DELETE,
             $event->relateduserid
         );
+    }
+
+    /**
+     * React on template_switched which is triggered by template switcher.
+     *
+     * @param template_switched $event
+     */
+    public static function template_switched(template_switched $event) {
+        $data = $event->get_data();
+        $encodedtable = $data["other"]["tablecachehash"];
+        $template = $data["other"]["template"];
+        $viewparam = $data["other"]["viewparam"];
+        // Only apply this for Booking templates!
+        if (
+            !empty($encodedtable)
+            && in_array($template, [
+                'mod_booking/table_list',
+                'mod_booking/table_cards',
+            ])
+        ) {
+            $table = wunderbyte_table::instantiate_from_tablecache_hash($encodedtable);
+            $columns = array_keys($table->columns);
+            unset($columns['id']);
+
+            // Important: Unset old template data, before switching!
+            $table->unset_template_data();
+
+            switch ($viewparam) {
+                case 1: // MOD_BOOKING_VIEW_PARAM_CARDS.
+                    view::generate_table_for_cards($table, $columns);
+                    break;
+                case 2: // MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT.
+                    $table->set_template_data('showheaderimageleft', true);
+                    view::generate_table_for_list($table, $columns);
+                    break;
+                case 3: // MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT.
+                    $table->set_template_data('showheaderimageright', true);
+                    view::generate_table_for_list($table, $columns);
+                    break;
+                case 4: // MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF.
+                    $table->set_template_data('showheaderimagelefthalf', true);
+                    view::generate_table_for_list($table, $columns);
+                    break;
+                case 0: // MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF.
+                default:
+                    $table->set_template_data('noheaderimage', true);
+                    view::generate_table_for_list($table, $columns);
+                    break;
+            }
+            $table->return_encoded_table(true);
+        }
     }
 }

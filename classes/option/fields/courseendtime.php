@@ -127,7 +127,6 @@ class courseendtime extends field_base {
         $fieldstoinstanciate = [],
         $applyheader = true
     ) {
-
     }
 
     /**
