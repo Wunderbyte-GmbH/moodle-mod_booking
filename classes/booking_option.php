@@ -3928,7 +3928,6 @@ class booking_option {
         if (
             !empty($originaloption->id) // If we have an old option at all.
             && !empty($originaloption->bookingid) // If it's not a template.
-            && empty($newoption->waitforconfirmation)
             && ($originaloption->maxanswers ?? 0) < ($newoption->maxanswers ?? 0) // Only then we show if we need to sync.
         ) {
             // We have more places now, so we can sync without danger.
