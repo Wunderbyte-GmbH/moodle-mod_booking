@@ -1,3 +1,10 @@
+## Version 8.12.4 (2025041100)
+* Improvement: Add sorting by timemodified for deleted bookings in bookings tracker.
+* Improvement: Display statusdescription in bookingoption detailview #857.
+* Bugfix: To avoid duplication of even triggered mails, set created date to full hour.
+* Bugfix: Fix broken PHPUnit test for overlapping condition. #928
+* Bugfix: Fix SQL for checkanswers task (avoid duplicates in id column, ignore already deleted answers).
+
 ## Version 8.12.3 (2025041000)
 * Improvement: Display given enrollink in report.php
 * Improvement: Add booking_history to course backup
