@@ -129,11 +129,15 @@ class booking_utils {
 
             foreach ($teacher as $value) {
 
-                $user = $DB->get_record('user', ['id' => $value->userid],
-                        'firstname, lastname', IGNORE_MULTIPLE);
-                $params->{"teacher" . $i} = $user->firstname . ' ' . $user->lastname;
-
-                $i++;
+                if (
+                    $user = $DB->get_record('user', ['id' => $value->userid],
+                        'firstname, lastname', IGNORE_MULTIPLE)
+                    ) {
+                         // The user might not actually exist.
+                        // This can be the case when das was backup restored or the user was deleted.
+                        $params->{"teacher" . $i} = $user->firstname . ' ' . $user->lastname;
+                        $i++;
+                    }
             }
 
             if (isset($params->teacher1)) {
