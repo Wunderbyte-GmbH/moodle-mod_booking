@@ -227,11 +227,9 @@ final class recurringoptions_test extends advanced_testcase {
         $settings = singleton_service::get_instance_of_booking_option_settings($record->id);
         $this->assertCount(2, $settings->sessions);
 
-        $children = $DB->get_records('booking_options', ['bookingid' => $booking1->id, 'parentid' => $record->id]);
+        $children = $DB->get_records('booking_options', ['bookingid' => $booking1->id, 'parentid' => $record->id], 'bookingid ASC');
 
         foreach ($children as $index => $child) {
-            $settings = singleton_service::get_instance_of_booking_option_settings($child->id);
-
             // Here is a difference in overwriting.
             $this->assertEquals(
                 $expected['beforebookedtext'],
@@ -343,6 +341,7 @@ final class recurringoptions_test extends advanced_testcase {
         $firstchild->courseendtime_2 = strtotime('now + 4 day');
         $firstchild->apply_to_siblings = $data['apply_to_siblings'];
         booking_option::update($firstchild);
+
         $record = $DB->get_record('booking_options', ['id' => $firstchild->id]);
 
         $updated = array_filter($children, fn($c) => $c->id !== $firstchild->id);
