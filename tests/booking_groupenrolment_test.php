@@ -86,6 +86,8 @@ final class booking_groupenrolment_test extends advanced_testcase {
 
         $standarddata = self::provide_standard_data();
 
+        $this->setAdminUser();
+
         // Coursesettings.
         $courses = [];
         foreach ($data['coursesettings'] as $shortname => $courssettings) {
@@ -130,8 +132,6 @@ final class booking_groupenrolment_test extends advanced_testcase {
         // Check if groups were created correctly.
         $groupsincoursecreated = groups_get_all_groups($booking->course);
         $this->assertEquals(count($data['additionalsettings']['existingcoursegroups']), count($groupsincoursecreated));
-
-        $this->setAdminUser();
 
         // For the moment, we enrol all users in course, this can be adapted if needed.
         foreach ($users as $user) {
@@ -370,8 +370,8 @@ final class booking_groupenrolment_test extends advanced_testcase {
             ],
             'option' => [
                 'text' => 'Test option1',
-                'coursestarttime' => strtotime('now + 1 day'),
-                'courseendtime' => strtotime('now + 2 day'),
+                'coursestarttime_0' => strtotime('now + 1 day'),
+                'courseendtime_0' => strtotime('now + 2 day'),
                 'importing' => 1,
                 'useprice' => 0,
                 'default' => 50, // Default price.
