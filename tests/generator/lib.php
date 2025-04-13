@@ -187,6 +187,12 @@ class mod_booking_generator extends testing_module_generator {
         // Create / save booking option(s).
         $record->id = booking_option::update($record, $context);
 
+        // Override to force given timemadevisible.
+        if (!empty($record->timemadevisible)) {
+            $DB->set_field('booking_options', 'timemadevisible', $record->timemadevisible, ['id' => $record->id]);
+            singleton_service::destroy_booking_option_singleton($record->id);
+        }
+
         return $record;
     }
 
