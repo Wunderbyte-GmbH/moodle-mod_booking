@@ -33,7 +33,7 @@ use mod_booking\event\bookingoption_updated;
 use moodle_url;
 use stdClass;
 
-require_once($CFG->dirroot.'/cohort/lib.php');
+require_once($CFG->dirroot . '/cohort/lib.php');
 
 /**
  * Class for booking utils.
@@ -44,7 +44,6 @@ require_once($CFG->dirroot.'/cohort/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class booking_utils {
-
     /**
      * @var stdClass
      */
@@ -70,7 +69,6 @@ class booking_utils {
         if ($bookingoption) {
             $this->bookingoption = $bookingoption;
         }
-
     }
 
     /**
@@ -122,22 +120,24 @@ class booking_utils {
         $params->eventtype = $settings->eventtype;
 
         if (!is_null($option)) {
-
             $teacher = $DB->get_records('booking_teachers', ['optionid' => $option->id]);
 
             $i = 1;
 
             foreach ($teacher as $value) {
-
                 if (
-                    $user = $DB->get_record('user', ['id' => $value->userid],
-                        'firstname, lastname', IGNORE_MULTIPLE)
-                    ) {
+                    $user = $DB->get_record(
+                        'user',
+                        ['id' => $value->userid],
+                        'firstname, lastname',
+                        IGNORE_MULTIPLE
+                    )
+                ) {
                          // The user might not actually exist.
                         // This can be the case when das was backup restored or the user was deleted.
                         $params->{"teacher" . $i} = $user->firstname . ' ' . $user->lastname;
                         $i++;
-                    }
+                }
             }
 
             if (isset($params->teacher1)) {
@@ -162,21 +162,32 @@ class booking_utils {
             }
 
             $params->title = s($option->text);
-            $params->starttime = $option->coursestarttime ? userdate($option->coursestarttime,
-                    $timeformat) : '';
-            $params->endtime = $option->courseendtime ? userdate($option->courseendtime,
-                    $timeformat) : '';
-            $params->startdate = $option->coursestarttime ? userdate($option->coursestarttime,
-                    $dateformat) : '';
-            $params->enddate = $option->courseendtime ? userdate($option->courseendtime,
-                    $dateformat) : '';
+            $params->starttime = $option->coursestarttime ? userdate(
+                $option->coursestarttime,
+                $timeformat
+            ) : '';
+            $params->endtime = $option->courseendtime ? userdate(
+                $option->courseendtime,
+                $timeformat
+            ) : '';
+            $params->startdate = $option->coursestarttime ? userdate(
+                $option->coursestarttime,
+                $dateformat
+            ) : '';
+            $params->enddate = $option->courseendtime ? userdate(
+                $option->courseendtime,
+                $dateformat
+            ) : '';
             $params->courselink = $courselink;
             $params->location = $option->location;
             $params->institution = $option->institution;
             $params->address = $option->address;
             $params->pollstartdate = $option->coursestarttime ? userdate(
-                    (int) $option->coursestarttime, get_string('pollstrftimedate', 'booking'), '',
-                    false) : '';
+                (int) $option->coursestarttime,
+                get_string('pollstrftimedate', 'booking'),
+                '',
+                false
+            ) : '';
             if (!empty($option->pollurl)) {
                 $params->pollurl = $option->pollurl;
             } else {
@@ -195,10 +206,14 @@ class booking_utils {
                     foreach ($additionaltimes as $t) {
                         $slot = explode('-', $t);
                         $tmpdate = new stdClass();
-                        $tmpdate->leftdate = userdate($slot[0],
-                                get_string('strftimedatetime', 'langconfig'));
-                        $tmpdate->righttdate = userdate($slot[1],
-                                get_string('strftimetime', 'langconfig'));
+                        $tmpdate->leftdate = userdate(
+                            $slot[0],
+                            get_string('strftimedatetime', 'langconfig')
+                        );
+                        $tmpdate->righttdate = userdate(
+                            $slot[1],
+                            get_string('strftimetime', 'langconfig')
+                        );
                         $val .= get_string('leftandrightdate', 'booking', $tmpdate) . '<br>';
                     }
                 }
@@ -465,7 +480,6 @@ class booking_utils {
 
         // Part 1: Book cohort members.
         foreach ($fromform->cohortids as $cohortid) {
-
             // Retrieve all users of this cohort.
             $sql = "SELECT u.*
                     FROM {user} u
@@ -482,10 +496,11 @@ class booking_utils {
                 continue;
             }
 
-            if (has_capability('mod/booking:subscribeusers', $context) ||
-                (booking_check_if_teacher($bookingoption->option))) {
+            if (
+                has_capability('mod/booking:subscribeusers', $context) ||
+                (booking_check_if_teacher($bookingoption->option))
+            ) {
                 foreach ($cohortmembers as $user) {
-
                     // First, we only book users which are already subscribed to this course.
                     if (!is_enrolled($context, $user, null, true)) {
                         // Track users who were not subscribed because they were not enrolled in the course.
@@ -505,7 +520,6 @@ class booking_utils {
 
         // Part 2: Book group members.
         foreach ($fromform->groupids as $groupid) {
-
             // Retrieve all users of this group.
             $sql = "SELECT u.*
                     FROM {user} u
@@ -515,9 +529,10 @@ class booking_utils {
             $groupmembers = $DB->get_records_sql($sql, ['groupid' => $groupid]);
             $groupmembersarray = array_merge($groupmembersarray, $groupmembers);
 
-            if (has_capability('mod/booking:subscribeusers', $context) ||
-                (booking_check_if_teacher($bookingoption->option))) {
-
+            if (
+                has_capability('mod/booking:subscribeusers', $context) ||
+                (booking_check_if_teacher($bookingoption->option))
+            ) {
                 foreach ($groupmembers as $user) {
                     // First, we only book users which are already subscribed to this course.
                     if (!is_enrolled($context, $user, null, true)) {
@@ -536,11 +551,11 @@ class booking_utils {
             }
         }
 
-        $result->sumcohortmembers = count(array_unique($cohortmembersarray , SORT_REGULAR));
-        $result->sumgroupmembers = count(array_unique($groupmembersarray , SORT_REGULAR));
-        $result->notenrolledusers = count(array_unique($notenrolledusersarray , SORT_REGULAR));
-        $result->notsubscribedusers = count(array_unique($notsubscribedusersarray , SORT_REGULAR));
-        $result->subscribedusers = count(array_unique($subscribedusersarray , SORT_REGULAR));
+        $result->sumcohortmembers = count(array_unique($cohortmembersarray, SORT_REGULAR));
+        $result->sumgroupmembers = count(array_unique($groupmembersarray, SORT_REGULAR));
+        $result->notenrolledusers = count(array_unique($notenrolledusersarray, SORT_REGULAR));
+        $result->notsubscribedusers = count(array_unique($notsubscribedusersarray, SORT_REGULAR));
+        $result->subscribedusers = count(array_unique($subscribedusersarray, SORT_REGULAR));
 
         return $result;
     }
@@ -577,7 +592,7 @@ class booking_utils {
         }
 
         if (!empty($list)) {
-            list($insql, $inparams) = $DB->get_in_or_equal($list, SQL_PARAMS_NAMED, 'optionid_');
+            [$insql, $inparams] = $DB->get_in_or_equal($list, SQL_PARAMS_NAMED, 'optionid_');
 
             $sql = "SELECT DISTINCT bt.id, bt.userid, u.firstname, u.lastname, u.username, bt.optionid
                     FROM {booking_teachers} bt
