@@ -2596,12 +2596,27 @@ function mod_booking_tool_certificate_fields() {
     }
     $handler = tool_certificate\customfield\issue_handler::create();
     $handler->ensure_field_exists(
+        'bookinoptionid',
+        'number',
+        "",
+        false,
+        0
+    );
+    $handler->ensure_field_exists(
         'bookingoptionname',
         'text',
-        "Bookingoptionname",
+        get_string('bookingoptionname', 'mod_booking'),
         true,
-        1,
+        get_string('bookingoptionname', 'mod_booking'),
     );
+    $handler->ensure_field_exists(
+        'bookingoptiondescription',
+        'text',
+        get_string('', 'mod_booking'),
+        true,
+        get_string('', 'mod_booking'),
+    );
+
 }
 
 
