@@ -667,7 +667,19 @@ class shortcodes {
         $innerfrom = booking::get_sql_for_fieldofstudy(get_class($DB), $courses);
 
         [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(0, 0, '', null, null, [], [], null, null, '', $innerfrom);
+                booking::get_options_filter_sql(
+                    0,
+                    0,
+                    '',
+                    null,
+                    null,
+                    [],
+                    [],
+                    null,
+                    [MOD_BOOKING_STATUSPARAM_BOOKED],
+                    '',
+                    $innerfrom
+                );
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
