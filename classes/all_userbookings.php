@@ -676,4 +676,15 @@ class all_userbookings extends \table_sql {
 
         echo '<hr>';
     }
+    /**
+     * [Description for col_certificate]
+     *
+     * @param stdClass $values
+     *
+     * @return string
+     *
+     */
+    public function col_certificate(stdClass $values) {
+        return "certificate $values->certificate";
+    }
 }

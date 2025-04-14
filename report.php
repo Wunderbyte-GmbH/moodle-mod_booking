@@ -675,6 +675,12 @@ if (!$tableallbookings->is_downloading()) {
                 $columns[] = 'email';
                 $headers[] = get_string('email', 'mod_booking');
                 break;
+            case 'certificate':
+                if (booking_option::get_value_of_json_by_key($optionid, 'certificate')) {
+                    $headers[] = get_string('certificate', 'mod_booking');
+                    $columns[] = 'certificate';
+                }
+                break;
         }
     }
     $customfields = '';
@@ -743,6 +749,62 @@ if (!$tableallbookings->is_downloading()) {
         $shoppingcartfields = "";
         $shoppingcartfrom = "";
     }
+    if (class_exists('tool_certificate\certificate')) {
+        $certificatefields = ", cert.certificate";
+        $groupby =
+
+        $databasetype = $DB->get_dbfamily();
+        switch ($databasetype) {
+            case 'postgres':
+                // PostgreSQL: Extract key from JSON array element at specified index.
+                $certificatefrom =
+                "LEFT JOIN (
+                SELECT tci.userid,
+                (tci.data::jsonb ->> 'bookingoptionid')::int AS optionid,
+                string_agg(tci.id::text, ',') AS certificate
+                FROM
+                m_tool_certificate_issues tci
+                GROUP BY
+                tci.userid, optionid)
+                cert
+                ON cert.optionid = ba.optionid AND cert.userid = ba.userid";
+                break;
+            case 'mysql':
+                $certificatefrom =
+                "LEFT JOIN (
+                    SELECT tci.userid,
+                           CAST(JSON_UNQUOTE(JSON_EXTRACT(tci.data, '$.bookingoptionid')) AS UNSIGNED) AS optionid,
+                           GROUP_CONCAT(tci.id SEPARATOR ',') AS certificate
+                    FROM m_tool_certificate_issues tci
+                    GROUP BY tci.userid, optionid
+                ) cert ON cert.optionid = ba.optionid AND cert.userid = ba.userid";
+                break;
+            default:
+                throw new \moodle_exception('Unsupported database type for JSON key extraction.');
+        }
+    } else {
+            $certificatefields = "";
+            $certificatefrom = "";
+    }
+    $groupby = " group by ba.id, u.firstnamephonetic, u.lastnamephonetic, u.middlename, u.alternatename, u.firstname, u.lastname,
+            ba.optionid,
+            u.username,
+            u.institution,
+            u.city,
+            u.department,
+            u.email,
+            ba.completed,
+            ba.status,
+            ba.timecreated,
+            ba.userid,
+            ba.waitinglist,
+            ba.notes,
+            ba.places,
+            ba.numrec,
+            s2.price,
+            s2.currency,
+            tci.id
+";
 
     // ALL USERS - START To make compatible MySQL and PostgreSQL - http://hyperpolyglot.org/db.
     $fields = 'ba.id, ' . $mainuserfields . ',
@@ -760,11 +822,12 @@ if (!$tableallbookings->is_downloading()) {
             ba.notes,
             ba.places,
             \'\' otheroptions,
-            ba.numrec' . $customfields . $shoppingcartfields;
+            ba.numrec' . $customfields . $shoppingcartfields . $certificatefields;
     $from = ' {booking_answers} ba
             JOIN {user} u ON u.id = ba.userid
             JOIN {booking_options} bo ON bo.id = ba.optionid
-            LEFT JOIN {booking_options} otherbookingoption ON otherbookingoption.id = ba.frombookingid ' . $shoppingcartfrom;
+            LEFT JOIN {booking_options} otherbookingoption ON otherbookingoption.id = ba.frombookingid ' . $shoppingcartfrom
+            . $certificatefrom;
     $where = ' ba.optionid = :optionid
              AND ba.waitinglist < 2 ' . $addsqlwhere;
 
