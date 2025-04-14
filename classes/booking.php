@@ -967,6 +967,10 @@ class booking {
                     $columns[] = 'timecreated';
                     $headers[] = get_string('timecreated', 'mod_booking');
                     break;
+                case 'certificate':
+                        $headers[] = get_string('certificate', 'mod_booking');
+                        $columns[] = 'timecreated';
+                    break;
             }
         }
         return [$columns, $headers, $userprofilefields];
