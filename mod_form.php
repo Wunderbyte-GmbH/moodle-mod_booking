@@ -523,6 +523,8 @@ class mod_booking_mod_form extends moodleform_mod {
             'userpic' => get_string('userpic'),
             'indexnumber' => get_string('indexnumber', 'mod_booking'),
             'email' => get_string('email', 'mod_booking'),
+            'certificate' => get_string('certificate', 'mod_booking'),
+            'status' => get_string('presence', 'mod_booking'),
         ];
 
         $reportfields = [ // This is the download file.

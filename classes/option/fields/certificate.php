@@ -275,7 +275,11 @@ class certificate extends field_base {
             $result = $template->issue_certificate(
                 $userid,
                 $certificateexpirydate,
-                ['bookingoptionname' => $settings->get_title_with_prefix()]
+                [
+                    'bookingoptionid' => $settings->id,
+                    'bookingoptionname' => $settings->get_title_with_prefix(),
+                    'bookingoptiondescription' => $settings->description,
+                ]
             );
         }
     }
