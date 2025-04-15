@@ -681,6 +681,12 @@ if (!$tableallbookings->is_downloading()) {
                     $columns[] = 'certificate';
                 }
                 break;
+            case 'allusercertificates':
+                if (booking_option::get_value_of_json_by_key($optionid, 'certificate')) {
+                    $headers[] = get_string('allusercertificates', 'mod_booking');
+                    $columns[] = 'allusercertificates';
+                }
+                break;
         }
     }
     $customfields = '';
@@ -750,6 +756,7 @@ if (!$tableallbookings->is_downloading()) {
         $shoppingcartfrom = "";
     }
     if (class_exists('tool_certificate\certificate')) {
+        // TODO FIX SORT ODER
         $certificatefields = ", cert.certificate";
         $databasetype = $DB->get_dbfamily();
         switch ($databasetype) {
@@ -806,24 +813,6 @@ if (!$tableallbookings->is_downloading()) {
             $certificatefields = "";
             $certificatefrom = "";
     }
-    $groupby = " group by ba.id, u.firstnamephonetic, u.lastnamephonetic, u.middlename, u.alternatename, u.firstname, u.lastname,
-            ba.optionid,
-            u.username,
-            u.institution,
-            u.city,
-            u.department,
-            u.email,
-            ba.completed,
-            ba.status,
-            ba.timecreated,
-            ba.userid,
-            ba.waitinglist,
-            ba.notes,
-            ba.places,
-            ba.numrec,
-            s2.price,
-            s2.currency,
-";
 
     // ALL USERS - START To make compatible MySQL and PostgreSQL - http://hyperpolyglot.org/db.
     $fields = 'ba.id, ' . $mainuserfields . ',
