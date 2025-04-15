@@ -969,7 +969,7 @@ class booking {
                     break;
                 case 'certificate':
                         $headers[] = get_string('certificate', 'mod_booking');
-                        $columns[] = 'timecreated';
+                        $columns[] = 'certificate';
                     break;
             }
         }
