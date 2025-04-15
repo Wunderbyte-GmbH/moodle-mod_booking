@@ -524,6 +524,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'indexnumber' => get_string('indexnumber', 'mod_booking'),
             'email' => get_string('email', 'mod_booking'),
             'certificate' => get_string('certificate', 'mod_booking'),
+            'allusercertificates' => get_string('allusercertificates', 'mod_booking'),
             'status' => get_string('presence', 'mod_booking'),
         ];
 
