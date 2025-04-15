@@ -227,7 +227,7 @@ final class recurringoptions_test extends advanced_testcase {
         $settings = singleton_service::get_instance_of_booking_option_settings($record->id);
         $this->assertCount(2, $settings->sessions);
 
-        $children = $DB->get_records('booking_options', ['bookingid' => $booking1->id, 'parentid' => $record->id], 'bookingid ASC');
+        $children = $DB->get_records('booking_options', ['bookingid' => $booking1->id, 'parentid' => $record->id], 'id ASC');
 
         foreach ($children as $index => $child) {
             // Here is a difference in overwriting.
