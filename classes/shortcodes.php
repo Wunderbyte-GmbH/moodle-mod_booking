@@ -36,6 +36,7 @@ use local_wunderbyte_table\filters\types\intrange;
 use local_wunderbyte_table\filters\types\standardfilter;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
+use mod_booking\classes\shortcodes_handler;
 use mod_booking\customfield\booking_handler;
 use mod_booking\local\modechecker;
 use mod_booking\output\view;
@@ -69,8 +70,8 @@ class shortcodes {
 
         global $PAGE;
         $error = shortcodes_handler::validatecondition($shortcode, $args, true);
-        if (!empty($error)) {
-            return $error;
+        if (!empty($error['error'])) {
+            return $error['message'];
         }
 
         $course = $PAGE->course;
@@ -170,8 +171,8 @@ class shortcodes {
 
         global $PAGE;
         $error = shortcodes_handler::validatecondition($shortcode, $args, true);
-        if (!empty($error)) {
-            return $error;
+        if (!empty($error['error'])) {
+            return $error['message'];
         }
         $course = $PAGE->course;
         $perpage = self::check_perpage($args);
@@ -354,8 +355,8 @@ class shortcodes {
 
         global $COURSE, $USER, $DB, $CFG;
         $error = shortcodes_handler::validatecondition($shortcode, $args, true);
-        if (!empty($error)) {
-            return $error;
+        if (!empty($error['error'])) {
+            return $error['message'];
         }
         $perpage = self::check_perpage($args);
 
@@ -458,8 +459,8 @@ class shortcodes {
         global $COURSE, $USER, $DB, $CFG, $PAGE;
 
         $error = shortcodes_handler::validatecondition($shortcode, $args, true);
-        if (!empty($error)) {
-            return $error;
+        if (!empty($error['error'])) {
+            return $error['message'];
         }
 
         $out = '';
@@ -522,8 +523,8 @@ class shortcodes {
         global $PAGE, $DB;
 
         $error = shortcodes_handler::validatecondition($shortcode, $args, true);
-        if (!empty($error)) {
-            return $error;
+        if (!empty($error['error'])) {
+            return $error['message'];
         }
 
         $course = $PAGE->course;
@@ -684,8 +685,8 @@ class shortcodes {
         global $USER, $PAGE;
 
         $error = shortcodes_handler::validatecondition($shortcode, $args, true);
-        if (!empty($error)) {
-            return $error;
+        if (!empty($error['error'])) {
+            return $error['message'];
         }
 
         $userid = $USER->id;
@@ -824,8 +825,8 @@ class shortcodes {
         global $PAGE, $USER, $DB, $CFG;
 
         $error = shortcodes_handler::validatecondition($shortcode, $args, true);
-        if (!empty($error)) {
-            return $error;
+        if (!empty($error['error'])) {
+            return $error['message'];
         }
 
         $supporteddbs = [
@@ -941,8 +942,8 @@ class shortcodes {
         global $PAGE;
 
         $error = shortcodes_handler::validatecondition($shortcode, $args, true);
-        if (!empty($error)) {
-            return $error;
+        if (!empty($error['error'])) {
+            return $error['message'];
         }
 
         if (!is_siteadmin()) {
