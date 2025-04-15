@@ -498,6 +498,7 @@ $string['bookingoptiondateupdated'] = 'Termin geändert';
 $string['bookingoptiondefaults'] = 'Standard-Einstellungen für Buchungsoptionen';
 $string['bookingoptiondefaultsdesc'] = 'Hier können Sie Standardwerte für die Erstellung von Buchungsoptionen setzen und diese gegebenenfalls sperren.';
 $string['bookingoptiondeleted'] = 'Buchungsoption gelöscht';
+$string['bookingoptiondescription'] = 'Beschreibung der Buchungsoption';
 $string['bookingoptiondetaillink'] = 'Buchungsoptiondetaillink';
 $string['bookingoptionfreetobookagain'] = 'Wieder freie Plätze';
 $string['bookingoptionimage'] = 'Header-Bild';
@@ -702,6 +703,8 @@ $string['cdo:coursestarttime'] = 'Beginn der Buchungsoption (coursestarttime)';
 $string['cdo:semesterstart'] = 'Semesterstart';
 $string['certificate'] = 'Zertifikat';
 $string['certificateheader'] = 'Moodle zertifikat';
+$string['certificatewithexperation'] = 'Das Zertifikat ist gütlig bis: {$a}';
+$string['certificatewithoutexperation'] = 'Das Zertifikat ist immer gültig.';
 $string['cfcostcenter'] = "Benutzerdefiniertes Buchungsoptionsfeld für die Kostenstelle";
 $string['cfcostcenter_desc'] = "Wenn Sie Kostenstellen verwenden, müssen Sie hier angeben,
 in welchem benutzerdefinierten Buchungsoptionsfeld diese gespeichert werden.";

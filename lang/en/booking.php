@@ -509,6 +509,7 @@ $string['bookingoptiondateupdated'] = 'Booking option date updated';
 $string['bookingoptiondefaults'] = 'Default settings for booking options';
 $string['bookingoptiondefaultsdesc'] = 'Here you can set default settings for the creation of booking options and lock them if needed.';
 $string['bookingoptiondeleted'] = 'Booking option deleted';
+$string['bookingoptiondescription'] = 'Description of the Bookingoption.';
 $string['bookingoptiondetaillink'] = 'bookingoptiondetaillink';
 $string['bookingoptionfreetobookagain'] = 'Free places again';
 $string['bookingoptionimage'] = 'Header image';
@@ -714,6 +715,8 @@ $string['cdo:coursestarttime'] = 'Start of the booking option (coursestarttime)'
 $string['cdo:semesterstart'] = 'Semester start';
 $string['certificate'] = 'Certificate';
 $string['certificateheader'] = 'Moodle certificate';
+$string['certificatewithexperation'] = 'The certificate is valid until: {$a}';
+$string['certificatewithoutexperation'] = 'The certificate is always valid';
 $string['cfcostcenter'] = "Custom booking option field for cost center";
 $string['cfcostcenter_desc'] = "If you use cost centers, you have to specify which custom
 booking option field is used to store the cost center.";
