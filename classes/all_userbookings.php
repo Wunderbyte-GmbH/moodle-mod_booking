@@ -678,7 +678,7 @@ class all_userbookings extends \table_sql {
         echo '<hr>';
     }
     /**
-     * [Description for col_certificate]
+     * Column for latest Certificat.
      *
      * @param stdClass $values
      *
@@ -699,17 +699,54 @@ class all_userbookings extends \table_sql {
             $code[] = $cert->code;
         }
 
-        $lastexpiredate = toolCertificate::calculate_expirydate(end($expiredates));
+        $lastexpiredate = end($expiredates);
         $lasttimecreated = end($timecreated);
         $lastcode = end($code);
-        $text = get_string('certificatewithexperation', 'mod_booking', $lastexpiredate);
 
         if (empty($lastexpiredate)) {
             $text = get_string('certificatewithoutexperation', 'mod_booking');
+        } else {
+            $lastexpiredate = userdate($lastexpiredate);
+            $text = get_string('certificatewithexperation', 'mod_booking', $lastexpiredate);
         }
-
         $url = "/pluginfile.php/1/tool_certificate/issues/$lasttimecreated/$lastcode.pdf";
         $output = html_writer::link($url, $text);
         return $output;
+    }
+
+    /**
+     * Column for all Certificates in the Bookingoption for a user.
+     *
+     * @param stdClass $values
+     *
+     * @return string
+     *
+     */
+    public function col_allusercertificates(stdClass $values) {
+        global $OUTPUT;
+        static $id = 1;
+        if (empty($values->certificate)) {
+            return "";
+        }
+
+        $certificates = json_decode($values->certificate);
+        $certdata = [];
+
+        foreach ($certificates as $cert) {
+            $certdata[] = [
+                'code' => $cert->code,
+                'timecreated' => userdate($cert->timecreated),
+                'expires' => !empty($cert->expires) ? userdate($cert->expires)
+                : get_string('certificatewithoutexperation', 'mod_booking'),
+            ];
+        }
+        // TODO: eventually individual header.
+        $data = [
+            'title' => get_string('certificateheader', 'mod_booking'),
+            'certificates' => $certdata,
+            'id' => $id,
+        ];
+        $id++;
+        return $OUTPUT->render_from_template('mod_booking/report/allusercertificate_modal', $data);
     }
 }
