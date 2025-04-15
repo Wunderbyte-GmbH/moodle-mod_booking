@@ -30,6 +30,7 @@ use html_writer;
 use moodle_url;
 use stdClass;
 use user_picture;
+use tool_certificate\certificate as toolCertificate;
 defined('MOODLE_INTERNAL') || die();
 require_once('../../lib/tablelib.php');
 
@@ -685,6 +686,30 @@ class all_userbookings extends \table_sql {
      *
      */
     public function col_certificate(stdClass $values) {
-        return "certificate $values->certificate";
+
+        if (!isset($values->certificate)) {
+            return "";
+        }
+
+        $certificates = json_decode($values->certificate);
+        $expiredates = [];
+        foreach ($certificates as $cert) {
+            $expiredates[] = $cert->expires;
+            $timecreated[] = $cert->timecreated;
+            $code[] = $cert->code;
+        }
+
+        $lastexpiredate = toolCertificate::calculate_expirydate(end($expiredates));
+        $lasttimecreated = end($timecreated);
+        $lastcode = end($code);
+        $text = get_string('certificatewithexperation', 'mod_booking', $lastexpiredate);
+
+        if (empty($lastexpiredate)) {
+            $text = get_string('certificatewithoutexperation', 'mod_booking');
+        }
+
+        $url = "/pluginfile.php/1/tool_certificate/issues/$lasttimecreated/$lastcode.pdf";
+        $output = html_writer::link($url, $text);
+        return $output;
     }
 }

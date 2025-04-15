@@ -751,33 +751,53 @@ if (!$tableallbookings->is_downloading()) {
     }
     if (class_exists('tool_certificate\certificate')) {
         $certificatefields = ", cert.certificate";
-        $groupby =
-
         $databasetype = $DB->get_dbfamily();
         switch ($databasetype) {
             case 'postgres':
                 // PostgreSQL: Extract key from JSON array element at specified index.
-                $certificatefrom =
-                "LEFT JOIN (
-                SELECT tci.userid,
-                (tci.data::jsonb ->> 'bookingoptionid')::int AS optionid,
-                string_agg(tci.id::text, ',') AS certificate
-                FROM
-                m_tool_certificate_issues tci
-                GROUP BY
-                tci.userid, optionid)
-                cert
-                ON cert.optionid = ba.optionid AND cert.userid = ba.userid";
+                $certificatefrom = "
+                LEFT JOIN (
+                    SELECT
+                        tci.userid,
+                        (tci.data::jsonb ->> 'bookingoptionid')::int AS optionid,
+                        json_agg(
+                            json_build_object(
+                                'id', tci.id,
+                                'code', tci.code,
+                                'expires', tci.expires,
+                                'data', data,
+                                'timecreated', timecreated
+                            )
+                        ) AS certificate
+                    FROM
+                        m_tool_certificate_issues tci
+                    GROUP BY
+                        tci.userid, optionid
+                ) cert ON cert.optionid = ba.optionid AND cert.userid = ba.userid
+                ";
+
                 break;
             case 'mysql':
-                $certificatefrom =
-                "LEFT JOIN (
-                    SELECT tci.userid,
-                           CAST(JSON_UNQUOTE(JSON_EXTRACT(tci.data, '$.bookingoptionid')) AS UNSIGNED) AS optionid,
-                           GROUP_CONCAT(tci.id SEPARATOR ',') AS certificate
-                    FROM m_tool_certificate_issues tci
-                    GROUP BY tci.userid, optionid
-                ) cert ON cert.optionid = ba.optionid AND cert.userid = ba.userid";
+                    $certificatefrom = "
+                    LEFT JOIN (
+                        SELECT
+                            tci.userid,
+                            CAST(JSON_UNQUOTE(JSON_EXTRACT(tci.data, '$.bookingoptionid')) AS UNSIGNED) AS optionid,
+                            JSON_ARRAYAGG(
+                                JSON_OBJECT(
+                                    'id', tci.id,
+                                    'code', tci.code,
+                                    'expires', tci.expires,
+                                    'data', tci.data,
+                                    'timecreated', tci.timecreated
+                                )
+                            ) AS certificate
+                        FROM
+                            m_tool_certificate_issues tci
+                        GROUP BY
+                            tci.userid, optionid
+                    ) cert ON cert.optionid = ba.optionid AND cert.userid = ba.userid
+                    ";
                 break;
             default:
                 throw new \moodle_exception('Unsupported database type for JSON key extraction.');
@@ -803,7 +823,6 @@ if (!$tableallbookings->is_downloading()) {
             ba.numrec,
             s2.price,
             s2.currency,
-            tci.id
 ";
 
     // ALL USERS - START To make compatible MySQL and PostgreSQL - http://hyperpolyglot.org/db.
