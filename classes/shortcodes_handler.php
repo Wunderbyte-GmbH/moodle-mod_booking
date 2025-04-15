@@ -24,25 +24,9 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_booking;
+namespace mod_booking\classes;
 
-use cache_helper;
-use context_system;
-use Exception;
-use html_writer;
-use local_wunderbyte_table\filters\types\datepicker;
-use local_wunderbyte_table\filters\types\intrange;
-use local_wunderbyte_table\filters\types\standardfilter;
-use local_wunderbyte_table\wunderbyte_table;
-use mod_booking\booking;
-use mod_booking\customfield\booking_handler;
-use mod_booking\local\modechecker;
-use mod_booking\output\view;
-use mod_booking\singleton_service;
-use mod_booking\table\bookingoptions_wbtable;
-use mod_booking\table\bulkoperations_table;
 use mod_booking\utils\wb_payment;
-use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -59,7 +43,7 @@ class shortcodes_handler {
      * @param mixed $args
      * @param mixed $requirespro
      *
-     * @return [type]
+     * @return array
      *
      */
     public static function validatecondition($shortcode, $args, $requirespro) {
@@ -67,22 +51,11 @@ class shortcodes_handler {
             'error' => 0,
             'message' => "",
         ];
-        $shortcodesettingcheck = self::shotcodes_active($shortcode, $answerarray);
-        $proversioncheck = self::license_is_activated($shortcode, $answerarray);
-        $requiresargs = self::requires_args($shortcode, $answerarray, $args);
+        self::shortcodes_active($shortcode, $answerarray);
+        self::license_is_activated($shortcode, $answerarray);
+        self::requires_args($shortcode, $answerarray, $args);
 
-        if ($shortcodesettingcheck['error'] == 1) {
-            return $shortcodesettingcheck['message'];
-        }
-        if ($proversioncheck['error'] == 1 && $requirespro) {
-            return $proversioncheck['message'];
-        }
-
-        if ($requiresargs['error'] == 1) {
-            return $requiresargs['message'];
-        }
-
-        return "";
+        return $answerarray;
     }
     /**
      * Check whether shortcodes are enabled.
@@ -90,11 +63,7 @@ class shortcodes_handler {
      * @param string $shortcode
      * @return array
      */
-    private static function shotcodes_active($shortcode, $answerarray) {
-        $answerarray = [
-            'error' => 0,
-            'message' => '',
-        ];
+    private static function shortcodes_active($shortcode, &$answerarray) {
 
         if (!get_config('booking', 'shortcodesoff')) {
             return $answerarray;
@@ -112,10 +81,10 @@ class shortcodes_handler {
      * @param mixed $shortcode
      * @param mixed $answerarray
      *
-     * @return [type]
+     * @return array
      *
      */
-    private static function license_is_activated($shortcode, $answerarray) {
+    private static function license_is_activated($shortcode, &$answerarray) {
         if (wb_payment::pro_version_is_activated()) {
             return $answerarray;
         }
@@ -130,10 +99,10 @@ class shortcodes_handler {
      * @param mixed $answerarray
      * @param mixed $args
      *
-     * @return [type]
+     * @return array
      *
      */
-    private static function requires_args($shortcode, $answerarray, $args) {
+    private static function requires_args($shortcode, &$answerarray, $args) {
         switch ($shortcode) {
             case 'courselist':
                 if (empty($args['cmid'])) {
