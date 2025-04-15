@@ -2236,7 +2236,7 @@ class booking_option {
      * @param bool $allowoverbooking
      * @return mixed false if enrolement is not possible, 0 for can book, 1 for waitinglist and 2 for notification list.
      */
-    private function check_if_limit(int $userid, bool $allowoverbooking = false) {
+    public function check_if_limit(int $userid, bool $allowoverbooking = false) {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
         $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
