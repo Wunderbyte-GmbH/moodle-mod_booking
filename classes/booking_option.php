@@ -1131,6 +1131,7 @@ class booking_option {
                 if (!$isavailable) {
                     return false;
                 };
+                $waitinglist = MOD_BOOKING_STATUSPARAM_BOOKED;
                 break;
             default:
                 // We check if we can still book the user.

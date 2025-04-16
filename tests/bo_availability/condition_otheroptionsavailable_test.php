@@ -201,7 +201,7 @@ final class condition_otheroptionsavailable_test extends advanced_testcase {
         foreach ($relatedoptions as $optionid => $option) {
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
             if ($expected['relatedoptionsbooked']) {
-                [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $users['student1']->id, true);
+                [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
                 $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
             } else {
                 $answers = singleton_service::get_instance_of_booking_answers($settings);
@@ -271,7 +271,6 @@ final class condition_otheroptionsavailable_test extends advanced_testcase {
                     'bookotheroptionsforce' => MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_NOOVERBOOKING,
                     'optionsforjson' => [
                         'Available option',
-                        'Already started',
                         'Not yet open',
                     ],
                 ],
@@ -287,11 +286,46 @@ final class condition_otheroptionsavailable_test extends advanced_testcase {
                             'enablecompletion' => 1,
                         ],
                     ],
-                    'bookotheroptionsforce' => MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_NOOVERBOOKING,
+                    'bookotheroptionsforce' => MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_CONDITIONS_BLOCKING,
                 ],
                 [
                     'bookitresult' => MOD_BOOKING_BO_COND_OTHEROPTIONSAVAILABLE,
                     'relatedoptionsbooked' => false,
+                ],
+            ],
+            'checkallconditionsnotfull' => [
+                [
+                    'coursesettings' => [
+                        'firstcourse' => [
+                            'enablecompletion' => 1,
+                        ],
+                    ],
+                    'bookotheroptionsforce' => MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_CONDITIONS_BLOCKING,
+                    'optionsforjson' => [
+                        'Available option',
+                        'Not yet open',
+                    ],
+                ],
+                [
+                    'bookitresult' => MOD_BOOKING_BO_COND_OTHEROPTIONSAVAILABLE,
+                    'relatedoptionsbooked' => false,
+                ],
+            ],
+            'checkallconditionsavailable' => [
+                [
+                    'coursesettings' => [
+                        'firstcourse' => [
+                            'enablecompletion' => 1,
+                        ],
+                    ],
+                    'bookotheroptionsforce' => MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_CONDITIONS_BLOCKING,
+                    'optionsforjson' => [
+                        'Available option',
+                    ],
+                ],
+                [
+                    'bookitresult' => MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
+                    'relatedoptionsbooked' => true,
                 ],
             ],
         ];
@@ -334,10 +368,10 @@ final class condition_otheroptionsavailable_test extends advanced_testcase {
             'relatedoptions' => [
                 [
                     'text' => 'Not yet open',
-                    'coursestarttime_0' => strtotime('now + 3 day'),
-                    'courseendtime_0' => strtotime('now + 5 day'),
                     'bookingopeningtime' => strtotime('now + 2 day'),
-                    'importing' => 1,
+                    'bookingclosingtime' => strtotime('now + 5 day'),
+                    'restrictanswerperiodopening' => 1,
+                    'restrictanswerperiodclosing' => 1,
                     'useprice' => 0,
                     'default' => 50, // Default price.
                 ],
@@ -346,14 +380,6 @@ final class condition_otheroptionsavailable_test extends advanced_testcase {
                     'coursestarttime_0' => strtotime('now + 1 day'),
                     'courseendtime_0' => strtotime('now + 2 day'),
                     'maxanswers' => 1,
-                    'importing' => 1,
-                    'useprice' => 0,
-                    'default' => 50, // Default price.
-                ],
-                [
-                    'text' => 'Already started',
-                    'coursestarttime_0' => strtotime('now - 1 day'),
-                    'courseendtime_0' => strtotime('now + 2 day'),
                     'importing' => 1,
                     'useprice' => 0,
                     'default' => 50, // Default price.
