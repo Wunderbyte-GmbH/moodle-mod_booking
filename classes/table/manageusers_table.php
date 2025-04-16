@@ -113,12 +113,6 @@ class manageusers_table extends wunderbyte_table {
 
         global $OUTPUT;
 
-        // Render col_teacher using a template.
-        $data = new col_teacher($values->optionid, $settings);
-        /** @var renderer $output */
-        $output = singleton_service::get_renderer('mod_booking');
-        $teachers = $output->render_col_teacher($data);
-
         $optionlink = new moodle_url(
             '/mod/booking/view.php',
             [
@@ -141,6 +135,11 @@ class manageusers_table extends wunderbyte_table {
             ['cmid' => $values->cmid]
         );
 
+        $courselink = new moodle_url(
+            '/course/view.php',
+            ['id' => $values->courseid]
+        );
+
         $data = [
             'id' => $values->optionid,
             'titleprefix' => $values->titleprefix,
@@ -149,7 +148,8 @@ class manageusers_table extends wunderbyte_table {
             'report2link' => $report2link->out(false),
             'instancename' => $values->instancename,
             'instancelink' => $instancelink->out(false),
-            'teachers' => $teachers,
+            'coursename' => $values->coursename,
+            'courselink' => $courselink->out(false),
         ];
 
         return $OUTPUT->render_from_template('mod_booking/report/option', $data);

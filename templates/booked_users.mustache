@@ -103,4 +103,18 @@
             </div>
         </div>
     {{/deletedusers}}
+    {{#bookinghistory}}
+        <div class="card">
+            <div class="card-header bg-transparent" id="accordion-heading-bookinghistory">
+                <div class="btn btn-link btn-block text-left btn-lg font-weight-bold" role="button" data-toggle="collapse" data-target="#accordion-item-bookinghistory" aria-expanded="false" aria-controls="accordion-item-bookinghistory">
+                    <i class="fa fa-history" aria-hidden="true"></i>&nbsp;{{#str}} bookinghistory, mod_booking {{/str}}
+                </div>
+            </div>
+            <div id="accordion-item-bookinghistory" class="collapse" aria-labelledby="accordion-heading-bookinghistory" data-parent="#accordion-usertables">
+                <div class="card-body p-0">
+                    {{{bookinghistory}}}
+                </div>
+            </div>
+        </div>
+    {{/bookinghistory}}
 </div>

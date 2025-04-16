@@ -542,6 +542,31 @@ We need this for teachers for example. */
     margin-left: 20px;
 }
 
+#page-mod-booking-report2 .pagination {
+    font-size: calc(0.9rem + 0.045vw);
+    margin-left: 20px;
+}
+
+/* Hide columns we need for sorting only. */
+#page-mod-booking-report2 .titleprefix {
+    display: none;
+}
+#page-mod-booking-report2 .text {
+    display: none;
+}
+#page-mod-booking-report2 .optionname {
+    display: none;
+}
+#page-mod-booking-report2 .lastname {
+    display: none;
+}
+#page-mod-booking-report2 .firstname {
+    display: none;
+}
+#page-mod-booking-report2 .email {
+    display: none;
+}
+
 .disabled-profeature {
     color: grey;
     pointer-events: none; /* Disables clicks */

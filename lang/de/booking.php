@@ -1639,7 +1639,7 @@ Hier geht\'s zum Kurs:  {$a->courselink}
 ';
 $string['notifyemailteacherssubject'] = 'Ihre Buchung startet demnächst';
 $string['notifyme'] = 'Benachrichtigen wenn frei';
-$string['notifymelistdeleted'] = 'Nutzerin:in von der Benachrichtigungsliste gelöscht';
+$string['notifymelistdeleted'] = 'Nutzer:in von der Benachrichtigungsliste gelöscht';
 $string['notinarray'] = 'TeilnehmerIn hat keinen dieser Werte (Komma getrennt)';
 $string['notopenyet'] = 'Diese Aktivität ist bis {$a} nicht verfügbar';
 $string['nouserfound'] = 'Kein/e User/in gefunden: ';

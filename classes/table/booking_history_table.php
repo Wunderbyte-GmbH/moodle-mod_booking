@@ -27,6 +27,7 @@ namespace mod_booking\table;
 
 use mod_booking\singleton_service;
 use mod_booking\booking;
+use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -46,6 +47,86 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class booking_history_table extends wunderbyte_table {
+    /**
+     * Return user column.
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_user(stdClass $values): string {
+        global $OUTPUT;
+        $url = new moodle_url('/user/profile.php', ['id' => $values->userid]);
+        $data = [
+            'id' => $values->userid,
+            'firstname' => $values->firstname,
+            'lastname' => $values->lastname,
+            'email' => $values->email,
+            'userprofilelink' => $url->out(),
+        ];
+        return $OUTPUT->render_from_template('mod_booking/booked_user', $data);
+    }
+
+    /**
+     * Return option column.
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_bookingoption(stdClass $values) {
+
+        if (empty($values->optionid)) {
+            return '';
+        }
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid);
+
+        if ($this->is_downloading()) {
+            return $settings->get_title_with_prefix();
+        }
+
+        global $OUTPUT;
+
+        $optionlink = new moodle_url(
+            '/mod/booking/view.php',
+            [
+                'id' => $values->cmid,
+                'optionid' => $values->optionid,
+                'whichview' => 'showonlyone',
+            ]
+        );
+
+        $report2link = new moodle_url(
+            '/mod/booking/report2.php',
+            [
+                'cmid' => $values->cmid,
+                'optionid' => $values->optionid,
+            ]
+        );
+
+        $instancelink = new moodle_url(
+            '/mod/booking/report2.php',
+            ['cmid' => $values->cmid]
+        );
+
+        $courselink = new moodle_url(
+            '/course/view.php',
+            ['id' => $values->courseid]
+        );
+
+        $data = [
+            'id' => $values->id,
+            'titleprefix' => $values->titleprefix,
+            'title' => $values->optionname,
+            'optionlink' => $optionlink->out(false),
+            'report2link' => $report2link->out(false),
+            'instancename' => $values->instancename,
+            'instancelink' => $instancelink->out(false),
+            'coursename' => $values->coursename,
+            'courselink' => $courselink->out(false),
+        ];
+
+        return $OUTPUT->render_from_template('mod_booking/report/option', $data);
+    }
+
     /**
      * Column for timecreated value.
      * @param stdClass $values
@@ -90,7 +171,7 @@ class booking_history_table extends wunderbyte_table {
      * @return string
      */
     public function col_status(stdClass $values) {
-        $status = MOD_BOOKING_ALL_POSSIBLE_STATI_ARRAY;
+        $status = booking::get_array_of_possible_booking_history_statuses();
         $resolved = $status[$values->status];
         return $resolved;
     }
