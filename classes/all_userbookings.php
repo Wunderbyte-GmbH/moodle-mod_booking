@@ -30,7 +30,6 @@ use html_writer;
 use moodle_url;
 use stdClass;
 use user_picture;
-use tool_certificate\certificate as toolCertificate;
 defined('MOODLE_INTERNAL') || die();
 require_once('../../lib/tablelib.php');
 
@@ -178,7 +177,7 @@ class all_userbookings extends \table_sql {
         if (!$this->is_downloading()) {
             $completed = '';
             if ($values->completed) {
-                $completed = '&#x2713;';
+                $completed = '&#x2705;';
             }
             return $completed;
         } else {
@@ -686,6 +685,9 @@ class all_userbookings extends \table_sql {
      *
      */
     public function col_certificate(stdClass $values) {
+        $checkmark = '&#x2705; ';
+        $cross = '&#x274C; ';
+        $now = time();
 
         if (!isset($values->certificate)) {
             return "";
@@ -706,11 +708,12 @@ class all_userbookings extends \table_sql {
         if (empty($lastexpiredate)) {
             $text = get_string('certificatewithoutexperation', 'mod_booking');
         } else {
-            $lastexpiredate = userdate($lastexpiredate);
-            $text = get_string('certificatewithexperation', 'mod_booking', $lastexpiredate);
+            $dateformatted = userdate($lastexpiredate);
+            $text = get_string('certificatewithexperation', 'mod_booking', $dateformatted);
         }
-        $url = "/pluginfile.php/1/tool_certificate/issues/$lasttimecreated/$lastcode.pdf";
-        $output = html_writer::link($url, $text);
+        $statusicon = ($now < $lastexpiredate) ? $checkmark : $cross;
+        $url = new moodle_url("/pluginfile.php/1/tool_certificate/issues/{$lasttimecreated}/{$lastcode}.pdf");
+        $output = $statusicon . html_writer::link($url, $text, ['traget' => '_blank']);
         return $output;
     }
 
@@ -728,21 +731,24 @@ class all_userbookings extends \table_sql {
         if (empty($values->certificate)) {
             return "";
         }
-
         $certificates = json_decode($values->certificate);
         $certdata = [];
+        $fullname = "{$values->firstname} {$values->lastname}";
 
         foreach ($certificates as $cert) {
+            $timecreated = $cert->timecreated;
+            $code = $cert->code;
+            $url = new moodle_url("/pluginfile.php/1/tool_certificate/issues/{$timecreated}/{$code}.pdf");
             $certdata[] = [
-                'code' => $cert->code,
-                'timecreated' => userdate($cert->timecreated),
+                'code' => $code,
+                'timecreated' => userdate($timecreated),
                 'expires' => !empty($cert->expires) ? userdate($cert->expires)
                 : get_string('certificatewithoutexperation', 'mod_booking'),
+                'url' => $url,
             ];
         }
-        // TODO: eventually individual header.
         $data = [
-            'title' => get_string('certificateheader', 'mod_booking'),
+            'title' => get_string('certificatemodalheader', 'mod_booking', $fullname),
             'certificates' => $certdata,
             'id' => $id,
         ];
