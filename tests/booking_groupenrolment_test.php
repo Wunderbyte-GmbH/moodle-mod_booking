@@ -370,8 +370,8 @@ final class booking_groupenrolment_test extends advanced_testcase {
             ],
             'option' => [
                 'text' => 'Test option1',
-                'coursestarttime_0' => strtotime('now + 1 day'),
-                'courseendtime_0' => strtotime('now + 2 day'),
+                'coursestarttime' => strtotime('now + 1 day'),
+                'courseendtime' => strtotime('now + 2 day'),
                 'importing' => 1,
                 'useprice' => 0,
                 'default' => 50, // Default price.
