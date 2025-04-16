@@ -47,7 +47,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  */
 class otheroptionsavailable implements bo_condition {
     /** @var int $id Standard Conditions have hardcoded ids. */
-    public $id = MOD_BOOKING_BO_COND_OPTIONHASSTARTED;
+    public $id = MOD_BOOKING_BO_COND_OTHEROPTIONSAVAILABLE;
 
     /** @var bool $overridable Indicates if the condition can be overriden. */
     public $overridable = true;
@@ -96,6 +96,7 @@ class otheroptionsavailable implements bo_condition {
         if (
             !empty($json)
             && isset($json->boactions)
+            && !empty($json->boactions)
         ) {
             foreach ($json->boactions as $action) {
                 if (
@@ -114,10 +115,10 @@ class otheroptionsavailable implements bo_condition {
                         }
                         break;
                     case MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_NOOVERBOOKING:
+                        $a = true;
                         foreach ($action->bookotheroptionsselect as $otheroptionid) {
                             if (!booking_option::option_allows_booking_for_user($otheroptionid, $userid)) {
                                 $a = false;
-                                break;
                             };
                             $otheroptionsettings = singleton_service::get_instance_of_booking_option_settings($otheroptionid);
                             $obo = new booking_option($otheroptionsettings->cmid, $otheroptionid);
@@ -193,7 +194,7 @@ class otheroptionsavailable implements bo_condition {
 
         $isavailable = $this->is_available($settings, $userid, $not);
 
-        $description = "nicht verfügbar weil verlinkte optionen nicht alle verfügbar sind";
+        $description = $this->get_description_string($isavailable, $full, $settings);
 
         return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_MYBUTTON];
     }

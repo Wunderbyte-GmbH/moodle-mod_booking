@@ -1131,6 +1131,7 @@ class booking_option {
                 if (!$isavailable) {
                     return false;
                 };
+                break;
             default:
                 // We check if we can still book the user.
                 // False means, that it can't be booked.
@@ -1163,8 +1164,12 @@ class booking_option {
             case MOD_BOOKING_BO_SUBMIT_STATUS_UN_CONFIRM: // Means unconfirm on waitinglist.
                 $waitinglist = MOD_BOOKING_STATUSPARAM_WAITINGLIST;
                 break;
-            default: // Applies for MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL & MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION.
+            case MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL:
+            case MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_CONDITIONS_BLOCKING:
+            case MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_NOOVERBOOKING:
+            case MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE:
                 $waitinglist = MOD_BOOKING_STATUSPARAM_BOOKED;
+                break;
         }
 
         // Only if maxperuser is set, the part after the OR is executed.
@@ -1319,10 +1324,11 @@ class booking_option {
      * @param int $userid
      * @param int $optionid
      * @param int $waitinglist
-     * @param [type] $currentanswerid
-     * @param [type] $timecreated
+     * @param int $currentanswerid
+     * @param int $timecreated
      * @param int $confirmwaitinglist
      * @param string $erlid
+     * @param int $historystatus
      * @return int
      */
     public static function write_user_answer_to_db(
@@ -1331,11 +1337,11 @@ class booking_option {
         int $userid,
         int $optionid,
         int $waitinglist,
-        $currentanswerid = null,
-        $timecreated = null,
-        $confirmwaitinglist = 0,
-        $erlid = "",
-        $historystatus = 0
+        int $currentanswerid = null,
+        int $timecreated = null,
+        int $confirmwaitinglist = 0,
+        string $erlid = "",
+        int $historystatus = 0
     ) {
 
         global $DB, $USER;

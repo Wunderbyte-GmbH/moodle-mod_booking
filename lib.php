@@ -152,6 +152,7 @@ define('MOD_BOOKING_BO_COND_SUBBOOKING', 40);
 
 // Careful with changing these JSON COND values! They are stored.
 // If changed, DB Values need to be updated.
+define('MOD_BOOKING_BO_COND_OTHEROPTIONSAVAILABLE', 31);
 define('MOD_BOOKING_BO_COND_JSON_NOOVERLAPPING', 30);
 define('MOD_BOOKING_BO_COND_JSON_NOOVERLAPPINGPROXY', 29);
 define('MOD_BOOKING_BO_COND_JSON_MAXOPTIONSFROMCATEGORY', 28);
