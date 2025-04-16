@@ -127,9 +127,18 @@ class bookotheroptions extends booking_action {
         $mform->setType('bookotheroptionsselect', PARAM_INT);
 
         $options = [
-            MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE => get_string('bookotheroptionsforcebooking', 'booking'),
-            MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_NOOVERBOOKING => get_string('bookotheroptionsnooverbooking', 'booking'),
-            MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_CONDITIONS_BLOCKING => get_string('bookotheroptionsconditionsblock', 'booking'),
+            MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE => get_string(
+                'bookotheroptionsforcebooking',
+                'booking'
+            ),
+            MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_NOOVERBOOKING => get_string(
+                'bookotheroptionsnooverbooking',
+                'booking'
+            ),
+            MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_CONDITIONS_BLOCKING => get_string(
+                'bookotheroptionsconditionsblock',
+                'booking'
+            ),
         ];
         $mform->addElement(
             'select',
