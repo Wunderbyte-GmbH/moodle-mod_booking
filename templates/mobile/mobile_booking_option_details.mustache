@@ -33,6 +33,18 @@
 
             <br>
 
+            <%#cancelbookingoption%>
+            <ion-button core-site-plugins-call-ws
+                name="mod_booking_bookit" [params]="{itemid: <% id %>, area: 'option', userid: <% userid %>, data: <% data %>}"
+                [preSets]="{getFromCache: 0, saveToCache: 0}"
+                refreshOnSuccess="true">
+                <% label %>
+            </ion-button>
+            <%/cancelbookingoption%>
+
+            <br>
+
+
             <%#submit%>
             <ion-button core-site-plugins-call-ws
                 name="mod_booking_bookit" [params]="{itemid: <% id %>, area: 'option', userid: <% userid %>, data:''}"

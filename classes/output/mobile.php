@@ -177,8 +177,21 @@ class mobile {
                 $data['nosubmit']['label'] = get_string('notbookable', 'mod_booking');
                 break;
             case MOD_BOOKING_BO_COND_ALREADYBOOKED:
-                $data['nosubmit']['label'] = get_string('alreadybooked', 'mod_booking');
+            case MOD_BOOKING_BO_COND_CONFIRMCANCEL:
+                $data['nosubmit']['label'] = get_string('booked', 'mod_booking');
+                $cancellabel = $id == MOD_BOOKING_BO_COND_ALREADYBOOKED ? get_string('cancelmyself', 'mod_booking') : $description;
                 self::render_course_button($data);
+                $data['cancelbookingoption'] = [
+                    'itemid' => $data['id'],
+                    'area' => "option",
+                    'userid' => $USER->id,
+                    'label' => $cancellabel,
+                    'data' => '"{\"itemid\":\"' .
+                        $data['id'] .
+                        '\",\"componentname\":\"mod_booking\",\"area\":\"option\",\"userid\":\"' .
+                        $USER->id .
+                        ' \",\"results\":\"\",\"initialized\":\"true\"}"',
+                ];
                 break;
             default:
                 $data['nosubmit']['label']

@@ -58,6 +58,8 @@ $addons = [
             ['previous', 'mod_booking'],
             ['booking:choose', 'mod_booking'],
             ['areyousure:book', 'mod_booking'],
+            ['cancelmyself', 'mod_booking'],
+            ['areyousure:cancel', 'mod_booking'],
             ['booked', 'mod_booking'],
             ['mobilenotification', 'mod_booking'],
             ['mobilesubmittedsuccess', 'mod_booking'],
