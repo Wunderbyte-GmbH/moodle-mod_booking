@@ -186,14 +186,11 @@ final class condition_otheroptionsavailable_test extends advanced_testcase {
         // So far for the basic setup.
         // Now proceed to logic of the testcase.
 
-        // Book the user.
-        // Try to book with user1.
         $student1 = $users['student1'];
         $this->setUser($users['student1']);
-        // Book the first user without any problem.
         $boinfo = new bo_info($settings);
 
-        // User Books Course or Waitinglist depending on the settings.
+        // User Books Option.
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals($expected['bookitresult'], $id);
@@ -262,6 +259,25 @@ final class condition_otheroptionsavailable_test extends advanced_testcase {
                 [
                     'bookitresult' => MOD_BOOKING_BO_COND_OTHEROPTIONSAVAILABLE,
                     'relatedoptionsbooked' => false,
+                ],
+            ],
+            'checkwaitinglistnotfullybooked' => [
+                [
+                    'coursesettings' => [
+                        'firstcourse' => [
+                            'enablecompletion' => 1,
+                        ],
+                    ],
+                    'bookotheroptionsforce' => MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_NOOVERBOOKING,
+                    'optionsforjson' => [
+                        'Available option',
+                        'Already started',
+                        'Not yet open',
+                    ],
+                ],
+                [
+                    'bookitresult' => MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
+                    'relatedoptionsbooked' => true,
                 ],
             ],
             'checkallconditions' => [
