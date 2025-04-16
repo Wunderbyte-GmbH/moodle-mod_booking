@@ -30,6 +30,7 @@
         "certificateissuedate" : "1.1.1970, 1:00 AM"
         "certificateexperationdate" : "1.1.1970 2:00 AM"
         "id" : 1
+        "url": certificate/issue/1234.pdf
     }
 }}
 <div>
@@ -63,7 +64,11 @@
     <tbody>
       {{#certificates}}
         <tr>
-          <td>{{code}}</td>
+          <td>
+            <a href="{{{url}}}" target="_blank">
+            {{code}}
+            </a>
+          </td>
           <td>{{timecreated}}</td>
           <td>{{expires}}</td>
         </tr>
