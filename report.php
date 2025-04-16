@@ -303,6 +303,8 @@ $tableallbookings->show_download_buttons_at([TABLE_P_BOTTOM]);
 $tableallbookings->no_sorting('selected');
 $tableallbookings->no_sorting('rating');
 $tableallbookings->no_sorting('indexnumber');
+$tableallbookings->no_sorting('certificate');
+$tableallbookings->no_sorting('allusercertificates');
 
 if (!$tableallbookings->is_downloading()) {
     if ($action == 'postcustomreport') {
@@ -677,7 +679,7 @@ if (!$tableallbookings->is_downloading()) {
                 break;
             case 'certificate':
                 if (booking_option::get_value_of_json_by_key($optionid, 'certificate')) {
-                    $headers[] = get_string('certificate', 'mod_booking');
+                    $headers[] = get_string('certificatecolheader', 'mod_booking');
                     $columns[] = 'certificate';
                 }
                 break;
@@ -761,7 +763,6 @@ if (!$tableallbookings->is_downloading()) {
         $databasetype = $DB->get_dbfamily();
         switch ($databasetype) {
             case 'postgres':
-                // PostgreSQL: Extract key from JSON array element at specified index.
                 $certificatefrom = "
                 LEFT JOIN (
                     SELECT
