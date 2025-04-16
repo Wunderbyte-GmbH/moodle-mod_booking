@@ -1,3 +1,12 @@
+## Version 8.12.5 (2025041600)
+* New feature: "What's new?" tab in Booking shows booking options made visible within a defined recent number of days.
+* Improvement: Added setting 'redirectonlogintocourse'.
+* Bugfix: Fixed that if user is not in course he won't be redirected to it.
+* Bugfix: Restore correct version of commit on forced waitinglist.
+* Bugfix: Avoid error when teacher from booking_teacher table doesn't correspond to actual user.
+* Bugfix: Placed bookingrulestemplate setting correctly.
+* Tests: Fixed several unit tests.
+
 ## Version 8.12.4 (2025041100)
 * Improvement: Add sorting by timemodified for deleted bookings in bookings tracker.
 * Improvement: Display statusdescription in bookingoption detailview #857.
