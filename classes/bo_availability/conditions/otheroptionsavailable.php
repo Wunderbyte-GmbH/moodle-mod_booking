@@ -122,7 +122,7 @@ class otheroptionsavailable implements bo_condition {
                             };
                             $otheroptionsettings = singleton_service::get_instance_of_booking_option_settings($otheroptionid);
                             $obo = new booking_option($otheroptionsettings->cmid, $otheroptionid);
-                            if (!$obo->check_if_limit($userid, $a)) {
+                            if ($obo->check_if_limit($userid, $a) === false) {
                                 $isavailable = false;
                                 break;
                             };
