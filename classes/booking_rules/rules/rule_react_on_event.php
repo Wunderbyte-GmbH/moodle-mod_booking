@@ -470,7 +470,6 @@ class rule_react_on_event implements booking_rule {
         } else {
             return true;
         }
-
     }
 
     /**

@@ -66,7 +66,8 @@ class changes {
         string &$text = '',
         array &$params = [],
         int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE,
-        string $rulejson = '') {
+        string $rulejson = ''
+    ) {
 
         $rulejson = json_decode($rulejson);
         if (
@@ -89,7 +90,6 @@ class changes {
         }
 
         return $value;
-
     }
 
     /**
