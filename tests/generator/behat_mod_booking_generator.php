@@ -84,7 +84,7 @@ class behat_mod_booking_generator extends behat_generator_base {
             'actions' => [
                 'singular' => 'action',
                 'datagenerator' => 'action',
-                'required' => ['option', 'action_type', 'boactionname'],
+                'required' => ['option', 'action_type', 'boactionname', 'boactionjson'],
                 'switchids' => ['option' => 'optionid'],
             ],
         ];
