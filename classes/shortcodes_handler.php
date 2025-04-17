@@ -15,16 +15,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Shortcodes for mod_booking
+ * Shortcodes handler
  *
  * @package mod_booking
  * @subpackage db
  * @since Moodle 4.1
- * @copyright 2023 Georg Maißer
+ * @copyright 2025 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_booking\classes;
+namespace mod_booking;
 
 use mod_booking\utils\wb_payment;
 
@@ -37,30 +37,33 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  */
 class shortcodes_handler {
     /**
-     * [Description for validatecondition]
+     * Checks if the conditions for the shortcode are valid.
      *
      * @param mixed $shortcode
      * @param mixed $args
      * @param mixed $requirespro
+     * @param array $requiredargs
      *
      * @return array
      *
      */
-    public static function validatecondition($shortcode, $args, $requirespro) {
+    public static function validatecondition($shortcode, $args, $requirespro, $requiredargs) {
         $answerarray = [
             'error' => 0,
             'message' => "",
         ];
         self::shortcodes_active($shortcode, $answerarray);
         self::license_is_activated($shortcode, $answerarray);
-        self::requires_args($shortcode, $answerarray, $args);
+        self::requires_args($shortcode, $answerarray, $args, $requiredargs);
 
         return $answerarray;
     }
     /**
-     * Check whether shortcodes are enabled.
+     * Check if shortcodes are enabled.
      *
      * @param string $shortcode
+     * @param array $answerarray
+     *
      * @return array
      */
     private static function shortcodes_active($shortcode, &$answerarray) {
@@ -68,7 +71,6 @@ class shortcodes_handler {
         if (!get_config('booking', 'shortcodesoff')) {
             return $answerarray;
         }
-
         $answerarray['error'] = 1;
         $answerarray['message'] = "<div class='alert alert-warning'>" .
             get_string('shortcodesoffwarning', 'mod_booking', $shortcode) .
@@ -76,10 +78,10 @@ class shortcodes_handler {
         return $answerarray;
     }
     /**
-     * [Description for license_is_activated]
+     * Checks if pro license is active.
      *
      * @param mixed $shortcode
-     * @param mixed $answerarray
+     * @param array $answerarray
      *
      * @return array
      *
@@ -93,25 +95,32 @@ class shortcodes_handler {
         return $answerarray;
     }
     /**
-     * [Description for requires_args]
+     * Checks if all required arguments are in the shortcode.
      *
      * @param mixed $shortcode
-     * @param mixed $answerarray
-     * @param mixed $args
+     * @param array $answerarray
+     * @param array $args
+     * @param array $requiredargs
      *
      * @return array
      *
      */
-    private static function requires_args($shortcode, &$answerarray, $args) {
-        switch ($shortcode) {
-            case 'courselist':
-                if (empty($args['cmid'])) {
-                    $answerarray['error'] = 1;
+    private static function requires_args($shortcode, &$answerarray, $args, $requiredargs) {
+        foreach ($requiredargs as $arg) {
+            if (empty($args[$arg])) {
+                $answerarray['error'] = 1;
+                $missingarg = $arg;
+                break;
+            }
+        }
+        if (!empty($missingarg)) {
+            switch ($missingarg) {
+                case 'cmid':
                     $answerarray['message'] = get_string('definecmidforshortcode', 'mod_booking');
-                }
-                break;
-            default:
-                break;
+                    break;
+            }
+        } else {
+            $answerarray['error'] = 0;
         }
         return $answerarray;
     }
