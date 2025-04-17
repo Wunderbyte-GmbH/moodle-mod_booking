@@ -95,7 +95,7 @@ class certificate extends field_base {
      * @param stdClass $newoption
      * @param int $updateparam
      * @param ?mixed $returnvalue
-     * @return string // If no warning, empty string.
+     * @return array
      */
     public static function prepare_save_field(
         stdClass &$formdata,
@@ -193,15 +193,9 @@ class certificate extends field_base {
         return $errors;
     }
 
+
     /**
-     * Standard function to transfer stored value to form.
-     * @param stdClass $data
-     * @param booking_option_settings $settings
-     * @return void
-     * @throws dml_exception
-     */
-    /**
-     *  Set Data for Certificate.
+     * Function to set the Data for the form.
      *
      * @param stdClass $data
      * @param booking_option_settings $settings
@@ -240,7 +234,6 @@ class certificate extends field_base {
      *
      * @param int $optionid
      * @param int $userid
-     * @param
      *
      * @return int
      *
