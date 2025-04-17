@@ -703,8 +703,6 @@ class shortcodes {
         }
 
         $viewparam = self::get_viewparam($args);
-
-
         $table = self::init_table_for_courses(null, md5($pageurl));
 
         // Additional where condition for both card and list views.
@@ -1271,7 +1269,10 @@ class shortcodes {
     }
     /**
      * Helper function to remove quotation marks from args.
-     * @param array &$args reference to arguments array
+     *
+     * @param array $args reference to arguments array
+     *
+     * @return void
      */
     private static function fix_args(array $args) {
         foreach ($args as $key => &$value) {
