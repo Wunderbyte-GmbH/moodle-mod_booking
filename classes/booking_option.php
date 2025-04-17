@@ -196,11 +196,11 @@ class booking_option {
      * @param int $optionid
      * @param ?int $bookingid booking id
      *
-     * @return booking_option
+     * @return ?booking_option
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function create_option_from_optionid(int $optionid, ?int $bookingid = null) {
+    public static function create_option_from_optionid(int $optionid, ?int $bookingid = null): ?booking_option {
         global $DB;
 
         if (empty($bookingid)) {
@@ -867,14 +867,9 @@ class booking_option {
             $transferred->success = true;
             [$insql, $inparams] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, "limit_");
 
-            if ($CFG->version >= 2021051700) {
-                // This only works in Moodle 3.11 and later.
-                $mainuserfields = \core_user\fields::for_name()->get_sql('u')->selects;
-                $mainuserfields = trim($mainuserfields, ', ');
-            } else {
-                // This is only here to support Moodle versions earlier than 3.11.
-                $mainuserfields = get_all_user_name_fields(true, 'u');
-            }
+            // This only works in Moodle 3.11 and later.
+            $mainuserfields = \core_user\fields::for_name()->get_sql('u')->selects;
+            $mainuserfields = trim($mainuserfields, ', ');
 
             $sql = 'SELECT ba.userid AS id,
                 ba.timecreated,
@@ -897,7 +892,13 @@ class booking_option {
         }
         if (!empty($transferred->yes)) {
             foreach ($transferred->yes as $user) {
-                $this->user_delete_response($user->id);
+                if (is_object($user) && isset($user->id)) {
+                    $userid = (int)$user->id;
+                    $this->user_delete_response($userid);
+                } else {
+                    // Should never happen.
+                    throw new moodle_exception('Unexpected data structure in transferred users.');
+                }
             }
         }
 
@@ -1325,8 +1326,8 @@ class booking_option {
      * @param int $userid
      * @param int $optionid
      * @param int $waitinglist
-     * @param int $currentanswerid
-     * @param int $timecreated
+     * @param ?int $currentanswerid
+     * @param ?int $timecreated
      * @param int $confirmwaitinglist
      * @param string $erlid
      * @param int $historystatus
@@ -1338,8 +1339,8 @@ class booking_option {
         int $userid,
         int $optionid,
         int $waitinglist,
-        int $currentanswerid = null,
-        int $timecreated = null,
+        ?int $currentanswerid = null,
+        ?int $timecreated = null,
         int $confirmwaitinglist = 0,
         string $erlid = "",
         int $historystatus = 0
@@ -1928,9 +1929,11 @@ class booking_option {
      */
     private function sourcecoursegroup_unenrol_actions(int $userid) {
         $bsettings = json_decode($this->booking->settings->json);
-        if (false && empty($bsettings->unenrolfromgroupofcurrentcourse)) {
+        // Todo: Unreachable code because of "false &&" - @eynimeni - please fix.
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* if (false && empty($bsettings->unenrolfromgroupofcurrentcourse)) {
             return;
-        }
+        } */
         $bsettings = json_decode($this->booking->settings->json);
         $groups = groups_get_all_groups($this->booking->course->id);
         $groups = array_filter($groups, fn ($g) => $g->idnumber == MOD_BOOKING_ENROL_GROUPTYPE_SOURCECOURSE . $this->option->id);
@@ -3060,23 +3063,21 @@ class booking_option {
                         'name' => null,
                         'value' => get_string('onlineoptiondate', 'mod_booking'),
                     ];
-                } else {
-                    // We are booked on the web site, we check if we show the real link.
-                    if (!$this->show_conference_link($sessionid)) {
-                        // User is booked, if the user is booked, but event not yet open, we show placeholder with time to start.
-                        return [
-                            'name' => null,
-                            'value' => get_string('linknotavailableyet', 'mod_booking'),
-                        ];
-                    }
-                    // User is booked and event open, we return the button with the link to access, this is for the website.
+                }
+                // We are booked on the web site, we check if we show the real link.
+                if (!$this->show_conference_link($sessionid)) {
+                    // User is booked, if the user is booked, but event not yet open, we show placeholder with time to start.
                     return [
                         'name' => null,
-                        'value' => "<a href=$field->value class='btn btn-secondary booking-meetinglink-btn'>"
-                            . $field->cfgname . "</a>",
+                        'value' => get_string('linknotavailableyet', 'mod_booking'),
                     ];
-                };
-                break;
+                }
+                // User is booked and event open, we return the button with the link to access, this is for the website.
+                return [
+                    'name' => null,
+                    'value' => "<a href=$field->value class='btn btn-secondary booking-meetinglink-btn'>"
+                        . $field->cfgname . "</a>",
+                ];
             case MOD_BOOKING_DESCRIPTION_CALENDAR:
                 // Calendar is static, so we don't have to check for booked or not.
                 // In all cases, we return the Teams-Button, going by the link.php.
@@ -4020,7 +4021,6 @@ class booking_option {
         // Only react on changes if update is triggered via formsave (see comment at beginning of function - cases A) & B))...
         // ... since otherwise previous data is unreliable.
         if (!empty($changes) && $updateparam == MOD_BOOKING_UPDATE_OPTIONS_PARAM_DEFAULT) {
-
             fields_info::all_changes_collected_actions(
                 $changes,
                 $data,
