@@ -777,7 +777,7 @@ if (!$tableallbookings->is_downloading()) {
                             )
                         ) AS certificate
                     FROM
-                        m_tool_certificate_issues tci
+                        {tool_certificate_issues} tci
                     GROUP BY
                         tci.userid, optionid
                 ) cert ON cert.optionid = ba.optionid AND cert.userid = ba.userid
@@ -800,7 +800,7 @@ if (!$tableallbookings->is_downloading()) {
                                 )
                             ) AS certificate
                         FROM
-                            m_tool_certificate_issues tci
+                            {tool_certificate_issues} tci
                         GROUP BY
                             tci.userid, optionid
                     ) cert ON cert.optionid = ba.optionid AND cert.userid = ba.userid
