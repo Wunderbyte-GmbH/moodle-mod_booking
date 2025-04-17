@@ -32,11 +32,11 @@ use mod_booking\booking_option;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\calendar;
 use mod_booking\elective;
+use mod_booking\event\bookinganswer_presencechanged;
 use mod_booking\local\checkanswers\checkanswers;
 use mod_booking\option\fields\certificate;
 use mod_booking\output\view;
 use mod_booking\singleton_service;
-use tool_certificate\template;
 
 /**
  * Class to handle event observer for mod_booking.
@@ -536,6 +536,24 @@ class mod_booking_observer {
                     break;
             }
             $table->return_encoded_table(true);
+        }
+    }
+
+    /**
+     * React on Presence changed event.
+     *
+     * @param bookinganswer_presencechanged  $event
+     *
+     * @return void
+     *
+     */
+    public static function bookinganswer_presencechanged(bookinganswer_presencechanged $event) {
+        $data = $event->get_data();
+        if ($data['other']['presencenew'] == $data['other']['presenceold']) {
+            return;
+        }
+        if ($data['other']['presencenew'] == 1) {
+            certificate::issue_certificate($data['objectid'], $data['relateduserid']);
         }
     }
 }
