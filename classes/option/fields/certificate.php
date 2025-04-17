@@ -95,7 +95,7 @@ class certificate extends field_base {
      * @param stdClass $newoption
      * @param int $updateparam
      * @param ?mixed $returnvalue
-     * @return string // If no warning, empty string.
+     * @return array
      */
     public static function prepare_save_field(
         stdClass &$formdata,
@@ -190,24 +190,17 @@ class certificate extends field_base {
      * @return array
      */
     public static function validation(array $data, array $files, array &$errors) {
-
         return $errors;
     }
 
+
     /**
-     * Standard function to transfer stored value to form.
+     * Function to set the Data for the form.
+     *
      * @param stdClass $data
      * @param booking_option_settings $settings
+     *
      * @return void
-     * @throws dml_exception
-     */
-    /**
-     * [Description for set_data]
-     *
-     * @param stdClass $data
-     * @param booking_option_settings $settings
-     *
-     * @return [type]
      *
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
@@ -220,7 +213,6 @@ class certificate extends field_base {
         // Process each field and save it to set_data.
         foreach ($keys as $key) {
             $valueexpirydate = $formdata->{$key} ?? null;
-
 
             if (!empty($valueexpirydate) && !empty($data->importing)) {
                 $data->{$key} = $data->{$key} ?? booking_option::get_value_of_json_by_key((int) $data->id, $key) ?? 0;
@@ -238,11 +230,10 @@ class certificate extends field_base {
     }
 
     /**
-     * [Description for issue_certificate]
+     * Function to issue a certificate.
      *
      * @param int $optionid
      * @param int $userid
-     * @param
      *
      * @return void
      *
