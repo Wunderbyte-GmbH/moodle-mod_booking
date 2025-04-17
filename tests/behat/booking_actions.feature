@@ -3,16 +3,17 @@ Feature: Create booking action as admin and ensure they are working as student.
 
   Background:
     Given the following "custom profile fields" exist:
-      | datatype | shortname | name  |
-      | text     | sport     | Sport |
+      | datatype | shortname | name          |
+      | text     | sport     | Sport-Field   |
+      | text     | numeric   | Numeric-Field |
     Given the following "users" exist:
-      | username | firstname | lastname | email                | idnumber | profile_field_sport |
-      | teacher1 | Teacher   | 1        | teacher1@example.com | T1       |                     |
-      | teacher2 | Teacher   | 2        | teacher2@example.com | T2       | football, tennis    |
-      | student1 | Student   | 1        | student1@example.com | S1       |                     |
-      | student2 | Student   | 2        | student2@example.com | S2       |                     |
-      | student3 | Student   | 3        | student3@example.com | S3       |                     |
-      | student4 | Student   | 4        | student4@example.com | S4       |                     |
+      | username | firstname | lastname | email                | idnumber | profile_field_sport | profile_field_numeric |
+      | teacher1 | Teacher   | 1        | teacher1@example.com | T1       |                     |      |
+      | teacher2 | Teacher   | 2        | teacher2@example.com | T2       | football, tennis    |      |
+      | student1 | Student   | 1        | student1@example.com | S1       |                     | 1000 |
+      | student2 | Student   | 2        | student2@example.com | S2       |                     |      |
+      | student3 | Student   | 3        | student3@example.com | S3       |                     |      |
+      | student4 | Student   | 4        | student4@example.com | S4       |                     |      |
     And the following "courses" exist:
       | fullname | shortname | category | enablecompletion |
       | Course 1 | C1        | 0        | 1                |
@@ -72,9 +73,9 @@ Feature: Create booking action as admin and ensure they are working as student.
     And I should see "Book other options" in the ".booking-actions-list" "css_element"
 
   @javascript
-  Scenario: Booking actions: create booking action via DB and book it as students
+  Scenario: Booking actions: create bookotheroptions action via DB and book it as students
     Given the following "mod_booking > actions" exist:
-      | option     | action_type      | boactionname      | bookotheroptions                                                                      |
+      | option     | action_type      | boactionname      | boactionjson                                                                      |
       | B1-Option1 | bookotheroptions | Book more options | {"otheroptions":["B1-Option2","B2-Option1","B2-Option2"],"bookotheroptionsforce":"6"} |
     ## Verify that booking is possible for student1 and commmit booking
     When I am on the "Booking1" Activity page logged in as student1
@@ -90,3 +91,20 @@ Feature: Create booking action as admin and ensure they are working as student.
     And I am on the "Booking1" Activity page logged in as student2
     And I should see "Linked Option(s) not available" in the ".allbookingoptionstable_r1" "css_element"
     And I should not see "Book now" in the ".allbookingoptionstable_r1" "css_element"
+
+  @javascript
+  Scenario: Booking actions: create userprofilefield action via DB and book it as students
+    Given the following "mod_booking > actions" exist:
+      | option     | action_type      | boactionname   | boactionjson                                                                      |
+      | B1-Option1 | userprofilefield | User Profile 1 | {"boactionselectuserprofilefield":"sport","boactionuserprofileoperator":"set","boactionuserprofilefieldvalue":"action-football"} |
+      | B1-Option1 | userprofilefield | User Profile 2 | {"boactionselectuserprofilefield":"numeric","boactionuserprofileoperator":"subtract","boactionuserprofilefieldvalue":"1"} |
+    ## Verify that booking affects profile fields
+    When I am on the "Booking1" Activity page logged in as student1
+    And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
+    Then I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
+    And I follow "Profile" in the user menu
+    And I should see "Sport-Field"
+    And I should see "action-football"
+    And I should see "Numeric-Field"
+    And I should see "999"
