@@ -31,17 +31,17 @@ Feature: Create booking action as admin and ensure they are working as student.
       | booking  | C1     | Booking1 | Booking1Descr | teacher1       | Webinar   | All bookings                     |
       | booking  | C2     | Booking2 | Booking2Descr | teacher2       | Webinar   | All bookings                     |
     And the following "mod_booking > options" exist:
-      | booking   | text       | course | description | useprice | maxanswers | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
-      | Booking1  | B1-Option1 | C1     | B1-Option1  | 0        | 5          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
-      | Booking1  | B1-Option2 | C1     | B1-Option2  | 0        | 6          | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
-      | Booking2  | B2-Option1 | C1     | B2-Option1  | 0        | 5          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
-      | Booking2  | B2-Option2 | C1     | B2-Option2  | 0        | 6          | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
+      | booking  | text       | course | description | useprice | maxanswers | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
+      | Booking1 | B1-Option1 | C1     | B1-Option1  | 0        | 5          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+      | Booking1 | B1-Option2 | C1     | B1-Option2  | 0        | 6          | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
+      | Booking2 | B2-Option1 | C1     | B2-Option1  | 0        | 5          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+      | Booking2 | B2-Option2 | C1     | B2-Option2  | 0        | 6          | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
     ## Unfortunately, TinyMCE is slow and has misbehavior which might cause number of site-wide issues. So - we disable it.
     And the following config values are set as admin:
-      | config        | value         | plugin      |
-      | texteditors   | atto,textarea |             |
-    ## Set test objective settings
-      | showboactions | 1             | booking     |
+      | config        | value         | plugin  |
+      | texteditors   | atto,textarea |         |
+      ## Set test objective settings
+      | showboactions | 1             | booking |
     And I change viewport size to "1366x10000"
 
   @javascript
@@ -53,10 +53,10 @@ Feature: Create booking action as admin and ensure they are working as student.
     And I click on "Add action" "text"
     And I wait "1" seconds
     And I set the following fields to these values:
-      | action_type                             | Book options                             |
-      | boactionname                            | Book more options                        |
-      | Book into other booking options as well |B1-Option2 (Booking1,B2-Option2 (Booking2 |
-      | Handle restrictions of these options    | Only book if seats are available         |
+      | action_type                             | Book options                              |
+      | boactionname                            | Book more options                         |
+      | Book into other booking options as well | B1-Option2 (Booking1,B2-Option2 (Booking2 |
+      | Handle restrictions of these options    | Only book if seats are available          |
     And I click on "Save changes" "button"
     And I wait "2" seconds
     ##And I follow "Actions after booking [EXPERIMENTAL]"
