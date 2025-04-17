@@ -36,14 +36,13 @@ use local_wunderbyte_table\filters\types\intrange;
 use local_wunderbyte_table\filters\types\standardfilter;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
-use mod_booking\classes\shortcodes_handler;
+use mod_booking\shortcodes_handler;
 use mod_booking\customfield\booking_handler;
 use mod_booking\local\modechecker;
 use mod_booking\output\view;
 use mod_booking\singleton_service;
 use mod_booking\table\bookingoptions_wbtable;
 use mod_booking\table\bulkoperations_table;
-use mod_booking\utils\wb_payment;
 use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
@@ -69,8 +68,9 @@ class shortcodes {
     public static function recommendedin($shortcode, $args, $content, $env, $next) {
 
         global $PAGE;
-        $error = shortcodes_handler::validatecondition($shortcode, $args, true);
-        if (!empty($error['error'])) {
+        $requiredargs = [];
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
+        if ($error['error'] === 1) {
             return $error['message'];
         }
 
@@ -170,20 +170,14 @@ class shortcodes {
     public static function courselist($shortcode, $args, $content, $env, $next) {
 
         global $PAGE;
-        $error = shortcodes_handler::validatecondition($shortcode, $args, true);
-        if (!empty($error['error'])) {
+        $requiredargs = ['cmid'];
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
+        if ($error['error'] === 1) {
             return $error['message'];
         }
         $course = $PAGE->course;
         $perpage = self::check_perpage($args);
-
-        $pageurl = isset($PAGE->url) ? $PAGE->url->out() : ''; // This is for unit tests.
-        $pageurl = $course->shortname . $pageurl;
-
-        if (empty($args['cmid'])) {
-            return get_string('definecmidforshortcode', 'mod_booking');
-        }
-
+        $pageurl = $course->shortname . $PAGE->url->out();
         $viewparam = self::get_viewparam($args);
 
         $booking = singleton_service::get_instance_of_booking_settings_by_cmid((int)$args['cmid']);
@@ -354,7 +348,8 @@ class shortcodes {
     public static function fieldofstudyoptions($shortcode, $args, $content, $env, $next) {
 
         global $COURSE, $USER, $DB, $CFG;
-        $error = shortcodes_handler::validatecondition($shortcode, $args, true);
+        $requiredargs = [];
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
         if (!empty($error['error'])) {
             return $error['message'];
         }
@@ -457,9 +452,9 @@ class shortcodes {
     public static function linkbacktocourse($shortcode, $args, $content, $env, $next) {
 
         global $COURSE, $USER, $DB, $CFG, $PAGE;
-
-        $error = shortcodes_handler::validatecondition($shortcode, $args, true);
-        if (!empty($error['error'])) {
+        $requiredargs = [];
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true,  $requiredargs);
+        if ($error['error'] === 1) {
             return $error['message'];
         }
 
@@ -508,7 +503,7 @@ class shortcodes {
     }
 
     /**
-     * Shortcode for all Booking Options.
+     * Shortcode to show all Booking Options.
      *
      * @param mixed $shortcode
      * @param mixed $args
@@ -521,18 +516,13 @@ class shortcodes {
      */
     public static function allbookingoptions($shortcode, $args, $content, $env, $next) {
         global $PAGE, $DB;
-
-        $error = shortcodes_handler::validatecondition($shortcode, $args, true);
-        if (!empty($error['error'])) {
+        $requiredargs = [];
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
+        if ($error['error'] === 1) {
             return $error['message'];
         }
 
         $course = $PAGE->course;
-
-        if (!wb_payment::pro_version_is_activated()) {
-            return get_string('infotext:prolicensenecessary', 'mod_booking');
-        }
-
         $perpage = self::check_perpage($args);
         $pageurl = $course->shortname . $PAGE->url->out();
         $viewparam = self::get_viewparam($args);
@@ -672,7 +662,7 @@ class shortcodes {
     }
 
     /**
-     * Prints out list of my booked bookingoptions.
+     * Shortcode to show your booked Bookingoptions.
      *
      * @param string $shortcode
      * @param array $args
@@ -683,9 +673,9 @@ class shortcodes {
      */
     public static function mycourselist($shortcode, $args, $content, $env, $next) {
         global $USER, $PAGE;
-
-        $error = shortcodes_handler::validatecondition($shortcode, $args, true);
-        if (!empty($error['error'])) {
+        $requiredargs = [];
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
+        if ($error['error'] === 1) {
             return $error['message'];
         }
 
@@ -695,8 +685,8 @@ class shortcodes {
         $course = $PAGE->course;
         $perpage = self::check_perpage($args);
         $pageurl = $course->shortname . $PAGE->url->out();
-
         $perpage = self::check_perpage($args);
+
         $table = self::init_table_for_courses();
         if (!empty($args['cmid'])) {
             $booking = singleton_service::get_instance_of_booking_settings_by_cmid((int)$args['cmid']);
@@ -821,9 +811,9 @@ class shortcodes {
     public static function fieldofstudycohortoptions($shortcode, $args, $content, $env, $next) {
 
         global $PAGE, $USER, $DB, $CFG;
-
-        $error = shortcodes_handler::validatecondition($shortcode, $args, true);
-        if (!empty($error['error'])) {
+        $requiredargs = [];
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
+        if ($error['error'] === 1) {
             return $error['message'];
         }
 
@@ -938,9 +928,9 @@ class shortcodes {
     public static function bulkoperations($shortcode, $args, $content, $env, $next): string {
 
         global $PAGE;
-
-        $error = shortcodes_handler::validatecondition($shortcode, $args, true);
-        if (!empty($error['error'])) {
+        $requiredargs = [];
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true,  $requiredargs);
+        if ($error['error'] === 1) {
             return $error['message'];
         }
 
