@@ -28,6 +28,7 @@ use mod_booking\booking;
 use mod_booking\placeholders\placeholders_info;
 use mod_booking\singleton_service;
 use moodle_url;
+use tool_certificate\template;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -67,7 +68,7 @@ class certificateurl {
         int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE,
         string $rulejson = ''
     ) {
-        global $DB, $CFG;
+        global $DB;
         $rulejson = json_decode($rulejson);
         $url = '';
         if (
@@ -84,9 +85,9 @@ class certificateurl {
                 return "";
             }
             $record = $DB->get_record('tool_certificate_issues', ['id' => $other->certid]);
-            $url = (new moodle_url(
-                $CFG->wwwroot . "/pluginfile.php/1/tool_certificate/issues/{$record->timecreated}/{$record->code}.pdf"
-            ))->out(false);
+            $templateid = $record->templateid;
+            $template = template::instance($templateid);
+            $url = $template->get_issue_file_url($record);
         }
         return $url;
     }
