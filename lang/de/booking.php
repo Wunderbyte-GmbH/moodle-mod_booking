@@ -709,6 +709,7 @@ $string['certificateexpirationdate'] = 'Ablaufdatum';
 $string['certificateheader'] = 'Moodle zertifikat';
 $string['certificateissuedate'] = 'Ausstelldatum';
 $string['certificatemodalheader'] = 'Zertifikate von {$a}';
+$string['certificateurl'] = 'Zeritifikat URL';
 $string['certificatewithexperation'] = 'Ablaufdatum: {$a}';
 $string['certificatewithoutexperation'] = 'Kein Ablaufdatum.';
 $string['cfcostcenter'] = "Benutzerdefiniertes Buchungsoptionsfeld für die Kostenstelle";
