@@ -1,4 +1,6 @@
 <?php
+
+use mod_booking\option\fields\certificate;
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -1859,6 +1861,9 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
         } else {
             $userdata->completed = '1';
             $userdata->timemodified = time();
+            if (class_exists('tool_certificate\certificate')) {
+                $certid = certificate::issue_certificate($optionid, $selecteduser);
+            }
 
             // Trigger the completion event, in order to send the notification mail.
             $event = \mod_booking\event\bookingoption_completed::create([
@@ -1866,7 +1871,10 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
                 'objectid' => $optionid,
                 'userid' => $USER->id,
                 'relateduserid' => $selecteduser,
-                'other' => ['cmid' => $cmid],
+                'other' => [
+                            'cmid' => $cmid,
+                            'certid' => $certid ?? 0,
+                            ],
             ]);
             $event->trigger();
             // Important: userid is the user who triggered, relateduserid is the affected user who completed.

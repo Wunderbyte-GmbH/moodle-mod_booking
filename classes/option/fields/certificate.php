@@ -190,7 +190,6 @@ class certificate extends field_base {
      * @return array
      */
     public static function validation(array $data, array $files, array &$errors) {
-
         return $errors;
     }
 
@@ -202,12 +201,12 @@ class certificate extends field_base {
      * @throws dml_exception
      */
     /**
-     * [Description for set_data]
+     *  Set Data for Certificate.
      *
      * @param stdClass $data
      * @param booking_option_settings $settings
      *
-     * @return [type]
+     * @return void
      *
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
@@ -238,27 +237,27 @@ class certificate extends field_base {
     }
 
     /**
-     * [Description for issue_certificate]
+     * Issue certificate.
      *
      * @param int $optionid
      * @param int $userid
      * @param
      *
-     * @return void
+     * @return int
      *
      */
     public static function issue_certificate(int $optionid, int $userid) {
-
+        $id = 0;
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
         if (!class_exists('tool_certificate\certificate')) {
-            return;
+            return $id;
         }
         // 2. get certificate id.
         $certificateid = booking_option::get_value_of_json_by_key($optionid, 'certificate') ?? 0;
 
         if (empty($certificateid)) {
-            return;
+            return $id;
         }
 
         // 3. find out which method is used to issue a certificate.
@@ -272,7 +271,7 @@ class certificate extends field_base {
 
         // 4. Create Certificate.
         if ($template->can_issue($userid)) {
-            $template->issue_certificate(
+            $id = $template->issue_certificate(
                 $userid,
                 $certificateexpirydate,
                 [
@@ -282,5 +281,6 @@ class certificate extends field_base {
                 ]
             );
         }
+        return $id;
     }
 }
