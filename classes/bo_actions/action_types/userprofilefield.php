@@ -75,7 +75,7 @@ class userprofilefield extends booking_action {
 
             switch ($actiondata->boactionuserprofileoperator) {
                 case 'set':
-                    $user->profile[$actiondata->boactionselectuserprofilefield] = $actiondata->boactionuserprofilefieldvalue;
+                    $user->{$key} = $actiondata->boactionuserprofilefieldvalue;
                     break;
                 case 'add':
 
