@@ -440,22 +440,34 @@ class mod_booking_generator extends testing_module_generator {
         global $DB;
 
         $record = (object) $record;
-
         $settings = singleton_service::get_instance_of_booking_option_settings($record->optionid);
+
         $record->id = 0;
         $record->cmid = $settings->cmid;
-        if ($record->action_type == "bookotheroptions") {
-            $bookotheroptions = json_decode($record->bookotheroptions);
-            $record->bookotheroptionsforce = $bookotheroptions->bookotheroptionsforce ?? 7;
-            unset($record->bookotheroptions);
-            foreach ($bookotheroptions->otheroptions as $optionname) {
-                if (!$id = $DB->get_field('booking_options', 'id', ['text' => $optionname])) {
-                    throw new Exception('The specified booking option with name text "' . $optionname . '" does not exist');
-                }
-                $record->bookotheroptionsselect[] = $id;
+
+        $boactiondata = json_decode($record->boactionjson);
+        unset($record->boactionjson);
+
+        if (!empty($boactiondata)) {
+            switch ($record->action_type) {
+                case 'bookotheroptions':
+                    $record->bookotheroptionsforce = $boactiondata->bookotheroptionsforce ?? 7;
+                    
+                    foreach ($boactiondata->otheroptions as $optionname) {
+                        if (!$id = $DB->get_field('booking_options', 'id', ['text' => $optionname])) {
+                            throw new Exception('The specified booking option with name text "' . $optionname . '" does not exist');
+                        }
+                        $record->bookotheroptionsselect[] = $id;
+                    }
+                    break;
+                case 'userprofilefield':
+                    $record->boactionselectuserprofilefield = $boactiondata->boactionselectuserprofilefield ?? "";
+                    $record->boactionuserprofileoperator = $boactiondata->boactionuserprofileoperator ?? "";
+                    $record->boactionuserprofilefieldvalue = $boactiondata->boactionuserprofilefieldvalue ?? "";
+                    break;
             }
+            actions_info::save_action($record);
         }
-        actions_info::save_action($record);
     }
 
     /**
