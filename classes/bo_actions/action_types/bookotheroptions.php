@@ -88,7 +88,6 @@ class bookotheroptions extends booking_action {
         global $DB;
 
         $mform->addElement('text', 'boactionname', get_string('boactionname', 'mod_booking'));
-        $mform->setDefault('boactionname', get_string('bookotheroptions', 'booking'));
 
         $select = "SELECT bo.id optionid, bo.titleprefix, bo.text optionname, b.name instancename, c.shortname as coursename
                     FROM {booking_options} bo

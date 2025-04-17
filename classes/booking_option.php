@@ -1338,8 +1338,8 @@ class booking_option {
         int $userid,
         int $optionid,
         int $waitinglist,
-        int $currentanswerid = null,
-        int $timecreated = null,
+        int $currentanswerid = 0,
+        int $timecreated = 0,
         int $confirmwaitinglist = 0,
         string $erlid = "",
         int $historystatus = 0
@@ -1358,7 +1358,7 @@ class booking_option {
         $newanswer->userid = $userid;
         $newanswer->optionid = $optionid;
         $newanswer->timemodified = $now;
-        $newanswer->timecreated = $timecreated ?? $now;
+        $newanswer->timecreated = !empty($timecreated) ? $timecreated : $now;
         $newanswer->waitinglist = $waitinglist;
 
         // When a user submits a userform, we need to save this as well.
@@ -1389,7 +1389,7 @@ class booking_option {
             self::add_data_to_json($newanswer, 'erlid', $erlid);
         }
 
-        if (isset($currentanswerid)) {
+        if (!empty($currentanswerid)) {
             $newanswer->id = $currentanswerid;
             if (!$DB->update_record('booking_answers', $newanswer)) {
                 new \moodle_exception("dmlwriteexception");
