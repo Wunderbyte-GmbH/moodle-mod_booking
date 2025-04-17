@@ -92,9 +92,9 @@ class mobileformbuilder {
      * @return string
      */
     public static function build_submission_form(
-      $dataglobal,
-      $ionichtml,
-      $resetsubmissionform
+        $dataglobal,
+        $ionichtml,
+        $resetsubmissionform
     ): string {
         $sessionkey = ", sessionkey:'" . sesskey() . "'";
         $ionichtml =
@@ -161,11 +161,10 @@ class mobileformbuilder {
             }
         }
         if ($ionichtml != '') {
-
             $ionichtml = self::build_submission_form(
-              $dataglobal,
-              $ionichtml,
-              $resetsubmissionform
+                $dataglobal,
+                $ionichtml,
+                $resetsubmissionform
             );
         }
         return $ionichtml;

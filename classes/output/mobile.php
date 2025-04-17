@@ -155,7 +155,7 @@ class mobile {
                     }
                     if (empty($formvalidated)) {
                         $data['submit']['label'] = $button->data['main']['label'];
-                        $ionsubmissionhtml = $mobileformbuilder::submission_form_submitted($button);
+                        $ionsubmissionhtml = $mobileformbuilder::submission_form_submitted();
                     } else {
                         if ($customformuserdata !== false) {
                             $customform = $customformstore->translate_errors($customform, $formvalidated);
