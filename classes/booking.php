@@ -1061,7 +1061,7 @@ class booking {
 
     /**
      * Genereate SQL and params array to fetch all options.
-     * No prefixes for the columsn we retrieve, so *, id, etc.
+     * No prefixes for the columns we retrieve, so *, id, etc.
      * If we don't pass on the context object, invisible options are excluded.
      *
      * @param int $limitfrom
