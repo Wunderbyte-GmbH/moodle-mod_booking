@@ -29,7 +29,6 @@ namespace mod_booking;
 use cache_helper;
 use context_module;
 use context_system;
-use core_cohort\reportbuilder\local\entities\cohort;
 use Exception;
 use html_writer;
 use local_wunderbyte_table\filters\types\datepicker;
@@ -37,13 +36,13 @@ use local_wunderbyte_table\filters\types\intrange;
 use local_wunderbyte_table\filters\types\standardfilter;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
+use mod_booking\shortcodes_handler;
 use mod_booking\customfield\booking_handler;
 use mod_booking\local\modechecker;
 use mod_booking\output\view;
 use mod_booking\singleton_service;
 use mod_booking\table\bookingoptions_wbtable;
 use mod_booking\table\bulkoperations_table;
-use mod_booking\utils\wb_payment;
 use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
@@ -69,30 +68,15 @@ class shortcodes {
     public static function recommendedin($shortcode, $args, $content, $env, $next) {
 
         global $PAGE;
-
-        // If shortcodes are turned off, we return the shortcode as it is.
-        if (get_config('booking', 'shortcodesoff')) {
-            return "<div class='alert alert-warning'>" .
-                get_string('shortcodesoffwarning', 'mod_booking', $shortcode) .
-            "</div>";
+        $requiredargs = [];
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
+        if ($error['error'] === 1) {
+            return $error['message'];
         }
 
         $course = $PAGE->course;
-
-        if (!wb_payment::pro_version_is_activated()) {
-            return get_string('infotext:prolicensenecessary', 'mod_booking');
-        }
-
-        if (
-            !isset($args['perpage'])
-            || !is_int((int)$args['perpage'])
-            || !$perpage = ($args['perpage'])
-        ) {
-            $perpage = 100;
-        }
-
+        $perpage = self::check_perpage($args);
         $pageurl = $course->shortname . $PAGE->url->out();
-
         $table = self::init_table_for_courses(null, md5($pageurl));
 
         $additionalwhere = " (recommendedin = '$course->shortname'
@@ -186,57 +170,15 @@ class shortcodes {
     public static function courselist($shortcode, $args, $content, $env, $next) {
 
         global $PAGE;
-
-        // If shortcodes are turned off, we return the shortcode as it is.
-        if (get_config('booking', 'shortcodesoff')) {
-            return "<div class='alert alert-warning'>" .
-                get_string('shortcodesoffwarning', 'mod_booking', $shortcode) .
-            "</div>";
+        $requiredargs = ['cmid'];
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
+        if ($error['error'] === 1) {
+            return $error['message'];
         }
-
         $course = $PAGE->course;
-
-        if (!wb_payment::pro_version_is_activated()) {
-            return get_string('infotext:prolicensenecessary', 'mod_booking');
-        }
-
-        if (
-            !isset($args['perpage'])
-            || !is_int((int)$args['perpage'])
-            || !$perpage = ($args['perpage'])
-        ) {
-            $perpage = 100;
-        }
-
+        $perpage = self::check_perpage($args);
         $pageurl = $course->shortname . $PAGE->url->out();
-
-        if (empty($args['cmid'])) {
-            return get_string('definecmidforshortcode', 'mod_booking');
-        }
-
-        $viewparam = MOD_BOOKING_VIEW_PARAM_LIST; // Default value.
-        if (isset($args['type'])) {
-            switch ($args['type']) {
-                // Cards are currently not yet supported in shortcode.
-                // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-                /*case 'cards':
-                    $viewparam = MOD_BOOKING_VIEW_PARAM_CARDS;
-                    break;*/
-                case 'imageleft':
-                    $viewparam = MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT;
-                    break;
-                case 'imageright':
-                    $viewparam = MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT;
-                    break;
-                case 'imagelefthalf':
-                    $viewparam = MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF;
-                    break;
-                case 'list':
-                default:
-                    $viewparam = MOD_BOOKING_VIEW_PARAM_LIST;
-                    break;
-            }
-        }
+        $viewparam = self::get_viewparam($args);
 
         $booking = singleton_service::get_instance_of_booking_settings_by_cmid((int)$args['cmid']);
 
@@ -406,25 +348,12 @@ class shortcodes {
     public static function fieldofstudyoptions($shortcode, $args, $content, $env, $next) {
 
         global $COURSE, $USER, $DB, $CFG;
-
-        // If shortcodes are turned off, we return the shortcode as it is.
-        if (get_config('booking', 'shortcodesoff')) {
-            return "<div class='alert alert-warning'>" .
-                get_string('shortcodesoffwarning', 'mod_booking', $shortcode) .
-            "</div>";
+        $requiredargs = [];
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
+        if (!empty($error['error'])) {
+            return $error['message'];
         }
-
-        if (!wb_payment::pro_version_is_activated()) {
-            return get_string('infotext:prolicensenecessary', 'mod_booking');
-        }
-
-        if (
-            !isset($args['perpage'])
-            || !is_int((int)$args['perpage'])
-            || !$perpage = ($args['perpage'])
-        ) {
-            $perpage = 100;
-        }
+        $perpage = self::check_perpage($args);
 
         // First: determine the cohort we want to use.
         // If not specified in the shortcode, we take the one the user is subscribed to.
@@ -523,16 +452,10 @@ class shortcodes {
     public static function linkbacktocourse($shortcode, $args, $content, $env, $next) {
 
         global $COURSE, $USER, $DB, $CFG, $PAGE;
-
-        // If shortcodes are turned off, we return the shortcode as it is.
-        if (get_config('booking', 'shortcodesoff')) {
-            return "<div class='alert alert-warning'>" .
-                get_string('shortcodesoffwarning', 'mod_booking', $shortcode) .
-            "</div>";
-        }
-
-        if (!wb_payment::pro_version_is_activated()) {
-            return get_string('infotext:prolicensenecessary', 'mod_booking');
+        $requiredargs = [];
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true,  $requiredargs);
+        if ($error['error'] === 1) {
+            return $error['message'];
         }
 
         $out = '';
@@ -580,6 +503,294 @@ class shortcodes {
     }
 
     /**
+     * Shortcode to show all Booking Options.
+     *
+     * @param mixed $shortcode
+     * @param mixed $args
+     * @param mixed $content
+     * @param mixed $env
+     * @param mixed $next
+     *
+     * @return string $out
+     *
+     */
+    public static function allbookingoptions($shortcode, $args, $content, $env, $next) {
+        global $PAGE, $DB;
+        $requiredargs = [];
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
+        if ($error['error'] === 1) {
+            return $error['message'];
+        }
+
+        $course = $PAGE->course;
+        $perpage = self::check_perpage($args);
+        $pageurl = $course->shortname . $PAGE->url->out();
+        $viewparam = self::get_viewparam($args);
+        $wherearray = [];
+
+        if (empty($args['cmid']) && !empty($args['id'])) {
+            $args['cmid'] = $args['id'];
+        }
+        $bookingidwhere = "";
+        if (!empty($args['cmid'])) {
+            $bookings = [];
+            $cmids = array_map('intval', explode(',', $args['cmid']));
+            foreach ($cmids as $cmid) {
+                $booking = singleton_service::get_instance_of_booking_settings_by_cmid((int)$cmid);
+                if (isset($booking->id)) {
+                    $bookings[] = $booking->id;
+                }
+            }
+                [$inorequal, $additionalparams] = $DB->get_in_or_equal($bookings, SQL_PARAMS_NAMED);
+                $bookingidwhere = " (bookingid $inorequal)";
+        }
+
+        $table = self::init_table_for_courses(null, md5($pageurl));
+
+        // Additional where condition for both card and list views.
+        $additionalwhere = self::set_wherearray_from_arguments($args, $wherearray) ?? '';
+        $additionalwhere = $additionalwhere . $bookingidwhere;
+
+        [$fields, $from, $where, $params, $filter] =
+                booking::get_options_filter_sql(
+                    0,
+                    0,
+                    '',
+                    null,
+                    null,
+                    [],
+                    $wherearray,
+                    null,
+                    [MOD_BOOKING_STATUSPARAM_BOOKED],
+                    $additionalwhere
+                );
+
+        // By default, we do not show booking options that lie in the past.
+        // Shortcode arg values get transmitted as string, so also check for "false" and "0".
+        if (empty($args['all']) || $args['all'] == "false" || $args['all'] == "0") {
+            $startoftoday = strtotime('today'); // Will be 00:00:00 of the current day.
+            $where .= " AND courseendtime > $startoftoday ";
+        }
+
+        if (!empty($additionalparams)) {
+            foreach ($additionalparams as $key => $value) {
+                $params[$key] = $value;
+            }
+        }
+
+        $table->set_filter_sql($fields, $from, $where, $filter, $params);
+
+        // These are all possible options to be displayed in the bookingtable.
+        $possibleoptions = [
+            "description",
+            "statusdescription",
+            "attachment",
+            "teacher",
+            "responsiblecontact",
+            "showdates",
+            "dayofweektime",
+            "location",
+            "institution",
+            "minanswers",
+            "bookingopeningtime",
+            "bookingclosingtime",
+        ];
+        // When calling recommendedin in the frontend we can define exclude params to set options, we don't want to display.
+
+        if (!empty($args['exclude'])) {
+            $exclude = explode(',', $args['exclude']);
+            $optionsfields = array_diff($possibleoptions, $exclude);
+        } else {
+            $optionsfields = $possibleoptions;
+        }
+
+        $defaultorder = SORT_ASC; // Default.
+        if (!empty($args['sortorder'])) {
+            if (strtolower($args['sortorder']) === "desc") {
+                $defaultorder = SORT_DESC;
+            }
+        }
+        if (!empty($args['sortby'])) {
+            $table->sortable(true, $args['sortby'], $defaultorder);
+        } else {
+            $table->sortable(true, 'text', $defaultorder);
+        }
+
+        $showfilter = !empty($args['filter']) ? true : false;
+        $showsort = !empty($args['sort']) ? true : false;
+        $showsearch = !empty($args['search']) ? true : false;
+
+        view::apply_standard_params_for_bookingtable(
+            $table,
+            $optionsfields,
+            $showfilter,
+            $showsearch,
+            $showsort,
+            false,
+            true,
+            $viewparam
+        );
+
+        // Possibility to add customfieldfilter.
+        $customfieldfilter = explode(',', ($args['customfieldfilter'] ?? ''));
+        if (!empty($customfieldfilter)) {
+            self::apply_customfieldfilter($table, $customfieldfilter);
+        }
+
+        $table->showcountlabel = $showfilter ? true : false;
+
+        if (
+            isset($args['filterontop'])
+            && (
+                $args['filterontop'] == '1'
+                || $args['filterontop'] == 'true'
+            )
+        ) {
+            $table->showfilterontop = true;
+        } else {
+            $table->showfilterontop = false;
+        }
+
+        // If "rightside" is in the "exclude" array, then we do not show the rightside area (containing the "Book now" button).
+        if (!empty($exclude) && in_array('rightside', $exclude)) {
+            unset($table->subcolumns['rightside']);
+        }
+
+        $out = $table->outhtml($perpage, true);
+
+        return $out;
+    }
+
+    /**
+     * Shortcode to show your booked Bookingoptions.
+     *
+     * @param string $shortcode
+     * @param array $args
+     * @param string|null $content
+     * @param object $env
+     * @param Closure $next
+     * @return string
+     */
+    public static function mycourselist($shortcode, $args, $content, $env, $next) {
+        global $USER, $PAGE;
+        $requiredargs = [];
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
+        if ($error['error'] === 1) {
+            return $error['message'];
+        }
+
+        $userid = $USER->id;
+        self::fix_args($args);
+        $wherearray = [];
+        $course = $PAGE->course;
+        $perpage = self::check_perpage($args);
+        $pageurl = $course->shortname . $PAGE->url->out();
+        $perpage = self::check_perpage($args);
+
+        $table = self::init_table_for_courses();
+        if (!empty($args['cmid'])) {
+            $booking = singleton_service::get_instance_of_booking_settings_by_cmid((int)$args['cmid']);
+            $wherearray['bookingid'] = (int)$booking->id;
+        }
+
+        $viewparam = self::get_viewparam($args);
+        $table = self::init_table_for_courses(null, md5($pageurl));
+
+        // Additional where condition for both card and list views.
+        $additionalwhere = self::set_wherearray_from_arguments($args, $wherearray) ?? '';
+
+        [$fields, $from, $where, $params, $filter] =
+                booking::get_options_filter_sql(
+                    0,
+                    0,
+                    '',
+                    null,
+                    null,
+                    [],
+                    $wherearray,
+                    $userid,
+                    [MOD_BOOKING_STATUSPARAM_BOOKED],
+                    $additionalwhere
+                );
+
+        $table->set_filter_sql($fields, $from, $where, $filter, $params);
+
+        // These are all possible options to be displayed in the bookingtable.
+        $possibleoptions = [
+            "description",
+            "statusdescription",
+            "attachment",
+            "teacher",
+            "responsiblecontact",
+            "showdates",
+            "dayofweektime",
+            "location",
+            "institution",
+            "minanswers",
+            "bookingopeningtime",
+            "bookingclosingtime",
+        ];
+        // When calling recommendedin in the frontend we can define exclude params to set options, we don't want to display.
+
+        if (!empty($args['exclude'])) {
+            $exclude = explode(',', $args['exclude']);
+            $optionsfields = array_diff($possibleoptions, $exclude);
+        } else {
+            $optionsfields = $possibleoptions;
+        }
+
+                $defaultorder = SORT_ASC; // Default.
+        if (!empty($args['sortorder'])) {
+            if (strtolower($args['sortorder']) === "desc") {
+                $defaultorder = SORT_DESC;
+            }
+        }
+        if (!empty($args['sortby'])) {
+            $table->sortable(true, $args['sortby'], $defaultorder);
+        } else {
+            $table->sortable(true, 'text', $defaultorder);
+        }
+
+                $showfilter = !empty($args['filter']) ? true : false;
+                $showsort = !empty($args['sort']) ? true : false;
+                $showsearch = !empty($args['search']) ? true : false;
+
+                view::apply_standard_params_for_bookingtable(
+                    $table,
+                    $optionsfields,
+                    $showfilter,
+                    $showsearch,
+                    $showsort,
+                    false,
+                    true,
+                    $viewparam,
+                );
+
+                // Possibility to add customfieldfilter.
+                $customfieldfilter = explode(',', ($args['customfieldfilter'] ?? ''));
+        if (!empty($customfieldfilter)) {
+            self::apply_customfieldfilter($table, $customfieldfilter);
+        }
+
+                $table->showcountlabel = $showfilter ? true : false;
+
+        if (
+                    isset($args['filterontop'])
+                    && (
+                        $args['filterontop'] == '1'
+                        || $args['filterontop'] == 'true'
+                    )
+        ) {
+            $table->showfilterontop = true;
+        } else {
+            $table->showfilterontop = false;
+        }
+                $out = $table->outhtml($perpage, true);
+
+                return $out;
+    }
+
+    /**
      * This shortcode covers a special case.
      * It shows all the booking options of a field of study...
      * ... regardless if they are in one or many booking instances.
@@ -600,34 +811,22 @@ class shortcodes {
     public static function fieldofstudycohortoptions($shortcode, $args, $content, $env, $next) {
 
         global $PAGE, $USER, $DB, $CFG;
-
-        // If shortcodes are turned off, we return the shortcode as it is.
-        if (get_config('booking', 'shortcodesoff')) {
-            return "<div class='alert alert-warning'>" .
-                get_string('shortcodesoffwarning', 'mod_booking', $shortcode) .
-            "</div>";
-        }
-
-        if (!wb_payment::pro_version_is_activated()) {
-            return get_string('infotext:prolicensenecessary', 'mod_booking');
+        $requiredargs = [];
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
+        if ($error['error'] === 1) {
+            return $error['message'];
         }
 
         $supporteddbs = [
-            'pgsql_native_moodle_database',
-            'mariadb_native_moodle_database',
+        'pgsql_native_moodle_database',
+        'mariadb_native_moodle_database',
         ];
 
         if (!in_array(get_class($DB), $supporteddbs)) {
             return get_string('shortcodenotsupportedonyourdb', 'mod_booking');
         }
 
-        if (
-            !isset($args['perpage'])
-            || !is_int((int)$args['perpage'])
-            || !$perpage = ($args['perpage'])
-        ) {
-            $perpage = 100;
-        }
+        $perpage = self::check_perpage($args);
 
         // First: determine the cohort we want to use.
         // If not specified in the shortcode, we take the one the user is subscribed to.
@@ -729,34 +928,27 @@ class shortcodes {
     public static function bulkoperations($shortcode, $args, $content, $env, $next): string {
 
         global $PAGE;
-
-        // If shortcodes are turned off, we return the shortcode as it is.
-        if (get_config('booking', 'shortcodesoff')) {
-            return "<div class='alert alert-warning'>" .
-                get_string('shortcodesoffwarning', 'mod_booking', $shortcode) .
-            "</div>";
+        $requiredargs = [];
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true,  $requiredargs);
+        if ($error['error'] === 1) {
+            return $error['message'];
         }
 
         if (!is_siteadmin()) {
             return get_string('nopermissiontoaccesscontent', 'mod_booking');
         }
 
-        if (
-            !isset($args['perpage'])
-            || !is_int((int)$args['perpage'])
-            || !$perpage = ($args['perpage'])
-        ) {
-            $perpage = 100;
-        }
+        $perpage = self::check_perpage($args);
+
         cache_helper::purge_by_event('changesinwunderbytetable');
         // Add the arguments to make sure cache is built correctly.
         $argsstring = bin2hex(implode($args));
         $table = new bulkoperations_table(bin2hex(random_bytes(8)) . '_optionbulkoperationstable_' . $argsstring);
         $columns = [
-            'id' => get_string('id', 'local_wunderbyte_table'),
-            'text' => get_string('title', 'mod_booking'),
-            'action' => get_string('edit'),
-            'invisible' => get_string('invisible', 'mod_booking'),
+        'id' => get_string('id', 'local_wunderbyte_table'),
+        'text' => get_string('title', 'mod_booking'),
+        'action' => get_string('edit'),
+        'invisible' => get_string('invisible', 'mod_booking'),
         ];
         // Add defined customfields from args to columns.
         if (isset($args['customfields'])) {
@@ -805,36 +997,36 @@ class shortcodes {
         $context = context_system::instance();
         // Templates are excluded here.
         [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(0, 0, '', null, $context, [], [], null, [], ' bookingid > 0');
+            booking::get_options_filter_sql(0, 0, '', null, $context, [], [], null, [], ' bookingid > 0');
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
         $table->actionbuttons[] = [
-            'label' => get_string('editbookingoptions', 'mod_booking'),
-            'class' => 'btn btn-warning',
-            'href' => '#',
-            'formname' => 'mod_booking\\form\\option_form_bulk',
-            'nomodal' => false,
-            'selectionmandatory' => true,
-            'id' => '-1',
-            'data' => [
-                'title' => get_string('bulkoperationsheader', 'mod_booking'),
-            ],
+        'label' => get_string('editbookingoptions', 'mod_booking'),
+        'class' => 'btn btn-warning',
+        'href' => '#',
+        'formname' => 'mod_booking\\form\\option_form_bulk',
+        'nomodal' => false,
+        'selectionmandatory' => true,
+        'id' => '-1',
+        'data' => [
+            'title' => get_string('bulkoperationsheader', 'mod_booking'),
+        ],
         ];
         $table->actionbuttons[] = [
-            'label' => get_string('sendmailtoteachers', 'mod_booking'),
-            'class' => 'btn btn-info',
-            'href' => '#',
-            'formname' => 'mod_booking\\form\\send_mail_to_teachers',
-            'nomodal' => false,
-            'selectionmandatory' => true,
-            'id' => '-1',
-            'data' => [
-                'title' => get_string('sendmailheading', 'mod_booking'),
-                'titlestring' => 'blabla',
-                'bodystring' => 'adddatabody',
-                'submitbuttonstring' => get_string('send', 'mod_booking'),
-            ],
+        'label' => get_string('sendmailtoteachers', 'mod_booking'),
+        'class' => 'btn btn-info',
+        'href' => '#',
+        'formname' => 'mod_booking\\form\\send_mail_to_teachers',
+        'nomodal' => false,
+        'selectionmandatory' => true,
+        'id' => '-1',
+        'data' => [
+            'title' => get_string('sendmailheading', 'mod_booking'),
+            'titlestring' => 'blabla',
+            'bodystring' => 'adddatabody',
+            'submitbuttonstring' => get_string('send', 'mod_booking'),
+        ],
         ];
         $table->pageable(true);
         $table->stickyheader = true;
@@ -903,7 +1095,7 @@ class shortcodes {
                 } else {
                     // Prepare standardfilter.
                     $localized = $stringmanager->string_exists($colname, 'mod_booking')
-                        ? get_string($colname, 'mod_booking') : $colname;
+                    ? get_string($colname, 'mod_booking') : $colname;
                     $filtercolumns[$colname] = $localized;
                 }
             }
@@ -912,9 +1104,9 @@ class shortcodes {
             $standardfilter = new standardfilter($colname, $localized);
             if ($colname === 'invisible') {
                 $standardfilter->add_options([
-                    "0" => get_string('optionvisible', 'mod_booking'),
-                    "1" => get_string('optioninvisible', 'mod_booking'),
-                    "2" => get_string('optionvisibledirectlink', 'mod_booking'),
+                "0" => get_string('optionvisible', 'mod_booking'),
+                "1" => get_string('optioninvisible', 'mod_booking'),
+                "2" => get_string('optionvisibledirectlink', 'mod_booking'),
                 ]);
             }
             $table->add_filter($standardfilter);
@@ -969,6 +1161,51 @@ class shortcodes {
     }
 
     /**
+     * Setting options from shortcodes arguments common for all children of wunderbyte_table .
+     *
+     * @param wunderbyte_table $table reference to table
+     * @param array $args
+     *
+     * @return void
+     *
+     */
+    public static function set_common_table_options_from_arguments($table, $args) {
+        $defaultorder = SORT_ASC; // Default.
+        if (!empty($args['sortorder'])) {
+            if (strtolower($args['sortorder']) === "desc") {
+                $defaultorder = SORT_DESC;
+            }
+        }
+        if (!empty($args['sortby'])) {
+            $table->sortable(true, $args['sortby'], $defaultorder);
+        } else {
+            $table->sortable(true, 'text', $defaultorder);
+        }
+
+        if (isset($args['requirelogin']) && $args['requirelogin'] == "false") {
+            $table->requirelogin = false;
+        }
+    }
+    /**
+     * Checking Perpage Argument from Shortcode for all children of wunderbyte_table .
+     *
+     * @param array $args
+     *
+     * @return int $perapage
+     *
+     */
+    public static function check_perpage($args) {
+        if (
+            !isset($args['perpage'])
+            || !is_int((int)$args['perpage'])
+            || !$perpage = ($args['perpage'])
+        ) {
+            return $perpage = 100;
+        }
+        return $perpage = (int)$args['perpage'];
+    }
+
+    /**
      * Modify there wherearray via arguments.
      *
      * @param array $args reference to args
@@ -1014,13 +1251,59 @@ class shortcodes {
                             $argument = trim($argument);
                             $wherearray[$key] = $argument;
                         }
-
                         break;
                     }
                 }
             }
         }
-
         return $additonalwhere;
+    }
+    /**
+     * Helper function to remove quotation marks from args.
+     *
+     * @param array $args reference to arguments array
+     *
+     * @return void
+     */
+    private static function fix_args(array $args) {
+        foreach ($args as $key => &$value) {
+            // Get rid of quotation marks.
+            $value = str_replace('"', '', $value);
+            $value = str_replace("'", "", $value);
+        }
+    }
+    /**
+     * Helperfunction to get the Viewparam.
+     *
+     * @param array $args
+     *
+     * @return int $viewparam
+     *
+     */
+    private static function get_viewparam($args) {
+        // Default is list.
+        $viewparam = MOD_BOOKING_VIEW_PARAM_LIST;
+        if (!isset($args['type'])) {
+            return $viewparam;
+        }
+        switch ($args['type']) {
+            // Cards are currently not yet supported in shortcode.
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /*case 'cards':
+                $viewparam = MOD_BOOKING_VIEW_PARAM_CARDS;
+                break;*/
+            case 'imageleft':
+                $viewparam = MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT;
+                break;
+            case 'imageright':
+                $viewparam = MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT;
+                break;
+            case 'imagelefthalf':
+                $viewparam = MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF;
+                break;
+            case 'list':
+                break;
+        }
+        return $viewparam;
     }
 }
