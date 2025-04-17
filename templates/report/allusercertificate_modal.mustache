@@ -25,16 +25,21 @@
 
     Example context (json):
     {
-        "title" : "User's Certificates",
-		    "certificatecode" : "ASDF1234"
-        "certificateissuedate" : "1.1.1970, 1:00 AM"
-        "certificateexperationdate" : "1.1.1970 2:00 AM"
-        "id" : 1
-        "url": certificate/issue/1234.pdf
+        "title": "User's Certificates",
+        "id": 1,
+        "certificates": [
+            {
+                "code": "CE1234",
+                "timecreated": "1.1.1970, 1:00 AM",
+                "expires": "1.1.1970, 2:00 AM",
+                "url": "certificate/issue/1234.pdf"
+            }
+        ]
     }
 }}
+
 <div>
-  <button id="modal-button-{{id}}" type="button" class="btn btn-primary" data-toggle="modal" data-target="#custom-modal-{{id}}">
+  <button id="modal-button-{{id}}" type="button" class="btn btn-secondary" data-toggle="modal" data-target="#custom-modal-{{id}}">
     {{#str}} showcertificates, mod_booking {{/str}}
   </button>
 </div>
@@ -50,32 +55,29 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-
       <div class="modal-body">
-<div class="modal-body">
-  <table class="table table-striped table-sm">
-    <thead>
-      <tr>
-        <th>{{#str}} certificatecode, mod_booking {{/str}}</th>
-        <th>{{#str}} certificateissuedate, mod_booking {{/str}}</th>
-        <th>{{#str}} certificateexpirationdate, mod_booking {{/str}}</th>
-      </tr>
-    </thead>
-    <tbody>
-      {{#certificates}}
-        <tr>
-          <td>
-            <a href="{{{url}}}" target="_blank">
-            {{code}}
-            </a>
-          </td>
-          <td>{{timecreated}}</td>
-          <td>{{expires}}</td>
-        </tr>
-      {{/certificates}}
-    </tbody>
-  </table>
-</div>
+        <table class="table table-striped table-sm">
+          <thead>
+            <tr>
+              <th>{{#str}} certificatecode, mod_booking {{/str}}</th>
+              <th>{{#str}} certificateissuedate, mod_booking {{/str}}</th>
+              <th>{{#str}} certificateexpirationdate, mod_booking {{/str}}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#certificates}}
+              <tr>
+                <td>
+                  <a href="{{{url}}}" target="_blank">
+                    {{code}}
+                  </a>
+                </td>
+                <td>{{timecreated}}</td>
+                <td>{{expires}}</td>
+              </tr>
+            {{/certificates}}
+          </tbody>
+        </table>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">
@@ -86,5 +88,3 @@
     </div>
   </div>
 </div>
-
-
