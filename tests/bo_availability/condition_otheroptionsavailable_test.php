@@ -87,8 +87,8 @@ final class condition_otheroptionsavailable_test extends advanced_testcase {
         $users = [];
         foreach ($standarddata['users'] as $user) {
             // Standard params of users can be overwritten in testdata.
-            $params = isset($data['usersettings'][$user['name']])
-                ? $data['usersettings'][$user['name']] : ($standarddata['users']['params'] ?? []);
+            $params = isset($data['userssettings'][$user['name']])
+                ? $data['userssettings'][$user['name']] : ($standarddata['users']['params'] ?? []);
             $users[$user['name']] = $this->getDataGenerator()->create_user($params);
         }
 
