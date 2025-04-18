@@ -48,25 +48,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  */
 class booking_history_table extends wunderbyte_table {
     /**
-     * Return user column.
-     *
-     * @param stdClass $values
-     * @return string
-     */
-    public function col_user(stdClass $values): string {
-        global $OUTPUT;
-        $url = new moodle_url('/user/profile.php', ['id' => $values->userid]);
-        $data = [
-            'id' => $values->userid,
-            'firstname' => $values->firstname,
-            'lastname' => $values->lastname,
-            'email' => $values->email,
-            'userprofilelink' => $url->out(),
-        ];
-        return $OUTPUT->render_from_template('mod_booking/booked_user', $data);
-    }
-
-    /**
      * Return option column.
      *
      * @param stdClass $values
@@ -115,7 +96,7 @@ class booking_history_table extends wunderbyte_table {
         $data = [
             'id' => $values->id,
             'titleprefix' => $values->titleprefix,
-            'title' => $values->optionname,
+            'title' => $values->text,
             'optionlink' => $optionlink->out(false),
             'report2link' => $report2link->out(false),
             'instancename' => $values->instancename,
@@ -173,7 +154,7 @@ class booking_history_table extends wunderbyte_table {
     public function col_status(stdClass $values) {
         $status = booking::get_array_of_possible_booking_history_statuses();
         $resolved = $status[$values->status];
-        return $resolved;
+        return "$values->status - $resolved";
     }
 
     /**

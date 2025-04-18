@@ -102,10 +102,10 @@ class booked_users implements renderable, templatable {
 
                 // For optiondates we only show booked users.
                 // Also, we have no delete action but presence tracking.
-                $bookeduserscols[] = 'lastname';
-                $bookedusersheaders[] = get_string('lastname', 'core');
                 $bookeduserscols[] = 'firstname';
                 $bookedusersheaders[] = get_string('firstname', 'core');
+                $bookeduserscols[] = 'lastname';
+                $bookedusersheaders[] = get_string('lastname', 'core');
                 $bookeduserscols[] = 'email';
                 $bookedusersheaders[] = get_string('email', 'core');
                 $bookeduserscols[] = 'status';
@@ -122,10 +122,10 @@ class booked_users implements renderable, templatable {
                 break;
             case 'option':
                 // Define columns and headers for the tables.
-                $bookeduserscols[] = 'lastname';
-                $bookedusersheaders[] = get_string('lastname', 'core');
                 $bookeduserscols[] = 'firstname';
                 $bookedusersheaders[] = get_string('firstname', 'core');
+                $bookeduserscols[] = 'lastname';
+                $bookedusersheaders[] = get_string('lastname', 'core');
                 $bookeduserscols[] = 'email';
                 $bookedusersheaders[] = get_string('email', 'core');
 
@@ -134,10 +134,10 @@ class booked_users implements renderable, templatable {
                 }
                 $bookeduserscols[] = 'action_delete';
 
-                $waitinglistcols = ['name', 'action_confirm_delete'];
-                $reserveduserscols = ['name', 'action_delete'];
-                $userstonotifycols = ['name', 'action_delete'];
-                $deleteduserscols = ['name', 'timemodified'];
+                $waitinglistcols = ['firstname', 'lastname', 'email', 'action_confirm_delete'];
+                $reserveduserscols = ['firstname', 'lastname', 'email', 'action_delete'];
+                $userstonotifycols = ['firstname', 'lastname', 'email', 'action_delete'];
+                $deleteduserscols = ['firstname', 'lastname', 'email', 'timemodified'];
 
                 if (get_config('booking', 'bookingstrackerpresencecounter')) {
                     $bookedusersheaders[] = get_string('presencecount', 'mod_booking');
@@ -145,19 +145,27 @@ class booked_users implements renderable, templatable {
                 $bookedusersheaders[] = get_string('bookingstrackerdelete', 'mod_booking');
 
                 $waitinglistheaders = [
-                    get_string('user', 'core'),
+                    get_string('firstname', 'core'),
+                    get_string('lastname', 'core'),
+                    get_string('email', 'core'),
                     get_string('bookingstrackerdelete', 'mod_booking'),
                 ];
                 $reservedusersheaders = [
-                    get_string('user', 'core'),
+                    get_string('firstname', 'core'),
+                    get_string('lastname', 'core'),
+                    get_string('email', 'core'),
                     get_string('bookingstrackerdelete', 'mod_booking'),
                 ];
                 $userstonotifyheaders = [
-                    get_string('user', 'core'),
+                    get_string('firstname', 'core'),
+                    get_string('lastname', 'core'),
+                    get_string('email', 'core'),
                     get_string('bookingstrackerdelete', 'mod_booking'),
                 ];
                 $deletedusersheaders = [
-                    get_string('user', 'core'),
+                    get_string('firstname', 'core'),
+                    get_string('lastname', 'core'),
+                    get_string('email', 'core'),
                     get_string('timemodified', 'mod_booking'),
                 ];
 
@@ -183,39 +191,59 @@ class booked_users implements renderable, templatable {
                 $deletedusersheaders = [];
 
                 $bookeduserscols[] = 'option';
+                $bookeduserscols[] = 'titleprefix';
+                $bookeduserscols[] = 'text';
                 $bookeduserscols[] = 'answerscount';
                 if (get_config('booking', 'bookingstrackerpresencecounter')) {
                     $bookeduserscols[] = 'presencecount';
                 }
 
                 $waitinglistcols[] = 'option';
+                $waitinglistcols[] = 'titleprefix';
+                $waitinglistcols[] = 'text';
                 $waitinglistcols[] = 'answerscount';
 
                 $reserveduserscols[] = 'option';
+                $reserveduserscols[] = 'titleprefix';
+                $reserveduserscols[] = 'text';
                 $reserveduserscols[] = 'answerscount';
 
                 $userstonotifycols[] = 'option';
+                $userstonotifycols[] = 'titleprefix';
+                $userstonotifycols[] = 'text';
                 $userstonotifycols[] = 'answerscount';
 
                 $deleteduserscols[] = 'option';
+                $deleteduserscols[] = 'titleprefix';
+                $deleteduserscols[] = 'text';
                 $deleteduserscols[] = 'answerscount';
 
                 $bookedusersheaders[] = get_string('bookingoption', 'mod_booking');
+                $bookedusersheaders[] = get_string('titleprefix', 'mod_booking');
+                $bookedusersheaders[] = get_string('bookingoptionnamewithoutprefix', 'mod_booking');
                 $bookedusersheaders[] = get_string('answerscount', 'mod_booking');
                 if (get_config('booking', 'bookingstrackerpresencecounter')) {
                     $bookedusersheaders[] = get_string('presencecount', 'mod_booking');
                 }
 
                 $waitinglistheaders[] = get_string('bookingoption', 'mod_booking');
+                $waitinglistheaders[] = get_string('titleprefix', 'mod_booking');
+                $waitinglistheaders[] = get_string('bookingoptionnamewithoutprefix', 'mod_booking');
                 $waitinglistheaders[] = get_string('answerscount', 'mod_booking');
 
                 $reservedusersheaders[] = get_string('bookingoption', 'mod_booking');
+                $reservedusersheaders[] = get_string('titleprefix', 'mod_booking');
+                $reservedusersheaders[] = get_string('bookingoptionnamewithoutprefix', 'mod_booking');
                 $reservedusersheaders[] = get_string('answerscount', 'mod_booking');
 
                 $userstonotifyheaders[] = get_string('bookingoption', 'mod_booking');
+                $userstonotifyheaders[] = get_string('titleprefix', 'mod_booking');
+                $userstonotifyheaders[] = get_string('bookingoptionnamewithoutprefix', 'mod_booking');
                 $userstonotifyheaders[] = get_string('answerscount', 'mod_booking');
 
                 $deletedusersheaders[] = get_string('bookingoption', 'mod_booking');
+                $deletedusersheaders[] = get_string('titleprefix', 'mod_booking');
+                $deletedusersheaders[] = get_string('bookingoptionnamewithoutprefix', 'mod_booking');
                 $deletedusersheaders[] = get_string('answerscount', 'mod_booking');
                 break;
         }
@@ -358,13 +386,24 @@ class booked_users implements renderable, templatable {
                     $table->sort_default_column = 'timemodified';
                     $table->sort_default_order = SORT_DESC;
                     break;
-                default:
+                case MOD_BOOKING_STATUSPARAM_BOOKED:
                     $sortablecolumns = [
                         'firstname' => get_string('firstname'),
                         'lastname' => get_string('lastname'),
                         'email' => get_string('email'),
                         'presencecount' => get_string('presencecount', 'mod_booking'),
                     ];
+                    $table->sort_default_column = 'lastname';
+                    $table->sort_default_order = SORT_DESC;
+                    break;
+                default:
+                    $sortablecolumns = [
+                        'firstname' => get_string('firstname'),
+                        'lastname' => get_string('lastname'),
+                        'email' => get_string('email'),
+                    ];
+                    $table->sort_default_column = 'lastname';
+                    $table->sort_default_order = SORT_DESC;
                     break;
             }
 
@@ -469,9 +508,6 @@ class booked_users implements renderable, templatable {
                 ];
             }
         } else {
-            // Without defining sorting won't work!
-            $table->define_columns(['titleprefix', 'text']);
-
             // All other scopes: system, course, instance.
             // Add fulltext search.
             $table->define_fulltextsearchcolumns(['titleprefix', 'text', 'coursename', 'instancename']);
@@ -545,7 +581,7 @@ class booked_users implements renderable, templatable {
                 c.fullname AS coursename,
                 b.name AS instancename,
                 bo.titleprefix,
-                bo.text AS optionname,
+                bo.text,
                 u.firstname,
                 u.lastname,
                 u.email,
@@ -574,14 +610,20 @@ class booked_users implements renderable, templatable {
         if (in_array($scope, ['system', 'course', 'instance'])) {
             $columns1 = [
                 'bookingoption',
+                'titleprefix',
+                'text',
             ];
             $headers1 = [
                 get_string('bookingoption', 'mod_booking'),
+                get_string('titleprefix', 'mod_booking'),
+                get_string('bookingoptionnamewithoutprefix', 'mod_booking'),
             ];
         }
 
         $columns2 = [
-            'user',
+            'firstname',
+            'lastname',
+            'email',
             'status',
             'usermodified',
             'timecreated',
@@ -589,7 +631,9 @@ class booked_users implements renderable, templatable {
         ];
 
         $headers2 = [
-            get_string('user'),
+            get_string('firstname'),
+            get_string('lastname'),
+            get_string('email'),
             get_string('status'),
             get_string('usermodified', 'mod_booking'),
             get_string('timecreated'),
@@ -630,20 +674,17 @@ class booked_users implements renderable, templatable {
 
         $sortablecolumns1 = [];
         if (in_array($scope, ['system', 'course', 'instance'])) {
-            // Without defining sorting won't work!
-            $table->define_columns(['titleprefix', 'optionname']);
             $sortablecolumns1 = [
                 'titleprefix' => get_string('titleprefix', 'mod_booking'),
-                'optionname' => get_string('bookingoptionnamewithoutprefix', 'mod_booking'),
+                'text' => get_string('bookingoptionnamewithoutprefix', 'mod_booking'),
             ];
         }
 
-        // Without defining sorting won't work!
-        $table->define_columns(['lastname', 'firstname', 'email']);
         $sortablecolumns2 = [
-            'lastname' => get_string('lastname'),
             'firstname' => get_string('firstname'),
+            'lastname' => get_string('lastname'),
             'email' => get_string('email'),
+            'status' => get_string('status'),
             'timecreated' => get_string('timecreated', 'mod_booking'),
         ];
         $sortablecolumns = array_merge($sortablecolumns1, $sortablecolumns2);
@@ -653,11 +694,11 @@ class booked_users implements renderable, templatable {
         $table->cardsort = true;
 
         $table->define_fulltextsearchcolumns([
-            'lastname',
             'firstname',
+            'lastname',
             'email',
             'titleprefix',
-            'optionname',
+            'text',
             'coursename',
             'instancename',
         ]);

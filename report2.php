@@ -50,7 +50,7 @@ $courseid = optional_param('courseid', 0, PARAM_INT);
 
 $ticketicon = '<i class="fa fa-fw fa-sm fa-ticket" aria-hidden="true"></i>&nbsp;';
 $linkicon = '<i class="fa fa-fw fa-xs fa-external-link" aria-hidden="true"></i>&nbsp;';
-$divider = "<span class='mt-1 ml-1 mr-1 mt-4'>
+$divider = "<span class='mt-3 ml-1 mr-1'>
     <i class='fa-solid fa-2xs fa-angle-right' aria-hidden='true' style='color: gray;'></i>
 </span>";
 
@@ -369,15 +369,19 @@ if (!empty($optiondateid)) {
         "</a>";
 }
 
-// Navigation stylings cannot be done in styles.css because of string localization.
-echo booking::generate_localized_css_for_navigation_labels('report2', $scopes);
-
 $url = new moodle_url('/mod/booking/report2.php', $urlparams);
 $PAGE->set_url($url);
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading("<div class='mt-3 mb-5'>$navhtml</div>" .
-    "<div class='mb-5'>" . $ticketicon . $heading . "</div>");
+
+// Add the navigation here.
+echo "<div class='mt-3 mb-5'>$navhtml</div>";
+
+// Title of the page for the current scope.
+echo $OUTPUT->heading("<div class='mb-5'>$ticketicon $heading</div>");
+
+// Navigation stylings cannot be done in styles.css because of string localization.
+echo booking::generate_localized_css_for_navigation_labels('report2', $scopes);
 
 // Now we render the booked users for the provided scope.
 $data = new booked_users(
