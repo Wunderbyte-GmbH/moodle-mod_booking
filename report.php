@@ -758,7 +758,6 @@ if (!$tableallbookings->is_downloading()) {
         $shoppingcartfrom = "";
     }
     if (class_exists('tool_certificate\certificate')) {
-        // TODO FIX SORT ODER
         $certificatefields = ", cert.certificate";
         $databasetype = $DB->get_dbfamily();
         switch ($databasetype) {
