@@ -220,7 +220,6 @@ class certificate extends field_base {
         foreach ($keys as $key) {
             $valueexpirydate = $formdata->{$key} ?? null;
 
-
             if (!empty($valueexpirydate) && !empty($data->importing)) {
                 $data->{$key} = $data->{$key} ?? booking_option::get_value_of_json_by_key((int) $data->id, $key) ?? 0;
             } else {
