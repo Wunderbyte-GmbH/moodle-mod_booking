@@ -452,7 +452,6 @@ class mod_booking_generator extends testing_module_generator {
             switch ($record->action_type) {
                 case 'bookotheroptions':
                     $record->bookotheroptionsforce = $boactiondata->bookotheroptionsforce ?? 7;
-                    
                     foreach ($boactiondata->otheroptions as $optionname) {
                         if (!$id = $DB->get_field('booking_options', 'id', ['text' => $optionname])) {
                             throw new Exception('The specified booking option with name text "' . $optionname . '" does not exist');
