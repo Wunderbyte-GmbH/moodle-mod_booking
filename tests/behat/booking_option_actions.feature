@@ -71,6 +71,7 @@ Feature: Create booking action as admin and ensure they are working as student.
     ##And I follow "Actions after booking [EXPERIMENTAL]"
     And I expand all fieldsets
     And I should see "Book other options" in the ".booking-actions-list" "css_element"
+    And I log out
 
   @javascript
   Scenario: Booking actions: create bookotheroptions action via DB and book it as students
@@ -91,6 +92,7 @@ Feature: Create booking action as admin and ensure they are working as student.
     And I am on the "Booking1" Activity page logged in as student2
     And I should see "Linked Option(s) not available" in the ".allbookingoptionstable_r1" "css_element"
     And I should not see "Book now" in the ".allbookingoptionstable_r1" "css_element"
+    And I log out
 
   @javascript
   Scenario: Booking actions: create userprofilefield action via DB and book it as students
@@ -108,3 +110,4 @@ Feature: Create booking action as admin and ensure they are working as student.
     And I should see "action-football"
     And I should see "Numeric-Field"
     And I should see "999"
+    And I log out

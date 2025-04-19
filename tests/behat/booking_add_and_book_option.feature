@@ -25,6 +25,10 @@ Feature: In a booking instance create booking options
     And the following "activities" exist:
       | activity | course | name       | intro                  | bookingmanager | eventtype |
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   |
+    ## Unfortunately, TinyMCE is slow and has misbehavior which might cause number of site-wide issues. So - we disable it.
+    And the following config values are set as admin:
+      | config        | value         | plugin      |
+      | texteditors   | atto,textarea |             |
     And I change viewport size to "1366x10000"
 
   @javascript
@@ -55,6 +59,7 @@ Feature: In a booking instance create booking options
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
     Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
     And I should not see "Book now" in the ".allbookingoptionstable_r1" "css_element"
+    And I log out
 
   @javascript
   Scenario: Create booking option via DB than edit it and review changes as a teacher
@@ -101,3 +106,4 @@ Feature: In a booking instance create booking options
     And I should see "Teachers:" in the "#showEventList" "css_element"
     And I should see "Teacher 1" in the "#showEventList" "css_element"
     And I should see "Teacher 2" in the "#showEventList" "css_element"
+    And I log out
