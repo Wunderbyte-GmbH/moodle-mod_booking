@@ -47,6 +47,10 @@ Feature: Create custom availability form for booking options as admin and bookin
     And the following "mod_booking > options" exist:
       | booking     | text         | course | description | useprice | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | BookingCMP  | Option-form  | C1     | Price-form  | 1        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+    ## Unfortunately, TinyMCE is slow and has misbehavior which might cause number of site-wide issues. So - we disable it.
+    And the following config values are set as admin:
+      | config        | value         | plugin      |
+      | texteditors   | atto,textarea |             |
     And I change viewport size to "1366x10000"
 
   @javascript
