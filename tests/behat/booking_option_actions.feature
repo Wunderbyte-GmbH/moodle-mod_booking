@@ -1,5 +1,5 @@
 @mod @mod_booking @booking_actions @mod_booking_actions
-Feature: Create booking action as admin and ensure they are working as student.
+Feature: Create booking action as admin and ensure they are working as student and view history.
 
   Background:
     Given the following "custom profile fields" exist:
@@ -73,11 +73,15 @@ Feature: Create booking action as admin and ensure they are working as student.
     And I should see "Book other options" in the ".booking-actions-list" "css_element"
     And I log out
 
-  @javascript
-  Scenario: Booking actions: create bookotheroptions action via DB and book it as students
-    Given the following "mod_booking > actions" exist:
+  @javascript @booking_history @mod_booking_history
+  Scenario: Booking actions: create bookotheroptions action via DB and book it as students and view history
+    Given the following config values are set as admin:
+    ## Set testing objective settings for booking history
+      | config          | value  | plugin  |
+      | bookingstracker | 1      | booking |
+    And the following "mod_booking > actions" exist:
       | option     | action_type      | boactionname      | boactionjson                                                                      |
-      | B1-Option1 | bookotheroptions | Book more options | {"otheroptions":["B1-Option2","B2-Option1","B2-Option2"],"bookotheroptionsforce":"6"} |
+      | B1-Option1 | bookotheroptions | Book more options | {"otheroptions":["B1-Option2","B2-Option1"],"bookotheroptionsforce":"6"} |
     ## Verify that booking is possible for student1 and commmit booking
     When I am on the "Booking1" Activity page logged in as student1
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
@@ -87,11 +91,27 @@ Feature: Create booking action as admin and ensure they are working as student.
     And I should see "Start" in the ".allbookingoptionstable_r2" "css_element"
     And I am on the "Booking2" Activity page
     And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "Start" in the ".allbookingoptionstable_r2" "css_element"
     ## Verify that booking is impossible for student2
     And I am on the "Booking1" Activity page logged in as student2
     And I should see "Linked Option(s) not available" in the ".allbookingoptionstable_r1" "css_element"
     And I should not see "Book now" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r2" "css_element"
+    And I log out
+    ## Validate general booking history
+    And I log in as "admin"
+    And I visit "/mod/booking/report2.php"
+    And I should see "B1-Option1" in the "#booked_system_0_r1" "css_element"
+    And I should see "1/5" in the "#booked_system_0_r1" "css_element"
+    And I should see "B1-Option2" in the "#booked_system_0_r2" "css_element"
+    And I should see "1/2" in the "#booked_system_0_r2" "css_element"
+    And I should see "B2-Option1" in the "#booked_system_0_r3" "css_element"
+    And I should see "1/1" in the "#booked_system_0_r3" "css_element"
+    And I should see "B2-Option2" in the "#booked_system_0_r4" "css_element"
+    And I should see "0/2" in the "#booked_system_0_r4" "css_element"
+    And I click on "Booking history" "text" in the "#accordion-heading-bookinghistory" "css_element"
+    And I should see "student1@example.com" in the "#bookinghistorytable_system_0_r1" "css_element"
+    And I should see "student1@example.com" in the "#bookinghistorytable_system_0_r2" "css_element"
+    And I should see "student1@example.com" in the "#bookinghistorytable_system_0_r3" "css_element"
     And I log out
 
   @javascript
