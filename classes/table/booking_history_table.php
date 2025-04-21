@@ -145,7 +145,7 @@ class booking_history_table extends wunderbyte_table {
         if (empty($values->json)) {
             return "";
         }
-        if (str_contains($values->json, 'presence')) {
+        if (strrpos($values->json, 'presence') !== false) {
             $info = json_decode($values->json, true);
             $possiblepresences = booking::get_array_of_possible_presence_statuses();
             $a = new stdClass();
@@ -154,7 +154,7 @@ class booking_history_table extends wunderbyte_table {
 
             return get_string('presencechangedhistory', 'mod_booking', $a);
         }
-        if (str_contains($values->json, 'booking')) {
+        if (strrpos($values->json, 'booking') !== false) {
             $info = json_decode($values->json, true);
             $a = new stdClass();
             $a->oldbooking = $info['booking']['oldbooking'];
