@@ -56,16 +56,18 @@ Feature: In a booking instance create booking options anf view history
     And I should see "Manage bookings for Booking option: \"Option-hist_updated\""
     And I should see "2 of 2 records found" in the "#accordion-item-bookedusers" "css_element"
     And I click on "Booking history" "text" in the "#accordion-heading-bookinghistory" "css_element"
-    And I should see "student2@example.com" in the "//tr[contains(@id, 'bookinghistorytable_option_') and contains(@id, '_r1')]" "xpath_element"
-    And I should see "student1@example.com" in the "//tr[contains(@id, 'bookinghistorytable_option_') and contains(@id, '_r2')]" "xpath_element"
+    ## TODO: different default order of records in mysql vs pgsql
+    And I should see "student2@example.com" in the "//table[contains(@id, 'bookinghistorytable_option_')]" "xpath_element"
+    And I should see "student1@example.com" in the "//table[contains(@id, 'bookinghistorytable_option_')]" "xpath_element"
     ## Validate general access to the booking history
     And I click on "Acceptance test site" "text" in the ".report2-nav" "css_element"
     And I should see "Manage bookings for Site: \"Acceptance test site\""
     And I should see "Option-hist_updated" in the "#booked_system_0_r1" "css_element"
     And I should see "2/6" in the "#booked_system_0_r1" "css_element"
     And I click on "Booking history" "text" in the "#accordion-heading-bookinghistory" "css_element"
-    And I should see "student2@example.com" in the "#bookinghistorytable_system_0_r1" "css_element"
-    And I should see "student1@example.com" in the "#bookinghistorytable_system_0_r2" "css_element"
+    ## TODO: different default order of records in mysql vs pgsql
+    And I should see "student2@example.com" in the "#bookinghistorytable_system_0" "css_element"
+    And I should see "student1@example.com" in the "#bookinghistorytable_system_0" "css_element"
     And I click on "Option-hist_updated" "text" in the "#bookinghistorytable_system_0_r1" "css_element"
     ## Just in case
     And I switch to a second window
