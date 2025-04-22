@@ -27,7 +27,9 @@ namespace mod_booking\bo_availability\conditions;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
+use mod_booking\local\modechecker;
 use mod_booking\singleton_service;
+use moodle_url;
 use MoodleQuickForm;
 
 defined('MOODLE_INTERNAL') || die();
@@ -223,20 +225,24 @@ class alreadybooked implements bo_condition {
         } else {
             $label = $this->get_description_string(false, $full, $settings);
         }
+        $classes = $link !== '' ? 'bookinglinkbutton btn btn-primary' : 'alert alert-success';
+
+        $detaildots = self::detaildots($settings, $userid);
 
         return bo_info::render_button(
             $settings,
             $userid,
             $label,
-            $link !== '' ? 'bookinglinkbutton btn btn-primary' : 'alert alert-success',
+            $classes,
             false,
             $fullwidth,
-            'alert',
+            'button',
             'option',
             true,
             '',
             $link,
-            'fa-play'
+            'fa-play',
+            $detaildots
         );
     }
 
@@ -265,5 +271,47 @@ class alreadybooked implements bo_condition {
                 get_string('bocondalreadybookednotavailable', 'mod_booking');
         }
         return $description;
+    }
+
+    /**
+     * Check if detaildots should be displayed and return corresponding array for template.
+     *
+     * @param booking_option_settings $settings
+     * @param int $userid
+     *
+     * @return array
+     *
+     */
+    public static function detaildots($settings, $userid): array {
+        if (
+            !get_config('booking', 'showdetaildotsnextbookedalert')
+        ) {
+            return [];
+        }
+
+        $bookondetail = new bookondetail();
+        if ($bookondetail->is_available($settings, $userid)) {
+            return [];
+        }
+        global $PAGE;
+
+        if (!modechecker::is_ajax_or_webservice_request()) {
+            $returnurl = $PAGE->url->out();
+        } else {
+            $returnurl = '/';
+        }
+
+        $url = new moodle_url("/mod/booking/optionview.php", [
+            "optionid" => (int)$settings->id,
+            "cmid" => (int)$settings->cmid,
+            "userid" => (int)$userid,
+            'returnto' => 'url',
+            'returnurl' => $returnurl,
+        ]);
+
+        return [
+            'url' => $url->out(false),
+        ];
+
     }
 }

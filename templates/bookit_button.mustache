@@ -48,46 +48,53 @@
         }
     }
 }}
-<div class="booking-button-area noprice w-100"
-    tabindex="0"
-    data-itemid="{{itemid}}"
-    data-componentname="mod_booking"
-    data-area="{{area}}"
-    data-userid="{{userid}}"
-    data-results="{{results}}"
-    {{#dataaction}}data-action="{{dataaction}}"{{/dataaction}}
-    {{#nojs}}data-nojs="1"{{/nojs}}>
-    {{#onlist}}
-        <div class="booking-button-notifyarea mb-3">
-            {{> mod_booking/button_notifyme }}
-        </div>
-    {{/onlist}}
-    {{#top}}
-        <div class="booking-button-toparea mb-1 mt-1 p-1 {{class}}"
-             role="{{role}}"
-             {{#nojs}}data-nojs="1"{{/nojs}}>
-            {{{label}}}
-        </div>
-    {{/top}}
-    {{#main}}
-        {{#link}}
-            <a class="booking-button-mainarea p-1 {{class}}" role="{{role}}" href="{{link}}" data-action="bookondetail">
-                {{{label}}}
-            </a>
-        {{/link}}
-        {{^link}}
-            <div class="booking-button-mainarea p-1 {{class}}" role="{{role}}">
+<div class="d-flex align-items-start w-100">
+    <!-- Main booking button area -->
+    <div class="booking-button-area noprice flex-grow-1"
+        tabindex="0"
+        data-itemid="{{itemid}}"
+        data-componentname="mod_booking"
+        data-area="{{area}}"
+        data-userid="{{userid}}"
+        data-results="{{results}}"
+        {{#dataaction}}data-action="{{dataaction}}"{{/dataaction}}
+        {{#nojs}}data-nojs="1"{{/nojs}}>
+        {{#onlist}}
+            <div class="booking-button-notifyarea mb-3">
+                {{> mod_booking/button_notifyme }}
+            </div>
+        {{/onlist}}
+        {{#top}}
+            <div class="booking-button-toparea mb-1 mt-1 p-1 {{class}}"
+                 role="{{role}}"
+                 {{#nojs}}data-nojs="1"{{/nojs}}>
                 {{{label}}}
             </div>
-        {{/link}}
-    {{/main}}
-    {{#sub}}
-        <div class="booking-button-subarea h6 mb-1 mt-1 p-1 {{class}}" role="{{role}}">
-            {{{label}}}
-        </div>
-    {{/sub}}
+        {{/top}}
+        {{#main}}
+            {{#link}}
+                <a class="booking-button-mainarea mb-1 mt-1 p-1 {{class}}" role="{{role}}" href="{{link}}" data-action="bookondetail">
+                    {{{label}}}
+                </a>
+            {{/link}}
+            {{^link}}
+                <div class="booking-button-mainarea mb-1 mt-1 p-1 {{class}}" role="{{role}}">
+                    {{{label}}}
+                </div>
+            {{/link}}
+        {{/main}}
+        {{#sub}}
+            <div class="booking-button-subarea h6 mb-1 mt-1 p-1 {{class}}" role="{{role}}">{{{label}}}</div>
+        {{/sub}}
+        {{#showdetaildots}}
+            <div class="booking-booked-dots-button p-1">
+                <a href="{{url}}" class="btn btn-outline-secondary" title="{{#str}} details {{/str}}">
+                    <i class="fa fa-ellipsis-h"></i>
+                </a>
+            </div>
+        {{/showdetaildots}}
+    </div>
 </div>
-
 {{^nojs}}
     {{#js}}
         require(['mod_booking/bookit'], function(init) {

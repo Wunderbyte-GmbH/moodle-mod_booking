@@ -382,10 +382,10 @@ final class bookitbutton_bookondetails_test extends advanced_testcase {
                     'cancancelbook' => 0,
                     'canbook' => 1,
                     'config' => [
-                        'alwaysshowlinkondetailspage' => 1
+                        'alwaysshowlinkondetailspage' => 1,
                     ],
                     'undoconfig' => [
-                        'alwaysshowlinkondetailspage' => 0
+                        'alwaysshowlinkondetailspage' => 0,
                     ],
                 ],
             ],

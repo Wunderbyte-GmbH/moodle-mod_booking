@@ -839,6 +839,7 @@ class bo_info {
      * @param string $dataaction
      * @param string $link
      * @param string $showicon
+     * @param array $showdetaildots
      * @return array
      */
     public static function render_button(
@@ -853,7 +854,8 @@ class bo_info {
         bool $nojs = true,
         string $dataaction = '', // Use 'noforward' to disable automatic forwarding.
         string $link = '',
-        string $showicon = ''
+        string $showicon = '',
+        array $showdetaildots = []
     ) {
 
         global $PAGE;
@@ -884,6 +886,7 @@ class bo_info {
                 'class' => "$classes $extraclasses text-center",
                 'role' => $role,
             ],
+            'showdetaildots' => empty($showdetaildots) ? false : $showdetaildots,
         ];
 
         if (!empty($showicon)) {
@@ -930,11 +933,13 @@ class bo_info {
                 }
             }
 
-            $data['sub'] = [
-                'label' => $label,
-                'class' => ' text-center ',
-                'role' => '',
-            ];
+            if (!empty($label)) {
+                $data['sub'] = [
+                    'label' => $label,
+                    'class' => ' text-center ',
+                    'role' => '',
+                ];
+            }
         }
 
         // Needed for bookit_price button.

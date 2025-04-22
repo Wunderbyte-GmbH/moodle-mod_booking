@@ -2275,6 +2275,9 @@ $string['showcustomfields'] = 'Custom booking option fields';
 $string['showcustomfields_desc'] = 'Select the custom booking option fields to be shown on the sign-in sheet';
 $string['showdates'] = 'Show dates';
 $string['showdescription'] = 'Show description';
+$string['showdetaildotsnextbookedalert'] = 'Show link to details for booked options';
+$string['showdetaildotsnextbookedalert_desc'] = 'If this option is activated, a small button with three dots is displayed next to the information that a booking option has been booked.
+This button linkes to the detailview of that option.';
 $string['showinapi'] = 'Show in API?';
 $string['showlistoncoursepage'] = 'Show extra information on course page';
 $string['showlistoncoursepage_help'] = 'If you activate this setting, the course name, a short info and a button
