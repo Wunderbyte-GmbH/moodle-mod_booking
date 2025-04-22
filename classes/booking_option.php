@@ -1929,11 +1929,9 @@ class booking_option {
      */
     private function sourcecoursegroup_unenrol_actions(int $userid) {
         $bsettings = json_decode($this->booking->settings->json);
-        // Todo: Unreachable code because of "false &&" - @eynimeni - please fix.
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* if (false && empty($bsettings->unenrolfromgroupofcurrentcourse)) {
+        if (empty($bsettings->unenrolfromgroupofcurrentcourse)) {
             return;
-        } */
+        }
         $bsettings = json_decode($this->booking->settings->json);
         $groups = groups_get_all_groups($this->booking->course->id);
         $groups = array_filter($groups, fn ($g) => $g->idnumber == MOD_BOOKING_ENROL_GROUPTYPE_SOURCECOURSE . $this->option->id);
