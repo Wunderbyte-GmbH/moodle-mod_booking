@@ -82,7 +82,7 @@ final class recurringoptions_test extends advanced_testcase {
      *
      * @dataProvider booking_common_settings_provider
      */
-    public function test_create_recurrignoptions(array $data, array $expected): void {
+    public function test_create_recurringoptions(array $data, array $expected): void {
         global $DB, $CFG;
         $bdata = self::provide_bdata();
 
@@ -509,7 +509,7 @@ final class recurringoptions_test extends advanced_testcase {
     }
 
     /**
-     * Data provider for test_create_recurrignoptions
+     * Data provider for test_create_recurringoptions
      *
      * @return array
      * @throws \UnexpectedValueException
@@ -561,7 +561,7 @@ final class recurringoptions_test extends advanced_testcase {
     }
 
     /**
-     * Data provider for test_create_recurrignoptions
+     * Data provider for test_create_recurringoptions
      *
      * @return array
      * @throws \UnexpectedValueException
