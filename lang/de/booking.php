@@ -778,7 +778,7 @@ $string['confirmoptioncreation'] = 'Wollen Sie diese Buchungsoption splitten sod
 $string['confirmrecurringoption'] = 'Diese Änderungen auch für alle abgeleiteten Buchungsoptionen anwenden?';
 $string['confirmrecurringoptionapplychanges'] = 'Aktuelle Änderungen übernehmen';
 $string['confirmrecurringoptionerror'] = 'Sie können mit jeder dieser Optionen fortfahren.';
-$string['confirmrecurringoptionoverwrite'] = 'Alle Felder abgleichen';
+$string['confirmrecurringoptionoverwrite'] = 'Alle Felder angleichen';
 $string['connectedbooking'] = '[VERALTET] Vorgeschaltete Buchung';
 $string['connectedbooking_help'] = 'Buchung von der Teilnehmer:innen übernommen werden. Es kann bestimmt werden wie viele Teilnehmer:innen übernommen werden.';
 $string['connectedmoodlecourse'] = 'Verbundener Moodle-Kurs';
@@ -1967,7 +1967,7 @@ $string['recurringsameparentoptions'] = 'Buchungsoption(en) mit gleicher Vorlage
 $string['recurringsaveinfo'] = '<div class="alert alert-info" role="alert">
                                 <strong>Achtung:</strong> Bitte speichern Sie allfällige Änderungen bevor Sie wiederkehrende Buchungsoption anlegen. Ihre Änderungen werden sonst in den neuen Buchungen nicht übernommen.
                                 </div>';
-$string['recurringselectapplysiblings'] = 'Sollen diese Änderungen auch für alle folgenden Buchungsoptionen mit der gleichen Vorlage übernehmen?';
+$string['recurringselectapplysiblings'] = 'Sollen diese Änderungen auch für alle folgenden Buchungsoptionen mit der gleichen Vorlage übernommen werden?';
 $string['recurringsettingsheader'] = 'Wiederkehrende Buchungsoptionen <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['recurringsettingsheader_desc'] = 'Einstellungen für Wiederkehrende Optionen und ihre Vorlagen';
 $string['redirectonlogintocourse'] = 'Weiterleitung von nicht eingeloggten Nutzern zum Kurs';
