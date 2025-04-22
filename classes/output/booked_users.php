@@ -402,8 +402,7 @@ class booked_users implements renderable, templatable {
                         'lastname' => get_string('lastname'),
                         'email' => get_string('email'),
                     ];
-                    $table->sort_default_column = 'lastname';
-                    $table->sort_default_order = SORT_DESC;
+                    // No default sorting as it destroys waiting list rank.
                     break;
             }
 
