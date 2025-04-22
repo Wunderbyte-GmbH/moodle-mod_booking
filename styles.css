@@ -569,3 +569,11 @@ We need this for teachers for example. */
 div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotneeded"]) {
     left: 20px;
 }
+
+/* Bookings Tracker (report2) */
+.bookingstracker-header {
+    font-weight: bold;
+    font-size: large;
+    margin: 10px 0;
+    color: #0f6cbf;
+}

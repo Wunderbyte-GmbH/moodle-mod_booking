@@ -218,7 +218,7 @@ class booked_users implements renderable, templatable {
                 $deleteduserscols[] = 'text';
                 $deleteduserscols[] = 'answerscount';
 
-                $bookedusersheaders[] = get_string('bookingoption', 'mod_booking');
+                $bookedusersheaders[] = '';
                 $bookedusersheaders[] = get_string('titleprefix', 'mod_booking');
                 $bookedusersheaders[] = get_string('bookingoptionnamewithoutprefix', 'mod_booking');
                 $bookedusersheaders[] = get_string('answerscount', 'mod_booking');
@@ -226,22 +226,22 @@ class booked_users implements renderable, templatable {
                     $bookedusersheaders[] = get_string('presencecount', 'mod_booking');
                 }
 
-                $waitinglistheaders[] = get_string('bookingoption', 'mod_booking');
+                $waitinglistheaders[] = '';
                 $waitinglistheaders[] = get_string('titleprefix', 'mod_booking');
                 $waitinglistheaders[] = get_string('bookingoptionnamewithoutprefix', 'mod_booking');
                 $waitinglistheaders[] = get_string('answerscount', 'mod_booking');
 
-                $reservedusersheaders[] = get_string('bookingoption', 'mod_booking');
+                $reservedusersheaders[] = '';
                 $reservedusersheaders[] = get_string('titleprefix', 'mod_booking');
                 $reservedusersheaders[] = get_string('bookingoptionnamewithoutprefix', 'mod_booking');
                 $reservedusersheaders[] = get_string('answerscount', 'mod_booking');
 
-                $userstonotifyheaders[] = get_string('bookingoption', 'mod_booking');
+                $userstonotifyheaders[] = '';
                 $userstonotifyheaders[] = get_string('titleprefix', 'mod_booking');
                 $userstonotifyheaders[] = get_string('bookingoptionnamewithoutprefix', 'mod_booking');
                 $userstonotifyheaders[] = get_string('answerscount', 'mod_booking');
 
-                $deletedusersheaders[] = get_string('bookingoption', 'mod_booking');
+                $deletedusersheaders[] = '';
                 $deletedusersheaders[] = get_string('titleprefix', 'mod_booking');
                 $deletedusersheaders[] = get_string('bookingoptionnamewithoutprefix', 'mod_booking');
                 $deletedusersheaders[] = get_string('answerscount', 'mod_booking');
@@ -613,7 +613,7 @@ class booked_users implements renderable, templatable {
                 'text',
             ];
             $headers1 = [
-                get_string('bookingoption', 'mod_booking'),
+                '',
                 get_string('titleprefix', 'mod_booking'),
                 get_string('bookingoptionnamewithoutprefix', 'mod_booking'),
             ];

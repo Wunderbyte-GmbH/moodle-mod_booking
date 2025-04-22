@@ -136,8 +136,8 @@ class manageusers_table extends wunderbyte_table {
         );
 
         $courselink = new moodle_url(
-            '/course/view.php',
-            ['id' => $values->courseid]
+            '/mod/booking/report2.php',
+            ['courseid' => $values->courseid]
         );
 
         $data = [
