@@ -23,11 +23,6 @@
  */
 
 namespace mod_booking\placeholders\placeholders;
-
-use mod_booking\booking;
-use mod_booking\placeholders\placeholders_info;
-use mod_booking\singleton_service;
-use moodle_url;
 use tool_certificate\template;
 
 defined('MOODLE_INTERNAL') || die();
@@ -53,8 +48,9 @@ class certificateurl {
      * @param float $price
      * @param string $text
      * @param array $params
+     * @param int $descriptionparam
      * @param string $rulejson
-     * @return string
+     * @return mixed
      */
     public static function return_value(
         int $cmid = 0,
