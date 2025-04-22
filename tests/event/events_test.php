@@ -38,7 +38,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class events_test extends advanced_testcase {
-
     /**
      * Tests set up.
      */
@@ -104,7 +103,7 @@ final class events_test extends advanced_testcase {
      */
     public function test_teacher_added(): void {
 
-        list($user1, $option, $coursectx) = $this->returntestdata();
+        [$user1, $option, $coursectx] = $this->returntestdata();
 
         $params = ['relateduserid' => $user1->id, 'objectid' => $option->id, 'context' => $coursectx];
 
@@ -137,7 +136,7 @@ final class events_test extends advanced_testcase {
      */
     public function test_teacher_removed(): void {
 
-        list($user1, $option, $coursectx) = $this->returntestdata();
+        [$user1, $option, $coursectx] = $this->returntestdata();
 
         $params = ['relateduserid' => $user1->id, 'objectid' => $option->id, 'context' => $coursectx];
 

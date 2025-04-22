@@ -372,9 +372,6 @@ class mod_booking_observer {
             // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
             /* new calendar($tmpcmid->id, $value->id, 0, calendar::MOD_BOOKING_TYPEOPTION); */
 
-            // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
-            // TODO: We have to re-write this function so all calendar entries of optiondates will get updated correctly.
-
             $allteachers = $DB->get_records_sql(
                 "SELECT userid FROM {booking_teachers} WHERE optionid = ? AND calendarid > 0",
                 [$value->id]
@@ -384,48 +381,6 @@ class mod_booking_observer {
                 new calendar($tmpcmid->id, $value->id, $valuet->userid, calendar::MOD_BOOKING_TYPETEACHERUPDATE);
             }
         }
-    }
-
-    /**
-     * When we add teacher to booking option, we also add calendar event to their calendar.
-     *
-     * @param \mod_booking\event\teacher_added $event
-     */
-    public static function teacher_added(\mod_booking\event\teacher_added $event) {
-        $optionid = $event->objectid;
-        if (empty($optionid)) {
-            return;
-        }
-        $teacherid = $event->relateduserid;
-        $cmid = $event->contextinstanceid;
-
-        // For templates, we do not create calendar events for teachers (fixes #766).
-        if (empty($cmid)) {
-            return;
-        }
-
-        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-
-        // Create calendar events for the newly added teacher.
-        foreach ($settings->sessions as $session) {
-            new calendar(
-                $cmid,
-                $optionid,
-                $teacherid,
-                calendar::MOD_BOOKING_TYPEOPTIONDATE,
-                $session->id,
-                1
-            );
-        }
-    }
-
-    /**
-     * When teacher is removed from booking option we delete their calendar records.
-     *
-     * @param \mod_booking\event\teacher_removed $event
-     */
-    public static function teacher_removed(\mod_booking\event\teacher_removed $event) {
-        new calendar($event->contextinstanceid, $event->objectid, $event->relateduserid, calendar::MOD_BOOKING_TYPETEACHERREMOVE);
     }
 
     /**

@@ -38,7 +38,6 @@ use stdClass;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class editteachersforoptiondate_form extends \core_form\dynamic_form {
-
     /**
      * Returns form context
      *
@@ -61,11 +60,12 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
 
         $context = $this->get_context_for_dynamic_submission();
 
-        if ((has_capability('mod/booking:updatebooking', $context)
+        if (
+            (has_capability('mod/booking:updatebooking', $context)
             || has_capability('mod/booking:addeditownoption', $context)
             || has_capability('mod/booking:viewreports', $context)
-            || has_capability('mod/booking:limitededitownoption', $context)) == false) {
-
+            || has_capability('mod/booking:limitededitownoption', $context)) == false
+        ) {
                 throw new moodle_exception('youdonthavetherighttoaccessthisform', 'mod_booking');
         }
     }
@@ -89,10 +89,12 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
         // Get deduction data from DB.
         $settings = singleton_service::get_instance_of_booking_option_settings($data->optionid);
         foreach ($settings->teachers as $teacher) {
-            if ($record = $DB->get_record('booking_odt_deductions', [
+            if (
+                $record = $DB->get_record('booking_odt_deductions', [
                 'optiondateid' => $data->optiondateid,
                 'userid' => $teacher->userid,
-            ])) {
+                ])
+            ) {
                 $data->{'deduction-teacherid-' . $teacher->userid} = 1;
                 $data->{'deductionreason-teacherid-' . $teacher->userid} = $record->reason;
             }
@@ -132,7 +134,7 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
                     // Trigger an event so we can use it with booking rules.
                     $event = optiondates_teacher_deleted::create([
                         'objectid' => $data->optionid,
-                        'context' => \context_system::instance(),
+                        'context' => context_system::instance(),
                         'userid' => $USER->id,
                         'relateduserid' => $existingteacherid,
                         'other' => [
@@ -157,7 +159,7 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
                     // Trigger an event so we can use it with booking rules.
                     $event = optiondates_teacher_added::create([
                         'objectid' => $data->optionid,
-                        'context' => \context_system::instance(),
+                        'context' => context_system::instance(),
                         'userid' => $USER->id,
                         'relateduserid' => $teacherforoptiondate,
                         'other' => [
@@ -183,14 +185,17 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
         // Save deductions if there are any.
         $settings = singleton_service::get_instance_of_booking_option_settings($data->optionid);
         foreach ($settings->teachers as $teacher) {
-            if (isset($data->{'deduction-teacherid-' . $teacher->userid})
-                && $data->{'deduction-teacherid-' . $teacher->userid} == 1 &&
-                !empty($data->{'deductionreason-teacherid-' . $teacher->userid})) {
-
-                if ($existingdeductionrecord = $DB->get_record('booking_odt_deductions', [
+            if (
+                isset($data->{'deduction-teacherid-' . $teacher->userid})
+                && $data->{'deduction-teacherid-' . $teacher->userid} == 1
+                && !empty($data->{'deductionreason-teacherid-' . $teacher->userid})
+            ) {
+                if (
+                    $existingdeductionrecord = $DB->get_record('booking_odt_deductions', [
                     'optiondateid' => $data->optiondateid,
                     'userid' => $teacher->userid,
-                ])) {
+                    ])
+                ) {
                     $existingdeductionrecord->reason = trim($data->{'deductionreason-teacherid-' . $teacher->userid});
                     $existingdeductionrecord->usermodified = $USER->id;
                     $existingdeductionrecord->timemodified = $now;
@@ -211,12 +216,14 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
                     // Important: Purge cache here!
                     cache_helper::purge_by_event('setbackcachedteachersjournal');
                 }
-            } else if (isset($data->{'deduction-teacherid-' . $teacher->userid})
-                && $data->{'deduction-teacherid-' . $teacher->userid} == 0 &&
-                ($existingdeductionrecord = $DB->get_record('booking_odt_deductions', [
+            } else if (
+                isset($data->{'deduction-teacherid-' . $teacher->userid})
+                && $data->{'deduction-teacherid-' . $teacher->userid} == 0
+                && ($existingdeductionrecord = $DB->get_record('booking_odt_deductions', [
                 'optiondateid' => $data->optiondateid,
                 'userid' => $teacher->userid,
-                ]))) {
+                ]))
+            ) {
                 // A record still exists, but we have unchecked the checkbox, so delete.
                 $DB->delete_records('booking_odt_deductions', [
                     'optiondateid' => $data->optiondateid,
@@ -248,7 +255,7 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
         $list = [];
         // Process only if teachers assigned.
         if (!empty($teacherids)) {
-            list ($insql, $inparams) = $DB->get_in_or_equal($teacherids, SQL_PARAMS_NAMED);
+             [$insql, $inparams] = $DB->get_in_or_equal($teacherids, SQL_PARAMS_NAMED);
 
             $sql = "SELECT id, firstname, lastname, email FROM {user} WHERE id $insql";
             $teachers = $DB->get_records_sql($sql, $inparams);
@@ -263,7 +270,8 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
                 $list[$teacher->id] =
                     $OUTPUT->render_from_template(
                         'mod_booking/form-user-selector-suggestion',
-                        $details);
+                        $details
+                    );
             }
         }
 
@@ -284,7 +292,7 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
             'multiple' => true,
             'noselectionstring' => '',
             'ajax' => 'mod_booking/form_users_selector',
-            'valuehtmlcallback' => function($value) {
+            'valuehtmlcallback' => function ($value) {
                 global $OUTPUT;
                 if (empty($value)) {
                     return get_string('choose...', 'mod_booking');
@@ -297,14 +305,21 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
                     'lastname' => $user->lastname,
                 ];
                 return $OUTPUT->render_from_template(
-                        'mod_booking/form-user-selector-suggestion', $details);
+                    'mod_booking/form-user-selector-suggestion',
+                    $details
+                );
             },
         ];
         /* Important note: Currently, all users can be added as teachers for optiondates.
         In the future, there might be a user profile field defining users which are allowed
         to be added as substitute teachers. */
-        $mform->addElement('autocomplete', 'teachersforoptiondate', get_string('teachers', 'mod_booking'),
-            $list, $options);
+        $mform->addElement(
+            'autocomplete',
+            'teachersforoptiondate',
+            get_string('teachers', 'mod_booking'),
+            $list,
+            $options
+        );
         $mform->setDefault('teachersforoptiondate', $teacherids);
 
         $mform->addElement('text', 'reason', get_string('reason', 'mod_booking'));
@@ -316,10 +331,12 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
             $deductableteachers = [];
             foreach ($settings->teachers as $teacher) {
                 // If the teacher was present at the date, we cannot log a deduction!
-                if ($DB->get_record('booking_optiondates_teachers', [
+                if (
+                    $DB->get_record('booking_optiondates_teachers', [
                     'optiondateid' => $optiondateid,
                     'userid' => $teacher->userid,
-                ])) {
+                    ])
+                ) {
                     continue;
                 } else {
                     $deductableteachers[] = $teacher;
@@ -327,12 +344,20 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
             }
             if (!empty($deductableteachers)) {
                 foreach ($deductableteachers as $teacher) {
-                    $mform->addElement('advcheckbox', 'deduction-teacherid-' . $teacher->userid,
-                        $teacher->firstname . " " . $teacher->lastname);
-                    $mform->addElement('text', 'deductionreason-teacherid-' . $teacher->userid,
-                        get_string('deductionreason', 'mod_booking'));
-                    $mform->hideIf('deductionreason-teacherid-' . $teacher->userid,
-                        'deduction-teacherid-' . $teacher->userid);
+                    $mform->addElement(
+                        'advcheckbox',
+                        'deduction-teacherid-' . $teacher->userid,
+                        $teacher->firstname . " " . $teacher->lastname
+                    );
+                    $mform->addElement(
+                        'text',
+                        'deductionreason-teacherid-' . $teacher->userid,
+                        get_string('deductionreason', 'mod_booking')
+                    );
+                    $mform->hideIf(
+                        'deductionreason-teacherid-' . $teacher->userid,
+                        'deduction-teacherid-' . $teacher->userid
+                    );
                 }
             } else {
                 $mform->addElement('html', '<div class="alert alert-light">' .
@@ -361,8 +386,12 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
                 $errors['reason'] = get_string('error:reasonfornoteacher', 'mod_booking');
             }
         } else {
-            $teachersforoption = $DB->get_fieldset_select('booking_teachers', 'userid', 'optionid = :optionid',
-                ['optionid' => $optionid]);
+            $teachersforoption = $DB->get_fieldset_select(
+                'booking_teachers',
+                'userid',
+                'optionid = :optionid',
+                ['optionid' => $optionid]
+            );
             $teachersforoptiondate = $data['teachersforoptiondate'];
             sort($teachersforoption);
             sort($teachersforoptiondate);
@@ -373,8 +402,10 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         foreach ($settings->teachers as $teacher) {
-            if (isset($data['deduction-teacherid-' . $teacher->userid])
-                && $data['deduction-teacherid-' . $teacher->userid] == 1) {
+            if (
+                isset($data['deduction-teacherid-' . $teacher->userid])
+                && $data['deduction-teacherid-' . $teacher->userid] == 1
+            ) {
                 if (empty(trim($data['deductionreason-teacherid-' . $teacher->userid]))) {
                     $errors['deductionreason-teacherid-' . $teacher->userid] =
                         get_string('error:reasonfordeduction', 'mod_booking');
@@ -396,8 +427,10 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
             $cmid = $this->optional_param('cmid', '', PARAM_RAW);
         }
 
-        $url = new moodle_url('/mod/booking/optiondates_teachers_report.php' ,
-            ['cmid' => $cmid, 'optionid' => $optionid]);
+        $url = new moodle_url(
+            '/mod/booking/optiondates_teachers_report.php',
+            ['cmid' => $cmid, 'optionid' => $optionid]
+        );
         return $url;
     }
 }

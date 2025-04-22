@@ -42,7 +42,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class optiondate {
-
     /** @var array instances */
     public static array $instances = [];
 
@@ -102,7 +101,7 @@ class optiondate {
         $sent,
         $reason,
         $reviewed
-        ) {
+    ) {
         $this->id = $id;
         $this->optionid = $optionid;
         $this->coursestarttime = $coursestarttime;
@@ -164,7 +163,8 @@ class optiondate {
         string $reason = '',
         int $reviewed = 0,
         int $entityid = 0,
-        array $customfields = []): optiondate {
+        array $customfields = []
+    ): optiondate {
 
         global $DB, $USER;
 
@@ -188,7 +188,6 @@ class optiondate {
 
             // Now we check for the old record.
             if ($oldrecord = $DB->get_record('booking_optiondates', ['id' => $id])) {
-
                 $newdata = $data;
                 $newdata['optiondateid'] = $id;
                 $oldrecord->optiondateid = $id;
@@ -196,7 +195,6 @@ class optiondate {
 
                 // Now we compare the old record and the new record.
                 if (!self::compare_optiondates((array)$oldrecord, $newdata, 1)) {
-
                     // We found a difference to the old record, so we need to update it.
                     $DB->update_record('booking_optiondates', $newdata);
                 }
@@ -218,7 +216,6 @@ class optiondate {
             // When we create a template, we may not have a cmid.
 
             if (!empty($settings->cmid) && !empty($optionid)) {
-
                 // We trigger the event, where we take care of events in calendar etc. First we get the context.
                 $event = bookingoptiondate_created::create([
                     'context' => context_module::instance($settings->cmid),
@@ -345,7 +342,8 @@ class optiondate {
         } else {
             // If eventid is missing, we can still try another way of deleting.
             // Optionid and optiondateid are stored in uuid column like this: optionid-optiondateid.
-            $DB->delete_records_select('event',
+            $DB->delete_records_select(
+                'event',
                 "eventtype = 'course'
                 AND courseid <> 0
                 AND component = 'mod_booking'
@@ -373,29 +371,6 @@ class optiondate {
         }
 
         optiondate_cfields::delete_cfields_for_optiondate($optiondateid);
-
-        /* TODO: We need to migrate changes to a new get_changes function.
-        This function should also be part of the new option/fields interface! */
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* $changes = [];
-
-        // Store the changes so they can be sent in an update mail.
-        $changes[] = [
-            'info' => get_string('changeinfosessiondeleted', 'booking'),
-            'fieldname' => 'coursestarttime',
-            'oldvalue' => $optiondate->coursestarttime,
-        ];
-        $changes[] = [
-            'fieldname' => 'courseendtime',
-            'oldvalue' => $optiondate->courseendtime,
-        ];
-        if (!empty($changes)) {
-            // Set no update to true, so the original.
-            $bu = new \mod_booking\booking_utils();
-            $cm = get_coursemodule_from_instance('booking', $this->bookingid);
-            $context = context_module::instance($cm->id);
-            $bu->react_on_changes($cm->id, $context, $this->optionid, $changes, true);
-        } */
 
         // At the very end, we delete the optiondate itself.
         $DB->delete_records('booking_optiondates', ['id' => $optiondateid]);
