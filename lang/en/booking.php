@@ -136,6 +136,8 @@ $string['autcrwhatitis'] = 'If this option is enabled it automatically creates a
  a user as booking manager / teacher to it. Users are selected based on a custom user profile field value.';
 $string['autoenrol'] = 'Automatically enrol users in liked course';
 $string['autoenrol_help'] = 'If selected, users will be enrolled onto the relevant course as soon as they make the booking and unenrolled from that course as soon as the booking is cancelled.';
+$string['automaticbookingoptioncompletion'] = 'Bookingoption completed when Course is completed';
+$string['automaticbookingoptioncompletion_desc'] = 'If enabled the Bookingoption is set to completed when corrseponding course is set completed.';
 $string['automaticcoursecreation'] = 'Automatic creation of Moodle courses <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['availability'] = 'Availability';
 $string['availabilityconditions'] = 'Availability conditions';
