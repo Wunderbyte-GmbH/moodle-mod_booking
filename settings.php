@@ -494,14 +494,17 @@ if ($ADMIN->fulltree) {
         )
     );
 
-    $settings->add(
-        new admin_setting_configcheckbox(
-            'booking/showdetaildotsnextbookedalert',
-            get_string('showdetaildotsnextbookedalert', 'mod_booking'),
-            get_string('showdetaildotsnextbookedalert_desc', 'mod_booking'),
-            0
-        )
-    );
+    if (get_config('booking', 'bookonlyondetailspage')) {
+        // Display of detail dots is only enabled for options bookable on detailspage.
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/showdetaildotsnextbookedalert',
+                get_string('showdetaildotsnextbookedalert', 'mod_booking'),
+                get_string('showdetaildotsnextbookedalert_desc', 'mod_booking'),
+                0
+            )
+        );
+    }
 
     $coloroptions = [
         'primary' => get_string('cdo:buttoncolor:primary', 'mod_booking'),
