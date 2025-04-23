@@ -191,7 +191,7 @@ class shortcodes {
         $wherearray['bookingid'] = (int)$booking->id;
 
         // Additional where condition for both card and list views.
-        $additionalwhere = self::set_wherearray_from_arguments($args, $wherearray) ?? '';
+        $additionalwhere = self::set_customfield_wherearray($args, $wherearray) ?? '';
 
         [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(
@@ -528,28 +528,16 @@ class shortcodes {
         $viewparam = self::get_viewparam($args);
         $wherearray = [];
 
-        if (empty($args['cmid']) && !empty($args['id'])) {
-            $args['cmid'] = $args['id'];
-        }
-        $bookingidwhere = "";
-        if (!empty($args['cmid'])) {
-            $bookings = [];
-            $cmids = array_map('intval', explode(',', $args['cmid']));
-            foreach ($cmids as $cmid) {
-                $booking = singleton_service::get_instance_of_booking_settings_by_cmid((int)$cmid);
-                if (isset($booking->id)) {
-                    $bookings[] = $booking->id;
-                }
-            }
-                [$inorequal, $additionalparams] = $DB->get_in_or_equal($bookings, SQL_PARAMS_NAMED);
-                $bookingidwhere = " (bookingid $inorequal)";
-        }
-
         $table = self::init_table_for_courses(null, md5($pageurl));
+        $additionalparams = [];
 
         // Additional where condition for both card and list views.
-        $additionalwhere = self::set_wherearray_from_arguments($args, $wherearray) ?? '';
-        $additionalwhere = $additionalwhere . $bookingidwhere;
+        $additionalwhere = self::set_customfield_wherearray($args, $wherearray);
+        $cmidwhere = self::set_cmid_wherearray($args, $wherearray, $additionalparams) ?? '';
+        $operator = " AND ";
+        if (!empty($args['cfinclude']) && $args['cfinclude'] == "true") {
+            $operator = " OR ";
+        }
 
         [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(
@@ -562,7 +550,10 @@ class shortcodes {
                     $wherearray,
                     null,
                     [MOD_BOOKING_STATUSPARAM_BOOKED],
-                    $additionalwhere
+                    $additionalwhere,
+                    "",
+                    $cmidwhere,
+                    $operator
                 );
 
         // By default, we do not show booking options that lie in the past.
@@ -657,7 +648,6 @@ class shortcodes {
         }
 
         $out = $table->outhtml($perpage, true);
-
         return $out;
     }
 
@@ -697,7 +687,7 @@ class shortcodes {
         $table = self::init_table_for_courses(null, md5($pageurl));
 
         // Additional where condition for both card and list views.
-        $additionalwhere = self::set_wherearray_from_arguments($args, $wherearray) ?? '';
+        $additionalwhere = self::set_customfield_wherearray($args, $wherearray) ?? '';
 
         [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(
@@ -961,7 +951,6 @@ class shortcodes {
                 $columns[$customfield->shortname] = $customfield->name;
             }
         }
-
         if (isset($args['columns'])) {
             $additionalcolumns = explode(",", $args['columns']);
             foreach ($additionalcolumns as $additionalcolumn) {
@@ -971,7 +960,6 @@ class shortcodes {
                 $columns[$additionalcolumn] = $additionalcolumn;
             }
         }
-
         if (!empty($args['download'])) {
             $table->showdownloadbutton = true;
         }
@@ -1212,10 +1200,9 @@ class shortcodes {
      * @param array $wherearray reference to wherearray
      * @return string
      */
-    private static function set_wherearray_from_arguments(array &$args, array &$wherearray) {
+    private static function set_customfield_wherearray(array &$args, array &$wherearray) {
 
         global $DB;
-
         $customfields = booking_handler::get_customfields();
         // Set given customfields (shortnames) as arguments.
         $fields = [];
@@ -1257,6 +1244,38 @@ class shortcodes {
             }
         }
         return $additonalwhere;
+    }
+
+    /**
+     * Modifiy the Additionalwherearray to include all CMIDs.
+     *
+     * @param array $args
+     * @param array $wherearray
+     *
+     * @return string
+     *
+     */
+    private static function set_cmid_wherearray(array &$args, array &$wherearray, &$additionalparams){
+        global $DB;
+        if (empty($args['cmid']) && !empty($args['id'])) {
+            $args['cmid'] = $args['id'];
+        }
+        $additionalwhere = "";
+        if (!empty($args['cmid'])) {
+            $bookings = [];
+            $cmids = array_map('intval', explode(',', $args['cmid']));
+            foreach ($cmids as $cmid) {
+                $booking = singleton_service::get_instance_of_booking_settings_by_cmid((int)$cmid);
+                if (isset($booking->id)) {
+                    $bookings[] = $booking->id;
+                }
+            }
+                [$inorequal, $additionalparams] = $DB->get_in_or_equal($bookings, SQL_PARAMS_NAMED);
+                $operator = "AND";
+
+                $additionalwhere = " $operator (bookingid $inorequal)";
+        }
+        return $additionalwhere;
     }
     /**
      * Helper function to remove quotation marks from args.
