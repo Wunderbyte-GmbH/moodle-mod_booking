@@ -496,15 +496,6 @@ if ($ADMIN->fulltree) {
 
     $settings->add(
         new admin_setting_configcheckbox(
-            'booking/alwaysshowlinkondetailspage',
-            get_string('alwaysshowlinkondetailspage', 'mod_booking'),
-            get_string('alwaysshowlinkondetailspage_desc', 'mod_booking'),
-            0
-        )
-    );
-
-    $settings->add(
-        new admin_setting_configcheckbox(
             'booking/showdetaildotsnextbookedalert',
             get_string('showdetaildotsnextbookedalert', 'mod_booking'),
             get_string('showdetaildotsnextbookedalert_desc', 'mod_booking'),

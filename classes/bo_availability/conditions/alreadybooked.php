@@ -312,6 +312,5 @@ class alreadybooked implements bo_condition {
         return [
             'url' => $url->out(false),
         ];
-
     }
 }

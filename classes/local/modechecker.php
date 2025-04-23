@@ -94,7 +94,6 @@ class modechecker {
             if (
                 (
                     get_config('booking', 'bookonlyondetailspage')
-                    || get_config('booking', 'alwaysshowlinkondetailspage')
                 )
                 && (
                     !self::is_ajax_or_webservice_request()
