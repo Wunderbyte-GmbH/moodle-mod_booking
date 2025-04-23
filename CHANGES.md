@@ -1,4 +1,4 @@
-## Version 8.12.5 (2025042300)
+## Version 8.12.6 (2025042300)
 * Improvement: for booking history and bookings tracker.
 * Improvement: Implemented unsubscribe to moodle mobile
 * Improvement: Add bookotheroptions action and condition to check if options are available.
