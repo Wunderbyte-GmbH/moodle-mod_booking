@@ -68,7 +68,7 @@ Feature: In a booking instance create booking options anf view history
     ## TODO: different default order of records in mysql vs pgsql
     And I should see "student2@example.com" in the "#bookinghistorytable_system_0" "css_element"
     And I should see "student1@example.com" in the "#bookinghistorytable_system_0" "css_element"
-    And I click on "Option-hist_updated" "text" in the "#bookinghistorytable_system_0_r1" "css_element"
+    And I click on "Report for Option-hist_updated" "link" in the "#bookinghistorytable_system_0_r1" "css_element"
     ## Just in case
     And I switch to a second window
     And I should see "Manage bookings for Booking option: \"Option-hist_updated\""
