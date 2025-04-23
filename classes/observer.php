@@ -469,10 +469,10 @@ class mod_booking_observer {
      * @throws moodle_exception
      */
     public static function course_completed(\core\event\course_completed $event) {
-        global $DB;
+        global $DB, $CFG;
 
         // Check if there is an associated booking_answer with status 'booked' for the userid and courseid.
-        $sql = 'SELECT ba.userid, bo.courseid
+        $sql = 'SELECT ba.userid, bo.courseid, ba.optionid, ba.completed
                 FROM {booking_answers} ba
                 JOIN {booking_options} bo
                 ON ba.optionid = bo.id
@@ -483,6 +483,16 @@ class mod_booking_observer {
         if ($bookedanswers = $DB->get_records_sql($sql, $params)) {
             // Call the enrolment function.
             elective::enrol_booked_users_to_course();
+        }
+        if (!empty($bookedanswers) && get_config('booking', 'automaticbookingoptioncompletion')) {
+            require_once($CFG->dirroot . '/mod/booking/lib.php');
+            foreach ($bookedanswers as $bookedanswer) {
+                $settings = singleton_service::get_instance_of_booking_option_settings($bookedanswer->optionid);
+                $bookingoption = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+                if (empty($bookedanswer->completion)) {
+                    booking_activitycompletion([$event->relateduserid], (object)$bookingoption->booking, $settings->cmid, $settings->id);
+                }
+            }
         }
     }
 
