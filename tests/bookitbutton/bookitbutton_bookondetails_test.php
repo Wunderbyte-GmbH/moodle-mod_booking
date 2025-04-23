@@ -31,11 +31,6 @@ use coding_exception;
 use mod_booking\price;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
-use local_shopping_cart\shopping_cart;
-use local_shopping_cart\shopping_cart_history;
-use local_shopping_cart\local\cartstore;
-use local_shopping_cart\output\shoppingcart_history_list;
-use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -74,7 +69,7 @@ final class bookitbutton_bookondetails_test extends advanced_testcase {
      *
      */
     public function test_booking_bookit_with_price_and_cancellation(array $coursedata, $pricecategories, $expected): void {
-        global $DB, $CFG;
+        global $DB;
 
         $users = [];
         $bookingoptions = [];
@@ -140,7 +135,6 @@ final class bookitbutton_bookondetails_test extends advanced_testcase {
         }
 
         foreach ($expected as $expecteddata) {
-
             if (isset($expecteddata['config'])) {
                 foreach ($expecteddata['config'] as $key => $value) {
                     set_config($key, $value, 'booking');
@@ -161,38 +155,40 @@ final class bookitbutton_bookondetails_test extends advanced_testcase {
 
             // We can also check how the button actually looks which will be displayed to this user.
             [$templates, $datas] = booking_bookit::render_bookit_template_data($settings, $user->id);
+            $this->assertFalse($datas[0]->data['showdetaildots']);
+            // Check the label of the button.
+            $label = $datas[0]->data["main"]["label"];
+            $this->assertEquals($expecteddata['label'], $label);
 
-            if ($expecteddata['label'] ?? false) {
-                // Check the label of the button.
-                $label = $datas[0]->data["main"]["label"];
-                $this->assertEquals($expecteddata['label'], $label);
-            }
+            // Now we force booking the user.
+            $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+            $option->user_submit_response($user, 0, 0, 0, MOD_BOOKING_VERIFIED);
 
-            if ($expecteddata['showprice']) {
-                $price = price::get_price('option', $settings->id, $user);
+            // Option should be bookable and no dots displayed.
+            [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $user->id, false);
+            $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
-                // We check the price which is stored.
-                $this->assertEquals($expecteddata['price'], (float)$price['price']);
+            // We can also check how the button actually looks which will be displayed to this user.
+            [$templates, $datas] = booking_bookit::render_bookit_template_data($settings, $user->id);
+            $this->assertNotFalse($datas[0]->data['showdetaildots']);
 
-                // Here we check the price which is shown on the button.
-
-                if (!is_array($datas[0]->data["price"])) {
-                    $price = $datas[0]->data["price"] ?? null;
-                    $this->assertEquals($expecteddata['price'], (float)$price);
-                } else {
-                    $price = $datas[0]->data["price"]["price"] ?? 0;
-                    $this->assertEquals($expecteddata['price'], (float)$price);
-                }
-            }
-
+            // Now unset the config.
             if (isset($expecteddata['undoconfig'])) {
                 foreach ($expecteddata['undoconfig'] as $key => $value) {
-                    set_config($key, $value, 'mod_booking');
+                    set_config($key, $value, 'booking');
                 }
             }
+
+            $this->assertEmpty(get_config('booking', 'showdetaildotsnextbookedalert'));
+            // Option should be booked and no dots displayed.
+            [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $user->id, false);
+            $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+            // We can also check how the button actually looks which will be displayed to this user.
+            [$templates, $datas] = booking_bookit::render_bookit_template_data($settings, $user->id);
+            $this->assertFalse($datas[0]->data['showdetaildots']);
         }
     }
-
 
     /**
      * Data provider for condition_bookingpolicy_test
@@ -381,19 +377,19 @@ final class bookitbutton_bookondetails_test extends advanced_testcase {
                     'price' => 0,
                     'cancancelbook' => 0,
                     'canbook' => 1,
+                    'label' => "More information",
                     'config' => [
-                        'alwaysshowlinkondetailspage' => 1,
+                        'bookonlyondetailspage' => 1,
+                        'showdetaildotsnextbookedalert' => 1,
                     ],
                     'undoconfig' => [
-                        'alwaysshowlinkondetailspage' => 0,
+                        'bookonlyondetailspage' => 0,
+                        'showdetaildotsnextbookedalert' => 0,
                     ],
                 ],
             ],
 
         ];
-
-        // Test 2: Standard booking instance.
-        // Price should be shown.
 
         return $returnarray;
     }
