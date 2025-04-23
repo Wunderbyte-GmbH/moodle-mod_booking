@@ -28,6 +28,7 @@ namespace mod_booking;
 
 use advanced_testcase;
 use coding_exception;
+use mod_booking\option\fields_info;
 use mod_booking_generator;
 use stdClass;
 
@@ -68,75 +69,85 @@ final class teachers_calendar_test extends advanced_testcase {
 
         // Course is needed for module generator.
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
-        $bdata['course'] = $course->id;
 
         // Create users.
         $teacher1 = $this->getDataGenerator()->create_user();
         $teacher2 = $this->getDataGenerator()->create_user();
         $teacher3 = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
 
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
         $booking = $this->getDataGenerator()->create_module('booking', $bdata);
 
         $this->setAdminUser();
 
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-
         // Create an initial booking option.
+        // The option has 2 optiondates and 1 teacher.
         $record = new stdClass();
+        $record->importing = 1;
         $record->bookingid = $booking->id;
         $record->text = 'Testoption';
-        $record->importing = 1;
-        $record->coursestarttime = '2025-01-01 10:00:00';
-        $record->courseendtime = '2025-12-31 12:00:00';
+        $record->description = 'Test description';
+        $record->chooseorcreatecourse = 1; // Reqiured.
+        $record->courseid = $course->id;
         $record->useprice = 0;
         $record->default = 0;
-
-        // Teachers.
-        $record->teachersforoption = $teacher1->username;
-
-        // Optiondate 1.
-        $record->optiondateid_1 = 1;
+        $record->optiondateid_1 = "0";
+        $record->daystonotify_1 = "0";
         $record->coursestarttime_1 = strtotime('20 May 2050 15:00');
         $record->courseendtime_1 = strtotime('20 May 2050 16:00');
-        $record->daystonotify_1 = 0;
-
-        // Optiondate 2.
-        $record->optiondateid_2 = 2;
+        $record->optiondateid_2 = "0";
+        $record->daystonotify_2 = "0";
         $record->coursestarttime_2 = strtotime('21 May 2050 15:00');
         $record->courseendtime_2 = strtotime('21 May 2050 16:00');
-        $record->daystonotify_2 = 0;
+        $record->teacheremail = $teacher1->email;
 
+        // Create the booking option.
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $plugingenerator->create_option($record);
 
-        // Create a booking option.
-        $option1 = $plugingenerator->create_option($record);
-
-        $calendarevents = $DB->get_records('event', [
-            'name' => 'Testoption',
-            'userid' => $teacher1->id,
-            'component' => 'mod_booking',
-            'eventtype' => 'user',
-        ]);
+        // Now let's check, if the calendar events are created for the teacher.
+        $sql = "SELECT * FROM {event} e
+                WHERE e.name LIKE 'Testoption'
+                AND e.userid = :userid
+                AND e.component LIKE 'mod_booking'
+                AND e.eventtype LIKE 'user'";
+        $params['userid'] = (int)$teacher1->id;
+        $calendarevents = $DB->get_records_sql($sql, $params);
 
         $this->assertCount(2, $calendarevents, 'There should be 2 calendar events for the teacher.');
 
-        // Update option to trigger recurrence.
-        /*$record->id = $option1->id;
-        $record->cmid = $settings->cmid;
-        $record->importing = 1;
+        // Now we change the teacher and add another optiondate.
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
 
-        $record->repeatthisbooking = $data['repeatthisbooking'];
-        $record->howmanytimestorepeat = $data['howmanytimestorepeat'];
-        $record->howoftentorepeat = $data['howoftentorepeat'];
-        $record->requirepreviousoptionstobebooked = $data['requirepreviousoptionstobebooked'];*/
+        $record = (object)[
+            'identifier' => $settings->identifier,
+            'id' => $option->id,
+            'cmid' => $settings->cmid,
+        ];
+        fields_info::set_data($record);
 
-        /*booking_option::update($record);
+        unset($record->importing);
+        unset($record->teacheremail);
+        $record->optiondateid_3 = "0";
+        $record->daystonotify_3 = "0";
+        $record->coursestarttime_3 = strtotime('22 May 2050 15:00');
+        $record->courseendtime_3 = strtotime('22 May 2050 16:00');
+        $record->teachersforoption = [$teacher2->id];
+        booking_option::update($record);
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $params['userid'] = (int)$teacher1->id;
+        $calendarevents = $DB->get_records_sql($sql, $params);
+        $this->assertCount(0, $calendarevents, 'There should now be no calendar events for teacher1 anymore.');
+
+        $params['userid'] = (int)$teacher2->id;
+        $calendarevents = $DB->get_records_sql($sql, $params);
+        $this->assertCount(3, $calendarevents, 'There should be 3 calendar events for teacher2.');
+
         // To avoid retrieving the singleton with the wrong settings, we destroy it.
-        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);*/
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
 
         // TearDown at the very end.
         self::teardown();

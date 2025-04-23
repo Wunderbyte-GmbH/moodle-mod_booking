@@ -189,7 +189,6 @@ class teachers extends field_base {
      * @param object $originaloption
      *
      * @return void
-     *
      */
     public static function changes_collected_action(
         array $changes,
@@ -199,6 +198,11 @@ class teachers extends field_base {
     ) {
         $oldteacherids = $changes["mod_booking\\option\\fields\\teachers"]["changes"]["oldvalue"] ?? [];
         $newteacherids = $changes["mod_booking\\option\\fields\\teachers"]["changes"]["newvalue"] ?? [];
+
+        $optionid = $data->optionid ?? $data->id;
+        if (empty($optionid)) {
+            return;
+        }
 
         // First, get all optiondateids.
         $optiondateids = [];
@@ -211,7 +215,7 @@ class teachers extends field_base {
         // The teacher was removed. So delete all calendar entries.
         foreach ($oldteacherids as $oldteacherid) {
             if (!in_array($oldteacherid, $newteacherids)) {
-                new calendar((int)$data->cmid, (int)$data->optionid, (int)$oldteacherid, calendar::MOD_BOOKING_TYPETEACHERREMOVE);
+                new calendar((int)$data->cmid, (int)$optionid, (int)$oldteacherid, calendar::MOD_BOOKING_TYPETEACHERREMOVE);
             }
         }
 
@@ -221,7 +225,7 @@ class teachers extends field_base {
                 foreach ($optiondateids as $optiondateid) {
                     new calendar(
                         (int)$data->cmid,
-                        (int)$data->optionid,
+                        (int)$optionid,
                         (int)$newteacherid,
                         calendar::MOD_BOOKING_TYPEOPTIONDATE,
                         $optiondateid,

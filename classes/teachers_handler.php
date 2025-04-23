@@ -179,7 +179,11 @@ class teachers_handler {
      */
     public function set_data(stdClass &$data) {
 
-        if (!empty($this->optionid) && $this->optionid > 0) {
+        if (
+            !isset($data->{MOD_BOOKING_FORM_TEACHERS})
+            && !empty($this->optionid)
+            && $this->optionid > 0
+        ) {
             $optionsettings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
             $teachers = $optionsettings->teachers;
             $teacherids = [];
