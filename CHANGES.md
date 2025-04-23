@@ -1,3 +1,17 @@
+## Version 8.12.5 (2025042300)
+* Improvement: for booking history and bookings tracker.
+* Improvement: Implemented unsubscribe to moodle mobile
+* Improvement: Add bookotheroptions action and condition to check if options are available.
+* Improvement: Refactoring shortcodes.
+* Bugfix: Do not hide columns via CSS but add them to sorting correctly, usability improvements
+* Bugfix: No default sorting by lastname, as it destroys rank order of waiting list.
+* Bugfix: Update recurring bookingopening and closingtime correctly
+* Bugfix: Enable setting unenrolfromgroupofcurrentcourse
+* Test: New behat Scenario: Booking actions: create settings for booking action via UI as a teacher and edit it
+* Test: New behat Scenario: Booking actions: create booking action via DB and book it as students
+* Test: New behat Scenario: Booking actions: create userprofilefield action via DB and book it as students
+
+
 ## Version 8.12.5 (2025041600)
 * New feature: "What's new?" tab in Booking shows booking options made visible within a defined recent number of days.
 * Improvement: Added setting 'redirectonlogintocourse'.
