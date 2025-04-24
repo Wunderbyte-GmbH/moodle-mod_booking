@@ -790,7 +790,7 @@ $string['confirmcanceloptiontitle'] = "Ändere den Status der Buchungsoption";
 $string['confirmchangesemester'] = 'JA, ich möchte wirklich alle Termine der Buchungsinstanz löschen und neue erstellen.';
 $string['confirmdeletebookingoption'] = 'Möchten Sie diese Buchungsmöglichkeit <b>{$a}</b> wirklich löschen?';
 $string['confirmed'] = 'Bestätigt';
-$string['confirmoptioncompletion'] = 'Abschluss bestätigen';
+$string['confirmoptioncompletion'] = 'Abschluss bestätigen / aufheben';
 $string['confirmoptioncreation'] = 'Wollen Sie diese Buchungsoption splitten sodass aus jedem Einzeltermin eine eigene
  Buchungsoption erstellt wird?';
 $string['confirmrecurringoption'] = 'Diese Änderungen auch für alle abgeleiteten Buchungsoptionen anwenden?';
