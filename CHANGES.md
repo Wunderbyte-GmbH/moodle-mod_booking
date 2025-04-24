@@ -1,3 +1,8 @@
+## Version 8.12.7 (2025042400)
+* New Feature: Link to optiondetails next to booked/cancelled alert for bookondetail
+* Bugfix: Fix course sortorder after course creation via template
+* Tests: refactoring of the backup_restore_test()
+
 ## Version 8.12.6 (2025042300)
 * Improvement: for booking history and bookings tracker.
 * Improvement: Implemented unsubscribe to moodle mobile
