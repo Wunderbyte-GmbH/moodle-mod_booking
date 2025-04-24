@@ -105,6 +105,7 @@ define('MOD_BOOKING_STATUSPARAM_NOTIFYMELIST_DELETED', 14);
 define('MOD_BOOKING_STATUSPARAM_PRESENCE_CHANGED', 15);
 define('MOD_BOOKING_STATUSPARAM_BOOKINGOPTION_MOVED', 16);
 define('MOD_BOOKING_STATUSPARAM_BOOKOTHEROPTIONS', 17);
+define('MOD_BOOKING_STATUSPARAM_COMPLETION_CHANGED', 18);
 
 // Define booking presence status parameters.
 define('MOD_BOOKING_PRESENCE_STATUS_NOTSET', 0);
@@ -1847,6 +1848,7 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
         );
 
         if ($userdata->completed == '1') {
+            $completionold = $userdata->completed;
             $userdata->completed = '0';
             $userdata->timemodified = time();
             $DB->update_record('booking_answers', $userdata);
@@ -1854,70 +1856,42 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
                 'booking_answers',
                 ['bookingid' => $booking->id, 'userid' => $selecteduser, 'completed' => '1']
             );
-
-            $status = MOD_BOOKING_STATUSPARAM_PRESENCE_CHANGED;
+            $status = MOD_BOOKING_STATUSPARAM_COMPLETION_CHANGED;
             $answerid = $userdata->id;
             $optionid = $userdata->optionid;
             $bookingid = $userdata->bookingid;
             $userid = $userdata->userid;
-            $presenceold = $userdata->status;
-            $presencechange = [
-                'presence' => [
-                'presenceold' => $presenceold,
-                'presencenew' => $userdata->completed,
+            $completionchange = [
+                'completion' => [
+                'completionold' => $completionold,
+                'completionnew' => $userdata->completed,
                 ],
             ];
-
-            booking_option::booking_history_insert($status, $answerid, $optionid, $bookingid, $userid, $presencechange);
-            $coursecontext = \context_course::instance($course->id);
-
-            $event = bookinganswer_presencechanged::create([
-                'objectid' => $optionid,
-                'contextid' => $coursecontext->id,
-                'relateduserid' => $selecteduser,
-                'other' => [
-                    'presenceold' => $presenceold,
-                    'presencenew' => $userdata->completed,
-                ],
-            ]);
-            $event->trigger();
+            booking_option::booking_history_insert($status, $answerid, $optionid, $bookingid, $userid, $completionchange);
 
             if ($completion->is_enabled($cm) && $booking->enablecompletion > $countcomplete) {
                 $completion->update_state($cm, COMPLETION_INCOMPLETE, $selecteduser);
             }
         } else {
+            $completionold = $userdata->completed;
             $userdata->completed = '1';
             $userdata->timemodified = time();
             if (class_exists('tool_certificate\certificate')) {
                 $certid = certificate::issue_certificate($optionid, $selecteduser);
             }
 
-            $status = MOD_BOOKING_STATUSPARAM_PRESENCE_CHANGED;
+            $status = MOD_BOOKING_STATUSPARAM_COMPLETION_CHANGED;
             $answerid = $userdata->id;
             $optionid = $userdata->optionid;
             $bookingid = $userdata->bookingid;
             $userid = $userdata->userid;
-            $presenceold = $userdata->status;
-            $presencechange = [
-                'presence' => [
-                'presenceold' => $presenceold,
-                'presencenew' => $userdata->completed,
+            $completionchange = [
+                'completion' => [
+                'completionold' => $completionold,
+                'completionnew' => $userdata->completed,
                 ],
             ];
-
-            booking_option::booking_history_insert($status, $answerid, $optionid, $bookingid, $userid, $presencechange);
-            $coursecontext = \context_course::instance($course->id);
-
-            $event = bookinganswer_presencechanged::create([
-                'objectid' => $optionid,
-                'contextid' => $coursecontext->id,
-                'relateduserid' => $selecteduser,
-                'other' => [
-                    'presenceold' => $presenceold,
-                    'presencenew' => $userdata->completed,
-                ],
-            ]);
-            $event->trigger();
+            booking_option::booking_history_insert($status, $answerid, $optionid, $bookingid, $userid, $completionchange);
 
             // Trigger the completion event, in order to send the notification mail.
             $event = \mod_booking\event\bookingoption_completed::create([
@@ -1933,7 +1907,6 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
             $event->trigger();
 
             // Important: userid is the user who triggered, relateduserid is the affected user who completed.
-            $userdata->status = $userdata->completed;
             $DB->update_record('booking_answers', $userdata);
             $countcomplete = $DB->count_records(
                 'booking_answers',
