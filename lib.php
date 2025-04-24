@@ -1,4 +1,6 @@
 <?php
+
+use mod_booking\event\bookinganswer_presencechanged;
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -1847,12 +1849,38 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
         if ($userdata->completed == '1') {
             $userdata->completed = '0';
             $userdata->timemodified = time();
-
             $DB->update_record('booking_answers', $userdata);
             $countcomplete = $DB->count_records(
                 'booking_answers',
                 ['bookingid' => $booking->id, 'userid' => $selecteduser, 'completed' => '1']
             );
+
+            $status = MOD_BOOKING_STATUSPARAM_PRESENCE_CHANGED;
+            $answerid = $userdata->id;
+            $optionid = $userdata->optionid;
+            $bookingid = $userdata->bookingid;
+            $userid = $userdata->userid;
+            $presenceold = $userdata->status;
+            $presencechange = [
+                'presence' => [
+                'presenceold' => $presenceold,
+                'presencenew' => $userdata->completed,
+                ],
+            ];
+
+            booking_option::booking_history_insert($status, $answerid, $optionid, $bookingid, $userid, $presencechange);
+            $coursecontext = \context_course::instance($course->id);
+
+            $event = bookinganswer_presencechanged::create([
+                'objectid' => $optionid,
+                'contextid' => $coursecontext->id,
+                'relateduserid' => $selecteduser,
+                'other' => [
+                    'presenceold' => $presenceold,
+                    'presencenew' => $userdata->completed,
+                ],
+            ]);
+            $event->trigger();
 
             if ($completion->is_enabled($cm) && $booking->enablecompletion > $countcomplete) {
                 $completion->update_state($cm, COMPLETION_INCOMPLETE, $selecteduser);
@@ -1863,6 +1891,33 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
             if (class_exists('tool_certificate\certificate')) {
                 $certid = certificate::issue_certificate($optionid, $selecteduser);
             }
+
+            $status = MOD_BOOKING_STATUSPARAM_PRESENCE_CHANGED;
+            $answerid = $userdata->id;
+            $optionid = $userdata->optionid;
+            $bookingid = $userdata->bookingid;
+            $userid = $userdata->userid;
+            $presenceold = $userdata->status;
+            $presencechange = [
+                'presence' => [
+                'presenceold' => $presenceold,
+                'presencenew' => $userdata->completed,
+                ],
+            ];
+
+            booking_option::booking_history_insert($status, $answerid, $optionid, $bookingid, $userid, $presencechange);
+            $coursecontext = \context_course::instance($course->id);
+
+            $event = bookinganswer_presencechanged::create([
+                'objectid' => $optionid,
+                'contextid' => $coursecontext->id,
+                'relateduserid' => $selecteduser,
+                'other' => [
+                    'presenceold' => $presenceold,
+                    'presencenew' => $userdata->completed,
+                ],
+            ]);
+            $event->trigger();
 
             // Trigger the completion event, in order to send the notification mail.
             $event = \mod_booking\event\bookingoption_completed::create([
@@ -1876,8 +1931,9 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
                             ],
             ]);
             $event->trigger();
-            // Important: userid is the user who triggered, relateduserid is the affected user who completed.
 
+            // Important: userid is the user who triggered, relateduserid is the affected user who completed.
+            $userdata->status = $userdata->completed;
             $DB->update_record('booking_answers', $userdata);
             $countcomplete = $DB->count_records(
                 'booking_answers',
