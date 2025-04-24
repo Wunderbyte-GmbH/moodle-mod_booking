@@ -1110,6 +1110,9 @@ class booking {
      * @param array $bookingparams
      * @param string $additionalwhere
      * @param string $innerfrom
+     * @param string $outerwhere
+     * @param string $operatorouterwhere
+     *
      * @return array
      */
     public static function get_options_filter_sql(
@@ -1309,8 +1312,8 @@ class booking {
 
         if (!empty($outerwhere) && !empty($operatorouterwhere)) {
             $where .= $operatorouterwhere . $outerwhere;
-            return [$fields, $from, $where, $params, $filter];
         }
+        return [$fields, $from, $where, $params, $filter];
     }
 
     /**

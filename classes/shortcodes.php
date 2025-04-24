@@ -562,13 +562,11 @@ class shortcodes {
             $startoftoday = strtotime('today'); // Will be 00:00:00 of the current day.
             $where .= " AND courseendtime > $startoftoday ";
         }
-
         if (!empty($additionalparams)) {
             foreach ($additionalparams as $key => $value) {
                 $params[$key] = $value;
             }
         }
-
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
         // These are all possible options to be displayed in the bookingtable.
@@ -1247,15 +1245,16 @@ class shortcodes {
     }
 
     /**
-     * Modifiy the Additionalwherearray to include all CMIDs.
+     * Create Outerwherearray to contain all CMID's.
      *
      * @param array $args
      * @param array $wherearray
+     * @param array $additionalparams
      *
      * @return string
      *
      */
-    private static function set_cmid_wherearray(array &$args, array &$wherearray, &$additionalparams){
+    private static function set_cmid_wherearray(array &$args, array &$wherearray, &$additionalparams) {
         global $DB;
         if (empty($args['cmid']) && !empty($args['id'])) {
             $args['cmid'] = $args['id'];
@@ -1271,9 +1270,7 @@ class shortcodes {
                 }
             }
                 [$inorequal, $additionalparams] = $DB->get_in_or_equal($bookings, SQL_PARAMS_NAMED);
-                $operator = "AND";
-
-                $additionalwhere = " $operator (bookingid $inorequal)";
+                $additionalwhere = " (bookingid $inorequal)";
         }
         return $additionalwhere;
     }
