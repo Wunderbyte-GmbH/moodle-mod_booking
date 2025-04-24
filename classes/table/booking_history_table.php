@@ -142,6 +142,17 @@ class booking_history_table extends wunderbyte_table {
             $a->newbooking = $values->bookingid;
             return get_string('movedbookinghistory', 'mod_booking', $a);
         };
+        if (strrpos($values->json, 'completion') !== false) {
+            $info = json_decode($values->json, true);
+            $possiblecompletions =
+            [   0 => get_string('statusincomplete', 'booking'),
+                1 => get_string('completed', 'booking'),
+            ];
+            $a = new stdClass();
+            $a->completionold = $possiblecompletions[$info['completion']['completionold']];
+            $a->completionnew = $possiblecompletions[$info['completion']['completionnew']];
+            return get_string('completionchangedhistory', 'mod_booking', $a);
+        }
         return "";
     }
 
