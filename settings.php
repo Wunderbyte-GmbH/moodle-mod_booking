@@ -314,6 +314,16 @@ if ($ADMIN->fulltree) {
                 $presenceoptions
             )
         );
+
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/presencestatustoissuecertificate',
+                get_string('presencestatustoissuecertificate', 'mod_booking'),
+                get_string('presencestatustoissuecertificate_desc', 'mod_booking'),
+                0,
+                booking::get_possible_presences(true)
+            )
+        );
     } else {
         $settings->add(
             new admin_setting_heading(
