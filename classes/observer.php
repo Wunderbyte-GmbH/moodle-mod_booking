@@ -454,7 +454,12 @@ class mod_booking_observer {
                 $settings = singleton_service::get_instance_of_booking_option_settings($bookedanswer->optionid);
                 $bookingoption = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
                 if (empty($bookedanswer->completion)) {
-                    booking_activitycompletion([$event->relateduserid], (object)$bookingoption->booking, $settings->cmid, $settings->id);
+                    booking_activitycompletion(
+                        [$event->relateduserid],
+                        (object)$bookingoption->booking,
+                        $settings->cmid,
+                        $settings->id,
+                    );
                 }
             }
         }
