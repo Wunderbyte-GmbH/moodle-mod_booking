@@ -208,7 +208,8 @@ class shortcodes {
             $perpage = 100;
         }
 
-        $pageurl = $course->shortname . $PAGE->url->out();
+        $pageurl = isset($PAGE->url) ? $PAGE->url->out() : ''; // This is for unit tests.
+        $pageurl = $course->shortname . $pageurl;
 
         if (empty($args['cmid'])) {
             return get_string('definecmidforshortcode', 'mod_booking');
