@@ -107,6 +107,7 @@ class connectedcourse {
         }
 
         $USER = $previoususer;
+        fix_course_sortorder();
     }
 
     /**
