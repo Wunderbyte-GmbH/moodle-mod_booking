@@ -29,10 +29,7 @@
 function xmldb_booking_install() {
     global $DB;
      // Check if the table exists before inserting.
-    if (
-        !PHPUNIT_TEST && !(defined('BEHAT_SITE_RUNNING')
-        && BEHAT_SITE_RUNNING) && $DB->get_manager()->table_exists('booking_pricecategories')
-    ) {
+    if (!PHPUNIT_TEST && !(defined('BEHAT_SITE_RUNNING')) && $DB->get_manager()->table_exists('booking_pricecategories')) {
         // Check if a default category already exists.
         if (!$DB->record_exists('booking_pricecategories', ['identifier' => 'default'])) {
             // Define the default price category.
