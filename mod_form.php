@@ -1027,11 +1027,12 @@ class mod_booking_mod_form extends moodleform_mod {
             case 'semesterstart':
                 $cancancelbookdaysstring = get_string('cancancelbookdays:semesterstart', 'mod_booking');
                 break;
-            case 'bookingopeningtime':
-                $cancancelbookdaysstring = get_string('cancancelbookdays:bookingopeningtime', 'mod_booking');
-                break;
             case 'bookingclosingtime':
                 $cancancelbookdaysstring = get_string('cancancelbookdays:bookingclosingtime', 'mod_booking');
+                break;
+            default:
+                $cancancelbookdaysstring = get_string('cancancelbookdays:bookingopeningtime', 'mod_booking');
+                $canceldependenton = 'bookingopeningtime';
                 break;
         }
 
