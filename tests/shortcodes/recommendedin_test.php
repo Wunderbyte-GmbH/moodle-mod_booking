@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Tests for courselist shortcode.
+ * Tests for the recommendedin shortcode.
  *
  * @package mod_booking
  * @category test
@@ -27,8 +27,8 @@
 namespace mod_booking;
 
 use advanced_testcase;
-use Closure;
 use coding_exception;
+use context_course;
 use context_system;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking_generator;
@@ -48,7 +48,7 @@ require_once($CFG->dirroot . '/mod/booking/classes/price.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
-final class courselist_test extends advanced_testcase {
+final class recommendedin_test extends advanced_testcase {
     /**
      * Tests set up.
      */
@@ -69,14 +69,14 @@ final class courselist_test extends advanced_testcase {
      *
      * @dataProvider booking_common_settings_provider
      */
-    public function test_courselist_shortcode(array $data, array $expected): void {
+    public function test_recommendedin_shortcode(array $data, array $expected): void {
         global $DB, $CFG;
         $bdata = self::provide_bdata();
 
         // Setup test data.
         $courses = [];
-        $courses[] = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
-        $courses[] = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $courses[] = $this->getDataGenerator()->create_course(['enablecompletion' => 1, 'shortname' => 'course1']);
+        $courses[] = $this->getDataGenerator()->create_course(['enablecompletion' => 1, 'shortname' => 'course2']);
 
         // Create users.
         $admin = $this->getDataGenerator()->create_user();
@@ -101,20 +101,10 @@ final class courselist_test extends advanced_testcase {
 
         $fielddata = new stdClass();
         $fielddata->categoryid = $bookingcat->get('id');
-        $fielddata->name = 'Textfield';
-        $fielddata->shortname = 'customcat';
+        $fielddata->name = 'Recomendedin';
+        $fielddata->shortname = 'recommendedin';
         $fielddata->type = 'text';
         $fielddata->configdata = "";
-        $bookingfield = $this->getDataGenerator()->create_custom_field((array) $fielddata);
-        $bookingfield->save();
-
-        $fielddata = new stdClass();
-        $fielddata->categoryid = $bookingcat->get('id');
-        $fielddata->name = 'Multiselect';
-        $fielddata->shortname = 'customselect';
-        $fielddata->type = 'select';
-        $fielddata->configdata =
-        '{"required":"0","uniquevalues":"0","options":"1\r\n2\r\n3\r\n4","defaultvalue":"","locked":"0","visibility":"0"}';
         $bookingfield = $this->getDataGenerator()->create_custom_field((array) $fielddata);
         $bookingfield->save();
 
@@ -158,28 +148,19 @@ final class courselist_test extends advanced_testcase {
 
         // Prepare the args.
         $args = $data['args'];
-        switch ($args['cmidsetting']) {
-            case "all":
-                $args['cmid'] = implode(',', array_keys($cmids));
-                unset($args['cmidsetting']);
-                break;
-            case "first":
-                $args['cmid'] = reset($cmids);
-                unset($args['cmidsetting']);
-                break;
-            case "notset":
-            default:
-                unset($args['cmidsetting']);
-                break;
-        }
 
         // Now we can start testing the shortcode.
         $env = new stdClass();
         $next = function () {
         };
         $args['all'] = 1;
+        global $PAGE;
+        $context = context_course::instance($courses[0]->id);
 
-        $shortcode = shortcodes::courselist('courselist', $args, null, $env, $next);
+        $PAGE->set_context($context);
+        $PAGE->set_course($courses[0]);
+        $PAGE->set_url(new \moodle_url('/mod/booking/tests/recommendedin_test.php'));
+        $shortcode = shortcodes::recommendedin('recommendedin', $args, null, $env, $next);
         $this->assertNotEmpty($shortcode);
         $this->assertStringContainsString($expected['tablestringcontains'], $shortcode);
         $pregmatch = preg_match('/<div[^>]*\sdata-encodedtable=["\']?([^"\'>\s]+)["\']?/i', $shortcode, $matches);
@@ -201,23 +182,9 @@ final class courselist_test extends advanced_testcase {
     public static function booking_common_settings_provider(): array {
 
         return [
-            'all_options' => [
-                [
-                    'args' => [
-                        'cmidsetting' => 'first',
-                        'all' => 1, // Set this to avoid filtering on coursestarttime.
-                    ],
-                ],
-                [
-                    'tablestringcontains' => "wunderbyte_table_container",
-                    'displaytable' => true,
-                    'numberofrecords' => 6,
-                ],
-            ],
             'settingoff' => [
                 [
                     'args' => [
-                        'cmidsetting' => 'first',
                         'all' => 1, // Set this to avoid filtering on coursestarttime.
                     ],
                     'settings' => [
@@ -229,45 +196,16 @@ final class courselist_test extends advanced_testcase {
                     'displaytable' => false,
                 ],
             ],
-            'nocmid' => [
+            'settingson' => [
                 [
                     'args' => [
-                        'cmidsetting' => 'notset',
                         'all' => 1, // Set this to avoid filtering on coursestarttime.
-                    ],
-                ],
-                [
-                    'tablestringcontains' => "To use this shortcode, enter the id of a booking instance",
-                    'displaytable' => false,
-                ],
-            ],
-            'filter_on_customfield_text' => [
-                [
-                    'args' => [
-                        'cmidsetting' => 'first',
-                        'all' => 1, // Set this to avoid filtering on coursestarttime.
-                        'customcat' => 'Text 1', // Set this to avoid filtering on coursestarttime.
                     ],
                 ],
                 [
                     'tablestringcontains' => "wunderbyte_table_container",
+                    'numberofrecords' => 8,
                     'displaytable' => true,
-                    'numberofrecords' => 3,
-                ],
-            ],
-            'filter_on_customfield_multi' => [
-                [
-                    'args' => [
-                        'cmidsetting' => 'first',
-                        'all' => 1, // Set this to avoid filtering on coursestarttime.
-                        'customselect' => 1, // Set this to avoid filtering on coursestarttime.
-                        'customcat' => 'Text 1',
-                    ],
-                ],
-                [
-                    'tablestringcontains' => "wunderbyte_table_container",
-                    'displaytable' => true,
-                    'numberofrecords' => 2,
                 ],
             ],
         ];
@@ -303,7 +241,7 @@ final class courselist_test extends advanced_testcase {
                     'identifier' => 'noprice',
                     'maxanswers' => 1,
                     'customfield_customcat' => 'Text 1',
-                    'customfield_customselect' => "1",
+                    'customfield_recommendedin' => 'course1',
                 ],
                 [
                     'text' => 'Test Booking Option with price',
@@ -311,7 +249,7 @@ final class courselist_test extends advanced_testcase {
                     'identifier' => 'withprice',
                     'maxanswers' => 1,
                     'customfield_customcat' => 'Text 1',
-                    'customfield_customselect' => "2",
+                    'customfield_recommendedin' => 'course1',
                 ],
                 [
                     'text' => 'Disalbed Test Booking Option',
