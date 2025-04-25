@@ -58,9 +58,9 @@ final class recommendedin_test extends advanced_testcase {
     }
 
     /**
-     * Test creation and display of shortcode courselist.
+     * Test creation and display of shortcode recommendedin.
      *
-     * @covers \shortcodes::courselist
+     * @covers \shortcodes::recommendedin
      *
      * @param array $data
      * @param array $expected

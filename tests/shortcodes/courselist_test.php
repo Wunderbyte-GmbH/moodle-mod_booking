@@ -40,7 +40,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 require_once($CFG->dirroot . '/mod/booking/classes/price.php');
 
 /**
- * Class handling tests for booking options.
+ * Class handling tests for courselist.
  *
  * @package mod_booking
  * @category test

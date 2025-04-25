@@ -15,12 +15,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Tests for the bulkoperations shortcode.
+ * Tests for the linkbacktocourse shortcode.
  *
  * @package mod_booking
  * @category test
  * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
- * @author 2025 David Ala
+ * @author 2025 Magdalena Holczik
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -28,7 +28,7 @@ namespace mod_booking;
 
 use advanced_testcase;
 use coding_exception;
-use local_wunderbyte_table\wunderbyte_table;
+use context_course;
 use mod_booking_generator;
 use stdClass;
 
@@ -38,7 +38,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 require_once($CFG->dirroot . '/mod/booking/classes/price.php');
 
 /**
- * Tests for bulkoperations shortcode.
+ * Class handling tests for shortcode linkbacktocourse.
  *
  * @package mod_booking
  * @category test
@@ -46,7 +46,7 @@ require_once($CFG->dirroot . '/mod/booking/classes/price.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
-final class bulkoperations_test extends advanced_testcase {
+final class linkbacktocourse_test extends advanced_testcase {
     /**
      * Tests set up.
      */
@@ -56,9 +56,9 @@ final class bulkoperations_test extends advanced_testcase {
     }
 
     /**
-     * Test creation and display of shortcode bulkoperations.
+     * Test creation and display of shortcode linkbacktocourse.
      *
-     * @covers \shortcodes::bulkoperations
+     * @covers \shortcodes::linkbacktocourse
      *
      * @param array $data
      * @param array $expected
@@ -68,7 +68,7 @@ final class bulkoperations_test extends advanced_testcase {
      * @dataProvider booking_common_settings_provider
      */
     public function test_recommendedin_shortcode(array $data, array $expected): void {
-        global $DB, $PAGE;
+        global $DB, $CFG;
         $bdata = self::provide_bdata();
 
         // Setup test data.
@@ -131,19 +131,15 @@ final class bulkoperations_test extends advanced_testcase {
         $env = new stdClass();
         $next = function () {
         };
-        $args['all'] = 1;
-        $PAGE->set_url(new \moodle_url('/mod/booking/tests/bulkoperations_test.php'));
-        $shortcode = shortcodes::bulkoperations('bulkoperations', $args, null, $env, $next);
+        global $PAGE;
+        $context = context_course::instance($courses[1]->id);
+        $PAGE->set_context($context);
+        $PAGE->set_course($courses[1]);
+        $PAGE->set_url(new \moodle_url('/mod/booking/tests/linkbacktocourse_test.php'));
+        $shortcode = shortcodes::linkbacktocourse('linkbacktocourse', $args, null, $env, $next);
         $this->assertNotEmpty($shortcode);
-        $this->assertStringContainsString($expected['tablestringcontains'], $shortcode);
-        $pregmatch = preg_match('/<div[^>]*\sdata-encodedtable=["\']?([^"\'>\s]+)["\']?/i', $shortcode, $matches);
-        $this->assertEquals($expected['displaytable'], $pregmatch);
-        if (!$expected['displaytable']) {
-            return;
-        }
-        $table = wunderbyte_table::instantiate_from_tablecache_hash($matches[1]);
-        $tableobject = $table->printtable($table->pagesize, $table->useinitialsbar, $table->downloadhelpbutton);
-        $this->assertEquals($expected['numberofrecords'], $table->totalrows);
+        $count = preg_match_all('/mod-booking-linkbacktocourse/i', $shortcode);
+        $this->assertEquals($expected['numberofrecords'], $count);
     }
 
     /**
@@ -158,27 +154,22 @@ final class bulkoperations_test extends advanced_testcase {
             'settingoff' => [
                 [
                     'args' => [
-                        'all' => 1, // Set this to avoid filtering on coursestarttime.
                     ],
                     'settings' => [
                         'shortcodesoff' => 1,
                     ],
                 ],
                 [
-                    'tablestringcontains' => "shortcodes are turned off",
-                    'displaytable' => false,
+                    'numberofrecords' => 0,
                 ],
             ],
             'settingson' => [
                 [
                     'args' => [
-                        'all' => 1, // Set this to avoid filtering on coursestarttime.
                     ],
                 ],
                 [
-                    'tablestringcontains' => "optionbulkoperationstable",
-                    'displaytable' => true,
-                    'numberofrecords' => 24,
+                    'numberofrecords' => 8,
                 ],
             ],
         ];
@@ -213,12 +204,15 @@ final class bulkoperations_test extends advanced_testcase {
                     'description' => 'Test Booking Option',
                     'identifier' => 'noprice',
                     'maxanswers' => 1,
+                    'courseid' => 103001,
+
                 ],
                 [
                     'text' => 'Test Booking Option with price',
                     'description' => 'Test Booking Option',
                     'identifier' => 'withprice',
                     'maxanswers' => 1,
+                    'courseid' => 103001,
                 ],
                 [
                     'text' => 'Disalbed Test Booking Option',
@@ -239,14 +233,12 @@ final class bulkoperations_test extends advanced_testcase {
                     'description' => 'Test Booking Option',
                     'identifier' => 'waitforconfirmationwithprice',
                     'maxanswers' => 1,
-                    'waitforconfirmation' => 1,
                 ],
                 [
                     'text' => 'Blocked by enrolledincohorts',
                     'description' => 'Test enrolledincohorts availability condition',
                     'identifier' => 'enrolledincohorts',
                     'maxanswers' => 1,
-                    'boavenrolledincohorts' => 'testcohort',
                 ],
             ],
         ];
