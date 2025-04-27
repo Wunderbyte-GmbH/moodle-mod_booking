@@ -128,12 +128,23 @@ final class booking_action_test extends advanced_testcase {
             "boactions": {
                 "1": {
                     "id": 1,
-                    "action_type": "userprofilefield",
-                    "boactionname": "User Profile Field Action",
-                    "boactionselectuserprofilefield": "' . (string) $data['boactionselectuserprofilefield'] . '",
-                    "boactionuserprofileoperator": "' . (string) $data['boactionuserprofileoperator'] . '",
-                    "boactionuserprofilefieldvalue": "' . (string) $data['boactionuserprofilefieldvalue'] . '"
-                }
+                    "action_type": "' . (string) $data['actiontype'] . '",
+                    "boactionname": "' . (string) $data['boactionname'] . '"';
+
+        switch ((string) $data['actiontype']) {
+            case 'userprofilefield':
+                $jsoncond .= ',
+                "boactionselectuserprofilefield": "' . (string) $data['boactionselectuserprofilefield'] . '",
+                "boactionuserprofileoperator": "' . (string) $data['boactionuserprofileoperator'] . '",
+                "boactionuserprofilefieldvalue": "' . (string) $data['boactionuserprofilefieldvalue'] . '"';
+                break;
+            case 'cancelbooking':
+                $jsoncond .= ',
+                "boactioncancelbooking": "' . (string) $data['boactioncancelbooking'] . '"';
+                break;
+        }
+
+        $jsoncond .= '}
             }
         }';
 
@@ -169,23 +180,37 @@ final class booking_action_test extends advanced_testcase {
         $this->setUser($student1);
         $boinfo = new bo_info($settings);
 
-        // Validate user profile field defaulr values.
-        $userobj = singleton_service::get_instance_of_user($student1->id);
-        require_once("$CFG->dirroot/user/profile/lib.php");
-        profile_load_data($userobj);
-        $key = "profile_field_" . (string) $data['boactionselectuserprofilefield'];
-        $this->assertEquals($expected['defaultprofilefieldvalue'], $userobj->{$key});
+        switch ((string) $data['actiontype']) {
+            case 'userprofilefield':
+                // Validate user profile field defaulr values.
+                $userobj = singleton_service::get_instance_of_user($student1->id);
+                require_once("$CFG->dirroot/user/profile/lib.php");
+                profile_load_data($userobj);
+                $key = "profile_field_" . (string) $data['boactionselectuserprofilefield'];
+                $this->assertEquals($expected['defaultprofilefieldvalue'], $userobj->{$key});
 
-        // User Books Option.
-        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals($expected['bookitresult'], $id);
-        // In case booking was possible, book the user.
-        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+                // User Books Option.
+                $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+                [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
+                $this->assertEquals($expected['bookitresult'], $id);
+                // In case booking was possible, book the user.
+                $result = booking_bookit::bookit('option', $settings->id, $student1->id);
 
-        // Validate user profile field after booking.
-        profile_load_data($userobj);
-        $this->assertEquals($expected['resultprofilefieldvalue'], $userobj->{$key});
+                // Validate user profile field after booking.
+                profile_load_data($userobj);
+                $this->assertEquals($expected['resultprofilefieldvalue'], $userobj->{$key});
+                break;
+            case 'cancelbooking':
+                // User Books Option.
+                $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+                [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
+                $this->assertEquals($expected['bookitresult1'], $id);
+                // In case booking was possible, book the user.
+                $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+                [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
+                $this->assertEquals($expected['bookitresult2'], $id);
+                break;
+        }
 
         self::teardown();
     }
@@ -215,6 +240,8 @@ final class booking_action_test extends advanced_testcase {
                     'userssettings' => [
                         'student1' => ['profile_field_booking_field' => 'default'],
                     ],
+                    'actiontype' => 'userprofilefield',
+                    'boactionname' => 'User Profile Field Action - replace value',
                     'boactionselectuserprofilefield' => 'booking_field',
                     'boactionuserprofileoperator' => 'set',
                     'boactionuserprofilefieldvalue' => 'action-football',
@@ -241,6 +268,8 @@ final class booking_action_test extends advanced_testcase {
                     'userssettings' => [
                         'student1' => ['profile_field_booking_field' => '1000'],
                     ],
+                    'actiontype' => 'userprofilefield',
+                    'boactionname' => 'User Profile Field Action - add to value',
                     'boactionselectuserprofilefield' => 'booking_field',
                     'boactionuserprofileoperator' => 'subtract',
                     'boactionuserprofilefieldvalue' => '1',
@@ -267,6 +296,8 @@ final class booking_action_test extends advanced_testcase {
                     'userssettings' => [
                         'student1' => ['profile_field_booking_field' => '1000'],
                     ],
+                    'actiontype' => 'userprofilefield',
+                    'boactionname' => 'User Profile Field Action - extract from value',
                     'boactionselectuserprofilefield' => 'booking_field',
                     'boactionuserprofileoperator' => 'add',
                     'boactionuserprofilefieldvalue' => '1',
@@ -296,6 +327,8 @@ final class booking_action_test extends advanced_testcase {
                             . " - " . userdate(strtotime('today + 2 day')),
                         ],
                     ],
+                    'actiontype' => 'userprofilefield',
+                    'boactionname' => 'User Profile Field Action - add date to value',
                     'boactionselectuserprofilefield' => 'booking_field',
                     'boactionuserprofileoperator' => 'adddate',
                     'boactionuserprofilefieldvalue' => 'today + 1 week',
@@ -306,6 +339,24 @@ final class booking_action_test extends advanced_testcase {
                         . " - " . userdate(strtotime('today + 2 day')),
                     'resultprofilefieldvalue' => userdate(strtotime('today + 1 day'))
                         . " - " . userdate(strtotime('today + 2 day + 1 week')),
+                ],
+            ],
+            'Cancel booking' => [
+                [
+                    'profilefields' => [],
+                    'coursesettings' => [
+                        'firstcourse' => [
+                            'enablecompletion' => 1,
+                        ],
+                    ],
+                    'userssettings' => [],
+                    'actiontype' => 'cancelbooking',
+                    'boactionname' => 'Cancel Booking Action',
+                    'boactioncancelbooking' => '1',
+                ],
+                [
+                    'bookitresult1' => MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
+                    'bookitresult2' => MOD_BOOKING_BO_COND_BOOKITBUTTON,
                 ],
             ],
         ];
