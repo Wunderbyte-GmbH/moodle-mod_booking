@@ -464,6 +464,9 @@ class mod_booking_generator extends testing_module_generator {
                     $record->boactionuserprofileoperator = $boactiondata->boactionuserprofileoperator ?? "";
                     $record->boactionuserprofilefieldvalue = $boactiondata->boactionuserprofilefieldvalue ?? "";
                     break;
+                case 'cancelbooking':
+                    $record->boactioncancelbooking = $boactiondata->boactioncancelbooking ?? 0;
+                    break;
             }
             actions_info::save_action($record);
         }
