@@ -177,8 +177,10 @@ class shortcodes {
         }
         $course = $PAGE->course;
         $perpage = self::check_perpage($args);
-        $pageurl = $course->shortname . $PAGE->url->out();
+        $pageurl = isset($PAGE->url) ? $PAGE->url->out() : ''; // This is for unit tests.
+        $pageurl = $course->shortname . $pageurl;
         $viewparam = self::get_viewparam($args);
+
 
         $booking = singleton_service::get_instance_of_booking_settings_by_cmid((int)$args['cmid']);
 
