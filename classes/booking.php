@@ -1127,8 +1127,6 @@ class booking {
         $bookingparams = [MOD_BOOKING_STATUSPARAM_BOOKED],
         $additionalwhere = '',
         $innerfrom = '',
-        $outerwhere = '',
-        $operatorouterwhere = ''
     ) {
 
         global $DB;
@@ -1268,7 +1266,7 @@ class booking {
             }
 
             if (gettype($value) == 'array') {
-                $where .= " AND (( ";
+                $where .= " AND ( ";
                 $orstring = [];
                 // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
                 // TODO: This could be replaced with in or equal, but not sure of if its worth it.
@@ -1307,9 +1305,6 @@ class booking {
             $where .= " AND " . $additionalwhere;
         }
 
-        if (!empty($outerwhere) && !empty($operatorouterwhere)) {
-            $where .= $operatorouterwhere . $outerwhere;
-        }
         return [$fields, $from, $where, $params, $filter];
     }
 

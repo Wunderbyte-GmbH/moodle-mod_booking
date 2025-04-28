@@ -350,7 +350,7 @@ class shortcodes {
         global $COURSE, $USER, $DB, $CFG;
         $requiredargs = [];
         $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
-        if (!empty($error['error'])) {
+        if (($error['error'] === 1)) {
             return $error['message'];
         }
         $perpage = self::check_perpage($args);
@@ -515,6 +515,7 @@ class shortcodes {
     public static function allbookingoptions($shortcode, $args, $content, $env, $next) {
         global $PAGE, $DB;
         $requiredargs = [];
+        $operator = "";
         $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
         if ($error['error'] === 1) {
             return $error['message'];
@@ -530,12 +531,17 @@ class shortcodes {
         $additionalparams = [];
 
         // Additional where condition for both card and list views.
-        $additionalwhere = self::set_customfield_wherearray($args, $wherearray);
-        $cmidwhere = self::set_cmid_wherearray($args, $wherearray, $additionalparams) ?? '';
-        $operator = " AND ";
-        if (!empty($args['cfinclude']) && $args['cfinclude'] === "true") {
-            $operator = " OR ";
+        $customfieldwhere = self::set_customfield_wherearray($args, $wherearray);
+        if (!empty($customfieldwhere)) {
+            $operator = " AND ";
         }
+        if (!empty($args['cfinclude'])) {
+            if ($args['cfinclude'] == "true") {
+                $operator = "OR";
+            }
+        }
+        $cmidwhere = self::set_cmid_wherearray($args, $wherearray, $additionalparams, $operator) ?? '';
+        $additionalwhere = $cmidwhere . $customfieldwhere;
 
         [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(
@@ -550,8 +556,6 @@ class shortcodes {
                     [MOD_BOOKING_STATUSPARAM_BOOKED],
                     $additionalwhere,
                     "",
-                    $cmidwhere,
-                    $operator
                 );
 
         // By default, we do not show booking options that lie in the past.
@@ -1252,7 +1256,7 @@ class shortcodes {
      * @return string
      *
      */
-    private static function set_cmid_wherearray(array &$args, array &$wherearray, &$additionalparams) {
+    private static function set_cmid_wherearray(array &$args, array &$wherearray, &$additionalparams, $operator) {
         global $DB;
         if (empty($args['cmid']) && !empty($args['id'])) {
             $args['cmid'] = $args['id'];
@@ -1268,7 +1272,7 @@ class shortcodes {
                 }
             }
                 [$inorequal, $additionalparams] = $DB->get_in_or_equal($bookings, SQL_PARAMS_NAMED);
-                $additionalwhere = " (bookingid $inorequal)";
+                $additionalwhere = "(bookingid $inorequal) $operator ";
         }
         return $additionalwhere;
     }
