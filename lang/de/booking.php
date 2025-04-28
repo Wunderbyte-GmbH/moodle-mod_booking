@@ -134,7 +134,7 @@ $string['autcrwhatitis'] = 'If this option is enabled it automatically creates a
 $string['autoenrol'] = 'Nutzer:innen automatisch in verknüpften Kurs einschreiben';
 $string['autoenrol_help'] = 'Falls ausgewählt werden Nutzer:innen automatisch in den Kurs eingeschrieben sobald sie die Buchung durchgeführt haben und wieder ausgetragen, wenn die Buchung storniert wird.';
 $string['automaticbookingoptioncompletion'] = 'Buchungsoption abgeschlossen, wenn Kurs abgeschlossen ist';
-$string['automaticbookingoptioncompletion_desc'] = 'Wenn aktiviert, wird die Buchungsoption als abgeschlossen gesetzt, wenn der zugehörige Kurs abgeschlossen ist.';
+$string['automaticbookingoptioncompletion_desc'] = 'Wenn aktiviert, wird die Buchungsoption als abgeschlossen gesetzt, sobald der zugehörige Kurs abgeschlossen ist.';
 $string['automaticcoursecreation'] = 'Automatische Erstellung von Moodle-Kursen <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['availability'] = 'Verfügbarkeit';
 $string['availabilityconditions'] = 'Verfügbarkeit einschränken';

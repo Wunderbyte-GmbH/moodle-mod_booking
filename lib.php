@@ -1858,8 +1858,8 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
             $userid = $userdata->userid;
             $completionchange = [
                 'completion' => [
-                'completionold' => $completionold,
-                'completionnew' => $userdata->completed,
+                    'completionold' => $completionold,
+                    'completionnew' => $userdata->completed,
                 ],
             ];
             booking_option::booking_history_insert($status, $answerid, $optionid, $bookingid, $userid, $completionchange);
@@ -1879,8 +1879,8 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
             $userid = $userdata->userid;
             $completionchange = [
                 'completion' => [
-                'completionold' => $completionold,
-                'completionnew' => $userdata->completed,
+                    'completionold' => $completionold,
+                    'completionnew' => $userdata->completed,
                 ],
             ];
             booking_option::booking_history_insert($status, $answerid, $optionid, $bookingid, $userid, $completionchange);
