@@ -1283,14 +1283,11 @@ class booking {
                             $paramsvaluekey .= $counter;
                             $counter++;
                         }
-
                         $orstring[] = " " . $DB->sql_like("$key", ":$paramsvaluekey", false) . " ";
                         $params[$paramsvaluekey] = $arrayvalue;
                     }
                 }
-
                 $where .= implode(' OR ', $orstring);
-
                 $where .= " ) ";
             } else if (gettype($value) == 'integer') {
                 $where .= " AND   $key = $value";
@@ -1307,7 +1304,7 @@ class booking {
 
         // We add additional conditions to $where, if there are any.
         if (!empty($additionalwhere)) {
-            $where .= " AND " . $additionalwhere . " ) ";
+            $where .= " AND " . $additionalwhere;
         }
 
         if (!empty($outerwhere) && !empty($operatorouterwhere)) {

@@ -53,11 +53,11 @@ class shortcodes_handler {
             'message' => "",
         ];
         $answerarray = self::shortcodes_active($shortcode, $answerarray);
-        if ($answerarray['error']) {
+        if ($answerarray['error'] == 1) {
             return $answerarray;
         }
         $answerarray = self::license_is_activated($shortcode, $answerarray);
-        if ($answerarray['error']) {
+        if ($answerarray['error'] == 1) {
             return $answerarray;
         }
         $answerarray = self::requires_args($shortcode, $answerarray, $args, $requiredargs);

@@ -180,8 +180,6 @@ class shortcodes {
         $pageurl = isset($PAGE->url) ? $PAGE->url->out() : ''; // This is for unit tests.
         $pageurl = $course->shortname . $pageurl;
         $viewparam = self::get_viewparam($args);
-
-
         $booking = singleton_service::get_instance_of_booking_settings_by_cmid((int)$args['cmid']);
 
         if (empty($booking->id)) {
@@ -455,13 +453,11 @@ class shortcodes {
 
         global $COURSE, $USER, $DB, $CFG, $PAGE;
         $requiredargs = [];
-        $error = shortcodes_handler::validatecondition($shortcode, $args, true,  $requiredargs);
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
         if ($error['error'] === 1) {
             return $error['message'];
         }
-
         $out = '';
-
         $optionids = $DB->get_records(
             'booking_options',
             ['courseid' => $COURSE->id]
@@ -537,7 +533,7 @@ class shortcodes {
         $additionalwhere = self::set_customfield_wherearray($args, $wherearray);
         $cmidwhere = self::set_cmid_wherearray($args, $wherearray, $additionalparams) ?? '';
         $operator = " AND ";
-        if (!empty($args['cfinclude']) && $args['cfinclude'] == "true") {
+        if (!empty($args['cfinclude']) && $args['cfinclude'] === "true") {
             $operator = " OR ";
         }
 
