@@ -52,9 +52,15 @@ class shortcodes_handler {
             'error' => 0,
             'message' => "",
         ];
-        self::shortcodes_active($shortcode, $answerarray);
-        self::license_is_activated($shortcode, $answerarray);
-        self::requires_args($shortcode, $answerarray, $args, $requiredargs);
+        $answerarray = self::shortcodes_active($shortcode, $answerarray);
+        if ($answerarray['error']) {
+            return $answerarray;
+        }
+        $answerarray = self::license_is_activated($shortcode, $answerarray);
+        if ($answerarray['error']) {
+            return $answerarray;
+        }
+        $answerarray = self::requires_args($shortcode, $answerarray, $args, $requiredargs);
 
         return $answerarray;
     }
