@@ -1144,6 +1144,20 @@ class mod_booking_mod_form extends moodleform_mod {
             $mform->setDefault('maxoptionsfrominstance', $maxoptionsfrominstancesetting);
             $mform->hideIf('maxoptionsfrominstance', 'maxoptionsfromcategorycount', 'eq', 0);
         }
+
+        $mform->addElement(
+            'advcheckbox',
+            'circumventavailabilityconditions',
+            get_string('circumventavailabilityconditions', 'mod_booking'),
+        );
+
+        $mform->addElement(
+            'text',
+            'circumventpassword',
+            get_string('circumventpassword', 'booking'),
+            ''
+        );
+
         // Miscellaneous settings.
         $mform->addElement(
             'header',
