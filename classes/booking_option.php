@@ -2191,8 +2191,8 @@ class booking_option {
             $presenceold = $userdata->status;
             $presencechange = [
                 'presence' => [
-                'presenceold' => $presenceold,
-                'presencenew' => $presencestatus,
+                    'presenceold' => $presenceold,
+                    'presencenew' => $presencestatus,
                 ],
             ];
 
