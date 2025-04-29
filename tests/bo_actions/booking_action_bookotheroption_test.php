@@ -192,7 +192,103 @@ final class booking_action_bookotheroption_test extends advanced_testcase {
     public static function booking_test_bookotheroption_provider(): array {
 
         return [
-            'Book other options' => [
+            'Book other options - failed beause of blocking' => [
+                [
+                    'profilefields' => [],
+                    'userssettings' => [],
+                    'coursesettings' => [
+                        'firstcourse' => [
+                            'enablecompletion' => 1,
+                        ],
+                        'secondcourse' => [
+                            'enablecompletion' => 1,
+                        ],
+                    ],
+                    'bookingsettings' => [
+                        'firstbooking' => [
+                            'name' => 'firstbooking',
+                            'course' => 'firstcourse',
+                        ],
+                        'secondbooking' => [
+                            'name' => 'secondbooking',
+                            'course' => 'secondcourse',
+                        ],
+                    ],
+
+                    'optionsettings' => [
+                        'b1option1' => [
+                            'text' => 'b1option1',
+                            'booking' => 'firstbooking',
+                            'course' => 'firstcourse',
+                            'maxanswers' => 5,
+                        ],
+                        'b1option2' => [
+                            'text' => 'b1option2',
+                            'booking' => 'firstbooking',
+                            'course' => 'firstcourse',
+                            'maxanswers' => 3,
+                        ],
+                        'b2option1' => [
+                            'text' => 'b2option1',
+                            'booking' => 'secondbooking',
+                            'course' => 'secondcourse',
+                            'maxanswers' => 2,
+                            'restrictanswerperiodopening' => 1,
+                            'bookingopeningtime' => 'now + 1 day', // Booking is not allowed until tomorrow.
+                        ],
+                        'b2option2' => [
+                            'text' => 'b2option2',
+                            'booking' => 'secondbooking',
+                            'course' => 'secondcourse',
+                            'maxanswers' => 3,
+                        ],
+                    ],
+                    'optionactions' => [
+                        'bookotheroptions' => [
+                            'option' => 'b1option1',
+                            'action_type' => 'bookotheroptions',
+                            'boactionname' => 'Book more options',
+                            'boactionjson' => json_encode([
+                                'otheroptions' => ["b1option2", "b2option1"],
+                                'bookotheroptionsforce' => '5',
+                            ]),
+                        ],
+                    ],
+                ],
+                [
+                    'successbookingb2option2' => [
+                        'user' => 'student1',
+                        'option' => 'b2option2',
+                        'bookitresult1' => MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
+                        'bookitresult2' => MOD_BOOKING_BO_COND_ALREADYBOOKED,
+                    ],
+                    'failbookingnwithothers' => [
+                        'user' => 'student2',
+                        'option' => 'b1option1',
+                        'bookitresult1' => MOD_BOOKING_BO_COND_OTHEROPTIONSAVAILABLE,
+                        'bookitresult2' => MOD_BOOKING_BO_COND_OTHEROPTIONSAVAILABLE,
+                    ],
+                    'successbookingb1option2' => [
+                        'user' => 'student2',
+                        'option' => 'b1option2',
+                        'bookitresult1' => MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
+                        'bookitresult2' => MOD_BOOKING_BO_COND_ALREADYBOOKED,
+                    ],
+                    'failbookinngb2option1' => [
+                        'user' => 'student2',
+                        'option' => 'b2option1',
+                        'bookitresult1' => MOD_BOOKING_BO_COND_BOOKING_TIME,
+                        'bookitresult2' => MOD_BOOKING_BO_COND_BOOKING_TIME,
+                    ],
+                    'failbookingnwithothers1' => [
+                        'user' => 'student3',
+                        'option' => 'b1option1',
+                        'bookitresult1' => MOD_BOOKING_BO_COND_OTHEROPTIONSAVAILABLE,
+                        'bookitresult2' => MOD_BOOKING_BO_COND_OTHEROPTIONSAVAILABLE,
+                    ],
+                ],
+            ],
+            'Book other options - success if no overbooking' => [
                 [
                     'profilefields' => [],
                     'userssettings' => [],
@@ -272,7 +368,7 @@ final class booking_action_bookotheroption_test extends advanced_testcase {
                         'bookitresult1' => MOD_BOOKING_BO_COND_ALREADYBOOKED,
                         'bookitresult2' => MOD_BOOKING_BO_COND_ALREADYBOOKED,
                     ],
-                    'confirmbookingnwithothers21' => [
+                    'confirmbookinngwithothers21' => [
                         'user' => 'student2',
                         'option' => 'b2option1',
                         'bookitresult1' => MOD_BOOKING_BO_COND_ALREADYBOOKED,
@@ -317,8 +413,8 @@ final class booking_action_bookotheroption_test extends advanced_testcase {
             ],
             'option' => [
                 'text' => 'Test option1',
-                'coursestarttime_0' => strtotime('now + 1 day'),
-                'courseendtime_0' => strtotime('now + 2 day'),
+                'coursestarttime_0' => strtotime('now + 2 day'),
+                'courseendtime_0' => strtotime('now + 3 day'),
                 'optiondateid_0' => 0,
                 'daystonotify_0' => 0,
                 'importing' => 1,
