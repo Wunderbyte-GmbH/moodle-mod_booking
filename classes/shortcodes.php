@@ -515,6 +515,7 @@ class shortcodes {
     public static function allbookingoptions($shortcode, $args, $content, $env, $next) {
         global $PAGE, $DB;
         $requiredargs = [];
+        $operator = 'AND';
         $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
         if ($error['error'] === 1) {
             return $error['message'];
@@ -533,6 +534,9 @@ class shortcodes {
         // Additional where condition for both card and list views.
         $tempparams = [];
         $tempwherearray = [];
+        if (!empty($args['cfinclude'])) {
+            $operator = "OR";
+        }
 
         if ($cfwhere = self::set_customfield_wherearray($args, $wherearray, $tempparams)) {
             $tempwherearray[] = $cfwhere;
@@ -543,7 +547,7 @@ class shortcodes {
         }
 
         if (!empty($tempwherearray)) {
-            $additionalwhere = " ( " . implode(' OR ', $tempwherearray) . " ) ";
+            $additionalwhere = " ( " . implode(" $operator ", $tempwherearray) . " ) ";
         } else {
             $additionalwhere = ''; // or null, or '1=1', depending on how your SQL logic handles empty conditions
         }
