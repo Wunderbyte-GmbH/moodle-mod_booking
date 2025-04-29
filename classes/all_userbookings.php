@@ -677,7 +677,7 @@ class all_userbookings extends \table_sql {
         echo '<hr>';
     }
     /**
-     * Column for latest Certificat.
+     * Column for latest Certificate.
      *
      * @param stdClass $values
      *
@@ -713,7 +713,7 @@ class all_userbookings extends \table_sql {
         }
         $statusicon = ($now < $lastexpiredate) ? $checkmark : $cross;
         $url = new moodle_url("/pluginfile.php/1/tool_certificate/issues/{$lasttimecreated}/{$lastcode}.pdf");
-        $output = $statusicon . html_writer::link($url, $text, ['traget' => '_blank']);
+        $output = $statusicon . html_writer::link($url, $text, ['target' => '_blank']);
         return $output;
     }
 
@@ -743,7 +743,7 @@ class all_userbookings extends \table_sql {
                 'code' => $code,
                 'timecreated' => userdate($timecreated),
                 'expires' => !empty($cert->expires) ? userdate($cert->expires)
-                : get_string('certificatewithoutexperation', 'mod_booking'),
+                    : get_string('certificatewithoutexperation', 'mod_booking'),
                 'url' => $url,
             ];
         }

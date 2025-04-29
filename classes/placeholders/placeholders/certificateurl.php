@@ -73,7 +73,7 @@ class certificateurl {
         ) {
             $class = $rulejson->datafromevent->eventname;
             $event = $rulejson->datafromevent;
-            if ($class != '\mod_booking\event\bookingoption_completed' && !class_exists('tool_certificate\certificate')) {
+            if ($class != '\mod_booking\event\bookingoption_completed' || !class_exists('tool_certificate\certificate')) {
                 return '';
             }
             $other = $event->other;
