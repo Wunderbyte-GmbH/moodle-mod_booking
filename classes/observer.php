@@ -587,7 +587,7 @@ class mod_booking_observer {
     /**
      * React on Presence changed event.
      *
-     * @param bookinganswer_presencechanged  $event
+     * @param bookinganswer_presencechanged $event
      *
      * @return void
      *

@@ -18,7 +18,7 @@
  * Control and manage booking dates.
  *
  * @package mod_booking
- * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -245,14 +245,13 @@ class certificate extends field_base {
         if (!class_exists('tool_certificate\certificate')) {
             return $id;
         }
-        // 2. get certificate id.
+        // Get certificate id.
         $certificateid = booking_option::get_value_of_json_by_key($optionid, 'certificate') ?? 0;
 
         if (empty($certificateid)) {
             return $id;
         }
 
-        // 3. find out which method is used to issue a certificate.
         $template = template::instance($certificateid);
 
         // Certificate expiry date key.
@@ -263,7 +262,7 @@ class certificate extends field_base {
         if ($certificateexpirydate < time()) {
             return $id;
         }
-        // 4. Create Certificate.
+        // Create Certificate.
         if ($template->can_issue($userid)) {
             $id = $template->issue_certificate(
                 $userid,
