@@ -100,15 +100,14 @@ class manageusers_table extends wunderbyte_table {
      * @param stdClass $values
      * @return string
      */
-    public function col_option(stdClass $values) {
+    public function col_text(stdClass $values) {
 
         if (empty($values->optionid)) {
             return '';
         }
-        $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid);
 
         if ($this->is_downloading()) {
-            return $settings->get_title_with_prefix();
+            return $values->text ?? '';
         }
 
         global $OUTPUT;
@@ -122,7 +121,7 @@ class manageusers_table extends wunderbyte_table {
             ]
         );
 
-        $report2link = new moodle_url(
+        $report2option = new moodle_url(
             '/mod/booking/report2.php',
             [
                 'cmid' => $values->cmid,
@@ -130,26 +129,30 @@ class manageusers_table extends wunderbyte_table {
             ]
         );
 
-        $instancelink = new moodle_url(
+        $report2instance = new moodle_url(
             '/mod/booking/report2.php',
             ['cmid' => $values->cmid]
         );
 
-        $courselink = new moodle_url(
+        $report2course = new moodle_url(
             '/mod/booking/report2.php',
             ['courseid' => $values->courseid]
         );
 
+        $report2system = new moodle_url(
+            '/mod/booking/report2.php'
+        );
+
         $data = [
             'id' => $values->optionid,
-            'titleprefix' => $values->titleprefix,
-            'title' => $values->text,
+            'text' => $values->text,
             'optionlink' => $optionlink->out(false),
-            'report2link' => $report2link->out(false),
+            'report2option' => $report2option->out(false),
             'instancename' => $values->instancename,
-            'instancelink' => $instancelink->out(false),
+            'report2instance' => $report2instance->out(false),
             'coursename' => $values->coursename,
-            'courselink' => $courselink->out(false),
+            'report2course' => $report2course->out(false),
+            'report2system' => $report2system->out(false),
         ];
 
         return $OUTPUT->render_from_template('mod_booking/report/option', $data);

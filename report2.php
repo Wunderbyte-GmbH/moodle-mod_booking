@@ -387,12 +387,12 @@ echo booking::generate_localized_css_for_navigation_labels('report2', $scopes);
 $data = new booked_users(
     $scope,
     $scopeid,
-    true,
-    true,
-    true,
-    true,
-    true,
-    true,
+    true, // Booked users.
+    true, // Users on waiting list.
+    true, // Reserved answers (e.g. in shopping cart).
+    true, // Users on notify list.
+    true, // Deleted users.
+    true, // Booking history.
     $cmid
 );
 /** @var renderer $renderer */

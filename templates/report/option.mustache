@@ -25,21 +25,22 @@
 
     Example context (json):
     {
-        "titleprefix" : "123",
-		"title" : "Scuba Diving",
+		"text" : "Scuba Diving",
 		"id": "191",
 		"optionlink" : "http://127.0.0.1/mod/booking/view.php?id=12&id=187&whichview=showonlyone",
 		"instancename" : "Winter semester 2024",
 		"instancelink" : "https://127.0.0.1/mod/booking/view.php?id=12"
     }
 }}
+<!-- TODO: New "mini navigation" in collapsible for all report2 links! -->
 <div class="mod-booking-report-option ml-3">
 	<div>
 		<div class="h6 mb-1">
-			<a href="{{report2link}}" title="Report for {{title}}" target="_blank">
-				<i class="fa fa-ticket" aria-hidden="true"></i>
+			<a href="{{report2link}}" title="Report for {{text}}" target="_blank">
+				<i class="fa fa-ticket" aria-hidden="true"></i>&nbsp;
+				{{#text}}{{text}}{{/text}}
 			</a>&nbsp;
-			<a href="{{optionlink}}" title="{{title}}" target="_blank">
+			<a href="{{optionlink}}" title="{{text}}" target="_blank">
 				<i class="fa fa-external-link" aria-hidden="true"></i>
 			</a>
 			<span class="ml-1">
@@ -51,13 +52,17 @@
 		</div>
 	</div>
 	<div class="mb-1 collapse" id="collapseoptionshortinfo-{{id}}">
-		<div class="mod-booking-report-option-instance">
-			<i class="fa fa-fw fa-sm fa-calendar-check-o text-gray" aria-hidden="true"></i>&nbsp;
-			<a href="{{instancelink}}" target="_blank">{{instancename}}</a>
-		</div>
-		<div class="mod-booking-report-option-course">
+		<span class="mod-booking-report-option-system">
+			<i class="fa fa-fw fa-sm fa-home text-gray" aria-hidden="true"></i>&nbsp;
+			<a href="{{courselink}}" target="_blank">{{coursename}}</a>
+		</span>
+		<span class="mod-booking-report-option-course">
 			<i class="fa fa-fw fa-sm fa-graduation-cap text-gray" aria-hidden="true"></i>&nbsp;
 			<a href="{{courselink}}" target="_blank">{{coursename}}</a>
-		</div>
+		</span>
+		<span class="mod-booking-report-option-instance">
+			<i class="fa fa-fw fa-sm fa-calendar-check-o text-gray" aria-hidden="true"></i>&nbsp;
+			<a href="{{instancelink}}" target="_blank">{{instancename}}</a>
+		</span>
 	</div>
 </div>
