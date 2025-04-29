@@ -1126,7 +1126,7 @@ class booking {
         $userid = null,
         $bookingparams = [MOD_BOOKING_STATUSPARAM_BOOKED],
         $additionalwhere = '',
-        $innerfrom = '',
+        $innerfrom = ''
     ) {
 
         global $DB;
@@ -1257,6 +1257,34 @@ class booking {
             }
         }
 
+        self::apply_wherearray($where, $wherearray, $params, $counter);
+
+        // We add sql from conditions, if there is any.
+        if (!empty($conditionsql)) {
+            $where .= " AND " . $conditionsql;
+        }
+
+        // We add additional conditions to $where, if there are any.
+        if (!empty($additionalwhere)) {
+            $where .= " AND " . $additionalwhere;
+        }
+
+        return [$fields, $from, $where, $params, $filter];
+    }
+
+    /**
+     * Apply wherearray to wherestring.
+     *
+     * @param string $where
+     * @param array $wherearray
+     * @param array $params
+     * @param int $counter
+     *
+     * @return void
+     *
+     */
+    public static function apply_wherearray(string &$where, array &$wherearray, array &$params, int $counter) {
+        global $DB;
         foreach ($wherearray as $key => $value) {
             // Be sure to have a lower key string.
             $paramsvaluekey = "param";
@@ -1294,18 +1322,6 @@ class booking {
                 $params[$paramsvaluekey] = $value;
             }
         }
-
-        // We add sql from conditions, if there is any.
-        if (!empty($conditionsql)) {
-            $where .= " AND " . $conditionsql;
-        }
-
-        // We add additional conditions to $where, if there are any.
-        if (!empty($additionalwhere)) {
-            $where .= " AND " . $additionalwhere;
-        }
-
-        return [$fields, $from, $where, $params, $filter];
     }
 
     /**

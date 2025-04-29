@@ -515,7 +515,6 @@ class shortcodes {
     public static function allbookingoptions($shortcode, $args, $content, $env, $next) {
         global $PAGE, $DB;
         $requiredargs = [];
-        $operator = "";
         $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
         if ($error['error'] === 1) {
             return $error['message'];
@@ -523,7 +522,8 @@ class shortcodes {
 
         $course = $PAGE->course;
         $perpage = self::check_perpage($args);
-        $pageurl = $course->shortname . $PAGE->url->out();
+        $pageurl = isset($PAGE->url) ? $PAGE->url->out() : ''; // This is for unit tests.
+        $pageurl = $course->shortname . $pageurl;
         $viewparam = self::get_viewparam($args);
         $wherearray = [];
 
@@ -531,17 +531,22 @@ class shortcodes {
         $additionalparams = [];
 
         // Additional where condition for both card and list views.
-        $customfieldwhere = self::set_customfield_wherearray($args, $wherearray);
-        if (!empty($customfieldwhere)) {
-            $operator = " AND ";
+        $tempparams = [];
+        $tempwherearray = [];
+
+        if ($cfwhere = self::set_customfield_wherearray($args, $wherearray, $tempparams)) {
+            $tempwherearray[] = $cfwhere;
         }
-        if (!empty($args['cfinclude'])) {
-            if ($args['cfinclude'] == "true") {
-                $operator = "OR";
-            }
+
+        if ($cmidwhere = self::set_cmid_wherearray($args, $wherearray, $tempparams)) {
+            $tempwherearray[] = $cmidwhere;
         }
-        $cmidwhere = self::set_cmid_wherearray($args, $wherearray, $additionalparams, $operator) ?? '';
-        $additionalwhere = $cmidwhere . $customfieldwhere;
+
+        if (!empty($tempwherearray)) {
+            $additionalwhere = " ( " . implode(' OR ', $tempwherearray) . " ) ";
+        } else {
+            $additionalwhere = ''; // or null, or '1=1', depending on how your SQL logic handles empty conditions
+        }
 
         [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(
@@ -555,9 +560,10 @@ class shortcodes {
                     null,
                     [MOD_BOOKING_STATUSPARAM_BOOKED],
                     $additionalwhere,
-                    "",
+                    ""
                 );
 
+                $params = array_merge($tempparams, $params);
         // By default, we do not show booking options that lie in the past.
         // Shortcode arg values get transmitted as string, so also check for "false" and "0".
         if (empty($args['all']) || $args['all'] == "false" || $args['all'] == "0") {
@@ -919,7 +925,7 @@ class shortcodes {
 
         global $PAGE;
         $requiredargs = [];
-        $error = shortcodes_handler::validatecondition($shortcode, $args, true,  $requiredargs);
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
         if ($error['error'] === 1) {
             return $error['message'];
         }
@@ -1200,13 +1206,13 @@ class shortcodes {
      * @param array $wherearray reference to wherearray
      * @return string
      */
-    private static function set_customfield_wherearray(array &$args, array &$wherearray) {
+    private static function set_customfield_wherearray(array &$args, array &$wherearray, array &$tempparamsarray = []) {
 
         global $DB;
         $customfields = booking_handler::get_customfields();
         // Set given customfields (shortnames) as arguments.
         $fields = [];
-        $additonalwhere = '';
+        $additionalwhere = '';
         if (!empty($customfields) && !empty($args)) {
             foreach ($args as $key => $value) {
                 foreach ($customfields as $customfield) {
@@ -1214,36 +1220,48 @@ class shortcodes {
                         $configdata = json_decode($customfield->configdata ?? '[]');
 
                         if (!empty($configdata->multiselect)) {
-                            if (!empty($additonalwhere)) {
-                                $additonalwhere .= " AND ";
+                            if (!empty($additionalwhere)) {
+                                $additionalwhere .= " AND ";
                             }
 
                             $values = explode(',', $value);
 
                             if (!empty($values)) {
-                                $additonalwhere .= " ( ";
+                                $additionalwhere .= " ( ";
                             }
 
                             foreach ($values as $vkey => $vvalue) {
-                                $additonalwhere .= $vkey > 0 ? ' OR ' : '';
+                                $additionalwhere .= $vkey > 0 ? ' OR ' : '';
                                 $vvalue = "'%$vvalue%'";
-                                $additonalwhere .= " $key LIKE $vvalue ";
+                                $additionalwhere .= " $key LIKE $vvalue ";
                             }
 
                             if (!empty($values)) {
-                                $additonalwhere .= " ) ";
+                                $additionalwhere .= " ) ";
                             }
                         } else {
                             $argument = strip_tags($value);
                             $argument = trim($argument);
-                            $wherearray[$key] = $argument;
+                            if (
+                                !empty($args['cfinclude'])
+                            ) {
+                                $additionalwhere .= !empty($additionalwhere) ? '' : ' 1 = 1';
+                                $tempwherearray = [$key => $argument];
+                                booking::apply_wherearray($additionalwhere, $tempwherearray, $tempparamsarray, 1000);
+                            } else {
+                                $wherearray[$key] = $argument;
+                            }
                         }
                         break;
                     }
                 }
             }
         }
-        return $additonalwhere;
+        if (!empty($additionalwhere)) {
+            $additionalwhere = " ( $additionalwhere ) ";
+        }
+
+        return $additionalwhere;
     }
 
     /**
@@ -1251,12 +1269,12 @@ class shortcodes {
      *
      * @param array $args
      * @param array $wherearray
-     * @param array $additionalparams
+     * @param array $params
      *
      * @return string
      *
      */
-    private static function set_cmid_wherearray(array &$args, array &$wherearray, &$additionalparams, $operator) {
+    private static function set_cmid_wherearray(array &$args, array &$wherearray, &$params = []) {
         global $DB;
         if (empty($args['cmid']) && !empty($args['id'])) {
             $args['cmid'] = $args['id'];
@@ -1271,8 +1289,12 @@ class shortcodes {
                     $bookings[] = $booking->id;
                 }
             }
-                [$inorequal, $additionalparams] = $DB->get_in_or_equal($bookings, SQL_PARAMS_NAMED);
-                $additionalwhere = "(bookingid $inorequal) $operator ";
+                [$inorequal, $tempparams] = $DB->get_in_or_equal($bookings, SQL_PARAMS_NAMED);
+                $additionalwhere = " (bookingid $inorequal) ";
+                $params = array_merge($tempparams, $params ?? []);
+        }
+        if (empty($additionalwhere)) {
+            $additionalwhere = " ( 1=1 ) ";
         }
         return $additionalwhere;
     }
