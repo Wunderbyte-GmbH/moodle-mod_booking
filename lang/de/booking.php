@@ -1186,6 +1186,7 @@ $string['errorpagination'] = 'Geben Sie ein Zahl ein, die größer als 0 ist';
 $string['errorsemesterend'] = 'Semesterende muss nach dem Semesterstart sein.';
 $string['errorsemesterstart'] = 'Semesterstart muss vor dem Semesterende sein.';
 $string['errortoomanydecimals'] = 'Sie können maximal 2 Nachkommastellen angeben.';
+$string['errorusernotfound'] = 'Fehler: Der Veranstalter mit der ID "{$a}" wurde nicht gefunden.';
 $string['eventalreadyover'] = 'Diese Veranstaltung ist bereits vorüber.';
 $string['eventdesc:bookinganswercancelled'] = 'Nutzer:in "{$a->user}" hat Nutzer:in "{$a->relateduser}" aus "{$a->title}" storniert.';
 $string['eventdesc:bookinganswercancelledself'] = 'Nutzer:in "{$a->user}" hat "{$a->title}" storniert.';

@@ -1198,6 +1198,7 @@ $string['errorpagination'] = 'Please enter a number bigger than 0';
 $string['errorsemesterend'] = 'Semester end needs to be after semester start.';
 $string['errorsemesterstart'] = 'Semester start needs to be before semester end.';
 $string['errortoomanydecimals'] = 'Only 2 decimals are allowed.';
+$string['errorusernotfound'] = 'Error: The organizer with ID "{$a}" could not be found.';
 $string['eventalreadyover'] = 'This event is already over.';
 $string['eventdesc:bookinganswercancelled'] = 'The user "{$a->user}" cancelled "{$a->relateduser}" from "{$a->title}".';
 $string['eventdesc:bookinganswercancelledself'] = 'The user "{$a->user}" cancelled "{$a->title}".';
