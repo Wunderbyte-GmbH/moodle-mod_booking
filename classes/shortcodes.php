@@ -549,7 +549,7 @@ class shortcodes {
         if (!empty($tempwherearray)) {
             $additionalwhere = " ( " . implode(" $operator ", $tempwherearray) . " ) ";
         } else {
-            $additionalwhere = ''; // or null, or '1=1', depending on how your SQL logic handles empty conditions
+            $additionalwhere = ''; // Or null, or '1=1', depending on how your SQL logic handles empty conditions.
         }
 
         [$fields, $from, $where, $params, $filter] =
@@ -1208,6 +1208,7 @@ class shortcodes {
      *
      * @param array $args reference to args
      * @param array $wherearray reference to wherearray
+     * @param array $tempparamsarray
      * @return string
      */
     private static function set_customfield_wherearray(array &$args, array &$wherearray, array &$tempparamsarray = []) {

@@ -174,6 +174,9 @@ final class bulkoperations_test extends advanced_testcase {
                     'args' => [
                         'all' => 1, // Set this to avoid filtering on coursestarttime.
                     ],
+                    'settings' => [
+                        'shortcodesoff' => 0,
+                    ],
                 ],
                 [
                     'tablestringcontains' => "optionbulkoperationstable",

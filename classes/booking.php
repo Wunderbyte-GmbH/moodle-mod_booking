@@ -1114,8 +1114,6 @@ class booking {
      * @param array $bookingparams
      * @param string $additionalwhere
      * @param string $innerfrom
-     * @param string $outerwhere
-     * @param string $operatorouterwhere
      *
      * @return array
      */
