@@ -70,6 +70,7 @@ final class linkbacktocourse_test extends advanced_testcase {
     public function test_recommendedin_shortcode(array $data, array $expected): void {
         global $DB, $CFG;
         $bdata = self::provide_bdata();
+        $counter = 1;
 
         // Setup test data.
         $courses = [];
@@ -104,11 +105,15 @@ final class linkbacktocourse_test extends advanced_testcase {
                 foreach ($bookings as $booking) {
                     $record = (object) $option;
                     $record->bookingid = $booking->id;
+                    if ($counter % 4 == 0) {
+                        $record->courseid = $courses[1]->id;
+                    }
                     /** @var mod_booking_generator $plugingenerator */
                     $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
                     $option1 = $plugingenerator->create_option($record);
                     $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
                     $cmids[$settings->cmid] = $settings->cmid;
+                    $counter++;
                 }
             }
         }
@@ -169,7 +174,7 @@ final class linkbacktocourse_test extends advanced_testcase {
                     ],
                 ],
                 [
-                    'numberofrecords' => 8,
+                    'numberofrecords' => 6,
                 ],
             ],
         ];
@@ -204,7 +209,6 @@ final class linkbacktocourse_test extends advanced_testcase {
                     'description' => 'Test Booking Option',
                     'identifier' => 'noprice',
                     'maxanswers' => 1,
-                    'courseid' => 103001,
 
                 ],
                 [
@@ -212,7 +216,6 @@ final class linkbacktocourse_test extends advanced_testcase {
                     'description' => 'Test Booking Option',
                     'identifier' => 'withprice',
                     'maxanswers' => 1,
-                    'courseid' => 103001,
                 ],
                 [
                     'text' => 'Disalbed Test Booking Option',
