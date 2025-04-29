@@ -41,7 +41,6 @@ use context_module;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class attachment extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -93,7 +92,8 @@ class attachment extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         $key = 'myfilemanageroption';
         $value = $formdata->{$key} ?? null;
@@ -156,11 +156,16 @@ class attachment extends field_base {
                     ],
                 ];
             }
-            file_save_draft_area_files($draftitemid, $context->id, 'mod_booking', 'myfilemanageroption',
-                    $optionid, ['subdirs' => false, 'maxfiles' => 10]);
+            file_save_draft_area_files(
+                $draftitemid,
+                $context->id,
+                'mod_booking',
+                'myfilemanageroption',
+                $optionid,
+                ['subdirs' => false, 'maxfiles' => 10]
+            );
         }
         return $changes;
-
     }
 
     /**
@@ -187,7 +192,8 @@ class attachment extends field_base {
             fields_info::add_header_to_mform($mform, self::$header);
         }
 
-        $mform->addElement('filemanager',
+        $mform->addElement(
+            'filemanager',
             'myfilemanageroption',
             get_string('bookingattachment', 'mod_booking'),
             null,
@@ -217,7 +223,6 @@ class attachment extends field_base {
             file_prepare_draft_area(
                 // The $draftitemid is the target location.
                 $draftitemid,
-
                 // The combination of contextid / component / filearea / itemid
                 // form the virtual bucket that files are currently stored in
                 // and will be copied from.

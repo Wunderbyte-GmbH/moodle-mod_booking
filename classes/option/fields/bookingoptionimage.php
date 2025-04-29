@@ -41,7 +41,6 @@ use context_module;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class bookingoptionimage extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -93,7 +92,8 @@ class bookingoptionimage extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         parent::prepare_save_field($formdata, $newoption, $updateparam, '');
 
@@ -143,7 +143,6 @@ class bookingoptionimage extends field_base {
                 $oldhashes[$file->get_filename()] = $file->get_contenthash();
             }
             if ($oldhashes != $newhashes) {
-
                 $changes = [ 'changes' => [
                     'fieldname' => 'bookingoptionimage',
                     'oldvalue' => array_keys($oldhashes)[0], // There is only one bookingoptionimage accepted, so no need for array.
@@ -151,8 +150,14 @@ class bookingoptionimage extends field_base {
                     ],
                 ];
             }
-            file_save_draft_area_files($draftimageid, $context->id, 'mod_booking', 'bookingoptionimage',
-                    $optionid, ['subdirs' => false, 'maxfiles' => 1]);
+            file_save_draft_area_files(
+                $draftimageid,
+                $context->id,
+                'mod_booking',
+                'bookingoptionimage',
+                $optionid,
+                ['subdirs' => false, 'maxfiles' => 1]
+            );
         }
         return $changes;
     }
@@ -182,12 +187,13 @@ class bookingoptionimage extends field_base {
         }
 
         // Upload an image for the booking option.
-        $mform->addElement('filemanager',
-                        'bookingoptionimage',
-                        get_string('bookingoptionimage', 'mod_booking'),
-                        null,
-                        ['subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 1, 'accepted_types' => ['image']]
-                    );
+        $mform->addElement(
+            'filemanager',
+            'bookingoptionimage',
+            get_string('bookingoptionimage', 'mod_booking'),
+            null,
+            ['subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 1, 'accepted_types' => ['image']]
+        );
     }
 
     /**
@@ -212,7 +218,6 @@ class bookingoptionimage extends field_base {
             file_prepare_draft_area(
                 // The $draftitemid is the target location.
                 $draftitemid,
-
                 // The combination of contextid / component / filearea / itemid
                 // form the virtual bucket that files are currently stored in
                 // and will be copied from.

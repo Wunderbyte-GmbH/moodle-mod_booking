@@ -1591,19 +1591,19 @@ class mod_booking_mod_form extends moodleform_mod {
             core_tag_tag::get_item_tags_array('mod_booking', 'booking', $this->current->id);
         } else {
             $draftitemid = file_get_submitted_draft_itemid('myfilemanager');
-            file_prepare_draft_area($draftitemid, null, 'mod_booking', 'myfilemanager', 0, $options);
+            file_prepare_draft_area($draftitemid, $this->context->id, 'mod_booking', 'myfilemanager', 0, $options);
             $defaultvalues['myfilemanager'] = $draftitemid;
 
             $draftitemid = file_get_submitted_draft_itemid('bookingimages');
-            file_prepare_draft_area($draftitemid, null, 'mod_booking', 'bookingimages', 0, $options);
+            file_prepare_draft_area($draftitemid, $this->context->id, 'mod_booking', 'bookingimages', 0, $options);
             $defaultvalues['bookingimages'] = $draftitemid;
 
             $draftitemid = file_get_submitted_draft_itemid('signinlogoheader');
-            file_prepare_draft_area($draftitemid, null, 'mod_booking', 'signinlogoheader', 0, $options);
+            file_prepare_draft_area($draftitemid, $this->context->id, 'mod_booking', 'signinlogoheader', 0, $options);
             $defaultvalues['signinlogoheader'] = $draftitemid;
 
             $draftitemid = file_get_submitted_draft_itemid('signinlogofooter');
-            file_prepare_draft_area($draftitemid, null, 'mod_booking', 'signinlogofooter', 0, $options);
+            file_prepare_draft_area($draftitemid, $this->context->id, 'mod_booking', 'signinlogofooter', 0, $options);
             $defaultvalues['signinlogofooter'] = $draftitemid;
         }
 
