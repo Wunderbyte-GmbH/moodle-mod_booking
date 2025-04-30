@@ -1,3 +1,17 @@
+## Version 8.12.8 (2025042900)
+* New Feature: Create certificates for completing booking options. Also view and edit certificates in report and placeholders for rules.
+* Improvement: Added new shortcodes allbookingoption and mybookingoptions.
+* Improvement: Added bookotheroptions action.
+* Improvement: Further improvements to the bookings tracker.
+* Bugfix: Booking rules are now deleted correctly.
+* Bugfix: Show error message in business card if the user ID of the organizer is missing.
+* Bugfix: Removed default sorting by lastname, as it disrupted the rank order of the waiting list.
+* Bugfix: Recurring booking opening and closing times now update correctly.
+* Bugfix: Enabled setting unenrolfromgroupofcurrentcourse.
+* Test: Added unit tests for shortcodes.
+* Test: Added new Behat scenario: Booking actions – create settings for booking action via UI as a teacher and edit it.
+* Test: Added new Behat scenario: Booking actions – create booking action via DB and book it as students.
+
 ## Version 8.12.7 (2025042400)
 * New Feature: Link to optiondetails next to booked/cancelled alert for bookondetail
 * Bugfix: Fix course sortorder after course creation via template
