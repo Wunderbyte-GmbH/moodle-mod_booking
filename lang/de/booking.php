@@ -711,6 +711,8 @@ $string['certificateexpirationdate'] = 'Ablaufdatum';
 $string['certificateheader'] = 'Moodle Zertifikat';
 $string['certificateissuedate'] = 'Ausstelldatum';
 $string['certificatemodalheader'] = 'Zertifikate von {$a}';
+$string['certificateon'] = 'Zertifikatserstellung aktivieren <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
+$string['certificateon_desc'] = 'Aktivieren Sie diese Einstellung, wenn sie Zertifikate für den Abschluss von Buchungsoptionen ausstellen möchten.';
 $string['certificateurl'] = 'Zeritifikat URL';
 $string['certificatewithexperation'] = 'Ablaufdatum: {$a}';
 $string['certificatewithoutexperation'] = 'Kein Ablaufdatum.';
@@ -1836,7 +1838,7 @@ $string['presencechangedinfo'] = 'Die Anwesenheit von {$a->relateduser} wurde vo
 $string['presencecount'] = 'Anzahl der Anwesenheiten';
 $string['presenceoptions'] = "Möglicher Anwesenheitsstatus";
 $string['presenceoptions_desc'] = "Welcher Status soll zur Verfügung stehen?";
-$string['presencestatustoissuecertificate'] = "Zertifikatsausstellung mit Anwesenheitsstatus";
+$string['presencestatustoissuecertificate'] = 'Zertifikatsausstellung mit Anwesenheitsstatus <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['presencestatustoissuecertificate_desc'] = "Wenn aktiviert, kann ein Zertifikat NUR mit dem ausgewählten Anwesenheitsstatus ausgestellt werden. Der Abschluss der Buchungsoption hat dann keine Auswirkung mehr.";
 $string['previous'] = 'Vorherige';
 $string['price'] = 'Preis';

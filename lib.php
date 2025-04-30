@@ -1870,7 +1870,7 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
             $completionold = $userdata->completed;
             $userdata->completed = '1';
             $userdata->timemodified = time();
-            if (class_exists('tool_certificate\certificate')) {
+            if (class_exists('tool_certificate\certificate') && get_config('booking', 'certificateon')) {
                 $certid = certificate::issue_certificate($optionid, $selecteduser);
             }
 
@@ -1897,10 +1897,7 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
                 'objectid' => $optionid,
                 'userid' => $USER->id,
                 'relateduserid' => $selecteduser,
-                'other' => [
-                            'cmid' => $cmid,
-                            'certid' => $certid ?? 0,
-                            ],
+                'other' => $other,
             ]);
             $event->trigger();
 
