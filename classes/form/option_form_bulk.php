@@ -56,7 +56,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class option_form_bulk extends dynamic_form {
-
     /**
      * {@inheritDoc}
      * @see moodleform::definition()
@@ -106,8 +105,10 @@ class option_form_bulk extends dynamic_form {
 
         foreach (array_keys($fields) as $field) {
             $name = $field::return_classname_name();
-            if (in_array(MOD_BOOKING_OPTION_FIELD_NECESSARY, $field::$fieldcategories)
-                || !in_array($name, $includedclasses)) {
+            if (
+                in_array(MOD_BOOKING_OPTION_FIELD_NECESSARY, $field::$fieldcategories)
+                || !in_array($name, $includedclasses)
+            ) {
                 continue;
             }
 
@@ -122,8 +123,11 @@ class option_form_bulk extends dynamic_form {
 
         $mform->addElement('select', 'choosefields', get_string('selectfieldofbookingoption', 'mod_booking'), $options);
         $mform->registerNoSubmitButton('btn_bookingruletemplates');
-        $mform->addElement('submit', 'btn_bookingruletemplates',
-              get_string('bookingruletemplates', 'mod_booking'));
+        $mform->addElement(
+            'submit',
+            'btn_bookingruletemplates',
+            get_string('bookingruletemplates', 'mod_booking')
+        );
 
         if (isset($submitdata['checkedids'])) {
             // On second load of mform, these keys will be lost.
@@ -134,13 +138,13 @@ class option_form_bulk extends dynamic_form {
             $index = 1;
             $fieldskey = 'selectedfields_';
 
-            // TODO: Check if this field is already appended, if so, skip it.
+            // Todo: Check if this field is already appended, if so, skip it.
             // Make sure to apply customformdata.
             foreach ($submitdata as $key => $value) {
                 if (strpos($key, $fieldskey) !== false) {
                     $mform->addElement('hidden', $key, $value);
                     $index = str_replace($fieldskey, '', $key);
-                    $index ++;
+                    $index++;
                 }
             }
             // Always append the current field.
@@ -165,7 +169,7 @@ class option_form_bulk extends dynamic_form {
                         $this->apply_instance_form_definition($mform, $formdata, $value);
                     } else {
                         $customfields = booking_handler::get_customfields();
-                        $shortnames = array_map(function($obj) {
+                        $shortnames = array_map(function ($obj) {
                             return $obj->shortname;
                         }, $customfields);
                         if (in_array($value, $shortnames)) {
@@ -241,7 +245,6 @@ class option_form_bulk extends dynamic_form {
      * @return void
      */
     protected function check_access_for_dynamic_submission(): void {
-
     }
 
 

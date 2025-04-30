@@ -33,6 +33,7 @@ use mod_booking\booking_rules\rules_info;
 use mod_booking\calendar;
 use mod_booking\elective;
 use mod_booking\event\bookinganswer_presencechanged;
+use mod_booking\event\bookinganswer_notesedited;
 use mod_booking\local\checkanswers\checkanswers;
 use mod_booking\option\fields\certificate;
 use mod_booking\output\view;
@@ -555,12 +556,9 @@ class mod_booking_observer {
     }
 
     /**
-     * React on Presence changed event.
-     *
+     * React on the bookinganswer_presencechanged event.
      * @param bookinganswer_presencechanged $event
-     *
      * @return void
-     *
      */
     public static function bookinganswer_presencechanged(bookinganswer_presencechanged $event) {
         $data = $event->get_data();
@@ -570,5 +568,16 @@ class mod_booking_observer {
         if ($data['other']['presencenew'] == get_config('booking', 'presencestatustoissuecertificate')) {
             certificate::issue_certificate($data['objectid'], $data['relateduserid']);
         }
+    }
+
+    /**
+     * React on the bookinganswer_notesedited event.
+     * @param bookinganswer_notesedited $event
+     * @return void
+     */
+    public static function bookinganswer_notesedited(bookinganswer_notesedited $event) {
+        // In the future, we might want to do something here.
+        // For now, we just return.
+        return;
     }
 }

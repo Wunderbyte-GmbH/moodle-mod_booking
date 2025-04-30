@@ -31,7 +31,6 @@
 * Test: New behat Scenario: Booking actions: create booking action via DB and book it as students
 * Test: New behat Scenario: Booking actions: create userprofilefield action via DB and book it as students
 
-
 ## Version 8.12.5 (2025041600)
 * New feature: "What's new?" tab in Booking shows booking options made visible within a defined recent number of days.
 * Improvement: Added setting 'redirectonlogintocourse'.
