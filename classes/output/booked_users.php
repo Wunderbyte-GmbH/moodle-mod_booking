@@ -128,6 +128,10 @@ class booked_users implements renderable, templatable {
                 $bookedusersheaders[] = get_string('lastname', 'core');
                 $bookeduserscols[] = 'email';
                 $bookedusersheaders[] = get_string('email', 'core');
+                $bookeduserscols[] = 'status';
+                $bookedusersheaders[] = get_string('presence', 'mod_booking');
+                $bookeduserscols[] = 'notes';
+                $bookedusersheaders[] = get_string('notes', 'mod_booking');
 
                 if (get_config('booking', 'bookingstrackerpresencecounter')) {
                     $bookeduserscols[] = 'presencecount';
@@ -362,6 +366,10 @@ class booked_users implements renderable, templatable {
 
         // Checkboxes are currently only supported in option scope.
         if ($scope === 'option') {
+            $optionid = $scopeid;
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+            $cmid = $settings->cmid;
+
             // Add fulltext search.
             $table->define_fulltextsearchcolumns(['firstname', 'lastname', 'email']);
 
@@ -381,6 +389,7 @@ class booked_users implements renderable, templatable {
                         'firstname' => get_string('firstname'),
                         'lastname' => get_string('lastname'),
                         'email' => get_string('email'),
+                        'status' => get_string('presence', 'mod_booking'),
                         'presencecount' => get_string('presencecount', 'mod_booking'),
                     ];
                     $table->sort_default_column = 'lastname';
@@ -399,13 +408,57 @@ class booked_users implements renderable, templatable {
             // Add sorting.
             $table->define_sortablecolumns($sortablecolumns);
 
+            if ($statusparam == MOD_BOOKING_STATUSPARAM_BOOKED) {
+                // Action button to change presence status of booking answer (option scope).
+                $table->actionbuttons[] = [
+                    'label' => get_string('presence', 'mod_booking'), // Name of your action button.
+                    'class' => 'btn btn-primary btn-sm ml-2',
+                    'href' => '#', // You can either use the link, or JS, or both.
+                    'iclass' => 'fa fa-user-o', // Add an icon before the label.
+                    'formname' => 'mod_booking\\form\\optiondates\\modal_change_status',
+                    'nomodal' => false,
+                    'id' => -1,
+                    'selectionmandatory' => true,
+                    'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+                        'scope' => 'option',
+                        'titlestring' => 'changepresencestatus',
+                        'submitbuttonstring' => 'save',
+                        'component' => 'mod_booking',
+                        'cmid' => $cmid,
+                        'optionid' => $optionid ?? 0,
+                    ],
+                ];
+                // Action button to add notes for booking answer (option scope).
+                $table->actionbuttons[] = [
+                    'label' => get_string('notes', 'mod_booking'), // Name of your action button.
+                    'class' => 'btn btn-primary btn-sm ml-1',
+                    'href' => '#', // You can either use the link, or JS, or both.
+                    'iclass' => 'fa fa-pencil', // Add an icon before the label.
+                    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+                    /* 'methodname' => 'mymethod', // The method needs to be added to your child of wunderbyte_table class. */
+                    'formname' => 'mod_booking\\form\\optiondates\\modal_change_notes',
+                    'nomodal' => false,
+                    'id' => -1,
+                    'selectionmandatory' => true,
+                    'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+                        'scope' => 'option',
+                        'titlestring' => 'notes',
+                        'submitbuttonstring' => 'save',
+                        'component' => 'mod_booking',
+                        'cmid' => $cmid,
+                        'optionid' => $optionid ?? 0,
+                    ],
+                ];
+            }
+
             if ($statusparam != MOD_BOOKING_STATUSPARAM_DELETED) {
                 $table->addcheckboxes = true;
+
                 // Show modal, single call, use selected items.
                 $table->actionbuttons[] = [
                     'iclass' => 'fa fa-trash mr-1', // Add an icon before the label.
                     'label' => get_string('bookingstrackerdelete', 'mod_booking'),
-                    'class' => 'btn btn-sm btn-danger ml-2 mb-2',
+                    'class' => 'btn btn-danger btn-sm ml-1',
                     'href' => '#',
                     'methodname' => 'delete_checked_booking_answers',
                     // To include a dynamic form to open and edit entry in modal.
@@ -466,6 +519,7 @@ class booked_users implements renderable, templatable {
                     'id' => -1,
                     'selectionmandatory' => true,
                     'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+                        'scope' => 'optiondate',
                         'titlestring' => 'changepresencestatus',
                         'submitbuttonstring' => 'save',
                         'component' => 'mod_booking',
@@ -487,6 +541,7 @@ class booked_users implements renderable, templatable {
                     'id' => -1,
                     'selectionmandatory' => true,
                     'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+                        'scope' => 'optiondate',
                         'titlestring' => 'notes',
                         'submitbuttonstring' => 'save',
                         'component' => 'mod_booking',

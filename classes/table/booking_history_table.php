@@ -79,18 +79,20 @@ class booking_history_table extends wunderbyte_table {
         if (empty($values->json)) {
             return "";
         }
+        $info = json_decode($values->json, true);
+        $a = new stdClass();
         if (strrpos($values->json, 'presence') !== false) {
-            $info = json_decode($values->json, true);
             $possiblepresences = booking::get_array_of_possible_presence_statuses();
-            $a = new stdClass();
             $a->presenceold = $possiblepresences[$info['presence']['presenceold']];
             $a->presencenew = $possiblepresences[$info['presence']['presencenew']];
-
             return get_string('presencechangedhistory', 'mod_booking', $a);
         }
+        if (strrpos($values->json, 'notes') !== false) {
+            $a->notesold = $info['notes']['notesold'];
+            $a->notesnew = $info['notes']['notesnew'];
+            return get_string('noteseditedhistory', 'mod_booking', $a);
+        }
         if (strrpos($values->json, 'booking') !== false) {
-            $info = json_decode($values->json, true);
-            $a = new stdClass();
             $a->oldbooking = $info['booking']['oldbooking'];
             $a->newbooking = $values->bookingid;
             return get_string('movedbookinghistory', 'mod_booking', $a);

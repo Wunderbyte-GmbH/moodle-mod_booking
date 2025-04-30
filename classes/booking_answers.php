@@ -929,6 +929,8 @@ class booking_answers {
                             u.lastname,
                             u.email,
                             ba.waitinglist,
+                            ba.status,
+                            ba.notes,
                             $selectpresencecount
                             ba.timemodified,
                             ba.timecreated,

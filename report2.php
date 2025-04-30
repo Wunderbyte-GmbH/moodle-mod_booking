@@ -50,9 +50,6 @@ $courseid = optional_param('courseid', 0, PARAM_INT);
 
 $ticketicon = '<i class="fa fa-fw fa-sm fa-ticket" aria-hidden="true"></i>&nbsp;';
 $linkicon = '<i class="fa fa-fw fa-xs fa-external-link" aria-hidden="true"></i>&nbsp;';
-/*$divider = "<span class='mt-3 ml-1 mr-1'>
-    <i class='fa-solid fa-2xs fa-angle-right' aria-hidden='true' style='color: gray;'></i>
-</span>";*/
 $divider = "<span class='report2-nav-divider'>▸</span>";
 
 $r2syscontext = context_system::instance();

@@ -1993,8 +1993,8 @@ class booking {
             MOD_BOOKING_STATUSPARAM_NOTIFYMELIST_DELETED => get_string('notifymelistdeleted', 'mod_booking'),
             MOD_BOOKING_STATUSPARAM_PRESENCE_CHANGED => get_string('presencechanged', 'mod_booking'),
             MOD_BOOKING_STATUSPARAM_BOOKINGOPTION_MOVED => get_string('optionmoved', 'mod_booking'),
+            MOD_BOOKING_STATUSPARAM_NOTES_EDITED => get_string('notesedited', 'mod_booking'),
             MOD_BOOKING_STATUSPARAM_COMPLETION_CHANGED => get_string('completionchanged', 'mod_booking'),
-
         ];
     }
 }

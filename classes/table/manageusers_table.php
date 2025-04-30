@@ -619,6 +619,7 @@ class manageusers_table extends wunderbyte_table {
                 'id' => $values->id,
                 'selectionmandatory' => false,
                 'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+                    'scope' => 'optiondate',
                     'titlestring' => 'changepresencestatus',
                     'submitbuttonstring' => 'save',
                     'component' => 'mod_booking',
@@ -643,6 +644,7 @@ class manageusers_table extends wunderbyte_table {
             'id' => $values->id,
             'selectionmandatory' => false,
             'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+                'scope' => 'optiondate',
                 'titlestring' => 'notes',
                 'submitbuttonstring' => 'save',
                 'component' => 'mod_booking',

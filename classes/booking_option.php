@@ -28,6 +28,7 @@ namespace mod_booking;
 use cache_helper;
 use coding_exception;
 use completion_info;
+use context_course;
 use context_module;
 use context_system;
 use context;
@@ -40,6 +41,7 @@ use mod_booking\bo_availability\conditions\customform;
 use mod_booking\bo_availability\conditions\optionhasstarted;
 use mod_booking\event\booking_rulesexecutionfailed;
 use mod_booking\event\bookinganswer_presencechanged;
+use mod_booking\event\bookinganswer_notesedited;
 use mod_booking\event\bookinganswer_waitingforconfirmation;
 use mod_booking\event\bookingoption_bookedviaautoenrol;
 use mod_booking\option\dates_handler;
@@ -2199,7 +2201,8 @@ class booking_option {
             self::booking_history_insert($status, $answerid, $optionid, $bookingid, $userid, $presencechange);
             $userdata->status = $presencestatus;
 
-            $coursecontext = \context_course::instance($COURSE->id);
+            // Trigger the presence changed event, so we can react via rules for example.
+            $coursecontext = context_course::instance($COURSE->id);
             $event = bookinganswer_presencechanged::create([
                 'objectid' => $this->optionid,
                 'contextid' => $coursecontext->id,
@@ -2210,6 +2213,63 @@ class booking_option {
                 ],
             ]);
             $event->trigger();
+
+            // At last, we write to DB.
+            $DB->update_record('booking_answers', $userdata);
+        }
+
+        // After updating, cache has to be invalidated.
+        self::purge_cache_for_answers($this->optionid);
+    }
+
+    /**
+     * Change notes for selected users.
+     *
+     * @param array $allselectedusers
+     * @param string $notes
+     */
+    public function edit_notes(array $allselectedusers, string $notes): void {
+        global $DB, $COURSE;
+
+        foreach ($allselectedusers as $ui) {
+            $userdata = $DB->get_record_sql(
+                "SELECT *
+                FROM {booking_answers}
+                WHERE optionid = :optionid AND userid = :userid AND waitinglist < 2",
+                ['optionid' => $this->optionid, 'userid' => $ui]
+            );
+
+            $historystatus = MOD_BOOKING_STATUSPARAM_NOTES_EDITED;
+            $answerid = $userdata->id;
+            $optionid = $userdata->optionid;
+            $bookingid = $userdata->bookingid;
+            $userid = $userdata->userid;
+            $notesold = $userdata->notes;
+            $noteschange = [
+                'notes' => [
+                    'notesold' => $notesold,
+                    'notesnew' => $notes,
+                ],
+            ];
+
+            self::booking_history_insert($historystatus, $answerid, $optionid, $bookingid, $userid, $noteschange);
+            $userdata->notes = $notes;
+
+            // Trigger the notes edited event, so we can react via rules for example.
+            $coursecontext = context_course::instance($COURSE->id);
+            $event = bookinganswer_notesedited::create([
+                'objectid' => $this->optionid,
+                'contextid' => $coursecontext->id,
+                'relateduserid' => $ui,
+                'other' => [
+                    'notesold' => $notesold,
+                    'notesnew' => $notes,
+                ],
+            ]);
+            $event->trigger();
+
+            /* In the future, we might need a notes changed event here
+            (like the presence changed event in function changepresencestatus). */
             $DB->update_record('booking_answers', $userdata);
         }
 
