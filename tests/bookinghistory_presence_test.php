@@ -110,8 +110,6 @@ final class bookinghistory_presence_test extends advanced_testcase {
             $this->getDataGenerator()->enrol_user($user->id, $course->id);
         }
 
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-
         $option = $standarddata['option'];
         if (isset($data['optionsettings'])) {
             foreach ($data['optionsettings'] as $setting) {

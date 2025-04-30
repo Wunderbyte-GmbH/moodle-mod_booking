@@ -816,6 +816,14 @@ function booking_add_instance($booking) {
         $booking->bookingpolicy = '';
     }
 
+    if (isset($booking->circumventavailabilityconditions) && !empty($booking->circumventavailabilityconditions)) {
+        $data = [
+            'cvpwd' => $booking->circumventpassword ?? '',
+        ];
+        // This will store the correct JSON to $optionvalues->json.
+        booking::add_data_to_json($booking, "circumventcond", $data);
+    }
+
     // Insert answer options from mod_form.
     $booking->id = $DB->insert_record("booking", $booking);
 
@@ -1169,6 +1177,17 @@ function booking_update_instance($booking) {
     } else {
         booking::add_data_to_json($booking, "unenrolfromgroupofcurrentcourse", 1);
     }
+
+    if (isset($booking->circumventavailabilityconditions) && !empty($booking->circumventavailabilityconditions)) {
+        $data = [
+            'cvpwd' => $booking->circumventpassword ?? '',
+        ];
+        // This will store the correct JSON to $optionvalues->json.
+        booking::add_data_to_json($booking, "circumventcond", $data);
+    } else if (empty($booking->circumventavailabilityconditions)) {
+        booking::remove_key_from_json($booking, "circumventcond");
+    }
+
     // Update, delete or insert answers.
     if (!empty($booking->option)) {
         foreach ($booking->option as $key => $value) {

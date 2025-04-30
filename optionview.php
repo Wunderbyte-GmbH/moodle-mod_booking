@@ -23,6 +23,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_booking\local\override_user_field;
 use mod_booking\output\bookingoption_description;
 use mod_booking\singleton_service;
 
@@ -41,6 +42,14 @@ $userid = optional_param('userid', 0, PARAM_INT);
 $returnto = optional_param('returnto', '', PARAM_ALPHA);
 $returnurl = optional_param('returnurl', '', PARAM_URL);
 $redirecttocourse = optional_param('redirecttocourse', 0, PARAM_INT);
+
+$cvpwd = optional_param('cvpwd', '', PARAM_TEXT);
+$cvfield = optional_param('cvfield', '', PARAM_TEXT);
+
+$overridefield = new override_user_field();
+if ($overridefield->password_is_valid($cmid, $cvpwd)) {
+    $overridefield->set_userprefs($cvfield);
+}
 
 $modcontext = context_module::instance($cmid);
 $syscontext = context_system::instance();
