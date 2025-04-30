@@ -268,6 +268,29 @@ final class circumvent_userprofilecondition_test extends advanced_testcase {
                     'availableafterprefs' => MOD_BOOKING_BO_COND_JSON_USERPROFILEFIELD,
                 ],
             ],
+            'test_set_userprefs_with_two_custom_fields' => [
+                [
+                    'param' => 'testfield_CustomVal',
+                    'json' => '{"circumventcond":{"cvpwd":"pwd1"}}',
+                    'bofields' => [
+                        'bo_cond_customuserprofilefield_field' => "testfield",
+                        'bo_cond_customuserprofilefield_operator' => "=",
+                        'bo_cond_customuserprofilefield_value' => "CustomVal",
+                        'bo_cond_customuserprofilefield_field2' => "testfield",
+                        'bo_cond_customuserprofilefield_operator2' => "=",
+                        'bo_cond_customuserprofilefield_value2' => "CustomVal",
+                        'bo_cond_customuserprofilefield_connectsecondfield' => "&&",
+                        'bo_cond_userprofilefield_2_custom_restrict' => 1,
+                    ],
+                    'password' => 'pwd1',
+                ],
+                [
+                    'result' => true,
+                    'blockingfield' => MOD_BOOKING_BO_COND_JSON_CUSTOMUSERPROFILEFIELD,
+                    'validpassword' => true,
+                    'availableafterprefs' => MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
+                ],
+            ],
         ];
     }
 

@@ -154,17 +154,17 @@ class userprofilefield_1_default implements bo_condition {
                     $value = $user->$profilefield;
                 }
                 $isavailable = self::compare_operator($value, $this->customsettings->operator, $this->customsettings->value);
-            }
-        }
-        if (!$isavailable) {
-            $cvsetting = booking::get_value_of_json_by_key($settings->bookingid, 'circumventcond');
-            if (
-                isset($cvsetting)
-                && !empty($cvsetting)
-            ) {
-                $pref = get_user_preferences($profilefield, null, $userid);
-                if (!empty($pref)) {
-                    $isavailable = self::compare_operator($pref, $this->customsettings->operator, $this->customsettings->value);
+                if (!$isavailable) {
+                    $cvsetting = booking::get_value_of_json_by_key($settings->bookingid, 'circumventcond');
+                    if (
+                        isset($cvsetting)
+                        && !empty($cvsetting)
+                    ) {
+                        $pref = get_user_preferences($profilefield, null, $userid);
+                        if (!empty($pref)) {
+                            $isavailable = self::compare_operator($pref, $this->customsettings->operator, $this->customsettings->value);
+                        }
+                    }
                 }
             }
         }
