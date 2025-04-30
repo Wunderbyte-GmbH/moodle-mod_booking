@@ -46,13 +46,20 @@ $redirecttocourse = optional_param('redirecttocourse', 0, PARAM_INT);
 $cvpwd = optional_param('cvpwd', '', PARAM_TEXT);
 $cvfield = optional_param('cvfield', '', PARAM_TEXT);
 
-$overridefield = new override_user_field();
-if ($overridefield->password_is_valid($cmid, $cvpwd)) {
-    $overridefield->set_userprefs($cvfield);
-}
 
 $modcontext = context_module::instance($cmid);
 $syscontext = context_system::instance();
+
+if (
+    $userid != $USER->id
+    && !has_capability('mod/booking:updatebooking', $modcontext)
+) {
+    $userid = $USER->id;
+}
+$overridefield = new override_user_field();
+if ($overridefield->password_is_valid($cmid, $cvpwd)) {
+    $overridefield->set_userprefs($cvfield, $userid);
+}
 
 $PAGE->set_context($syscontext);
 
