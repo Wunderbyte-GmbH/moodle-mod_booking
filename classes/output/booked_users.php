@@ -598,12 +598,10 @@ class booked_users implements renderable, templatable {
         $headers1 = [];
         if (in_array($scope, ['system', 'course', 'instance'])) {
             $columns1 = [
-                'bookingoption',
                 'titleprefix',
                 'text',
             ];
             $headers1 = [
-                '',
                 get_string('titleprefix', 'mod_booking'),
                 get_string('bookingoption', 'mod_booking'),
             ];
