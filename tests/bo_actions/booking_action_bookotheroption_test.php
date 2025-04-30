@@ -192,6 +192,119 @@ final class booking_action_bookotheroption_test extends advanced_testcase {
     public static function booking_test_bookotheroption_provider(): array {
 
         return [
+            'Book other options - success if forced' => [
+                [
+                    'profilefields' => [],
+                    'userssettings' => [],
+                    'coursesettings' => [
+                        'firstcourse' => [
+                            'enablecompletion' => 1,
+                        ],
+                        'secondcourse' => [
+                            'enablecompletion' => 1,
+                        ],
+                    ],
+                    'bookingsettings' => [
+                        'firstbooking' => [
+                            'name' => 'firstbooking',
+                            'course' => 'firstcourse',
+                        ],
+                        'secondbooking' => [
+                            'name' => 'secondbooking',
+                            'course' => 'secondcourse',
+                        ],
+                    ],
+                    'optionsettings' => [
+                        'b1option1' => [
+                            'text' => 'b1option1',
+                            'booking' => 'firstbooking',
+                            'course' => 'firstcourse',
+                            'maxanswers' => 5,
+                        ],
+                        'b1option2' => [
+                            'text' => 'b1option2',
+                            'booking' => 'firstbooking',
+                            'course' => 'firstcourse',
+                            'maxanswers' => 2,
+                            'restrictanswerperiodopening' => 1,
+                            'bookingopeningtime' => 'now + 1 day', // Booking is not allowed until tomorrow.
+                        ],
+                        'b2option1' => [
+                            'text' => 'b2option1',
+                            'booking' => 'secondbooking',
+                            'course' => 'secondcourse',
+                            'maxanswers' => 1,
+                        ],
+                        'b2option2' => [
+                            'text' => 'b2option2',
+                            'booking' => 'secondbooking',
+                            'course' => 'secondcourse',
+                            'maxanswers' => 2,
+                        ],
+                    ],
+                    'optionactions' => [
+                        'bookotheroptions' => [
+                            'option' => 'b1option1',
+                            'action_type' => 'bookotheroptions',
+                            'boactionname' => 'Book more options',
+                            'boactionjson' => json_encode([
+                                'otheroptions' => ["b1option2", "b2option1"],
+                                'bookotheroptionsforce' => '7',
+                            ]),
+                        ],
+                    ],
+                ],
+                [
+                    'failbookingb1option2' => [
+                        'user' => 'student1',
+                        'option' => 'b1option2',
+                        'bookitresult1' => MOD_BOOKING_BO_COND_BOOKING_TIME, // Cannot book option beause of bookingtime.
+                        'bookitresult2' => MOD_BOOKING_BO_COND_BOOKING_TIME, // Cannot book option beause of bookingtime.
+                    ],
+                    'successbookingnwithothers' => [
+                        'user' => 'student2',
+                        'option' => 'b1option1',
+                        'bookitresult1' => MOD_BOOKING_BO_COND_CONFIRMBOOKIT, // Book other option forced.
+                        'bookitresult2' => MOD_BOOKING_BO_COND_ALREADYBOOKED, // Book other option forced.
+                    ],
+                    'confirmbookingnwithothers12' => [
+                        'user' => 'student2',
+                        'option' => 'b1option2',
+                        'bookitresult1' => MOD_BOOKING_BO_COND_ALREADYBOOKED, // Book other option forced.
+                        'bookitresult2' => MOD_BOOKING_BO_COND_ALREADYBOOKED, // Book other option forced.
+                    ],
+                    'confirmbookingwithothers21' => [
+                        'user' => 'student2',
+                        'option' => 'b2option1',
+                        'bookitresult1' => MOD_BOOKING_BO_COND_ALREADYBOOKED, // Book other option forced.
+                        'bookitresult2' => MOD_BOOKING_BO_COND_ALREADYBOOKED, // Book other option forced.
+                    ],
+                    'failbookingb2option1' => [
+                        'user' => 'student3',
+                        'option' => 'b2option1',
+                        'bookitresult1' => MOD_BOOKING_BO_COND_FULLYBOOKED, // Cannot book option beause fully booked.
+                        'bookitresult2' => MOD_BOOKING_BO_COND_FULLYBOOKED, // Cannot book option beause fully booked.
+                    ],
+                    'successbookingnwithothers1' => [
+                        'user' => 'student3',
+                        'option' => 'b1option1',
+                        'bookitresult1' => MOD_BOOKING_BO_COND_CONFIRMBOOKIT, // Book other option forced.
+                        'bookitresult2' => MOD_BOOKING_BO_COND_ALREADYBOOKED, // Book other option forced.
+                    ],
+                    'confirmbookingnwithothers312' => [
+                        'user' => 'student3',
+                        'option' => 'b1option2',
+                        'bookitresult1' => MOD_BOOKING_BO_COND_ALREADYBOOKED, // Book other option forced.
+                        'bookitresult2' => MOD_BOOKING_BO_COND_ALREADYBOOKED, // Book other option forced.
+                    ],
+                    'confirmbookingwithothers321' => [
+                        'user' => 'student3',
+                        'option' => 'b2option1',
+                        'bookitresult1' => MOD_BOOKING_BO_COND_ALREADYBOOKED, // Book other option forced.
+                        'bookitresult2' => MOD_BOOKING_BO_COND_ALREADYBOOKED, // Book other option forced.
+                    ],
+                ],
+            ],
             'Book other options - failed beause of blocking' => [
                 [
                     'profilefields' => [],
@@ -214,7 +327,6 @@ final class booking_action_bookotheroption_test extends advanced_testcase {
                             'course' => 'secondcourse',
                         ],
                     ],
-
                     'optionsettings' => [
                         'b1option1' => [
                             'text' => 'b1option1',
@@ -310,7 +422,6 @@ final class booking_action_bookotheroption_test extends advanced_testcase {
                             'course' => 'secondcourse',
                         ],
                     ],
-
                     'optionsettings' => [
                         'b1option1' => [
                             'text' => 'b1option1',
