@@ -1161,10 +1161,23 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->hideIf('circumventpassword', 'circumventavailabilityconditions', 'notchecked');
 
         $circumventcond = booking::get_value_of_json_by_key($bookingid, 'circumventcond') ?? [];
-        $mform->setDefault(
-            'circumventavailabilityconditions',
-            empty($circumventcond) ? 0 : 1,
-        );
+        if (empty($circumventcond)) {
+            $mform->setDefault(
+                'circumventavailabilityconditions',
+                0,
+            );
+        } else {
+            $mform->setDefault(
+                'circumventavailabilityconditions',
+                1,
+            );
+            $mform->setDefault(
+                'circumventpassword',
+                $circumventcond->cvpwd ?? '',
+            );
+        }
+
+
         // Miscellaneous settings.
         $mform->addElement(
             'header',
