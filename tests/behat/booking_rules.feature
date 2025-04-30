@@ -29,7 +29,7 @@ Feature: Create global booking rules as admin and insure they are working.
     And the following "activities" exist:
       | activity | course | name       | intro               | bookingmanager | eventtype | Default view for booking options | Send confirmation e-mail |
       | booking  | C1     | BookingCMP | Booking description | teacher1       | Webinar   | All bookings                     | Yes                      |
-    ## And I change viewport size to "1366x10000"
+    And I change viewport size to "1366x4000"
 
   @javascript
   Scenario: Booking rules: create settings for booking rules via UI as admin and edit it
@@ -223,7 +223,10 @@ Feature: Create global booking rules as admin and insure they are working.
 
   @javascript
   Scenario: Booking rules: create booking rule for option completion event and notify by user from event
-    Given the following "mod_booking > options" exist:
+    Given the following config values are set as admin:
+      | config                 | value  | plugin  |
+      | uselegacymailtemplates | 1      | booking |
+    And the following "mod_booking > options" exist:
       | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
     And the following "mod_booking > rules" exist:
