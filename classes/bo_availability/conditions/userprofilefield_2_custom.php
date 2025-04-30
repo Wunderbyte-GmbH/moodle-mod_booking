@@ -149,7 +149,9 @@ class userprofilefield_2_custom implements bo_condition {
                     $user,
                     $this->customsettings->profilefield ?? "",
                     $this->customsettings->operator ?? "",
-                    $this->customsettings->value ?? ""
+                    $this->customsettings->value ?? "",
+                    $settings->bookingid,
+                    $userid
                 );
 
                 if (empty($this->customsettings->connectsecondfield)) {
@@ -160,7 +162,9 @@ class userprofilefield_2_custom implements bo_condition {
                         $user,
                         $this->customsettings->profilefield2 ?? "",
                         $this->customsettings->operator2 ?? "",
-                        $this->customsettings->value2 ?? ""
+                        $this->customsettings->value2 ?? "",
+                        $settings->bookingid,
+                        $userid
                     );
                     switch ($this->customsettings->connectsecondfield) {
                         case "&&":
@@ -175,25 +179,6 @@ class userprofilefield_2_custom implements bo_condition {
                 }
             }
         }
-        // For the moment, this circumventing userprofile condition takes only the first field into account.
-        // So if the value set in user preferences corresponds to the requirements for the first field, this will work.
-        // Important:We do not support this, if a second field is connected.
-        if (
-            !$isavailable
-            && empty($this->customsettings->connectsecondfield)
-        ) {
-            $cvsetting = booking::get_value_of_json_by_key($settings->bookingid, 'circumventcond');
-            if (
-                isset($cvsetting)
-                && !empty($cvsetting)
-            ) {
-                $pref = get_user_preferences($this->customsettings->profilefield, null, $userid);
-                if (!empty($pref)) {
-                    $isavailable = $this->compare_operation($this->customsettings->operator, $pref, $this->customsettings->value);
-                }
-            }
-        }
-
         // If it's inversed, we inverse.
         if ($not) {
             $isavailable = !$isavailable;
@@ -307,6 +292,8 @@ class userprofilefield_2_custom implements bo_condition {
      * @param string $profilefield
      * @param string $operator
      * @param string $formvalue
+     * @param int $bookingid
+     * @param int $userid
      *
      * @return bool
      *
@@ -315,7 +302,9 @@ class userprofilefield_2_custom implements bo_condition {
         object $user,
         string $profilefield,
         string $operator,
-        string $formvalue
+        string $formvalue,
+        int $bookingid,
+        int $userid
     ): bool {
 
         // If the profilefield is not here right away, we might need to retrieve it.
@@ -335,6 +324,18 @@ class userprofilefield_2_custom implements bo_condition {
             $value,
             $formvalue
             );
+        if (!$available) {
+            $cvsetting = booking::get_value_of_json_by_key($bookingid, 'circumventcond');
+            if (
+                isset($cvsetting)
+                && !empty($cvsetting)
+            ) {
+                $pref = get_user_preferences($this->customsettings->profilefield, null, $userid);
+                if (!empty($pref)) {
+                    $available = $this->compare_operation($this->customsettings->operator, $pref, $this->customsettings->value);
+                }
+            }
+        }
         return $available;
     }
     /**
