@@ -729,6 +729,8 @@ $string['certificateexpirationdate'] = 'Expiration date';
 $string['certificateheader'] = 'Moodle certificate';
 $string['certificateissuedate'] = 'Issue date';
 $string['certificatemodalheader'] = 'Certificates of {$a}';
+$string['certificateon'] = 'Activate certificate creation <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
+$string['certificateon_desc'] = 'Enable this setting if you want to issue certificates for the completion of booking options.';
 $string['certificateurl'] = 'Certificate URL';
 $string['certificatewithexperation'] = 'Expires: {$a}';
 $string['certificatewithoutexperation'] = 'No experation date';
@@ -1853,7 +1855,7 @@ $string['presencechangedinfo'] = 'The attendance of {$a->relateduser} has been c
 $string['presencecount'] = 'Presence count';
 $string['presenceoptions'] = "Options for attendance status";
 $string['presenceoptions_desc'] = "Which status should be possible?";
-$string['presencestatustoissuecertificate'] = "Certification issue with presence status";
+$string['presencestatustoissuecertificate'] = 'Certification issue with presence status <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['presencestatustoissuecertificate_desc'] = "If set, you can trigger the issue of a certificate ONLY with the chosen presence. The completion of the booking option then no longer issues a certificate.";
 $string['previous'] = 'Previous';
 $string['price'] = 'Price';

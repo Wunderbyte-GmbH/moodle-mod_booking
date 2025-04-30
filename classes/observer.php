@@ -333,7 +333,11 @@ class mod_booking_observer {
         $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
         $selecteduserid = $event->relateduserid;
 
-        if (class_exists('tool_certificate\certificate') && get_config('booking', 'presencestatustoissuecertificate') == 0) {
+        if (
+            class_exists('tool_certificate\certificate')
+            && get_config('booking', 'presencestatustoissuecertificate') !== 0
+            && get_config('booking', 'certificateon')
+        ) {
             certificate::issue_certificate($optionid, $selecteduserid);
         }
 

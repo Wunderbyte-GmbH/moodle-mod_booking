@@ -315,15 +315,6 @@ if ($ADMIN->fulltree) {
             )
         );
 
-        $settings->add(
-            new admin_setting_configselect(
-                'booking/presencestatustoissuecertificate',
-                get_string('presencestatustoissuecertificate', 'mod_booking'),
-                get_string('presencestatustoissuecertificate_desc', 'mod_booking'),
-                0,
-                booking::get_possible_presences(true)
-            )
-        );
     } else {
         $settings->add(
             new admin_setting_heading(
@@ -605,6 +596,36 @@ if ($ADMIN->fulltree) {
             0
         )
     );
+
+    $settings->add(
+        new admin_setting_configcheckbox(
+            'booking/shortcodesoff',
+            get_string('shortcodesoff', 'mod_booking'),
+            get_string('shortcodesoff_desc', 'mod_booking'),
+            0
+        )
+    );
+    if ($proversion) {
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/certificateon',
+                get_string('certificateon', 'mod_booking'),
+                get_string('certificateon_desc', 'mod_booking'),
+                0,
+            )
+        );
+        if (get_config('booking', 'certificateon')) {
+            $settings->add(
+                new admin_setting_configselect(
+                    'booking/presencestatustoissuecertificate',
+                    get_string('presencestatustoissuecertificate', 'mod_booking'),
+                    get_string('presencestatustoissuecertificate_desc', 'mod_booking'),
+                    0,
+                    booking::get_possible_presences(true)
+                )
+            );
+        }
+    }
 
     $settings->add(
         new admin_setting_configcheckbox(
