@@ -30,7 +30,6 @@ use mod_booking\singleton_service;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class override_user_field {
-
     /** @var string $key the shortname of a (custom) user profile field */
     public $key;
 
