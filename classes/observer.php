@@ -338,7 +338,7 @@ class mod_booking_observer {
 
         if (
             empty($bookingoption->booking->settings->sendmail)
-            || !get_config('uselegacymailtemplates', 'booking')
+            || !get_config('booking', 'uselegacymailtemplates')
         ) {
             // If sendmail is not set or not active, we don't do anything.
             return;
