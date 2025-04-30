@@ -29,6 +29,7 @@ namespace mod_booking\bo_availability\conditions;
 use context_system;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\booking;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
@@ -174,6 +175,24 @@ class userprofilefield_2_custom implements bo_condition {
                 }
             }
         }
+        // For the moment, this circumventing userprofile condition takes only the first field into account.
+        // So if the value set in user preferences corresponds to the requirements for the first field, this will work.
+        // Important:We do not support this, if a second field is connected.
+        if (
+            !$isavailable
+            && empty($this->customsettings->connectsecondfield)
+        ) {
+            $cvsetting = booking::get_value_of_json_by_key($settings->bookingid, 'circumventcond');
+            if (
+                isset($cvsetting)
+                && !empty($cvsetting)
+            ) {
+                $pref = get_user_preferences($this->customsettings->profilefield, null, $userid);
+                if (!empty($pref)) {
+                    $isavailable = $this->compare_operation($this->customsettings->operator, $pref, $this->customsettings->value);
+                }
+            }
+        }
 
         // If it's inversed, we inverse.
         if ($not) {
@@ -311,12 +330,12 @@ class userprofilefield_2_custom implements bo_condition {
         } else {
             $value = $user->$profilefield;
         }
-
-        return $this->compare_operation(
+        $available = $this->compare_operation(
             $operator,
             $value,
             $formvalue
-        );
+            );
+        return $available;
     }
     /**
      * Each function can return additional sql.

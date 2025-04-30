@@ -29,6 +29,7 @@ namespace mod_booking\bo_availability\conditions;
 use context_system;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\booking;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
@@ -152,85 +153,18 @@ class userprofilefield_1_default implements bo_condition {
                 } else {
                     $value = $user->$profilefield;
                 }
-
-                // If value is not null, we compare it.
-                if ($value) {
-                    switch ($this->customsettings->operator) {
-                        case '=':
-                            if ($value == $this->customsettings->value) {
-                                $isavailable = true;
-                            }
-                            break;
-                        case '<':
-                            if ($value < $this->customsettings->value) {
-                                $isavailable = true;
-                            }
-                            break;
-                        case '>':
-                            if ($value > $this->customsettings->value) {
-                                $isavailable = true;
-                            }
-                            break;
-                        case '~':
-                            if (mb_strpos($value, $this->customsettings->value) !== false) {
-                                $isavailable = true;
-                            }
-                            break;
-                        case '!=':
-                            if ($value != $this->customsettings->value) {
-                                $isavailable = true;
-                            }
-                            break;
-                        case '!~':
-                            if (mb_strpos($value, $this->customsettings->value) === false) {
-                                $isavailable = true;
-                            }
-                            break;
-                        case '[]':
-                            $array = explode(",", $this->customsettings->value);
-                            if (in_array($value, $array)) {
-                                $isavailable = true;
-                            }
-                            break;
-                        case '[!]':
-                            $array = explode(",", $this->customsettings->value);
-                            if (!in_array($value, $array)) {
-                                $isavailable = true;
-                            }
-                            break;
-                        case '[~]':
-                            $array = explode(",", $this->customsettings->value);
-                            foreach ($array as $itemvalue) {
-                                if (mb_strpos($value, $itemvalue) === false) {
-                                    $isavailable = true;
-                                    break;
-                                }
-                            }
-                            break;
-                        case '[!~]':
-                            $array = explode(",", $this->customsettings->value);
-                            $isavailable = true;
-                            foreach ($array as $itemvalue) {
-                                if (mb_strpos($value, $itemvalue) === false) {
-                                    $isavailable = false;
-                                    break;
-                                }
-                            }
-                            break;
-                        case '()':
-                            if (empty($value)) {
-                                $isavailable = true;
-                            }
-                            break;
-                        case '(!)':
-                            if (!empty($value)) {
-                                $isavailable = true;
-                            }
-                            break;
-                        default:
-                            $isavailable = true;
-                            break;
-                    }
+                $isavailable = self::compare_operator($value, $this->customsettings->operator, $this->customsettings->value);
+            }
+        }
+        if (!$isavailable) {
+            $cvsetting = booking::get_value_of_json_by_key($settings->bookingid, 'circumventcond');
+            if (
+                isset($cvsetting)
+                && !empty($cvsetting)
+            ) {
+                $pref = get_user_preferences($profilefield, null, $userid);
+                if (!empty($pref)) {
+                    $isavailable = self::compare_operator($pref, $this->customsettings->operator, $this->customsettings->value);
                 }
             }
         }
@@ -243,6 +177,99 @@ class userprofilefield_1_default implements bo_condition {
         return $isavailable;
     }
 
+    /**
+     * Compare given value with value from settings according to operator.
+     *
+     * @param string $value
+     * @param string $operator
+     * @param string $settingsvalue
+     *
+     * @return bool
+     *
+     */
+    private static function compare_operator(string $value, string $operator, string $settingsvalue) {
+        // If value is not null, we compare it.
+        $isavailable = false;
+        if ($value) {
+            switch ($operator) {
+                case '=':
+                    if ($value == $settingsvalue) {
+                        $isavailable = true;
+                    }
+                    break;
+                case '<':
+                    if ($value < $settingsvalue) {
+                        $isavailable = true;
+                    }
+                    break;
+                case '>':
+                    if ($value > $settingsvalue) {
+                        $isavailable = true;
+                    }
+                    break;
+                case '~':
+                    if (mb_strpos($value, $settingsvalue) !== false) {
+                        $isavailable = true;
+                    }
+                    break;
+                case '!=':
+                    if ($value != $settingsvalue) {
+                        $isavailable = true;
+                    }
+                    break;
+                case '!~':
+                    if (mb_strpos($value, $settingsvalue) === false) {
+                        $isavailable = true;
+                    }
+                    break;
+                case '[]':
+                    $array = explode(",", $settingsvalue);
+                    if (in_array($value, $array)) {
+                        $isavailable = true;
+                    }
+                    break;
+                case '[!]':
+                    $array = explode(",", $settingsvalue);
+                    if (!in_array($value, $array)) {
+                        $isavailable = true;
+                    }
+                    break;
+                case '[~]':
+                    $array = explode(",", $settingsvalue);
+                    foreach ($array as $itemvalue) {
+                        if (mb_strpos($value, $itemvalue) === false) {
+                            $isavailable = true;
+                            break;
+                        }
+                    }
+                    break;
+                case '[!~]':
+                    $array = explode(",", $settingsvalue);
+                    $isavailable = true;
+                    foreach ($array as $itemvalue) {
+                        if (mb_strpos($value, $itemvalue) === false) {
+                            $isavailable = false;
+                            break;
+                        }
+                    }
+                    break;
+                case '()':
+                    if (empty($value)) {
+                        $isavailable = true;
+                    }
+                    break;
+                case '(!)':
+                    if (!empty($value)) {
+                        $isavailable = true;
+                    }
+                    break;
+                default:
+                    $isavailable = true;
+                    break;
+            }
+        }
+        return $isavailable;
+    }
     /**
      * Each function can return additional sql.
      * This will be used if the conditions should not only block booking...
