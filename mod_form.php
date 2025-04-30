@@ -1030,9 +1030,12 @@ class mod_booking_mod_form extends moodleform_mod {
             case 'bookingclosingtime':
                 $cancancelbookdaysstring = get_string('cancancelbookdays:bookingclosingtime', 'mod_booking');
                 break;
-            default:
+            case 'bookingopeningtime':
                 $cancancelbookdaysstring = get_string('cancancelbookdays:bookingopeningtime', 'mod_booking');
-                $canceldependenton = 'bookingopeningtime';
+                break;
+            default:
+                $cancancelbookdaysstring = get_string('cancancelbookdays:coursestarttime', 'mod_booking');
+                $canceldependenton = 'coursestarttime';
                 break;
         }
 
