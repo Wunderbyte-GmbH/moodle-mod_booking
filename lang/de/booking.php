@@ -659,6 +659,7 @@ $string['cancancelbookallow'] = 'Teilnehmer:innen dürfen Buchungen selbst storn
 $string['cancancelbookdays'] = 'Nutzer:innen können nur bis n Tage vor Kursstart stornieren. Negative Werte meinen n Tage NACH Kursstart.';
 $string['cancancelbookdays:bookingclosingtime'] = 'Nutzer:innen können nur bis n Tage vor <b>Anmeldeschluss (Buchungsende)</b> stornieren. Negative Werte meinen n Tage NACH Anmeldeschluss.';
 $string['cancancelbookdays:bookingopeningtime'] = 'Nutzer:innen können nur bis n Tage vor <b>Anmeldebeginn (Buchungsbeginn)</b> stornieren. Negative Werte meinen n Tage NACH Anmeldebeginn.';
+$string['cancancelbookdays:coursestarttime'] = 'Nutzer:innen können nur bis n Tage vor <b>Kursbeginn (Start der Buchungoption)</b> stornieren. Negative Werte meinen n Tage NACH Anmeldebeginn.';
 $string['cancancelbookdays:semesterstart'] = 'Nutzer:innen können nur bis n Tage vor <b>Semesterbeginn</b> stornieren. Negative Werte meinen n Tage NACH Semesterbeginn.';
 $string['cancancelbookdaysno'] = 'Kein Limit';
 $string['cancancelbookrelative'] = 'Stornodatum <b>relativ zu {$a}</b> setzen';
