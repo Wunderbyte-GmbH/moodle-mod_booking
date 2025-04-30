@@ -36,7 +36,7 @@
 <div class="mod-booking-report-option ml-3">
 	<div>
 		<div class="h6 mb-1">
-			<a href="{{report2link}}" title="Report for {{text}}" target="_blank">
+			<a href="{{report2option}}" title="Report for {{text}}" target="_blank">
 				<i class="fa fa-ticket" aria-hidden="true"></i>&nbsp;
 				{{#text}}{{text}}{{/text}}
 			</a>&nbsp;
@@ -54,15 +54,17 @@
 	<div class="mb-1 collapse" id="collapseoptionshortinfo-{{id}}">
 		<span class="mod-booking-report-option-system">
 			<i class="fa fa-fw fa-sm fa-home text-gray" aria-hidden="true"></i>&nbsp;
-			<a href="{{courselink}}" target="_blank">{{coursename}}</a>
+			{{#systemname}}<a href="{{report2system}}" target="_blank">{{systemname}}</a>{{/systemname}}
+			&nbsp;▸&nbsp;
 		</span>
 		<span class="mod-booking-report-option-course">
 			<i class="fa fa-fw fa-sm fa-graduation-cap text-gray" aria-hidden="true"></i>&nbsp;
-			<a href="{{courselink}}" target="_blank">{{coursename}}</a>
+			{{#coursename}}<a href="{{report2course}}" target="_blank">{{coursename}}</a>{{/coursename}}
+			&nbsp;▸&nbsp;
 		</span>
 		<span class="mod-booking-report-option-instance">
 			<i class="fa fa-fw fa-sm fa-calendar-check-o text-gray" aria-hidden="true"></i>&nbsp;
-			<a href="{{instancelink}}" target="_blank">{{instancename}}</a>
+			{{#instancename}}<a href="{{report2instance}}" target="_blank">{{instancename}}</a>{{/instancename}}
 		</span>
 	</div>
 </div>

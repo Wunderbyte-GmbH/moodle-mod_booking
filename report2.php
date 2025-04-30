@@ -50,9 +50,10 @@ $courseid = optional_param('courseid', 0, PARAM_INT);
 
 $ticketicon = '<i class="fa fa-fw fa-sm fa-ticket" aria-hidden="true"></i>&nbsp;';
 $linkicon = '<i class="fa fa-fw fa-xs fa-external-link" aria-hidden="true"></i>&nbsp;';
-$divider = "<span class='mt-3 ml-1 mr-1'>
+/*$divider = "<span class='mt-3 ml-1 mr-1'>
     <i class='fa-solid fa-2xs fa-angle-right' aria-hidden='true' style='color: gray;'></i>
-</span>";
+</span>";*/
+$divider = "<span class='report2-nav-divider'>▸</span>";
 
 $r2syscontext = context_system::instance();
 $r2syscap = has_capability('mod/booking:managebookedusers', $r2syscontext);
@@ -136,7 +137,7 @@ if (!empty($optiondateid)) {
         ($r2instancecap ? "</a>" : "</span>") .
         $divider .
         "<a href='{$r2optionurl}' class='report2-option-border'>" .
-        $ticketicon . $optionsettings->get_title_with_prefix() .
+        $ticketicon . booking::shorten_text($optionsettings->get_title_with_prefix()) .
         "</a>";
 
     // Create a navigation dropdown for all optiondates (sessions) of the booking option.
@@ -235,7 +236,7 @@ if (!empty($optiondateid)) {
         ($r2instancecap ? "</a>" : "</span>") .
         $divider .
         "<a href='{$r2optionurl}' class='report2-option-border'>" .
-        $linkicon . $optionsettings->get_title_with_prefix() .
+        $linkicon . booking::shorten_text($optionsettings->get_title_with_prefix()) .
         "</a>";
 
     // Create a navigation dropdown for all optiondates (sessions) of the booking option.
@@ -307,7 +308,7 @@ if (!empty($optiondateid)) {
         ($r2coursecap ? "</a>" : "</span>") .
         $divider .
         "<a href='{$r2instanceurl}' class='report2-instance-border'>" .
-        $linkicon . $bookingsettings->name .
+        $linkicon . booking::shorten_text($bookingsettings->name) .
         "</a>";
 } else if (!empty($courseid)) {
     // We are in course scope.
@@ -342,7 +343,7 @@ if (!empty($optiondateid)) {
         ($r2syscap ? "</a>" : "</span>") .
         $divider .
         "<a href='$r2courseurl' class='report2-course-border'>" .
-        $linkicon . $course->fullname .
+        $linkicon . booking::shorten_text($course->fullname) .
         "</a>";
 } else {
     // We are in system scope.
@@ -365,7 +366,7 @@ if (!empty($optiondateid)) {
 
     $navhtml =
         "<a href='$r2systemurl' class='report2-system-border'>" .
-        $linkicon . $SITE->fullname .
+        $linkicon . booking::shorten_text($SITE->fullname) .
         "</a>";
 }
 

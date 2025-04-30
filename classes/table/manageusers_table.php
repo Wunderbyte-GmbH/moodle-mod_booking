@@ -27,6 +27,7 @@ namespace mod_booking\table;
 use core\exception\moodle_exception;
 use mod_booking\enrollink;
 use mod_booking\event\bookinganswer_confirmed;
+use mod_booking\local\bookingstracker\bookingstracker_helper;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -101,61 +102,10 @@ class manageusers_table extends wunderbyte_table {
      * @return string
      */
     public function col_text(stdClass $values) {
-
-        if (empty($values->optionid)) {
-            return '';
-        }
-
         if ($this->is_downloading()) {
             return $values->text ?? '';
         }
-
-        global $OUTPUT;
-
-        $optionlink = new moodle_url(
-            '/mod/booking/view.php',
-            [
-                'id' => $values->cmid,
-                'optionid' => $values->optionid,
-                'whichview' => 'showonlyone',
-            ]
-        );
-
-        $report2option = new moodle_url(
-            '/mod/booking/report2.php',
-            [
-                'cmid' => $values->cmid,
-                'optionid' => $values->optionid,
-            ]
-        );
-
-        $report2instance = new moodle_url(
-            '/mod/booking/report2.php',
-            ['cmid' => $values->cmid]
-        );
-
-        $report2course = new moodle_url(
-            '/mod/booking/report2.php',
-            ['courseid' => $values->courseid]
-        );
-
-        $report2system = new moodle_url(
-            '/mod/booking/report2.php'
-        );
-
-        $data = [
-            'id' => $values->optionid,
-            'text' => $values->text,
-            'optionlink' => $optionlink->out(false),
-            'report2option' => $report2option->out(false),
-            'instancename' => $values->instancename,
-            'report2instance' => $report2instance->out(false),
-            'coursename' => $values->coursename,
-            'report2course' => $report2course->out(false),
-            'report2system' => $report2system->out(false),
-        ];
-
-        return $OUTPUT->render_from_template('mod_booking/report/option', $data);
+        return bookingstracker_helper::render_col_text($values);
     }
 
     /**

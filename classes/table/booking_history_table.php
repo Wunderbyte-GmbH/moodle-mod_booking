@@ -25,6 +25,7 @@
 
 namespace mod_booking\table;
 
+use mod_booking\local\bookingstracker\bookingstracker_helper;
 use mod_booking\singleton_service;
 use mod_booking\booking;
 use moodle_url;
@@ -53,59 +54,11 @@ class booking_history_table extends wunderbyte_table {
      * @param stdClass $values
      * @return string
      */
-    public function col_bookingoption(stdClass $values) {
-
-        if (empty($values->optionid)) {
-            return '';
-        }
-        $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid);
-
+    public function col_text(stdClass $values) {
         if ($this->is_downloading()) {
-            return $settings->get_title_with_prefix();
+            return $values->text ?? '';
         }
-
-        global $OUTPUT;
-
-        $optionlink = new moodle_url(
-            '/mod/booking/view.php',
-            [
-                'id' => $values->cmid,
-                'optionid' => $values->optionid,
-                'whichview' => 'showonlyone',
-            ]
-        );
-
-        $report2link = new moodle_url(
-            '/mod/booking/report2.php',
-            [
-                'cmid' => $values->cmid,
-                'optionid' => $values->optionid,
-            ]
-        );
-
-        $instancelink = new moodle_url(
-            '/mod/booking/report2.php',
-            ['cmid' => $values->cmid]
-        );
-
-        $courselink = new moodle_url(
-            '/course/view.php',
-            ['id' => $values->courseid]
-        );
-
-        $data = [
-            'id' => $values->id,
-            'titleprefix' => $values->titleprefix,
-            'title' => $values->text,
-            'optionlink' => $optionlink->out(false),
-            'report2link' => $report2link->out(false),
-            'instancename' => $values->instancename,
-            'instancelink' => $instancelink->out(false),
-            'coursename' => $values->coursename,
-            'courselink' => $courselink->out(false),
-        ];
-
-        return $OUTPUT->render_from_template('mod_booking/report/option', $data);
+        return bookingstracker_helper::render_col_text($values);
     }
 
     /**
