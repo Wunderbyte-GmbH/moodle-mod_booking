@@ -1,4 +1,4 @@
-## Version 8.12.8 (2025042900)
+## Version 8.12.8 (2025050100)
 * New Feature: Create certificates for completing booking options. Also view and edit certificates in report and placeholders for rules.
 * Improvement: Added new shortcodes allbookingoption and mybookingoptions.
 * Improvement: Added bookotheroptions action.
@@ -8,6 +8,7 @@
 * Bugfix: Removed default sorting by lastname, as it disrupted the rank order of the waiting list.
 * Bugfix: Recurring booking opening and closing times now update correctly.
 * Bugfix: Enabled setting unenrolfromgroupofcurrentcourse.
+* Bugfix: Correct order of params of setting uselegacymails.
 * Test: Added unit tests for shortcodes.
 * Test: Added new Behat scenario: Booking actions – create settings for booking action via UI as a teacher and edit it.
 * Test: Added new Behat scenario: Booking actions – create booking action via DB and book it as students.
