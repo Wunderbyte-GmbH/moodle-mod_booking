@@ -601,10 +601,8 @@ if (!$tableallbookings->is_downloading()) {
                 $headers[] = get_string('completed', 'mod_booking');
                 break;
             case 'status':
-                if ($bookingoption->booking->settings->enablepresence) {
-                    $columns[] = 'status';
-                    $headers[] = get_string('presence', 'mod_booking');
-                }
+                $columns[] = 'status';
+                $headers[] = get_string('presence', 'mod_booking');
                 break;
             case 'rating':
                 if ($bookingoption->booking->settings->assessed != RATING_AGGREGATE_NONE) {

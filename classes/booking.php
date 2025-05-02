@@ -935,10 +935,8 @@ class booking {
                     $headers[] = get_string("waitinglist", "booking");
                     break;
                 case 'status':
-                    if ($this->settings->enablepresence) {
-                        $columns[] = 'status';
-                        $headers[] = get_string('presence', 'mod_booking');
-                    }
+                    $columns[] = 'status';
+                    $headers[] = get_string('presence', 'mod_booking');
                     break;
                 case 'groups':
                     $columns[] = 'groups';

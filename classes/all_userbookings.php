@@ -654,22 +654,20 @@ class all_userbookings extends \table_sql {
                 }
             }
 
-            if ($this->bookingdata->booking->settings->enablepresence) {
-                // Change presence status.
-                // Status order: Unknown, Attending, Complete, Incomplete, No Show, and Failed.
-                echo "<br>";
-                echo html_writer::select(
-                    booking::get_possible_presences(false),
-                    'selectpresencestatus',
-                    '',
-                    ['' => 'choosedots'],
-                    ['class' => 'mt-3']
-                );
+            // Change presence status.
+            // Status order: Unknown, Attending, Complete, Incomplete, No Show, and Failed.
+            echo "<br>";
+            echo html_writer::select(
+                booking::get_possible_presences(false),
+                'selectpresencestatus',
+                '',
+                ['' => 'choosedots'],
+                ['class' => 'mt-3']
+            );
 
-                echo '<div class="singlebutton ml-2">' .
-                    '<input type="submit" class="btn btn-success btn-sm mt-3" name="changepresencestatus" value="' .
-                    get_string('confirmpresence', 'booking') . '" /></div>';
-            }
+            echo '<div class="singlebutton ml-2">' .
+                '<input type="submit" class="btn btn-success btn-sm mt-3" name="changepresencestatus" value="' .
+                get_string('confirmpresence', 'booking') . '" /></div>';
         }
 
         echo '</form>';

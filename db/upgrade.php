@@ -4999,5 +4999,17 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2025041700, 'booking');
     }
 
+    if ($oldversion < 2025050200) {
+        // Changing nullability of field enablepresence on table booking to null.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('enablepresence', XMLDB_TYPE_INTEGER, '2', null, null, null, '0', 'daystonotify2');
+
+        // Launch change of nullability for field enablepresence.
+        $dbman->change_field_notnull($table, $field);
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2025050200, 'booking');
+    }
+
     return true;
 }

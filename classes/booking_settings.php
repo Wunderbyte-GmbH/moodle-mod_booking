@@ -231,9 +231,6 @@ class booking_settings {
     /** @var int $daystonotify2 */
     public $daystonotify2 = null;
 
-    /** @var int $enablepresence */
-    public $enablepresence = null;
-
     /** @var int $completionmodule */
     public $completionmodule = null;
 
@@ -499,7 +496,6 @@ class booking_settings {
             $this->scale = $dbrecord->scale;
             $this->whichview = $dbrecord->whichview;
             $this->daystonotify2 = $dbrecord->daystonotify2;
-            $this->enablepresence = $dbrecord->enablepresence;
             $this->completionmodule = $dbrecord->completionmodule;
             $this->responsesfields = $dbrecord->responsesfields;
             $this->reportfields = $dbrecord->reportfields;

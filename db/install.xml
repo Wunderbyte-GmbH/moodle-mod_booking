@@ -72,7 +72,7 @@
         <FIELD NAME="scale" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="whichview" TYPE="char" LENGTH="32" NOTNULL="true" DEFAULT="showall" SEQUENCE="false" COMMENT="Which view is default."/>
         <FIELD NAME="daystonotify2" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-        <FIELD NAME="enablepresence" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="enablepresence" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/><!-- Legacy. Not used anymore. -->
         <FIELD NAME="completionmodule" TYPE="int" LENGTH="20" NOTNULL="false" DEFAULT="-1" SEQUENCE="false"/>
         <FIELD NAME="responsesfields" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="reportfields" TYPE="text" NOTNULL="false" SEQUENCE="false"/>

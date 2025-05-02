@@ -397,17 +397,6 @@ class mod_booking_mod_form extends moodleform_mod {
         );
         $mform->setDefault('defaultsortorder', 'asc');
 
-        // Presence tracking.
-        $menuoptions = [];
-        $menuoptions[0] = get_string('disable');
-        $menuoptions[1] = get_string('enable');
-        $mform->addElement(
-            'select',
-            'enablepresence',
-            get_string('enablepresence', 'booking'),
-            $menuoptions
-        );
-
         // Choose default template.
         $alloptiontemplates = $DB->get_records_menu('booking_options', ['bookingid' => 0], '', $fields = 'id, text', 0, 0);
         $alloptiontemplates[0] = get_string('dontusetemplate', 'booking');

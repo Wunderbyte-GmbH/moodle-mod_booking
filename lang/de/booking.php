@@ -1094,7 +1094,6 @@ $string['enable'] = 'Enable';
 $string['enablecompletion'] = 'Es muss mindestens eine der Buchungen als abgeschlossen markiert werden.';
 $string['enablecompletion_help'] = 'Um die Optionen als abgeschlossen zu markieren, fügen Sie unter dem Punkt "Spalten und Felder anpassen" bei "Buchungen verwalten" das Feld "Abgeschlossen" hinzu. Danach können die Optionen auf der Berichtsseite als abgeschlossen markiert werden.';
 $string['enablecompletiongroup'] = 'Aktivitätsabschluss';
-$string['enablepresence'] = 'Anwesenheitsstatus aktivieren';
 $string['enddate'] = "Enddatum";
 $string['endtime'] = "Endzeit";
 $string['endtimenotset'] = 'Kursende nicht festgelegt';
