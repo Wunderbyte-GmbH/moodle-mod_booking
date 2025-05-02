@@ -405,7 +405,7 @@ class recurringoptions extends field_base {
             fields_info::set_data($templateoption);
             $templateoption->parentid = $option->id;
             $restrictoptionid = $option->id;
-            [$newoptiondates, $highesindex] = dates::get_list_of_submitted_dates((array)$templateoption);
+            [$newoptiondates, $highestindex] = dates::get_list_of_submitted_dates((array)$templateoption);
             $delta = $data->howoftentorepeat;
             for ($i = 1; $i <= $data->howmanytimestorepeat; $i++) {
                 // Handle dates.
@@ -585,7 +585,7 @@ class recurringoptions extends field_base {
         if (!empty($records)) {
             $context = context_module::instance($originaldata->cmid);
 
-            [$newparentoptiondates, $highesindex] = dates::get_list_of_submitted_dates((array)$originaldata);
+            [$newparentoptiondates, $highestindex] = dates::get_list_of_submitted_dates((array)$originaldata);
 
             foreach ($records as $index => $child) {
                 $data = clone $originaldata;
@@ -724,10 +724,10 @@ class recurringoptions extends field_base {
         $delta = $json->recurringchilddata->delta ?? '';
         $index = $json->recurringchilddata->index ?? 0;
 
-        [$childoptiondates, $highesindexchild] = dates::get_list_of_submitted_dates((array)$childdatatoupdate);
+        [$childoptiondates, $highestindexchild] = dates::get_list_of_submitted_dates((array)$childdatatoupdate);
 
         // Unset all dates.
-        for ($i = 1; $i <= $highesindexchild; $i++) {
+        for ($i = 1; $i <= $highestindexchild; $i++) {
             unset($childdatatoupdate->{MOD_BOOKING_FORM_OPTIONDATEID . $i});
             unset($childdatatoupdate->{MOD_BOOKING_FORM_COURSESTARTTIME . $i});
             unset($childdatatoupdate->{MOD_BOOKING_FORM_COURSEENDTIME . $i});

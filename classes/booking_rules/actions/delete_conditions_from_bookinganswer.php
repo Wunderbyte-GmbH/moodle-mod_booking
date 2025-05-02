@@ -34,7 +34,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class delete_conditions_from_bookinganswer implements booking_rule_action {
-
     /** @var string $rulename */
     public $actionname = 'delete_conditions_from_bookinganswer';
 
@@ -69,9 +68,7 @@ class delete_conditions_from_bookinganswer implements booking_rule_action {
      * @return void
      */
     public function add_action_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {
-
         // No need to render anything here.
-
     }
 
     /**
@@ -96,7 +93,7 @@ class delete_conditions_from_bookinganswer implements booking_rule_action {
      * Save the JSON for all sendmail_daysbefore rules defined in form.
      * @param stdClass $data form data reference
      */
-    public function save_action(stdClass &$data) {
+    public function save_action(stdClass &$data): void {
         global $DB;
 
         if (!isset($data->rulejson)) {
@@ -144,6 +141,11 @@ class delete_conditions_from_bookinganswer implements booking_rule_action {
             'baid' => $record->baid,
 
         ];
+        // Only add the optiondateid if it is set.
+        // We need it for session reminders.
+        if (!empty($record->optiondateid)) {
+            $taskdata['optiondateid'] = $record->optiondateid;
+        }
         $task->set_custom_data($taskdata);
         $task->set_userid($record->userid);
 

@@ -16,10 +16,7 @@
 
 namespace mod_booking\booking_rules\conditions;
 
-use mod_booking\booking_rules\booking_rule;
 use mod_booking\booking_rules\booking_rule_condition;
-use mod_booking\singleton_service;
-use mod_booking\task\send_mail_by_rule_adhoc;
 use MoodleQuickForm;
 use stdClass;
 
@@ -36,7 +33,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class match_userprofilefield implements booking_rule_condition {
-
     /** @var string $rulename */
     public $conditionname = 'match_userprofilefield';
 
@@ -116,21 +112,31 @@ class match_userprofilefield implements booking_rule_condition {
                 $customuserprofilefieldsarray[$customuserprofilefield->shortname] = $customuserprofilefield->name;
             }
 
-            $mform->addElement('select', 'condition_match_userprofilefield_cpfield',
-                get_string('rulecustomprofilefield', 'mod_booking'), $customuserprofilefieldsarray);
+            $mform->addElement(
+                'select',
+                'condition_match_userprofilefield_cpfield',
+                get_string('rulecustomprofilefield', 'mod_booking'),
+                $customuserprofilefieldsarray
+            );
 
             $operators = [
                 '=' => get_string('equals', 'mod_booking'),
                 '~' => get_string('contains', 'mod_booking'),
             ];
-            $mform->addElement('select', 'condition_match_userprofilefield_operator',
-                get_string('ruleoperator', 'mod_booking'), $operators);
+            $mform->addElement(
+                'select',
+                'condition_match_userprofilefield_operator',
+                get_string('ruleoperator', 'mod_booking'),
+                $operators
+            );
 
-            $mform->addElement('select', 'condition_match_userprofilefield_optionfield',
-                get_string('ruleoptionfield', 'mod_booking'), $allowedoptionfields);
-
+            $mform->addElement(
+                'select',
+                'condition_match_userprofilefield_optionfield',
+                get_string('ruleoptionfield', 'mod_booking'),
+                $allowedoptionfields
+            );
         }
-
     }
 
     /**
@@ -148,7 +154,7 @@ class match_userprofilefield implements booking_rule_condition {
      *
      * @param stdClass $data form data reference
      */
-    public function save_condition(stdClass &$data) {
+    public function save_condition(stdClass &$data): void {
         global $DB;
 
         if (!isset($data->rulejson)) {
@@ -181,7 +187,6 @@ class match_userprofilefield implements booking_rule_condition {
         $data->condition_match_userprofilefield_optionfield = $conditiondata->optionfield;
         $data->condition_match_userprofilefield_operator = $conditiondata->operator;
         $data->condition_match_userprofilefield_cpfield = $conditiondata->cpfield;
-
     }
 
     /**
@@ -189,9 +194,8 @@ class match_userprofilefield implements booking_rule_condition {
      * We receive an array of stdclasses with the keys optionid & cmid.
      * @param stdClass $sql
      * @param array $params
-     * @return array
      */
-    public function execute(stdClass &$sql, array &$params) {
+    public function execute(stdClass &$sql, array &$params): void {
         global $DB;
 
         $sqlcomparepart = "";
@@ -219,7 +223,13 @@ class match_userprofilefield implements booking_rule_condition {
             $anduserid = "AND ud.userid = :userid2";
         }
 
-        $concat = $DB->sql_concat("bo.id", "'-'", "ud.userid");
+        // If the select contains optiondate, we also need to include it in uniqueid.
+        if (strpos($sql->select, 'optiondate') !== false) {
+            $concat = $DB->sql_concat("bo.id", "'-'", "bod.id", "'-'", "ud.userid");
+        } else {
+            $concat = $DB->sql_concat("bo.id", "'-'", "ud.userid");
+        }
+
         // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
         $sql->select = " $concat uniqueid, " . $sql->select;
         $sql->select .= ", ud.userid userid ";

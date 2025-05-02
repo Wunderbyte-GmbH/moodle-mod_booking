@@ -274,7 +274,7 @@ final class recurringoptions_test extends advanced_testcase {
                 'cmid' => $record->cmid,
             ];
             fields_info::set_data($childdata);
-            [$childdates, $highesindexchild] = dates::get_list_of_submitted_dates((array)$childdata);
+            [$childdates, $highestindexchild] = dates::get_list_of_submitted_dates((array)$childdata);
             $this->assertCount(2, $childdates);
             foreach ($childdates as $optiondate) {
                 // This is each session in the child.

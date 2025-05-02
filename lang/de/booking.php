@@ -2075,6 +2075,7 @@ $string['ruleoptionfieldbookingopeningtime'] = 'Beginn der erlaubten Buchungsper
 $string['ruleoptionfieldcourseendtime'] = 'Ende (courseendtime)';
 $string['ruleoptionfieldcoursestarttime'] = 'Beginn (coursestarttime)';
 $string['ruleoptionfieldlocation'] = 'Ort (location)';
+$string['ruleoptionfieldoptiondatestarttime'] = 'Beginn eines jeden Termins';
 $string['ruleoptionfieldselflearningcourseenddate'] = 'Enddatum eines Selbstlernkurses';
 $string['ruleoptionfieldtext'] = 'Name der Buchungsoption (text)';
 $string['rulereactonchangeevent_desc'] = 'Für das "Buchungsoption aktualisiert" Event können Sie Ihre Einstellungen hier ändern: <a href="{$a}">Einstellungen</a>';

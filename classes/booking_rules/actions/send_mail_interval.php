@@ -16,10 +16,8 @@
 
 namespace mod_booking\booking_rules\actions;
 
-use mod_booking\booking_rules\booking_rule;
 use mod_booking\booking_rules\booking_rule_action;
 use mod_booking\placeholders\placeholders_info;
-use mod_booking\singleton_service;
 use mod_booking\task\send_mail_by_rule_adhoc;
 use MoodleQuickForm;
 use stdClass;
@@ -37,7 +35,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class send_mail_interval implements booking_rule_action {
-
     /** @var string $rulename */
     public $actionname = 'send_mail_interval';
 
@@ -90,24 +87,35 @@ class send_mail_interval implements booking_rule_action {
     public function add_action_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {
 
         // Here we can set the interval in which the mails will be released.
-        $mform->addElement('text', 'action_send_mail_interval_interval',
-                get_string('interval', 'mod_booking'));
+        $mform->addElement(
+            'text',
+            'action_send_mail_interval_interval',
+            get_string('interval', 'mod_booking')
+        );
         $mform->addHelpButton('action_send_mail_interval_interval', 'interval', 'mod_booking');
         $mform->setType('action_send_mail_interval_interval', PARAM_INT);
         $mform->setDefault('action_send_mail_interval_interval', 60);
 
         // Mail subject.
-        $mform->addElement('text', 'action_send_mail_interval_subject', get_string('messagesubject', 'mod_booking'),
-            ['size' => '66']);
+        $mform->addElement(
+            'text',
+            'action_send_mail_interval_subject',
+            get_string('messagesubject', 'mod_booking'),
+            ['size' => '66']
+        );
         $mform->setType('action_send_mail_interval_subject', PARAM_TEXT);
 
         // Mail template.
-        $mform->addElement('editor', 'action_send_mail_interval_template',
-            get_string('message'), ['rows' => 15], ['subdirs' => 0, 'maxfiles' => 0, 'context' => null]);
+        $mform->addElement(
+            'editor',
+            'action_send_mail_interval_template',
+            get_string('message'),
+            ['rows' => 15],
+            ['subdirs' => 0, 'maxfiles' => 0, 'context' => null]
+        );
 
         $placeholders = placeholders_info::return_list_of_placeholders();
         $mform->addElement('html', get_string('helptext:placeholders', 'mod_booking', $placeholders));
-
     }
 
     /**
@@ -132,7 +140,7 @@ class send_mail_interval implements booking_rule_action {
      * Save the JSON for all sendmail_daysbefore rules defined in form.
      * @param stdClass $data form data reference
      */
-    public function save_action(stdClass &$data) {
+    public function save_action(stdClass &$data): void {
         global $DB;
 
         if (!isset($data->rulejson)) {
@@ -201,7 +209,6 @@ class send_mail_interval implements booking_rule_action {
                 'interval' => $interval,
             ];
         } else {
-
             // If we are dealing with an interval execution...
             // We first check if the current user has already been treated.
             // If so, we abort.
@@ -242,6 +249,11 @@ class send_mail_interval implements booking_rule_action {
             'custommessage' => $this->template,
             'repeat' => $repeat,
         ];
+        // Only add the optiondateid if it is set.
+        // We need it for session reminders.
+        if (!empty($record->optiondateid)) {
+            $taskdata['optiondateid'] = $record->optiondateid;
+        }
         $task->set_custom_data($taskdata);
         $task->set_userid($record->userid);
 

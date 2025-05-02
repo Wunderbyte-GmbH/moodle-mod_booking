@@ -108,7 +108,7 @@ class optiondates extends field_base {
     ): array {
         // Run through all dates to make sure we don't have an array.
         // We need to transform dates to timestamps.
-        [$dates, $highesindex] = dates::get_list_of_submitted_dates((array)$formdata);
+        [$dates, $highestindex] = dates::get_list_of_submitted_dates((array)$formdata);
 
         foreach ($dates as $date) {
             $newoption->{'coursestarttime_' . $date['index']} = $date['coursestarttime'];
@@ -149,7 +149,7 @@ class optiondates extends field_base {
 
         // Run through all dates to make sure we don't have an array.
         // We need to transform dates to timestamps.
-        [$dates, $highesindex] = dates::get_list_of_submitted_dates($data);
+        [$dates, $highestindex] = dates::get_list_of_submitted_dates($data);
 
         $problems = array_filter($dates, fn($a) => $a['coursestarttime'] > $a['courseendtime']);
 

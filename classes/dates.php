@@ -439,7 +439,7 @@ class dates {
 
         $counter = 1;
         $dates = [];
-        $highesindex = 1;
+        $highestindex = 1;
 
         if (!$optiondates = preg_grep('/^optiondateid_/', array_keys($formvalues))) {
             // For performance.
@@ -457,7 +457,7 @@ class dates {
                     'entityarea' => 0,
                     'customfields' => [],
                 ];
-                $highesindex = 0;
+                $highestindex = 0;
             } else {
                 return [[], 0];
             }
@@ -521,13 +521,13 @@ class dates {
                     'entityarea' => $entityarea,
                     'customfields' => $cffields,
                 ];
-                $highesindex = $highesindex < $counter ? $counter : $highesindex;
+                $highestindex = $highestindex < $counter ? $counter : $highestindex;
             }
         }
 
         usort($dates, fn($a, $b) => $a['coursestarttime'] < $b['coursestarttime'] ? -1 : 1);
 
-        return [array_values($dates), $highesindex];
+        return [array_values($dates), $highestindex];
     }
 
     /**
@@ -540,7 +540,7 @@ class dates {
     public static function save_optiondates_from_form(stdClass $formdata, stdClass &$option): array {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
-        [$newoptiondates, $highesindex] = self::get_list_of_submitted_dates((array)$formdata);
+        [$newoptiondates, $highestindex] = self::get_list_of_submitted_dates((array)$formdata);
         $olddates = $settings->sessions;
         // For the moment we don't save entities in old (to be deleted) dates since it's not considered as an important information.
         $memory = $olddates;

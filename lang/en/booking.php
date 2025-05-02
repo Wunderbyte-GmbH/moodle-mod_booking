@@ -2131,6 +2131,7 @@ $string['ruleoptionfieldbookingopeningtime'] = 'Start of allowed booking period 
 $string['ruleoptionfieldcourseendtime'] = 'End (courseendtime)';
 $string['ruleoptionfieldcoursestarttime'] = 'Begin (coursestarttime)';
 $string['ruleoptionfieldlocation'] = 'Location (location)';
+$string['ruleoptionfieldoptiondatestarttime'] = 'Start of every session (date)';
 $string['ruleoptionfieldselflearningcourseenddate'] = 'End date of self-learning course';
 $string['ruleoptionfieldtext'] = 'Name of the booking option (text)';
 $string['rulereactonchangeevent_desc'] = 'For the "Booking option updated" event, you can specify options here: <a href="{$a}">Booking Plugin Settings</a>.';

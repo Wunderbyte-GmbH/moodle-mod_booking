@@ -16,10 +16,7 @@
 
 namespace mod_booking\booking_rules\conditions;
 
-use mod_booking\booking_rules\booking_rule;
 use mod_booking\booking_rules\booking_rule_condition;
-use mod_booking\singleton_service;
-use mod_booking\task\send_mail_by_rule_adhoc;
 use MoodleQuickForm;
 use stdClass;
 
@@ -36,7 +33,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class select_teacher_in_bo implements booking_rule_condition {
-
     /** @var string $rulename */
     public $conditionname = 'select_teacher_in_bo';
 
@@ -80,9 +76,12 @@ class select_teacher_in_bo implements booking_rule_condition {
      * @return void
      */
     public function add_condition_to_mform(MoodleQuickForm &$mform, ?array &$ajaxformdata = null) {
-        $mform->addElement('static', 'condition_select_teacher_in_bo', '',
-                get_string('conditionselectteacherinbo_desc', 'mod_booking'));
-
+        $mform->addElement(
+            'static',
+            'condition_select_teacher_in_bo',
+            '',
+            get_string('conditionselectteacherinbo_desc', 'mod_booking')
+        );
     }
 
     /**
@@ -99,7 +98,7 @@ class select_teacher_in_bo implements booking_rule_condition {
      * Save the JSON for all sendmail_daysbefore rules defined in form.
      * @param stdClass $data form data reference
      */
-    public function save_condition(stdClass &$data) {
+    public function save_condition(stdClass &$data): void {
         global $DB;
 
         if (!isset($data->rulejson)) {
@@ -128,9 +127,8 @@ class select_teacher_in_bo implements booking_rule_condition {
      * We receive an array of stdclasses with the keys optinid & cmid.
      * @param stdClass $sql
      * @param array $params
-     * @return array
      */
-    public function execute(stdClass &$sql, array &$params) {
+    public function execute(stdClass &$sql, array &$params): void {
 
         global $DB;
 
@@ -143,7 +141,13 @@ class select_teacher_in_bo implements booking_rule_condition {
             $anduserid = "AND bt.userid = :userid2";
         }
 
-        $concat = $DB->sql_concat("bo.id", "'-'", "bt.userid");
+        // If the select contains optiondate, we also need to include it in uniqueid.
+        if (strpos($sql->select, 'optiondate') !== false) {
+            $concat = $DB->sql_concat("bo.id", "'-'", "bod.id", "'-'", "bt.userid");
+        } else {
+            $concat = $DB->sql_concat("bo.id", "'-'", "bt.userid");
+        }
+
         // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
         $sql->select = " $concat uniqueid, " . $sql->select;
         $sql->select .= ", bt.userid userid ";

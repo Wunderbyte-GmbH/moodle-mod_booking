@@ -41,7 +41,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 interface booking_rule_condition {
-
     /**
      * Function to tell if a condition can be combined with a certain booking rule type.
      * @param string $bookingruletype e.g. "rule_daysbefore" or "rule_react_on_event"
@@ -67,9 +66,8 @@ interface booking_rule_condition {
     /**
      * Gets the JSON for the rule condition to be stored in DB.
      * @param stdClass $data form data reference
-     * @return string the json for the rule condition
      */
-    public function save_condition(stdClass &$data);
+    public function save_condition(stdClass &$data): void;
 
     /**
      * Sets the rule condition defaults when loading the form.
@@ -94,8 +92,6 @@ interface booking_rule_condition {
      * Execute the rule condition.
      * @param stdClass $sql
      * @param array $params
-     * @return array
      */
-    public function execute(stdClass &$sql, array &$params);
-
+    public function execute(stdClass &$sql, array &$params): void;
 }
