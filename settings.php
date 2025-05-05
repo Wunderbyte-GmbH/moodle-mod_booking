@@ -615,6 +615,15 @@ if ($ADMIN->fulltree) {
         )
     );
 
+    $settings->add(
+        new admin_setting_configcheckbox(
+            'booking/usecompetencies',
+            get_string('usecompetencies', 'mod_booking'),
+            get_string('usecompetencies_desc', 'mod_booking'),
+            0
+        )
+    );
+
     if ($proversion) {
         // PRO feature: "What's new" tab.
         $settings->add(
