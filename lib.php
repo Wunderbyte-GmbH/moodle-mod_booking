@@ -1870,9 +1870,6 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
             $completionold = $userdata->completed;
             $userdata->completed = '1';
             $userdata->timemodified = time();
-            if (class_exists('tool_certificate\certificate') && get_config('booking', 'certificateon')) {
-                $certid = certificate::issue_certificate($optionid, $selecteduser);
-            }
 
             if (get_config('booking', 'usecompetencies')) {
                 $usercompetecies = competencies::assign_competencies($cmid, $optionid, $selecteduser);
