@@ -40,7 +40,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 interface booking_rule {
-
     /**
      * Adds the form elements for this rule to the provided mform.
      * @param MoodleQuickForm $mform the mform where the rule should be added

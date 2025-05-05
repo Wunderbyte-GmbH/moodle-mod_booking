@@ -235,9 +235,7 @@ class rules_info {
 
         if ($data->id < 0) {
             // We get the value from the predefined templates.
-
             $record = templaterule::get_template_record_by_id($data->id);
-
         } else {
             // If we have an ID, we retrieve the right rule from DB.
             $record = $DB->get_record('booking_rules', ['id' => $data->id]);
@@ -405,7 +403,7 @@ class rules_info {
         $records = booking_rules::get_list_of_saved_rules_by_context($contextid, $eventname);
 
         // There are cases where an event is triggered twice in a very narrow timespan.
-        $data['timecreated'] = strtotime(date('Y-m-d H:00:00',  ($data['timecreated'] ?? time()) + 3600));
+        $data['timecreated'] = strtotime(date('Y-m-d H:00:00', ($data['timecreated'] ?? time()) + 3600));
 
         // Now we check all the existing rules from booking.
         foreach ($records as $record) {

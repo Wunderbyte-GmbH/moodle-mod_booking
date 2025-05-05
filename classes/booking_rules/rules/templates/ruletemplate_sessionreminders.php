@@ -16,13 +16,6 @@
 
 namespace mod_booking\booking_rules\rules\templates;
 
-use context;
-use mod_booking\booking_rules\actions_info;
-use mod_booking\booking_rules\conditions_info;
-use mod_booking\singleton_service;
-use MoodleQuickForm;
-use stdClass;
-
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/mod/booking/lib.php');
@@ -31,16 +24,16 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * Rule do something a specified number of days before a chosen date.
  *
  * @package mod_booking
- * @copyright 2022 Wunderbyte GmbH <info@wunderbyte.at>
- * @author Georg Maißer
+ * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Bernhard Fischer-Sengseis
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class ruletemplate_userstorno {
+class ruletemplate_sessionreminders {
     /** @var int $templateid */
-    public static $templateid = 5;
+    public static $templateid = 13;
 
     /** @var int $eventtype */
-    public static $eventtype = 'rule_react_on_event';
+    public static $eventtype = 'rule_daysbefore';
 
     /**
      * Returns the localized name of this template
@@ -49,7 +42,7 @@ class ruletemplate_userstorno {
      *
      */
     public static function get_name() {
-        return get_string('ruletemplateuserstorno', 'booking');
+        return get_string('ruletemplatesessionreminders', 'booking');
     }
 
     /**
@@ -61,23 +54,21 @@ class ruletemplate_userstorno {
     public static function return_template() {
 
         $rulejson = (object)[
-            "conditionname" => "select_user_from_event",
+            "conditionname" => "select_student_in_bo",
             "conditiondata" => [
-                "userfromeventtype" => "relateduserid",
+                "borole" => "0",
             ],
             "name" => self::get_name(),
             "actionname" => "send_mail",
             "actiondata" => [
-                "subject" => get_string('ruletemplateuserstornosubject', 'booking'),
-                "template" => get_string('ruletemplateuserstornobody', 'booking'),
+                "subject" => get_string('ruletemplatesessionreminderssubject', 'booking'),
+                "template" => get_string('ruletemplatesessionremindersbody', 'booking'),
                 "templateformat" => "1",
             ],
-            "rulename" => "rule_react_on_event",
+            "rulename" => "rule_daysbefore",
             "ruledata" => [
-                "boevent" => "\\mod_booking\\event\bookinganswer_cancelled",
-                "condition" => "0",
-                "aftercompletion" => 0,
-                "cancelrules" => [],
+                "days" => "1",
+                "datefield" => "optiondatestarttime",
             ],
         ];
 
@@ -85,7 +76,6 @@ class ruletemplate_userstorno {
             'id' => self::$templateid,
             'rulename' => self::$eventtype,
             'rulejson' => json_encode($rulejson),
-            'eventname' => "\\mod_booking\\event\bookinganswer_cancelled",
             'contextid' => 1,
             'useastemplate' => 0,
         ];
