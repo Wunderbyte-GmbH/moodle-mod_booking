@@ -30,7 +30,7 @@ use advanced_testcase;
 use coding_exception;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
-use tool_certificate\template;
+use tool_certificate\template as CertTemplate;
 
 
 defined('MOODLE_INTERNAL') || die();
@@ -59,12 +59,7 @@ final class certificate_test extends advanced_testcase {
     /**
      * Test booking, cancelation, option has started etc.
      *
-     * @covers \condition\bookitbutton::is_available
-     * @covers \condition\alreadybooked::is_available
-     * @covers \condition\fullybooked::is_available
-     * @covers \condition\confirmation::render_page
-     * @covers \condition\notifymelist::is_available
-     * @covers \condition\isloggedin::is_available
+     * @covers \booking_bookit
      *
      * @param array $data
      * @param array $expected
@@ -75,6 +70,11 @@ final class certificate_test extends advanced_testcase {
      */
     public function test_certificate(array $data, array $expected): void {
         global $DB, $CFG;
+
+        if (!class_exists('tool_certificate\certificate')) {
+            return;
+        }
+
         $standarddata = self::provide_standard_data();
 
         $certificatedata = (object) [
@@ -88,7 +88,10 @@ final class certificate_test extends advanced_testcase {
             'contextid' => 1,
 
         ];
-        $t = template::create($certificatedata);
+
+        $this->setAdminUser();
+
+        $t = CertTemplate::create($certificatedata);
         $tid = $t->get_id();
         // Coursesettings.
         $courses = [];
@@ -116,8 +119,6 @@ final class certificate_test extends advanced_testcase {
         $bdata['course'] = $course->id;
         $bdata['bookingmanager'] = $users["bookingmanager"]->username;
         $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
-
-        $this->setAdminUser();
 
         // We enrol all users, this can be adapted if needed.
         foreach ($users as $user) {
