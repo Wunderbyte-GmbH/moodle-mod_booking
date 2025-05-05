@@ -1113,15 +1113,18 @@ class mod_booking_mod_form extends moodleform_mod {
             $options = [
                 '' => get_string('choosedots'),
             ];
-            foreach ($records as $record) {
+            foreach ($records as $id => $record) {
+                if (isset($record->data)) {
+                    $record = $record->data;
+                }
                 if (
-                    empty($record)
-                    || in_array($record->data, $options)
+                    (empty($record) && $record !== "0")
+                    || in_array($record, $options)
                 ) {
                     continue;
                 }
 
-                $options[$record->id] = format_string($record->data);
+                $options[$id] = format_string($record);
             }
 
             $mform->addElement(
