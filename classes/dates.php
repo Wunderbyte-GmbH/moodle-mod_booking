@@ -729,14 +729,14 @@ class dates {
             // If we have no session reminders in Booking Rules, we show a hint how to create them.
             $linktobookingrules = new moodle_url('/mod/booking/edit_rules.php');
             if (self::session_reminder_rule_exists($formdata["cmid"] ?? 0)) {
-                $ruleexistsstatic = $mform->addElement(
+                $element = $mform->addElement(
                     'static',
                     'sessionremindersruleexists',
                     '',
                     '<i class="fa fa-tasks" aria-hidden="true"></i>&nbsp;' .
                     get_string('sessionremindersruleexists', 'mod_booking')
                 );
-                $elements[] = $ruleexistsstatic;
+                $elements[] = $element;
 
                 // The days to notify from the rule can be overriden by each date.
                 // If the value is 0, we use the number of days from the rule.
@@ -744,7 +744,7 @@ class dates {
                 $numberofdaysarray[0] = get_string('daystonotifysessionrulenooverride', 'mod_booking');
                 ksort($numberofdaysarray); // We want to have 0 (no override) at the top.
 
-                $daysselect = $mform->addElement(
+                $element = $mform->addElement(
                     'select',
                     MOD_BOOKING_FORM_DAYSTONOTIFY . $idx,
                     get_string('daystonotifysessionruleoverride', 'mod_booking'),
@@ -753,7 +753,7 @@ class dates {
                 $mform->setType(MOD_BOOKING_FORM_DAYSTONOTIFY . $idx, PARAM_INT);
                 $element->setValue($date['daystonotify']);
                 $mform->addHelpButton(MOD_BOOKING_FORM_DAYSTONOTIFY . $idx, 'daystonotifysessionruleoverride', 'mod_booking');
-                $elements[] = $daysselect;
+                $elements[] = $element;
             } else {
                 $element = $mform->addElement(
                     'static',
