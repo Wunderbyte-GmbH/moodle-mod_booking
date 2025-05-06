@@ -295,6 +295,9 @@ class booking_option_settings {
     /** @var array $attachedfiles The links on the attached files */
     public $attachedfiles = [];
 
+    /** @var string $competencies The links on the attached files */
+    public $competencies = '';
+
     /**
      * Constructor for the booking option settings class.
      * The constructor can take the dbrecord stdclass which is the initial DB request for this option.
@@ -440,6 +443,7 @@ class booking_option_settings {
             $this->status = $dbrecord->status;
             $this->responsiblecontact = $dbrecord->responsiblecontact;
             $this->sqlfilter = $dbrecord->sqlfilter;
+            $this->competencies = $dbrecord->competencies;
 
             // If we have a responsible contact id, we load the corresponding user object.
             if (!isset($dbrecord->responsiblecontactuser)) {

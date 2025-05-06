@@ -762,7 +762,8 @@ $string['collapsedescriptionoff'] = 'Beschreibungen nicht einklappen';
 $string['collapseshowsettings'] = "Klappe Terminanzeige bei mehr als x Terminen zu.";
 $string['collapseshowsettings_desc'] = "Um auf der Überblicksseite nicht zu viele Termine auf einmal anzuzeigen, kann hier ein Limit definiert werden, ab dem die Anzeige standardmäßig eingeklappt ist.";
 $string['comments'] = 'Kommentare';
-$string['competenciesheader'] = '<i class="fa fa-line-chart" aria-hidden="true"></i>&nbsp;Kompetenzen';
+$string['competencies'] = 'Kompetenzen';
+$string['competenciesheader'] = ' <i class="fa fa-line-chart" aria-hidden="true"></i>&nbsp;Kompetenzen';
 $string['competencychoose'] = 'Wählen Sie Kompetenzen dieser Buchungsoption';
 $string['competencynonefound'] = 'Bisher keine Kompetenzen angelegt';
 $string['completed'] = 'Abgeschlossen';
@@ -836,7 +837,7 @@ $string['courses'] = 'Kurse';
 $string['coursesheader'] = 'Moodle-Kurs';
 $string['coursestart'] = 'Starten';
 $string['coursestarttime'] = 'Kursbeginn';
-$string['createcompetencylink'] = '<a href="{{$a}}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+$string['createcompetencylink'] = '<a href="{{$a}}" class="btn btn-outline-secondary" target="_blank" rel="noopener noreferrer">
 Neue Kompetenz erstellen (in Kompetenzrahmen) </a>';
 $string['createdbywunderbyte'] = 'Dieses Buchungsmodul wurde von der Wunderbyte GmbH entwickelt';
 $string['createical'] = 'Termin(e) erstellen';

@@ -26,6 +26,7 @@ namespace mod_booking\option\fields;
 
 use core_competency\competency;
 use core_competency\competency_framework;
+use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use moodle_url;
@@ -100,7 +101,18 @@ class competencies extends field_base {
         int $updateparam,
         $returnvalue = null
     ): array {
-        return [];
+        $changes = [];
+        $instance = new competencies();
+        $key = fields_info::get_class_name(static::class);
+        $value = $formdata->{$key} ?? null;
+
+        if (!empty($value)) {
+            $stringvalue = implode(',', $value);
+            $newoption->$key = $stringvalue;
+            $formdata->$key = $stringvalue;
+        }
+        $changes = $instance->check_for_changes($formdata, $instance);
+        return $changes;
     }
 
     /**
@@ -141,7 +153,7 @@ class competencies extends field_base {
         } else {
             $mform->addElement(
                 'autocomplete',
-                'competency',
+                'competencies',
                 get_string('competencychoose', 'mod_booking'),
                 $competencies,
                 ['multiple' => true]
@@ -186,6 +198,28 @@ class competencies extends field_base {
         }
 
         return $flat;
+    }
+
+    /**
+     * Standard function to transfer stored value to form.
+     * @param stdClass $data
+     * @param booking_option_settings $settings
+     * @return void
+     */
+    public static function set_data(stdClass &$data, booking_option_settings $settings) {
+
+        $key = fields_info::get_class_name(static::class);
+        // Normally, we don't call set data after the first time loading.
+        if (isset($data->{$key})) {
+            return;
+        }
+
+        $value = $settings->{$key};
+        if (!empty($value)) {
+            $value = explode(',', $value);
+        }
+
+        $data->{$key} = $value;
     }
 
     /**

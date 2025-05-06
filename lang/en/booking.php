@@ -773,7 +773,8 @@ $string['collapsedescriptionoff'] = 'Do not collapse descriptions';
 $string['collapseshowsettings'] = "Collapse 'show dates' with more than x dates.";
 $string['collapseshowsettings_desc'] = "To avoid a messy view with too many dates, a lower limit for collapsed dates can be defined here.";
 $string['comments'] = 'Comments';
-$string['competenciesheader'] = '<i class="fa fa-line-chart" aria-hidden="true"></i>&nbsp;Competencies';
+$string['competencies'] = 'Competencies';
+$string['competenciesheader'] = ' <i class="fa fa-line-chart" aria-hidden="true"></i>&nbsp;Competencies';
 $string['competencychoose'] = 'Choose competencies of this booking option';
 $string['competencynonefound'] = 'No competencies defined yet';
 $string['completed'] = 'Completed';
@@ -855,7 +856,7 @@ $string['coursesheader'] = 'Moodle course';
 $string['coursestart'] = 'Start';
 $string['coursestarttime'] = 'Start time of the course';
 $string['courseurl'] = 'Course URL';
-$string['createcompetencylink'] = '<a href="{{$a}}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+$string['createcompetencylink'] = '<a href="{{$a}}" class="btn btn-outline-secondary" target="_blank" rel="noopener noreferrer">
 Create new competency (in framework) </a>';
 $string['createdbywunderbyte'] = 'Booking module created by Wunderbyte GmbH';
 $string['createical'] = 'Create calendar event(s)';
