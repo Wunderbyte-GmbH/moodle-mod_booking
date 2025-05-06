@@ -75,6 +75,10 @@ final class certificate_test extends advanced_testcase {
             return;
         }
 
+        // Set params requred for certificate issue.
+        set_config('certificateon', 1, 'booking');
+        set_config('presencestatustoissuecertificate', 1, 'booking');
+
         $standarddata = self::provide_standard_data();
 
         $certificatedata = (object) [
