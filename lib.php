@@ -83,7 +83,7 @@ define('MOD_BOOKING_MSGPARAM_CHANGE_NOTIFICATION', 8);
 define('MOD_BOOKING_MSGPARAM_POLLURL_PARTICIPANT', 9);
 define('MOD_BOOKING_MSGPARAM_POLLURL_TEACHER', 10);
 define('MOD_BOOKING_MSGPARAM_COMPLETED', 11);
-define('MOD_BOOKING_MSGPARAM_SESSIONREMINDER', 12);
+define('MOD_BOOKING_MSGPARAM_SESSIONREMINDER', 12); // Note: Only kept for legacy. Replaced by Booking Rule.
 define('MOD_BOOKING_MSGPARAM_REPORTREMINDER', 13); // Reminder sent from report.php.
 define('MOD_BOOKING_MSGPARAM_CUSTOM_MESSAGE', 14);
 
@@ -413,13 +413,13 @@ function booking_get_coursemodule_info($cm) {
  * @param array $args extra arguments
  * @param bool $forcedownload whether or not force download
  * @param array $options additional options affecting the file serving
- * @return bool false if file not found, does not return if found - justsend the file
+ * @return ?bool false if file not found, does not return if found - justsend the file
  *
  * @throws coding_exception
  * @throws moodle_exception
  * @throws require_login_exception
  */
-function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = []) {
+function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = []): ?bool {
 
     // Check the contextlevel is as expected - if your plugin is a block.
     // We need context course if wee like to acces template files.
@@ -588,10 +588,8 @@ function booking_comment_permissions($commentparam): array {
     switch ($bdata->comments) {
         case 0:
             return ['post' => false, 'view' => false];
-            break;
         case 1:
             return ['post' => true, 'view' => true];
-            break;
         case 2:
             $udata = $DB->get_record(
                 'booking_answers',
@@ -602,7 +600,6 @@ function booking_comment_permissions($commentparam): array {
             } else {
                 return ['post' => false, 'view' => true];
             }
-            break;
         case 3:
             $udata = $DB->get_record(
                 'booking_answers',
@@ -613,7 +610,6 @@ function booking_comment_permissions($commentparam): array {
             } else {
                 return ['post' => false, 'view' => true];
             }
-            break;
     }
     return [];
 }
@@ -690,9 +686,7 @@ function booking_add_instance($booking) {
         $booking->categoryid = null;
     }
 
-    if (isset($booking->templateid) && $booking->templateid > 0) {
-        $booking->templateid = $booking->templateid;
-    } else {
+    if (empty($booking->templateid)) {
         $booking->templateid = 0;
     }
 
@@ -935,9 +929,7 @@ function booking_update_instance($booking) {
         $booking->signinsheetfields = implode(',', $booking->signinsheetfields);
     }
 
-    if (isset($booking->templateid) && $booking->templateid > 0) {
-        $booking->templateid = $booking->templateid;
-    } else {
+    if (empty($booking->templateid)) {
         $booking->templateid = 0;
     }
 
@@ -1695,7 +1687,7 @@ function booking_check_if_teacher($optionoroptionid = null, int $userid = 0) {
  * This inverts the completion status of the selected users.
  *
  * @param array $selectedusers
- * @param unknown $booking
+ * @param mixed $booking
  * @param int $cmid
  * @param int $optionid
  */
@@ -1709,7 +1701,7 @@ function booking_activitycompletion_teachers($selectedusers, $booking, $cmid, $o
     foreach ($selectedusers as $uid) {
         foreach ($uid as $ui) {
             // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
-            // TODO: Optimization of db query: instead of loop, one get_records query.
+            // Todo: Optimization of db query: instead of loop, one get_records query.
             $userdata = $DB->get_record(
                 'booking_teachers',
                 ['optionid' => $optionid, 'userid' => $ui]
@@ -1747,7 +1739,7 @@ function booking_activitycompletion_teachers($selectedusers, $booking, $cmid, $o
 /**
  * Generate new numbers for users
  *
- * @param unknown $bookingdatabooking
+ * @param mixed $bookingdatabooking
  * @param int $cmid
  * @param int $optionid
  * @param array $allselectedusers
@@ -2328,7 +2320,7 @@ function booking_delete_instance($id) {
 
     $result = true;
 
-    $alloptionids = \mod_booking\booking::get_all_optionids($id);
+    $alloptionids = booking::get_all_optionids($id);
     foreach ($alloptionids as $optionid) {
         $bookingoption = singleton_service::get_instance_of_booking_option($cm->id, $optionid);
         $bookingoption->delete_booking_option();
@@ -2587,6 +2579,7 @@ function get_list_of_booking_events() {
     $eventinformation = [];
     $events = core_component::get_component_classes_in_namespace('mod_booking', 'event');
     foreach (array_keys($events) as $event) {
+        $event = (string) $event; // Just for linting.
         // We need to filter all classes that extend event base, or the base class itself.
         if (is_a($event, \core\event\base::class, true)) {
             $parts = explode('\\', $event);
