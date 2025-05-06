@@ -674,18 +674,16 @@ class booking_option_settings {
         // Multi-sessions.
         if (
             !$this->sessions = $DB->get_records_sql(
-                "SELECT id, id optiondateid, coursestarttime, courseendtime, daystonotify
-            FROM {booking_optiondates}
-            WHERE optionid = ?
-            ORDER BY coursestarttime ASC",
+                "SELECT * FROM {booking_optiondates}
+                WHERE optionid = ?
+                ORDER BY coursestarttime ASC",
                 [$optionid]
             )
         ) {
             // If there are no multisessions, but we still have the option's ...
             // ... coursestarttime and courseendtime, then store them as if they were a session.
             if (!empty($this->coursestarttime) && !empty($this->courseendtime)) {
-                $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($this->bookingid);
-
+                // NOTE: This part is legacy code. We need to check if we can safely remove it.
                 $singlesession = new stdClass();
                 $singlesession->id = 0;
                 $singlesession->coursestarttime = $this->coursestarttime;

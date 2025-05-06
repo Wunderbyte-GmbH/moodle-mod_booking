@@ -124,6 +124,17 @@ class rulesform extends dynamic_form {
             case 'rule_daysbefore':
                 if ($data['rule_daysbefore_datefield'] == '0') {
                     $errors['rule_daysbefore_datefield'] = get_string('error:choosevalue', 'mod_booking');
+                } else if (
+                    get_config('booking', 'uselegacymailtemplates')
+                    && $data['rule_daysbefore_datefield'] == 'optiondatestarttime'
+                ) {
+                    $linktosetting = new moodle_url(
+                        '/admin/settings.php',
+                        ['section' => 'modsettingbooking'],
+                        'admin-uselegacymailtemplates'
+                    );
+                    $errors['rule_daysbefore_datefield'] =
+                        get_string('error:deactivatelegacymailtemplates', 'mod_booking', $linktosetting);
                 }
                 break;
             case 'rule_react_on_event':

@@ -1995,4 +1995,27 @@ class booking {
             MOD_BOOKING_STATUSPARAM_COMPLETION_CHANGED => get_string('completionchanged', 'mod_booking'),
         ];
     }
+
+    /**
+     * Helper function to get an array of days before and after for a select.
+     * @param int $start if you want to start with 30 days before, set this to -30
+     * @param int $end number of days after
+     * @return array of days before and after
+     */
+    public static function get_array_of_days_before_and_after(int $start, int $end): array {
+        $numberofdaysbefore = [];
+        for ($i = $start; $i <= $end; $i++) {
+            if (($i >= -10 && $i <= 10) || ($i % 5 == 0)) {
+                if ($i < 0) {
+                    $int = $i * -1;
+                    $numberofdaysbefore[$i] = get_string('daysafter', 'mod_booking', $int);
+                } else if ($i > 0) {
+                    $numberofdaysbefore[$i] = get_string('daysbefore', 'mod_booking', $i);
+                } else if ($i == 0) {
+                    $numberofdaysbefore[$i] = get_string('sameday', 'mod_booking', $i);
+                }
+            }
+        }
+        return $numberofdaysbefore;
+    }
 }

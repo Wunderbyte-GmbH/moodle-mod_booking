@@ -18,6 +18,7 @@ namespace mod_booking\booking_rules\rules;
 
 use context;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\booking;
 use mod_booking\booking_rules\actions_info;
 use mod_booking\booking_rules\booking_rule;
 use mod_booking\booking_rules\conditions_info;
@@ -100,13 +101,6 @@ class rule_daysbefore implements booking_rule {
     public function add_rule_to_mform(MoodleQuickForm &$mform, array &$repeateloptions, array $ajaxformdata = []) {
         global $DB;
 
-        $numberofdaysbefore = [];
-        for ($i = -30; $i <= 30; $i++) {
-            if (($i >= -10 && $i <= 10) || ($i % 5 == 0)) {
-                $this->fill_days_select($numberofdaysbefore, $i);
-            }
-        }
-
         // Get a list of allowed option fields (only date fields allowed).
         $datefields = [
             '0' => get_string('choose...', 'mod_booking'),
@@ -136,7 +130,7 @@ class rule_daysbefore implements booking_rule {
             'select',
             'rule_daysbefore_days',
             get_string('ruledays', 'mod_booking'),
-            $numberofdaysbefore
+            booking::get_array_of_days_before_and_after(-30, 30)
         );
         $mform->setDefault('rule_daysbefore_days', 0);
         $repeateloptions['rule_daysbefore_days']['type'] = PARAM_TEXT;
@@ -151,25 +145,6 @@ class rule_daysbefore implements booking_rule {
         $repeateloptions['rule_daysbefore_datefield']['type'] = PARAM_TEXT;
     }
 
-    /**
-     * Fill array of select with right keys and values.
-     *
-     * @param array $selectarray
-     * @param int $value
-     *
-     * @return void
-     *
-     */
-    private function fill_days_select(array &$selectarray, int $value) {
-        if ($value < 0) {
-            $int = $value * -1;
-            $selectarray[$value] = get_string('daysafter', 'mod_booking', $int);
-        } else if ($value > 0) {
-            $selectarray[$value] = get_string('daysbefore', 'mod_booking', $value);
-        } else if ($value == 0) {
-            $selectarray[$value] = get_string('sameday', 'mod_booking', $value);
-        }
-    }
     /**
      * Get the name of the rule.
      * @param bool $localized

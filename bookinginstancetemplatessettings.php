@@ -30,10 +30,10 @@ require_once($CFG->libdir . '/adminlib.php');
 $id = required_param('id', PARAM_INT); // Course module id.
 $templateid = optional_param('templateid', 0, PARAM_INT);
 $action = optional_param('action', 0, PARAM_ALPHANUM);
-list($course, $cm) = get_course_and_cm_from_cmid($id);
+[$course, $cm] = get_course_and_cm_from_cmid($id);
 // No guest autologin.
 require_course_login($course, false);
-$pageurl = new moodle_url('/mod/booking/bookinginstancetemplatessettings.php',  ['id' => $id, 'templateid' => $templateid]);
+$pageurl = new moodle_url('/mod/booking/bookinginstancetemplatessettings.php', ['id' => $id, 'templateid' => $templateid]);
 
 if (($action === 'delete') && ($templateid > 0)) {
     $DB->delete_records('booking_instancetemplate', ['id' => $templateid]);
@@ -47,7 +47,8 @@ $table->define_baseurl($pageurl);
 
 $PAGE->set_url($pageurl);
 $PAGE->set_title(
-        format_string($SITE->shortname) . ': ' . get_string('bookinginstancetemplatessettings', 'mod_booking'));
+    format_string($SITE->shortname) . ': ' . get_string('bookinginstancetemplatessettings', 'mod_booking')
+);
 $PAGE->navbar->add(get_string('bookinginstancetemplatessettings', 'mod_booking'), $pageurl);
 
 echo $OUTPUT->header();

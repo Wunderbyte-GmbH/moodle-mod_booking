@@ -951,6 +951,9 @@ $string['daystonotify_help'] = "Funktioniert nur, wenn ein Beginn- und Enddatum 
 $string['daystonotifysession'] = 'Benachrichtigung n Tage vor Beginn';
 $string['daystonotifysession_help'] = "Wie viele Tage vor Beginn dieser Session soll an die Teilnehmenden eine Benachrichtigung gesendet werden?
 Geben Sie 0 ein, um die E-Mail-Benachrichtigung für diese Session zu deaktivieren.";
+$string['daystonotifysessionrulenooverride'] = 'Anzahl Tage nicht überschreiben (Regel normal anwenden)';
+$string['daystonotifysessionruleoverride'] = 'Anzahl Tage vor Beginn';
+$string['daystonotifysessionruleoverride_help'] = 'Hier können Sie die Anzahl der Tage aus der (oder den) Buchungsregel(n) für diesen einen Termin überschreiben.';
 $string['daystonotifyteachers'] = 'Wie viele Tage vor Kursbeginn soll an die Trainer:innen eine Benachrichtigung gesendet werden?';
 $string['deduction'] = 'Abzug';
 $string['deductionnotpossible'] = 'Da alle Trainer:innen bei diesem Termin anwesend waren kann kein Abzug eingetragen werden.';
@@ -1149,7 +1152,8 @@ $string['error:chooseint'] = 'Sie müssen hier eine ganze Zahl eingeben';
 $string['error:choosevalue'] = 'Sie müssen hier einen Wert auswählen.';
 $string['error:confirmthatyouaresure'] = 'Bitte bestätigen Sie, dass Sie wissen, was Sie tun.';
 $string['error:coursecategoryvaluemissing'] = 'Sie müssen hier einen Wert auswählen, da dieser als Kurskategorie für den
- automatisch erstellten Moodle-Kurs benötigt wird.';
+automatisch erstellten Moodle-Kurs benötigt wird.';
+$string['error:deactivatelegacymailtemplates'] = 'Um diese Funktion zu verwenden, müssen Sie die <a href="{$a}" target="_blank">alten E-Mail-Vorlagen deaktivieren</a>.';
 $string['error:entervalue'] = 'Sie müssen hier einen Wert eingeben.';
 $string['error:failedtosendconfirmation'] = 'Folgender User hat kein Bestätigungsmail erhalten
 Die Buchung wurde erfolgreich durchgeführt, das Senden des Bestätigungsmails ist aber fehlgeschlagen.
@@ -2229,6 +2233,8 @@ $string['sessionremindermailmessage'] = '<p>Erinnerung: Sie haben den folgenden 
 <p>Teilnehmer: {$a->participant}</p>
 ';
 $string['sessionremindermailsubject'] = 'Erinnerung: Sie haben demnächst einen Kurstermin';
+$string['sessionremindershint'] = 'Benachrichtigungen für Termine mit <a href="{$a}" target="_blank">Buchungsregeln</a> einrichten';
+$string['sessionremindersruleexists'] = 'Es gibt mindestens eine Buchungsregel, die für diesen Termin angewendet wird.';
 $string['sessions'] = 'Termin(e)';
 $string['shoppingcart'] = 'Zahlungsoptionen mit Shopping Cart Plugin definieren';
 $string['shoppingcartplaceholder'] = 'Warenkorb';

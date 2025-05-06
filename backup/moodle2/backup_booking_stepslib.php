@@ -96,7 +96,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $optiondate = new backup_nested_element(
             'optiondate',
             ['id'],
-            ['bookingid', 'optionid', 'eventid', 'coursestarttime', 'courseendtime', 'daystonotify', 'sent']
+            ['bookingid', 'optionid', 'eventid', 'coursestarttime', 'courseendtime', 'daystonotify', 'sent', 'reason', 'reviewed']
         );
 
         $optiondatesteachers = new backup_nested_element('optiondates_teachers');

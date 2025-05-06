@@ -958,6 +958,9 @@ $string['daystonotify_help'] = "Will work only if start and end date of option a
 $string['daystonotifysession'] = 'Notification n days before start';
 $string['daystonotifysession_help'] = "Number of days in advance of the session start to notify participants.
 Enter 0 to deactivate the e-mail notification for this session.";
+$string['daystonotifysessionrulenooverride'] = 'Do not override number of days (use rule normally)';
+$string['daystonotifysessionruleoverride'] = 'Number of days before start';
+$string['daystonotifysessionruleoverride_help'] = 'Here you can override the number of days for the execution of the booking rule(s) for this date.';
 $string['daystonotifyteachers'] = 'Number of days in advance of the event-start to notify teachers';
 $string['deduction'] = 'Deduction';
 $string['deductionnotpossible'] = 'All teachers were present at this date. So no deduction can be logged.';
@@ -1165,7 +1168,8 @@ $string['error:chooseint'] = 'You have to enter a number here.';
 $string['error:choosevalue'] = 'You have to choose a value here.';
 $string['error:confirmthatyouaresure'] = 'Please confirm that you are sure.';
 $string['error:coursecategoryvaluemissing'] = 'You need to choose a value here as it is needed as course category
- for the automatically created Moodle course.';
+for the automatically created Moodle course.';
+$string['error:deactivatelegacymailtemplates'] = 'If you want to use this rule you first have to <a href="{$a}" target="_blank">deactivate legacy mail templates</a>.';
 $string['error:entervalue'] = 'You have to enter a value here.';
 $string['error:failedtosendconfirmation'] = 'The following user did not receive a confirmation mail
 Booking status: {$a->status}
@@ -2291,6 +2295,8 @@ $string['sessionremindermailmessage'] = '<p>Keep in mind: You are booked for the
 <p>Participant: {$a->participant}</p>
 ';
 $string['sessionremindermailsubject'] = 'Reminder: You have an upcoming session';
+$string['sessionremindershint'] = 'Set up reminders for dates with <a href="{$a}" target="_blank">Booking Rules</a>';
+$string['sessionremindersruleexists'] = 'There is at least one Booking Rule which is used with this date.';
 $string['sessions'] = 'Session(s)';
 $string['shoppingcart'] = 'Set payment options with shopping cart plugin';
 $string['shoppingcartplaceholder'] = 'Shoppingcart';
