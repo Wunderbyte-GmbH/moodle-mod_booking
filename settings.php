@@ -2021,8 +2021,55 @@ if ($ADMIN->fulltree) {
                 ''
             )
         );
-        // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
-        // Globalactivitycompletiontext is currently not implemented because activitycompletiontext isn't either.
+
+        // Marmara Respond.
+        $settings->add(new admin_setting_heading(
+            'booking/marmara_settings_heading',
+            get_string('marmara:marmarasettingsheading', 'booking'),
+            get_string('marmara:marmarasettingsheading_desc', 'booking')
+        ));
+        $settings->add(new admin_setting_configcheckbox(
+            'booking/marmara_enabled',
+            get_string('marmara:marmaraenabled', 'booking'),
+            get_string('marmara:marmaraenabled_desc', 'booking'),
+            0
+        ));
+        if (get_config('booking', 'marmara_enabled')) {
+            $settings->add(new admin_setting_configtext(
+                'booking/marmara_baseurl',
+                get_string('marmara:baseurl', 'booking'),
+                get_string('marmara:baseurl_desc', 'booking'),
+                ''
+            ));
+
+            $settings->add(new admin_setting_configpasswordunmask(
+                'booking/marmara_secret',
+                get_string('marmara:secret', 'booking'),
+                get_string('marmara:secret_desc', 'booking'),
+                ''
+            ));
+
+            $settings->add(new admin_setting_configtext(
+                'booking/marmara_clientid',
+                get_string('marmara:clientid', 'booking'),
+                get_string('marmara:clientid_desc', 'booking'),
+                ''
+            ));
+
+            $settings->add(new admin_setting_configcheckbox(
+                'booking/marmara_defaultsync',
+                get_string('marmara:defaultsync', 'booking'),
+                get_string('marmara:defaultsync_desc', 'booking'),
+                1
+            ));
+
+            $settings->add(new admin_setting_configtext(
+                'booking/marmara_keywordparentid',
+                get_string('marmara:keywordparentid', 'booking'),
+                get_string('marmara:keywordparentid_desc', 'booking'),
+                ''
+            ));
+        }
     }
 }
 
