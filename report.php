@@ -180,7 +180,7 @@ $bookingoption->get_url_params();
 $optionteachers = $bookingoption->get_teachers();
 
 // Paging.
-$paging = 50; // Currently hardcoded. We might need a new setting for this in a future release.
+$paging = 100; // Currently hardcoded. We might need a new setting for this in a future release.
 
 // Capability checks.
 $isteacher = booking_check_if_teacher($bookingoption->option);
