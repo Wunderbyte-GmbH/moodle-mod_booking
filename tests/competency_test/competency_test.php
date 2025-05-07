@@ -27,6 +27,7 @@ namespace mod_booking;
 use advanced_testcase;
 use context_course;
 use context_system;
+use core_competency\api;
 use core_competency\competency;
 use core_competency\user_competency;
 use local_shopping_cart\local\cartstore;
@@ -67,12 +68,7 @@ final class competency_test extends advanced_testcase {
      * Test rulestemplate on option being completed for user.
      *
      * @covers \mod_booking\option->completion
-     * @covers \mod_booking\event\bookingoption_booked
-     * @covers \mod_booking\event\bookingoption_completed
-     * @covers \mod_booking\booking_rules\rules\rule_react_on_event->execute
-     * @covers \mod_booking\booking_rules\conditions\select_user_from_event->execute
-     * @covers \mod_booking\booking_rules\conditions\match_userprofilefield->execute
-     * @covers \mod_booking\booking_rules\actions\send_mail->execute
+     * @covers \mod_booking\classes\option\fields\competency
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -147,6 +143,7 @@ final class competency_test extends advanced_testcase {
         $bdata['bookingmanager'] = $user1->username;
 
         $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+        set_config('usecompetencies', 1, 'booking');
 
         $this->setAdminUser();
 
@@ -155,19 +152,11 @@ final class competency_test extends advanced_testcase {
         $this->getDataGenerator()->enrol_user($user3->id, $course->id, 'editingteacher');
 
         // User 2 already has competency 1.
-        $usercompetency = new user_competency(0, (object)[
-            'userid' => $user2->id,
-            'competencyid' => $competency->get('id'),
-            'proficiency' => 1, // 1 for proficient, 0 for not proficient.
-            'grade' => null,
-            'status' => user_competency::STATUS_IDLE,
-            'reviewerid' => $user1->id,
-            'timecreated' => time(),
-            'timemodified' => time(),
-        ]);
-        $usercompetency->create();
-        $existing = user_competency::get_record(['userid' => $user2->id, 'competencyid' => $competency->get('id')]);
-        $this->assertEquals(1, count($existing), 'Competency could not be created for user');
+        $existing = user_competency::get_records(['userid' => $user2->id]);
+        $this->assertEmpty($existing, 'User already has a competency assigned');
+        $usercompetency = api::get_user_competency($user2->id, $competency->get('id'));
+        $existing = user_competency::get_records(['userid' => $user2->id]);
+        $this->assertNotEmpty($existing, 'Competency could not be created for user');
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
@@ -202,36 +191,12 @@ final class competency_test extends advanced_testcase {
         $this->assertEquals(true, $option->user_completed_option());
 
         // Get messages.
-        $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $existing = user_competency::get_records(['userid' => $user2->id]);
+        $this->assertCount(2, $existing, 'Assignment of competency via activitycompletion failed');
 
-        $this->assertCount(2, $messages);
-        $keys = array_keys($messages);
-        // Task 1 has to be "match_userprofilefield".
-        $message = $messages[$keys[0]];
-        // Validate adhoc tasks for rule 1.
-        $customdata = $message->get_custom_data();
-        $this->assertEquals($user2->id, $customdata->userid);
-        $this->assertStringContainsString('bookingoption_booked', $customdata->rulejson);
-        $this->assertStringContainsString($ruledatanew['conditiondata'], $customdata->rulejson);
-        $this->assertStringContainsString($ruledatanew['actiondata'], $customdata->rulejson);
-        $this->assertEquals($user2->id, $message->get_userid());
-        // Task 2 has to be "select_user_from_event".
-        $message = $messages[$keys[1]];
-        // Validate adhoc tasks for rule 2.
-        $customdata = $message->get_custom_data();
-        $this->assertEquals($user2->id, $customdata->userid);
-        $this->assertStringContainsString("bookingoption_completed", $customdata->rulejson);
-        $this->assertStringContainsString($ruledatanew2['conditiondata'], $customdata->rulejson);
-        $this->assertStringContainsString($ruledatanew2['actiondata'], $customdata->rulejson);
-        $rulejson = json_decode($customdata->rulejson);
-        $this->assertEquals($user2->id, $rulejson->datafromevent->relateduserid);
-        $this->assertEquals($user2->id, $message->get_userid());
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_instance();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::$rulestoexecute = [];
-        booking_rules::$rules = [];
+        // Other user should not have any competencies.
+        $existing = user_competency::get_records(['userid' => $user1->id]);
+        $this->assertEmpty($existing, 'Unexpected competency assigned to user');
     }
 
     /**
