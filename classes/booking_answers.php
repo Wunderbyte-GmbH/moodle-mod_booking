@@ -915,11 +915,36 @@ class booking_answers {
                     $params['statustocount'] = get_config('booking', 'bookingstrackerpresencecountervaluetocount');
                 }
 
+                // Only for waiting list, we need to add the rank.
+                $ranksqlpart = '';
+                $orderby = 'ORDER BY u.lastname DESC, u.firstname DESC, ba.timemodified DESC';
+                if ($statusparam == MOD_BOOKING_STATUSPARAM_WAITINGLIST) {
+                    // For waiting list, we need to determine the rank order.
+                    $ranksqlpart = ', (
+                        SELECT COUNT(*)
+                        FROM (
+                            SELECT
+                                ba.id,
+                                ba.timemodified
+                            FROM {booking_answers} ba
+                            WHERE ba.optionid=:optionid3 AND ba.waitinglist=:statusparam2
+                        ) s3
+                        WHERE (s3.timemodified < s2.timemodified) OR (s3.timemodified = s2.timemodified AND s3.id <= s2.id)
+                    ) AS rank';
+
+                    // Important, so rank order stays.
+                    $orderby = '';
+
+                    // Params for rank order.
+                    $params['statusparam2'] = $statusparam;
+                    $params['optionid3'] = $optionid;
+                }
+
                 // We need to set a limit for the query in mysqlfamily.
                 $fields = 's1.*';
                 $from = "
                 (
-                    SELECT s2.*, ROW_NUMBER() OVER (ORDER BY s2.timemodified, s2.id DESC) AS rank
+                    SELECT s2.* $ranksqlpart
                     FROM (
                         SELECT
                             ba.id,
@@ -941,8 +966,8 @@ class booking_answers {
                         JOIN {user} u ON ba.userid = u.id
                         $presencecountsqlpart
                         WHERE ba.optionid=:optionid AND ba.waitinglist=:statusparam
-                        ORDER BY u.lastname DESC, u.firstname DESC, ba.timemodified DESC
-                        LIMIT 10000000000
+                        $orderby
+                        LIMIT 1000000
                     ) s2
                 ) s1";
                 break;
