@@ -120,17 +120,8 @@ class shortcodes {
             $optionsfields = $possibleoptions;
         }
 
-        $defaultorder = SORT_ASC; // Default.
-        if (!empty($args['sortorder'])) {
-            if (strtolower($args['sortorder']) === "desc") {
-                $defaultorder = SORT_DESC;
-            }
-        }
-        if (!empty($args['sortby'])) {
-            $table->sortable(true, $args['sortby'], $defaultorder);
-        } else {
-            $table->sortable(true, 'text', $defaultorder);
-        }
+        // Set common table options requirelogin, sortorder, sortby.
+        self::set_common_table_options_from_arguments($table, $args);
 
         $showfilter = !empty($args['filter']) ? true : false;
         $showsort = !empty($args['sort']) ? true : false;
@@ -240,17 +231,8 @@ class shortcodes {
             $optionsfields = $possibleoptions;
         }
 
-        $defaultorder = SORT_ASC; // Default.
-        if (!empty($args['sortorder'])) {
-            if (strtolower($args['sortorder']) === "desc") {
-                $defaultorder = SORT_DESC;
-            }
-        }
-        if (!empty($args['sortby'])) {
-            $table->sortable(true, $args['sortby'], $defaultorder);
-        } else {
-            $table->sortable(true, 'text', $defaultorder);
-        }
+        // Set common table options requirelogin, sortorder, sortby.
+        self::set_common_table_options_from_arguments($table, $args);
 
         $showfilter = !empty($args['filter']) ? true : false;
         $showsort = !empty($args['sort']) ? true : false;
@@ -425,6 +407,9 @@ class shortcodes {
         }
 
         view::apply_standard_params_for_bookingtable($table, $optionsfields, true, true, true);
+
+        // Set common table options requirelogin, sortorder, sortby.
+        self::set_common_table_options_from_arguments($table, $args);
 
         // If "rightside" is in the "exclude" array, then we do not show the rightside area (containing the "Book now" button).
         if (!empty($exclude) && in_array('rightside', $exclude)) {
@@ -605,17 +590,8 @@ class shortcodes {
             $optionsfields = $possibleoptions;
         }
 
-        $defaultorder = SORT_ASC; // Default.
-        if (!empty($args['sortorder'])) {
-            if (strtolower($args['sortorder']) === "desc") {
-                $defaultorder = SORT_DESC;
-            }
-        }
-        if (!empty($args['sortby'])) {
-            $table->sortable(true, $args['sortby'], $defaultorder);
-        } else {
-            $table->sortable(true, 'text', $defaultorder);
-        }
+        // Set common table options requirelogin, sortorder, sortby.
+        self::set_common_table_options_from_arguments($table, $args);
 
         $showfilter = !empty($args['filter']) ? true : false;
         $showsort = !empty($args['sort']) ? true : false;
@@ -739,35 +715,23 @@ class shortcodes {
             $optionsfields = $possibleoptions;
         }
 
-                $defaultorder = SORT_ASC; // Default.
-        if (!empty($args['sortorder'])) {
-            if (strtolower($args['sortorder']) === "desc") {
-                $defaultorder = SORT_DESC;
-            }
-        }
-        if (!empty($args['sortby'])) {
-            $table->sortable(true, $args['sortby'], $defaultorder);
-        } else {
-            $table->sortable(true, 'text', $defaultorder);
-        }
+        $showfilter = !empty($args['filter']) ? true : false;
+        $showsort = !empty($args['sort']) ? true : false;
+        $showsearch = !empty($args['search']) ? true : false;
 
-                $showfilter = !empty($args['filter']) ? true : false;
-                $showsort = !empty($args['sort']) ? true : false;
-                $showsearch = !empty($args['search']) ? true : false;
+        view::apply_standard_params_for_bookingtable(
+            $table,
+            $optionsfields,
+            $showfilter,
+            $showsearch,
+            $showsort,
+            false,
+            true,
+            $viewparam,
+        );
 
-                view::apply_standard_params_for_bookingtable(
-                    $table,
-                    $optionsfields,
-                    $showfilter,
-                    $showsearch,
-                    $showsort,
-                    false,
-                    true,
-                    $viewparam,
-                );
-
-                // Possibility to add customfieldfilter.
-                $customfieldfilter = explode(',', ($args['customfieldfilter'] ?? ''));
+        // Possibility to add customfieldfilter.
+        $customfieldfilter = explode(',', ($args['customfieldfilter'] ?? ''));
         if (!empty($customfieldfilter)) {
             self::apply_customfieldfilter($table, $customfieldfilter);
         }
@@ -785,9 +749,12 @@ class shortcodes {
         } else {
             $table->showfilterontop = false;
         }
-                $out = $table->outhtml($perpage, true);
 
-                return $out;
+        // Set common table options requirelogin, sortorder, sortby.
+        self::set_common_table_options_from_arguments($table, $args);
+
+        $out = $table->outhtml($perpage, true);
+        return $out;
     }
 
     /**
@@ -907,6 +874,9 @@ class shortcodes {
         }
 
         view::apply_standard_params_for_bookingtable($table, $optionsfields, true, true, true);
+
+        // Set common table options requirelogin, sortorder, sortby.
+        self::set_common_table_options_from_arguments($table, $args);
 
         unset($table->subcolumns['rightside']);
 
@@ -1167,7 +1137,7 @@ class shortcodes {
      * @return void
      *
      */
-    public static function set_common_table_options_from_arguments($table, $args) {
+    public static function set_common_table_options_from_arguments(&$table, $args): void {
         $defaultorder = SORT_ASC; // Default.
         if (!empty($args['sortorder'])) {
             if (strtolower($args['sortorder']) === "desc") {
@@ -1179,7 +1149,6 @@ class shortcodes {
         } else {
             $table->sortable(true, 'text', $defaultorder);
         }
-
         if (isset($args['requirelogin']) && $args['requirelogin'] == "false") {
             $table->requirelogin = false;
         }
@@ -1310,7 +1279,7 @@ class shortcodes {
      *
      * @return void
      */
-    private static function fix_args(array $args) {
+    private static function fix_args(array &$args): void {
         foreach ($args as $key => &$value) {
             // Get rid of quotation marks.
             $value = str_replace('"', '', $value);
