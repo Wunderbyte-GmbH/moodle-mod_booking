@@ -137,6 +137,6 @@ Feature: Create booking campaigns for booking options as admin and booking it as
     And I click on "Student 2 (student2@example.com)" "text"
     And I click on "Add" "button"
     And I follow "<< Back to responses"
-    And I should see "Student 1 (student1)" in the "#mod_booking_all_users_sort_new_r0_c2" "css_element"
-    And I should see "Student 2 (student2)" in the "#mod_booking_all_users_sort_new_r1_c2" "css_element"
+    And I should see "Student 1 (student1)" in the "#mod_booking_all_users_sort_new_r0" "css_element"
+    And I should see "Student 2 (student2)" in the "#mod_booking_all_users_sort_new_r1" "css_element"
     And I log out
