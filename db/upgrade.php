@@ -5011,7 +5011,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2025050200, 'booking');
     }
 
-    if ($oldversion < 2025050600) {
+    if ($oldversion < 2025050701) {
         // Define field competencies to be added to booking_options.
         $table = new xmldb_table('booking_options');
         $field = new xmldb_field('competencies', XMLDB_TYPE_CHAR, '256', null, null, null, null, 'sqlfilter');
@@ -5022,7 +5022,7 @@ function xmldb_booking_upgrade($oldversion) {
         }
 
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2025050600, 'booking');
+        upgrade_mod_savepoint(true, 2025050701, 'booking');
     }
 
     return true;
