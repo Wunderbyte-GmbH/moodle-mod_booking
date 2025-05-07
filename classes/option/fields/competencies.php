@@ -24,11 +24,14 @@
 
 namespace mod_booking\option\fields;
 
+use core_competency\api;
 use core_competency\competency;
 use core_competency\competency_framework;
+use core_competency\user_competency;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
+use mod_booking\singleton_service;
 use moodle_url;
 use MoodleQuickForm;
 use stdClass;
@@ -273,5 +276,51 @@ class competencies extends field_base {
         object $newoption,
         object $originaloption
     ) {
+    }
+
+    /**
+     * Assign competencies for user and return information about already existing and newly acquired competencies.
+     *
+     * @param int $cmid
+     * @param int $optionid
+     * @param int $userid
+     *
+     * @return array
+     *
+     */
+    public static function assign_competencies(int $cmid, int $optionid, int $userid) {
+        global $USER;
+
+        $bo = singleton_service::get_instance_of_booking_option($cmid, $optionid);
+        $competencies = explode(',', $bo->settings->competencies ?? '');
+
+        $returndata = [
+            'newcompetencies' => [],
+            'existingcompetencies' => [],
+        ];
+
+        foreach ($competencies as $competencyid) {
+            $usercompetency = api::get_user_competency($userid, $competencyid);
+            //$existing = user_competency::get_record(['userid' => $userid, 'competencyid' => $competencyid]);
+            // if (!$existing) {
+            //     // Create a new user_competency object.
+            //     $usercompetency = new user_competency(0, (object)[
+            //         'userid' => $userid,
+            //         'competencyid' => $competencyid,
+            //         'proficiency' => 1, // 1 for proficient, 0 for not proficient.
+            //         'grade' => null,
+            //         'status' => user_competency::STATUS_IDLE,
+            //         'reviewerid' => $USER->id,
+            //         'usermodified' => $USER->id,
+            //         'timecreated' => time(),
+            //         'timemodified' => time(),
+            //     ]);
+            //     $usercompetency->create(); // Save to DB.
+            //     $returndata['newcompetencies'][] = $competencyid;
+            // } else {
+            //     $returndata['existingcompetencies'][] = $competencyid;
+            // }
+        }
+        return $returndata;
     }
 }

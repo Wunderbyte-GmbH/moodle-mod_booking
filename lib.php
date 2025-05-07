@@ -1,4 +1,6 @@
 <?php
+
+use mod_booking\option\fields\competencies;
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -1879,6 +1881,10 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
             $userdata->timemodified = time();
             if (class_exists('tool_certificate\certificate')) {
                 $certid = certificate::issue_certificate($optionid, $selecteduser);
+            }
+
+            if (get_config('booking', 'usecompetencies')) {
+                $usercompetecies = competencies::assign_competencies($cmid, $optionid, $selecteduser);
             }
 
             $status = MOD_BOOKING_STATUSPARAM_COMPLETION_CHANGED;
