@@ -56,9 +56,9 @@ final class certificate_bo_completed_test extends advanced_testcase {
     }
 
     /**
-     * Test booking, cancelation, option has started etc.
+     * Test issue of certificates when bookingoption completed.
      *
-     * @covers \booking_bookit
+     * @covers \issue_certificate
      *
      * @param array $data
      * @param array $expected
