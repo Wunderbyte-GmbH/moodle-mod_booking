@@ -1,6 +1,4 @@
 <?php
-
-use mod_booking\option\fields\competencies;
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -26,6 +24,7 @@ use mod_booking\option\fields\competencies;
 
 defined('MOODLE_INTERNAL') || die();
 use mod_booking\option\fields\certificate;
+use mod_booking\option\fields\competencies;
 
 global $CFG;
 
