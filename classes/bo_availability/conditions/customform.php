@@ -753,25 +753,6 @@ class customform implements bo_condition {
      * @return array
      */
     public static function validation(array $data, array $files, array &$errors) {
-
-        if (
-            empty($data['chooseorcreatecourse'])
-            || (is_array($data['courseid']) && empty($data['courseid'][0]))
-            || empty($data['courseid'])
-        ) {
-            foreach ($data as $key => $value) {
-                // We need a courseid for the customform_enrolusersaction.
-                if (preg_match('/^bo_cond_customform_select_/', $key) && $data[$key] === "enrolusersaction") {
-                    if (empty($data['chooseorcreatecourse'])) {
-                        $errors['chooseorcreatecourse'] = get_string('relatedcourseidneeded', 'mod_booking');
-                    } else {
-                        $errors['courseid'] = get_string('relatedcourseidneeded', 'mod_booking');
-                    }
-                    return $errors;
-                }
-            }
-            return $errors;
-        }
         return $errors;
     }
 }
