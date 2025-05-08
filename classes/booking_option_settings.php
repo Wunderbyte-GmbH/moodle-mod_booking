@@ -674,9 +674,10 @@ class booking_option_settings {
         // Multi-sessions.
         if (
             !$this->sessions = $DB->get_records_sql(
-                "SELECT * FROM {booking_optiondates}
-                WHERE optionid = ?
-                ORDER BY coursestarttime ASC",
+                "SELECT bod.*, bod.id AS optiondateid
+                FROM {booking_optiondates} bod
+                WHERE bod.optionid = ?
+                ORDER BY bod.coursestarttime ASC",
                 [$optionid]
             )
         ) {
