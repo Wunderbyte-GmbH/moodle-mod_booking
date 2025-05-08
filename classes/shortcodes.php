@@ -44,6 +44,7 @@ use mod_booking\singleton_service;
 use mod_booking\table\bookingoptions_wbtable;
 use mod_booking\table\bulkoperations_table;
 use moodle_url;
+use Throwable;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -171,7 +172,12 @@ class shortcodes {
         $pageurl = isset($PAGE->url) ? $PAGE->url->out() : ''; // This is for unit tests.
         $pageurl = $course->shortname . $pageurl;
         $viewparam = self::get_viewparam($args);
-        $booking = singleton_service::get_instance_of_booking_settings_by_cmid((int)$args['cmid']);
+
+        try {
+            $booking = singleton_service::get_instance_of_booking_settings_by_cmid((int)$args['cmid']);
+        } catch (Throwable $e) {
+            return get_string('shortcode:cmidnotexisting', 'mod_booking', $args['cmid']);
+        }
 
         if (empty($booking->id)) {
             return get_string('definecmidforshortcode', 'mod_booking');

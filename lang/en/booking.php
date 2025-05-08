@@ -2289,6 +2289,7 @@ $string['sessionremindermailsubject'] = 'Reminder: You have an upcoming session'
 $string['sessions'] = 'Session(s)';
 $string['shoppingcart'] = 'Set payment options with shopping cart plugin';
 $string['shoppingcartplaceholder'] = 'Shoppingcart';
+$string['shortcode:cmidnotexisting'] = 'The course module id {$a} does not exist for the booking activity.';
 $string['shortcodenotsupportedonyourdb'] = "This shortcode is not supported on your DB. It only works on postgres & mariadb";
 $string['shortcodesoff'] = 'Disable booking shortcodes';
 $string['shortcodesoff_desc'] = 'Activate this setting, if you want to disable booking shortcodes (e.g. [courselist]) for the whole site.';
