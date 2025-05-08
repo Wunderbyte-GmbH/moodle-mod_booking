@@ -56,11 +56,14 @@ Feature: In a course add a booking option and manage its waiting list
       | texteditors   | atto,textarea |
 
   @javascript
-  Scenario: Booking option: reorder waiting list
+  Scenario: Booking option: reorder waiting list and waitinglistshowplaceonwaitinglist setings
     Given the following "mod_booking > options" exist:
       | booking    | text                 | course | description  | importing | teachersforoption | maxanswers | maxoverbooking | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | waitforconfirmation |
       | My booking | Option: waiting list | C1     | Waiting list | 1         | teacher1          | 5          | 5              | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 1                   |
-    Given I am on the "My booking" Activity page logged in as teacher1
+    And the following config values are set as admin:
+      | config                            | value | plugin  |
+      | waitinglistshowplaceonwaitinglist |       | booking |
+    And I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Student 1 (student1@example.com)" "text"
@@ -89,6 +92,13 @@ Feature: In a course add a booking option and manage its waiting list
     And I should see "student3@example.com" in the "//tr[contains(@id, 'waitinglist') and contains(@id, '_r1')]" "xpath_element"
     And I should see "student4@example.com" in the "//tr[contains(@id, 'waitinglist') and contains(@id, '_r2')]" "xpath_element"
     ## Resort rows
+    And "//tr[contains(@id, '_r2')]//span[@data-drag-type='move']" "xpath_element" should not exist
+    And the following config values are set as admin:
+      | config                            | value | plugin  |
+      | waitinglistshowplaceonwaitinglist | 1     | booking |
+    ##And I wait "41" seconds
+    And I reload the page
+    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
     And I drag "//tr[contains(@id, '_r2')]//span[@data-drag-type='move']" "xpath_element" and I drop it in "//tr[contains(@id, '_r1')]//span[@data-drag-type='move']" "xpath_element"
     And I should see "student4@example.com" in the "//tr[contains(@id, 'waitinglist') and contains(@id, '_r1')]" "xpath_element"
 
