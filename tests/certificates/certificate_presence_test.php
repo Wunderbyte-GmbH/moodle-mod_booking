@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Tests for certificates.
+ * Tests for certificates when presence was changed.
  *
  * @package mod_booking
  * @category test
@@ -30,7 +30,6 @@ use advanced_testcase;
 use coding_exception;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
-use tool_certificate\template as CertTemplate;
 
 
 defined('MOODLE_INTERNAL') || die();
@@ -39,7 +38,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 require_once($CFG->dirroot . '/mod/booking/classes/price.php');
 
 /**
- * Class handling tests for certificates.
+ * Class handling tests for isse of certificates when bookingoptions are completed.
  *
  * @package mod_booking
  * @category test
@@ -47,7 +46,7 @@ require_once($CFG->dirroot . '/mod/booking/classes/price.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
-final class certificate_test extends advanced_testcase {
+final class certificate_presence_test extends advanced_testcase {
     /**
      * Tests set up.
      */
@@ -80,34 +79,17 @@ final class certificate_test extends advanced_testcase {
         set_config('presencestatustoissuecertificate', 1, 'booking');
 
         $standarddata = self::provide_standard_data();
-
-        $certificatedata = (object) [
-            'id' => 0,
-            'name' => "Test",
-            'shared' => "1",
-            'width' => 297,
-            'height' => 210,
-            'leftmargin' => 0,
-            'rightmargin' => 0,
-            'contextid' => 1,
-
-        ];
-
-        $this->setAdminUser();
-
-        $t = CertTemplate::create($certificatedata);
-        $tid = $t->get_id();
         // Coursesettings.
         $courses = [];
+        $this->setAdminUser();
+        $certificate = $this->get_certficate_generator()->create_template((object)['name' => 'Certificate 1']);
         foreach ($data['coursesettings'] as $shortname => $courssettings) {
             $course = $this->getDataGenerator()->create_course($courssettings); // Usually 1 course is sufficient.
             $courses[$shortname] = $course;
         };
         $users = [];
         foreach ($standarddata['users'] as $user) {
-            // Standard params of users can be overwritten in testdata.
-            $params = isset($data['usersettings'][$user['name']])
-                ? $data['usersettings'][$user['name']] : ($standarddata['users']['params'] ?? []);
+            $params = $standarddata['users']['params'] ?? [];
             $users[$user['name']] = $this->getDataGenerator()->create_user($params);
         }
 
@@ -139,8 +121,14 @@ final class certificate_test extends advanced_testcase {
                 }
             }
         }
-        $expirydateabsolute = $data['optionsettings'][0]['certificatedata']['expirydateabsolute'];
-        $option['json'] = '{"certificate":' . $tid . ', "expirydateabsolute":' . $expirydateabsolute . '}';
+        $expirydaterelative = $data['optionsettings'][0]['certificatedata']['expirydaterelative'] ?? 0;
+        $expirydateabsolute = $data['optionsettings'][0]['certificatedata']['expirydateabsolute'] ?? 0;
+        $expirydatetype = $data['optionsettings'][0]['certificatedata']['expirydatetype'];
+        $option['json'] = '{"certificate":' . $certificate->get_id() . ',
+        "expirydateabsolute":' . $expirydateabsolute . ',
+        "expirydatetype":' . $expirydatetype . ',
+        "expirydaterelative":' . $expirydaterelative . '
+        }';
         $option['bookingid'] = $booking1->id;
         $option['courseid'] = $course->id;
 
@@ -177,9 +165,14 @@ final class certificate_test extends advanced_testcase {
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
         $this->assertEquals($expected['bookitresults'][0], $id);
         $result = booking_bookit::bookit('option', $settings->id, $student2->id);
-        booking_activitycompletion([$student1->id], $booking1, $settings->cmid, $option1->id);
+        $this->setAdminUser();
+        if (empty($data['completionsettings']['multiple'])) {
+            booking_activitycompletion([$student1->id], $booking1, $settings->cmid, $option1->id);
+        } else {
+            booking_activitycompletion([$student1->id, $student2->id], $booking1, $settings->cmid, $option1->id);
+        }
         $certificates = $DB->get_records('tool_certificate_issues');
-        $this->assertCount($expected['onecertificate']['certcount'], $certificates);
+        $this->assertCount($expected['certcount'], $certificates);
         self::teardown();
     }
 
@@ -191,8 +184,76 @@ final class certificate_test extends advanced_testcase {
      */
     public static function booking_common_settings_provider(): array {
         return [
-            'onecertificate' => [
-                ['pluginsettings' => [
+            'certificate_pluginsetting_off' => [
+                [
+                    'pluginsettings' => [
+                        [
+                            'component' => 'booking',
+                            'key' => 'certificateon',
+                            'value' => 1,
+                        ],
+                    ],
+                    'coursesettings' => [
+                        'firstcourse' => [
+                            'enablecompletion' => 1,
+                        ],
+                    ],
+                    'completionsettings' => [
+                        'multiple' => 0,
+                    ],
+                    'optionsettings' => [
+                        [
+                            'useprice' => 0,
+                            'certificatedata' => [
+                                'expirydateabsolute' => time() - 60,
+                                'expirydatetype' => 1, // 2 is absolute expirydate
+                            ],
+                        ],
+                    ],
+                ],
+                [
+                    'bookitresults' => [
+                        MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
+                    ],
+                        'certcount' => 0,
+                ],
+            ],
+            'certificate_no_expirydate' => [
+                [
+                    'pluginsettings' => [
+                        [
+                            'component' => 'booking',
+                            'key' => 'certificateon',
+                            'value' => 1,
+                        ],
+                    ],
+                    'coursesettings' => [
+                        'firstcourse' => [
+                            'enablecompletion' => 1,
+                        ],
+                    ],
+                    'completionsettings' => [
+                        'multiple' => 0,
+                    ],
+                    'optionsettings' => [
+                        [
+                            'useprice' => 0,
+                            'certificatedata' => [
+                                'expirydatetype' => 0, // 0 is not expiry date.
+                            ],
+                        ],
+                    ],
+                ],
+                [
+                    'bookitresults' => [
+                        MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
+                    ],
+                        'certcount' => 1,
+                ],
+            ],
+            'certificate_absolute_expirydate' => [
+                [
+                    'pluginsettings' => [
                         [
                             'component' => 'booking',
                             'key' => 'certificateon',
@@ -205,24 +266,125 @@ final class certificate_test extends advanced_testcase {
                         ],
                     ],
                     'userssettings' => [
-                        'student1' => [], // Just a demo how params could be set.
+                        'mutiple' => 0, // Just a demo how params could be set.
                     ],
                     'optionsettings' => [
-                [
-                'useprice' => 0,
-                'certificatedata' => [
-                'expirydateabsolute' => 17,
-                ],
-                ],
-                ],
+                        [
+                            'useprice' => 0,
+                            'certificatedata' => [
+                                'expirydateabsolute' => time() + 60,
+                                'expirydatetype' => 1, // 2 is absolute expirydate
+                            ],
+                        ],
+                    ],
                 ],
                 [
                     'bookitresults' => [
                         MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
                     ],
-                    'onecertificate' => [
                         'certcount' => 1,
+                ],
+            ],
+            'certificate_relative_expirydate' => [
+                [
+                    'pluginsettings' => [
+                        [
+                            'component' => 'booking',
+                            'key' => 'certificateon',
+                            'value' => 1,
+                        ],
                     ],
+                    'coursesettings' => [
+                        'firstcourse' => [
+                            'enablecompletion' => 1,
+                        ],
+                    ],
+                    'userssettings' => [
+                        'mutiple' => 0,
+                    ],
+                    'optionsettings' => [
+                        [
+                            'useprice' => 0,
+                            'certificatedata' => [
+                                'expirydaterelative' => 60 * 60 * 24,
+                                'expirydatetype' => 2, // 2 is relative expiry date.
+                            ],
+                        ],
+                    ],
+                ],
+                [
+                    'bookitresults' => [
+                        MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
+                    ],
+                        'certcount' => 1,
+                ],
+            ],
+            'certificate_absolute_expirydate_past' => [
+                [
+                    'pluginsettings' => [
+                        [
+                            'component' => 'booking',
+                            'key' => 'certificateon',
+                            'value' => 1,
+                        ],
+                    ],
+                    'coursesettings' => [
+                        'firstcourse' => [
+                            'enablecompletion' => 1,
+                        ],
+                    ],
+                    'userssettings' => [
+                        'mutiple' => 0,
+                    ],
+                    'optionsettings' => [
+                        [
+                            'useprice' => 0,
+                            'certificatedata' => [
+                                'expirydateabsolute' => time() - 60,
+                                'expirydatetype' => 1, // 2 is absolute expirydate
+                            ],
+                        ],
+                    ],
+                ],
+                [
+                    'bookitresults' => [
+                        MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
+                    ],
+                        'certcount' => 0,
+                ],
+            ],
+            'certificate_issue_multiple' => [
+                [
+                    'pluginsettings' => [
+                        [
+                            'component' => 'booking',
+                            'key' => 'certificateon',
+                            'value' => 1,
+                        ],
+                    ],
+                    'coursesettings' => [
+                        'firstcourse' => [
+                            'enablecompletion' => 1,
+                        ],
+                    ],
+                    'userssettings' => [
+                        'multiple' => 1,
+                    ],
+                    'optionsettings' => [
+                        [
+                            'useprice' => 0,
+                            'certificatedata' => [
+                                'expirydaterelative' => 60 * 60 * 24,
+                                'expirydatetype' => 2, // 2 is relative expiry date.
+                            ],
+                        ],
+                    ],
+                ],
+                [
+                    'bookitresults' => [
+                        MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
+                    ],
+                        'certcount' => 2,
                 ],
             ],
         ];
@@ -288,5 +450,16 @@ final class certificate_test extends advanced_testcase {
         parent::tearDown();
         // Mandatory clean-up.
         singleton_service::destroy_instance();
+    }
+
+
+    /**
+     * Generator for Certificates.
+     *
+     * @return \component_generator_base
+     *
+     */
+    protected function get_certficate_generator() {
+        return $this->getDataGenerator()->get_plugin_generator('tool_certificate');
     }
 }
