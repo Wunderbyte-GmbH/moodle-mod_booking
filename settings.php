@@ -1037,6 +1037,19 @@ if ($ADMIN->fulltree) {
             get_string('waitinglistheader_desc', 'mod_booking')
         )
     );
+
+    $waitinglistshowplaceonwaitinglist = new admin_setting_configcheckbox(
+        'booking/waitinglistshowplaceonwaitinglist',
+        get_string('waitinglistshowplaceonwaitinglist', 'mod_booking'),
+        get_string('waitinglistshowplaceonwaitinglistinfo', 'mod_booking'),
+        0
+    );
+    $waitinglistshowplaceonwaitinglist->set_updatedcallback(function () {
+        cache_helper::purge_by_event('setbackencodedtables');
+        cache_helper::purge_by_event('changesinwunderbytetable');
+    });
+    $settings->add($waitinglistshowplaceonwaitinglist);
+
     $settings->add(
         new admin_setting_configcheckbox(
             'booking/turnoffwaitinglist',
@@ -1054,6 +1067,7 @@ if ($ADMIN->fulltree) {
             0
         )
     );
+
     $settings->add(
         new admin_setting_configcheckbox(
             'booking/keepusersbookedonreducingmaxanswers',
@@ -1568,18 +1582,6 @@ if ($ADMIN->fulltree) {
                 $waitinglistlowpercentages
             )
         );
-
-        $waitinglistshowplaceonwaitinglist = new admin_setting_configcheckbox(
-            'booking/waitinglistshowplaceonwaitinglist',
-            get_string('waitinglistshowplaceonwaitinglist', 'mod_booking'),
-            get_string('waitinglistshowplaceonwaitinglistinfo', 'mod_booking'),
-            0
-        );
-        $waitinglistshowplaceonwaitinglist->set_updatedcallback(function () {
-            cache_helper::purge_by_event('setbackencodedtables');
-            cache_helper::purge_by_event('changesinwunderbytetable');
-        });
-        $settings->add($waitinglistshowplaceonwaitinglist);
     } else {
         $settings->add(
             new admin_setting_heading(
