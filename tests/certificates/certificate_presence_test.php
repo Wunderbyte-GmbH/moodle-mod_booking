@@ -56,9 +56,9 @@ final class certificate_presence_test extends advanced_testcase {
     }
 
     /**
-     * Test booking, cancelation, option has started etc.
+     * Test issue of certificates when presence changed.
      *
-     * @covers \booking_bookit
+     * @covers \issue_certificate
      *
      * @param array $data
      * @param array $expected
