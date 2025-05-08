@@ -1568,14 +1568,18 @@ if ($ADMIN->fulltree) {
                 $waitinglistlowpercentages
             )
         );
-        $settings->add(
-            new admin_setting_configcheckbox(
-                'booking/waitinglistshowplaceonwaitinglist',
-                get_string('waitinglistshowplaceonwaitinglist', 'mod_booking'),
-                get_string('waitinglistshowplaceonwaitinglistinfo', 'booking'),
-                0
-            )
+
+        $waitinglistshowplaceonwaitinglist = new admin_setting_configcheckbox(
+            'booking/waitinglistshowplaceonwaitinglist',
+            get_string('waitinglistshowplaceonwaitinglist', 'mod_booking'),
+            get_string('waitinglistshowplaceonwaitinglistinfo', 'mod_booking'),
+            0
         );
+        $waitinglistshowplaceonwaitinglist->set_updatedcallback(function () {
+            cache_helper::purge_by_event('setbackencodedtables');
+            cache_helper::purge_by_event('changesinwunderbytetable');
+        });
+        $settings->add($waitinglistshowplaceonwaitinglist);
     } else {
         $settings->add(
             new admin_setting_heading(

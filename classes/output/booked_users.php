@@ -263,7 +263,8 @@ class booked_users implements renderable, templatable {
                 'waitinglist',
                 $waitinglistcols,
                 $waitinglistheaders,
-                true // This is for the waiting list rank sort order.
+                // Sorting of waiting list only possible if setting show show place is enabled.
+                (bool)get_config('booking', 'waitinglistshowplaceonwaitinglist')
             ) : null;
 
             $this->reservedusers = $showreserved ? $this->render_users_table(
@@ -394,6 +395,18 @@ class booked_users implements renderable, templatable {
                     ];
                     $table->sort_default_column = 'lastname';
                     $table->sort_default_order = SORT_DESC;
+                    break;
+                case MOD_BOOKING_STATUSPARAM_WAITINGLIST:
+                    if (get_config('booking', 'waitinglistshowplaceonwaitinglist')) {
+                        // No sorting allowed as it would destroy rank order.
+                        $sortablecolumns = [];
+                    } else {
+                        $sortablecolumns = [
+                            'firstname' => get_string('firstname'),
+                            'lastname' => get_string('lastname'),
+                            'email' => get_string('email'),
+                        ];
+                    }
                     break;
                 default:
                     $sortablecolumns = [

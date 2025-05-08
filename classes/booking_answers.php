@@ -917,7 +917,7 @@ class booking_answers {
 
                 // Only for waiting list, we need to add the rank.
                 $ranksqlpart = '';
-                $orderby = 'ORDER BY u.lastname DESC, u.firstname DESC, ba.timemodified DESC';
+                $orderby = 'ORDER BY s4.lastname, s4.firstname, s4.timemodified ASC';
                 if ($statusparam == MOD_BOOKING_STATUSPARAM_WAITINGLIST) {
                     // For waiting list, we need to determine the rank order.
                     $ranksqlpart = ', (
@@ -931,9 +931,7 @@ class booking_answers {
                         ) s3
                         WHERE (s3.timemodified < s2.timemodified) OR (s3.timemodified = s2.timemodified AND s3.id <= s2.id)
                     ) AS rank';
-
-                    // Important, so rank order stays.
-                    $orderby = '';
+                    $orderby = 'ORDER BY s4.rank ASC';
 
                     // Params for rank order.
                     $params['statusparam2'] = $statusparam;
@@ -944,31 +942,34 @@ class booking_answers {
                 $fields = 's1.*';
                 $from = "
                 (
-                    SELECT s2.* $ranksqlpart
-                    FROM (
-                        SELECT
-                            ba.id,
-                            u.id AS userid,
-                            u.username,
-                            u.firstname,
-                            u.lastname,
-                            u.email,
-                            ba.waitinglist,
-                            ba.status,
-                            ba.notes,
-                            $selectpresencecount
-                            ba.timemodified,
-                            ba.timecreated,
-                            ba.optionid,
-                            ba.json,
-                            '" . $scope . "' AS scope
-                        FROM {booking_answers} ba
-                        JOIN {user} u ON ba.userid = u.id
-                        $presencecountsqlpart
-                        WHERE ba.optionid=:optionid AND ba.waitinglist=:statusparam
-                        $orderby
-                        LIMIT 1000000
-                    ) s2
+                    SELECT s4.* FROM
+                    (
+                        SELECT s2.* $ranksqlpart
+                        FROM (
+                            SELECT
+                                ba.id,
+                                u.id AS userid,
+                                u.username,
+                                u.firstname,
+                                u.lastname,
+                                u.email,
+                                ba.waitinglist,
+                                ba.status,
+                                ba.notes,
+                                $selectpresencecount
+                                ba.timemodified,
+                                ba.timecreated,
+                                ba.optionid,
+                                ba.json,
+                                '" . $scope . "' AS scope
+                            FROM {booking_answers} ba
+                            JOIN {user} u ON ba.userid = u.id
+                            $presencecountsqlpart
+                            WHERE ba.optionid=:optionid AND ba.waitinglist=:statusparam
+                            LIMIT 1000000
+                        ) s2
+                    ) s4
+                    $orderby
                 ) s1";
                 break;
             case 'instance':
