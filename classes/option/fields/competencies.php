@@ -24,14 +24,16 @@
 
 namespace mod_booking\option\fields;
 
+use core\event\competency_user_evidence_created;
 use core_competency\api;
 use core_competency\competency;
 use core_competency\competency_framework;
-use core_competency\user_competency;
+use core_competency\user_evidence_competency;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use mod_booking\singleton_service;
+use core_competency\user_evidence;
 use moodle_url;
 use MoodleQuickForm;
 use stdClass;
@@ -294,7 +296,41 @@ class competencies extends field_base {
         $competencies = explode(',', $bo->settings->competencies ?? '');
 
         foreach ($competencies as $competencyid) {
-            $usercompetency = api::get_user_competency($userid, $competencyid);
+            // Assign competence to user.
+            api::get_user_competency($userid, $competencyid);
+
+            // Link competence to user evidence to make it visible in the UI.
+            // One competence can have multiple evidences.
+            $record = new stdClass();
+            $record->userid = $userid;
+            $record->name = "Completed booking option with id: $optionid";
+            $record->description = "Auto evidence from mod_booking";
+            $record->url = (new moodle_url('/mod/booking/optionview.php', [
+                'cmid' => $cmid,
+                'optionid' => $optionid,
+                'userid' => $userid,
+                ]))->out(false);
+            $record->contextid = $cmid;
+            $record->status = 1; // 1 = active
+            $record->timecreated = time();
+            $record->timemodified = time();
+
+            $userevidence = new user_evidence(0, $record);
+            $userevidence->create();
+
+            // Also create the event for the evidence.
+            competency_user_evidence_created::create([
+                'objectid' => $userevidence->get('id'),
+                'relateduserid' => $userid,
+                'contextid' => $cmid,
+            ])->trigger();
+
+            $link = new stdClass();
+            $link->userevidenceid = $userevidence->get('id');
+            $link->competencyid = $competencyid;
+
+            $link = new user_evidence_competency(0, $link);
+            $link->create();
         }
         return $competencies;
     }
