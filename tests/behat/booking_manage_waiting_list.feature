@@ -185,7 +185,8 @@ Feature: In a course add a booking option and manage its waiting list
     ## Cancel waiting list for student 4
     And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
     And I wait until the page is ready
-    And I click on the element with the number "1" with the dynamic identifier "waitinglist" and action "unconfirmbooking"
+    And I should see "student4@example.com" in the "//tr[contains(@id, 'waitinglist') and contains(@id, '_r2')]" "xpath_element"
+    And I click on the element with the number "2" with the dynamic identifier "waitinglist" and action "unconfirmbooking"
     And I wait until the page is ready
     And I click on "Book" "button" in the ".modal-footer" "css_element"
     And I log out
