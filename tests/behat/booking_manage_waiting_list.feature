@@ -103,10 +103,11 @@ Feature: In a course add a booking option and manage its waiting list
     And I should see "student4@example.com" in the "//tr[contains(@id, 'waitinglist') and contains(@id, '_r1')]" "xpath_element"
 
   @javascript
-  Scenario: Booking option: waiting list with prices
+  Scenario: Booking option: waiting list with prices when waitinglistshowplaceonwaitinglist is not set
     Given the following config values are set as admin:
-      | config             | value        | plugin  |
-      | pricecategoryfield | userpricecat | booking |
+      | config                            | value        | plugin  |
+      | pricecategoryfield                | userpricecat | booking |
+      | waitinglistshowplaceonwaitinglist |              | booking |
     And the following "mod_booking > options" exist:
       | booking    | text                    | course | description  | importing | teachersforoption | useprice | maxanswers | maxoverbooking | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | waitforconfirmation |
       | My booking | Waiting_list_with_price | C1     | Waiting list | 1         | teacher1          | 1        | 2          | 3              | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 1                   |
@@ -195,8 +196,8 @@ Feature: In a course add a booking option and manage its waiting list
     ## Cancel waiting list for student 4
     And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
     And I wait until the page is ready
-    And I should see "student4@example.com" in the "//tr[contains(@id, 'waitinglist') and contains(@id, '_r2')]" "xpath_element"
-    And I click on the element with the number "2" with the dynamic identifier "waitinglist" and action "unconfirmbooking"
+    And I should see "student4@example.com" in the "//tr[contains(@id, 'waitinglist') and contains(@id, '_r1')]" "xpath_element"
+    And I click on the element with the number "1" with the dynamic identifier "waitinglist" and action "unconfirmbooking"
     And I wait until the page is ready
     And I click on "Book" "button" in the ".modal-footer" "css_element"
     And I log out
