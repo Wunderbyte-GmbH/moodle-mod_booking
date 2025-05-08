@@ -49,7 +49,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class onwaitinglist implements bo_condition {
-
     /** @var int $id Standard Conditions have hardcoded ids. */
     public $id = MOD_BOOKING_BO_COND_ONWAITINGLIST;
 
@@ -190,9 +189,11 @@ class onwaitinglist implements bo_condition {
         $description = $this->get_description_string($isavailable, $full, $userid, $settings);
 
         // If the user is in principle allowed to overbook AND the overbook setting is set in the instance, overbooking is possible.
-        if (!empty($settings->waitforconfirmation)
+        if (
+            !empty($settings->waitforconfirmation)
             && !empty(get_config('booking', 'allowoverbooking'))
-            && has_capability('mod/booking:canoverbook', context_system::instance())) {
+            && has_capability('mod/booking:canoverbook', context_system::instance())
+        ) {
             $buttontype = MOD_BOOKING_BO_BUTTON_MYALERT;
         } else {
             $buttontype = MOD_BOOKING_BO_BUTTON_JUSTMYALERT;
@@ -274,14 +275,11 @@ class onwaitinglist implements bo_condition {
             $description = $full ? get_string('bocondonwaitinglistfullavailable', 'mod_booking') :
                 get_string('bocondonwaitinglistavailable', 'mod_booking');
         } else {
-
             if (get_config('booking', 'waitinglistshowplaceonwaitinglist')) {
-
                 $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
                 $placeonwaitinglist = $bookinganswer->return_place_on_waitinglist($userid);
 
                 $description = get_string('yourplaceonwaitinglist', 'mod_booking', $placeonwaitinglist);
-
             } else {
                 $description = $full ? get_string('bocondonwaitinglistfullnotavailable', 'mod_booking') :
                 get_string('bocondonwaitinglistnotavailable', 'mod_booking');

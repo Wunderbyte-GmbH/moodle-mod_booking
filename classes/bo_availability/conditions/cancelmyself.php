@@ -240,7 +240,7 @@ class cancelmyself implements bo_condition {
 
         $isavailable = $this->is_available($settings, $userid, $not);
         if (!class_exists('local_shopping_cart\shopping_cart')) {
-            $description = $this->get_description_string($isavailable, $full, $settings);
+            $description = $this->get_description_string();
         } else {
             $description = 'sc cancel';
         }
@@ -338,17 +338,18 @@ class cancelmyself implements bo_condition {
         }
 
         $label = $this->get_description_string();
-            return bo_info::render_button(
-                $settings,
-                $userid,
-                $label,
-                'btn btn-light btn-sm',
-                false,
-                $fullwidth,
-                'button',
-                'option',
-                false
-            );
+
+        return bo_info::render_button(
+            $settings,
+            $userid,
+            $label,
+            'btn btn-light btn-sm',
+            false,
+            $fullwidth,
+            'button',
+            'option',
+            false
+        );
     }
 
     /**
@@ -356,7 +357,7 @@ class cancelmyself implements bo_condition {
      *
      * @return string
      */
-    private function get_description_string() {
+    private function get_description_string(): string {
 
         // Do not trigger billboard here.
         return get_string('cancelsign', 'mod_booking') . "&nbsp;" .
@@ -369,7 +370,7 @@ class cancelmyself implements bo_condition {
      * @param int $userid
      * @return bool
      */
-    public static function apply_coolingoff_period($settings, $userid) {
+    public static function apply_coolingoff_period($settings, $userid): bool {
 
         $coolingoffperiod = get_config('booking', 'coolingoffperiod');
         if ($coolingoffperiod > 0) {
