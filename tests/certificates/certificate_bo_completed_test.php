@@ -75,7 +75,7 @@ final class certificate_bo_completed_test extends advanced_testcase {
         }
 
         // Set params requred for certificate issue.
-        foreach ($data['configsettings'] as $configsetting) {
+        foreach ($data['configsettings'][0] as $configsetting) {
             set_config($configsetting['name'], $configsetting['value'], $configsetting['component']);
         }
         $standarddata = self::provide_standard_data();
@@ -183,9 +183,11 @@ final class certificate_bo_completed_test extends advanced_testcase {
                 [
                     'configsettings' => [
                         [
-                            'component' => 'booking',
-                            'name' => 'certificateon',
-                            'value' => 0,
+                            [
+                                'component' => 'booking',
+                                'name' => 'certificateon',
+                                'value' => 0,
+                            ],
                         ],
                     ],
                     'coursesettings' => [
@@ -217,9 +219,11 @@ final class certificate_bo_completed_test extends advanced_testcase {
                 [
                     'configsettings' => [
                         [
+                            [
                             'component' => 'booking',
                             'name' => 'certificateon',
                             'value' => 1,
+                            ],
                         ],
                     ],
                     'coursesettings' => [
@@ -250,9 +254,11 @@ final class certificate_bo_completed_test extends advanced_testcase {
                 [
                     'configsettings' => [
                         [
-                            'component' => 'booking',
-                            'name' => 'certificateon',
-                            'value' => 1,
+                            [
+                                'component' => 'booking',
+                                'name' => 'certificateon',
+                                'value' => 1,
+                            ],
                         ],
                     ],
                     'coursesettings' => [
@@ -284,9 +290,11 @@ final class certificate_bo_completed_test extends advanced_testcase {
                 [
                     'configsettings' => [
                         [
-                            'component' => 'booking',
-                            'name' => 'certificateon',
-                            'value' => 1,
+                            [
+                                'component' => 'booking',
+                                'name' => 'certificateon',
+                                'value' => 1,
+                            ],
                         ],
                     ],
                     'coursesettings' => [
@@ -318,9 +326,11 @@ final class certificate_bo_completed_test extends advanced_testcase {
                 [
                     'configsettings' => [
                         [
-                            'component' => 'booking',
-                            'name' => 'certificateon',
-                            'value' => 1,
+                            [
+                                'component' => 'booking',
+                                'name' => 'certificateon',
+                                'value' => 1,
+                            ],
                         ],
                     ],
                     'coursesettings' => [
@@ -352,9 +362,11 @@ final class certificate_bo_completed_test extends advanced_testcase {
                 [
                     'configsettings' => [
                         [
-                            'component' => 'booking',
-                            'name' => 'certificateon',
-                            'value' => 1,
+                            [
+                                'component' => 'booking',
+                                'name' => 'certificateon',
+                                'value' => 1,
+                            ],
                         ],
                     ],
                     'coursesettings' => [
@@ -380,6 +392,47 @@ final class certificate_bo_completed_test extends advanced_testcase {
                         MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
                     ],
                         'certcount' => 2,
+                ],
+            ],
+            'certificate_with_presencesettingon' => [
+                [
+                    'configsettings' => [
+                        [
+                            [
+                                'component' => 'booking',
+                                'name' => 'certificateon',
+                                'value' => 1,
+                            ],
+                            [
+                                'component' => 'booking',
+                                'name' => 'presencestatustoissuecertificate',
+                                'value' => 1,
+                            ],
+                        ],
+                    ],
+                    'coursesettings' => [
+                        'firstcourse' => [
+                            'enablecompletion' => 1,
+                        ],
+                    ],
+                    'completionsettings' => [
+                        'mutiple' => 0,
+                    ],
+                    'optionsettings' => [
+                        [
+                            'useprice' => 0,
+                            'certificatedata' => [
+                                'expirydateabsolute' => time() + 60,
+                                'expirydatetype' => 1, // 1 is absolute expirydate
+                            ],
+                        ],
+                    ],
+                ],
+                [
+                    'bookitresults' => [
+                        MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
+                    ],
+                        'certcount' => 0, // When presencetoissuecertificate is on no certificate should be issued with completion.
                 ],
             ],
         ];
