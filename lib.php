@@ -23,8 +23,6 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
-use mod_booking\option\fields\certificate;
-use mod_booking\option\fields\competencies;
 
 global $CFG;
 
@@ -45,6 +43,8 @@ use mod_booking\booking_rules\rules_info;
 use mod_booking\booking_rules\booking_rules;
 use local_wunderbyte_table\local\customfield\wbt_field_controller_info;
 use mod_booking\customfield\booking_handler;
+use mod_booking\option\fields\certificate;
+use mod_booking\option\fields\competencies;
 
 // Default fields for bookingoptions in view.php and for download.
 define('MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS', "identifier,titleprefix,text,description,teacher,responsiblecontact," .
