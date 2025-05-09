@@ -250,9 +250,10 @@ class rule_daysbefore implements booking_rule {
         $action->ruleid = $this->ruleid;
 
         foreach ($records as $record) {
-            // Number of days can be overridden by the optiondate's daystonotify column.
-            if (isset($record->daystonotify) && $record->daystonotify > 0) {
-                $this->days = $record->daystonotify;
+            // The override happens within the SQL of get_records_for_execution.
+            // So $record->daystonotify will have the correct value.
+            if (isset($record->daystonotify)) {
+                $this->days = (int)$record->daystonotify;
             }
             // Set the time of when the task should run.
             $nextruntime = (int) $record->datefield - ((int) $this->days * 86400);
@@ -292,9 +293,10 @@ class rule_daysbefore implements booking_rule {
         }
 
         foreach ($records as $record) {
-            // Number of days can be overridden by the optiondate's daystonotify column.
-            if (isset($record->daystonotify) && $record->daystonotify > 0) {
-                $this->days = $record->daystonotify;
+            // The override happens within the SQL of get_records_for_execution.
+            // So $record->daystonotify will have the correct value.
+            if (isset($record->daystonotify)) {
+                $this->days = (int)$record->daystonotify;
             }
             $oldnextruntime = (int) $record->datefield - ((int) $this->days * 86400);
 
