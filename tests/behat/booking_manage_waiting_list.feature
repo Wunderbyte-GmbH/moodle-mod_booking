@@ -100,7 +100,8 @@ Feature: In a course add a booking option and manage its waiting list
     And I reload the page
     And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
     And I drag "//tr[contains(@id, '_r2')]//span[@data-drag-type='move']" "xpath_element" and I drop it in "//tr[contains(@id, '_r1')]//span[@data-drag-type='move']" "xpath_element"
-    And I should see "student4@example.com" in the "//tr[contains(@id, 'waitinglist') and contains(@id, '_r1')]" "xpath_element"
+    And I wait "1" seconds
+    And I should see "student4@example.com" in the "tr[id^='waitinglist'][id$='r1'] td.columnclass.email" "css_element"
 
   @javascript
   Scenario: Booking option: waiting list with prices when waitinglistshowplaceonwaitinglist is not set
