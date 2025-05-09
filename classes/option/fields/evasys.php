@@ -84,7 +84,8 @@ class evasys extends field_base {
         $returnvalue = null
     ): array {
 
-       // Helperclass to save Form.
+        // Helperclass to save Form.
+        parent::prepare_save_field($formdata, $newoption, $updateparam, '');
     }
 
     /**
@@ -106,6 +107,10 @@ class evasys extends field_base {
         $fieldstoinstanciate = [],
         $applyheader = true
     ): void {
+        // Curl von evasys Class for questionaires.
+        $questionaires = [];
+        // Curl von evasys Class for recipients.
+        $recipients = [];
 
         if ($applyheader) {
             $mform->addElement('header', 'evasysheader', get_string('evasys_header', 'mod_booking'));
@@ -115,6 +120,7 @@ class evasys extends field_base {
             'autocomplete',
             'questionaire',
             get_string('evasys_questionaire', 'mod_booking'),
+            $questionaires
         );
 
         $mform->addElement(
@@ -130,12 +136,14 @@ class evasys extends field_base {
 
         $mform->addElement(
             'autocomplete',
-            'other_report_recipiens',
+            'other_report_recipients',
             get_string('evasys_other_report_recipients', 'mod_booking'),
+            $recipients,
+            ['multiple' => true]
         );
 
         $mform->addElement(
-            'checkbox',
+            'advcheckbox',
             'evasys_notifyparticipants',
             get_string('evasys_notifyparticipants', 'mod_booking'),
         );

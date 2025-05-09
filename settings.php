@@ -686,6 +686,32 @@ if ($ADMIN->fulltree) {
                 booking::get_possible_presences(true)
             )
         );
+        $settings->add(
+            new admin_setting_heading(
+                'evasyssettings',
+                get_string('evasyssettings', 'mod_booking'),
+                get_string('evasyssettings_desc', 'mod_booking')
+            )
+        );
+
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/useevasys',
+                get_string('useevasys', 'mod_booking'),
+                get_string('useevasys_desc', 'mod_booking'),
+                0
+            )
+        );
+
+        $settings->add(
+            new admin_setting_configtext(
+                'booking/evasysbaseurl',
+                get_string('evasysbaseurl', 'mod_booking'),
+                get_string('evasysbaseurl_desc', 'mod_booking'),
+                0
+            )
+        );
+
 
         // PRO feature: Teacher settings.
         $settings->add(

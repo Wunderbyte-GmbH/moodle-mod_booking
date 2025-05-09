@@ -1222,9 +1222,14 @@ $string['errortoomanydecimals'] = 'Sie können maximal 2 Nachkommastellen angebe
 $string['errorusernotfound'] = 'Fehler: Der Veranstalter mit der ID "{$a}" wurde nicht gefunden.';
 $string['evasys_evaluation_endtime'] = 'Ende des Evaluierungszeitraums';
 $string['evasys_evaluation_starttime'] = 'Beginn des Evaluierungszeitraums';
-$string['evasys_header'] = 'Evaluation';
-$string['evasys_notifyparticipants'] = 'Optionale Benachrichtigungen an Teilnehmerinnen';
+$string['evasys_header'] = 'Evasys Evaluation';
+$string['evasys_notifyparticipants'] = 'Optionale Benachrichtigungen an Teilnehmer:innen';
 $string['evasys_other_report_recipients'] = 'Weitere Berichtsempfängerinnen (Sekundärdozentinnen in EvaSys)';
+$string['evasys_questionaire'] = 'Selection of the questionnaire';
+$string['evasysbaseurl'] = 'Basis-URL für Evasys Evaluation';
+$string['evasysbaseurl_desc'] = 'Die URL wird für die Evaluation verwendet';
+$string['evasyssettings'] = 'Evasys Evaluation <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
+$string['evasyssettings_desc'] = 'Einstellungen für die Evasys Evaluation';
 $string['eventalreadyover'] = 'Diese Veranstaltung ist bereits vorüber.';
 $string['eventdesc:bookinganswercancelled'] = 'Nutzer:in "{$a->user}" hat Nutzer:in "{$a->relateduser}" aus "{$a->title}" storniert.';
 $string['eventdesc:bookinganswercancelledself'] = 'Nutzer:in "{$a->user}" hat "{$a->title}" storniert.';
@@ -2542,6 +2547,8 @@ $string['usecoursecategorytemplates'] = 'Verwende Vorlagen für neu zu erstellen
 $string['usecoursecategorytemplates_desc'] = '';
 $string['usedinbooking'] = 'Das Löschen dieser Kategorie/n ist nicht möglich, da sie verwendet werden!';
 $string['usedinbookinginstances'] = 'Die Vorlage wird in folgenden Buchungsinstanzen verwendet';
+$string['useevasys'] = 'Evasys verwenden';
+$string['useevasys_desc'] = 'Evasys Evaluation kann verwendet werden. ';
 $string['uselegacymailtemplates'] = 'Weiterhin veraltete E-Mail-Vorlagen verwenden';
 $string['uselegacymailtemplates_desc'] = 'Diese Funktion ist veraltet und wird in naher Zukunft entfernt. Wir empfehlen Ihnen dringend, Ihre Vorlagen und Einstellungen zu <a href="{$a}">Buchungs Regeln</a> zu migrieren.
 <span class="text-danger"><b>Vorsicht:</b> Wenn Sie dieses Kästchen deaktivieren, werden Ihre E-Mail-Vorlagen in Ihren Buchungsinstanzen nicht mehr angezeigt und verwendet.</span>';

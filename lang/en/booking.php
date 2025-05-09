@@ -1234,9 +1234,14 @@ $string['errortoomanydecimals'] = 'Only 2 decimals are allowed.';
 $string['errorusernotfound'] = 'Error: The organizer with ID "{$a}" could not be found.';
 $string['evasys_evaluation_endtime'] = 'End of evaluation period';
 $string['evasys_evaluation_starttime'] = 'Start of evaluation period';
-$string['evasys_header'] = 'Evaluation';
+$string['evasys_header'] = 'Evasys Evaluation';
 $string['evasys_notifyparticipants'] = 'Optional notifications to participants';
 $string['evasys_other_report_recipients'] = 'Additional report recipients (secondary instructors in EvaSys)';
+$string['evasys_questionaire'] = 'Auswahl des Fragebogens';
+$string['evasysbaseurl'] = 'Baseurl for Evasys evaluation';
+$string['evasysbaseurl_desc'] = 'The url is used for the evaluation';
+$string['evasyssettings'] = 'Evasys Evaluation <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
+$string['evasyssettings_desc'] = 'Settings for the Evasys evaluation';
 $string['eventalreadyover'] = 'This event is already over.';
 $string['eventdesc:bookinganswercancelled'] = 'The user "{$a->user}" cancelled "{$a->relateduser}" from "{$a->title}".';
 $string['eventdesc:bookinganswercancelledself'] = 'The user "{$a->user}" cancelled "{$a->title}".';
@@ -2610,6 +2615,8 @@ $string['usecoursecategorytemplates'] = 'Use templates for newly created Moodle 
 $string['usecoursecategorytemplates_desc'] = '';
 $string['usedinbooking'] = 'You can\'t delete this category, because you\'re using it in booking!';
 $string['usedinbookinginstances'] = 'Template is used in following booking instances';
+$string['useevasys'] = 'Use Evasys';
+$string['useevasys_desc'] = 'Evasys Evaluation can be used. ';
 $string['uselegacymailtemplates'] = 'Still use legacy mail templates';
 $string['uselegacymailtemplates_desc'] = 'This function is deprecated and will be removed in the near future. We strongly encourage you to migrate your templates & settings to <a href="{$a}">Booking Rules</a>.
  <span class="text-danger"><b>Be careful:</b> If you uncheck this box, your email templates in your booking-instances won\'t be shown and used anymore.</span>';
