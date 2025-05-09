@@ -494,7 +494,7 @@ class manageusers_table extends wunderbyte_table {
                         'labelcolumn' => 'username',
                         'titlestring' => 'unconfirmbooking',
                         'bodystring' => 'unconfirmbookinglong',
-                        'submitbuttonstring' => 'booking:choose',
+                        'submitbuttonstring' => 'delete',
                         'component' => 'mod_booking',
                         'optionid' => $values->optionid,
                         'userid' => $values->userid,
