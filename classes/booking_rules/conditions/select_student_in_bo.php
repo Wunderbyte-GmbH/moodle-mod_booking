@@ -172,8 +172,15 @@ class select_student_in_bo implements booking_rule_condition {
             $anduserid = "AND ba.userid = :userid2";
         }
 
-        $sql->select = " ba.id as baid, " . $sql->select;
-        $sql->select .= ", ba.userid userid ";
+        // If the select contains optiondate, we also need to include it in uniqueid.
+        // We need the hack with uniqueid so we do not lose entries.
+        if (strpos($sql->select, 'optiondate') !== false) {
+            $concat = $DB->sql_concat("ba.id", "'-'", "bod.id");
+        } else {
+            $concat = "ba.id";
+        }
+        // Also select userid.
+        $sql->select = "$concat AS uniqueid, ba.id AS baid, ba.userid, " . $sql->select;
 
         $sql->from .= " JOIN {booking_answers} ba ON bo.id = ba.optionid ";
 
