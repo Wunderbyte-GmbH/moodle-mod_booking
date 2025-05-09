@@ -196,9 +196,9 @@ Feature: In a course add a booking option and manage its waiting list
     ## Cancel waiting list for student 4
     And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
     And I wait until the page is ready
-    And I should see "student3@example.com" in the "//tr[contains(@id, 'waitinglist') and contains(@id, '_r1')]" "xpath_element"
-    And I should see "student4@example.com" in the "//tr[contains(@id, 'waitinglist') and contains(@id, '_r2')]" "xpath_element"
-    And I click on "tr[id^='waitinglist'][id$='r2'] a[data-methodname='deletebooking']"" "css_element"
+    And I should see "student3@example.com" in the "tr[id^='waitinglist'][id$='r1'] td.columnclass.email" "css_element"
+    And I should see "student4@example.com" in the "tr[id^='waitinglist'][id$='r2'] td.columnclass.email" "css_element"
+    And I click on "tr[id^='waitinglist'][id$='r2'] a[data-methodname='deletebooking']" "css_element"
     And I wait until the page is ready
     And I click on "Delete" "button" in the ".modal-footer" "css_element"
     And I log out
