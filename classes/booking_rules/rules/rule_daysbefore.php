@@ -383,19 +383,26 @@ class rule_daysbefore implements booking_rule {
                     > ( :nowparam - 3600 + (86400 * :numberofdays ))";
                 break;
             case 'optiondatestarttime':
+                // We need the numberofdays both in select and where clause.
+
                 // Get the start of every session (optiondate).
                 // Only for optiondates, we can specify daystonotify which can override the numberofdays of the rule.
-                $sql->select = "bo.id optionid, bod.id optiondateid, cm.id cmid, bod.coursestarttime datefield, bod.daystonotify";
+                $sql->select = "bo.id optionid, bod.id optiondateid, cm.id cmid, bod.coursestarttime datefield,
+                CASE
+                    WHEN bod.daystonotify > 0 THEN bod.daystonotify
+                    ELSE :numberofdays
+                END AS daystonotify";
 
                 $sql->where .= " AND bod.coursestarttime";
                 // In testmode we don't check the timestamp.
                 // Add one hour of tolerance.
                 // For optiondates, we can specify the numberofdays individually for each optiondate (daystonotify column).
                 // Only if it's 0 for the optiondate, we use the value specified in the rule.
+                $params['numberofdays2'] = (int) $ruledata->days;
                 $sql->where .= !$testmode ? " >= ( :nowparam - 3600 + (86400 *
                 CASE
                     WHEN bod.daystonotify > 0 THEN bod.daystonotify
-                    ELSE :numberofdays
+                    ELSE :numberofdays2
                 END
                 ))" : " IS NOT NULL ";
 
