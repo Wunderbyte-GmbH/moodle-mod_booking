@@ -164,7 +164,7 @@ Feature: In a course add a booking option and manage its waiting list
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I wait until the page is ready
     And I log out
-    ## Admin confirms purchase of bi=ooking option by students 1 and 2
+    ## Admin confirms purchase of booking option by students 1 and 2
     And I log in as "admin"
     And I visit "/local/shopping_cart/cashier.php"
     And I wait until the page is ready
@@ -196,10 +196,11 @@ Feature: In a course add a booking option and manage its waiting list
     ## Cancel waiting list for student 4
     And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
     And I wait until the page is ready
-    And I should see "student4@example.com" in the "//tr[contains(@id, 'waitinglist') and contains(@id, '_r1')]" "xpath_element"
-    And I click on the element with the number "1" with the dynamic identifier "waitinglist" and action "unconfirmbooking"
+    And I should see "student3@example.com" in the "//tr[contains(@id, 'waitinglist') and contains(@id, '_r1')]" "xpath_element"
+    And I should see "student4@example.com" in the "//tr[contains(@id, 'waitinglist') and contains(@id, '_r2')]" "xpath_element"
+    And I click on "tr[id^='waitinglist'][id$='r2'] a[data-methodname='deletebooking']"" "css_element"
     And I wait until the page is ready
-    And I click on "Book" "button" in the ".modal-footer" "css_element"
+    And I click on "Delete" "button" in the ".modal-footer" "css_element"
     And I log out
     ## Validate availability and buy option as student 3
     And I am on the "My booking" Activity page logged in as student3
