@@ -2626,8 +2626,9 @@ $string['waitinglistinfotextsinfo'] = 'Kurze Infotexte anstatt der konkreten Zah
 $string['waitinglistlowmessage'] = 'Nur noch wenige Wartelistenplätze!';
 $string['waitinglistlowpercentage'] = 'Warteliste: Prozentsatz für "Nur noch wenige Plätze verfügbar"-Nachricht';
 $string['waitinglistlowpercentagedesc'] = 'Wenn die Anzahl verfügbarer Wartelistenplätze diesen Prozentsatz erreicht oder unter diesen Prozentsatz sinkt, wird eine Nachricht angezeigt, dass nur noch wenige Plätze verfügbar sind.';
-$string['waitinglistshowplaceonwaitinglist'] = 'Zeige Platz auf der Warteliste.';
-$string['waitinglistshowplaceonwaitinglistinfo'] = 'Warteliste: Zeige den Platz der NutzerIn auf der Warteliste an.';
+$string['waitinglistshowplaceonwaitinglist'] = 'Wartelistenplätze aktivieren';
+$string['waitinglistshowplaceonwaitinglistinfo'] = 'Warteliste: Zeige den Platz der Nutzer:innen auf der Warteliste an.
+Sie können die Reihenfolge der Nutzer:innen auf der Warteliste per Drag & Drop anpassen.';
 $string['waitinglisttaken'] = 'Auf der Warteliste';
 $string['waitinglistusers'] = 'Nutzer:innen auf der Warteliste';
 $string['waitingplacesavailable'] = 'Verfügbare Wartelistenplätze:  {$a->overbookingavailable} von {$a->maxoverbooking}';

@@ -2696,8 +2696,9 @@ $string['waitinglistinfotextsinfo'] = 'Show short info messages instead of the n
 $string['waitinglistlowmessage'] = 'Only a few waiting list places left!';
 $string['waitinglistlowpercentage'] = 'Percentage for waiting list low message';
 $string['waitinglistlowpercentagedesc'] = 'If the available places on the waiting list reach or get below this percentage a waiting list low message will be shown.';
-$string['waitinglistshowplaceonwaitinglist'] = 'Show place on waiting list.';
-$string['waitinglistshowplaceonwaitinglistinfo'] = 'Waitinglist: Shows the exact place of the user on the waitinglist.';
+$string['waitinglistshowplaceonwaitinglist'] = 'Ranked waiting list';
+$string['waitinglistshowplaceonwaitinglistinfo'] = 'Waiting list: Shows the exact place of the user on the waitinglist.
+It\'s possible to re-rank the order of users on the waiting list manually.';
 $string['waitinglisttaken'] = 'On the waiting list';
 $string['waitinglistusers'] = 'Users on waiting list';
 $string['waitingplacesavailable'] = 'Waiting list places available: {$a->overbookingavailable} of {$a->maxoverbooking}';
