@@ -1151,6 +1151,11 @@ class shortcodes {
             }
         }
         if (!empty($args['sortby'])) {
+            if (
+                !isset($table->columns[$args['sortby']])
+            ) {
+                $table->define_columns([$args['sortby']]);
+            }
             $table->sortable(true, $args['sortby'], $defaultorder);
         } else {
             $table->sortable(true, 'text', $defaultorder);
