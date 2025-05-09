@@ -1514,7 +1514,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                 null,
                 'nav_bookotherusers'
             );
-            $completion = new \completion_info($course);
+            $completion = new completion_info($course);
             if ($completion->is_enabled($cm)) {
                 $navref->add(
                     get_string('bookuserswithoutcompletedactivity', 'booking'),
@@ -1695,8 +1695,7 @@ function booking_activitycompletion_teachers($selectedusers, $booking, $cmid, $o
     global $DB, $CFG;
     [$course, $cm] = get_course_and_cm_from_cmid($cmid, "booking");
 
-    require_once($CFG->libdir . '/completionlib.php');
-    $completion = new \completion_info($course);
+    $completion = new completion_info($course);
 
     foreach ($selectedusers as $uid) {
         foreach ($uid as $ui) {
@@ -1823,15 +1822,17 @@ function booking_generatenewnumbers($bookingdatabooking, $cmid, $optionid, $alls
  * @param int $optionid
  */
 function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) {
+    // booking_get_completion_state
     global $DB, $CFG, $USER;
 
+    // core_course get course.
     $course = $DB->get_record('course', ['id' => $booking->course]);
-    require_once($CFG->libdir . '/completionlib.php');
-    $completion = new \completion_info($course);
+    $completion = new completion_info($course);
 
     $cm = get_coursemodule_from_id('booking', $cmid, 0, false, MUST_EXIST);
 
     foreach ($selectedusers as $selecteduser) {
+        // Ba singleton.
         $userdata = $DB->get_record_sql(
             "SELECT *
                FROM {booking_answers}
@@ -1842,6 +1843,8 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
         );
 
         if ($userdata->completed == '1') {
+            // Bookingoption was already marked as completed.
+            // Bo completion class handling everything.
             $completionold = $userdata->completed;
             $userdata->completed = '0';
             $userdata->timemodified = time();
@@ -1867,6 +1870,7 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
                 $completion->update_state($cm, COMPLETION_INCOMPLETE, $selecteduser);
             }
         } else {
+            // Everything that happens if bookingoption wasn't completed before.
             $completionold = $userdata->completed;
             $userdata->completed = '1';
             $userdata->timemodified = time();
