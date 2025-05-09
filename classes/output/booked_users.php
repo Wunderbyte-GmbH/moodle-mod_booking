@@ -263,7 +263,7 @@ class booked_users implements renderable, templatable {
                 'waitinglist',
                 $waitinglistcols,
                 $waitinglistheaders,
-                // Sorting of waiting list only possible if setting show show place is enabled.
+                // Sorting of waiting list only possible if setting to show place is enabled.
                 (bool)get_config('booking', 'waitinglistshowplaceonwaitinglist')
             ) : null;
 
