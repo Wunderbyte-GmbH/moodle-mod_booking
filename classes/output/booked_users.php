@@ -394,18 +394,22 @@ class booked_users implements renderable, templatable {
                         'presencecount' => get_string('presencecount', 'mod_booking'),
                     ];
                     $table->sort_default_column = 'lastname';
-                    $table->sort_default_order = SORT_DESC;
+                    $table->sort_default_order = SORT_ASC;
                     break;
                 case MOD_BOOKING_STATUSPARAM_WAITINGLIST:
                     if (get_config('booking', 'waitinglistshowplaceonwaitinglist')) {
                         // No sorting allowed as it would destroy rank order.
                         $sortablecolumns = [];
+                        $table->sort_default_column = 'rank';
+                        $table->sort_default_order = SORT_ASC;
                     } else {
                         $sortablecolumns = [
                             'firstname' => get_string('firstname'),
                             'lastname' => get_string('lastname'),
                             'email' => get_string('email'),
                         ];
+                        $table->sort_default_column = 'lastname';
+                        $table->sort_default_order = SORT_ASC;
                     }
                     break;
                 default:
@@ -414,7 +418,8 @@ class booked_users implements renderable, templatable {
                         'lastname' => get_string('lastname'),
                         'email' => get_string('email'),
                     ];
-                    // No default sorting as it destroys waiting list rank.
+                    $table->sort_default_column = 'lastname';
+                    $table->sort_default_order = SORT_ASC;
                     break;
             }
 
