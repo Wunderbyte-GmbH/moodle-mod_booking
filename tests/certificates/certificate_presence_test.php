@@ -150,7 +150,6 @@ final class certificate_presence_test extends advanced_testcase {
         $this->assertEquals($expected['bookitresults'][0], $id);
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
 
-
         $student2 = $users['student2'];
         $this->setUser($users['student2']);
         // Book the Second user without any problem.
