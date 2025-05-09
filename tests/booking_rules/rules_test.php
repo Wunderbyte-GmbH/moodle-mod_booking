@@ -36,6 +36,7 @@ use mod_booking\bo_availability\bo_info;
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\local\mobile\customformstore;
 use tool_mocktesttime\time_mock;
+use mod_booking_generator;
 
 /**
  * Tests for booking rules.
@@ -629,6 +630,95 @@ final class rules_test extends advanced_testcase {
                 $this->assertStringContainsString($ruledata2['ruledata'], $customdata->rulejson);
                 $this->assertStringContainsString($ruledata2['conditiondata'], $customdata->rulejson);
                 $this->assertStringContainsString($ruledata2['actiondata'], $customdata->rulejson);
+            } else {
+                continue;
+            }
+        }
+
+        // Mandatory to solve potential cache issues.
+        singleton_service::destroy_instance();
+        // Mandatory to deal with static variable in the booking_rules.
+        rules_info::$rulestoexecute = [];
+        booking_rules::$rules = [];
+    }
+
+    /**
+     * Test session reminder rules.
+     *
+     * @covers \mod_booking\booking_option::update
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_session_reminder_rules(array $bdata): void {
+
+        singleton_service::destroy_instance();
+
+        set_config('timezone', 'Europe/Kyiv');
+        set_config('forcetimezone', 'Europe/Kyiv');
+
+        // Setup test data.
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $user1 = $this->getDataGenerator()->create_user();
+        $user2 = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $user2->username;
+
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($user2->id, $course->id, 'student');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        // Create booking rule - "ndays before".
+        $sessionreminderruledata = [
+            'name' => 'sessionreminderrule',
+            'contextid' => 1,
+            'conditionname' => 'select_users',
+            'conditiondata' => '{"userids":["' . $user1->id . '","' . $user2->id . '"]}',
+            'actionname' => 'send_mail',
+            'actiondata' => '{"subject":"sessionreminderrule","template":"session about to start","templateformat":"1"}',
+            'rulename' => 'rule_daysbefore',
+            'ruledata' => '{"days":"1","datefield":"optiondatestarttime","cancelrules":[]}',
+        ];
+        $sessionreminderrule = $plugingenerator->create_rule($sessionreminderruledata);
+
+        // Create booking option 1.
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Option-with-two-sessions';
+        $record->chooseorcreatecourse = 1; // Reqiured.
+        $record->courseid = $course->id;
+        $record->description = 'This option has two optiondates, one tomorrow and one next week';
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('2 June 2050 15:00'); // Tomorrow.
+        $record->courseendtime_0 = strtotime('2 June 2050 16:00');
+        /*$record->optiondateid_1 = "1";
+        $record->daystonotify_1 = "7";
+        $record->coursestarttime_1 = strtotime('8 June 2050 15:00'); // Tomorrow.
+        $record->courseendtime_1 = strtotime('8 June 2050 16:00');*/
+        $option1 = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option1->id);
+
+        $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+
+        // Validate scheduled adhoc tasks. Validate messages - order might be free.
+        foreach ($messages as $key => $message) {
+            $customdata = $message->get_custom_data();
+            if (strpos($customdata->customsubject, "sessionreminderrule") !== false) {
+                $this->assertEquals(strtotime('1 June 2050 15:00'), $message->get_next_run_time());
+                $this->assertEquals("session about to start", $customdata->custommessage);
+                $this->assertStringContainsString($sessionreminderruledata['ruledata'], $customdata->rulejson);
+                $this->assertStringContainsString($sessionreminderruledata['conditiondata'], $customdata->rulejson);
+                $this->assertStringContainsString($sessionreminderruledata['actiondata'], $customdata->rulejson);
             } else {
                 continue;
             }
