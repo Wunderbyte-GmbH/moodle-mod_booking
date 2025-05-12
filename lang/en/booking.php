@@ -2124,6 +2124,7 @@ $string['reserveddeleted'] = 'Reserved User deleted';
 $string['reservedusers'] = 'Shortterm reservations';
 $string['reset'] = 'Reset';
 $string['responses'] = 'Responses';
+$string['respondapiheader'] = ' <i class="fa fa-cubes" aria-hidden="true"></i>&nbsp;Respond API';
 $string['responsesfields'] = 'Fields in participants list';
 $string['responsesto'] = 'Responses to {$a} ';
 $string['responsible'] = 'Responsible';
