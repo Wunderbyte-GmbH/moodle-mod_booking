@@ -1,4 +1,4 @@
-name: Labeled ERPNext Task
+name: Create ERPNext Task from Labeled Issue
 
 on:
   issues:
@@ -6,26 +6,7 @@ on:
       - labeled
 
 jobs:
-  create-task:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Format Payload
-        run: |
-          sanitize() {
-            echo "$1" | jq -R '.' | sed 's/^"//;s/"$//'
-          }
-
-          SANITIZED_TITLE=$(sanitize "${{ github.event.issue.title }}")
-          SANITIZED_BODY=$(sanitize "${{ github.event.issue.body }}")
-
-          echo '{
-            "subject": "GH#${{ github.event.issue.number }} - '"$SANITIZED_TITLE"'",
-            "project": "${{ github.event.label.name }}",
-            "status": "Open",
-            "description": "<p><a href=\"${{ github.event.issue.html_url }}\">GH#${{ github.event.issue.number }}</a></p><br>'"$SANITIZED_BODY"'"
-          }' > payload.json
-
-      - name: Make API Request to ERPNext
-        run: |
-          curl --fail -X POST -H "Content-Type: application/json" -H "Authorization: ${{ secrets.WEBHOOK_TOKEN }}" -d @payload.json https://erp.wunderbyte.at/api/resource/Task
+  call-labeled-issue-workflow:
+    uses: Wunderbyte-GmbH/catalyst-moodle-workflows/.github/workflows/labeled-issue.yml@main
+    secrets:
+      webhook_token: ${{ secrets.WEBHOOK_TOKEN }}
