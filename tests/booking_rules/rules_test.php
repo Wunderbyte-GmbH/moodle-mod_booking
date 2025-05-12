@@ -697,14 +697,14 @@ final class rules_test extends advanced_testcase {
         $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course->id;
         $record->description = 'This option has two optiondates, one tomorrow and one next week';
-        $record->optiondateid_0 = "0";
-        $record->daystonotify_0 = "0";
+        $record->optiondateid_0 = 0; // Has to be 0 so a new optiondate is created.
+        $record->daystonotify_0 = 0;
         $record->coursestarttime_0 = strtotime('2 June 2050 15:00'); // Tomorrow.
         $record->courseendtime_0 = strtotime('2 June 2050 16:00');
-        /*$record->optiondateid_1 = "1";
-        $record->daystonotify_1 = "7";
+        $record->optiondateid_1 = 0; // Has to be 0 so a new optiondate is created.
+        $record->daystonotify_1 = 7;
         $record->coursestarttime_1 = strtotime('8 June 2050 15:00'); // Tomorrow.
-        $record->courseendtime_1 = strtotime('8 June 2050 16:00');*/
+        $record->courseendtime_1 = strtotime('8 June 2050 16:00');
         $option1 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option1->id);
 
@@ -714,11 +714,24 @@ final class rules_test extends advanced_testcase {
         foreach ($messages as $key => $message) {
             $customdata = $message->get_custom_data();
             if (strpos($customdata->customsubject, "sessionreminderrule") !== false) {
-                $this->assertEquals(strtotime('1 June 2050 15:00'), $message->get_next_run_time());
-                $this->assertEquals("session about to start", $customdata->custommessage);
-                $this->assertStringContainsString($sessionreminderruledata['ruledata'], $customdata->rulejson);
-                $this->assertStringContainsString($sessionreminderruledata['conditiondata'], $customdata->rulejson);
-                $this->assertStringContainsString($sessionreminderruledata['actiondata'], $customdata->rulejson);
+                $this->assertEquals(strtotime('1 June 2050 15:00'), $message->get_next_run_time(), 'error with next run time');
+                $this->assertEquals("session about to start", $customdata->custommessage, 'error with custom message');
+                $this->assertContains($customdata->userid, [$user1->id, $user2->id], 'error with user id');
+                $this->assertStringContainsString(
+                    $sessionreminderruledata['ruledata'],
+                    $customdata->rulejson,
+                    'error with ruledata'
+                );
+                $this->assertStringContainsString(
+                    $sessionreminderruledata['conditiondata'],
+                    $customdata->rulejson,
+                    'error with conditiondata'
+                );
+                $this->assertStringContainsString(
+                    $sessionreminderruledata['actiondata'],
+                    $customdata->rulejson,
+                    'error with actiondata'
+                );
             } else {
                 continue;
             }
@@ -1764,7 +1777,7 @@ final class rules_test extends advanced_testcase {
         // Get all scheduled task messages.
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
 
-        $this->assertCount(5, $tasks); // TODO: expected 6 ?
+        $this->assertCount(5, $tasks); // Todo: expected 6 ?
         // Validate task messages. Might be free order.
         foreach ($tasks as $key => $task) {
             $customdata = $task->get_custom_data();
@@ -1782,7 +1795,7 @@ final class rules_test extends advanced_testcase {
                 $this->assertEquals($student2->id, $rulejson->datafromevent->userid);
             } else {
                 // Validate 3 task messages on the bookingoption_freetobookagain with delay event.
-                // TODO for some reasons - only student1 and student3 being informed - not student4 ?
+                // Todo for some reasons - only student1 and student3 being informed - not student4?
                 $this->assertEquals("freeplacedelaysubj", $customdata->customsubject);
                 $this->assertEquals("freeplacedelaymsg", $customdata->custommessage);
                 $this->assertContains($customdata->userid, [$student1->id, $student3->id, $student4->id]);
