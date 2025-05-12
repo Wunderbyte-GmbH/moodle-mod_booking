@@ -128,6 +128,7 @@ class mobile {
         }
 
         $settings = singleton_service::get_instance_of_booking_option_settings($args['optionid']);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
         $customform = customform::return_formelements($settings);
         $mobileformbuilder = new mobileformbuilder();
 
@@ -181,17 +182,19 @@ class mobile {
                 $data['nosubmit']['label'] = get_string('booked', 'mod_booking');
                 $cancellabel = $id == MOD_BOOKING_BO_COND_ALREADYBOOKED ? get_string('cancelmyself', 'mod_booking') : $description;
                 self::render_course_button($data);
-                $data['cancelbookingoption'] = [
-                    'itemid' => $data['id'],
-                    'area' => "option",
-                    'userid' => $USER->id,
-                    'label' => $cancellabel,
-                    'data' => '"{\"itemid\":\"' .
-                        $data['id'] .
-                        '\",\"componentname\":\"mod_booking\",\"area\":\"option\",\"userid\":\"' .
-                        $USER->id .
-                        ' \",\"results\":\"\",\"initialized\":\"true\"}"',
-                ];
+                if ($bookingsettings->cancancelbook == '1') {
+                    $data['cancelbookingoption'] = [
+                        'itemid' => $data['id'],
+                        'area' => "option",
+                        'userid' => $USER->id,
+                        'label' => $cancellabel,
+                        'data' => '"{\"itemid\":\"' .
+                            $data['id'] .
+                            '\",\"componentname\":\"mod_booking\",\"area\":\"option\",\"userid\":\"' .
+                            $USER->id .
+                            ' \",\"results\":\"\",\"initialized\":\"true\"}"',
+                    ];
+                }
                 break;
             default:
                 $data['nosubmit']['label']
@@ -334,7 +337,7 @@ class mobile {
 
         $cmid = $args['cmid'];
         $availablenavtabs = self::get_available_nav_tabs($cmid);
-        $whichview = self::set_active_nav_tabs($availablenavtabs, $args['whichview']);
+        $whichview = self::set_active_nav_tabs($availablenavtabs, $args['whichview'] ?? '');
 
         if (empty($cmid)) {
             throw new moodle_exception('nocmidselected', 'mod_booking');
@@ -588,7 +591,10 @@ class mobile {
         if ($configmobileviewoptions !== '') {
             $navtabs = explode(',', get_config('booking', 'mobileviewoptions'));
             foreach ($navtabs as $navtab) {
-                if (self::get_available_booking_options($navtab, $cmid)) {
+                if (
+                    !empty($navtab) &&
+                    self::get_available_booking_options($navtab, $cmid)
+                ) {
                     $selectednavlabelnames[] = [
                       'label' => $navtab,
                       'name' => $navlabelnames[$navtab],
