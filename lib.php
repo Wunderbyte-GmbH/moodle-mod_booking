@@ -1867,6 +1867,16 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
                 $completion->update_state($cm, COMPLETION_INCOMPLETE, $selecteduser);
             }
         } else {
+            $certid = certificate::issue_certificate($optionid, $selecteduser);
+            $other = [
+                'cmid' => $cmid,
+            ];
+            if (
+                isset($certid)
+                && !empty($certid)
+            ) {
+                $other['certid'] = $certid;
+            }
             $completionold = $userdata->completed;
             $userdata->completed = '1';
             $userdata->timemodified = time();
