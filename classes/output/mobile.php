@@ -337,7 +337,7 @@ class mobile {
 
         $cmid = $args['cmid'];
         $availablenavtabs = self::get_available_nav_tabs($cmid);
-        $whichview = self::set_active_nav_tabs($availablenavtabs, $args['whichview'] ?? '');
+        $whichview = self::set_active_nav_tabs($availablenavtabs, $args['whichview'] ?? null);
 
         if (empty($cmid)) {
             throw new moodle_exception('nocmidselected', 'mod_booking');
