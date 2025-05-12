@@ -2060,6 +2060,7 @@ $string['requirepreviousoptionstobebooked'] = 'Einschränkung aktivieren: Vorang
 $string['reserveddeleted'] = 'Reservierte Nutzer:in gelöscht';
 $string['reservedusers'] = 'Kurzfristige Reservierungen';
 $string['reset'] = 'Zurücksetzen';
+$string['respondapiheader'] = ' <i class="fa fa-cubes" aria-hidden="true"></i>&nbsp;Antwort-Schnittstelle';
 $string['responses'] = 'Buchungen';
 $string['responsesfields'] = 'Felder in der Teilnehmer:innen-Liste';
 $string['responsesto'] = 'Buchungen zu {$a} ';
