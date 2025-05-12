@@ -2233,7 +2233,7 @@ $string['sessionremindermailmessage'] = '<p>Erinnerung: Sie haben den folgenden 
 <p>Teilnehmer: {$a->participant}</p>
 ';
 $string['sessionremindermailsubject'] = 'Erinnerung: Sie haben demnächst einen Kurstermin';
-$string['sessionremindershint'] = 'Benachrichtigungen für Termine mit <a href="{$a}" target="_blank">Buchungsregeln</a> einrichten';
+$string['sessionremindershint'] = 'Mit <a href="{$a}" target="_blank">Buchungsregeln</a> können Sie Benachrichtigungen für Termine einrichten';
 $string['sessionremindersruleexists'] = 'Es gibt mindestens eine Buchungsregel, die für diesen Termin angewendet wird.';
 $string['sessions'] = 'Termin(e)';
 $string['shoppingcart'] = 'Zahlungsoptionen mit Shopping Cart Plugin definieren';

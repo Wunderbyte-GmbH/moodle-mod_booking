@@ -2295,7 +2295,7 @@ $string['sessionremindermailmessage'] = '<p>Keep in mind: You are booked for the
 <p>Participant: {$a->participant}</p>
 ';
 $string['sessionremindermailsubject'] = 'Reminder: You have an upcoming session';
-$string['sessionremindershint'] = 'Set up reminders for dates with <a href="{$a}" target="_blank">Booking Rules</a>';
+$string['sessionremindershint'] = 'You can set up reminders for dates with <a href="{$a}" target="_blank">Booking Rules</a>';
 $string['sessionremindersruleexists'] = 'There is at least one Booking Rule applied for this date.';
 $string['sessions'] = 'Session(s)';
 $string['shoppingcart'] = 'Set payment options with shopping cart plugin';
