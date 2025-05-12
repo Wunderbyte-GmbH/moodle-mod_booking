@@ -5024,11 +5024,9 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2025050701, 'booking');
     }
-    if ($oldversion < 2025050900) {
-
+    if ($oldversion < 2025051202) {
         // Define table booking_evasys to be created.
         $table = new xmldb_table('booking_evasys');
-
         // Adding fields to table booking_evasys.
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
         $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
@@ -5038,6 +5036,8 @@ function xmldb_booking_upgrade($oldversion) {
         $table->add_field('trainers', XMLDB_TYPE_CHAR, '255', null, null, null, null);
         $table->add_field('organizers', XMLDB_TYPE_CHAR, '255', null, null, null, null);
         $table->add_field('notifyparticipants', XMLDB_TYPE_INTEGER, '2', null, null, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
 
         // Adding keys to table booking_evasys.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
@@ -5046,10 +5046,8 @@ function xmldb_booking_upgrade($oldversion) {
         if (!$dbman->table_exists($table)) {
             $dbman->create_table($table);
         }
-
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2025050900, 'booking');
+        upgrade_mod_savepoint(true, 2025051202, 'booking');
     }
-
     return true;
 }
