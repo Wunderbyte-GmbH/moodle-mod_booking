@@ -1,3 +1,25 @@
+## Version 8.12.9 (2025051200)
+* New Feature: Competencies of booking options
+* New feature: Booking rules now support session reminders
+* Improvement: Usability improvements for bookings tracker
+* Improvement: Got rid of enablepresence instance setting
+* Improvement: booking time not overwritten by billboard
+* Bugfix: enable maxoptionsforcategory with all types of customfields
+* Bugfix: Fix requirelogin for courselist shortcode (and all other shortcodes too).
+* Bugfix: Increase number of booked users on report.php
+* Bugfix: Fix SQL for rank order of answers in waiting list so it'll work with any DB family (also MySQL).
+* Bugfix: No validation for enrollink with empty course
+* Bugfix: Fix rank order for setting waitinglistshowplaceonwaitinglist
+* Bugfix: Catch non existing cmid error in shortcodes
+* Bugfix: Move setting waitinglistshowplaceonwaitinglist to correct place (under waiting list header)
+* Bugfix: Fix missing optiondateid in SQL which led to dates being duplicated
+* Bugfix: Fix uniqueid for student
+* Bugfix: Fix daystonotify override for session reminder rule
+* Bugfix: Fix check_if_rule_still_applies
+* Bugfix: Enable sorting for supplementary columns (customfields) in shortcodes
+* Bugfix: remove unsubscribe button in mobile output
+* Bugfix: missing tab in active nav tabs
+
 ## Version 8.12.8 (2025050100)
 * New Feature: Create certificates for completing booking options. Also view and edit certificates in report and placeholders for rules.
 * Improvement: Added new shortcodes allbookingoption and mybookingoptions.
