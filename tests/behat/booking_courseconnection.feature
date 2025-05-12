@@ -32,10 +32,6 @@ Feature: Configure and validate different course connection settings for booking
       | activity | course | name       | intro                  | bookingmanager | eventtype | autoenrol |
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | 1         |
     And I change viewport size to "1366x10000"
-    ## Unfortunately, TinyMCE is slow and has misbehavior which might cause number of site-wide issues. So - we disable it.
-    And the following config values are set as admin:
-      | config      | value         |
-      | texteditors | atto,textarea |
 
   @javascript
   Scenario: Booking courseconnection: connect existing course and enroll users

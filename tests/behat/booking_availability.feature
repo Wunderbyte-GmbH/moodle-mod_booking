@@ -45,16 +45,11 @@ Feature: Test booking options avaialbility conditions
       | My booking | Option - availability by dates | C1     | Deskr       | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +5 days ##   |
       | My booking | Option - dependency            | C1     | Deskr       | 1           | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 0              | 0              | ## +5 days ##     | ## +6 days ##   |
     And I change viewport size to "1366x10000"
-    ## Unfortunately, TinyMCE is slow and has misbehavior which might cause number of site-wide issues. So - we disable it.
-    And the following config values are set as admin:
-      | config      | value         |
-      | texteditors | atto,textarea |
 
   @javascript
   Scenario: Configure availability condition by dates - until
     Given I am on the "My booking" Activity page logged in as teacher1
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r2" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r2" "css_element"
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r2" "css_element"
     And I follow "Availability conditions"
     And I set the field "Booking is possible only after a certain date" to ""
     And I set the field "Booking is possible only until a certain date" to "checked"
@@ -64,7 +59,6 @@ Feature: Test booking options avaialbility conditions
       | bookingclosingtime[month] | May                |
       | bookingclosingtime[year]  | ## - 1 year ##%Y## |
     And I press "Save"
-    And I wait until the page is ready
     And I should see "Cannot be booked anymore" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "May 10" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "## - 1 year ##%Y##" in the ".allbookingoptionstable_r2" "css_element"
@@ -92,8 +86,7 @@ Feature: Test booking options avaialbility conditions
   @javascript
   Scenario: Configure availability condition by dates - after
     Given I am on the "My booking" Activity page logged in as teacher1
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r2" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r2" "css_element"
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r2" "css_element"
     And I follow "Availability conditions"
     And I set the field "Booking is possible only until a certain date" to ""
     And I set the field "Booking is possible only after a certain date" to "checked"
@@ -119,7 +112,6 @@ Feature: Test booking options avaialbility conditions
       | bookingopeningtime[month]  | March              |
       | bookingopeningtime[year]   | ## + 1 year ##%Y## |
     And I press "Save"
-    And I wait until the page is ready
     And I should see "Can be booked from" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "March 10" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "## + 1 year ##%Y##" in the ".allbookingoptionstable_r2" "css_element"
@@ -131,8 +123,7 @@ Feature: Test booking options avaialbility conditions
   @javascript
   Scenario: Configure bookingoption-dependent availability condition
     Given I am on the "My booking" Activity page logged in as teacher1
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Availability conditions"
     And I set the field "User has previously booked a certain option" to "checked"
     And I wait "1" seconds
@@ -154,8 +145,7 @@ Feature: Test booking options avaialbility conditions
   @javascript
   Scenario: Configure userprofile-dependent availability condition
     Given I am on the "My booking" Activity page logged in as teacher1
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r3" "css_element"
     And I follow "Availability conditions"
     And I set the field "A chosen user profile field should have a certain value" to "checked"
     And I wait "1" seconds
@@ -164,7 +154,6 @@ Feature: Test booking options avaialbility conditions
       | bo_cond_userprofilefield_operator | contains (text) |
       | bo_cond_userprofilefield_value    | gmail.com       |
     And I press "Save"
-    And I wait until the page is ready
     And I should see "Only users with user profile field email set to value gmail.com are allowed to book." in the ".allbookingoptionstable_r3" "css_element"
     ## Verify availability as a student
     When I am on the "My booking" Activity page logged in as student1
@@ -190,21 +179,19 @@ Feature: Test booking options avaialbility conditions
   @javascript
   Scenario: Configure usercustomprofile-dependent availability condition
     Given I am on the "My booking" Activity page logged in as teacher1
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r3" "css_element"
     And I follow "Availability conditions"
     And I set the field "A custom user profile field should have a certain value" to "checked"
     And I wait "1" seconds
     And I set the following fields to these values:
-      | bo_cond_customuserprofilefield_field              | Sport   |
+      | bo_cond_customuserprofilefield_field              | Sport                                   |
       | bo_cond_customuserprofilefield_operator           | has exactly this value (text or number) |
-      | bo_cond_customuserprofilefield_value              | football       |
-      | bo_cond_customuserprofilefield_connectsecondfield | AND additional field   |
-      | bo_cond_customuserprofilefield_field2             | Credit   |
-      | bo_cond_customuserprofilefield_operator2          | is bigger than (number) |
-      | bo_cond_customuserprofilefield_value2             | 500       |
+      | bo_cond_customuserprofilefield_value              | football                                |
+      | bo_cond_customuserprofilefield_connectsecondfield | AND additional field                    |
+      | bo_cond_customuserprofilefield_field2             | Credit                                  |
+      | bo_cond_customuserprofilefield_operator2          | is bigger than (number)                 |
+      | bo_cond_customuserprofilefield_value2             | 500                                     |
     And I press "Save"
-    And I wait until the page is ready
     And I should see "Only users with custom user profile field sport set to value football are allowed to book." in the ".allbookingoptionstable_r3" "css_element"
     ## Verify availability as a student
     When I am on the "My booking" Activity page logged in as student3
@@ -232,13 +219,11 @@ Feature: Test booking options avaialbility conditions
   @javascript
   Scenario: Configure user-dependent availability condition
     Given I am on the "My booking" Activity page logged in as teacher1
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r3" "css_element"
     And I follow "Availability conditions"
     And I set the field "Only specific user(s) are allowed to book" to "checked"
     And I set the field "User(s) allowed to book" to "Student 2"
     And I press "Save"
-    And I wait until the page is ready
     Then I should see "Only the following users are allowed to book:" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Student 2" in the ".allbookingoptionstable_r3" "css_element"
     ## Check availability as students
@@ -251,8 +236,7 @@ Feature: Test booking options avaialbility conditions
   @javascript
   Scenario: Configure max participants limit
     Given I am on the "My booking" Activity page logged in as teacher1
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r3" "css_element"
     And I set the field "Max. number of participants" to "1"
     And I press "Save"
     ## Check availability as students
@@ -269,14 +253,12 @@ Feature: Test booking options avaialbility conditions
   @javascript
   Scenario: Configure participants limit and waiting list
     Given I am on the "My booking" Activity page logged in as teacher1
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r3" "css_element"
     And I set the following fields to these values:
       | Max. number of participants           | 2 |
       | Max. number of places on waiting list | 1 |
       | Min. number of participants           | 1 |
     And I press "Save"
-    And I wait until the page is ready
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Student 1 (student1@example1.com)" "text"
@@ -294,22 +276,20 @@ Feature: Test booking options avaialbility conditions
 
   @javascript
   Scenario: Configure max participants with admin overbooking
-    Given I log in as "admin"
-    And I set the following administration settings values:
-      | Allow overbooking | 1 |
+    Given the following config values are set as admin:
+       | config                    | value | plugin  |
+       | allowoverbooking          | 1     | booking |
+    And I log in as "admin"
     When I am on the "My booking" Activity page logged in as admin
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r3" "css_element"
     And I set the field "Max. number of participants" to "1"
     And I press "Save"
-    And I wait until the page is ready
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Student 1 (student1@example1.com)" "text"
     And I click on "Add" "button"
     And I follow "<< Back to responses"
     And I follow "Booking"
-    And I wait until the page is ready
     And I should see "Fully booked" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r3" "css_element"
@@ -320,8 +300,7 @@ Feature: Test booking options avaialbility conditions
   @javascript
   Scenario: Configure combined availability conditions - date or option
     Given I am on the "My booking" Activity page logged in as teacher1
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Availability conditions"
     And I set the field "Booking is possible only until a certain date" to ""
     And I set the field "Booking is possible only after a certain date" to "checked"
@@ -370,8 +349,7 @@ Feature: Test booking options avaialbility conditions
     And I should see "Start" in the ".allbookingoptionstable_r3" "css_element"
     ## Setup overbooking given to user
     Given I am on the "My booking" Activity page logged in as teacher1
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r3" "css_element"
     And I set the field "Max. number of participants" to "1"
     And I follow "Availability conditions"
     And I set the field "Only specific user(s) are allowed to book" to "checked"
@@ -380,7 +358,6 @@ Feature: Test booking options avaialbility conditions
     And I set the field "bo_cond_selectusers_overrideoperator" to "OR"
     And I set the field with xpath "//*[contains(@id, 'fitem_id_bo_cond_selectusers_overridecondition')]//*[contains(@id, 'form_autocomplete_input')]" to "Fully booked"
     And I press "Save"
-    And I wait until the page is ready
     And I should see "Fully booked" in the ".allbookingoptionstable_r3" "css_element"
     ## Check availability as student2
     When I am on the "My booking" Activity page logged in as student2
@@ -394,11 +371,9 @@ Feature: Test booking options avaialbility conditions
     And I should see "Option - advanced availability" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
     When I am on the "My booking" Activity page logged in as teacher1
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I set the field "Visibility" to "Hide from normal users (visible to entitled users only)"
     And I press "Save"
-    And I wait until the page is ready
     And I should see "Invisible" in the ".allbookingoptionstable_r1" "css_element"
     And I am on the "My booking" Activity page logged in as student1
     Then I should not see "Option - advanced availability" in the ".allbookingoptionstable_r1" "css_element"
@@ -407,8 +382,7 @@ Feature: Test booking options avaialbility conditions
   @javascript
   Scenario: Configure availability to fill modal agreement form
     Given I am on the "My booking" Activity page logged in as teacher1
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Availability conditions"
     And I set the field "Form needs to be filled out before booking" to "checked"
     And I wait "1" seconds
@@ -436,8 +410,7 @@ Feature: Test booking options avaialbility conditions
   @javascript
   Scenario: Configure availability with modal form and data deletion
     Given I am on the "My booking" Activity page logged in as teacher1
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Availability conditions"
     And I set the field "Form needs to be filled out before booking" to "checked"
     And I wait "1" seconds
@@ -471,8 +444,7 @@ Feature: Test booking options avaialbility conditions
   @javascript
   Scenario: Configure availability with modal form and multiple elements
     Given I am on the "My booking" Activity page logged in as teacher1
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Availability conditions"
     And I set the field "Form needs to be filled out before booking" to "checked"
     And I wait "1" seconds
@@ -520,12 +492,12 @@ Feature: Test booking options avaialbility conditions
 
   @javascript
   Scenario: Configure availability to fill inline agreement form
-    Given I log in as "admin"
-    And I set the following administration settings values:
-      | Turn off modals | 1 |
+    Given the following config values are set as admin:
+       | config                 | value | plugin  |
+       | turnoffmodals          | 1     | booking |
+    And I log in as "admin"
     When I am on the "My booking" Activity page logged in as teacher1
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Availability conditions"
     And I set the field "Form needs to be filled out before booking" to "checked"
     And I wait "1" seconds
@@ -548,8 +520,7 @@ Feature: Test booking options avaialbility conditions
   @javascript
   Scenario: Option availability: check users cohort settings
     Given I am on the "My booking" Activity page logged in as teacher1
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Availability conditions"
     And I set the field "User is enrolled in certain cohort(s)" to "checked"
     And I wait "1" seconds
@@ -574,8 +545,7 @@ Feature: Test booking options avaialbility conditions
     And I log out
     ## Teacher: show unavailable option and require at least one cohort membership
     And I am on the "My booking" Activity page logged in as teacher1
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Availability conditions"
     And I wait "1" seconds
     ##And I set the field "bo_cond_enrolledincohorts_sqlfiltercheck" to ""
@@ -594,3 +564,4 @@ Feature: Test booking options avaialbility conditions
     And I am on the "My booking" Activity page logged in as student2
     And I should see "Option - advanced availability" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
+    And I log out
