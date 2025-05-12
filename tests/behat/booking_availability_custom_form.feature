@@ -47,24 +47,19 @@ Feature: Create custom availability form for booking options as admin and bookin
     And the following "mod_booking > options" exist:
       | booking     | text         | course | description | useprice | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | BookingCMP  | Option-form  | C1     | Price-form  | 1        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
-    ## Unfortunately, TinyMCE is slow and has misbehavior which might cause number of site-wide issues. So - we disable it.
-    And the following config values are set as admin:
-      | config        | value         | plugin      |
-      | texteditors   | atto,textarea |             |
     And I change viewport size to "1366x10000"
 
   @javascript
   Scenario: Booking option availability: custom form with selection of prices
-    Given I log in as "admin"
-    And I set the following administration settings values:
-      | User profile field for price category | userpricecat |
+    Given the following config values are set as admin:
+       | config                      | value        | plugin  |
+       | pricecategoryfield          | userpricecat | booking |
     ## Or use
-    ## And the following config values are set as admin:
-    ##   | config                      | value        | plugin  |
-    ##   | pricecategoryfield          | userpricecat | booking |
+    ## And I set the following administration settings values:
+    ##  | User profile field for price category | userpricecat |
+    And I log in as "admin"
     And I am on the "BookingCMP" Activity page
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Availability conditions"
     And I set the field "Form needs to be filled out before booking" to "checked"
     And I wait "1" seconds
@@ -101,7 +96,6 @@ Feature: Create custom availability form for booking options as admin and bookin
     And I press "Checkout"
     And I wait "1" seconds
     And I press "Confirm"
-    And I wait until the page is ready
     And I should see "Payment successful!"
     And I should see "Credits used" in the ".payment-success ul.list-group" "css_element"
     And I should see "-249.40 EUR" in the ".payment-success ul.list-group" "css_element"
