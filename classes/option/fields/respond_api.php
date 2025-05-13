@@ -100,8 +100,17 @@ class respond_api extends field_base {
             return [];
         }
 
+
+        // check if checkbox is ticked
+        // check if id is empty
+        // if it's ticked AND id is empty, contact marmara server
+        // save the return value!
+
+        // booking_option::add_data_to_json($newoption, 'mynewcriteriaid', $mynewcriteriaid);
+
+
         //get_config('booking', 'marmara_enabled')
-        $instance = new certificate();
+        // $instance = new certificate();
         $changes = [];
         $key = fields_info::get_class_name(static::class);
         $value = $formdata->{$key} ?? null;
@@ -163,16 +172,29 @@ class respond_api extends field_base {
             fields_info::add_header_to_mform($mform, self::$header);
         }
 
-        $records = $DB->get_records('tool_certificate_templates', []);
-        $selection = [0 => 'no certificate selected'];
-        foreach ($records as $record) {
-            $selection[$record->id] = $record->name;
+        // $mform->addElement('text', 'myidentifier', 'mylabel', 'mydefaulttext', 'x');
+        // $mform->setDefault('myidentifier', 'x');
+        // $mform->setType('myidentifier', PARAM_TEXT);
+
+
+        // add the checkbox if it should syn
+        // add a text element keyword id.
+        // add rule to hide it if checkobx is not set to sync
+
+
+        $mform->addElement('advcheckbox', 'marmara_sync', get_string('marmara:sync', 'mod_booking'));
+        $mform->setType('marmara_sync', PARAM_BOOL);
+        $mform->setDefault('marmara_sync', 1);
+
+        $keywordid = 13245;
+        // Add the disabled text field only if value exists.
+        if (!empty($keywordid)) {
+            $mform->addElement('text', 'marmaracriteriaid', get_string('marmara:keywordid', 'booking'));
+            $mform->setType('marmaracriteriaid', PARAM_INT);
+            // $mform->setDefault('marmaracriteriaid', $keywordid);
+            // $mform->freeze('marmaracriteriaid'); // disables the field
+            // $mform->disabledIf('marmaracriteriaid', 'marmara_sync', 'notchecked');
         }
-
-        $mform->addElement('autocomplete', 'certificate', get_string('certificate', 'mod_booking'), $selection, []);
-        $mform->setType('certificate', PARAM_INT);
-
-        toolCertificate::add_expirydate_to_form($mform);
     }
 
     /**
@@ -198,75 +220,11 @@ class respond_api extends field_base {
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
-        if (!class_exists('tool_certificate\certificate')) {
-            return;
-        }
-        // Add expiration key to set_data.
-        $keys = self::$certificatedatekeys;
-        // Process each field and save it to set_data.
-        foreach ($keys as $key) {
-            $valueexpirydate = $formdata->{$key} ?? null;
+        // in the data object, there might be a json value
+        // with the value for the checkbox? checked or not
+        // and the kriteria ID (if it's there)
 
-            if (!empty($valueexpirydate) && !empty($data->importing)) {
-                $data->{$key} = $data->{$key} ?? booking_option::get_value_of_json_by_key((int) $data->id, $key) ?? 0;
-            } else {
-                $data->{$key} = booking_option::get_value_of_json_by_key((int) $data->id, $key) ?? 0;
-            }
-        }
-        $key = fields_info::get_class_name(static::class);
-        // Normally, we don't call set data after the first time loading.
-        if (!empty($data->importing)) {
-            $data->{$key} = $data->{$key} ?? booking_option::get_value_of_json_by_key((int) $data->id, $key) ?? 0;
-        } else {
-            $data->{$key} = booking_option::get_value_of_json_by_key((int) $data->id, $key) ?? 0;
-        }
-    }
-
-    /**
-     * Issue certificate.
-     *
-     * @param int $optionid
-     * @param int $userid
-     *
-     * @return int
-     *
-     */
-    public static function issue_certificate(int $optionid, int $userid) {
-        $id = 0;
-        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-
-        if (!class_exists('tool_certificate\certificate')) {
-            return $id;
-        }
-        // Get certificate id.
-        $certificateid = booking_option::get_value_of_json_by_key($optionid, 'certificate') ?? 0;
-
-        if (empty($certificateid)) {
-            return $id;
-        }
-
-        $template = template::instance($certificateid);
-
-        // Certificate expiry date key.
-        $expirydatetype = booking_option::get_value_of_json_by_key($optionid, 'expirydatetype') ?? 0;
-        $expirydateabsolute = booking_option::get_value_of_json_by_key($optionid, 'expirydateabsolute') ?? 0;
-        $expirydaterelative = booking_option::get_value_of_json_by_key($optionid, 'expirydaterelative') ?? 0;
-        $certificateexpirydate = toolCertificate::calculate_expirydate($expirydatetype, $expirydateabsolute, $expirydaterelative);
-        if ($certificateexpirydate < time()) {
-            return $id;
-        }
-        // Create Certificate.
-        if ($template->can_issue($userid)) {
-            $id = $template->issue_certificate(
-                $userid,
-                $certificateexpirydate,
-                [
-                    'bookingoptionid' => $settings->id,
-                    'bookingoptionname' => $settings->get_title_with_prefix(),
-                    'bookingoptiondescription' => strip_tags($settings->description),
-                ]
-            );
-        }
-        return $id;
+        // $data->marmaracriteriaid = booking_option::get_value_of_json_by_key($settings->id, 'selflearningcourse') ?? 0;
+        $data->marmaracriteriaid = 454554;
     }
 }
