@@ -1,3 +1,6 @@
+## Version 8.13.0 (2025051300)
+* Bugfix: Rename rank to userrank because rank is a reserved function of MySQL.
+
 ## Version 8.12.9 (2025051200)
 * New Feature: Competencies of booking options
 * New feature: Booking rules now support session reminders
