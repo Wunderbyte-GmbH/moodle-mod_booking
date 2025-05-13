@@ -18,6 +18,7 @@ namespace mod_booking\local;
 
 use mod_booking\booking;
 use mod_booking\singleton_service;
+use moodle_url;
 
 /**
  * Manage coursecategories in berta.
@@ -147,5 +148,55 @@ class override_user_field {
             return "";
         }
         return $fieldvalue;
+    }
+
+    /**
+     * Get link to circumvent user profile field. Empty if not enabled in booking settings.
+     *
+     * @param int $optionid
+     *
+     * @return string
+     *
+     */
+    public function get_circumvent_link(int $optionid): string {
+        global $PAGE;
+
+        $booking = singleton_service::get_instance_of_booking_by_cmid($this->cmid);
+        $cvdata = booking::get_value_of_json_by_key($booking->id, 'circumventcond');
+        if (empty($cvdata)) {
+            return "";
+        }
+
+        $bosettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $availabilities = json_decode($bosettings->availability);
+        foreach ($availabilities as $a) {
+            if (
+                $a->name === "userprofilefield_1_default"
+                || $a->name === "userprofilefield_2_custom"
+            ) {
+                // TODO: Check for operator here. If it says NOT, then we should not set the field as this value but maybe empty.
+                $key = $a->profilefield . "_" . $a->value;
+                break;
+            }
+        }
+
+        if (!modechecker::is_ajax_or_webservice_request()) {
+            $returnurl = $PAGE->url->out();
+        } else {
+            $returnurl = '/';
+        }
+        $params = [
+            "optionid" => (int)$optionid,
+            "cmid" => (int)$this->cmid,
+            //'returnto' => 'url',
+            //'returnurl' => $returnurl,
+            'cvfield' => $key,
+        ];
+        if (isset($cvdata->cvpwd) && !empty($cvdata->cvpwd)) {
+            $params['cvpwd'] = $cvdata->cvpwd;
+        }
+        $url = new moodle_url("/mod/booking/optionview.php", $params);
+
+        return $url->out(false);
     }
 }

@@ -820,6 +820,7 @@ $string['containsplain'] = 'beinhaltet';
 $string['coolingoffperiod'] = 'Stornierung möglich nach x Sekunden';
 $string['coolingoffperiod_desc'] = 'Um zu vermeiden, dass NutzerInnen z.B. irrtümlich durch zu schnelles Klicken auf den Buchen-Button wieder stornieren, kann eine Cooling Off Period in Sekunden eingestellt werden. In dieser Zeit ist Stornieren nicht möglich. Nicht mehr als wenige Sekunden einstellen, die Wartezeit wird den UserInne nicht extra angezeigt.';
 $string['copy'] = 'Kopie';
+$string['copycircumventlink'] = 'Buchungslink für Außenstehende kopieren';
 $string['copymail'] = 'Eine Kopie der Bestätigungsmail an den Buchungsverwalter senden';
 $string['copytotemplate'] = 'Buchungsoption als Vorlage speichern';
 $string['copytotemplatesucesfull'] = 'Buchungsoption erfolgreich als Vorlage gespeichert';
