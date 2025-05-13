@@ -25,6 +25,7 @@
 namespace mod_booking\table;
 use mod_booking\booking_answers;
 use mod_booking\local\modechecker;
+use mod_booking\local\override_user_field;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -1036,15 +1037,33 @@ class bookingoptions_wbtable extends wunderbyte_table {
                 '/mod/booking/editoptions.php',
                 ['id' => $cmid, 'optionid' => $optionid, 'createfromoptiondates' => 1]
             );
+            $override = new override_user_field($cmid);
+            $link = $override->get_circumvent_link($optionid);
+            if (!empty($link)) {
+                $ddoptions[] = '<div class="dropdown-item">' .
+                        html_writer::link(
+                            '#',
+                            $OUTPUT->pix_icon(
+                                'i/clipboard',
+                                get_string('copycircumventlink', 'mod_booking')
+                            ) .
+                        get_string('copycircumventlink', 'mod_booking'),
+                            [
+                                'class' => 'copy_to_clipboard',
+                                'onclick' => "navigator.clipboard.writeText('$link'); return false;",
+                            ]
+                        ) . '</div>';
+            }
+
             $ddoptions[] = '<div class="dropdown-item">' .
-                    html_writer::link(
-                        $createfromoptiondateurl,
-                        $OUTPUT->pix_icon(
-                            'i/withsubcat',
-                            get_string('createoptionsfromoptiondate', 'mod_booking')
-                        ) .
+                html_writer::link(
+                    $createfromoptiondateurl,
+                    $OUTPUT->pix_icon(
+                        'i/withsubcat',
                         get_string('createoptionsfromoptiondate', 'mod_booking')
-                    ) . '</div>';
+                    ) .
+                    get_string('createoptionsfromoptiondate', 'mod_booking')
+                ) . '</div>';
 
             if (get_config('booking', 'teachersallowmailtobookedusers')) {
                 $mailtolink = booking_option::get_mailto_link_for_partipants($optionid);

@@ -835,6 +835,7 @@ $string['containsplain'] = 'contains';
 $string['coolingoffperiod'] = 'Cancellation possible after x seconds';
 $string['coolingoffperiod_desc'] = 'To prevent users from canceling due to, for example, accidentally clicking the booking button too quickly, a cooling off period can be set in seconds. During this time, cancellation is not possible. Do not set more than a few seconds, as the waiting time is not explicitly shown to users.';
 $string['copy'] = 'copy';
+$string['copycircumventlink'] = 'Copy bookinglink for externals';
 $string['copymail'] = 'Send confirmation e-mail to booking manager';
 $string['copyonlythisbookingurl'] = 'Copy this booking URL';
 $string['copypollurl'] = 'Copy poll URL';
