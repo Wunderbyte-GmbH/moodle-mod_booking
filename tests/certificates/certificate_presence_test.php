@@ -75,7 +75,7 @@ final class certificate_presence_test extends advanced_testcase {
         }
 
         // Set params requred for certificate issue.
-        foreach ($data['configsettings'][0] as $configsetting) {
+        foreach ($data['configsettings'] as $configsetting) {
             set_config($configsetting['name'], $configsetting['value'], $configsetting['component']);
         }
         $standarddata = self::provide_standard_data();
@@ -115,20 +115,18 @@ final class certificate_presence_test extends advanced_testcase {
 
         $option = $standarddata['option'];
         if (isset($data['optionsettings'])) {
-            foreach ($data['optionsettings'] as $setting) {
-                foreach ($setting as $key => $value) {
-                    $option[$key] = $value;
-                }
+            foreach ($data['optionsettings'] as $key => $value) {
+                $option[$key] = $value;
             }
         }
-        $expirydaterelative = $data['optionsettings'][0]['certificatedata']['expirydaterelative'] ?? 0;
-        $expirydateabsolute = $data['optionsettings'][0]['certificatedata']['expirydateabsolute'] ?? 0;
-        $expirydatetype = $data['optionsettings'][0]['certificatedata']['expirydatetype'];
+        $expirydaterelative = $data['optionsettings']['certificatedata']['expirydaterelative'] ?? 0;
+        $expirydateabsolute = $data['optionsettings']['certificatedata']['expirydateabsolute'] ?? 0;
+        $expirydatetype = $data['optionsettings']['certificatedata']['expirydatetype'];
         $option['json'] = '{"certificate":' . $certificate->get_id() . ',
-        "expirydateabsolute":' . $expirydateabsolute . ',
-        "expirydatetype":' . $expirydatetype . ',
-        "expirydaterelative":' . $expirydaterelative . '
-        }';
+            "expirydateabsolute":' . $expirydateabsolute . ',
+            "expirydatetype":' . $expirydatetype . ',
+            "expirydaterelative":' . $expirydaterelative . '
+            }';
         $option['bookingid'] = $booking1->id;
         $option['courseid'] = $course->id;
 
@@ -184,16 +182,14 @@ final class certificate_presence_test extends advanced_testcase {
                 [
                     'configsettings' => [
                         [
-                            [
-                                'component' => 'booking',
-                                'name' => 'certificateon',
-                                'value' => 1,
-                            ],
-                            [
-                                'component' => 'booking',
-                                'name' => 'presencestatustoissuecertificate',
-                                'value' => 0,
-                            ],
+                            'component' => 'booking',
+                            'name' => 'certificateon',
+                            'value' => 1,
+                        ],
+                        [
+                            'component' => 'booking',
+                            'name' => 'presencestatustoissuecertificate',
+                            'value' => 0,
                         ],
                     ],
                     'coursesettings' => [
@@ -205,12 +201,10 @@ final class certificate_presence_test extends advanced_testcase {
                         'multiple' => 0,
                     ],
                     'optionsettings' => [
-                        [
-                            'useprice' => 0,
-                            'certificatedata' => [
-                                'expirydateabsolute' => time() + 60,
-                                'expirydatetype' => 1, // 2 is absolute expirydate
-                            ],
+                        'useprice' => 0,
+                        'certificatedata' => [
+                            'expirydateabsolute' => time() + 60,
+                            'expirydatetype' => 1,
                         ],
                     ],
                 ],
@@ -218,23 +212,21 @@ final class certificate_presence_test extends advanced_testcase {
                     'bookitresults' => [
                         MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
                     ],
-                        'certcount' => 0,
+                    'certcount' => 0,
                 ],
             ],
             'certificate_on_right_presence' => [
                 [
                     'configsettings' => [
                         [
-                            [
-                                'component' => 'booking',
-                                'name' => 'certificateon',
-                                'value' => 1,
-                            ],
-                            [
-                                'component' => 'booking',
-                                'name' => 'presencestatustoissuecertificate',
-                                'value' => 1,
-                            ],
+                            'component' => 'booking',
+                            'name' => 'certificateon',
+                            'value' => 1,
+                        ],
+                        [
+                            'component' => 'booking',
+                            'name' => 'presencestatustoissuecertificate',
+                            'value' => 1,
                         ],
                     ],
                     'coursesettings' => [
@@ -246,11 +238,9 @@ final class certificate_presence_test extends advanced_testcase {
                         'multiple' => 0,
                     ],
                     'optionsettings' => [
-                        [
-                            'useprice' => 0,
-                            'certificatedata' => [
-                                'expirydatetype' => 0, // 0 is no expiry date.
-                            ],
+                        'useprice' => 0,
+                        'certificatedata' => [
+                            'expirydatetype' => 0, // No expiry date.
                         ],
                     ],
                 ],
@@ -258,23 +248,21 @@ final class certificate_presence_test extends advanced_testcase {
                     'bookitresults' => [
                         MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
                     ],
-                        'certcount' => 1,
+                    'certcount' => 1,
                 ],
             ],
             'certificate_on_wrong_presence' => [
                 [
                     'configsettings' => [
                         [
-                            [
-                                'component' => 'booking',
-                                'name' => 'certificateon',
-                                'value' => 1,
-                            ],
-                            [
-                                'component' => 'booking',
-                                'name' => 'presencestatustoissuecertificate',
-                                'value' => 2, // Change Status Value here so that Test is more reusable.
-                            ],
+                            'component' => 'booking',
+                            'name' => 'certificateon',
+                            'value' => 1,
+                        ],
+                        [
+                            'component' => 'booking',
+                            'name' => 'presencestatustoissuecertificate',
+                            'value' => 2, // Status required does not match set one.
                         ],
                     ],
                     'coursesettings' => [
@@ -286,11 +274,9 @@ final class certificate_presence_test extends advanced_testcase {
                         'multiple' => 0,
                     ],
                     'optionsettings' => [
-                        [
-                            'useprice' => 0,
-                            'certificatedata' => [
-                                'expirydatetype' => 0, // 0 is no expiry date.
-                            ],
+                        'useprice' => 0,
+                        'certificatedata' => [
+                            'expirydatetype' => 0,
                         ],
                     ],
                 ],
@@ -298,23 +284,21 @@ final class certificate_presence_test extends advanced_testcase {
                     'bookitresults' => [
                         MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
                     ],
-                        'certcount' => 0,
+                    'certcount' => 0,
                 ],
             ],
             'multiple_certificates_on_right_presence' => [
                 [
                     'configsettings' => [
                         [
-                            [
-                                'component' => 'booking',
-                                'name' => 'certificateon',
-                                'value' => 1,
-                            ],
-                            [
-                                'component' => 'booking',
-                                'name' => 'presencestatustoissuecertificate',
-                                'value' => 1,
-                            ],
+                            'component' => 'booking',
+                            'name' => 'certificateon',
+                            'value' => 1,
+                        ],
+                        [
+                            'component' => 'booking',
+                            'name' => 'presencestatustoissuecertificate',
+                            'value' => 1,
                         ],
                     ],
                     'coursesettings' => [
@@ -326,11 +310,9 @@ final class certificate_presence_test extends advanced_testcase {
                         'multiple' => 1,
                     ],
                     'optionsettings' => [
-                        [
-                            'useprice' => 0,
-                            'certificatedata' => [
-                                'expirydatetype' => 0, // 0 is no expiry date.
-                            ],
+                        'useprice' => 0,
+                        'certificatedata' => [
+                            'expirydatetype' => 0,
                         ],
                     ],
                 ],
@@ -338,11 +320,12 @@ final class certificate_presence_test extends advanced_testcase {
                     'bookitresults' => [
                         MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
                     ],
-                        'certcount' => 2,
+                    'certcount' => 2,
                 ],
             ],
         ];
     }
+
 
     /**
      * Provides the data that's constant for the test.
