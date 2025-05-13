@@ -25,21 +25,37 @@
 
 namespace mod_booking\local;
 
+use mod_booking\singleton_service;
+use stdClass;
+
 
 /**
  * Helperclass to Save and Load Form.
  */
-class evasys {
+class evasys_evaluation {
     /**
      * Save data from form into DB.
      *
      * @param /stdClass $formdata
-     * @param int $optionid
+     * @param /stdClass $option
      * @return void
      *
      */
-    public static function save_from_form($formdata, $optionid) {
-        // Save to DB Logic.
+    public static function save_form(&$formdata, &$option) {
+        global $DB;
+
+        $trainers = implode(',', ($formdata->teachersforoption ?? []));
+
+        $insertdata = new stdClass();
+        $insertdata->optionid = $option->id;
+        $insertdata->pollurl = "PLACEHOLDERSTRING";
+        $insertdata->starttime = $formdata->evasys_evaluation_starttime;
+        $insertdata->endtime = $formdata->evasys_evaluation_endtime;
+        $insertdata->trainers = $trainers;
+        $insertdata->organizers = $formdata->evasys_other_report_recipients;
+        $insertdata->notifyparticipants = $formdata->evasys_notifyparticipants;
+
+        $DB->insert_record('booking_evasys', $insertdata, false, false);
     }
 
     /**
@@ -50,7 +66,27 @@ class evasys {
      * @return void
      * @throws dml_exception
      */
-    public static function load_into_form(&$data, $optionid): void {
+    public static function load_form(&$data, $optionid): void {
         // Load into Logic.
+    }
+
+    /**
+     * [Description for get_questionares]
+     *
+     * @return array
+     *
+     */
+    public static function get_questionares() {
+
+    }
+
+    /**
+     * [Description for get_recipients]
+     *
+     * @return array
+     *
+     */
+    public static function get_recipients() {
+
     }
 }

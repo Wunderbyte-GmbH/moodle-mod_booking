@@ -25,7 +25,9 @@
  namespace mod_booking\option\fields;
 
  use mod_booking\booking_option_settings;
+ use mod_booking\local\evasys_evaluation;
  use mod_booking\option\field_base;
+ use mod_booking\option\fields_info;
  use MoodleQuickForm;
  use stdClass;
 
@@ -45,7 +47,7 @@ class evasys extends field_base {
      * Some can be saved only post save (when they need the option id).
      * @var int
      */
-    public static $save = MOD_BOOKING_EXECUTION_NORMAL;
+    public static $save = MOD_BOOKING_EXECUTION_POSTSAVE;
 
     /**
      * This identifies the header under which this particular field should be displayed.
@@ -83,9 +85,7 @@ class evasys extends field_base {
         int $updateparam,
         $returnvalue = null
     ): array {
-
-        // Helperclass to save Form.
-        parent::prepare_save_field($formdata, $newoption, $updateparam, '');
+        return [];
     }
 
     /**
@@ -108,49 +108,53 @@ class evasys extends field_base {
         $applyheader = true
     ): void {
         // Curl von evasys Class for questionaires.
-        $questionaires = [];
+        $questionaires = [1, 2, 3];
         // Curl von evasys Class for recipients.
-        $recipients = [];
+        $recipients = ['David', 'NichtDavid'];
+
+        if (empty(get_config('booking', 'useevasys'))) {
+            return;
+        }
 
         if ($applyheader) {
-            $mform->addElement('header', 'evasysheader', get_string('evasys_header', 'mod_booking'));
+            fields_info::add_header_to_mform($mform, self::$header);
         }
 
         $mform->addElement(
             'autocomplete',
-            'questionaire',
+            'evasys_questionaire',
             get_string('evasys_questionaire', 'mod_booking'),
             $questionaires
         );
 
         $mform->addElement(
             'date_selector',
-            'evaluation_starttime',
+            'evasys_evaluation_starttime',
             get_string('evasys_evaluation_starttime', 'mod_booking')
         );
         $mform->addElement(
             'date_selector',
-            'evaluation_endtime',
+            'evasys_evaluation_endtime',
             get_string('evasys_evaluation_endtime', 'mod_booking')
         );
 
         $mform->addElement(
             'autocomplete',
-            'other_report_recipients',
+            'evasys_other_report_recipients',
             get_string('evasys_other_report_recipients', 'mod_booking'),
             $recipients,
             ['multiple' => true]
         );
 
         $mform->addElement(
-            'advcheckbox',
+            'checkbox',
             'evasys_notifyparticipants',
             get_string('evasys_notifyparticipants', 'mod_booking'),
         );
     }
 
     /**
-     * Load form.
+     * Load Form data.
      *
      * @param stdClass $data
      * @param booking_option_settings $settings
@@ -158,7 +162,19 @@ class evasys extends field_base {
      * @return void
      *
      */
-    public static function set_data(stdClass &$data, booking_option_settings $settings) {
-        // Helperclass to load Form Logic.
+    public static function set_data(&$data, $settings) {
+
+    }
+
+    /**
+     * Save Form data
+     * @param stdClass $formdata
+     * @param stdClass $option
+     * @return void
+     * @throws \dml_exception
+     */
+    public static function save_data(&$formdata, &$option) {
+        evasys = new evasys();
+        evasys_evaluation::save_form($formdata, $option);
     }
 }
