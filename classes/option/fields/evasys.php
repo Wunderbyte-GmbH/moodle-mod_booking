@@ -147,14 +147,23 @@ class evasys extends field_base {
         );
 
         $mform->addElement(
-            'checkbox',
+            'advcheckbox',
             'evasys_notifyparticipants',
             get_string('evasys_notifyparticipants', 'mod_booking'),
+            '',
+            [],
+            [0, 1],
         );
+        $mform->addElement(
+            'hidden',
+            'evasys_id',
+            0
+        );
+        $mform->setType('evasys_id', PARAM_INT);
     }
 
     /**
-     * Load Form data.
+     * Load Form data from DB.
      *
      * @param stdClass $data
      * @param booking_option_settings $settings
@@ -163,7 +172,8 @@ class evasys extends field_base {
      *
      */
     public static function set_data(&$data, $settings) {
-
+        $evasys = new evasys_evaluation();
+        $evasys->load_form($data);
     }
 
     /**
@@ -174,7 +184,7 @@ class evasys extends field_base {
      * @throws \dml_exception
      */
     public static function save_data(&$formdata, &$option) {
-        evasys = new evasys();
-        evasys_evaluation::save_form($formdata, $option);
+        $evasys = new evasys_evaluation();
+        $evasys->save_form($formdata, $option);
     }
 }
