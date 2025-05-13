@@ -31,6 +31,7 @@ use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking;
 use mod_booking\booking_option_settings;
+use mod_booking\local\override_user_field;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
 use MoodleQuickForm;
@@ -160,7 +161,8 @@ class userprofilefield_1_default implements bo_condition {
                         isset($cvsetting)
                         && !empty($cvsetting)
                     ) {
-                        $pref = get_user_preferences($profilefield, null, $userid);
+                        $overridefield = new override_user_field($settings->cmid);
+                        $pref = $overridefield->get_value_for_user($profilefield, $userid);
                         if (!empty($pref)) {
                             $isavailable = self::compare_operator($pref, $this->customsettings->operator, $this->customsettings->value);
                         }
