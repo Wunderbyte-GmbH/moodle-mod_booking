@@ -314,7 +314,7 @@ define('MOD_BOOKING_HEADER_COURSES', 'coursesheader');
 define('MOD_BOOKING_HEADER_RULES', 'rulesheader');
 define('MOD_BOOKING_HEADER_CERTIFICATE', 'certificateheader');
 define('MOD_BOOKING_HEADER_COMPETENCIES', 'competenciesheader');
-define('MOD_BOOKING_HEADER_EVASYS', 'evasys');
+define('MOD_BOOKING_HEADER_EVASYS', 'evasysheader');
 
 define('MOD_BOOKING_MAX_CUSTOM_FIELDS', 3);
 define('MOD_BOOKING_FORM_OPTIONDATEID', 'optiondateid_');

@@ -708,7 +708,7 @@ if ($ADMIN->fulltree) {
                 'booking/evasysbaseurl',
                 get_string('evasysbaseurl', 'mod_booking'),
                 get_string('evasysbaseurl_desc', 'mod_booking'),
-                0
+                ''
             )
         );
 
