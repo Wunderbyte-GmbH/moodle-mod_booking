@@ -174,8 +174,8 @@ class booked_users implements renderable, templatable {
                 ];
 
                 if (get_config('booking', 'waitinglistshowplaceonwaitinglist')) {
-                    array_unshift($waitinglistcols, 'rank');
-                    array_unshift($waitinglistheaders, get_string('rank', 'mod_booking'));
+                    array_unshift($waitinglistcols, 'userrank');
+                    array_unshift($waitinglistheaders, get_string('userrank', 'mod_booking'));
                 }
                 break;
             case 'system':
@@ -400,7 +400,7 @@ class booked_users implements renderable, templatable {
                     if (get_config('booking', 'waitinglistshowplaceonwaitinglist')) {
                         // No sorting allowed as it would destroy rank order.
                         $sortablecolumns = [];
-                        $table->sort_default_column = 'rank';
+                        $table->sort_default_column = 'userrank';
                         $table->sort_default_order = SORT_ASC;
                     } else {
                         $sortablecolumns = [

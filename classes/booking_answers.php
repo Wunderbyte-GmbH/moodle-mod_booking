@@ -930,8 +930,8 @@ class booking_answers {
                             WHERE ba.optionid=:optionid3 AND ba.waitinglist=:statusparam2
                         ) s3
                         WHERE (s3.timemodified < s2.timemodified) OR (s3.timemodified = s2.timemodified AND s3.id <= s2.id)
-                    ) AS rank';
-                    $orderby = ' ORDER BY rank ASC';
+                    ) AS userrank';
+                    $orderby = ' ORDER BY userrank ASC';
 
                     // Params for rank order.
                     $params['statusparam2'] = $statusparam;
