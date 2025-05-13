@@ -34,53 +34,35 @@ Feature: In a booking create booking option with multiple custom options
       | ordernum | identifier    | name          | defaultvalue | disabled | pricecatsortorder |
       | 1        | default       | Base Price    | 70           | 0        | 1                 |
       | 2        | specialprice  | Special Price | 60           | 0        | 2                 |
-    And I create booking option "New option - duplication source" in "My booking"
-    ## Unfortunately, TinyMCE is slow and has misbehavior which might cause number of site-wide issues. So - we disable it.
-    And the following config values are set as admin:
-      | config      | value         |
-      | texteditors | atto,textarea |
+    ##And I create booking option "New option - duplication source" in "My booking"
     And I change viewport size to "1366x10000"
 
   @javascript
   Scenario: Duplication of booking option with teacher
     ## To cover an issue reported in #551
-    Given I am on the "My booking" Activity page logged in as teacher1
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until the page is ready
-    And I set the following fields to these values:
-      | Booking option name                   | Duplication source |
-    And I set the field "Assign teachers:" to "Teacher 1"
-    And I press "Save"
+    Given the following "mod_booking > options" exist:
+      | booking    | text               | course | description | teachersforoption |
+      | My booking | Duplication source | C1     | Source      | teacher1          |
+    And I am on the "My booking" Activity page logged in as teacher1
+    And I should see "Duplication source" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Duplicate this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I set the following fields to these values:
       | Booking option name | Test option - Copy1 |
-    And I should see "Teacher 1" in the "//div[contains(@id, 'id_bookingoptionteachers_')]//span[contains(@class, 'user-suggestion')]" "xpath_element"
+    ## And I should see "Teacher 1" in the "//div[contains(@id, 'id_bookingoptionteachers_')]//span[contains(@class, 'user-suggestion')]" "xpath_element"
     When I press "Save"
     Then I should see "Test option - Copy1" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "Teacher 1" in the ".allbookingoptionstable_r2" "css_element"
 
   @javascript
   Scenario: Duplication of booking option with course
-    Given I log in as "admin"
-    And I set the following administration settings values:
-      | Duplicate Moodle course | 1 |
-    And I am on the "My booking" Activity page
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until the page is ready
-    And I set the following fields to these values:
-      | Booking option name                   | Duplication source      |
-      | chooseorcreatecourse                  | Connected Moodle course |
-      ##| Connected Moodle course               | Course 1           |
-    ## TODO: duplication of field names "Connected Moodle course" must be eliminated to use more efficient command (above)
-    And I click on "Course 1" "text" in the "//div[contains(@id, 'fitem_id_courseid_')]//div[contains(@id, 'form_autocomplete_selection-')]" "xpath_element"
-    And I wait "1" seconds
-    And I open the autocomplete suggestions list in the "//div[contains(@id, 'id_coursesheader_')]//div[contains(@id, 'fitem_id_courseid_')]" "xpath_element"
-    And I wait "1" seconds
-    And I should see "Course 1 (ID:" in the "//div[contains(@id, 'fitem_id_courseid_')]//ul[contains(@class, 'form-autocomplete-suggestions')]" "xpath_element"
-    And I click on "Course 1" "text" in the "//div[contains(@id, 'fitem_id_courseid_')]//ul[contains(@class, 'form-autocomplete-suggestions')]" "xpath_element"
-    And I press "Save"
+    Given the following config values are set as admin:
+      | config                      | value | plugin  |
+      | duplicatemoodlecourses      | 1     | booking |
+    And the following "mod_booking > options" exist:
+      | booking    | text               | description | teachersforoption | chooseorcreatecourse | course |
+      | My booking | Duplication source | Source      | teacher1          | 1                    | C1     |
+    And I am on the "My booking" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     When I click on "Duplicate this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I set the following fields to these values:
@@ -93,7 +75,10 @@ Feature: In a booking create booking option with multiple custom options
 
   @javascript
   Scenario: Duplicate booking option with multiple customized settings
-    Given I am on the "My booking" Activity page logged in as teacher1
+    Given the following "mod_booking > options" exist:
+      | booking    | text              | course | description | teachersforoption | chooseorcreatecourse | course |
+      | My booking | Topic: Statistics | C1     | Source      | teacher1          | 1                    | C1     |
+    And I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I wait until the page is ready
