@@ -16,8 +16,6 @@
 
 namespace mod_booking\local;
 
-use dml_exception;
-use Exception;
 use mod_booking\booking;
 use mod_booking\singleton_service;
 
@@ -39,8 +37,21 @@ class override_user_field {
     /** @var string $password a password if given */
     protected $password;
 
+    /** @var int $cmid a password if given */
+    protected $cmid;
+
+    /**
+     * Constructor of override user field specific class for cmid.
+     *
+     * @param int $cmid
+     *
+     */
+    public function __construct(int $cmid) {
+        $this->cmid = $cmid;
+    }
     /**
      * Matching the params with given fields and set as userprefs.
+     * The entry is set like value_cmid:XY.
      *
      * @param string $param
      * @param int $userid
@@ -71,14 +82,14 @@ class override_user_field {
         // 1. Check standard user fields.
         $userprofilefields = $DB->get_columns('user', true);
         if (in_array($this->key, array_keys($userprofilefields))) {
-            set_user_preference($this->key, $this->value, $userid);
+            set_user_preference($this->key, $this->value . ":::$this->cmid", $userid);
             return true;
         }
 
         // 2. Check custom user profile fields.
         $field = $DB->get_record('user_info_field', ['shortname' => $this->key], '*', IGNORE_MISSING);
         if ($field) {
-            set_user_preference($this->key, $this->value, $userid);
+            set_user_preference($this->key, $this->value . ":::$this->cmid", $userid);
             return true;
         }
         return false;
@@ -87,18 +98,16 @@ class override_user_field {
     /**
      * Check if the password corresponds to the password defined in settings of booking instance.
      *
-     * @param int $cmid
      * @param string $pwd
      *
      * @return bool
      *
      */
     public function password_is_valid(
-        int $cmid,
         string $pwd = '',
     ): bool {
         $this->password = $pwd;
-        $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
+        $booking = singleton_service::get_instance_of_booking_by_cmid($this->cmid);
 
         $cvdata = booking::get_value_of_json_by_key($booking->id, 'circumventcond');
         if (!isset($cvdata->cvpwd)) {
@@ -114,5 +123,29 @@ class override_user_field {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Check if the user preference is set and verify if it's for the right (current) cmid.
+     * If not, return empty string.
+     *
+     * @param string $profilefield
+     * @param int $userid
+     *
+     * @return string
+     *
+     */
+    public function get_value_for_user(string $profilefield, int $userid): string {
+        $pref = get_user_preferences($profilefield, null, $userid);
+        if (empty($pref)) {
+            // No preference set.
+            return "";
+        }
+        [$fieldvalue, $cmid] = explode(':::', $pref);
+        if ($cmid != $this->cmid) {
+            // Not the right cmid.
+            return "";
+        }
+        return $fieldvalue;
     }
 }

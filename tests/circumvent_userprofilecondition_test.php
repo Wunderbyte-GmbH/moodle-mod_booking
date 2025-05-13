@@ -27,7 +27,6 @@
 namespace mod_booking;
 
 use advanced_testcase;
-use core_user;
 
 use mod_booking\bo_availability\bo_info;
 use mod_booking\local\override_user_field;
@@ -96,28 +95,15 @@ final class circumvent_userprofilecondition_test extends advanced_testcase {
      */
     public function test_circumvent_user_profile_condition($data, $expected): void {
         global $DB, $USER;
+        $standarddata = self::provide_standard_data();
 
         // Initially, no user preferences are saved.
         $preference = $DB->get_records('user_preferences', ['userid' => $USER->id]);
         $this->assertEmpty($preference);
 
-        $obj = new override_user_field();
-        $result = $obj->set_userprefs($data['param']);
-
-        $this->assertEquals($expected['result'], $result);
-        // Only for valid fields we keep the test running.
-        if (!$result) {
-            return;
-        }
-
-        // Preference was saved.
-        $preference = $DB->get_records('user_preferences', ['userid' => $USER->id]);
-        $this->assertCount(1, $preference);
-
         // Now check for a student user if the condition is blocking although the preference is saved.
         // First set up the environment.
         $this->setAdminUser();
-        $standarddata = self::provide_standard_data();
         $course = $this->getDataGenerator()->create_course([
             'enablecompletion' => 1,
         ]);
@@ -143,6 +129,20 @@ final class circumvent_userprofilecondition_test extends advanced_testcase {
         $bdata['json'] = $data['json'] ?? '';
         $booking = $this->getDataGenerator()->create_module('booking', $bdata);
 
+        $b = singleton_service::get_instance_of_booking_by_bookingid($booking->id);
+        $obj = new override_user_field($b->cmid);
+        $result = $obj->set_userprefs($data['param']);
+
+        $this->assertEquals($expected['result'], $result);
+        // Only for valid fields we keep the test running.
+        if (!$result) {
+            return;
+        }
+
+        // Preference was saved.
+        $preference = $DB->get_records('user_preferences', ['userid' => $USER->id]);
+        $this->assertCount(1, $preference);
+
         $option = $standarddata['option'];
         $option['bookingid'] = $booking->id;
         $option['courseid'] = $course->id;
@@ -165,7 +165,7 @@ final class circumvent_userprofilecondition_test extends advanced_testcase {
         $this->assertEquals($expected['blockingfield'], $id);
 
         // Check if password is valid.
-        $validpassword = $obj->password_is_valid($settings->cmid, $data['password']);
+        $validpassword = $obj->password_is_valid($data['password']);
         $this->assertEquals($expected['validpassword'], $validpassword);
 
         // Now we set the userprefs for this user.
