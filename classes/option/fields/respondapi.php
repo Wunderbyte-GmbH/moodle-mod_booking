@@ -28,11 +28,8 @@ use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
-use mod_booking\singleton_service;
-use tool_certificate\certificate as toolCertificate;
 use MoodleQuickForm;
 use stdClass;
-use tool_certificate\template;
 
 /**
  * Class to handle one property of the booking_option_settings class.
@@ -41,7 +38,7 @@ use tool_certificate\template;
  * @author Magdalena Holczik
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class respond_api extends field_base {
+class respondapi extends field_base {
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -100,6 +97,8 @@ class respond_api extends field_base {
             return [];
         }
 
+        return [];
+
 
         // check if checkbox is ticked
         // check if id is empty
@@ -111,7 +110,7 @@ class respond_api extends field_base {
 
         //get_config('booking', 'marmara_enabled')
         // $instance = new certificate();
-        $changes = [];
+        /* $changes = [];
         $key = fields_info::get_class_name(static::class);
         $value = $formdata->{$key} ?? null;
 
@@ -140,7 +139,7 @@ class respond_api extends field_base {
         };
 
         // We can return an warning message here.
-        return ['changes' => $changes];
+        return ['changes' => $changes]; */
     }
 
     /**
@@ -161,9 +160,9 @@ class respond_api extends field_base {
         $applyheader = true
     ) {
 
-        if (!class_exists('tool_certificate\certificate')) {
+        /*if (!class_exists('tool_certificate\certificate')) {
             return;
-        }
+        }*/
 
         global $DB;
 
@@ -182,15 +181,16 @@ class respond_api extends field_base {
         // add rule to hide it if checkobx is not set to sync
 
 
-        $mform->addElement('advcheckbox', 'marmara_sync', get_string('marmara:sync', 'mod_booking'));
-        $mform->setType('marmara_sync', PARAM_BOOL);
-        $mform->setDefault('marmara_sync', 1);
+        $mform->addElement('advcheckbox', 'enablemarmarasync', get_string('marmara:sync', 'mod_booking'));
+        $mform->setType('enablemarmarasync', PARAM_INT);
+        $mform->setDefault('enablemarmarasync', 0);
 
         $keywordid = 13245;
         // Add the disabled text field only if value exists.
         if (!empty($keywordid)) {
             $mform->addElement('text', 'marmaracriteriaid', get_string('marmara:keywordid', 'booking'));
             $mform->setType('marmaracriteriaid', PARAM_INT);
+            $mform->disabledIf('marmaracriteriaid', 'enablemarmarasync', 'noteq', 1);
             // $mform->setDefault('marmaracriteriaid', $keywordid);
             // $mform->freeze('marmaracriteriaid'); // disables the field
             // $mform->disabledIf('marmaracriteriaid', 'marmara_sync', 'notchecked');
@@ -208,7 +208,6 @@ class respond_api extends field_base {
         return $errors;
     }
 
-
     /**
      * Function to set the Data for the form.
      *
@@ -225,6 +224,6 @@ class respond_api extends field_base {
         // and the kriteria ID (if it's there)
 
         // $data->marmaracriteriaid = booking_option::get_value_of_json_by_key($settings->id, 'selflearningcourse') ?? 0;
-        $data->marmaracriteriaid = 454554;
+        $data->marmaracriteriaid = '454554';
     }
 }
