@@ -1637,6 +1637,7 @@ $string['noratings'] = 'Ratings disabled';
 $string['noresultsviewable'] = 'The results are not currently viewable.';
 $string['norighttobook'] = 'Booking is not possible for your user role. Please contact the site administrator to give you the appropriate rights or enrol/sign in.';
 $string['norowsselected'] = 'You did not select anything. Please close this window and first select the rows you want to apply this action for.';
+$string['noruleselected'] = 'No rules selected';
 $string['noselection'] = 'No selection';
 $string['nosemester'] = 'No semester chosen';
 $string['nosubscribers'] = 'There are no teachers assigned!';
