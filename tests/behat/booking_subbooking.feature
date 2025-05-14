@@ -24,18 +24,16 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | All bookings                     | Yes                      |
     And I create booking option "Test option 1" in "My booking"
     ## Default - enable subbookings by admin.
-    And I log in as "admin"
-    And I set the following administration settings values:
-      | Activate subbookings | 1 |
+    And the following config values are set as admin:
+      | config          | value | plugin  |
+      | showsubbookings | 1     | booking |
     And I change viewport size to "1366x10000"
-    And I log out
 
   @javascript
   Scenario: Add single subbooking option for a booking option as a teacher and verify as students
     Given I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until the page is ready
     And I press "Subbookings"
     And I click on "Add a subbooking" "text" in the ".booking-subbookings-container" "css_element"
     ## Only manual fileds setup have to be used - other hand "Expand all" attemted to be invoked.
@@ -50,7 +48,6 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     ## Verify subbokings working: book as stundet with subbokings
     When I am on the "Course 1" course page logged in as student1
     And I follow "My booking"
-    And I wait until the page is ready
     Then I should see "Test option 1" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
@@ -87,7 +84,6 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     ## Verify subbokings working: book as stundet with subbokings
     When I am on the "Course 1" course page logged in as student1
     And I follow "My booking"
-    And I wait until the page is ready
     Then I should see "Test option 1" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
@@ -120,7 +116,6 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     ## Verify subbokings working: book as stundet with subbokings
     When I am on the "Course 1" course page logged in as student1
     And I follow "My booking"
-    And I wait until the page is ready
     Then I should see "Test option 1" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I wait "1" seconds
@@ -170,7 +165,6 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     ## Verify subbokings working: book as stundet with subboking item.
     When I am on the "Course 1" course page logged in as teacher1
     And I follow "My booking"
-    And I wait until the page is ready
     Then I should see "Option-subitem" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I wait "1" seconds
@@ -196,7 +190,6 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     And I press "Checkout"
     And I wait "1" seconds
     And I press "Confirm"
-    And I wait until the page is ready
     And I should see "Payment successful!"
     And I should see "Option-subitem" in the ".payment-success ul.list-group" "css_element"
     And I should see "MyItem" in the ".payment-success ul.list-group" "css_element"
