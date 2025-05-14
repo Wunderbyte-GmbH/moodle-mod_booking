@@ -16,6 +16,10 @@ Feature: As admin - apply bulk operations under booking options.
       | teacher1 | C1     | manager        |
       | student1 | C1     | student        |
       | student2 | C1     | student        |
+    ## Force timezone
+    And the following config values are set as admin:
+      | timezone      | Europe/Berlin |
+      | forcetimezone | Europe/Berlin |
     And I clean booking cache
     And the following "activities" exist:
       | activity | course | name       | intro               | bookingmanager | eventtype | Default view for booking options | Send confirmation e-mail |
@@ -57,9 +61,6 @@ Feature: As admin - apply bulk operations under booking options.
       | content        | [bulkoperations customfields=spt1 filter=institution,coursestarttime,spt1 intrangefilter=titleprefix] |
       | contentformat  | 0                                  |
     And I change viewport size to "1366x6000"
-    ## Force timezone
-      | timezone      | Europe/Berlin |
-      | forcetimezone | Europe/Berlin |
 
   @javascript
   Scenario: Booking bulkoperations: create list and perform its basic management
