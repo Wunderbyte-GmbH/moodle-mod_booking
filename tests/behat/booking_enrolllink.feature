@@ -54,10 +54,6 @@ Feature: Create enrollink availability form for booking options with connected c
     And the following "mod_booking > options" exist:
       | booking     | text         | course | description | importing | chooseorcreatecourse | enrolmentstatus | useprice | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | BookingCMP  | Option-form  | C1     | Price-form  | 1         | 0                    | 2               | 1        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
-    ## Unfortunately, TinyMCE is slow and has misbehavior which might cause number of site-wide issues. So - we disable it.
-    And the following config values are set as admin:
-      | config      | value         |
-      | texteditors | atto,textarea |
     And I change viewport size to "1366x10000"
 
   @javascript
@@ -67,7 +63,6 @@ Feature: Create enrollink availability form for booking options with connected c
       | select_student_in_bo | 1         | {"borole":"0"} | enrollink | send_mail  | {"subject":"Enrollinksubj","template":"<p>{enrollink}<\/p><p>{qrenrollink}<\/p><p>{#customform}<\/p><p>{customform}<\/p><p>{\/customform}<\/p>","templateformat":"1"} | rule_react_on_event | {"boevent":"\\\\mod_booking\\\\event\\\\enrollink_triggered","aftercompletion":"","condition":"0"} |             |
     And I am on the "BookingCMP" Activity page logged in as teacher1
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until the page is ready
     And I expand all fieldsets
     ## And I follow "Availability conditions".
     And I set the field "Form needs to be filled out before booking" to "checked"
@@ -84,7 +79,6 @@ Feature: Create enrollink availability form for booking options with connected c
     And I wait "1" seconds
     And I set the field with xpath "//div[contains(@id, 'fitem_id_courseid_')]//input[contains(@id, 'form_autocomplete_input-')]" to "Course2"
     And I press "Save"
-    And I wait until the page is ready
     And I should see "25.00 EUR" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Number of user" in the ".condition-customform" "css_element"
@@ -107,7 +101,6 @@ Feature: Create enrollink availability form for booking options with connected c
     And I press "Checkout"
     And I wait "1" seconds
     And I press "Confirm"
-    And I wait until the page is ready
     And I should see "Payment successful!"
     And I should see "Credits used" in the ".payment-success ul.list-group" "css_element"
     And I should see "-75.00 EUR" in the ".payment-success ul.list-group" "css_element"
@@ -154,12 +147,10 @@ Feature: Create enrollink availability form for booking options with connected c
     And I click on ".confirmbooking-username-teacher1 i" "css_element"
     And I wait "1" seconds
     And I click on "Book" "button" in the ".modal-footer" "css_element"
-    And I wait until the page is ready
     And I am on the "BookingCMP" Activity page
     And I should see "75.00 EUR" in the ".allbookingoptionstable_r2 .booknow" "css_element"
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r2" "css_element"
     And I visit "/local/shopping_cart/checkout.php"
-    And I wait until the page is ready
     ## Verify prices and credits
     And I should see "Option-waitinglist" in the ".shopping-cart-checkout-items-container" "css_element"
     And I should see "75.00 EUR" in the ".shopping-cart-checkout-items-container" "css_element"
@@ -171,7 +162,6 @@ Feature: Create enrollink availability form for booking options with connected c
     And I press "Checkout"
     And I wait "1" seconds
     And I press "Confirm"
-    And I wait until the page is ready
     And I should see "Payment successful!"
     And I should see "Credits used" in the ".payment-success ul.list-group" "css_element"
     And I should see "-75.00 EUR" in the ".payment-success ul.list-group" "css_element"

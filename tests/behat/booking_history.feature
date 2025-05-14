@@ -25,10 +25,7 @@ Feature: In a booking instance create booking options anf view history
     And the following "activities" exist:
       | activity | course | name      | intro            | bookingmanager | eventtype |
       | booking  | C1     | MyBooking | My booking descr | teacher1       | Webinar   |
-    ## Unfortunately, TinyMCE is slow and has misbehavior which might cause number of site-wide issues. So - we disable it.
     And the following config values are set as admin:
-      | config          | value         | plugin  |
-      | texteditors     | atto,textarea |         |
     ## Set testing objective settings
       | bookingstracker | 1             | booking |
     And I change viewport size to "1366x10000"
@@ -44,8 +41,7 @@ Feature: In a booking instance create booking options anf view history
       | MyBooking | Option-created | student1 |
       | MyBooking | Option-created | student2 |
     And I am on the "MyBooking" Activity page logged in as admin
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I set the field "Booking option name" to "Option-hist_updated"
     And I set the field "Description" to "Deskr-hist_updated"
     And I set the field "Max. number of participants" to "6"
