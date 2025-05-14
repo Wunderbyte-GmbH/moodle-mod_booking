@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The cartstore class handles the in and out of the cache.
+ * Evasys Handler Class.
  *
  * @package mod_booking
  * @author David Ala
@@ -25,7 +25,6 @@
 
 namespace mod_booking\local;
 
-use mod_booking\singleton_service;
 use stdClass;
 
 
@@ -86,6 +85,29 @@ class evasys_evaluation {
      */
     public function get_recipients() {
         // TODO Other Ticket.
+    }
+
+    /**
+     * [Description for get_periods]
+     *
+     * @return [type]
+     *
+     */
+    public function get_periods() {
+        $service = new evasys_soap_service();
+        $periods = $service->fetch_periods();
+        return $periods;
+    }
+    /**
+     * [Description for get_subunits]
+     *
+     * @return [type]
+     *
+     */
+    public function get_subunits() {
+        $service = new evasys_soap_service();
+        $subunits = $service->fetch_subunits();
+        return $subunits;
     }
 
     /**

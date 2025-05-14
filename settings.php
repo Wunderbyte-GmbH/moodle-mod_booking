@@ -712,7 +712,43 @@ if ($ADMIN->fulltree) {
             )
         );
 
-
+        $settings->add(
+            new admin_setting_configtext(
+                'booking/evasysuser',
+                get_string('evasysuser', 'mod_booking'),
+                get_string('evasysuser_desc', 'mod_booking'),
+                ''
+            )
+        );
+        $settings->add(
+            new admin_setting_configpasswordunmask(
+                'booking/evasyspassword',
+                get_string('evasyspassword', 'mod_booking'),
+                get_string('evasyspassword_desc', 'mod_booking'),
+                ''
+            )
+        );
+        if (/*Connection */) {
+            $settings->add(
+                new admin_setting_configselect(
+                    'booking/evasyssubunits',
+                    get_string('evasyssubunits', 'mod_booking'),
+                    get_string('evasyssubunits_desc', 'mod_booking'),
+                    // Todo: Default just a Placeholder now.
+                    0,
+                    $subinutoptions
+                )
+            );
+            $settings->add(
+                new admin_setting_configselect(
+                    'booking/evasyssubunits',
+                    get_string('evasysperiods', 'mod_booking'),
+                    get_string('evasysperiods_desc', 'mod_booking'),
+                    $defaultperiod,
+                    $periodoptions
+                )
+            );
+        }
         // PRO feature: Teacher settings.
         $settings->add(
             new admin_setting_heading(
