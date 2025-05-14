@@ -752,7 +752,11 @@ $string['choosesession'] = 'Termin (Session) auswählen...';
 $string['choosetags'] = 'Wähle Tags';
 $string['choosetags_desc'] = 'Kurse, die mit diesen Tags markiert sind, können als Vorlagen verwendet werden. Wird eine Buchungsoption mit so einer Vorlage verknüpft, wird beim ersten Speichern automatisch eine Kopie des Vorlagen-Kurses erstellt.';
 $string['circumventavailabilityconditions'] = 'Einschränkungen umgehen';
-$string['circumventpassword'] = 'Passwort das als Parameter gesetzt werden muss, um die Einschränkung zu umgehen. Leer bedeutet, kein Passwort nötig.';
+$string['circumventavailabilityconditions_desc'] = 'Wenn diese Einstellung gesetzt ist, können Einschränkungen von Buchungsoptionen, die das Benutzerprofilfeld betreffen, umgangen werden.
+    Wenn Nutzer:innen die "optionview.php" Seite einmalig mit den richtigen Parametern aufrufen, kann die Buchungsoption trotz dieser Einschränkungen für sie buchbar werden.
+    Parameter sind <b>cvfield=userfeldkurzname_Gewuenschterwert</b> und optional <b>cvpwd=passwort</b>.
+    Die Umgehung der Einschränkung ist buchungsinstanzspezifisch und gilt nur für jene Instanz, bei der als letztes die optionview mit dem "cvfield" aufgerufen wurde.';
+$string['circumventpassword'] = 'Passwort um die Einschränkung zu umgehen. Leer bedeutet, kein Passwort nötig.';
 $string['close'] = 'Schließen';
 $string['closed'] = 'Buchung beendet';
 $string['cohort'] = 'Globale Gruppe';

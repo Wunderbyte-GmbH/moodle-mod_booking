@@ -1150,6 +1150,13 @@ class mod_booking_mod_form extends moodleform_mod {
             'circumventavailabilityconditions',
             get_string('circumventavailabilityconditions', 'mod_booking'),
         );
+        $mform->addElement(
+            'static',
+            'circumventavailabilityconditionsdesc',
+            '',
+            get_string('circumventavailabilityconditions_desc', 'booking')
+        );
+        $mform->hideIf('circumventavailabilityconditionsdesc', 'circumventavailabilityconditions', 'notchecked');
 
         $mform->addElement(
             'text',

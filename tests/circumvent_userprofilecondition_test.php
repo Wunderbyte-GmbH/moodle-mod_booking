@@ -63,7 +63,7 @@ final class circumvent_userprofilecondition_test extends advanced_testcase {
         // Create a custom user profile field.
         $this->create_custom_profile_field('testfield');
 
-        parent::setUp()
+        parent::setUp();
     }
 
     /**
