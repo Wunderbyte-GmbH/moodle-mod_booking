@@ -48,14 +48,12 @@ Feature: In a booking - create options and assign or substituing teachers
       | Teachers | teacher1   |
       | Reason   | Assign one |
     And I press "Save changes"
-    And I wait until the page is ready
     Then I should see "Teacher 1" in the "[id^=optiondates_teachers_table] td.teacher" "css_element"
     And I should see "Assign one" in the "[id^=optiondates_teachers_table] td.reason" "css_element"
     And I click on "Edit" "link" in the "[id^=optiondates_teachers_table] td.edit" "css_element"
     And I click on "Teacher 1" "text" in the ".form-autocomplete-selection.form-autocomplete-multiple" "css_element"
     And I set the field "Reason" to "Remove one"
     And I press "Save changes"
-    And I wait until the page is ready
     And I should see "No teacher" in the "[id^=optiondates_teachers_table] td.teacher" "css_element"
     And I should see "Remove one" in the "[id^=optiondates_teachers_table] td.reason" "css_element"
 
@@ -73,7 +71,6 @@ Feature: In a booking - create options and assign or substituing teachers
       | Teachers    | teacher1,teacher2,teacher3 |
       | Reason      | Assign three |
     And I press "Save changes"
-    And I wait until the page is ready
     Then I should see "Teacher 1" in the "[id^=optiondates_teachers_table] td.teacher" "css_element"
     And I should see "Teacher 2" in the "[id^=optiondates_teachers_table] td.teacher" "css_element"
     And I should see "Teacher 3" in the "[id^=optiondates_teachers_table] td.teacher" "css_element"
@@ -83,6 +80,5 @@ Feature: In a booking - create options and assign or substituing teachers
     And I click on "Teacher 3" "text" in the ".form-autocomplete-selection.form-autocomplete-multiple" "css_element"
     And I set the field "Reason" to "Remove two"
     And I press "Save changes"
-    And I wait until the page is ready
     And I should see "Teacher 1" in the "[id^=optiondates_teachers_table] td.teacher" "css_element"
     And I should see "Remove two" in the "[id^=optiondates_teachers_table] td.reason" "css_element"

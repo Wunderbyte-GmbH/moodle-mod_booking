@@ -50,10 +50,6 @@ Feature: In a course add a booking option and manage its waiting list
       | activity | course | name       | intro                  | bookingmanager | eventtype | cancancelbook |
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | 1             |
     And I change viewport size to "1366x10000"
-    ## Unfortunately, TinyMCE is slow and has misbehavior which might cause number of site-wide issues. So - we disable it.
-    And the following config values are set as admin:
-      | config        | value         |
-      | texteditors   | atto,textarea |
 
   @javascript
   Scenario: Booking option: reorder waiting list and waitinglistshowplaceonwaitinglist setings
@@ -75,12 +71,10 @@ Feature: In a course add a booking option and manage its waiting list
     And I click on ".confirmbooking-username-student1 i" "css_element"
     And I wait "1" seconds
     And I click on "Book" "button" in the ".modal-footer" "css_element"
-    ## And I wait until the page is ready
     And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
     And I click on ".confirmbooking-username-student2 i" "css_element"
     And I wait "1" seconds
     And I click on "Book" "button" in the ".modal-footer" "css_element"
-    And I wait until the page is ready
     Then I should see "Student 1 (student1@example.com)" in the ".userselector #removeselect" "css_element"
     And I should see "Student 2 (student2@example.com)" in the ".userselector #removeselect" "css_element"
     ## Add 2 more students
@@ -130,58 +124,40 @@ Feature: In a course add a booking option and manage its waiting list
     When I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until the page is ready
     ## Confirm all 4 students' bookings
     And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
-    And I wait until the page is ready
     And I click on the element with the number "4" with the dynamic identifier "waitinglist" and action "confirmbooking"
-    And I wait until the page is ready
     And I click on "Book" "button" in the ".modal-footer" "css_element"
-    And I wait until the page is ready
     And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
-    And I wait until the page is ready
     And I click on the element with the number "3" with the dynamic identifier "waitinglist" and action "confirmbooking"
-    And I wait until the page is ready
     And I click on "Book" "button" in the ".modal-footer" "css_element"
-    And I wait until the page is ready
     And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
-    And I wait until the page is ready
     And I click on the element with the number "2" with the dynamic identifier "waitinglist" and action "confirmbooking"
-    And I wait until the page is ready
     And I click on "Book" "button" in the ".modal-footer" "css_element"
-    And I wait until the page is ready
     And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
-    And I wait until the page is ready
     And I click on the element with the number "1" with the dynamic identifier "waitinglist" and action "confirmbooking"
-    And I wait until the page is ready
     And I click on "Book" "button" in the ".modal-footer" "css_element"
-    And I wait until the page is ready
     And I log out
     ## Add booking options to cart for students 1 and 2
     And I am on the "My booking" Activity page logged in as student1
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I wait until the page is ready
     And I log out
     And I am on the "My booking" Activity page logged in as student2
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I wait until the page is ready
     And I log out
     ## Admin confirms purchase of booking option by students 1 and 2
     And I log in as "admin"
     And I visit "/local/shopping_cart/cashier.php"
-    And I wait until the page is ready
     And I set the field "Select a user..." to "student1"
     And I click on "Continue" "button"
     And I should see "Waiting_list_with_price" in the "#shopping_cart-cashiers-cart" "css_element"
     And I click on "Proceed to checkout" "text" in the ".card-body" "css_element"
-    And I wait until the page is ready
     And I click on "Confirm cash payment" "text" in the ".card-body" "css_element"
     And I click on "Next customer" "text"
     And I set the field "Select a user..." to "student2"
     And I click on "Continue" "button"
     And I should see "Waiting_list_with_price" in the "#shopping_cart-cashiers-cart" "css_element"
     And I click on "Proceed to checkout" "text" in the ".card-body" "css_element"
-    And I wait until the page is ready
     And I click on "Confirm cash payment" "text" in the ".card-body" "css_element"
     And I log out
     ## Validate waiting list for student 3
@@ -197,17 +173,14 @@ Feature: In a course add a booking option and manage its waiting list
     And I click on "Remove" "button"
     ## Cancel waiting list for student 4
     And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
-    And I wait until the page is ready
     And I should see "student3@example.com" in the "tr[id^='waitinglist'][id$='r1'] td.columnclass.email" "css_element"
     And I should see "student4@example.com" in the "tr[id^='waitinglist'][id$='r2'] td.columnclass.email" "css_element"
     And I click on "tr[id^='waitinglist'][id$='r2'] [data-methodname='unconfirmbooking']" "css_element"
-    And I wait until the page is ready
     And I click on "Delete" "button" in the ".modal-footer" "css_element"
     And I log out
     ## Validate availability and buy option as student 3
     And I am on the "My booking" Activity page logged in as student3
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I wait until the page is ready
     And I visit "/local/shopping_cart/checkout.php"
     And I should see "Waiting_list_with_price" in the ".shopping-cart-checkout-items-container" "css_element"
     ##And I should see "44.00 EUR" in the ".shopping-cart-checkout-items-container" "css_element"
@@ -219,7 +192,6 @@ Feature: In a course add a booking option and manage its waiting list
     And I press "Checkout"
     And I wait "1" seconds
     And I press "Confirm"
-    And I wait until the page is ready
     And I should see "Payment successful!"
     And I log out
     ## Validate that student 4 still on waiting list with only cancellation possible
@@ -248,10 +220,8 @@ Feature: In a course add a booking option and manage its waiting list
     ## Adjust option settings
     And I am on the "My booking" Activity page
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until the page is ready
     And I set the field "Max. number of participants" to "4"
     And I click on "Save" "button"
-    And I wait until the page is ready
     And I should see "4" in the ".allbookingoptionstable_r1 .col-ap-availableplaces" "css_element"
     And I should see "Waiting list: 0/2" in the ".allbookingoptionstable_r1 .col-ap-waitingplacesavailable" "css_element"
 
@@ -276,9 +246,7 @@ Feature: In a course add a booking option and manage its waiting list
     And I am on the "My booking" Activity page
     And I should see "Waiting list: 4/4" in the ".allbookingoptionstable_r1 .col-ap-waitingplacesavailable" "css_element"
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until the page is ready
     And I set the field "Max. number of participants" to "4"
     And I click on "Save" "button"
-    And I wait until the page is ready
     And I should see "0" in the ".allbookingoptionstable_r1 .col-ap-availableplaces" "css_element"
     And I should see "Waiting list: 4/4" in the ".allbookingoptionstable_r1 .col-ap-waitingplacesavailable" "css_element"
