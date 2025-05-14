@@ -40,7 +40,6 @@ Feature: Configure and use booking's pagination and perform filtering - as a tea
     And I wait "1" seconds
     And I set the field "paginationnum" to "3"
     And I press "Save and display"
-    And I wait until the page is ready
     And "//div[contains(@class, 'allbookingoptionstable')]//ul[@class='pagination']" "xpath_element" should exist
     Then I should see "1" in the ".allbookingoptionstable .pagination" "css_element"
     And I should see "2" in the ".allbookingoptionstable .pagination" "css_element"
@@ -56,7 +55,6 @@ Feature: Configure and use booking's pagination and perform filtering - as a tea
   @javascript
   Scenario: Filter of list of booking options including if pagination
     Given I am on the "My booking" Activity page logged in as teacher1
-    And I wait until the page is ready
     And I should see "Booking Option 1" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Booking Option 5" in the ".allbookingoptionstable_r5" "css_element"
     And "//div[contains(@class, 'allbookingoptionstable')]//ul[@class='pagination']" "xpath_element" should not exist
