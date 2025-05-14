@@ -57,12 +57,12 @@ Feature: In a booking instance create booking options
     And I set the following fields to these values:
       | coursestarttime_2[day]    | 20                 |
       | coursestarttime_2[month]  | June               |
-      | coursestarttime_2[year]   | 2050 |
+      | coursestarttime_2[year]   | 2050               |
       | coursestarttime_2[hour]   | 14                 |
       | coursestarttime_2[minute] | 00                 |
       | courseendtime_2[day]      | 20                 |
       | courseendtime_2[month]    | June               |
-      | courseendtime_2[year]     | 2050 |
+      | courseendtime_2[year]     | 2050               |
       | courseendtime_2[hour]     | 17                 |
       | courseendtime_2[minute]   | 00                 |
     And I press "applydate_2"
@@ -104,8 +104,8 @@ Feature: In a booking instance create booking options
     And I set the following fields to these values:
       | Booking option name         | Option-updated |
       | Description                 | Deskr-updated  |
-      | Max. number of participants | 5 |
-      | Assign teachers             | teacher2 |
+      | Max. number of participants | 5              |
+      | Assign teachers             | teacher2       |
     And I click on "15 May 2044" "text" in the "#booking_optiondate_1" "css_element"
     And I set the following fields to these values:
       | coursestarttime_1[day]    | 20   |
@@ -113,11 +113,11 @@ Feature: In a booking instance create booking options
       | coursestarttime_1[year]   | 2050 |
       | coursestarttime_1[hour]   | 00   |
       | coursestarttime_1[minute] | 00   |
-      | courseendtime_1[day]    | 25   |
-      | courseendtime_1[month]  | July |
-      | courseendtime_1[year]   | 2050 |
-      | courseendtime_1[hour]   | 00   |
-      | courseendtime_1[minute] | 00   |
+      | courseendtime_1[day]      | 25   |
+      | courseendtime_1[month]    | July |
+      | courseendtime_1[year]     | 2050 |
+      | courseendtime_1[hour]     | 00   |
+      | courseendtime_1[minute]   | 00   |
     And I set the field "After saving..." to "Stay here"
     And I press "Save"
     And I wait "1" seconds
