@@ -1177,7 +1177,6 @@ class mod_booking_mod_form extends moodleform_mod {
             );
         }
 
-
         // Miscellaneous settings.
         $mform->addElement(
             'header',
