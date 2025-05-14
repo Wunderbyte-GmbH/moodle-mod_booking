@@ -1402,11 +1402,18 @@ class booking_option_settings {
         $select = ' f.filename ';
 
         $where = '';
-        $params = ['componentname3' => 'mod_booking', 'bookingoptionimage' => 'bookingoptionimage'];
+        $params = [];
 
-        $from = " LEFT JOIN {files} f
-            ON f.itemid=bo.id and f.component=:componentname3
-            AND f.filearea=:bookingoptionimage
+        // We have to join images with itemid and contextid to be sure to have the right image.
+        // We use contextlevel 70 as it is the contextlevel for course modules.
+        $from = " JOIN {course_modules} cm ON bo.bookingid = cm.instance
+            JOIN {modules} m ON m.id = cm.module AND m.name = 'booking'
+            JOIN {context} ctx ON ctx.contextlevel = 70 AND ctx.instanceid = cm.id
+            LEFT JOIN {files} f
+            ON f.itemid = bo.id
+            AND f.contextid = ctx.id
+            AND f.component = 'mod_booking'
+            AND f.filearea = 'bookingoptionimage'
             AND f.mimetype LIKE 'image%'";
 
         // As this is a complete subrequest, we have to add the "where" to the outer table, where it is already rendered.
