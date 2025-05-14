@@ -146,14 +146,14 @@ Feature: In a booking instance
 
   @javascript
   Scenario: Booking option cancellation: try self-cancell ongoing option as a student depending to semester dates
-    Given the following "mod_booking > options" exist:
+    ## Define semester start time as relative date to cancellation
+    Given the following config values are set as admin:
+      | config                 | value         | plugin  |
+      | canceldependenton      | semesterstart | booking |
+    And the following "mod_booking > options" exist:
       | booking    | text          | course | description  | semester  |
       | My booking | Test option 1 | C1     | Cancellation | nextmomth |
-    And I log in as "admin"
-    ## Define semester start time as relative date to cancellation
-    And I set the following administration settings values:
-      | Cancellation period dependent on | semesterstart |
-    And I am on the "My booking" Activity page
+    And I am on the "My booking" Activity page logged in as admin
     ## allowupdatedays > max possible days before semester so cancellation impossible
     And I follow "Settings"
     And I follow "Booking und Cancelling"
@@ -196,14 +196,14 @@ Feature: In a booking instance
 
   @javascript
   Scenario: Booking option cancellation: try self-cancell ongoing option as a student with bookingopeningtime and different disallow settings
-    Given the following "mod_booking > options" exist:
+    ## Define semester start time as relative date to cancellation
+    Given the following config values are set as admin:
+      | config                 | value              | plugin  |
+      | canceldependenton      | bookingopeningtime | booking |
+    And the following "mod_booking > options" exist:
       | booking    | text          | course | description  | availability | restrictanswerperiodopening | bookingopeningtime   | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | My booking | Test option 1 | C1     | Cancellation | 1            | 1                           | ## yesterday noon ## | 1           | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
-    And I log in as "admin"
-    ## Define semester start time as relative date to cancellation
-    And I set the following administration settings values:
-      | Cancellation period dependent on | bookingopeningtime |
-    And I am on the "My booking" Activity page
+    And I am on the "My booking" Activity page logged in as admin
     ## allowupdatedays > max possible days before semester so cancellation impossible
     And I follow "Settings"
     And I follow "Booking und Cancelling"
@@ -236,14 +236,14 @@ Feature: In a booking instance
 
   @javascript
   Scenario: Booking option cancellation: try self-cancell ongoing option as a student with bookingclosingtime and different disallow settings
-    Given the following "mod_booking > options" exist:
+    ## Define semester start time as relative date to cancellation
+    Given the following config values are set as admin:
+      | config                 | value              | plugin  |
+      | canceldependenton      | bookingclosingtime | booking |
+    And the following "mod_booking > options" exist:
       | booking    | text          | course | description  | availability | restrictanswerperiodclosing | bookingclosingtime  | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | My booking | Test option 1 | C1     | Cancellation | 1            | 1                           | ## tomorrow noon ## | 1           | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
-    And I log in as "admin"
-    ## Define semester start time as relative date to cancellation
-    And I set the following administration settings values:
-      | Cancellation period dependent on | bookingclosingtime |
-    And I am on the "My booking" Activity page
+    And I am on the "My booking" Activity page logged in as admin
     ## allowupdatedays > max possible days before semester so cancellation impossible
     And I follow "Settings"
     And I follow "Booking und Cancelling"
