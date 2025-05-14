@@ -2,11 +2,9 @@
 Feature: Create recurring options as teacher and configuring it.
 
   Background:
-    ## Unfortunately, TinyMCE is slow and has misbehavior which might cause number of site-wide issues. So - we disable it.
-    ## Also, forcing of timezome is important for date validation
+    ## Forcing of timezome is important for date validation
     Given the following config values are set as admin:
       | config        | value         |
-      | texteditors   | atto,textarea |
       | timezone      | Europe/Berlin |
       | forcetimezone | Europe/Berlin |
     And the following "users" exist:
@@ -157,7 +155,6 @@ Feature: Create recurring options as teacher and configuring it.
     And I press "Save"
     And I set the field "apply_to_children" to "Apply current changes"
     And I press "Save"
-    And I wait until the page is ready
     ## Verify that name of options has been updated
     And I should see "RecurrOptUpd2" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "RecurrOptUpd2" in the ".allbookingoptionstable_r2" "css_element"
@@ -171,7 +168,6 @@ Feature: Create recurring options as teacher and configuring it.
     And I press "Save"
     And I set the field "apply_to_siblings" to "Apply current changes"
     And I press "Save"
-    And I wait until the page is ready
     ## Verify that names of 2nd and 3rd child options has been updated
     And I should see "RecurrOptUpd2" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "RecurrOptUpd3" in the ".allbookingoptionstable_r2" "css_element"

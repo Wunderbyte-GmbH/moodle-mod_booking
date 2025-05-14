@@ -37,10 +37,8 @@ Feature: Create booking action as admin and ensure they are working as student a
       | Booking1 | B1-Option2 | C1     | B1-Option2  | 0        | 2          | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
       | Booking2 | B2-Option1 | C1     | B2-Option1  | 0        | 1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
       | Booking2 | B2-Option2 | C1     | B2-Option2  | 0        | 2          | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
-    ## Unfortunately, TinyMCE is slow and has misbehavior which might cause number of site-wide issues. So - we disable it.
     And the following config values are set as admin:
       | config        | value         | plugin      |
-      | texteditors   | atto,textarea |             |
     ## Set test objective settings
       | showboactions | 1             | booking     |
     And I change viewport size to "1366x10000"
