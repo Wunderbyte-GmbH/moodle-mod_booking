@@ -3,10 +3,8 @@ Feature: Edit booking's "what's new" tab setting as admin and view new tab as st
 
   Background:
     Given the following config values are set as admin:
-    ## Unfortunately, TinyMCE is slow and has misbehavior which might cause number of site-wide issues. So - we disable it.
-      | config          | value         | plugin  |
-      | texteditors     | atto,textarea |         |
     ## Set default test objectives.
+      | config          | value         | plugin  |
       | tabwhatsnew     | 1             | booking |
       | tabwhatsnewdays | 50            | booking |
     And the following "users" exist:
@@ -38,7 +36,7 @@ Feature: Edit booking's "what's new" tab setting as admin and view new tab as st
 
   @javascript
   Scenario: Booking settings - configure whatsnew tab as admin and view it as student
-    Given I am on the "MyBooking" Activity page logged in as admin
+    Given I am on the "MyBooking" Activity page logged in as student1
     And I should see "What's new?" in the "#nav-tabs-booking-options-view" "css_element"
     When I click on "What's new?" "button"
     Then I should see "Option-40" in the ".wunderbyteTableClass.whatsnewtable" "css_element"
@@ -46,11 +44,11 @@ Feature: Edit booking's "what's new" tab setting as admin and view new tab as st
     And I should see "Option-10" in the ".wunderbyteTableClass.whatsnewtable" "css_element"
     And I should not see "Option+1" in the ".wunderbyteTableClass.whatsnewtable" "css_element"
     And I log out
-    And I log in as "admin"
-    And I set the following administration settings values:
-      | tabwhatsnewdays | 15 |
-    And I press "Save changes"
-    And I log out
+    ## Update tabwhatsnewdays and validate results
+    And the following config values are set as admin:
+      | config              | value         | plugin  |
+      | tabwhatsnewdays     | 15            | booking |
+    And I clean booking cache
     And I am on the "MyBooking" Activity page logged in as student1
     And I click on "What's new?" "button"
     And I should see "Option-10" in the ".wunderbyteTableClass.whatsnewtable" "css_element"
