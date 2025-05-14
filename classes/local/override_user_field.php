@@ -151,7 +151,7 @@ class override_user_field {
     }
 
     /**
-     * Get link to circumvent user profile field. Empty if not enabled in booking settings.
+     * Get link to circumvent user profile field. Empty if not enabled in booking settings or data not consistent.
      *
      * @param int $optionid
      *
@@ -159,7 +159,6 @@ class override_user_field {
      *
      */
     public function get_circumvent_link(int $optionid): string {
-        global $PAGE;
 
         $booking = singleton_service::get_instance_of_booking_by_cmid($this->cmid);
         $cvdata = booking::get_value_of_json_by_key($booking->id, 'circumventcond');
@@ -168,28 +167,34 @@ class override_user_field {
         }
 
         $bosettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        if (empty($bosettings) || empty($bosettings->availability) || $bosettings->availability === "[]") {
+            return "";
+        }
         $availabilities = json_decode($bosettings->availability);
         foreach ($availabilities as $a) {
             if (
-                $a->name === "userprofilefield_1_default"
-                || $a->name === "userprofilefield_2_custom"
+                (
+                    $a->name === "userprofilefield_1_default"
+                    || $a->name === "userprofilefield_2_custom"
+                )
+                && ( // For the moment, we only support conditions using positive string comparison: equals, contains.
+                    $a->operator == "="
+                    || $a->operator == "~"
+                )
+                && isset($a->value)
+                && isset($a->profilefield)
             ) {
-                // TODO: Check for operator here. If it says NOT, then we should not set the field as this value but maybe empty.
                 $key = $a->profilefield . "_" . $a->value;
                 break;
             }
         }
-
-        if (!modechecker::is_ajax_or_webservice_request()) {
-            $returnurl = $PAGE->url->out();
-        } else {
-            $returnurl = '/';
+        if (!isset($key)) {
+            return "";
         }
+
         $params = [
             "optionid" => (int)$optionid,
             "cmid" => (int)$this->cmid,
-            //'returnto' => 'url',
-            //'returnurl' => $returnurl,
             'cvfield' => $key,
         ];
         if (isset($cvdata->cvpwd) && !empty($cvdata->cvpwd)) {

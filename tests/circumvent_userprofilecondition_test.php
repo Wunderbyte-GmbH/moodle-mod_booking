@@ -60,12 +60,19 @@ final class circumvent_userprofilecondition_test extends advanced_testcase {
 
         $this->setUser($this->user);
 
-        // Create a custom user profile field
+        // Create a custom user profile field.
         $this->create_custom_profile_field('testfield');
+
+        parent::setUp()
     }
 
     /**
      * Helper to create a custom user profile field.
+     *
+     * @param string $shortname
+     *
+     * @return void
+     *
      */
     protected function create_custom_profile_field(string $shortname): void {
         global $DB;
@@ -84,7 +91,7 @@ final class circumvent_userprofilecondition_test extends advanced_testcase {
     /**
      * Test booking, cancelation, option has started etc.
      *
-     * @covers override_user_field::set_userprefs
+     * @covers \override_user_field->set_userprefs
      *
      * @param array $data
      * @param array $expected

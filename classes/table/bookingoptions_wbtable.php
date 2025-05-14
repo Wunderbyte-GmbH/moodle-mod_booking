@@ -1044,10 +1044,10 @@ class bookingoptions_wbtable extends wunderbyte_table {
                         html_writer::link(
                             '#',
                             $OUTPUT->pix_icon(
-                                'i/clipboard',
+                                'i/link',
                                 get_string('copycircumventlink', 'mod_booking')
                             ) .
-                        get_string('copycircumventlink', 'mod_booking'),
+                            get_string('copycircumventlink', 'mod_booking'),
                             [
                                 'class' => 'copy_to_clipboard',
                                 'onclick' => "navigator.clipboard.writeText('$link'); return false;",
