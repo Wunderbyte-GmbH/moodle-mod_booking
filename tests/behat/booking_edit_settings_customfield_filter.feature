@@ -51,10 +51,6 @@ Feature: As admin - configure customfield filter for booking instance and valida
       | Booking0  | Option11-y | C1     | chess,stud1       | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 1        | chess | student1          |
       | Booking0  | Option12-c | C1     | rugby,stud2       | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 1        | rugby | student2          |
     And I change viewport size to "1366x10000"
-    ## Unfortunately, TinyMCE is slow and has misbehavior which might cause number of site-wide issues. So - we disable it.
-    And the following config values are set as admin:
-      | config                      | value         | plugin  |
-      | texteditors                 | atto,textarea |         |
 
   @javascript
   Scenario: Booking: configure customfield filter for booking instance and validate it as student
@@ -72,14 +68,11 @@ Feature: As admin - configure customfield filter for booking instance and valida
     And I should see "polo (1)" in the "//label[contains(@for, 'idpolospt1')]" "xpath_element"
     And I should see "tenis (3)" in the "//label[contains(@for, 'idtenisspt1')]" "xpath_element"
     And I set the field "yoga (3)" to "checked"
-    And I wait until the page is ready
     And I should see "3 of 12 records found" in the ".wb-records-count-label" "css_element"
     And I should see "1 filter(s) on: Sport1" in the ".wb-records-count-label" "css_element"
     And I set the field "yoga (3)" to ""
-    And I wait until the page is ready
     ## Check 2nf customfield filter:
     And I click on ".wunderbyte_table_components" "css_element"
-    ##And I wait "10" seconds
     And I click on "[aria-controls=\"id_collapse_dynamicuser\"]" "css_element"
     And I should see "student1 (4)" in the "//label[contains(@for, 'idstudent1dynamicuser')]" "xpath_element"
     And I should see "teacher1 (3)" in the "//label[contains(@for, 'idteacher1dynamicuser')]" "xpath_element"
