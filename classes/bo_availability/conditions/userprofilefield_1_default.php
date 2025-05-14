@@ -164,7 +164,11 @@ class userprofilefield_1_default implements bo_condition {
                         $overridefield = new override_user_field($settings->cmid);
                         $pref = $overridefield->get_value_for_user($profilefield, $userid);
                         if (!empty($pref)) {
-                            $isavailable = self::compare_operator($pref, $this->customsettings->operator, $this->customsettings->value);
+                            $isavailable = self::compare_operator(
+                                $pref,
+                                $this->customsettings->operator,
+                                $this->customsettings->value
+                            );
                         }
                     }
                 }
