@@ -2477,6 +2477,7 @@ $string['tasksendmailbyruleadhoc'] = 'Booking: Send mail by rule (adhoc task)';
 $string['tasksendnotificationmails'] = 'Booking: Send notification mails';
 $string['tasksendremindermails'] = 'Booking: Send reminder mails';
 $string['teacher'] = 'Teacher';
+$string['teacherdescription'] = 'Description';
 $string['teachernotfound'] = 'Teacher could not be found or does not exist.';
 $string['teacherroleid'] = 'Select the following role to enrol teachers in a newly created course (if given).';
 $string['teachers'] = 'Teachers';

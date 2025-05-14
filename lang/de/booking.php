@@ -2411,6 +2411,7 @@ $string['tasksendmailbyruleadhoc'] = 'Booking: Mail via Regel versenden (Adhoc-T
 $string['tasksendnotificationmails'] = 'Booking: Benachrichtigungs-Mails versenden';
 $string['tasksendremindermails'] = 'Booking: Erinnerungs-Mails versenden';
 $string['teacher'] = 'Trainer:in';
+$string['teacherdescription'] = 'Beschreibung';
 $string['teachernotfound'] = 'Trainer:in konnte nicht gefunden werden oder existiert nicht.';
 $string['teacherroleid'] = 'Wähle folgende Rolle, um Lehrkräfte in einen ggf. neu angelegten Kurs einzuschreiben.';
 $string['teachers'] = 'Trainer:innen';
