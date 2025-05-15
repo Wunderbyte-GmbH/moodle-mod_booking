@@ -126,12 +126,12 @@
                <div class= "wunderbyteTableClass {{uniqueid}}" id='a{{idstring}}'>
                     {{> mod_booking/table_cards }}
                </div>
-               {{#showdownloadbuttonatbottom}}
-               <div class="ml-2">
-                    {{> local_wunderbyte_table/component_print }}
-               </div>
-               {{/showdownloadbuttonatbottom}}
           </div>
+          {{#showdownloadbuttonatbottom}}
+          <div class="ml-2">
+               {{> local_wunderbyte_table/component_print }}
+          </div>
+          {{/showdownloadbuttonatbottom}}
      </div>
 {{#js}}
      require(['local_wunderbyte_table/init'], function(init) {
