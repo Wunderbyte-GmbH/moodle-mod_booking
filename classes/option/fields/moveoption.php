@@ -258,7 +258,8 @@ class moveoption extends field_base {
                             'filearea' => 'bookingoptionimage',
                             'itemid' => $optionid,
                         ],
-                        'id DESC', // 2 newest entries, one contains filename "." the other entry contains the actual file reference.
+                        /* 2 newest entries, one contains filename "." the other entry contains the actual file reference. */
+                        'id DESC',
                         '*', // All columns.
                         0, // Start at first.
                         2 // Only 2 newest entries.
