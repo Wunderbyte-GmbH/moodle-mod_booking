@@ -63,8 +63,7 @@ final class booking_campaigns_test extends advanced_testcase {
         parent::tearDown();
         // Mandatory clean-up.
         singleton_service::reset_campaigns();
-        singleton_service::get_instance()->users = [];
-        singleton_service::get_instance()->bookinganswers = [];
+        singleton_service::destroy_instance();
     }
 
     /**
