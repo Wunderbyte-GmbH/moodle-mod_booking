@@ -23,6 +23,7 @@
  */
 
 use mod_booking\customfield\booking_handler;
+use mod_booking\local\evasys_evaluation;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -728,23 +729,36 @@ if ($ADMIN->fulltree) {
                 ''
             )
         );
-        if (/*Connection */) {
+        $subinutoptions = evasys_evaluation::get_subunits();
+        $periodoptions = evasys_evaluation::get_periods();
+        if (
+            !empty($subunitoptions) &&
+            !get_config('mod_booking', 'evasysuser') &&
+            !get_config('mod_booking', 'evasyspassword')
+        ) {
             $settings->add(
-                new admin_setting_configselect(
+                new admin_setting_description(
+                    'booking/evasyssettingswarning',
+                    '',
+                    get_string('evasyssettingswarning', 'mod_booking')
+                )
+            );
+        } else {
+            $settings->add(
+                new admin_setting_configmultiselect(
                     'booking/evasyssubunits',
                     get_string('evasyssubunits', 'mod_booking'),
                     get_string('evasyssubunits_desc', 'mod_booking'),
-                    // Todo: Default just a Placeholder now.
-                    0,
+                    [0],
                     $subinutoptions
                 )
             );
             $settings->add(
-                new admin_setting_configselect(
-                    'booking/evasyssubunits',
+                new admin_setting_configmultiselect(
+                    'booking/evasysperiods',
                     get_string('evasysperiods', 'mod_booking'),
                     get_string('evasysperiods_desc', 'mod_booking'),
-                    $defaultperiod,
+                    [0],
                     $periodoptions
                 )
             );
