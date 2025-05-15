@@ -18,7 +18,7 @@ jobs:
       extra_plugin_runners: |
          # Export variables so they're available in this step
           export CODECHECKER_IGNORE_PATHS="OpenTBS, TinyButStrong"
-          export PHPDOCCHECKER_IGNORE_PATHS="OpenTBS, TinyButStrong
+          export PHPDOCCHECKER_IGNORE_PATHS="OpenTBS, TinyButStrong"
           export MUSTACHE_IGNORE_NAMES="bookingoption_dates_custom_list_items.mustache,form_booking_options_selector_suggestion.mustache,table_list_container.mustache,optiondatesteacherstable_list.mustache,optiondatesteacherstable_list_row.mustache,optiondatesteacherstable_list_container.mustache,option_collapsible_close.mustache,option_collapsible_open.mustache,static.mustache,advcheckbox.mustache,select.mustache,shorttext.mustache,mobile_details_button.mustache,mobile_mybookings_list.mustache,mobile_booking_option_details.mustache,mobile_view_page.mustache"
           # Also set for future steps
           echo "CODECHECKER_IGNORE_PATHS=OpenTBS, TinyButStrong" >> $GITHUB_ENV
@@ -34,6 +34,14 @@ jobs:
           moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-customfield_dynamicformat
           moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-tool_mocktesttime
           moodle-plugin-ci add-plugin --branch master branchup/moodle-filter_shortcodes
+
+      # Environment variables for moodle-plugin-ci install
+      install_dependencies_env: |
+        IGNORE_PATHS= vue3,moodle/tests/fixtures,moodle/Sniffs,moodle/vue3
+        CODECHECKER_IGNORE_PATHS=OpenTBS, TinyButStrong
+        PHPDOCCHECKER_IGNORE_PATHS=OpenTBS, TinyButStrong
+        MUSTACHE_IGNORE_NAMES=bookingoption_dates_custom_list_items.mustache,form_booking_options_selector_suggestion.mustache,table_list_container.mustache,optiondatesteacherstable_list.mustache,optiondatesteacherstable_list_row.mustache,optiondatesteacherstable_list_container.mustache,option_collapsible_close.mustache,option_collapsible_open.mustache,static.mustache,advcheckbox.mustache,select.mustache,shorttext.mustache,mobile_details_button.mustache,mobile_mybookings_list.mustache,mobile_booking_option_details.mustache,mobile_view_page.mustache
+
       workarounds: |
         # WORKAROUND 17/04/2025: The following code is a workaround for the "File is stale and needs to be rebuilt" error
         # This occurs when AMD modules import Moodle core dependencies
