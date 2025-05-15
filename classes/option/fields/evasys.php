@@ -106,7 +106,12 @@ class evasys extends field_base {
         $fieldstoinstanciate = [],
         $applyheader = true
     ): void {
-        // TODO: Curl evasys for questionaires.
+
+        if (empty(get_config('mod_booking', 'evasyssubunits'))) {
+            return;
+        }
+
+        // Curl von evasys Class for questionaires.
         $questionaires = [1, 2, 3];
         // TODO: Curl evasys for additional recpients.
         $recipients = ['David', 'NichtDavid'];
