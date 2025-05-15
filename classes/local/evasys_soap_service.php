@@ -54,18 +54,20 @@ class evasys_soap_service {
      *
      *
      */
-    public function __construct() {
-        $this->endpoint = get_config('mod_booking', 'evasysbaseurl');
-        $this->username = get_config('mod_booking', 'evasysuser');
-        $this->password = get_config('mod_booking', 'evasyspassword');
+    public function __construct(?string $endpoint = null, ?string $username = null, ?string $password = null) {
+        $this->endpoint = $endpoint ?? get_config('mod_booking', 'evasysbaseurl');
+        $this->username = $username ?? get_config('mod_booking', 'evasysuser');
+        $this->password = $password ?? get_config('mod_booking', 'evasyspassword');
     }
+
     /**
-     * [Description for fetch_subunits]
+     * Fetches subunits from API.
      *
      * @return object
      *
      */
     public function fetch_subunits() {
+         // Just static for the Workfow.
         $units = new stdClass();
         $units->UnitList = [
             (object)[
@@ -120,7 +122,7 @@ class evasys_soap_service {
         return $units;
     }
     /**
-     * [Description for fetch_periods]
+     * Fetches periods from API.
      *
      * @return object
      *
