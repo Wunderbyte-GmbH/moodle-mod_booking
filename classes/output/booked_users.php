@@ -590,6 +590,7 @@ class booked_users implements renderable, templatable {
         $table->showdownloadbutton = true;
         $table->showdownloadbuttonatbottom = true;
         $table->showreloadbutton = true;
+        $table->showrowcountselect = true;
 
         $html = $table->outhtml(20, false);
         return count($table->rawdata) > 0 ? $html : null;
