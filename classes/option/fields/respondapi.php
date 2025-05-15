@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Control and manage booking dates.
+ * Control and manage booking respondapi.
  *
  * @package mod_booking
  * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
@@ -26,8 +26,10 @@ namespace mod_booking\option\fields;
 
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
+use mod_booking\local\respondapi\handlers\respondapi_handler;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
+use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
 
@@ -92,54 +94,34 @@ class respondapi extends field_base {
         int $updateparam,
         $returnvalue = null
     ): array {
+        // Check if checkbox is ticked.
+        // Check if id is empty.
+        // If it's ticked AND id is empty, contact marmara server.
+        // Save the return value.
 
-        if (!get_config('booking', 'marmara_enabled')) {
+        if (!get_config('mod_booking', 'marmara_enabled')) {
             return [];
         }
 
-        return [];
+        // Save enablemarmarasync flag into JSON.
+        booking_option::add_data_to_json($newoption, 'enablemarmarasync', $formdata->enablemarmarasync ?? 0);
 
+        // If syncing is enabled but ID is missing, call API to fetch it.
+        if (empty($formdata->marmaracriteriaid) && !empty($formdata->enablemarmarasync)) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($formdata->id);
+            $respondapihandler = new respondapi_handler();
+            $fetchedcriteriaid = $respondapihandler->get_new_keyword($settings->get_title_with_prefix());
 
-        // check if checkbox is ticked
-        // check if id is empty
-        // if it's ticked AND id is empty, contact marmara server
-        // save the return value!
-
-        // booking_option::add_data_to_json($newoption, 'mynewcriteriaid', $mynewcriteriaid);
-
-
-        //get_config('booking', 'marmara_enabled')
-        // $instance = new certificate();
-        /* $changes = [];
-        $key = fields_info::get_class_name(static::class);
-        $value = $formdata->{$key} ?? null;
-
-        if (!empty($value)) {
-            booking_option::add_data_to_json($newoption, $key, $formdata->{$key});
-        } else {
-            booking_option::remove_key_from_json($newoption, $key);
-        }
-
-        // Add expiration key to json.
-        $keys = self::$certificatedatekeys;
-        // Process each field and save it to json.
-        foreach ($keys as $key) {
-            $valueexpirydate = $formdata->{$key} ?? null;
-
-            if (!empty($valueexpirydate)) {
-                booking_option::add_data_to_json($newoption, $key, $formdata->{$key});
-            } else {
-                booking_option::remove_key_from_json($newoption, $key);
+            if (!empty($fetchedcriteriaid)) {
+                booking_option::add_data_to_json($newoption, 'marmaracriteriaid', $fetchedcriteriaid);
             }
+
+            return ['changes' => ['marmaracriteriaid' => $fetchedcriteriaid]];
+        } else {
+            booking_option::remove_key_from_json($newoption, 'marmaracriteriaid');
         }
 
-        $certificatechanges = $instance->check_for_changes($formdata, $instance, null, $key, $value);
-        if (!empty($certificatechanges)) {
-            $changes[$key] = $certificatechanges;
-        };
-
-        // We can return an warning message here.
-        return ['changes' => $changes]; */
+        return [];
     }
 
     /**
@@ -159,42 +141,12 @@ class respondapi extends field_base {
         $fieldstoinstanciate = [],
         $applyheader = true
     ) {
-
-        /*if (!class_exists('tool_certificate\certificate')) {
-            return;
-        }*/
-
-        global $DB;
-
-        // Standardfunctionality to add a header to the mform (only if its not yet there).
         if ($applyheader) {
             fields_info::add_header_to_mform($mform, self::$header);
         }
 
-        // $mform->addElement('text', 'myidentifier', 'mylabel', 'mydefaulttext', 'x');
-        // $mform->setDefault('myidentifier', 'x');
-        // $mform->setType('myidentifier', PARAM_TEXT);
-
-
-        // add the checkbox if it should syn
-        // add a text element keyword id.
-        // add rule to hide it if checkobx is not set to sync
-
-
-        $mform->addElement('advcheckbox', 'enablemarmarasync', get_string('marmara:sync', 'mod_booking'));
-        $mform->setType('enablemarmarasync', PARAM_INT);
-        $mform->setDefault('enablemarmarasync', 0);
-
-        $keywordid = 13245;
-        // Add the disabled text field only if value exists.
-        if (!empty($keywordid)) {
-            $mform->addElement('text', 'marmaracriteriaid', get_string('marmara:keywordid', 'booking'));
-            $mform->setType('marmaracriteriaid', PARAM_INT);
-            $mform->disabledIf('marmaracriteriaid', 'enablemarmarasync', 'noteq', 1);
-            // $mform->setDefault('marmaracriteriaid', $keywordid);
-            // $mform->freeze('marmaracriteriaid'); // disables the field
-            // $mform->disabledIf('marmaracriteriaid', 'marmara_sync', 'notchecked');
-        }
+        $respondapihandler = new respondapi_handler($formdata['id'] ?? 0);
+        $respondapihandler->add_to_mform($mform);
     }
 
     /**
@@ -218,12 +170,19 @@ class respondapi extends field_base {
      *
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
+        // In the data object, there might be a json value.
+        // With the value for the checkbox? checked or not.
+        // And the kriteria ID (if it's there).
+        if (!empty($setting->id)) {
+            // Load sync status from JSON (default to 0 if not found).
+            $enablemarmarasync = booking_option::get_value_of_json_by_key($settings->id, 'enablemarmarasync') ?? 0;
+            $data->enablemarmarasync = (int)$enablemarmarasync;
 
-        // in the data object, there might be a json value
-        // with the value for the checkbox? checked or not
-        // and the kriteria ID (if it's there)
+            // Load criteria ID from JSON.
+            $currentvalue = booking_option::get_value_of_json_by_key($settings->id, 'marmaracriteriaid') ?? null;
 
-        // $data->marmaracriteriaid = booking_option::get_value_of_json_by_key($settings->id, 'selflearningcourse') ?? 0;
-        $data->marmaracriteriaid = '454554';
+            $data->marmaracriteriaid = $currentvalue;
+        }
+
     }
 }
