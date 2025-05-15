@@ -2,23 +2,147 @@ name: Moodle Plugin CI
 
 on: [push, pull_request]
 
-concurrency:
+concurrency: 
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  ci:
-    uses: Wunderbyte-GmbH/catalyst-moodle-workflows/.github/workflows/ci.yml@main
-    with:
-      disable_release: true
-      enable_phpmd: true
-      codechecker_max_warnings: 0
-      ignore_paths: 'vue3,moodle/tests/fixtures,moodle/Sniffs,moodle/vue3'
+  test:
+    runs-on: ubuntu-22.04
 
-      extra_plugin_runners: |
-          # Add debugging to verify variables are set
-          echo "MUSTACHE_IGNORE_NAMES environment variable is set to: $MUSTACHE_IGNORE_NAMES"
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: 'postgres'
+          POSTGRES_HOST_AUTH_METHOD: 'trust'
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+      mariadb:
+        image: mariadb:10.8
+        env:
+          MYSQL_USER: 'root'
+          MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+          MYSQL_CHARACTER_SET_SERVER: "utf8mb4"
+          MYSQL_COLLATION_SERVER: "utf8mb4_unicode_ci"
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 3
 
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - php: 8.3
+            moodle-branch: MOODLE_405_STABLE
+            database: pgsql
+          - php: 8.3
+            moodle-branch: MOODLE_405_STABLE
+            database: mariadb
+          - php: 8.2
+            moodle-branch: MOODLE_405_STABLE
+            database: pgsql
+          - php: 8.2
+            moodle-branch: MOODLE_405_STABLE
+            database: mariadb
+          - php: 8.1
+            moodle-branch: MOODLE_405_STABLE
+            database: pgsql
+          - php: 8.1
+            moodle-branch: MOODLE_405_STABLE
+            database: mariadb
+          - php: 8.3
+            moodle-branch: MOODLE_404_STABLE
+            database: pgsql
+          - php: 8.3
+            moodle-branch: MOODLE_404_STABLE
+            database: mariadb
+          - php: 8.2
+            moodle-branch: MOODLE_404_STABLE
+            database: pgsql
+          - php: 8.2
+            moodle-branch: MOODLE_404_STABLE
+            database: mariadb
+          - php: 8.1
+            moodle-branch: MOODLE_404_STABLE
+            database: pgsql
+          - php: 8.1
+            moodle-branch: MOODLE_404_STABLE
+            database: mariadb
+          - php: 8.2
+            moodle-branch: MOODLE_403_STABLE
+            database: pgsql
+          - php: 8.2
+            moodle-branch: MOODLE_403_STABLE
+            database: mariadb
+          - php: 8.1
+            moodle-branch: MOODLE_403_STABLE
+            database: pgsql
+          - php: 8.1
+            moodle-branch: MOODLE_403_STABLE
+            database: mariadb
+          - php: 8.0
+            moodle-branch: MOODLE_403_STABLE
+            database: pgsql
+          - php: 8.0
+            moodle-branch: MOODLE_403_STABLE
+            database: mariadb
+          - php: 8.1
+            moodle-branch: MOODLE_402_STABLE
+            database: pgsql
+          - php: 8.1
+            moodle-branch: MOODLE_402_STABLE
+            database: mariadb
+          - php: 8.0
+            moodle-branch: MOODLE_402_STABLE
+            database: pgsql
+          - php: 8.0
+            moodle-branch: MOODLE_402_STABLE
+            database: mariadb
+          - php: 8.1
+            moodle-branch: MOODLE_401_STABLE
+            database: pgsql
+          - php: 8.1
+            moodle-branch: MOODLE_401_STABLE
+            database: mariadb
+          - php: 8.0
+            moodle-branch: MOODLE_401_STABLE
+            database: pgsql
+          - php: 8.0
+            moodle-branch: MOODLE_401_STABLE
+            database: mariadb
+          - php: 7.4
+            moodle-branch: MOODLE_401_STABLE
+            database: pgsql
+          - php: 7.4
+            moodle-branch: MOODLE_401_STABLE
+            database: mariadb
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        with:
+          path: plugin
+
+      - name: Setup PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: ${{ matrix.extensions }}
+          ini-values: max_input_vars=5000
+          coverage: none
+
+      - name: Initialise moodle-plugin-ci
+        run: |
+          composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^4
+          echo $(cd ci/bin; pwd) >> $GITHUB_PATH
+          echo $(cd ci/vendor/bin; pwd) >> $GITHUB_PATH
+          sudo locale-gen en_AU.UTF-8
+          echo "NVM_DIR=$HOME/.nvm" >> $GITHUB_ENV
+
+      - name: Install moodle-plugin-ci
+        run: |
           moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-local_wunderbyte_table
           moodle-plugin-ci add-plugin --branch MOODLE_401_DEV Wunderbyte-GmbH/moodle-local_shopping_cart
           moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-local_entities
@@ -26,44 +150,79 @@ jobs:
           moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-tool_mocktesttime
           moodle-plugin-ci add-plugin --branch master branchup/moodle-filter_shortcodes
 
-      # Environment variables for moodle-plugin-ci install
-      install_dependencies_env: |
-        IGNORE_PATHS=vue3,moodle/tests/fixtures,moodle/Sniffs,moodle/vue3
-        CODECHECKER_IGNORE_PATHS=OpenTBS, TinyButStrong
-        PHPDOCCHECKER_IGNORE_PATHS=OpenTBS, TinyButStrong
-        MUSTACHE_IGNORE_NAMES=bookingoption_dates_custom_list_items.mustache,form_booking_options_selector_suggestion.mustache,table_list_container.mustache,optiondatesteacherstable_list.mustache,optiondatesteacherstable_list_row.mustache,optiondatesteacherstable_list_container.mustache,option_collapsible_close.mustache,option_collapsible_open.mustache,static.mustache,advcheckbox.mustache,select.mustache,shorttext.mustache,mobile_details_button.mustache,mobile_mybookings_list.mustache,mobile_booking_option_details.mustache,mobile_view_page.mustache
+          moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1
+        env:
+          DB: ${{ matrix.database }}
+          IGNORE_PATHS: vue3,moodle/tests/fixtures,moodle/Sniffs,moodle/vue3
+          MOODLE_BRANCH: ${{ matrix.moodle-branch }}
+          CODECHECKER_IGNORE_PATHS: OpenTBS, TinyButStrong
+          PHPDOCCHECKER_IGNORE_PATHS: OpenTBS, TinyButStrong
+          MUSTACHE_IGNORE_NAMES: 'bookingoption_dates_custom_list_items.mustache,form_booking_options_selector_suggestion.mustache,table_list_container.mustache,optiondatesteacherstable_list.mustache,optiondatesteacherstable_list_row.mustache,optiondatesteacherstable_list_container.mustache,option_collapsible_close.mustache,option_collapsible_open.mustache,static.mustache,advcheckbox.mustache,select.mustache,shorttext.mustache,mobile_details_button.mustache,mobile_mybookings_list.mustache,mobile_booking_option_details.mustache,mobile_view_page.mustache'
 
-      workarounds: |
-        # WORKAROUND 17/04/2025: The following code is a workaround for the "File is stale and needs to be rebuilt" error
-        # This occurs when AMD modules import Moodle core dependencies
-        # See issue: https://github.com/moodlehq/moodle-plugin-ci/issues/350
-        # This workaround should be removed once the issue is fixed upstream
+      - name: PHP Lint
+        if: ${{ !cancelled() }} # prevents CI run stopping if step failed.
+        run: moodle-plugin-ci phplint
 
-        # Load NVM and use the version from .nvmrc
-        export NVM_DIR="$HOME/.nvm"
-        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+      - name: PHP Copy/Paste Detector
+        continue-on-error: true # This step will show errors but will not fail
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci phpcpd
 
-        # Go to moodle directory
-        cd moodle
+      - name: PHP Mess Detector
+        continue-on-error: true
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci phpmd
 
-        # Use NVM to set Node version and ensure grunt-cli is installed
-        nvm use
-        npm install
-        npm install -g grunt-cli
+      - name: Moodle Code Checker
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci phpcs --max-warnings 0
 
-        # Go back to plugin directory
-        cd ../plugin
+      - name: Moodle PHPDoc Checker
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci phpdoc --max-warnings 0
 
-        # Pre-build AMD files to avoid stale file warnings
-        echo "=== Building AMD files before CI check ==="
-        grunt --gruntfile ../moodle/Gruntfile.js amd
-        echo "AMD files built successfully"
+      - name: Validating
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci validate
 
-        # Go Back to main directory
-        cd ..
+      - name: Check upgrade savepoints
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci savepoints
 
-        # END OF WORKAROUND
+      - name: Mustache Lint
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci mustache
 
-    secrets:
-      # Only needed if NOT using disable_release: true
-      moodle_org_token: ${{ secrets.MOODLE_ORG_TOKEN }}
+      - name: Grunt
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci grunt --max-lint-warnings 0
+        env:
+          MOODLE_BRANCH: ${{ matrix.moodle-branch }}
+
+      - name: PHPUnit tests
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci phpunit --testdox
+
+      - name: Behat features
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci behat --profile chrome
+        ## Run --dump to get faild page HTML in the output stream
+        ## run: moodle-plugin-ci behat --profile chrome --dump
+
+      - name: Upload Behat Faildump
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: Behat Faildump (${{ join(matrix.*, ', ') }})
+          path: ${{ github.workspace }}/moodledata/behat_dump
+          retention-days: 2
+          if-no-files-found: ignore
+
+      # Inwoke remote SSH connection if necessary
+      #- name: Setup tmate session
+      #  if: ${{ failure() }}
+      #  uses: mxschmitt/action-tmate@v3
+
+      - name: Mark cancelled jobs as failed.
+        if: ${{ cancelled() }}
+        run: exit 1
