@@ -750,6 +750,7 @@ class booked_users implements renderable, templatable {
         ];
         $sortablecolumns = array_merge($sortablecolumns1, $sortablecolumns2);
         $table->define_sortablecolumns($sortablecolumns);
+        $table->showrowcountselect = true;
 
         // Activate sorting dropdown.
         $table->cardsort = true;
