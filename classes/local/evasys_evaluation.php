@@ -73,17 +73,53 @@ class evasys_evaluation {
      * @return array
      *
      */
+    public function get_questionares() {
+        // TODO Other Ticket.
+    }
+
+    /**
+     * [Description for get_recipients]
+     *
+     * @return array
+     *
+     */
+    public function get_recipients() {
+        // TODO Other Ticket.
+    }
+
+    /**
+     * Fetch periods and create array for Settings.
+     *
+     * @return array
+     *
+     */
     public static function get_periods() {
+        // Todo: Errorhandling.
         $service = new evasys_soap_service();
         $periods = $service->fetch_periods();
         $periodoptions = [];
-        if (!isset($periods)) {
-            return [];
-        }
-        foreach ($periods->Periods as $period) {
+        foreach ($periods->PeriodList as $period) {
             $periodoptions[$period->m_nPeriodId] = $period->m_sTitel;
         }
         return $periodoptions;
+    }
+
+    /**
+     * Fetch subunits and create array for Settings.
+     *
+     * @return array
+     *
+     */
+    public static function get_subunits() {
+        // Todo: Errorhandling.
+        $service = new evasys_soap_service();
+        $subunits = $service->fetch_subunits();
+
+        $subunitoptions = [];
+        foreach ($subunits->UnitList as $subunit) {
+            $subunitoptions[$subunit->m_nId] = $subunit->m_sName;
+        }
+        return $subunitoptions;
     }
 
     /**
