@@ -182,6 +182,13 @@ $functions = [
         'capabilities'  => 'mod/booking:readresponses',
         'ajax'          => 1,
     ],
+    'mod_booking_search_parentkeyword_respondapi' => [
+            'classname' => 'mod_booking\external\search_keywords_respondapi',
+            'description' => 'Search a list of all keywords',
+            'type' => 'read',
+            'capabilities' => '',
+            'ajax' => 1,
+    ],
 ];
 
 $services = [
