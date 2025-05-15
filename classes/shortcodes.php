@@ -1200,8 +1200,6 @@ class shortcodes {
         $additionalwhere = '';
         if (!empty($customfields) && !empty($args)) {
             foreach ($args as $key => $value) {
-                // Logik
-
                 foreach ($customfields as $customfield) {
                     if ($customfield->shortname == $key) {
                         $configdata = json_decode($customfield->configdata ?? '[]');
@@ -1285,6 +1283,7 @@ class shortcodes {
         }
         return $additionalwhere;
     }
+
     /**
      * Helper function to remove quotation marks from args.
      *
@@ -1299,6 +1298,7 @@ class shortcodes {
             $value = str_replace("'", "", $value);
         }
     }
+
     /**
      * Helperfunction to get the Viewparam.
      *
@@ -1332,16 +1332,5 @@ class shortcodes {
                 break;
         }
         return $viewparam;
-    }
-    /**
-     * Helper function to remove quotation marks from args.
-     * @param array &$args reference to arguments array
-     */
-    private static function fix_args(array &$args) {
-        foreach ($args as $key => &$value) {
-            // Get rid of quotation marks.
-            $value = str_replace('"', '', $value);
-            $value = str_replace("'", "", $value);
-        }
     }
 }
