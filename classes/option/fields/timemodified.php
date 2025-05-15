@@ -94,13 +94,10 @@ class timemodified extends field_base {
         $returnvalue = null
     ): array {
         parent::prepare_save_field($formdata, $newoption, $updateparam, 0);
-
-        $instance = new timemodified();
-        $changes = $instance->check_for_changes($formdata, $instance);
         // We always store the current time in the time modified field, no matter what.
         $newoption->timemodified = time();
 
-        return $changes;
+        return [];
     }
 
     /**
