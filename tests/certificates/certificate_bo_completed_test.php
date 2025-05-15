@@ -75,7 +75,7 @@ final class certificate_bo_completed_test extends advanced_testcase {
         }
 
         // Set params requred for certificate issue.
-        foreach ($data['configsettings'][0] as $configsetting) {
+        foreach ($data['configsettings'] as $configsetting) {
             set_config($configsetting['name'], $configsetting['value'], $configsetting['component']);
         }
         $standarddata = self::provide_standard_data();
@@ -97,7 +97,7 @@ final class certificate_bo_completed_test extends advanced_testcase {
         $bdata = $standarddata['booking'];
         // Apply the custom settings for the first booking.
         if (isset($data['bookingsettings'])) {
-            foreach ($data['bookingsettings'][0] as $key => $value) {
+            foreach ($data['bookingsettings'] as $key => $value) {
                 $bdata[$key] = $value;
             }
         }
@@ -180,11 +180,9 @@ final class certificate_bo_completed_test extends advanced_testcase {
             [
                 'configsettings' => [
                     [
-                        [
-                            'component' => 'booking',
-                            'name' => 'certificateon',
-                            'value' => 0,
-                        ],
+                        'component' => 'booking',
+                        'name' => 'certificateon',
+                        'value' => 0,
                     ],
                 ],
                 'coursesettings' => [
@@ -198,7 +196,7 @@ final class certificate_bo_completed_test extends advanced_testcase {
                 'optionsettings' => [
                         'useprice' => 0,
                         'certificatedata' => [
-                            'expirydateabsolute' => time() + 60,
+                            'expirydateabsolute' => strtotime('1 April 2085'),
                             'expirydatetype' => 1, // 2 is absolute expirydate
                         ],
                 ],
@@ -214,11 +212,9 @@ final class certificate_bo_completed_test extends advanced_testcase {
             [
                 'configsettings' => [
                     [
-                        [
-                        'component' => 'booking',
-                        'name' => 'certificateon',
-                        'value' => 1,
-                        ],
+                    'component' => 'booking',
+                    'name' => 'certificateon',
+                    'value' => 1,
                     ],
                 ],
                 'coursesettings' => [
@@ -247,11 +243,9 @@ final class certificate_bo_completed_test extends advanced_testcase {
             [
                 'configsettings' => [
                     [
-                        [
-                            'component' => 'booking',
-                            'name' => 'certificateon',
-                            'value' => 1,
-                        ],
+                        'component' => 'booking',
+                        'name' => 'certificateon',
+                        'value' => 1,
                     ],
                 ],
                 'coursesettings' => [
@@ -265,7 +259,7 @@ final class certificate_bo_completed_test extends advanced_testcase {
                 'optionsettings' => [
                     'useprice' => 0,
                     'certificatedata' => [
-                        'expirydateabsolute' => time() + 60,
+                        'expirydateabsolute' => strtotime('1 April 2085'),
                         'expirydatetype' => 1, // 1 is absolute expirydate
                     ],
                 ],
@@ -281,11 +275,9 @@ final class certificate_bo_completed_test extends advanced_testcase {
             [
                 'configsettings' => [
                     [
-                        [
-                            'component' => 'booking',
-                            'name' => 'certificateon',
-                            'value' => 1,
-                        ],
+                        'component' => 'booking',
+                        'name' => 'certificateon',
+                        'value' => 1,
                     ],
                 ],
                 'coursesettings' => [
@@ -315,11 +307,9 @@ final class certificate_bo_completed_test extends advanced_testcase {
             [
                 'configsettings' => [
                     [
-                        [
-                            'component' => 'booking',
-                            'name' => 'certificateon',
-                            'value' => 1,
-                        ],
+                        'component' => 'booking',
+                        'name' => 'certificateon',
+                        'value' => 1,
                     ],
                 ],
                 'coursesettings' => [
@@ -349,11 +339,9 @@ final class certificate_bo_completed_test extends advanced_testcase {
             [
                 'configsettings' => [
                     [
-                        [
-                            'component' => 'booking',
-                            'name' => 'certificateon',
-                            'value' => 1,
-                        ],
+                        'component' => 'booking',
+                        'name' => 'certificateon',
+                        'value' => 1,
                     ],
                 ],
                 'coursesettings' => [
@@ -383,16 +371,14 @@ final class certificate_bo_completed_test extends advanced_testcase {
             [
                 'configsettings' => [
                     [
-                        [
-                            'component' => 'booking',
-                            'name' => 'certificateon',
-                            'value' => 1,
-                        ],
-                        [
-                            'component' => 'booking',
-                            'name' => 'presencestatustoissuecertificate',
-                            'value' => 1,
-                        ],
+                        'component' => 'booking',
+                        'name' => 'certificateon',
+                        'value' => 1,
+                    ],
+                    [
+                        'component' => 'booking',
+                        'name' => 'presencestatustoissuecertificate',
+                        'value' => 1,
                     ],
                 ],
                 'coursesettings' => [
@@ -406,7 +392,7 @@ final class certificate_bo_completed_test extends advanced_testcase {
                 'optionsettings' => [
                     'useprice' => 0,
                     'certificatedata' => [
-                        'expirydateabsolute' => time() + 60,
+                        'expirydateabsolute' => strtotime('1 April 2085'),
                         'expirydatetype' => 1, // 1 is absolute expirydate
                     ],
                 ],
