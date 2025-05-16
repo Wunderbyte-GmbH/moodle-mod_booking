@@ -94,29 +94,32 @@ class evasys_evaluation {
      *
      */
     public static function get_periods() {
-        // Todo: Errorhandling.
         $service = new evasys_soap_service();
         $periods = $service->fetch_periods();
         $periodoptions = [];
-        foreach ($periods->PeriodList as $period) {
+        if (!isset($periods)) {
+            return [];
+        }
+        foreach ($periods->Periods as $period) {
             $periodoptions[$period->m_nPeriodId] = $period->m_sTitel;
         }
         return $periodoptions;
     }
 
     /**
-     * Fetch subunits and create array for Settings.
+     * Fetches subunits and creates array for Settings.
      *
      * @return array
      *
      */
     public static function get_subunits() {
-        // Todo: Errorhandling.
         $service = new evasys_soap_service();
         $subunits = $service->fetch_subunits();
-
+        if (!isset($subunits)) {
+            return [];
+        }
         $subunitoptions = [];
-        foreach ($subunits->UnitList as $subunit) {
+        foreach ($subunits->Units as $subunit) {
             $subunitoptions[$subunit->m_nId] = $subunit->m_sName;
         }
         return $subunitoptions;
