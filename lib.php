@@ -1886,12 +1886,21 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
                 $completion->update_state($cm, COMPLETION_INCOMPLETE, $selecteduser);
             }
         } else {
+            if (get_config('booking', 'certificateon') && !get_config('booking', 'presencestatustoissuecertificate')) {
+                $certid = certificate::issue_certificate($optionid, $selecteduser);
+            }
+            $other = [
+                'cmid' => $cmid,
+            ];
+            if (
+                isset($certid)
+                && !empty($certid)
+            ) {
+                $other['certid'] = $certid;
+            }
             $completionold = $userdata->completed;
             $userdata->completed = '1';
             $userdata->timemodified = time();
-            if (class_exists('tool_certificate\certificate')) {
-                $certid = certificate::issue_certificate($optionid, $selecteduser);
-            }
 
             if (get_config('booking', 'usecompetencies')) {
                 $usercompetecies = competencies::assign_competencies($cmid, $optionid, $selecteduser);
@@ -1916,10 +1925,7 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
                 'objectid' => $optionid,
                 'userid' => $USER->id,
                 'relateduserid' => $selecteduser,
-                'other' => [
-                            'cmid' => $cmid,
-                            'certid' => $certid ?? 0,
-                            ],
+                'other' => $other,
             ]);
             $event->trigger();
 
