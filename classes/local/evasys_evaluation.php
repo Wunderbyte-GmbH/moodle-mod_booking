@@ -30,7 +30,7 @@ use stdClass;
 
 
 /**
- * Helperclass to Save and Load Form.
+ * Helperclass for Logic.
  */
 class evasys_evaluation {
     /**
@@ -51,12 +51,14 @@ class evasys_evaluation {
         }
     }
 
+
     /**
-     * Load data into form.
+     * Load Data to form.
      *
-     * @param $data
+     * @param object $data
+     *
      * @return void
-     * @throws /dml_exception
+     *
      */
     public function load_form(&$data): void {
         global $DB;
