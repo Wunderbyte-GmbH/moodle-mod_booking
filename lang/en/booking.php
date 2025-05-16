@@ -1247,7 +1247,7 @@ $string['evasysperiods'] = 'Periods';
 $string['evasysperiods_desc'] = 'Choose the periods for Evasys';
 $string['evasyssettings'] = 'Evasys <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['evasyssettings_desc'] = 'Settings for Evasys';
-$string['evasyssettingswarning'] = '<div class="alert alert-danger" role="alert">No subunits recieved or no username and password set. Connection to Evasys was not established.</div>';
+$string['evasyssettingswarning'] = '<div class="alert alert-danger" role="alert">Connection to Evasys could not be established. Please check your username and password.</div>';
 $string['evasyssubunits'] = 'Subunits';
 $string['evasyssubunits_desc'] = 'Choose Subuits for Evasys';
 $string['evasysuser'] = 'Username';

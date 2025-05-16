@@ -1235,7 +1235,7 @@ $string['evasysperiods'] = 'Semester';
 $string['evasysperiods_desc'] = 'Wählen Sie Semester aus für Evasys';
 $string['evasyssettings'] = 'Evasys <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['evasyssettings_desc'] = 'Einstellungen für Evasys';
-$string['evasyssettingswarning'] = '<div class="alert alert-danger" role="alert">Username und Passwort nicht gesetzt, oder keine Untereinheiten erhalten. Verbindung zu Evasys wurde nicht hergestellt.</div>';
+$string['evasyssettingswarning'] = '<div class="alert alert-danger" role="alert">Verbindung zu Evasys konnte nicht hergestellt werden. Überprüfen Sie Username und Passwort. </div>';
 $string['evasyssubunits'] = 'Untereinheiten';
 $string['evasyssubunits_desc'] = 'Wählen Sie die Untereinheiten aus für die Evaluation';
 $string['evasysuser'] = 'Username';

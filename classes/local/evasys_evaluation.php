@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Evasys Handler Class.
+ * Evasys Class.
  *
  * @package mod_booking
  * @author David Ala
@@ -29,7 +29,7 @@ use stdClass;
 
 
 /**
- * Helperclass for Logic.
+ * Class for handling logic of Evasys.
  */
 class evasys_evaluation {
     /**
@@ -68,62 +68,45 @@ class evasys_evaluation {
     }
 
     /**
-     * [Description for get_questionares]
-     *
-     * @return array
-     *
-     */
-    public function get_questionares() {
-        // TODO Other Ticket.
-    }
-
-    /**
-     * [Description for get_recipients]
-     *
-     * @return array
-     *
-     */
-    public function get_recipients() {
-        // TODO Other Ticket.
-    }
-
-    /**
-     * Fetch periods and create array for Settings.
+     * Fetches periods and creates array for Settings.
      *
      * @return array
      *
      */
     public static function get_periods() {
-        // Todo: Errorhandling.
         $service = new evasys_soap_service();
         $periods = $service->fetch_periods();
         $periodoptions = [];
-        foreach ($periods->PeriodList as $period) {
+        if (!isset($periods)) {
+            return [];
+        }
+        foreach ($periods->Periods as $period) {
             $periodoptions[$period->m_nPeriodId] = $period->m_sTitel;
         }
         return $periodoptions;
     }
 
     /**
-     * Fetch subunits and create array for Settings.
+     * Fetches subunits and creates array for Settings.
      *
      * @return array
      *
      */
     public static function get_subunits() {
-        // Todo: Errorhandling.
         $service = new evasys_soap_service();
         $subunits = $service->fetch_subunits();
-
+        if (!isset($subunits)) {
+            return [];
+        }
         $subunitoptions = [];
-        foreach ($subunits->UnitList as $subunit) {
+        foreach ($subunits->Units as $subunit) {
             $subunitoptions[$subunit->m_nId] = $subunit->m_sName;
         }
         return $subunitoptions;
     }
 
     /**
-     * Maps DB to Form to DB for saving.
+     * Maps DB of Form to DB for saving.
      *
      * @param /stdClass $formdata
      * @param /stdClass $option

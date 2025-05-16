@@ -729,12 +729,12 @@ if ($ADMIN->fulltree) {
                 ''
             )
         );
-        $subinutoptions = evasys_evaluation::get_subunits();
-        $periodoptions = evasys_evaluation::get_periods();
+            $subinutoptions = evasys_evaluation::get_subunits();
+            $periodoptions = evasys_evaluation::get_periods();
         if (
-            !empty($subunitoptions) &&
-            !get_config('mod_booking', 'evasysuser') &&
-            !get_config('mod_booking', 'evasyspassword')
+            empty($subunitoptions)
+            && !get_config('mod_booking', 'evasysuser')
+            && !get_config('mod_booking', 'evasyspassword')
         ) {
             $settings->add(
                 new admin_setting_description(
