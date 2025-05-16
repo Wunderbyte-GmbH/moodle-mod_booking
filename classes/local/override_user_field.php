@@ -105,7 +105,7 @@ class override_user_field {
      *
      */
     public function password_is_valid(
-        string $pwd = '',
+        string $pwd = ''
     ): bool {
         $this->password = $pwd;
         $booking = singleton_service::get_instance_of_booking_by_cmid($this->cmid);
