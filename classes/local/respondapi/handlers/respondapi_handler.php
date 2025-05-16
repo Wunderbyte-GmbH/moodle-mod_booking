@@ -24,6 +24,7 @@
  */
 namespace mod_booking\local\respondapi\handlers;
 
+use mod_booking\booking_option;
 use mod_booking\local\respondapi\providers\interfaces\respondapi_provider_interface;
 use mod_booking\local\respondapi\providers\marmaraapi_provider;
 use mod_booking\singleton_service;
@@ -48,6 +49,7 @@ class respondapi_handler {
      * @param respondapi_provider_interface|null $provider Optional. If not provided, Marmara will be used.
      */
     public function __construct(int $optionid = 0, ?respondapi_provider_interface $provider = null) {
+        $this->optionid = $optionid;
         $this->provider = $provider ?? new marmaraapi_provider();
     }
 
@@ -58,8 +60,8 @@ class respondapi_handler {
      * @param string|null $comment Optional description.
      * @return int|null Keyword ID.
      */
-    public function get_new_keyword(string $name, ?string $comment = null): ?int {
-        return $this->provider->sync_keyword($name, null, $comment);
+    public function get_new_keyword(int $parentkyword, string $name, ?string $comment = null): ?int {
+        return $this->provider->sync_keyword($name, null, $comment, $parentkyword);
     }
 
     /**
@@ -81,26 +83,19 @@ class respondapi_handler {
      * @return array{list: array, warnings: string|array{list: object[], warnings: string}}
      */
     public function get_parent_kewords(string $query) {
-        $records = [
-            ['id' => 1, 'name' => 'keyword 1'],
-            ['id' => 2, 'name' => 'keyword 2'],
-            ['id' => 3, 'name' => 'keyword 3'],
-            ['id' => 4, 'name' => 'keyword 4'],
-            ['id' => 5, 'name' => 'keyword 5'],
-        ];
-
-        // $records = $this->provider->get_keywords();
-
-        $records = json_decode(json_encode($records));
-
+        $records = $this->provider->get_keywords();
         $list = [];
-
         $count = 0;
 
         foreach ($records as $record) {
+            $keyworditem = [
+                $record->id,
+                base64_encode($record->name),
+            ];
+
             $keyword = (object)[
-                    'id' => $record->id,
-                    'name' => $record->name,
+                'id' => implode('-', $keyworditem),
+                'name' => "(ID: $record->id) $record->name",
             ];
 
             $count++;
@@ -121,6 +116,7 @@ class respondapi_handler {
      */
     public function add_to_mform(MoodleQuickForm &$mform) {
         global $OUTPUT;
+
         // Checkbox to enable sync.
         $mform->addElement('advcheckbox', 'enablemarmarasync', get_string('marmara:sync', 'mod_booking'));
         $mform->setType('enablemarmarasync', PARAM_INT);
@@ -141,52 +137,84 @@ class respondapi_handler {
         $list = [];
         // We need to preload list to not only have the id, but the rendered values.
         if ($this->optionid !== 0) {
-            $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
-            if ($settings && !empty($settings->marmaraparentkeyword)) {
-                $details = [
-                    'id' => $settings->marmaraparentkeyword->id,
-                    'name' => $settings->marmaraparentkeyword->name,
-                ];
-                $list[$settings->marmaraparentkeyword->id] =
-                    $OUTPUT->render_from_template(
-                        'mod_booking/respondapi/parentkeyword',
-                        $details
-                    );
-            }
+            $parentkeyword = booking_option::get_value_of_json_by_key($this->optionid, 'selectparentkeyword') ?? 0;
+            $parendkeywordname = $this->extract_name_from_id($parentkeyword);
+            $list[$parentkeyword] = $parendkeywordname;
+        } else {
+            $parentkeyword = $this->create_parentkeyword_from_config();
         }
 
-
+        $thisclass = $this;
         $options = [
             'tags' => false,
             'multiple' => false,
             'noselectionstring' => '',
             'ajax' => 'mod_booking/parentkeyword_selector',
-            'valuehtmlcallback' => function ($value) {
-                global $OUTPUT;
+            'valuehtmlcallback' => function ($value) use ($thisclass) {
                 if (empty($value)) {
                     return get_string('choose...', 'mod_booking');
                 }
-                $details = [
-                    'id' => 11 ?? 0,
-                    'name' => 'parent 11' ?? '',
-                ];
-                return $OUTPUT->render_from_template(
-                    'mod_booking/respondapi/parentkeyword',
-                    $details
-                );
+                return get_string('marmara:keyworddisplay', 'mod_booking', (object)[
+                    'id' => $thisclass->extract_idnumber_from_id($value),
+                    'name' => $thisclass->extract_name_from_id($value),
+                ]);
             },
         ];
-        /* Important note: Currently, all users can be added as teachers for optiondates.
-        In the future, there might be a user profile field defining users which are allowed
-        to be added as substitute teachers. */
+
+
         $mform->addElement(
             'autocomplete',
-            'teachersforoption',
+            'selectparentkeywordid',
             get_string('marmara:selectparentkeyword', 'mod_booking'),
             $list,
             $options
         );
+        $mform->setDefault('selectparentkeywordid', $parentkeyword ?? '');
 
-        $mform->addHelpButton('teachersforoption', 'teachersforoption', 'mod_booking');
+        $mform->addHelpButton('selectparentkeywordid', 'marmara:selectparentkeyword', 'mod_booking');
+    }
+
+
+    /**
+     * We take the parentkeyword and extract the name from it.
+     *
+     * @param string $parentkeyword
+     *
+     * @return string
+     *
+     */
+    private function extract_name_from_id(string $parentkeyword): string {
+        if (empty($parentkeyword)) {
+            $parentkeyword = $this->create_parentkeyword_from_config();
+            $parendkeywordname = get_config('booking', 'marmara_keywordparentname') ?? '';
+        } else {
+            [$parentkeywordid, $parendkeywordnameencoded] = explode('-', $parentkeyword);
+            $parendkeywordname = base64_decode($parendkeywordnameencoded);
+
+        }
+        return $parendkeywordname;
+    }
+
+    /**
+     * Create the parentkeyword from config
+     *
+     * @return string
+     *
+     */
+    private function create_parentkeyword_from_config(): string {
+        $pkarray = [
+            get_config('booking', 'marmara_keywordparentid') ?? 0,
+            base64_encode(get_config('booking', 'marmara_keywordparentname') ?? ''),
+        ];
+        return implode('-', $pkarray);
+    }
+
+    public function extract_idnumber_from_id(string $parentkeyword): int {
+        if (empty($parentkeyword)) {
+            $parendkeywordidnumber = get_config('booking', 'marmara_keywordparentid') ?? '';
+        } else {
+            [$parendkeywordidnumber, $parendkeywordnameencoded] = explode('-', $parentkeyword);
+        }
+        return (int)$parendkeywordidnumber;
     }
 }

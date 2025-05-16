@@ -72,7 +72,7 @@ class search_keywords_respondapi extends external_api {
         return new \external_single_structure([
             'list' => new \external_multiple_structure(
                 new \external_single_structure([
-                    'id' => new \external_value(\core_user::get_property_type('id'), 'ID of the user'),
+                    'id' => new \external_value(PARAM_RAW, 'ID of the user'),
                     'name' => new \external_value(PARAM_TEXT, 'Firstname of the user'),
                 ])
             ),
