@@ -2171,6 +2171,13 @@ if ($ADMIN->fulltree) {
                 get_string('marmara:keywordparentid_desc', 'booking'),
                 ''
             ));
+
+            $settings->add(new admin_setting_configtext(
+                'booking/marmara_keywordparentname',
+                get_string('marmara:keywordparentname', 'booking'),
+                get_string('marmara:keywordparentname_desc', 'booking'),
+                '_MOODLE_Weiterbildungen'
+            ));
         }
     }
 }

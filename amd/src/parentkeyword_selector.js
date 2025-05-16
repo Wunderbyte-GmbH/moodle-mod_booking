@@ -22,7 +22,6 @@
  */
 
 import Ajax from "core/ajax";
-import {render as renderTemplate} from "core/templates";
 
 /**
  * Load the list of users matching the query and render the selector labels for them.
@@ -53,10 +52,7 @@ export async function transport(selector, query, callback, failure) {
     } else {
         response.list.forEach((user) => {
             labels.push(
-                renderTemplate(
-                "mod_booking/respondapi/parentkeyword",
-                user
-                )
+                user.name
             );
             });
             labels = await Promise.all(labels);

@@ -56,6 +56,25 @@ class marmaraapi_provider implements respondapi_provider_interface {
     /** @var int|null Parent keyword ID for hierarchy */
     private ?int $keywordparentid;
 
+    /** @var curl Curl instance used for HTTP requests */
+    private curl $curl;
+
+    /**
+     * Default headers for Marmara API requests.
+     */
+    private const DEFAULT_HEADERS = [
+        'Content-Type: application/json',
+        'Accept: application/json',
+    ];
+
+    /**
+     * Default cURL options for Marmara API requests.
+     */
+    private const DEFAULT_OPTIONS = [
+        'CURLOPT_TIMEOUT' => 10,
+        'CURLOPT_CONNECTTIMEOUT' => 5,
+    ];
+
     /**
      * Endpoint for importing a keyword.
      *
@@ -96,6 +115,13 @@ class marmaraapi_provider implements respondapi_provider_interface {
         } else {
             $this->keywordparentid = null;
         }
+
+        $this->curl = new curl();
+        $this->curl->setHeader(array_merge(self::DEFAULT_HEADERS, [
+            'Authorization: Bearer ' . $this->secret,
+        ]));
+        $this->curl->setopt(self::DEFAULT_OPTIONS);
+
     }
 
     /**
@@ -104,9 +130,10 @@ class marmaraapi_provider implements respondapi_provider_interface {
      * @param string $name The name of the keyword (required).
      * @param int|null $id Optional existing keyword ID to update.
      * @param string|null $comment Optional comment or description.
+     * @param int|null $parentid Optional parent ID.
      * @return int|null The returned keyword ID, or null on failure.
      */
-    public function sync_keyword(string $name, ?int $id = null, ?string $comment = null): ?int {
+    public function sync_keyword(string $name, ?int $id = null, ?string $comment = null, ?int $parentid = null): ?int {
         $url = $this->baseurl . self::ENDPOINT_IMPORT_KEYWORD;
 
         $payload = [
@@ -122,22 +149,14 @@ class marmaraapi_provider implements respondapi_provider_interface {
             $payload['comment'] = $comment;
         }
 
-        if (!empty($this->keywordparentid)) {
+        if (!empty($parentid)) {
             $payload['parent_id'] = $this->keywordparentid;
         }
 
-        // Initialize Moodle's curl class.
-        $curl = new curl();
-        $headers = [
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . $this->secret,
-        ];
+        $response = $this->curl->post($url, json_encode($payload));
 
-        $response = $curl->post($url, json_encode($payload), $headers);
-        $responsejson = json_decode($response);
-
-        if (isset($responsejson->id) && is_numeric($responsejson->id)) {
-            return (int)$responsejson->id;
+        if (is_numeric($response)) {
+            return (int)$response;
         }
 
         // Log error for debugging (optional).
@@ -165,24 +184,11 @@ class marmaraapi_provider implements respondapi_provider_interface {
         $payload = [
             'filter' => [
                 'client_id' => $this->clientid,
-                'parent_id' => $parentkeywordid,
+                // 'id' => $parentkeywordid,
             ],
         ];
 
-        $curl = new curl();
-
-        $curl->setHeader([
-            'Content-Type: application/json',
-            'Accept: application/json',
-            'Authorization: Bearer ' . $this->secret,
-        ]);
-
-        $curl->setopt([
-            'CURLOPT_TIMEOUT' => 10, // Max total time for the request in seconds.
-            'CURLOPT_CONNECTTIMEOUT' => 5, // Max time to connect to server in seconds.
-        ]);
-
-        $response = $curl->post($url, json_encode($payload));
+        $response = $this->curl->post($url, json_encode($payload));
         $responsejson = json_decode($response);
 
         if (is_array($responsejson)) {
