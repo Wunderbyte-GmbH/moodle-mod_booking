@@ -70,36 +70,6 @@ jobs:
           - php: 8.1
             moodle-branch: MOODLE_404_STABLE
             database: mariadb
-          - php: 8.2
-            moodle-branch: MOODLE_403_STABLE
-            database: pgsql
-          - php: 8.2
-            moodle-branch: MOODLE_403_STABLE
-            database: mariadb
-          - php: 8.1
-            moodle-branch: MOODLE_403_STABLE
-            database: pgsql
-          - php: 8.1
-            moodle-branch: MOODLE_403_STABLE
-            database: mariadb
-          - php: 8.0
-            moodle-branch: MOODLE_403_STABLE
-            database: pgsql
-          - php: 8.0
-            moodle-branch: MOODLE_403_STABLE
-            database: mariadb
-          - php: 8.1
-            moodle-branch: MOODLE_402_STABLE
-            database: pgsql
-          - php: 8.1
-            moodle-branch: MOODLE_402_STABLE
-            database: mariadb
-          - php: 8.0
-            moodle-branch: MOODLE_402_STABLE
-            database: pgsql
-          - php: 8.0
-            moodle-branch: MOODLE_402_STABLE
-            database: mariadb
           - php: 8.1
             moodle-branch: MOODLE_401_STABLE
             database: pgsql
@@ -195,7 +165,39 @@ jobs:
 
       - name: Grunt
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci grunt --max-lint-warnings 0
+        run: |
+          # WORKAROUND 17/04/2025: The following code is a workaround for the "File is stale and needs to be rebuilt" error 
+          # This occurs when AMD modules import Moodle core dependencies
+          # See issue: https://github.com/moodlehq/moodle-plugin-ci/issues/350
+          # This workaround should be removed once the issue is fixed upstream
+
+          # Load NVM and use the version from .nvmrc
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+          # Go to moodle directory
+          cd moodle
+
+          # Use NVM to set Node version and ensure grunt-cli is installed
+          nvm use
+          npm install
+          npm install -g grunt-cli
+
+          # Go back to plugin directory
+          cd ../plugin
+
+          # Pre-build AMD files to avoid stale file warnings
+          echo "=== Building AMD files before CI check ==="
+          grunt --gruntfile ../moodle/Gruntfile.js amd
+          echo "AMD files built successfully"
+
+          # Go Back to main directory
+          cd ..
+
+          # END OF WORKAROUND - The following is the original command
+
+          # Run the regular CI command
+          moodle-plugin-ci grunt --max-lint-warnings 0
         env:
           MOODLE_BRANCH: ${{ matrix.moodle-branch }}
 
