@@ -98,8 +98,7 @@ class respondapi extends field_base {
         // Check if id is empty.
         // If it's ticked AND id is empty, contact marmara server.
         // Save the return value.
-
-        if (!get_config('mod_booking', 'marmara_enabled')) {
+        if (!get_config('booking', 'marmara_enabled')) {
             return [];
         }
 
@@ -107,18 +106,33 @@ class respondapi extends field_base {
         booking_option::add_data_to_json($newoption, 'enablemarmarasync', $formdata->enablemarmarasync ?? 0);
 
         // If syncing is enabled but ID is missing, call API to fetch it.
-        if (empty($formdata->marmaracriteriaid) && !empty($formdata->enablemarmarasync)) {
+        if (
+            empty($formdata->marmaracriteriaid)
+            && !empty($formdata->enablemarmarasync)
+            && !empty($formdata->selectparentkeywordid)
+        ) {
             $settings = singleton_service::get_instance_of_booking_option_settings($formdata->id);
+            $newkeywordname = $settings->get_title_with_prefix() ?: $newoption->text;
             $respondapihandler = new respondapi_handler();
-            $fetchedcriteriaid = $respondapihandler->get_new_keyword($settings->get_title_with_prefix());
+            $newkeywordparentid = $respondapihandler->extract_idnumber_from_id($formdata->selectparentkeywordid);
+            $fetchedcriteriaid = $respondapihandler->get_new_keyword(
+                $newkeywordparentid,
+                $newkeywordname,
+                '',
+            );
 
             if (!empty($fetchedcriteriaid)) {
                 booking_option::add_data_to_json($newoption, 'marmaracriteriaid', $fetchedcriteriaid);
             }
 
+            if (!empty($formdata->selectparentkeywordid)) {
+                booking_option::add_data_to_json($newoption, 'selectparentkeyword', $formdata->selectparentkeywordid);
+            }
+
             return ['changes' => ['marmaracriteriaid' => $fetchedcriteriaid]];
         } else {
             booking_option::remove_key_from_json($newoption, 'marmaracriteriaid');
+            booking_option::remove_key_from_json($newoption, 'selectparentkeyword');
         }
 
         return [];
@@ -170,10 +184,12 @@ class respondapi extends field_base {
      *
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
+        global $OUTPUT;
+        $rootparentkeyword = get_config('booking', 'marmara_keywordparentid');
         // In the data object, there might be a json value.
         // With the value for the checkbox? checked or not.
         // And the kriteria ID (if it's there).
-        if (!empty($setting->id)) {
+        if (!empty($settings->id)) {
             // Load sync status from JSON (default to 0 if not found).
             $enablemarmarasync = booking_option::get_value_of_json_by_key($settings->id, 'enablemarmarasync') ?? 0;
             $data->enablemarmarasync = (int)$enablemarmarasync;
@@ -182,7 +198,29 @@ class respondapi extends field_base {
             $currentvalue = booking_option::get_value_of_json_by_key($settings->id, 'marmaracriteriaid') ?? null;
 
             $data->marmaracriteriaid = $currentvalue;
-        }
 
+            // Load parent keyword ID from JSON.
+            $selectparentkeywordid = booking_option::get_value_of_json_by_key($settings->id, 'selectparentkeyword') ?? null;
+            if (empty($selectparentkeywordid)) {
+                $details = [
+                    'id' => $rootparentkeyword ?? 0,
+                    'name' => 'Root Keyword' ?? '',
+                ];
+                $data->selectparentkeyword = $OUTPUT->render_from_template(
+                    'mod_booking/respondapi/parentkeyword',
+                    $details
+                );
+            } else {
+                $selectparentkeywordid = json_decode($selectparentkeywordid);
+                $details = [
+                    'id' => $selectparentkeywordid->id ?? 0,
+                    'name' => $selectparentkeywordid->name ?? '',
+                ];
+                return $OUTPUT->render_from_template(
+                    'mod_booking/respondapi/parentkeyword',
+                    $details
+                );
+            }
+        }
     }
 }

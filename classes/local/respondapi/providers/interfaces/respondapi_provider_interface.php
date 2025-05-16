@@ -36,7 +36,8 @@ interface respondapi_provider_interface {
      * @param string $name The name/title of the keyword (required).
      * @param int|null $id The ID of the keyword to update, or null to create new.
      * @param string|null $comment Optional description.
+     * @param int|null $parentid Optional parent ID.
      * @return int|null The returned keyword ID, or null on failure.
      */
-    public function sync_keyword(string $name, ?int $id = null, ?string $comment = null): ?int;
+    public function sync_keyword(string $name, ?int $id = null, ?string $comment = null, ?int $parentid = null): ?int;
 }
