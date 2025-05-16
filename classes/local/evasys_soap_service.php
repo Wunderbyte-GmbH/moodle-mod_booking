@@ -24,13 +24,15 @@
  */
 
 namespace mod_booking\local;
-use stdClass;
+use SoapClient;
+use SoapFault;
+use SoapHeader;
 
 
 /**
- * Helperclass to Save and Load Form.
+ * Serviceclass to handle SOAP calls.
  */
-class evasys_soap_service {
+class evasys_soap_service extends SoapClient {
     /**
      * URL of the Endpoint.
      *
@@ -49,119 +51,81 @@ class evasys_soap_service {
      * @var string
      */
     private string $password;
+
     /**
-     * Constructor.
+     * Wsdl Adress.
      *
+     * @var string
+     */
+    private string $wsdl;
+
+    /**
+     * Constructor with parent constructor in it. Soapheader is used for autehntication.
+     *
+     * @param string|null $endpoint
+     * @param string|null $username
+     * @param string|null $password
+     * @param string|null $wsdl
      *
      */
-    public function __construct(?string $endpoint = null, ?string $username = null, ?string $password = null) {
-        $this->endpoint = $endpoint ?? get_config('mod_booking', 'evasysbaseurl');
-        $this->username = $username ?? get_config('mod_booking', 'evasysuser');
-        $this->password = $password ?? get_config('mod_booking', 'evasyspassword');
+    public function __construct(?string $endpoint = null, ?string $username = null, ?string $password = null, ?string $wsdl = null) {
+        $this->endpoint = $endpoint ?? get_config('booking', 'evasysbaseurl');
+        $this->username = $username ?? get_config('booking', 'evasysuser');
+        $this->password = $password ?? get_config('booking', 'evasyspassword');
+        $this->wsdl = $wsdl ?? get_config('booking', 'evasyswsdl');
+
+        $options = [
+            'trace'      => true,
+            'exceptions' => true,
+            'location'   => $this->endpoint,
+        ];
+        parent::__construct($this->wsdl, $options);
+        $this->set_soap_header();
     }
 
     /**
      * Fetches subunits from API.
      *
-     * @return object
+     * @return mixed
      *
      */
     public function fetch_subunits() {
-         // Just static for the Workfow.
-        $units = new stdClass();
-        $units->UnitList = [
-            (object)[
-            'm_nId' => '11',
-            'm_sName' => 'SPL002 - Evang Theol',
-            'm_nPublicUnitNumber' => '2',
-            'm_nImageAccess' => '0',
-            'm_sPostCode' => '',
-            'm_sCity' => '',
-            'm_sStreet' => '',
-            'm_sPhoneNumber' => '',
-            'm_sFax' => '',
-            'm_sEmail' => null,
-            'm_aUsers' => '',
-            'm_nLogoId' => '1',
-            'm_sExternalId' => '',
-            'm_bIsHidden' => 'false',
-            ],
-            (object)[
-            'm_nId' => '10',
-            'm_sName' => 'SPL009 - Altertumsw',
-            'm_nPublicUnitNumber' => '9',
-            'm_nImageAccess' => '0',
-            'm_sPostCode' => '',
-            'm_sCity' => '',
-            'm_sStreet' => '',
-            'm_sPhoneNumber' => '',
-            'm_sFax' => '',
-            'm_sEmail' => null,
-            'm_aUsers' => '',
-            'm_nLogoId' => '1',
-            'm_sExternalId' => '',
-            'm_bIsHidden' => 'false',
-            ],
-            (object)[
-            'm_nId' => '18',
-            'm_sName' => 'SPL032 - Pharmazie',
-            'm_nPublicUnitNumber' => '32',
-            'm_nImageAccess' => '0',
-            'm_sPostCode' => '',
-            'm_sCity' => '',
-            'm_sStreet' => '',
-            'm_sPhoneNumber' => '',
-            'm_sFax' => '',
-            'm_sEmail' => null,
-            'm_aUsers' => '',
-            'm_nLogoId' => '1',
-            'm_sExternalId' => '',
-            'm_bIsHidden' => 'false',
-            ],
-        ];
-        return $units;
+        try {
+            $response = $this->__soapCall('GetSubunits', []);
+            return $response;
+        } catch (SoapFault $e) {
+            return null;
+        }
     }
     /**
      * Fetches periods from API.
      *
-     * @return object
+     * @return mixed
      *
      */
     public function fetch_periods() {
-        // Just static for the Workfow.
-        $periods = new stdClass();
-        $periods->PeriodList = [
-            (object)[
-            'm_nPeriodId' => '24',
-            'm_sTitel' => 'W21',
-            'm_sStartDate' => '2021-10-01',
-            'm_sEndDate' => '2022-02-28',
-            ],
-            (object)[
-            'm_nPeriodId' => '25',
-            'm_sTitel' => 'S22',
-            'm_sStartDate' => '2022-03-01',
-            'm_sEndDate' => '2022-10-31',
-            ],
-            (object)[
-            'm_nPeriodId' => '26',
-            'm_sTitel' => 'W22',
-            'm_sStartDate' => '2022-10-01',
-            'm_sEndDate' => '2023-02-28',
-            ],
-            (object)[
-            'm_nPeriodId' => '27',
-            'm_sTitel' => 'S23',
-            'm_sStartDate' => '2023-03-01',
-            'm_sEndDate' => '2023-09-30',
-            ],
-            (object)[
-            'm_nPeriodId' => '28',
-            'm_sTitel' => 'W23',
-            'm_sStartDate' => '2023-10-01',
-            'm_sEndDate' => '2024-02-29',
-            ],
+        try {
+            $response = $this->__soapCall('GetAllPeriods', []);
+            return $response;
+        } catch (SoapFault $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Sets Soapheader for authentication.
+     *
+     * @return void
+     *
+     */
+    private function set_soap_header() {
+        $ns = 'soapserver-v91.wsdl';
+        $headerbody = [
+            'Ticket'   => '',
+            'Login'    => $this->username,
+            'Password' => $this->password,
         ];
-        return $periods;
+        $header = new SoapHeader($ns, 'Header', $headerbody);
+        $this->__setSoapHeaders($header);
     }
 }
