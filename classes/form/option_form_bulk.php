@@ -74,6 +74,7 @@ class option_form_bulk extends dynamic_form {
 
         // Array of things to include.
         $includedclasses = [
+            'moveoption',
             'addtocalendar',
             'availability',
             'canceluntil',

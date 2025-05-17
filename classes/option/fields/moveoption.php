@@ -117,7 +117,7 @@ class moveoption extends field_base {
     ) {
 
         // Moving works only on saved booking option.
-        if (empty($formdata['id'])) {
+        if (empty($formdata['id']) && isset($formdata['cmid'])) {
             return;
         }
 
