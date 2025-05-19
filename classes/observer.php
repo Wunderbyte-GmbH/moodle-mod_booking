@@ -32,7 +32,10 @@ use mod_booking\booking_option;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\calendar;
 use mod_booking\elective;
+use mod_booking\event\bookinganswer_presencechanged;
+use mod_booking\event\bookinganswer_notesedited;
 use mod_booking\local\checkanswers\checkanswers;
+use mod_booking\option\fields\certificate;
 use mod_booking\output\view;
 use mod_booking\singleton_service;
 
@@ -326,11 +329,18 @@ class mod_booking_observer {
 
         $optionid = $event->objectid;
         $cmid = $event->other['cmid'];
-        $selecteduserid = $event->relateduserid;
 
         $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
+        $selecteduserid = $event->relateduserid;
 
-        if (empty($bookingoption->booking->settings->sendmail)) {
+        if (class_exists('tool_certificate\certificate') && get_config('booking', 'presencestatustoissuecertificate') == 0) {
+            certificate::issue_certificate($optionid, $selecteduserid);
+        }
+
+        if (
+            empty($bookingoption->booking->settings->sendmail)
+            || !get_config('booking', 'uselegacymailtemplates')
+        ) {
             // If sendmail is not set or not active, we don't do anything.
             return;
         }
@@ -372,9 +382,6 @@ class mod_booking_observer {
             // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
             /* new calendar($tmpcmid->id, $value->id, 0, calendar::MOD_BOOKING_TYPEOPTION); */
 
-            // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
-            // TODO: We have to re-write this function so all calendar entries of optiondates will get updated correctly.
-
             $allteachers = $DB->get_records_sql(
                 "SELECT userid FROM {booking_teachers} WHERE optionid = ? AND calendarid > 0",
                 [$value->id]
@@ -384,48 +391,6 @@ class mod_booking_observer {
                 new calendar($tmpcmid->id, $value->id, $valuet->userid, calendar::MOD_BOOKING_TYPETEACHERUPDATE);
             }
         }
-    }
-
-    /**
-     * When we add teacher to booking option, we also add calendar event to their calendar.
-     *
-     * @param \mod_booking\event\teacher_added $event
-     */
-    public static function teacher_added(\mod_booking\event\teacher_added $event) {
-        $optionid = $event->objectid;
-        if (empty($optionid)) {
-            return;
-        }
-        $teacherid = $event->relateduserid;
-        $cmid = $event->contextinstanceid;
-
-        // For templates, we do not create calendar events for teachers (fixes #766).
-        if (empty($cmid)) {
-            return;
-        }
-
-        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-
-        // Create calendar events for the newly added teacher.
-        foreach ($settings->sessions as $session) {
-            new calendar(
-                $cmid,
-                $optionid,
-                $teacherid,
-                calendar::MOD_BOOKING_TYPEOPTIONDATE,
-                $session->id,
-                1
-            );
-        }
-    }
-
-    /**
-     * When teacher is removed from booking option we delete their calendar records.
-     *
-     * @param \mod_booking\event\teacher_removed $event
-     */
-    public static function teacher_removed(\mod_booking\event\teacher_removed $event) {
-        new calendar($event->contextinstanceid, $event->objectid, $event->relateduserid, calendar::MOD_BOOKING_TYPETEACHERREMOVE);
     }
 
     /**
@@ -469,10 +434,10 @@ class mod_booking_observer {
      * @throws moodle_exception
      */
     public static function course_completed(\core\event\course_completed $event) {
-        global $DB;
+        global $DB, $CFG;
 
         // Check if there is an associated booking_answer with status 'booked' for the userid and courseid.
-        $sql = 'SELECT ba.userid, bo.courseid
+        $sql = 'SELECT ba.userid, bo.courseid, ba.optionid, ba.completed
                 FROM {booking_answers} ba
                 JOIN {booking_options} bo
                 ON ba.optionid = bo.id
@@ -483,6 +448,21 @@ class mod_booking_observer {
         if ($bookedanswers = $DB->get_records_sql($sql, $params)) {
             // Call the enrolment function.
             elective::enrol_booked_users_to_course();
+        }
+        if (!empty($bookedanswers) && get_config('booking', 'automaticbookingoptioncompletion')) {
+            require_once($CFG->dirroot . '/mod/booking/lib.php');
+            foreach ($bookedanswers as $bookedanswer) {
+                $settings = singleton_service::get_instance_of_booking_option_settings($bookedanswer->optionid);
+                $bookingoption = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+                if (empty($bookedanswer->completion)) {
+                    booking_activitycompletion(
+                        [$event->relateduserid],
+                        (object)$bookingoption->booking,
+                        $settings->cmid,
+                        $settings->id,
+                    );
+                }
+            }
         }
     }
 
@@ -573,5 +553,31 @@ class mod_booking_observer {
             }
             $table->return_encoded_table(true);
         }
+    }
+
+    /**
+     * React on the bookinganswer_presencechanged event.
+     * @param bookinganswer_presencechanged $event
+     * @return void
+     */
+    public static function bookinganswer_presencechanged(bookinganswer_presencechanged $event) {
+        $data = $event->get_data();
+        if ($data['other']['presencenew'] == $data['other']['presenceold']) {
+            return;
+        }
+        if ($data['other']['presencenew'] == get_config('booking', 'presencestatustoissuecertificate')) {
+            certificate::issue_certificate($data['objectid'], $data['relateduserid']);
+        }
+    }
+
+    /**
+     * React on the bookinganswer_notesedited event.
+     * @param bookinganswer_notesedited $event
+     * @return void
+     */
+    public static function bookinganswer_notesedited(bookinganswer_notesedited $event) {
+        // In the future, we might want to do something here.
+        // For now, we just return.
+        return;
     }
 }

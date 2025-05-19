@@ -47,7 +47,6 @@ Feature: Configure and validate self-learning course feature for booking option
     And I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until the page is ready
     And I follow "Moodle course"
     And I set the field "Self-learning course" to "checked"
     And I wait "1" seconds
@@ -70,7 +69,6 @@ Feature: Configure and validate self-learning course feature for booking option
     ## Verify ending of self-enrollment
     And I wait "3" seconds
     And I reload the page
-    And I wait until the page is ready
     And I should see "Course 2"
     And I follow "Course 2"
     And I should see "You cannot enrol yourself in this course."

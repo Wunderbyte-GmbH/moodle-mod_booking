@@ -34,53 +34,34 @@ Feature: In a booking create booking option with multiple custom options
       | ordernum | identifier    | name          | defaultvalue | disabled | pricecatsortorder |
       | 1        | default       | Base Price    | 70           | 0        | 1                 |
       | 2        | specialprice  | Special Price | 60           | 0        | 2                 |
-    And I create booking option "New option - duplication source" in "My booking"
-    ## Unfortunately, TinyMCE is slow and has misbehavior which might cause number of site-wide issues. So - we disable it.
-    And the following config values are set as admin:
-      | config      | value         |
-      | texteditors | atto,textarea |
     And I change viewport size to "1366x10000"
 
   @javascript
   Scenario: Duplication of booking option with teacher
     ## To cover an issue reported in #551
-    Given I am on the "My booking" Activity page logged in as teacher1
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until the page is ready
-    And I set the following fields to these values:
-      | Booking option name                   | Duplication source |
-    And I set the field "Assign teachers:" to "Teacher 1"
-    And I press "Save"
+    Given the following "mod_booking > options" exist:
+      | booking    | text               | course | description | teachersforoption |
+      | My booking | Duplication source | C1     | Source      | teacher1          |
+    And I am on the "My booking" Activity page logged in as teacher1
+    And I should see "Duplication source" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Duplicate this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I set the following fields to these values:
       | Booking option name | Test option - Copy1 |
-    And I should see "Teacher 1" in the "//div[contains(@id, 'id_bookingoptionteachers_')]//span[contains(@class, 'user-suggestion')]" "xpath_element"
+    ## And I should see "Teacher 1" in the "//div[contains(@id, 'id_bookingoptionteachers_')]//span[contains(@class, 'user-suggestion')]" "xpath_element"
     When I press "Save"
     Then I should see "Test option - Copy1" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "Teacher 1" in the ".allbookingoptionstable_r2" "css_element"
 
   @javascript
   Scenario: Duplication of booking option with course
-    Given I log in as "admin"
-    And I set the following administration settings values:
-      | Duplicate Moodle course | 1 |
-    And I am on the "My booking" Activity page
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until the page is ready
-    And I set the following fields to these values:
-      | Booking option name                   | Duplication source      |
-      | chooseorcreatecourse                  | Connected Moodle course |
-      ##| Connected Moodle course               | Course 1           |
-    ## TODO: duplication of field names "Connected Moodle course" must be eliminated to use more efficient command (above)
-    And I click on "Course 1" "text" in the "//div[contains(@id, 'fitem_id_courseid_')]//div[contains(@id, 'form_autocomplete_selection-')]" "xpath_element"
-    And I wait "1" seconds
-    And I open the autocomplete suggestions list in the "//div[contains(@id, 'id_coursesheader_')]//div[contains(@id, 'fitem_id_courseid_')]" "xpath_element"
-    And I wait "1" seconds
-    And I should see "Course 1 (ID:" in the "//div[contains(@id, 'fitem_id_courseid_')]//ul[contains(@class, 'form-autocomplete-suggestions')]" "xpath_element"
-    And I click on "Course 1" "text" in the "//div[contains(@id, 'fitem_id_courseid_')]//ul[contains(@class, 'form-autocomplete-suggestions')]" "xpath_element"
-    And I press "Save"
+    Given the following config values are set as admin:
+      | config                      | value | plugin  |
+      | duplicatemoodlecourses      | 1     | booking |
+    And the following "mod_booking > options" exist:
+      | booking    | text               | description | teachersforoption | chooseorcreatecourse | course |
+      | My booking | Duplication source | Source      | teacher1          | 1                    | C1     |
+    And I am on the "My booking" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     When I click on "Duplicate this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I set the following fields to these values:
@@ -93,98 +74,81 @@ Feature: In a booking create booking option with multiple custom options
 
   @javascript
   Scenario: Duplicate booking option with multiple customized settings
-    Given I am on the "My booking" Activity page logged in as teacher1
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until the page is ready
-    And I set the following fields to these values:
-      | Prefix                                | MIB                   |
-      | Booking option name                   | Topic: Statistics     |
-      | Description                           | Class om Statistics   |
-      | Internal annotation                   | Statistics for medics |
-      | Max. number of participants           | 10                    |
-      | Max. number of places on waiting list | 5                     |
-      | Min. number of participants           | 3                     |
-      | Teachers poll url                     | https://google.com    |
-      | chooseorcreatecourse                  | Connected Moodle course |
-    And I wait "1" seconds
-    And I set the field with xpath "//*[contains(@id, 'fitem_id_courseid_')]//*[contains(@id, 'form_autocomplete_input-')]" to "Course 1"
-    And I set the field "Assign teachers:" to "Teacher 1"
-    And I press "Add date"
-    And I wait "1" seconds
-    And I set the following fields to these values:
-      | coursestarttime_1[day]    | 1                  |
-      | coursestarttime_1[month]  | March              |
-      | coursestarttime_1[year]   | ##today##%Y##      |
-      | coursestarttime_1[hour]   | 09                 |
-      | coursestarttime_1[minute] | 00                 |
-      | courseendtime_1[day]      | 2                  |
-      | courseendtime_1[month]    | March              |
-      | courseendtime_1[year]     | ## + 1 year ##%Y## |
-      | courseendtime_1[hour]     | 18                 |
-      | courseendtime_1[minute]   | 00                 |
-      | daystonotify_1 | 1 |
-    And I set the field "Add to course calendar" to "Add to calendar (visible only to course participants)"
-    ##And I set the field "Institution" to "TNMU" ## Error Other element would receive the click:
-    And I wait "1" seconds
-    And I set the field "Only book with price" to "checked"
-    And I set the following fields to these values:
-      ##| pricegroup_default[bookingprice_default]           | 75                            |
-      ##| pricegroup_specialprice[bookingprice_specialprice] | 65                            |
-      | bookingprice_default                               | 75                            |
-      | bookingprice_specialprice                          | 65                            |
-      | customfield_spt1                                   | tenis                         |
-      | Notification message                               | Advanced notification message |
-      | Before booked                                      | Before booked message         |
-      | After booked                                       | After booked message          |
-    And I press "Save"
-    ## And I wait until the page is ready - does not work, force timeout
-    And I wait "1" seconds
+    Given the following config values are set as admin:
+      | timezone      | Europe/London |
+      | forcetimezone | Europe/London |
+    And the following "mod_booking > options" exist:
+      | booking    | titleprefix | text              | annotation            | description         | teachersforoption | chooseorcreatecourse | course | maxanswers | maxoverbooking | minanswers | pollurl        | pollurlteachers | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | addtocalendar | institution | useprice | customfield_spt1 | notificationtext              | beforebookedtext      | beforecompletedtext  |
+      | My booking | MIB         | Topic: Statistics | Statistics for medics | Class om Statistics | teacher1          | 1                    | C1     | 10         | 5              | 3          | https://pu.com | https://tpu.com | 0              | 1              | 2529738000        | 2529856800      | 1             | TNMU        | 1        | tenis            | Advanced notification message | Before booked message | After booked message |
+    ## March 1, 2050, 9:00 AM - March 2, 2050, 6:00 PM
+    And the following "mod_booking > prices" exist:
+      | itemname          | area   | pricecategoryidentifier | price | currency |
+      | Topic: Statistics | option | default                 | 75    | EUR      |
+      | Topic: Statistics | option | specialprice            | 65    | EUR      |
+    And I am on the "My booking" Activity page logged in as teacher1
     ## Create a copy
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     When I click on "Duplicate this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until the page is ready
     And I set the field "Booking option name" to "Topic: Statistics - Copy 1"
     And I press "Save"
-    ## And I wait until the page is ready - does not work, force timeout
     And I wait "1" seconds
     ## Verify copy and its options
     Then I should see "Topic: Statistics - Copy 1" in the ".allbookingoptionstable_r2" "css_element"
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r2" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r2" "css_element"
-    And I wait until the page is ready
     And I expand all fieldsets
+    And I wait "1" seconds
     And I should see "Course 1" in the "//div[contains(@id, 'fitem_id_courseid_')]//span[contains(@class, 'course-suggestion')]" "xpath_element"
-    And I should see "Teacher 1" in the "//div[contains(@id, 'id_bookingoptionteachers_')]//span[contains(@class, 'user-suggestion')]" "xpath_element"
+    And I should see "Teacher 1" in the "//fieldset[contains(@id, 'id_bookingoptionteachers_')]" "xpath_element"
+    ## And I should see "Teacher 1" in the "//div[contains(@id, 'fitem_id_teachersforoption_')]//div[contains(@id, 'form_autocomplete_selection-')]" "xpath_element"
+    And I should see "TNMU" in the "//div[contains(@id, 'fitem_id_institution_')]//div[contains(@id, 'form_autocomplete_selection-')]" "xpath_element"
     And I should see "March" in the "//span[@aria-controls='booking_optiondate_collapse1']" "xpath_element"
-    And the following fields match these values:
-      | Prefix                                | MIB                           |
-      | Booking option name                   | Topic: Statistics - Copy 1    |
-      | Description                           | Class om Statistics           |
-      ##| Institution                           | TNMU                          |
-      | Internal annotation                   | Statistics for medics         |
-      | Max. number of participants           | 10                            |
-      | Max. number of places on waiting list | 5                             |
-      | Min. number of participants           | 3                             |
-      | Teachers poll url                     | https://google.com            |
-      | chooseorcreatecourse                  | Connected Moodle course       |
-      ##| pricegroup_default[bookingprice_default]           | 75               |
-      ##| pricegroup_specialprice[bookingprice_specialprice] | 65               |
-      | bookingprice_default                  | 75                            |
-      | bookingprice_specialprice             | 65                            |
-      | customfield_spt1                      | tenis                         |
-      | Notification message                  | Advanced notification message |
-      | Before booked                         | Before booked message         |
-      | After booked                          | After booked message          |
-      | coursestarttime_1[day]                | 1                             |
-      | coursestarttime_1[month]              | March                         |
-      | coursestarttime_1[year]               | ##today##%Y##                 |
-      | coursestarttime_1[hour]               | 09                            |
-      | coursestarttime_1[minute]             | 00                            |
-      ##| courseendtime_1[day]                 | ##today##%d##                 |
-      | courseendtime_1[day]                  | 2                             |
-      | courseendtime_1[month]                | March                         |
-      | courseendtime_1[year]                 | ## + 1 year ## %Y ##          |
-      | courseendtime_1[hour]                 | 18                            |
-      | courseendtime_1[minute]               | 00                            |
-      | daystonotify_1                        | 1                             |
+    And I should see "1 March 2050, 9:00 AM" in the "#booking_optiondate_1" "css_element"
+    And I should see "2 March 2050, 6:00 PM" in the "#booking_optiondate_1" "css_element"
+    And the field "Prefix" matches value "MIB"
+    And the field "Booking option name" matches value "Topic: Statistics - Copy 1"
+    And the field "Description" matches value "Class om Statistics"
+    And the field "Internal annotation" matches value "Statistics for medics"
+    And the field "Max. number of participants" matches value "10"
+    And the field "Max. number of places on waiting list" matches value "5"
+    And the field "Min. number of participants" matches value "3"
+    And the field "Poll url" matches value "https://pu.com"
+    And the field "Teachers poll url" matches value "https://tpu.com"
+    And the field "daystonotify_1" matches value "1"
+    And the field "chooseorcreatecourse" matches value "Connected Moodle course"
+    And the field "bookingprice_default" matches value "75"
+    And the field "bookingprice_specialprice" matches value "65"
+    And the field "customfield_spt1" matches value "tenis"
+    And the field "Notification message" matches value "Advanced notification message"
+    And the field "Before booked" matches value "Before booked message"
+    And the field "After booked" matches value "After booked message"
+    ## ABOVE APPROACH 10 TIMES FASTER FOR DATE-TIME FIELDS!
+    ##And the following fields match these values:
+    ##  | Prefix                                | MIB                           |
+    ##  | Booking option name                   | Topic: Statistics - Copy 1    |
+    ##  | Description                           | Class om Statistics           |
+    ##  | Internal annotation                   | Statistics for medics         |
+    ##  | Max. number of participants           | 10                            |
+    ##  | Max. number of places on waiting list | 5                             |
+    ##  | Min. number of participants           | 3                             |
+    ##  | Poll url                              | https://pu.com                |
+    ##  | Teachers poll url                     | https://tpu.com               |
+    ##  | chooseorcreatecourse                  | Connected Moodle course       |
+    ##  | bookingprice_default                  | 75                            |
+    ##  | bookingprice_specialprice             | 65                            |
+    ##  | customfield_spt1                      | tenis                         |
+    ##  | Notification message                  | Advanced notification message |
+    ##  | Before booked                         | Before booked message         |
+    ##  | After booked                          | After booked message          |
+    ##  | coursestarttime_1[day]                | 1                             |
+    ##  | coursestarttime_1[month]              | March                         |
+    ##  | coursestarttime_1[year]               | 2050                          |
+    ##  | coursestarttime_1[hour]               | 09                            |
+    ##  | coursestarttime_1[minute]             | 00                            |
+    ##  | courseendtime_1[day]                  | 2                             |
+    ##  | courseendtime_1[month]                | March                         |
+    ##  | courseendtime_1[year]                 | 2050                          |
+    ##  | courseendtime_1[hour]                 | 18                            |
+    ##  | courseendtime_1[minute]               | 00                            |
+    ##  | daystonotify_1                        | 1                             |
+    And I log out

@@ -29,7 +29,7 @@ Feature: Create global booking rules as admin and insure they are working.
     And the following "activities" exist:
       | activity | course | name       | intro               | bookingmanager | eventtype | Default view for booking options | Send confirmation e-mail |
       | booking  | C1     | BookingCMP | Booking description | teacher1       | Webinar   | All bookings                     | Yes                      |
-    ## And I change viewport size to "1366x10000"
+    And I change viewport size to "1366x4000"
 
   @javascript
   Scenario: Booking rules: create settings for booking rules via UI as admin and edit it
@@ -55,13 +55,11 @@ Feature: Create global booking rules as admin and insure they are working.
       | Subject                             | Teacher was substituted              |
       | Message                             | Teacher was substituted successfully |
     And I click on "Save changes" "button"
-    And I wait until the page is ready
     And I should see "notifyadmin"
     And I click on "Edit" "text" in the ".booking-rules-list" "css_element"
     And I wait "1" seconds
     And I set the field "Custom name for the rule" to "rule1-notifyadmin"
     And I click on "Save changes" "button"
-    And I wait until the page is ready
     And I should see "rule1-notifyadmin"
 
   ## @javascript - JS no need for this test
@@ -98,7 +96,6 @@ Feature: Create global booking rules as admin and insure they are working.
       | Teachers | teacher1   |
       | Reason   | Assign one |
     And I press "Save changes"
-    And I wait until the page is ready
     ## Send messages via cron and verify via events log
     And I trigger cron
     And I visit "/report/loglive/index.php"
@@ -179,7 +176,6 @@ Feature: Create global booking rules as admin and insure they are working.
     And I click on "Student 1 (student1@example.com)" "text"
     And I click on "Add" "button"
     And I follow "<< Back to responses"
-    And I wait until the page is ready
     And I click on "selectall" "checkbox"
     And I click on "Delete responses" "button"
     And I should see "You deleted 1 of 1 users. Users, that have completed activity, can't be deleted!"
@@ -209,7 +205,6 @@ Feature: Create global booking rules as admin and insure they are working.
     And I click on "Teacher 2" "text" in the ".form-autocomplete-selection.form-autocomplete-multiple" "css_element"
     And I set the field "Reason" to "Remove teacher"
     And I press "Save changes"
-    And I wait until the page is ready
     And I should see "Admin" in the "[id^=optiondates_teachers_table] td.teacher" "css_element"
     ## Send messages via cron and verify via events log
     And I trigger cron
@@ -223,7 +218,10 @@ Feature: Create global booking rules as admin and insure they are working.
 
   @javascript
   Scenario: Booking rules: create booking rule for option completion event and notify by user from event
-    Given the following "mod_booking > options" exist:
+    Given the following config values are set as admin:
+      | config                 | value  | plugin  |
+      | uselegacymailtemplates | 1      | booking |
+    And the following "mod_booking > options" exist:
       | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
     And the following "mod_booking > rules" exist:
@@ -235,7 +233,6 @@ Feature: Create global booking rules as admin and insure they are working.
     And I click on "Student 1 (student1@example.com)" "text"
     And I click on "Add" "button"
     And I follow "<< Back to responses"
-    And I wait until the page is ready
     And I click on "selectall" "checkbox"
     And I click on "(Un)confirm completion status" "button"
     And I should see "All selected users have been marked for activity completion"
@@ -285,7 +282,6 @@ Feature: Create global booking rules as admin and insure they are working.
     And I click on "Student 1 (student1@example.com)" "text"
     And I click on "Add" "button"
     And I follow "<< Back to responses"
-    And I wait until the page is ready
     And I click on "selectall" "checkbox"
     And I click on "(Un)confirm completion status" "button"
     And I should see "All selected users have been marked for activity completion"
@@ -311,7 +307,6 @@ Feature: Create global booking rules as admin and insure they are working.
     And I click on "Student 1 (student1@example.com)" "text"
     And I click on "Add" "button"
     And I follow "<< Back to responses"
-    And I wait until the page is ready
     And I click on "selectall" "checkbox"
     And I click on "Send custom message" "button"
     And I set the following fields to these values:
@@ -346,7 +341,6 @@ Feature: Create global booking rules as admin and insure they are working.
     And I click on "Student 3 (student3@example.com)" "text"
     And I click on "Add" "button"
     And I follow "<< Back to responses"
-    And I wait until the page is ready
     And I click on "selectall" "checkbox"
     And I click on "Send custom message" "button"
     And I set the following fields to these values:
@@ -375,8 +369,7 @@ Feature: Create global booking rules as admin and insure they are working.
       | select_teacher_in_bo | 1         | emailchanges | send_mail  | {"subject":"OptionChanged","template":"Changes: {changes}","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_updated","aftercompletion":"","condition":"0"} |             |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I change viewport size to "1366x10000"
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I set the following fields to these values:
       | Booking option name         | Option-updated |
       | Description                 | Deskr-updated  |

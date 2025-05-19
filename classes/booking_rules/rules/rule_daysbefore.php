@@ -18,6 +18,7 @@ namespace mod_booking\booking_rules\rules;
 
 use context;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\booking;
 use mod_booking\booking_rules\actions_info;
 use mod_booking\booking_rules\booking_rule;
 use mod_booking\booking_rules\conditions_info;
@@ -100,18 +101,12 @@ class rule_daysbefore implements booking_rule {
     public function add_rule_to_mform(MoodleQuickForm &$mform, array &$repeateloptions, array $ajaxformdata = []) {
         global $DB;
 
-        $numberofdaysbefore = [];
-        for ($i = -30; $i <= 30; $i++) {
-            if (($i >= -10 && $i <= 10) || ($i % 5 == 0)) {
-                $this->fill_days_select($numberofdaysbefore, $i);
-            }
-        }
-
         // Get a list of allowed option fields (only date fields allowed).
         $datefields = [
             '0' => get_string('choose...', 'mod_booking'),
             'coursestarttime' => get_string('ruleoptionfieldcoursestarttime', 'mod_booking'),
             'courseendtime' => get_string('ruleoptionfieldcourseendtime', 'mod_booking'),
+            'optiondatestarttime' => get_string('ruleoptionfieldoptiondatestarttime', 'mod_booking'),
             'bookingopeningtime' => get_string('ruleoptionfieldbookingopeningtime', 'mod_booking'),
             'bookingclosingtime' => get_string('ruleoptionfieldbookingclosingtime', 'mod_booking'),
             'selflearningcourseenddate' => get_string('ruleoptionfieldselflearningcourseenddate', 'mod_booking'),
@@ -135,7 +130,7 @@ class rule_daysbefore implements booking_rule {
             'select',
             'rule_daysbefore_days',
             get_string('ruledays', 'mod_booking'),
-            $numberofdaysbefore
+            booking::get_array_of_days_before_and_after(-30, 30)
         );
         $mform->setDefault('rule_daysbefore_days', 0);
         $repeateloptions['rule_daysbefore_days']['type'] = PARAM_TEXT;
@@ -150,25 +145,6 @@ class rule_daysbefore implements booking_rule {
         $repeateloptions['rule_daysbefore_datefield']['type'] = PARAM_TEXT;
     }
 
-    /**
-     * Fill array of select with right keys and values.
-     *
-     * @param array $selectarray
-     * @param int $value
-     *
-     * @return void
-     *
-     */
-    private function fill_days_select(array &$selectarray, int $value) {
-        if ($value < 0) {
-            $int = $value * -1;
-            $selectarray[$value] = get_string('daysafter', 'mod_booking', $int);
-        } else if ($value > 0) {
-            $selectarray[$value] = get_string('daysbefore', 'mod_booking', $value);
-        } else if ($value == 0) {
-            $selectarray[$value] = get_string('sameday', 'mod_booking', $value);
-        }
-    }
     /**
      * Get the name of the rule.
      * @param bool $localized
@@ -274,6 +250,11 @@ class rule_daysbefore implements booking_rule {
         $action->ruleid = $this->ruleid;
 
         foreach ($records as $record) {
+            // The override happens within the SQL of get_records_for_execution.
+            // So $record->daystonotify will have the correct value.
+            if (isset($record->daystonotify)) {
+                $this->days = (int)$record->daystonotify;
+            }
             // Set the time of when the task should run.
             $nextruntime = (int) $record->datefield - ((int) $this->days * 86400);
             $record->rulename = $this->rulename;
@@ -312,6 +293,11 @@ class rule_daysbefore implements booking_rule {
         }
 
         foreach ($records as $record) {
+            // The override happens within the SQL of get_records_for_execution.
+            // So $record->daystonotify will have the correct value.
+            if (isset($record->daystonotify)) {
+                $this->days = (int)$record->daystonotify;
+            }
             $oldnextruntime = (int) $record->datefield - ((int) $this->days * 86400);
 
             if ($oldnextruntime != $nextruntime) {
@@ -379,27 +365,58 @@ class rule_daysbefore implements booking_rule {
         $sql->where = " c.path LIKE :path ";
         $sql->where .= " $andoptionid $anduserid ";
 
-        // We need a special treatment for selflearningcourseneddate.
-        if ($ruledata->datefield == 'selflearningcourseenddate') {
-            $stringfordatefield = bo_info::check_for_sqljson_key_in_object(
-                'ba.json',
-                'selflearningendofsubscription',
-                'bigint'
-            );
-            $sql->select = "bo.id optionid, cm.id cmid, $stringfordatefield datefield";
+        // Initialize optiondates join.
+        $joinoptiondates = "";
 
-            // In testmode we don't check the timestamp.
-            // Also, add one hour of tolerance.
-            $sql->where .= " AND
-                $stringfordatefield
-                > ( :nowparam - 3600 + (86400 * :numberofdays ))";
-        } else {
-            $sql->select = "bo.id optionid, cm.id cmid, bo." . $ruledata->datefield . " datefield";
+        switch ($ruledata->datefield) {
+            case 'selflearningcourseenddate':
+                // We need a special treatment for selflearningcourseneddate.
+                $stringfordatefield = bo_info::check_for_sqljson_key_in_object(
+                    'ba.json',
+                    'selflearningendofsubscription',
+                    'bigint'
+                );
+                $sql->select = "bo.id optionid, cm.id cmid, $stringfordatefield datefield";
 
-            // In testmode we don't check the timestamp.
-            $sql->where .= " AND bo." . $ruledata->datefield;
-            // Add one hour of tolerance.
-            $sql->where .= !$testmode ? " >= ( :nowparam - 3600 + (86400 * :numberofdays ))" : " IS NOT NULL ";
+                // In testmode we don't check the timestamp.
+                // Also, add one hour of tolerance.
+                $sql->where .= " AND
+                    $stringfordatefield
+                    > ( :nowparam - 3600 + (86400 * :numberofdays ))";
+                break;
+            case 'optiondatestarttime':
+                // We need the numberofdays both in select and where clause.
+
+                // Get the start of every session (optiondate).
+                // Only for optiondates, we can specify daystonotify which can override the numberofdays of the rule.
+                $sql->select = "bo.id optionid, bod.id optiondateid, cm.id cmid, bod.coursestarttime datefield,
+                CASE
+                    WHEN bod.daystonotify > 0 THEN bod.daystonotify
+                    ELSE :numberofdays
+                END AS daystonotify";
+
+                $sql->where .= " AND bod.coursestarttime";
+                // In testmode we don't check the timestamp.
+                // Add one hour of tolerance.
+                // For optiondates, we can specify the numberofdays individually for each optiondate (daystonotify column).
+                // Only if it's 0 for the optiondate, we use the value specified in the rule.
+                $params['numberofdays2'] = (int) $ruledata->days;
+                $sql->where .= !$testmode ? " >= ( :nowparam - 3600 + (86400 *
+                CASE
+                    WHEN bod.daystonotify > 0 THEN bod.daystonotify
+                    ELSE :numberofdays2
+                END
+                ))" : " IS NOT NULL ";
+
+                $joinoptiondates = "JOIN {booking_optiondates} bod ON bo.id = bod.optionid";
+                break;
+            default:
+                $sql->select = "bo.id optionid, cm.id cmid, bo." . $ruledata->datefield . " datefield";
+
+                $sql->where .= " AND bo." . $ruledata->datefield;
+                // In testmode we don't check the timestamp. Add one hour of tolerance.
+                $sql->where .= !$testmode ? " >= ( :nowparam - 3600 + (86400 * :numberofdays ))" : " IS NOT NULL ";
+                break;
         }
 
         $sql->from = "{booking_options} bo
@@ -408,7 +425,8 @@ class rule_daysbefore implements booking_rule {
                     JOIN {modules} m
                     ON m.name = 'booking' AND m.id = cm.module
                     JOIN {context} c
-                    ON c.instanceid = cm.id";
+                    ON c.instanceid = cm.id
+                    $joinoptiondates";
 
         // Now that we know the ids of the booking options concerend, we will determine the users concerned.
         // The condition execution will add their own code to the sql.

@@ -27,12 +27,9 @@ namespace mod_booking\option\fields;
 use Exception;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
-use mod_booking\option\fields;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
-use mod_booking\singleton_service;
-use mod_booking\utils\wb_payment;
-use moodle_exception;
+use dml_exception;
 use MoodleQuickForm;
 use stdClass;
 use context_module;
@@ -120,7 +117,7 @@ class moveoption extends field_base {
     ) {
 
         // Moving works only on saved booking option.
-        if (empty($formdata['id'])) {
+        if (empty($formdata['id']) && isset($formdata['cmid'])) {
             return;
         }
 
@@ -206,16 +203,21 @@ class moveoption extends field_base {
                 $elements = get_course_and_cm_from_cmid((int)$data->moveoption);
                 $cm = $elements[1];
 
-                if (!empty($cm) && ($option->bookingid != $cm->instance)) {
-                    $option->cmid = $cm->id;
-                    $option->bookingid = $cm->instance;
-                    $data->cmid = $cm->id;
-                    $data->bookingid = $cm->instance;
+                $optionid = $data->id;
+                $bookingid = $cm->instance;
+                $cmid = $cm->id;
+                $context = context_module::instance($cmid);
 
-                    $DB->update_record('booking_options', ['id' => $data->id, 'bookingid' => $cm->instance]);
+                if (!empty($cm) && ($option->bookingid != $bookingid)) {
+                    $option->cmid = $cmid;
+                    $option->bookingid = $bookingid;
+                    $data->cmid = $cmid;
+                    $data->bookingid = $bookingid;
+
+                    $DB->update_record('booking_options', ['id' => $optionid, 'bookingid' => $bookingid]);
 
                     // We also need to update the answers, as the also have a booking id.
-                    $records = $DB->get_records('booking_answers', ['optionid' => $data->id]);
+                    $records = $DB->get_records('booking_answers', ['optionid' => $optionid]);
                     foreach ($records as $record) {
                         $bookingchange = [
                             'booking' => [
@@ -225,24 +227,46 @@ class moveoption extends field_base {
                         booking_option::booking_history_insert(
                             MOD_BOOKING_STATUSPARAM_BOOKINGOPTION_MOVED,
                             $record->id,
-                            $data->id,
-                            $cm->instance,
+                            $optionid,
+                            $bookingid,
                             $record->userid,
                             $bookingchange
                         );
-                        $DB->update_record('booking_answers', ['id' => $record->id, 'bookingid' => $cm->instance]);
+                        $DB->update_record('booking_answers', ['id' => $record->id, 'bookingid' => $bookingid]);
                     }
 
-                    // We also need to update the optiondcates, as the also have a booking id.
-                    $records = $DB->get_records('booking_optiondates', ['optionid' => $data->id]);
+                    // We also need to update the optiondates, as the also have a booking id.
+                    $records = $DB->get_records('booking_optiondates', ['optionid' => $optionid]);
                     foreach ($records as $record) {
-                        $DB->update_record('booking_optiondates', ['id' => $record->id, 'bookingid' => $cm->instance]);
+                        $DB->update_record('booking_optiondates', ['id' => $record->id, 'bookingid' => $bookingid]);
                     }
 
                     // We also need to update the answers, as the also have a booking id.
-                    $records = $DB->get_records('booking_teachers', ['optionid' => $data->id]);
+                    $records = $DB->get_records('booking_teachers', ['optionid' => $optionid]);
                     foreach ($records as $record) {
-                        $DB->update_record('booking_teachers', ['id' => $record->id, 'bookingid' => $cm->instance]);
+                        $DB->update_record('booking_teachers', ['id' => $record->id, 'bookingid' => $bookingid]);
+                    }
+
+                    // We also need to update images, they have...
+                    // ...contextid => module context of the booking instance...
+                    // ...component: mod_booking, filearea: bookingoptionimage, itemid: optionid.
+                    // Important: No context when retrieving the files.
+                    $records = $DB->get_records(
+                        'files',
+                        [
+                            'component' => 'mod_booking',
+                            'filearea' => 'bookingoptionimage',
+                            'itemid' => $optionid,
+                        ],
+                        /* 2 newest entries, one contains filename "." the other entry contains the actual file reference. */
+                        'id DESC',
+                        '*', // All columns.
+                        0, // Start at first.
+                        2 // Only 2 newest entries.
+                    );
+                    // Now we can set the new context.
+                    foreach ($records as $record) {
+                        $DB->update_record('files', ['id' => $record->id, 'contextid' => $context->id]);
                     }
                 }
             } catch (Exception $e) {

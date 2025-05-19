@@ -28,15 +28,8 @@ namespace mod_booking;
 
 use advanced_testcase;
 use coding_exception;
-use mod_booking\option\fields_info;
-use mod_booking\price;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
-use local_shopping_cart\shopping_cart;
-use local_shopping_cart\shopping_cart_history;
-use local_shopping_cart\local\cartstore;
-use local_shopping_cart\output\shoppingcart_history_list;
-use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -370,8 +363,8 @@ final class booking_groupenrolment_test extends advanced_testcase {
             ],
             'option' => [
                 'text' => 'Test option1',
-                'coursestarttime_0' => strtotime('now + 1 day'),
-                'courseendtime_0' => strtotime('now + 2 day'),
+                'coursestarttime' => strtotime('now + 2 day'),
+                'courseendtime' => strtotime('now + 3 day'),
                 'importing' => 1,
                 'useprice' => 0,
                 'default' => 50, // Default price.

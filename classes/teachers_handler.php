@@ -179,7 +179,11 @@ class teachers_handler {
      */
     public function set_data(stdClass &$data) {
 
-        if (!empty($this->optionid) && $this->optionid > 0) {
+        if (
+            !isset($data->{MOD_BOOKING_FORM_TEACHERS})
+            && !empty($this->optionid)
+            && $this->optionid > 0
+        ) {
             $optionsettings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
             $teachers = $optionsettings->teachers;
             $teacherids = [];
@@ -305,7 +309,10 @@ class teachers_handler {
             }
 
             // Even if teacher already exists in DB, we still might want to enrol him/her into a NEW course.
-            if ($doenrol) {
+            if (
+                $doenrol
+                && !empty($bookingsettings->teacherroleid)
+            ) {
                 // We enrol teacher with the type defined in settings.
                 $option->enrol_user($userid, true, $bookingsettings->teacherroleid, true, $courseid);
 

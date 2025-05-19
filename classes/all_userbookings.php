@@ -177,7 +177,7 @@ class all_userbookings extends \table_sql {
         if (!$this->is_downloading()) {
             $completed = '';
             if ($values->completed) {
-                $completed = '&#x2713;';
+                $completed = '&#x2705;';
             }
             return $completed;
         } else {
@@ -654,26 +654,103 @@ class all_userbookings extends \table_sql {
                 }
             }
 
-            if ($this->bookingdata->booking->settings->enablepresence) {
-                // Change presence status.
-                // Status order: Unknown, Attending, Complete, Incomplete, No Show, and Failed.
-                echo "<br>";
-                echo html_writer::select(
-                    booking::get_possible_presences(false),
-                    'selectpresencestatus',
-                    '',
-                    ['' => 'choosedots'],
-                    ['class' => 'mt-3']
-                );
+            // Change presence status.
+            // Status order: Unknown, Attending, Complete, Incomplete, No Show, and Failed.
+            echo "<br>";
+            echo html_writer::select(
+                booking::get_possible_presences(false),
+                'selectpresencestatus',
+                '',
+                ['' => 'choosedots'],
+                ['class' => 'mt-3']
+            );
 
-                echo '<div class="singlebutton ml-2">' .
-                    '<input type="submit" class="btn btn-success btn-sm mt-3" name="changepresencestatus" value="' .
-                    get_string('confirmpresence', 'booking') . '" /></div>';
-            }
+            echo '<div class="singlebutton ml-2">' .
+                '<input type="submit" class="btn btn-success btn-sm mt-3" name="changepresencestatus" value="' .
+                get_string('confirmpresence', 'booking') . '" /></div>';
         }
 
         echo '</form>';
 
         echo '<hr>';
+    }
+    /**
+     * Column for latest Certificate.
+     *
+     * @param stdClass $values
+     *
+     * @return string
+     *
+     */
+    public function col_certificate(stdClass $values) {
+        $checkmark = '&#x2705; ';
+        $cross = '&#x274C; ';
+        $now = time();
+
+        if (!isset($values->certificate)) {
+            return "";
+        }
+
+        $certificates = json_decode($values->certificate);
+        $expiredates = [];
+        foreach ($certificates as $cert) {
+            $expiredates[] = $cert->expires;
+            $timecreated[] = $cert->timecreated;
+            $code[] = $cert->code;
+        }
+
+        $lastexpiredate = end($expiredates);
+        $lasttimecreated = end($timecreated);
+        $lastcode = end($code);
+
+        if (empty($lastexpiredate)) {
+            $text = get_string('certificatewithoutexperation', 'mod_booking');
+        } else {
+            $dateformatted = userdate($lastexpiredate);
+            $text = get_string('certificatewithexperation', 'mod_booking', $dateformatted);
+        }
+        $statusicon = ($now < $lastexpiredate) ? $checkmark : $cross;
+        $url = new moodle_url("/pluginfile.php/1/tool_certificate/issues/{$lasttimecreated}/{$lastcode}.pdf");
+        $output = $statusicon . html_writer::link($url, $text, ['target' => '_blank']);
+        return $output;
+    }
+
+    /**
+     * Column for all Certificates in the Bookingoption for a user.
+     *
+     * @param stdClass $values
+     *
+     * @return string
+     *
+     */
+    public function col_allusercertificates(stdClass $values) {
+        global $OUTPUT;
+        static $id = 1;
+        if (empty($values->certificate)) {
+            return "";
+        }
+        $certificates = json_decode($values->certificate);
+        $certdata = [];
+        $fullname = "{$values->firstname} {$values->lastname}";
+
+        foreach ($certificates as $cert) {
+            $timecreated = $cert->timecreated;
+            $code = $cert->code;
+            $url = new moodle_url("/pluginfile.php/1/tool_certificate/issues/{$timecreated}/{$code}.pdf");
+            $certdata[] = [
+                'code' => $code,
+                'timecreated' => userdate($timecreated),
+                'expires' => !empty($cert->expires) ? userdate($cert->expires)
+                    : get_string('certificatewithoutexperation', 'mod_booking'),
+                'url' => $url,
+            ];
+        }
+        $data = [
+            'title' => get_string('certificatemodalheader', 'mod_booking', $fullname),
+            'certificates' => $certdata,
+            'id' => $id,
+        ];
+        $id++;
+        return $OUTPUT->render_from_template('mod_booking/report/allusercertificate_modal', $data);
     }
 }

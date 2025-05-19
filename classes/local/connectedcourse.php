@@ -81,8 +81,9 @@ class connectedcourse {
 
         $options = [];
 
-        if (!empty($formdata->createnewmoodlecoursefromtemplatewithusers)) {
-            $options[] = ['name' => 'enrolments', 'value' => true];
+        if (empty($formdata->createnewmoodlecoursefromtemplatewithusers)) {
+            $options[] = ['name' => 'users', 'value' => false];
+            $options[] = ['name' => 'role_assignments', 'value' => false];
         }
 
         // We need to switch the user.
@@ -94,7 +95,8 @@ class connectedcourse {
             $fullnamewithprefix,
             $shortname,
             $categoryid,
-            1
+            1,
+            $options
         );
         if (!empty($courseinfo["id"])) {
             $newoption->courseid = $courseinfo["id"];
@@ -107,6 +109,7 @@ class connectedcourse {
         }
 
         $USER = $previoususer;
+        fix_course_sortorder();
     }
 
     /**

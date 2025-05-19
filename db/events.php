@@ -67,14 +67,6 @@ $observers = [
         'callback' => 'mod_booking_observer::bookingoptiondate_deleted',
     ],
     [
-        'eventname' => '\mod_booking\event\teacher_added',
-        'callback' => 'mod_booking_observer::teacher_added',
-    ],
-    [
-        'eventname' => '\mod_booking\event\teacher_removed',
-        'callback' => 'mod_booking_observer::teacher_removed',
-    ],
-    [
         'eventname' => '\mod_booking\event\custom_field_changed',
         'callback' => 'mod_booking_observer::custom_field_changed',
     ],
@@ -109,5 +101,13 @@ $observers = [
     [
         'eventname' => '*',
         'callback' => 'mod_booking_observer::execute_rule',
+    ],
+    [
+        'eventname' => '\mod_booking\event\bookinganswer_presencechanged',
+        'callback' => 'mod_booking_observer::bookinganswer_presencechanged',
+    ],
+    [
+        'eventname' => '\mod_booking\event\bookinganswer_notesedited',
+        'callback' => 'mod_booking_observer::bookinganswer_notesedited',
     ],
 ];

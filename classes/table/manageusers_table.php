@@ -27,6 +27,7 @@ namespace mod_booking\table;
 use core\exception\moodle_exception;
 use mod_booking\enrollink;
 use mod_booking\event\bookinganswer_confirmed;
+use mod_booking\local\bookingstracker\bookingstracker_helper;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -100,59 +101,11 @@ class manageusers_table extends wunderbyte_table {
      * @param stdClass $values
      * @return string
      */
-    public function col_option(stdClass $values) {
-
-        if (empty($values->optionid)) {
-            return '';
-        }
-        $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid);
-
+    public function col_text(stdClass $values) {
         if ($this->is_downloading()) {
-            return $settings->get_title_with_prefix();
+            return $values->text ?? '';
         }
-
-        global $OUTPUT;
-
-        // Render col_teacher using a template.
-        $data = new col_teacher($values->optionid, $settings);
-        /** @var renderer $output */
-        $output = singleton_service::get_renderer('mod_booking');
-        $teachers = $output->render_col_teacher($data);
-
-        $optionlink = new moodle_url(
-            '/mod/booking/view.php',
-            [
-                'id' => $values->cmid,
-                'optionid' => $values->optionid,
-                'whichview' => 'showonlyone',
-            ]
-        );
-
-        $report2link = new moodle_url(
-            '/mod/booking/report2.php',
-            [
-                'cmid' => $values->cmid,
-                'optionid' => $values->optionid,
-            ]
-        );
-
-        $instancelink = new moodle_url(
-            '/mod/booking/report2.php',
-            ['cmid' => $values->cmid]
-        );
-
-        $data = [
-            'id' => $values->optionid,
-            'titleprefix' => $values->titleprefix,
-            'title' => $values->text,
-            'optionlink' => $optionlink->out(false),
-            'report2link' => $report2link->out(false),
-            'instancename' => $values->instancename,
-            'instancelink' => $instancelink->out(false),
-            'teachers' => $teachers,
-        ];
-
-        return $OUTPUT->render_from_template('mod_booking/report/option', $data);
+        return bookingstracker_helper::render_col_text($values);
     }
 
     /**
@@ -541,7 +494,7 @@ class manageusers_table extends wunderbyte_table {
                         'labelcolumn' => 'username',
                         'titlestring' => 'unconfirmbooking',
                         'bodystring' => 'unconfirmbookinglong',
-                        'submitbuttonstring' => 'booking:choose',
+                        'submitbuttonstring' => 'delete',
                         'component' => 'mod_booking',
                         'optionid' => $values->optionid,
                         'userid' => $values->userid,
@@ -666,6 +619,7 @@ class manageusers_table extends wunderbyte_table {
                 'id' => $values->id,
                 'selectionmandatory' => false,
                 'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+                    'scope' => 'optiondate',
                     'titlestring' => 'changepresencestatus',
                     'submitbuttonstring' => 'save',
                     'component' => 'mod_booking',
@@ -690,6 +644,7 @@ class manageusers_table extends wunderbyte_table {
             'id' => $values->id,
             'selectionmandatory' => false,
             'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+                'scope' => 'optiondate',
                 'titlestring' => 'notes',
                 'submitbuttonstring' => 'save',
                 'component' => 'mod_booking',

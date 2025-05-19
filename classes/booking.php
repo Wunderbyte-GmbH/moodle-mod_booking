@@ -935,10 +935,8 @@ class booking {
                     $headers[] = get_string("waitinglist", "booking");
                     break;
                 case 'status':
-                    if ($this->settings->enablepresence) {
-                        $columns[] = 'status';
-                        $headers[] = get_string('presence', 'mod_booking');
-                    }
+                    $columns[] = 'status';
+                    $headers[] = get_string('presence', 'mod_booking');
                     break;
                 case 'groups':
                     $columns[] = 'groups';
@@ -966,6 +964,10 @@ class booking {
                 case 'timecreated':
                     $columns[] = 'timecreated';
                     $headers[] = get_string('timecreated', 'mod_booking');
+                    break;
+                case 'certificate':
+                        $headers[] = get_string('certificate', 'mod_booking');
+                        $columns[] = 'certificate';
                     break;
             }
         }
@@ -1061,7 +1063,7 @@ class booking {
 
     /**
      * Genereate SQL and params array to fetch all options.
-     * No prefixes for the columsn we retrieve, so *, id, etc.
+     * No prefixes for the columns we retrieve, so *, id, etc.
      * If we don't pass on the context object, invisible options are excluded.
      *
      * @param int $limitfrom
@@ -1110,6 +1112,7 @@ class booking {
      * @param array $bookingparams
      * @param string $additionalwhere
      * @param string $innerfrom
+     *
      * @return array
      */
     public static function get_options_filter_sql(
@@ -1254,6 +1257,34 @@ class booking {
             }
         }
 
+        self::apply_wherearray($where, $wherearray, $params, $counter);
+
+        // We add sql from conditions, if there is any.
+        if (!empty($conditionsql)) {
+            $where .= " AND " . $conditionsql;
+        }
+
+        // We add additional conditions to $where, if there are any.
+        if (!empty($additionalwhere)) {
+            $where .= " AND " . $additionalwhere;
+        }
+
+        return [$fields, $from, $where, $params, $filter];
+    }
+
+    /**
+     * Apply wherearray to wherestring.
+     *
+     * @param string $where
+     * @param array $wherearray
+     * @param array $params
+     * @param int $counter
+     *
+     * @return void
+     *
+     */
+    public static function apply_wherearray(string &$where, array &$wherearray, array &$params, int $counter) {
+        global $DB;
         foreach ($wherearray as $key => $value) {
             // Be sure to have a lower key string.
             $paramsvaluekey = "param";
@@ -1278,14 +1309,11 @@ class booking {
                             $paramsvaluekey .= $counter;
                             $counter++;
                         }
-
                         $orstring[] = " " . $DB->sql_like("$key", ":$paramsvaluekey", false) . " ";
                         $params[$paramsvaluekey] = $arrayvalue;
                     }
                 }
-
                 $where .= implode(' OR ', $orstring);
-
                 $where .= " ) ";
             } else if (gettype($value) == 'integer') {
                 $where .= " AND   $key = $value";
@@ -1294,18 +1322,6 @@ class booking {
                 $params[$paramsvaluekey] = $value;
             }
         }
-
-        // We add sql from conditions, if there is any.
-        if (!empty($conditionsql)) {
-            $where .= " AND " . $conditionsql;
-        }
-
-        // We add additional conditions to $where, if there are any.
-        if (!empty($additionalwhere)) {
-            $where .= " AND " . $additionalwhere;
-        }
-
-        return [$fields, $from, $where, $params, $filter];
     }
 
     /**
@@ -1954,5 +1970,52 @@ class booking {
             MOD_BOOKING_PRESENCE_STATUS_FAILED => get_string('statusfailed', 'mod_booking'),
             MOD_BOOKING_PRESENCE_STATUS_EXCUSED => get_string('statusexcused', 'mod_booking'),
         ];
+    }
+
+    /**
+     * Helper function to get an array of possible booking history statuses.
+     * @return array of possible booking history statuses
+     */
+    public static function get_array_of_possible_booking_history_statuses(): array {
+        return [
+            MOD_BOOKING_STATUSPARAM_BOOKED => get_string('booked', 'mod_booking'),
+            MOD_BOOKING_STATUSPARAM_WAITINGLIST => get_string('waitinglist', 'mod_booking'),
+            MOD_BOOKING_STATUSPARAM_RESERVED => get_string('vuebookingstatsreserved', 'mod_booking'),
+            MOD_BOOKING_STATUSPARAM_NOTIFYMELIST => get_string('bocondnotifymelist', 'mod_booking'),
+            MOD_BOOKING_STATUSPARAM_NOTBOOKED => get_string('notbooked', 'mod_booking'),
+            MOD_BOOKING_STATUSPARAM_DELETED => get_string('deleted', 'mod_booking'),
+            MOD_BOOKING_STATUSPARAM_BOOKED_DELETED => get_string('bookeddeleted', 'mod_booking'),
+            MOD_BOOKING_STATUSPARAM_WAITINGLIST_DELETED => get_string('waitinglistdeleted', 'mod_booking'),
+            MOD_BOOKING_STATUSPARAM_WAITINGLIST_CONFIRMED => get_string('waitinglistconfirmed', 'mod_booking'),
+            MOD_BOOKING_STATUSPARAM_RESERVED_DELETED => get_string('reserveddeleted', 'mod_booking'),
+            MOD_BOOKING_STATUSPARAM_NOTIFYMELIST_DELETED => get_string('notifymelistdeleted', 'mod_booking'),
+            MOD_BOOKING_STATUSPARAM_PRESENCE_CHANGED => get_string('presencechanged', 'mod_booking'),
+            MOD_BOOKING_STATUSPARAM_BOOKINGOPTION_MOVED => get_string('optionmoved', 'mod_booking'),
+            MOD_BOOKING_STATUSPARAM_NOTES_EDITED => get_string('notesedited', 'mod_booking'),
+            MOD_BOOKING_STATUSPARAM_COMPLETION_CHANGED => get_string('completionchanged', 'mod_booking'),
+        ];
+    }
+
+    /**
+     * Helper function to get an array of days before and after for a select.
+     * @param int $start if you want to start with 30 days before, set this to -30
+     * @param int $end number of days after
+     * @return array of days before and after
+     */
+    public static function get_array_of_days_before_and_after(int $start, int $end): array {
+        $numberofdaysbefore = [];
+        for ($i = $start; $i <= $end; $i++) {
+            if (($i >= -10 && $i <= 10) || ($i % 5 == 0)) {
+                if ($i < 0) {
+                    $int = $i * -1;
+                    $numberofdaysbefore[$i] = get_string('daysafter', 'mod_booking', $int);
+                } else if ($i > 0) {
+                    $numberofdaysbefore[$i] = get_string('daysbefore', 'mod_booking', $i);
+                } else if ($i == 0) {
+                    $numberofdaysbefore[$i] = get_string('sameday', 'mod_booking', $i);
+                }
+            }
+        }
+        return $numberofdaysbefore;
     }
 }

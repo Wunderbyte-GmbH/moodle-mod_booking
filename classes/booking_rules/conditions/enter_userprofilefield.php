@@ -42,7 +42,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class enter_userprofilefield implements booking_rule_condition {
-
     /** @var string $conditionname */
     public $conditionname = 'enter_userprofilefield';
 
@@ -113,18 +112,29 @@ class enter_userprofilefield implements booking_rule_condition {
                 $customuserprofilefieldsarray[$customuserprofilefield->shortname] = $customuserprofilefield->name;
             }
 
-            $mform->addElement('select', 'condition_enter_userprofilefield_cpfield',
-                get_string('rulecustomprofilefield', 'mod_booking'), $customuserprofilefieldsarray);
+            $mform->addElement(
+                'select',
+                'condition_enter_userprofilefield_cpfield',
+                get_string('rulecustomprofilefield', 'mod_booking'),
+                $customuserprofilefieldsarray
+            );
 
             $operators = [
                 '=' => get_string('equals', 'mod_booking'),
                 '~' => get_string('contains', 'mod_booking'),
             ];
-            $mform->addElement('select', 'condition_enter_userprofilefield_operator',
-                get_string('ruleoperator', 'mod_booking'), $operators);
+            $mform->addElement(
+                'select',
+                'condition_enter_userprofilefield_operator',
+                get_string('ruleoperator', 'mod_booking'),
+                $operators
+            );
 
-            $mform->addElement('text', 'condition_enter_userprofilefield_textfield',
-                get_string('conditiontextfield', 'mod_booking'));
+            $mform->addElement(
+                'text',
+                'condition_enter_userprofilefield_textfield',
+                get_string('conditiontextfield', 'mod_booking')
+            );
             $mform->setType('condition_enter_userprofilefield_textfield', PARAM_TEXT);
         }
     }
@@ -144,7 +154,7 @@ class enter_userprofilefield implements booking_rule_condition {
      *
      * @param stdClass $data form data reference
      */
-    public function save_condition(stdClass &$data) {
+    public function save_condition(stdClass &$data): void {
 
         if (!isset($data->rulejson)) {
             $jsonobject = new stdClass();
@@ -183,9 +193,8 @@ class enter_userprofilefield implements booking_rule_condition {
      *
      * @param stdClass $sql
      * @param array $params
-     * @return array
      */
-    public function execute(stdClass &$sql, array &$params) {
+    public function execute(stdClass &$sql, array &$params): void {
         global $DB;
 
         $sqlcomparepart = "";
@@ -214,7 +223,13 @@ class enter_userprofilefield implements booking_rule_condition {
             $anduserid = "AND ud.userid = :userid2";
         }
 
-        $concat = $DB->sql_concat("bo.id", "'-'", "ud.userid");
+        // If the select contains optiondate, we also need to include it in uniqueid.
+        if (strpos($sql->select, 'optiondate') !== false) {
+            $concat = $DB->sql_concat("bo.id", "'-'", "bod.id", "'-'", "ud.userid");
+        } else {
+            $concat = $DB->sql_concat("bo.id", "'-'", "ud.userid");
+        }
+
         // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
         $sql->select = " $concat uniqueid, " . $sql->select;
         $sql->select .= ", ud.userid userid";

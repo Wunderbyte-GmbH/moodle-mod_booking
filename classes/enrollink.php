@@ -179,7 +179,6 @@ class enrollink {
             } else {
                 $courseenrolmentstatus = MOD_BOOKING_AUTOENROL_STATUS_SUCCESS;
             }
-
         } catch (\Exception $e) {
             $courseenrolmentstatus = MOD_BOOKING_AUTOENROL_STATUS_EXCEPTION;
         }

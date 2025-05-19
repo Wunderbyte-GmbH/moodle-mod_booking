@@ -35,6 +35,14 @@ $shortcodes = [
         'callback' => 'mod_booking\shortcodes::courselist',
         'description' => 'courselist',
     ],
+    'mycourselist' => [
+        'callback' => 'mod_booking\shortcodes::mycourselist',
+        'description' => 'mycourselist',
+    ],
+    'allbookingoptions' => [
+        'callback' => 'mod_booking\shortcodes::allbookingoptions',
+        'description' => 'bookingoptionsall',
+    ],
     'fieldofstudyoptions' => [
         'callback' => 'mod_booking\shortcodes::fieldofstudyoptions',
         'description' => 'fieldofstudyoptions',

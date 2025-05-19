@@ -38,7 +38,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class send_copy_of_mail implements booking_rule_action {
-
     /** @var string $rulename */
     public $actionname = 'send_copy_of_mail';
 
@@ -110,15 +109,22 @@ class send_copy_of_mail implements booking_rule_action {
     public function add_action_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {
 
         // Mail subject.
-        $mform->addElement('text', 'action_send_copy_of_mail_subject_prefix',
+        $mform->addElement(
+            'text',
+            'action_send_copy_of_mail_subject_prefix',
             get_string('sendcopyofmailsubjectprefix', 'mod_booking'),
-            ['size' => '33']);
+            ['size' => '33']
+        );
         $mform->setType('action_send_copy_of_mail_subject_prefix', PARAM_TEXT);
 
         // Mail template.
-        $mform->addElement('editor', 'action_send_copy_of_mail_message_prefix',
-            get_string('sendcopyofmailmessageprefix', 'mod_booking'), ['rows' => 5],
-            ['subdirs' => 0, 'maxfiles' => 0, 'context' => null]);
+        $mform->addElement(
+            'editor',
+            'action_send_copy_of_mail_message_prefix',
+            get_string('sendcopyofmailmessageprefix', 'mod_booking'),
+            ['rows' => 5],
+            ['subdirs' => 0, 'maxfiles' => 0, 'context' => null]
+        );
 
         // Placeholders info text.
         $placeholders = placeholders_info::return_list_of_placeholders();
@@ -141,11 +147,15 @@ class send_copy_of_mail implements booking_rule_action {
      */
     public function is_compatible_with_ajaxformdata(array $ajaxformdata = []) {
         // For compatible events we return true.
-        if (isset($ajaxformdata["bookingruleactiontype"]) &&
-            $ajaxformdata["bookingruleactiontype"] == "send_copy_of_mail") {
+        if (
+            isset($ajaxformdata["bookingruleactiontype"]) &&
+            $ajaxformdata["bookingruleactiontype"] == "send_copy_of_mail"
+        ) {
             return true;
-        } else if (isset($ajaxformdata["rule_react_on_event_event"]) &&
-            in_array($ajaxformdata["rule_react_on_event_event"], $this->compatibleevents)) {
+        } else if (
+            isset($ajaxformdata["rule_react_on_event_event"]) &&
+            in_array($ajaxformdata["rule_react_on_event_event"], $this->compatibleevents)
+        ) {
             return true;
         }
         // For anything else, it's not compatible and won't be shown.
@@ -156,7 +166,7 @@ class send_copy_of_mail implements booking_rule_action {
      * Save the JSON for all sendmail_daysbefore rules defined in form.
      * @param stdClass $data form data reference
      */
-    public function save_action(stdClass &$data) {
+    public function save_action(stdClass &$data): void {
 
         if (!isset($data->rulejson)) {
             $jsonobject = new stdClass();
@@ -209,6 +219,11 @@ class send_copy_of_mail implements booking_rule_action {
             'customsubject' => $this->subject,
             'custommessage' => $this->message,
         ];
+        // Only add the optiondateid if it is set.
+        // We need it for session reminders.
+        if (!empty($record->optiondateid)) {
+            $taskdata['optiondateid'] = $record->optiondateid;
+        }
         $task->set_custom_data($taskdata);
         $task->set_userid($record->userid);
 

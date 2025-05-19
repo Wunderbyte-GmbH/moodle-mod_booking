@@ -29,7 +29,9 @@ namespace mod_booking\bo_availability\conditions;
 use context_system;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\booking;
 use mod_booking\booking_option_settings;
+use mod_booking\local\override_user_field;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
 use MoodleQuickForm;
@@ -148,7 +150,9 @@ class userprofilefield_2_custom implements bo_condition {
                     $user,
                     $this->customsettings->profilefield ?? "",
                     $this->customsettings->operator ?? "",
-                    $this->customsettings->value ?? ""
+                    $this->customsettings->value ?? "",
+                    $settings->bookingid,
+                    $userid
                 );
 
                 if (empty($this->customsettings->connectsecondfield)) {
@@ -159,7 +163,9 @@ class userprofilefield_2_custom implements bo_condition {
                         $user,
                         $this->customsettings->profilefield2 ?? "",
                         $this->customsettings->operator2 ?? "",
-                        $this->customsettings->value2 ?? ""
+                        $this->customsettings->value2 ?? "",
+                        $settings->bookingid,
+                        $userid
                     );
                     switch ($this->customsettings->connectsecondfield) {
                         case "&&":
@@ -174,7 +180,6 @@ class userprofilefield_2_custom implements bo_condition {
                 }
             }
         }
-
         // If it's inversed, we inverse.
         if ($not) {
             $isavailable = !$isavailable;
@@ -288,6 +293,8 @@ class userprofilefield_2_custom implements bo_condition {
      * @param string $profilefield
      * @param string $operator
      * @param string $formvalue
+     * @param int $bookingid
+     * @param int $userid
      *
      * @return bool
      *
@@ -296,7 +303,9 @@ class userprofilefield_2_custom implements bo_condition {
         object $user,
         string $profilefield,
         string $operator,
-        string $formvalue
+        string $formvalue,
+        int $bookingid,
+        int $userid
     ): bool {
 
         // If the profilefield is not here right away, we might need to retrieve it.
@@ -311,12 +320,26 @@ class userprofilefield_2_custom implements bo_condition {
         } else {
             $value = $user->$profilefield;
         }
-
-        return $this->compare_operation(
+        $available = $this->compare_operation(
             $operator,
             $value,
             $formvalue
-        );
+            );
+        if (!$available) {
+            $cvsetting = booking::get_value_of_json_by_key($bookingid, 'circumventcond');
+            if (
+                isset($cvsetting)
+                && !empty($cvsetting)
+            ) {
+                $b = singleton_service::get_instance_of_booking_by_bookingid($bookingid);
+                $overridefield = new override_user_field($b->cmid);
+                $pref = $overridefield->get_value_for_user($profilefield, $userid);
+                if (!empty($pref)) {
+                    $available = $this->compare_operation($this->customsettings->operator, $pref, $this->customsettings->value);
+                }
+            }
+        }
+        return $available;
     }
     /**
      * Each function can return additional sql.

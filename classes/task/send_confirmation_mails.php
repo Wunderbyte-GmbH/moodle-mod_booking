@@ -44,7 +44,6 @@ global $CFG;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class send_confirmation_mails extends \core\task\adhoc_task {
-
     /**
      * Data for sending mail
      *
@@ -72,7 +71,6 @@ class send_confirmation_mails extends \core\task\adhoc_task {
         mtrace('send_confirmation_mails task started');
 
         if ($taskdata != null) {
-
             // If no messagetext has been defined, we do not send an e-mail.
             $trimmedmessage = strip_tags($taskdata->messagehtml);
             $trimmedmessage = str_replace('&nbsp;', '', $trimmedmessage);
@@ -86,13 +84,18 @@ class send_confirmation_mails extends \core\task\adhoc_task {
                         when recipient mail address is not found. */
                         try {
                             // NOTE: email_to_user does not support multiple attachments.
-                            if (!email_to_user($taskdata->userto, $taskdata->userfrom,
-                                $taskdata->subject, $taskdata->messagetext, $taskdata->messagehtml,
-                                $taskdata->attachment->{'booking.ics'} ?? '',
-                                empty($taskdata->attachment->{'booking.ics'}) ? '' : 'booking.ics')) {
-
+                            if (
+                                !email_to_user(
+                                    $taskdata->userto,
+                                    $taskdata->userfrom,
+                                    $taskdata->subject,
+                                    $taskdata->messagetext,
+                                    $taskdata->messagehtml,
+                                    $taskdata->attachment->{'booking.ics'} ?? '',
+                                    empty($taskdata->attachment->{'booking.ics'}) ? '' : 'booking.ics'
+                                )
+                            ) {
                                 mtrace('Confirmation could not be sent.');
-
                             } else {
                                 // After sending we can delete the attachment.
                                 if (!empty($taskdata->attachment)) {

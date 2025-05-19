@@ -107,8 +107,8 @@ final class moveoption_test extends advanced_testcase {
         $record->text = 'Test option1';
         $record->courseid = $course->id;
         $record->importing = 1;
-        $record->coursestarttime = '2025-01-01 10:00:00';
-        $record->courseendtime = '2025-01-01 12:00:00';
+        $record->coursestarttime = strtotime('2025-01-01 10:00:00');
+        $record->courseendtime = strtotime('2025-01-01 12:00:00');
         $record->useprice = 0;
         $record->default = 50;
         $record->teacheremail = $teacher->email;

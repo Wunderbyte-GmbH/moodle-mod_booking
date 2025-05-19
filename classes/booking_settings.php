@@ -231,9 +231,6 @@ class booking_settings {
     /** @var int $daystonotify2 */
     public $daystonotify2 = null;
 
-    /** @var int $enablepresence */
-    public $enablepresence = null;
-
     /** @var int $completionmodule */
     public $completionmodule = null;
 
@@ -330,7 +327,7 @@ class booking_settings {
     /** @var int $enforceteacherorder */
     public $enforceteacherorder = null;
 
-    /** @var user $bookingmanageruser */
+    /** @var stdClass $bookingmanageruser */
     public $bookingmanageruser = null;
 
     /** @var string $json is used to store non performance critical data like disablecancel, viewparam */
@@ -499,7 +496,6 @@ class booking_settings {
             $this->scale = $dbrecord->scale;
             $this->whichview = $dbrecord->whichview;
             $this->daystonotify2 = $dbrecord->daystonotify2;
-            $this->enablepresence = $dbrecord->enablepresence;
             $this->completionmodule = $dbrecord->completionmodule;
             $this->responsesfields = $dbrecord->responsesfields;
             $this->reportfields = $dbrecord->reportfields;
@@ -569,7 +565,7 @@ class booking_settings {
     /**
      * Function to load bookingmanager as user from DB.
      * @param string $username of a booking manager
-     * @return stdClass user object for booking manager
+     * @return stdClass|null user object for booking manager
      */
     private function load_bookingmanageruser_from_db(string $username) {
         global $DB;

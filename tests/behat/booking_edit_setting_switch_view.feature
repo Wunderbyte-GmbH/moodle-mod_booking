@@ -28,10 +28,6 @@ Feature: Edit booking's settings for the view swithing as a teacher and use it a
       | My booking | Option2 | C1     | Deskr 2     | teacher1          |
       | My booking | Option3 | C1     | Deskr 3     | teacher1          |
       | My booking | Option4 | C1     | Deskr 4     | teacher1          |
-    ## Unfortunately, TinyMCE is slow and has misbehavior which might cause number of site-wide issues. So - we disable it.
-    And the following config values are set as admin:
-      | config      | value         |
-      | texteditors | atto,textarea |
     And I change viewport size to "1366x10000"
 
   @javascript
@@ -42,32 +38,32 @@ Feature: Edit booking's settings for the view swithing as a teacher and use it a
     And I press "Save and display"
     ## Validate Cards view
     And I set the field "wbtabletemplateswitcher" to "Cards view"
-    And I wait "2" seconds
+    And I wait "1" seconds
     And ".allbookingoptionstable .mod-booking-view-card-image-and-body-area" "css_element" should exist
     And ".allbookingoptionstable .allbookingoptionstable_r1" "css_element" should not exist
     ## Validate List view with image on the left
     And I set the field "wbtabletemplateswitcher" to "List view with image on the left"
-    And I wait "2" seconds
+    And I wait "1" seconds
     And ".allbookingoptionstable .allbookingoptionstable_r1 .mod-booking-view-list-image.rounded-left" "css_element" should exist
     ## Validate List view with image on the right
     And I set the field "wbtabletemplateswitcher" to "List view with image on the right"
-    And I wait "2" seconds
+    And I wait "1" seconds
     And ".allbookingoptionstable .allbookingoptionstable_r1 .mod-booking-view-list-image.rounded-right" "css_element" should exist
     ## Validate List view with image on the left over half the width
     And I set the field "wbtabletemplateswitcher" to "List view with image on the left over half the width"
-    And I wait "2" seconds
+    And I wait "1" seconds
     And ".allbookingoptionstable .allbookingoptionstable_r1 .mod-booking-view-list-image-half" "css_element" should exist
     And I log out
     ## Change view for student1
     And I am on the "My booking" Activity page logged in as student1
     And I set the field "wbtabletemplateswitcher" to "Cards view"
-    And I wait "2" seconds
+    And I wait "1" seconds
     And ".allbookingoptionstable .mod-booking-view-card-image-and-body-area" "css_element" should exist
     And I log out
     ## Change view for student2
     And I am on the "My booking" Activity page logged in as student2
     And I set the field "wbtabletemplateswitcher" to "List view with image on the right"
-    And I wait "2" seconds
+    And I wait "1" seconds
     And ".allbookingoptionstable .allbookingoptionstable_r1 .mod-booking-view-list-image.rounded-right" "css_element" should exist
     ## Validate if view settings were preserved for teacher1
     And I log out
@@ -88,7 +84,7 @@ Feature: Edit booking's settings for the view swithing as a teacher and use it a
     ## Change view for student1
     And I am on the "My booking" Activity page logged in as student1
     And I set the field "wbtabletemplateswitcher" to "Cards view"
-    And I wait "2" seconds
+    And I wait "1" seconds
     And ".allbookingoptionstable .mod-booking-view-card-image-and-body-area" "css_element" should exist
     And I log out
     ## Remove Cards view as teacher1
@@ -99,7 +95,7 @@ Feature: Edit booking's settings for the view swithing as a teacher and use it a
     And I log out
     ## Validate default view being forced
     And I am on the "My booking" Activity page logged in as student1
-    And I wait "25" seconds
+    And I wait "1" seconds
     And ".allbookingoptionstable .mod-booking-view-card-image-and-body-area" "css_element" should not exist
     And ".allbookingoptionstable .wunderbyte-table-list .allbookingoptionstable_r1 .col-md-9" "css_element" should exist
     And I log out

@@ -180,7 +180,7 @@ $bookingoption->get_url_params();
 $optionteachers = $bookingoption->get_teachers();
 
 // Paging.
-$paging = 50; // Currently hardcoded. We might need a new setting for this in a future release.
+$paging = 100; // Currently hardcoded. We might need a new setting for this in a future release.
 
 // Capability checks.
 $isteacher = booking_check_if_teacher($bookingoption->option);
@@ -303,6 +303,8 @@ $tableallbookings->show_download_buttons_at([TABLE_P_BOTTOM]);
 $tableallbookings->no_sorting('selected');
 $tableallbookings->no_sorting('rating');
 $tableallbookings->no_sorting('indexnumber');
+$tableallbookings->no_sorting('certificate');
+$tableallbookings->no_sorting('allusercertificates');
 
 if (!$tableallbookings->is_downloading()) {
     if ($action == 'postcustomreport') {
@@ -599,10 +601,8 @@ if (!$tableallbookings->is_downloading()) {
                 $headers[] = get_string('completed', 'mod_booking');
                 break;
             case 'status':
-                if ($bookingoption->booking->settings->enablepresence) {
-                    $columns[] = 'status';
-                    $headers[] = get_string('presence', 'mod_booking');
-                }
+                $columns[] = 'status';
+                $headers[] = get_string('presence', 'mod_booking');
                 break;
             case 'rating':
                 if ($bookingoption->booking->settings->assessed != RATING_AGGREGATE_NONE) {
@@ -675,6 +675,18 @@ if (!$tableallbookings->is_downloading()) {
                 $columns[] = 'email';
                 $headers[] = get_string('email', 'mod_booking');
                 break;
+            case 'certificate':
+                if (booking_option::get_value_of_json_by_key($optionid, 'certificate')) {
+                    $headers[] = get_string('certificatecolheader', 'mod_booking');
+                    $columns[] = 'certificate';
+                }
+                break;
+            case 'allusercertificates':
+                if (booking_option::get_value_of_json_by_key($optionid, 'certificate')) {
+                    $headers[] = get_string('allusercertificates', 'mod_booking');
+                    $columns[] = 'allusercertificates';
+                }
+                break;
         }
     }
     $customfields = '';
@@ -743,6 +755,62 @@ if (!$tableallbookings->is_downloading()) {
         $shoppingcartfields = "";
         $shoppingcartfrom = "";
     }
+    if (class_exists('tool_certificate\certificate')) {
+        $certificatefields = ", cert.certificate";
+        $databasetype = $DB->get_dbfamily();
+        switch ($databasetype) {
+            case 'postgres':
+                $certificatefrom = "
+                LEFT JOIN (
+                    SELECT
+                        tci.userid,
+                        (tci.data::jsonb ->> 'bookingoptionid')::int AS optionid,
+                        json_agg(
+                            json_build_object(
+                                'id', tci.id,
+                                'code', tci.code,
+                                'expires', tci.expires,
+                                'data', data,
+                                'timecreated', timecreated
+                            )
+                        ) AS certificate
+                    FROM
+                        {tool_certificate_issues} tci
+                    GROUP BY
+                        tci.userid, optionid
+                ) cert ON cert.optionid = ba.optionid AND cert.userid = ba.userid
+                ";
+
+                break;
+            case 'mysql':
+                    $certificatefrom = "
+                    LEFT JOIN (
+                        SELECT
+                            tci.userid,
+                            CAST(JSON_UNQUOTE(JSON_EXTRACT(tci.data, '$.bookingoptionid')) AS UNSIGNED) AS optionid,
+                            JSON_ARRAYAGG(
+                                JSON_OBJECT(
+                                    'id', tci.id,
+                                    'code', tci.code,
+                                    'expires', tci.expires,
+                                    'data', tci.data,
+                                    'timecreated', tci.timecreated
+                                )
+                            ) AS certificate
+                        FROM
+                            {tool_certificate_issues} tci
+                        GROUP BY
+                            tci.userid, optionid
+                    ) cert ON cert.optionid = ba.optionid AND cert.userid = ba.userid
+                    ";
+                break;
+            default:
+                throw new \moodle_exception('Unsupported database type for JSON key extraction.');
+        }
+    } else {
+            $certificatefields = "";
+            $certificatefrom = "";
+    }
 
     // ALL USERS - START To make compatible MySQL and PostgreSQL - http://hyperpolyglot.org/db.
     $fields = 'ba.id, ' . $mainuserfields . ',
@@ -760,11 +828,12 @@ if (!$tableallbookings->is_downloading()) {
             ba.notes,
             ba.places,
             \'\' otheroptions,
-            ba.numrec' . $customfields . $shoppingcartfields;
+            ba.numrec' . $customfields . $shoppingcartfields . $certificatefields;
     $from = ' {booking_answers} ba
             JOIN {user} u ON u.id = ba.userid
             JOIN {booking_options} bo ON bo.id = ba.optionid
-            LEFT JOIN {booking_options} otherbookingoption ON otherbookingoption.id = ba.frombookingid ' . $shoppingcartfrom;
+            LEFT JOIN {booking_options} otherbookingoption ON otherbookingoption.id = ba.frombookingid ' . $shoppingcartfrom
+            . $certificatefrom;
     $where = ' ba.optionid = :optionid
              AND ba.waitinglist < 2 ' . $addsqlwhere;
 

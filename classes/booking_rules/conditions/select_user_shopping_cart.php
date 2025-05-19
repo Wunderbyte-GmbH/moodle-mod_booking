@@ -43,7 +43,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class select_user_shopping_cart implements booking_rule_condition {
-
     /** @var string $conditionname */
     public $conditionname = 'select_user_shopping_cart';
 
@@ -113,9 +112,12 @@ class select_user_shopping_cart implements booking_rule_condition {
      */
     public function add_condition_to_mform(MoodleQuickForm &$mform, ?array &$ajaxformdata = null) {
 
-        $mform->addElement('static', 'condition_select_user_shopping_cart', '',
-                get_string('conditionselectusershoppingcart_desc', 'mod_booking'));
-
+        $mform->addElement(
+            'static',
+            'condition_select_user_shopping_cart',
+            '',
+            get_string('conditionselectusershoppingcart_desc', 'mod_booking')
+        );
     }
 
     /**
@@ -132,7 +134,7 @@ class select_user_shopping_cart implements booking_rule_condition {
      * Saves the JSON for the condition into the $data object.
      * @param stdClass $data form data reference
      */
-    public function save_condition(stdClass &$data) {
+    public function save_condition(stdClass &$data): void {
 
         if (!isset($data->rulejson)) {
             $jsonobject = new stdClass();
@@ -165,12 +167,13 @@ class select_user_shopping_cart implements booking_rule_condition {
      * @param array $params
      * @param bool $testmode
      * @param int $nextruntime
-     *
      */
-    public function execute(stdClass &$sql,
-                            array &$params,
-                            $testmode = false,
-                            $nextruntime = 0) {
+    public function execute(
+        stdClass &$sql,
+        array &$params,
+        $testmode = false,
+        $nextruntime = 0
+    ): void {
 
         global $DB;
 
@@ -185,15 +188,27 @@ class select_user_shopping_cart implements booking_rule_condition {
         $dbfamily = $DB->get_dbfamily();
 
         switch ($dbfamily) {
-
             case 'postgres':
-                $concat = $DB->sql_concat(
+                // If select contains optiondateid, we need to include it in uniqueid.
+                if (strpos($sql->select, 'optiondateid') !== false) {
+                    $concat = $DB->sql_concat(
+                        "bo.id",
+                        "'-'",
+                        "bod.id", // Include optiondateid in uniqueid.
+                        "'-'",
+                        " (payments_info.payment_data->>'id') ",
+                        "'-'",
+                        " (payments_info.payment_data->>'timestamp') "
+                    );
+                } else {
+                    $concat = $DB->sql_concat(
                         "bo.id",
                         "'-'",
                         " (payments_info.payment_data->>'id') ",
                         "'-'",
                         " (payments_info.payment_data->>'timestamp') "
-                );
+                    );
+                }
 
                 $sql->select = "$concat as uniquid,
                                 bo.id optionid,
@@ -235,7 +250,10 @@ class select_user_shopping_cart implements booking_rule_condition {
                 break;
             case 'mysql':
                 $sql->select = "
-                    CONCAT('', bo.id, '-', JSON_UNQUOTE(JSON_EXTRACT(payments_info.payment_data, '$.id')),
+                    CONCAT('', bo.id, '-', "
+                    // If select contains optiondateid, we need to include it in uniqueid.
+                    . strpos($sql->select, 'optiondateid') !== false ? "bod.id, '-', " : ""
+                    . "JSON_UNQUOTE(JSON_EXTRACT(payments_info.payment_data, '$.id')),
                     '-', JSON_UNQUOTE(JSON_EXTRACT(payments_info.payment_data, '$.timestamp'))) AS uniquid,
                     bo.id optionid,
                     cm.id cmid,

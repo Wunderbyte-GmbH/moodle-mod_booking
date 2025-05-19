@@ -26,10 +26,6 @@ Feature: In a booking create a template
     And the following "activities" exist:
       | activity | course | name       | intro                  | bookingmanager | eventtype | Default view for booking options | Send confirmation e-mail |
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | All bookings                     | Yes                      |
-    ## Unfortunately, in Moodle 4.3 TinyMCE has misbehavior which cause number of site-wide issues. So - we disable it.
-    And the following config values are set as admin:
-      | config      | value         |
-      | texteditors | atto,textarea |
     And I change viewport size to "1366x10000"
 
   @javascript
@@ -37,7 +33,6 @@ Feature: In a booking create a template
     Given I am on the "My booking" Activity page logged in as teacher1
     ## Prepare option
     And I follow "New booking option"
-    And I wait until the page is ready
     And I set the following fields to these values:
       | Booking option name | Option template |
     And I set the field "Add to course calendar" to "Add to calendar (visible only to course participants)"
@@ -61,7 +56,6 @@ Feature: In a booking create a template
     ## And I follow "Add as template"
     And I set the field "addastemplate" to "Use as global template"
     And I press "Save"
-    And I wait until the page is ready
     ## Required to avoid erros like "invalid session id" on the step next to "New option"
     And I wait "1" seconds
     ## Edit template
@@ -74,7 +68,6 @@ Feature: In a booking create a template
     And I press "Save"
     ## Use template
     And I follow "New booking option"
-    And I wait until the page is ready
     And I set the field "optiontemplateid" to "Option template"
     And I wait "1" seconds
     And I set the following fields to these values:
@@ -84,6 +77,7 @@ Feature: In a booking create a template
     ## Verify template
     Then I should see "New option - by template" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Teacher 1" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "15 May 2050" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "16 May 2050" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "70.00 EUR" in the ".allbookingoptionstable_r1" "css_element"
     ## Delete template

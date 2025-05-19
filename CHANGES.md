@@ -1,3 +1,61 @@
+## Version 8.13.0 (2025051300)
+* Bugfix: Rename rank to userrank because rank is a reserved function of MySQL.
+
+## Version 8.12.9 (2025051200)
+* New Feature: Competencies of booking options
+* New feature: Booking rules now support session reminders
+* Improvement: Usability improvements for bookings tracker
+* Improvement: Got rid of enablepresence instance setting
+* Improvement: booking time not overwritten by billboard
+* Bugfix: enable maxoptionsforcategory with all types of customfields
+* Bugfix: Fix requirelogin for courselist shortcode (and all other shortcodes too).
+* Bugfix: Increase number of booked users on report.php
+* Bugfix: Fix SQL for rank order of answers in waiting list so it'll work with any DB family (also MySQL).
+* Bugfix: No validation for enrollink with empty course
+* Bugfix: Fix rank order for setting waitinglistshowplaceonwaitinglist
+* Bugfix: Catch non existing cmid error in shortcodes
+* Bugfix: Move setting waitinglistshowplaceonwaitinglist to correct place (under waiting list header)
+* Bugfix: Fix missing optiondateid in SQL which led to dates being duplicated
+* Bugfix: Fix uniqueid for student
+* Bugfix: Fix daystonotify override for session reminder rule
+* Bugfix: Fix check_if_rule_still_applies
+* Bugfix: Enable sorting for supplementary columns (customfields) in shortcodes
+* Bugfix: remove unsubscribe button in mobile output
+* Bugfix: missing tab in active nav tabs
+
+## Version 8.12.8 (2025050100)
+* New Feature: Create certificates for completing booking options. Also view and edit certificates in report and placeholders for rules.
+* Improvement: Added new shortcodes allbookingoption and mybookingoptions.
+* Improvement: Added bookotheroptions action.
+* Improvement: Further improvements to the bookings tracker.
+* Bugfix: Booking rules are now deleted correctly.
+* Bugfix: Show error message in business card if the user ID of the organizer is missing.
+* Bugfix: Removed default sorting by lastname, as it disrupted the rank order of the waiting list.
+* Bugfix: Recurring booking opening and closing times now update correctly.
+* Bugfix: Enabled setting unenrolfromgroupofcurrentcourse.
+* Bugfix: Correct order of params of setting uselegacymails.
+* Test: Added unit tests for shortcodes.
+* Test: Added new Behat scenario: Booking actions – create settings for booking action via UI as a teacher and edit it.
+* Test: Added new Behat scenario: Booking actions – create booking action via DB and book it as students.
+
+## Version 8.12.7 (2025042400)
+* New Feature: Link to optiondetails next to booked/cancelled alert for bookondetail
+* Bugfix: Fix course sortorder after course creation via template
+* Tests: refactoring of the backup_restore_test()
+
+## Version 8.12.6 (2025042300)
+* Improvement: for booking history and bookings tracker.
+* Improvement: Implemented unsubscribe to moodle mobile
+* Improvement: Add bookotheroptions action and condition to check if options are available.
+* Improvement: Refactoring shortcodes.
+* Bugfix: Do not hide columns via CSS but add them to sorting correctly, usability improvements
+* Bugfix: No default sorting by lastname, as it destroys rank order of waiting list.
+* Bugfix: Update recurring bookingopening and closingtime correctly
+* Bugfix: Enable setting unenrolfromgroupofcurrentcourse
+* Test: New behat Scenario: Booking actions: create settings for booking action via UI as a teacher and edit it
+* Test: New behat Scenario: Booking actions: create booking action via DB and book it as students
+* Test: New behat Scenario: Booking actions: create userprofilefield action via DB and book it as students
+
 ## Version 8.12.5 (2025041600)
 * New feature: "What's new?" tab in Booking shows booking options made visible within a defined recent number of days.
 * Improvement: Added setting 'redirectonlogintocourse'.
@@ -156,7 +214,7 @@ legacy mail templates with booking rules by using the new templates.
 * New feature: presence counter feature in report2
 * New feature: Show tab on booking view.php with options where the logged-in user is a responsible contact.
 * New feature: Add possibility to download booked users in bookings tracker in different scopes.
-* Improvement: Use is_available of bo_info to check for actual condition results in function option_allows_overbooking_for_user.
+* Improvement: Use is_available of bo_info to check for actual condition results in function option_allows_booking_for_user.
 * Improvement: Skip rules from option (opt in, opt out)
 * Improvement: When PRO is active but selflearningcourse feature is not, we show a link to config settings (within help text)
 * Improvement: Better capability checks for report2.
@@ -1348,7 +1406,7 @@ With cards view, we always have modals.
 
 ## Version 8.1.2 (2024011600)
 **Bugfixes:**
-* Bugfix: No userid needed in option_allows_overbooking_for_user (we always use logged-in user here).
+* Bugfix: No userid needed in option_allows_booking_for_user (we always use logged-in user here).
 * Bugfix: Fix exception for old options with only one date stored in the booking option.
 * Bugfix: Fix automatic creation of new Moodle courses with new option form.
 

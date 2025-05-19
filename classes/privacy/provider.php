@@ -37,6 +37,7 @@ use core_privacy\local\request\helper;
 use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
 use dml_exception;
+use mod_booking\booking;
 use mod_booking\teachers_handler;
 use stdClass;
 
@@ -49,14 +50,12 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class provider implements
-    // This plugin stores personal data.
-    \core_privacy\local\metadata\provider,
-
     // This plugin is capable of determining which users have data within it.
     \core_privacy\local\request\core_userlist_provider,
-
     // This plugin is a core_user_data_provider.
-    \core_privacy\local\request\plugin\provider {
+    \core_privacy\local\request\plugin\provider,
+    // This plugin stores personal data.
+    \core_privacy\local\metadata\provider {
     /**
      * Return the fields which contain personal data.
      *
@@ -283,7 +282,8 @@ class provider implements
                 }
                 $historydata = $DB->get_records('booking_history', ['userid' => $user->id, 'answerid' => $bookinganswer->id]);
                 foreach ($historydata as $history) {
-                    $history['status'] = MOD_BOOKING_ALL_POSSIBLE_STATI_ARRAY[$history['status']];
+                    $possiblehistorystatuses = booking::get_array_of_possible_booking_history_statuses();
+                    $history['status'] = $possiblehistorystatuses[$history['status']];
                 }
                 $bookingdata = [
                     'bookingname' => $bookinganswer->bookingname,
@@ -297,8 +297,8 @@ class provider implements
             }
             // Important, can be more than one option. Export in one nice line.
             $bookingdata['bookedoptions'][] = $bookinganswer->bookedoptiontext . " (from " .
-                \core_privacy\local\request\transform::datetime($bookinganswer->coursestart). " to " .
-                \core_privacy\local\request\transform::datetime($bookinganswer->courseend). ") with rating " .
+                \core_privacy\local\request\transform::datetime($bookinganswer->coursestart) . " to " .
+                \core_privacy\local\request\transform::datetime($bookinganswer->courseend) . ") with rating " .
                 $bookinganswer->rating;
             $lastcmid = $bookinganswer->cmid;
         }
@@ -387,7 +387,6 @@ class provider implements
 
         $userid = $contextlist->get_user()->id;
         foreach ($contextlist->get_contexts() as $context) {
-
             if (!$context instanceof context_module) {
                 continue;
             }

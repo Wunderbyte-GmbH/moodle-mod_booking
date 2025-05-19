@@ -43,7 +43,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class select_users implements booking_rule_condition {
-
     /** @var string $conditionname */
     public $conditionname = 'select_users';
 
@@ -98,7 +97,7 @@ class select_users implements booking_rule_condition {
             'ajax' => 'mod_booking/form_users_selector',
             'multiple' => true,
             'noselectionstring' => get_string('choose...', 'mod_booking'),
-            'valuehtmlcallback' => function($value) {
+            'valuehtmlcallback' => function ($value) {
                 global $OUTPUT;
                 if (empty($value)) {
                     return get_string('choose...', 'mod_booking');
@@ -111,13 +110,19 @@ class select_users implements booking_rule_condition {
                     'lastname' => $user->lastname,
                 ];
                 return $OUTPUT->render_from_template(
-                        'mod_booking/form-user-selector-suggestion', $details);
+                    'mod_booking/form-user-selector-suggestion',
+                    $details
+                );
             },
         ];
 
-        $mform->addElement('autocomplete', 'condition_select_users_userids',
-            get_string('conditionselectusersuserids', 'mod_booking'), [], $options);
-
+        $mform->addElement(
+            'autocomplete',
+            'condition_select_users_userids',
+            get_string('conditionselectusersuserids', 'mod_booking'),
+            [],
+            $options
+        );
     }
 
     /**
@@ -134,7 +139,7 @@ class select_users implements booking_rule_condition {
      * Saves the JSON for the condition into the $data object.
      * @param stdClass $data form data reference
      */
-    public function save_condition(stdClass &$data) {
+    public function save_condition(stdClass &$data): void {
 
         if (!isset($data->rulejson)) {
             $jsonobject = new stdClass();
@@ -169,16 +174,20 @@ class select_users implements booking_rule_condition {
      *
      * @param stdClass $sql
      * @param array $params
-     * @return array
      */
-    public function execute(stdClass &$sql, array &$params) {
+    public function execute(stdClass &$sql, array &$params): void {
         global $DB;
 
-        list($inorequal, $inorequalparams) = $DB->get_in_or_equal($this->userids, SQL_PARAMS_NAMED);
+        [$inorequal, $inorequalparams] = $DB->get_in_or_equal($this->userids, SQL_PARAMS_NAMED);
 
         // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
+        // If the select contains optiondate, we also need to include it in uniqueid.
+        if (strpos($sql->select, 'optiondate') !== false) {
+            $concat = $DB->sql_concat("bo.id", "'-'", "bod.id", "'-'", "u.id");
+        } else {
+            $concat = $DB->sql_concat("bo.id", "'-'", "u.id");
+        }
 
-        $concat = $DB->sql_concat("bo.id", "'-'", "u.id");
         $sql->select = " $concat uniqueid, " . $sql->select;
         $sql->select .= ", u.id userid";
 

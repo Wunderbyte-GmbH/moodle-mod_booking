@@ -32,7 +32,7 @@ use stdClass;
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->dirroot.'/calendar/lib.php');
+require_once($CFG->dirroot . '/calendar/lib.php');
 
 /**
  * Class for adding events to calendar.
@@ -43,7 +43,6 @@ require_once($CFG->dirroot.'/calendar/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class calendar {
-
     // We removed this because we now save ANY date as optiondate!
     // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
     /* const MOD_BOOKING_TYPEOPTION = 1; */
@@ -108,15 +107,24 @@ class calendar {
                 if ($justbooked && !empty($optiondateid)) {
                     // A user has just booked. The events will be created as USER events.
                     if ($optiondate = $DB->get_record("booking_optiondates", ["id" => $optiondateid])) {
-                        $newcalendarid = self::booking_optiondate_add_to_cal($cmid, $optionid,
-                            $optiondate, $settings->calendarid, $userid);
+                        $newcalendarid = self::booking_optiondate_add_to_cal(
+                            $cmid,
+                            $optionid,
+                            $optiondate,
+                            $settings->calendarid,
+                            $userid
+                        );
                         if ($newcalendarid) {
                             // If it's a new user event, then insert.
-                            if (!$userevent = $DB->get_record('booking_userevents',
-                                                                ['userid' => $userid,
+                            if (
+                                !$userevent = $DB->get_record(
+                                    'booking_userevents',
+                                    ['userid' => $userid,
                                                                 'optionid' => $optionid,
                                                                 'optiondateid' => $optiondateid,
-                                                                ])) {
+                                    ]
+                                )
+                            ) {
                                 $data = new stdClass();
                                 $data->userid = $userid;
                                 $data->optionid = $optionid;
@@ -134,19 +142,17 @@ class calendar {
                             }
                         }
                     }
-                    /* TODO: Currently, dates might not be saved for teachers if the optiondates are not already saved.
-                    We need to make sure, that dates are also saved for teachers, even if we newly create an option.
-                    We might need a new MOD_BOOKING_EXECUTION_POSTSAVE_AFTER for this, so this happens AFTER the dates
-                    have been created. */
                 } else if ($settings->addtocalendar == 1) {
                     if ($optiondate = $DB->get_record("booking_optiondates", ["id" => $optiondateid])) {
-                        $newcalendarid = self::booking_optiondate_add_to_cal($cmid, $optionid,
-                            $optiondate, $settings->calendarid, 0, 1);
+                        $newcalendarid = self::booking_optiondate_add_to_cal(
+                            $cmid,
+                            $optionid,
+                            $optiondate,
+                            $settings->calendarid,
+                            0,
+                            1
+                        );
                     }
-                    /* TODO: Currently, dates might not be saved for teachers if the optiondates are not already saved.
-                    We need to make sure, that dates are also saved for teachers, even if we newly create an option.
-                    We might need a new MOD_BOOKING_EXECUTION_POSTSAVE_AFTER for this, so this happens AFTER the dates
-                    have been created. */
                 }
                 break;
 
@@ -156,17 +162,28 @@ class calendar {
             case $this::MOD_BOOKING_TYPETEACHERADD:
                 $newcalendarid = self::booking_option_add_to_cal($cmid, $optionid, 0, $userid);
                 if ($newcalendarid) {
-                    $DB->set_field("booking_teachers", 'calendarid', $newcalendarid,
-                        ['userid' => $userid, 'optionid' => $optionid]);
+                    $DB->set_field(
+                        "booking_teachers",
+                        'calendarid',
+                        $newcalendarid,
+                        ['userid' => $userid, 'optionid' => $optionid]
+                    );
                 }
                 break;
 
             case $this::MOD_BOOKING_TYPETEACHERUPDATE:
-                $calendarid = $DB->get_field('booking_teachers', 'calendarid',
-                    ['userid' => $userid, 'optionid' => $optionid]);
+                $calendarid = $DB->get_field(
+                    'booking_teachers',
+                    'calendarid',
+                    ['userid' => $userid, 'optionid' => $optionid]
+                );
                 $newcalendarid = self::booking_option_add_to_cal($cmid, $optionid, $calendarid, $userid);
-                $DB->set_field("booking_teachers", 'calendarid', $newcalendarid,
-                    ['userid' => $userid, 'optionid' => $optionid]);
+                $DB->set_field(
+                    "booking_teachers",
+                    'calendarid',
+                    $newcalendarid,
+                    ['userid' => $userid, 'optionid' => $optionid]
+                );
                 break;
 
             case $this::MOD_BOOKING_TYPETEACHERREMOVE:
@@ -205,8 +222,13 @@ class calendar {
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    private static function booking_option_add_to_cal(int $cmid, int $optionid, int $calendareventid,
-        int $userid = 0, int $addtocalendar = 1) {
+    private static function booking_option_add_to_cal(
+        int $cmid,
+        int $optionid,
+        int $calendareventid,
+        int $userid = 0,
+        int $addtocalendar = 1
+    ) {
 
         global $DB;
 
@@ -294,8 +316,14 @@ class calendar {
      *
      * @return int calendarid
      */
-    public static function booking_optiondate_add_to_cal(int $cmid, int $optionid, stdClass $optiondate,
-        int $calendareventid, int $userid = 0, int $addtocalendar = 1) {
+    public static function booking_optiondate_add_to_cal(
+        int $cmid,
+        int $optionid,
+        stdClass $optiondate,
+        int $calendareventid,
+        int $userid = 0,
+        int $addtocalendar = 1
+    ) {
         global $DB, $SESSION;
 
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
@@ -321,8 +349,12 @@ class calendar {
             // If the user is booked, we have a different kind of description.
             $bookedusers = $bookingoption->get_all_users_booked();
             $forbookeduser = isset($bookedusers[$userid]);
-            $fulldescription = get_rendered_eventdescription($optionid, $cmid,
-                MOD_BOOKING_DESCRIPTION_CALENDAR, $forbookeduser);
+            $fulldescription = get_rendered_eventdescription(
+                $optionid,
+                $cmid,
+                MOD_BOOKING_DESCRIPTION_CALENDAR,
+                $forbookeduser
+            );
             // Reset to system language.
             force_current_language($currentlang);
         } else {

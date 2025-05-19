@@ -25,8 +25,10 @@
 
 namespace mod_booking\table;
 
+use mod_booking\local\bookingstracker\bookingstracker_helper;
 use mod_booking\singleton_service;
 use mod_booking\booking;
+use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -47,6 +49,19 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  */
 class booking_history_table extends wunderbyte_table {
     /**
+     * Return option column.
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_text(stdClass $values) {
+        if ($this->is_downloading()) {
+            return $values->text ?? '';
+        }
+        return bookingstracker_helper::render_col_text($values);
+    }
+
+    /**
      * Column for timecreated value.
      * @param stdClass $values
      * @return string
@@ -64,22 +79,35 @@ class booking_history_table extends wunderbyte_table {
         if (empty($values->json)) {
             return "";
         }
-        if (str_contains($values->json, 'presence')) {
-            $info = json_decode($values->json, true);
+        $info = json_decode($values->json, true);
+        $a = new stdClass();
+        if (strrpos($values->json, 'presence') !== false) {
             $possiblepresences = booking::get_array_of_possible_presence_statuses();
-            $a = new stdClass();
             $a->presenceold = $possiblepresences[$info['presence']['presenceold']];
             $a->presencenew = $possiblepresences[$info['presence']['presencenew']];
-
             return get_string('presencechangedhistory', 'mod_booking', $a);
         }
-        if (str_contains($values->json, 'booking')) {
-            $info = json_decode($values->json, true);
-            $a = new stdClass();
+        if (strrpos($values->json, 'notes') !== false) {
+            $a->notesold = $info['notes']['notesold'];
+            $a->notesnew = $info['notes']['notesnew'];
+            return get_string('noteseditedhistory', 'mod_booking', $a);
+        }
+        if (strrpos($values->json, 'booking') !== false) {
             $a->oldbooking = $info['booking']['oldbooking'];
             $a->newbooking = $values->bookingid;
             return get_string('movedbookinghistory', 'mod_booking', $a);
         };
+        if (strrpos($values->json, 'completion') !== false) {
+            $info = json_decode($values->json, true);
+            $possiblecompletions =
+            [   0 => get_string('statusincomplete', 'booking'),
+                1 => get_string('completed', 'booking'),
+            ];
+            $a = new stdClass();
+            $a->completionold = $possiblecompletions[$info['completion']['completionold']];
+            $a->completionnew = $possiblecompletions[$info['completion']['completionnew']];
+            return get_string('completionchangedhistory', 'mod_booking', $a);
+        }
         return "";
     }
 
@@ -90,9 +118,9 @@ class booking_history_table extends wunderbyte_table {
      * @return string
      */
     public function col_status(stdClass $values) {
-        $status = MOD_BOOKING_ALL_POSSIBLE_STATI_ARRAY;
+        $status = booking::get_array_of_possible_booking_history_statuses();
         $resolved = $status[$values->status];
-        return $resolved;
+        return "$values->status - $resolved";
     }
 
     /**

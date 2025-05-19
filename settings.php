@@ -314,6 +314,16 @@ if ($ADMIN->fulltree) {
                 $presenceoptions
             )
         );
+
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/presencestatustoissuecertificate',
+                get_string('presencestatustoissuecertificate', 'mod_booking'),
+                get_string('presencestatustoissuecertificate_desc', 'mod_booking'),
+                0,
+                booking::get_possible_presences(true)
+            )
+        );
     } else {
         $settings->add(
             new admin_setting_heading(
@@ -494,6 +504,18 @@ if ($ADMIN->fulltree) {
         )
     );
 
+    if (get_config('booking', 'bookonlyondetailspage')) {
+        // Display of detail dots is only enabled for options bookable on detailspage.
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/showdetaildotsnextbookedalert',
+                get_string('showdetaildotsnextbookedalert', 'mod_booking'),
+                get_string('showdetaildotsnextbookedalert_desc', 'mod_booking'),
+                0
+            )
+        );
+    }
+
     $coloroptions = [
         'primary' => get_string('cdo:buttoncolor:primary', 'mod_booking'),
         'secondary' => get_string('cdo:buttoncolor:secondary', 'mod_booking'),
@@ -568,6 +590,15 @@ if ($ADMIN->fulltree) {
 
     $settings->add(
         new admin_setting_configcheckbox(
+            'booking/automaticbookingoptioncompletion',
+            get_string('automaticbookingoptioncompletion', 'mod_booking'),
+            get_string('automaticbookingoptioncompletion_desc', 'mod_booking'),
+            0
+        )
+    );
+
+    $settings->add(
+        new admin_setting_configcheckbox(
             'booking/bookingdebugmode',
             get_string('bookingdebugmode', 'mod_booking'),
             get_string('bookingdebugmode_desc', 'mod_booking'),
@@ -580,6 +611,15 @@ if ($ADMIN->fulltree) {
             'booking/shortcodesoff',
             get_string('shortcodesoff', 'mod_booking'),
             get_string('shortcodesoff_desc', 'mod_booking'),
+            0
+        )
+    );
+
+    $settings->add(
+        new admin_setting_configcheckbox(
+            'booking/usecompetencies',
+            get_string('usecompetencies', 'mod_booking'),
+            get_string('usecompetencies_desc', 'mod_booking'),
             0
         )
     );
@@ -997,6 +1037,19 @@ if ($ADMIN->fulltree) {
             get_string('waitinglistheader_desc', 'mod_booking')
         )
     );
+
+    $waitinglistshowplaceonwaitinglist = new admin_setting_configcheckbox(
+        'booking/waitinglistshowplaceonwaitinglist',
+        get_string('waitinglistshowplaceonwaitinglist', 'mod_booking'),
+        get_string('waitinglistshowplaceonwaitinglistinfo', 'mod_booking'),
+        0
+    );
+    $waitinglistshowplaceonwaitinglist->set_updatedcallback(function () {
+        cache_helper::purge_by_event('setbackencodedtables');
+        cache_helper::purge_by_event('changesinwunderbytetable');
+    });
+    $settings->add($waitinglistshowplaceonwaitinglist);
+
     $settings->add(
         new admin_setting_configcheckbox(
             'booking/turnoffwaitinglist',
@@ -1014,6 +1067,7 @@ if ($ADMIN->fulltree) {
             0
         )
     );
+
     $settings->add(
         new admin_setting_configcheckbox(
             'booking/keepusersbookedonreducingmaxanswers',
@@ -1526,14 +1580,6 @@ if ($ADMIN->fulltree) {
                 get_string('waitinglistlowpercentagedesc', 'booking'),
                 20,
                 $waitinglistlowpercentages
-            )
-        );
-        $settings->add(
-            new admin_setting_configcheckbox(
-                'booking/waitinglistshowplaceonwaitinglist',
-                get_string('waitinglistshowplaceonwaitinglist', 'mod_booking'),
-                get_string('waitinglistshowplaceonwaitinglistinfo', 'booking'),
-                0
             )
         );
     } else {

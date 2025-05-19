@@ -53,13 +53,11 @@ Feature: As admin - configure max option for category with dynamic dropdown cust
       | Booking1  | Option14-c | C1     | student2           | 1         | 3          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 0        | student2    |
       | Booking1  | Option15-t | C1     | teacher1 (limited) | 1         | 3          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 0        | teacher1    |
       | Booking1  | Option16-t | C1     | teacher1 (limited) | 1         | 3          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 0        | teacher1    |
-    And I change viewport size to "1366x12000"
-    ## Unfortunately, TinyMCE is slow and has misbehavior which might cause number of site-wide issues. So - we disable it.
     And the following config values are set as admin:
       | config                      | value         | plugin  |
-      | texteditors                 | atto,textarea |         |
       | maxoptionsfromcategory      | 1             | booking |
       | maxoptionsfromcategoryfield | dynamicuser   | booking |
+    And I change viewport size to "1366x16000"
 
   @javascript
   Scenario: Booking: configure max option for category via dynamic dropdown customfield with multiselect and validate it as student

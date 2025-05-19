@@ -45,7 +45,7 @@ class bookinganswer_presencechanged extends \core\event\base {
      */
     protected function init() {
         $this->data['crud'] = 'c';
-        $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
+        $this->data['edulevel'] = self::LEVEL_TEACHING;
         $this->data['objecttable'] = 'booking_answers';
     }
 

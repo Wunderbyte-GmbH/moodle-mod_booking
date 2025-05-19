@@ -22,7 +22,7 @@
 
     Data attributes required for JS:
     * data-region
-    
+
     Example context (json):
     {
         "userpictureurl": "http://localhost:58000/message/index.php?id=980",
@@ -69,3 +69,6 @@
         <p><b>{{#str}} eventpoints, mod_booking {{/str}}:</b> {{{points}}}</p>
     </div>
 {{/points}}
+{{#errormessage}}
+<div class="alert alert-warning">{{.}}</div>
+{{/errormessage}}

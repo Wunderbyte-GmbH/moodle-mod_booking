@@ -63,7 +63,7 @@ class ruletemplate_userstorno {
         $rulejson = (object)[
             "conditionname" => "select_user_from_event",
             "conditiondata" => [
-                "userfromeventtype" => "userid",
+                "userfromeventtype" => "relateduserid",
             ],
             "name" => self::get_name(),
             "actionname" => "send_mail",

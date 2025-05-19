@@ -81,6 +81,12 @@ class behat_mod_booking_generator extends behat_generator_base {
                 'required' => ['booking', 'option', 'user'],
                 'switchids' => ['booking' => 'bookingid', 'option' => 'optionid', 'user' => 'userid'],
             ],
+            'actions' => [
+                'singular' => 'action',
+                'datagenerator' => 'action',
+                'required' => ['option', 'action_type', 'boactionname', 'boactionjson'],
+                'switchids' => ['option' => 'optionid'],
+            ],
         ];
     }
 
@@ -128,5 +134,4 @@ class behat_mod_booking_generator extends behat_generator_base {
         }
         return $id;
     }
-
 }

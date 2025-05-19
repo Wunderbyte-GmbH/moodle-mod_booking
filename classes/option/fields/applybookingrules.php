@@ -188,7 +188,7 @@ class applybookingrules extends field_base {
         }
 
         $options = [
-            'noselectionstring' => get_string('noinstitutionselected', 'mod_booking'),
+            'noselectionstring' => get_string('noruleselected', 'mod_booking'),
             'tags' => false,
             'multiple' => true,
         ];

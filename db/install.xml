@@ -72,7 +72,7 @@
         <FIELD NAME="scale" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="whichview" TYPE="char" LENGTH="32" NOTNULL="true" DEFAULT="showall" SEQUENCE="false" COMMENT="Which view is default."/>
         <FIELD NAME="daystonotify2" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-        <FIELD NAME="enablepresence" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="enablepresence" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/><!-- Legacy. Not used anymore. -->
         <FIELD NAME="completionmodule" TYPE="int" LENGTH="20" NOTNULL="false" DEFAULT="-1" SEQUENCE="false"/>
         <FIELD NAME="responsesfields" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="reportfields" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
@@ -175,6 +175,7 @@
         <FIELD NAME="sortorder" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Elective feature."/>
         <FIELD NAME="json" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="This allows to add supplementary information which is not performance sensible like after booking actions etc."/>
         <FIELD NAME="sqlfilter" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="This is a marker to show if the availability json in this specific option needs to be parsed to filter. 0 means no, 1 means yes."/>
+        <FIELD NAME="competencies" TYPE="char" LENGTH="256" NOTNULL="false" SEQUENCE="false" COMMENT="ids of competencies acquired with completing this booking option"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

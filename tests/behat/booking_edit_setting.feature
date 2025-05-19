@@ -23,23 +23,15 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
       | activity | course | name       | intro                  | bookingmanager | eventtype | Default view for booking options | Send confirmation e-mail |
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | All bookings                     | Yes                      |
     And I create booking option "New option" in "My booking"
-    ## Unfortunately, TinyMCE is slow and has misbehavior which might cause number of site-wide issues. So - we disable it.
-    And the following config values are set as admin:
-      | config      | value         |
-      | texteditors | atto,textarea |
     And I change viewport size to "1366x10000"
 
   @javascript
-  Scenario: Edit booking instance settings
-    Given I change viewport size to "1366x11000"
-    And I am on the "My booking" Activity page logged in as teacher1
+  Scenario: Edit booking instance title
+    Given I am on the "My booking" Activity page logged in as teacher1
     Then I follow "Settings"
     And I set the following fields to these values:
       | Booking instance name         | BookingUpd          |
-      | pollurl                       | https://example.com |
-      | Max current bookings per user | 30 |
     And I press "Save and display"
-    And I wait until the page is ready
     And I should see "BookingUpd"
 
   @javascript
@@ -63,16 +55,13 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
   Scenario: Settings - show info on course page
     Given I am on the "My booking" Activity page logged in as teacher1
     And I follow "Settings"
-    And I wait until the page is ready
     And I set the field "Event type" to "Sport class"
     And I set the field "showlistoncoursepage" to "Hide extra information on course page"
     Then I should not see "Short info"
     And I press "Save and return to course"
-    And I wait until the page is ready
     And I should not see "My booking description"
     And I follow "My booking"
     And I follow "Settings"
-    And I wait until the page is ready
     And I set the field "showlistoncoursepage" to "Show course name, short info and a button redirecting to the available booking options"
     And I set the field "Short info" to "Click on View available options, choose a booking option and click Book now"
     And I press "Save and return to course"
@@ -83,17 +72,16 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
   @javascript
   Scenario: Booking settings - create semester
     Given I log in as "admin"
-    And I visit "/admin/category.php?category=modbookingfolder"
-    And I follow "Booking: Semesters"
+    And I visit "/mod/booking/semesters.php"
     And I set the following fields to these values:
       | semesteridentifier[0]   | nextjune           |
       | semestername[0]         | Next June          |
       | semesterstart[0][day]   | 1                  |
       | semesterstart[0][month] | June               |
-      | semesterstart[0][year]  | ## + 1 year ##%Y## |
+      | semesterstart[0][year]  | 2050               |
       | semesterend[0][day]     | 30                 |
       | semesterend[0][month]   | June               |
-      | semesterend[0][year]    | ## + 1 year ##%Y## |
+      | semesterend[0][year]    | 2050               |
     ## Need to overrider potential bug:
     And I set the field "semesterend[0][day]" to "30"
     And I press "Save changes"
@@ -103,10 +91,10 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
       | semestername[0]         | Next June          |
       | semesterstart[0][day]   | 1                  |
       | semesterstart[0][month] | June               |
-      | semesterstart[0][year]  | ## + 1 year ##%Y## |
+      | semesterstart[0][year]  | 2050               |
       | semesterend[0][day]     | 30                 |
       | semesterend[0][month]   | June               |
-      | semesterend[0][year]    | ## + 1 year ##%Y## |
+      | semesterend[0][year]    | 2050               |
     And I log out
 
   @javascript
@@ -142,7 +130,6 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
       | Always show teacher's email addresses to everyone |   |
     And I log out
     When I visit "/mod/booking/teachers.php"
-    And I wait until the page is ready
     Then I should see "1 Teacher" in the ".page-allteachers-card" "css_element"
     And I should not see "Mail" in the ".page-allteachers-card" "css_element"
     And I follow "Teacher"
@@ -151,10 +138,8 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     And I log in as "admin"
     And I set the following administration settings values:
       | Always show teacher's email addresses to everyone | 1 |
-    And I press "Save changes"
     And I log out
     And I visit "/mod/booking/teachers.php"
-    And I wait until the page is ready
     And I should see "1 Teacher" in the ".page-allteachers-card" "css_element"
     And I should see "Mail" in the ".page-allteachers-card" "css_element"
     And I follow "Teacher"
@@ -180,7 +165,6 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
       | uselegacymailtemplates | 1     | mod_booking |
     And I am on the "My booking" Activity page logged in as admin
     And I follow "Settings"
-    And I wait until the page is ready
     And I should see "E-mail settings" in the "#id_emailsettings" "css_element"
     And I should see "Deprecated" in the "#id_emailsettings" "css_element"
     And I expand all fieldsets
@@ -210,7 +194,6 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     And I log in as "admin"
     And I set the following administration settings values:
       | Show Link to Moodle course directly on booked button |  |
-    And I press "Save changes"
     And I log out
     And I am on the "My booking" Activity page logged in as student1
     And I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"

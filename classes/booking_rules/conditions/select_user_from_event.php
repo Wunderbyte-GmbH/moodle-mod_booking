@@ -43,7 +43,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class select_user_from_event implements booking_rule_condition {
-
     /** @var string $conditionname */
     public $conditionname = 'select_user_from_event';
 
@@ -141,8 +140,12 @@ class select_user_from_event implements booking_rule_condition {
             // More events yet to come...
         ];
 
-        $mform->addElement('static', 'condition_select_user_from_event', '',
-                get_string('conditionselectuserfromevent_desc', 'mod_booking'));
+        $mform->addElement(
+            'static',
+            'condition_select_user_from_event',
+            '',
+            get_string('conditionselectuserfromevent_desc', 'mod_booking')
+        );
 
         // We need to check if the event supports relateduserid (affected user of the event).
         $userfromeventoptions["0"] = get_string('choose...', 'mod_booking');
@@ -152,9 +155,12 @@ class select_user_from_event implements booking_rule_condition {
         // Userid (user who triggered) must be supported by every event. If not, the event was not created correctly.
         $userfromeventoptions["userid"] = get_string('userwhotriggeredevent', 'mod_booking');
 
-        $mform->addElement('select', 'condition_select_user_from_event_type',
-                get_string('conditionselectuserfromeventtype', 'mod_booking'), $userfromeventoptions);
-
+        $mform->addElement(
+            'select',
+            'condition_select_user_from_event_type',
+            get_string('conditionselectuserfromeventtype', 'mod_booking'),
+            $userfromeventoptions
+        );
     }
 
     /**
@@ -171,7 +177,7 @@ class select_user_from_event implements booking_rule_condition {
      * Saves the JSON for the condition into the $data object.
      * @param stdClass $data form data reference
      */
-    public function save_condition(stdClass &$data) {
+    public function save_condition(stdClass &$data): void {
 
         if (!isset($data->rulejson)) {
             $jsonobject = new stdClass();
@@ -204,9 +210,8 @@ class select_user_from_event implements booking_rule_condition {
      *
      * @param stdClass $sql
      * @param array $params
-     * @return void
      */
-    public function execute(stdClass &$sql, array &$params) {
+    public function execute(stdClass &$sql, array &$params): void {
 
         global $DB;
 
@@ -223,7 +228,13 @@ class select_user_from_event implements booking_rule_condition {
                 throw new moodle_exception('error: missing userid type for userfromevent condition');
         }
 
-        $concat = $DB->sql_concat("bo.id", "'-'", "u.id");
+        // If the select contains optiondate, we also need to include it in uniqueid.
+        if (strpos($sql->select, 'optiondate') !== false) {
+            $concat = $DB->sql_concat("bo.id", "'-'", "bod.id", "'-'", "u.id");
+        } else {
+            $concat = $DB->sql_concat("bo.id", "'-'", "u.id");
+        }
+
         // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
         $sql->select = " $concat uniqueid, " . $sql->select;
         $sql->select .= ", u.id userid";

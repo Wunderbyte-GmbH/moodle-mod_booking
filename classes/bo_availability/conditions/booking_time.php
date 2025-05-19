@@ -55,7 +55,7 @@ class booking_time implements bo_condition {
     public $overridable = true;
 
     /** @var bool $overwrittenbybillboard Indicates if the condition can be overwritten by the billboard. */
-    public $overwrittenbybillboard = true;
+    public $overwrittenbybillboard = false;
 
     /**
      * Get the condition id.

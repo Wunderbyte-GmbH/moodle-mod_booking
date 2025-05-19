@@ -16,10 +16,7 @@
 
 namespace mod_booking\booking_rules\conditions;
 
-use mod_booking\booking_rules\booking_rule;
 use mod_booking\booking_rules\booking_rule_condition;
-use mod_booking\singleton_service;
-use mod_booking\task\send_mail_by_rule_adhoc;
 use MoodleQuickForm;
 use stdClass;
 
@@ -36,7 +33,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class select_student_in_bo implements booking_rule_condition {
-
     /** @var string $rulename */
     public $conditionname = 'select_student_in_bo';
 
@@ -87,8 +83,12 @@ class select_student_in_bo implements booking_rule_condition {
      */
     public function add_condition_to_mform(MoodleQuickForm &$mform, ?array &$ajaxformdata = null) {
 
-        $mform->addElement('static', 'condition_select_student_in_bo', '',
-                get_string('conditionselectstudentinbo_desc', 'mod_booking'));
+        $mform->addElement(
+            'static',
+            'condition_select_student_in_bo',
+            '',
+            get_string('conditionselectstudentinbo_desc', 'mod_booking')
+        );
 
         $courseroles = [
             -1 => get_string('choose...', 'mod_booking'),
@@ -99,9 +99,12 @@ class select_student_in_bo implements booking_rule_condition {
             "smallerthan" . MOD_BOOKING_STATUSPARAM_WAITINGLIST => get_string('studentbookedandwaitinglist', 'mod_booking'),
         ];
 
-        $mform->addElement('select', 'condition_select_student_in_bo_borole',
-                get_string('conditionselectstudentinboroles', 'mod_booking'), $courseroles);
-
+        $mform->addElement(
+            'select',
+            'condition_select_student_in_bo_borole',
+            get_string('conditionselectstudentinboroles', 'mod_booking'),
+            $courseroles
+        );
     }
 
     /**
@@ -118,7 +121,7 @@ class select_student_in_bo implements booking_rule_condition {
      * Save the JSON for all sendmail_daysbefore rules defined in form.
      * @param stdClass $data form data reference
      */
-    public function save_condition(stdClass &$data) {
+    public function save_condition(stdClass &$data): void {
         global $DB;
 
         if (!isset($data->rulejson)) {
@@ -147,7 +150,6 @@ class select_student_in_bo implements booking_rule_condition {
         $conditiondata = $jsonobject->conditiondata;
 
         $data->condition_select_student_in_bo_borole = $conditiondata->borole;
-
     }
 
     /**
@@ -157,7 +159,7 @@ class select_student_in_bo implements booking_rule_condition {
      * @param array $params
      *
      */
-    public function execute(stdClass &$sql, array &$params) {
+    public function execute(stdClass &$sql, array &$params): void {
 
         global $DB;
 
@@ -170,8 +172,15 @@ class select_student_in_bo implements booking_rule_condition {
             $anduserid = "AND ba.userid = :userid2";
         }
 
-        $sql->select = " ba.id as baid, " . $sql->select;
-        $sql->select .= ", ba.userid userid ";
+        // If the select contains optiondate, we also need to include it in uniqueid.
+        // We need the hack with uniqueid so we do not lose entries.
+        if (strpos($sql->select, 'optiondate') !== false) {
+            $concat = $DB->sql_concat("ba.id", "'-'", "bod.id");
+        } else {
+            $concat = "ba.id";
+        }
+        // Also select userid.
+        $sql->select = "$concat AS uniqueid, ba.id AS baid, ba.userid, " . $sql->select;
 
         $sql->from .= " JOIN {booking_answers} ba ON bo.id = ba.optionid ";
 

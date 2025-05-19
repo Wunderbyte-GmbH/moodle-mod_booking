@@ -28,7 +28,7 @@ Feature: In a booking instance create booking options
     And I change viewport size to "1366x10000"
 
   @javascript
-  Scenario: Create booking option as a teacher, see it on activity page and book it as a student
+  Scenario: Create booking option as a teacher with multiple sessions, see it on activity page and book it as a student
     Given I am on the "My booking" Activity page logged in as teacher1
     And I follow "New booking option"
     And I set the following fields to these values:
@@ -36,25 +36,61 @@ Feature: In a booking instance create booking options
     And I press "Add date"
     And I wait "1" seconds
     And I set the following fields to these values:
-      | coursestarttime_1[day]    | ## tomorrow ## %d ## |
-      | coursestarttime_1[month]  | ## tomorrow ## %B ## |
-      | coursestarttime_1[year]   | ## tomorrow ## %Y ## |
-      | coursestarttime_1[hour]   | 00                   |
-      | coursestarttime_1[minute] | 00                   |
+    ##| coursestarttime_1 | 2536185600 |
+    ##| courseendtime_1   | 2536272000 |
+    ## It is faster to use date fields directly!
+      | coursestarttime_1[day]    | 15                 |
+      | coursestarttime_1[month]  | March              |
+      | coursestarttime_1[year]   | 2050 |
+      | coursestarttime_1[hour]   | 13                 |
+      | coursestarttime_1[minute] | 00                 |
+      | courseendtime_1[day]      | 15                 |
+      | courseendtime_1[month]    | March              |
+      | courseendtime_1[year]     | 2050 |
+      | courseendtime_1[hour]     | 16                 |
+      | courseendtime_1[minute]   | 00                 |
+    And I press "applydate_1"
+    ## Add 2nd date
+    And I follow "Dates"
+    And I press "Add date"
+    And I wait "1" seconds
     And I set the following fields to these values:
-      | courseendtime_1[day]    | ## + 1 year ## %d ## |
-      | courseendtime_1[month]  | ## + 1 year ## %B ## |
-      | courseendtime_1[year]   | ## + 1 year ## %Y ## |
-      | courseendtime_1[hour]   | 00                   |
-      | courseendtime_1[minute] | 00                   |
+      | coursestarttime_2[day]    | 20                 |
+      | coursestarttime_2[month]  | June               |
+      | coursestarttime_2[year]   | 2050               |
+      | coursestarttime_2[hour]   | 14                 |
+      | coursestarttime_2[minute] | 00                 |
+      | courseendtime_2[day]      | 20                 |
+      | courseendtime_2[month]    | June               |
+      | courseendtime_2[year]     | 2050               |
+      | courseendtime_2[hour]     | 17                 |
+      | courseendtime_2[minute]   | 00                 |
+    And I press "applydate_2"
+    ## Verify on booking oprion form page
+    And I wait "1" seconds
+    And I should see "15 March 2050" in the "#booking_optiondate_1" "css_element"
+    And I should see "1:00 PM - 4:00 PM" in the "#booking_optiondate_1" "css_element"
+    And I should see "20 June 2050" in the "#booking_optiondate_2" "css_element"
+    And I should see "2:00 PM - 5:00 PM" in the "#booking_optiondate_2" "css_element"
     And I press "Save"
+    ## Verify on booking oprions list page
+    And I wait until the page is ready
+    And I should see "15 March 2050" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "1:00 PM - 4:00 PM" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "20 June 2050" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "2:00 PM - 5:00 PM" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
+    And I log out
+    ## Book as student and verify dates
     When I am on the "My booking" Activity page logged in as student1
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
     Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "15 March 2050" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "20 June 2050" in the ".allbookingoptionstable_r1" "css_element"
     And I should not see "Book now" in the ".allbookingoptionstable_r1" "css_element"
+    And I log out
 
   @javascript
   Scenario: Create booking option via DB than edit it and review changes as a teacher
@@ -68,8 +104,8 @@ Feature: In a booking instance create booking options
     And I set the following fields to these values:
       | Booking option name         | Option-updated |
       | Description                 | Deskr-updated  |
-      | Max. number of participants | 5 |
-      | Assign teachers             | teacher2 |
+      | Max. number of participants | 5              |
+      | Assign teachers             | teacher2       |
     And I click on "15 May 2044" "text" in the "#booking_optiondate_1" "css_element"
     And I set the following fields to these values:
       | coursestarttime_1[day]    | 20   |
@@ -77,12 +113,11 @@ Feature: In a booking instance create booking options
       | coursestarttime_1[year]   | 2050 |
       | coursestarttime_1[hour]   | 00   |
       | coursestarttime_1[minute] | 00   |
-    And I set the following fields to these values:
-      | courseendtime_1[day]    | 25   |
-      | courseendtime_1[month]  | July |
-      | courseendtime_1[year]   | 2050 |
-      | courseendtime_1[hour]   | 00   |
-      | courseendtime_1[minute] | 00   |
+      | courseendtime_1[day]      | 25   |
+      | courseendtime_1[month]    | July |
+      | courseendtime_1[year]     | 2050 |
+      | courseendtime_1[hour]     | 00   |
+      | courseendtime_1[minute]   | 00   |
     And I set the field "After saving..." to "Stay here"
     And I press "Save"
     And I wait "1" seconds
@@ -101,3 +136,4 @@ Feature: In a booking instance create booking options
     And I should see "Teachers:" in the "#showEventList" "css_element"
     And I should see "Teacher 1" in the "#showEventList" "css_element"
     And I should see "Teacher 2" in the "#showEventList" "css_element"
+    And I log out

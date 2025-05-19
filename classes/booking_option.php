@@ -28,6 +28,7 @@ namespace mod_booking;
 use cache_helper;
 use coding_exception;
 use completion_info;
+use context_course;
 use context_module;
 use context_system;
 use context;
@@ -40,6 +41,7 @@ use mod_booking\bo_availability\conditions\customform;
 use mod_booking\bo_availability\conditions\optionhasstarted;
 use mod_booking\event\booking_rulesexecutionfailed;
 use mod_booking\event\bookinganswer_presencechanged;
+use mod_booking\event\bookinganswer_notesedited;
 use mod_booking\event\bookinganswer_waitingforconfirmation;
 use mod_booking\event\bookingoption_bookedviaautoenrol;
 use mod_booking\option\dates_handler;
@@ -196,11 +198,11 @@ class booking_option {
      * @param int $optionid
      * @param ?int $bookingid booking id
      *
-     * @return booking_option
+     * @return ?booking_option
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function create_option_from_optionid(int $optionid, ?int $bookingid = null) {
+    public static function create_option_from_optionid(int $optionid, ?int $bookingid = null): ?booking_option {
         global $DB;
 
         if (empty($bookingid)) {
@@ -867,14 +869,9 @@ class booking_option {
             $transferred->success = true;
             [$insql, $inparams] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, "limit_");
 
-            if ($CFG->version >= 2021051700) {
-                // This only works in Moodle 3.11 and later.
-                $mainuserfields = \core_user\fields::for_name()->get_sql('u')->selects;
-                $mainuserfields = trim($mainuserfields, ', ');
-            } else {
-                // This is only here to support Moodle versions earlier than 3.11.
-                $mainuserfields = get_all_user_name_fields(true, 'u');
-            }
+            // This only works in Moodle 3.11 and later.
+            $mainuserfields = \core_user\fields::for_name()->get_sql('u')->selects;
+            $mainuserfields = trim($mainuserfields, ', ');
 
             $sql = 'SELECT ba.userid AS id,
                 ba.timecreated,
@@ -897,7 +894,13 @@ class booking_option {
         }
         if (!empty($transferred->yes)) {
             foreach ($transferred->yes as $user) {
-                $this->user_delete_response($user->id);
+                if (is_object($user) && isset($user->id)) {
+                    $userid = (int)$user->id;
+                    $this->user_delete_response($userid);
+                } else {
+                    // Should never happen.
+                    throw new moodle_exception('Unexpected data structure in transferred users.');
+                }
             }
         }
 
@@ -1121,11 +1124,28 @@ class booking_option {
             return false;
         }
 
-        // We check if we can still book the user.
-        // False means, that it can't be booked.
-        // 0 means, that we can book right away
-        // 1 means, that there is only a place on the waiting list.
-        $waitinglist = $this->check_if_limit($user->id, self::option_allows_overbooking_for_user($this->optionid, $user->id));
+        $isavailable = self::option_allows_booking_for_user($this->optionid, $user->id);
+        switch ($status) {
+            case MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE:
+                $waitinglist = MOD_BOOKING_STATUSPARAM_BOOKED;
+                break;
+            case MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_CONDITIONS_BLOCKING:
+                // Return if any condition is blocking.
+                if (!$isavailable) {
+                    return false;
+                };
+                $waitinglist = MOD_BOOKING_STATUSPARAM_BOOKED;
+                break;
+            default:
+                // We check if we can still book the user.
+                // False means, that it can't be booked.
+                // 0 means, that we can book right away
+                // 1 means, that there is only a place on the waiting list.
+                $waitinglist = $this->check_if_limit(
+                    $user->id,
+                    $isavailable
+                );
+        }
         // With the second param, we check if overbooking is allowed.
 
         // The $status == 2 means confirm. Under some circumstances, waitinglist can be false here.
@@ -1148,8 +1168,12 @@ class booking_option {
             case MOD_BOOKING_BO_SUBMIT_STATUS_UN_CONFIRM: // Means unconfirm on waitinglist.
                 $waitinglist = MOD_BOOKING_STATUSPARAM_WAITINGLIST;
                 break;
-            case MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL: // Means autoenrol.
+            case MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL:
+            case MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_CONDITIONS_BLOCKING:
+            case MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_NOOVERBOOKING:
+            case MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE:
                 $waitinglist = MOD_BOOKING_STATUSPARAM_BOOKED;
+                break;
         }
 
         // Only if maxperuser is set, the part after the OR is executed.
@@ -1217,6 +1241,14 @@ class booking_option {
             }
         }
 
+        // Use the waitinglist as status for booking history.
+        if (
+            $status === MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_CONDITIONS_BLOCKING
+            || $status === MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE
+            || $status === MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_NOOVERBOOKING
+        ) {
+            $historystatus = MOD_BOOKING_STATUSPARAM_BOOKOTHEROPTIONS;
+        }
         $baid = self::write_user_answer_to_db(
             $this->booking->id,
             $frombookingid,
@@ -1226,7 +1258,8 @@ class booking_option {
             $currentanswerid,
             $timecreated,
             $status,
-            $erlid
+            $erlid,
+            $historystatus ?? 0
         );
 
         if (
@@ -1295,10 +1328,11 @@ class booking_option {
      * @param int $userid
      * @param int $optionid
      * @param int $waitinglist
-     * @param [type] $currentanswerid
-     * @param [type] $timecreated
+     * @param ?int $currentanswerid
+     * @param ?int $timecreated
      * @param int $confirmwaitinglist
      * @param string $erlid
+     * @param int $historystatus
      * @return int
      */
     public static function write_user_answer_to_db(
@@ -1307,10 +1341,11 @@ class booking_option {
         int $userid,
         int $optionid,
         int $waitinglist,
-        $currentanswerid = null,
-        $timecreated = null,
-        $confirmwaitinglist = 0,
-        $erlid = ""
+        ?int $currentanswerid = null,
+        ?int $timecreated = null,
+        int $confirmwaitinglist = 0,
+        string $erlid = "",
+        int $historystatus = 0
     ) {
 
         global $DB, $USER;
@@ -1367,9 +1402,9 @@ class booking_option {
                 new \moodle_exception("dmlwriteexception");
             }
         }
-        $ba = singleton_service::get_instance_of_booking_answers($settings);
 
-        self::booking_history_insert($newanswer->waitinglist, $newanswer->id, $newanswer->optionid, $newanswer->bookingid, $userid);
+        $status = empty($historystatus) ? $newanswer->waitinglist : $historystatus;
+        self::booking_history_insert($status, $newanswer->id, $newanswer->optionid, $newanswer->bookingid, $userid);
 
         // After writing an answer, cache has to be invalidated.
         self::purge_cache_for_answers($optionid);
@@ -1482,7 +1517,7 @@ class booking_option {
 
         // At this point, we trigger the after booking actions.
         // Depending on the status, we have different ways of continueing.
-        if (actions_info::apply_actions($this->settings) == 1) {
+        if (actions_info::apply_actions($this->settings, $user->id) == 1) {
             return true;
         }
 
@@ -1896,7 +1931,7 @@ class booking_option {
      */
     private function sourcecoursegroup_unenrol_actions(int $userid) {
         $bsettings = json_decode($this->booking->settings->json);
-        if (false && empty($bsettings->unenrolfromgroupofcurrentcourse)) {
+        if (empty($bsettings->unenrolfromgroupofcurrentcourse)) {
             return;
         }
         $bsettings = json_decode($this->booking->settings->json);
@@ -2158,15 +2193,16 @@ class booking_option {
             $presenceold = $userdata->status;
             $presencechange = [
                 'presence' => [
-                'presenceold' => $presenceold,
-                'presencenew' => $presencestatus,
+                    'presenceold' => $presenceold,
+                    'presencenew' => $presencestatus,
                 ],
             ];
 
             self::booking_history_insert($status, $answerid, $optionid, $bookingid, $userid, $presencechange);
             $userdata->status = $presencestatus;
 
-            $coursecontext = \context_course::instance($COURSE->id);
+            // Trigger the presence changed event, so we can react via rules for example.
+            $coursecontext = context_course::instance($COURSE->id);
             $event = bookinganswer_presencechanged::create([
                 'objectid' => $this->optionid,
                 'contextid' => $coursecontext->id,
@@ -2177,6 +2213,63 @@ class booking_option {
                 ],
             ]);
             $event->trigger();
+
+            // At last, we write to DB.
+            $DB->update_record('booking_answers', $userdata);
+        }
+
+        // After updating, cache has to be invalidated.
+        self::purge_cache_for_answers($this->optionid);
+    }
+
+    /**
+     * Change notes for selected users.
+     *
+     * @param array $allselectedusers
+     * @param string $notes
+     */
+    public function edit_notes(array $allselectedusers, string $notes): void {
+        global $DB, $COURSE;
+
+        foreach ($allselectedusers as $ui) {
+            $userdata = $DB->get_record_sql(
+                "SELECT *
+                FROM {booking_answers}
+                WHERE optionid = :optionid AND userid = :userid AND waitinglist < 2",
+                ['optionid' => $this->optionid, 'userid' => $ui]
+            );
+
+            $historystatus = MOD_BOOKING_STATUSPARAM_NOTES_EDITED;
+            $answerid = $userdata->id;
+            $optionid = $userdata->optionid;
+            $bookingid = $userdata->bookingid;
+            $userid = $userdata->userid;
+            $notesold = $userdata->notes;
+            $noteschange = [
+                'notes' => [
+                    'notesold' => $notesold,
+                    'notesnew' => $notes,
+                ],
+            ];
+
+            self::booking_history_insert($historystatus, $answerid, $optionid, $bookingid, $userid, $noteschange);
+            $userdata->notes = $notes;
+
+            // Trigger the notes edited event, so we can react via rules for example.
+            $coursecontext = context_course::instance($COURSE->id);
+            $event = bookinganswer_notesedited::create([
+                'objectid' => $this->optionid,
+                'contextid' => $coursecontext->id,
+                'relateduserid' => $ui,
+                'other' => [
+                    'notesold' => $notesold,
+                    'notesnew' => $notes,
+                ],
+            ]);
+            $event->trigger();
+
+            /* In the future, we might need a notes changed event here
+            (like the presence changed event in function changepresencestatus). */
             $DB->update_record('booking_answers', $userdata);
         }
 
@@ -2211,7 +2304,7 @@ class booking_option {
      * @param bool $allowoverbooking
      * @return mixed false if enrolement is not possible, 0 for can book, 1 for waitinglist and 2 for notification list.
      */
-    private function check_if_limit(int $userid, bool $allowoverbooking = false) {
+    public function check_if_limit(int $userid, bool $allowoverbooking = false) {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
         $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
@@ -3028,23 +3121,21 @@ class booking_option {
                         'name' => null,
                         'value' => get_string('onlineoptiondate', 'mod_booking'),
                     ];
-                } else {
-                    // We are booked on the web site, we check if we show the real link.
-                    if (!$this->show_conference_link($sessionid)) {
-                        // User is booked, if the user is booked, but event not yet open, we show placeholder with time to start.
-                        return [
-                            'name' => null,
-                            'value' => get_string('linknotavailableyet', 'mod_booking'),
-                        ];
-                    }
-                    // User is booked and event open, we return the button with the link to access, this is for the website.
+                }
+                // We are booked on the web site, we check if we show the real link.
+                if (!$this->show_conference_link($sessionid)) {
+                    // User is booked, if the user is booked, but event not yet open, we show placeholder with time to start.
                     return [
                         'name' => null,
-                        'value' => "<a href=$field->value class='btn btn-secondary booking-meetinglink-btn'>"
-                            . $field->cfgname . "</a>",
+                        'value' => get_string('linknotavailableyet', 'mod_booking'),
                     ];
-                };
-                break;
+                }
+                // User is booked and event open, we return the button with the link to access, this is for the website.
+                return [
+                    'name' => null,
+                    'value' => "<a href=$field->value class='btn btn-secondary booking-meetinglink-btn'>"
+                        . $field->cfgname . "</a>",
+                ];
             case MOD_BOOKING_DESCRIPTION_CALENDAR:
                 // Calendar is static, so we don't have to check for booked or not.
                 // In all cases, we return the Teams-Button, going by the link.php.
@@ -3546,7 +3637,7 @@ class booking_option {
      * @param int $userid if not provided, use logged-in $USER->id
      * @return bool true if overbooking is allowed
      */
-    public static function option_allows_overbooking_for_user(int $optionid, int $userid = 0): bool {
+    public static function option_allows_booking_for_user(int $optionid, int $userid = 0): bool {
 
         if (empty($userid)) {
             global $USER;
@@ -3988,7 +4079,6 @@ class booking_option {
         // Only react on changes if update is triggered via formsave (see comment at beginning of function - cases A) & B))...
         // ... since otherwise previous data is unreliable.
         if (!empty($changes) && $updateparam == MOD_BOOKING_UPDATE_OPTIONS_PARAM_DEFAULT) {
-
             fields_info::all_changes_collected_actions(
                 $changes,
                 $data,

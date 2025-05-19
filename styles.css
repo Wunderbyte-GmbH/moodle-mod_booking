@@ -532,16 +532,6 @@ We need this for teachers for example. */
     border-bottom: 0;
 }
 
-#page-mod-booking-report2 div[class^='wunderbyte_table_container_'] {
-    /* stylelint-disable-next-line declaration-no-important */
-    margin: 0 !important;
-}
-
-#page-mod-booking-report2 .pagination {
-    font-size: calc(0.9rem + 0.045vw);
-    margin-left: 20px;
-}
-
 .disabled-profeature {
     color: grey;
     pointer-events: none; /* Disables clicks */
@@ -563,4 +553,37 @@ We need this for teachers for example. */
 /* GH-936 Better distinction between availabilities. */
 div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotneeded"]) {
     left: 20px;
+}
+
+/* Bookings Tracker (report2) */
+.bookingstracker-header {
+    font-weight: bold;
+    font-size: large;
+    margin: 10px 0;
+    color: #0f6cbf;
+}
+
+#page-mod-booking-report2 div[class^='wunderbyte_table_container_'] {
+    /* stylelint-disable-next-line declaration-no-important */
+    margin: 0 !important;
+}
+
+#page-mod-booking-report2 .pagination {
+    font-size: calc(0.9rem + 0.045vw);
+    margin-left: 20px;
+}
+
+#page-mod-booking-report2 .pagination {
+    font-size: calc(0.9rem + 0.045vw);
+    margin-left: 20px;
+}
+
+.report2-nav-divider {
+    margin-left: 3px;
+    margin-right: 3px;
+    font-size: x-large;
+}
+
+#page-mod-booking-report2 #accordion-usertables .sortcolumn {
+    background-color: transparent;
 }

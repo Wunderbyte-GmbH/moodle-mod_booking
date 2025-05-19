@@ -295,6 +295,9 @@ class booking_option_settings {
     /** @var array $attachedfiles The links on the attached files */
     public $attachedfiles = [];
 
+    /** @var string $competencies The links on the attached files */
+    public $competencies = '';
+
     /**
      * Constructor for the booking option settings class.
      * The constructor can take the dbrecord stdclass which is the initial DB request for this option.
@@ -440,6 +443,7 @@ class booking_option_settings {
             $this->status = $dbrecord->status;
             $this->responsiblecontact = $dbrecord->responsiblecontact;
             $this->sqlfilter = $dbrecord->sqlfilter;
+            $this->competencies = $dbrecord->competencies;
 
             // If we have a responsible contact id, we load the corresponding user object.
             if (!isset($dbrecord->responsiblecontactuser)) {
@@ -670,18 +674,17 @@ class booking_option_settings {
         // Multi-sessions.
         if (
             !$this->sessions = $DB->get_records_sql(
-                "SELECT id, id optiondateid, coursestarttime, courseendtime, daystonotify
-            FROM {booking_optiondates}
-            WHERE optionid = ?
-            ORDER BY coursestarttime ASC",
+                "SELECT bod.*, bod.id AS optiondateid
+                FROM {booking_optiondates} bod
+                WHERE bod.optionid = ?
+                ORDER BY bod.coursestarttime ASC",
                 [$optionid]
             )
         ) {
             // If there are no multisessions, but we still have the option's ...
             // ... coursestarttime and courseendtime, then store them as if they were a session.
             if (!empty($this->coursestarttime) && !empty($this->courseendtime)) {
-                $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($this->bookingid);
-
+                // NOTE: This part is legacy code. We need to check if we can safely remove it.
                 $singlesession = new stdClass();
                 $singlesession->id = 0;
                 $singlesession->coursestarttime = $this->coursestarttime;
@@ -1399,12 +1402,18 @@ class booking_option_settings {
         $select = ' f.filename ';
 
         $where = '';
-        $params = ['componentname3' => 'mod_booking', 'bookingoptionimage' => 'bookingoptionimage'];
+        $params = [];
 
-        $from = " LEFT JOIN {files} f
-            ON f.itemid=bo.id and f.component=:componentname3
-            AND f.filearea=:bookingoptionimage
-            AND f.mimetype LIKE 'image%'";
+        // We have to join images with itemid and contextid to be sure to have the right image.
+        // We use contextlevel 70 as it is the contextlevel for course modules.
+        $from = " LEFT JOIN {course_modules} cm ON bo.bookingid = cm.instance AND bo.bookingid <> 0 AND bo.bookingid IS NOT NULL
+            LEFT JOIN {modules} m ON m.id = cm.module AND m.name = 'booking'
+            LEFT JOIN {context} ctx ON ctx.contextlevel = 70 AND ctx.instanceid = cm.id
+            LEFT JOIN {files} f ON f.itemid = bo.id
+                AND f.contextid = ctx.id
+                AND f.component = 'mod_booking'
+                AND f.filearea = 'bookingoptionimage'
+                AND f.mimetype LIKE 'image%'";
 
         // As this is a complete subrequest, we have to add the "where" to the outer table, where it is already rendered.
         $counter = 0;

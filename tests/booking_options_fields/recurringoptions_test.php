@@ -82,7 +82,7 @@ final class recurringoptions_test extends advanced_testcase {
      *
      * @dataProvider booking_common_settings_provider
      */
-    public function test_create_recurrignoptions(array $data, array $expected): void {
+    public function test_create_recurringoptions(array $data, array $expected): void {
         global $DB, $CFG;
         $bdata = self::provide_bdata();
 
@@ -124,8 +124,8 @@ final class recurringoptions_test extends advanced_testcase {
         $record->text = 'Test option1';
         $record->courseid = $course->id;
         $record->importing = 1;
-        $record->coursestarttime = '2025-01-01 10:00:00';
-        $record->courseendtime = '2025-01-01 12:00:00';
+        $record->coursestarttime = strtotime('2025-01-01 10:00:00');
+        $record->courseendtime = strtotime('2025-01-01 12:00:00');
         $record->useprice = 1;
         $record->default = 50;
 
@@ -274,7 +274,7 @@ final class recurringoptions_test extends advanced_testcase {
                 'cmid' => $record->cmid,
             ];
             fields_info::set_data($childdata);
-            [$childdates, $highesindexchild] = dates::get_list_of_submitted_dates((array)$childdata);
+            [$childdates, $highestindexchild] = dates::get_list_of_submitted_dates((array)$childdata);
             $this->assertCount(2, $childdates);
             foreach ($childdates as $optiondate) {
                 // This is each session in the child.
@@ -509,7 +509,7 @@ final class recurringoptions_test extends advanced_testcase {
     }
 
     /**
-     * Data provider for test_create_recurrignoptions
+     * Data provider for test_create_recurringoptions
      *
      * @return array
      * @throws \UnexpectedValueException
@@ -561,7 +561,7 @@ final class recurringoptions_test extends advanced_testcase {
     }
 
     /**
-     * Data provider for test_create_recurrignoptions
+     * Data provider for test_create_recurringoptions
      *
      * @return array
      * @throws \UnexpectedValueException

@@ -25,6 +25,7 @@
 namespace mod_booking\option\fields;
 
 use mod_booking\booking_option_settings;
+use mod_booking\calendar;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use mod_booking\teachers_handler;
@@ -177,5 +178,62 @@ class teachers extends field_base {
         $teacherhandler->save_from_form($data);
 
         return $changes;
+    }
+
+    /**
+     * Once all changes are collected, also those triggered in save data, this is a possible hook for the fields.
+     *
+     * @param array $changes
+     * @param object $data
+     * @param object $newoption
+     * @param object $originaloption
+     *
+     * @return void
+     */
+    public static function changes_collected_action(
+        array $changes,
+        object $data,
+        object $newoption,
+        object $originaloption
+    ) {
+        $oldteacherids = $changes["mod_booking\\option\\fields\\teachers"]["changes"]["oldvalue"] ?? [];
+        $newteacherids = $changes["mod_booking\\option\\fields\\teachers"]["changes"]["newvalue"] ?? [];
+
+        $optionid = $data->optionid ?? $data->id;
+        if (empty($optionid)) {
+            return;
+        }
+
+        // First, get all optiondateids.
+        $optiondateids = [];
+        foreach ($data as $key => $value) {
+            if (preg_match('/^optiondateid_\d+$/', $key)) {
+                $optiondateids[] = (int)$value;
+            }
+        }
+
+        // The teacher was removed. So delete all calendar entries.
+        foreach ($oldteacherids as $oldteacherid) {
+            if (!in_array($oldteacherid, $newteacherids)) {
+                new calendar((int)$data->cmid, (int)$optionid, (int)$oldteacherid, calendar::MOD_BOOKING_TYPETEACHERREMOVE);
+            }
+        }
+
+        // The teacher was added. So create calendar entries.
+        foreach ($newteacherids as $newteacherid) {
+            if (!in_array($newteacherid, $oldteacherids)) {
+                foreach ($optiondateids as $optiondateid) {
+                    new calendar(
+                        (int)$data->cmid,
+                        (int)$optionid,
+                        (int)$newteacherid,
+                        calendar::MOD_BOOKING_TYPEOPTIONDATE,
+                        $optiondateid,
+                        1
+                    );
+                }
+            }
+        }
+        return;
     }
 }

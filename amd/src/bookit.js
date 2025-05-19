@@ -113,8 +113,9 @@ export const initbookitbutton = (itemid, area) => {
                     });
 
 
-                } else if (e.target.classList.contains('btn')) {
-
+                } else if (
+                    e.target.classList.contains('btn')
+                ) {
                     if (!e.target.href || e.target.href.length < 2) {
                         bookit(itemid, area, userid, data);
                     }

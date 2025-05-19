@@ -38,18 +38,14 @@ Feature: Enabling installments as admin configuring installments as a teacher an
       | activity | course | name        | intro                | bookingmanager | eventtype | Default view for booking options | Send confirmation e-mail |
       | booking  | C1     | BookingInst | Booking Installments | teacher1       | Webinar   | All bookings                     | Yes                      |
     ## Default - enable installments by admin.
-    And I log in as "admin"
+    ##And I log in as "admin"
     And the following config values are set as admin:
       | config              | value | plugin              |
       | enableinstallments  | 1     | local_shopping_cart |
       | timebetweenpayments | 2     | local_shopping_cart |
       | reminderdaysbefore  | 1     | local_shopping_cart |
-    ## TinyMCE has misbehavior in Moodle 4.3 as well as performance problems. So - we disable it.
-    And the following config values are set as admin:
-      | config      | value         |
-      | texteditors | atto,textarea |
     And I change viewport size to "1366x10000"
-    And I log out
+    ##And I log out
 
   @javascript
   Scenario: Add an installmetn for a booking option as a teacher and verify it
@@ -57,9 +53,7 @@ Feature: Enabling installments as admin configuring installments as a teacher an
       | booking     | text               | course | description | importing | useprice | limitanswers | maxanswers | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | BookingInst | Option-installment | C1     | Deskr2      | 1         | 1        | 1            | 4          | 0              | 0              | ## +5 days ##     | ## +8 days ##   |
     And I am on the "BookingInst" Activity page logged in as teacher1
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until the page is ready
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Shopping Cart"
     And I set the field "Allow installments" to "1"
     And I wait "1" seconds
@@ -75,14 +69,17 @@ Feature: Enabling installments as admin configuring installments as a teacher an
       | Due nr. of days after initial purchase | 0 |
     And I press "Save"
     And I wait "1" seconds
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until the page is ready
-    And the following fields match these values:
-      | Down payment                           | 44 |
-      | Number of Payments                     | 2  |
-      | Due nr. of days after initial purchase | 0  |
-      | Due nr. of days before coursestart     | 1  |
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And the field "Down payment" matches value "44"
+    And the field "Number of Payments" matches value "2"
+    And the field "Due nr. of days after initial purchase" matches value "0"
+    And the field "Due nr. of days before coursestart" matches value "1"
+    ## Above is little bit faster than the following
+    ##And the following fields match these values:
+    ##  | Down payment                           | 44 |
+    ##  | Number of Payments                     | 2  |
+    ##  | Due nr. of days after initial purchase | 0  |
+    ##  | Due nr. of days before coursestart     | 1  |
     And I log out
 
   @javascript
@@ -93,18 +90,16 @@ Feature: Enabling installments as admin configuring installments as a teacher an
     And I am on the "BookingInst" Activity page logged in as student1
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I visit "/local/shopping_cart/checkout.php"
-    And I wait until the page is ready
+    And I wait "1" seconds
     And I set the field "Use installment payments" to "checked"
-    ## Disabled because of constant failures at GitHub. Working locally. See https://github.com/Wunderbyte-GmbH/moodle-mod_booking/issues/633 for detail
-    ## And I wait "1" seconds
-    ## And I should see "Down payment for Option-installment"
-    ## And I should see "44 EUR instead of 88 EUR"
-    ## And I should see "Further payments"
-    ## And I should see "2" occurrences of "22 EUR on" in the ".sc_installments .furtherpayments" "css_element"
-    ## When I press "Checkout"
-    ## And I wait "1" seconds
-    ## And I press "Confirm"
-    ## And I wait until the page is ready
-    ## Then I should see "Payment successful!"
-    ## And I should see "Option-installment" in the ".payment-success ul.list-group" "css_element"
-    ## And I should see "44.00 EUR" in the ".payment-success ul.list-group" "css_element"
+    And I wait "1" seconds
+    And I should see "Down payment for Option-installment"
+    And I should see "44 EUR instead of 88 EUR"
+    And I should see "Further payments"
+    And I should see "2" occurrences of "22 EUR on" in the ".sc_installments .furtherpayments" "css_element"
+    When I press "Checkout"
+    And I wait "1" seconds
+    And I press "Confirm"
+    Then I should see "Payment successful!"
+    And I should see "Option-installment" in the ".payment-success ul.list-group" "css_element"
+    And I should see "44.00 EUR" in the ".payment-success ul.list-group" "css_element"

@@ -149,7 +149,7 @@ class modal_editteacherdescription extends dynamic_form {
 
         $mform->addElement('hidden', 'teacherid');
 
-        $mform->addElement('editor', 'description_editor', get_string('description', 'mod_booking'), ['rows' => 10]);
+        $mform->addElement('editor', 'description_editor', get_string('teacherdescription', 'mod_booking'), ['rows' => 10]);
         $mform->setType('description', PARAM_CLEANHTML);
     }
 

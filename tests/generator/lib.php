@@ -36,6 +36,7 @@ use mod_booking\bo_availability\bo_info;
 use mod_booking\price as Mod_bookingPrice;
 use local_shopping_cart\shopping_cart;
 use local_shopping_cart\local\cartstore;
+use mod_booking\bo_actions\actions_info;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -426,6 +427,48 @@ class mod_booking_generator extends testing_module_generator {
             return $res;
         } else {
             throw new Exception('The shopping_cart plugin has not installed!');
+        }
+    }
+
+    /**
+     * Function to create a dummy student's answer on option.
+     *
+     * @param ?array|stdClass $record
+     * @return void
+     */
+    public function create_action($record = null) {
+        global $DB;
+
+        $record = (object) $record;
+        $settings = singleton_service::get_instance_of_booking_option_settings($record->optionid);
+
+        $record->id = 0;
+        $record->cmid = $settings->cmid;
+
+        $boactiondata = json_decode($record->boactionjson);
+        unset($record->boactionjson);
+
+        if (!empty($boactiondata)) {
+            switch ($record->action_type) {
+                case 'bookotheroptions':
+                    $record->bookotheroptionsforce = $boactiondata->bookotheroptionsforce ?? 7;
+                    foreach ($boactiondata->otheroptions as $optionname) {
+                        if (!$id = $DB->get_field('booking_options', 'id', ['text' => $optionname])) {
+                            throw new Exception('The specified booking option with name text "' . $optionname . '" does not exist');
+                        }
+                        $record->bookotheroptionsselect[] = $id;
+                    }
+                    break;
+                case 'userprofilefield':
+                    $record->boactionselectuserprofilefield = $boactiondata->boactionselectuserprofilefield ?? "";
+                    $record->boactionuserprofileoperator = $boactiondata->boactionuserprofileoperator ?? "";
+                    $record->boactionuserprofilefieldvalue = $boactiondata->boactionuserprofilefieldvalue ?? "";
+                    break;
+                case 'cancelbooking':
+                    $record->boactioncancelbooking = $boactiondata->boactioncancelbooking ?? 0;
+                    break;
+            }
+            actions_info::save_action($record);
         }
     }
 

@@ -28,14 +28,9 @@ namespace mod_booking;
 use advanced_testcase;
 use coding_exception;
 use context_module;
-use mod_booking\price;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
-use local_shopping_cart\shopping_cart;
-use local_shopping_cart\shopping_cart_history;
-use local_shopping_cart\local\cartstore;
-use local_shopping_cart\output\shoppingcart_history_list;
-use moodle_page;
+
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
