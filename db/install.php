@@ -21,7 +21,7 @@
  * @copyright  2009-2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
+use mod_booking\local\services\evasysuser_profile_field_initializer;
 /**
  * XMLDB Booking install function.
  * @return void
@@ -40,5 +40,6 @@ function xmldb_booking_install() {
             $defaultcategory->defaultvalue = 0.00;
             $DB->insert_record('booking_pricecategories', $defaultcategory);
         }
+        evasysuser_profile_field_initializer::ensure_evasyscustomfield_exists();
     }
 }

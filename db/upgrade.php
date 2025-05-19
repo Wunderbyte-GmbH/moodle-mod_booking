@@ -22,6 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+ use mod_booking\local\services\evasysuser_profile_field_initializer;
 /**
  * Xmldb booking upgrade
  *
