@@ -123,6 +123,11 @@ $ADMIN->add(
     )
 );
 
+foreach (core_plugin_manager::instance()->get_plugins_of_type('extension') as $plugin) {
+    /** @var \mod_booking\plugininfo\extension $plugin */
+    $plugin->load_settings($ADMIN, 'modbookingfolder', $hassiteconfig);
+}
+
 $ADMIN->add('modbookingfolder', $settings);
 
 if ($ADMIN->fulltree) {
@@ -2118,10 +2123,9 @@ if ($ADMIN->fulltree) {
                 ''
             )
         );
+        // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
+        // Globalactivitycompletiontext is currently not implemented because activitycompletiontext isn't either.
     }
-
-    // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
-    // TODO: globalactivitycompletiontext is currently not implemented because activitycompletiontext isn't either.
 }
 
 $settings = null;
