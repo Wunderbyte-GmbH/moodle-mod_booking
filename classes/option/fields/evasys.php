@@ -28,6 +28,7 @@
  use mod_booking\local\evasys_evaluation;
  use mod_booking\option\field_base;
  use mod_booking\option\fields_info;
+ use mod_booking\singleton_service;
  use MoodleQuickForm;
  use stdClass;
 
@@ -107,7 +108,7 @@ class evasys extends field_base {
         $applyheader = true
     ): void {
 
-        if (empty(get_config('mod_booking', 'evasyssubunits'))) {
+        if (empty(get_config('booking', 'evasyssubunits'))) {
             return;
         }
 
@@ -193,5 +194,16 @@ class evasys extends field_base {
     public static function save_data(&$formdata, &$option) {
         $evasys = new evasys_evaluation();
         $evasys->save_form($formdata, $option);
+        if (empty($formdata->teachersforoption)) {
+            return;
+        }
+        foreach ($formdata->teachersforoption as $teacherid) {
+            $teacher = singleton_service::get_instance_of_user($teacherid, true);
+            if (empty($teacher->profile['evasysid'])) {
+                  $evasys->save_user($teacher);
+            } else {
+                continue;
+            }
+        }
     }
 }

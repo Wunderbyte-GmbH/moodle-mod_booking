@@ -96,13 +96,11 @@ class evasys_evaluation {
     public static function get_periods() {
         $service = new evasys_soap_service();
         $periods = $service->fetch_periods();
-        $periodoptions = [];
         if (!isset($periods)) {
             return [];
         }
-        foreach ($periods->Periods as $period) {
-            $periodoptions[$period->m_nPeriodId] = $period->m_sTitel;
-        }
+        $list = $periods->Periods;
+        $periodoptions = self::transform_return_to_array($list, 'm_nPeriodId', 'm_sTitel');
         return $periodoptions;
     }
 
@@ -118,10 +116,8 @@ class evasys_evaluation {
         if (!isset($subunits)) {
             return [];
         }
-        $subunitoptions = [];
-        foreach ($subunits->Units as $subunit) {
-            $subunitoptions[$subunit->m_nId] = $subunit->m_sName;
-        }
+        $list = $subunits->Units;
+        $subunitoptions = self::transform_return_to_array($list, 'm_nId', 'm_sName');
         return $subunitoptions;
     }
 
@@ -193,5 +189,23 @@ class evasys_evaluation {
         $data->evasys_notifyparticipants = $record->notifyparticipants;
         $data->evasys_id = $record->id;
         $data->evasys_timecreated = $record->timecreated;
+    }
+
+    /**
+     * Transforms Array of objects to an associates array for the settings.
+     *
+     * @param array $list
+     * @param string $key
+     * @param string $value
+     *
+     * @return array
+     *
+     */
+    private static function transform_return_to_array($list, $key, $value) {
+        $array = [];
+        foreach ($list as $element) {
+            $array[$element->$key] = $element->$value;
+        }
+        return $array;
     }
 }

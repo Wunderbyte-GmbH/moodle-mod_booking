@@ -112,6 +112,23 @@ class evasys_soap_service extends SoapClient {
         }
     }
 
+   /**
+    * Inserts User to Evays.
+    *
+    * @param array $user
+    *
+    * @return mixed
+    *
+    */
+    public function insert_user($userdata) {
+        try {
+            $response = $this->__soapCall('InsertUser', ['user' => $userdata ]);
+            return $response;
+        } catch (SoapFault $e) {
+            return null;
+        }
+    }
+
     /**
      * Sets Soapheader for authentication.
      *
