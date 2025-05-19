@@ -844,7 +844,7 @@ $string['courses'] = 'Kurse';
 $string['coursesheader'] = 'Moodle-Kurs';
 $string['coursestart'] = 'Starten';
 $string['coursestarttime'] = 'Kursbeginn';
-$string['createcompetencylink'] = '<a href="{{$a}}" class="btn btn-outline-secondary" target="_blank" rel="noopener noreferrer">
+$string['createcompetencylink'] = '<a href="{$a}" class="btn btn-outline-secondary" target="_blank" rel="noopener noreferrer">
 Neue Kompetenz erstellen (in Kompetenzrahmen) </a>';
 $string['createdbywunderbyte'] = 'Dieses Buchungsmodul wurde von der Wunderbyte GmbH entwickelt';
 $string['createical'] = 'Termin(e) erstellen';

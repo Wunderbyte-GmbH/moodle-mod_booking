@@ -863,7 +863,7 @@ $string['coursesheader'] = 'Moodle course';
 $string['coursestart'] = 'Start';
 $string['coursestarttime'] = 'Start time of the course';
 $string['courseurl'] = 'Course URL';
-$string['createcompetencylink'] = '<a href="{{$a}}" class="btn btn-outline-secondary" target="_blank" rel="noopener noreferrer">
+$string['createcompetencylink'] = '<a href="{$a}" class="btn btn-outline-secondary" target="_blank" rel="noopener noreferrer">
 Create new competency (in framework) </a>';
 $string['createdbywunderbyte'] = 'Booking module created by Wunderbyte GmbH';
 $string['createical'] = 'Create calendar event(s)';
