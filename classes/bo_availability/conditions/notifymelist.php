@@ -288,11 +288,11 @@ class notifymelist implements bo_condition {
             return $desc;
         }
         if ($isavailable) {
-            $description = $full ? get_string('bocondalreadybookedfullavailable', 'mod_booking') :
-                get_string('bocondalreadybookedavailable', 'mod_booking');
+            $description = $full ? get_string('bocondfullybookedfullavailable', 'mod_booking') :
+                get_string('bocondfullybookedavailable', 'mod_booking');
         } else {
-            $description = $full ? get_string('bocondalreadybookedfullnotavailable', 'mod_booking') :
-                get_string('bocondalreadybookednotavailable', 'mod_booking');
+            $description = $full ? get_string('bocondfullybookedfullnotavailable', 'mod_booking') :
+                get_string('bocondfullybookednotavailable', 'mod_booking');
         }
         return $description;
     }
