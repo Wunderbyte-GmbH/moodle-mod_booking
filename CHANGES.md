@@ -23,18 +23,29 @@
 * Bugfix: Fix errors with price categories.
 
 ## Version 8.14.0 (2025052000)
-* Improvement: Refactoring for booking_edit_setting with customized options
-* Improvement: PHPUnit teardown fix for booking_campaigns_test and booking_groepenrolment_test
-* Improvement: Performance optimization in booking_manage_waiting_list and booking_maxoptionforcategory
-* Improvement: Reduce delays and refactor duplication tests via DB
-* Improvement: Default editor fallback for Moodle 5.0 compatibility
-* Improvement: Added rowcountselect to bookinghistory
-* Bugfix: Trycatch for list of saved rules
-* Bugfix: Fix SQL for joined image files
-* Bugfix: Don't check changes in timemodified and timecreated
-* Bugfix: Show download button correctly in showrowcountselect
-* Bugfix: Fix language strings so links actually work
-* Bugfix: In Mobile App, use fully booked instead of already booked strings when notifymelist blocks
+* New feature: Curriculum profile field conditions via URL params.
+* New feature: Add documentation and preferences for curriculum conditions and tests.
+* Improvement: Add rowcountselect to bookinghistory.
+* Improvement: Implemented mycourselist shortcode.
+* Improvement: Refactored booking module.
+* Improvement: Link in curriculum contains & equals conditions of userfield.
+* Improvement: Override user field linked to booking instance.
+* Improvement: Add default to mod_form.
+* Improvement: Usability – show download button at correct place.
+* Improvement: Specific string for teacherdescription in modal.
+* Improvement: Refactor booking option with multiple customized settings.
+* Improvement: Reuse ERPNext task workflow.
+* Bugfix: Try/catch for list of saved rules.
+* Bugfix: Fix requirelogin for courselist shortcode (and fix image context issues).
+* Bugfix: Don't check changes in fields timecreated and timemodified.
+* Bugfix: Fix SQL for joined image files.
+* Bugfix: Fix phpunit issue "option has started".
+* Bugfix: Revert delays for `booking_manage_waiting_list` and fix screen size for `booking_maxoptionforcategory`.
+* Test: Many performance and editor fallback fixes.
+* Test: Support for duplication, multi-session bookings, and refactoring.
+* Test: Moodle 5.0 preparations and optimizations.
+* Test: Minor fixes in booking price formula and subbooking features.
+* Test: Improve handling of booking editor and tab views.
 
 ## Version 8.13.0 (2025051300)
 * Bugfix: Rename rank to userrank because rank is a reserved function of MySQL.
