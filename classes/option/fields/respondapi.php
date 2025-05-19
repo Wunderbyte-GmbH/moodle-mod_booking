@@ -113,12 +113,13 @@ class respondapi extends field_base {
         ) {
             $settings = singleton_service::get_instance_of_booking_option_settings($formdata->id);
             $newkeywordname = $settings->get_title_with_prefix() ?: $newoption->text;
+            $newkeyworddescription = $formdata->description['text'];
             $respondapihandler = new respondapi_handler();
             $newkeywordparentid = $respondapihandler->extract_idnumber_from_id($formdata->selectparentkeywordid);
             $fetchedcriteriaid = $respondapihandler->get_new_keyword(
                 $newkeywordparentid,
                 $newkeywordname,
-                '',
+                $newkeyworddescription,
             );
 
             if (!empty($fetchedcriteriaid)) {
@@ -130,7 +131,9 @@ class respondapi extends field_base {
             }
 
             return ['changes' => ['marmaracriteriaid' => $fetchedcriteriaid]];
-        } else {
+        }
+
+        if (empty($formdata->enablemarmarasync)) {
             booking_option::remove_key_from_json($newoption, 'marmaracriteriaid');
             booking_option::remove_key_from_json($newoption, 'selectparentkeyword');
         }
@@ -221,6 +224,38 @@ class respondapi extends field_base {
                     $details
                 );
             }
+        }
+    }
+
+    /**
+     * Once all changes are collected, also those triggered in save data, this is a possible hook for the fields.
+     *
+     * @param array $changes
+     * @param object $data
+     * @param object $newoption
+     * @param object $originaloption
+     *
+     * @return void
+     *
+     */
+    public static function changes_collected_action(
+        array $changes,
+        object $data,
+        object $newoption,
+        object $originaloption
+    ) {
+       // Get last text and description. $data contains always last updated text and description.
+        $text = $data->text;
+        $description = $data->description['text'];
+
+       // Check if option name or description is changed, then call API to update keyword name.
+        if (
+            array_key_exists(\mod_booking\option\fields\text::class, $changes) ||
+            array_key_exists(\mod_booking\option\fields\description::class, $changes)
+        ) {
+            // CAll API to update the name & description.
+            $respondapihandler = new respondapi_handler();
+            $respondapihandler->update_keyword($data->marmaracriteriaid, $text, $description);
         }
     }
 }
