@@ -121,7 +121,6 @@ class marmaraapi_provider implements respondapi_provider_interface {
             'Authorization: Bearer ' . $this->secret,
         ]));
         $this->curl->setopt(self::DEFAULT_OPTIONS);
-
     }
 
     /**
@@ -171,22 +170,27 @@ class marmaraapi_provider implements respondapi_provider_interface {
      * @param int $parentkeywordid The parent keyword ID to filter results.
      * @return array An array of keyword objects, or an empty array on failure.
      */
-    public function get_keywords(?int $parentkeywordid = null): array {
+    public function get_keywords(string $name = '', ?int $parentkeywordid = null): array {
         $url = $this->baseurl . self::ENDPOINT_KEYWORDS;
-
-        $parentkeywordid = $parentkeywordid ?? $this->keywordparentid;
-
-        if ($parentkeywordid === null) {
-            debugging('get_keywords failed: no parentkeywordid provided and no default configured', DEBUG_DEVELOPER);
-            return [];
-        }
 
         $payload = [
             'filter' => [
                 'client_id' => $this->clientid,
-                // 'id' => $parentkeywordid,
             ],
         ];
+
+        // Adding parent id to payload.
+        $parentkeywordid = $parentkeywordid ?? $this->keywordparentid;
+        if ($parentkeywordid === null) {
+            debugging('get_keywords failed: no parentkeywordid provided and no default configured', DEBUG_DEVELOPER);
+            return [];
+        }
+        $payload['filter']['parent_id'] = (int) $parentkeywordid;
+
+        // Adding name to payload if exists.
+        if (!empty($name)) {
+            $payload['filter']['name'] = "*$name*";
+        }
 
         $response = $this->curl->post($url, json_encode($payload));
         $responsejson = json_decode($response);

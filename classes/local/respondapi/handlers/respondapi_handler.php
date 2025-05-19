@@ -83,8 +83,22 @@ class respondapi_handler {
      * @return array{list: array, warnings: string|array{list: object[], warnings: string}}
      */
     public function get_parent_kewords(string $query) {
-        $records = $this->provider->get_keywords();
-        $list = [];
+        $records = $this->provider->get_keywords($query);
+
+        // Push always root category.
+        $rootkeywordid = get_config('booking', 'marmara_keywordparentid');
+        $rootkeywordname = get_config('booking', 'marmara_keywordparentname');
+        $rootkeyworditem = [
+            'id' => $rootkeywordid,
+            'name' => base64_encode($rootkeywordname),
+        ];
+        $rootcategory = (object)[
+            'id' => implode('-', $rootkeyworditem),
+            'name' => "(ID: $rootkeywordid) $rootkeywordname",
+        ];
+
+        $list = [$rootkeywordid => $rootcategory];
+
         $count = 0;
 
         foreach ($records as $record) {
@@ -134,7 +148,7 @@ class respondapi_handler {
         $mform->hideIf('marmaracriteriaidinfo', 'marmaracriteriaid', 'noteq', '');
 
         // Parent keyword.
-        $list = [];
+        $list = [-1];
         // We need to preload list to not only have the id, but the rendered values.
         if ($this->optionid !== 0) {
             $parentkeyword = booking_option::get_value_of_json_by_key($this->optionid, 'selectparentkeyword') ?? 0;
@@ -178,6 +192,12 @@ class respondapi_handler {
     /**
      * We take the parentkeyword and extract the name from it.
      *
+     * The format is: <parentid>-<base64_encoded_name>.
+     * This encoded format allows the ID and the name to be stored and passed together
+     * in a single string, which can later be decoded when needed (e.g., for display or lookup).
+     *
+     * Example output: "89262-QmFzaWMgS2V5d29yZA=="
+     *
      * @param string $parentkeyword
      *
      * @return string
@@ -190,7 +210,6 @@ class respondapi_handler {
         } else {
             [$parentkeywordid, $parendkeywordnameencoded] = explode('-', $parentkeyword);
             $parendkeywordname = base64_decode($parendkeywordnameencoded);
-
         }
         return $parendkeywordname;
     }
@@ -209,6 +228,17 @@ class respondapi_handler {
         return implode('-', $pkarray);
     }
 
+    /**
+     * We take the parentkeyword and extract the id number from it.
+     *
+     * The format is: <parentid>-<base64_encoded_name>.
+     * This encoded format allows the ID and the name to be stored and passed together
+     * in a single string, which can later be decoded when needed (e.g., for display or lookup).
+     *
+     * Example output: "89262-QmFzaWMgS2V5d29yZA=="
+     *
+     * @return string The combined parent keyword string from config values.
+     */
     public function extract_idnumber_from_id(string $parentkeyword): int {
         if (empty($parentkeyword)) {
             $parendkeywordidnumber = get_config('booking', 'marmara_keywordparentid') ?? '';
