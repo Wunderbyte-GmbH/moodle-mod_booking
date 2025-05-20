@@ -204,4 +204,58 @@ class marmaraapi_provider implements respondapi_provider_interface {
 
         return [];
     }
+
+    /**
+     * Sync a person with the Marmara API and return the response, which includes the Respond person ID.
+     *
+     * Sends person data along with optional keyword modifications to the Marmara endpoint.
+     * This method supports updating existing users, creating new ones, and managing keyword assignments.
+     *
+     * @param string $source A label identifying the data source.
+     * @param array $person Associative array of person details (e.g., firstname, lastname, email).
+     * @param array|null $addkeywords IDs of keywords to be added to the person (optional).
+     * @param array|null $removekeywords IDs of keywords to be removed from the person (optional).
+     * @param string $multiplestrategy Strategy to handle multiple matched users: 'useFirst' (default) or 'createNew'.
+     * @param string $key The key field used to identify the person, e.g., 'person.email'.
+     * @return null|string|int The decoded response from the API, typically containing the Respond person ID.
+     */
+    public function sync_person(
+        string $source,
+        array $person,
+        ?array $addkeywords = [],
+        ?array $removekeywords = [],
+        string $multiplestrategy = 'useFirst',
+        string $key = 'person.email',
+    ): null|string|int {
+        $url = $this->baseurl . self::ENDPOINT_IMPORT_PERSON;
+
+        $payload = [
+            'client_id' => $this->clientid,
+            'key' => $key,
+            'source' => $source,
+            'person' => $person,
+            'multiple_strategy' => $multiplestrategy,
+        ];
+
+        // Adding add_keywords to payload if exists.
+        if (!empty($addkeywords)) {
+            $payload['add_keywords'] = $addkeywords;
+        }
+
+        // Adding add_keywords to payload if exists.
+        if (!empty($removekeywords)) {
+            $payload['remove_keywords'] = $removekeywords;
+        }
+
+        $response = $this->curl->post($url, json_encode($payload));
+
+        if (is_string($response) && is_numeric($response)) {
+            return json_decode($response);
+        }
+
+        // Log error for debugging (optional).
+        debugging('Marmara get_keywords failed: ' . $response, DEBUG_DEVELOPER);
+
+        return null;
+    }
 }
