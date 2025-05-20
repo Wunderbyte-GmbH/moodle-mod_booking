@@ -1511,6 +1511,7 @@ $string['marmara:clientid'] = 'Client ID';
 $string['marmara:clientid_desc'] = 'The ID of the client for Marmara Respond.';
 $string['marmara:defaultsync'] = 'Sync Booking Options by Default';
 $string['marmara:defaultsync_desc'] = 'If enabled, booking options will be synced by default.';
+$string['marmara:importpersonadhoc'] = 'Booking: Sync person (adhoc task)';
 $string['marmara:keyworddisplay'] = '(ID: {$a->id}) {$a->name}';
 $string['marmara:keywordid'] = 'Keyword ID';
 $string['marmara:keywordid_help'] = 'This value will be fetched automatically when you save the settings.';
