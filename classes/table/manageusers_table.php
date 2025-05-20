@@ -163,7 +163,7 @@ class manageusers_table extends wunderbyte_table {
         $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid);
         $numberofoptiondates = count($settings->sessions);
         if ($values->scope == 'option') {
-            return "<b>" . ($values->presencecount ?? '0') . "</b>" . "/" . $numberofoptiondates;
+            return "<b>" . ($values->presencecount ?? '0') . "</b>/" . $numberofoptiondates;
         } else {
             $answers = singleton_service::get_instance_of_booking_answers($settings);
             $numberofbookedusers = count($answers->usersonlist);
@@ -190,9 +190,9 @@ class manageusers_table extends wunderbyte_table {
         $maxoverbooking = $settings->maxoverbooking ?? 0;
 
         if ($values->waitinglist == 0) {
-            return "<b>" . ($values->answerscount ?? 0) . "</b> / " . $maxanswers;
+            return "<b>" . ($values->answerscount ?? 0) . "</b>/" . $maxanswers;
         } else if ($values->waitinglist == 1) {
-            return "<b>" . ($values->answerscount ?? 0) . "</b> / " . $maxoverbooking;
+            return "<b>" . ($values->answerscount ?? 0) . "</b>/" . $maxoverbooking;
         }
 
         return $values->answerscount ?? '';
