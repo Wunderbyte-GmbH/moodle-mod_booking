@@ -24,12 +24,10 @@
 
 namespace mod_booking\option\fields;
 
-use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\local\respondapi\handlers\respondapi_handler;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
-use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
 
@@ -94,51 +92,9 @@ class respondapi extends field_base {
         int $updateparam,
         $returnvalue = null
     ): array {
-        // Check if checkbox is ticked.
-        // Check if id is empty.
-        // If it's ticked AND id is empty, contact marmara server.
-        // Save the return value.
-        if (!get_config('booking', 'marmara_enabled')) {
-            return [];
-        }
 
-        // Save enablemarmarasync flag into JSON.
-        booking_option::add_data_to_json($newoption, 'enablemarmarasync', $formdata->enablemarmarasync ?? 0);
-
-        // If syncing is enabled but ID is missing, call API to fetch it.
-        if (
-            empty($formdata->marmaracriteriaid)
-            && !empty($formdata->enablemarmarasync)
-            && !empty($formdata->selectparentkeywordid)
-        ) {
-            $settings = singleton_service::get_instance_of_booking_option_settings($formdata->id);
-            $newkeywordname = $settings->get_title_with_prefix() ?: $newoption->text;
-            $newkeyworddescription = $formdata->description['text'];
-            $respondapihandler = new respondapi_handler();
-            $newkeywordparentid = $respondapihandler->extract_idnumber_from_id($formdata->selectparentkeywordid);
-            $fetchedcriteriaid = $respondapihandler->get_new_keyword(
-                $newkeywordparentid,
-                $newkeywordname,
-                $newkeyworddescription,
-            );
-
-            if (!empty($fetchedcriteriaid)) {
-                booking_option::add_data_to_json($newoption, 'marmaracriteriaid', $fetchedcriteriaid);
-            }
-
-            if (!empty($formdata->selectparentkeywordid)) {
-                booking_option::add_data_to_json($newoption, 'selectparentkeyword', $formdata->selectparentkeywordid);
-            }
-
-            return ['changes' => ['marmaracriteriaid' => $fetchedcriteriaid]];
-        }
-
-        if (empty($formdata->enablemarmarasync)) {
-            booking_option::remove_key_from_json($newoption, 'marmaracriteriaid');
-            booking_option::remove_key_from_json($newoption, 'selectparentkeyword');
-        }
-
-        return [];
+        $respondapihandler = new respondapi_handler();
+        return $respondapihandler->prepare_save_field($formdata, $newoption, $updateparam, $returnvalue);
     }
 
     /**
@@ -163,7 +119,7 @@ class respondapi extends field_base {
         }
 
         $respondapihandler = new respondapi_handler($formdata['id'] ?? 0);
-        $respondapihandler->add_to_mform($mform);
+        $respondapihandler->instance_form_definition($mform);
     }
 
     /**
@@ -187,44 +143,9 @@ class respondapi extends field_base {
      *
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
-        global $OUTPUT;
-        $rootparentkeyword = get_config('booking', 'marmara_keywordparentid');
-        // In the data object, there might be a json value.
-        // With the value for the checkbox? checked or not.
-        // And the kriteria ID (if it's there).
-        if (!empty($settings->id)) {
-            // Load sync status from JSON (default to 0 if not found).
-            $enablemarmarasync = booking_option::get_value_of_json_by_key($settings->id, 'enablemarmarasync') ?? 0;
-            $data->enablemarmarasync = (int)$enablemarmarasync;
 
-            // Load criteria ID from JSON.
-            $currentvalue = booking_option::get_value_of_json_by_key($settings->id, 'marmaracriteriaid') ?? null;
-
-            $data->marmaracriteriaid = $currentvalue;
-
-            // Load parent keyword ID from JSON.
-            $selectparentkeywordid = booking_option::get_value_of_json_by_key($settings->id, 'selectparentkeyword') ?? null;
-            if (empty($selectparentkeywordid)) {
-                $details = [
-                    'id' => $rootparentkeyword ?? 0,
-                    'name' => 'Root Keyword' ?? '',
-                ];
-                $data->selectparentkeyword = $OUTPUT->render_from_template(
-                    'mod_booking/respondapi/parentkeyword',
-                    $details
-                );
-            } else {
-                $selectparentkeywordid = json_decode($selectparentkeywordid);
-                $details = [
-                    'id' => $selectparentkeywordid->id ?? 0,
-                    'name' => $selectparentkeywordid->name ?? '',
-                ];
-                return $OUTPUT->render_from_template(
-                    'mod_booking/respondapi/parentkeyword',
-                    $details
-                );
-            }
-        }
+        $respondapihandler = new respondapi_handler();
+        $respondapihandler->set_data($data, $settings);
     }
 
     /**
@@ -244,18 +165,9 @@ class respondapi extends field_base {
         object $newoption,
         object $originaloption
     ) {
-       // Get last text and description. $data contains always last updated text and description.
-        $text = $data->text;
-        $description = $data->description['text'];
 
-       // Check if option name or description is changed, then call API to update keyword name.
-        if (
-            array_key_exists(\mod_booking\option\fields\text::class, $changes) ||
-            array_key_exists(\mod_booking\option\fields\description::class, $changes)
-        ) {
-            // CAll API to update the name & description.
-            $respondapihandler = new respondapi_handler();
-            $respondapihandler->update_keyword($data->marmaracriteriaid, $text, $description);
-        }
+        // CAll API to update the name & description.
+        $respondapihandler = new respondapi_handler();
+        $respondapihandler->changes_collected_action($changes, $data, $newoption, $originaloption);
     }
 }
