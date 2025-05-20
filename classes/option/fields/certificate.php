@@ -165,10 +165,12 @@ class certificate extends field_base {
 
         global $DB;
 
-        // Standardfunctionality to add a header to the mform (only if its not yet there).
-        if ($applyheader) {
-            fields_info::add_header_to_mform($mform, self::$header);
-        }
+        $mform->addElement(
+            'header',
+            'certificateheader',
+            '<i class="fa fa-certificate" aria-hidden="true"></i>&nbsp;' .
+            get_string('certificateheader', 'booking')
+        );
 
         $records = $DB->get_records('tool_certificate_templates', []);
         $selection = [0 => 'no certificate selected'];

@@ -115,9 +115,12 @@ class evasys extends field_base {
             return;
         }
 
-        if ($applyheader) {
-            fields_info::add_header_to_mform($mform, self::$header);
-        }
+        $mform->addElement(
+            'header',
+            'evasysheader',
+            '<i class="fa fa-clipboard" aria-hidden="true"></i>&nbsp;' .
+            get_string('evasysheader', 'booking')
+        );
 
         $mform->addElement(
             'autocomplete',
