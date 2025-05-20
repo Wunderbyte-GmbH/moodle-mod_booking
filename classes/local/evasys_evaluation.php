@@ -68,26 +68,6 @@ class evasys_evaluation {
     }
 
     /**
-     * Fetches periods and creates array for Settings.
-     *
-     * @return array
-     *
-     */
-    public function get_questionares() {
-        // TODO Other Ticket.
-    }
-
-    /**
-     * [Description for get_recipients]
-     *
-     * @return array
-     *
-     */
-    public function get_recipients() {
-        // TODO Other Ticket.
-    }
-
-    /**
      * Fetch periods and create array for Settings.
      *
      * @return array
@@ -122,22 +102,39 @@ class evasys_evaluation {
     }
 
     /**
-     * Fetches subunits and creates array for Settings.
+     * Saves user in Evasys.
      *
-     * @return array
+     * @return void
      *
      */
-    public static function get_subunits() {
+    public function save_user($user) {
+        global $CFG;
+        $userdata = [
+            'm_nId' => null,
+            'm_nType' => null,
+            'm_sLoginName' => '',
+            'm_sExternalId' => "evasys_$user->id",
+            'm_sTitle' => '',
+            'm_sFirstName' => $user->firstname,
+            'm_sSurName' => $user->lastname,
+            'm_sUnitName' => '',
+            'm_sAddress' => $user->adress ?? '',
+            'm_sEmail' => $user->email,
+            'm_nFbid' => (int)get_config('booking', 'evasyssubunits'),
+            'm_nAddressId' => 0,
+            'm_sPassword' => '',
+            'm_sPhoneNumber' => $user->phone1,
+            'm_bUseLDAP' => null,
+            'm_bActiveUser' => null,
+            'm_aCourses' => null,
+        ];
         $service = new evasys_soap_service();
-        $subunits = $service->fetch_subunits();
-        if (!isset($subunits)) {
-            return [];
+        $response = $service->insert_user($userdata);
+        if (isset($response)) {
+            $fieldshortname = get_config('booking', 'evasyscategoryfield');
+            require_once($CFG->dirroot . "/user/profile/lib.php");
+            profile_save_custom_fields($user->id, [$fieldshortname => $response->m_sExternalId]);
         }
-        $subunitoptions = [];
-        foreach ($subunits->Units as $subunit) {
-            $subunitoptions[$subunit->m_nId] = $subunit->m_sName;
-        }
-        return $subunitoptions;
     }
 
     /**

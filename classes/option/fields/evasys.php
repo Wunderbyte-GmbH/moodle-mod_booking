@@ -69,7 +69,7 @@ class evasys extends field_base {
     public static $alternativeimportidentifiers = [];
 
     /**
-     * Prepare Savefield
+     * Prepare Savefield.
      *
      * @param stdClass $formdata
      * @param stdClass $newoption
@@ -115,7 +115,7 @@ class evasys extends field_base {
         // Curl evasys for questionaires.
         $questionaires = [1, 2, 3];
         // TODO: Curl evasys for additional recpients.
-        $recipients = ['David', 'NichtDavid'];
+        $recipients = ['Foo', 'Bar', 'Foobar'];
 
         if (empty(get_config('booking', 'useevasys'))) {
             return;
@@ -193,13 +193,14 @@ class evasys extends field_base {
      */
     public static function save_data(&$formdata, &$option) {
         $evasys = new evasys_evaluation();
+        $fieldshortname = get_config('booking', 'evasyscategoryfield');
         $evasys->save_form($formdata, $option);
         if (empty($formdata->teachersforoption)) {
             return;
         }
         foreach ($formdata->teachersforoption as $teacherid) {
             $teacher = singleton_service::get_instance_of_user($teacherid, true);
-            if (empty($teacher->profile['evasysid'])) {
+            if (empty($teacher->profile[$fieldshortname])) {
                   $evasys->save_user($teacher);
             } else {
                 continue;

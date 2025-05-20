@@ -729,12 +729,30 @@ if ($ADMIN->fulltree) {
                 ''
             )
         );
+        // Make Function to make it global.
+        $userprofilefields = profile_get_custom_fields();
+        if (!empty($userprofilefields)) {
+            $userprofilefieldsarray = [];
+            // Create an array of key => value pairs for the dropdown.
+            foreach ($userprofilefields as $userprofilefield) {
+                $userprofilefieldsarray[$userprofilefield->shortname] = $userprofilefield->name;
+            }
+        }
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/evasyscategoryfield',
+                get_string('evasyscategoryfield', 'mod_booking'),
+                get_string('evasyscategoryfield_desc', 'mod_booking'),
+                'evasysid',
+                $userprofilefieldsarray
+            )
+        );
             $subinutoptions = evasys_evaluation::get_subunits();
             $periodoptions = evasys_evaluation::get_periods();
         if (
             empty($subunitoptions)
-            && !get_config('mod_booking', 'evasysuser')
-            && !get_config('mod_booking', 'evasyspassword')
+            && empty(get_config('booking', 'evasysuser'))
+            && empty(get_config('booking', 'evasyspassword'))
         ) {
             $settings->add(
                 new admin_setting_description(
@@ -745,20 +763,20 @@ if ($ADMIN->fulltree) {
             );
         } else {
             $settings->add(
-                new admin_setting_configmultiselect(
+                new admin_setting_configselect(
                     'booking/evasyssubunits',
                     get_string('evasyssubunits', 'mod_booking'),
                     get_string('evasyssubunits_desc', 'mod_booking'),
-                    [0],
+                    0,
                     $subinutoptions
                 )
             );
             $settings->add(
-                new admin_setting_configmultiselect(
+                new admin_setting_configselect(
                     'booking/evasysperiods',
                     get_string('evasysperiods', 'mod_booking'),
                     get_string('evasysperiods_desc', 'mod_booking'),
-                    [0],
+                    0,
                     $periodoptions
                 )
             );
