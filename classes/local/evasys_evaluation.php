@@ -98,6 +98,7 @@ class evasys_evaluation {
      *
      */
     private static function map_form_to_record($formdata, $option) {
+        global $USER;
         $insertdata = new stdClass();
         $now = time();
         $insertdata->optionid = $option->id;
@@ -107,6 +108,7 @@ class evasys_evaluation {
         $insertdata->trainers = implode(',', ($formdata->teachersforoption ?? []));
         $insertdata->organizers = implode(',', ($formdata->evasys_other_report_recipients ?? []));
         $insertdata->notifyparticipants = $formdata->evasys_notifyparticipants;
+        $insertdata->usermodified = $USER->id;
 
         if (empty($formdata->evasys_id)) {
             $insertdata->timecreated = $now;
