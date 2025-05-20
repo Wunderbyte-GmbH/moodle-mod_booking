@@ -110,4 +110,8 @@ $observers = [
         'eventname' => '\mod_booking\event\bookinganswer_notesedited',
         'callback' => 'mod_booking_observer::bookinganswer_notesedited',
     ],
+    [
+        'eventname' => '\mod_booking\event\bookingoption_booked',
+        'callback' => 'mod_booking_observer::bookingoption_booked',
+    ],
 ];
