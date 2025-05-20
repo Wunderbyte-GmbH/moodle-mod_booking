@@ -43,14 +43,13 @@ class evasys_evaluation {
      */
     public function save_form(&$formdata, &$option) {
         global $DB;
-        $insertdata = self::map_form_to_record($formdata);
+        $insertdata = self::map_form_to_record($formdata, $option);
         if (empty($formdata->evasys_id)) {
             $DB->insert_record('booking_evasys', $insertdata, false, false);
         } else {
             $DB->update_record('booking_evasys', $insertdata);
         }
     }
-
 
     /**
      * Load Data to form.
@@ -93,14 +92,15 @@ class evasys_evaluation {
      * Maps DB to Form to DB for saving.
      *
      * @param /stdClass $formdata
+     * @param /stdClass $option
      *
      * @return object
      *
      */
-    private static function map_form_to_record($formdata) {
+    private static function map_form_to_record($formdata, $option) {
         $insertdata = new stdClass();
         $now = time();
-        $insertdata->optionid = $formdata->optionid;
+        $insertdata->optionid = $option->id;
         $insertdata->pollurl = $formdata->evasys_questionaire;
         $insertdata->starttime = $formdata->evasys_evaluation_starttime;
         $insertdata->endtime = $formdata->evasys_evaluation_endtime;
@@ -116,7 +116,6 @@ class evasys_evaluation {
         }
         return $insertdata;
     }
-
 
     /**
      * Maps Data of DB record to Formdata.
