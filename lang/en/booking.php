@@ -2464,6 +2464,7 @@ $string['subject'] = 'Subject';
 $string['submitandadd'] = 'Add a new booking option';
 $string['submitandgoback'] = 'Close this form';
 $string['submitandstay'] = 'Stay here';
+$string['subplugintype_bookingextension_plural'] = 'Booking extensions';
 $string['subscribersto'] = 'Teachers for \'{$a}\'';
 $string['subscribetocourse'] = 'Enrol users in the course';
 $string['subscribeuser'] = 'Do you really want to enrol the users in the following course';

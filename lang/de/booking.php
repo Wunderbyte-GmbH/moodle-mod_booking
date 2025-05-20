@@ -2400,6 +2400,7 @@ $string['subject'] = 'Betreff';
 $string['submitandadd'] = 'Neue Buchungsoption anlegen';
 $string['submitandgoback'] = 'Formular schließen';
 $string['submitandstay'] = 'Formular weiterbearbeiten';
+$string['subplugintype_bookingextension_plural'] = 'Booking-Erweiterungen';
 $string['subscribersto'] = 'Trainer:innen für \'{$a}\'';
 $string['subscribetocourse'] = 'Nutzer:innen in den Kurs einschreiben';
 $string['subscribeuser'] = 'Wollen Sie diese User wirklich in diesen Kurs einschreiben';
