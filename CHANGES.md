@@ -1,3 +1,17 @@
+## Version 8.14.0 (2025052000)
+* Improvement: Refactoring for booking_edit_setting with customized options
+* Improvement: PHPUnit teardown fix for booking_campaigns_test and booking_groepenrolment_test
+* Improvement: Performance optimization in booking_manage_waiting_list and booking_maxoptionforcategory
+* Improvement: Reduce delays and refactor duplication tests via DB
+* Improvement: Default editor fallback for Moodle 5.0 compatibility
+* Improvement: Added rowcountselect to bookinghistory
+* Bugfix: Trycatch for list of saved rules
+* Bugfix: Fix SQL for joined image files
+* Bugfix: Don't check changes in timemodified and timecreated
+* Bugfix: Show download button correctly in showrowcountselect
+* Bugfix: Fix language strings so links actually work
+* Bugfix: In Mobile App, use fully booked instead of already booked strings when notifymelist blocks
+
 ## Version 8.13.0 (2025051300)
 * Bugfix: Rename rank to userrank because rank is a reserved function of MySQL.
 
