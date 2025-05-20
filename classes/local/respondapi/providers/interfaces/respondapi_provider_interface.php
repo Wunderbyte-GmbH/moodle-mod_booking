@@ -40,4 +40,38 @@ interface respondapi_provider_interface {
      * @return int|null The returned keyword ID, or null on failure.
      */
     public function sync_keyword(string $name, ?int $id = null, ?string $comment = null, ?int $parentid = null): ?int;
+
+    /**
+     * Search the external database for keywords or criteria matching the given filters.
+     *
+     * This method allows querying the remote API using specific filters such as name or parent ID,
+     * and returns a list of matching keyword records.
+     *
+     * @param string $name Optional name filter to search keywords by name.
+     * @param int|null $parentkeywordid Optional parent keyword ID to filter results by hierarchy.
+     * @return array List of matching keywords returned from the external system.
+     */
+    public function get_keywords(string $name = '', ?int $parentkeywordid = null): array;
+
+    /**
+     * Sync a person with the external API and return the Respond person ID.
+     *
+     * @param string $source A label or tag for the data source. If the person already exists,
+     *        this source will be appended to the existing record.
+     * @param array $person The person data to be sent (e.g., name, email, etc.).
+     * @param array|null $addkeywords An array of keyword IDs to be added to the person.
+     * @param array|null $removekeywords An array of keyword IDs to be removed from the person.
+     * @param string $multiplestrategy Strategy for handling multiple matches in Respond.
+     *        Allowed values: 'useFirst', 'createNew'. If 'createNew', a duplicate entry will be created.
+     * @param string $key The field used to identify or match the person (e.g., 'person.email').
+     * @return null|string|int containing the Respond person ID as the result of the sync.
+     */
+    public function sync_person(
+        string $source,
+        array $person,
+        ?array $addkeywords = null,
+        ?array $removekeywords = null,
+        string $multiplestrategy = 'userFirst',
+        string $key = 'person.email',
+    ): null|string|int;
 }
