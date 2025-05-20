@@ -67,9 +67,8 @@ class evasys extends field_base {
      */
     public static $alternativeimportidentifiers = [];
 
-
     /**
-     * [Description for prepare_save_field]
+     * Prepare Savefield
      *
      * @param stdClass $formdata
      * @param stdClass $newoption
@@ -107,9 +106,9 @@ class evasys extends field_base {
         $fieldstoinstanciate = [],
         $applyheader = true
     ): void {
-        // Curl von evasys Class for questionaires.
+        // TODO: Curl evasys for questionaires.
         $questionaires = [1, 2, 3];
-        // Curl von evasys Class for recipients.
+        // TODO: Curl evasys for additional recpients.
         $recipients = ['David', 'NichtDavid'];
 
         if (empty(get_config('booking', 'useevasys'))) {
