@@ -111,7 +111,7 @@ class evasys extends field_base {
             return;
         }
 
-        // Curl von evasys Class for questionaires.
+        // Curl evasys for questionaires.
         $questionaires = [1, 2, 3];
         // TODO: Curl evasys for additional recpients.
         $recipients = ['David', 'NichtDavid'];
