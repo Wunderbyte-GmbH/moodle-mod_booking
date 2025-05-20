@@ -396,10 +396,13 @@ class respondapi_handler {
         $text = $data->text;
         $description = $data->description['text'];
 
+        $enablemarmarasync = booking_option::get_value_of_json_by_key($data->optionid, 'enablemarmarasync') ?? 0;
+
        // Check if option name or description is changed, then call API to update keyword name.
         if (
-            array_key_exists(\mod_booking\option\fields\text::class, $changes) ||
-            array_key_exists(\mod_booking\option\fields\description::class, $changes)
+            (array_key_exists(\mod_booking\option\fields\text::class, $changes) ||
+            array_key_exists(\mod_booking\option\fields\description::class, $changes)) &&
+            $enablemarmarasync
         ) {
             // CAll API to update the name & description.
             $this->update_keyword($data->marmaracriteriaid, $text, $description);
