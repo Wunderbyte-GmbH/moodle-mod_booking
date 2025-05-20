@@ -92,6 +92,10 @@ class respondapi_handler {
     public function add_person(int $userid): void {
         // Call import person API.
         global $SITE;
+        $enablemarmarasync = booking_option::get_value_of_json_by_key($this->optionid, 'enablemarmarasync') ?? 0;
+        if (!$enablemarmarasync) {
+            return;
+        }
         $criteriaid = booking_option::get_value_of_json_by_key($this->optionid, 'marmaracriteriaid');
         $user = singleton_service::get_instance_of_user($userid);
 
@@ -119,6 +123,10 @@ class respondapi_handler {
     public function remove_person(int $userid): void {
         // Call import person API.
         global $SITE;
+        $enablemarmarasync = booking_option::get_value_of_json_by_key($this->optionid, 'enablemarmarasync') ?? 0;
+        if (!$enablemarmarasync) {
+            return;
+        }
         $criteriaid = booking_option::get_value_of_json_by_key($this->optionid, 'marmaracriteriaid');
         $user = singleton_service::get_instance_of_user($userid);
 
