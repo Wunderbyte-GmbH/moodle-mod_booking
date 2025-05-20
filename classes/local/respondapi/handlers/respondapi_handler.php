@@ -25,11 +25,13 @@
 namespace mod_booking\local\respondapi\handlers;
 
 use mod_booking\booking_option;
+use mod_booking\booking_option_settings;
 use mod_booking\local\respondapi\entities\person;
 use mod_booking\local\respondapi\providers\interfaces\respondapi_provider_interface;
 use mod_booking\local\respondapi\providers\marmaraapi_provider;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
+use stdClass;
 
 
 /**
@@ -194,7 +196,7 @@ class respondapi_handler {
      * @param MoodleQuickForm $mform
      * @return void
      */
-    public function add_to_mform(MoodleQuickForm &$mform) {
+    public function instance_form_definition(MoodleQuickForm &$mform) {
         global $OUTPUT;
 
         // Checkbox to enable sync.
@@ -252,6 +254,148 @@ class respondapi_handler {
         $mform->setDefault('selectparentkeywordid', $parentkeyword ?? '');
 
         $mform->addHelpButton('selectparentkeywordid', 'marmara:selectparentkeyword', 'mod_booking');
+    }
+
+    /**
+     * This function interprets the value from the form and, if useful...
+     * ... relays it to the new option class for saving or updating.
+     * @param stdClass $formdata
+     * @param stdClass $newoption
+     * @param int $updateparam
+     * @param ?mixed $returnvalue
+     * @return array
+     */
+    public function prepare_save_field(
+        stdClass &$formdata,
+        stdClass &$newoption,
+        int $updateparam,
+        $returnvalue = null
+    ): array {
+        // Check if checkbox is ticked.
+        // Check if id is empty.
+        // If it's ticked AND id is empty, contact marmara server.
+        // Save the return value.
+        if (!get_config('booking', 'marmara_enabled')) {
+            return [];
+        }
+
+        // Save enablemarmarasync flag into JSON.
+        booking_option::add_data_to_json($newoption, 'enablemarmarasync', $formdata->enablemarmarasync ?? 0);
+
+        // If syncing is enabled but ID is missing, call API to fetch it.
+        if (
+            empty($formdata->marmaracriteriaid)
+            && !empty($formdata->enablemarmarasync)
+            && !empty($formdata->selectparentkeywordid)
+        ) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($formdata->id);
+            $newkeywordname = $settings->get_title_with_prefix() ?: $newoption->text;
+            $newkeyworddescription = $formdata->description['text'];
+            $newkeywordparentid = $this->extract_idnumber_from_id($formdata->selectparentkeywordid);
+            $fetchedcriteriaid = $this->get_new_keyword(
+                $newkeywordparentid,
+                $newkeywordname,
+                $newkeyworddescription,
+            );
+
+            if (!empty($fetchedcriteriaid)) {
+                booking_option::add_data_to_json($newoption, 'marmaracriteriaid', $fetchedcriteriaid);
+            }
+
+            if (!empty($formdata->selectparentkeywordid)) {
+                booking_option::add_data_to_json($newoption, 'selectparentkeyword', $formdata->selectparentkeywordid);
+            }
+
+            return ['changes' => ['marmaracriteriaid' => $fetchedcriteriaid]];
+        }
+
+        if (empty($formdata->enablemarmarasync)) {
+            booking_option::remove_key_from_json($newoption, 'marmaracriteriaid');
+            booking_option::remove_key_from_json($newoption, 'selectparentkeyword');
+        }
+
+        return [];
+    }
+
+    /**
+     * Function to set the Data for the form.
+     *
+     * @param stdClass $data
+     * @param booking_option_settings $settings
+     *
+     * @return void
+     *
+     */
+    public function set_data(stdClass &$data, booking_option_settings $settings) {
+        global $OUTPUT;
+        $rootparentkeyword = get_config('booking', 'marmara_keywordparentid');
+        // In the data object, there might be a json value.
+        // With the value for the checkbox? checked or not.
+        // And the kriteria ID (if it's there).
+        if (!empty($settings->id)) {
+            // Load sync status from JSON (default to 0 if not found).
+            $enablemarmarasync = booking_option::get_value_of_json_by_key($settings->id, 'enablemarmarasync') ?? 0;
+            $data->enablemarmarasync = (int)$enablemarmarasync;
+
+            // Load criteria ID from JSON.
+            $currentvalue = booking_option::get_value_of_json_by_key($settings->id, 'marmaracriteriaid') ?? null;
+
+            $data->marmaracriteriaid = $currentvalue;
+
+            // Load parent keyword ID from JSON.
+            $selectparentkeywordid = booking_option::get_value_of_json_by_key($settings->id, 'selectparentkeyword') ?? null;
+            if (empty($selectparentkeywordid)) {
+                $details = [
+                    'id' => $rootparentkeyword ?? 0,
+                    'name' => 'Root Keyword' ?? '',
+                ];
+                $data->selectparentkeyword = $OUTPUT->render_from_template(
+                    'mod_booking/respondapi/parentkeyword',
+                    $details
+                );
+            } else {
+                $selectparentkeywordid = json_decode($selectparentkeywordid);
+                $details = [
+                    'id' => $selectparentkeywordid->id ?? 0,
+                    'name' => $selectparentkeywordid->name ?? '',
+                ];
+                return $OUTPUT->render_from_template(
+                    'mod_booking/respondapi/parentkeyword',
+                    $details
+                );
+            }
+        }
+    }
+
+    /**
+     * Once all changes are collected, also those triggered in save data, this is a possible hook for the fields.
+     *
+     * @param array $changes
+     * @param object $data
+     * @param object $newoption
+     * @param object $originaloption
+     *
+     * @return void
+     *
+     */
+    public function changes_collected_action(
+        array $changes,
+        object $data,
+        object $newoption,
+        object $originaloption
+    ) {
+       // Get last text and description. $data contains always last updated text and description.
+        $text = $data->text;
+        $description = $data->description['text'];
+
+       // Check if option name or description is changed, then call API to update keyword name.
+        if (
+            array_key_exists(\mod_booking\option\fields\text::class, $changes) ||
+            array_key_exists(\mod_booking\option\fields\description::class, $changes)
+        ) {
+            // CAll API to update the name & description.
+            $this->update_keyword($data->marmaracriteriaid, $text, $description);
+        }
     }
 
 
