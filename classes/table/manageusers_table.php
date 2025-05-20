@@ -186,13 +186,13 @@ class manageusers_table extends wunderbyte_table {
             return '';
         }
         $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid);
-        $maxanswers = $settings->maxanswers ?? get_string('unlimitedplaces', 'mod_booking');
+        $maxanswers = empty($settings->maxanswers) ? get_string('unlimitedplaces', 'mod_booking') : $settings->maxanswers;
         $maxoverbooking = $settings->maxoverbooking ?? 0;
 
         if ($values->waitinglist == 0) {
-            return "<b>" . ($values->answerscount ?? 0) . "</b>/" . $maxanswers;
+            return "<b>" . ($values->answerscount ?? 0) . "</b> / " . $maxanswers;
         } else if ($values->waitinglist == 1) {
-            return "<b>" . ($values->answerscount ?? 0) . "</b>/" . $maxoverbooking;
+            return "<b>" . ($values->answerscount ?? 0) . "</b> / " . $maxoverbooking;
         }
 
         return $values->answerscount ?? '';
