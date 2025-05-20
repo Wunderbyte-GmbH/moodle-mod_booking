@@ -7,7 +7,7 @@ jobs:
     uses: Wunderbyte-GmbH/catalyst-moodle-workflows/.github/workflows/ci.yml@main
     with:
       # Change these based on your plugin's requirements
-      disable_release: 'true'  # Use true if using the tag-based release workflow
+      disable_release: true  # Use true if using the tag-based release workflow
       # moodle_branches: "MOODLE_401_STABLE MOODLE_402_STABLE"  # Optional: Only test specific Moodle versions
       # min_php: "7.4"  # Optional: Set minimum PHP version
 
@@ -33,17 +33,17 @@ jobs:
       phpdocchecker_ignore_paths: 'OpenTBS, TinyButStrong'
 
       # If you need to disable specific tests
-      # disable_phpcpd: 'true'
-      # disable_mustache: 'true'
-      # disable_phpunit: 'true'
-      # disable_grunt: 'true'
-      # disable_phpdoc: 'true'
-      # disable_phpcs: 'true'
-      # disable_phplint: 'true'
-      # disable_ci_validate: 'true'
+      # disable_phpcpd: true
+      # disable_mustache: true
+      # disable_phpunit: true
+      # disable_grunt: true
+      # disable_phpdoc: true
+      # disable_phpcs: true
+      # disable_phplint: true
+      # disable_ci_validate: true
 
       # If you need to enable PHPMD
-      enable_phpmd: 'true'
+      enable_phpmd: true
 
       # For strict code quality checks
       codechecker_max_warnings: 0
