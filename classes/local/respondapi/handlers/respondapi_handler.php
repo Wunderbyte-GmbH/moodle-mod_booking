@@ -30,6 +30,7 @@ use mod_booking\local\respondapi\entities\person;
 use mod_booking\local\respondapi\providers\interfaces\respondapi_provider_interface;
 use mod_booking\local\respondapi\providers\marmaraapi_provider;
 use mod_booking\singleton_service;
+use mod_booking\task\respondapi_import_person_adhoc;
 use MoodleQuickForm;
 use stdClass;
 
@@ -80,13 +81,12 @@ class respondapi_handler {
     }
 
     /**
-     * Adds a new person to the external system and assigns them to the configured keyword (criteria).
+     * Queues an adhoc task to add a user to the configured criteria in the external system.
      *
-     * Uses the current booking option's `marmaracriteriaid` to determine which keyword to assign.
-     * If the external API returns a valid person ID, the operation is considered successful.
-     * If not, the user should be queued for later retry using an adhoc task (not yet implemented).
+     * This method checks if Marmara sync is enabled for the option. If so, it creates and schedules
+     * an adhoc task to add the given user to the external system with the associated keyword.
      *
-     * @param int $userid The Moodle user ID to sync and assign.
+     * @param int $userid The Moodle user ID to be added.
      * @return void
      */
     public function add_person(int $userid): void {
@@ -96,28 +96,30 @@ class respondapi_handler {
         if (!$enablemarmarasync) {
             return;
         }
-        $criteriaid = booking_option::get_value_of_json_by_key($this->optionid, 'marmaracriteriaid');
-        $user = singleton_service::get_instance_of_user($userid);
 
-        $source = $SITE->fullname;
-        $person = new person($user->firstname, $user->lastname, $user->email);
-        $personid = $this->provider->sync_person($source, $person->to_array(), [$criteriaid]);
-        // If $personid is an integer, the operation was successful.
-        // Otherwise, the sync failed and the user should be queued for retry.
-        if (!is_int($personid)) {
-            // TODO: MDL-0 If failed add it to Adhock task to be sent later.
-            return;
-        }
+        $criteriaid = booking_option::get_value_of_json_by_key($this->optionid, 'marmaracriteriaid');
+        $task = new respondapi_import_person_adhoc();
+        $taskdata = [
+            'provider' => $this->provider::class,
+            'addkeywords' => [$criteriaid],
+            'removekeywords' => [], // We live it empty for addming person.
+            'optionid' => $this->optionid,
+            'userid' => $userid,
+            'source' => $SITE->fullname,
+        ];
+        $task->set_custom_data($taskdata);
+
+        // Now queue the task or reschedule it if it already exists (with matching data).
+        \core\task\manager::reschedule_or_queue_adhoc_task($task);
     }
 
     /**
-     * Removes a person from the keyword (criteria) in the external system.
+     * Queues an adhoc task to remove a user from the configured criteria in the external system.
      *
-     * Sends a request to the external API to unassign the person from the booking option's keyword
-     * (retrieved via `marmaracriteriaid`). If the API call succeeds, the operation is complete.
-     * If it fails, the user should be queued for retry using an adhoc task (not yet implemented).
+     * This method checks if Marmara sync is enabled for the option. If so, it creates and schedules
+     * an adhoc task to remove the given user from the assigned keyword in the external system.
      *
-     * @param int $userid The Moodle user ID to unassign from the keyword.
+     * @param int $userid The Moodle user ID to be removed.
      * @return void
      */
     public function remove_person(int $userid): void {
@@ -127,18 +129,21 @@ class respondapi_handler {
         if (!$enablemarmarasync) {
             return;
         }
-        $criteriaid = booking_option::get_value_of_json_by_key($this->optionid, 'marmaracriteriaid');
-        $user = singleton_service::get_instance_of_user($userid);
 
-        $source = $SITE->fullname;
-        $person = new person($user->firstname, $user->lastname, $user->email);
-        $personid = $this->provider->sync_person($source, $person->to_array(), [], [$criteriaid]);
-        // If $personid is an integer, the operation was successful.
-        // Otherwise, the sync failed and the user should be queued for retry.
-        if (!is_int($personid)) {
-            // TODO: MDL-0 If failed add it to Adhock task to be sent later.
-            return;
-        }
+        $criteriaid = booking_option::get_value_of_json_by_key($this->optionid, 'marmaracriteriaid');
+        $task = new respondapi_import_person_adhoc();
+        $taskdata = [
+            'provider' => $this->provider::class,
+            'addkeywords' => [], // We live it empty for removing person.
+            'removekeywords' => [$criteriaid],
+            'optionid' => $this->optionid,
+            'userid' => $userid,
+            'source' => $SITE->fullname,
+        ];
+        $task->set_custom_data($taskdata);
+
+        // Now queue the task or reschedule it if it already exists (with matching data).
+        \core\task\manager::reschedule_or_queue_adhoc_task($task);
     }
 
     /**
