@@ -95,7 +95,7 @@ class respondapi_import_person_adhoc extends \core\task\adhoc_task {
                 // If $personid is an integer, the operation was successful.
                 // Otherwise, the sync failed and the user should be queued for retry.
                 if (!is_int($personid)) {
-                    return new Exception(" Unexpected response from sync_keyword: {$personid}");
+                    throw new Exception(" Unexpected response from sync_keyword: {$personid}");
                 }
 
                 mtrace($this->get_name() . ": Task done successfully.");
