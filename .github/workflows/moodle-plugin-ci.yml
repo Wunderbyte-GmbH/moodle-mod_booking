@@ -49,7 +49,6 @@ jobs:
       codechecker_max_warnings: 0
 
       # Override to exclude stale AMD file check (similar to your current workaround)
-      # This might not be needed with the reusable workflow as it might handle this already
       workarounds: |
         # Set additional environment variables
         echo "SOME_PATHS=OpenTBS, TinyButStrong" >> $GITHUB_ENV
