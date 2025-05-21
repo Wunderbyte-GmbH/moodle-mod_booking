@@ -126,7 +126,7 @@ class evasys_evaluation {
             'm_nFbid' => (int)get_config('booking', 'evasyssubunits'),
             'm_nAddressId' => 0,
             'm_sPassword' => '',
-            'm_sPhoneNumber' => $user->phone1 ?? "",
+            'm_sPhoneNumber' => $user->phone1 ?? '',
             'm_bUseLDAP' => null,
             'm_bActiveUser' => null,
             'm_aCourses' => null,
@@ -134,14 +134,16 @@ class evasys_evaluation {
         $service = new evasys_soap_service();
         $response = $service->insert_user($userdata);
         if (isset($response)) {
+            $value = [$response->m_sExternalId, $response->m_nId];
+            $insert = implode(',', $value);
             $fieldshortname = get_config('booking', 'evasyscategoryfielduser');
             require_once($CFG->dirroot . "/user/profile/lib.php");
-            profile_save_custom_fields($user->id, [$fieldshortname => $response->m_sExternalId]);
+            profile_save_custom_fields($user->id, [$fieldshortname => $insert]);
         }
     }
 
     /**
-     * [Description for save_course]
+     * Saves Course in Evasys.
      *
      * @param /stdClass $option
      * @param int $userid
@@ -149,7 +151,7 @@ class evasys_evaluation {
      * @return void
      *
      */
-    public function save_course($option) {
+    public function save_course($option, $userid) {
         $coursedata = [
             'm_nCourseId' => null,
             'm_sProgramOfStudy' => 'Test1234', //Subunit name.
@@ -160,7 +162,7 @@ class evasys_evaluation {
             'm_sExternalId' => "evasys_$option->id",
             'm_nCountStud' => null,
             'm_sCustomFieldsJSON' => '',
-            'm_nUserId' => 4996,
+            'm_nUserId' => (int)$userid,
             'm_nFbid' => (int)get_config('booking', 'evasyssubunits'),
             'm_nPeriodId' => (int)get_config('booking', 'evasysperiods'),
             'currentPosition' => null,
@@ -175,10 +177,8 @@ class evasys_evaluation {
         if (isset($repsonse)) {
             $fieldshortname = get_config('booking', 'evasyscategoryfieldoption');
             $handler = booking_handler::create();
-            //Instanceid?!
-            //$handler->field_save($instanceid, $fieldshortname, $repsonse->m_sExternalId);
+            $handler->field_save($option->id, $fieldshortname, $repsonse->m_sExternalId);
         }
-
     }
     /**
      * Maps DB of Form to DB for saving.

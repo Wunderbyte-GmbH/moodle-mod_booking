@@ -199,17 +199,23 @@ class evasys extends field_base {
             return;
         }
         if (!empty($formdata->customfield_evasysid)) {
+            // Todo: Update Logic here.
             return;
         }
         foreach ($formdata->teachersforoption as $teacherid) {
             $teacher = singleton_service::get_instance_of_user($teacherid, true);
-            $teachers[] = $teacher;
+            $teachers[$teacherid] = $teacher;
             if (empty($teacher->profile[$userfieldshortname])) {
-                  $evasys->save_user($teacher);
+                $evasys->save_user($teacher);
+                singleton_service::destroy_user($teacherid);
+                $teacher = singleton_service::get_instance_of_user($teacherid, true);
+                $teachers[$teacherid] = $teacher;
             } else {
                 continue;
             }
         }
-        $evasys->save_course($option);
+            $userfieldvalue = reset($teachers)->profile[$userfieldshortname];
+            $internalid = end(explode(',', $userfieldvalue));
+            $evasys->save_course($option, $internalid);
     }
 }
