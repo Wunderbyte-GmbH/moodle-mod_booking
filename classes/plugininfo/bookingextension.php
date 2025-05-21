@@ -24,7 +24,6 @@
  */
 namespace mod_booking\plugininfo;
 
-use admin_externalpage;
 use core\plugininfo\base;
 use part_of_admin_tree;
 use admin_settingpage;
@@ -64,7 +63,10 @@ class bookingextension extends base {
      * @return null|string node name or null if plugin does not create settings node (default)
      */
     public function get_settings_section_name() {
-        return 'extension_' . $this->name . '_settings';
+        // Maybe, we'll add settings later.
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* return 'extension_' . $this->name . '_settings'; */
+        return null;
     }
     /**
      * Loads plugin settings to the settings tree
@@ -81,7 +83,10 @@ class bookingextension extends base {
         $parentnodename,
         $hassiteconfig
     ): void {
-        $ADMIN = $adminroot; // May be used in settings.php.
+        return; // Currently no settings for this plugin.
+        // Maybe, we'll add settings later.
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $ADMIN = $adminroot; // May be used in settings.php.
         if (!$this->is_installed_and_upgraded()) {
             return;
         }
@@ -96,7 +101,7 @@ class bookingextension extends base {
 
         if ($page) {
             $ADMIN->add($parentnodename, $page);
-        }
+        } */
     }
 
     /**
@@ -104,7 +109,6 @@ class bookingextension extends base {
      */
     public function uninstall_cleanup() {
         global $CFG;
-
         parent::uninstall_cleanup();
     }
 }
