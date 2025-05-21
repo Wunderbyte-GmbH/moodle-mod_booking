@@ -25,7 +25,6 @@
 namespace mod_booking\option\fields;
 
 use mod_booking\booking_option_settings;
-use mod_booking\option\fields;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use mod_booking\singleton_service;
@@ -40,7 +39,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class text extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -92,7 +90,8 @@ class text extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         parent::prepare_save_field($formdata, $newoption, $updateparam, '');
 
