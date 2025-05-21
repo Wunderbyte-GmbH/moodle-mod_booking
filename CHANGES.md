@@ -1,3 +1,7 @@
+## Version 8.14.1 (2025052100)
+* Bugfix: In Bookings tracker show unlimited instead of 0.
+* Bugfix: Fix errors with price categories.
+
 ## Version 8.14.0 (2025052000)
 * Improvement: Refactoring for booking_edit_setting with customized options
 * Improvement: PHPUnit teardown fix for booking_campaigns_test and booking_groepenrolment_test
