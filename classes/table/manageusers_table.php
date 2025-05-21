@@ -201,7 +201,7 @@ class manageusers_table extends wunderbyte_table {
     /**
      * Change number of rows. Uses the transmitaction pattern (actionbutton).
      * @param int $id
-     * @param string $data
+     * @param string $data // Data of the bookinganswer.
      * @return array
      */
     public function action_reorderrows(int $id, string $data): array {
