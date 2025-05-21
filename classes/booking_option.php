@@ -1785,7 +1785,7 @@ class booking_option {
                 $groups = groups_get_all_groups($courseid);
                 if (
                     !is_null($this->option->groupid) && ($this->option->groupid > 0)
-                    && in_array($this->option->groupid, $groups)
+                    && in_array($this->option->groupid, array_keys($groups))
                 ) {
                     groups_add_member($this->option->groupid, $userid);
                 } else {
