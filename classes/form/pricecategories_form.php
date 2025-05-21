@@ -74,12 +74,13 @@ class pricecategories_form extends moodleform {
             }
 
             $mform->addElement('text', 'pricecategoryname' . $j, get_string('pricecategoryname', 'booking'));
-            $mform->setType('pricecategoryname' . $j, PARAM_RAW);
+            $mform->setType('pricecategoryname' . $j, PARAM_TEXT);
             $mform->setDefault('pricecategoryname' . $j, $pricecategory->name);
             $mform->addHelpButton('pricecategoryname' . $j, 'pricecategoryname', 'booking');
             $mform->disabledIf('pricecategoryname' . $j, 'disablepricecategory' . $j, 'checked');
 
             $mform->addElement('float', 'defaultvalue' . $j, get_string('defaultvalue', 'booking'), null);
+            $mform->setType('defaultvalue' . $j, PARAM_FLOAT);
             $mform->setDefault('defaultvalue' . $j, $pricecategory->defaultvalue);
             $mform->addHelpButton('defaultvalue' . $j, 'defaultvalue', 'booking');
             $mform->disabledIf('defaultvalue' . $j, 'disablepricecategory' . $j, 'checked');
@@ -98,6 +99,7 @@ class pricecategories_form extends moodleform {
                 null,
                 [0, 1]
             );
+            $mform->setType('disablepricecategory' . $j, PARAM_INT);
             $mform->setDefault('disablepricecategory' . $j, $pricecategory->disabled);
             $mform->addHelpButton('disablepricecategory' . $j, 'disablepricecategory', 'booking');
 
@@ -149,13 +151,14 @@ class pricecategories_form extends moodleform {
             $mform->disabledIf('pricecategoryidentifier' . $counter, 'disablepricecategory' . $counter, 'checked');
 
             $mform->addElement('text', 'pricecategoryname' . $counter, get_string('pricecategoryname', 'booking'));
-            $mform->setType('pricecategoryname' . $counter, PARAM_RAW);
+            $mform->setType('pricecategoryname' . $counter, PARAM_TEXT);
             $mform->setDefault('pricecategoryname' . $counter, '');
             $mform->addHelpButton('pricecategoryname' . $counter, 'pricecategoryname', 'booking');
             $mform->hideIf('pricecategoryname' . $counter, 'addpricecategory' . $counter, 'notchecked');
             $mform->disabledIf('pricecategoryname' . $counter, 'disablepricecategory' . $counter, 'checked');
 
             $mform->addElement('float', 'defaultvalue' . $counter, get_string('defaultvalue', 'booking'), null);
+            $mform->setType('defaultvalue' . $counter, PARAM_FLOAT);
             $mform->setDefault('defaultvalue' . $counter, 0.00);
             $mform->addHelpButton('defaultvalue' . $counter, 'defaultvalue', 'booking');
             $mform->hideIf('defaultvalue' . $counter, 'addpricecategory' . $counter, 'notchecked');
@@ -177,6 +180,7 @@ class pricecategories_form extends moodleform {
                 [0, 1]
             );
             $mform->setDefault('disablepricecategory' . $counter, 0);
+            $mform->setType('disablepricecategory' . $counter, PARAM_INT);
             $mform->addHelpButton('disablepricecategory' . $counter, 'disablepricecategory', 'booking');
             $mform->hideIf('disablepricecategory' . $counter, 'addpricecategory' . $counter, 'notchecked');
 

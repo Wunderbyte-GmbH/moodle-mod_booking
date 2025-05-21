@@ -109,6 +109,8 @@ class pricecategories_handler {
         $existingordernumbers = [];
         foreach ($oldpricecategories as $oldpricecategory) {
             $existingordernumbers[] = $oldpricecategory->ordernum;
+            // We need this as fallback.
+            $oldpricecategorybackups[$oldpricecategory->ordernum] = $oldpricecategory;
         }
 
         foreach ($data as $key => $value) {
@@ -119,10 +121,17 @@ class pricecategories_handler {
                     $pricecategory = new stdClass();
                     $pricecategory->id = $value;
                     $pricecategory->ordernum = $data->{"pricecategoryordernum$counter"};
-                    $pricecategory->identifier = $data->{"pricecategoryidentifier$counter"};
-                    $pricecategory->name = $data->{"pricecategoryname$counter"};
-                    $pricecategory->defaultvalue = str_replace(',', '.', $data->{"defaultvalue$counter"});
-                    $pricecategory->pricecatsortorder = $data->{"pricecatsortorder$counter"};
+                    $pricecategory->identifier = $data->{"pricecategoryidentifier$counter"}
+                        ?? $oldpricecategorybackups[$counter]->identifier;
+                    $pricecategory->name = $data->{"pricecategoryname$counter"}
+                        ?? $oldpricecategorybackups[$counter]->name;
+                    $pricecategory->defaultvalue = str_replace(
+                        ',',
+                        '.',
+                        $data->{"defaultvalue$counter"} ?? $oldpricecategorybackups[$counter]->defaultvalue
+                    );
+                    $pricecategory->pricecatsortorder = $data->{"pricecatsortorder$counter"}
+                        ?? $oldpricecategorybackups[$counter]->pricecatsortorder;
                     $pricecategory->disabled = $data->{"disablepricecategory$counter"};
 
                     $updates[] = $pricecategory;
@@ -153,7 +162,7 @@ class pricecategories_handler {
      */
     public function get_pricecategories() {
         global $DB;
-        return $DB->get_records('booking_pricecategories');
+        return $DB->get_records('booking_pricecategories', null, 'id ASC');
     }
 
     /**
@@ -162,8 +171,6 @@ class pricecategories_handler {
      * @param \moodle_url $pageurl The page URL.
      */
     public function display_form($pageurl) {
-        global $OUTPUT;
-
         $mform = new pricecategories_form($pageurl);
         $mform->display();
     }
