@@ -25,6 +25,10 @@
 
 namespace mod_booking\local\services;
 
+use core_customfield\category_controller;
+use core_customfield\field_controller;
+use mod_booking\customfield\booking_handler;
+
 /**
  * Service to ensure required custom user profile fields exist.
  */
@@ -85,5 +89,52 @@ class evasysuser_profile_field_initializer {
             "param3" => 0,
         ];
         profile_save_field($customfield, []);
+    }
+    /**
+     * Ensures on Install or Upgrade that Bookingoptioncustomfield exists.
+     *
+     * @return void
+     *
+     */
+    public static function ensure_evasysoptioncustomfield_exists(): void {
+        global $DB, $CFG;
+
+        require_once($CFG->dirroot . '/user/profile/definelib.php');
+
+        $category = $DB->get_record('customfield_category', ['name' => self::CATEGORY_NAME]);
+        if (!$category) {
+            $handler = booking_handler::create();
+            $handler->create_category(self::CATEGORY_NAME);
+            $category = $DB->get_record('customfield_category', ['name' => self::CATEGORY_NAME], '*', MUST_EXIST);
+        }
+        $field = $DB->get_record('customfield_field', ['shortname' => self::FIELD_SHORTNAME]);
+        if ($field) {
+            return;
+        }
+        $fieldrecord = (object)[
+            'id' => 0,
+            'shortname' => self::FIELD_SHORTNAME,
+            'name' => self::FIELD_NAME,
+            'type' => 'textformat',
+            'description' => '',
+            'descriptionformat' => 1,
+            'sortorder' => 0,
+            'categoryid' => $category->id,
+            'timecreated' => time(),
+            'configdata' => json_encode([
+                'required' => '0',
+                'uniquevalues' => '0',
+                'displaysize' => 50,
+                'maxlenght' => 1333,
+                'ispassword' => '0',
+                'link' => "",
+                'locked' => '1',
+                'visibility' => '2',
+                'defaultvalue' => '',
+                'defaultvalueformat' => '1',
+            ]),
+        ];
+        $fieldcontroller = field_controller::create(0, $fieldrecord);
+        $fieldcontroller->save();
     }
 }

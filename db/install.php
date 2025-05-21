@@ -41,5 +41,6 @@ function xmldb_booking_install() {
             $DB->insert_record('booking_pricecategories', $defaultcategory);
         }
         evasysuser_profile_field_initializer::ensure_evasyscustomfield_exists();
+        evasysuser_profile_field_initializer::ensure_evasysoptioncustomfield_exists();
     }
 }

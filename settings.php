@@ -740,11 +740,24 @@ if ($ADMIN->fulltree) {
         }
         $settings->add(
             new admin_setting_configselect(
-                'booking/evasyscategoryfield',
-                get_string('evasyscategoryfield', 'mod_booking'),
-                get_string('evasyscategoryfield_desc', 'mod_booking'),
+                'booking/evasyscategoryfielduser',
+                get_string('evasyscategoryfielduser', 'mod_booking'),
+                get_string('evasyscategoryfielduser_desc', 'mod_booking'),
                 'evasysid',
                 $userprofilefieldsarray
+            )
+        );
+        $optioncustomfields = booking_handler::get_customfields();
+        foreach ($optioncustomfields as $optioncustomfield) {
+            $optioncustomfieldsarray[$optioncustomfield->shortname] = format_string($optioncustomfield->name);
+        }
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/evasyscategoryfieldoption',
+                get_string('evasyscategoryfieldoption', 'mod_booking'),
+                get_string('evasyscategoryfieldoption_desc', 'mod_booking'),
+                'evasysid',
+                $optioncustomfieldsarray
             )
         );
             $subinutoptions = evasys_evaluation::get_subunits();
