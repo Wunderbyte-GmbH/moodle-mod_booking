@@ -517,6 +517,11 @@ class rule_react_on_event implements booking_rule {
 
         $sqlstring = "SELECT $sql->select FROM $sql->from WHERE $sql->where";
 
+        // Sorting is used for interval notification (action send_mail_interval).
+        if (isset($sql->sort)) {
+            $sqlstring .= "ORDER BY $sql->sort";
+        }
+
         $records = $DB->get_records_sql($sqlstring, $params);
 
         return $records;
