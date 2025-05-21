@@ -193,18 +193,23 @@ class evasys extends field_base {
      */
     public static function save_data(&$formdata, &$option) {
         $evasys = new evasys_evaluation();
-        $fieldshortname = get_config('booking', 'evasyscategoryfield');
+        $userfieldshortname = get_config('booking', 'evasyscategoryfielduser');
         $evasys->save_form($formdata, $option);
         if (empty($formdata->teachersforoption)) {
             return;
         }
+        if (!empty($formdata->customfield_evasysid)) {
+            return;
+        }
         foreach ($formdata->teachersforoption as $teacherid) {
             $teacher = singleton_service::get_instance_of_user($teacherid, true);
-            if (empty($teacher->profile[$fieldshortname])) {
+            $teachers[] = $teacher;
+            if (empty($teacher->profile[$userfieldshortname])) {
                   $evasys->save_user($teacher);
             } else {
                 continue;
             }
         }
+        $evasys->save_course($option);
     }
 }

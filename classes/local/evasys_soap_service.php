@@ -128,6 +128,22 @@ class evasys_soap_service extends SoapClient {
             return null;
         }
     }
+    /**
+     * Insert Course to Evasys
+     *
+     * @param array $coursedata
+     *
+     * @return mixed
+     *
+     */
+    public function insert_course($coursedata) {
+        try {
+            $response = $this->__soapCall('InsertCourse', ['course' => $coursedata ]);
+            return $response;
+        } catch (SoapFault $e) {
+            return null;
+        }
+    }
 
     /**
      * Sets Soapheader for authentication.

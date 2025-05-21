@@ -25,6 +25,8 @@
 
 namespace mod_booking\local;
 
+use mod_booking\customfield\booking_handler;
+use mod_booking\singleton_service;
 use stdClass;
 
 
@@ -104,6 +106,7 @@ class evasys_evaluation {
     /**
      * Saves user in Evasys.
      *
+     * @param /stdClass $user
      * @return void
      *
      */
@@ -117,13 +120,13 @@ class evasys_evaluation {
             'm_sTitle' => '',
             'm_sFirstName' => $user->firstname,
             'm_sSurName' => $user->lastname,
-            'm_sUnitName' => '',
+            'm_sUnitName' => '', // Subunit Name
             'm_sAddress' => $user->adress ?? '',
             'm_sEmail' => $user->email,
             'm_nFbid' => (int)get_config('booking', 'evasyssubunits'),
             'm_nAddressId' => 0,
             'm_sPassword' => '',
-            'm_sPhoneNumber' => $user->phone1,
+            'm_sPhoneNumber' => $user->phone1 ?? "",
             'm_bUseLDAP' => null,
             'm_bActiveUser' => null,
             'm_aCourses' => null,
@@ -131,12 +134,52 @@ class evasys_evaluation {
         $service = new evasys_soap_service();
         $response = $service->insert_user($userdata);
         if (isset($response)) {
-            $fieldshortname = get_config('booking', 'evasyscategoryfield');
+            $fieldshortname = get_config('booking', 'evasyscategoryfielduser');
             require_once($CFG->dirroot . "/user/profile/lib.php");
             profile_save_custom_fields($user->id, [$fieldshortname => $response->m_sExternalId]);
         }
     }
 
+    /**
+     * [Description for save_course]
+     *
+     * @param /stdClass $option
+     * @param int $userid
+     *
+     * @return void
+     *
+     */
+    public function save_course($option) {
+        $coursedata = [
+            'm_nCourseId' => null,
+            'm_sProgramOfStudy' => 'Test1234', //Subunit name.
+            'm_sCourseTitle' => "$option->text",
+            'm_sRoom' => '',
+            'm_nCourseType' => 5,
+            'm_sPubCourseId' => "evasys_$option->id",
+            'm_sExternalId' => "evasys_$option->id",
+            'm_nCountStud' => null,
+            'm_sCustomFieldsJSON' => '',
+            'm_nUserId' => 4996,
+            'm_nFbid' => (int)get_config('booking', 'evasyssubunits'),
+            'm_nPeriodId' => (int)get_config('booking', 'evasysperiods'),
+            'currentPosition' => null,
+            'hasAnonymousParticipants' => false,
+            'isModuleCourse' => null,
+            'm_aoParticipants' => [],
+            'm_aoSecondaryInstructors' => [],
+            'm_oSurveyHolder' => null,
+        ];
+        $service = new evasys_soap_service();
+        $repsonse = $service->insert_course($coursedata);
+        if (isset($repsonse)) {
+            $fieldshortname = get_config('booking', 'evasyscategoryfieldoption');
+            $handler = booking_handler::create();
+            //Instanceid?!
+            //$handler->field_save($instanceid, $fieldshortname, $repsonse->m_sExternalId);
+        }
+
+    }
     /**
      * Maps DB of Form to DB for saving.
      *
