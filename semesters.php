@@ -29,7 +29,7 @@ use mod_booking\form\dynamicsemestersform;
 use mod_booking\output\semesters_holidays;
 
 require_once('../../config.php');
-require_once($CFG->libdir.'/adminlib.php');
+require_once($CFG->libdir . '/adminlib.php');
 
 global $OUTPUT;
 
@@ -38,8 +38,12 @@ require_login(0, false);
 
 $cmid = optional_param('id', 0, PARAM_INT);
 
-admin_externalpage_setup('modbookingsemesters', '', [],
-    new moodle_url('/mod/booking/semesters.php'));
+admin_externalpage_setup(
+    'modbookingsemesters',
+    '',
+    [],
+    new moodle_url('/mod/booking/semesters.php')
+);
 
 $pageurl = new moodle_url('/mod/booking/semesters.php');
 $PAGE->set_url($pageurl);
@@ -89,9 +93,9 @@ if ($cmid) {
     $data->cmid = $cmid;
     $existingsemester = $data;
     $PAGE->requires->js_call_amd(
-    'mod_booking/dynamicchangesemesterform',
-    'init',
-    ['[data-region=changesemestercontainer]', dynamicchangesemesterform::class, $existingsemester]
+        'mod_booking/dynamicchangesemesterform',
+        'init',
+        ['[data-region=changesemestercontainer]', dynamicchangesemesterform::class, $existingsemester]
     );
 }
 

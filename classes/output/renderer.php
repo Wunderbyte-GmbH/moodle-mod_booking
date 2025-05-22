@@ -648,6 +648,18 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render pricecategories form.
+     * @param object $data
+     * @return string
+     */
+    public function render_pricecategories($data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/pricecategories', $data);
+        return $o;
+    }
+
+    /**
      * Render notifyme button.
      * @param object $data
      * @return string

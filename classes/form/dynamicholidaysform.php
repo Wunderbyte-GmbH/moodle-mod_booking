@@ -46,7 +46,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class dynamicholidaysform extends dynamic_form {
-
     /**
      * Get context for dynamic submission.
      * @return context
@@ -72,7 +71,6 @@ class dynamicholidaysform extends dynamic_form {
         $holidaysarray = [];
 
         if (!empty($data->holidaystart) && is_array($data->holidaystart)) {
-
             foreach ($data->holidaystart as $idx => $holidaystart) {
                 $holiday = new stdClass();
                 $holiday->id = $data->holidayid[$idx];
@@ -116,7 +114,6 @@ class dynamicholidaysform extends dynamic_form {
                 $data->holidayend[] = $existingholiday->enddate;
                 $data->holidayname[] = trim($existingholiday->name);
             }
-
         } else {
             // No holidays found in DB.
             $data->holidays = 0;
@@ -150,7 +147,6 @@ class dynamicholidaysform extends dynamic_form {
         }
 
         foreach ($holidaysarray as $holiday) {
-
             // If it's a new holiday id: insert.
             if (!in_array($holiday->id, array_keys($existingholidays))) {
                 $DB->insert_record('booking_holidays', $holiday);
@@ -197,8 +193,14 @@ class dynamicholidaysform extends dynamic_form {
         $repeatedholidays[] = $mform->createElement('date_selector', 'holidaystart', get_string('holidaystart', 'mod_booking'));
 
         // Checkbox for end date.
-        $repeatedholidays[] = $mform->createElement('advcheckbox', 'holidayendactive',
-            get_string('holidayendactive', 'mod_booking'), null, null, [0, 1]);
+        $repeatedholidays[] = $mform->createElement(
+            'advcheckbox',
+            'holidayendactive',
+            get_string('holidayendactive', 'mod_booking'),
+            null,
+            null,
+            [0, 1]
+        );
         $repeateloptions['holidayend']['hideif'] = ['holidayendactive', 'eq', 0];
 
         // Holiday end date.
@@ -216,8 +218,17 @@ class dynamicholidaysform extends dynamic_form {
         $numberofholidaystoshow = 1;
         $numberofholidaystoshow = $DB->count_records('booking_holidays') ?? 1;
 
-        $this->repeat_elements($repeatedholidays, $numberofholidaystoshow,
-            $repeateloptions, 'holidays', 'addholiday', 1, get_string('addholiday', 'mod_booking'), true, 'deleteholiday');
+        $this->repeat_elements(
+            $repeatedholidays,
+            $numberofholidaystoshow,
+            $repeateloptions,
+            'holidays',
+            'addholiday',
+            1,
+            get_string('addholiday', 'mod_booking'),
+            true,
+            'deleteholiday'
+        );
 
         // Buttons.
         $this->add_action_buttons();

@@ -16,6 +16,7 @@
 
 namespace mod_booking;
 
+use cache_helper;
 use mod_booking\event\pricecategory_changed;
 use mod_booking\form\pricecategories_form;
 use stdClass;
@@ -34,7 +35,7 @@ class pricecategories_handler {
      * @param /stdClass $data
      */
     public function process_pricecategories_form($data) {
-        global $DB, $USER;
+        global $DB;
         // Get existing price categories.
         $oldcategories = $DB->get_records('booking_pricecategories');
         $changes = $this->get_pricecategory_changes($oldcategories, $data);
@@ -49,6 +50,8 @@ class pricecategories_handler {
         if (!empty($changes['inserts'])) {
             $DB->insert_records('booking_pricecategories', $changes['inserts']);
         }
+
+        cache_helper::purge_by_event('setbackpricecategories');
     }
 
     /**
@@ -163,15 +166,5 @@ class pricecategories_handler {
     public function get_pricecategories() {
         global $DB;
         return $DB->get_records('booking_pricecategories', null, 'id ASC');
-    }
-
-    /**
-     * Displays the price categories form.
-     *
-     * @param \moodle_url $pageurl The page URL.
-     */
-    public function display_form($pageurl) {
-        $mform = new pricecategories_form($pageurl);
-        $mform->display();
     }
 }

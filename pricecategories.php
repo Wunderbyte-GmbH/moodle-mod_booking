@@ -22,6 +22,8 @@
  * @author Georg Maißer, Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+ use mod_booking\form\pricecategories_form;
+ use mod_booking\output\pricecategories;
  use mod_booking\pricecategories_handler;
  require_once(__DIR__ . '/../../config.php');
  require_once($CFG->libdir . '/adminlib.php');
@@ -31,33 +33,49 @@
  global $OUTPUT, $PAGE, $USER;
 
  // Sicherstellen, dass der Nutzer angemeldet ist.
- require_login();
- admin_externalpage_setup('modbookingpricecategories');
+// No guest autologin.
+require_login(0, false);
+admin_externalpage_setup('modbookingpricecategories');
 
- // URLs definieren.
- $pageurl = new moodle_url('/mod/booking/pricecategories.php');
- $settingsurl = new moodle_url('/admin/category.php', ['category' => 'modbookingfolder']);
+// URLs definieren.
+$pageurl = new moodle_url('/mod/booking/pricecategories.php');
+$settingsurl = new moodle_url('/admin/category.php', ['category' => 'modbookingfolder']);
 
- // Seite konfigurieren.
- $PAGE->set_url($pageurl);
- $PAGE->set_title(get_string('pricecategories', 'mod_booking'));
- $PAGE->set_heading(get_string('pricecategory', 'mod_booking'));
+// Seite konfigurieren.
+$PAGE->set_context(context_system::instance());
+$PAGE->set_pagelayout('admin');
+$PAGE->set_url($pageurl);
+$PAGE->set_title(get_string('pricecategories', 'mod_booking'));
+$PAGE->set_heading(get_string('pricecategory', 'mod_booking'));
 
- // Handler initialisieren.
- $handler = new pricecategories_handler();
+// Handler initialisieren.
+$handler = new pricecategories_handler();
 
- // Formularverarbeitung.
-if (($data = data_submitted()) && confirm_sesskey()) {
+$mform = new pricecategories_form();
+$mform->set_data_for_dynamic_submission();
+
+// Formularverarbeitung.
+/*if ($mform->is_cancelled()) {
+    redirect($settingsurl);
+} else if ($data = $mform->get_data()) {
     $handler->process_pricecategories_form($data);
     cache_helper::purge_by_event('setbackpricecategories');
     redirect($pageurl, get_string('pricecategoriessaved', 'booking'), 5);
-}
+}*/
 
- // Seite ausgeben.
- echo $OUTPUT->header();
- echo $OUTPUT->heading(get_string('pricecategory', 'mod_booking'));
- echo get_string('pricecategoriessubtitle', 'mod_booking');
+$PAGE->requires->js_call_amd(
+    'mod_booking/dynamicpricecategoriesform',
+    'init',
+    ['[data-region=pricecategoriesformcontainer]', pricecategories_form::class]
+);
 
- $handler->display_form($pageurl);
+// Seite ausgeben.
+echo $OUTPUT->header();
+echo $OUTPUT->heading(get_string('pricecategory', 'mod_booking'));
+echo get_string('pricecategoriessubtitle', 'mod_booking');
 
- echo $OUTPUT->footer();
+$output = $PAGE->get_renderer('mod_booking');
+$data = new pricecategories($mform->render());
+echo $output->render_pricecategories($data);
+
+echo $OUTPUT->footer();
