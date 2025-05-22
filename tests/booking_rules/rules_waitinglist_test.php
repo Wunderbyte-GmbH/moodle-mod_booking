@@ -40,7 +40,7 @@ use mod_booking_generator;
  * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-final class rules_test_waitinglist extends advanced_testcase {
+final class rules_waitinglist_test extends advanced_testcase {
     /**
      * Tests set up.
      */
