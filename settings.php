@@ -760,8 +760,9 @@ if ($ADMIN->fulltree) {
                 $optioncustomfieldsarray
             )
         );
-            $subinutoptions = evasys_evaluation::get_subunits();
-            $periodoptions = evasys_evaluation::get_periods();
+            $evasys = new evasys_evaluation();
+            $subinutoptions = $evasys->get_subunits();
+            $periodoptions = $evasys->get_periods();
         if (
             empty($subunitoptions)
             && empty(get_config('booking', 'evasysuser'))

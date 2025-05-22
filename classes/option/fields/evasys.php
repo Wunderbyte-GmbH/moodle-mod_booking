@@ -24,6 +24,8 @@
 
  namespace mod_booking\option\fields;
 
+
+ use core_user;
  use mod_booking\booking_option_settings;
  use mod_booking\local\evasys_evaluation;
  use mod_booking\option\field_base;
@@ -111,11 +113,9 @@ class evasys extends field_base {
         if (empty(get_config('booking', 'evasyssubunits'))) {
             return;
         }
-
-        // Curl evasys for questionaires.
-        $questionaires = [1, 2, 3];
-        // TODO: Curl evasys for additional recpients.
-        $recipients = ['Foo', 'Bar', 'Foobar'];
+        $evasys = new evasys_evaluation();
+        $forms = $evasys->get_allforms();
+        $recipients = $evasys->get_recipients();
 
         if (empty(get_config('booking', 'useevasys'))) {
             return;
@@ -132,7 +132,7 @@ class evasys extends field_base {
             'autocomplete',
             'evasys_questionaire',
             get_string('evasys_questionaire', 'mod_booking'),
-            $questionaires
+            $forms
         );
 
         $mform->addElement(

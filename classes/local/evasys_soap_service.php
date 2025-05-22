@@ -112,6 +112,24 @@ class evasys_soap_service extends SoapClient {
         }
     }
 
+
+    /**
+     * Feteches Forms.
+     *
+     * @param array $args
+     *
+     * @return mixed
+     *
+     */
+    public function fetch_forms($args) {
+        try {
+            $response = $this->__soapCall('GetAllForms', $args);
+            return $response;
+        } catch (SoapFault $e) {
+            return null;
+        }
+    }
+
    /**
     * Inserts User to Evays.
     *

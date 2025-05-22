@@ -26,8 +26,10 @@
 namespace mod_booking\local;
 
 use mod_booking\customfield\booking_handler;
-use mod_booking\singleton_service;
+use context_course;
 use stdClass;
+defined('MOODLE_INTERNAL') || die();
+require_once($CFG->dirroot . '/user/lib.php');
 
 
 /**
@@ -75,7 +77,7 @@ class evasys_evaluation {
      * @return array
      *
      */
-    public static function get_periods() {
+    public function get_periods() {
         $service = new evasys_soap_service();
         $periods = $service->fetch_periods();
         if (!isset($periods)) {
@@ -87,12 +89,54 @@ class evasys_evaluation {
     }
 
     /**
+     * Feteches forms and creates array for Settings.
+     *
+     * @return array
+     *
+     */
+    public function get_allforms() {
+        $service = new evasys_soap_service();
+        $args = [
+                'IncludeCustomReports' => true,
+                'IncludeUsageRestrictions' => true,
+                'UsageRestrictionList' => [
+                        'Subunits' => get_config('booking', 'evasyssubunits'),
+                ],
+        ];
+        $forms = $service->fetch_forms($args);
+        if (!isset($forms)) {
+            return [];
+        }
+        $list = $forms->Simpleform;
+        $formoptions = self::transform_return_to_array($list, 'OriginalID', 'Name');
+        return $formoptions;
+    }
+
+    /**
+     * Fetches all user with manager role from DB.
+     *
+     * @return array
+     *
+     */
+    public function get_recipients() {
+        global $COURSE, $DB;
+        $context = context_course::instance($COURSE->id);
+        $role = $DB->get_record('role', ['shortname' => 'organizer'], 'id');
+        $users = get_role_users($role->id, $context);
+        $useroptions = [];
+        foreach ($users as $user) {
+            $useroptions[$user->id] = "$user->firstname $user->lastname";
+        }
+        return $useroptions;
+    }
+
+    /**
      * Fetches subunits and creates array for Settings.
      *
      * @return array
      *
      */
-    public static function get_subunits() {
+    public function get_subunits() {
         $service = new evasys_soap_service();
         $subunits = $service->fetch_subunits();
         if (!isset($subunits)) {
