@@ -59,7 +59,7 @@ final class rules_n_days_test extends advanced_testcase {
      * @covers \mod_booking\booking_rules\conditions\select_users->execute
      * @covers \mod_booking\placeholders\placeholders\changes->return_value
      *
-     * @param array $bdata
+     * @param array $data
      * @param array $expected
      * @throws \coding_exception
      *
