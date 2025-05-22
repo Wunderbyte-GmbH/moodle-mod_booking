@@ -529,7 +529,7 @@ class view implements renderable, templatable {
             booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
         $teacheroptionstable->set_filter_sql($fields, $from, $where, $filter, $params);
 
-        // Initialize the default columnes, headers, settings and layout for the table.
+        // Initialize the default columns, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
         $this->wbtable_initialize_layout($teacheroptionstable, $tfilter, $tsearch, $tsort);
 
