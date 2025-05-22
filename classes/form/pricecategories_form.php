@@ -29,6 +29,7 @@ use cache_helper;
 use context;
 use context_system;
 use core_form\dynamic_form;
+use mod_booking\local\pricecategories_handler;
 use moodle_url;
 use stdClass;
 
@@ -36,8 +37,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once("$CFG->libdir/formslib.php");
-
-use mod_booking\pricecategories_handler;
+require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
  * Add price categories form.
@@ -54,168 +54,69 @@ class pricecategories_form extends dynamic_form {
         global $DB;
 
         $mform = $this->_form;
-
-        // Now, loop through already existing price categories.
         $pchandler = new pricecategories_handler();
         $pricecategories = $pchandler->get_pricecategories();
 
-        $j = 1;
-        foreach ($pricecategories as $pricecategory) {
-            $mform->addElement('hidden', 'pricecategoryid' . $j, $pricecategory->id);
-            $mform->setType('pricecategoryid' . $j, PARAM_INT);
-            $mform->addElement('hidden', 'pricecategoryordernum' . $j, $j);
-            $mform->setType('pricecategoryordernum' . $j, PARAM_INT);
-            if ($j == 1) {
-                $mform->addElement('hidden', 'pricecategoryidentifier' . $j, 'default');
-                $mform->setType('pricecategoryidentifier' . $j, PARAM_TEXT);
-            } else {
-                $mform->addElement('text', 'pricecategoryidentifier' . $j, get_string(
-                    'pricecategoryidentifier',
-                    'booking'
-                ) . ' ' . $j);
-                $mform->setType('pricecategoryidentifier' . $j, PARAM_TEXT);
-                $mform->setDefault('pricecategoryidentifier' . $j, $pricecategory->identifier);
-                $mform->addHelpButton('pricecategoryidentifier' . $j, 'pricecategoryidentifier', 'booking');
-                $mform->disabledIf('pricecategoryidentifier' . $j, 'disablepricecategory' . $j, 'checked');
-            }
+        $repeats = max(count($pricecategories), 1);
 
-            $mform->addElement(
-                'text',
-                'pricecategoryname' . $j,
-                $j == 1 ? get_string('defaultpricecategoryname', 'mod_booking') : get_string('pricecategoryname', 'mod_booking')
-            );
-            $mform->setType('pricecategoryname' . $j, PARAM_TEXT);
-            $mform->setDefault('pricecategoryname' . $j, $pricecategory->name);
-            $mform->addHelpButton('pricecategoryname' . $j, 'pricecategoryname', 'booking');
-            $mform->disabledIf('pricecategoryname' . $j, 'disablepricecategory' . $j, 'checked');
+        $repeatarray = [];
 
-            $mform->addElement('float', 'defaultvalue' . $j, get_string('defaultvalue', 'booking'), null);
-            $mform->setType('defaultvalue' . $j, PARAM_FLOAT);
-            $mform->setDefault('defaultvalue' . $j, $pricecategory->defaultvalue);
-            $mform->addHelpButton('defaultvalue' . $j, 'defaultvalue', 'booking');
-            $mform->disabledIf('defaultvalue' . $j, 'disablepricecategory' . $j, 'checked');
+        $repeatarray[] = $mform->createElement('hidden', 'pricecategoryid', 0);
+        $repeatarray[] = $mform->createElement('hidden', 'pricecategoryordernum', 0);
+        $repeatarray[] = $mform->createElement('text', 'pricecategoryidentifier', get_string('pricecategoryidentifier', 'booking'));
+        $repeatarray[] = $mform->createElement('text', 'pricecategoryname', get_string('pricecategoryname', 'booking'));
+        $repeatarray[] = $mform->createElement('float', 'defaultvalue', get_string('defaultvalue', 'booking'));
+        $repeatarray[] = $mform->createElement('text', 'pricecatsortorder', get_string('pricecatsortorder', 'mod_booking'));
+        $repeatarray[] = $mform->createElement('advcheckbox', 'disablepricecategory', get_string('disablepricecategory', 'booking'));
 
-            $mform->addElement('text', 'pricecatsortorder' . $j, get_string('pricecatsortorder', 'mod_booking'));
-            $mform->setType('pricecatsortorder' . $j, PARAM_INT);
-            $mform->setDefault('pricecatsortorder' . $j, $pricecategory->pricecatsortorder);
-            $mform->addHelpButton('pricecatsortorder' . $j, 'pricecatsortorder', 'mod_booking');
-            $mform->disabledIf('pricecatsortorder' . $j, 'disablepricecategory' . $j, 'checked');
+        $repeateloptions = [
+            'pricecategoryid' => [
+                'type' => PARAM_INT,
+            ],
+            'pricecategoryordernum' => [
+                'type' => PARAM_INT,
+            ],
+            'pricecategoryidentifier' => [
+                'helpbutton' => ['pricecategoryidentifier', 'booking'],
+                'disabledif' => ['disablepricecategory', 'checked'],
+                'type' => PARAM_TEXT,
+            ],
+            'pricecategoryname' => [
+                'helpbutton' => ['pricecategoryname', 'booking'],
+                'disabledif' => ['disablepricecategory', 'checked'],
+                'type' => PARAM_RAW,
+            ],
+            'defaultvalue' => [
+                'helpbutton' => ['defaultvalue', 'booking'],
+                'disabledif' => ['disablepricecategory', 'checked'],
+                'type' => PARAM_FLOAT,
+            ],
+            'pricecatsortorder' => [
+                'helpbutton' => ['pricecatsortorder', 'mod_booking'],
+                'disabledif' => ['disablepricecategory', 'checked'],
+                'type' => PARAM_INT,
+            ],
+            'disablepricecategory' => [
+                'helpbutton' => ['disablepricecategory', 'booking'],
+                'type' => PARAM_BOOL,
+            ],
+        ];
 
-            // The first price category is the default one and cannot be disabled.
-            if ($j == 1) {
-                $mform->addElement(
-                    'static',
-                    'disablepricecategorystatic' . $j,
-                    '',
-                    "<div class='alert alert-info'>" . get_string(
-                        'defaultpricecategoryinfoalert',
-                        'mod_booking'
-                    ) . "</div>"
-                );
-                $mform->addElement('hidden', 'disablepricecategory' . $j, 0);
-                $mform->setType('disablepricecategory' . $j, PARAM_INT);
-            } else {
-                $mform->addElement(
-                    'advcheckbox',
-                    'disablepricecategory' . $j,
-                    get_string('disablepricecategory', 'booking') . ' ' . $j,
-                    null,
-                    null,
-                    [0, 1]
-                );
-                $mform->setType('disablepricecategory' . $j, PARAM_INT);
-                $mform->setDefault('disablepricecategory' . $j, $pricecategory->disabled);
-                $mform->addHelpButton('disablepricecategory' . $j, 'disablepricecategory', 'booking');
-            }
-            // Now we increment the counter.
-            $j++;
-        }
+        $this->repeat_elements(
+            $repeatarray,
+            $repeats,
+            $repeateloptions,
+            'pricecategories_repeats',
+            'addfields',
+            1,
+            get_string('addpricecategory', 'booking')
+        );
 
-        // Now, if there are less than the maximum number of price category fields allow adding additional ones.
-        if (count($pricecategories) < MOD_BOOKING_MAX_PRICE_CATEGORIES) {
-            // Between one to nine price categories are supported.
-            $start = count($pricecategories) + 1;
-            $this->addpricecategories($mform, $start);
-        }
+        // $mform->setConstant('pricecategoryidentifier[0]', 'default'); // Optional: set the value
+        $mform->freeze('pricecategoryidentifier[0]'); // Makes it uneditable (disabled)
 
-        // Add "Save" and "Cancel" buttons.
+
         $this->add_action_buttons(true);
-    }
-
-    /**
-     * Helper function to create form elements for adding price categories.
-     * Start with 2, because 1 is the default price.
-     *
-     * @param mixed $mform
-     * @param int $counter if there already are existing price categories start with the succeeding number
-     *
-     * @return void
-     *
-     */
-    public function addpricecategories($mform, $counter = 2) {
-
-        // Add checkbox to add first price category.
-        $mform->addElement('checkbox', 'addpricecategory' . $counter, get_string('addpricecategory', 'booking'));
-
-        while ($counter <= MOD_BOOKING_MAX_PRICE_CATEGORIES) {
-            // New elements have a default pricecategoryid of 0.
-            $mform->addElement('hidden', 'pricecategoryid' . $counter, 0);
-            $mform->setType('pricecategoryid' . $counter, PARAM_INT);
-
-            $mform->addElement('hidden', 'pricecategoryordernum' . $counter, $counter);
-            $mform->setType('pricecategoryordernum' . $counter, PARAM_INT);
-
-            $mform->addElement(
-                'text',
-                'pricecategoryidentifier' . $counter,
-                get_string('pricecategoryidentifier', 'booking') . ' ' . $counter
-            );
-            $mform->setType('pricecategoryidentifier' . $counter, PARAM_TEXT);
-            $mform->addHelpButton('pricecategoryidentifier' . $counter, 'pricecategoryidentifier', 'booking');
-            $mform->hideIf('pricecategoryidentifier' . $counter, 'addpricecategory' . $counter, 'notchecked');
-            $mform->disabledIf('pricecategoryidentifier' . $counter, 'disablepricecategory' . $counter, 'checked');
-
-            $mform->addElement('text', 'pricecategoryname' . $counter, get_string('pricecategoryname', 'booking'));
-            $mform->setType('pricecategoryname' . $counter, PARAM_TEXT);
-            $mform->setDefault('pricecategoryname' . $counter, '');
-            $mform->addHelpButton('pricecategoryname' . $counter, 'pricecategoryname', 'booking');
-            $mform->hideIf('pricecategoryname' . $counter, 'addpricecategory' . $counter, 'notchecked');
-            $mform->disabledIf('pricecategoryname' . $counter, 'disablepricecategory' . $counter, 'checked');
-
-            $mform->addElement('float', 'defaultvalue' . $counter, get_string('defaultvalue', 'booking'), null);
-            $mform->setType('defaultvalue' . $counter, PARAM_FLOAT);
-            $mform->setDefault('defaultvalue' . $counter, 0.00);
-            $mform->addHelpButton('defaultvalue' . $counter, 'defaultvalue', 'booking');
-            $mform->hideIf('defaultvalue' . $counter, 'addpricecategory' . $counter, 'notchecked');
-            $mform->disabledIf('defaultvalue' . $counter, 'disablepricecategory' . $counter, 'checked');
-
-            $mform->addElement('text', 'pricecatsortorder' . $counter, get_string('pricecatsortorder', 'mod_booking'));
-            $mform->setType('pricecatsortorder' . $counter, PARAM_INT);
-            $mform->setDefault('pricecatsortorder' . $counter, "0");
-            $mform->addHelpButton('pricecatsortorder' . $counter, 'pricecatsortorder', 'mod_booking');
-            $mform->hideIf('pricecatsortorder' . $counter, 'addpricecategory' . $counter, 'notchecked');
-            $mform->disabledIf('pricecatsortorder' . $counter, 'disablepricecategory' . $counter, 'checked');
-
-            $mform->addElement(
-                'advcheckbox',
-                'disablepricecategory' . $counter,
-                get_string('disablepricecategory', 'booking') . ' ' . $counter,
-                null,
-                null,
-                [0, 1]
-            );
-            $mform->setDefault('disablepricecategory' . $counter, 0);
-            $mform->setType('disablepricecategory' . $counter, PARAM_INT);
-            $mform->addHelpButton('disablepricecategory' . $counter, 'disablepricecategory', 'booking');
-            $mform->hideIf('disablepricecategory' . $counter, 'addpricecategory' . $counter, 'notchecked');
-
-            // Show checkbox to add a price category.
-            if ($counter < MOD_BOOKING_MAX_PRICE_CATEGORIES) {
-                $mform->addElement('checkbox', 'addpricecategory' . ($counter + 1), get_string('addpricecategory', 'booking'));
-                $mform->hideIf('addpricecategory' . ($counter + 1), 'addpricecategory' . $counter, 'notchecked');
-            }
-            ++$counter;
-        }
     }
 
     /**
@@ -233,56 +134,15 @@ class pricecategories_form extends dynamic_form {
         $errors = [];
 
         // Validate price categories.
-        for ($i = 1; $i <= MOD_BOOKING_MAX_PRICE_CATEGORIES; $i++) {
-            if (isset($data['pricecategoryidentifier' . $i])) {
-                $pricecategoryidentifierx = $data['pricecategoryidentifier' . $i];
-                $pricecategorynamex = $data['pricecategoryname' . $i];
-                $defaultvaluex = $data['defaultvalue' . $i];
-                $pricecatsortorderx = $data['pricecatsortorder' . $i];
-
-                // The price category identifier is not allowed to be empty.
-                if (empty($pricecategoryidentifierx)) {
-                    $errors['pricecategoryidentifier' . $i] = get_string('erroremptypricecategoryidentifier', 'mod_booking');
-                }
-                // The first identifier needs to be "default".
-                if ($i == 1 && $pricecategoryidentifierx != 'default') {
-                    $errors['pricecategoryidentifier' . $i] =
-                        get_string('errorpricecategoryidentifiermustbedefault', 'mod_booking');
-                }
-                // Other identifiers must not be called "default".
-                if ($i > 1 && $pricecategoryidentifierx == 'default') {
-                    $errors['pricecategoryidentifier' . $i] =
-                        get_string('errorpricecategoryidentifierdefaultnotallowed', 'mod_booking');
-                }
-
-                // The price category name is not allowed to be empty.
-                if (empty($pricecategorynamex)) {
-                    $errors['pricecategoryname' . $i] = get_string('erroremptypricecategoryname', 'mod_booking');
-                }
-
-                // Not more than 2 decimals are allowed for the default price.
-                if (!empty($defaultvaluex) && is_float($defaultvaluex)) {
-                    $numberofdecimals = strlen(substr(strrchr($defaultvaluex, "."), 1));
-                    if ($numberofdecimals > 2) {
-                        $errors['defaultvalue' . $i] = get_string('errortoomanydecimals', 'mod_booking');
-                    }
-                }
-
-                if (empty($pricecatsortorderx)) {
-                    $errors['pricecatsortorder' . $i] = get_string('error:entervalue', 'mod_booking');
-                }
-
-                // The identifier of a price category needs to be unique.
-                $records = $DB->get_records('booking_pricecategories', ['identifier' => $pricecategoryidentifierx]);
-                if (count($records) > 1) {
-                    $errors['pricecategoryidentifier' . $i] = get_string('errorduplicatepricecategoryidentifier', 'booking');
-                }
-
-                // The name of a price category needs to be unique.
-                $records = $DB->get_records('booking_pricecategories', ['name' => $pricecategorynamex]);
-                if (count($records) > 1) {
-                    $errors['pricecategoryname' . $i] = get_string('errorduplicatepricecategoryname', 'booking');
-                }
+        for ($i = 0; $i < $data['pricecategories_repeats']; $i++) {
+            // The price category identifier is not allowed to be empty.
+            if (empty($data["pricecategoryidentifier"][$i])) {
+                $errors["pricecategoryidentifier[$i]"] = get_string('erroremptypricecategoryidentifier', 'mod_booking');
+            } else if ($i != 0 && $data["pricecategoryidentifier"][$i] == 'default') {
+                $errors["pricecategoryidentifier[$i]"] = get_string('errorpricecategoryidentifierdefaultnotallowed', 'mod_booking');
+            }
+            if (empty($data["pricecategoryname"][$i])) {
+                $errors["pricecategoryname[$i]"] = get_string('erroremptypricecategoryname', 'mod_booking');
             }
         }
         return $errors;
@@ -311,9 +171,24 @@ class pricecategories_form extends dynamic_form {
     public function set_data_for_dynamic_submission(): void {
         global $DB;
 
-        $data = new stdClass();
+        $pchandler = new pricecategories_handler();
+        $pricecategories = $pchandler->get_pricecategories();
+        $data = [];
 
-
+        // Set default values for existing categories.
+        if (!empty($pricecategories)) {
+            $i = 0;
+            foreach ($pricecategories as $category) {
+                $data['pricecategoryid[' . $i . ']'] = $category->id;
+                $data['pricecategoryordernum[' . $i . ']'] = $i + 1;
+                $data['pricecategoryidentifier[' . $i . ']'] = $category->identifier;
+                $data['pricecategoryname[' . $i . ']'] = $category->name;
+                $data['defaultvalue[' . $i . ']'] = $category->defaultvalue;
+                $data['pricecatsortorder[' . $i . ']'] = $category->pricecatsortorder;
+                $data['disablepricecategory[' . $i . ']'] = $category->disabled;
+                $i++;
+            }
+        }
 
         $this->set_data($data);
     }

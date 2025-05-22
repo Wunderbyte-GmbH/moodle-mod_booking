@@ -24,7 +24,7 @@
  */
  use mod_booking\form\pricecategories_form;
  use mod_booking\output\pricecategories;
- use mod_booking\pricecategories_handler;
+ use mod_booking\local\pricecategories_handler;
  require_once(__DIR__ . '/../../config.php');
  require_once($CFG->libdir . '/adminlib.php');
  require_once(__DIR__ . '/classes/local/pricecategories_handler.php');

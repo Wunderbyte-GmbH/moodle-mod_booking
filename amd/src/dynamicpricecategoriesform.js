@@ -25,24 +25,11 @@ import DynamicForm from 'core_form/dynamicform';
 
 export const init = (selector, formClass) => {
 
-    const formelement = document.querySelector(selector);
-    const jsonstring = window.atob(formelement.dataset.data);
-    const existingpricecategories = JSON.parse(jsonstring);
-
-    const form = new DynamicForm(formelement, formClass);
-
-    // We will probably need this if we switch the form to repeat elements.
-    // Clicking on labels does not work correctly, so we remove the "for" attribut if one is clicked.
-    /* document.getElementById("holidaysform").addEventListener("click", function(e) {
-        if (e.target && e.target.matches(".form-check label")) {
-            e.target.removeAttribute("for");
-        }
-    });*/
+    const form = new DynamicForm(document.querySelector(selector), formClass);
 
     form.addEventListener(form.events.FORM_SUBMITTED, (e) => {
         e.preventDefault();
-        const response = e.detail;
-        form.load({...existingpricecategories, response});
+        form.load();
     });
 
     // Cancel button does not make much sense in such forms but since it's there we'll just reload.
@@ -50,6 +37,6 @@ export const init = (selector, formClass) => {
         e.preventDefault();
         // eslint-disable-next-line promise/catch-or-return
         form.notifyResetFormChanges()
-            .then(() => form.load(existingpricecategories));
+            .then(() => form.load());
     });
 };
