@@ -680,7 +680,10 @@ final class rules_test_waitinglist extends advanced_testcase {
         $time = time_mock::get_mock_time();
 
         // Reorder waitinglist, student4 is now top on the list.
-        $student4answer = $DB->get_record('booking_answers', ['userid' => $student4->id, 'waitinglist' => 1, 'optionid' => $settings->id]);
+        $student4answer = $DB->get_record(
+            'booking_answers',
+            ['userid' => $student4->id, 'waitinglist' => 1, 'optionid' => $settings->id]
+        );
         $this->assertNotFalse($student4answer);
         $student4answer->timemodified = strtotime('-10 days');
         $updateconfirmation = $DB->update_record('booking_answers', $student4answer);

@@ -77,7 +77,6 @@ class applybookingrules extends field_base {
     public static $alternativeimportidentifiers = [
         'skipbookingrulesmode',
         'skipbookingrules',
-
     ];
 
     /**
