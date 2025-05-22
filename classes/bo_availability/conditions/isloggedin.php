@@ -230,7 +230,6 @@ class isloggedin implements bo_condition {
                     'redirecttocourse' => 1,
                 ]
             );
-
         }
         $url = new moodle_url('/login/index.php');
         if (!empty($returnurl)) {

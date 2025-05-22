@@ -418,6 +418,8 @@ class rule_daysbefore implements booking_rule {
                 $sql->where .= !$testmode ? " >= ( :nowparam - 3600 + (86400 * :numberofdays ))" : " IS NOT NULL ";
                 break;
         }
+        // Make sure, cancelled options aren't fetched.
+        $sql->where .= " AND bo.status < 1 ";
 
         $sql->from = "{booking_options} bo
                     JOIN {course_modules} cm

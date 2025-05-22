@@ -546,7 +546,7 @@ final class rules_test extends advanced_testcase {
      *
      * @dataProvider booking_common_settings_provider
      */
-    public function test_rule_on_beforeafter_cursestart(array $bdata): void {
+    public function test_rule_on_beforeafter_coursestart(array $bdata): void {
 
         singleton_service::destroy_instance();
 
