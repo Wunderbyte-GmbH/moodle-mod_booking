@@ -121,35 +121,31 @@ class evasys extends field_base {
             return;
         }
 
-        $mform->addElement(
-            'header',
-            'evasysheader',
-            '<i class="fa fa-clipboard" aria-hidden="true"></i>&nbsp;' .
-            get_string('evasysheader', 'booking')
-        );
-
+        if ($applyheader) {
+            fields_info::add_header_to_mform($mform, self::$header);
+        }
         $mform->addElement(
             'autocomplete',
             'evasys_questionaire',
-            get_string('evasys_questionaire', 'mod_booking'),
+            get_string('evasys:questionaire', 'mod_booking'),
             $forms
         );
 
         $mform->addElement(
             'date_selector',
             'evasys_evaluation_starttime',
-            get_string('evasys_evaluation_starttime', 'mod_booking')
+            get_string('evasys:evaluation_starttime', 'mod_booking')
         );
         $mform->addElement(
             'date_selector',
             'evasys_evaluation_endtime',
-            get_string('evasys_evaluation_endtime', 'mod_booking')
+            get_string('evasys:evaluation_endtime', 'mod_booking')
         );
 
         $mform->addElement(
             'autocomplete',
             'evasys_other_report_recipients',
-            get_string('evasys_other_report_recipients', 'mod_booking'),
+            get_string('evasys:other_report_recipients', 'mod_booking'),
             $recipients,
             ['multiple' => true]
         );
@@ -157,7 +153,7 @@ class evasys extends field_base {
         $mform->addElement(
             'advcheckbox',
             'evasys_notifyparticipants',
-            get_string('evasys_notifyparticipants', 'mod_booking'),
+            get_string('evasys:notifyparticipants', 'mod_booking'),
             '',
             [],
             [0, 1],
