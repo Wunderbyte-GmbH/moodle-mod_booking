@@ -477,10 +477,14 @@ final class rules_test_waitinglist extends advanced_testcase {
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
         $this->assertCount(0, $tasks);
 
-        time_mock::set_mock_time(strtotime('now'));;
+        time_mock::set_mock_time(strtotime('now'));
         $time = time_mock::get_mock_time();
 
-        $student3answer = $DB->get_record('booking_answers', ['userid' => $student3->id, 'waitinglist' => 1, 'optionid' => $option->id]);
+        $student3answer = $DB->get_record('booking_answers', [
+            'userid' => $student3->id,
+            'waitinglist' => 1,
+            'optionid' => $option->id,
+        ]);
         $this->assertNotFalse($student3answer);
         $student3answer->timemodified = $time;
         // Update directly in the DB to avoid mocking table data (like timemodified).
@@ -492,7 +496,10 @@ final class rules_test_waitinglist extends advanced_testcase {
         $DB->update_record('booking_answers', $answer);
 
         // Check that now the updated record is really the one with the highest timemodified.
-        $waitinglistentries = $DB->get_records('booking_answers', ['waitinglist' => 1, 'optionid' => $option->id], 'timemodified DESC');
+        $waitinglistentries = $DB->get_records('booking_answers', [
+            'waitinglist' => 1,
+            'optionid' => $option->id,
+        ], 'timemodified DESC');
         $this->assertEquals($student3answer->id, array_key_first($waitinglistentries));
 
         // Now put student1 back on the list.
