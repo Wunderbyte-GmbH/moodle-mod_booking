@@ -1203,6 +1203,7 @@ $string['error:taskalreadystarted'] = 'Sie haben bereits einen Task gestartet!';
 $string['error:wrongteacherid'] = 'Fehler: Für die angegebene "teacherid" wurde kein:e Nutzer:in gefunden.';
 $string['errorduplicatepricecategoryidentifier'] = 'Identifikatoren von Preiskategorien müssen eindeutig sein.';
 $string['errorduplicatepricecategoryname'] = 'Namen von Preiskategorien müssen eindeutig sein.';
+$string['errorduplicatepricecatsortorder'] = 'Sortierreihenfolge muss eindeutig sein.';
 $string['errorduplicatesemesteridentifier'] = 'Der Semesteridentifikator muss eindeutig sein.';
 $string['errorduplicatesemestername'] = 'Der Name des Semesters muss eindeutig sein.';
 $string['erroremptycustomfieldname'] = 'Name des Felds darf nicht leer sein.';

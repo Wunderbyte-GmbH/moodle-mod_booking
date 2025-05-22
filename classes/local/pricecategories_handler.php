@@ -55,26 +55,6 @@ class pricecategories_handler {
     }
 
     /**
-     * Inserts a new price category.
-     *
-     * @param stdClass $data Form data
-     * @param int $index Index of the category
-     */
-    private function insert_pricecategory($data, $index) {
-        global $DB;
-
-        $pricecategory = new stdClass();
-        $pricecategory->ordernum = $data->{"pricecategoryordernum$index"};
-        $pricecategory->identifier = $data->{"pricecategoryidentifier$index"};
-        $pricecategory->name = $data->{"pricecategoryname$index"};
-        $pricecategory->defaultvalue = $data->{"defaultvalue$index"};
-        $pricecategory->pricecatsortorder = $data->{"pricecatsortorder$index"};
-        $pricecategory->disabled = $data->{"disablepricecategory$index"};
-
-        $DB->insert_record('booking_pricecategories', $pricecategory);
-    }
-
-    /**
      * Triggers an event when a price category identifier is changed.
      *
      * @param string $oldidentifier
@@ -109,44 +89,35 @@ class pricecategories_handler {
         $updates = [];
         $inserts = [];
 
-        $existingordernumbers = [];
-        foreach ($oldpricecategories as $oldpricecategory) {
-            $existingordernumbers[] = $oldpricecategory->ordernum;
-            // We need this as fallback.
-            $oldpricecategorybackups[$oldpricecategory->ordernum] = $oldpricecategory;
-        }
-
-        foreach ($data as $key => $value) {
-            if (preg_match('/pricecategoryid[0-9]/', $key)) {
-                $counter = (int)substr($key, -1);
-
-                if (in_array($counter, $existingordernumbers)) {
+        if (!empty($data->pricecategoryid)) {
+            foreach ($data->pricecategoryid as $key => $value) {
+                // Key starts from 0, so we need to add 1 to it.
+                if (in_array($value, array_keys($oldpricecategories))) {
                     $pricecategory = new stdClass();
                     $pricecategory->id = $value;
-                    $pricecategory->ordernum = $data->{"pricecategoryordernum$counter"};
-                    $pricecategory->identifier = $data->{"pricecategoryidentifier$counter"}
-                        ?? $oldpricecategorybackups[$counter]->identifier;
-                    $pricecategory->name = $data->{"pricecategoryname$counter"}
-                        ?? $oldpricecategorybackups[$counter]->name;
+                    $pricecategory->identifier = $data->pricecategoryidentifier[$key];
+                    $pricecategory->name = $data->pricecategoryname[$key];
                     $pricecategory->defaultvalue = str_replace(
                         ',',
                         '.',
-                        $data->{"defaultvalue$counter"} ?? $oldpricecategorybackups[$counter]->defaultvalue
+                        $data->defaultvalue[$key]
                     );
-                    $pricecategory->pricecatsortorder = $data->{"pricecatsortorder$counter"}
-                        ?? $oldpricecategorybackups[$counter]->pricecatsortorder;
-                    $pricecategory->disabled = $data->{"disablepricecategory$counter"};
+                    $pricecategory->pricecatsortorder = $data->pricecatsortorder[$key];
+                    // We don't need ordernum anymore, so we just store pricecatsortorder there too.
+                    $pricecategory->ordernum = $data->pricecatsortorder[$key];
+                    $pricecategory->disabled = $data->disablepricecategory[$key];
 
                     $updates[] = $pricecategory;
                 } else {
-                    if (!empty($data->{"pricecategoryidentifier$counter"})) {
+                    if (!empty($data->pricecategoryidentifier[$key])) {
                         $pricecategory = new stdClass();
-                        $pricecategory->ordernum = $data->{"pricecategoryordernum$counter"};
-                        $pricecategory->identifier = $data->{"pricecategoryidentifier$counter"};
-                        $pricecategory->name = $data->{"pricecategoryname$counter"};
-                        $pricecategory->defaultvalue = str_replace(',', '.', $data->{"defaultvalue$counter"});
-                        $pricecategory->pricecatsortorder = $data->{"pricecatsortorder$counter"};
-                        $pricecategory->disabled = $data->{"disablepricecategory$counter"};
+                        $pricecategory->identifier = $data->pricecategoryidentifier[$key];
+                        $pricecategory->name = $data->pricecategoryname[$key];
+                        $pricecategory->defaultvalue = str_replace(',', '.', $data->defaultvalue[$key]);
+                        $pricecategory->pricecatsortorder = $data->pricecatsortorder[$key];
+                        // We don't need ordernum anymore, so we just store pricecatsortorder there too.
+                        $pricecategory->ordernum = $data->pricecatsortorder[$key];
+                        $pricecategory->disabled = $data->disablepricecategory[$key];
 
                         $inserts[] = $pricecategory;
                     }

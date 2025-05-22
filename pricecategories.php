@@ -54,15 +54,6 @@ $handler = new pricecategories_handler();
 $mform = new pricecategories_form();
 $mform->set_data_for_dynamic_submission();
 
-// Formularverarbeitung.
-/*if ($mform->is_cancelled()) {
-    redirect($settingsurl);
-} else if ($data = $mform->get_data()) {
-    $handler->process_pricecategories_form($data);
-    cache_helper::purge_by_event('setbackpricecategories');
-    redirect($pageurl, get_string('pricecategoriessaved', 'booking'), 5);
-}*/
-
 $PAGE->requires->js_call_amd(
     'mod_booking/dynamicpricecategoriesform',
     'init',

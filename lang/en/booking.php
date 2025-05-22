@@ -1215,6 +1215,7 @@ $string['error:taskalreadystarted'] = 'You have already started a task!';
 $string['error:wrongteacherid'] = 'Error: No user could be found for the provided "teacherid".';
 $string['errorduplicatepricecategoryidentifier'] = 'Price category identifiers need to be unique.';
 $string['errorduplicatepricecategoryname'] = 'Price category names need to be unique.';
+$string['errorduplicatepricecatsortorder'] = 'Price category sort order needs to be unique.';
 $string['errorduplicatesemesteridentifier'] = 'Semester identifiers need to be unique.';
 $string['errorduplicatesemestername'] = 'Semester names need to be unique.';
 $string['erroremptycustomfieldname'] = 'Custom field name is not allowed to be empty.';

@@ -67,7 +67,11 @@ class pricecategories_form extends dynamic_form {
         $repeatarray[] = $mform->createElement('text', 'pricecategoryname', get_string('pricecategoryname', 'booking'));
         $repeatarray[] = $mform->createElement('float', 'defaultvalue', get_string('defaultvalue', 'booking'));
         $repeatarray[] = $mform->createElement('text', 'pricecatsortorder', get_string('pricecatsortorder', 'mod_booking'));
-        $repeatarray[] = $mform->createElement('advcheckbox', 'disablepricecategory', get_string('disablepricecategory', 'booking'));
+        $repeatarray[] = $mform->createElement(
+            'advcheckbox',
+            'disablepricecategory',
+            get_string('disablepricecategory', 'booking')
+        );
 
         $repeateloptions = [
             'pricecategoryid' => [
@@ -111,10 +115,8 @@ class pricecategories_form extends dynamic_form {
             1,
             get_string('addpricecategory', 'booking')
         );
-
-        // $mform->setConstant('pricecategoryidentifier[0]', 'default'); // Optional: set the value
-        $mform->freeze('pricecategoryidentifier[0]'); // Makes it uneditable (disabled)
-
+        $mform->freeze('pricecategoryidentifier[0]'); // Makes it uneditable (disabled).
+        $mform->freeze('disablepricecategory[0]'); // Makes it uneditable (disabled).
 
         $this->add_action_buttons(true);
     }
@@ -140,9 +142,38 @@ class pricecategories_form extends dynamic_form {
                 $errors["pricecategoryidentifier[$i]"] = get_string('erroremptypricecategoryidentifier', 'mod_booking');
             } else if ($i != 0 && $data["pricecategoryidentifier"][$i] == 'default') {
                 $errors["pricecategoryidentifier[$i]"] = get_string('errorpricecategoryidentifierdefaultnotallowed', 'mod_booking');
+            } else if ($i == 0 && $data["pricecategoryidentifier"][$i] != 'default') {
+                $errors["pricecategoryidentifier[$i]"] = get_string('errorpricecategoryidentifiermustbedefault', 'mod_booking');
             }
             if (empty($data["pricecategoryname"][$i])) {
                 $errors["pricecategoryname[$i]"] = get_string('erroremptypricecategoryname', 'mod_booking');
+            }
+            // The price category name is not allowed to be empty.
+            if (empty($data["pricecategoryname"][$i])) {
+                $errors["pricecategoryname[$i]"] = get_string('erroremptypricecategoryname', 'mod_booking');
+            }
+            // Not more than 2 decimals are allowed for the default price.
+            if (!empty($data["defaultvalue"][$i]) && is_float($data["defaultvalue"][$i])) {
+                $numberofdecimals = strlen(substr(strrchr($data["defaultvalue"][$i], "."), 1));
+                if ($numberofdecimals > 2) {
+                    $errors["defaultvalue[$i]"] = get_string('errortoomanydecimals', 'mod_booking');
+                }
+            }
+            // Sort order value is not allowed to be empty.
+            if (empty($data["pricecatsortorder"][$i])) {
+                $errors["pricecatsortorder[$i]"] = get_string('error:entervalue', 'mod_booking');
+            }
+            // The identifier of a price category needs to be unique.
+            if ($this->value_is_duplicated($data["pricecategoryidentifier"], $data["pricecategoryidentifier"][$i])) {
+                $errors["pricecategoryidentifier[$i]"] = get_string('errorduplicatepricecategoryidentifier', 'mod_booking');
+            }
+            // The name of a price category needs to be unique.
+            if ($this->value_is_duplicated($data["pricecategoryname"], $data["pricecategoryname"][$i])) {
+                $errors["pricecategoryname[$i]"] = get_string('errorduplicatepricecategoryname', 'mod_booking');
+            }
+            // The pricatsortorder of a price category needs to be unique.
+            if ($this->value_is_duplicated($data["pricecatsortorder"], $data["pricecatsortorder"][$i])) {
+                $errors["pricecatsortorder[$i]"] = get_string('errorduplicatepricecatsortorder', 'mod_booking');
             }
         }
         return $errors;
@@ -180,11 +211,12 @@ class pricecategories_form extends dynamic_form {
             $i = 0;
             foreach ($pricecategories as $category) {
                 $data['pricecategoryid[' . $i . ']'] = $category->id;
-                $data['pricecategoryordernum[' . $i . ']'] = $i + 1;
                 $data['pricecategoryidentifier[' . $i . ']'] = $category->identifier;
                 $data['pricecategoryname[' . $i . ']'] = $category->name;
                 $data['defaultvalue[' . $i . ']'] = $category->defaultvalue;
                 $data['pricecatsortorder[' . $i . ']'] = $category->pricecatsortorder;
+                // We don't need ordernum anymore, so we just store pricecatsortorder there too.
+                $data['pricecategoryordernum[' . $i . ']'] = $category->pricecatsortorder;
                 $data['disablepricecategory[' . $i . ']'] = $category->disabled;
                 $i++;
             }
@@ -215,5 +247,18 @@ class pricecategories_form extends dynamic_form {
      */
     protected function get_page_url_for_dynamic_submission(): moodle_url {
         return new moodle_url('/mod/booking/pricecategories.php');
+    }
+
+    /**
+     * Helper function to check for duplicates.
+     * @param array $array
+     * @param mixed $value
+     * @return bool
+     */
+    private function value_is_duplicated(array $array, mixed $value): bool {
+        // Count all the values in the array.
+        $valuecounts = array_count_values($array);
+        // Check if the specific value exists more than once.
+        return isset($valuecounts[$value]) && $valuecounts[$value] > 1;
     }
 }
