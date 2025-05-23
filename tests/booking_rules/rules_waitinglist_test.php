@@ -47,6 +47,9 @@ final class rules_waitinglist_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
+        $time = time();
+        time_mock::init();
+        time_mock::set_mock_time($time);
     }
 
     /**
@@ -58,6 +61,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         parent::tearDown();
         // Mandatory clean-up.
         singleton_service::destroy_instance();
+        time_mock::reset_mock_time();
     }
 
     /**
@@ -85,8 +89,8 @@ final class rules_waitinglist_test extends advanced_testcase {
         set_config('timezone', 'Europe/Kyiv');
         set_config('forcetimezone', 'Europe/Kyiv');
 
-        time_mock::set_mock_time(strtotime('-4 days'));
-        time_mock::init();
+
+        time_mock::set_mock_time(strtotime('-4 days', time()));
         $time = time_mock::get_mock_time();
 
         $bdata['cancancelbook'] = 1;
@@ -181,7 +185,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         // Book the student2 via waitinglist with intervals.
-        time_mock::set_mock_time(strtotime('-3 days'));
+        time_mock::set_mock_time(strtotime('-3 days', time()));
         $time = time_mock::get_mock_time();
         $this->setUser($student2);
         singleton_service::destroy_user($student2->id);
@@ -190,7 +194,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // Book the student3 via waitinglist.
-        time_mock::set_mock_time(strtotime('-2 days'));
+        time_mock::set_mock_time(strtotime('-2 days', time()));
         $time = time_mock::get_mock_time();
         $this->setUser($student3);
         singleton_service::destroy_user($student3->id);
@@ -199,7 +203,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // Book the student4 via waitinglist.
-        time_mock::set_mock_time(strtotime('-1 day'));
+        time_mock::set_mock_time(strtotime('-1 day', time()));
         $time = time_mock::get_mock_time();
         $this->setUser($student4);
         singleton_service::destroy_user($student4->id);
@@ -209,7 +213,7 @@ final class rules_waitinglist_test extends advanced_testcase {
 
         // Continue as admin.
         $this->setAdminUser();
-        time_mock::set_mock_time(strtotime('now')); // Set "now".
+        time_mock::set_mock_time(time()); // Set "now".
         $time = time_mock::get_mock_time();
         // Update booking.
         $record->id = $option->id;
@@ -286,7 +290,7 @@ final class rules_waitinglist_test extends advanced_testcase {
             }
         }
 
-        time_mock::set_mock_time(strtotime('+1 day'));
+        time_mock::set_mock_time(strtotime('+1 day', time()));
         $time = time_mock::get_mock_time();
 
         // Run adhock tasks.
@@ -312,7 +316,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         // Mandatory to deal with static variable in the booking_rules.
         rules_info::$rulestoexecute = [];
         booking_rules::$rules = [];
-        time_mock::set_mock_time(strtotime('now')); // Set "now".
+        time_mock::set_mock_time(time()); // Set "now".
         $time = time_mock::get_mock_time();
     }
 
@@ -341,8 +345,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         set_config('timezone', 'Europe/Kyiv');
         set_config('forcetimezone', 'Europe/Kyiv');
 
-        time_mock::set_mock_time(strtotime('-4 days'));
-        time_mock::init();
+        time_mock::set_mock_time(strtotime('-4 days', time()));
         $time = time_mock::get_mock_time();
 
         $bdata['cancancelbook'] = 1;
@@ -420,7 +423,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         // Confirm booking as admin.
         $this->setAdminUser();
         // Book the student2 via waitinglist with intervals.
-        time_mock::set_mock_time(strtotime('-3 days'));
+        time_mock::set_mock_time(strtotime('-3 days', time()));
         $time = time_mock::get_mock_time();
         $this->setUser($student2);
         singleton_service::destroy_user($student2->id);
@@ -432,7 +435,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // Book the student3 via waitinglist.
-        time_mock::set_mock_time(strtotime('-2 days'));
+        time_mock::set_mock_time(strtotime('-2 days', time()));
         $time = time_mock::get_mock_time();
         $this->setUser($student3);
         singleton_service::destroy_user($student3->id);
@@ -444,7 +447,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // Book the student4 via waitinglist.
-        time_mock::set_mock_time(strtotime('-1 day'));
+        time_mock::set_mock_time(strtotime('-1 day', time()));
         $time = time_mock::get_mock_time();
         $this->setUser($student4);
         singleton_service::destroy_user($student4->id);
@@ -488,7 +491,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
         $this->assertCount(0, $tasks);
 
-        time_mock::set_mock_time(strtotime('now'));
+        time_mock::set_mock_time(strtotime('now', time()));
         $time = time_mock::get_mock_time();
 
         $student3answer = $DB->get_record('booking_answers', [
@@ -543,7 +546,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         // Mandatory to deal with static variable in the booking_rules.
         rules_info::$rulestoexecute = [];
         booking_rules::$rules = [];
-        time_mock::set_mock_time(strtotime('now')); // Set "now".
+        time_mock::set_mock_time(strtotime('now', time())); // Set "now".
         $time = time_mock::get_mock_time();
     }
 
@@ -572,8 +575,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         set_config('timezone', 'Europe/Kyiv');
         set_config('forcetimezone', 'Europe/Kyiv');
 
-        time_mock::set_mock_time(strtotime('-4 days'));
-        time_mock::init();
+        time_mock::set_mock_time(strtotime('-4 days', time()));
         $time = time_mock::get_mock_time();
 
         $bdata['cancancelbook'] = 1;
@@ -634,8 +636,8 @@ final class rules_waitinglist_test extends advanced_testcase {
         $record->description = 'Will start in 2050';
         $record->optiondateid_0 = "0";
         $record->daystonotify_0 = "0";
-        $record->coursestarttime_0 = strtotime('20 June 2050 15:00');
-        $record->courseendtime_0 = strtotime('20 July 2050 14:00');
+        $record->coursestarttime_0 = strtotime('20 June 2050 15:00', time());
+        $record->courseendtime_0 = strtotime('20 July 2050 14:00', time());
         $record->teachersforoption = $teacher1->username;
         $option1 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option1->id);
@@ -658,7 +660,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         // Book the student2 via waitinglist with intervals.
-        time_mock::set_mock_time(strtotime('-7 days'));
+        time_mock::set_mock_time(strtotime('-7 days', time()));
         $time = time_mock::get_mock_time();
         $this->setUser($student2);
         singleton_service::destroy_user($student2->id);
@@ -667,7 +669,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // Book the student3 via waitinglist.
-        time_mock::set_mock_time(strtotime('-6 days'));
+        time_mock::set_mock_time(strtotime('-6 days', time()));
         $time = time_mock::get_mock_time();
         $this->setUser($student3);
         singleton_service::destroy_user($student3->id);
@@ -676,7 +678,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // Book the student4 via waitinglist.
-        time_mock::set_mock_time(strtotime('-5 day'));
+        time_mock::set_mock_time(strtotime('-5 day', time()));
         $time = time_mock::get_mock_time();
         $this->setUser($student4);
         singleton_service::destroy_user($student4->id);
@@ -685,7 +687,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // Book the student5 via waitinglist.
-        time_mock::set_mock_time(strtotime('-4 day'));
+        time_mock::set_mock_time(strtotime('-4 day', time()));
         $time = time_mock::get_mock_time();
         $this->setUser($student5);
         singleton_service::destroy_user($student5->id);
@@ -694,7 +696,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // Back to now.
-        time_mock::set_mock_time(strtotime('now'));
+        time_mock::set_mock_time(time());
         $time = time_mock::get_mock_time();
 
         // Reorder waitinglist, student4 is now top on the list.
@@ -703,7 +705,7 @@ final class rules_waitinglist_test extends advanced_testcase {
             ['userid' => $student4->id, 'waitinglist' => 1, 'optionid' => $settings->id]
         );
         $this->assertNotFalse($student4answer);
-        $student4answer->timemodified = strtotime('-10 days');
+        $student4answer->timemodified = strtotime('-10 days', time());
         $updateconfirmation = $DB->update_record('booking_answers', $student4answer);
         $this->assertTrue($updateconfirmation);
         booking_option::purge_cache_for_answers($settings->id);
@@ -769,11 +771,11 @@ final class rules_waitinglist_test extends advanced_testcase {
 
         $s6a = $DB->get_record('booking_answers', ['userid' => $student6->id, 'waitinglist' => 1, 'optionid' => $settings->id]);
         $this->assertNotFalse($s6a);
-        $s6a->timemodified = strtotime('-20 days');
+        $s6a->timemodified = strtotime('-20 days', time());
         $DB->update_record('booking_answers', $s6a);
         booking_option::purge_cache_for_answers($settings->id);
 
-        time_mock::set_mock_time(strtotime('now') + 10);
+        time_mock::set_mock_time(time() + 10);
         $time = time_mock::get_mock_time();
 
         // Two tasks. One with runtime in the past for user student4.
@@ -811,7 +813,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         $runtimedifference = (int)$taskdata[1]->nextruntime - (int)$taskdata[0]->nextruntime;
         $this->assertEquals(1440 * 60, $runtimedifference);
 
-        time_mock::set_mock_time(strtotime('+10 day') + 10);
+        time_mock::set_mock_time(strtotime('+10 day', time()) + 10);
         $time = time_mock::get_mock_time();
 
         $sink = $this->redirectMessages();
