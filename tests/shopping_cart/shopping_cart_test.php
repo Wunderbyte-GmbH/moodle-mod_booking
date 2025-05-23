@@ -74,9 +74,6 @@ final class shopping_cart_test extends advanced_testcase {
     /**
      * Test of purchase of booking option with price and installments enabled.
      *
-     * @covers \condition\priceset::is_available
-     * @covers \condition\cancelmyself::is_available
-     *
      * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception
@@ -241,10 +238,6 @@ final class shopping_cart_test extends advanced_testcase {
     /**
      * Test of purchase of booking option with subbooking in form of item with price.
      *
-     * @covers \condition\priceset::is_available
-     * @covers \condition\subbooking_blocks::is_available
-     * @covers \subbookings\booking_subbooking
-     * @covers \subbookings\sb_types\subbooking_additionalitem
      * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception
@@ -461,7 +454,6 @@ final class shopping_cart_test extends advanced_testcase {
     /**
      * Test of purchase of booking option with price and additional feature selected by customform.
      *
-     * @covers \condition\priceset::is_available
      * @covers \mod_booking\local\mobile\customformstore
      *
      * @param array $bdata
@@ -589,10 +581,6 @@ final class shopping_cart_test extends advanced_testcase {
 
     /**
      * Test of purchase of few booking options with price and cancellation all by cashier with fixed consumption has been set.
-     *
-     * @covers \condition\priceset::is_available
-     * @covers \booking_option::get_consumed_quota
-     * @covers \shopping_cart\service_provider::quota_consumed
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -796,10 +784,6 @@ final class shopping_cart_test extends advanced_testcase {
     /**
      * Test of purchase of few booking options with price and cancellation all by cashier with consumption has been enabled.
      *
-     * @covers \condition\priceset::is_available
-     * @covers \booking_option::get_consumed_quota
-     * @covers \shopping_cart\service_provider::quota_consumed
-     *
      * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception
@@ -986,16 +970,11 @@ final class shopping_cart_test extends advanced_testcase {
     /**
      * Test of purchase of few booking options with price and cancellation all by cashier with consumption has been enabled.
      *
-     * @covers \condition\priceset::is_available
-     * @covers \booking_option::get_consumed_quota
-     * @covers \shopping_cart\service_provider::quota_consumed
-     *
      * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception
      *
      * @dataProvider booking_common_settings_provider
-     *
      */
     public function test_booking_cancellation_wiht_multiple_dates_and_consumption_enabled(array $bdata): void {
         global $DB, $CFG;

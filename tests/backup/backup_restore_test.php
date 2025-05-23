@@ -52,6 +52,17 @@ final class backup_restore_test extends advanced_testcase {
     }
 
     /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        global $DB;
+
+        parent::tearDown();
+        // Mandatory clean-up.
+        singleton_service::destroy_instance();
+    }
+
+    /**
      * Restore a quiz twice into the same target course, and verify the quiz uses the restored questions both times.
      *
      * @param array $bdata

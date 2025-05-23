@@ -61,6 +61,18 @@ final class rules_template_test extends advanced_testcase {
         parent::setUp();
         $this->resetAfterTest();
     }
+
+    /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        global $DB;
+
+        parent::tearDown();
+        // Mandatory clean-up.
+        singleton_service::destroy_instance();
+    }
+
     /**
      * Test rulestemplate for "payment_confirmation".
      *

@@ -156,7 +156,7 @@ final class bookinghistory_presence_test extends advanced_testcase {
             $json = json_decode(end($answers)->json, true);
             $this->assertEquals($expected['presencechange']['case' . $i], $json);
         }
-        self::teardown();
+        self::tearDown();
     }
 
     /**
@@ -317,7 +317,7 @@ final class bookinghistory_presence_test extends advanced_testcase {
     /**
      * Mandatory clean-up after each test.
      */
-    public function teardown(): void {
+    public function tearDown(): void {
         parent::tearDown();
         // Mandatory clean-up.
         singleton_service::destroy_instance();

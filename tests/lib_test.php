@@ -54,6 +54,17 @@ final class lib_test extends advanced_testcase {
     }
 
     /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        global $DB;
+
+        parent::tearDown();
+        // Mandatory clean-up.
+        singleton_service::destroy_instance();
+    }
+
+    /**
      * Test adding teacher to event and group.
      *
      * @covers ::subscribe_teacher_to_booking_option

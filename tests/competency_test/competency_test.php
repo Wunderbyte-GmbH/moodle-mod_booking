@@ -65,6 +65,17 @@ final class competency_test extends advanced_testcase {
     }
 
     /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        global $DB;
+
+        parent::tearDown();
+        // Mandatory clean-up.
+        singleton_service::destroy_instance();
+    }
+
+    /**
      * Test rulestemplate on option being completed for user.
      *
      * @covers \mod_booking\option->completion

@@ -53,6 +53,17 @@ final class send_reminder_mails_test extends advanced_testcase {
     }
 
     /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        global $DB;
+
+        parent::tearDown();
+        // Mandatory clean-up.
+        singleton_service::destroy_instance();
+    }
+
+    /**
      * Test delete responses.
      *
      * @covers \mod_booking\task\send_reminder_mails

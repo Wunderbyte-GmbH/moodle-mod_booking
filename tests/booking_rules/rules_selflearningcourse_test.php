@@ -64,8 +64,6 @@ final class rules_selflearningcourse_test extends advanced_testcase {
     /**
      * Test of booking option with price as well as cancellation by user.
      *
-     * @covers \booking_bookit
-     *
      * @param array $coursedata
      * @param array $pricecategories
      * @param array $rules

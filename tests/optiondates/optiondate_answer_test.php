@@ -38,6 +38,25 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  */
 final class optiondate_answer_test extends advanced_testcase {
     /**
+     * Tests set up.
+     */
+    public function setUp(): void {
+        parent::setUp();
+        $this->resetAfterTest();
+    }
+
+    /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        global $DB;
+
+        parent::tearDown();
+        // Mandatory clean-up.
+        singleton_service::destroy_instance();
+    }
+
+    /**
      * Data provider for the test.
      *
      * @return array Test data.

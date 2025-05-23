@@ -50,6 +50,17 @@ final class rules_n_days_test extends advanced_testcase {
     }
 
     /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        global $DB;
+
+        parent::tearDown();
+        // Mandatory clean-up.
+        singleton_service::destroy_instance();
+    }
+
+    /**
      * Test rule on before and after cursestart events.
      *
      * @covers \mod_booking\booking_option::update

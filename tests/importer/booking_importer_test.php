@@ -52,6 +52,17 @@ final class booking_importer_test extends advanced_testcase {
     }
 
     /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        global $DB;
+
+        parent::tearDown();
+        // Mandatory clean-up.
+        singleton_service::destroy_instance();
+    }
+
+    /**
      * Test process_data of CSV import.
      *
      * @covers \bookingoptionsimporter->execute_bookingoptions_csv_import

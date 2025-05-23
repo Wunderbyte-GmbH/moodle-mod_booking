@@ -227,7 +227,7 @@ final class bookinghistory_test extends advanced_testcase {
             $status = end($historyrecords)->status;
             $this->assertEquals($expected['historystatus'][1], $status);
         }
-        self::teardown();
+        self::tearDown();
     }
 
     /**
@@ -515,7 +515,7 @@ final class bookinghistory_test extends advanced_testcase {
     /**
      * Mandatory clean-up after each test.
      */
-    public function teardown(): void {
+    public function tearDown(): void {
         parent::tearDown();
         // Mandatory clean-up.
         singleton_service::destroy_instance();

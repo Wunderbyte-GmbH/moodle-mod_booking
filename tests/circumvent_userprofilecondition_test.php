@@ -67,6 +67,17 @@ final class circumvent_userprofilecondition_test extends advanced_testcase {
     }
 
     /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        global $DB;
+
+        parent::tearDown();
+        // Mandatory clean-up.
+        singleton_service::destroy_instance();
+    }
+
+    /**
      * Helper to create a custom user profile field.
      *
      * @param string $shortname

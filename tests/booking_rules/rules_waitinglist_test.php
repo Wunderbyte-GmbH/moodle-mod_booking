@@ -50,6 +50,17 @@ final class rules_waitinglist_test extends advanced_testcase {
     }
 
     /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        global $DB;
+
+        parent::tearDown();
+        // Mandatory clean-up.
+        singleton_service::destroy_instance();
+    }
+
+    /**
      * Test rules for "option free to bookagain" and "notification in intervals" events
      * ...when waitinglist is forced and maxanswers has been increased.
      *

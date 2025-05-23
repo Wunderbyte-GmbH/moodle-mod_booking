@@ -150,7 +150,7 @@ final class teachers_calendar_test extends advanced_testcase {
         singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
 
         // TearDown at the very end.
-        self::teardown();
+        self::tearDown();
     }
 
     /**
