@@ -25,17 +25,14 @@
 namespace mod_booking\option;
 
 use coding_exception;
-use core_component;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
 use moodle_exception;
 use MoodleQuickForm;
 use stdClass;
-use context_coursecat;
 use context_module;
 use dml_exception;
 use Exception;
-use mod_booking\price;
 use mod_booking\settings\optionformconfig\optionformconfig_info;
 
 defined('MOODLE_INTERNAL') || die();
@@ -66,7 +63,7 @@ class fields_info {
 
         $feedback = [];
         $error = [];
-        // TODO: implement error handling.
+        // Todo: implement error handling.
 
         $context = context_module::instance($formdata->cmid);
         $classes = self::get_field_classes($context->id);
@@ -152,7 +149,7 @@ class fields_info {
             case MOD_BOOKING_HEADER_DATES:
                 $headericon = '<i class="fa fa-fw fa-calendar" aria-hidden="true"></i>';
                 break;
-            // TODO: Add icons for the other headers here...
+            // Todo: Add icons for the other headers here...
         }
 
         if (!empty($headericon)) {
@@ -391,7 +388,7 @@ class fields_info {
                 && !isset($data->{$shortclassname})
             ) {
                 if ($classname::$id === MOD_BOOKING_OPTION_FIELD_PRICE) {
-                    // TODO: if a column is called like any price category.
+                    // Todo: if a column is called like any price category.
                     $existingpricecategories = $DB->get_records('booking_pricecategories', ['disabled' => 0]);
                     $results = array_filter($existingpricecategories, fn($a) => isset($data->{$a->identifier}));
                     if (!empty($results)) {
@@ -452,5 +449,4 @@ class fields_info {
         }
         return;
     }
-
 }
