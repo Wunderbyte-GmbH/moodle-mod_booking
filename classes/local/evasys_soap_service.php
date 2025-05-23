@@ -164,6 +164,23 @@ class evasys_soap_service extends SoapClient {
     }
 
     /**
+     * Updates the Course to Evasys.
+     *
+     * @param array $coursedata
+     *
+     * @return mixed
+     *
+     */
+    public function update_course($coursedata) {
+        try {
+            $response = $this->__soapCall('UpdateCourse', ['course' => $coursedata ]);
+            return $response;
+        } catch (SoapFault $e) {
+            return null;
+        }
+    }
+
+    /**
      * Sets Soapheader for authentication.
      *
      * @return void

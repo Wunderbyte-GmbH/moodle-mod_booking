@@ -71,6 +71,14 @@ class evasys extends field_base {
     public static $alternativeimportidentifiers = [];
 
     /**
+     * List of Evasyskeys.
+     *
+     * @var array
+     */
+    public static $evasyskeys = ['evasys_questionaire', 'evasys_evaluation_starttime', 'evasys_evaluation_endtime', 'evasys_other_report_recipients', 'evasysperiods', 'evasys_notifyparticipants'];
+
+
+    /**
      * Prepare Savefield.
      *
      * @param stdClass $formdata
@@ -87,7 +95,18 @@ class evasys extends field_base {
         int $updateparam,
         $returnvalue = null
     ): array {
-        return [];
+
+        $instance = new evasys();
+        if (empty($formdata->id)) {
+            $changes = [];
+        } else {
+            foreach (self::$evasyskeys as $key) {
+                $value = $formdata->{$key} ?? null;
+                $mockdata = (object)['optionid' => $formdata->id];
+                $changes = $instance->check_for_changes($formdata, $instance, $mockdata, $key, $value);
+            }
+        }
+        return $changes;
     }
 
     /**
@@ -116,6 +135,7 @@ class evasys extends field_base {
         $evasys = new evasys_evaluation();
         $forms = $evasys->get_allforms();
         $recipients = $evasys->get_recipients();
+        $periods = $evasys->get_periods_for_option();
 
         if (empty(get_config('booking', 'useevasys'))) {
             return;
@@ -147,7 +167,14 @@ class evasys extends field_base {
             'evasys_other_report_recipients',
             get_string('evasys:other_report_recipients', 'mod_booking'),
             $recipients,
-            ['multiple' => true]
+            ['multiple' => true],
+        );
+
+        $mform->addElement(
+            'autocomplete',
+            'evasysperiods',
+            get_string('evasysperiods', 'mod_booking'),
+            $periods,
         );
 
         $mform->addElement(
@@ -188,30 +215,42 @@ class evasys extends field_base {
      * @throws \dml_exception
      */
     public static function save_data(&$formdata, &$option) {
+        // if (empty($data->teachersforoption)) {
+        //     return;
+        // }
         $evasys = new evasys_evaluation();
-        $userfieldshortname = get_config('booking', 'evasyscategoryfielduser');
         $evasys->save_form($formdata, $option);
-        if (empty($formdata->teachersforoption)) {
-            return;
-        }
-        if (!empty($formdata->customfield_evasysid)) {
-            // Todo: Update Logic here.
-            return;
-        }
-        foreach ($formdata->teachersforoption as $teacherid) {
-            $teacher = singleton_service::get_instance_of_user($teacherid, true);
-            $teachers[$teacherid] = $teacher;
-            if (empty($teacher->profile[$userfieldshortname])) {
-                $evasys->save_user($teacher);
-                singleton_service::destroy_user($teacherid);
-                $teacher = singleton_service::get_instance_of_user($teacherid, true);
-                $teachers[$teacherid] = $teacher;
-            } else {
-                continue;
-            }
-        }
-            $userfieldvalue = reset($teachers)->profile[$userfieldshortname];
-            $internalid = end(explode(',', $userfieldvalue));
-            $evasys->save_course($option, $internalid);
+            // Check if Customfield for Course exists.
+            $coursedata = $evasys->aggregate_data_for_course_save($formdata, $option);
+            $evasys->save_course($option, $coursedata);
+
     }
+    // /**
+    //  * Once all changes are collected, also those triggered in save data, this is a possible hook for the fields.
+    //  *
+    //  * @param array $changes
+    //  * @param object $data
+    //  * @param object $newoption
+    //  * @param object $originaloption
+    //  *
+    //  * @return void
+    //  */
+    // public static function changes_collected_action(
+    //     array $changes,
+    //     object $data,
+    //     object $newoption,
+    //     object $originaloption
+    // ) {
+    //     if (empty($data->teachersforoption)) {
+    //         return;
+    //     }
+    //     if (empty($changes)) {
+    //         return;
+    //     }
+    //     // Relevante Felder als Array definieren -> alle agreggieren und and evasys
+
+    //     $evasys = new evasys_evaluation();
+    //     $coursedata = $evasys->aggregate_data_for_course_save($data, $newoption);
+    //     $evasys->update_course($coursedata);
+    // }
 }

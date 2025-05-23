@@ -27,6 +27,7 @@ namespace mod_booking\local;
 
 use mod_booking\customfield\booking_handler;
 use context_course;
+use mod_booking\singleton_service;
 use stdClass;
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/user/lib.php');
@@ -77,7 +78,7 @@ class evasys_evaluation {
      * @return array
      *
      */
-    public function get_periods() {
+    public function get_periods_for_settings() {
         $service = new evasys_soap_service();
         $periods = $service->fetch_periods();
         if (!isset($periods)) {
@@ -87,6 +88,41 @@ class evasys_evaluation {
         $periodoptions = self::transform_return_to_array($list, 'm_nPeriodId', 'm_sTitel');
         return $periodoptions;
     }
+
+    /**
+     * Callback for periods in optionform.
+     *
+     * @return array
+     *
+     */
+    public function get_periods_for_option() {
+
+        $service = new evasys_soap_service();
+        $options = $service->fetch_periods();
+        // $self = $this;
+        // $options = [
+        // 'tags' => false,
+        // 'multiple' => false,
+        // 'noselectionstring' => '',
+        // 'ajax' => 'mod_booking/evasysperiods_selector',
+        // 'valuehtmlcallback' => function ($value) use ($self) {
+        // if (empty($value)) {
+        // return get_string('choose...', 'mod_booking');
+        // }
+        // return get_string('evasys:keyworddisplay', 'mod_booking', (object)[
+        // 'id' => $self->extract_idnumber_from_id($value),
+        // 'name' => $self->extract_name_from_id($value),
+        // ]);
+        // },
+        // ];
+        return $options;
+    }
+
+    // public function get_periods_for_query($query) {
+    // $service = new evasys_soap_service();
+    // $options = $service->fetch_periods();
+    // Do Something with query.
+    // }
 
     /**
      * Feteches forms and creates array for Settings.
@@ -107,7 +143,7 @@ class evasys_evaluation {
         if (!isset($forms)) {
             return [];
         }
-        $list = $forms->Simpleform;
+        $list = $forms->SimpleForms;
         $formoptions = self::transform_return_to_array($list, 'OriginalID', 'Name');
         return $formoptions;
     }
@@ -187,6 +223,113 @@ class evasys_evaluation {
     }
 
     /**
+     * Checks if Teachers and Secondary Docents are registered and prepares everything for save or update of Course.
+     *
+     * @param mixed $data
+     * @param mixed $option
+     *
+     * @return array
+     *
+     */
+    public function aggregate_data_for_course_save($data, $option) {
+        $userfieldshortname = get_config('booking', 'evasyscategoryfielduser');
+
+        foreach ($data->teachersforoption as $teacherid) {
+            $teacher = singleton_service::get_instance_of_user($teacherid, true);
+            $teachers[$teacherid] = $teacher;
+            if (empty($teacher->profile[$userfieldshortname])) {
+                $this->save_user($teacher);
+                singleton_service::destroy_user($teacherid);
+                $teacher = singleton_service::get_instance_of_user($teacherid, true);
+                $teachers[$teacherid] = $teacher;
+            } else {
+                continue;
+            }
+        }
+        foreach ($data->evasys_other_report_recipients as $recipientid) {
+            $recipient = singleton_service::get_instance_of_user($recipientid, true);
+            $recipients[$recipientid] = $recipient;
+            if (empty($recipient->profile[$userfieldshortname])) {
+                $this->save_user($recipient);
+                singleton_service::destroy_user($recipientid);
+                $recipient = singleton_service::get_instance_of_user($recipientid, true);
+                $recipients[$recipientid] = $recipient;
+            } else {
+                continue;
+            }
+        }
+        $userfieldvalue = array_shift($teachers)->profile[$userfieldshortname];
+        $internalid = end(explode(',', $userfieldvalue));
+        $secondaryinstructors = array_merge($teachers, $recipients);
+        $secondaryinstructorsinsert = self::set_secondaryinstructors_for_save($secondaryinstructors);
+        $coursedata = [
+            'm_nCourseId' => null,
+            'm_sProgramOfStudy' => 'Urise', // Subunit name.
+            'm_sCourseTitle' => "$option->text",
+            'm_sRoom' => '',
+            'm_nCourseType' => 5,
+            'm_sPubCourseId' => "evasys_$option->id",
+            'm_sExternalId' => "evasys_$option->id",
+            'm_nCountStud' => null,
+            'm_sCustomFieldsJSON' => '',
+            'm_nUserId' => $internalid,
+            'm_nFbid' => (int)get_config('booking', 'evasyssubunits'),
+            'm_nPeriodId' => (int)get_config('booking', 'evasysperiods'),
+            'currentPosition' => null,
+            'hasAnonymousParticipants' => false,
+            'isModuleCourse' => null,
+            'm_aoParticipants' => [],
+            'm_aoSecondaryInstructors' => $secondaryinstructorsinsert,
+            'm_oSurveyHolder' => null,
+        ];
+        return $coursedata;
+    }
+
+    /**
+     * Sets the secondary Instructors for course insert or update.
+     *
+     * @param mixed $array
+     *
+     * @return array
+     *
+     */
+    public function set_secondaryinstructors_for_save($secondaryinstructors) {
+        $users = [];
+        $userfieldshortname = get_config('booking', 'evasyscategoryfielduser');
+
+        foreach ($secondaryinstructors as $instructor) {
+            $parts = explode(',', $instructor->profile[$userfieldshortname]);
+            $internalid = end($parts);
+
+            $userdata = (object)[
+                'm_nId' => (int)$internalid,
+                'm_nType' => null,
+                'm_sLoginName' => '',
+                'm_sExternalId' => "evasys_{$instructor->id}",
+                'm_sTitle' => '',
+                'm_sFirstName' => $instructor->firstname,
+                'm_sSurName' => $instructor->lastname,
+                'm_sUnitName' => '',
+                'm_sAddress' => $instructor->address ?? '',
+                'm_sEmail' => $instructor->email,
+                'm_nFbid' => (int)get_config('booking', 'evasyssubunits'),
+                'm_nAddressId' => 0,
+                'm_sPassword' => '',
+                'm_sPhoneNumber' => $instructor->phone1 ?? '',
+                'm_bUseLDAP' => null,
+                'm_bActiveUser' => null,
+                'm_bTechnicalAdmin' => null,
+                'm_aCourses' => null,
+            ];
+
+            $users[] = $userdata;
+        }
+
+        return ['Users' => (object) $users];
+    }
+
+
+    /**
      * Saves Course in Evasys.
      *
      * @param /stdClass $option
@@ -195,34 +338,30 @@ class evasys_evaluation {
      * @return void
      *
      */
-    public function save_course($option, $userid) {
-        $coursedata = [
-            'm_nCourseId' => null,
-            'm_sProgramOfStudy' => 'Test1234', //Subunit name.
-            'm_sCourseTitle' => "$option->text",
-            'm_sRoom' => '',
-            'm_nCourseType' => 5,
-            'm_sPubCourseId' => "evasys_$option->id",
-            'm_sExternalId' => "evasys_$option->id",
-            'm_nCountStud' => null,
-            'm_sCustomFieldsJSON' => '',
-            'm_nUserId' => (int)$userid,
-            'm_nFbid' => (int)get_config('booking', 'evasyssubunits'),
-            'm_nPeriodId' => (int)get_config('booking', 'evasysperiods'),
-            'currentPosition' => null,
-            'hasAnonymousParticipants' => false,
-            'isModuleCourse' => null,
-            'm_aoParticipants' => [],
-            'm_aoSecondaryInstructors' => [],
-            'm_oSurveyHolder' => null,
-        ];
+    public function save_course($option, $coursedata) {
+
         $service = new evasys_soap_service();
         $repsonse = $service->insert_course($coursedata);
         if (isset($repsonse)) {
             $fieldshortname = get_config('booking', 'evasyscategoryfieldoption');
             $handler = booking_handler::create();
+            $request = $service->__getLastRequest();
             $handler->field_save($option->id, $fieldshortname, $repsonse->m_sExternalId);
         }
+        $request = $service->__getLastRequest();
+    }
+
+    /**
+     * Updates Course to Evasys.
+     *
+     * @param array $coursedata
+     *
+     * @return void
+     *
+     */
+    public function update_course($coursedata) {
+        $service = new evasys_soap_service();
+        $response = $service->update_course($coursedata);
     }
     /**
      * Maps DB of Form to DB for saving.
@@ -264,7 +403,7 @@ class evasys_evaluation {
      * @return void
      *
      */
-    private static function map_record_to_form($data, $record) {
+    private static function map_record_to_form(&$data, $record) {
         $data->evasys_questionaire = $record->pollurl;
         $data->evasys_evaluation_starttime = $record->starttime;
         $data->evasys_evaluation_endtime = $record->endtime;
