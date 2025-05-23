@@ -29,6 +29,7 @@ use coding_exception;
 use core_component;
 use context_system;
 use context;
+use core_plugin_manager;
 use ddl_exception;
 use ddl_change_structure_exception;
 use dml_exception;
@@ -200,11 +201,24 @@ class optionformconfig_info {
                 "mod_booking",
                 'option\fields'
             );
+
+            // Additionally, we have to check if we have fields in Booking extensions.
+            foreach (
+                core_plugin_manager::instance()
+                    ->get_plugins_of_type('bookingextension') as $bookingextension
+            ) {
+                $fields = array_merge($fields, core_component::get_component_classes_in_namespace(
+                    $bookingextension->component,
+                    'option\fields'
+                ));
+            }
+
             $fields = array_map(
                 fn($a) =>
                 (object)[
                     'id' => $a::$id,
                     'classname' => $a::return_classname_name(),
+                    'fullclassname' => $a::return_full_classname(),
                     'checked' => in_array(MOD_BOOKING_OPTION_FIELD_STANDARD, $a::$fieldcategories) ?
                         1 : 0,
                     'necessary' => in_array(MOD_BOOKING_OPTION_FIELD_NECESSARY, $a::$fieldcategories) ?

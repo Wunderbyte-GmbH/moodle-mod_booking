@@ -337,9 +337,8 @@ class fields_info {
         $fields = json_decode($record['json']);
 
         $classes = [];
-        $namespace = "mod_booking\\option\\fields\\";
         foreach ($fields as $field) {
-            $classname = $namespace . $field->classname;
+            $classname = $field->fullclassname;
 
             // We might only want postsave classes.
             if ($save === MOD_BOOKING_EXECUTION_POSTSAVE) {
