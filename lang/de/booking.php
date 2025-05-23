@@ -2300,6 +2300,7 @@ $string['showmyfieldofstudyonly'] = "Mein Studiengang";
 $string['showpriceifnotloggedin'] = 'Preis(e) anzeigen, wenn Nutzer:innen nicht eingeloggt sind';
 $string['showprogressbars'] = 'Fortschrittsbalken für bereits vergangene Zeit anzeigen';
 $string['showrecentupdates'] = 'Zeige die letzten Bearbeitungen';
+$string['showsimilaroptions'] = 'Ähnliche Optionen anzeigen';
 $string['showsubbookings'] = 'Zusatzbuchungen aktivieren';
 $string['showteachersmailinglist'] = 'E-Mail-Liste für alle Trainer:innen anzeigen...';
 $string['showviews'] = 'Ansichten der Buchungsoptionsübersicht';
