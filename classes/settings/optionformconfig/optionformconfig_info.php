@@ -47,7 +47,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class optionformconfig_info {
-
     /**
      * NOCONFIGURATION
      *
@@ -106,7 +105,6 @@ class optionformconfig_info {
         $returnarray = [];
 
         foreach (self::CAPABILITIES as $capability) {
-
             $returnarray[] = self::return_configured_fields_for_capability($context->id, $capability);
         }
         return $returnarray;
@@ -138,7 +136,6 @@ class optionformconfig_info {
             $status = 'success';
             // Now check if we need to update.
         } else if ($record = $DB->get_record('booking_form_config', $params)) {
-
             $DB->update_record('booking_form_config', [
                 'id' => $record->id,
                 'json' => $json,
@@ -170,7 +167,6 @@ class optionformconfig_info {
         $context = context::instance_by_id($contextid);
 
         foreach (self::CAPABILITIES as $capability) {
-
             if (has_capability($capability, $context)) {
                 return $capability;
             }
@@ -193,7 +189,6 @@ class optionformconfig_info {
         } else if (isset(self::$arrayoffieldsets[$contextid][$capability])) {
             $json = self::$arrayoffieldsets[$contextid][$capability];
         } else {
-
             // If we find a record in DB, we use it.
             if ($record = self::return_capabilities_from_db($contextid, $capability)) {
                 $json = $record->json;
@@ -205,7 +200,8 @@ class optionformconfig_info {
                 "mod_booking",
                 'option\fields'
             );
-            $fields = array_map(fn($a) =>
+            $fields = array_map(
+                fn($a) =>
                 (object)[
                     'id' => $a::$id,
                     'classname' => $a::return_classname_name(),
@@ -216,7 +212,8 @@ class optionformconfig_info {
                     'incompatible' => $a::$incompatiblefields,
                     'subfields' => $a::get_subfields(),
                 ],
-                array_keys($fields));
+                array_keys($fields)
+            );
 
             usort($fields, fn($a, $b) => $a->id > $b->id ? 1 : -1);
 
@@ -228,7 +225,6 @@ class optionformconfig_info {
                 $newfields = [];
 
                 foreach ($fields as $value) {
-
                     $filteredarray = array_filter($storedfields, fn($a) => $a->id == $value->id);
                     if (!empty($filteredarray)) {
                         $storefield = reset($filteredarray);
@@ -288,8 +284,7 @@ class optionformconfig_info {
         if (!$record = self::return_capabilities_from_db($contextid, $capability)) {
             return get_string('optionformconfignotsaved', 'mod_booking');
         } else {
-
-            switch($record->contextlevel) {
+            switch ($record->contextlevel) {
                 case CONTEXT_SYSTEM:
                     $url = new moodle_url('/mod/booking/optionformconfig.php', [
                         'cmid' => 0,
@@ -312,7 +307,7 @@ class optionformconfig_info {
                         get_string('optionformconfigsavedmodule', 'mod_booking')
                     );
                     break;
-                case CONTEXT_MODULE:
+                case CONTEXT_COURSE:
                     $message = get_string('optionformconfigsavedcourse', 'mod_booking');
                     break;
                 default:
@@ -347,7 +342,7 @@ class optionformconfig_info {
 
         $patharray = array_map(fn($a) => (int)$a, $patharray);
 
-        list($inorequal, $params) = $DB->get_in_or_equal($patharray, SQL_PARAMS_NAMED);
+        [$inorequal, $params] = $DB->get_in_or_equal($patharray, SQL_PARAMS_NAMED);
 
         $sql = "SELECT *
                 FROM {booking_form_config} bfc
