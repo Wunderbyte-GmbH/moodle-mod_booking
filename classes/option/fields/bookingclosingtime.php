@@ -173,8 +173,7 @@ class bookingclosingtime extends field_base {
         // Importing needs special treatment.
         if (!empty($data->importing)) {
             if (isset($data->{$key})) {
-
-                $value = strtotime($data->{$key});
+                $value = strtotime($data->{$key}, time());
                 $data->{$key} = $value;
                 $data->restrictanswerperiodclosing = 1;
             }

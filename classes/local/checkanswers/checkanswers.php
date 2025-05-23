@@ -129,7 +129,7 @@ class checkanswers {
             if (PHPUNIT_TEST) {
                 $executiontime = time(); // Now.
             } else {
-                $executiontime = strtotime('+ 15 minutes');
+                $executiontime = strtotime('+ 15 minutes', time());
             }
             $task->set_next_run_time($executiontime);
             manager::queue_adhoc_task($task);

@@ -510,7 +510,7 @@ class fileparser {
         $readablestring = false;
         $dateformat = !empty($this->settings->dateformat) ? $this->settings->dateformat : "j.n.Y H:i:s";
         if (date_create_from_format($dateformat, $value) &&
-                strtotime($value)) {
+                strtotime($value, time())) {
                     $readablestring = true;
         }
         // Check accepts all ints.

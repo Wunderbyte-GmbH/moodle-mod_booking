@@ -94,7 +94,7 @@ class bookings extends external_api {
             $options = [];
 
             if ($days > 0) {
-                $timediff = strtotime('-' . $days . ' day');
+                $timediff = strtotime('-' . $days . ' day', time());
                 $options['coursestarttime'] = $timediff;
             }
 

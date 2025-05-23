@@ -220,8 +220,8 @@ class dates {
                     ?? $defaultvalues->courseenddate;
 
                 $defaultvalues->{MOD_BOOKING_FORM_OPTIONDATEID . 0} = 0;
-                $defaultvalues->{MOD_BOOKING_FORM_COURSESTARTTIME . 0} = strtotime($starttime);
-                $defaultvalues->{MOD_BOOKING_FORM_COURSEENDTIME . 0} = strtotime($endtime);
+                $defaultvalues->{MOD_BOOKING_FORM_COURSESTARTTIME . 0} = strtotime($starttime, time());
+                $defaultvalues->{MOD_BOOKING_FORM_COURSEENDTIME . 0} = strtotime($endtime, time());
                 $defaultvalues->{MOD_BOOKING_FORM_DAYSTONOTIFY . 0} = 0;
             }
         }
