@@ -2250,6 +2250,7 @@ $string['sessions'] = 'Termin(e)';
 $string['shoppingcart'] = 'Zahlungsoptionen mit Shopping Cart Plugin definieren';
 $string['shoppingcartplaceholder'] = 'Warenkorb';
 $string['shortcode:cmidnotexisting'] = 'Der Kursmodul ID {$a} existiert nicht für die Aktivität Booking';
+$string['shortcode:error'] = "Dieser Shortcode führt zu einer fehlerhaften Ausgabe. Überprüfen Sie die Parameter";
 $string['shortcodenotsupportedonyourdb'] = "Dieser Shortcode funktioniert nur auf Postgres & Mariadb Datenbanken.";
 $string['shortcodesoff'] = 'Shortcodes deaktivieren';
 $string['shortcodesoff_desc'] = 'Aktivieren Sie diese Einstellung, wenn Sie Shortcodes (z.B. [courselist]) für die gesamte Website deaktivieren möchten.';

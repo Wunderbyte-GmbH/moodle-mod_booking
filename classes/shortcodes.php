@@ -142,7 +142,11 @@ class shortcodes {
             unset($table->subcolumns['rightside']);
         }
 
-        $out = $table->outhtml($perpage, true);
+        try {
+            $out = $table->outhtml($perpage, true);
+        } catch (Throwable $e) {
+            return get_string('shortcode:error', 'mod_booking');
+        }
 
         return $out;
     }
@@ -280,7 +284,11 @@ class shortcodes {
             unset($table->subcolumns['rightside']);
         }
 
-        $out = $table->outhtml($perpage, true);
+        try {
+            $out = $table->outhtml($perpage, true);
+        } catch (Throwable $e) {
+            return get_string('shortcode:error', 'mod_booking');
+        }
 
         return $out;
     }
@@ -425,7 +433,11 @@ class shortcodes {
         $table->sort_default_column = 'coursestarttime';
         $table->sort_default_order = SORT_ASC;
 
-        $out = $table->outhtml($perpage, true);
+        try {
+            $out = $table->outhtml($perpage, true);
+        } catch (Throwable $e) {
+            return get_string('shortcode:error', 'mod_booking');
+        }
 
         return $out;
     }
@@ -643,7 +655,12 @@ class shortcodes {
             unset($table->subcolumns['rightside']);
         }
 
-        $out = $table->outhtml($perpage, true);
+        try {
+            $out = $table->outhtml($perpage, true);
+        } catch (Throwable $e) {
+            return get_string('shortcode:error', 'mod_booking');
+        }
+
         return $out;
     }
 
@@ -763,7 +780,12 @@ class shortcodes {
         // Set common table options requirelogin, sortorder, sortby.
         self::set_common_table_options_from_arguments($table, $args);
 
-        $out = $table->outhtml($perpage, true);
+        try {
+            $out = $table->outhtml($perpage, true);
+        } catch (Throwable $e) {
+            return get_string('shortcode:error', 'mod_booking');
+        }
+
         return $out;
     }
 
@@ -890,7 +912,11 @@ class shortcodes {
 
         unset($table->subcolumns['rightside']);
 
-        $out = $table->outhtml($perpage, true);
+        try {
+            $out = $table->outhtml($perpage, true);
+        } catch (Throwable $e) {
+            return get_string('shortcode:error', 'mod_booking');
+        }
 
         return $out;
     }
@@ -1011,7 +1037,11 @@ class shortcodes {
         $table->showcountlabel = true;
         $table->showrowcountselect = true;
 
-        $out = $table->outhtml($perpage, true);
+        try {
+            $out = $table->outhtml($perpage, true);
+        } catch (Throwable $e) {
+            return get_string('shortcode:error', 'mod_booking');
+        }
 
         return $out;
     }
