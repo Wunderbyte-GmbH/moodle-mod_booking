@@ -183,6 +183,15 @@ abstract class field_base implements fields {
     }
 
     /**
+     * Gets the full classname including namespace.
+     * @return string
+     * @throws coding_exception
+     */
+    public static function return_full_classname(): string {
+        return get_called_class();
+    }
+
+    /**
      * Every class can provide subfields.
      * @return array
      */
