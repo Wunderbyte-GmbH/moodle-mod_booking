@@ -47,6 +47,9 @@ final class rules_n_days_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
+        $time = time();
+        time_mock::init();
+        time_mock::set_mock_time($time);
     }
 
     /**
@@ -58,6 +61,7 @@ final class rules_n_days_test extends advanced_testcase {
         parent::tearDown();
         // Mandatory clean-up.
         singleton_service::destroy_instance();
+        time_mock::reset_mock_time();
     }
 
     /**
@@ -137,8 +141,8 @@ final class rules_n_days_test extends advanced_testcase {
         $record->description = 'Will start tomorrow';
         $record->optiondateid_0 = "0";
         $record->daystonotify_0 = "0";
-        $record->coursestarttime_0 = strtotime('+2 days');
-        $record->courseendtime_0 = strtotime('+3 days');
+        $record->coursestarttime_0 = strtotime('+2 days', time());
+        $record->courseendtime_0 = strtotime('+3 days', time());
         $option1 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option1->id);
 
@@ -150,8 +154,10 @@ final class rules_n_days_test extends advanced_testcase {
             booking_option::cancelbookingoption($option1->id);
         }
 
-        time_mock::set_mock_time(strtotime('+5 days'));
-        time_mock::init();
+        $time = time_mock::get_mock_time();
+
+        time_mock::set_mock_time(strtotime('+5 days', $time));
+
         $time = time_mock::get_mock_time();
 
         ob_start();
