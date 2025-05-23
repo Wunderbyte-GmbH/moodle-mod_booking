@@ -73,6 +73,8 @@ final class send_reminder_mails_test extends advanced_testcase {
     public function test_send_teacher_remimder(): void {
         global $DB, $CFG;
 
+        self::tearDown();
+
         // It is important to set timezone to have all dates correct!
         $this->setTimezone('Europe/London');
 

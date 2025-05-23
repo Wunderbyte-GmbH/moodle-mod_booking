@@ -70,9 +70,8 @@ final class rules_selflearningcourse_test extends advanced_testcase {
      * @param array $expected
      * @throws \coding_exception
      * @throws \dml_exception
-     *
+     * @covers \mod_booking\booking_bookit::bookit
      * @dataProvider booking_common_settings_provider
-     *
      */
     public function test_booking_bookit_with_price_and_cancellation(
         array $coursedata,
@@ -81,6 +80,9 @@ final class rules_selflearningcourse_test extends advanced_testcase {
         $expected
     ): void {
         global $DB, $CFG;
+
+        // Clean up singletons.
+        self::tearDown();
 
         $users = [];
         $bookingoptions = [];
@@ -270,6 +272,8 @@ final class rules_selflearningcourse_test extends advanced_testcase {
                 }
             }
         }
+        // Clean up singletons.
+        self::tearDown();
     }
 
 

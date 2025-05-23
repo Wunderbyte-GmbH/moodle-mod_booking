@@ -77,12 +77,14 @@ final class shopping_cart_test extends advanced_testcase {
      * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception
-     *
+     * @covers \local_shopping_cart\shopping_cart::add_item_to_cart
      * @dataProvider booking_common_settings_provider
      *
      */
     public function test_booking_bookit_with_price_and_installment(array $bdata): void {
         global $DB, $CFG;
+
+        self::tearDown();
 
         // Skip this test if shopping_cart not installed.
         if (!class_exists('local_shopping_cart\shopping_cart')) {
@@ -167,7 +169,7 @@ final class shopping_cart_test extends advanced_testcase {
         $this->setUser($student1);
         singleton_service::destroy_user($student1->id);
 
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         // The user sees now either the payment button or the noshoppingcart message.
         $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
 
@@ -231,7 +233,7 @@ final class shopping_cart_test extends advanced_testcase {
         $option->user_submit_response($student1, 0, 0, 0, MOD_BOOKING_VERIFIED);
 
         // User 1 should be booked now.
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
     }
 
@@ -241,11 +243,13 @@ final class shopping_cart_test extends advanced_testcase {
      * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception
-     *
+     * @covers \local_shopping_cart\shopping_cart::add_item_to_cart
      * @dataProvider booking_common_settings_provider
      */
     public function test_booking_bookit_subbookings_item_price(array $bdata): void {
         global $DB, $CFG;
+
+        self::tearDown();
 
         // Setup test data.
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
@@ -369,7 +373,7 @@ final class shopping_cart_test extends advanced_testcase {
         $this->setUser($student1);
         singleton_service::destroy_user($student1->id);
         // Validate that subboking is available and bloking.
-        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student1->id, false);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, false);
         $this->assertEquals(MOD_BOOKING_BO_COND_SUBBOOKINGBLOCKS, $id);
 
         // Admin confirms the users booking.
@@ -447,7 +451,7 @@ final class shopping_cart_test extends advanced_testcase {
         $option->user_submit_response($student1, 0, 0, 0, MOD_BOOKING_VERIFIED);
 
         // User 1 should be booked now.
-        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
     }
 
@@ -465,6 +469,8 @@ final class shopping_cart_test extends advanced_testcase {
      */
     public function test_booking_customform_select_with_prices(array $bdata): void {
         global $DB, $CFG;
+
+        self::tearDown();
 
         // Setup test data.
         $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
@@ -530,7 +536,7 @@ final class shopping_cart_test extends advanced_testcase {
         // Try to book option1 by the student1.
         $this->setUser($student1);
         singleton_service::destroy_user($student1->id);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id);
         $this->assertEquals(MOD_BOOKING_BO_COND_JSON_CUSTOMFORM, $id);
 
         $price = price::get_price('option', $settings->id);
@@ -539,7 +545,7 @@ final class shopping_cart_test extends advanced_testcase {
         // Try to book option1 by the student2.
         $this->setUser($student2);
         singleton_service::destroy_user($student2->id);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student2->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id);
         $this->assertEquals(MOD_BOOKING_BO_COND_JSON_CUSTOMFORM, $id);
 
         $customformdata = (object) [
@@ -575,7 +581,7 @@ final class shopping_cart_test extends advanced_testcase {
         $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
         $option->user_submit_response($student1, 0, 0, 0, MOD_BOOKING_VERIFIED);
         // Validate that already booked.
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student2->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
     }
 
@@ -585,12 +591,14 @@ final class shopping_cart_test extends advanced_testcase {
      * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception
-     *
+     * @covers \mod_booking\booking_option::cancelbookingoption
      * @dataProvider booking_common_settings_provider
      *
      */
     public function test_booking_cancellation_wiht_fixed_consumption(array $bdata): void {
         global $DB, $CFG;
+
+        self::tearDown();
 
         // Set parems requred for cancellation.
         $bdata['booking']['cancancelbook'] = 1;
@@ -658,7 +666,7 @@ final class shopping_cart_test extends advanced_testcase {
 
         // Validate that option already booked.
         foreach ($students as $student) {
-            list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student->id);
+            [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student->id);
             $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
         }
 
@@ -758,7 +766,7 @@ final class shopping_cart_test extends advanced_testcase {
 
         // Validate that option have been cancelled and users' credits.
         foreach ($students as $key => $student) {
-            list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student->id);
+            [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student->id);
             $this->assertEquals(MOD_BOOKING_BO_COND_ISCANCELLED, $id);
 
             // Validate user credits.
@@ -787,12 +795,14 @@ final class shopping_cart_test extends advanced_testcase {
      * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception
-     *
+     * @covers \mod_booking\booking_option::cancelbookingoption
      * @dataProvider booking_common_settings_provider
      *
      */
     public function test_booking_cancellation_wiht_consumption_enabled(array $bdata): void {
         global $DB, $CFG;
+
+        self::tearDown();
 
         // Set parems requred for cancellation.
         $bdata['booking']['cancancelbook'] = 1;
@@ -861,7 +871,7 @@ final class shopping_cart_test extends advanced_testcase {
 
         // Validate that option already booked.
         foreach ($students as $student) {
-            list($id, $isavailable, $description) = $boinfo->is_available($settings1->id, $student->id);
+            [$id, $isavailable, $description] = $boinfo->is_available($settings1->id, $student->id);
             $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
         }
 
@@ -944,7 +954,7 @@ final class shopping_cart_test extends advanced_testcase {
 
         // Validate that option have been cancelled and users' credits.
         foreach ($students as $key => $student) {
-            list($id, $isavailable, $description) = $boinfo->is_available($settings1->id, $student->id);
+            [$id, $isavailable, $description] = $boinfo->is_available($settings1->id, $student->id);
             $this->assertEquals(MOD_BOOKING_BO_COND_ISCANCELLED, $id);
 
             // Validate user credits.
@@ -974,10 +984,14 @@ final class shopping_cart_test extends advanced_testcase {
      * @throws \coding_exception
      * @throws \dml_exception
      *
+     * @covers \mod_booking\booking_option::cancelbookingoption
+     *
      * @dataProvider booking_common_settings_provider
      */
     public function test_booking_cancellation_wiht_multiple_dates_and_consumption_enabled(array $bdata): void {
         global $DB, $CFG;
+
+        self::tearDown();
 
         // Set parems requred for cancellation.
         $bdata['booking']['cancancelbook'] = 1;
@@ -1046,7 +1060,7 @@ final class shopping_cart_test extends advanced_testcase {
 
         // Validate that option already booked.
         foreach ($students as $student) {
-            list($id, $isavailable, $description) = $boinfo->is_available($settings1->id, $student->id);
+            [$id, $isavailable, $description] = $boinfo->is_available($settings1->id, $student->id);
             $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
         }
 
@@ -1129,7 +1143,7 @@ final class shopping_cart_test extends advanced_testcase {
 
         // Validate that option have been cancelled and users' credits.
         foreach ($students as $key => $student) {
-            list($id, $isavailable, $description) = $boinfo->is_available($settings1->id, $student->id);
+            [$id, $isavailable, $description] = $boinfo->is_available($settings1->id, $student->id);
             $this->assertEquals(MOD_BOOKING_BO_COND_ISCANCELLED, $id);
 
             // Validate user credits.
