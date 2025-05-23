@@ -533,8 +533,12 @@ class shortcodes {
             $tempwherearray[] = $cfwhere;
         }
 
-        if ($cmidwhere = self::set_cmid_wherearray($args, $wherearray, $tempparams)) {
-            $tempwherearray[] = $cmidwhere;
+        try {
+            if ($cmidwhere = self::set_cmid_wherearray($args, $wherearray, $tempparams)) {
+                $tempwherearray[] = $cmidwhere;
+            }
+        } catch (Throwable $e) {
+            return get_string('shortcode:cmidnotexisting', 'mod_booking', $args['cmid']);
         }
 
         if (!empty($tempwherearray)) {
