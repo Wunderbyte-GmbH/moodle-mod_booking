@@ -14,16 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Interface for a single booking extension.
- *
- * All booking extensions must extend this class.
- *
- * @package     mod_booking
- * @copyright   2025 Wunderbyte GmbH
- * @author      Bernhard Fischer-Sengseis
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
 namespace mod_booking\plugininfo;
 
 /**
@@ -37,4 +27,22 @@ namespace mod_booking\plugininfo;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 interface bookingextension_interface {
+    /**
+     * Get the plugin name.
+     * @return string the plugin name
+     */
+    public function get_plugin_name(): string;
+
+    /**
+     *
+     * Check if the booking extension contains new option fields.
+     * @return bool True if the booking extension contains new option fields, false otherwise.
+     */
+    public function contains_option_fields(): bool;
+
+    /**
+     * If the extension adds new option fields this array contains the according information.
+     * @return array
+     */
+    public function get_option_fields_info_array(): array;
 }
