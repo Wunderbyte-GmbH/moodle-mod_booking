@@ -2362,6 +2362,7 @@ $string['showmyfieldofstudyonly'] = "My field of study";
 $string['showpriceifnotloggedin'] = 'Display price(s) for users not logged in';
 $string['showprogressbars'] = 'Show progress bars of time passed';
 $string['showrecentupdates'] = 'Show recent updates';
+$string['showsimilaroptions'] = 'Show similar options';
 $string['showsubbookings'] = 'Activate subbookings';
 $string['showteachersmailinglist'] = 'Show a list of e-mails for all teachers...';
 $string['showviews'] = 'Views to show in the booking options overview';

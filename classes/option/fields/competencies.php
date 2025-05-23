@@ -186,8 +186,12 @@ class competencies extends field_base {
         // Get all frameworks.
         $frameworks = competency_framework::get_records();
 
+        $onlyoneframework = false;
+        if (count($frameworks) === 1) {
+            $onlyoneframework = true;
+        }
         foreach ($frameworks as $fw) {
-            $frameworkname = $fw->get('shortname');
+            $frameworkname = format_string($fw->get('shortname'));
 
             // Get all competencies for this framework.
             $competencies = competency::get_records(['competencyframeworkid' => $fw->get('id')]);
@@ -197,7 +201,11 @@ class competencies extends field_base {
             }
 
             foreach ($competencies as $comp) {
-                $label = $frameworkname . ': ' . $comp->get('shortname');
+                $label = "";
+                if (!$onlyoneframework) {
+                    $label .= $frameworkname . ': ';
+                }
+                $label .= format_string($comp->get('shortname'));
                 $flat[$comp->get('id')] = $label;
             }
         }
@@ -245,7 +253,6 @@ class competencies extends field_base {
      */
     public static function save_data(stdClass &$data, stdClass &$option): array {
         $changes = [];
-        // TODO: New column for booking option.
         return $changes;
     }
 
@@ -328,6 +335,18 @@ class competencies extends field_base {
             $link = new user_evidence_competency(0, $link);
             $link->create();
         }
+        return $competencies;
+    }
+
+    /**
+     * Resolve appelations of competencies.
+     *
+     * @return array
+     *
+     */
+    public static function get_filter_options(): array {
+        $competencies = self::get_competencies_including_framework();
+        $competencies['explode'] = ",";
         return $competencies;
     }
 }
