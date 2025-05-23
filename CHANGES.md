@@ -1,3 +1,11 @@
+## Version 8.14.2 (2025052300)
+* Improvement: Move pricecategories to dynamic form with repeat elements
+* Bugfix: Add missing error catching on wrong cmid.
+* Bugfix: Don't create a new group when we already have an id
+* BugFix: send_mail_interval waitinglist order and add tests
+* Bugfix: Don't send reminder messages for cancelled booking options
+* Bugfix: Fix strings of privacy providers (must not include underscores)
+
 ## Version 8.14.1 (2025052100)
 * Bugfix: In Bookings tracker show unlimited instead of 0.
 * Bugfix: Fix errors with price categories.
