@@ -608,15 +608,6 @@ if ($ADMIN->fulltree) {
 
     $settings->add(
         new admin_setting_configcheckbox(
-            'booking/shortcodesoff',
-            get_string('shortcodesoff', 'mod_booking'),
-            get_string('shortcodesoff_desc', 'mod_booking'),
-            0
-        )
-    );
-
-    $settings->add(
-        new admin_setting_configcheckbox(
             'booking/usecompetencies',
             get_string('usecompetencies', 'mod_booking'),
             get_string('usecompetencies_desc', 'mod_booking'),
@@ -1885,6 +1876,43 @@ if ($ADMIN->fulltree) {
             [],
             $whichviewopts
         ));
+    }
+
+    if ($proversion) {
+        // Shortcode settings.
+        $settings->add(
+            new admin_setting_heading(
+                'shortcodesettingsheading',
+                get_string('shortcodesettings', 'mod_booking'),
+                get_string('shortcodesettings_desc', 'mod_booking')
+            )
+        );
+
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/shortcodesoff',
+                get_string('shortcodesoff', 'mod_booking'),
+                get_string('shortcodesoff_desc', 'mod_booking'),
+                0
+            )
+        );
+
+        $settings->add(new admin_setting_configtext(
+            'booking/shortcodespassword',
+            get_string('shortcodespassword', 'booking'),
+            get_string('shortcodespassword', 'booking'),
+            '' // Default is empty.
+        ));
+    } else {
+        $settings->add(
+            new admin_setting_heading(
+                'tabwhatsnew',
+                get_string('tabwhatsnew', 'mod_booking'),
+                get_string('prolicensefeatures', 'mod_booking') .
+                get_string('profeatures:shortcodes', 'mod_booking') .
+                get_string('infotext:prolicensenecessary', 'mod_booking')
+            )
+        );
     }
 
     // Global mail templates (PRO).

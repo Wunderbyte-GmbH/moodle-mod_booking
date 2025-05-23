@@ -56,6 +56,10 @@ class shortcodes_handler {
         if ($answerarray['error'] == 1) {
             return $answerarray;
         }
+        $answerarray = self::shortcodes_passwordcheck($shortcode, $answerarray, $args);
+        if ($answerarray['error'] == 1) {
+            return $answerarray;
+        }
         $answerarray = self::license_is_activated($shortcode, $answerarray);
         if ($answerarray['error'] == 1) {
             return $answerarray;
@@ -83,6 +87,35 @@ class shortcodes_handler {
             "</div>";
         return $answerarray;
     }
+
+    /**
+     * Check if shortcodes passwort is valid.
+     * If no password is set, no error is thrown.
+     *
+     * @param string $shortcode
+     * @param array $answerarray
+     * @param array $args
+     *
+     * @return array
+     */
+    private static function shortcodes_passwordcheck($shortcode, &$answerarray, $args) {
+
+        $password = get_config('booking', 'shortcodespassword');
+        if (empty($password)) {
+            return $answerarray;
+        }
+        // If the password matches, proceed.
+        if (($args['password'] ?? '') == $password) {
+            return $answerarray;
+        }
+
+        $answerarray['error'] = 1;
+        $answerarray['message'] = "<div class='alert alert-warning'>" .
+            get_string('shortcodesispasswordprotected', 'mod_booking', $shortcode) .
+            "</div>";
+        return $answerarray;
+    }
+
     /**
      * Checks if pro license is active.
      *
