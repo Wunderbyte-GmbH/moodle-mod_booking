@@ -1432,4 +1432,28 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
         return booking_option::render_attachments($values->id, 'mod-booking-option-attachments mb-2');
     }
+
+    /**
+     * This function is called for each data row to allow processing of the
+     * "attachment" value.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string a string containing a link to the attachment
+     * @throws coding_exception
+     */
+    public function col_competencies($values) {
+        if (empty($values->competencies)) {
+            return '';
+        }
+
+        // Button triggers filter for these checkboxes.
+        $label = get_string('showsimilaroptions', 'mod_booking');
+        return '<button id="loadcompetencybutton_' . $values->id . '"
+            class="btn btn-light booking-competencies-trigger-filter-button"
+            data-competency-ids="' . $values->competencies . '"
+            data-table-uniqueid="' . $this->uniqueid . '"
+            data-table-idstring="' . $this->idstring . '"
+            data-bookingoptionid="' . $values->id . '">
+            ' . $label . '</button>';
+    }
 }

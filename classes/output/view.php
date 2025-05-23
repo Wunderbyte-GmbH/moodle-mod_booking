@@ -35,6 +35,7 @@ use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
 use mod_booking\customfield\booking_handler;
 use mod_booking\elective;
+use mod_booking\option\fields\competencies;
 use mod_booking\singleton_service;
 use mod_booking\table\bookingoptions_wbtable;
 use mod_booking\utils\wb_payment;
@@ -1091,6 +1092,12 @@ class view implements renderable, templatable {
                     }
                 }
             }
+            if (in_array('competencies', $optionsfields)) {
+                $standardfilter = new standardfilter('competencies', get_string('competencies', 'mod_booking'));
+                $comptencyoptions = competencies::get_filter_options();
+                $standardfilter->add_options($comptencyoptions);
+                $wbtable->add_filter($standardfilter);
+            }
         }
 
         if ($sort) {
@@ -1408,6 +1415,9 @@ class view implements renderable, templatable {
         }
         if (in_array('showdates', $optionsfields)) {
             $columnsfooter[] = 'showdates';
+        }
+        if (in_array('competencies', $optionsfields)) {
+            $columnsfooter[] = 'competencies';
         }
         $columnsfooter[] = 'comments';
 

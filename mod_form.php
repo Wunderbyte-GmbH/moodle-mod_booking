@@ -553,6 +553,9 @@ class mod_booking_mod_form extends moodleform_mod {
             'coursestarttime' => get_string('optiondatestart', 'mod_booking'),
         ];
 
+        if (get_config('booking', 'usecompetencies')) {
+            $optionsfields['competencies'] = get_string('competencies', 'mod_booking');
+        }
         $optionsdownloadfields = [
             'identifier' => get_string('optionidentifier', 'mod_booking'),
             'titleprefix' => get_string('titleprefix', 'mod_booking'),
