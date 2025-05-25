@@ -1782,7 +1782,7 @@ $string['optiontemplatenotsavednovalidlicense'] = 'Booking option template could
                                                   Upgrade to PRO version to save an unlimited number of templates.';
 $string['optiontemplatessettings'] = 'Booking option templates';
 $string['optionviewcustomfields'] = 'Show customfields on detail page';
-$string['optionviewcustomfieldsdesc'] = 'Select the booking option customfields that you want to be shown on the details page of a booking option.';
+$string['optionviewcustomfieldsdesc'] = 'Select the booking option customfields that you want to be shown on the details page of a booking option. To change the order of the customfields on the details page, you can just change the order of the customfields <a href="/mod/booking/customfield.php" target="_blank">here</a>';
 $string['optionvisibility'] = 'Visibility';
 $string['optionvisibility_help'] = 'Here you can choose whether the option should be visible for everyone or if it should be hidden from normal users and be visible to entitled users only.';
 $string['optionvisible'] = 'Visible to everyone (default)';
