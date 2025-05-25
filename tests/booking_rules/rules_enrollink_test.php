@@ -64,6 +64,9 @@ final class rules_enrollink_test extends advanced_testcase {
         // Mandatory clean-up.
         singleton_service::destroy_instance();
         enrollink::destroy_instances();
+        // Mandatory to deal with static variable in the booking_rules.
+        rules_info::$rulestoexecute = [];
+        booking_rules::$rules = [];
     }
 
     /**
@@ -362,11 +365,6 @@ final class rules_enrollink_test extends advanced_testcase {
         // Validate "nomoreseats" enrollment status and remainaing free places.
         $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_NO_MORE_SEATS, $info2);
         $this->assertEquals(0, $enrollink->free_places_left());
-
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::$rulestoexecute = [];
-        booking_rules::$rules = [];
-        enrollink::destroy_instances();
     }
 
     /**
@@ -688,10 +686,6 @@ final class rules_enrollink_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_NO_MORE_SEATS, $info2);
         $this->assertEquals(0, $enrollink->free_places_left());
         // User Student4 remains on the waitinglist.
-
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::$rulestoexecute = [];
-        booking_rules::$rules = [];
     }
 
     /**

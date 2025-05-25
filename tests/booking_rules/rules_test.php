@@ -62,8 +62,11 @@ final class rules_test extends advanced_testcase {
         global $DB;
 
         parent::tearDown();
-        // Mandatory clean-up.
+        // Mandatory to solve potential cache issues.
         singleton_service::destroy_instance();
+        // Mandatory to deal with static variable in the booking_rules.
+        rules_info::$rulestoexecute = [];
+        booking_rules::$rules = [];
     }
 
     /**
@@ -184,11 +187,6 @@ final class rules_test extends advanced_testcase {
                 $this->assertStringContainsString($ruledata1['conditiondata'], $customdata->rulejson);
                 $this->assertStringContainsString($ruledata1['actiondata'], $customdata->rulejson);
         }
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_instance();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::$rulestoexecute = [];
-        booking_rules::$rules = [];
     }
 
     /**
@@ -287,12 +285,6 @@ final class rules_test extends advanced_testcase {
         $this->assertStringContainsString($ruledata1['actiondata'], $customdata->rulejson);
         $rulejson = json_decode($customdata->rulejson);
         $this->assertEquals($user1->id, $rulejson->datafromevent->relateduserid);
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_instance();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::$rulestoexecute = [];
-        booking_rules::$rules = [];
     }
 
     /**
@@ -399,12 +391,6 @@ final class rules_test extends advanced_testcase {
         $this->assertEquals($user2->id, $customdata->userid);
         $rulejson = json_decode($customdata->rulejson);
         $this->assertEquals($user1->id, $rulejson->datafromevent->relateduserid);
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_instance();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::$rulestoexecute = [];
-        booking_rules::$rules = [];
     }
 
     /**
@@ -534,12 +520,6 @@ final class rules_test extends advanced_testcase {
                 $this->assertStringContainsString($ruledata2['actiondata'], $customdata->rulejson);
             }
         }
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_instance();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::$rulestoexecute = [];
-        booking_rules::$rules = [];
     }
 
     /**
@@ -645,12 +625,6 @@ final class rules_test extends advanced_testcase {
                 continue;
             }
         }
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_instance();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::$rulestoexecute = [];
-        booking_rules::$rules = [];
     }
 
     /**
@@ -747,12 +721,6 @@ final class rules_test extends advanced_testcase {
                 continue;
             }
         }
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_instance();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::$rulestoexecute = [];
-        booking_rules::$rules = [];
     }
 
     /**
@@ -866,12 +834,6 @@ final class rules_test extends advanced_testcase {
         $this->assertStringContainsString($cancelrules2, $customdata->rulejson);
         $this->assertStringContainsString($ruledata2['conditiondata'], $customdata->rulejson);
         $this->assertStringContainsString($ruledata2['actiondata'], $customdata->rulejson);
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_instance();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::$rulestoexecute = [];
-        booking_rules::$rules = [];
     }
 
     /**
@@ -985,12 +947,6 @@ final class rules_test extends advanced_testcase {
                 $this->assertStringContainsString("Description updated", $message->fullmessage);
             }
         }
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_instance();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::$rulestoexecute = [];
-        booking_rules::$rules = [];
     }
 
     /**
@@ -1141,12 +1097,6 @@ final class rules_test extends advanced_testcase {
         $rulejson = json_decode($customdata->rulejson);
         $this->assertEquals($student1->id, $rulejson->datafromevent->relateduserid);
         $this->assertEquals($teacher1->id, $message->get_userid());
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_instance();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::$rulestoexecute = [];
-        booking_rules::$rules = [];
     }
 
     /**
@@ -1306,12 +1256,6 @@ final class rules_test extends advanced_testcase {
                 $this->assertContains($rulejson->datafromevent->relateduserid, [$student1->id, $student2->id]);
             }
         }
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_instance();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::$rulestoexecute = [];
-        booking_rules::$rules = [];
     }
 
     /**
@@ -1448,12 +1392,6 @@ final class rules_test extends advanced_testcase {
         $rulejson = json_decode($customdata->rulejson);
         $this->assertEquals($user2->id, $rulejson->datafromevent->relateduserid);
         $this->assertEquals($user2->id, $message->get_userid());
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_instance();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::$rulestoexecute = [];
-        booking_rules::$rules = [];
     }
 
     /**
@@ -1635,12 +1573,6 @@ final class rules_test extends advanced_testcase {
         // String must NOT be present for student3.
         $answer23 = array_shift($answers2);
         $this->assertStringNotContainsString($formrecord3->customform_shorttext_1, $answer23->json);
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_instance();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::$rulestoexecute = [];
-        booking_rules::$rules = [];
     }
 
     /**
@@ -1844,11 +1776,6 @@ final class rules_test extends advanced_testcase {
                 $this->assertEquals($student1->id, $message->useridto);
             }
         }
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_instance();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::$rulestoexecute = [];
-        booking_rules::$rules = [];
     }
 
     /**

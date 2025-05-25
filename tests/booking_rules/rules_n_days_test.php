@@ -62,6 +62,9 @@ final class rules_n_days_test extends advanced_testcase {
         // Mandatory clean-up.
         singleton_service::destroy_instance();
         time_mock::reset_mock_time();
+        // Mandatory to deal with static variable in the booking_rules.
+        rules_info::$rulestoexecute = [];
+        booking_rules::$rules = [];
     }
 
     /**
@@ -166,12 +169,6 @@ final class rules_n_days_test extends advanced_testcase {
 
         // Both tasks logged their results, so we check for the string twice.
         $this->assertTrue(substr_count($res, $expected['contains']) >= 2);
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_instance();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::$rulestoexecute = [];
-        booking_rules::$rules = [];
     }
 
 

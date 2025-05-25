@@ -69,8 +69,11 @@ final class rules_template_test extends advanced_testcase {
         global $DB;
 
         parent::tearDown();
-        // Mandatory clean-up.
+        // Mandatory to solve potential cache issues.
         singleton_service::destroy_instance();
+        // Mandatory to deal with static variable in the booking_rules.
+        rules_info::$rulestoexecute = [];
+        booking_rules::$rules = [];
     }
 
     /**
@@ -593,12 +596,6 @@ final class rules_template_test extends advanced_testcase {
                 $counter++;
             }
         }
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_instance();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::$rulestoexecute = [];
-        booking_rules::$rules = [];
     }
 
     /**
@@ -724,12 +721,6 @@ final class rules_template_test extends advanced_testcase {
         $rulejson = json_decode($customdata->rulejson);
         $this->assertEquals($user2->id, $rulejson->datafromevent->relateduserid);
         $this->assertEquals($user2->id, $message->get_userid());
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_instance();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::$rulestoexecute = [];
-        booking_rules::$rules = [];
     }
 
     /**
