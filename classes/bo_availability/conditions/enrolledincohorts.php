@@ -180,6 +180,7 @@ class enrolledincohorts implements bo_condition {
 
         $usercohorts = singleton_service::get_cohorts_of_user($userid);
         $databasetype = $DB->get_dbfamily();
+        $dbversion = $DB->get_server_info();
         if (empty($usercohorts)) {
             if ($databasetype == 'postgres') {
                 $where = "
@@ -192,15 +193,41 @@ class enrolledincohorts implements bo_condition {
                         )
                     )";
             } else if ($databasetype == 'mysql') {
-                $where = "
-                (
-                    availability IS NOT NULL
-                    AND NOT EXISTS (
-                        SELECT 1
-                        FROM JSON_TABLE(availability, '$[*]' COLUMNS (sqlfilter VARCHAR(10) PATH '$.sqlfilter')) jt
-                        WHERE jt.sqlfilter = '1'
-                    )
-                )";
+                if (stripos($dbversion, 'mariadb') !== false) {
+                    // MariaDB workaround – check first N elements.
+                    // It's unfortunate that this seems to be necessary in mariadb.
+                    $where = "
+                        (
+                            availability IS NOT NULL
+                            AND (
+                                JSON_UNQUOTE(JSON_EXTRACT(availability, '$[0].sqlfilter')) != '1'
+                                AND JSON_UNQUOTE(JSON_EXTRACT(availability, '$[1].sqlfilter')) != '1'
+                                AND JSON_UNQUOTE(JSON_EXTRACT(availability, '$[2].sqlfilter')) != '1'
+                                AND JSON_UNQUOTE(JSON_EXTRACT(availability, '$[3].sqlfilter')) != '1'
+                                AND JSON_UNQUOTE(JSON_EXTRACT(availability, '$[4].sqlfilter')) != '1'
+                                AND JSON_UNQUOTE(JSON_EXTRACT(availability, '$[5].sqlfilter')) != '1'
+                                AND JSON_UNQUOTE(JSON_EXTRACT(availability, '$[6].sqlfilter')) != '1'
+                                AND JSON_UNQUOTE(JSON_EXTRACT(availability, '$[7].sqlfilter')) != '1'
+                                AND JSON_UNQUOTE(JSON_EXTRACT(availability, '$[8].sqlfilter')) != '1'
+                                AND JSON_UNQUOTE(JSON_EXTRACT(availability, '$[9].sqlfilter')) != '1'
+                                AND JSON_UNQUOTE(JSON_EXTRACT(availability, '$[10].sqlfilter')) != '1'
+                            )
+                        )";
+                } else {
+                    // MySQL 8+ with JSON_TABLE.
+                    $where = "
+                        (
+                            availability IS NOT NULL
+                            AND NOT EXISTS (
+                                SELECT 1
+                                FROM JSON_TABLE(
+                                    availability, '$[*]'
+                                    COLUMNS (sqlfilter VARCHAR(10) PATH '$.sqlfilter')
+                                ) jt
+                                WHERE jt.sqlfilter = '1'
+                            )
+                        )";
+                }
             } else {
                 return ["", "", "", $params, ""];
             }
