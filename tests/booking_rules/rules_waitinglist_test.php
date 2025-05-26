@@ -89,7 +89,6 @@ final class rules_waitinglist_test extends advanced_testcase {
         set_config('timezone', 'Europe/Kyiv');
         set_config('forcetimezone', 'Europe/Kyiv');
 
-
         time_mock::set_mock_time(strtotime('-4 days', time()));
         $time = time_mock::get_mock_time();
 
