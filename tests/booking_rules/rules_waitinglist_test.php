@@ -61,7 +61,12 @@ final class rules_waitinglist_test extends advanced_testcase {
         parent::tearDown();
         // Mandatory clean-up.
         singleton_service::destroy_instance();
+        // Mandatory to deal with static variable in the booking_rules.
+        rules_info::$rulestoexecute = [];
+        booking_rules::$rules = [];
         time_mock::reset_mock_time();
+        // phpcs:ignore
+        // mtrace(date('Y/m/d H:i:s', time_mock::get_mock_time())); // Debugging output.
     }
 
     /**
@@ -309,14 +314,6 @@ final class rules_waitinglist_test extends advanced_testcase {
             $this->assertEquals("freeplacedelaymsg", $message->fullmessage);
             $this->assertEquals($student3->id, $message->useridto);
         }
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_instance();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::$rulestoexecute = [];
-        booking_rules::$rules = [];
-        time_mock::set_mock_time(time()); // Set "now".
-        $time = time_mock::get_mock_time();
     }
 
     /**
@@ -539,14 +536,6 @@ final class rules_waitinglist_test extends advanced_testcase {
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
         $ba2 = singleton_service::get_instance_of_booking_answers($settings);
         $this->assertEquals($student4->id, array_key_first($ba2->usersonlist));
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_instance();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::$rulestoexecute = [];
-        booking_rules::$rules = [];
-        time_mock::set_mock_time(strtotime('+1 days', time())); // Set "now".
-        $time = time_mock::get_mock_time();
     }
 
     /**
@@ -826,12 +815,6 @@ final class rules_waitinglist_test extends advanced_testcase {
         $firsttaskdata = reset($tasks)->get_custom_data();
         // Finally student2 is next to recieve the message.
         $this->assertEquals($student2->id, $firsttaskdata->userid);
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_instance();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::$rulestoexecute = [];
-        booking_rules::$rules = [];
     }
 
     /**
