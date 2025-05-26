@@ -89,7 +89,9 @@ export const init = (encodedtable) => {
       null,
       null,
       filterobjects,
-      '');
+      '',
+      false,
+      true);
 };
 
 
