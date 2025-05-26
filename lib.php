@@ -2672,6 +2672,35 @@ function mod_booking_tool_certificate_fields() {
     );
 }
 
+/**
+ * Helper function to check if the database is MariaDB and at least version 10.6.
+ * @return bool True if MariaDB 10.6 or higher, false otherwise.
+ */
+function db_is_at_least_mariadb_106_or_mysql_8() {
+    global $DB;
+
+    $versionstring = $DB->get_field_sql(
+        "SELECT VERSION() AS version"
+    );
+    if (strpos($versionstring, 'MariaDB') !== false) {
+        // Extract the version number from the string.
+        preg_match('/\d+\.\d+\.\d+/', $versionstring, $matches);
+        if (empty($matches)) {
+            return false; // If we cannot extract the version, return false.
+        }
+        if (version_compare($matches[0], '10.6', '>=')) {
+            // If it's a MariaDB and the version is 10.6 or higher, return true.
+            return true;
+        }
+    } else if ($DB->get_dbfamily() == 'mysql') {
+        if (version_compare($versionstring, '8.0', '>=')) {
+            // If it's MySQL and the version is 8.0 or higher, return true.
+            return true;
+        }
+    }
+    // No MariaDB >= 10.6 or MySQL > 8.0.
+    return false;
+}
 
 // With this function, we can execute code at the last moment.
 register_shutdown_function(function () {
