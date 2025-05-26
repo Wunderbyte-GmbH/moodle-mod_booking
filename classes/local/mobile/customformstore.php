@@ -253,7 +253,6 @@ class customformstore {
                 default:
                     break;
             }
-
         }
         return number_format(round((float) $price, 2), 2, '.', '');
     }

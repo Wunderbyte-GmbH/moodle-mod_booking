@@ -733,14 +733,9 @@ if (!$tableallbookings->is_downloading()) {
         $sqlvalues = array_merge($sqlvalues, $groupparams);
     }
 
-    if ($CFG->version >= 2021051700) {
-        // This only works in Moodle 3.11 and later.
-        $mainuserfields = \core_user\fields::for_name()->get_sql('u')->selects;
-        $mainuserfields = trim($mainuserfields, ', ');
-    } else {
-        // This is only here to support Moodle versions earlier than 3.11.
-        $mainuserfields = get_all_user_name_fields(true, 'u');
-    }
+    $mainuserfields = \core_user\fields::for_name()->get_sql('u')->selects;
+    $mainuserfields = trim($mainuserfields, ', ');
+
     if (class_exists('local_shopping_cart\shopping_cart')) {
         $shoppingcartfields = ",
             s2.price price,
