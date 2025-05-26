@@ -166,7 +166,6 @@ final class booking_groupenrolment_test extends advanced_testcase {
         $this->setUser($users['student1']);
         // Book the first user without any problem.
         $boinfo = new bo_info($settings);
-
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
@@ -363,8 +362,8 @@ final class booking_groupenrolment_test extends advanced_testcase {
             ],
             'option' => [
                 'text' => 'Test option1',
-                'coursestarttime' => strtotime('now + 2 day'),
-                'courseendtime' => strtotime('now + 3 day'),
+                'coursestarttime_0' => strtotime('+ 2 day', time()),
+                'courseendtime_0' => strtotime('+ 3 day', time()),
                 'importing' => 1,
                 'useprice' => 0,
                 'default' => 50, // Default price.
