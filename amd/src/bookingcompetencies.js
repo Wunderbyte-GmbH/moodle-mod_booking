@@ -31,9 +31,6 @@ import {callLoadData} from 'local_wunderbyte_table/init';
  */
 export const init = (encodedtable) => {
 
-    // eslint-disable-next-line no-console
-    console.log("button found");
-
     const buttons = document.querySelectorAll(".booking-competencies-trigger-filter-button");
 
     if (buttons) {
@@ -43,12 +40,10 @@ export const init = (encodedtable) => {
                 return;
             }
             const competencies = button.dataset.competencyIds;
-            const optionid = button.dataset.bookingoptionid;
             const idstring = button.dataset.tableIdstring;
 
-
             button.addEventListener('click', () => {
-                toggleCompetenciesFilter(button, competencies, optionid, idstring, encodedtable);
+                toggleCompetenciesFilter(competencies, idstring, encodedtable);
             });
             button.dataset.initialized = true;
         });
@@ -57,28 +52,19 @@ export const init = (encodedtable) => {
 
 /**
  * Toggle Competencies Filter
- * @param {any} button
  * @param {string} competencies
- * @param {int} optionid
  * @param {string} idstring
  * @param {string} encodedtable
  */
  export const toggleCompetenciesFilter = (
-    button,
     competencies,
-    optionid,
     idstring,
     encodedtable) => {
 
-    // eslint-disable-next-line no-console
-    console.log(button, competencies, optionid, idstring);
     const sort = getSortSelection(idstring);
 
     const idsArray = competencies.split(',').map(id => id.trim());
     const filterobjects = JSON.stringify({competencies: idsArray});
-
-    // eslint-disable-next-line no-console
-    console.log(filterobjects);
 
     callLoadData(idstring,
       encodedtable,
