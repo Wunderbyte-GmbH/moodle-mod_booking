@@ -19,7 +19,6 @@ use external_api;
 use external_function_parameters;
 use external_value;
 use mod_booking\local\evasys_evaluation;
-use mod_booking\local\respondapi\handlers\respondapi_handler;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -33,7 +32,7 @@ require_once($CFG->libdir . '/externallib.php');
  * @copyright   2023 Georg Maißer <georg.maisser@wunderbyt.at>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class search_keywords_respondapi extends external_api {
+class get_evasysperiods extends external_api {
     /**
      * Describes the external function parameters.
      *
@@ -73,7 +72,7 @@ class search_keywords_respondapi extends external_api {
         return new \external_single_structure([
             'list' => new \external_multiple_structure(
                 new \external_single_structure([
-                    'id' => new \external_value(PARAM_RAW, 'ID of the period'),
+                    'id' => new \external_value(PARAM_INT, 'ID of the period'),
                     'name' => new \external_value(PARAM_TEXT, 'Name of the period'),
                 ])
             ),

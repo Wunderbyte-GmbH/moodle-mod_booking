@@ -5025,7 +5025,7 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2025050701, 'booking');
     }
-    if ($oldversion < 2025051315) {
+    if ($oldversion < 2025051316) {
         // Define table booking_evasys to be created.
         $table = new xmldb_table('booking_evasys');
         // Adding fields to table booking_evasys.
@@ -5040,6 +5040,8 @@ function xmldb_booking_upgrade($oldversion) {
         $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
         $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
         $table->add_field('usermodified', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('periods', XMLDB_TYPE_TEXT, null, null, null, null, null);
+
         // Adding keys to table booking_evasys.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
@@ -5048,7 +5050,7 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->create_table($table);
         }
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2025051315, 'booking');
+        upgrade_mod_savepoint(true, 2025051316, 'booking');
         evasysuser_profile_field_initializer::ensure_evasyscustomfield_exists();
         evasysuser_profile_field_initializer::ensure_evasysoptioncustomfield_exists();
     }

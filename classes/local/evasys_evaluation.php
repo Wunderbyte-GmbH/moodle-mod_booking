@@ -89,40 +89,37 @@ class evasys_evaluation {
         return $periodoptions;
     }
 
+
     /**
-     * Callback for periods in optionform.
+     * Feteches the periods in the query
+     *
+     * @param string $query
      *
      * @return array
      *
      */
-    public function get_periods_for_option() {
-
+    public function get_periods_for_query($query) {
         $service = new evasys_soap_service();
-        $options = $service->fetch_periods();
-        // $self = $this;
-        // $options = [
-        // 'tags' => false,
-        // 'multiple' => false,
-        // 'noselectionstring' => '',
-        // 'ajax' => 'mod_booking/evasysperiods_selector',
-        // 'valuehtmlcallback' => function ($value) use ($self) {
-        // if (empty($value)) {
-        // return get_string('choose...', 'mod_booking');
-        // }
-        // return get_string('evasys:keyworddisplay', 'mod_booking', (object)[
-        // 'id' => $self->extract_idnumber_from_id($value),
-        // 'name' => $self->extract_name_from_id($value),
-        // ]);
-        // },
-        // ];
-        return $options;
+        $periods = $service->fetch_periods();
+        $listforarray = $periods->Periods;
+        $periodoptions = self::transform_return_to_array($listforarray, 'm_nPeriodId', 'm_sTitel');
+        foreach ($periodoptions as $key => $value) {
+            if (stripos($value, $query) !== false) {
+                $list[$key] = $value;
+            }
+        }
+        $formattedlist = [];
+        foreach ($list as $id => $name) {
+            $formattedlist[] = [
+                'id' => $id . 'xxx',
+                'name' => $name,
+            ];
+        }
+        return [
+                'warnings' => count($formattedlist) > 100 ? get_string('toomanyuserstoshow', 'core', '> 100') : '',
+                'list' => count($formattedlist) > 100 ? [] : $formattedlist,
+        ];
     }
-
-    // public function get_periods_for_query($query) {
-    // $service = new evasys_soap_service();
-    // $options = $service->fetch_periods();
-    // Do Something with query.
-    // }
 
     /**
      * Feteches forms and creates array for Settings.
@@ -385,6 +382,7 @@ class evasys_evaluation {
         $insertdata->organizers = implode(',', ($formdata->evasys_other_report_recipients ?? []));
         $insertdata->notifyparticipants = $formdata->evasys_notifyparticipants;
         $insertdata->usermodified = $USER->id;
+        $insertdata->periods = $formdata->evasysperiods;
 
         if (empty($formdata->evasys_id)) {
             $insertdata->timecreated = $now;

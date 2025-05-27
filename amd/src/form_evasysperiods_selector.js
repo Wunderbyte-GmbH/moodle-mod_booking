@@ -22,6 +22,7 @@
  */
 
 import Ajax from "core/ajax";
+// import {render as renderTemplate} from "core/templates";
 
 /**
  * Load the list of periods matching the query and render the selector labels for them.
@@ -48,19 +49,19 @@ export async function transport(selector, query, callback, failure) {
     console.log(response);
 
     if (response.warnings.length > 0) {
-        callback(response.warnings);
+      callback(response.warnings);
     } else {
-        response.list.forEach((period) => {
-            labels.push(
-                period.name
-            );
-            });
-            labels = await Promise.all(labels);
+      response.list.forEach((period) => {
+        labels.push(
+          period.id + ' ' + period.name
+        );
+      });
+      labels = await Promise.all(labels);
 
-            response.list.forEach((entity, index) => {
-            entity.label = labels[index];
-            });
-            callback(response.list);
+      response.list.forEach((entity, index) => {
+        entity.label = labels[index];
+      });
+      callback(response.list);
     }
   } catch (e) {
     failure(e);

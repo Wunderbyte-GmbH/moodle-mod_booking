@@ -182,7 +182,15 @@ $functions = [
         'capabilities'  => 'mod/booking:readresponses',
         'ajax'          => 1,
     ],
+    'mod_booking_get_evasysperiods' => [
+        'classname'   => 'mod_booking\external\get_evasysperiods',
+        'description' => 'Fetch list of Evasys periods based on search query.',
+        'type' => 'read',
+        'capabilities' => '',
+        'ajax'        => 1,
+    ],
 ];
+
 
 $services = [
     'Booking module API' => [ // Very important, don't rename or will break local_bookingapi plugin!!!
