@@ -163,6 +163,7 @@ tr.mod-booking-invisible {
     margin-top: 30px;
 }
 
+.course-content .activity-altcontent .wunderbyte-table-grid ul.infolist,
 .wunderbyte-table-grid ul.infolist,
 .course-content li.section li.activity ul ul.infolist {
     list-style: none;

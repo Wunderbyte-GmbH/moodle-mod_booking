@@ -1338,7 +1338,7 @@ class shortcodes {
      *
      * @param array $args
      *
-     * @return int $viewparam
+     * @return int $viewparam if no viewparam is found, the default is MOD_BOOKING_VIEW_PARAM_LIST
      *
      */
     private static function get_viewparam($args) {
@@ -1348,11 +1348,9 @@ class shortcodes {
             return $viewparam;
         }
         switch ($args['type']) {
-            // Cards are currently not yet supported in shortcode.
-            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-            /*case 'cards':
+            case 'cards':
                 $viewparam = MOD_BOOKING_VIEW_PARAM_CARDS;
-                break;*/
+                break;
             case 'imageleft':
                 $viewparam = MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT;
                 break;

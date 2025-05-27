@@ -545,7 +545,7 @@ class mod_booking_observer {
                     $table->set_template_data('showheaderimagelefthalf', true);
                     view::generate_table_for_list($table, $columns);
                     break;
-                case 0: // MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF.
+                case 0: // MOD_BOOKING_VIEW_PARAM_LIST.
                 default:
                     $table->set_template_data('noheaderimage', true);
                     view::generate_table_for_list($table, $columns);
