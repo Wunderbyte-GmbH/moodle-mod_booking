@@ -150,7 +150,7 @@ class all_userbookings extends \table_sql {
                 "{$values->firstname} {$values->lastname} ({$values->username})",
                 []
             ) .
-                     "&nbsp;({$values->otheroptions})";
+            "&nbsp;({$values->otheroptions})";
         }
     }
 
@@ -258,11 +258,8 @@ class all_userbookings extends \table_sql {
      * @return mixed
      * @throws coding_exception
      */
-    protected function col_city($values) {
-        if ($this->is_downloading()) {
-            return $values->city;
-        }
-        return  $values->city;
+    protected function col_city($values): string {
+        return format_string($values->city);
     }
 
     /**
@@ -271,7 +268,7 @@ class all_userbookings extends \table_sql {
      * @return string
      * @throws coding_exception
      */
-    protected function col_selected($values) {
+    protected function col_selected($values): string {
         if (!$this->is_downloading()) {
             return '<input id="check' . $values->id .
                      '" type="checkbox" class="usercheckbox" name="user[][' . $values->userid .
@@ -368,7 +365,7 @@ class all_userbookings extends \table_sql {
                 if ($tmp[0] == 'datetime') {
                     return userdate($tmp[1], get_string('strftimedate', 'langconfig'));
                 } else {
-                    return $tmp[1];
+                    return format_string($tmp[1]);
                 }
             } else {
                 return '';
@@ -392,7 +389,7 @@ class all_userbookings extends \table_sql {
                         foreach ($jsonobject->condition_customform as $key => $value) {
                             $array = explode('_', $key);
                             if (isset($array[2]) &&  $array[2] == $counter) {
-                                return "$value";
+                                return format_string((string)$value);
                             }
                         }
                     }
