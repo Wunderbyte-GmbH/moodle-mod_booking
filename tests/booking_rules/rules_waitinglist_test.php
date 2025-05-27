@@ -90,6 +90,12 @@ final class rules_waitinglist_test extends advanced_testcase {
     public function test_rule_on_freeplace_on_intervals_when_waitinglist_forced(array $bdata): void {
         global $DB, $CFG;
 
+        set_config('timezone', 'Europe/Kyiv');
+        set_config('forcetimezone', 'Europe/Kyiv');
+
+        time_mock::set_mock_time(strtotime('-4 days', time()));
+        $time = time_mock::get_mock_time();
+
         $bdata['cancancelbook'] = 1;
 
         // Create course.
@@ -182,6 +188,8 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         // Book the student1 via waitinglist.
+        time_mock::set_mock_time(strtotime('+1 days', time()));
+        $time = time_mock::get_mock_time();
         $this->setUser($student1);
         singleton_service::destroy_user($student1->id);
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
@@ -189,6 +197,8 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // Book the student3 via waitinglist.
+        time_mock::set_mock_time(strtotime('+1 days', time()));
+        $time = time_mock::get_mock_time();
         $this->setUser($student3);
         singleton_service::destroy_user($student3->id);
         $result = booking_bookit::bookit('option', $settings->id, $student3->id);
@@ -196,6 +206,8 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // Book the student4 via waitinglist.
+        time_mock::set_mock_time(strtotime('+1 days', time()));
+        $time = time_mock::get_mock_time();
         $this->setUser($student4);
         singleton_service::destroy_user($student4->id);
         $result = booking_bookit::bookit('option', $settings->id, $student4->id);
@@ -203,6 +215,8 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // Now remove booking of student 2, for a place to free up.
+        time_mock::set_mock_time(strtotime('+1 days', time()));
+        $time = time_mock::get_mock_time();
         $this->setUser($student2);
         $option->user_delete_response($student2->id);
         singleton_service::destroy_booking_option_singleton($option1->id);
