@@ -111,7 +111,7 @@ class evasys_evaluation {
         $formattedlist = [];
         foreach ($list as $id => $name) {
             $formattedlist[] = [
-                'id' => $id . 'xxx',
+                'id' => $id . '-' . base64_encode($name),
                 'name' => $name,
             ];
         }
@@ -260,7 +260,12 @@ class evasys_evaluation {
         $internalid = end(explode(',', $userfieldvalue));
         $secondaryinstructors = array_merge($teachers ?? [], $recipients ?? []);
         $secondaryinstructorsinsert = self::set_secondaryinstructors_for_save($secondaryinstructors);
-
+        if (!empty($data->evasysperiods)) {
+            $perioddata = explode('-', $data->evasysperiods);
+            $periodid = reset($perioddata);
+        } else {
+            $periodid = get_config('booking', 'evasysperiods');
+        }
         $coursedata = (object) [
             'm_nCourseId' => $courseid,
             'm_sProgramOfStudy' => 'Urise', // Subunit name.
@@ -273,7 +278,7 @@ class evasys_evaluation {
             'm_sCustomFieldsJSON' => '',
             'm_nUserId' => $internalid,
             'm_nFbid' => (int)get_config('booking', 'evasyssubunits'),
-            'm_nPeriodId' => (int)get_config('booking', 'evasysperiods'),
+            'm_nPeriodId' => (int)$periodid,
             'currentPosition' => null,
             'hasAnonymousParticipants' => false,
             'isModuleCourse' => null,
@@ -319,7 +324,6 @@ class evasys_evaluation {
             $userobj->m_bActiveUser = null;
             $userobj->m_bTechnicalAdmin = null;
             $userobj->m_aCourses = null;
-
             $userlist[] = $userobj;
         }
         return $userlist;
@@ -376,8 +380,13 @@ class evasys_evaluation {
         $now = time();
         $insertdata->optionid = $option->id;
         $insertdata->pollurl = $formdata->evasys_questionaire;
-        $insertdata->starttime = $formdata->evasys_evaluation_starttime;
-        $insertdata->endtime = $formdata->evasys_evaluation_endtime;
+        if (empty((int)$formdata->evasys_timemode)) {
+            $insertdata->starttime = (int) $option->courseendtime + (int) $formdata->evasys_evaluation_durationbeforestart;
+            $insertdata->endtime = (int) $option->courseendtime + (int) $formdata->evasys_evaluation_durationafterend;
+        } else {
+            $insertdata->starttime = $formdata->evasys_evaluation_starttime;
+            $insertdata->endtime = $formdata->evasys_evaluation_endtime;
+        }
         $insertdata->trainers = implode(',', ($formdata->teachersforoption ?? []));
         $insertdata->organizers = implode(',', ($formdata->evasys_other_report_recipients ?? []));
         $insertdata->notifyparticipants = $formdata->evasys_notifyparticipants;
@@ -411,6 +420,7 @@ class evasys_evaluation {
         $data->evasys_notifyparticipants = $record->notifyparticipants;
         $data->evasys_id = $record->id;
         $data->evasys_timecreated = $record->timecreated;
+        $data->evasysperiods = $record->periods;
     }
 
     /**

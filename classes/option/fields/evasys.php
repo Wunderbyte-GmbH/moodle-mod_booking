@@ -144,23 +144,20 @@ class evasys extends field_base {
         $evasys = new evasys_evaluation();
         $forms = $evasys->get_allforms();
         $recipients = $evasys->get_recipients();
-        // $periods = [];
         $periodoptions = [
-            'tags' => false,
-            'multiple' => false,
-            'noselectionstring' => '',
-            'ajax' => 'mod_booking/form_evasysperiods_selector',
-            'valuehtmlcallback' => function ($value) {
-                global $OUTPUT;
-                if (empty($value)) {
-                    return get_string('choose...', 'mod_booking');
-                }
-                $details = [
-                    'id' => $value,
-                    'fullname' => $value,
-                ];
-                    return 'dfs ajkljdsafk' . json_decode($value);
-            },
+        'tags' => false,
+        'multiple' => false,
+        'noselectionstring' => '',
+        'ajax' => 'mod_booking/form_evasysperiods_selector',
+        'valuehtmlcallback' => function ($value) {
+            if (empty($value)) {
+                return get_string('choose...', 'mod_booking');
+            }
+            $array = explode('-', $value);
+            $name = end($array);
+            $return = base64_decode($name);
+            return $return;
+        },
         ];
 
 
@@ -179,25 +176,45 @@ class evasys extends field_base {
         );
 
         $options = [
-            0 => 'a', //get_string('fixeddate', 'mod_booking'),
-            1 => 'b', // get_string('duration', 'mod_booking'),
+            0 => get_string('evasys:timemodeduration', 'mod_booking'),
+            1 => get_string('evasys:timemodestart', 'mod_booking'),
+
         ];
-        $mform->addElement('select', 'evasys_timemode', 'timemode', // get_string('evasys:timemode', 'mod_booking')
-        $options);
+        $mform->addElement(
+            'select',
+            'evasys_timemode',
+            get_string('evasys:timemode', 'mod_booking'),
+            $options
+        );
         $mform->setDefault('evasys_timemode', 0);
 
-        // Add date selectors.
-        $mform->addElement(
-            'duration',
-            'evasys_evaluation_durationbeforestart',
-            get_string('evasys:evaluation_starttime', 'mod_booking')
-        );
+        $beforestartoptions = [
+            - 86400 => "24",
+            -7200 => "2",
+            -3600 => "1",
+            0 => "0",
+        ];
 
         // Add date selectors.
         $mform->addElement(
-            'duration',
+            'select',
+            'evasys_evaluation_durationbeforestart',
+            get_string('evasys:evaluation:durationbeforestart', 'mod_booking'),
+            $beforestartoptions
+        );
+        $mform->setDefault('2', -7200);
+        $afterendoptions = [
+            86400 => "24",
+            172800 => "48",
+            604800 => "168",
+            1209600 => "336",
+        ];
+        // Add date selectors.
+        $mform->addElement(
+            'select',
             'evasys_evaluation_durationafterend',
-            get_string('evasys:evaluation_starttime', 'mod_booking')
+            get_string('evasys:evaluation:durationafterend', 'mod_booking'),
+            $afterendoptions
         );
 
         // Add date selectors.
@@ -231,12 +248,9 @@ class evasys extends field_base {
             'autocomplete',
             'evasysperiods',
             get_string('evasysperiods', 'mod_booking'),
-            [1 => 'meine Auswahl'],
+            [],
             $periodoptions,
-
         );
-        $mform->setDefault('evasysperiods', get_config('booking', 'evasysperiods'));
-
         $mform->addElement(
             'advcheckbox',
             'evasys_notifyparticipants',

@@ -57,7 +57,6 @@ class get_evasysperiods extends external_api {
         $params = self::validate_parameters(self::execute_parameters(), [
             'query' => $query,
         ]);
-
         $evasys = new evasys_evaluation();
         return $evasys->get_periods_for_query($params['query']);
     }
@@ -72,8 +71,8 @@ class get_evasysperiods extends external_api {
         return new \external_single_structure([
             'list' => new \external_multiple_structure(
                 new \external_single_structure([
-                    'id' => new \external_value(PARAM_INT, 'ID of the period'),
-                    'name' => new \external_value(PARAM_TEXT, 'Name of the period'),
+                    'id' => new \external_value(PARAM_TEXT, 'ID with Base64 encoded Name'),
+                    'name' => new \external_value (PARAM_TEXT, 'Name of the period')
                 ])
             ),
             'warnings' => new \external_value(PARAM_TEXT, 'Warnings'),
