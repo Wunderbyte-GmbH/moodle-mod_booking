@@ -1,3 +1,15 @@
+## Version 8.14.3 (2025052700)
+* Improvement: Add time() to strtotime to make it overrideable in tests
+* Improvement: Harden security of shortcodes
+* Improvement: Add explanation how to change order of customfields on detail page
+* Bugfix: Add tearDown and setUp functions to all tests
+* Bugfix: Wrong context in optionformconfig_info
+* Bugfix: Fix working of n days test
+* Bugfix: Assure compatibility with mariadb
+* Bugfix: JSON_TABLE is only supported starting from MariaDB 10.6 and MySQL 8.
+* Bugfix: JSON_TABLE is only supported starting from MariaDB 10.6 and MySQL 8
+* Test: Improve tests mocking time
+
 ## Version 8.14.2 (2025052300)
 * Improvement: Move pricecategories to dynamic form with repeat elements
 * Bugfix: Add missing error catching on wrong cmid.
