@@ -452,5 +452,4 @@ class fields_info {
         }
         return;
     }
-
 }

@@ -77,6 +77,12 @@ class evasys extends field_base {
      */
     public static $evasyskeys = ['evasys_questionaire', 'evasys_evaluation_starttime', 'evasys_evaluation_endtime', 'evasys_other_report_recipients', 'evasysperiods', 'evasys_notifyparticipants'];
 
+    /**
+     * Relevant Keys to conract API.
+     *
+     * @var array
+     */
+    public static $relevantkeys = ['evasys_questionaire', 'evasys_other_report_recipients', 'evasysperiods'];
 
     /**
      * Prepare Savefield.
@@ -95,15 +101,18 @@ class evasys extends field_base {
         int $updateparam,
         $returnvalue = null
     ): array {
-
         $instance = new evasys();
+        $changes = [];
         if (empty($formdata->id)) {
-            $changes = [];
+            return $changes;
         } else {
             foreach (self::$evasyskeys as $key) {
                 $value = $formdata->{$key} ?? null;
                 $mockdata = (object)['optionid' => $formdata->id];
-                $changes = $instance->check_for_changes($formdata, $instance, $mockdata, $key, $value);
+                $changeinkey = $instance->check_for_changes($formdata, $instance, $mockdata, $key, $value);
+                if (!empty($changeinkey)) {
+                    $changes['changes'][$key] = $changeinkey;
+                }
             }
         }
         return $changes;
@@ -215,42 +224,50 @@ class evasys extends field_base {
      * @throws \dml_exception
      */
     public static function save_data(&$formdata, &$option) {
-        // if (empty($data->teachersforoption)) {
-        //     return;
-        // }
         $evasys = new evasys_evaluation();
         $evasys->save_form($formdata, $option);
-            // Check if Customfield for Course exists.
+        if (empty($formdata->teachersforoption)) {
+            return;
+        }
+            // Check if Customfield for Option exists.
+        $instance = singleton_service::get_instance_of_booking_option($formdata->cmid, $option->id);
+        if (empty($instance->option->evasysid)) {
             $coursedata = $evasys->aggregate_data_for_course_save($formdata, $option);
             $evasys->save_course($option, $coursedata);
-
+        }
     }
-    // /**
-    //  * Once all changes are collected, also those triggered in save data, this is a possible hook for the fields.
-    //  *
-    //  * @param array $changes
-    //  * @param object $data
-    //  * @param object $newoption
-    //  * @param object $originaloption
-    //  *
-    //  * @return void
-    //  */
-    // public static function changes_collected_action(
-    //     array $changes,
-    //     object $data,
-    //     object $newoption,
-    //     object $originaloption
-    // ) {
-    //     if (empty($data->teachersforoption)) {
-    //         return;
-    //     }
-    //     if (empty($changes)) {
-    //         return;
-    //     }
-    //     // Relevante Felder als Array definieren -> alle agreggieren und and evasys
-
-    //     $evasys = new evasys_evaluation();
-    //     $coursedata = $evasys->aggregate_data_for_course_save($data, $newoption);
-    //     $evasys->update_course($coursedata);
-    // }
+    /**
+     * Once all changes are collected, also those triggered in save data, this is a possible hook for the fields.
+     *
+     * @param array $changes
+     * @param object $data
+     * @param object $newoption
+     * @param object $originaloption
+     *
+     * @return void
+     */
+    public static function changes_collected_action(
+        array $changes,
+        object $data,
+        object $newoption,
+        object $originaloption
+    ) {
+        if (empty($data->teachersforoption)) {
+            return;
+        }
+        $sendtoapi = false;
+        foreach ($changes["mod_booking\\option\\fields\\evasys"]['changes'] as $key => $value) {
+            if (in_array($key, self::$relevantkeys, true)) {
+                $sendtoapi = true;
+            }
+        }
+        if ($sendtoapi) {
+            $evasys = new evasys_evaluation();
+            $instance = singleton_service::get_instance_of_booking_option($data->cmid, $newoption->id);
+            $evasysid = $instance->option->evasysid;
+            $internalid = end(explode(',', $evasysid));
+            $coursedata = $evasys->aggregate_data_for_course_save($data, $newoption, $internalid);
+            $evasys->update_course($coursedata);
+        }
+    }
 }

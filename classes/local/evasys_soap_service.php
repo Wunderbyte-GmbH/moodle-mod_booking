@@ -166,7 +166,7 @@ class evasys_soap_service extends SoapClient {
     /**
      * Updates the Course to Evasys.
      *
-     * @param array $coursedata
+     * @param object $coursedata
      *
      * @return mixed
      *
