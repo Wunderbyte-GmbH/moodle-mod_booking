@@ -63,6 +63,7 @@ final class rules_n_days_test extends advanced_testcase {
         singleton_service::destroy_instance();
         time_mock::reset_mock_time();
         // Mandatory to deal with static variable in the booking_rules.
+        rules_info::destroy_singletons();
         rules_info::$rulestoexecute = [];
         booking_rules::$rules = [];
     }

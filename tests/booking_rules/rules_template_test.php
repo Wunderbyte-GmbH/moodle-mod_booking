@@ -72,6 +72,7 @@ final class rules_template_test extends advanced_testcase {
         // Mandatory to solve potential cache issues.
         singleton_service::destroy_instance();
         // Mandatory to deal with static variable in the booking_rules.
+        rules_info::destroy_singletons();
         rules_info::$rulestoexecute = [];
         booking_rules::$rules = [];
     }

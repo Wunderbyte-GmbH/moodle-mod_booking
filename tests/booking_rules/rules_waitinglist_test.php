@@ -62,6 +62,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         // Mandatory clean-up.
         singleton_service::destroy_instance();
         // Mandatory to deal with static variable in the booking_rules.
+        rules_info::destroy_singletons();
         rules_info::$rulestoexecute = [];
         booking_rules::$rules = [];
         time_mock::reset_mock_time();
@@ -228,7 +229,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         // Get all scheduled task messages.
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
 
-        $this->assertCount(5, $tasks); // Todo: expected 6 ?
+        $this->assertCount(5, $tasks);
         // Validate task messages. Might be free order.
         foreach ($tasks as $key => $task) {
             $customdata = $task->get_custom_data();
@@ -246,7 +247,6 @@ final class rules_waitinglist_test extends advanced_testcase {
                 $this->assertEquals($student2->id, $rulejson->datafromevent->userid);
             } else {
                 // Validate 3 task messages on the bookingoption_freetobookagain with delay event.
-                // Todo for some reasons - only student1 and student3 being informed - not student4?
                 $this->assertEquals("freeplacedelaysubj", $customdata->customsubject);
                 $this->assertEquals("freeplacedelaymsg", $customdata->custommessage);
                 $this->assertContains($customdata->userid, [$student1->id, $student3->id, $student4->id]);
@@ -688,8 +688,7 @@ final class rules_waitinglist_test extends advanced_testcase {
 
         // Continue as admin.
         $this->setAdminUser();
-        singleton_service::destroy_booking_option_singleton($option->id);
-        singleton_service::destroy_booking_answers($option->id);
+        singleton_service::destroy_instance();
 
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
         $ba = singleton_service::get_instance_of_booking_answers($settings);
