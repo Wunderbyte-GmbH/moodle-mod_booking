@@ -1270,7 +1270,7 @@ if (!$tableallbookings->is_downloading()) {
     if ($userprofilefields) {
         foreach ($userprofilefields as $profilefield) {
             $columns[] = "cust" . strtolower($profilefield->shortname);
-            $headers[] = $profilefield->name;
+            $headers[] = format_string($profilefield->name);
             $customfields .= ", (SELECT " . $DB->sql_concat('uif.datatype', "'|'", 'uid.data') . " as custom
             FROM {user_info_data} uid
             LEFT JOIN {user_info_field}  uif ON uid.fieldid = uif.id
