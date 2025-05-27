@@ -675,14 +675,18 @@ final class rules_waitinglist_test extends advanced_testcase {
         // Continue as admin.
         $this->setAdminUser();
         singleton_service::destroy_booking_option_singleton($option->id);
+        singleton_service::destroy_booking_answers($option->id);
 
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
         $ba = singleton_service::get_instance_of_booking_answers($settings);
+        // Validate cancelled user.
         $this->assertIsArray($ba->usersonlist);
         $this->assertCount(1, $ba->usersonlist);
+        $this->assertEquals($student2->id, array_key_first($ba->usersonlist));
+        // Validate 1st user on waitinglist.
         $this->assertIsArray($ba->usersonwaitinglist);
         $this->assertCount(2, $ba->usersonwaitinglist);
-        $this->assertEquals($student2->id, array_key_first($ba->usersonlist));
+        $this->assertEquals($student3->id, array_key_first($ba->usersonwaitinglist));
         // Execute tasks, get messages and validate it.
         // Get all scheduled task messages.
 
