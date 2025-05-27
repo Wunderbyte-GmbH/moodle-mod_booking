@@ -47,9 +47,9 @@ final class rules_waitinglist_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        $time = time();
         time_mock::init();
-        time_mock::set_mock_time($time);
+        time_mock::set_mock_time(time());
+        singleton_service::destroy_instance();
     }
 
     /**
