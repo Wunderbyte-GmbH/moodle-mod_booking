@@ -35,6 +35,7 @@ use mod_booking\booking_context_helper;
 use mod_booking\booking_option;
 use mod_booking\local\modechecker;
 use mod_booking\option\dates_handler;
+use mod_booking\option\fields\competencies;
 use mod_booking\price;
 use mod_booking\singleton_service;
 use moodle_url;
@@ -182,6 +183,12 @@ class bookingoption_description implements renderable, templatable {
 
     /** @var bool $selflearningcourseshowdurationinfoexpired */
     private $selflearningcourseshowdurationinfoexpired = null;
+
+    /** @var string $competencies */
+    private $competencies = '';
+
+    /** @var string $competencyheader */
+    private $competencyheader = '';
 
     /**
      * Constructor.
@@ -509,6 +516,11 @@ class bookingoption_description implements renderable, templatable {
                     // Currently this is only working for the current USER.
                     $this->booknowbutton = get_string('infowaitinglist', 'booking');
                 }
+                // If competencies are active, we return a list here.
+                $this->competencies = competencies::get_list_of_similar_options(
+                    $bookingoption->settings->competencies ?? "",
+                    $bookingoption
+                );
                 break;
 
             case MOD_BOOKING_DESCRIPTION_CALENDAR:
@@ -544,6 +556,15 @@ class bookingoption_description implements renderable, templatable {
                 $this->usertobuyfor = price::return_user_to_buy_for();
 
                 $this->bookitsection = booking_bookit::render_bookit_button($settings, $this->usertobuyfor->id);
+
+                // If competencies are active, we return a list here.
+                $this->competencies = competencies::get_list_of_similar_options(
+                    $bookingoption->settings->competencies ?? "",
+                    $bookingoption
+                );
+                if (!empty($this->competencies)) {
+                    $this->competencyheader = get_string('showsimilaroptions', 'mod_booking');
+                }
 
                 break;
         }
@@ -602,6 +623,8 @@ class bookingoption_description implements renderable, templatable {
             'returnurl' => !empty($this->returnurl) ? $this->returnurl : false,
             'canceluntil' => $this->canceluntil,
             'canstillbecancelled' => $this->canstillbecancelled,
+            'competencies' => $this->competencies,
+            'competencyheader' => $this->competencyheader,
         ];
 
         if (!empty($this->timeremaining)) {

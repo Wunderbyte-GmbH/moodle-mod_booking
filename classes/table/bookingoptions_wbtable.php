@@ -1454,6 +1454,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
             data-table-uniqueid="' . $this->uniqueid . '"
             data-table-idstring="' . $this->idstring . '"
             data-bookingoptionid="' . $values->id . '">
-            ' . $label . '</button>';
+            ' . $label . '</button>
+
+            <div> Competencies: ' . $values->competencies . '</div>';
     }
 }
