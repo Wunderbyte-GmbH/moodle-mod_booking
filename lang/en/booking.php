@@ -2009,6 +2009,9 @@ $string['profeatures:selflearningcourse'] = '<ul>
 <li><b>activate booking options with fixed duration (e.g. for self-learning courses)</b></li>
 <li><b>define a custom name for this type (e.g. "Self-learning course")</b></li>
 </ul>';
+$string['profeatures:shortcodes'] = '<ul>
+<li><b>Shortcodes to show booking options on any page</b></li>
+</ul>';
 $string['profeatures:subbookings'] = '<ul>
 <li><b>activate subbookings</b></li>
 </ul>';
