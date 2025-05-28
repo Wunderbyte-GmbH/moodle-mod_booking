@@ -29,9 +29,11 @@ use core_competency\api;
 use core_competency\competency;
 use core_competency\competency_framework;
 use core_competency\user_evidence_competency;
+use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
+use mod_booking\shortcodes;
 use mod_booking\singleton_service;
 use core_competency\user_evidence;
 use moodle_url;
@@ -348,5 +350,35 @@ class competencies extends field_base {
         $competencies = self::get_competencies_including_framework();
         $competencies['explode'] = ",";
         return $competencies;
+    }
+
+    /**
+     * Return a rendered list of options with the same competencies assigned.
+     *
+     * @param string $competencies
+     * @param booking_option $currentoption
+     *
+     * @return string
+     *
+     */
+    public static function get_list_of_similar_options(
+        string $competencies,
+        booking_option $currentoption
+    ) {
+
+        if (
+            !get_config('booking', 'usecompetencies')
+            || empty($competencies)
+        ) {
+            return "";
+        }
+
+        $args = [
+            'cmid' => '11',
+            'competencies' => '2',
+        ];
+        $env = new stdClass();
+        $list = shortcodes::courselist('courselist', $args, null, $env, $env);
+        return $list;
     }
 }
