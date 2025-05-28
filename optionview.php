@@ -57,7 +57,7 @@ if (
     $userid = $USER->id;
 }
 $overridefield = new override_user_field($cmid);
-if ($overridefield->password_is_valid( $cvpwd)) {
+if ($overridefield->password_is_valid($cvpwd)) {
     $overridefield->set_userprefs($cvfield, $userid);
 }
 
