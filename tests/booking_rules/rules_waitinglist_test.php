@@ -784,9 +784,6 @@ final class rules_waitinglist_test extends advanced_testcase {
         set_config('timezone', 'Europe/Kyiv');
         set_config('forcetimezone', 'Europe/Kyiv');
 
-        time_mock::set_mock_time(strtotime('-4 days', time()));
-        $time = time_mock::get_mock_time();
-
         $bdata['cancancelbook'] = 1;
 
         // Create course.
@@ -869,7 +866,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         // Book the student2 via waitinglist with intervals.
-        time_mock::set_mock_time(strtotime('-3 days', time()));
+        time_mock::set_mock_time(strtotime('+1 days', time()));
         $time = time_mock::get_mock_time();
         $this->setUser($student2);
         singleton_service::destroy_user($student2->id);
@@ -903,10 +900,6 @@ final class rules_waitinglist_test extends advanced_testcase {
         $result = booking_bookit::bookit('option', $settings->id, $student5->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student5->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
-
-        // Back to now.
-        time_mock::set_mock_time(time());
-        $time = time_mock::get_mock_time();
 
         // Reorder waitinglist, student4 is now top on the list.
         $student4answer = $DB->get_record(
