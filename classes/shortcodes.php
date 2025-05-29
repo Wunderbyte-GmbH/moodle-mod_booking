@@ -235,6 +235,7 @@ class shortcodes {
             "minanswers",
             "bookingopeningtime",
             "bookingclosingtime",
+            "competencies",
         ];
         // When calling recommendedin in the frontend we can define exclude params to set options, we don't want to display.
 
