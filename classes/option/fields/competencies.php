@@ -376,6 +376,7 @@ class competencies extends field_base {
         $args = [
             'cmid' => '11',
             'competencies' => '2',
+            'all' => "true",
         ];
         $env = new stdClass();
         $list = shortcodes::courselist('courselist', $args, null, $env, $env);

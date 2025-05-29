@@ -1074,7 +1074,6 @@ class view implements renderable, templatable {
                 $wbtable->add_filter($datepicker);
             }
 
-            // Setting fetchen.
             $url = $PAGE->url ?? false;
             if (
                 $url
