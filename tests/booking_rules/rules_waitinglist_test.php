@@ -1032,6 +1032,269 @@ final class rules_waitinglist_test extends advanced_testcase {
     }
 
     /**
+     * Create booking with bookingoption that contains price for some users, depending on profilefield.
+     * Option is fully booked with waitinglist enabled. Some users on waitinglist need to pay, others don't.
+     * Create rule to send interval messages.
+     * One booked user cancels, 1 seat is free again.
+     * Check that mail is send.
+     * Check that new user NOT on waitinglist can not book.
+     * Make sure, only user next on waitinglist can book.
+     * If this user has the right value in the field, he will be enrolled automatically.
+     * In this case, freetobookagain message should not be send (or scheduled).
+     *
+     * @covers \condition\alreadybooked::is_available
+     * @covers \condition\onwaitinglist::is_available
+     * @covers \mod_booking\event\bookingoption_freetobookagain
+     * @covers \mod_booking\event\bookingoptionwaitinglist_booked
+     * @covers \mod_booking\booking_rules\rules\rule_react_on_event
+     * @covers \mod_booking\booking_rules\actions\send_mail
+     * @covers \mod_booking\booking_rules\conditions\select_teacher_in_bo
+     * @covers \mod_booking\booking_rules\conditions\select_student_in_bo
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider waitinglist_price_provider
+     */
+    public function test_waitinglist_with_price(array $testdata, array $expected): void {
+        global $DB;
+
+        $bdata = self::booking_common_settings_provider();
+        set_config('timezone', 'Europe/Kyiv');
+        set_config('forcetimezone', 'Europe/Kyiv');
+
+        $time = time_mock::get_mock_time();
+
+        $bdata['cancancelbook'] = 1;
+
+        // Create course.
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        $this->getDataGenerator()->create_custom_profile_field([
+            'datatype' => 'text',
+            'shortname' => 'pricecat',
+            'name' => 'pricecat',
+        ]);
+        set_config('pricecategoryfield', 'pricecat', 'booking');
+        set_config('displayemptyprice', 1, 'booking');
+
+        // Create users, some of them with second price category.
+        $student1 = $this->getDataGenerator()->create_user();
+        $student2 = $this->getDataGenerator()->create_user($testdata['student2settings'] ?? []);
+        $student3 = $this->getDataGenerator()->create_user($testdata['student3settings'] ?? []);
+        $student4 = $this->getDataGenerator()->create_user($testdata['student4settings'] ?? []);
+        $student5 = $this->getDataGenerator()->create_user($testdata['student5settings'] ?? []);
+        $student6 = $this->getDataGenerator()->create_user($testdata['student6settings'] ?? []);
+        $student7 = $this->getDataGenerator()->create_user($testdata['student7settings'] ?? []);
+        $teacher1 = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course1->id;
+        $bdata['bookingmanager'] = $teacher1->username;
+
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($student1->id, $course1->id, 'student');
+        $this->getDataGenerator()->enrol_user($student2->id, $course1->id, 'student');
+        $this->getDataGenerator()->enrol_user($student3->id, $course1->id, 'student');
+        $this->getDataGenerator()->enrol_user($student4->id, $course1->id, 'student');
+        $this->getDataGenerator()->enrol_user($student5->id, $course1->id, 'student');
+        $this->getDataGenerator()->enrol_user($student6->id, $course1->id, 'student');
+        $this->getDataGenerator()->enrol_user($student7->id, $course1->id, 'student');
+        $this->getDataGenerator()->enrol_user($teacher1->id, $course1->id, 'editingteacher');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $pricecategorydata1 = (object) [
+            'ordernum' => 1,
+            'name' => 'default',
+            'identifier' => 'default',
+            'defaultvalue' => 50,
+            'pricecatsortorder' => 1,
+        ];
+        $plugingenerator->create_pricecategory($pricecategorydata1);
+        $pricecategorydata2 = (object) [
+            'ordernum' => 2,
+            'name' => 'SecondPrice',
+            'identifier' => 'secondprice',
+            'defaultvalue' => $testdata['secondprice'],
+            'pricecatsortorder' => 2,
+        ];
+        $plugingenerator->create_pricecategory($pricecategorydata2);
+
+        // Create booking rule 1 - "bookingoption_freetobookagain" with delays.
+        $boevent1 = '"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_freetobookagain"';
+        $ruledata1 = [
+            'name' => 'intervlqs',
+            'conditionname' => 'select_student_in_bo',
+            'contextid' => 1,
+            'conditiondata' => '{"borole":"1"}',
+            'actionname' => 'send_mail_interval',
+            'actiondata' => '{"interval":1440,"subject":"freeplacedelaysubj","template":"freeplacedelaymsg","templateformat":"1"}',
+            'rulename' => 'rule_react_on_event',
+            'ruledata' => '{' . $boevent1 . ',"aftercompletion":0,"cancelrules":[],"condition":"2"}',
+        ];
+        $rule1 = $plugingenerator->create_rule($ruledata1);
+
+        // Create booking option 1.
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'football';
+        $record->maxanswers = 1;
+        $record->maxoverbooking = 10; // Enable waitinglist.
+        $record->waitforconfirmation = 0; // Force waitinglist.
+        $record->description = 'Will start in 2050';
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('20 June 2050 15:00', time());
+        $record->courseendtime_0 = strtotime('20 July 2050 14:00', time());
+        $record->teachersforoption = $teacher1->username;
+        $record->useprice = 1;
+        $option1 = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option1->id);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $boinfo = new bo_info($settings);
+        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+
+        // Create a booking option answer - book student1.
+        $this->setUser($student1);
+        singleton_service::destroy_user($student1->id);
+        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
+        $price = price::get_price('option', $settings->id);
+        $this->assertEquals($pricecategorydata1->defaultvalue, $price["price"]);
+
+        // Book the student.
+        $this->setAdminUser();
+        $option->user_submit_response($student1, 0, 0, 0, MOD_BOOKING_VERIFIED);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // Book the student2 on waitinglist.
+        $this->setUser($student2);
+        singleton_service::destroy_user($student2->id);
+        $result = booking_bookit::bookit('option', $settings->id, $student2->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
+
+        // Book the student3 via waitinglist.
+        time_mock::set_mock_time(strtotime('+1 days', time()));
+        $time = time_mock::get_mock_time();
+        $this->setUser($student3);
+        singleton_service::destroy_user($student3->id);
+        $result = booking_bookit::bookit('option', $settings->id, $student3->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student3->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
+
+        // Book the student4 via waitinglist.
+        time_mock::set_mock_time(strtotime('+1 day', time()));
+        $time = time_mock::get_mock_time();
+        $this->setUser($student4);
+        singleton_service::destroy_user($student4->id);
+        $result = booking_bookit::bookit('option', $settings->id, $student4->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student4->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
+
+        // First user cancels.
+        $this->setUser($student1);
+        singleton_service::destroy_user($student1->id);
+        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMCANCEL, $id);
+        singleton_service::destroy_user($student1->id);
+        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id);
+
+        // Asserting that the spot is free to book and 4 users remaining on waitinglist.
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $ba = singleton_service::get_instance_of_booking_answers($settings);
+        $this->assertIsArray($ba->usersonlist);
+        $this->assertCount($expected['usersonlist1'], $ba->usersonlist);
+        $this->assertIsArray($ba->usersonwaitinglist);
+        $this->assertCount($expected['usersonwaitinglist1'], $ba->usersonwaitinglist);
+
+        // Check for tasks.
+        $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $this->assertCount($expected['taskcount1'], $tasks);
+        // Tasks are tested in depth in other tests of this class.
+
+        // Book the student5 via waitinglist.
+        $this->setUser($student5);
+        singleton_service::destroy_user($student5->id);
+        $result = booking_bookit::bookit('option', $settings->id, $student5->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student5->id, true);
+        $this->assertEquals($expected['newuserresponse'], $id);
+
+        if (isset($testdata['bookseconduser']) && !empty($data['bookseconduser'])) {
+            // Book the student2 on waitinglist.
+            $this->setAdminUser();
+            $option->user_submit_response($student2, 0, 0, 0, MOD_BOOKING_VERIFIED);
+            [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
+            $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+        }
+        // In the future we run tasks.
+        // No free seats available, so no messages should be send.
+        time_mock::set_mock_time(strtotime('+3 day', time()));
+        $time = time_mock::get_mock_time();
+
+        $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $sink = $this->redirectMessages();
+        ob_start();
+        $this->runAdhocTasks();
+        $messages = $sink->get_messages();
+        $res = ob_get_clean();
+        $sink->close();
+        $this->assertCount(0, $messages);
+    }
+
+    /**
+     * Data provider for test waitinglist with price.
+     *
+     * @return array
+     *
+     */
+    public static function waitinglist_price_provider(): array {
+        return [
+            'second_user_no_price' => [
+                [
+                    'secondprice' => 0,
+                    'student2settings' => ['profile_field_pricecat' => 'secondprice'],
+                    'bookseconduser' => true,
+
+                ],
+                [
+                    // After the first cancellation, with these settings, we expect...
+                    // The student2 (next on waitinglist) to be on the list.
+                    'usersonlist1' => 1,
+                    'usersonwaitinglist1' => 3,
+                    'taskcount1' => 0, // So no tasks expected.
+                    'newuserresponse' => MOD_BOOKING_BO_COND_ONWAITINGLIST, // Waitinglist.
+                ],
+            ],
+            'second_user_with_price' => [
+                [
+                    'secondprice' => 10,
+                    'student2settings' => ['profile_field_pricecat' => 'secondprice'],
+
+                ],
+                [
+                    // Since user has to pay, we expect no one booked and user still on waitinglist.
+                    'usersonlist1' => 0,
+                    'usersonwaitinglist1' => 4,
+                    'taskcount1' => 2, // So no tasks expected.
+                    'newuserresponse' => MOD_BOOKING_BO_COND_ONWAITINGLIST, // Waitinglist! Even though there is a spot on the list.
+                ],
+            ],
+        ];
+    }
+
+    /**
      * Data provider for condition_bookingpolicy_test
      *
      * @return array
