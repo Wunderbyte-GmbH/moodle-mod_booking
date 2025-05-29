@@ -1279,9 +1279,8 @@ final class rules_waitinglist_test extends advanced_testcase {
             ],
             'second_user_with_price' => [
                 [
-                    'secondprice' => 10,
-                    'student2settings' => ['profile_field_pricecat' => 'secondprice'],
-
+                    'secondprice' => 0,
+                    'student3settings' => ['profile_field_pricecat' => 'secondprice'],
                 ],
                 [
                     // Since user has to pay, we expect no one booked and user still on waitinglist.
