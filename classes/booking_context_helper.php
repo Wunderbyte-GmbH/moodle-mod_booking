@@ -17,7 +17,6 @@
 namespace mod_booking;
 
 use context_module;
-use moodle_exception;
 use moodle_page;
 use Throwable;
 

@@ -39,7 +39,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class customfields {
-
     /**
      * Function which takes a text, replaces the placeholders...
      * ... and returns the text with the correct values.
@@ -59,7 +58,8 @@ class customfields {
         string &$text = '',
         array &$params = [],
         string $placeholder = '',
-        bool &$fieldexists = true) {
+        bool &$fieldexists = true
+    ) {
 
         global $CFG;
 
@@ -67,8 +67,10 @@ class customfields {
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $value = '';
 
-        if (isset($settings->customfields[$placeholder])
-            && is_string($settings->customfields[$placeholder])) {
+        if (
+            isset($settings->customfields[$placeholder])
+            && is_string($settings->customfields[$placeholder])
+        ) {
             $value = $settings->customfields[$placeholder];
 
             $searchstring = '{' . $placeholder . '}';
@@ -76,7 +78,6 @@ class customfields {
         } else {
             $user = singleton_service::get_instance_of_user($userid);
             if (empty($user->profile)) {
-
                 require_once("$CFG->dirroot/user/profile/lib.php");
                 profile_load_data($user);
 
