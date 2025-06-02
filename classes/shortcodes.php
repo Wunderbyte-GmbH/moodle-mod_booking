@@ -36,6 +36,7 @@ use local_wunderbyte_table\filters\types\intrange;
 use local_wunderbyte_table\filters\types\standardfilter;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
+use mod_booking\local\shortcode_filterfield;
 use mod_booking\shortcodes_handler;
 use mod_booking\customfield\booking_handler;
 use mod_booking\local\modechecker;
@@ -195,8 +196,9 @@ class shortcodes {
 
         $wherearray['bookingid'] = (int)$booking->id;
 
+        $columnfilters = self::get_columnfilters($args);
         // Additional where condition for both card and list views.
-        $additionalwhere = self::set_customfield_wherearray($args, $wherearray) ?? '';
+        $additionalwhere = self::set_customfield_wherearray($args, $wherearray, [], $columnfilters) ?? '';
 
         [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(
@@ -330,6 +332,53 @@ class shortcodes {
             $standardfilter = new standardfilter($customfield->shortname, format_string($customfield->name));
             $table->add_filter($standardfilter);
         }
+    }
+
+    /**
+     * Create potential columnfilters to be handled along with customfield filters.
+     * Each desired column filter should be defined as an argument in the shortcode like: bofilter_columnname=value.
+     * For example columnfilter_prefix=123.
+     *
+     * @param array $args
+     * @param bool $verify
+     *
+     * @return array
+     *
+     */
+    private static function get_columnfilters($args, $verify = true): array {
+        if (empty($args)) {
+            return [];
+        }
+
+        $columnfilters = array_filter(array_keys($args), fn($key) => str_starts_with($key, 'columnfilter_'));
+        if (empty($columnfilters)) {
+            return [];
+        }
+
+        $acceptedfilters = [
+            'competencies' => ['multiple' => true],
+        ];
+        foreach ($args as $key => $value) {
+            // Match keys like "columnfilter_firstname".
+            if (strpos($key, 'columnfilter_') === 0) {
+                $shortname = substr($key, strlen('columnfilter_'));
+
+                // Check if this shortname is accepted.
+                if (array_key_exists($shortname, $acceptedfilters)) {
+                    $multiple = !empty($acceptedfilters[$shortname]['multiple']);
+
+                    // Create instance of shortcode_filterfield.
+                    $filter = new shortcode_filterfield($shortname, $multiple);
+
+                    // Since the verification includes a DB call, it can also be turned off.
+                    if ($verify && !$filter->verify_field()) {
+                        continue;
+                    }
+                    $returnfilters[] = $filter;
+                }
+            }
+        }
+        return $returnfilters;
     }
 
     /**
@@ -1253,19 +1302,29 @@ class shortcodes {
      * @param array $args reference to args
      * @param array $wherearray reference to wherearray
      * @param array $tempparamsarray
+     * @param array $columnfilters
      * @return string
      */
-    private static function set_customfield_wherearray(array &$args, array &$wherearray, array &$tempparamsarray = []) {
+    private static function set_customfield_wherearray(
+        array &$args,
+        array &$wherearray,
+        array &$tempparamsarray = [],
+        array $columnfilters = []
+    ) {
 
         global $DB;
         $customfields = booking_handler::get_customfields();
+        $filterfields = array_merge($customfields, $columnfilters);
+
         // Set given customfields (shortnames) as arguments.
-        $fields = [];
         $additionalwhere = '';
-        if (!empty($customfields) && !empty($args)) {
+        if (!empty($filterfields) && !empty($args)) {
             foreach ($args as $key => $value) {
-                foreach ($customfields as $customfield) {
-                    if ($customfield->shortname == $key) {
+                foreach ($filterfields as $customfield) {
+                    if (
+                        $customfield->shortname == $key
+                        || $customfield->shortname == 'columnfilter_' . $key
+                    ) {
                         $configdata = json_decode($customfield->configdata ?? '[]');
 
                         if (!empty($configdata->multiselect)) {
@@ -1282,7 +1341,7 @@ class shortcodes {
                             foreach ($values as $vkey => $vvalue) {
                                 $additionalwhere .= $vkey > 0 ? ' OR ' : '';
                                 $vvalue = "'%$vvalue%'";
-                                $additionalwhere .= " $key LIKE $vvalue ";
+                                $additionalwhere .= " $customfield->shortname LIKE $vvalue ";
                             }
 
                             if (!empty($values)) {
@@ -1295,10 +1354,10 @@ class shortcodes {
                                 !empty($args['cfinclude'])
                             ) {
                                 $additionalwhere .= !empty($additionalwhere) ? '' : ' 1 = 1';
-                                $tempwherearray = [$key => $argument];
+                                $tempwherearray = [$customfield->shortname => $argument];
                                 booking::apply_wherearray($additionalwhere, $tempwherearray, $tempparamsarray, 1000);
                             } else {
-                                $wherearray[$key] = $argument;
+                                $wherearray[$customfield->shortname] = $argument;
                             }
                         }
                         break;
