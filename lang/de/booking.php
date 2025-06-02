@@ -2262,7 +2262,8 @@ $string['shortcodesoff'] = 'Shortcodes deaktivieren';
 $string['shortcodesoff_desc'] = 'Aktivieren Sie diese Einstellung, wenn Sie Shortcodes (z.B. [courselist]) für die gesamte Website deaktivieren möchten.';
 $string['shortcodesoffwarning'] = 'Shortcode [{$a}] kann nicht verwendet werden, da Shortcodes ausgeschalten sind.';
 $string['shortcodespassword'] = "Passwort";
-$string['shortcodespassword_desc'] = "Nur mit gültigem Passwort werden Shortcodes angezeigt, ansonsten kommt eine Warnung.";
+$string['shortcodespassword_desc'] = "Wenn Sie hier einen Wert eingeben, können Shortcodes nur mit dem Parameter 'password' verwendet werden, ansonsten kommt eine Warnung.
+Beispiel: [courselist cmid=1 <b>password=top_secret123</b>] oder [courselist cmid=2 <b>password=\"Passwort mit Leerzeichen\"</b>]";
 $string['shorttext'] = "Kurztext";
 $string['showallbookingoptions'] = 'Alle Buchungsoptionen';
 $string['showallteachers'] = '&gt;&gt; Alle Trainer:innen anzeigen';

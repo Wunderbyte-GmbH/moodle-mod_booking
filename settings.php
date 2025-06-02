@@ -1899,8 +1899,8 @@ if ($ADMIN->fulltree) {
 
         $settings->add(new admin_setting_configtext(
             'booking/shortcodespassword',
-            get_string('shortcodespassword', 'booking'),
-            get_string('shortcodespassword', 'booking'),
+            get_string('shortcodespassword', 'mod_booking'),
+            get_string('shortcodespassword_desc', 'mod_booking'),
             '' // Default is empty.
         ));
     } else {

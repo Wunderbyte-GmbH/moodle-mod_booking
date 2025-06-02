@@ -2324,7 +2324,8 @@ $string['shortcodesoff'] = 'Disable booking shortcodes';
 $string['shortcodesoff_desc'] = 'Activate this setting, if you want to disable booking shortcodes (e.g. [courselist]) for the whole site.';
 $string['shortcodesoffwarning'] = 'Shortcode [{$a}] can not be used, because shortcodes are turned off.';
 $string['shortcodespassword'] = "Password";
-$string['shortcodespassword_desc'] = "Shortcodes are displayed only with a valid password, otherwise a warning appears.";
+$string['shortcodespassword_desc'] = "If you enter a value here, shortcodes can only be used with the parameter 'password', otherwise a warning will be displayed.
+Example: [courselist cmid=1 <b>password=top_secret123</b>] or [courselist cmid=2 <b>password=\"password with spaces\"</b>].";
 $string['shorttext'] = "Shorttext";
 $string['showallbookingoptions'] = 'All booking options';
 $string['showallteachers'] = '&gt;&gt; Show all teachers';
