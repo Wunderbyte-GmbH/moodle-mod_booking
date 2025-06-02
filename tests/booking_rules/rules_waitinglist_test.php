@@ -29,8 +29,16 @@ use stdClass;
 use mod_booking\booking_rules\booking_rules;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\bo_availability\bo_info;
+use local_shopping_cart\shopping_cart;
+use local_shopping_cart\shopping_cart_history;
+use local_shopping_cart\local\cartstore;
+use local_shopping_cart\output\shoppingcart_history_list;
 use tool_mocktesttime\time_mock;
 use mod_booking_generator;
+
+defined('MOODLE_INTERNAL') || die();
+global $CFG;
+require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
  * Tests for booking rules.
@@ -1067,6 +1075,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         $time = time_mock::get_mock_time();
 
         $bdata['cancancelbook'] = 1;
+        set_config('cancelationfee', 0, 'local_shopping_cart');
 
         // Create course.
         $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
@@ -1144,6 +1153,8 @@ final class rules_waitinglist_test extends advanced_testcase {
         $record->bookingid = $booking1->id;
         $record->text = 'football';
         $record->maxanswers = 1;
+        $record->chooseorcreatecourse = 1; // Reqiured.
+        $record->courseid = $course1->id;
         $record->maxoverbooking = 10; // Enable waitinglist.
         $record->waitforconfirmation = 0; // Force waitinglist.
         $record->description = 'Will start in 2050';
@@ -1153,33 +1164,59 @@ final class rules_waitinglist_test extends advanced_testcase {
         $record->courseendtime_0 = strtotime('20 July 2050 14:00', time());
         $record->teachersforoption = $teacher1->username;
         $record->useprice = 1;
+        $record->importing = 1;
         $option1 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option1->id);
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
-        $boinfo = new bo_info($settings);
-        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        singleton_service::destroy_booking_singleton_by_cmid($settings1->cmid); // Require to avoid caching issues.
+        $boinfo1 = new bo_info($settings1);
 
         // Create a booking option answer - book student1.
         $this->setUser($student1);
         singleton_service::destroy_user($student1->id);
-        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
-        $price = price::get_price('option', $settings->id);
-        $this->assertEquals($pricecategorydata1->defaultvalue, $price["price"]);
 
         // Book the student.
         $this->setAdminUser();
-        $option->user_submit_response($student1, 0, 0, 0, MOD_BOOKING_VERIFIED);
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
+        $price = price::get_price('option', $settings1->id, $student1);
+        $this->assertEquals($pricecategorydata1->defaultvalue, $price["price"]);
+        // Purchase item in behalf of student1 to having history item.
+        // Clean cart.
+        shopping_cart::delete_all_items_from_cart($student1->id);
+        // Set user to buy in behalf of.
+        shopping_cart::buy_for_user($student1->id);
+        // Get cached data or setup defaults.
+        $cartstore = cartstore::instance($student1->id);
+        // Put in a test item with given ID (or default if ID > 4).
+        $item = shopping_cart::add_item_to_cart('mod_booking', 'option', $settings1->id, -1);
+        // Confirm cash payment.
+        $res = shopping_cart::confirm_payment($student1->id, LOCAL_SHOPPING_CART_PAYMENT_METHOD_CASHIER_CASH);
+        // Validate payment.
+        $this->assertIsArray($res);
+        $this->assertEmpty($res['error']);
+        $item = shopping_cart_history::get_most_recent_historyitem('mod_booking', 'option', $settings1->id, $student1->id);
+
+        // Book the student1 directly.
+        $option = singleton_service::get_instance_of_booking_option($settings1->cmid, $settings1->id);
+        $option->user_submit_response(
+            $student1,
+            0,
+            0,
+            0,
+            MOD_BOOKING_VERIFIED
+        );
+        // User student1 should be booked now.
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+        $item = shopping_cart_history::get_most_recent_historyitem('mod_booking', 'option', $settings1->id, $student1->id);
 
         // Book the student2 on waitinglist.
         $this->setUser($student2);
         singleton_service::destroy_user($student2->id);
-        $result = booking_bookit::bookit('option', $settings->id, $student2->id);
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
+        $result = booking_bookit::bookit('option', $settings1->id, $student2->id);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // Book the student3 via waitinglist.
@@ -1187,8 +1224,8 @@ final class rules_waitinglist_test extends advanced_testcase {
         $time = time_mock::get_mock_time();
         $this->setUser($student3);
         singleton_service::destroy_user($student3->id);
-        $result = booking_bookit::bookit('option', $settings->id, $student3->id);
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student3->id, true);
+        $result = booking_bookit::bookit('option', $settings1->id, $student3->id);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student3->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // Book the student4 via waitinglist.
@@ -1196,20 +1233,34 @@ final class rules_waitinglist_test extends advanced_testcase {
         $time = time_mock::get_mock_time();
         $this->setUser($student4);
         singleton_service::destroy_user($student4->id);
-        $result = booking_bookit::bookit('option', $settings->id, $student4->id);
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student4->id, true);
+        $result = booking_bookit::bookit('option', $settings1->id, $student4->id);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student4->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // First user cancels.
         $this->setUser($student1);
         singleton_service::destroy_user($student1->id);
-        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMCANCEL, $id);
-        singleton_service::destroy_user($student1->id);
-        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id);
+        // Render to see if "cancel purchase" present.
+        $buttons = booking_bookit::render_bookit_button($settings1, $student1->id);
+        $this->assertStringContainsString('Cancel purchase', $buttons);
+        // Cancellation of purcahse if shopping_cart installed.
+        // Getting history of purchased item and verify.
+        $item = shopping_cart_history::get_most_recent_historyitem('mod_booking', 'option', $settings1->id, $student1->id);
+        shopping_cart::add_quota_consumed_to_item($item, $student1->id);
+        shoppingcart_history_list::add_round_config($item);
+        $this->assertEquals($settings1->id, $item->itemid);
+        $this->assertEquals($student1->id, $item->userid);
+        $this->assertEquals($pricecategorydata1->defaultvalue, (int) $item->price);
+        $this->assertEquals(0, $item->quotaconsumed);
+        // Actual cancellation of purcahse and verify.
+        $res = shopping_cart::cancel_purchase($settings1->id, 'option', $student1->id, 'mod_booking', $item->id, 0);
+        $this->assertEquals(1, $res['success']);
+        $this->assertEquals($pricecategorydata1->defaultvalue, $res['credit']);
+        $this->assertEmpty($res['error']);
+        
+        // Validate cancellation for student1.
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
 
         // Asserting that the spot is free to book and 4 users remaining on waitinglist.
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
@@ -1228,14 +1279,14 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->setUser($student5);
         singleton_service::destroy_user($student5->id);
         $result = booking_bookit::bookit('option', $settings->id, $student5->id);
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student5->id, true);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings->id, $student5->id, true);
         $this->assertEquals($expected['newuserresponse'], $id);
 
         if (isset($testdata['bookseconduser']) && !empty($data['bookseconduser'])) {
             // Book the student2 on waitinglist.
             $this->setAdminUser();
             $option->user_submit_response($student2, 0, 0, 0, MOD_BOOKING_VERIFIED);
-            [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
+            [$id, $isavailable, $description] = $boinfo1->is_available($settings->id, $student2->id, true);
             $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
         }
         // In the future we run tasks.
