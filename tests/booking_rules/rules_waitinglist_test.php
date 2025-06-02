@@ -1156,7 +1156,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course1->id;
         $record->maxoverbooking = 10; // Enable waitinglist.
-        $record->waitforconfirmation = 0; // Force waitinglist.
+        $record->waitforconfirmation = 0; // No confirmation necessary.
         $record->description = 'Will start in 2050';
         $record->optiondateid_0 = "0";
         $record->daystonotify_0 = "0";
@@ -1198,8 +1198,14 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->assertEmpty($res['error']);
         $item = shopping_cart_history::get_most_recent_historyitem('mod_booking', 'option', $settings1->id, $student1->id);
 
+        // Does user student1 should be booked now?
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
         // Book the student1 directly.
         $option = singleton_service::get_instance_of_booking_option($settings1->cmid, $settings1->id);
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /*
         $option->user_submit_response(
             $student1,
             0,
@@ -1207,10 +1213,10 @@ final class rules_waitinglist_test extends advanced_testcase {
             0,
             MOD_BOOKING_VERIFIED
         );
+        */
         // User student1 should be booked now.
         [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
-        $item = shopping_cart_history::get_most_recent_historyitem('mod_booking', 'option', $settings1->id, $student1->id);
 
         // Book the student2 on waitinglist.
         $this->setUser($student2);
@@ -1257,7 +1263,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->assertEquals(1, $res['success']);
         $this->assertEquals($pricecategorydata1->defaultvalue, $res['credit']);
         $this->assertEmpty($res['error']);
-        
+
         // Validate cancellation for student1.
         [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
