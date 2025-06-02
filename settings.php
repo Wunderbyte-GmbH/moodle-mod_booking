@@ -747,22 +747,13 @@ if ($ADMIN->fulltree) {
                 $userprofilefieldsarray
             )
         );
-        $optioncustomfields = booking_handler::get_customfields();
-        foreach ($optioncustomfields as $optioncustomfield) {
-            $optioncustomfieldsarray[$optioncustomfield->shortname] = format_string($optioncustomfield->name);
-        }
-        $settings->add(
-            new admin_setting_configselect(
-                'booking/evasyscategoryfieldoption',
-                get_string('evasyscategoryfieldoption', 'mod_booking'),
-                get_string('evasyscategoryfieldoption_desc', 'mod_booking'),
-                'evasysid',
-                $optioncustomfieldsarray
-            )
-        );
+        try {
             $evasys = new evasys_evaluation();
             $subinutoptions = $evasys->get_subunits();
             $periodoptions = $evasys->get_periods_for_settings();
+        } catch (SoapFault $e) {
+                $subunitoptions = [0 => get_string('evasysnotreachable', 'mod_booking')];
+        }
         if (
             empty($subunitoptions)
             && empty(get_config('booking', 'evasysuser'))

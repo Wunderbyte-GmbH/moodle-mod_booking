@@ -1250,6 +1250,7 @@ $string['evasyscategoryfieldoption_desc'] = 'Select a customfield in which the E
 $string['evasyscategoryfielduser'] = 'User profile field for Evasys id';
 $string['evasyscategoryfielduser_desc'] = 'Select a user profile field in which the Evasys id is stored for each user.';
 $string['evasysheader'] = '<i class="fa fa-clipboard" aria-hidden="true"></i>&nbsp;Evasys Evaluation';
+$string['evasysnotreachable'] = 'The Evasys server is not reachable.';
 $string['evasyspassword'] = 'Password';
 $string['evasyspassword_desc'] = 'Password or Evasys connection';
 $string['evasysperiods'] = 'Periods';

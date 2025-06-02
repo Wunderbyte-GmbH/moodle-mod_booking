@@ -24,8 +24,6 @@
 
  namespace mod_booking\option\fields;
 
-
- use core_user;
  use mod_booking\booking_option_settings;
  use mod_booking\local\evasys_evaluation;
  use mod_booking\option\field_base;
@@ -78,11 +76,18 @@ class evasys extends field_base {
     public static $evasyskeys = ['evasys_questionaire', 'evasys_evaluation_starttime', 'evasys_evaluation_endtime', 'evasys_other_report_recipients', 'evasysperiods', 'evasys_notifyparticipants'];
 
     /**
-     * Relevant Keys to conract API.
+     * Relevant Keys to update survey to API.
      *
      * @var array
      */
-    public static $relevantkeys = ['evasys_questionaire', 'evasys_other_report_recipients', 'evasysperiods'];
+    public static $relevantkeyssurvey = ['evasys_questionaire', 'evasysperiods'];
+
+    /**
+     * Relevant Keys when a course need to be upgraded.
+     *
+     * @var array
+     */
+    public static $relevantkeyscourse = ['evasys_other_report_recipients'];
 
     /**
      * Prepare Savefield.
@@ -172,8 +177,9 @@ class evasys extends field_base {
             'autocomplete',
             'evasys_questionaire',
             get_string('evasys:questionaire', 'mod_booking'),
-            $forms
+            $forms,
         );
+        $mform->setDefault('evasys_questionaire', '');
 
         $options = [
             0 => get_string('evasys:timemodeduration', 'mod_booking'),
@@ -261,10 +267,38 @@ class evasys extends field_base {
         );
         $mform->addElement(
             'hidden',
-            'evasys_id',
+            'evasys_booking_id',
             0
         );
-        $mform->setType('evasys_id', PARAM_INT);
+        $mform->setType('evasys_booking_id', PARAM_INT);
+
+        $mform->addElement(
+            'hidden',
+            'evasys_formid',
+            0
+        );
+        $mform->setType('evasys_formid', PARAM_INT);
+
+        $mform->addElement(
+            'hidden',
+            'evasys_courseidexternal',
+            0
+        );
+        $mform->setType('evasys_courseidexternal', PARAM_TEXT);
+
+        $mform->addElement(
+            'hidden',
+            'evasys_courseidinternal',
+            ''
+        );
+        $mform->setType('evasys_courseidinternal', PARAM_INT);
+
+        $mform->addElement(
+            'hidden',
+            'evasys_surveyid',
+            0
+        );
+        $mform->setType('evasys_surveyid', PARAM_INT);
     }
 
     /**
@@ -294,11 +328,18 @@ class evasys extends field_base {
         if (empty($formdata->teachersforoption)) {
             return;
         }
-            // Check if Customfield for Option exists.
-        $instance = singleton_service::get_instance_of_booking_option($formdata->cmid, $option->id);
-        if (empty($instance->option->evasysid)) {
+            // Check if Courseid is saved.
+        if (empty($formdata->evasys_courseidexternal)) {
             $coursedata = $evasys->aggregate_data_for_course_save($formdata, $option);
-            $evasys->save_course($option, $coursedata);
+            $responsedata = $evasys->save_course($formdata, $coursedata);
+            $data = (object)[
+                'userid' => $responsedata->m_nUserId,
+                'courseid' => $responsedata->m_nCourseId,
+                'formid' => $responsedata->m_nFbid,
+                'periodid' => $responsedata->m_nPeriodId,
+                'evasysid' => $formdata->evasys_booking_id,
+            ];
+            $evasys->save_survey($data);
         }
     }
     /**
@@ -320,18 +361,29 @@ class evasys extends field_base {
         if (empty($data->teachersforoption)) {
             return;
         }
-        $sendtoapi = false;
+        $updatesurvey = false;
+        $updatecourse = false;
+
+        // Checks if the survey and therefore the course needs to be updated.
         foreach ($changes["mod_booking\\option\\fields\\evasys"]['changes'] as $key => $value) {
-            if (in_array($key, self::$relevantkeys, true)) {
-                $sendtoapi = true;
+            if (in_array($key, self::$relevantkeyssurvey, true)) {
+                $updatesurvey = true;
             }
         }
-        if ($sendtoapi) {
+        // Checks for the only key where only the course needs to be updated.
+        if (!$updatesurvey && isset($changes["mod_booking\\option\\fields\\evasys"]['changes'][self::$relevantkeyscourse])) {
+            $updatecourse = true;
+        }
+        if ($updatesurvey) {
             $evasys = new evasys_evaluation();
-            $instance = singleton_service::get_instance_of_booking_option($data->cmid, $newoption->id);
-            $evasysid = $instance->option->evasysid;
-            $internalid = end(explode(',', $evasysid));
-            $coursedata = $evasys->aggregate_data_for_course_save($data, $newoption, $internalid);
+            $surveyid = $data->evasys_surveyid;
+            $evasys->update_survey($data, $surveyid);
+            // Update Course because Survey was updated.
+            $coursedata = $evasys->aggregate_data_for_course_save($data, $newoption, $data->evasys_courseidinternal);
+            $evasys->update_course($coursedata);
+        }
+        if ($updatecourse) {
+            $coursedata = $evasys->aggregate_data_for_course_save($data, $newoption, $data->evasys_courseidinternal);
             $evasys->update_course($coursedata);
         }
     }

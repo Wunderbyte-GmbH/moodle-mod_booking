@@ -60,7 +60,7 @@ class evasys_soap_service extends SoapClient {
     private string $wsdl;
 
     /**
-     * Constructor with parent constructor in it. Soapheader is used for autehntication.
+     * Constructor with parent constructor in it. Soapheader is used for authentication.
      *
      * @param string|null $endpoint
      * @param string|null $username
@@ -98,7 +98,7 @@ class evasys_soap_service extends SoapClient {
         }
     }
     /**
-     * Fetches periods from API.
+     * Fetches periods from Evasys.
      *
      * @return mixed
      *
@@ -112,9 +112,25 @@ class evasys_soap_service extends SoapClient {
         }
     }
 
+    /**
+     * Get a Period by ID from Evasys.
+     *
+     * @param array $periodid
+     *
+     * @return mixed
+     *
+     */
+    public function get_period($periodid) {
+        try {
+            $response = $this->__soapCall('GetPeriod', ['period' => $periodid]);
+            return $response;
+        } catch (SoapFault $e) {
+            return null;
+        }
+    }
 
     /**
-     * Feteches Forms.
+     * Fetches Forms from Evasys.
      *
      * @param array $args
      *
@@ -146,8 +162,9 @@ class evasys_soap_service extends SoapClient {
             return null;
         }
     }
+
     /**
-     * Insert Course to Evasys
+     * Insert Course to Evasys.
      *
      * @param array $coursedata
      *
@@ -174,6 +191,58 @@ class evasys_soap_service extends SoapClient {
     public function update_course($coursedata) {
         try {
             $response = $this->__soapCall('UpdateCourse', ['course' => $coursedata ]);
+            return $response;
+        } catch (SoapFault $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Insert Survey to Evasys.
+     *
+     * @param array $surveydata
+     *
+     * @return mixed
+     *
+     */
+    public function insert_survey($surveydata) {
+        try {
+            $response = $this->__soapCall('InsertCentralSurvey', $surveydata);
+            return $response;
+        } catch (SoapFault $e) {
+            $this->__getLastRequest();
+            return null;
+        }
+    }
+
+    /**
+     * Get Survey from Evasys with SurveyID.
+     *
+     * @param int $surveyid
+     *
+     * @return mixed
+     *
+     */
+    public function get_survey($surveyid) {
+        try {
+            $response = $this->__soapCall('GetSurveyById', ['nSurveyId' => $surveyid]);
+            return $response;
+        } catch (SoapFault $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Updates the survey in evasys.
+     *
+     * @param object $survey
+     *
+     * @return mixed
+     *
+     */
+    public function update_survey($survey) {
+        try {
+            $response = $this->__soapCall('UpdateSurvey', $survey);
             return $response;
         } catch (SoapFault $e) {
             return null;

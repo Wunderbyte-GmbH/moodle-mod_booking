@@ -48,8 +48,10 @@ class evasys_evaluation {
     public function save_form(&$formdata, &$option) {
         global $DB;
         $insertdata = self::map_form_to_record($formdata, $option);
-        if (empty($formdata->evasys_id)) {
-            $DB->insert_record('booking_evasys', $insertdata, false, false);
+        if (empty($formdata->evasys_booking_id)) {
+            $returnid = $DB->insert_record('booking_evasys', $insertdata, true, false);
+            // Returning ID so i can update record later for internal and external courseid.
+            $formdata->evasys_booking_id = $returnid;
         } else {
             $DB->update_record('booking_evasys', $insertdata);
         }
@@ -221,6 +223,55 @@ class evasys_evaluation {
 
 
     /**
+     * Saves survey for Evasys and Surveyid to DB.
+     *
+     * @param object $formdata
+     * @param object $survey
+     *
+     * @return void
+     *
+     */
+    public function save_survey($data) {
+        global $DB;
+        $surveydata = [
+            'nUserId' => $data->userid,
+            'nCourseId' => $data->courseid,
+            'nFormId' => $data->formid,
+            'nPeriodId' => $data->periodid,
+            'sSurveyType' => 'c',
+        ];
+        $service = new evasys_soap_service();
+        $response = $service->insert_survey($surveydata);
+        if (isset($response)) {
+            $data = [
+                'id' => $data->evasysid,
+                'surveyid' => $response->m_nSurveyId,
+            ];
+            $DB->update_record('booking_evasys', $data);
+        }
+    }
+
+    /**
+     * Aggregates Data for Survey.
+     *
+     * @param object $formdata
+     * @param int $surveyid
+     *
+     * @return object
+     *
+     */
+    public function update_survey($surveyid, $formdata) {
+        $service = new evasys_soap_service();
+        $survey = $service->get_survey($surveyid);
+        $period = $service->get_period($formdata->evasys_periods);
+        $survey->m_oPeriod = $period;
+        $survey->m_nStuid = $formdata->teachers[0];
+        $survey->m_nFrmid = $formdata->evasys_formid;
+        $newsurvey = $service->update_survey($survey);
+        return $newsurvey;
+    }
+
+    /**
      * Aggregates Data for Course.
      *
      * @param object $data
@@ -329,28 +380,28 @@ class evasys_evaluation {
         return $userlist;
     }
 
-
-
     /**
      * Saves Course in Evasys.
      *
-     * @param /stdClass $option
+     * @param /stdClass $formdata
      * @param int $userid
      *
-     * @return void
+     * @return object
      *
      */
-    public function save_course($option, $coursedata) {
-
+    public function save_course($formdata, $coursedata) {
+        global $DB;
         $service = new evasys_soap_service();
         $response = $service->insert_course($coursedata);
         if (isset($response)) {
-            $fieldshortname = get_config('booking', 'evasyscategoryfieldoption');
-            $handler = booking_handler::create();
-            $value = [$response->m_sExternalId, $response->m_nCourseId];
-            $insert = implode(',', $value);
-            $handler->field_save($option->id, $fieldshortname, $insert);
+            $dataobject = (object)[
+                'id' => $formdata->evasys_booking_id,
+                'courseidinternal' => $response->m_nCourseId,
+                'courseidexternal' => $response->m_sExternalId,
+            ];
+            $DB->update_record('booking_evasys', $dataobject);
         }
+        return $response;
     }
 
     /**
@@ -358,12 +409,13 @@ class evasys_evaluation {
      *
      * @param object $coursedata
      *
-     * @return void
+     * @return object
      *
      */
     public function update_course($coursedata) {
         $service = new evasys_soap_service();
         $response = $service->update_course($coursedata);
+        return $response;
     }
     /**
      * Maps DB of Form to DB for saving.
@@ -379,7 +431,7 @@ class evasys_evaluation {
         $insertdata = new stdClass();
         $now = time();
         $insertdata->optionid = $option->id;
-        $insertdata->pollurl = $formdata->evasys_questionaire;
+        $insertdata->formid = $formdata->evasys_questionaire;
         if (empty((int)$formdata->evasys_timemode)) {
             $insertdata->starttime = (int) $option->courseendtime + (int) $formdata->evasys_evaluation_durationbeforestart;
             $insertdata->endtime = (int) $option->courseendtime + (int) $formdata->evasys_evaluation_durationafterend;
@@ -415,12 +467,15 @@ class evasys_evaluation {
         $data->evasys_questionaire = $record->pollurl;
         $data->evasys_evaluation_starttime = $record->starttime;
         $data->evasys_evaluation_endtime = $record->endtime;
-        $data->trainers = explode(',', $record->trainers);
         $data->evasys_other_report_recipients = explode(',', $record->organizers);
         $data->evasys_notifyparticipants = $record->notifyparticipants;
-        $data->evasys_id = $record->id;
+        $data->evasys_booking_id = $record->id;
         $data->evasys_timecreated = $record->timecreated;
+        $data->evasys_formid = $record->formid;
         $data->evasysperiods = $record->periods;
+        $data->evasyssurveyid = $record->surveyid;
+        $data->evasys_courseidinternal = $record->courseidinternal;
+        $data->evasys_courseidexternal = $record->courseidexternal;
     }
 
     /**
