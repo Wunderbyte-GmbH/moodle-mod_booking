@@ -579,7 +579,7 @@ final class shopping_cart_test extends advanced_testcase {
 
         // In this test, we book the user directly (we don't test the payment process).
         $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
-        $option->user_submit_response($student1, 0, 0, 0, MOD_BOOKING_VERIFIED);
+        $option->user_submit_response($student2, 0, 0, 0, MOD_BOOKING_VERIFIED);
         // Validate that already booked.
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
