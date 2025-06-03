@@ -12,3 +12,5 @@ amd/package-lock.json
 amd/node_modules
 vue3/node_modules
 .vscode/launch.json
+bookingextension/evasys/
+bookingextension/respondapi/
