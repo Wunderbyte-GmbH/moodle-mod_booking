@@ -124,6 +124,17 @@ $ADMIN->add(
     )
 );
 
+// Load all settings from booking extensions.
+foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
+    $fullclassname = "\\bookingextension_{$plugin->name}\\{$plugin->name}";
+    $plugin = new $fullclassname();
+    if (!$plugin instanceof bookingextension_interface) {
+        continue; // Skip if the plugin does not implement the interface.
+    }
+    /** @var bookingextension_interface $plugin */
+    $plugin->load_settings($ADMIN, 'modbookingfolder', $hassiteconfig);
+}
+
 $ADMIN->add('modbookingfolder', $settings);
 
 if ($ADMIN->fulltree) {
@@ -2119,17 +2130,6 @@ if ($ADMIN->fulltree) {
                 ''
             )
         );
-    }
-
-    // Load all settings from booking extensions.
-    foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
-        $fullclassname = "\\bookingextension_{$plugin->name}\\{$plugin->name}";
-        $plugin = new $fullclassname();
-        if (!$plugin instanceof bookingextension_interface) {
-            continue; // Skip if the plugin does not implement the interface.
-        }
-        /** @var bookingextension_interface $plugin */
-        $plugin->load_settings($ADMIN, 'modbookingfolder', $hassiteconfig);
     }
 }
 

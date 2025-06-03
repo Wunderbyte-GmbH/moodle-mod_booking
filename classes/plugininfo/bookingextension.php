@@ -56,15 +56,6 @@ class bookingextension extends base {
     }
 
     /**
-     * Returns the node name used in admin settings menu for this plugin settings (if applicable)
-     *
-     * @return null|string node name or null if plugin does not create settings node (default)
-     */
-    public function get_settings_section_name() {
-        return 'bookingextension_' . $this->name . '_settings';
-    }
-
-    /**
      * Pre-uninstall hook.
      */
     public function uninstall_cleanup() {
