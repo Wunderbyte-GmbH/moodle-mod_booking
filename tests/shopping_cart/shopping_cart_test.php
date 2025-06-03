@@ -73,6 +73,7 @@ final class shopping_cart_test extends advanced_testcase {
         parent::tearDown();
         // Mandatory clean-up.
         singleton_service::destroy_instance();
+        cartstore::reset();
     }
 
     /**

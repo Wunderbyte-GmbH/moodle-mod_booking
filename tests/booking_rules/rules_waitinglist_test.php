@@ -72,8 +72,8 @@ final class rules_waitinglist_test extends advanced_testcase {
         singleton_service::destroy_instance();
         // Mandatory to deal with static variable in the booking_rules.
         rules_info::destroy_singletons();
-        rules_info::$rulestoexecute = [];
         booking_rules::$rules = [];
+        cartstore::reset();
         time_mock::reset_mock_time();
         // phpcs:ignore
         // mtrace(date('Y/m/d H:i:s', time_mock::get_mock_time())); // Debugging output.

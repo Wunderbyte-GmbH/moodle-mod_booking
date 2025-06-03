@@ -70,8 +70,8 @@ final class rules_enrollink_test extends advanced_testcase {
         enrollink::destroy_instances();
         // Mandatory to deal with static variable in the booking_rules.
         rules_info::destroy_singletons();
-        rules_info::$rulestoexecute = [];
         booking_rules::$rules = [];
+        cartstore::reset();
     }
 
     /**
