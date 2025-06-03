@@ -18,7 +18,7 @@
  * Global settings
  *
  * @package mod_booking
- * @copyright 2017 David Bogner, http://www.edulabs.org
+ * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -32,6 +32,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 require_once($CFG->dirroot . '/user/profile/lib.php');
 
 use mod_booking\booking;
+use mod_booking\plugininfo\bookingextension_interface;
 use mod_booking\local\checkanswers\checkanswers;
 use mod_booking\price;
 use mod_booking\utils\wb_payment;
@@ -122,11 +123,6 @@ $ADMIN->add(
         new moodle_url('/mod/booking/edit_campaigns.php')
     )
 );
-
-foreach (core_plugin_manager::instance()->get_plugins_of_type('extension') as $plugin) {
-    /** @var \mod_booking\plugininfo\extension $plugin */
-    $plugin->load_settings($ADMIN, 'modbookingfolder', $hassiteconfig);
-}
 
 $ADMIN->add('modbookingfolder', $settings);
 
@@ -2123,62 +2119,17 @@ if ($ADMIN->fulltree) {
                 ''
             )
         );
+    }
 
-        // Marmara Respond.
-        $settings->add(new admin_setting_heading(
-            'booking/marmara_settings_heading',
-            get_string('marmara:marmarasettingsheading', 'booking'),
-            get_string('marmara:marmarasettingsheading_desc', 'booking')
-        ));
-        $settings->add(new admin_setting_configcheckbox(
-            'booking/marmara_enabled',
-            get_string('marmara:marmaraenabled', 'booking'),
-            get_string('marmara:marmaraenabled_desc', 'booking'),
-            0
-        ));
-        if (get_config('booking', 'marmara_enabled')) {
-            $settings->add(new admin_setting_configtext(
-                'booking/marmara_baseurl',
-                get_string('marmara:baseurl', 'booking'),
-                get_string('marmara:baseurl_desc', 'booking'),
-                ''
-            ));
-
-            $settings->add(new admin_setting_configpasswordunmask(
-                'booking/marmara_secret',
-                get_string('marmara:secret', 'booking'),
-                get_string('marmara:secret_desc', 'booking'),
-                ''
-            ));
-
-            $settings->add(new admin_setting_configtext(
-                'booking/marmara_clientid',
-                get_string('marmara:clientid', 'booking'),
-                get_string('marmara:clientid_desc', 'booking'),
-                ''
-            ));
-
-            $settings->add(new admin_setting_configcheckbox(
-                'booking/marmara_defaultsync',
-                get_string('marmara:defaultsync', 'booking'),
-                get_string('marmara:defaultsync_desc', 'booking'),
-                1
-            ));
-
-            $settings->add(new admin_setting_configtext(
-                'booking/marmara_keywordparentid',
-                get_string('marmara:keywordparentid', 'booking'),
-                get_string('marmara:keywordparentid_desc', 'booking'),
-                ''
-            ));
-
-            $settings->add(new admin_setting_configtext(
-                'booking/marmara_keywordparentname',
-                get_string('marmara:keywordparentname', 'booking'),
-                get_string('marmara:keywordparentname_desc', 'booking'),
-                '_MOODLE_Weiterbildungen'
-            ));
+    // Load all settings from booking extensions.
+    foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
+        $fullclassname = "\\bookingextension_{$plugin->name}\\{$plugin->name}";
+        $plugin = new $fullclassname();
+        if (!$plugin instanceof bookingextension_interface) {
+            continue; // Skip if the plugin does not implement the interface.
         }
+        /** @var bookingextension_interface $plugin */
+        $plugin->load_settings($ADMIN, 'modbookingfolder', $hassiteconfig);
     }
 }
 

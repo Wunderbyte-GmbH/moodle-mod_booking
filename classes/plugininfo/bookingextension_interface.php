@@ -45,4 +45,16 @@ interface bookingextension_interface {
      * @return array
      */
     public function get_option_fields_info_array(): array;
+
+    /**
+     * Loads plugin settings to the settings tree
+     *
+     * This function usually includes settings.php file in plugins folder.
+     * Alternatively it can create a link to some settings page (instance of admin_externalpage)
+     *
+     * @param \part_of_admin_tree $adminroot
+     * @param string $parentnodename
+     * @param bool $hassiteconfig whether the current user has moodle/site:config capability
+     */
+    public function load_settings(\part_of_admin_tree $adminroot, $parentnodename, $hassiteconfig): void;
 }

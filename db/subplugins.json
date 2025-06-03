@@ -1,8 +1,8 @@
 {
     "subplugintypes": {
-        "bookingextension": "bookingextensions"
+        "bookingextension": "bookingextension"
     },
     "plugintypes": {
-        "bookingextension": "mod\/booking\/bookingextensions"
+        "bookingextension": "mod\/booking\/bookingextension"
     }
 }
