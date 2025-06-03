@@ -79,12 +79,16 @@ class evasys_soap_service extends SoapClient {
             'exceptions' => true,
             'location'   => $this->endpoint,
         ];
-        parent::__construct($this->wsdl, $options);
-        $this->set_soap_header();
+        try {
+            parent::__construct($this->wsdl, $options);
+            $this->set_soap_header();
+        } catch (SoapFault $e) {
+            // exception
+        }
     }
 
     /**
-     * Fetches subunits from API.
+     * Fetches subunits from Evasys.
      *
      * @return mixed
      *
@@ -115,14 +119,14 @@ class evasys_soap_service extends SoapClient {
     /**
      * Get a Period by ID from Evasys.
      *
-     * @param array $periodid
+     * @param array $perioddata
      *
      * @return mixed
      *
      */
-    public function get_period($periodid) {
+    public function get_period($perioddata) {
         try {
-            $response = $this->__soapCall('GetPeriod', ['period' => $periodid]);
+            $response = $this->__soapCall('GetPeriod', $perioddata);
             return $response;
         } catch (SoapFault $e) {
             return null;
@@ -242,7 +246,7 @@ class evasys_soap_service extends SoapClient {
      */
     public function update_survey($survey) {
         try {
-            $response = $this->__soapCall('UpdateSurvey', $survey);
+            $response = $this->__soapCall('UpdateSurvey', ['Survey' => $survey]);
             return $response;
         } catch (SoapFault $e) {
             return null;

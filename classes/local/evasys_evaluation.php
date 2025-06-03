@@ -124,6 +124,44 @@ class evasys_evaluation {
     }
 
     /**
+     * Fetches all the Questionaires for the query.
+     *
+     * @param string $query
+     *
+     * @return array
+     *
+     */
+    public function get_questionaires_for_query($query) {
+        $service = new evasys_soap_service();
+        $args = [
+                'IncludeCustomReports' => true,
+                'IncludeUsageRestrictions' => true,
+                'UsageRestrictionList' => [
+                        'Subunits' => get_config('booking', 'evasyssubunits'),
+                ],
+        ];
+        $periods = $service->fetch_forms($args);
+        $listforarray = $periods->SimpleForms;
+        $periodoptions = self::transform_return_to_array($listforarray, 'ID', 'Name');
+        foreach ($periodoptions as $key => $value) {
+            if (stripos($value, $query) !== false) {
+                $list[$key] = $value;
+            }
+        }
+        $formattedlist = [];
+        foreach ($list as $id => $name) {
+            $formattedlist[] = [
+                'id' => $id . '-' . base64_encode($name),
+                'name' => $name,
+            ];
+        }
+        return [
+                'warnings' => count($formattedlist) > 100 ? get_string('toomanyuserstoshow', 'core', '> 100') : '',
+                'list' => count($formattedlist) > 100 ? [] : $formattedlist,
+        ];
+    }
+
+    /**
      * Feteches forms and creates array for Settings.
      *
      * @return array
@@ -143,7 +181,10 @@ class evasys_evaluation {
             return [];
         }
         $list = $forms->SimpleForms;
-        $formoptions = self::transform_return_to_array($list, 'OriginalID', 'Name');
+        $formoptions = [];
+        foreach ($list as $element) {
+            $formoptions[$element->ID] = $element->Name;
+        }
         return $formoptions;
     }
 
@@ -199,7 +240,7 @@ class evasys_evaluation {
             'm_sTitle' => '',
             'm_sFirstName' => $user->firstname,
             'm_sSurName' => $user->lastname,
-            'm_sUnitName' => '', // Subunit Name
+            'm_sUnitName' => 'urise', // Subunit Name
             'm_sAddress' => $user->adress ?? '',
             'm_sEmail' => $user->email,
             'm_nFbid' => (int)get_config('booking', 'evasyssubunits'),
@@ -225,10 +266,10 @@ class evasys_evaluation {
     /**
      * Saves survey for Evasys and Surveyid to DB.
      *
-     * @param object $formdata
+     * @param object $data
      * @param object $survey
      *
-     * @return void
+     * @return object
      *
      */
     public function save_survey($data) {
@@ -238,7 +279,7 @@ class evasys_evaluation {
             'nCourseId' => $data->courseid,
             'nFormId' => $data->formid,
             'nPeriodId' => $data->periodid,
-            'sSurveyType' => 'c',
+            'sSurveyType' => "c",
         ];
         $service = new evasys_soap_service();
         $response = $service->insert_survey($surveydata);
@@ -249,10 +290,11 @@ class evasys_evaluation {
             ];
             $DB->update_record('booking_evasys', $data);
         }
+        return $response;
     }
 
     /**
-     * Aggregates Data for Survey.
+     * Update Data for Survey.
      *
      * @param object $formdata
      * @param int $surveyid
@@ -263,11 +305,24 @@ class evasys_evaluation {
     public function update_survey($surveyid, $formdata) {
         $service = new evasys_soap_service();
         $survey = $service->get_survey($surveyid);
-        $period = $service->get_period($formdata->evasys_periods);
+        // since Period is a mixture of int and base64 we have to decouple them.
+        $formperiod = explode("-", $formdata->evasysperiods);
+        $periodid = reset($formperiod);
+        $data = [
+            'sPeriodId' => $periodid,
+            'sPeriodIdType' => 'INTERNAL',
+        ];
+        $period = $service->get_period($data);
         $survey->m_oPeriod = $period;
-        $survey->m_nStuid = $formdata->teachers[0];
+        $teacherid = (int)$formdata->teachersforoption[0];
+        $teacher = singleton_service::get_instance_of_user($teacherid, true);
+        $evasysid = $teacher->profile['evasysid'];
+        $evasysidinternal = end(explode(',', $evasysid));
+        $survey->m_nStuid = (int)$evasysidinternal;
         $survey->m_nFrmid = $formdata->evasys_formid;
-        $newsurvey = $service->update_survey($survey);
+        $service->update_survey($survey);
+        // Since the update survey just returns a boolean we have to get the new survey again to add it later to the course.
+        $newsurvey = $service->get_survey($surveyid);
         return $newsurvey;
     }
 
@@ -276,12 +331,13 @@ class evasys_evaluation {
      *
      * @param object $data
      * @param object $option
-     * @param mixed $courseid
+     * @param int $courseid
+     * @param object $survey
      *
      * @return object
      *
      */
-    public function aggregate_data_for_course_save($data, $option, $courseid = null) {
+    public function aggregate_data_for_course_save($data, $option, $courseid = null, $survey = null) {
         $userfieldshortname = get_config('booking', 'evasyscategoryfielduser');
         foreach ($data->teachersforoption as $teacherid) {
             $teacher = singleton_service::get_instance_of_user($teacherid, true);
@@ -319,7 +375,7 @@ class evasys_evaluation {
         }
         $coursedata = (object) [
             'm_nCourseId' => $courseid,
-            'm_sProgramOfStudy' => 'Urise', // Subunit name.
+            'm_sProgramOfStudy' => 'urise', // Subunit name.
             'm_sCourseTitle' => "$option->text",
             'm_sRoom' => '',
             'm_nCourseType' => 5,
@@ -335,7 +391,7 @@ class evasys_evaluation {
             'isModuleCourse' => null,
             'm_aoParticipants' => [],
             'm_aoSecondaryInstructors' => $secondaryinstructorsinsert,
-            'm_oSurveyHolder' => null,
+            'm_oSurveyHolder' => $survey,
         ];
         return $coursedata;
     }
@@ -445,10 +501,10 @@ class evasys_evaluation {
         $insertdata->usermodified = $USER->id;
         $insertdata->periods = $formdata->evasysperiods;
 
-        if (empty($formdata->evasys_id)) {
+        if (empty($formdata->evasys_booking_id)) {
             $insertdata->timecreated = $now;
         } else {
-            $insertdata->id = $formdata->evasys_id;
+            $insertdata->id = $formdata->evasys_booking_id;
             $insertdata->timemodified = $now;
         }
         return $insertdata;
@@ -464,7 +520,7 @@ class evasys_evaluation {
      *
      */
     private static function map_record_to_form(&$data, $record) {
-        $data->evasys_questionaire = $record->pollurl;
+        $data->evasys_questionaire = $record->formid;
         $data->evasys_evaluation_starttime = $record->starttime;
         $data->evasys_evaluation_endtime = $record->endtime;
         $data->evasys_other_report_recipients = explode(',', $record->organizers);
@@ -473,9 +529,33 @@ class evasys_evaluation {
         $data->evasys_timecreated = $record->timecreated;
         $data->evasys_formid = $record->formid;
         $data->evasysperiods = $record->periods;
-        $data->evasyssurveyid = $record->surveyid;
+        $data->evasys_surveyid = $record->surveyid;
         $data->evasys_courseidinternal = $record->courseidinternal;
         $data->evasys_courseidexternal = $record->courseidexternal;
+    }
+
+    /**
+     * [Description for get_teacher_with_first_lastname]
+     *
+     * @param array $teachers
+     *
+     * @return [type]
+     *
+     */
+    public function get_teacher_with_first_lastname(array $teachers) {
+        if (empty($teachers)) {
+            return [];
+        }
+        // Initialize with the first teacher
+        $firstteacher = $teachers[0];
+
+        foreach ($teachers as $teacher) {
+            if (strcmp($teacher->lastname, $firstteacher->lastname) < 0) {
+                $firstteacher = $teacher;
+            }
+        }
+
+        return $firstteacher;
     }
 
     /**

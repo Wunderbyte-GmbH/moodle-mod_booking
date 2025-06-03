@@ -189,6 +189,14 @@ $functions = [
         'capabilities' => '',
         'ajax'        => 1,
     ],
+    'mod_booking_get_evasysquestionaires' => [
+        'classname'   => 'mod_booking\external\get_evasysquestionaires',
+        'methodname'  => 'execute',
+        'description' => 'Fetch list of Evasys questionaires based on search query.',
+        'type'        => 'read',
+        'capabilities' => '',
+        'ajax'        => 1,
+    ],
 ];
 
 
