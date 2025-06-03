@@ -550,12 +550,12 @@ class booking_option {
         }
 
         $sql = "SELECT $mainuserfields, ba.id AS answerid, ba.optionid, ba.bookingid
-                 FROM {booking_answers} ba, {user} u
-                WHERE ba.userid = u.id
-                  AND u.deleted = 0
-                  AND ba.optionid = :optionid
-                  AND ba.waitinglist = 0
-             ORDER BY ba.timemodified ASC";
+                  FROM {booking_answers} ba, {user} u
+                 WHERE ba.userid = u.id
+                   AND u.deleted = 0
+                   AND ba.optionid = :optionid
+                   AND ba.waitinglist = 0
+              ORDER BY ba.timemodified ASC";
 
         $params = ["optionid" => $this->optionid];
 
@@ -572,7 +572,7 @@ class booking_option {
             groups_get_activity_groupmode($this->booking->cm) == SEPARATEGROUPS &&
                  !has_capability(
                      'moodle/site:accessallgroups',
-                     \context_course::instance($this->booking->course->id)
+                     context_course::instance($this->booking->course->id)
                  )
         ) {
             $mygroups = groups_get_all_groups($this->booking->course->id, $USER->id);
@@ -580,13 +580,15 @@ class booking_option {
             [$insql, $inparams] = $DB->get_in_or_equal($mygroupids, SQL_PARAMS_NAMED, 'grp', true, -1);
 
             $sql = "SELECT $mainuserfields, ba.id AS answerid, ba.optionid, ba.bookingid
-            FROM {booking_answers} ba, {user} u, {groups_members} gm
-            WHERE ba.userid = u.id AND
-            u.deleted = 0 AND
-            ba.optionid = :optionid AND
-            u.id = gm.userid AND gm.groupid $insql
-            GROUP BY u.id
-            ORDER BY ba.timemodified ASC";
+                      FROM {booking_answers} ba, {user} u, {groups_members} gm
+                     WHERE ba.userid = u.id
+                       AND u.deleted = 0
+                       AND ba.optionid = :optionid
+                       AND ba.waitinglist = 0
+                       AND u.id = gm.userid
+                       AND gm.groupid $insql
+                  GROUP BY u.id
+                  ORDER BY ba.timemodified ASC";
             $groupmembers = $DB->get_records_sql($sql, array_merge($params, $inparams));
             $this->bookedusers = array_intersect_key($groupmembers, $this->booking->canbookusers);
             $this->bookedvisibleusers = $this->bookedusers;
