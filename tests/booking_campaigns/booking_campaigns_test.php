@@ -1038,15 +1038,15 @@ final class booking_campaigns_test extends advanced_testcase {
         [$id, $isavailable, $description] = $boinfo3->is_available($settings3->id, $student3->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_CAMPAIGN_BLOCKBOOKING, $id);
 
-        // Try to book options with teacher. Everything blocks because doesn't have values in the profile field.
+        // Try to book options with teacher. Doesn't block because of the
         $this->setUser($teacher);
         singleton_service::destroy_user($teacher->id);
         [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $teacher->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_CAMPAIGN_BLOCKBOOKING, $id);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
         [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $teacher->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_CAMPAIGN_BLOCKBOOKING, $id);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
         [$id, $isavailable, $description] = $boinfo3->is_available($settings3->id, $teacher->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_CAMPAIGN_BLOCKBOOKING, $id);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
 
         // Try to book options with employee.
         $this->setUser($employee);
