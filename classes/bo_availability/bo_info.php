@@ -139,9 +139,15 @@ class bo_info {
             foreach ($results as $result) {
                 // If no Id has been defined or if id is higher, we take the descpription to return.
                 if ($id === MOD_BOOKING_BO_COND_CONFIRMATION || $result['id'] > $id) {
+                    $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
                     if (
-                        class_exists('local_shopping_cart\shopping_cart')
-                        && has_capability('local/shopping_cart:cashier', context_system::instance())
+                        (
+                            class_exists('local_shopping_cart\shopping_cart')
+                            && has_capability('local/shopping_cart:cashier', context_system::instance())
+                        )
+                        // This check actually corresponds to the check in booking_bookit currently line 126.
+                        // It allows overriding a blocking condition under some circumstances.
+                        || has_capability('mod/booking:bookforothers', context_module::instance($settings->cmid))
                         && $result['button'] == MOD_BOOKING_BO_BUTTON_MYALERT
                     ) {
                         continue;
