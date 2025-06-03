@@ -47,6 +47,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @category test
  * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @runInSeparateProcess
  */
 final class rules_waitinglist_test extends advanced_testcase {
     /**
@@ -56,7 +57,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         parent::setUp();
         $this->resetAfterTest();
         time_mock::init();
-        time_mock::set_mock_time(time());
+        time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
     }
 
@@ -104,6 +105,8 @@ final class rules_waitinglist_test extends advanced_testcase {
 
         time_mock::set_mock_time(strtotime('-4 days', time()));
         $time = time_mock::get_mock_time();
+        $now = time();
+        $this->assertEquals($time, $now);
 
         $bdata['cancancelbook'] = 1;
 
@@ -321,6 +324,8 @@ final class rules_waitinglist_test extends advanced_testcase {
 
         time_mock::set_mock_time(strtotime('-4 days', time()));
         $time = time_mock::get_mock_time();
+        $now = time();
+        $this->assertEquals($time, time());
 
         $bdata['cancancelbook'] = 1;
 

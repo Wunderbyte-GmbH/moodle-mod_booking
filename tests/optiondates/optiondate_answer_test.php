@@ -28,6 +28,7 @@ namespace mod_booking;
 
 use advanced_testcase;
 use mod_booking\local\optiondates\optiondate_answer;
+use tool_mocktesttime\time_mock;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -43,6 +44,9 @@ final class optiondate_answer_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
+        time_mock::init();
+        time_mock::set_mock_time(strtotime('now'));
+        singleton_service::destroy_instance();
     }
 
     /**

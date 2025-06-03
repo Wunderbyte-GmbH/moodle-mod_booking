@@ -31,6 +31,7 @@ use advanced_testcase;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\local\override_user_field;
 use stdClass;
+use tool_mocktesttime\time_mock;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -51,6 +52,9 @@ final class circumvent_userprofilecondition_test extends advanced_testcase {
 
     protected function setUp(): void {
         $this->resetAfterTest(true);
+        time_mock::init();
+        time_mock::set_mock_time(strtotime('now'));
+        singleton_service::destroy_instance();
 
         // Create a test user.
         $this->user = $this->getDataGenerator()->create_user([

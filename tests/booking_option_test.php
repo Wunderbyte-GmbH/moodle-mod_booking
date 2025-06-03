@@ -36,6 +36,7 @@ use context_system;
 use context_module;
 use core_course_category;
 use stdClass;
+use tool_mocktesttime\time_mock;
 
 
 /**
@@ -53,6 +54,9 @@ final class booking_option_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
+        time_mock::init();
+        time_mock::set_mock_time(strtotime('now'));
+        singleton_service::destroy_instance();
     }
 
     /**

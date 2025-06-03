@@ -1351,7 +1351,6 @@ class booking_option {
     ) {
 
         global $DB, $USER;
-
         $now = time();
 
         // For book with credits, we need to delete the cache.

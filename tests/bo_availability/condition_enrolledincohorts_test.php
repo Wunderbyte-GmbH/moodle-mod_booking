@@ -30,8 +30,8 @@ use coding_exception;
 use context_module;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
-
 use stdClass;
+use tool_mocktesttime\time_mock;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -53,6 +53,9 @@ final class condition_enrolledincohorts_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
+        time_mock::init();
+        time_mock::set_mock_time(strtotime('now'));
+        singleton_service::destroy_instance();
     }
 
     /**

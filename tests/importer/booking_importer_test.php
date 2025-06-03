@@ -33,6 +33,7 @@ use mod_booking\price;
 use mod_booking_generator;
 use stdClass;
 use mod_booking\importer\bookingoptionsimporter;
+use tool_mocktesttime\time_mock;
 
 /**
  * Class handling tests for booking importer.
@@ -49,6 +50,9 @@ final class booking_importer_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
+        time_mock::init();
+        time_mock::set_mock_time(strtotime('now'));
+        singleton_service::destroy_instance();
     }
 
     /**

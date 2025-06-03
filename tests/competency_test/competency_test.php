@@ -46,6 +46,7 @@ use mod_booking\booking_rules\booking_rules;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\bo_availability\bo_info;
 use mod_booking_generator;
+use tool_mocktesttime\time_mock;
 
 /**
  * Tests for booking rules.
@@ -62,6 +63,9 @@ final class competency_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
+        time_mock::init();
+        time_mock::set_mock_time(strtotime('now'));
+        singleton_service::destroy_instance();
     }
 
     /**
