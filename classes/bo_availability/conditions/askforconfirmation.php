@@ -30,7 +30,9 @@ use context_system;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_answers;
+use mod_booking\booking_bookit;
 use mod_booking\booking_option_settings;
+use mod_booking\output\bookingoption_description;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
 

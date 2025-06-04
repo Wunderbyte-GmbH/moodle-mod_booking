@@ -52,7 +52,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class priceisset implements bo_condition {
-
     /** @var int $id Standard Conditions have hardcoded ids. */
     public $id = MOD_BOOKING_BO_COND_PRICEISSET;
 
@@ -111,10 +110,8 @@ class priceisset implements bo_condition {
         }
 
         if (!get_config('booking', 'priceisalwayson')) {
-
             // If the user is not yet booked we return true.
             if (empty($settings->jsonobject->useprice)) {
-
                 $isavailable = true;
             }
         }
@@ -183,8 +180,10 @@ class priceisset implements bo_condition {
 
         // If shopping cart is not installed, we still want to allow admins to book for others.
         $context = context_module::instance($settings->cmid);
-        if (!class_exists('local_shopping_cart\shopping_cart') &&
-            has_capability('mod/booking:bookforothers', $context)) {
+        if (
+            !class_exists('local_shopping_cart\shopping_cart') &&
+            has_capability('mod/booking:bookforothers', $context)
+        ) {
             return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_MYALERT];
         }
 
@@ -257,8 +256,10 @@ class priceisset implements bo_condition {
         $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
         $bookinginformation = $bookinganswer->return_all_booking_information($userid);
 
-        if (isset($bookinginformation['notbooked']) && ($bookinginformation['notbooked']['onnotifylist']) ||
-            (isset($bookinginformation['iambooked']) && $bookinginformation['iambooked']['onnotifylist'])) {
+        if (
+            isset($bookinginformation['notbooked']) && ($bookinginformation['notbooked']['onnotifylist']) ||
+            (isset($bookinginformation['iambooked']) && $bookinginformation['iambooked']['onnotifylist'])
+        ) {
             $data['onlist'] = true;
         }
 

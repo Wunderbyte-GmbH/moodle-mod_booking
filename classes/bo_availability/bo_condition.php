@@ -26,10 +26,8 @@
 
 namespace mod_booking\bo_availability;
 
-use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use MoodleQuickForm;
-use stdClass;
 
 /**
  * Base class for a single bo availability condition.
@@ -42,7 +40,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 interface bo_condition {
-
     /**
      * True, if it's a customizable / JSON-compatible condition.
      * False, if it's a hardcoded condition (not stored with JSON).
@@ -144,8 +141,13 @@ interface bo_condition {
      * @param bool $fullwidth
      * @return array
      */
-    public function render_button(booking_option_settings $settings,
-        int $userid = 0, bool $full = false, bool $not = false, bool $fullwidth = true): array;
+    public function render_button(
+        booking_option_settings $settings,
+        int $userid = 0,
+        bool $full = false,
+        bool $not = false,
+        bool $fullwidth = true
+    ): array;
 
     /**
      * Each function can return additional sql.
