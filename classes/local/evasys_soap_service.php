@@ -202,6 +202,23 @@ class evasys_soap_service extends SoapClient {
     }
 
     /**
+     * Deletes Course in Evasys.
+     *
+     * @param array $course
+     *
+     * @return boolean
+     *
+     */
+    public function delete_course($course) {
+        try {
+            $response = $this->__soapCall('DeleteCourse', $course);
+            return $response;
+        } catch (SoapFault $e) {
+            return false;
+        }
+    }
+
+    /**
      * Insert Survey to Evasys.
      *
      * @param array $surveydata
@@ -220,36 +237,19 @@ class evasys_soap_service extends SoapClient {
     }
 
     /**
-     * Get Survey from Evasys with SurveyID.
+     * Delete the survey in evasys.
      *
-     * @param int $surveyid
+     * @param array $survey
      *
-     * @return mixed
-     *
-     */
-    public function get_survey($surveyid) {
-        try {
-            $response = $this->__soapCall('GetSurveyById', ['nSurveyId' => $surveyid]);
-            return $response;
-        } catch (SoapFault $e) {
-            return null;
-        }
-    }
-
-    /**
-     * Updates the survey in evasys.
-     *
-     * @param object $survey
-     *
-     * @return mixed
+     * @return boolean
      *
      */
-    public function update_survey($survey) {
+    public function delete_survey($survey) {
         try {
-            $response = $this->__soapCall('UpdateSurvey', ['Survey' => $survey]);
+            $response = $this->__soapCall('DeleteSurvey', $survey);
             return $response;
         } catch (SoapFault $e) {
-            return null;
+            return false;
         }
     }
 

@@ -25,10 +25,11 @@
  namespace mod_booking\option\fields;
 
  use mod_booking\booking_option_settings;
- use mod_booking\local\evasys_evaluation;
+ use mod_booking\local\evasys_handler;
+ use mod_booking\local\evasys_helper_service;
+ use mod_booking\local\evasys_soap_service;
  use mod_booking\option\field_base;
  use mod_booking\option\fields_info;
- use mod_booking\singleton_service;
  use MoodleQuickForm;
  use stdClass;
 
@@ -73,7 +74,7 @@ class evasys extends field_base {
      *
      * @var array
      */
-    public static $evasyskeys = ['evasys_questionaire', 'evasys_evaluation_starttime', 'evasys_evaluation_endtime', 'evasys_other_report_recipients', 'evasysperiods', 'evasys_notifyparticipants'];
+    public static $evasyskeys = ['evasys_questionaire', 'evasys_starttime', 'evasys_endtime', 'evasys_other_report_recipients', 'evasysperiods', 'evasys_notifyparticipants'];
 
     /**
      * Relevant Keys to update survey to API.
@@ -146,7 +147,7 @@ class evasys extends field_base {
         if (empty(get_config('booking', 'evasyssubunits'))) {
             return;
         }
-        $evasys = new evasys_evaluation();
+        $evasys = new evasys_handler();
         $forms = ['tags' => false,
         'multiple' => false,
         'noselectionstring' => '',
@@ -218,11 +219,11 @@ class evasys extends field_base {
         // Add date selectors.
         $mform->addElement(
             'select',
-            'evasys_evaluation_durationbeforestart',
+            'evasys_durationbeforestart',
             get_string('evasys:evaluation:durationbeforestart', 'mod_booking'),
             $beforestartoptions
         );
-        $mform->setDefault('evasys_evaluation_durationbeforestart', -7200);
+        $mform->setDefault('_durationbeforestart', -7200);
         $afterendoptions = [
             86400 => "24",
             172800 => "48",
@@ -232,29 +233,29 @@ class evasys extends field_base {
         // Add date selectors.
         $mform->addElement(
             'select',
-            'evasys_evaluation_durationafterend',
+            'evasys_durationafterend',
             get_string('evasys:evaluation:durationafterend', 'mod_booking'),
             $afterendoptions
         );
-        $mform->setDefault('evasys_evaluation_durationafterend', 172800);
+        $mform->setDefault('evasys_durationafterend', 172800);
 
         // Add date selectors.
         $mform->addElement(
             'date_selector',
-            'evasys_evaluation_starttime',
+            'evasys_starttime',
             get_string('evasys:evaluation_starttime', 'mod_booking')
         );
         $mform->addElement(
             'date_selector',
-            'evasys_evaluation_endtime',
+            'evasys_endtime',
             get_string('evasys:evaluation_endtime', 'mod_booking')
         );
 
         // Hide date selectors unless "duration" (option 1) is selected.
-        $mform->hideIf('evasys_evaluation_starttime', 'evasys_timemode', 'noteq', 1);
-        $mform->hideIf('evasys_evaluation_endtime', 'evasys_timemode', 'noteq', 1);
-        $mform->hideIf('evasys_evaluation_durationafterend', 'evasys_timemode', 'noteq', 0);
-        $mform->hideIf('evasys_evaluation_durationbeforestart', 'evasys_timemode', 'noteq', 0);
+        $mform->hideIf('evasys_starttime', 'evasys_timemode', 'noteq', 1);
+        $mform->hideIf('evasys_endtime', 'evasys_timemode', 'noteq', 1);
+        $mform->hideIf('evasys_durationafterend', 'evasys_timemode', 'noteq', 0);
+        $mform->hideIf('evasys_durationbeforestart', 'evasys_timemode', 'noteq', 0);
 
 
         $mform->addElement(
@@ -280,13 +281,13 @@ class evasys extends field_base {
             [],
             [0, 1],
         );
-        // Hide everything unless a questionaire is chosen.
+
         $mform->hideIf('evasys_timemode', 'evasys_questionaire', 'eq', '');
         $mform->hideIf('evasys_other_report_recipients', 'evasys_questionaire', 'eq', '');
         $mform->hideIf('evasysperiods', 'evasys_questionaire', 'eq', '');
         $mform->hideIf('evasys_notifyparticipants', 'evasys_questionaire', 'eq', '');
-        $mform->hideIf('evasys_evaluation_durationafterend', 'evasys_questionaire', 'eq', '');
-        $mform->hideIf('evasys_evaluation_durationbeforestart', 'evasys_questionaire', 'eq', '');
+        $mform->hideIf('evasys_durationafterend', 'evasys_questionaire', 'eq', '');
+        $mform->hideIf('evasys_durationbeforestart', 'evasys_questionaire', 'eq', '');
 
         $mform->addElement(
             'hidden',
@@ -334,7 +335,7 @@ class evasys extends field_base {
      *
      */
     public static function set_data(&$data, $settings) {
-        $evasys = new evasys_evaluation();
+        $evasys = new evasys_handler();
         $evasys->load_form($data);
     }
 
@@ -346,12 +347,11 @@ class evasys extends field_base {
      * @throws \dml_exception
      */
     public static function save_data(&$formdata, &$option) {
-        $evasys = new evasys_evaluation();
+        $evasys = new evasys_handler();
         $evasys->save_form($formdata, $option);
         if (empty($formdata->teachersforoption)) {
             return;
         }
-            // Check if Courseid is saved.
     }
 
     /**
@@ -370,31 +370,43 @@ class evasys extends field_base {
         object $newoption,
         object $originaloption
     ) {
+        global $DB;
         if (empty($data->teachersforoption)) {
             return;
         }
-        $evasys = new evasys_evaluation();
+        $helper = new evasys_helper_service();
+        $evasys = new evasys_handler();
         if (empty($data->evasys_courseidexternal)) {
             $coursedata = $evasys->aggregate_data_for_course_save($data, $newoption);
             $courseresponse = $evasys->save_course($data, $coursedata);
-            $data = (object)[
-                'userid' => $courseresponse->m_nUserId,
-                'courseid' => $courseresponse->m_nCourseId,
-                'formid' => $data->evasys_questionaire,
-                'periodid' => $courseresponse->m_nPeriodId,
-                'evasysid' => $data->evasys_booking_id,
-            ];
-            $surveyresponse = $evasys->save_survey($data);
-            // if (isset($surveyresponse)) {
-            // $survey = new stdClass();
-            // $survey->Surveys = $surveyresponse;
-            // $courseresponse->m_oSurveyHolder->m_aSurveys = $survey;
-            // $evasys->update_course($courseresponse);
-            // }
+            $args = $helper->set_args_insert_survey(
+                $courseresponse->m_nUserId,
+                $courseresponse->m_nCourseId,
+                $data->evasys_questionaire,
+                $courseresponse->m_nPeriodId,
+            );
+            $id = $data->evasys_booking_id;
+            $evasys->save_survey($args, $id);
         } else {
+            $now = time();
+            if ($now < $data->_starttime) {
+                return;
+            }
+            if ($helper->delete_condition_met($changes) && !empty($data->id)) {
+                    // Delete Survey.
+                    $service = new evasys_soap_service();
+                    $helper = new evasys_helper_service();
+                    $argssurvey = $helper->set_args_delete_survey($data->evasys_surveyid);
+                    $service->delete_survey($argssurvey);
+                    // Delete Course.
+                    $argscourse = $helper->set_args_delete_course($data->evasys_courseidinternal);
+                    $service->delete_course($argscourse);
+                    $DB->delete_records('booking_evasys', ['id' => $data->evasys_booking_id]);
+                    return;
+            }
             $updatesurvey = false;
             $updatecourse = false;
-        // Checks if the survey and therefore the course needs to be updated.
+            // Checks if the survey and therefore the course needs to be updated.
             foreach ($changes["mod_booking\\option\\fields\\evasys"]['changes'] as $key => $value) {
                 if (in_array($key, self::$relevantkeyssurvey, true)) {
                     $updatesurvey = true;
@@ -405,24 +417,12 @@ class evasys extends field_base {
                 $updatecourse = true;
             }
             if ($updatesurvey) {
-                $evasys = new evasys_evaluation();
+                $evasys = new evasys_handler();
                 $surveyid = $data->evasys_surveyid;
-                $surveyresponse = $evasys->update_survey($surveyid, $data);
-                $survey = new stdClass();
-                $survey->m_aSurveys = new stdClass();
-                $survey->m_aSurveys->Surveys = $surveyresponse;
-                // Update Course because Survey was updated.
-                // $coursedata = $evasys->aggregate_data_for_course_save($data, $newoption, $data->evasys_courseidinternal, $survey);
-                // $evasys->update_course($coursedata);
+                $evasys->update_survey($surveyid, $data, $newoption);
             }
             if ($updatecourse) {
-                $coursedata = $evasys->aggregate_data_for_course_save($data, $newoption, $data->evasys_courseidinternal);
-                $surveyid = $data->evasys_surveyid;
-                $surveyresponse = $evasys->update_survey($surveyid, $data);
-                $survey = new stdClass();
-                $survey->m_aSurveys = new stdClass();
-                $survey->m_aSurveys->Surveys = $surveyresponse;
-                $evasys->update_course($coursedata);
+                $evasys->aggregate_data_for_course_save($data, $newoption, $data->evasys_booking_id);
             }
         }
     }

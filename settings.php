@@ -23,7 +23,7 @@
  */
 
 use mod_booking\customfield\booking_handler;
-use mod_booking\local\evasys_evaluation;
+use mod_booking\local\evasys_handler;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -748,7 +748,7 @@ if ($ADMIN->fulltree) {
             )
         );
         try {
-            $evasys = new evasys_evaluation();
+            $evasys = new evasys_handler();
             $subinutoptions = $evasys->get_subunits();
             $periodoptions = $evasys->get_periods_for_settings();
         } catch (SoapFault $e) {

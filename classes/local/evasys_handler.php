@@ -25,10 +25,9 @@
 
 namespace mod_booking\local;
 
-use mod_booking\customfield\booking_handler;
 use context_course;
+use mod_booking\local\evasys_helper_service;
 use mod_booking\singleton_service;
-use stdClass;
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/user/lib.php');
 
@@ -36,7 +35,7 @@ require_once($CFG->dirroot . '/user/lib.php');
 /**
  * Class for handling logic of Evasys.
  */
-class evasys_evaluation {
+class evasys_handler {
     /**
      * Save data from form into DB.
      *
@@ -47,7 +46,8 @@ class evasys_evaluation {
      */
     public function save_form(&$formdata, &$option) {
         global $DB;
-        $insertdata = self::map_form_to_record($formdata, $option);
+        $helper = new evasys_helper_service();
+        $insertdata = $helper->map_form_to_record($formdata, $option);
         if (empty($formdata->evasys_booking_id)) {
             $returnid = $DB->insert_record('booking_evasys', $insertdata, true, false);
             // Returning ID so i can update record later for internal and external courseid.
@@ -67,11 +67,12 @@ class evasys_evaluation {
      */
     public function load_form(&$data): void {
         global $DB;
+        $helper = new evasys_helper_service();
         $record = $DB->get_record('booking_evasys', ['optionid' => $data->optionid], '*', IGNORE_MISSING);
         if (empty($record)) {
             return;
         }
-        self::map_record_to_form($data, $record);
+        $helper->map_record_to_form($data, $record);
     }
 
     /**
@@ -82,15 +83,15 @@ class evasys_evaluation {
      */
     public function get_periods_for_settings() {
         $service = new evasys_soap_service();
+        $helper = new evasys_helper_service();
         $periods = $service->fetch_periods();
         if (!isset($periods)) {
             return [];
         }
         $list = $periods->Periods;
-        $periodoptions = self::transform_return_to_array($list, 'm_nPeriodId', 'm_sTitel');
+        $periodoptions = $helper->transform_return_to_array($list, 'm_nPeriodId', 'm_sTitel');
         return $periodoptions;
     }
-
 
     /**
      * Feteches the periods in the query
@@ -102,9 +103,10 @@ class evasys_evaluation {
      */
     public function get_periods_for_query($query) {
         $service = new evasys_soap_service();
+        $helper = new evasys_helper_service();
         $periods = $service->fetch_periods();
         $listforarray = $periods->Periods;
-        $periodoptions = self::transform_return_to_array($listforarray, 'm_nPeriodId', 'm_sTitel');
+        $periodoptions = $helper->transform_return_to_array($listforarray, 'm_nPeriodId', 'm_sTitel');
         foreach ($periodoptions as $key => $value) {
             if (stripos($value, $query) !== false) {
                 $list[$key] = $value;
@@ -133,6 +135,7 @@ class evasys_evaluation {
      */
     public function get_questionaires_for_query($query) {
         $service = new evasys_soap_service();
+        $helper = new evasys_helper_service();
         $args = [
                 'IncludeCustomReports' => true,
                 'IncludeUsageRestrictions' => true,
@@ -142,7 +145,7 @@ class evasys_evaluation {
         ];
         $periods = $service->fetch_forms($args);
         $listforarray = $periods->SimpleForms;
-        $periodoptions = self::transform_return_to_array($listforarray, 'ID', 'Name');
+        $periodoptions = $helper->transform_return_to_array($listforarray, 'ID', 'Name');
         foreach ($periodoptions as $key => $value) {
             if (stripos($value, $query) !== false) {
                 $list[$key] = $value;
@@ -214,12 +217,13 @@ class evasys_evaluation {
      */
     public function get_subunits() {
         $service = new evasys_soap_service();
+        $helper = new evasys_helper_service();
         $subunits = $service->fetch_subunits();
         if (!isset($subunits)) {
             return [];
         }
         $list = $subunits->Units;
-        $subunitoptions = self::transform_return_to_array($list, 'm_nId', 'm_sName');
+        $subunitoptions = $helper->transform_return_to_array($list, 'm_nId', 'm_sName');
         return $subunitoptions;
     }
 
@@ -232,25 +236,15 @@ class evasys_evaluation {
      */
     public function save_user($user) {
         global $CFG;
-        $userdata = [
-            'm_nId' => null,
-            'm_nType' => null,
-            'm_sLoginName' => '',
-            'm_sExternalId' => "evasys_$user->id",
-            'm_sTitle' => '',
-            'm_sFirstName' => $user->firstname,
-            'm_sSurName' => $user->lastname,
-            'm_sUnitName' => 'urise', // Subunit Name
-            'm_sAddress' => $user->adress ?? '',
-            'm_sEmail' => $user->email,
-            'm_nFbid' => (int)get_config('booking', 'evasyssubunits'),
-            'm_nAddressId' => 0,
-            'm_sPassword' => '',
-            'm_sPhoneNumber' => $user->phone1 ?? '',
-            'm_bUseLDAP' => null,
-            'm_bActiveUser' => null,
-            'm_aCourses' => null,
-        ];
+        $helper = new evasys_helper_service();
+        $userdata = $helper->set_args_insert_user(
+            $user->id,
+            $user->firstname,
+            $user->lastname,
+            $user->adress,
+            $user->email,
+            $user->phone1
+        );
         $service = new evasys_soap_service();
         $response = $service->insert_user($userdata);
         if (isset($response)) {
@@ -262,30 +256,22 @@ class evasys_evaluation {
         }
     }
 
-
     /**
      * Saves survey for Evasys and Surveyid to DB.
      *
-     * @param object $data
-     * @param object $survey
+     * @param array $args
+     * @param int $id
      *
      * @return object
      *
      */
-    public function save_survey($data) {
+    public function save_survey($args, $id) {
         global $DB;
-        $surveydata = [
-            'nUserId' => $data->userid,
-            'nCourseId' => $data->courseid,
-            'nFormId' => $data->formid,
-            'nPeriodId' => $data->periodid,
-            'sSurveyType' => "c",
-        ];
         $service = new evasys_soap_service();
-        $response = $service->insert_survey($surveydata);
+        $response = $service->insert_survey($args);
         if (isset($response)) {
             $data = [
-                'id' => $data->evasysid,
+                'id' => $id,
                 'surveyid' => $response->m_nSurveyId,
             ];
             $DB->update_record('booking_evasys', $data);
@@ -294,36 +280,43 @@ class evasys_evaluation {
     }
 
     /**
-     * Update Data for Survey.
+     * "Update" Logic for the Survey in Evasys.
      *
-     * @param object $formdata
      * @param int $surveyid
+     * @param object $data
+     * @param object $option
      *
-     * @return object
+     * @return void
      *
      */
-    public function update_survey($surveyid, $formdata) {
+    public function update_survey($surveyid, $data, $option) {
+        global $DB;
         $service = new evasys_soap_service();
-        $survey = $service->get_survey($surveyid);
-        // since Period is a mixture of int and base64 we have to decouple them.
-        $formperiod = explode("-", $formdata->evasysperiods);
-        $periodid = reset($formperiod);
-        $data = [
-            'sPeriodId' => $periodid,
-            'sPeriodIdType' => 'INTERNAL',
-        ];
-        $period = $service->get_period($data);
-        $survey->m_oPeriod = $period;
-        $teacherid = (int)$formdata->teachersforoption[0];
-        $teacher = singleton_service::get_instance_of_user($teacherid, true);
-        $evasysid = $teacher->profile['evasysid'];
-        $evasysidinternal = end(explode(',', $evasysid));
-        $survey->m_nStuid = (int)$evasysidinternal;
-        $survey->m_nFrmid = $formdata->evasys_formid;
-        $service->update_survey($survey);
-        // Since the update survey just returns a boolean we have to get the new survey again to add it later to the course.
-        $newsurvey = $service->get_survey($surveyid);
-        return $newsurvey;
+        $helper = new evasys_helper_service();
+        $coursedata = self::aggregate_data_for_course_save($data, $option, $data->evasys_courseidinternal);
+        $course = $service->update_course($coursedata);
+        if (empty($course)) {
+            return;
+        }
+        $argsdelete = $helper->set_args_delete_survey($surveyid);
+        $isdeleted = $service->delete_survey($argsdelete);
+        if (!$isdeleted) {
+            return;
+        }
+        $argsnewsurvey = $helper->set_args_insert_survey(
+            $course->m_nUserId,
+            $course->m_nCourseId,
+            $data->evasys_formid,
+            $course->m_nPeriodId
+        );
+        $survey = $service->insert_survey($argsnewsurvey);
+        if (!empty($survey)) {
+            $insertobject = (object) [
+                'id' => $data->evasys_booking_id,
+                'surveyid' => $survey->m_nSurveyId,
+            ];
+            $DB->update_record('booking_evasys', $insertobject);
+        }
     }
 
     /**
@@ -332,13 +325,13 @@ class evasys_evaluation {
      * @param object $data
      * @param object $option
      * @param int $courseid
-     * @param object $survey
      *
      * @return object
      *
      */
-    public function aggregate_data_for_course_save($data, $option, $courseid = null, $survey = null) {
+    public function aggregate_data_for_course_save($data, $option, $courseid = null) {
         $userfieldshortname = get_config('booking', 'evasyscategoryfielduser');
+        $helper = new evasys_helper_service();
         foreach ($data->teachersforoption as $teacherid) {
             $teacher = singleton_service::get_instance_of_user($teacherid, true);
             $teachers[$teacherid] = $teacher;
@@ -366,74 +359,23 @@ class evasys_evaluation {
         $userfieldvalue = array_shift($teachers)->profile[$userfieldshortname];
         $internalid = end(explode(',', $userfieldvalue));
         $secondaryinstructors = array_merge($teachers ?? [], $recipients ?? []);
-        $secondaryinstructorsinsert = self::set_secondaryinstructors_for_save($secondaryinstructors);
+        $secondaryinstructorsinsert = $helper->set_secondaryinstructors_for_save($secondaryinstructors);
         if (!empty($data->evasysperiods)) {
             $perioddata = explode('-', $data->evasysperiods);
             $periodid = reset($perioddata);
         } else {
             $periodid = get_config('booking', 'evasysperiods');
         }
-        $coursedata = (object) [
-            'm_nCourseId' => $courseid,
-            'm_sProgramOfStudy' => 'urise', // Subunit name.
-            'm_sCourseTitle' => "$option->text",
-            'm_sRoom' => '',
-            'm_nCourseType' => 5,
-            'm_sPubCourseId' => "evasys_$option->id",
-            'm_sExternalId' => "evasys_$option->id",
-            'm_nCountStud' => null,
-            'm_sCustomFieldsJSON' => '',
-            'm_nUserId' => $internalid,
-            'm_nFbid' => (int)get_config('booking', 'evasyssubunits'),
-            'm_nPeriodId' => (int)$periodid,
-            'currentPosition' => null,
-            'hasAnonymousParticipants' => false,
-            'isModuleCourse' => null,
-            'm_aoParticipants' => [],
-            'm_aoSecondaryInstructors' => $secondaryinstructorsinsert,
-            'm_oSurveyHolder' => $survey,
-        ];
+        $helper = new evasys_helper_service();
+        $coursedata = $helper->set_args_insert_course(
+            $option->text,
+            $option->id,
+            $internalid,
+            $periodid,
+            $secondaryinstructorsinsert,
+            $courseid,
+        );
         return $coursedata;
-    }
-
-    /**
-     * Sets the secondary Instructors for course insert or update.
-     *
-     * @param mixed $array
-     *
-     * @return array
-     *
-     */
-    public function set_secondaryinstructors_for_save($secondaryinstructors) {
-        $userfieldshortname = get_config('booking', 'evasyscategoryfielduser');
-        $userlist = [];
-
-        foreach ($secondaryinstructors as $instructor) {
-            $parts = explode(',', $instructor->profile[$userfieldshortname]);
-            $internalid = end($parts);
-
-            $userobj = new stdClass();
-            $userobj->m_nId = (int)$internalid;
-            $userobj->m_nType = 1;
-            $userobj->m_sLoginName = '';
-            $userobj->m_sExternalId = "evasys_{$instructor->id}";
-            $userobj->m_sTitle = '';
-            $userobj->m_sFirstName = $instructor->firstname;
-            $userobj->m_sSurName = $instructor->lastname;
-            $userobj->m_sUnitName = '';
-            $userobj->m_sAddress = $instructor->address ?? '';
-            $userobj->m_sEmail = $instructor->email;
-            $userobj->m_nFbid = (int)get_config('booking', 'evasyssubunits');
-            $userobj->m_nAddressId = 0;
-            $userobj->m_sPassword = '';
-            $userobj->m_sPhoneNumber = $instructor->phone1 ?? '';
-            $userobj->m_bUseLDAP = null;
-            $userobj->m_bActiveUser = null;
-            $userobj->m_bTechnicalAdmin = null;
-            $userobj->m_aCourses = null;
-            $userlist[] = $userobj;
-        }
-        return $userlist;
     }
 
     /**
@@ -472,107 +414,5 @@ class evasys_evaluation {
         $service = new evasys_soap_service();
         $response = $service->update_course($coursedata);
         return $response;
-    }
-    /**
-     * Maps DB of Form to DB for saving.
-     *
-     * @param /stdClass $formdata
-     * @param /stdClass $option
-     *
-     * @return object
-     *
-     */
-    private static function map_form_to_record($formdata, $option) {
-        global $USER;
-        $insertdata = new stdClass();
-        $now = time();
-        $insertdata->optionid = $option->id;
-        $insertdata->formid = $formdata->evasys_questionaire;
-        if (empty((int)$formdata->evasys_timemode)) {
-            $insertdata->starttime = (int) $option->courseendtime + (int) $formdata->evasys_evaluation_durationbeforestart;
-            $insertdata->endtime = (int) $option->courseendtime + (int) $formdata->evasys_evaluation_durationafterend;
-        } else {
-            $insertdata->starttime = $formdata->evasys_evaluation_starttime;
-            $insertdata->endtime = $formdata->evasys_evaluation_endtime;
-        }
-        $insertdata->trainers = implode(',', ($formdata->teachersforoption ?? []));
-        $insertdata->organizers = implode(',', ($formdata->evasys_other_report_recipients ?? []));
-        $insertdata->notifyparticipants = $formdata->evasys_notifyparticipants;
-        $insertdata->usermodified = $USER->id;
-        $insertdata->periods = $formdata->evasysperiods;
-
-        if (empty($formdata->evasys_booking_id)) {
-            $insertdata->timecreated = $now;
-        } else {
-            $insertdata->id = $formdata->evasys_booking_id;
-            $insertdata->timemodified = $now;
-        }
-        return $insertdata;
-    }
-
-    /**
-     * Maps Data of DB record to Formdata.
-     *
-     * @param /stdClass $data
-     * @param /stdClass $record
-     *
-     * @return void
-     *
-     */
-    private static function map_record_to_form(&$data, $record) {
-        $data->evasys_questionaire = $record->formid;
-        $data->evasys_evaluation_starttime = $record->starttime;
-        $data->evasys_evaluation_endtime = $record->endtime;
-        $data->evasys_other_report_recipients = explode(',', $record->organizers);
-        $data->evasys_notifyparticipants = $record->notifyparticipants;
-        $data->evasys_booking_id = $record->id;
-        $data->evasys_timecreated = $record->timecreated;
-        $data->evasys_formid = $record->formid;
-        $data->evasysperiods = $record->periods;
-        $data->evasys_surveyid = $record->surveyid;
-        $data->evasys_courseidinternal = $record->courseidinternal;
-        $data->evasys_courseidexternal = $record->courseidexternal;
-    }
-
-    /**
-     * [Description for get_teacher_with_first_lastname]
-     *
-     * @param array $teachers
-     *
-     * @return [type]
-     *
-     */
-    public function get_teacher_with_first_lastname(array $teachers) {
-        if (empty($teachers)) {
-            return [];
-        }
-        // Initialize with the first teacher
-        $firstteacher = $teachers[0];
-
-        foreach ($teachers as $teacher) {
-            if (strcmp($teacher->lastname, $firstteacher->lastname) < 0) {
-                $firstteacher = $teacher;
-            }
-        }
-
-        return $firstteacher;
-    }
-
-    /**
-     * Transforms Array of objects to an associates array for the settings.
-     *
-     * @param array $list
-     * @param string $key
-     * @param string $value
-     *
-     * @return array
-     *
-     */
-    private static function transform_return_to_array($list, $key, $value) {
-        $array = [];
-        foreach ($list as $element) {
-            $array[$element->$key] = $element->$value;
-        }
-        return $array;
     }
 }

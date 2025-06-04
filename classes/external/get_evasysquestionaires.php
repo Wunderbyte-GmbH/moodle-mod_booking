@@ -18,7 +18,7 @@ namespace mod_booking\external;
 use external_api;
 use external_function_parameters;
 use external_value;
-use mod_booking\local\evasys_evaluation;
+use mod_booking\local\evasys_handler;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -57,7 +57,7 @@ class get_evasysquestionaires extends external_api {
         $params = self::validate_parameters(self::execute_parameters(), [
             'query' => $query,
         ]);
-        $evasys = new evasys_evaluation();
+        $evasys = new evasys_handler();
         return $evasys->get_questionaires_for_query($params['query']);
     }
 
