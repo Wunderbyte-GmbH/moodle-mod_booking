@@ -1207,18 +1207,6 @@ final class rules_waitinglist_test extends advanced_testcase {
         [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
-        // Book the student1 directly.
-        $option = singleton_service::get_instance_of_booking_option($settings1->cmid, $settings1->id);
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /*
-        $option->user_submit_response(
-            $student1,
-            0,
-            0,
-            0,
-            MOD_BOOKING_VERIFIED
-        );
-        */
         // User student1 should be booked now.
         [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
@@ -1269,33 +1257,25 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->assertEquals($pricecategorydata1->defaultvalue, $res['credit']);
         $this->assertEmpty($res['error']);
 
-        // Asserting that the spot is free to book and 4 users remaining on waitinglist.
-        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
-        $ba = singleton_service::get_instance_of_booking_answers($settings);
+        // Book the student5 via waitinglist.
+        $this->setUser($student5);
+        singleton_service::destroy_user($student5->id);
+        $result = booking_bookit::bookit('option', $settings1->id, $student5->id);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student5->id, true);
+        $this->assertEquals($expected['newuserresponse'], $id);
+
+        // Asserting that the spot is OR free to book OR booked by next user AND proper number of users remains on waitinglist.
+        $ba = singleton_service::get_instance_of_booking_answers($settings1);
         $this->assertIsArray($ba->usersonlist);
         $this->assertCount($expected['usersonlist1'], $ba->usersonlist);
         $this->assertIsArray($ba->usersonwaitinglist);
         $this->assertCount($expected['usersonwaitinglist1'], $ba->usersonwaitinglist);
 
-        // Check for tasks.
+        // Check for proper number of tasks.
+        // Tasks are tested in depth in other tests of this class.
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
         $this->assertCount($expected['taskcount1'], $tasks);
-        // Tasks are tested in depth in other tests of this class.
 
-        // Book the student5 via waitinglist.
-        $this->setUser($student5);
-        singleton_service::destroy_user($student5->id);
-        $result = booking_bookit::bookit('option', $settings->id, $student5->id);
-        [$id, $isavailable, $description] = $boinfo1->is_available($settings->id, $student5->id, true);
-        $this->assertEquals($expected['newuserresponse'], $id);
-
-        if (isset($testdata['bookseconduser']) && !empty($data['bookseconduser'])) {
-            // Book the student2 on waitinglist.
-            $this->setAdminUser();
-            $option->user_submit_response($student2, 0, 0, 0, MOD_BOOKING_VERIFIED);
-            [$id, $isavailable, $description] = $boinfo1->is_available($settings->id, $student2->id, true);
-            $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
-        }
         // In the future we run tasks.
         // No free seats available, so no messages should be send.
         time_mock::set_mock_time(strtotime('+3 day', time()));
@@ -1308,7 +1288,16 @@ final class rules_waitinglist_test extends advanced_testcase {
         $messages = $sink->get_messages();
         $res = ob_get_clean();
         $sink->close();
-        $this->assertCount(0, $messages);
+        $this->assertCount($expected['taskcount2'], $messages);
+        // Validate emails. Might be more than one dependitg to Moodle's version.
+        if (isset($testdata['bookseconduser']) && !$testdata['bookseconduser']) {
+            foreach ($messages as $key => $message) {
+                if (strpos($message->subject, "freeplacedelaysubj")) {
+                    // Validate email on option change.
+                    $this->assertEquals($student2->id, $message->useridto);
+                }
+            }
+        }
     }
 
     /**
@@ -1330,22 +1319,26 @@ final class rules_waitinglist_test extends advanced_testcase {
                     // After the first cancellation, with these settings, we expect...
                     // The student2 (next on waitinglist) to be on the list.
                     'usersonlist1' => 1,
-                    'usersonwaitinglist1' => 2,
+                    'usersonwaitinglist1' => 3,
                     'taskcount1' => 0, // So no tasks expected.
                     'newuserresponse' => MOD_BOOKING_BO_COND_ONWAITINGLIST, // Waitinglist.
+                    'taskcount2' => 0, // So no tasks expected.
                 ],
             ],
             'second_user_with_price' => [
                 [
                     'secondprice' => 10,
-                    'student3settings' => ['profile_field_pricecat' => 'secondprice'],
+                    'student2settings' => ['profile_field_pricecat' => 'secondprice'],
+                    'bookseconduser' => false,
                 ],
                 [
                     // Since user has to pay, we expect no one booked and user still on waitinglist.
                     'usersonlist1' => 0,
-                    'usersonwaitinglist1' => 4,
-                    'taskcount1' => 2, // So no tasks expected.
-                    'newuserresponse' => MOD_BOOKING_BO_COND_ONWAITINGLIST, // Waitinglist! Even though there is a spot on the list.
+                    'usersonwaitinglist1' => 3,
+                    'taskcount1' => 2, // Tasks expected.
+                    // New user NOT on waitinglist can not book even though there is a spot on the list because price is set.
+                    'newuserresponse' => MOD_BOOKING_BO_COND_PRICEISSET,
+                    'taskcount2' => 1, // Tasks expected.
                 ],
             ],
         ];
