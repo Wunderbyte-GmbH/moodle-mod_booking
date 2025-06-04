@@ -385,6 +385,7 @@ class bo_info {
         if (is_null($this->availability)) {
             return '';
         }
+        return '';
     }
 
     /**
@@ -934,7 +935,7 @@ class bo_info {
                     || (isset($priceitem["price"]) && !empty((float)$priceitem["price"]))
                 ) {
                     $currstring = isset($priceitem["currency"]) ? " " .  $priceitem["currency"] : '';
-                    $label = $priceitem["price"];
+                    $label = $priceitem["price"] ?? '0';
                     $label .= $currstring;
                 }
             }
