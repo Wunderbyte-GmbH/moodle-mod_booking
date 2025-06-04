@@ -930,11 +930,6 @@ class booking_option {
             return;
         }
 
-        // If the booking option has a price, we don't sync waitinglist.
-        //if (!empty($settings->jsonobject->useprice)) {
-        //    return;
-        //}
-
         $ba = singleton_service::get_instance_of_booking_answers($settings);
 
         // If there is no waiting list, we do not do anything!
