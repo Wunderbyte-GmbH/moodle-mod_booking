@@ -115,7 +115,6 @@ class instanceavailability implements bo_condition {
             $isavailable = $info->is_available($availabilityinfo, false, $userid);
         }
 
-
         // If it's inversed, we inverse.
         if ($not) {
             $isavailable = !$isavailable;

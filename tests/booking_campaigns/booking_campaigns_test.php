@@ -47,7 +47,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class booking_campaigns_test extends advanced_testcase {
-
     /**
      * Tests set up.
      */
@@ -1038,7 +1037,7 @@ final class booking_campaigns_test extends advanced_testcase {
         [$id, $isavailable, $description] = $boinfo3->is_available($settings3->id, $student3->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_CAMPAIGN_BLOCKBOOKING, $id);
 
-        // Try to book options with teacher. Doesn't block because of the
+        // Try to book options with teacher.
         $this->setUser($teacher);
         singleton_service::destroy_user($teacher->id);
         [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $teacher->id, true);
