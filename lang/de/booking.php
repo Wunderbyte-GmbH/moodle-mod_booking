@@ -271,6 +271,12 @@ $string['bocondfullybookedoverrideavailable'] = 'Buchen';
 $string['bocondfullybookedoverridefullavailable'] = 'Buchen möglich';
 $string['bocondfullybookedoverridefullnotavailable'] = 'Ausgebucht';
 $string['bocondfullybookedoverridenotavailable'] = 'Ausgebucht';
+$string['bocondinstanceavailability'] = 'instanceavailability: Voraussetzungen der Instanz';
+$string['bocondinstanceavailabilityavailable'] = 'Buchen';
+$string['bocondinstanceavailabilityfullavailable'] = 'Buchen möglich';
+$string['bocondinstanceavailabilityfullnotavailable'] = '<a href="{$a}" target="_blank">Voraussetzungen der Buchungsinstanz</a> nicht erfüllt.<br>
+Sie haben aber das Recht dennoch zu buchen.';
+$string['bocondinstanceavailabilitynotavailable'] = 'Buchen nicht möglich';
 $string['bocondisbookable'] = 'isbookable: Buchen ist erlaubt';
 $string['bocondisbookableavailable'] = 'Buchen';
 $string['bocondisbookablefullavailable'] = 'Buchen möglich';

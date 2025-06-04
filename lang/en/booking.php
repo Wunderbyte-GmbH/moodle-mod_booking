@@ -275,6 +275,12 @@ $string['bocondfullybookedoverrideavailable'] = 'Book it';
 $string['bocondfullybookedoverridefullavailable'] = 'Booking is possible';
 $string['bocondfullybookedoverridefullnotavailable'] = 'Fully booked - but you have the right to book a user anyways.';
 $string['bocondfullybookedoverridenotavailable'] = 'Fully booked';
+$string['bocondinstanceavailability'] = 'instanceavailability: Access restrictions';
+$string['bocondinstanceavailabilityavailable'] = 'Book it';
+$string['bocondinstanceavailabilityfullavailable'] = 'Booking is possible';
+$string['bocondinstanceavailabilityfullnotavailable'] = '<a href="{$a}" target="_blank">Booking instance access restrictions</a> not met.<br>
+But you have the right to book a user anyways.';
+$string['bocondinstanceavailabilitynotavailable'] = 'Booking not possible';
 $string['bocondisbookable'] = 'isbookable: Booking is allowed';
 $string['bocondisbookableavailable'] = 'Book it';
 $string['bocondisbookablefullavailable'] = 'Booking is possible';
