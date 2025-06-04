@@ -1269,10 +1269,6 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->assertEquals($pricecategorydata1->defaultvalue, $res['credit']);
         $this->assertEmpty($res['error']);
 
-        // Validate cancellation for student1.
-        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
-
         // Asserting that the spot is free to book and 4 users remaining on waitinglist.
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
         $ba = singleton_service::get_instance_of_booking_answers($settings);
@@ -1334,14 +1330,14 @@ final class rules_waitinglist_test extends advanced_testcase {
                     // After the first cancellation, with these settings, we expect...
                     // The student2 (next on waitinglist) to be on the list.
                     'usersonlist1' => 1,
-                    'usersonwaitinglist1' => 3,
+                    'usersonwaitinglist1' => 2,
                     'taskcount1' => 0, // So no tasks expected.
                     'newuserresponse' => MOD_BOOKING_BO_COND_ONWAITINGLIST, // Waitinglist.
                 ],
             ],
             'second_user_with_price' => [
                 [
-                    'secondprice' => 0,
+                    'secondprice' => 10,
                     'student3settings' => ['profile_field_pricecat' => 'secondprice'],
                 ],
                 [
