@@ -127,20 +127,21 @@ Feature: In a course add a booking option and manage its waiting list
     ## Confirm all 4 students' bookings
     And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
     ## All listed below delays are critical for the test to pass at GitHub!
+    ## Order of confirmation 1->4 is important - so "confirmbooking" element is always "1"! 
     And I wait until the page is ready
-    And I click on the element with the number "4" with the dynamic identifier "waitinglist" and action "confirmbooking"
-    And I wait until the page is ready
-    And I click on "Book" "button" in the ".modal-footer" "css_element"
-    And I wait until the page is ready
-    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
-    And I wait until the page is ready
-    And I click on the element with the number "3" with the dynamic identifier "waitinglist" and action "confirmbooking"
+    And I click on the element with the number "1" with the dynamic identifier "waitinglist" and action "confirmbooking"
     And I wait until the page is ready
     And I click on "Book" "button" in the ".modal-footer" "css_element"
     And I wait until the page is ready
     And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
     And I wait until the page is ready
-    And I click on the element with the number "2" with the dynamic identifier "waitinglist" and action "confirmbooking"
+    And I click on the element with the number "1" with the dynamic identifier "waitinglist" and action "confirmbooking"
+    And I wait until the page is ready
+    And I click on "Book" "button" in the ".modal-footer" "css_element"
+    And I wait until the page is ready
+    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
+    And I wait until the page is ready
+    And I click on the element with the number "1" with the dynamic identifier "waitinglist" and action "confirmbooking"
     And I wait until the page is ready
     And I click on "Book" "button" in the ".modal-footer" "css_element"
     And I wait until the page is ready
