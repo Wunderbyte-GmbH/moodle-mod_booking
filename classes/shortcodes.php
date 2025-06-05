@@ -68,7 +68,7 @@ class shortcodes {
      */
     public static function recommendedin($shortcode, $args, $content, $env, $next) {
 
-        global $PAGE;
+        global $PAGE, $CFG;
         $requiredargs = [];
         $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
         if ($error['error'] === 1) {
@@ -145,7 +145,11 @@ class shortcodes {
         try {
             $out = $table->outhtml($perpage, true);
         } catch (Throwable $e) {
-            return get_string('shortcode:error', 'mod_booking');
+            $out = get_string('shortcode:error', 'mod_booking');
+
+            if ($CFG->debug > 0 && has_capability('moodle/site:config', context_system::instance())) {
+                $out .= $e->getMessage();
+            }
         }
 
         return $out;
@@ -165,7 +169,7 @@ class shortcodes {
      */
     public static function courselist($shortcode, $args, $content, $env, $next) {
 
-        global $PAGE;
+        global $PAGE, $CFG;
         $requiredargs = ['cmid'];
         $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
         if ($error['error'] === 1) {
@@ -287,7 +291,11 @@ class shortcodes {
         try {
             $out = $table->outhtml($perpage, true);
         } catch (Throwable $e) {
-            return get_string('shortcode:error', 'mod_booking');
+            $out = get_string('shortcode:error', 'mod_booking');
+
+            if ($CFG->debug > 0 && has_capability('moodle/site:config', context_system::instance())) {
+                $out .= $e->getMessage();
+            }
         }
 
         return $out;
@@ -436,7 +444,11 @@ class shortcodes {
         try {
             $out = $table->outhtml($perpage, true);
         } catch (Throwable $e) {
-            return get_string('shortcode:error', 'mod_booking');
+            $out = get_string('shortcode:error', 'mod_booking');
+
+            if ($CFG->debug > 0 && has_capability('moodle/site:config', context_system::instance())) {
+                $out .= $e->getMessage();
+            }
         }
 
         return $out;
@@ -516,7 +528,7 @@ class shortcodes {
      *
      */
     public static function allbookingoptions($shortcode, $args, $content, $env, $next) {
-        global $PAGE, $DB;
+        global $PAGE, $DB, $CFG;
         $requiredargs = [];
         $operator = 'AND';
         $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
@@ -658,7 +670,12 @@ class shortcodes {
         try {
             $out = $table->outhtml($perpage, true);
         } catch (Throwable $e) {
-            return get_string('shortcode:error', 'mod_booking');
+            $out = get_string('shortcode:error', 'mod_booking');
+
+            if ($CFG->debug > 0 && has_capability('moodle/site:config', context_system::instance())) {
+                $out .= $e->getMessage();
+                $out .= $e->getTraceAsString();
+            }
         }
 
         return $out;
@@ -675,7 +692,7 @@ class shortcodes {
      * @return string
      */
     public static function mycourselist($shortcode, $args, $content, $env, $next) {
-        global $USER, $PAGE;
+        global $USER, $PAGE, $CFG;
         $requiredargs = [];
         $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
         if ($error['error'] === 1) {
@@ -783,7 +800,11 @@ class shortcodes {
         try {
             $out = $table->outhtml($perpage, true);
         } catch (Throwable $e) {
-            return get_string('shortcode:error', 'mod_booking');
+            $out = get_string('shortcode:error', 'mod_booking');
+
+            if ($CFG->debug > 0 && has_capability('moodle/site:config', context_system::instance())) {
+                $out .= $e->getMessage();
+            }
         }
 
         return $out;
@@ -915,7 +936,11 @@ class shortcodes {
         try {
             $out = $table->outhtml($perpage, true);
         } catch (Throwable $e) {
-            return get_string('shortcode:error', 'mod_booking');
+            $out = get_string('shortcode:error', 'mod_booking');
+
+            if ($CFG->debug > 0 && has_capability('moodle/site:config', context_system::instance())) {
+                $out .= $e->getMessage();
+            }
         }
 
         return $out;
@@ -933,7 +958,7 @@ class shortcodes {
      */
     public static function bulkoperations($shortcode, $args, $content, $env, $next): string {
 
-        global $PAGE;
+        global $PAGE, $CFG;
         $requiredargs = [];
         $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
         if ($error['error'] === 1) {
@@ -1040,7 +1065,11 @@ class shortcodes {
         try {
             $out = $table->outhtml($perpage, true);
         } catch (Throwable $e) {
-            return get_string('shortcode:error', 'mod_booking');
+            $out = get_string('shortcode:error', 'mod_booking');
+
+            if ($CFG->debug > 0 && has_capability('moodle/site:config', context_system::instance())) {
+                $out .= $e->getMessage();
+            }
         }
 
         return $out;
