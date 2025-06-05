@@ -198,7 +198,8 @@ class shortcodes {
 
         $columnfilters = self::get_columnfilters($args);
         // Additional where condition for both card and list views.
-        $additionalwhere = self::set_customfield_wherearray($args, $wherearray, [], $columnfilters) ?? '';
+        $foo = [];
+        $additionalwhere = self::set_customfield_wherearray($args, $wherearray, $foo, $columnfilters) ?? '';
 
         [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(
@@ -350,14 +351,11 @@ class shortcodes {
             return [];
         }
 
-        $columnfilters = array_filter(array_keys($args), fn($key) => str_starts_with($key, 'columnfilter_'));
-        if (empty($columnfilters)) {
-            return [];
-        }
-
+        // Make sure to add the column you want to filter to the accepted filters.
         $acceptedfilters = [
             'competencies' => ['multiple' => true],
         ];
+        $returnfilters = [];
         foreach ($args as $key => $value) {
             // Match keys like "columnfilter_firstname".
             if (strpos($key, 'columnfilter_') === 0) {
@@ -1323,7 +1321,7 @@ class shortcodes {
                 foreach ($filterfields as $customfield) {
                     if (
                         $customfield->shortname == $key
-                        || $customfield->shortname == 'columnfilter_' . $key
+                        || 'columnfilter_' . $customfield->shortname == $key
                     ) {
                         $configdata = json_decode($customfield->configdata ?? '[]');
 
