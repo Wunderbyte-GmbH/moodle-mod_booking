@@ -93,6 +93,10 @@ class instanceavailability implements bo_condition {
     public function is_available(booking_option_settings $settings, int $userid, bool $not = false): bool {
 
         global $USER;
+        $config = get_config('booking', 'restrictavailabilityforinstance') ?? 0;
+        if (empty($config)) {
+            return true;
+        }
 
         // This is the return value. Not available to begin with.
         $isavailable = false;

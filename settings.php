@@ -616,6 +616,16 @@ if ($ADMIN->fulltree) {
     );
 
     if ($proversion) {
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/restrictavailabilityforinstance',
+                get_string('restrictavailabilityforinstance', 'mod_booking'),
+                get_string('restrictavailabilityforinstance_desc', 'mod_booking'),
+                0
+            )
+        );
+    }
+    if ($proversion) {
         // PRO feature: "What's new" tab.
         $settings->add(
             new admin_setting_heading(

@@ -113,6 +113,8 @@ final class condition_instanceavailability_test extends advanced_testcase {
         ]);
         $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
 
+        set_config('restrictavailabilityforinstance', 1, 'booking');
+
         $this->setAdminUser();
 
         $this->getDataGenerator()->enrol_user($student1->id, $course1->id);
@@ -147,6 +149,12 @@ final class condition_instanceavailability_test extends advanced_testcase {
         $this->setUser($student2);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
         // Not blocked, user can book.
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+
+        // With config setting disabled, restriction should not apply.
+        set_config('restrictavailabilityforinstance', 0, 'booking');
+        $this->setUser($student1);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
     }
 
