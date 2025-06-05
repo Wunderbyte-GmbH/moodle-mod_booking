@@ -92,7 +92,7 @@ class otheroptionsavailable implements bo_condition {
     public function is_available(booking_option_settings $settings, int $userid, bool $not = false): bool {
 
         $isavailable = true;
-        $json = json_decode($settings->json);
+        $json = json_decode($settings->json ?? '{}');
         if (
             !empty($json)
             && isset($json->boactions)
