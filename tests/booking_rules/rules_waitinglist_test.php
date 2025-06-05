@@ -1203,10 +1203,6 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->assertEmpty($res['error']);
         $item = shopping_cart_history::get_most_recent_historyitem('mod_booking', 'option', $settings1->id, $student1->id);
 
-        // Does user student1 should be booked now?
-        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
-
         // User student1 should be booked now.
         [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
@@ -1257,14 +1253,17 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->assertEquals($pricecategorydata1->defaultvalue, $res['credit']);
         $this->assertEmpty($res['error']);
 
-        // Book the student5 via waitinglist.
+        $ba = singleton_service::get_instance_of_booking_answers($settings1);
+        // Try to book EXTERNAL user - not yet on waitinglist.
         $this->setUser($student5);
         singleton_service::destroy_user($student5->id);
         $result = booking_bookit::bookit('option', $settings1->id, $student5->id);
+        $answer = $DB->get_record('booking_answers', ['userid' => $student5->id]);
         [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student5->id, true);
         $this->assertEquals($expected['newuserresponse'], $id);
+        // Make sure, user isn't able to book with price (in case 'second_user_with_price').
 
-        // Asserting that the spot is OR free to book OR booked by next user AND proper number of users remains on waitinglist.
+        // Asserting that the spot is EITHER free to book OR booked by next user AND proper number of users remains on waitinglist.
         $ba = singleton_service::get_instance_of_booking_answers($settings1);
         $this->assertIsArray($ba->usersonlist);
         $this->assertCount($expected['usersonlist1'], $ba->usersonlist);
@@ -1289,7 +1288,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         $res = ob_get_clean();
         $sink->close();
         $this->assertCount($expected['taskcount2'], $messages);
-        // Validate emails. Might be more than one dependitg to Moodle's version.
+        // Validate emails. Might be more than one depending on Moodle's version.
         if (isset($testdata['bookseconduser']) && !$testdata['bookseconduser']) {
             foreach ($messages as $key => $message) {
                 if (strpos($message->subject, "freeplacedelaysubj")) {
@@ -1334,10 +1333,9 @@ final class rules_waitinglist_test extends advanced_testcase {
                 [
                     // Since user has to pay, we expect no one booked and user still on waitinglist.
                     'usersonlist1' => 0,
-                    'usersonwaitinglist1' => 3,
+                    'usersonwaitinglist1' => 4,
                     'taskcount1' => 2, // Tasks expected.
-                    // New user NOT on waitinglist can not book even though there is a spot on the list because price is set.
-                    'newuserresponse' => MOD_BOOKING_BO_COND_PRICEISSET,
+                    'newuserresponse' => MOD_BOOKING_BO_COND_ONWAITINGLIST,
                     'taskcount2' => 1, // Tasks expected.
                 ],
             ],

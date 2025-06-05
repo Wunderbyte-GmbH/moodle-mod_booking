@@ -2334,7 +2334,14 @@ class booking_option {
         if ($bookingstatus = reset($bookingstatus)) {
             if (
                 isset($bookingstatus['fullybooked'])
-                && !$bookingstatus['fullybooked']
+                && (!$bookingstatus['fullybooked']
+                    && (    // Other users already waiting and given user not yet on list.
+                            (empty($bookingstatus['waiting'])
+                            || empty($settings->jsonobject->useprice)
+                            )
+                        ||
+                            isset($bookinganswer->users[$userid])
+                    ))
             ) {
                 $status = MOD_BOOKING_STATUSPARAM_BOOKED;
             } else if (
