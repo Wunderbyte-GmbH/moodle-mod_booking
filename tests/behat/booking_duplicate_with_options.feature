@@ -101,7 +101,7 @@ Feature: In a booking create booking option with multiple custom options
     And I should see "Course 1" in the "//div[contains(@id, 'fitem_id_courseid_')]//span[contains(@class, 'course-suggestion')]" "xpath_element"
     And I should see "Teacher 1" in the "//fieldset[contains(@id, 'id_bookingoptionteachers_')]" "xpath_element"
     ## And I should see "Teacher 1" in the "//div[contains(@id, 'fitem_id_teachersforoption_')]//div[contains(@id, 'form_autocomplete_selection-')]" "xpath_element"
-    And I should see "TNMU" in the "//div[contains(@id, 'fitem_id_institution_')]//div[contains(@id, 'form_autocomplete_selection-')]" "xpath_element"
+    And I should see "TNMU" in the "div[id^='fitem_id_institution_'] .form-autocomplete-selection" "css_element"
     And I should see "March" in the "//span[@aria-controls='booking_optiondate_collapse1']" "xpath_element"
     And I should see "1 March 2050, 9:00 AM" in the "#booking_optiondate_1" "css_element"
     And I should see "2 March 2050, 6:00 PM" in the "#booking_optiondate_1" "css_element"
