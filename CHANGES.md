@@ -1,3 +1,28 @@
+## Version 8.14.4 (2025060600)
+* New Feature: courselist shortcode now supports cards view (type=cards).
+* New Feature: Restore reserved items to the cart of the user
+* New Feature: Add new availability condition which checks booking instance access restriction availabiltiy.
+* New Feature: Assign competency evidence to user.
+* New Feature: Competencies can be assigned to and viewed by users.
+* New Feature: Filter for regular columns in shortcodes.
+* Improvement: Also add format_string to values in report.php to support mlang filters.
+* Improvement: Better description for shortcodes passwords.
+* Improvement: Adjustments for sync_waiting_list().
+* Improvement: Apply instanceavailability condition only if setting is activated.
+* Improvement: Show error message to admins when shortcode fails and debug mode is on.
+* Improvement: Improve user evidence event.
+* Improvement: Add button to option view and trigger filter for competencies.
+* Improvement: Reload entire table container to make sure filter checkboxes are checked correctly.
+* Improvement: Add columnfilter to shortcode and enable display of similar options in optionview
+* Bugfix: Add format_string to customfield headers when booking answers of report.php are downloaded.
+* Bugfix: Bugfix: Fix CSV export of Bookings tracker.
+* Bugfix: Deleted users were shown as booked in some cases.
+* Bugfix: Allow override also when shopping cart is not installed
+* Bugfix: If price is always on or we want to display empty prices, we show '0' as price value even if it's missing.
+* Bugfix: Correct behaviour without shopping cart installed and adapt corresponding test.
+* Bugfix: Avoid error when json column of booking option is NULL.
+* Tests: Add unit test for new instanceavailability condition.
+
 ## Version 8.14.3 (2025052700)
 * Improvement: Add time() to strtotime to make it overrideable in tests
 * Improvement: Harden security of shortcodes
