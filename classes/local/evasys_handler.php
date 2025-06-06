@@ -356,8 +356,21 @@ class evasys_handler {
                 continue;
             }
         }
+        // Sort Teachers alphabetically.
+        usort($teachers, function ($a, $b) {
+                $lastnamecomparison = strcmp($a->lastname, $b->lastname);
+                // Fallback if both have the same Lastname.
+            if ($lastnamecomparison !== 0) {
+                return $lastnamecomparison;
+            }
+            return strcmp($a->firstname, $b->firstname);
+        });
+
         $userfieldvalue = array_shift($teachers)->profile[$userfieldshortname];
+        // Prepare Customfields for Evasys.
+
         $internalid = end(explode(',', $userfieldvalue));
+        // Merge the rest of the teachers with recipients so they get an Evasys Report.
         $secondaryinstructors = array_merge($teachers ?? [], $recipients ?? []);
         $secondaryinstructorsinsert = $helper->set_secondaryinstructors_for_save($secondaryinstructors);
         if (!empty($data->evasysperiods)) {
