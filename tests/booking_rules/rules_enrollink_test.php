@@ -413,7 +413,7 @@ final class rules_enrollink_test extends advanced_testcase {
         $this->getDataGenerator()->enrol_user($teacher1->id, $course->id, 'editingteacher');
         $this->getDataGenerator()->enrol_user($student1->id, $course->id, 'student');
 
-        /** @var local_shopping_cart_generator $plugingenerator */
+        /** @var \local_shopping_cart_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('local_shopping_cart');
         $usercreditdata = [
             'userid' => $teacher1->id,
@@ -422,7 +422,7 @@ final class rules_enrollink_test extends advanced_testcase {
         ];
         $ucredit = $plugingenerator->create_user_credit($usercreditdata);
 
-        /** @var mod_booking_generator $plugingenerator */
+        /** @var \mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
 
         // Create booking rule - "bookinganswer_cancelled".
