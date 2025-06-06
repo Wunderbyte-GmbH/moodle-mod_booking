@@ -203,14 +203,14 @@ class optionformconfig_info {
             );
 
             // Additionally, we have to check if we have fields in Booking extensions.
-            foreach (
-                core_plugin_manager::instance()
-                    ->get_plugins_of_type('bookingextension') as $bookingextension
-            ) {
-                $fields = array_merge($fields, core_component::get_component_classes_in_namespace(
-                    $bookingextension->component,
-                    'option\fields'
-                ));
+            $bookingextensions = core_plugin_manager::instance()->get_plugins_of_type('bookingextension');
+            if (!empty($bookingextensions)) {
+                foreach ($bookingextensions as $bookingextension) {
+                    $fields = array_merge($fields, core_component::get_component_classes_in_namespace(
+                        $bookingextension->component,
+                        'option\fields'
+                    ));
+                }
             }
 
             $fields = array_map(

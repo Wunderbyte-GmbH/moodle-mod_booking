@@ -25,6 +25,8 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
+use mod_booking\plugininfo\bookingextension_interface;
+
 $functions = [
     'mod_booking_bookit' => [
         'classname' => 'mod_booking\external\bookit',
@@ -182,14 +184,18 @@ $functions = [
         'capabilities'  => 'mod/booking:readresponses',
         'ajax'          => 1,
     ],
-    'mod_booking_search_parentkeyword_respondapi' => [
-            'classname' => 'mod_booking\external\search_keywords_respondapi',
-            'description' => 'Search a list of all keywords',
-            'type' => 'read',
-            'capabilities' => '',
-            'ajax' => 1,
-    ],
 ];
+
+// Register all web service functions from booking extensions.
+foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
+    $fullclassname = "\\bookingextension_{$plugin->name}\\{$plugin->name}";
+    $plugin = new $fullclassname();
+    if (!$plugin instanceof bookingextension_interface) {
+        continue; // Skip if the plugin does not implement the interface.
+    }
+    /** @var bookingextension_interface $plugin */
+    $plugin->register_booking_webservice_functions($functions);
+}
 
 $services = [
     'Booking module API' => [ // Very important, don't rename or will break local_bookingapi plugin!!!

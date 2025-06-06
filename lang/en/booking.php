@@ -2109,7 +2109,6 @@ $string['requirepreviousoptionstobebooked'] = 'Activate condition: User has to b
 $string['reserveddeleted'] = 'Reserved User deleted';
 $string['reservedusers'] = 'Shortterm reservations';
 $string['reset'] = 'Reset';
-$string['respondapiheader'] = ' <i class="fa fa-cubes" aria-hidden="true"></i>&nbsp;Respond API';
 $string['responses'] = 'Responses';
 $string['responsesfields'] = 'Fields in participants list';
 $string['responsesto'] = 'Responses to {$a} ';
