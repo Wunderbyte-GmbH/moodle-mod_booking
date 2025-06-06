@@ -424,8 +424,29 @@ class evasys_handler {
      *
      */
     public function update_course($coursedata) {
-        $service = new evasys_soap_service();
-        $response = $service->update_course($coursedata);
+        $soap = new evasys_soap_service();
+        $response = $soap->update_course($coursedata);
+        return $response;
+    }
+
+    /**
+     * Gets the QR Code for Survey.
+     *
+     * @param int $id
+     * @param array $survey
+     *
+     * @return string
+     *
+     */
+    public function get_qrcode($id, $survey) {
+        global $DB;
+        $soap = new evasys_soap_service();
+        $response = $soap->get_qr_code($survey);
+        $dataobject = (object) [
+            'id' => $id,
+            'pollurl' => $response,
+        ];
+        $DB->update_record('booking_evasys', $dataobject);
         return $response;
     }
 }

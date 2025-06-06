@@ -254,6 +254,23 @@ class evasys_soap_service extends SoapClient {
     }
 
     /**
+     * Get QR code from evasys.
+     *
+     * @param mixed $survey
+     *
+     * @return string
+     *
+     */
+    public function get_qr_code($survey) {
+        try {
+            $response = $this->__soapCall('GetOnlineQRCode', $survey);
+            return $response;
+        } catch (SoapFault $e) {
+            return "";
+        }
+    }
+
+    /**
      * Sets Soapheader for authentication.
      *
      * @return void
