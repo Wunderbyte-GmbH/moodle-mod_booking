@@ -377,7 +377,8 @@ class competencies extends field_base {
             'cmid' => '11',
             'columnfilter_competencies' => $competencies,
             'all' => "true",
-            'exclude' => 'competencies', // Make sure the button that triggers the filter is not displayed.
+            'filter' => 1,
+            // TODO: exclude current option.
         ];
         $env = new stdClass();
         $list = shortcodes::courselist('courselist', $args, null, $env, $env);
