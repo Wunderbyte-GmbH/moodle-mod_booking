@@ -1161,7 +1161,8 @@ class booking_option {
                 // 1 means, that there is only a place on the waiting list.
                 $waitinglist = $this->check_if_limit(
                     $user->id,
-                    $isavailable
+                    $isavailable,
+                    $status
                 );
         }
         // With the second param, we check if overbooking is allowed.
@@ -2319,9 +2320,10 @@ class booking_option {
      *
      * @param int $userid
      * @param bool $allowoverbooking
+     * @param int $confirmstatus
      * @return mixed false if enrolement is not possible, 0 for can book, 1 for waitinglist and 2 for notification list.
      */
-    public function check_if_limit(int $userid, bool $allowoverbooking = false) {
+    public function check_if_limit(int $userid, bool $allowoverbooking = false, int $confirmstatus = 0) {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
         $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
@@ -2335,13 +2337,17 @@ class booking_option {
             if (
                 isset($bookingstatus['fullybooked'])
                 && (!$bookingstatus['fullybooked']
-                    && (    // Other users already waiting and given user not yet on list.
+                    && (
+                        (    // Other users already waiting and given user not yet on list.
                             (empty($bookingstatus['waiting'])
                             || empty($settings->jsonobject->useprice)
                             )
                         ||
                             isset($bookinganswer->users[$userid])
-                    ))
+                        )
+                        || $confirmstatus == MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL
+                    )
+                )
             ) {
                 $status = MOD_BOOKING_STATUSPARAM_BOOKED;
             } else if (
