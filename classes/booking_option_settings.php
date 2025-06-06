@@ -25,6 +25,7 @@ use mod_booking\bo_availability\bo_subinfo;
 use mod_booking\bo_availability\conditions\subbooking;
 use mod_booking\booking_campaigns\campaigns_info;
 use mod_booking\customfield\booking_handler;
+use mod_booking\local\evasys_handler;
 use mod_booking\option\dates_handler;
 use mod_booking\subbookings\subbookings_info;
 use mod_booking\booking_campaigns\booking_campaign;
@@ -297,6 +298,9 @@ class booking_option_settings {
 
     /** @var string $competencies The links on the attached files */
     public $competencies = '';
+
+    /** @var object $evasys for storing evasysdata  */
+    public $evasys = null;
 
     /**
      * Constructor for the booking option settings class.
@@ -625,6 +629,14 @@ class booking_option_settings {
                 $dbrecord->electivecombinations = $this->electivecombinations;
             } else {
                 $this->electivecombinations = $dbrecord->electivecombinations;
+            }
+
+            // If the key "evasys" is not yet set, we need to load them via handler first.
+            if (!isset($dbrecord->evasys)) {
+                $this->load_evasys($optionid);
+                $dbrecord->evasys = $this->evasys;
+            } else {
+                $this->evasys = $dbrecord->evasys;
             }
 
             // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
@@ -1053,6 +1065,18 @@ class booking_option_settings {
      */
     private function load_subbookings(int $optionid) {
         $this->subbookings = subbookings_info::load_subbookings($optionid);
+    }
+
+    /**
+     * Load evasys.
+     *
+     * @param int $optionid
+     *
+     * @return void
+     *
+     */
+    private function load_evasys(int $optionid) {
+        $this->evasys = evasys_handler::load_evasys($optionid);
     }
 
     /**

@@ -134,28 +134,6 @@ class evasys_helper_service {
     }
 
     /**
-     * Returns the Teacher with the first lastname.
-     *
-     * @param array $teachers
-     *
-     * @return [type]
-     *
-     */
-    public function get_first_teacher($teachers) {
-        if (empty($teachers)) {
-            return [];
-        }
-        $firstteacher = $teachers[0];
-
-        foreach ($teachers as $teacher) {
-            if (strcmp($teacher->lastname, $firstteacher->lastname) < 0) {
-                $firstteacher = $teacher;
-            }
-        }
-        return $firstteacher;
-    }
-
-    /**
      * Transforms Array of objects to an associates array for the settings.
      *
      * @param array $list
@@ -298,17 +276,17 @@ class evasys_helper_service {
         return $course;
     }
     /**
-     * Checks if Questionaire is unset.
+     * Helperfunction to set Args for getting QR-Code.
      *
-     * @param array $changes
+     * @param int $surveyid
      *
-     * @return boolean
+     * @return array
      *
      */
-    public function delete_condition_met($changes) {
-        if ($changes["mod_booking\\option\\fields\\evasys"]['changes']['evasys_questionaire']['changes']['newvalue'] === '') {
-                return true;
-        }
-            return false;
+    public function set_args_get_qrcode($surveyid) {
+        $survey = [
+            'SurveyId' => $surveyid,
+        ];
+        return $survey;
     }
 }
