@@ -152,20 +152,22 @@ class evasys_helper_service {
         return $array;
     }
 
+
     /**
-     * Helperfunction to set Args for inserting or updating the Course via SOAP call. For Insert leave courseid null.
+     * Sets args for insert course.
      *
-     * @param mixed $courseid
      * @param string $title
      * @param int $optionid
      * @param int $internalid
      * @param int $periodid
      * @param array $secondaryinstructors
+     * @param string $customfield
+     * @param mixed $courseid
      *
      * @return object
      *
      */
-    public function set_args_insert_course($title, $optionid, $internalid, $periodid, $secondaryinstructors, $courseid = null) {
+    public function set_args_insert_course($title, $optionid, $internalid, $periodid, $secondaryinstructors, $customfield, $courseid = null){
         $subunitencoded = get_config('booking', 'evasyssubunits');
         $array = explode('-', $subunitencoded);
         $subunitname = base64_decode(end($array));
@@ -179,7 +181,7 @@ class evasys_helper_service {
             'm_sPubCourseId' => "evasys_$optionid",
             'm_sExternalId' => "evasys_$optionid",
             'm_nCountStud' => null,
-            'm_sCustomFieldsJSON' => '',
+            'm_sCustomFieldsJSON' => $customfield,
             'm_nUserId' => $internalid,
             'm_nFbid' => (int) $subunitid,
             'm_nPeriodId' => (int)$periodid,

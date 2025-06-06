@@ -343,7 +343,7 @@ class evasys_handler {
         $argsnewsurvey = $helper->set_args_insert_survey(
             $course->m_nUserId,
             $course->m_nCourseId,
-            $data->evasys_formid,
+            $data->evasys_form,
             $course->m_nPeriodId
         );
         $survey = $soap->insert_survey($argsnewsurvey);
@@ -408,8 +408,9 @@ class evasys_handler {
 
         $userfieldvalue = array_shift($teachers)->profile[$userfieldshortname];
         // Prepare Customfields for Evasys.
-
         $internalid = end(explode(',', $userfieldvalue));
+        // Make JSON for Customfields.
+        $customfields = json_encode($teachers);
         // Merge the rest of the teachers with recipients so they get an Evasys Report.
         $secondaryinstructors = array_merge($teachers ?? [], $recipients ?? []);
         $secondaryinstructorsinsert = $helper->set_secondaryinstructors_for_save($secondaryinstructors);
@@ -426,6 +427,7 @@ class evasys_handler {
             $internalid,
             $periodid,
             $secondaryinstructorsinsert,
+            $customfields,
             $courseid,
         );
         return $coursedata;
