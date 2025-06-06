@@ -87,7 +87,7 @@ class evasys_helper_service {
         $insertdata = new stdClass();
         $now = time();
         $insertdata->optionid = $option->id;
-        $insertdata->formid = $formdata->evasys_questionaire;
+        $insertdata->formid = $formdata->evasys_form;
         if (empty((int)$formdata->evasys_timemode)) {
             $insertdata->starttime = (int) $option->courseendtime + (int) $formdata->evasys_evaluation_durationbeforestart;
             $insertdata->endtime = (int) $option->courseendtime + (int) $formdata->evasys_evaluation_durationafterend;
@@ -100,6 +100,7 @@ class evasys_helper_service {
         $insertdata->notifyparticipants = $formdata->evasys_notifyparticipants;
         $insertdata->usermodified = $USER->id;
         $insertdata->periods = $formdata->evasysperiods;
+        $insertdata->qr = $formdata->pollurl;
         if (empty($formdata->evasys_booking_id)) {
             $insertdata->timecreated = $now;
         } else {
@@ -119,14 +120,14 @@ class evasys_helper_service {
      *
      */
     public function map_record_to_form(&$data, $record) {
-        $data->evasys_questionaire = $record->formid;
+        $data->evasys_form = $record->formid;
         $data->evasys_evaluation_starttime = $record->starttime;
         $data->evasys_evaluation_endtime = $record->endtime;
+        $data->evasys_qr = $record->pollurl;
         $data->evasys_other_report_recipients = explode(',', $record->organizers);
         $data->evasys_notifyparticipants = $record->notifyparticipants;
         $data->evasys_booking_id = $record->id;
         $data->evasys_timecreated = $record->timecreated;
-        $data->evasys_formid = $record->formid;
         $data->evasysperiods = $record->periods;
         $data->evasys_surveyid = $record->surveyid;
         $data->evasys_courseidinternal = $record->courseidinternal;
@@ -165,18 +166,22 @@ class evasys_helper_service {
      *
      */
     public function set_args_insert_course($title, $optionid, $internalid, $periodid, $secondaryinstructors, $courseid = null) {
+        $subunitencoded = get_config('booking', 'evasyssubunits');
+        $array = explode('-', $subunitencoded);
+        $subunitname = base64_decode(end($array));
+        $subunitid = reset($array);
         $coursedata = (object) [
             'm_nCourseId' => $courseid,
-            'm_sProgramOfStudy' => 'urise', // Subunit name.
+            'm_sProgramOfStudy' => (string)$subunitname,
             'm_sCourseTitle' => "$title",
             'm_sRoom' => '',
             'm_nCourseType' => 5,
-            'm_sPubCourseId' => "evasys_ $optionid",
-            'm_sExternalId' => "evasys_ $optionid",
+            'm_sPubCourseId' => "evasys_$optionid",
+            'm_sExternalId' => "evasys_$optionid",
             'm_nCountStud' => null,
             'm_sCustomFieldsJSON' => '',
             'm_nUserId' => $internalid,
-            'm_nFbid' => (int)get_config('booking', 'evasyssubunits'),
+            'm_nFbid' => (int) $subunitid,
             'm_nPeriodId' => (int)$periodid,
             'currentPosition' => null,
             'hasAnonymousParticipants' => false,
@@ -201,6 +206,10 @@ class evasys_helper_service {
      *
      */
     public function set_args_insert_user($userid, $firstname, $lastname, $adress, $email, $phone) {
+        $subunitencoded = get_config('booking', 'evasyssubunits');
+        $array = explode('-', $subunitencoded);
+        $subunitname = base64_decode(end($array));
+        $subunitid = reset($array);
          $user = (object) [
             'm_nId' => null,
             'm_nType' => null,
@@ -209,10 +218,10 @@ class evasys_helper_service {
             'm_sTitle' => '',
             'm_sFirstName' => $firstname,
             'm_sSurName' => $lastname,
-            'm_sUnitName' => 'urise', // Subunit Name
+            'm_sUnitName' => (string) $subunitname,
             'm_sAddress' => $adress ?? '',
             'm_sEmail' => $email,
-            'm_nFbid' => (int)get_config('booking', 'evasyssubunits'),
+            'm_nFbid' => (int) $subunitid,
             'm_nAddressId' => 0,
             'm_sPassword' => '',
             'm_sPhoneNumber' => $phone ?? '',

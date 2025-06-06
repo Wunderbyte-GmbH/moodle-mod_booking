@@ -729,7 +729,6 @@ if ($ADMIN->fulltree) {
                 ''
             )
         );
-        // Make Function to make it global.
         $userprofilefields = profile_get_custom_fields();
         if (!empty($userprofilefields)) {
             $userprofilefieldsarray = [];
@@ -749,7 +748,7 @@ if ($ADMIN->fulltree) {
         );
         try {
             $evasys = new evasys_handler();
-            $subinutoptions = $evasys->get_subunits();
+            $subunitoptions = $evasys->get_subunits();
             $periodoptions = $evasys->get_periods_for_settings();
         } catch (SoapFault $e) {
                 $subunitoptions = [0 => get_string('evasysnotreachable', 'mod_booking')];
@@ -773,7 +772,7 @@ if ($ADMIN->fulltree) {
                     get_string('evasyssubunits', 'mod_booking'),
                     get_string('evasyssubunits_desc', 'mod_booking'),
                     0,
-                    $subinutoptions
+                    $subunitoptions
                 )
             );
             $settings->add(

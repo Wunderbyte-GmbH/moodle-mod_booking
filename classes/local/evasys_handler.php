@@ -58,21 +58,33 @@ class evasys_handler {
     }
 
     /**
-     * Load Data to form.
+     * Load Data for Settings Object.
+     *
+     * @param int $optionid
+     *
+     * @return object
+     *
+     */
+    public static function load_evasys($optionid) {
+        global $DB;
+        return $DB->get_record('booking_evasys', ['optionid' => $optionid], '*', IGNORE_MISSING) ?: (object)[];
+    }
+
+    /**
+     * Load for Optionformfield.
      *
      * @param object $data
      *
      * @return void
      *
      */
-    public function load_form(&$data): void {
-        global $DB;
+    public function load_form(&$data) {
         $helper = new evasys_helper_service();
-        $record = $DB->get_record('booking_evasys', ['optionid' => $data->optionid], '*', IGNORE_MISSING);
-        if (empty($record)) {
+        $settings = singleton_service::get_instance_of_booking_option_settings($data->id);
+        if ((empty($settings->evasys->id))) {
             return;
         }
-        $helper->map_record_to_form($data, $record);
+        $helper->map_record_to_form($data, $settings->evasys);
     }
 
     /**
@@ -82,15 +94,21 @@ class evasys_handler {
      *
      */
     public function get_periods_for_settings() {
-        $service = new evasys_soap_service();
+        $soap = new evasys_soap_service();
         $helper = new evasys_helper_service();
-        $periods = $service->fetch_periods();
+        $periods = $soap->fetch_periods();
         if (!isset($periods)) {
             return [];
         }
         $list = $periods->Periods;
         $periodoptions = $helper->transform_return_to_array($list, 'm_nPeriodId', 'm_sTitel');
-        return $periodoptions;
+        $encodedperiods = [];
+        foreach ($periodoptions as $id => $label) {
+            $encodedkey = $id . '-' . base64_encode($label);
+            $encodedperiods[$encodedkey] = $label;
+        }
+
+        return $encodedperiods;
     }
 
     /**
@@ -102,9 +120,9 @@ class evasys_handler {
      *
      */
     public function get_periods_for_query($query) {
-        $service = new evasys_soap_service();
+        $soap = new evasys_soap_service();
         $helper = new evasys_helper_service();
-        $periods = $service->fetch_periods();
+        $periods = $soap->fetch_periods();
         $listforarray = $periods->Periods;
         $periodoptions = $helper->transform_return_to_array($listforarray, 'm_nPeriodId', 'm_sTitel');
         foreach ($periodoptions as $key => $value) {
@@ -134,7 +152,7 @@ class evasys_handler {
      *
      */
     public function get_questionaires_for_query($query) {
-        $service = new evasys_soap_service();
+        $soap = new evasys_soap_service();
         $helper = new evasys_helper_service();
         $args = [
                 'IncludeCustomReports' => true,
@@ -143,7 +161,7 @@ class evasys_handler {
                         'Subunits' => get_config('booking', 'evasyssubunits'),
                 ],
         ];
-        $periods = $service->fetch_forms($args);
+        $periods = $soap->fetch_forms($args);
         $listforarray = $periods->SimpleForms;
         $periodoptions = $helper->transform_return_to_array($listforarray, 'ID', 'Name');
         foreach ($periodoptions as $key => $value) {
@@ -171,7 +189,7 @@ class evasys_handler {
      *
      */
     public function get_allforms() {
-        $service = new evasys_soap_service();
+        $soap = new evasys_soap_service();
         $args = [
                 'IncludeCustomReports' => true,
                 'IncludeUsageRestrictions' => true,
@@ -179,7 +197,7 @@ class evasys_handler {
                         'Subunits' => get_config('booking', 'evasyssubunits'),
                 ],
         ];
-        $forms = $service->fetch_forms($args);
+        $forms = $soap->fetch_forms($args);
         if (!isset($forms)) {
             return [];
         }
@@ -216,15 +234,20 @@ class evasys_handler {
      *
      */
     public function get_subunits() {
-        $service = new evasys_soap_service();
+        $soap = new evasys_soap_service();
         $helper = new evasys_helper_service();
-        $subunits = $service->fetch_subunits();
+        $subunits = $soap->fetch_subunits();
         if (!isset($subunits)) {
             return [];
         }
         $list = $subunits->Units;
         $subunitoptions = $helper->transform_return_to_array($list, 'm_nId', 'm_sName');
-        return $subunitoptions;
+        $encodedsubunitoptions = [];
+        foreach ($subunitoptions as $id => $label) {
+            $encodedkey = $id . '-' . base64_encode($label);
+            $encodedsubunitoptions[$encodedkey] = $label;
+        }
+        return $encodedsubunitoptions;
     }
 
     /**
@@ -245,8 +268,8 @@ class evasys_handler {
             $user->email,
             $user->phone1
         );
-        $service = new evasys_soap_service();
-        $response = $service->insert_user($userdata);
+        $soap = new evasys_soap_service();
+        $response = $soap->insert_user($userdata);
         if (isset($response)) {
             $value = [$response->m_sExternalId, $response->m_nId];
             $insert = implode(',', $value);
@@ -267,8 +290,8 @@ class evasys_handler {
      */
     public function save_survey($args, $id) {
         global $DB;
-        $service = new evasys_soap_service();
-        $response = $service->insert_survey($args);
+        $soap = new evasys_soap_service();
+        $response = $soap->insert_survey($args);
         if (isset($response)) {
             $data = [
                 'id' => $id,
@@ -280,7 +303,21 @@ class evasys_handler {
     }
 
     /**
-     * "Update" Logic for the Survey in Evasys.
+     * Deletes Survey.
+     *
+     * @param array $args
+     *
+     * @return boolean
+     *
+     */
+    public function delete_survey($args) {
+         $soap = new evasys_soap_service();
+         $response = $soap->delete_survey($args);
+         return $response;
+    }
+
+    /**
+     * Update Logic for the Survey in Evasys.
      *
      * @param int $surveyid
      * @param object $data
@@ -291,15 +328,15 @@ class evasys_handler {
      */
     public function update_survey($surveyid, $data, $option) {
         global $DB;
-        $service = new evasys_soap_service();
+        $soap = new evasys_soap_service();
         $helper = new evasys_helper_service();
         $coursedata = self::aggregate_data_for_course_save($data, $option, $data->evasys_courseidinternal);
-        $course = $service->update_course($coursedata);
+        $course = $soap->update_course($coursedata);
         if (empty($course)) {
             return;
         }
         $argsdelete = $helper->set_args_delete_survey($surveyid);
-        $isdeleted = $service->delete_survey($argsdelete);
+        $isdeleted = $soap->delete_survey($argsdelete);
         if (!$isdeleted) {
             return;
         }
@@ -309,11 +346,14 @@ class evasys_handler {
             $data->evasys_formid,
             $course->m_nPeriodId
         );
-        $survey = $service->insert_survey($argsnewsurvey);
+        $survey = $soap->insert_survey($argsnewsurvey);
+        $argsqr = $helper->set_args_get_qrcode($survey->m_nSurveyId);
+        $qrcode = $this->get_qrcode($data->evasys_booking_id, $argsqr);
         if (!empty($survey)) {
             $insertobject = (object) [
                 'id' => $data->evasys_booking_id,
                 'surveyid' => $survey->m_nSurveyId,
+                'pollurl' => $qrcode,
             ];
             $DB->update_record('booking_evasys', $insertobject);
         }
@@ -402,8 +442,8 @@ class evasys_handler {
      */
     public function save_course($formdata, $coursedata) {
         global $DB;
-        $service = new evasys_soap_service();
-        $response = $service->insert_course($coursedata);
+        $soap = new evasys_soap_service();
+        $response = $soap->insert_course($coursedata);
         if (isset($response)) {
             $dataobject = (object)[
                 'id' => $formdata->evasys_booking_id,
@@ -412,6 +452,22 @@ class evasys_handler {
             ];
             $DB->update_record('booking_evasys', $dataobject);
         }
+        return $response;
+    }
+
+    /**
+     * Deletes the Course in Evasys and the record in internal DB.
+     *
+     * @param array $args
+     *
+     * @return mixed
+     *
+     */
+    public function delete_course($args, $id) {
+        global $DB;
+        $soap = new evasys_soap_service();
+        $response = $soap->delete_course($args);
+        $DB->delete_records('booking_evasys', $id);
         return $response;
     }
 
