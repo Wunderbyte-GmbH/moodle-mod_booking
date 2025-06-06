@@ -2067,8 +2067,9 @@ $string['responsiblecontactenroltocourse_desc'] = 'Bitte definieren Sie auch die
 $string['restresponse'] = "rest_response";
 $string['restrictanswerperiodclosing'] = 'Buchen nur bis zu einem bestimmten Zeitpunkt ermöglichen';
 $string['restrictanswerperiodopening'] = 'Buchen erst ab einem bestimmten Zeitpunkt ermöglichen';
-$string['restrictavailabilityforinstance'] = 'Verfügbarkeit einer Buchungsinstanz einschränkbar machen';
-$string['restrictavailabilityforinstance_desc'] = 'Wenn Sie dieses Feature aktivieren und eine übergeordnete Voraussetzung die gesamte Buchungsinstanz blockiert, ist das Buchen der enthaltenen Buchungsoptionen nicht möglich.';
+$string['restrictavailabilityforinstance'] = 'Verfügbarkeit von Buchungsinstanzen auf Buchungsoptionen anwenden';
+$string['restrictavailabilityforinstance_desc'] = 'Wenn Sie dieses Feature aktivieren und ihre Buchungsinstanz nur unter bestimmten Voraussetzungen verfügbar ist,
+werden diese Voraussetzungen auch auf die in der Buchungsinstanz enthaltenen Buchungsoptionen angewendet (dies kann z.B. hilfreich sein, wenn Sie Shortcodes wie [courselist] verwenden).';
 $string['restscriptexecuted'] = 'Nach dem Rest-Skript Aufruf';
 $string['restscriptfailed'] = 'Skript konnte nicht ausgeführt werden';
 $string['restscriptsuccess'] = 'Rest Skript Ausführung';

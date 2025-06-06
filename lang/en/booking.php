@@ -2123,8 +2123,9 @@ $string['responsiblecontactenroltocourse_desc'] = 'Please also define the role t
 $string['restresponse'] = "rest_response";
 $string['restrictanswerperiodclosing'] = 'Booking is possible only until a certain date';
 $string['restrictanswerperiodopening'] = 'Booking is possible only after a certain date';
-$string['restrictavailabilityforinstance'] = 'Allow restricting access to booking instance';
-$string['restrictavailabilityforinstance_desc'] = 'If you activate this feature and a restriction applying to the entire booking instance, it is not possible to book the contained booking options.';
+$string['restrictavailabilityforinstance'] = 'Apply access restrictions of booking instances to booking options';
+$string['restrictavailabilityforinstance_desc'] = 'If you activate this feature and you have access restrictions on your booking instance,
+these restrictions will also apply to booking options even if they are used in a shortcode like [courselist].';
 $string['restscriptexecuted'] = 'After the rest call has been executed';
 $string['restscriptfailed'] = 'Script execution has failed';
 $string['restscriptsuccess'] = 'Rest script execution';
