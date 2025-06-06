@@ -668,7 +668,7 @@ final class rules_enrollink_test extends advanced_testcase {
         $this->setUser($student4);
         $info1 = $enrollink->enrolment_blocking();
         $this->assertEmpty($info1);
-        $info2 = $enrollink->enrol_user($USER->id);
+        $info2 = $enrollink->enrol_user($student4->id);
         $courselink = $enrollink->get_courselink_url();
         // Validate enrollment status and remainaing free places.
         $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_WAITINGLIST, $info2);
