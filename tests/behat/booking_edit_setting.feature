@@ -159,16 +159,45 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     Then I should not see "Booking module created by Wunderbyte GmbH" in the "#region-main" "css_element"
 
   @javascript
-  Scenario: Booking settings: control presence of strings on all settings pages
-    Given I am on the "My booking" Activity page logged in as admin
-    And I visit "/mod/booking/optionformconfig.php?cmid=0"
-    And I wait "1" seconds
+  Scenario: Booking settings: create an additional price category via UI
+    Given the following "mod_booking > pricecategories" exist:
+      | ordernum | identifier | name  | defaultvalue | disabled | pricecatsortorder |
+      | 1        | default    | Price | 50           | 0        | 1                 |
+    And I log in as "admin"
     And I visit "/mod/booking/pricecategories.php"
+    And I set the field "pricecategoryname[0]" to "DefPrice"
+    And I set the field "defaultvalue[0]" to "30"
+    And I press "Add price category"
+    And I set the field "pricecategoryidentifier[1]" to "2ndprice"
+    And I set the field "pricecategoryname[1]" to "2ndPrice"
+    And I set the field "defaultvalue[1]" to "40"
+    And I set the field "pricecatsortorder[1]" to "2"
+    And I press "Save changes"
+    ## Validate the price categories
+    And I reload the page
+    And the field "pricecategoryidentifier[0]" matches value "default"
+    And the field "pricecategoryname[0]" matches value "DefPrice"
+    And the field "defaultvalue[0]" matches value "30"
+    And the field "pricecatsortorder[0]" matches value "1"
+    And the field "pricecategoryidentifier[1]" matches value "2ndprice"
+    And the field "pricecategoryname[1]" matches value "2ndPrice"
+    And the field "defaultvalue[1]" matches value "40"
+    And the field "pricecatsortorder[1]" matches value "2"
+    And I set the field "disablepricecategory[1]" to "1"
+    And I press "Save changes"
+    And I reload the page
+    And the field "disablepricecategory[1]" matches value "1"
+
+  @javascript
+  Scenario: Booking settings: control presence of strings on all settings pages
+    Given I log in as "admin"
+    And I visit "/mod/booking/optionformconfig.php?cmid=0"
     And I wait "1" seconds
     And I visit "/mod/booking/customfield.php"
     ## Already tested in other feature/
     ##And I visit "/mod/booking/instancetemplatessettings.php"
     ##And I visit "/mod/booking/semesters.php"
+    ##And I visit "/mod/booking/pricecategories.php"
     ##And I visit "/mod/booking/edit_rules.php"
     ##And I visit "/mod/booking/edit_campaigns.php"
     ##And I visit "/admin/category.php?category=modbookingfolder"
