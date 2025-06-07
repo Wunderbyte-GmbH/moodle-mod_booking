@@ -159,6 +159,23 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     Then I should not see "Booking module created by Wunderbyte GmbH" in the "#region-main" "css_element"
 
   @javascript
+  Scenario: Booking settings: control presence of strings on all settings pages
+    Given I am on the "My booking" Activity page logged in as admin
+    And I visit "/mod/booking/optionformconfig.php?cmid=0"
+    And I wait "1" seconds
+    And I visit "/mod/booking/pricecategories.php"
+    And I wait "1" seconds
+    And I visit "/mod/booking/customfield.php"
+    ## Already tested in other feature/
+    ##And I visit "/mod/booking/instancetemplatessettings.php"
+    ##And I visit "/mod/booking/semesters.php"
+    ##And I visit "/mod/booking/edit_rules.php"
+    ##And I visit "/mod/booking/edit_campaigns.php"
+    ##And I visit "/admin/category.php?category=modbookingfolder"
+    ##And I visit "/admin/settings.php?section=modsettingbooking"
+
+
+  @javascript
   Scenario: Booking settings: control deprecated email templates
     Given the following config values are set as admin:
       | config                 | value | plugin      |
