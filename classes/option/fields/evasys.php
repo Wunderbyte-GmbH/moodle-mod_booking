@@ -27,7 +27,6 @@
  use mod_booking\booking_option_settings;
  use mod_booking\local\evasys_handler;
  use mod_booking\local\evasys_helper_service;
- use mod_booking\local\evasys_soap_service;
  use mod_booking\option\field_base;
  use mod_booking\option\fields_info;
  use mod_booking\singleton_service;
@@ -75,7 +74,14 @@ class evasys extends field_base {
      *
      * @var array
      */
-    public static $evasyskeys = ['evasys_form', 'evasys_starttime', 'evasys_endtime', 'evasys_other_report_recipients', 'evasysperiods', 'evasys_notifyparticipants'];
+    public static $evasyskeys = [
+        'evasys_form',
+        'evasys_starttime',
+        'evasys_endtime',
+        'evasys_other_report_recipients',
+        'evasysperiods',
+        'evasys_notifyparticipants',
+    ];
 
     /**
      * Relevant Keys to update survey to API.
@@ -153,7 +159,7 @@ class evasys extends field_base {
             !empty($formdata['evasys_form'])
             && (int) $formdata['evasys_starttime'] < $now
         ) {
-            $errors['evasys_starttime'] = get_string('evasys:datepast', 'mod_booking');
+            $errors['evasys_timemode'] = get_string('evasys:datepast', 'mod_booking');
         }
         return $errors;
     }
@@ -482,7 +488,7 @@ class evasys extends field_base {
             $qrcode = $evasys->get_qrcode($id, $argsqr);
         } else {
             $now = time();
-            if ($now > $data->evasys_starttime) {
+            if ($now > (int)$data->evasys_starttime) {
                 return;
             }
             if (!empty($data->evasys_confirmdelete)) {
@@ -498,16 +504,20 @@ class evasys extends field_base {
             }
             $updatesurvey = false;
             $updatecourse = false;
-
-            // Checks if the survey and therefore the course needs to be updated.
-            foreach ($changes["mod_booking\\option\\fields\\evasys"]['changes'] as $key => $value) {
-                if (in_array($key, self::$relevantkeyssurvey, true)) {
-                    $updatesurvey = true;
-                }
+            if (!empty($changes["mod_booking\\option\\fields\\teachers"]) || !empty($changes["mod_booking\\option\\fields\\text"])) {
+                $updatesurvey = true;
             }
+            // Checks if the survey and therefore the course needs to be updated.
+            if (!$updatesurvey) {
+                foreach ($changes["mod_booking\\option\\fields\\evasys"]['changes'] as $key => $value) {
+                    if (in_array($key, self::$relevantkeyssurvey, true)) {
+                        $updatesurvey = true;
+                    }
+                }
             // Checks for the only key where only the course needs to be updated.
-            if (!$updatesurvey && isset($changes["mod_booking\\option\\fields\\evasys"]['changes'][self::$relevantkeyscourse])) {
-                $updatecourse = true;
+                if (!$updatesurvey && isset($changes["mod_booking\\option\\fields\\evasys"]['changes'][self::$relevantkeyscourse])) {
+                    $updatecourse = true;
+                }
             }
             if ($updatesurvey) {
                 $evasys = new evasys_handler();

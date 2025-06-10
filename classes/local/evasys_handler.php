@@ -28,6 +28,8 @@ namespace mod_booking\local;
 use context_course;
 use mod_booking\local\evasys_helper_service;
 use mod_booking\singleton_service;
+use stdClass;
+use cache;
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/user/lib.php');
 
@@ -39,8 +41,8 @@ class evasys_handler {
     /**
      * Save data from form into DB.
      *
-     * @param /stdClass $formdata
-     * @param /stdClass $option
+     * @param stdClass $formdata
+     * @param stdClass $option
      * @return void
      *
      */
@@ -65,7 +67,7 @@ class evasys_handler {
      * @return object
      *
      */
-    public static function load_evasys($optionid) {
+    public static function load_evasys(int $optionid) {
         global $DB;
         return $DB->get_record('booking_evasys', ['optionid' => $optionid], '*', IGNORE_MISSING) ?: (object)[];
     }
@@ -78,7 +80,7 @@ class evasys_handler {
      * @return void
      *
      */
-    public function load_form(&$data) {
+    public function load_form(object &$data) {
         $helper = new evasys_helper_service();
         $settings = singleton_service::get_instance_of_booking_option_settings($data->id);
         if ((empty($settings->evasys->id))) {
@@ -119,7 +121,7 @@ class evasys_handler {
      * @return array
      *
      */
-    public function get_periods_for_query($query) {
+    public function get_periods_for_query(string $query) {
         $soap = new evasys_soap_service();
         $helper = new evasys_helper_service();
         $periods = $soap->fetch_periods();
@@ -151,21 +153,14 @@ class evasys_handler {
      * @return array
      *
      */
-    public function get_questionaires_for_query($query) {
-        $soap = new evasys_soap_service();
-        $helper = new evasys_helper_service();
-        $args = [
-                'IncludeCustomReports' => true,
-                'IncludeUsageRestrictions' => true,
-                'UsageRestrictionList' => [
-                        'Subunits' => get_config('booking', 'evasyssubunits'),
-                ],
-        ];
-        $periods = $soap->fetch_forms($args);
-        $listforarray = $periods->SimpleForms;
-        $periodoptions = $helper->transform_return_to_array($listforarray, 'ID', 'Name');
-        foreach ($periodoptions as $key => $value) {
-            if (stripos($value, $query) !== false) {
+    public function get_questionaires_for_query(string $query) {
+        $cache = $this->cached_forms();
+        $forms = $cache[0];
+        foreach ($forms as $key => $value) {
+            if (
+                empty($query)
+                || stripos($value, $query) !== false
+            ) {
                 $list[$key] = $value;
             }
         }
@@ -190,13 +185,10 @@ class evasys_handler {
      */
     public function get_allforms() {
         $soap = new evasys_soap_service();
-        $args = [
-                'IncludeCustomReports' => true,
-                'IncludeUsageRestrictions' => true,
-                'UsageRestrictionList' => [
-                        'Subunits' => get_config('booking', 'evasyssubunits'),
-                ],
-        ];
+        $helper = new evasys_helper_service();
+        $subunitconfig = get_config('booking', 'evasyssubunits');
+        $subunitid = reset(explode('-', $subunitconfig));
+        $args = $helper->set_args_fetch_forms($subunitid);
         $forms = $soap->fetch_forms($args);
         if (!isset($forms)) {
             return [];
@@ -253,11 +245,11 @@ class evasys_handler {
     /**
      * Saves user in Evasys.
      *
-     * @param /stdClass $user
+     * @param stdClass $user
      * @return void
      *
      */
-    public function save_user($user) {
+    public function save_user(stdClass $user) {
         global $CFG;
         $helper = new evasys_helper_service();
         $userdata = $helper->set_args_insert_user(
@@ -407,10 +399,25 @@ class evasys_handler {
         });
 
         $userfieldvalue = array_shift($teachers)->profile[$userfieldshortname];
-        // Prepare Customfields for Evasys.
+        // Set User ID for Course.
         $internalid = end(explode(',', $userfieldvalue));
         // Make JSON for Customfields.
-        $customfields = json_encode($teachers);
+        $teacherstrings = [];
+
+        foreach ($teachers as $teacher) {
+            $id = $teacher->profile['evasysid'];
+            $name = $teacher->firstname . ' ' . $teacher->lastname;
+            $teacherstrings[] = "$id - $name";  // Changed from -> to -
+        }
+
+        $coursecustomfield = new stdClass();
+
+        foreach ($teacherstrings as $index => $value) {
+            $key = (string)($index + 1);
+            $coursecustomfield->$key = $value;
+        }
+
+        $customfields = json_encode($coursecustomfield, JSON_UNESCAPED_UNICODE);
         // Merge the rest of the teachers with recipients so they get an Evasys Report.
         $secondaryinstructors = array_merge($teachers ?? [], $recipients ?? []);
         $secondaryinstructorsinsert = $helper->set_secondaryinstructors_for_save($secondaryinstructors);
