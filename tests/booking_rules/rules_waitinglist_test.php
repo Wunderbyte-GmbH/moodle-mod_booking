@@ -1290,7 +1290,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->assertCount($expected['messagecount'], $messages);
         if (isset($testdata['bookseconduser']) && !$testdata['bookseconduser']) {
             foreach ($messages as $key => $message) {
-                if (strpos($message->subject, "freeplacedelaysubj")) {
+                if (strpos($message->subject, "freeplacedelaysubj") !== false) {
                     // Validate email on option change.
                     $this->assertEquals($student2->id, $message->useridto);
                 }
