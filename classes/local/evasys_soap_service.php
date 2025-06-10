@@ -273,7 +273,7 @@ class evasys_soap_service extends SoapClient {
     /**
      * Get QR code from evasys.
      *
-     * @param mixed $survey
+     * @param array $survey
      *
      * @return string
      *

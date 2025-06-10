@@ -402,21 +402,26 @@ class evasys_handler {
         // Set User ID for Course.
         $internalid = end(explode(',', $userfieldvalue));
         // Make JSON for Customfields.
-        $teacherstrings = [];
-
+        $organumbers = [];
+        $teachernames = [];
         foreach ($teachers as $teacher) {
-            $id = $teacher->profile['evasysid'];
-            $name = $teacher->firstname . ' ' . $teacher->lastname;
-            $teacherstrings[] = "$id - $name";  // Changed from -> to -
+            $names = $teacher->firstname . ' ' . $teacher->lastname;
+            $teachernames[] = $names;
+            $organumber = $teacher->profile['organumber'];
+            $organumbers[] = $organumber;
         }
+        $teachersforcustomfield = implode(',', $teachernames);
+        $organumbersforcustomfield = implode(';', $organumbers);
 
-        $coursecustomfield = new stdClass();
+        // The Keys are set in Evasys we need all organisations in 1 and all teachers in 5.
 
-        foreach ($teacherstrings as $index => $value) {
-            $key = (string)($index + 1);
-            $coursecustomfield->$key = $value;
-        }
-
+        $coursecustomfield = [
+                '1' => "$organumbersforcustomfield",
+                '2' => '',
+                '3' => '',
+                '4' => '',
+                '5' => "$teachersforcustomfield",
+        ];
         $customfields = json_encode($coursecustomfield, JSON_UNESCAPED_UNICODE);
         // Merge the rest of the teachers with recipients so they get an Evasys Report.
         $secondaryinstructors = array_merge($teachers ?? [], $recipients ?? []);
