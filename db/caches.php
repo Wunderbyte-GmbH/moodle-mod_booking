@@ -159,4 +159,9 @@ $definitions = [
         'staticaccelerationsize' => 1,
         'invalidationevents' => ['setbackbookinghistorytable'],
     ],
+    'evasysforms' => [
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'invalidationevents' => ['setbackevasysforms'],
+    ],
 ];

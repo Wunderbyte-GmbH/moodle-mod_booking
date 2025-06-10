@@ -507,4 +507,31 @@ class evasys_handler {
         $DB->update_record('booking_evasys', $dataobject);
         return $response;
     }
+
+    /**
+     * Get's cached Forms.
+     *
+     * @return array
+     *
+     */
+    public function cached_forms() {
+        $cache = cache::make('mod_booking', 'evasysforms');
+        $cachedforms = $cache->get(1);
+
+        if (empty($cachedforms)) {
+            $allforms = $this->get_allforms();
+            $soap = new evasys_soap_service();
+            $helper = new evasys_helper_service();
+            $formswithtitle = [];
+            foreach ($allforms as $key => $value) {
+                $args = $helper->set_args_get_form($key);
+                $response = $soap->get_form($args);
+                $formswithtitle[$response->FormId] = $response->FormTitle;
+            }
+            $timecreated = time();
+            $cachedata = [$formswithtitle, $timecreated];
+            $cache->set('cachedforms', $cachedata);
+        }
+        return $cachedforms;
+    }
 }

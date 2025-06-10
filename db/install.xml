@@ -633,8 +633,11 @@
     <FIELD NAME="optionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
     <FIELD NAME="formid" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
     <FIELD NAME="pollurl" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+    <FIELD NAME="timemode" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false"/>
     <FIELD NAME="starttime" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
     <FIELD NAME="endtime" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+    <FIELD NAME="durationbeforestart" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+    <FIELD NAME="durationafterend" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
     <FIELD NAME="organizers" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
     <FIELD NAME="notifyparticipants" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false"/>
     <FIELD NAME="surveyid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>

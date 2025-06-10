@@ -91,6 +91,8 @@ class evasys_helper_service {
         if (empty((int)$formdata->evasys_timemode)) {
             $insertdata->starttime = (int) $option->courseendtime + (int) $formdata->evasys_evaluation_durationbeforestart;
             $insertdata->endtime = (int) $option->courseendtime + (int) $formdata->evasys_evaluation_durationafterend;
+            $insertdata->durationbeforestart = $formdata->evasys_durationbeforestart;
+            $insertdata->durationafterend = $formdata->evasys_durationafterend;
         } else {
             $insertdata->starttime = $formdata->evasys_starttime;
             $insertdata->endtime = $formdata->evasys_endtime;
@@ -101,6 +103,7 @@ class evasys_helper_service {
         $insertdata->usermodified = $USER->id;
         $insertdata->periods = $formdata->evasysperiods;
         $insertdata->qr = $formdata->pollurl;
+        $insertdata->timemode = $formdata->evasys_timemode;
         if (empty($formdata->evasys_booking_id)) {
             $insertdata->timecreated = $now;
         } else {
@@ -132,6 +135,9 @@ class evasys_helper_service {
         $data->evasys_surveyid = $record->surveyid;
         $data->evasys_courseidinternal = $record->courseidinternal;
         $data->evasys_courseidexternal = $record->courseidexternal;
+        $data->evasys_timemode = $record->timemode;
+        $data->evasys_durationbeforestart = $record->durationbeforestart;
+        $data->evasys_durationafterend = $record->durationafterend;
     }
 
     /**
@@ -167,7 +173,7 @@ class evasys_helper_service {
      * @return object
      *
      */
-    public function set_args_insert_course($title, $optionid, $internalid, $periodid, $secondaryinstructors, $customfield, $courseid = null){
+    public function set_args_insert_course($title, $optionid, $internalid, $periodid, $secondaryinstructors, $customfield, $courseid = null) {
         $subunitencoded = get_config('booking', 'evasyssubunits');
         $array = explode('-', $subunitencoded);
         $subunitname = base64_decode(end($array));
@@ -299,5 +305,42 @@ class evasys_helper_service {
             'SurveyId' => $surveyid,
         ];
         return $survey;
+    }
+
+    /**
+     * Helperfunction to set Args for getting a Form.
+     *
+     * @param int $internalid
+     *
+     * @return array
+     *
+     */
+    public function set_args_get_form($internalid) {
+        $form = [
+            'FormId' => (int)$internalid,
+            'IdType' => 'INTERNAL',
+            'IncludeOnlyQuestions' => true,
+            'SkipPoleLabelsInheritance' => true,
+        ];
+        return $form;
+    }
+
+    /**
+     * Helperfunction to set Args for getting all Forms.
+     *
+     * @param int $subunitid
+     *
+     * @return array
+     *
+     */
+    public function set_args_fetch_forms($subunitid) {
+        $args = [
+                'IncludeCustomReports' => true,
+                'IncludeUsageRestrictions' => true,
+                'UsageRestrictionList' => [
+                        'Subunits' => (int) $subunitid,
+                ],
+        ];
+        return $args;
     }
 }

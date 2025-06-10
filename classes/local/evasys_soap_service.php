@@ -150,6 +150,23 @@ class evasys_soap_service extends SoapClient {
         }
     }
 
+    /**
+     * Gets a Form by ID from Evasys.
+     *
+     * @param array $args
+     *
+     * @return mixed
+     *
+     */
+    public function get_form($args) {
+        try {
+            $response = $this->__soapCall('GetForm', $args);
+            return $response;
+        } catch (SoapFault $e) {
+            return null;
+        }
+    }
+
    /**
     * Inserts User to Evays.
     *
