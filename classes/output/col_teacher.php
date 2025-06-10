@@ -65,7 +65,7 @@ class col_teacher implements renderable, templatable {
 
             if ($loadprofileimage) {
                 $teacheruser = \core_user::get_user($teacher->userid);
-                if ($teacheruser->picture) {
+                if (!empty($teacheruser->picture)) {
                     $picture = new \user_picture($teacheruser);
                     $picture->size = 150;
                     $imageurl = $picture->get_url($PAGE);
