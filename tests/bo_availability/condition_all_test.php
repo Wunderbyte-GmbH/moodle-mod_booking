@@ -1442,7 +1442,9 @@ final class condition_all_test extends advanced_testcase {
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student3->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
-        // Now we check the fourth user.
+        // Now we check the fourth user, make sure to book this person later.
+        time_mock::set_mock_time(strtotime('+1 days', time()));
+        $time = time_mock::get_mock_time();
         $this->setUser($student4);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student4->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id);
