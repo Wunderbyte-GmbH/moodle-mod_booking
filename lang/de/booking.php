@@ -1222,6 +1222,7 @@ $string['errortoomanydecimals'] = 'Sie können maximal 2 Nachkommastellen angebe
 $string['errorusernotfound'] = 'Fehler: Der Veranstalter mit der ID "{$a}" wurde nicht gefunden.';
 $string['evasys'] = 'Evasys';
 $string['evasys:confirmdelete'] = 'Löschen bestätigen';
+$string['evasys:datepast'] = 'Der Startzeitpunkt der Evaluation darf nicht in der Vergangenheit liegen.';
 $string['evasys:delete'] = 'Wollen Sie alle Daten für die Evaluation auf Evasys löschen?';
 $string['evasys:evaluation:durationafterend'] = 'Ende (Stunden nach Kursendzeit)';
 $string['evasys:evaluation:durationbeforestart'] = 'Beginn (Stunden vor Kursendzeit)';

@@ -134,6 +134,7 @@ class evasys extends field_base {
      */
     public static function validation(array $formdata, array $files, array &$errors) {
         $settings = singleton_service::get_instance_of_booking_option_settings($formdata['id']);
+        $now = time();
         if (
             empty($formdata['evasys_form'])
             && !empty($settings->evasys->formid)
@@ -147,6 +148,12 @@ class evasys extends field_base {
             && empty($formdata['courseendtime_1'])
         ) {
             $errors['evasys_timemode'] = get_string('evasys:setcourseendtime', 'mod_booking');
+        }
+        if (
+            !empty($formdata['evasys_form'])
+            && (int) $formdata['evasys_starttime'] < $now
+        ) {
+            $errors['evasys_starttime'] = get_string('evasys:datepast', 'mod_booking');
         }
         return $errors;
     }
@@ -474,10 +481,10 @@ class evasys extends field_base {
             $argsqr = $helper->set_args_get_qrcode($survey->m_nSurveyId);
             $qrcode = $evasys->get_qrcode($id, $argsqr);
         } else {
-            // $now = time();
-            // if ($now > $data->evasys_starttime) {
-            //     return;
-            // }
+            $now = time();
+            if ($now > $data->evasys_starttime) {
+                return;
+            }
             if (!empty($data->evasys_confirmdelete)) {
                     // Delete Survey.
                     $helper = new evasys_helper_service();

@@ -1234,6 +1234,7 @@ $string['errortoomanydecimals'] = 'Only 2 decimals are allowed.';
 $string['errorusernotfound'] = 'Error: The organizer with ID "{$a}" could not be found.';
 $string['evasys'] = 'Evasys';
 $string['evasys:confirmdelete'] = 'Confirm deletion';
+$string['evasys:datepast'] = 'The starttime of the evaluation cannot be in the past';
 $string['evasys:delete'] = 'Do you want to delete all data for the evaluation on Evasys?';
 $string['evasys:evaluation:durationafterend'] = 'End (hours after coursend)';
 $string['evasys:evaluation:durationbeforestart'] = 'Start (hours before coursend)';
