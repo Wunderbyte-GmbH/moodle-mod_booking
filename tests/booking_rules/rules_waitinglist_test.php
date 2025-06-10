@@ -1104,6 +1104,10 @@ final class rules_waitinglist_test extends advanced_testcase {
         ]);
         set_config('pricecategoryfield', 'pricecat', 'booking');
         set_config('displayemptyprice', 1, 'booking');
+        // Set waitinglist booking window to 24 hours only if price is set.
+        if (!empty($testdata['secondprice'])) {
+            set_config('waitinglistbookingwindowhours', 24, 'booking');
+        }
 
         // Create users, some of them with second price category.
         $student1 = $this->getDataGenerator()->create_user();
@@ -1277,6 +1281,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->assertEquals($expected['newuserresponse'], $id);
         // Make sure, user isn't able to book with price (in case 'second_user_with_price').
 
+        $this->setAdminUser();
         // Asserting that the spot is EITHER free to book OR booked by next user AND proper number of users remains on waitinglist.
         $ba = singleton_service::get_instance_of_booking_answers($settings1);
         $this->assertIsArray($ba->usersonlist);
@@ -1289,11 +1294,45 @@ final class rules_waitinglist_test extends advanced_testcase {
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
         $this->assertCount($expected['taskcount1'], $tasks);
 
+        if (isset($testdata['bookseconduser']) && !$testdata['bookseconduser']) {
+            // The same day as cancellation: next user on waitinglist (student2) should get a chance to book.
+            // Student2 got a chance to book lost his chance to book because of waitinglistbookingwindowhours setting value.
+            $this->setUser($student2);
+            singleton_service::destroy_user($student2->id);
+            $result = booking_bookit::bookit('option', $settings1->id, $student2->id);
+            [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student2->id, true);
+            $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
+            // Student3 (and other) - remains on waitinglist.
+            $this->setUser($student3);
+            singleton_service::destroy_user($student3->id);
+            $result = booking_bookit::bookit('option', $settings1->id, $student3->id);
+            [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student3->id, true);
+            $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
+        }
+
+        $this->setAdminUser();
         // In the future we run tasks.
         // No free seats available, so no messages should be send.
-        time_mock::set_mock_time(strtotime('+3 day', time()));
+        time_mock::set_mock_time(strtotime('+1 day', time()));
         $time = time_mock::get_mock_time();
 
+        if (isset($testdata['bookseconduser']) && !$testdata['bookseconduser']) {
+            // Next day after cancellation: 2nd user on waitinglist (student3) should get a chance to book.
+            // Student2 lost his chance to book, so he should remains on waitinglist.
+            $this->setUser($student2);
+            singleton_service::destroy_user($student2->id);
+            $result = booking_bookit::bookit('option', $settings1->id, $student2->id);
+            [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student2->id, true);
+            $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
+            // Student3 got a chance to book lost his chance to book because of waitinglistbookingwindowhours setting value.
+            $this->setUser($student3);
+            singleton_service::destroy_user($student3->id);
+            $result = booking_bookit::bookit('option', $settings1->id, $student3->id);
+            [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student3->id, true);
+            $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
+        }
+
+        $this->setAdminUser();
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
         $sink = $this->redirectMessages();
         ob_start();
@@ -1306,6 +1345,7 @@ final class rules_waitinglist_test extends advanced_testcase {
             foreach ($messages as $key => $message) {
                 if (strpos($message->subject, "freeplacedelaysubj") !== false) {
                     // Validate email on option change.
+                    // TODO: seem incorrect now - should be student3?
                     $this->assertEquals($student2->id, $message->useridto);
                 }
             }
