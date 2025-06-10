@@ -1287,8 +1287,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         $messages = $sink->get_messages();
         $res = ob_get_clean();
         $sink->close();
-        $this->assertCount($expected['taskcount2'], $messages);
-        // Validate emails. Might be more than one depending on Moodle's version.
+        $this->assertCount($expected['messagecount'], $messages);
         if (isset($testdata['bookseconduser']) && !$testdata['bookseconduser']) {
             foreach ($messages as $key => $message) {
                 if (strpos($message->subject, "freeplacedelaysubj")) {
@@ -1312,7 +1311,6 @@ final class rules_waitinglist_test extends advanced_testcase {
                     'secondprice' => 0,
                     'student2settings' => ['profile_field_pricecat' => 'secondprice'],
                     'bookseconduser' => true,
-
                 ],
                 [
                     // After the first cancellation, with these settings, we expect...
@@ -1321,7 +1319,7 @@ final class rules_waitinglist_test extends advanced_testcase {
                     'usersonwaitinglist1' => 3,
                     'taskcount1' => 0, // So no tasks expected.
                     'newuserresponse' => MOD_BOOKING_BO_COND_ONWAITINGLIST, // Waitinglist.
-                    'taskcount2' => 0, // So no tasks expected.
+                    'messagecount' => 0, // So no tasks expected.
                 ],
             ],
             'second_user_with_price' => [
@@ -1336,7 +1334,7 @@ final class rules_waitinglist_test extends advanced_testcase {
                     'usersonwaitinglist1' => 4,
                     'taskcount1' => 2, // Tasks expected.
                     'newuserresponse' => MOD_BOOKING_BO_COND_ONWAITINGLIST,
-                    'taskcount2' => 1, // Tasks expected.
+                    'messagecount' => 1, // Tasks expected.
                 ],
             ],
         ];
