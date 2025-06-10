@@ -378,7 +378,7 @@ class competencies extends field_base {
             'columnfilter_competencies' => $competencies,
             'all' => "true",
             'filter' => 1,
-            // TODO: exclude current option.
+            'excludeoptions' => $currentoption->id,
         ];
         $env = new stdClass();
         $list = shortcodes::courselist('courselist', $args, null, $env, $env);

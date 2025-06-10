@@ -199,7 +199,7 @@ class shortcodes {
         $columnfilters = self::get_columnfilters($args);
         // Additional where condition for both card and list views.
         $foo = [];
-        $additionalwhere = self::set_customfield_wherearray($args, $wherearray, $foo, $columnfilters) ?? '';
+        $additionalwhere = self::set_custom_wherearray($args, $wherearray, $foo, $columnfilters) ?? '';
 
         [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(
@@ -303,6 +303,25 @@ class shortcodes {
         }
 
         return $out;
+    }
+
+    /**
+     * Generate string to exclude certain options
+     *
+     * @param string $arg
+     * @param string $colname
+     *
+     * @return string
+     *
+     */
+    private static function get_excludeoption_string(string $arg, string $colname = "id"): string {
+        $excludeoptions = explode(',', $arg);
+        $where = [];
+
+        foreach ($excludeoptions as $id) {
+            $where[] = " $colname NOT LIKE $id ";
+        }
+        return implode(' AND ', $where);
     }
 
     /**
@@ -601,7 +620,7 @@ class shortcodes {
             $operator = "OR";
         }
 
-        if ($cfwhere = self::set_customfield_wherearray($args, $wherearray, $tempparams)) {
+        if ($cfwhere = self::set_custom_wherearray($args, $wherearray, $tempparams)) {
             $tempwherearray[] = $cfwhere;
         }
 
@@ -765,7 +784,7 @@ class shortcodes {
         $table = self::init_table_for_courses(null, md5($pageurl));
 
         // Additional where condition for both card and list views.
-        $additionalwhere = self::set_customfield_wherearray($args, $wherearray) ?? '';
+        $additionalwhere = self::set_custom_wherearray($args, $wherearray) ?? '';
 
         [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(
@@ -1303,7 +1322,7 @@ class shortcodes {
      * @param array $columnfilters
      * @return string
      */
-    private static function set_customfield_wherearray(
+    private static function set_custom_wherearray(
         array &$args,
         array &$wherearray,
         array &$tempparamsarray = [],
