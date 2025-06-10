@@ -1261,7 +1261,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->assertEquals($student1->id, $item->userid);
         $this->assertEquals($pricecategorydata1->defaultvalue, (int) $item->price);
         $this->assertEquals(0, $item->quotaconsumed);
-        // Actual cancellation of purcahse and verify.
+        // Actual cancellation of purchase and verify.
         $res = shopping_cart::cancel_purchase($settings1->id, 'option', $student1->id, 'mod_booking', $item->id, 0);
         $this->assertEquals(1, $res['success']);
         $this->assertEquals($pricecategorydata1->defaultvalue, $res['credit']);

@@ -1176,6 +1176,7 @@ class booking_answers {
             MOD_BOOKING_STATUSPARAM_WAITINGLIST,
             MOD_BOOKING_STATUSPARAM_RESERVED,
             MOD_BOOKING_STATUSPARAM_NOTIFYMELIST,
+            MOD_BOOKING_STATUSPARAM_DELETED,
         ]
     ) {
         global $DB;
