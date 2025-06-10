@@ -309,7 +309,7 @@ class onwaitinglist implements bo_condition {
     private static function is_first_on_waitinglist(int $userid, booking_answers $ba): bool {
         $usersonwaitinglist = $ba->usersonwaitinglist;
         $usersdeleted = $ba->usersdeleted;
-        $bookingwindowhours = get_config('mod_booking', 'waitinglistbookingwindowhours');
+        $bookingwindowhours = get_config('booking', 'waitinglistbookingwindowhours');
         $now = time();
 
         if (!isset($usersonwaitinglist[$userid])) {
