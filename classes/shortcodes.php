@@ -200,7 +200,9 @@ class shortcodes {
         // Additional where condition for both card and list views.
         $foo = [];
         $additionalwhere = self::set_custom_wherearray($args, $wherearray, $foo, $columnfilters) ?? '';
-
+        if (!empty($args['excludeoptions'])) {
+            $additionalwhere .= self::get_excludeoption_string($args['excludeoptions']);
+        }
         [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(
                     0,
@@ -306,7 +308,7 @@ class shortcodes {
     }
 
     /**
-     * Generate string to exclude certain options
+     * Generate string to exclude certain options.
      *
      * @param string $arg
      * @param string $colname
@@ -315,13 +317,15 @@ class shortcodes {
      *
      */
     private static function get_excludeoption_string(string $arg, string $colname = "id"): string {
-        $excludeoptions = explode(',', $arg);
-        $where = [];
+        $excludeoptions = array_filter(array_map('trim', explode(',', $arg)), 'is_numeric');
 
-        foreach ($excludeoptions as $id) {
-            $where[] = " $colname NOT LIKE $id ";
+        if (empty($excludeoptions)) {
+            return ''; // No exclusion, always true.
         }
-        return implode(' AND ', $where);
+
+        // Escape each value properly.
+        $placeholders = implode(',', array_map('intval', $excludeoptions));
+        return " AND $colname NOT IN ($placeholders) ";
     }
 
     /**
