@@ -1052,6 +1052,16 @@ if ($ADMIN->fulltree) {
     $settings->add($waitinglistshowplaceonwaitinglist);
 
     $settings->add(
+        new admin_setting_configtext(
+            'booking/waitinglistbookingwindowhours',
+            get_string('waitinglistbookingwindowhours', 'mod_booking'),
+            get_string('waitinglistbookingwindowhours_desc', 'mod_booking'),
+            24,
+            PARAM_INT
+        )
+    );
+
+    $settings->add(
         new admin_setting_configcheckbox(
             'booking/turnoffwaitinglist',
             get_string('turnoffwaitinglist', 'mod_booking'),

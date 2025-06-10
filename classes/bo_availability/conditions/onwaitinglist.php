@@ -108,7 +108,7 @@ class onwaitinglist implements bo_condition {
             // If user is confirmed, we don't block.
             $ba = $bookinganswer->usersonwaitinglist[$userid];
 
-            $firstonlist = self::is_first_on_waitinglist($userid, $bookinganswer->usersonwaitinglist);
+            $firstonlist = self::is_first_on_waitinglist($userid, $bookinganswer);
 
             if (
                 ($bookinginformation['onwaitinglist']['fullybooked'] === false)
@@ -301,26 +301,57 @@ class onwaitinglist implements bo_condition {
      * Check if a user is the first on the list.
      *
      * @param int $userid
-     * @param array $usersonwaitinglist
+     * @param booking_answers $ba
      *
      * @return bool
      *
      */
-    private static function is_first_on_waitinglist(int $userid, array $usersonwaitinglist) {
+    private static function is_first_on_waitinglist(int $userid, booking_answers $ba): bool {
+        $usersonwaitinglist = $ba->usersonwaitinglist;
+        $usersdeleted = $ba->usersdeleted;
+        $bookingwindowhours = get_config('mod_booking', 'waitinglistbookingwindowhours');
+        $now = time();
 
-        $islowest = false;
+        if (!isset($usersonwaitinglist[$userid])) {
+            return false;
+        }
 
-        if (isset($usersonwaitinglist[$userid])) {
-            $targettime = $usersonwaitinglist[$userid]->timemodified;
+        // Step 1: Sort waiting list by timemodified (ascending: oldest first).
+        uasort($usersonwaitinglist, function ($a, $b) {
+            return $a->timemodified <=> $b->timemodified;
+        });
 
-            $islowest = true;
-            foreach ($usersonwaitinglist as $user => $obj) {
-                if ($user !== $userid && $obj->timemodified < $targettime) {
-                    $islowest = false;
-                    break;
-                }
+        // Step 2: Get ordered user IDs and current user's position.
+        $sorteduserids = array_keys($usersonwaitinglist);
+        $userposition = array_search($userid, $sorteduserids);
+
+        if ($userposition === false) {
+            return false;
+        }
+
+        // Step 3: If booking window is empty or 0 → allow only first user on list.
+        if (empty($bookingwindowhours)) {
+            return $userposition === 0;
+        }
+
+        // Step 4: Find latest deletion time.
+        $latestcancellation = 0;
+        foreach ($usersdeleted as $deleted) {
+            if (!empty($deleted->timemodified) && $deleted->timemodified > $latestcancellation) {
+                $latestcancellation = $deleted->timemodified;
             }
         }
-        return $islowest;
+
+        // Step 5: If no deletions, no one can book yet.
+        if ($latestcancellation === 0) {
+            return false;
+        }
+
+        // Step 6: Calculate current eligible user position
+        $secondsperwindow = $bookingwindowhours * 3600;
+        $elapsedtime = $now - $latestcancellation;
+        $currentallowedposition = (int) floor($elapsedtime / $secondsperwindow);
+
+        return $userposition === $currentallowedposition;
     }
 }
