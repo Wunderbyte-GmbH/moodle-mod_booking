@@ -729,6 +729,7 @@ if ($ADMIN->fulltree) {
                 ''
             )
         );
+        $userprofilefieldsarray[0] = get_string('userprofilefieldoff', 'mod_booking');
         $userprofilefields = profile_get_custom_fields();
         if (!empty($userprofilefields)) {
             $userprofilefieldsarray = [];
