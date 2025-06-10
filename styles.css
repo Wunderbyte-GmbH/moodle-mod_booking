@@ -588,3 +588,9 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
 #page-mod-booking-report2 #accordion-usertables .sortcolumn {
     background-color: transparent;
 }
+
+/* Booking config settings. */
+#page-admin-setting-modsettingbooking #admin-selectteacherswithprofilefieldonlyfield,
+#page-admin-setting-modsettingbooking #admin-selectteacherswithprofilefieldonlyvalue {
+    margin-left: 75px;
+}

@@ -163,6 +163,17 @@ if ($ADMIN->fulltree) {
     // Has PRO version been activated?
     $proversion = wb_payment::pro_version_is_activated();
 
+    // Code snippet to choose user profile fields.
+    $userprofilefieldsarray[0] = get_string('userprofilefieldoff', 'mod_booking');
+    $userprofilefields = profile_get_custom_fields();
+    if (!empty($userprofilefields)) {
+        $userprofilefieldsarray = [];
+        // Create an array of key => value pairs for the dropdown.
+        foreach ($userprofilefields as $userprofilefield) {
+            $userprofilefieldsarray[$userprofilefield->shortname] = $userprofilefield->name;
+        }
+    }
+
     $settings->add(
         new admin_setting_heading(
             'licensekeycfgheading',
@@ -717,6 +728,38 @@ if ($ADMIN->fulltree) {
                 get_string('teachersettings_desc', 'mod_booking')
             )
         );
+        // Reduce teachers selection to those with a specific user profile field.
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/selectteacherswithprofilefieldonly',
+                get_string('selectteacherswithprofilefieldonly', 'mod_booking'),
+                get_string('selectteacherswithprofilefieldonlydesc', 'mod_booking'),
+                0
+            )
+        );
+        if (get_config('booking', 'selectteacherswithprofilefieldonly')) {
+            // Custom user profile field which defines teachers of booking options.
+            $settings->add(
+                new admin_setting_configselect(
+                    'booking/selectteacherswithprofilefieldonlyfield',
+                    get_string('selectteacherswithprofilefieldonlyfield', 'mod_booking'),
+                    '',
+                    0,
+                    $userprofilefieldsarray
+                )
+            );
+            // Value of custom user profile field. Can also be a list of comma-separated values.
+            $settings->add(
+                new admin_setting_configtext(
+                    'booking/selectteacherswithprofilefieldonlyvalue',
+                    get_string('selectteacherswithprofilefieldonlyvalue', 'mod_booking'),
+                    get_string('selectteacherswithprofilefieldonlyvaluedesc', 'mod_booking'),
+                    '',
+                    PARAM_TEXT
+                )
+            );
+        }
+
         $settings->add(
             new admin_setting_configcheckbox(
                 'booking/teacherslinkonteacher',
@@ -1240,17 +1283,6 @@ if ($ADMIN->fulltree) {
         )
     );
 
-    // Choose the user profile field which is used to store each user's price category.
-    $userprofilefieldsarray[0] = get_string('userprofilefieldoff', 'mod_booking');
-    $userprofilefields = profile_get_custom_fields();
-    if (!empty($userprofilefields)) {
-        $userprofilefieldsarray = [];
-        // Create an array of key => value pairs for the dropdown.
-        foreach ($userprofilefields as $userprofilefield) {
-            $userprofilefieldsarray[$userprofilefield->shortname] = $userprofilefield->name;
-        }
-    }
-
     $settings->add(
         new admin_setting_configselect(
             'booking/pricecategoryfield',
@@ -1321,7 +1353,6 @@ if ($ADMIN->fulltree) {
             $userprofilefieldsarray
         )
     );
-
     $settings->add(
         new admin_setting_configselect(
             'booking/cfcostcenter',
