@@ -207,15 +207,6 @@ class mod_booking_observer {
                 calendar::delete_booking_userevents_for_option($optionid, $user->id);
             }
         };
-
-        // Make a call to Marmara to remove the person from specific criteria.
-        $data = $event->get_data();
-
-        $optionid = $data['objectid'];
-        $userid = (int)$data['userid'];
-
-        $respondapihanlder = new respondapi_handler($optionid);
-        $respondapihanlder->remove_person($userid);
     }
 
     /**
@@ -586,21 +577,5 @@ class mod_booking_observer {
         // In the future, we might want to do something here.
         // For now, we just return.
         return;
-    }
-
-    /**
-     * Observer on booking opration.
-     * @param mod_booking\event\bookingoption_booked $event
-     * @return void
-     */
-    public static function bookingoption_booked(bookingoption_booked $event) {
-        $data = $event->get_data();
-
-        $optionid = $data['objectid'];
-        $userid = (int)$data['relateduserid'];
-
-        // Call 3rd-party API to import user.
-        $respondapihanlder = new respondapi_handler($optionid);
-        $respondapihanlder->add_person($userid);
     }
 }
