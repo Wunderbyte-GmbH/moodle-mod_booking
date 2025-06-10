@@ -72,7 +72,7 @@ Feature: As an admin - configure booking's paymen account feature and validate i
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "3" in the ".popover-region-shopping_carts .count-container" "css_element"
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r4" "css_element"
-    And I should see "Different cost center" in the ".modal-dialog" "css_element"
+    And I should see "Different payment account" in the ".modal-dialog" "css_element"
     ##And I press "OK"
     And I click on "OK" "text" in the ".modal-dialog .modal-footer" "css_element"
     And I should see "3" in the ".popover-region-shopping_carts .count-container" "css_element"
