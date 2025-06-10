@@ -1,3 +1,8 @@
+## Version 8.14.5 (2025061000)
+* Improvement: Disable booking for user if others are on waitinglist.
+* Bugfix: Fix enrolment confirmation.
+* Tests: Fix behat Scenario. Booking option: Waiting list with prices when waitinglistshowplaceonwaitinglist is not set.
+
 ## Version 8.14.4 (2025060600)
 * New Feature: courselist shortcode now supports cards view (type=cards).
 * New Feature: Restore reserved items to the cart of the user
