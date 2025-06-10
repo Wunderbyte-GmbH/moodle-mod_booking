@@ -1311,7 +1311,11 @@ class view implements renderable, templatable {
         }
 
         // 3. Cardfooter.
-        $wbtable->add_subcolumns('cardfooter', ['booknow', 'course', 'progressbar', 'ratings']);
+        $subcolumns = ['booknow', 'course', 'progressbar', 'ratings', 'competencies'];
+        if (in_array('competencies', $optionsfields)) {
+            $subcolumns[] = 'competencies';
+        }
+        $wbtable->add_subcolumns('cardfooter', $subcolumns);
         $wbtable->add_classes_to_subcolumns('cardfooter', ['columnkeyclass' => 'd-none']);
         $wbtable->add_classes_to_subcolumns('cardfooter', ['columnclass' => 'text-right'], ['booknow']);
         $wbtable->add_classes_to_subcolumns(

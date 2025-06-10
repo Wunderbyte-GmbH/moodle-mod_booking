@@ -181,5 +181,9 @@
       require(['mod_booking/bookit'], function(fn) {
          fn.initprepageinline(null, null, null, null);
       });
+
+      require(['mod_booking/bookingcompetencies'], function(init) {
+        init.init('{{encodedtable}}');
+      });
    {{/js}}
 {{/norecords}}
