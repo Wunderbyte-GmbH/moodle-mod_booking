@@ -1414,6 +1414,7 @@ class booking_option_settings {
                 AND f.component = 'mod_booking'
                 AND f.filearea = 'bookingoptionimage'
                 AND f.mimetype LIKE 'image%'";
+        // NOTE: For the tables course_modules, modules and context, we need JOINS and NO LEFT JOINS to avoid duplicates.
 
         // As this is a complete subrequest, we have to add the "where" to the outer table, where it is already rendered.
         $counter = 0;
