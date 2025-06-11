@@ -238,13 +238,15 @@ final class rules_test extends advanced_testcase {
 
         // Create booking rule 1 - "teacher_added".
         $boevent1 = '"boevent":"\\\\mod_booking\\\\event\\\\teacher_added"';
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"teacher added","template":"teacher added msg","templateformat":"1"}';
         $ruledata1 = [
             'name' => 'teacher_added',
             'conditionname' => 'select_users',
             'contextid' => 1,
             'conditiondata' => '{"userids":["2"]}',
             'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"teacher added","template":"teacher added msg","templateformat":"1"}',
+            'actiondata' => $actstr,
             'rulename' => 'rule_react_on_event',
             'ruledata' => '{' . $boevent1 . ',"aftercompletion":"","condition":"0"}',
         ];
@@ -336,13 +338,15 @@ final class rules_test extends advanced_testcase {
 
         // Create booking rule 2 - "teacher_removed".
         $boevent1 = '"boevent":"\\\\mod_booking\\\\event\\\\teacher_removed"';
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"teacher removed","template":"teacher removed msg","templateformat":"1"}';
         $ruledata1 = [
             'name' => 'teacher_removed',
             'conditionname' => 'select_teacher_in_bo',
             'contextid' => 1,
             'conditiondata' => '',
             'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"teacher removed","template":"teacher removed msg","templateformat":"1"}',
+            'actiondata' => $actstr,
             'rulename' => 'rule_react_on_event',
             'ruledata' => '{' . $boevent1 . ',"aftercompletion":"","condition":"0"}',
         ];
@@ -445,13 +449,15 @@ final class rules_test extends advanced_testcase {
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
 
         // Create booking rule - "bookinganswer_cancelled".
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"answcancsubj","template":"answcancmsg","templateformat":"1"}';
         $ruledata1 = [
             'name' => 'notifystudents',
             'conditionname' => 'select_student_in_bo',
             'contextid' => 1,
             'conditiondata' => '{"borole":"0"}',
             'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"answcancsubj","template":"answcancmsg","templateformat":"1"}',
+            'actiondata' => $actstr,
             'rulename' => 'rule_react_on_event',
             'ruledata' => '{"boevent":"\\\\mod_booking\\\\event\\\\bookinganswer_cancelled","aftercompletion":"","condition":"0"}',
         ];
@@ -459,13 +465,15 @@ final class rules_test extends advanced_testcase {
 
         // Create booking rule - "override".
         $boevent2 = '"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_cancelled"';
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"optcancsubj","template":"optcancmsg","templateformat":"1"}';
         $ruledata2 = [
             'name' => 'notifyteachers',
             'conditionname' => 'select_teacher_in_bo',
             'contextid' => 1,
             'conditiondata' => '',
             'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"optcancsubj","template":"optcancmsg","templateformat":"1"}',
+            'actiondata' => $actstr,
             'rulename' => 'rule_react_on_event',
             'ruledata' => '{' . $boevent2 . ',"aftercompletion":"","condition":"0"}',
         ];
@@ -567,26 +575,30 @@ final class rules_test extends advanced_testcase {
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
 
         // Create booking rule - "ndays before".
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"1daybefore","template":"will start tomorrow","templateformat":"1"}';
         $ruledata1 = [
             'name' => '1daybefore',
             'conditionname' => 'select_users',
             'contextid' => 1,
             'conditiondata' => '{"userids":["2"]}',
             'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"1daybefore","template":"will start tomorrow","templateformat":"1"}',
+            'actiondata' => $actstr,
             'rulename' => 'rule_daysbefore',
             'ruledata' => '{"days":"1","datefield":"coursestarttime","cancelrules":[]}',
         ];
         $rule1 = $plugingenerator->create_rule($ruledata1);
 
         // Create booking rule - "ndays after".
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"1dayafter","template":"was ended yesterday","templateformat":"1"}';
         $ruledata2 = [
             'name' => '1dayafter',
             'conditionname' => 'select_users',
             'contextid' => 1,
             'conditiondata' => '{"userids":["2"]}',
             'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"1dayafter","template":"was ended yesterday","templateformat":"1"}',
+            'actiondata' => $actstr,
             'rulename' => 'rule_daysbefore',
             'ruledata' => '{"days":"-1","datefield":"courseendtime","cancelrules":[]}',
         ];
@@ -667,13 +679,15 @@ final class rules_test extends advanced_testcase {
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
 
         // Create booking rule - "ndays before".
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"sessionreminderrule","template":"session about to start","templateformat":"1"}';
         $sessionreminderruledata = [
             'name' => 'sessionreminderrule',
             'contextid' => 1,
             'conditionname' => 'select_users',
             'conditiondata' => '{"userids":["' . $user1->id . '","' . $user2->id . '"]}',
             'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"sessionreminderrule","template":"session about to start","templateformat":"1"}',
+            'actiondata' => $actstr,
             'rulename' => 'rule_daysbefore',
             'ruledata' => '{"days":"1","datefield":"optiondatestarttime","cancelrules":[]}',
         ];
@@ -771,19 +785,23 @@ final class rules_test extends advanced_testcase {
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
 
         // Create booking rule - "bookinganswer_cancelled".
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"answcancsubj","template":"answcancmsg","templateformat":"1"}';
         $ruledata1 = [
             'name' => 'notifyadmin',
             'conditionname' => 'select_users',
             'contextid' => 1,
             'conditiondata' => '{"userids":["2"]}',
             'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"answcancsubj","template":"answcancmsg","templateformat":"1"}',
+            'actiondata' => $actstr,
             'rulename' => 'rule_react_on_event',
             'ruledata' => '{"boevent":"\\\\mod_booking\\\\event\\\\bookinganswer_cancelled","aftercompletion":"","condition":"0"}',
         ];
         $rule1 = $plugingenerator->create_rule($ruledata1);
 
         // Create booking rule - "override".
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"overridesubj","template":"overridemsg","templateformat":"1"}';
         $boevent2 = '"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_cancelled"';
         $cancelrules2 = '"cancelrules":["' . $rule1->id . '"]';
         $ruledata2 = [
@@ -792,7 +810,7 @@ final class rules_test extends advanced_testcase {
             'contextid' => 1,
             'conditiondata' => '',
             'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"overridesubj","template":"overridemsg","templateformat":"1"}',
+            'actiondata' => $actstr,
             'rulename' => 'rule_react_on_event',
             'ruledata' => '{' . $boevent2 . ',"aftercompletion":"","condition":"0",' . $cancelrules2 . '}',
         ];
@@ -895,13 +913,15 @@ final class rules_test extends advanced_testcase {
         $option = $plugingenerator->create_option($record);
 
         // Create booking rule.
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"OptionChanged","template":"Changes:{changes}","templateformat":"1"}';
         $ruledata1 = [
             'name' => 'emailchanges',
             'conditionname' => 'select_teacher_in_bo',
             'contextid' => 1,
             'conditiondata' => '',
             'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"OptionChanged","template":"Changes:{changes}","templateformat":"1"}',
+            'actiondata' => $actstr,
             'rulename' => 'rule_react_on_event',
             'ruledata' => '{"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_updated","condition":"0","aftercompletion":""}',
         ];
@@ -1008,6 +1028,8 @@ final class rules_test extends advanced_testcase {
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
 
         // Create booking rule 1 - "bookinganswer_waitingforconfirmation".
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"waitinglistconfirmsubj","template":"waitinglistconfirmmsg","templateformat":"1"}';
         $boevent1 = '"boevent":"\\\\mod_booking\\\\event\\\\bookinganswer_waitingforconfirmation"';
         $ruledata1 = [
             'name' => 'notifystudent',
@@ -1015,13 +1037,15 @@ final class rules_test extends advanced_testcase {
             'contextid' => 1,
             'conditiondata' => '{"cpfield":"sport","operator":"~","textfield":"football"}',
             'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"waitinglistconfirmsubj","template":"waitinglistconfirmmsg","templateformat":"1"}',
+            'actiondata' => $actstr,
             'rulename' => 'rule_react_on_event',
             'ruledata' => '{' . $boevent1 . ',"aftercompletion":"","condition":"0"}',
         ];
         $rule1 = $plugingenerator->create_rule($ruledata1);
 
         // Create booking rule 2 - "bookingoptionwaitinglist_booked".
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"waitinglistsubj","template":"waitinglistmsg","templateformat":"1"}';
         $boevent2 = '"boevent":"\\\\mod_booking\\\\event\\\\bookingoptionwaitinglist_booked"';
         $ruledata2 = [
             'name' => 'override',
@@ -1029,7 +1053,7 @@ final class rules_test extends advanced_testcase {
             'contextid' => 1,
             'conditiondata' => '',
             'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"waitinglistsubj","template":"waitinglistmsg","templateformat":"1"}',
+            'actiondata' => $actstr,
             'rulename' => 'rule_react_on_event',
             'ruledata' => '{' . $boevent2 . ',"aftercompletion":"","condition":"0"}',
         ];
@@ -1153,6 +1177,8 @@ final class rules_test extends advanced_testcase {
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
 
         // Create booking rule 1 - "bookinganswer_waitingforconfirmation".
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"waitinglistsubj","template":"waitinglistmsg","templateformat":"1"}';
         $boevent1 = '"boevent":"\\\\mod_booking\\\\event\\\\bookingoptionwaitinglist_booked"';
         $ruledata1 = [
             'name' => 'notifystudent',
@@ -1160,13 +1186,15 @@ final class rules_test extends advanced_testcase {
             'contextid' => 1,
             'conditiondata' => '',
             'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"waitinglistsubj","template":"waitinglistmsg","templateformat":"1"}',
+            'actiondata' => $actstr,
             'rulename' => 'rule_react_on_event',
             'ruledata' => '{' . $boevent1 . ',"aftercompletion":"","condition":"0"}',
         ];
         $rule1 = $plugingenerator->create_rule($ruledata1);
 
         // Create booking rule 2 - "bookingoption_freetobookagain".
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"freeplacesubj","template":"freeplacemsg","templateformat":"1"}';
         $boevent2 = '"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_freetobookagain"';
         $ruledata2 = [
             'name' => 'override',
@@ -1174,7 +1202,7 @@ final class rules_test extends advanced_testcase {
             'contextid' => 1,
             'conditiondata' => '{"borole":"1"}',
             'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"freeplacesubj","template":"freeplacemsg","templateformat":"1"}',
+            'actiondata' => $actstr,
             'rulename' => 'rule_react_on_event',
             'ruledata' => '{' . $boevent2 . ',"aftercompletion":"","condition":"0"}',
         ];
@@ -1314,26 +1342,30 @@ final class rules_test extends advanced_testcase {
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
 
         // Create booking rule 1 - "bookingoption_booked".
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"bookedsubj","template":"bookednmsg","templateformat":"1"}';
         $ruledata1 = [
             'name' => 'notifystudent',
             'conditionname' => 'match_userprofilefield',
             'contextid' => 1,
             'conditiondata' => '{"optionfield":"text","operator":"~","cpfield":"sport"}',
             'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"bookedsubj","template":"bookednmsg","templateformat":"1"}',
+            'actiondata' => $actstr,
             'rulename' => 'rule_react_on_event',
             'ruledata' => '{"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_booked","aftercompletion":"","condition":"0"}',
         ];
         $rule1 = $plugingenerator->create_rule($ruledata1);
 
         // Create booking rule 2 - "bookingoption_completed".
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"completionsubj","template":"completionmsg","templateformat":"1"}';
         $ruledata2 = [
             'name' => 'notifystudent',
             'conditionname' => 'select_user_from_event',
             'contextid' => 1,
             'conditiondata' => '{"userfromeventtype":"relateduserid"}',
             'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"completionsubj","template":"completionmsg","templateformat":"1"}',
+            'actiondata' => $actstr,
             'rulename' => 'rule_react_on_event',
             'ruledata' => '{"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_completed","aftercompletion":"","condition":"0"}',
         ];

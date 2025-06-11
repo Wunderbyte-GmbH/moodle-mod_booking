@@ -138,13 +138,15 @@ final class rules_waitinglist_test extends advanced_testcase {
 
         // Create booking rule 1 - "bookingoption_freetobookagain" with delays.
         $boevent1 = '"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_freetobookagain"';
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"interval":1,"subject":"freeplacedelaysubj","template":"freeplacedelaymsg","templateformat":"1"}';
         $ruledata1 = [
             'name' => 'intervlqs',
             'conditionname' => 'select_student_in_bo',
             'contextid' => 1,
             'conditiondata' => '{"borole":"smallerthan1"}',
             'actionname' => 'send_mail_interval',
-            'actiondata' => '{"interval":1,"subject":"freeplacedelaysubj","template":"freeplacedelaymsg","templateformat":"1"}',
+            'actiondata' => $actstr,
             'rulename' => 'rule_react_on_event',
             'ruledata' => '{' . $boevent1 . ',"aftercompletion":0,"cancelrules":[],"condition":"2"}',
         ];
@@ -152,13 +154,15 @@ final class rules_waitinglist_test extends advanced_testcase {
 
         // Create booking rule 2 - "bookingoption_freetobookagain".
         $boevent2 = '"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_freetobookagain"';
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"freeplacesubj","template":"freeplacemsg","templateformat":"1"}';
         $ruledata2 = [
             'name' => 'override',
             'conditionname' => 'select_student_in_bo',
             'contextid' => 1,
             'conditiondata' => '{"borole":"1"}',
             'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"freeplacesubj","template":"freeplacemsg","templateformat":"1"}',
+            'actiondata' => $actstr,
             'rulename' => 'rule_react_on_event',
             'ruledata' => '{' . $boevent2 . ',"aftercompletion":"","condition":"0"}',
         ];
@@ -357,13 +361,15 @@ final class rules_waitinglist_test extends advanced_testcase {
 
         // Create booking rule 1 - "bookingoption_freetobookagain" with delays.
         $boevent1 = '"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_freetobookagain"';
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"interval":1440,"subject":"freeplacedelaysubj","template":"freeplacedelaymsg","templateformat":"1"}';
         $ruledata1 = [
             'name' => 'intervlqs',
             'conditionname' => 'select_student_in_bo',
             'contextid' => 1,
             'conditiondata' => '{"borole":"1"}',
             'actionname' => 'send_mail_interval',
-            'actiondata' => '{"interval":1440,"subject":"freeplacedelaysubj","template":"freeplacedelaymsg","templateformat":"1"}',
+            'actiondata' => $actstr,
             'rulename' => 'rule_react_on_event',
             'ruledata' => '{' . $boevent1 . ',"aftercompletion":0,"cancelrules":[],"condition":"2"}',
         ];
@@ -371,13 +377,15 @@ final class rules_waitinglist_test extends advanced_testcase {
 
         // Create booking rule 2 - "bookingoption_freetobookagain".
         $boevent2 = '"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_freetobookagain"';
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"freeplacesubj","template":"freeplacemsg","templateformat":"1"}';
         $ruledata2 = [
             'name' => 'override',
             'conditionname' => 'select_student_in_bo',
             'contextid' => 1,
             'conditiondata' => '{"borole":"1"}',
             'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"freeplacesubj","template":"freeplacemsg","templateformat":"1"}',
+            'actiondata' => $actstr,
             'rulename' => 'rule_react_on_event',
             'ruledata' => '{' . $boevent2 . ',"aftercompletion":"","condition":"0"}',
         ];
@@ -604,13 +612,15 @@ final class rules_waitinglist_test extends advanced_testcase {
 
         // Create booking rule 1 - "bookingoption_freetobookagain" with delays.
         $boevent1 = '"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_freetobookagain"';
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"interval":1440,"subject":"freeplacedelaysubj","template":"freeplacedelaymsg","templateformat":"1"}';
         $ruledata1 = [
             'name' => 'intervlqs',
             'conditionname' => 'select_student_in_bo',
             'contextid' => 1,
             'conditiondata' => '{"borole":"1"}',
             'actionname' => 'send_mail_interval',
-            'actiondata' => '{"interval":1440,"subject":"freeplacedelaysubj","template":"freeplacedelaymsg","templateformat":"1"}',
+            'actiondata' => $actstr,
             'rulename' => 'rule_react_on_event',
             'ruledata' => '{' . $boevent1 . ',"aftercompletion":0,"cancelrules":[],"condition":"2"}',
         ];
@@ -832,13 +842,15 @@ final class rules_waitinglist_test extends advanced_testcase {
 
         // Create booking rule 1 - "bookingoption_freetobookagain" with delays.
         $boevent1 = '"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_freetobookagain"';
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"interval":1440,"subject":"freeplacedelaysubj","template":"freeplacedelaymsg","templateformat":"1"}';
         $ruledata1 = [
             'name' => 'intervlqs',
             'conditionname' => 'select_student_in_bo',
             'contextid' => 1,
             'conditiondata' => '{"borole":"1"}',
             'actionname' => 'send_mail_interval',
-            'actiondata' => '{"interval":1440,"subject":"freeplacedelaysubj","template":"freeplacedelaymsg","templateformat":"1"}',
+            'actiondata' => $actstr,
             'rulename' => 'rule_react_on_event',
             'ruledata' => '{' . $boevent1 . ',"aftercompletion":1,"cancelrules":[],"condition":"2"}',
         ];
@@ -1157,13 +1169,15 @@ final class rules_waitinglist_test extends advanced_testcase {
 
         // Create booking rule 1 - "bookingoption_freetobookagain" with delays.
         $boevent1 = '"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_freetobookagain"';
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"interval":1440,"subject":"freeplacedelaysubj","template":"freeplacedelaymsg","templateformat":"1"}';
         $ruledata1 = [
             'name' => 'intervlqs',
             'conditionname' => 'select_student_in_bo',
             'contextid' => 1,
             'conditiondata' => '{"borole":"1"}',
             'actionname' => 'send_mail_interval',
-            'actiondata' => '{"interval":1440,"subject":"freeplacedelaysubj","template":"freeplacedelaymsg","templateformat":"1"}',
+            'actiondata' => $actstr,
             'rulename' => 'rule_react_on_event',
             'ruledata' => '{' . $boevent1 . ',"aftercompletion":0,"cancelrules":[],"condition":"2"}',
         ];

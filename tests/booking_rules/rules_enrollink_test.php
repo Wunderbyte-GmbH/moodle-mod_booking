@@ -128,7 +128,7 @@ final class rules_enrollink_test extends advanced_testcase {
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
 
         // Create booking rule - "bookinganswer_cancelled".
-        $actstr = '{"subject":"Enrollinksubj",';
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"","subject":"Enrollinksubj",';
         $actstr .= '"template":';
         $actstr .= '"<p>{enrollink}<\/p><p>{qrenrollink}<\/p><p>{#customform}<\/p><p>{customform}<\/p><p>{\/customform}<\/p>",';
         $actstr .= '"templateformat":"1"}';
@@ -426,7 +426,7 @@ final class rules_enrollink_test extends advanced_testcase {
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
 
         // Create booking rule - "bookinganswer_cancelled".
-        $actstr = '{"subject":"Enrollinksubj",';
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"","subject":"Enrollinksubj",';
         $actstr .= '"template":';
         $actstr .= '"<p>{enrollink}<\/p><p>{qrenrollink}<\/p><p>{#customform}<\/p><p>{customform}<\/p><p>{\/customform}<\/p>",';
         $actstr .= '"templateformat":"1"}';
