@@ -110,26 +110,30 @@ final class rules_n_days_test extends advanced_testcase {
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
 
         // Create booking rule - "ndays before".
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"1daybefore","template":"will start tomorrow","templateformat":"1"}';
         $ruledata1 = [
             'name' => '1daybefore',
             'conditionname' => 'select_users',
             'contextid' => 1,
             'conditiondata' => '{"userids":["2"]}',
             'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"1daybefore","template":"will start tomorrow","templateformat":"1"}',
+            'actiondata' => $actstr,
             'rulename' => 'rule_daysbefore',
             'ruledata' => '{"days":"1","datefield":"coursestarttime","cancelrules":[]}',
         ];
         $rule1 = $plugingenerator->create_rule($ruledata1);
 
         // Create booking rule - "ndays after".
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"1dayafter","template":"was ended yesterday","templateformat":"1"}';
         $ruledata2 = [
             'name' => '1dayafter',
             'conditionname' => 'select_users',
             'contextid' => 1,
             'conditiondata' => '{"userids":["2"]}',
             'actionname' => 'send_mail',
-            'actiondata' => '{"subject":"1dayafter","template":"was ended yesterday","templateformat":"1"}',
+            'actiondata' => $actstr,
             'rulename' => 'rule_daysbefore',
             'ruledata' => '{"days":"-1","datefield":"courseendtime","cancelrules":[]}',
         ];
