@@ -191,6 +191,8 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
   @javascript
   Scenario: Booking settings: control presence of strings on all settings pages
     Given I log in as "admin"
+    And I visit "/admin/search.php#linkmodules"
+    And I wait "3" seconds
     And I visit "/mod/booking/optionformconfig.php?cmid=0"
     And I wait "1" seconds
     And I visit "/mod/booking/customfield.php"
@@ -202,7 +204,6 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     ##And I visit "/mod/booking/edit_campaigns.php"
     ##And I visit "/admin/category.php?category=modbookingfolder"
     ##And I visit "/admin/settings.php?section=modsettingbooking"
-
 
   @javascript
   Scenario: Booking settings: control deprecated email templates
