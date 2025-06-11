@@ -161,8 +161,10 @@ class elective {
         if (!empty($defaultvalues->optionid)) {
             $settings = singleton_service::get_instance_of_booking_option_settings($defaultvalues->optionid);
 
-            $defaultvalues->mustcombine = $settings->electivecombinations ? implode(',', $settings->electivecombinations['mustcombine']) : '';
-            $defaultvalues->mustnotcombine = $settings->electivecombinations ? implode(',', $settings->electivecombinations['mustnotcombine']) : '';
+            $defaultvalues->mustcombine = $settings->electivecombinations ?
+                implode(',', $settings->electivecombinations['mustcombine']) : '';
+            $defaultvalues->mustnotcombine = $settings->electivecombinations ?
+                implode(',', $settings->electivecombinations['mustnotcombine']) : '';
         }
     }
 
