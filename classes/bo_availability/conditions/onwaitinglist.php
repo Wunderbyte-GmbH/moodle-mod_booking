@@ -347,7 +347,7 @@ class onwaitinglist implements bo_condition {
             return false;
         }
 
-        // Step 6: Calculate current eligible user position
+        // Step 6: Calculate current eligible user position.
         $secondsperwindow = $bookingwindowhours * 3600;
         $elapsedtime = $now - $latestcancellation;
         $currentallowedposition = (int) floor($elapsedtime / $secondsperwindow);
