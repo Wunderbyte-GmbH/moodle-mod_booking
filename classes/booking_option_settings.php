@@ -1406,15 +1406,18 @@ class booking_option_settings {
 
         // We have to join images with itemid and contextid to be sure to have the right image.
         // We use contextlevel 70 as it is the contextlevel for course modules.
-        $from = " JOIN {course_modules} cm ON bo.bookingid = cm.instance AND bo.bookingid <> 0 AND bo.bookingid IS NOT NULL
-            JOIN {modules} m ON m.id = cm.module AND m.name = 'booking'
-            JOIN {context} ctx ON ctx.contextlevel = 70 AND ctx.instanceid = cm.id
-            LEFT JOIN {files} f ON f.itemid = bo.id
-                AND f.contextid = ctx.id
-                AND f.component = 'mod_booking'
-                AND f.filearea = 'bookingoptionimage'
-                AND f.mimetype LIKE 'image%'";
-        // NOTE: For the tables course_modules, modules and context, we need JOINS and NO LEFT JOINS to avoid duplicates.
+        $from = " LEFT JOIN (
+                SELECT cm1.instance, ctx1.id FROM {course_modules} cm1
+                JOIN {modules} m1 ON m1.id = cm1.module AND m1.name = 'booking'
+                JOIN {context} ctx1 ON ctx1.contextlevel = 70 AND ctx1.instanceid = cm1.id
+            ) ctx
+            ON bo.bookingid = ctx.instance AND bo.bookingid <> 0 AND bo.bookingid IS NOT NULL
+            LEFT JOIN {files} f
+            ON f.itemid = bo.id
+            AND f.contextid = ctx.id
+            AND f.component = 'mod_booking'
+            AND f.filearea = 'bookingoptionimage'
+            AND f.mimetype LIKE 'image%'";
 
         // As this is a complete subrequest, we have to add the "where" to the outer table, where it is already rendered.
         $counter = 0;

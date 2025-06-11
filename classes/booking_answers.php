@@ -107,17 +107,13 @@ class booking_answers {
         }
 
         if (!$data) {
-            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-            /* $sql = "SELECT ba.id as baid, ba.userid, ba.waitinglist, ba.timecreated, $userfields, u.institution
-            FROM {booking_answers} ba
-            JOIN {user} u ON u.id = ba.userid
-            WHERE ba.optionid = :optionid
-            AND u.deleted = 0
-            ORDER BY ba.timecreated ASC"; */
-
             try {
-                [$sql, $params] = self::return_sql_to_get_answers($optionid);
-                $answers = $DB->get_records_sql($sql, $params);
+                if (!empty($optionid)) {
+                    [$sql, $params] = self::return_sql_to_get_answers($optionid);
+                    $answers = $DB->get_records_sql($sql, $params);
+                } else {
+                    $answers = [];
+                }
             } catch (Throwable $e) {
                 if ($CFG->debug === E_ALL) {
                     throw $e;
