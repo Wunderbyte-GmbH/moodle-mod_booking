@@ -94,6 +94,11 @@ final class rules_test extends advanced_testcase {
     public function test_payment_confirmation(array $bdata): void {
         global $DB, $CFG;
 
+        // Skip this test if shopping_cart not installed.
+        if (!class_exists('local_shopping_cart\shopping_cart')) {
+            return;
+        }
+
         $bdata['cancancelbook'] = 1;
 
         // Create course.
@@ -164,18 +169,16 @@ final class rules_test extends advanced_testcase {
         // Default price expected.
         $this->assertEquals($pricecategorydata->defaultvalue, $price["price"]);
         // Purchase item in behalf of user if shopping_cart installed.
-        if (class_exists('local_shopping_cart\shopping_cart')) {
-            // Clean cart.
-            shopping_cart::delete_all_items_from_cart($student1->id);
-            // Set user to buy in behalf of.
-            shopping_cart::buy_for_user($student1->id);
-            // Get cached data or setup defaults.
-            $cartstore = cartstore::instance($student1->id);
-            // Put in a test item with given ID (or default if ID > 4).
-            shopping_cart::add_item_to_cart('mod_booking', 'option', $settings->id, -1);
-            // Confirm cash payment.
-            $res = shopping_cart::confirm_payment($student1->id, LOCAL_SHOPPING_CART_PAYMENT_METHOD_CASHIER_CASH);
-        }
+        // Clean cart.
+        shopping_cart::delete_all_items_from_cart($student1->id);
+        // Set user to buy in behalf of.
+        shopping_cart::buy_for_user($student1->id);
+        // Get cached data or setup defaults.
+        $cartstore = cartstore::instance($student1->id);
+        // Put in a test item with given ID (or default if ID > 4).
+        shopping_cart::add_item_to_cart('mod_booking', 'option', $settings->id, -1);
+        // Confirm cash payment.
+        $res = shopping_cart::confirm_payment($student1->id, LOCAL_SHOPPING_CART_PAYMENT_METHOD_CASHIER_CASH);
 
         // Get all scheduled task messages.
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
