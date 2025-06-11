@@ -305,6 +305,11 @@ class competencies extends field_base {
         $competencies = explode(',', $bo->settings->competencies ?? '');
 
         foreach ($competencies as $competencyid) {
+            // Make sure empty competencies won't be a problem.
+            if (empty($competencyid) || !is_numeric($competencyid)) {
+                continue;
+            }
+
             // Assign competence to user.
             api::get_user_competency($userid, $competencyid);
 
