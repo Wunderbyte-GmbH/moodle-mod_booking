@@ -473,13 +473,17 @@ final class rules_selflearningcourse_test extends advanced_testcase {
             ],
         ];
 
+        $icalstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actionstr1 = '"subject":"1 day after","template":"was ended yesterday","templateformat":"1"}';
+        $actionstr2 = '"subject":"1 day before","template":"will end tomorrow","templateformat":"1"}';
+        $actionstr3 = '"subject":"10 days before","template":"will end in 10 days","templateformat":"1"}';
         $standardrules = [
             [
                 'name' => '1dayafter',
                 'conditionname' => 'select_student_in_bo',
                 'conditiondata' => '{"borole":"0"}',
                 'actionname' => 'send_mail',
-                'actiondata' => '{"subject":"1 day after","template":"was ended yesterday","templateformat":"1"}',
+                'actiondata' => $icalstr . $actionstr1,
                 'rulename' => 'rule_daysbefore',
                 'ruledata' => '{"days":"-1","datefield":"selflearningcourseenddate","cancelrules":[]}',
             ],
@@ -488,7 +492,7 @@ final class rules_selflearningcourse_test extends advanced_testcase {
                 'conditionname' => 'select_student_in_bo',
                 'conditiondata' => '{"borole":"0"}',
                 'actionname' => 'send_mail',
-                'actiondata' => '{"subject":"1 day before","template":"will end tomorrow","templateformat":"1"}',
+                'actiondata' => $icalstr . $actionstr2,
                 'rulename' => 'rule_daysbefore',
                 'ruledata' => '{"days":"1","datefield":"selflearningcourseenddate","cancelrules":[]}',
             ],
@@ -497,7 +501,7 @@ final class rules_selflearningcourse_test extends advanced_testcase {
                 'conditionname' => 'select_student_in_bo',
                 'conditiondata' => '{"borole":"0"}',
                 'actionname' => 'send_mail',
-                'actiondata' => '{"subject":"10 days before","template":"will end in 10 days","templateformat":"1"}',
+                'actiondata' => $icalstr . $actionstr3,
                 'rulename' => 'rule_daysbefore',
                 'ruledata' => '{"days":"10","datefield":"selflearningcourseenddate","cancelrules":[]}',
             ],
