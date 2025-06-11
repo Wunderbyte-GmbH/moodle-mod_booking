@@ -67,7 +67,7 @@ Feature: Create global booking rules as admin and insure they are working.
   Scenario: Booking rules: create booking rule via DB and view as admin
     Given the following "mod_booking > rules" exist:
       | conditionname | contextid | conditiondata     | name        | actionname | actiondata                                                                      | rulename            | ruledata                                                                                           | cancelrules |
-      | select_users  | 1         | {"userids":["2"]} | notifyadmin | send_mail  | {"subject":"teacher subst","template":"teacher sybst msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\optiondates_teacher_added","aftercompletion":"","condition":"0"} |             |
+      | select_users  | 1         | {"userids":["2"]} | notifyadmin | send_mail  | {"sendical":0,"sendicalcreateorcancel":"","subject":"teacher subst","template":"teacher sybst msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\optiondates_teacher_added","aftercompletion":"","condition":"0"} |             |
     When I log in as "admin"
     And I visit "/mod/booking/edit_rules.php"
     ## And I wait until the page is ready
@@ -83,7 +83,7 @@ Feature: Create global booking rules as admin and insure they are working.
       | BookingCMP  | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
     And the following "mod_booking > rules" exist:
       | conditionname | contextid | conditiondata     | name        | actionname | actiondata                                                                      | rulename            | ruledata                                                                                           | cancelrules |
-      | select_users  | 1         | {"userids":["2"]} | notifyadmin | send_mail  | {"subject":"teacher subst","template":"teacher sybst msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\optiondates_teacher_added","aftercompletion":"","condition":"0"} |             |
+      | select_users  | 1         | {"userids":["2"]} | notifyadmin | send_mail  | {"sendical":0,"sendicalcreateorcancel":"","subject":"teacher subst","template":"teacher sybst msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\optiondates_teacher_added","aftercompletion":"","condition":"0"} |             |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Substitutions / Cancelled dates" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -112,7 +112,7 @@ Feature: Create global booking rules as admin and insure they are working.
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
     And the following "mod_booking > rules" exist:
       | conditionname        | contextid | conditiondata  | name        | actionname | actiondata                                                                    | rulename            | ruledata                                                                                         | cancelrules |
-      | select_student_in_bo | 1         | {"borole":"5"} | notifyadmin | send_mail  | {"subject":"cancellation","template":"cancellation msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_cancelled","aftercompletion":"","condition":"0"} |             |
+      | select_student_in_bo | 1         | {"borole":"5"} | notifyadmin | send_mail  | {"sendical":0,"sendicalcreateorcancel":"","subject":"cancellation","template":"cancellation msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_cancelled","aftercompletion":"","condition":"0"} |             |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -144,7 +144,7 @@ Feature: Create global booking rules as admin and insure they are working.
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
     And the following "mod_booking > rules" exist:
       | conditionname        | contextid | conditiondata  | name        | actionname | actiondata                                                                                  | rulename            | ruledata                                                                                         | cancelrules |
-      | select_student_in_bo | 1         | {"borole":"0"} | notifyadmin | send_mail  | {"subject":"answer cancellation","template":"answer cancellation msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookinganswer_cancelled","aftercompletion":"","condition":"0"} |             |
+      | select_student_in_bo | 1         | {"borole":"0"} | notifyadmin | send_mail  | {"sendical":0,"sendicalcreateorcancel":"","subject":"answer cancellation","template":"answer cancellation msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookinganswer_cancelled","aftercompletion":"","condition":"0"} |             |
     And the following "mod_booking > answers" exist:
       | booking    | option          | user     |
       | BookingCMP | Option-football | student1 |
@@ -169,7 +169,7 @@ Feature: Create global booking rules as admin and insure they are working.
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
     And the following "mod_booking > rules" exist:
       | conditionname | contextid | conditiondata     | name        | actionname | actiondata                                                                       | rulename            | ruledata                                                                                         | cancelrules |
-      | select_users  | 1         | {"userids":["2"]} | notifyadmin | send_mail  | {"subject":"answer cancellation","template":"cancellation","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookinganswer_cancelled","aftercompletion":"","condition":"0"} |             |
+      | select_users  | 1         | {"userids":["2"]} | notifyadmin | send_mail  | {"sendical":0,"sendicalcreateorcancel":"","subject":"answer cancellation","template":"cancellation","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookinganswer_cancelled","aftercompletion":"","condition":"0"} |             |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -195,7 +195,7 @@ Feature: Create global booking rules as admin and insure they are working.
       | BookingCMP  | Option-teacher | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | teacher2, teacher1, admin |
     And the following "mod_booking > rules" exist:
       | conditionname        | contextid | name        | actionname | actiondata                                                                          | rulename            | ruledata                                                                                             | cancelrules |
-      | select_teacher_in_bo | 1         | notifyadmin | send_mail  | {"subject":"teacher removed","template":"teacher removed msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\optiondates_teacher_deleted","aftercompletion":"","condition":"0"} |             |
+      | select_teacher_in_bo | 1         | notifyadmin | send_mail  | {"sendical":0,"sendicalcreateorcancel":"","subject":"teacher removed","template":"teacher removed msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\optiondates_teacher_deleted","aftercompletion":"","condition":"0"} |             |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Substitutions / Cancelled dates" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -226,7 +226,7 @@ Feature: Create global booking rules as admin and insure they are working.
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
     And the following "mod_booking > rules" exist:
       | conditionname          | contextid | conditiondata                  | name          | actionname | actiondata                                                                | rulename            | ruledata                                                                                         | cancelrules |
-      | select_user_from_event | 1         | {"userfromeventtype":"userid"} | notifystudent | send_mail  | {"subject":"completion","template":"completion msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_completed","aftercompletion":"","condition":"0"} |             |
+      | select_user_from_event | 1         | {"userfromeventtype":"userid"} | notifystudent | send_mail  | {"sendical":0,"sendicalcreateorcancel":"","subject":"completion","template":"completion msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_completed","aftercompletion":"","condition":"0"} |             |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -252,7 +252,7 @@ Feature: Create global booking rules as admin and insure they are working.
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | teacher1, teacher2 |
     And the following "mod_booking > rules" exist:
       | conditionname          | contextid | conditiondata                                             | name         | actionname | actiondata                                                                               | rulename            | ruledata                                                                                         | cancelrules |
-      | enter_userprofilefield | 1         | {"cpfield":"sport","operator":"~","textfield":"football"} | emailteacher | send_mail  | {"subject":"cancellation football","template":"football cancelled","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_cancelled","aftercompletion":"","condition":"0"} |             |
+      | enter_userprofilefield | 1         | {"cpfield":"sport","operator":"~","textfield":"football"} | emailteacher | send_mail  | {"sendical":0,"sendicalcreateorcancel":"","subject":"cancellation football","template":"football cancelled","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_cancelled","aftercompletion":"","condition":"0"} |             |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Cancel this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -275,7 +275,7 @@ Feature: Create global booking rules as admin and insure they are working.
       | BookingCMP | football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | teacher1, teacher2 |
     And the following "mod_booking > rules" exist:
       | conditionname          | contextid | conditiondata                                           | name         | actionname | actiondata                                                                         | rulename            | ruledata                                                                                         | cancelrules |
-      | match_userprofilefield | 1         | {"optionfield":"text","operator":"~","cpfield":"sport"} | emailteacher | send_mail  | {"subject":"completion football","template":"completion msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_completed","aftercompletion":"","condition":"0"} |             |
+      | match_userprofilefield | 1         | {"optionfield":"text","operator":"~","cpfield":"sport"} | emailteacher | send_mail  | {"sendical":0,"sendicalcreateorcancel":"","subject":"completion football","template":"completion msg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_completed","aftercompletion":"","condition":"0"} |             |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -300,7 +300,7 @@ Feature: Create global booking rules as admin and insure they are working.
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
     And the following "mod_booking > rules" exist:
       | conditionname          | contextid | conditiondata                  | name          | actionname        | actiondata                                                  | rulename            | ruledata                                                                                     | cancelrules |
-      | select_user_from_event | 1         | {"userfromeventtype":"userid"} | copytotrigger | send_copy_of_mail | {"subjectprefix":"Custom msg copy","messageprefix":"copy:"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\custom_message_sent","aftercompletion":"","condition":"0"} |             |
+      | select_user_from_event | 1         | {"userfromeventtype":"userid"} | copytotrigger | send_copy_of_mail | {"sendical":0,"sendicalcreateorcancel":"","subjectprefix":"Custom msg copy","messageprefix":"copy:"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\custom_message_sent","aftercompletion":"","condition":"0"} |             |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -332,7 +332,7 @@ Feature: Create global booking rules as admin and insure they are working.
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
     And the following "mod_booking > rules" exist:
       | conditionname | contextid | conditiondata     | name        | actionname        | actiondata                                                       | rulename            | ruledata                                                                                          | cancelrules |
-      | select_users  | 1         | {"userids":["2"]} | bulktoadmin | send_copy_of_mail | {"subjectprefix":"Custom bulk msg copy","messageprefix":"copy:"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\custom_bulk_message_sent","aftercompletion":"","condition":"0"} |             |
+      | select_users  | 1         | {"userids":["2"]} | bulktoadmin | send_copy_of_mail | {"sendical":0,"sendicalcreateorcancel":"","subjectprefix":"Custom bulk msg copy","messageprefix":"copy:"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\custom_bulk_message_sent","aftercompletion":"","condition":"0"} |             |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -366,7 +366,7 @@ Feature: Create global booking rules as admin and insure they are working.
       ## 2044/05/15 - 2044/05/17
     And the following "mod_booking > rules" exist:
       | conditionname        | contextid | name         | actionname | actiondata                                                                       | rulename            | ruledata                                                                                       | cancelrules |
-      | select_teacher_in_bo | 1         | emailchanges | send_mail  | {"subject":"OptionChanged","template":"Changes: {changes}","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_updated","aftercompletion":"","condition":"0"} |             |
+      | select_teacher_in_bo | 1         | emailchanges | send_mail  | {"sendical":0,"sendicalcreateorcancel":"","subject":"OptionChanged","template":"Changes: {changes}","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_updated","aftercompletion":"","condition":"0"} |             |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I change viewport size to "1366x10000"
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
@@ -391,8 +391,8 @@ Feature: Create global booking rules as admin and insure they are working.
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | teacher1, teacher2 |
     And the following "mod_booking > rules" exist:
       | conditionname        | contextid | conditiondata     | name        | actionname | actiondata                                                               | rulename            | ruledata                                                                                         | cancelrules |
-      | select_users         | 1         | {"userids":["2"]} | notifyadmin | send_mail  | {"subject":"answcancsubj","template":"answcancmsg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookinganswer_cancelled","aftercompletion":"","condition":"0"} |             |
-      | select_teacher_in_bo | 1         |                   | override    | send_mail  | {"subject":"overridesubj","template":"overridemsg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_cancelled","aftercompletion":"","condition":"0"} | notifyadmin |
+      | select_users         | 1         | {"userids":["2"]} | notifyadmin | send_mail  | {"sendical":0,"sendicalcreateorcancel":"","subject":"answcancsubj","template":"answcancmsg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookinganswer_cancelled","aftercompletion":"","condition":"0"} |             |
+      | select_teacher_in_bo | 1         |                   | override    | send_mail  | {"sendical":0,"sendicalcreateorcancel":"","subject":"overridesubj","template":"overridemsg","templateformat":"1"} | rule_react_on_event | {"boevent":"\\mod_booking\\event\\bookingoption_cancelled","aftercompletion":"","condition":"0"} | notifyadmin |
     And the following "mod_booking > answers" exist:
       | booking    | option          | user     |
       | BookingCMP | Option-football | student1 |
@@ -423,8 +423,8 @@ Feature: Create global booking rules as admin and insure they are working.
       | forcetimezone | Europe/Kyiv |
     And the following "mod_booking > rules" exist:
       | conditionname | contextid | conditiondata     | name       | actionname | actiondata                                                                     | rulename        | ruledata                                   |
-      | select_users  | 1         | {"userids":["2"]} | 1daybefore | send_mail  | {"subject":"1daybefore","template":"will start tomorrow","templateformat":"1"} | rule_daysbefore | {"days":"1","datefield":"coursestarttime"} |
-      | select_users  | 1         | {"userids":["2"]} | 1dayafter  | send_mail  | {"subject":"1dayafter","template":"was ended yesterday","templateformat":"1"}  | rule_daysbefore | {"days":"-1","datefield":"courseendtime"}  |
+      | select_users  | 1         | {"userids":["2"]} | 1daybefore | send_mail  | {"sendical":0,"sendicalcreateorcancel":"","subject":"1daybefore","template":"will start tomorrow","templateformat":"1"} | rule_daysbefore | {"days":"1","datefield":"coursestarttime"} |
+      | select_users  | 1         | {"userids":["2"]} | 1dayafter  | send_mail  | {"sendical":0,"sendicalcreateorcancel":"","subject":"1dayafter","template":"was ended yesterday","templateformat":"1"}  | rule_daysbefore | {"days":"-1","datefield":"courseendtime"}  |
     ## It is important to setup next day exactly in minutes
     And the following "mod_booking > options" exist:
       | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0   | courseendtime_0       |
