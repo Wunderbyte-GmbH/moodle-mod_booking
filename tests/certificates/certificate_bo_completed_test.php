@@ -181,7 +181,7 @@ final class certificate_bo_completed_test extends advanced_testcase {
                 'configsettings' => [
                     [
                         'component' => 'booking',
-                        'name' => 'certification',
+                        'name' => 'certificateon',
                         'value' => 0,
                     ],
                 ],
@@ -213,7 +213,7 @@ final class certificate_bo_completed_test extends advanced_testcase {
                 'configsettings' => [
                     [
                     'component' => 'booking',
-                    'name' => 'certification',
+                    'name' => 'certificateon',
                     'value' => 1,
                     ],
                 ],
@@ -244,7 +244,7 @@ final class certificate_bo_completed_test extends advanced_testcase {
                 'configsettings' => [
                     [
                         'component' => 'booking',
-                        'name' => 'certification',
+                        'name' => 'certificateon',
                         'value' => 1,
                     ],
                 ],
@@ -276,7 +276,7 @@ final class certificate_bo_completed_test extends advanced_testcase {
                 'configsettings' => [
                     [
                         'component' => 'booking',
-                        'name' => 'certification',
+                        'name' => 'certificateon',
                         'value' => 1,
                     ],
                 ],
@@ -308,7 +308,7 @@ final class certificate_bo_completed_test extends advanced_testcase {
                 'configsettings' => [
                     [
                         'component' => 'booking',
-                        'name' => 'certification',
+                        'name' => 'certificateon',
                         'value' => 1,
                     ],
                 ],
@@ -340,7 +340,7 @@ final class certificate_bo_completed_test extends advanced_testcase {
                 'configsettings' => [
                     [
                         'component' => 'booking',
-                        'name' => 'certification',
+                        'name' => 'certificateon',
                         'value' => 1,
                     ],
                 ],
@@ -372,7 +372,7 @@ final class certificate_bo_completed_test extends advanced_testcase {
                 'configsettings' => [
                     [
                         'component' => 'booking',
-                        'name' => 'certification',
+                        'name' => 'certificateon',
                         'value' => 1,
                     ],
                     [
