@@ -1,3 +1,6 @@
+## Version 8.14.7 (2025061201)
+* Bugfix: Renamed setting to enable certificates to certificateon.
+
 ## Version 8.14.6 (2025061200)
 * New feature: Create and issue certificates when booking option is completed.
 * Bugfix: Don't throw an error when the teacherid is no valid user.
