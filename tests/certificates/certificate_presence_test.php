@@ -183,7 +183,7 @@ final class certificate_presence_test extends advanced_testcase {
                     'configsettings' => [
                         [
                             'component' => 'booking',
-                            'name' => 'certificateon',
+                            'name' => 'certification',
                             'value' => 1,
                         ],
                         [
@@ -220,7 +220,7 @@ final class certificate_presence_test extends advanced_testcase {
                     'configsettings' => [
                         [
                             'component' => 'booking',
-                            'name' => 'certificateon',
+                            'name' => 'certification',
                             'value' => 1,
                         ],
                         [
@@ -256,7 +256,7 @@ final class certificate_presence_test extends advanced_testcase {
                     'configsettings' => [
                         [
                             'component' => 'booking',
-                            'name' => 'certificateon',
+                            'name' => 'certification',
                             'value' => 1,
                         ],
                         [
@@ -292,7 +292,7 @@ final class certificate_presence_test extends advanced_testcase {
                     'configsettings' => [
                         [
                             'component' => 'booking',
-                            'name' => 'certificateon',
+                            'name' => 'certification',
                             'value' => 1,
                         ],
                         [

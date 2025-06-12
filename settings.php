@@ -608,13 +608,13 @@ if ($ADMIN->fulltree) {
     if ($proversion) {
         $settings->add(
             new admin_setting_configcheckbox(
-                'booking/certificateon',
-                get_string('certificateon', 'mod_booking'),
-                get_string('certificateon_desc', 'mod_booking'),
+                'booking/certification',
+                get_string('certification', 'mod_booking'),
+                get_string('certification_desc', 'mod_booking'),
                 0,
             )
         );
-        if (get_config('booking', 'certificateon')) {
+        if (get_config('booking', 'certification')) {
             $settings->add(
                 new admin_setting_configselect(
                     'booking/presencestatustoissuecertificate',

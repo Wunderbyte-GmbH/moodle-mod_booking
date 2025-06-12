@@ -1887,7 +1887,7 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
                 $completion->update_state($cm, COMPLETION_INCOMPLETE, $selecteduser);
             }
         } else {
-            if (get_config('booking', 'certificateon') && !get_config('booking', 'presencestatustoissuecertificate')) {
+            if (get_config('booking', 'certification') && !get_config('booking', 'presencestatustoissuecertificate')) {
                 $certid = certificate::issue_certificate($optionid, $selecteduser);
             }
             $other = [
