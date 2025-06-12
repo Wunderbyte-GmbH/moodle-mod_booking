@@ -28,6 +28,7 @@ namespace mod_booking\booking_rules;
 use context;
 use context_module;
 use core_component;
+use core_plugin_manager;
 use dml_exception;
 use context_system;
 use mod_booking\local\templaterule;
@@ -197,7 +198,18 @@ class rules_info {
                 $rules[] = $instance;
             }
         }
-
+        foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
+            $classes = core_component::get_component_classes_in_namespace(
+                "bookingextension_{$plugin->name}",
+                'rules'
+            );
+            foreach ($classes as $classname => $path) {
+                if (class_exists($classname)) {
+                          $instance = new $classname();
+                          $rules[] = $instance;
+                }
+            }
+        }
         return $rules;
     }
 
@@ -207,14 +219,17 @@ class rules_info {
      * @return mixed
      */
     public static function get_rule(string $rulename) {
-
         $filename = 'mod_booking\\booking_rules\\rules\\' . $rulename;
-
         // We instantiate all the classes, because we need some information.
         if (class_exists($filename)) {
             return new $filename();
         }
-
+        foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
+            $classname = "\\bookingextension_{$plugin->name}\\rules\\{$rulename}";
+            if (class_exists($classname)) {
+                return new $classname();
+            }
+        }
         return null;
     }
 
