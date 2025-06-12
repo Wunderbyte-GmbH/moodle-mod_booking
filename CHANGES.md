@@ -1,3 +1,10 @@
+## Version 8.14.6 (2025061200)
+* New feature: Create and issue certificates when booking option is completed.
+* Bugfix: Don't throw an error when the teacherid is no valid user.
+* Bugfix: When joining images, we need INNER JOINS for course_modules, modules and context to avoid duplicate rows.
+* Bugfix: No error when there are no competencies.
+* Bugfix: Fix SQL for joined images so it won't break option templates.
+
 ## Version 8.14.5 (2025061000)
 * Improvement: Disable booking for user if others are on waitinglist.
 * Bugfix: Fix enrolment confirmation.
