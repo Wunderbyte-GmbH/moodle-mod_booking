@@ -17,6 +17,8 @@
 namespace mod_booking\external;
 use external_api;
 use external_function_parameters;
+use external_single_structure;
+use external_multiple_structure;
 use external_value;
 use mod_booking\booking;
 
@@ -34,7 +36,6 @@ require_once($CFG->libdir . '/externallib.php');
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class search_teachers extends external_api {
-
     /**
      * Describes the external function parameters.
      *
@@ -60,26 +61,26 @@ class search_teachers extends external_api {
             'query' => $query,
         ]);
 
-        return booking::load_teachers($params['query']);
+        return booking::load_teachers_for_webservice($params['query']);
     }
 
     /**
      * Describes the external function result value.
      *
-     * @return \external_single_structure
+     * @return external_single_structure
      */
-    public static function execute_returns(): \external_single_structure {
+    public static function execute_returns(): external_single_structure {
 
-        return new \external_single_structure([
-            'list' => new \external_multiple_structure(
-                new \external_single_structure([
-                    'id' => new \external_value(\core_user::get_property_type('id'), 'ID of the teacher'),
-                    'firstname' => new \external_value(PARAM_TEXT, 'Firstname of the teacher'),
-                    'lastname' => new \external_value(PARAM_TEXT, 'Lastname of the teacher', VALUE_OPTIONAL),
-                    'email' => new \external_value(PARAM_TEXT, 'Email of the teacher', VALUE_OPTIONAL),
+        return new external_single_structure([
+            'list' => new external_multiple_structure(
+                new external_single_structure([
+                    'id' => new external_value(\core_user::get_property_type('id'), 'ID of the teacher'),
+                    'firstname' => new external_value(PARAM_TEXT, 'Firstname of the teacher'),
+                    'lastname' => new external_value(PARAM_TEXT, 'Lastname of the teacher', VALUE_OPTIONAL),
+                    'email' => new external_value(PARAM_TEXT, 'Email of the teacher', VALUE_OPTIONAL),
                 ])
             ),
-            'warnings' => new \external_value(PARAM_TEXT, 'Warnings'),
+            'warnings' => new external_value(PARAM_TEXT, 'Warnings'),
         ]);
     }
 }

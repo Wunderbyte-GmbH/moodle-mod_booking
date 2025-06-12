@@ -17,8 +17,7 @@
  * Provides the required functionality for an autocomplete element to select a teacher.
  *
  * @module      mod_booking/form_teachers_selector
- * @copyright   2023 Wunderbyte GmbH
- * @author      Bernhard Fischer-Sengseis
+ * @copyright   2025 Bernhard Fischer-Sengseis
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -26,7 +25,7 @@ import Ajax from "core/ajax";
 import {render as renderTemplate} from "core/templates";
 
 /**
- * Load the list of users matching the query and render the selector labels for them.
+ * Load the list of teachers matching the query and render the selector labels for them.
  *
  * @param {String} selector The selector of the auto complete element.
  * @param {String} query The query string.
@@ -34,42 +33,42 @@ import {render as renderTemplate} from "core/templates";
  * @param {Function} failure A function to call in case of failure, receiving the error message.
  */
 export async function transport(selector, query, callback, failure) {
-    const request = {
-        methodname: "mod_booking_search_teachers",
-        args: {
-            query: query,
-        },
-    };
+  const request = {
+    methodname: "mod_booking_search_teachers",
+    args: {
+      query: query,
+    },
+  };
 
-    try {
-        const response = await Ajax.call([request])[0];
+  try {
+    const response = await Ajax.call([request])[0];
 
-        let labels = [];
+    let labels = [];
 
-        // eslint-disable-next-line no-console
-        console.log(response);
+    // eslint-disable-next-line no-console
+    console.log(response);
 
-        if (response.warnings.length > 0) {
-            callback(response.warnings);
-        } else {
-            response.list.forEach((user) => {
-                labels.push(
-                    renderTemplate(
-                        "mod_booking/form-user-selector-suggestion",
-                        user
-                    )
-                );
+    if (response.warnings.length > 0) {
+        callback(response.warnings);
+    } else {
+        response.list.forEach((teacher) => {
+            labels.push(
+                renderTemplate(
+                    "mod_booking/form-user-selector-suggestion",
+                    teacher
+                )
+            );
             });
             labels = await Promise.all(labels);
 
             response.list.forEach((entity, index) => {
-                entity.label = labels[index];
+            entity.label = labels[index];
             });
             callback(response.list);
-        }
-    } catch (e) {
-        failure(e);
     }
+  } catch (e) {
+    failure(e);
+  }
 }
 
 /**
@@ -80,9 +79,9 @@ export async function transport(selector, query, callback, failure) {
  * @return {Array} New array of the selector options.
  */
 export function processResults(selector, results) {
-    if (!Array.isArray(results)) {
-        return results;
-    } else {
-        return results.map((result) => ({value: result.id, label: result.label}));
-    }
+  if (!Array.isArray(results)) {
+    return results;
+  } else {
+    return results.map((result) => ({value: result.id, label: result.label}));
+  }
 }

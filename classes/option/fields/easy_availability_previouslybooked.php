@@ -43,7 +43,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class easy_availability_previouslybooked extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -97,7 +96,8 @@ class easy_availability_previouslybooked extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         // Previously booked condition.
         if ($formdata->bo_cond_previouslybooked_restrict == 1 && !empty(($formdata->bo_cond_previouslybooked_optionid))) {
@@ -120,7 +120,7 @@ class easy_availability_previouslybooked extends field_base {
 
         // Here we have to make sure we don't override anything.
         $tempform = new stdClass();
-        bo_info::set_defaults($tempform, json_encode($formdata->availability));
+        bo_info::set_defaults($tempform, json_decode($formdata->availability ?? '{}'));
 
         foreach ($tempform as $key => $value) {
             if (!isset($formdata->{$key})) {
@@ -171,10 +171,16 @@ class easy_availability_previouslybooked extends field_base {
 
         // Add the previouslybooked condition:
         // Users who previously booked a certain option can override booking_time condition.
-        $mform->addElement('advcheckbox', 'bo_cond_previouslybooked_restrict',
-            get_string('easyavailability:previouslybooked', 'local_musi'));
-        $mform->addElement('checkbox', 'previouslybookedoverbookcheckbox',
-            get_string('easyavailability:overbook', 'local_musi'));
+        $mform->addElement(
+            'advcheckbox',
+            'bo_cond_previouslybooked_restrict',
+            get_string('easyavailability:previouslybooked', 'local_musi')
+        );
+        $mform->addElement(
+            'checkbox',
+            'previouslybookedoverbookcheckbox',
+            get_string('easyavailability:overbook', 'local_musi')
+        );
         $mform->setDefault('previouslybookedoverbookcheckbox', 'checked');
         $mform->hideIf('previouslybookedoverbookcheckbox', 'bo_cond_previouslybooked_restrict', 'notchecked');
 
@@ -183,7 +189,7 @@ class easy_availability_previouslybooked extends field_base {
             'multiple' => false,
             'noselectionstring' => get_string('choose...', 'mod_booking'),
             'ajax' => 'mod_booking/form_booking_options_selector',
-            'valuehtmlcallback' => function($value) {
+            'valuehtmlcallback' => function ($value) {
                 global $OUTPUT;
                 if (empty($value)) {
                     return get_string('choose...', 'mod_booking');
@@ -198,11 +204,18 @@ class easy_availability_previouslybooked extends field_base {
                     'instancename' => $instancesettings->name,
                 ];
                 return $OUTPUT->render_from_template(
-                        'mod_booking/form_booking_options_selector_suggestion', $details);
+                    'mod_booking/form_booking_options_selector_suggestion',
+                    $details
+                );
             },
         ];
-        $mform->addElement('autocomplete', 'bo_cond_previouslybooked_optionid',
-            get_string('bocondpreviouslybookedoptionid', 'mod_booking'), [], $previouslybookedoptions);
+        $mform->addElement(
+            'autocomplete',
+            'bo_cond_previouslybooked_optionid',
+            get_string('bocondpreviouslybookedoptionid', 'mod_booking'),
+            [],
+            $previouslybookedoptions
+        );
         $mform->setType('bo_cond_previouslybooked_optionid', PARAM_INT);
         $mform->hideIf('bo_cond_previouslybooked_optionid', 'bo_cond_previouslybooked_restrict', 'notchecked');
 
@@ -231,8 +244,10 @@ class easy_availability_previouslybooked extends field_base {
                             $formdata->bo_cond_previouslybooked_restrict = true;
                             $formdata->bo_cond_previouslybooked_optionid = (int)$av->optionid;
                         }
-                        if (in_array(MOD_BOOKING_BO_COND_FULLYBOOKED, $av->overrides ?? []) &&
-                            in_array(MOD_BOOKING_BO_COND_NOTIFYMELIST, $av->overrides ?? [])) {
+                        if (
+                            in_array(MOD_BOOKING_BO_COND_FULLYBOOKED, $av->overrides ?? []) &&
+                            in_array(MOD_BOOKING_BO_COND_NOTIFYMELIST, $av->overrides ?? [])
+                        ) {
                             $formdata->previouslybookedoverbookcheckbox = true;
                         } else {
                             $formdata->previouslybookedoverbookcheckbox = false;

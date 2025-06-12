@@ -291,7 +291,7 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
             'tags' => false,
             'multiple' => true,
             'noselectionstring' => '',
-            'ajax' => 'mod_booking/form_users_selector',
+            'ajax' => 'mod_booking/form_teachers_selector',
             'valuehtmlcallback' => function ($value) {
                 global $OUTPUT;
                 if (empty($value)) {

@@ -337,25 +337,61 @@ class booking {
      * @param string $query
      * @return array
      */
-    public static function load_teachers(string $query) {
+    public static function load_teachers_for_webservice(string $query) {
         global $DB;
 
         $values = explode(' ', $query);
 
-        $fullsql = $DB->sql_concat('u.firstname', '\'\'', 'u.lastname', '\'\'', 'u.email');
-
-        $sql = "SELECT * FROM (
-                    SELECT DISTINCT u.*
-                    FROM {user} u
-                    JOIN (
-                        SELECT DISTINCT userid
-                        FROM {booking_teachers}
-                    ) bt
-                    ON bt.userid = u.id
-                    WHERE u.deleted = 0
-                ) AS fulltexttable";
-        // Check for u.deleted = 0 is important, so we do not load any deleted users!
         $params = [];
+
+        $fullsql = $DB->sql_concat(
+            '\' \'',
+            'u.id',
+            '\' \'',
+            'u.firstname',
+            '\' \'',
+            'u.lastname',
+            '\' \'',
+            'u.email',
+            '\' \''
+        );
+
+        // By default, ALL users can be selected as teachers.
+        $sql = "SELECT * FROM (
+                SELECT DISTINCT u.id, u.firstname, u.lastname, u.email, $fullsql AS fulltextstring
+                FROM {user} u
+                WHERE u.deleted = 0
+            ) AS fulltexttable";
+
+        /*
+        If the setting 'selectteacherswithprofilefieldonly' is on, then only teachers
+        with a certain profile field value can be selected.
+        This can be defined in config settings.
+        */
+        if (get_config('booking', 'selectteacherswithprofilefieldonly')) {
+            $selectteacherswithprofilefieldonlyfield = get_config('booking', 'selectteacherswithprofilefieldonlyfield');
+            $selectteacherswithprofilefieldonlyvalue = get_config('booking', 'selectteacherswithprofilefieldonlyvalue');
+            if (!empty($selectteacherswithprofilefieldonlyfield) && !empty($selectteacherswithprofilefieldonlyvalue)) {
+                $fieldvalues = array_map('trim', explode(',', $selectteacherswithprofilefieldonlyvalue));
+                // Only in this case, we overwrite the SQL.
+                [$inorequal, $inparams] = $DB->get_in_or_equal($fieldvalues, SQL_PARAMS_NAMED, 'profilefieldvalue');
+                $sql =
+                    "SELECT * FROM (
+                        SELECT DISTINCT u.id, u.firstname, u.lastname, u.email, $fullsql AS fulltextstring
+                        FROM {user} u
+                        JOIN {user_info_data} uid ON uid.userid = u.id
+                        JOIN {user_info_field} uif ON uif.id = uid.fieldid
+                        WHERE u.deleted = 0
+                        AND uif.shortname = :profilefieldname
+                        AND uid.data $inorequal
+                    ) AS fulltexttable";
+
+                $params['profilefieldname'] = trim($selectteacherswithprofilefieldonlyfield);
+                $params = array_merge($params, $inparams);
+            }
+        }
+
+        // Check for u.deleted = 0 is important, so we do not load any deleted users!
         if (!empty($query)) {
             // We search for every word extra to get better results.
             $firstrun = true;

@@ -164,13 +164,12 @@ if ($ADMIN->fulltree) {
     $proversion = wb_payment::pro_version_is_activated();
 
     // Code snippet to choose user profile fields.
-    $userprofilefieldsarray[0] = get_string('userprofilefieldoff', 'mod_booking');
+    $userprofilefieldsarray[0] = get_string('choose...', 'mod_booking');
     $userprofilefields = profile_get_custom_fields();
     if (!empty($userprofilefields)) {
-        $userprofilefieldsarray = [];
         // Create an array of key => value pairs for the dropdown.
         foreach ($userprofilefields as $userprofilefield) {
-            $userprofilefieldsarray[$userprofilefield->shortname] = $userprofilefield->name;
+            $userprofilefieldsarray[$userprofilefield->shortname] = "$userprofilefield->name ($userprofilefield->shortname)";
         }
     }
 
@@ -325,7 +324,6 @@ if ($ADMIN->fulltree) {
                 $presenceoptions
             )
         );
-
     } else {
         $settings->add(
             new admin_setting_heading(

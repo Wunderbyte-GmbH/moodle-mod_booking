@@ -43,7 +43,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class easy_availability_selectusers extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -97,7 +96,8 @@ class easy_availability_selectusers extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         // Select users condition.
         if ($formdata->bo_cond_selectusers_restrict == 1 && !empty(($formdata->bo_cond_selectusers_userids))) {
@@ -121,7 +121,7 @@ class easy_availability_selectusers extends field_base {
 
         // Here we have to make sure we don't override anything.
         $tempform = new stdClass();
-        bo_info::set_defaults($tempform, json_encode($formdata->availability));
+        bo_info::set_defaults($tempform, json_decode($formdata->availability ?? '{}'));
 
         foreach ($tempform as $key => $value) {
             if (!isset($formdata->{$key})) {
@@ -182,7 +182,7 @@ class easy_availability_selectusers extends field_base {
             'multiple' => true,
             'noselectionstring' => get_string('choose...', 'mod_booking'),
             'ajax' => 'local_shopping_cart/form_users_selector',
-            'valuehtmlcallback' => function($value) {
+            'valuehtmlcallback' => function ($value) {
                 global $OUTPUT;
                 if (empty($value)) {
                     return get_string('choose...', 'mod_booking');
@@ -195,11 +195,18 @@ class easy_availability_selectusers extends field_base {
                     'lastname' => $user->lastname,
                 ];
                 return $OUTPUT->render_from_template(
-                        'mod_booking/form-user-selector-suggestion', $details);
+                    'mod_booking/form-user-selector-suggestion',
+                    $details
+                );
             },
         ];
-        $mform->addElement('autocomplete', 'bo_cond_selectusers_userids',
-            get_string('bocondselectusersuserids', 'mod_booking'), [], $options);
+        $mform->addElement(
+            'autocomplete',
+            'bo_cond_selectusers_userids',
+            get_string('bocondselectusersuserids', 'mod_booking'),
+            [],
+            $options
+        );
         $mform->hideIf('bo_cond_selectusers_userids', 'bo_cond_selectusers_restrict', 'notchecked');
 
         // This is to transmit the original availability values.
@@ -229,8 +236,10 @@ class easy_availability_selectusers extends field_base {
                             $formdata->bo_cond_selectusers_restrict = true;
                             $formdata->bo_cond_selectusers_userids = $av->userids;
                         }
-                        if (in_array(MOD_BOOKING_BO_COND_FULLYBOOKED, $av->overrides ?? []) &&
-                            in_array(MOD_BOOKING_BO_COND_NOTIFYMELIST, $av->overrides ?? [])) {
+                        if (
+                            in_array(MOD_BOOKING_BO_COND_FULLYBOOKED, $av->overrides ?? []) &&
+                            in_array(MOD_BOOKING_BO_COND_NOTIFYMELIST, $av->overrides ?? [])
+                        ) {
                             $formdata->selectusersoverbookcheckbox = true;
                         } else {
                             $formdata->selectusersoverbookcheckbox = false;
