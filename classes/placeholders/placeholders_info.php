@@ -26,6 +26,7 @@ namespace mod_booking\placeholders;
 
 use coding_exception;
 use core_component;
+use core_plugin_manager;
 use html_writer;
 use mod_booking\placeholders\placeholders\customfields;
 use mod_booking\singleton_service;
@@ -94,6 +95,11 @@ class placeholders_info {
         $noreturn = [];
         $return = [];
 
+        $namespaces[] = 'mod_booking\placeholders\placeholders\\';
+        foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
+                $namespaces[] = "bookingextension_{$plugin->name}\\placeholders\\";
+        }
+
         foreach ($placeholders as $placeholder) {
             // We might need more complex placeholder for iteration...
             // ... (like {{# sessiondates}} or {{teacher 1}}). Therefore...
@@ -107,7 +113,13 @@ class placeholders_info {
 
             // Now we can execute it.
             $fieldexists = true;
-            $class = 'mod_booking\placeholders\placeholders\\' . $classname;
+
+            foreach ($namespaces as $namespace) {
+                $class = $namespace . $classname;
+                if (class_exists($class)) {
+                    break;
+                }
+            }
             if (class_exists($class)) {
                 $value = $class::return_value(
                     $cmid,
@@ -121,7 +133,6 @@ class placeholders_info {
                     $descriptionparam,
                     $rulejson
                 );
-
                 // In some cases, we might receive an array instead of string.
                 if (is_array($value)) {
                     // First we check if we had a number in our original placeholder.
