@@ -67,18 +67,20 @@ class ruleslist implements renderable, templatable {
             $rule->name = $ruleobj->name ?? '';
             $rule->actionname = $ruleobj->actionname ?? '';
             $rule->conditionname = $ruleobj->conditionname ?? '';
+            $rulecomponent = $ruleobj->ruledata->component ?? 'mod_booking';
+            $conditioncomponent = $ruleobj->conditiondata->component ?? 'mod_booking';
+            $actioncomponent = $ruleobj->actiondata->component ?? 'mod_booking';
 
             // Localize the names if possible.
             $localizedrulename = str_replace("_", "", $rule->rulename) ?? '';
             $localizedconditionname = str_replace("_", "", $rule->conditionname) ?? '';
             $localizedactionname = str_replace("_", "", $rule->actionname) ?? '';
-
             $rule->localizedrulename = !empty($localizedrulename) ?
-                get_string($localizedrulename, 'mod_booking') : '';
+                get_string($localizedrulename, $rulecomponent) : '';
             $rule->localizedconditionname = !empty($localizedconditionname) ?
-                get_string($localizedconditionname, 'mod_booking') : '';
+                get_string($localizedconditionname, $conditioncomponent) : '';
             $rule->localizedactionname = !empty($localizedactionname) ?
-                get_string($localizedactionname, 'mod_booking') : '';
+                get_string($localizedactionname, $actioncomponent) : '';
 
             // Filter for rules of this or other context.
             if ($rule->contextid == $contextid) {

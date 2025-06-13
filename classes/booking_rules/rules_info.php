@@ -345,7 +345,7 @@ class rules_info {
                     continue;
                 }
 
-                if ($record->rulename != 'rule_daysbefore') {
+                if ($record->rulename === 'rule_react_on_event') {
                     continue;
                 }
 
