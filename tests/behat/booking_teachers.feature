@@ -2,14 +2,17 @@
 Feature: In a booking - create options and assign or substituing teachers
 
   Background:
-    Given the following "users" exist:
-      | username | firstname | lastname | email                | idnumber |
-      | teacher1 | Teacher   | 1        | teacher1@example.com | T1       |
-      | teacher2 | Teacher   | 2        | teacher2@example.com | T2       |
-      | teacher3 | Teacher   | 3        | teacher3@example.com | T3       |
-      | admin1   | Admin     | 1        | admin1@example.com   | A1       |
-      | student1 | Student   | 1        | student1@example.com | S1       |
-      | student2 | Student   | 2        | student2@example.com | S2       |
+    Given the following "custom profile fields" exist:
+      | datatype | shortname        | name             |
+      | text     | teacherforoption | teacherforoption |
+    And the following "users" exist:
+      | username | firstname | lastname | email                | idnumber | profile_field_teacherforoption |
+      | teacher1 | Teacher   | 1        | teacher1@example.com | T1       | yes                            |
+      | teacher2 | Teacher   | 2        | teacher2@example.com | T2       | yes                            |
+      | teacher3 | Teacher   | 3        | teacher3@example.com | T3       |                                |
+      | admin1   | Admin     | 1        | admin1@example.com   | A1       |                                |
+      | student1 | Student   | 1        | student1@example.com | S1       |                                |
+      | student2 | Student   | 2        | student2@example.com | S2       |                                |
     And the following "courses" exist:
       | fullname | shortname | category | enablecompletion |
       | Course 1 | C1        | 0        | 1                |
@@ -82,3 +85,24 @@ Feature: In a booking - create options and assign or substituing teachers
     And I press "Save changes"
     And I should see "Teacher 1" in the "[id^=optiondates_teachers_table] td.teacher" "css_element"
     And I should see "Remove two" in the "[id^=optiondates_teachers_table] td.reason" "css_element"
+
+  @javascript
+  Scenario: Booking option: set teachers availability by custom profilefield value
+    Given the following config values are set as admin:
+       | config                                      | value        | plugin  |
+       | selectteacherswithprofilefieldonly          | 1            | booking |
+    And I log in as "admin"
+    And I set the following administration settings values:
+      | selectteacherswithprofilefieldonlyfield | teacherforoption |
+      | selectteacherswithprofilefieldonlyvalue | yes              |
+    ## Given the following config values are set as admin:
+    ##   | config                                  | value            | plugin  |
+    ##   | selectteacherswithprofilefieldonlyfield | teacherforoption | booking |
+    ##   | selectteacherswithprofilefieldonlyvalue | yes              | booking |
+    And I am on the "My booking" Activity page
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I expand all fieldsets
+    And I expand the "Assign teachers:" autocomplete
+    And I should see "Teacher 1" in the "//div[contains(@id, 'fitem_id_teachersforoption_')]//ul[contains(@class, 'form-autocomplete-suggestions')]" "xpath_element"
+    And I should see "Teacher 2" in the "//div[contains(@id, 'fitem_id_teachersforoption_')]//ul[contains(@class, 'form-autocomplete-suggestions')]" "xpath_element"
+    And I should not see "Teacher 3" in the "//div[contains(@id, 'fitem_id_teachersforoption_')]//ul[contains(@class, 'form-autocomplete-suggestions')]" "xpath_element"
