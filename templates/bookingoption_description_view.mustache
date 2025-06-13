@@ -40,16 +40,6 @@
         "institution": "TENDLERGASSE",
         "duration": "0 days  1 hours  0 minutes",
         "booknowbutton": null,
-        "dates": [
-            {
-            "datestring": "3 March 2023, 10:30 AM - 11:45 AM",
-            "customfields": []
-            },
-            {
-            "datestring": "10 March 2023, 10:30 AM - 11:45 AM",
-            "customfields": []
-            }
-        ],
         "teachers": [
             "Maxima Yoga"
         ],
@@ -173,34 +163,7 @@
             {{#optionviewcustomfields}}{{{.}}}{{/optionviewcustomfields}}
             {{#attachments}}{{{.}}}{{/attachments}}
             {{> mod_booking/bookingoption_description_teachers }}
-            {{#datesexist}}
-                <a class="collapseoptiondatesbutton" data-toggle="collapse" href="#collapseoptiondates" role="button" aria-expanded="false" aria-controls="collapseoptiondates">
-                    <i class="fa fa-calendar" aria-hidden="true"></i>&nbsp;{{#str}} dates, mod_booking {{/str}}...
-                </a>
-                <div id="collapseoptiondates" class="show list-group-item border-0 pl-0 pr-0">
-                    <div class="list-group">
-                        {{#dates}}
-                            <div class="list-group-item">
-                                <div>
-                                    <b>{{{datestring}}}</b>
-                                    {{#entitylink}}
-                                        <div class="entity-for-optiondate-area">
-                                            <i class="fa fa-fw fa-map-marker" aria-hidden="true"></i>&nbsp;{{{.}}}
-                                        </div>
-                                    {{/entitylink}}
-                                </div>
-                                <div {{^customfields}}style="display:none"{{/customfields}}>
-                                    {{#customfields}}
-                                        <div>
-                                            {{name}}{{{value}}}
-                                        </div>
-                                    {{/customfields}}
-                                </div>
-                            </div>
-                        {{/dates}}
-                    </div>
-                </div>
-            {{/datesexist}}
+            {{> mod_booking/bookingoption_description_dates }}
             {{#selflearningcourseshowdurationinfo}}
                 <div>
                     <i class="fa fa-fw fa-clock-o" aria-hidden="true"></i>&nbsp;

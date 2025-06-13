@@ -41,8 +41,11 @@ use mod_booking\singleton_service;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class col_coursestarttime implements renderable, templatable {
-    /** @var array $datestrings */
-    public $datestrings = null;
+    /** @var bool|null $datesexist */
+    public $datesexist = null;
+
+    /** @var array $dates */
+    public $dates = null;
 
     /** @var int $optionid */
     public $optionid = null;
@@ -75,7 +78,7 @@ class col_coursestarttime implements renderable, templatable {
      *
      */
     public function __construct($optionid, $booking = null, $cmid = null, $collapsed = true) {
-
+        global $USER;
         if (empty($booking) && empty($cmid)) {
             throw new moodle_exception('Error: either booking instance or cmid have to be provided.');
         } else if (!empty($booking) && empty($cmid)) {
@@ -114,12 +117,24 @@ class col_coursestarttime implements renderable, templatable {
             }
         } else {
             // No self-learning course.
-            $this->datestrings = dates_handler::return_array_of_sessions_simple($optionid);
+            // Every date will be an array of dates, customfields and additional info like entities.
+            $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
+            // If the user is booked, we have a different kind of description.
+            $bookedusers = $bookingoption->get_all_users_booked();
+            $forbookeduser = isset($bookedusers[$USER->id]);
+            $this->dates = $bookingoption->return_array_of_sessions(
+                null,
+                MOD_BOOKING_DESCRIPTION_WEBSITE,
+                true,
+                $forbookeduser,
+                true,
+                true
+            );
+            $this->datesexist = !empty($this->dates) ? true : false;
 
             $maxdates = get_config('booking', 'collapseshowsettings') ?? 2; // Hardcoded fallback on two.
-
             // Show a collapse button for the dates.
-            if (!empty($this->datestrings) && count($this->datestrings) > $maxdates && $collapsed == true) {
+            if (!empty($this->dates) && count($this->dates) > $maxdates && $collapsed == true) {
                 $this->showcollapsebtn = true;
             }
         }
@@ -146,13 +161,14 @@ class col_coursestarttime implements renderable, templatable {
             return $returnarr;
         }
 
-        if (empty($this->datestrings)) {
+        if (empty($this->dates)) {
             return [];
         }
 
         $returnarr = [
             'optionid' => $this->optionid,
-            'datestrings' => $this->datestrings,
+            'datesexist' => $this->datesexist,
+            'dates' => $this->dates,
         ];
 
         if (!empty($this->showcollapsebtn)) {

@@ -1,0 +1,68 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/bookingoption_description_dates
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * data-region
+
+    Example context (json):
+    {
+        "datesexist": true,
+        "dates": [
+            {
+                "datestring": "3 March 2023, 10:30 AM - 11:45 AM",
+                "customfields": []
+            },
+            {
+                "datestring": "10 March 2023, 10:30 AM - 11:45 AM",
+                "customfields": []
+            }
+        ]
+    }
+}}
+{{#datesexist}}
+    <a class="collapseoptiondatesbutton" data-toggle="collapse" href="#collapseoptiondates" role="button" aria-expanded="false" aria-controls="collapseoptiondates">
+        <i class="fa fa-calendar" aria-hidden="true"></i>&nbsp;{{#str}} dates, mod_booking {{/str}}...
+    </a>
+    <div id="collapseoptiondates" class="show list-group-item border-0 pl-0 pr-0">
+        <div class="list-group">
+            {{#dates}}
+                <div class="list-group-item">
+                    <div>
+                        <b>{{{datestring}}}</b>
+                        {{#entitylink}}
+                            <div class="entity-for-optiondate-area">
+                                <i class="fa fa-fw fa-map-marker" aria-hidden="true"></i>&nbsp;{{{.}}}
+                            </div>
+                        {{/entitylink}}
+                    </div>
+                    <div {{^customfields}}style="display:none"{{/customfields}}>
+                        {{#customfields}}
+                            <div>
+                                {{name}}{{{value}}}
+                            </div>
+                        {{/customfields}}
+                    </div>
+                </div>
+            {{/dates}}
+        </div>
+    </div>
+{{/datesexist}}

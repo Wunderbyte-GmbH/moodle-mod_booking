@@ -38,7 +38,8 @@
         ]
     }
 }}
-{{^selflearningcourse}}
+{{^selflearningcourse}}{{#datesexist}}
+<div class="booking-optiondates-area">
 {{#showcollapsebtn}}
     <div class='booking-showdates-collapse mt-1'>
         <span>
@@ -57,27 +58,60 @@
         </span>
     </div>
     <div class="collapse" id="optiondates{{{optionid}}}">
-        {{#datestrings}}
-            <div>{{{datestring}}}</div>
-        {{/datestrings}}
+        {{#dates}}
+        <div>
+            {{{datestring}}}
+            {{#entitylink}}
+            <span class="entity-for-optiondate-area">
+                &nbsp;<i class="fa fa-fw fa-map-marker" aria-hidden="true"></i>{{{.}}}
+            </span>
+            {{/entitylink}}
+            <div {{^customfields}}style="display:none"{{/customfields}}>
+                <ul>
+                {{#customfields}}
+                    <li>
+                        {{name}}{{{value}}}
+                    </li>
+                {{/customfields}}
+                </ul>
+            </div>
+        </div>
+        {{/dates}}
     </div>
 {{/showcollapsebtn}}
 {{^showcollapsebtn}}
-    {{#datestrings.0}}
+    {{#dates.0}}
         <div id="optiondates{{{optionid}}}">
-            <div class='booking-showdates-title mt-1'>
+            <div class='booking-showdates-title'>
                 <span>
                     <i class="fa fa-calendar fa-fw" aria-hidden="true"></i>
                 </span>
                 <span><b>{{#str}} dates, mod_booking {{/str}}:</b></span>
             </div>
-            {{#datestrings}}
-                <div>{{{datestring}}}</div>
-            {{/datestrings}}
+            {{#dates}}
+            <div>
+                {{{datestring}}}
+                {{#entitylink}}
+                <span class="entity-for-optiondate-area">
+                    &nbsp;<i class="fa fa-fw fa-map-marker" aria-hidden="true"></i>{{{.}}}
+                </span>
+                {{/entitylink}}
+                <div {{^customfields}}style="display:none"{{/customfields}}>
+                    <ul>
+                    {{#customfields}}
+                        <li>
+                            {{name}}{{{value}}}
+                        </li>
+                    {{/customfields}}
+                    </ul>
+                </div>
+            </div>
+            {{/dates}}
         </div>
-    {{/datestrings.0}}
+    {{/dates.0}}
 {{/showcollapsebtn}}
-{{/selflearningcourse}}
+</div>
+{{/datesexist}}{{/selflearningcourse}}
 {{#selflearningcourseshowdurationinfo}}
     <i class="fa fa-fw fa-clock-o" aria-hidden="true"></i>&nbsp;
     {{^timeremaining}}

@@ -2972,6 +2972,10 @@ class booking_option {
      * @param bool $withcustomfields
      * @param bool $forbookeduser
      * @param bool $ashtml
+     * @param bool $removeonlinesessionlinks If this is true, then online session links
+     * (like teams, zoom etc.) will be removed from the return array. This is necessary
+     * when we use it in cached col_functions as the caching would destroy the logic of
+     * the links anyway.
      *
      * @return array
      * @throws \dml_exception
@@ -2981,8 +2985,9 @@ class booking_option {
         $descriptionparam = 0,
         $withcustomfields = false,
         $forbookeduser = false,
-        $ashtml = false
-    ) {
+        $ashtml = false,
+        $removeonlinesessionlinks = false
+    ): array {
 
         // If we didn't set a $bookingevent (record from booking_optiondates) we retrieve all of them for this option.
         // Else, we check if there are sessions.
@@ -3012,7 +3017,8 @@ class booking_option {
                     $this->settings->sessioncustomfields,
                     $date->id,
                     $descriptionparam,
-                    $forbookeduser
+                    $forbookeduser,
+                    $removeonlinesessionlinks
                 );
             }
 
@@ -3035,6 +3041,8 @@ class booking_option {
                         $entityfullname,
                         ['target' => '_blank']
                     );
+                } else {
+                    $returnsession['entitylink'] = null;
                 }
             }
 
@@ -3055,13 +3063,18 @@ class booking_option {
      * @param int $sessionid
      * @param int $descriptionparam
      * @param bool $forbookeduser
+     * @param bool $removeonlinesessionlinks If this is true, then online session links
+     *      (like teams, zoom etc.) will be removed from the return array. This is necessary
+     *      when we use it in cached col_functions as the caching would destroy the logic of
+     *      the links anyway.
      * @return array
      */
     public static function return_array_of_customfields(
         $fields,
         $sessionid = 0,
         $descriptionparam = 0,
-        $forbookeduser = false
+        $forbookeduser = false,
+        $removeonlinesessionlinks = false
     ) {
 
         $returnarray = [];
@@ -3076,7 +3089,8 @@ class booking_option {
                     $field,
                     $sessionid,
                     $descriptionparam,
-                    $forbookeduser
+                    $forbookeduser,
+                    $removeonlinesessionlinks
                 )
             ) {
                 $returnarray[] = $value;
@@ -3097,12 +3111,17 @@ class booking_option {
         $field,
         $sessionid = 0,
         $descriptionparam = 0,
-        $forbookeduser = false
+        $forbookeduser = false,
+        $removeonlinesessionlinks = false
     ) {
 
         // At first, we handle special meeting fields.
         // The regex will match ZoomMeeting, BigBlueButton-Meeting, Teams meeting etc.
         if (preg_match('/^((zoom)|(big.*blue.*button)|(teams)).*meeting$/i', $field->cfgname)) {
+            if ($removeonlinesessionlinks) {
+                // If they are turned off, we return null.
+                return null;
+            }
             // If the session is not yet about to begin, we show placeholder.
             return $this->render_meeting_fields($sessionid, $field, $descriptionparam, $forbookeduser);
         }

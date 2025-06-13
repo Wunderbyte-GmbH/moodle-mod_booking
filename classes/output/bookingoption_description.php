@@ -391,9 +391,8 @@ class bookingoption_description implements renderable, templatable {
         // Attachments.
         $this->attachments = booking_option::render_attachments($optionid, 'optionview-bookingoption-attachments mb-3');
 
-        // Every date will be an array of datestring and customfields.
-        // But customfields will only be shown if we show booking option information inline.
-        // Make sure, that optiondates (sessions) are not stored for self-learning courses.
+        // Every date will be an array of datestrings, customfields and additional info like entities.
+        // Make sure, that optiondates (sessions) are not stored/shown for self-learning courses.
         if (empty($settings->selflearningcourse)) {
             $this->dates = $bookingoption->return_array_of_sessions(
                 $bookingevent,
