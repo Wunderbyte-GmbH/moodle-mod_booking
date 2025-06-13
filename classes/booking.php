@@ -383,7 +383,7 @@ class booking {
                         JOIN {user_info_field} uif ON uif.id = uid.fieldid
                         WHERE u.deleted = 0
                         AND uif.shortname = :profilefieldname
-                        AND uid.data $inorequal
+                        AND TRIM(uid.data) $inorequal
                     ) AS fulltexttable";
 
                 $params['profilefieldname'] = trim($selectteacherswithprofilefieldonlyfield);
