@@ -39,7 +39,7 @@
     }
 }}
 {{^selflearningcourse}}{{#datesexist}}
-<div class="booking-optiondates-area">
+<div class="booking-showdates-area">
 {{#showcollapsebtn}}
     <div class='booking-showdates-collapse mt-1'>
         <span>
@@ -61,20 +61,7 @@
         {{#dates}}
         <div>
             {{{datestring}}}
-            {{#entitylink}}
-            <span class="entity-for-optiondate-area">
-                &nbsp;<i class="fa fa-fw fa-map-marker" aria-hidden="true"></i>{{{.}}}
-            </span>
-            {{/entitylink}}
-            <div {{^customfields}}style="display:none"{{/customfields}}>
-                <ul>
-                {{#customfields}}
-                    <li>
-                        {{name}}{{{value}}}
-                    </li>
-                {{/customfields}}
-                </ul>
-            </div>
+            {{> mod_booking/optiondates_extrainfo }}
         </div>
         {{/dates}}
     </div>
@@ -91,20 +78,7 @@
             {{#dates}}
             <div>
                 {{{datestring}}}
-                {{#entitylink}}
-                <span class="entity-for-optiondate-area">
-                    &nbsp;<i class="fa fa-fw fa-map-marker" aria-hidden="true"></i>{{{.}}}
-                </span>
-                {{/entitylink}}
-                <div {{^customfields}}style="display:none"{{/customfields}}>
-                    <ul>
-                    {{#customfields}}
-                        <li>
-                            {{name}}{{{value}}}
-                        </li>
-                    {{/customfields}}
-                    </ul>
-                </div>
+                {{> mod_booking/optiondates_extrainfo }}
             </div>
             {{/dates}}
         </div>

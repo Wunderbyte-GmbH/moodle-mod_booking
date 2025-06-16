@@ -175,6 +175,11 @@ class col_coursestarttime implements renderable, templatable {
             $returnarr['showcollapsebtn'] = $this->showcollapsebtn;
         }
 
+        // Setting to show extra info like entities, custom fields, etc.
+        if (get_config('booking', 'showoptiondatesextrainfo')) {
+            $returnarr['showoptiondatesextrainfo'] = true;
+        }
+
         return $returnarr;
     }
 }

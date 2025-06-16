@@ -293,6 +293,19 @@ if ($ADMIN->fulltree) {
             )
         );
 
+        // Show extra information (custom fields, comments...) for optiondates in the booking options overview list.
+        $showoptiondatesextrainfo = new admin_setting_configcheckbox(
+            'booking/showoptiondatesextrainfo',
+            get_string('showoptiondatesextrainfo', 'mod_booking'),
+            get_string('showoptiondatesextrainfo_desc', 'mod_booking'),
+            0
+        );
+        $showoptiondatesextrainfo->set_updatedcallback(function () {
+            cache_helper::purge_by_event('setbackencodedtables');
+            cache_helper::purge_by_event('changesinwunderbytetable');
+        });
+        $settings->add($showoptiondatesextrainfo);
+
         // Turn off modals.
         $settings->add(
             new admin_setting_configcheckbox(

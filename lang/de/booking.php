@@ -2306,6 +2306,10 @@ $string['showlistoncoursepage_help'] = 'Wenn Sie diese Einstellung aktivieren, w
 $string['showmessages'] = 'Zeige Nachrichten';
 $string['showmybookingsonly'] = 'Meine Buchungen';
 $string['showmyfieldofstudyonly'] = "Mein Studiengang";
+$string['showoptiondatesextrainfo'] = 'Extra-Infos zu Terminen anzeigen';
+$string['showoptiondatesextrainfo_desc'] = 'Kommentare und Extra-Infos zu Terminen in der Liste der Buchungsoptionen anzeigen
+(auf der Buchungsoptionsdetailseite werden die zusätzlichen Informationen immer angezeigt, unabhängig von dieser Einstellung).
+<i>Hinweis: Links zu Online-Räumen (Zoom, Teams...) werden nur auf der Detailseite angezeigt, nicht in der Liste.</i>';
 $string['showpriceifnotloggedin'] = 'Preis(e) anzeigen, wenn Nutzer:innen nicht eingeloggt sind';
 $string['showprogressbars'] = 'Fortschrittsbalken für bereits vergangene Zeit anzeigen';
 $string['showrecentupdates'] = 'Zeige die letzten Bearbeitungen';

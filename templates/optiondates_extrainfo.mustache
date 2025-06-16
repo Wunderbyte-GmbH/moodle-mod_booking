@@ -1,0 +1,52 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/optiondates_extrainfo
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * data-region
+
+    Example context (json):
+    {
+        "entitylink" : "https://www.example.com",
+        "customfields" : [
+            {
+                "name" : "Extra Info: ",
+                "value" : "Some additional information"
+            }
+        ]
+    }
+}}
+{{#showoptiondatesextrainfo}}
+{{#entitylink}}
+<span class="entity-for-optiondate-area">
+    &nbsp;<i class="fa fa-fw fa-map-marker" aria-hidden="true"></i>{{{.}}}
+</span>
+{{/entitylink}}
+<div {{^customfields}}style="display:none"{{/customfields}}>
+    <ul>
+    {{#customfields}}
+        <li>
+            {{name}}{{{value}}}
+        </li>
+    {{/customfields}}
+    </ul>
+</div>
+{{/showoptiondatesextrainfo}}

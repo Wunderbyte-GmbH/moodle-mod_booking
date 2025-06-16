@@ -2368,6 +2368,10 @@ $string['showlistoncoursepage_help'] = 'If you activate this setting, the course
 $string['showmessages'] = 'Show messages';
 $string['showmybookingsonly'] = 'My booked options';
 $string['showmyfieldofstudyonly'] = "My field of study";
+$string['showoptiondatesextrainfo'] = 'Show additional information for dates';
+$string['showoptiondatesextrainfo_desc'] = 'Show comments and extra infos of sessions (dates) in the list of booking options
+(on the booking option detail page the extra infos will always be shown regardless of this setting).
+<i>Note: Links to online rooms (Teams, Zoom...) will only be shown on the details page.</i>';
 $string['showpriceifnotloggedin'] = 'Display price(s) for users not logged in';
 $string['showprogressbars'] = 'Show progress bars of time passed';
 $string['showrecentupdates'] = 'Show recent updates';
