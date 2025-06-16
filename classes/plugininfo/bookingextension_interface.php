@@ -59,19 +59,6 @@ interface bookingextension_interface {
     public function load_settings(\part_of_admin_tree $adminroot, $parentnodename, $hassiteconfig): void;
 
     /**
-     * Adds webservice functions to the service.
-     *
-     * This function usually includes settings.php file in plugins folder.
-     * Alternatively it can create a link to some settings page (instance of admin_externalpage)
-     *
-     * @param array $functions
-     * Reference to the array of functions to be registered with the web service.
-     */
-    public function register_booking_webservice_functions(array &$functions): void;
-
-
-
-    /**
      * Adds Settings Singleton Service access to Subplugins.
      *
      * @param int $optionid
@@ -80,7 +67,6 @@ interface bookingextension_interface {
      *
      */
     public static function load_data_for_settings_singleton(int $optionid): object;
-
 
     /**
      * Adds Data to Template for Optionview in Descriptions.

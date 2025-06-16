@@ -186,17 +186,6 @@ $functions = [
     ],
 ];
 
-// Register all web service functions from booking extensions.
-foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
-    $fullclassname = "\\bookingextension_{$plugin->name}\\{$plugin->name}";
-    $plugin = new $fullclassname();
-    if (!$plugin instanceof bookingextension_interface) {
-        continue; // Skip if the plugin does not implement the interface.
-    }
-    /** @var bookingextension_interface $plugin */
-    $plugin->register_booking_webservice_functions($functions);
-}
-
 $services = [
     'Booking module API' => [ // Very important, don't rename or will break local_bookingapi plugin!!!
         'functions' => ['mod_booking_bookings', 'mod_booking_categories'],
