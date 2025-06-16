@@ -80,4 +80,15 @@ interface bookingextension_interface {
      *
      */
     public static function load_data_for_settings_singleton(int $optionid): object;
+
+
+    /**
+     * Adds Data to Template for Optionview in Descriptions.
+     *
+     * @param object $settings
+     *
+     * @return array[] Array of associative arrays with keys: key, value, label, description.
+     *
+     */
+    public static function set_template_data_for_optionview(object $settings): array;
 }

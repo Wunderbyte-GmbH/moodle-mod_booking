@@ -288,6 +288,16 @@
                         {{/canceluntil}}
                         {{/bookinginformation}}
                     </ul>
+                    {{#subpluginstemplatedata}}
+                            <div class="col-ap-{{label}}">
+                                <div>
+                                    {{description}}
+                                </div>
+                                <div id={{key}}>
+                                  {{{value}}}
+                                </div>
+                            </div>
+                        {{/subpluginstemplatedata}}
                 </div>
             </div>
         </div>
