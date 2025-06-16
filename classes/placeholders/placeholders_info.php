@@ -257,24 +257,29 @@ class placeholders_info {
                 'mod_booking',
                 'placeholders\placeholders'
             );
-
+        $extensionplaceholder = [];
+        foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
+            $extensionplaceholder = core_component::get_component_classes_in_namespace(
+                "bookingextension_{$plugin->name}",
+                'placeholders'
+            );
+             $placeholders = array_merge($placeholders, $extensionplaceholder);
+        }
         $specialtreatmentclasses = [
             'customfields' => customfields::return_placeholder_text(),
         ];
-
         foreach ($placeholders as $key => $value) {
             if (!$key::is_applicable()) {
                 continue;
             }
-
+            $component = core_component::get_component_from_classname($key);
             $class = substr(strrchr($key, '\\'), 1);
-
             if (isset($specialtreatmentclasses[$class])) {
                 self::$localizedplaceholders[$specialtreatmentclasses[$class]] = $class;
                 continue;
             }
             // We use the localized strings as keys and the classnames as values.
-            self::$localizedplaceholders[get_string($class, 'mod_booking')] = $class;
+            self::$localizedplaceholders[get_string($class, $component)] = $class;
         }
         return self::$localizedplaceholders;
     }
