@@ -19,6 +19,7 @@ namespace mod_booking;
 use context_module;
 use context_system;
 use context_user;
+use core_plugin_manager;
 use html_writer;
 use local_entities\entitiesrelation_handler;
 use mod_booking\bo_availability\bo_subinfo;
@@ -297,6 +298,9 @@ class booking_option_settings {
 
     /** @var string $competencies The links on the attached files */
     public $competencies = '';
+
+    /** @var array $subpluginssettings Collects Data that Subplugins need in the Settings singleton*/
+    public $subpluginssettings = [];
 
     /**
      * Constructor for the booking option settings class.
@@ -656,7 +660,12 @@ class booking_option_settings {
                 $this->campaignisset = $dbrecord->campaignisset;
                 $this->campaigns = $dbrecord->campaigns ?? [];
             }
-
+            if (!isset($dbrecord->subpluginssettings) && empty($this->subpluginssettings)) {
+                $this->load_subpluginssettings($optionid);
+                $dbrecord->subpluginssettings = $this->subpluginssettings;
+            } else {
+                $this->subpluginssettings = $dbrecord->subpluginssettings;
+            }
             return $dbrecord;
         }
 
@@ -709,6 +718,23 @@ class booking_option_settings {
         // Multi-sessions.
         if (!$this->sessioncustomfields = $DB->get_records('booking_customfields', ['optionid' => $optionid])) {
             $this->sessioncustomfields = [];
+        }
+    }
+
+    /**
+     * Loads Subplugindata from DB.
+     *
+     * @param int $optionid
+     *
+     * @return void
+     *
+     */
+    private function load_subpluginssettings(int $optionid) {
+        foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
+             $class = "\\bookingextension_{$plugin->name}\\{$plugin->name}";
+            if (class_exists($class)) {
+                $this->subpluginssettings[$plugin->name] = $class::load_data_for_settings_singleton($optionid);
+            }
         }
     }
 

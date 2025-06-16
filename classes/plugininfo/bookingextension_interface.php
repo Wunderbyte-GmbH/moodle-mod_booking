@@ -68,4 +68,16 @@ interface bookingextension_interface {
      * Reference to the array of functions to be registered with the web service.
      */
     public function register_booking_webservice_functions(array &$functions): void;
+
+
+
+    /**
+     * Adds Settings Singleton Service access to Subplugins.
+     *
+     * @param int $optionid
+     *
+     * @return object
+     *
+     */
+    public static function load_data_for_settings_singleton(int $optionid): object;
 }
