@@ -1224,11 +1224,13 @@ if (!$tableallbookings->is_downloading()) {
     $renderer = $PAGE->get_renderer('mod_booking');
     echo $renderer->render_signin_pdfdownloadform($signinform);
 
-    $eventslist = new eventslist($optionid, ['\mod_booking\event\message_sent']);
-    $eventslist->icon = 'fa fa-envelope-o';
-    $eventslist->title = get_string('showmessages', 'mod_booking');
-
-    echo $OUTPUT->render_from_template('mod_booking/eventslist', (array) $eventslist);
+    // Messages can only be view by users with viewreports permission.
+    if (has_capability('mod/booking:viewreports', $context)) {
+        $eventslist = new eventslist($optionid, ['\mod_booking\event\message_sent']);
+        $eventslist->icon = 'fa fa-envelope-o';
+        $eventslist->title = get_string('showmessages', 'mod_booking');
+        echo $OUTPUT->render_from_template('mod_booking/eventslist', (array) $eventslist);
+    }
 
     // We call the template render to display how many users are currently reserved.
     $data = new booked_users('option', $optionid, false, false, false, false, true);
