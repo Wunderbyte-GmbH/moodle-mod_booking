@@ -32,13 +32,12 @@ global $CFG;
 use Exception;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\event\booking_debug;
-use mod_booking\message_controller;
 use mod_booking\singleton_service;
 
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * Class to handle adhoc Task to send a mail by a rule at a certain time.
+ * Class to handle adhoc task to modify a booking answer by a rule at a certain time.
  *
  * @package mod_booking
  * @copyright 2024 Wunderbyte GmbH <info@wunderbyte.at>
@@ -113,8 +112,7 @@ class delete_conditions_from_bookinganswer_by_rule_adhoc extends \core\task\adho
             if (!$rule->check_if_rule_still_applies($taskdata->optionid, $taskdata->userid, $nextruntime)) {
                 mtrace('delete_conditions_from_bookinganswer_by_rule_adhoc task: Rule does not apply anymore.
                 Action was NOT EXECUTED for bookinganswer ' .
-                $taskdata->baid
-                );
+                $taskdata->baid);
                 return;
             }
 
@@ -131,10 +129,16 @@ class delete_conditions_from_bookinganswer_by_rule_adhoc extends \core\task\adho
                 // Check if 'condition_customform' key is set.
                 if (isset($data['condition_customform'])) {
                     // Can be defined from user or from admin (teacher).
-                    if ((isset($data['condition_customform']['customform_deleteinfoscheckboxuser'])
-                    && !empty($data['condition_customform']['customform_deleteinfoscheckboxuser']))
-                    || (isset($data['condition_customform']['deleteinfoscheckboxadmin'])
-                    && !empty($data['condition_customform']['deleteinfoscheckboxadmin']))) {
+                    if (
+                        (
+                            isset($data['condition_customform']['customform_deleteinfoscheckboxuser'])
+                            && !empty($data['condition_customform']['customform_deleteinfoscheckboxuser'])
+                        )
+                        || (
+                            isset($data['condition_customform']['deleteinfoscheckboxadmin'])
+                            && !empty($data['condition_customform']['deleteinfoscheckboxadmin'])
+                        )
+                    ) {
                         // Remove 'condition_customform' key and its value.
                         unset($data['condition_customform']);
                         $change = true;
