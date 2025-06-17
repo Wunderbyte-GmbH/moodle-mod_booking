@@ -1,4 +1,6 @@
 <?php
+
+use mod_booking\shortcodes;
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -33,52 +35,17 @@ use mod_booking\mybookings_table;
 $url = new moodle_url('/mod/booking/mybookings.php');
 $PAGE->set_url($url);
 
-$course = $DB->get_record('course', ['id' => SITEID], '*', MUST_EXIST);
-
 $PAGE->set_context(context_user::instance($USER->id));
 $PAGE->navigation->extend_for_user($USER);
 $mybookingsurl = new moodle_url('/mod/booking/mybookings.php');
 $PAGE->navbar->add(get_string('mybookingoptions', 'mod_booking'), $mybookingsurl);
 
-$PAGE->set_pagelayout('incourse');
-$PAGE->set_title(format_string($course->fullname));
-$PAGE->set_heading(fullname($USER));
+$PAGE->set_pagelayout('base');
 
 echo $OUTPUT->header();
 
 echo $OUTPUT->heading(get_string('mybookingoptions', 'mod_booking'));
 
-echo $OUTPUT->box_start();
-
-$table = new mybookings_table('mybookings');
-
-$fields = 'ba.id id, c.id courseid, c.fullname fullname, b.id bookingid, b.name AS name, bo.text AS text, bo.id optionid,
-    bo.coursestarttime AS coursestarttime, bo.courseendtime courseendtime, cm.id cmid';
-$from = "{booking_answers} ba
-    LEFT JOIN
-    {booking_options} bo
-    ON ba.optionid = bo.id
-    LEFT JOIN
-    {booking} b
-    ON b.id = bo.bookingid
-    LEFT JOIN
-    {course} c
-    ON c.id = b.course
-    LEFT JOIN
-    {course_modules} cm
-    ON cm.module = (
-        SELECT m.id
-        FROM {modules} m
-        WHERE m.name = 'booking'
-    ) AND cm.instance = b.id";
-$where = "userid = :userid AND cm.visible = 1 AND bo.invisible = 0";
-$params = ['userid' => $USER->id];
-
-$table->set_sql($fields, $from, $where, $params);
-
-$table->define_baseurl($url);
-$table->out(25, true);
-
-echo $OUTPUT->box_end();
+echo shortcodes::mycourselist('', [], '', (object)[], fn($a) => $a);
 
 echo $OUTPUT->footer();
