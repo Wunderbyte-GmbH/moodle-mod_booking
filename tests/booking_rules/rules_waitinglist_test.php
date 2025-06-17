@@ -1092,6 +1092,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         ]);
         set_config('pricecategoryfield', 'pricecat', 'booking');
         set_config('displayemptyprice', 1, 'booking');
+        set_config('waitinglistbookingwindowhours', $testdata['waitinglistbookingwindowhours'], 'booking');
 
         // Create users, some of them with second price category.
         $student1 = $this->getDataGenerator()->create_user();
@@ -1275,12 +1276,24 @@ final class rules_waitinglist_test extends advanced_testcase {
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
         $this->assertCount($expected['taskcount1'], $tasks);
 
-        // In the future we run tasks.
-        // No free seats available, so no messages should be send.
-        time_mock::set_mock_time(strtotime('+3 day', time()));
-        $time = time_mock::get_mock_time();
+        // Check if first user on list can book or is booked.
+        $this->setUser($student2);
+        singleton_service::destroy_user($student2->id);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student2->id, true);
+        $this->assertEquals($expected['firstonlist_firsttry'], $id);
+        // Student3 (and other) - remains on waitinglist.
+
+        $this->setUser($student3);
+        singleton_service::destroy_user($student3->id);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student3->id, true);
+        $this->assertEquals($expected['secondonlist_firsttry'], $id);
 
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        // In the future we run tasks.
+        // No free seats available, so no messages should be send.
+        time_mock::set_mock_time(strtotime('+25 hours', time()));
+
+        $latertasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
         $sink = $this->redirectMessages();
         ob_start();
         $this->runAdhocTasks();
@@ -1288,14 +1301,25 @@ final class rules_waitinglist_test extends advanced_testcase {
         $res = ob_get_clean();
         $sink->close();
         $this->assertCount($expected['messagecount'], $messages);
-        if (isset($testdata['bookseconduser']) && !$testdata['bookseconduser']) {
-            foreach ($messages as $key => $message) {
-                if (strpos($message->subject, "freeplacedelaysubj") !== false) {
-                    // Validate email on option change.
-                    $this->assertEquals($student2->id, $message->useridto);
-                }
+        // If message exists, validate it.
+        foreach ($messages as $key => $message) {
+            if (strpos($message->subject, "freeplacedelaysubj") !== false) {
+                // Validate email on option change.
+                $this->assertEquals($student2->id, $message->useridto);
             }
         }
+
+        // Now, 25 hours later according to bookingwindow settings, users might have changed.
+        $this->setUser($student2);
+        singleton_service::destroy_user($student2->id);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student2->id, true);
+        $this->assertEquals($expected['firstonlist_secondtry'], $id);
+
+        $this->setUser($student3);
+        singleton_service::destroy_user($student3->id);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student3->id, true);
+        $this->assertEquals($expected['secondonlist_secondtry'], $id);
+        // Set time delay, check if first user on list can book or second user. Validate according to setting.
     }
 
     /**
@@ -1311,6 +1335,7 @@ final class rules_waitinglist_test extends advanced_testcase {
                     'secondprice' => 0,
                     'student2settings' => ['profile_field_pricecat' => 'secondprice'],
                     'bookseconduser' => true,
+                    'waitinglistbookingwindowhours' => 24,
                 ],
                 [
                     // After the first cancellation, with these settings, we expect...
@@ -1320,13 +1345,18 @@ final class rules_waitinglist_test extends advanced_testcase {
                     'taskcount1' => 0, // So no tasks expected.
                     'newuserresponse' => MOD_BOOKING_BO_COND_ONWAITINGLIST, // Waitinglist.
                     'messagecount' => 0, // So no tasks expected.
+                    'firstonlist_firsttry' => MOD_BOOKING_BO_COND_ALREADYBOOKED,
+                    'secondonlist_firsttry' => MOD_BOOKING_BO_COND_ONWAITINGLIST,
+                    'firstonlist_secondtry' => MOD_BOOKING_BO_COND_ALREADYBOOKED,
+                    'secondonlist_secondtry' => MOD_BOOKING_BO_COND_ONWAITINGLIST,
                 ],
             ],
-            'second_user_with_price' => [
+            'second_user_with_price_bookingwindows_24h' => [
                 [
                     'secondprice' => 10,
                     'student2settings' => ['profile_field_pricecat' => 'secondprice'],
                     'bookseconduser' => false,
+                    'waitinglistbookingwindowhours' => 24,
                 ],
                 [
                     // Since user has to pay, we expect no one booked and user still on waitinglist.
@@ -1335,6 +1365,30 @@ final class rules_waitinglist_test extends advanced_testcase {
                     'taskcount1' => 2, // Tasks expected.
                     'newuserresponse' => MOD_BOOKING_BO_COND_ONWAITINGLIST,
                     'messagecount' => 1, // Tasks expected.
+                    'firstonlist_firsttry' => MOD_BOOKING_BO_COND_PRICEISSET,
+                    'secondonlist_firsttry' => MOD_BOOKING_BO_COND_ONWAITINGLIST,
+                    'firstonlist_secondtry' => MOD_BOOKING_BO_COND_ONWAITINGLIST,
+                    'secondonlist_secondtry' => MOD_BOOKING_BO_COND_PRICEISSET,
+                ],
+            ],
+            'second_user_with_price_bookingwindows_off' => [
+                [
+                    'secondprice' => 10,
+                    'student2settings' => ['profile_field_pricecat' => 'secondprice'],
+                    'bookseconduser' => false,
+                    'waitinglistbookingwindowhours' => 0,
+                ],
+                [
+                    // Since user has to pay, we expect no one booked and user still on waitinglist.
+                    'usersonlist1' => 0,
+                    'usersonwaitinglist1' => 4,
+                    'taskcount1' => 2, // Tasks expected.
+                    'newuserresponse' => MOD_BOOKING_BO_COND_ONWAITINGLIST,
+                    'messagecount' => 1, // Tasks expected.
+                    'firstonlist_firsttry' => MOD_BOOKING_BO_COND_PRICEISSET,
+                    'secondonlist_firsttry' => MOD_BOOKING_BO_COND_ONWAITINGLIST,
+                    'firstonlist_secondtry' => MOD_BOOKING_BO_COND_PRICEISSET,
+                    'secondonlist_secondtry' => MOD_BOOKING_BO_COND_ONWAITINGLIST,
                 ],
             ],
         ];
