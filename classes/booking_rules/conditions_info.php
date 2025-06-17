@@ -25,6 +25,8 @@
 
 namespace mod_booking\booking_rules;
 
+use core_component;
+use core_plugin_manager;
 use MoodleQuickForm;
 
 /**
@@ -101,7 +103,18 @@ class conditions_info {
                 $conditions[] = $instance;
             }
         }
-
+        foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
+            $classes = core_component::get_component_classes_in_namespace(
+                "bookingextension_{$plugin->name}",
+                'rules\\conditions'
+            );
+            foreach ($classes as $classname => $path) {
+                if (class_exists($classname)) {
+                          $instance = new $classname();
+                          $conditions[] = $instance;
+                }
+            }
+        }
         return $conditions;
     }
 
@@ -119,7 +132,12 @@ class conditions_info {
         if (class_exists($filename)) {
             return new $filename();
         }
-
+        foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
+            $classname = "\\bookingextension_{$plugin->name}\\rules\\conditions\\{$conditionname}";
+            if (class_exists($classname)) {
+                return new $classname();
+            }
+        }
         return null;
     }
 }

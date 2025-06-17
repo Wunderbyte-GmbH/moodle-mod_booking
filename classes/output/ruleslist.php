@@ -68,7 +68,7 @@ class ruleslist implements renderable, templatable {
             $rule->actionname = $ruleobj->actionname ?? '';
             $rule->conditionname = $ruleobj->conditionname ?? '';
             $rulecomponent = $ruleobj->ruledata->component ?? 'mod_booking';
-            $conditioncomponent = $ruleobj->conditiondata->component ?? 'mod_booking';
+            $conditioncomponent = $ruleobj->conditioncomponent ?? 'mod_booking';
             $actioncomponent = $ruleobj->actiondata->component ?? 'mod_booking';
 
             // Localize the names if possible.

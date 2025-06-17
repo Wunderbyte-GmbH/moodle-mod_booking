@@ -201,7 +201,7 @@ class rules_info {
         foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
             $classes = core_component::get_component_classes_in_namespace(
                 "bookingextension_{$plugin->name}",
-                'rules'
+                'rules\\rules'
             );
             foreach ($classes as $classname => $path) {
                 if (class_exists($classname)) {
@@ -225,7 +225,7 @@ class rules_info {
             return new $filename();
         }
         foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
-            $classname = "\\bookingextension_{$plugin->name}\\rules\\{$rulename}";
+            $classname = "\\bookingextension_{$plugin->name}\\rules\\rules\\{$rulename}";
             if (class_exists($classname)) {
                 return new $classname();
             }
