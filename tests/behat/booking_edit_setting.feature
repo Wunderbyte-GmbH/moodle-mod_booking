@@ -192,10 +192,14 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
   Scenario: Booking settings: control presence of strings on all settings pages
     Given I log in as "admin"
     And I visit "/admin/search.php#linkmodules"
-    And I wait "3" seconds
+    And I wait "1" seconds
     And I visit "/mod/booking/optionformconfig.php?cmid=0"
     And I wait "1" seconds
     And I visit "/mod/booking/customfield.php"
+    And I wait "1" seconds
+    ## Recommended from G.M.
+    And I visit "//admin/webservice/testclient.php"
+    And I wait "1" seconds
     ## Already tested in other feature/
     ##And I visit "/mod/booking/instancetemplatessettings.php"
     ##And I visit "/mod/booking/semesters.php"
