@@ -142,7 +142,11 @@ class override_user_field {
             // No preference set.
             return "";
         }
-        [$fieldvalue, $cmid] = explode(':::', $pref);
+        $array = explode(':::', $pref);
+        if (!isset($array[1])) {
+            return "";
+        }
+        [$fieldvalue, $cmid] = $array;
         if ($cmid != $this->cmid) {
             // Not the right cmid.
             return "";
