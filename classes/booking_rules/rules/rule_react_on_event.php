@@ -195,6 +195,7 @@ class rule_react_on_event implements booking_rule {
         $mform->addElement('text', 'rule_react_on_event_after_completion',
         get_string('rulereactoneventaftercompletion', 'mod_booking'));
         $mform->setType('rule_react_on_event_after_completion', PARAM_INT);
+        $mform->setDefault('rule_react_on_event_after_completion', 1);
         $mform->addHelpButton('rule_react_on_event_after_completion', 'rulereactoneventaftercompletion', 'mod_booking');
 
         $notborelatedevents = [
@@ -303,7 +304,6 @@ class rule_react_on_event implements booking_rule {
         $data->rule_react_on_event_condition = $ruledata->condition;
         $data->rule_react_on_event_after_completion = $ruledata->aftercompletion;
         $data->rule_react_on_event_cancelrules = $ruledata->cancelrules;
-
     }
 
     /**

@@ -76,7 +76,7 @@ class ruletemplate_confirmwaitinglist {
             "ruledata" => [
                 "boevent" => "\\mod_booking\\event\bookingoptionwaitinglist_booked",
                 "condition" => "0",
-                "aftercompletion" => 0,
+                "aftercompletion" => 1,
                 "cancelrules" => [],
             ],
         ];

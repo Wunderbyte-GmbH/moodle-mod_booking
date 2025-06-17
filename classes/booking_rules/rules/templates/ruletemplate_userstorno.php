@@ -76,7 +76,7 @@ class ruletemplate_userstorno {
             "ruledata" => [
                 "boevent" => "\\mod_booking\\event\bookinganswer_cancelled",
                 "condition" => "0",
-                "aftercompletion" => 0,
+                "aftercompletion" => 1,
                 "cancelrules" => [],
             ],
         ];

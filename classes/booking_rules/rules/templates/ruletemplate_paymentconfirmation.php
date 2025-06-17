@@ -76,7 +76,7 @@ class ruletemplate_paymentconfirmation {
             "ruledata" => [
                 "boevent" => "\\local_shopping_cart\\event\\payment_confirmed",
                 "condition" => "0",
-                "aftercompletion" => 0,
+                "aftercompletion" => 1,
                 "cancelrules" => [],
             ],
         ];

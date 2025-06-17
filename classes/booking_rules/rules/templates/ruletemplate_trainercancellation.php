@@ -74,7 +74,7 @@ class ruletemplate_trainercancellation {
             "ruledata" => [
                 "boevent" => "\\mod_booking\\event\bookingoption_cancelled",
                 "condition" => "0",
-                "aftercompletion" => 0,
+                "aftercompletion" => 1,
                 "cancelrules" => [],
             ],
         ];

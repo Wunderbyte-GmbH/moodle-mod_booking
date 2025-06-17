@@ -76,7 +76,7 @@ class ruletemplate_courseupdate {
             "ruledata" => [
                 "boevent" => "\\mod_booking\\event\bookingoption_updated",
                 "condition" => "0",
-                "aftercompletion" => 0,
+                "aftercompletion" => 1,
                 "cancelrules" => [],
             ],
         ];

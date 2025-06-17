@@ -76,7 +76,7 @@ class ruletemplate_bookingoption_booked {
             "ruledata" => [
                 "boevent" => "\\mod_booking\\event\bookingoption_booked",
                 "condition" => "0",
-                "aftercompletion" => 0,
+                "aftercompletion" => 1,
                 "cancelrules" => [],
             ],
         ];

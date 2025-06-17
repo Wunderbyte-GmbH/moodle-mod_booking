@@ -840,7 +840,7 @@ final class rules_waitinglist_test extends advanced_testcase {
             'actionname' => 'send_mail_interval',
             'actiondata' => '{"interval":1440,"subject":"freeplacedelaysubj","template":"freeplacedelaymsg","templateformat":"1"}',
             'rulename' => 'rule_react_on_event',
-            'ruledata' => '{' . $boevent1 . ',"aftercompletion":0,"cancelrules":[],"condition":"2"}',
+            'ruledata' => '{' . $boevent1 . ',"aftercompletion":1,"cancelrules":[],"condition":"2"}',
         ];
         $rule1 = $plugingenerator->create_rule($ruledata1);
 
@@ -851,11 +851,11 @@ final class rules_waitinglist_test extends advanced_testcase {
         $record->maxanswers = 1;
         $record->maxoverbooking = 10; // Enable waitinglist.
         $record->waitforconfirmation = 1; // Force waitinglist.
-        $record->description = 'Will start in 2050';
+        $record->description = 'Will start in a couple of days';
         $record->optiondateid_0 = "0";
         $record->daystonotify_0 = "0";
-        $record->coursestarttime_0 = strtotime('20 June 2050 15:00', time());
-        $record->courseendtime_0 = strtotime('20 July 2050 14:00', time());
+        $record->coursestarttime_0 = strtotime('+5 days', time());
+        $record->courseendtime_0 = strtotime('+25 days', time());
         $record->teachersforoption = $teacher1->username;
         $option1 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option1->id);
@@ -1029,6 +1029,7 @@ final class rules_waitinglist_test extends advanced_testcase {
 
         time_mock::set_mock_time(strtotime('+20 days', time()) + 10);
         $time = time_mock::get_mock_time();
+        // We are now 24 days ahead of real current time.
 
         $sink = $this->redirectMessages();
         ob_start();
@@ -1041,6 +1042,21 @@ final class rules_waitinglist_test extends advanced_testcase {
         $firsttaskdata = reset($tasks)->get_custom_data();
         // Finally student2 is next to recieve the message.
         $this->assertEquals($student2->id, $firsttaskdata->userid);
+
+        time_mock::set_mock_time(strtotime('+5 days', time()) + 10);
+        $time = time_mock::get_mock_time();
+        // We are now 29 days ahead of real current time, so bookingclosingtime is passed.
+
+        $sink = $this->redirectMessages();
+        ob_start();
+        $this->runAdhocTasks();
+        $messages = $sink->get_messages();
+        $res = ob_get_clean();
+        $sink->close();
+
+        $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        // Finally student2 is next to recieve the message.
+        $this->assertEmpty($tasks);
     }
 
     /**
