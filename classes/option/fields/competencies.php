@@ -379,7 +379,7 @@ class competencies extends field_base {
         }
 
         $args = [
-            'cmid' => '11',
+            'cmid' => $currentoption->cmid,
             'columnfilter_competencies' => $competencies,
             'all' => "true",
             'exclude' => 'competencies', // Make sure the button that triggers the filter is not displayed.
