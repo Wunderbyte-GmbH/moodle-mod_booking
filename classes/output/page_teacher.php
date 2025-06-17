@@ -196,8 +196,21 @@ class page_teacher implements renderable, templatable {
 
         $teacheroptiontables = [];
 
+
+        /* If the booking instances are connected with semesters,
+        we use the start of semester to sort the instances.
+        Else, we just sort by id DESC (so in the order they were created)
+        showing the newest ones first.*/
         $bookingidrecords = $DB->get_records_sql(
-            "SELECT DISTINCT bookingid FROM {booking_teachers} WHERE userid = :teacherid ORDER By bookingid ASC",
+            "SELECT DISTINCT t.bookingid, CASE
+                WHEN s.startdate IS NOT NULL THEN s.startdate
+                ELSE 0
+            END AS orderdate
+            FROM {booking_teachers} t
+            JOIN {booking} b ON b.id = t.bookingid
+            LEFT JOIN {booking_semesters} s ON b.semesterid = s.id
+            WHERE t.userid = :teacherid
+            ORDER BY orderdate DESC, t.bookingid DESC",
             ['teacherid' => $teacherid]
         );
 
@@ -214,6 +227,16 @@ class page_teacher implements renderable, templatable {
                     $record = $bookingidrecord;
                     unset($bookingidrecords[$key]);
                     array_unshift($bookingidrecords, $record);
+                }
+            }
+        }
+
+        // In settings, booking instances can be hidden from the teacher pages.
+        $hiddenbookingids = explode(',', get_config('booking', 'teacherpageshiddenbookingids') ?? '');
+        if (!empty($hiddenbookingids)) {
+            foreach ($bookingidrecords as $key => $bookingidrecord) {
+                if (in_array($bookingidrecord->bookingid, $hiddenbookingids)) {
+                    unset($bookingidrecords[$key]);
                 }
             }
         }

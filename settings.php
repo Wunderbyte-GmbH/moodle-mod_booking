@@ -787,6 +787,24 @@ if ($ADMIN->fulltree) {
                 0
             )
         );
+        $records = $DB->get_records_sql("SELECT b.id, b.name FROM {booking} b ORDER BY b.name");
+        if (empty($records)) {
+            $bookinginstances[0] = get_string('nobookinginstancesexist', 'mod_booking');
+        } else {
+            $bookinginstances[0] = get_string('noselection', 'mod_booking');
+            foreach ($records as $record) {
+                $bookinginstances[$record->id] = "$record->name ($record->id)";
+            }
+        }
+        $settings->add(
+            new admin_setting_configmultiselect(
+                'booking/teacherpageshiddenbookingids',
+                get_string('teacherpageshiddenbookingids', 'mod_booking'),
+                '',
+                [0],
+                $bookinginstances
+            )
+        );
         $settings->add(
             new admin_setting_configcheckbox(
                 'booking/teachersshowemails',
@@ -1026,7 +1044,6 @@ if ($ADMIN->fulltree) {
         foreach ($records as $record) {
             $options[$record->id] = $record->name;
         }
-
         $settings->add(
             new admin_setting_configmultiselect(
                 'booking/templatetags',

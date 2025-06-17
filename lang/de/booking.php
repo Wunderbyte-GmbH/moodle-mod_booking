@@ -1609,6 +1609,7 @@ $string['newoptiondate'] = 'Neuen Termin anlegen...';
 $string['newtemplatesaved'] = 'Neue Buchungsoptionsvorlage wurde gespeichert.';
 $string['next'] = 'Nächste';
 $string['no'] = 'Nein';
+$string['nobookinginstancesexist'] = 'Keine Buchungsinstanz vorhanden';
 $string['nobookingpossible'] = 'Keine Buchung möglich.';
 $string['nobookingselected'] = 'Keine Buchungsoption ausgewählt';
 $string['nocancelreason'] = "Sie müssen eine Grund für die Stornierung angeben";
@@ -2013,7 +2014,7 @@ $string['recordsimporteddescription'] = '{$a} Buchungsoptionen importiert via CS
 $string['recreategroup'] = 'Gruppe erneut anlegen und Nutzer:innen der Gruppe zuordnen';
 $string['recurringactioninfo'] = 'Diese Aktion wird ausgeführt, wenn Sie das Formular absenden (indem Sie auf "Speichern" klicken). <b>Achtung!</b> Diese Aktion kann nicht rückgängig gemacht werden.';
 $string['recurringchildoptions'] = 'Abgeleitete Buchungsoptionen dieser Buchungsoption:';
-$string['recurringheader'] = '<i class="fa-solid fa-repeat" aria-hidden="true"></i>&nbsp;Wiederkehrende Optionen';
+$string['recurringheader'] = '<i class="fa fa-fw fa-repeat" aria-hidden="true"></i>&nbsp;Wiederkehrende Optionen';
 $string['recurringmultiparenting'] = 'Wiederholende Optionen von selber Vorlage erzeugen';
 $string['recurringmultiparenting_desc'] = 'Wenn eine Buchungsoptions bereits Vorlage für folgende Optionen ist, soll es möglich sein, aus ihrer Grundlage noch weitere zu generieren?';
 $string['recurringnotpossibleinfo'] = '<div class="alert alert-info" role="alert">
@@ -2451,6 +2452,7 @@ $string['tasksendremindermails'] = 'Booking: Erinnerungs-Mails versenden';
 $string['teacher'] = 'Trainer:in';
 $string['teacherdescription'] = 'Beschreibung';
 $string['teachernotfound'] = 'Trainer:in konnte nicht gefunden werden oder existiert nicht.';
+$string['teacherpageshiddenbookingids'] = 'Buchungsinstanzen, die auf Trainer:innen-Seiten nicht angezeigt werden sollen';
 $string['teacherroleid'] = 'Wähle folgende Rolle, um Lehrkräfte in einen ggf. neu angelegten Kurs einzuschreiben.';
 $string['teachers'] = 'Trainer:innen';
 $string['teachersallowmailtobookedusers'] = 'Trainer:innen erlauben, eine Direkt-Mail an gebuchte Nutzer:innen zu senden';
