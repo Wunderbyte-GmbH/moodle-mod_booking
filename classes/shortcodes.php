@@ -600,8 +600,11 @@ class shortcodes {
         if (!empty($args['cfinclude'])) {
             $operator = "OR";
         }
+        $columnfilters = self::get_columnfilters($args);
+        // Additional where condition for both card and list views.
+        $additionalwhere = self::set_customfield_wherearray($args, $wherearray, $tempparams, $columnfilters) ?? '';
 
-        if ($cfwhere = self::set_customfield_wherearray($args, $wherearray, $tempparams)) {
+        if ($cfwhere = self::set_customfield_wherearray($args, $wherearray, $tempparams, $columnfilters) ?? '') {
             $tempwherearray[] = $cfwhere;
         }
 
@@ -618,6 +621,7 @@ class shortcodes {
         } else {
             $additionalwhere = ''; // Or null, or '1=1', depending on how your SQL logic handles empty conditions.
         }
+
 
         [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(

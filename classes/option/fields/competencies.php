@@ -368,7 +368,7 @@ class competencies extends field_base {
      */
     public static function get_list_of_similar_options(
         string $competencies,
-        booking_option $currentoption
+        booking_option $currentoption = null
     ) {
 
         if (
@@ -379,13 +379,13 @@ class competencies extends field_base {
         }
 
         $args = [
-            'cmid' => $currentoption->cmid,
+            'cmid' => isset($currentoption) && isset($currentoption->cmid) ? $currentoption->cmid : '',
             'columnfilter_competencies' => $competencies,
             'all' => "true",
             'exclude' => 'competencies', // Make sure the button that triggers the filter is not displayed.
         ];
         $env = new stdClass();
-        $list = shortcodes::courselist('courselist', $args, null, $env, $env);
+        $list = shortcodes::allbookingoptions('courselist', $args, null, $env, $env);
         return $list;
     }
 }
