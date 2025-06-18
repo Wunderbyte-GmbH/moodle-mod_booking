@@ -1,6 +1,4 @@
 <?php
-
-use mod_booking\shortcodes;
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -30,7 +28,7 @@ require_once($CFG->dirroot . '/mod/booking/locallib.php');
 // No guest autologin.
 require_login(0, false);
 
-use mod_booking\mybookings_table;
+use mod_booking\shortcodes;
 
 $url = new moodle_url('/mod/booking/mybookings.php');
 $PAGE->set_url($url);

@@ -196,7 +196,6 @@ class page_teacher implements renderable, templatable {
 
         $teacheroptiontables = [];
 
-
         /* If the booking instances are connected with semesters,
         we use the start of semester to sort the instances.
         Else, we just sort by id DESC (so in the order they were created)

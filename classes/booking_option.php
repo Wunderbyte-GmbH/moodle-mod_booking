@@ -3106,6 +3106,7 @@ class booking_option {
      * @param int $sessionid
      * @param int $descriptionparam
      * @param bool $forbookeduser
+     * @param bool $removeonlinesessionlinks
      */
     public function render_customfield_data(
         $field,
