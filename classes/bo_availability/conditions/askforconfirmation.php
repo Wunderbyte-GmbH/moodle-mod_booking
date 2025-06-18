@@ -104,11 +104,12 @@ class askforconfirmation implements bo_condition {
 
         // The following conditions have to be met.
         // - User must not be on waitinglist
-        // - AND: Ask for confirmation must be turned on.
+        // - AND: Always ask for confirmation must be turned on.
         // - OR: A price is set and it's fully booked already.
+        // This should not block for waitforconfirmation == 2 which means confirmation only for users already on waitinglist.
         if (
             !isset($bookinginformation['onwaitinglist'])
-            && (!empty($settings->waitforconfirmation)
+            && ($settings->waitforconfirmation == 1
             || (!empty($settings->jsonobject->useprice))
                 && (isset($bookinginformation['notbooked']['fullybooked'])
                 && $bookinginformation['notbooked']['fullybooked'] === true
