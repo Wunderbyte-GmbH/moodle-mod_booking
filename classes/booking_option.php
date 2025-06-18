@@ -1230,6 +1230,7 @@ class booking_option {
                 case MOD_BOOKING_STATUSPARAM_NOTIFYMELIST:
                     // If we are not yet booked and we need manual confirmation...
                     // ... We switch booking param to waitinglist.
+                    // TODO: Check in which cases this takes place!
                     if (!empty($this->settings->waitforconfirmation)) {
                         $waitinglist = MOD_BOOKING_STATUSPARAM_WAITINGLIST;
                     }
@@ -1243,10 +1244,15 @@ class booking_option {
 
             // Should users who want to book be parked in the waitinglist waiting for confirmation.
             if (
-                ($waitinglist === MOD_BOOKING_STATUSPARAM_BOOKED)
-                && ($status != MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL && !empty($this->settings->waitforconfirmation))
-                || (($status === MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL)
-                && enrollink::enrolmentstatus_waitinglist($this->settings))
+                $waitinglist === MOD_BOOKING_STATUSPARAM_BOOKED
+                && (
+                    $status != MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL
+                    && !empty($this->settings->waitforconfirmation)
+                )
+                || (
+                    ($status === MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL)
+                    && enrollink::enrolmentstatus_waitinglist($this->settings)
+                )
             ) {
                 $waitinglist = MOD_BOOKING_STATUSPARAM_WAITINGLIST;
 
