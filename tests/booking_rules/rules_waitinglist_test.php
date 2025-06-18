@@ -1193,7 +1193,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course1->id;
         $record->maxoverbooking = 10; // Enable waitinglist.
-        $record->waitforconfirmation = 0; // No confirmation necessary.
+        $record->waitforconfirmation = 0; // TODO: Cases where this is set to 2 - confirm on waitinglist.
         $record->description = 'Will start in 2050';
         $record->optiondateid_0 = "0";
         $record->daystonotify_0 = "0";
