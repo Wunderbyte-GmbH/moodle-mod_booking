@@ -96,7 +96,18 @@ class waitforconfirmation extends field_base {
 
         if (isset($formdata->waitforconfirmation)) {
             booking_option::add_data_to_json($newoption, "waitforconfirmation", $formdata->waitforconfirmation);
+            if (isset($formdata->confirmationonnotification)) {
+                booking_option::add_data_to_json($newoption, "confirmationonnotification", $formdata->confirmationonnotification);
+                if (isset($formdata->confirmationonnotificationoneatatime)) {
+                    booking_option::add_data_to_json(
+                        $newoption,
+                        "confirmationonnotificationoneatatime",
+                        $formdata->confirmationonnotification
+                    );
+                }
+            }
         }
+
         $instance = new waitforconfirmation();
         $mockdata = new stdClass();
         $mockdata->id = $formdata->id;
@@ -128,7 +139,36 @@ class waitforconfirmation extends field_base {
             fields_info::add_header_to_mform($mform, self::$header);
         }
 
-        $mform->addElement('advcheckbox', 'waitforconfirmation', get_string('waitforconfirmation', 'mod_booking'));
+        $waitforconfirmationoptions = [
+            0 => get_string('norestriction', 'mod_booking'),
+            1 => get_string('waitforconfirmation', 'mod_booking'),
+            2 => get_string('waitforconfirmationonwaitinglist', 'mod_booking'),
+        ];
+
+        $mform->addElement(
+            'select',
+            'waitforconfirmation',
+            get_string('waitforconfirmation', 'mod_booking'),
+            $waitforconfirmationoptions
+        );
+
+        $mform->addElement('advcheckbox', 'confirmationonnotification', get_string('confirmationonnotification', 'mod_booking'));
+        $mform->hideIf('confirmationonnotification', 'waitforconfirmation', 'neq', 2);
+
+        $mform->addElement(
+            'static',
+            'confirmationonnotificationwarning',
+            '',
+            get_string('confirmationonnotificationwarning', 'mod_booking')
+        );
+        $mform->hideIf('confirmationonnotificationwarning', 'confirmationonnotification', 'unchecked');
+
+        $mform->addElement(
+            'advcheckbox',
+            'confirmationonnotificationoneatatime',
+            get_string('confirmationonnotificationoneatatime', 'mod_booking')
+        );
+        $mform->hideIf('confirmationonnotificationoneatatime', 'confirmationonnotification', 'unchecked');
     }
 
     /**
@@ -147,6 +187,15 @@ class waitforconfirmation extends field_base {
             $waitforconfirmation = booking_option::get_value_of_json_by_key($data->id, "waitforconfirmation");
             if (!empty($waitforconfirmation)) {
                 $data->waitforconfirmation = $waitforconfirmation;
+
+                $confirmationonnotification = booking_option::get_value_of_json_by_key($data->id, "confirmationonnotification");
+                if (!empty($confirmationonnotification)) {
+                    $data->confirmationonnotification = $confirmationonnotification;
+                }
+                $confirmationonnotificationoneatatime = booking_option::get_value_of_json_by_key($data->id, "confirmationonnotificationoneatatime");
+                if (!empty($confirmationonnotificationoneatatime)) {
+                    $data->confirmationonnotificationoneatatime = $confirmationonnotificationoneatatime;
+                }
             }
         }
     }
