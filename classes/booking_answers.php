@@ -264,7 +264,7 @@ class booking_answers {
 
             $returnarray['freeonlist'] = $returnarray['maxanswers'] - $returnarray['booked'];
 
-             // Determine if the option is fully booked.
+             // Determine if the option is booked out.
             if ($returnarray['freeonlist'] <= 0) {
                 $returnarray['fullybooked'] = true;
             } else {
