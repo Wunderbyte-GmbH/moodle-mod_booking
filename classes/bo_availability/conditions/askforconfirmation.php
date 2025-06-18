@@ -105,26 +105,14 @@ class askforconfirmation implements bo_condition {
         // The following conditions have to be met.
         // - User must not be on waitinglist
         // - AND: Ask for confirmation must be turned on.
-        // - OR: A price is set and it's either fully booked already OR there are already other people on the waitinglist.
+        // - OR: A price is set and it's fully booked already.
         if (
             !isset($bookinginformation['onwaitinglist'])
             && (!empty($settings->waitforconfirmation)
             || (!empty($settings->jsonobject->useprice))
-                // Free spots on waitinglist given.
-                && $settings->maxoverbooking > booking_answers::count_places($bookinganswer->usersonwaitinglist)
-                && (
-                        (
-                            // Fully booked.
-                            isset($bookinginformation['notbooked']['fullybooked'])
-                            && $bookinginformation['notbooked']['fullybooked'] === true
-                        )
-                        || (
-                            // Or people already on waiting list.
-                            isset($bookinginformation['notbooked']['waiting'])
-                            && !empty($bookinginformation['notbooked']['waiting'])
-                        )
-                    )
-                )
+                && (isset($bookinginformation['notbooked']['fullybooked'])
+                && $bookinginformation['notbooked']['fullybooked'] === true
+                && ($settings->maxoverbooking > booking_answers::count_places($bookinganswer->usersonwaitinglist))))
         ) {
             if (
                 !empty(get_config('booking', 'allowoverbooking'))
