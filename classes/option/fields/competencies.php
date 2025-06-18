@@ -349,7 +349,6 @@ class competencies extends field_base {
      * Resolve appelations of competencies.
      *
      * @return array
-     *
      */
     public static function get_filter_options(): array {
         $competencies = self::get_competencies_including_framework();
@@ -361,16 +360,13 @@ class competencies extends field_base {
      * Return a rendered list of options with the same competencies assigned.
      *
      * @param string $competencies
-     * @param booking_option $currentoption
-     *
+     * @param booking_option|null $currentoption
      * @return string
-     *
      */
     public static function get_list_of_similar_options(
-        string $competencies,
-        booking_option $currentoption = null
-    ) {
-
+        $competencies,
+        $currentoption = null
+    ): string {
         if (
             !get_config('booking', 'usecompetencies')
             || empty($competencies)

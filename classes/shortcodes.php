@@ -622,7 +622,6 @@ class shortcodes {
             $additionalwhere = ''; // Or null, or '1=1', depending on how your SQL logic handles empty conditions.
         }
 
-
         [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(
                     0,
