@@ -108,18 +108,10 @@ class onwaitinglist implements bo_condition {
             // If user is confirmed, we don't block.
             $ba = $bookinganswer->usersonwaitinglist[$userid];
 
-            $firstonlist = self::is_first_on_waitinglist($userid, $bookinganswer->usersonwaitinglist);
-
-            if (
-                ($bookinginformation['onwaitinglist']['fullybooked'] === false)
-                && $firstonlist
-                // Only confirm is this person is next on the list.
-            ) {
+            if (($bookinginformation['onwaitinglist']['fullybooked'] === false)) {
                 // If there are places free, we might want to allow booking.
                 // Either when we don't need confirmation.
-                if (
-                    empty($settings->waitforconfirmation)
-                ) {
+                if (empty($settings->waitforconfirmation)) {
                     $isavailable = true;
                 } else if (!empty($ba->json)) {
                     // Or when confirmation is already given.
@@ -295,32 +287,5 @@ class onwaitinglist implements bo_condition {
         }
 
         return $description;
-    }
-
-    /**
-     * Check if a user is the first on the list.
-     *
-     * @param int $userid
-     * @param array $usersonwaitinglist
-     *
-     * @return bool
-     *
-     */
-    private static function is_first_on_waitinglist(int $userid, array $usersonwaitinglist) {
-
-        $islowest = false;
-
-        if (isset($usersonwaitinglist[$userid])) {
-            $targettime = $usersonwaitinglist[$userid]->timemodified;
-
-            $islowest = true;
-            foreach ($usersonwaitinglist as $user => $obj) {
-                if ($user !== $userid && $obj->timemodified < $targettime) {
-                    $islowest = false;
-                    break;
-                }
-            }
-        }
-        return $islowest;
     }
 }
