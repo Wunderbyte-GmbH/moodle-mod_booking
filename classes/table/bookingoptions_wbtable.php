@@ -23,6 +23,7 @@
  */
 
 namespace mod_booking\table;
+use core_plugin_manager;
 use mod_booking\booking_answers;
 use mod_booking\local\modechecker;
 use mod_booking\local\override_user_field;
@@ -1223,7 +1224,10 @@ class bookingoptions_wbtable extends wunderbyte_table {
                         get_string('moveoptionto', 'booking')) . '</div>';
             } */
         }
-
+        foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
+            $class = "\\bookingextension_{$plugin->name}\\{$plugin->name}";
+            $ddoptions[] = $class::add_options_to_col_actions($settings, $context);
+        }
         if (!empty($ddoptions)) {
             $ret .= '<div class="dropdown d-inline">
                     <button class="bookingoption-edit-button dropdown-toggle btn btn-light btn-sm" id="action-menu-toggle-' .

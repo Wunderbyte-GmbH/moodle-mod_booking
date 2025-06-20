@@ -77,4 +77,15 @@ interface bookingextension_interface {
      *
      */
     public static function set_template_data_for_optionview(object $settings): array;
+
+    /**
+     * Add an Option to col_action in the bookingoptions_wbtable.php
+     *
+     * @param object $settings
+     * @param bool|object $context
+     *
+     * @return string
+     *
+     */
+    public static function add_options_to_col_actions(object $settings, bool|object $context): string;
 }
