@@ -405,7 +405,10 @@ class rules_info {
         $data = $event->get_data();
 
         // Check if rule is from booking plugin or another.
-        if ($data['component'] !== 'mod_booking') {
+        if (
+            $data['component'] !== 'mod_booking' &&
+            strpos($data['component'], 'bookingextension_') !== 0
+            ) {
             if (!self::proceed_with_event($event, $data)) {
                 return;
             };

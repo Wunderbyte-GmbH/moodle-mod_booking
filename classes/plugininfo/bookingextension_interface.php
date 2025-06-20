@@ -88,4 +88,12 @@ interface bookingextension_interface {
      *
      */
     public static function add_options_to_col_actions(object $settings, bool|object $context): string;
+
+    /**
+     * Returns array of allowed event keys for booking rule react on event.
+     *
+     * @return array
+     *
+     */
+    public static function get_allowedruleeventkeys(): array;
 }
