@@ -16,6 +16,7 @@
 
 namespace mod_booking\booking_rules\rules;
 
+use core_component;
 use core_plugin_manager;
 use mod_booking\booking_rules\actions_info;
 use mod_booking\booking_rules\booking_rule;
@@ -41,7 +42,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class rule_react_on_event implements booking_rule {
-
     /** @var int $ruleid */
     public $ruleid = 0;
 
@@ -135,10 +135,27 @@ class rule_react_on_event implements booking_rule {
 
         // Get a list of all booking events.
         $allevents = get_list_of_booking_events();
+        foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
+            $class = "\\bookingextension_{$plugin->name}\\{$plugin->name}";
+            $pluginevents = $class::get_allowedruleeventkeys();
+            $allowedeventkeys = array_merge($allowedeventkeys, $pluginevents);
+            $events = core_component::get_component_classes_in_namespace("bookingextension_{$plugin->name}", 'event');
+            foreach (array_keys($events) as $event) {
+                $event = (string) $event; // Just for linting.
+                // We need to filter all classes that extend event base, or the base class itself.
+                if (is_a($event, \core\event\base::class, true)) {
+                    $parts = explode('\\', $event);
+                    $eventwithnamespace = "\\{$event}";
+                    $allevents[$eventwithnamespace] = $eventwithnamespace::get_name() .
+                        " (" . array_pop($parts) . ")";
+                }
+            }
+        }
         $allowedevents["0"] = get_string('choose...', 'mod_booking');
 
         foreach ($allevents as $key => $value) {
-            $eventnameonly = str_replace("\\mod_booking\\event\\", "", $key);
+            // Get the class name (last part of fully qualified class).
+            $eventnameonly = substr(strrchr($key, '\\'), 1);
             if (in_array($eventnameonly, $allowedeventkeys)) {
                 $allowedevents[$key] = $value;
             }
@@ -167,19 +184,30 @@ class rule_react_on_event implements booking_rule {
         }
 
         // Workaround: We need a group to get hideif to work.
-        $mform->addElement('static', 'rule_react_on_event_desc', '',
-            get_string('rulereactonevent_desc', 'mod_booking'));
+        $mform->addElement(
+            'static',
+            'rule_react_on_event_desc',
+            '',
+            get_string('rulereactonevent_desc', 'mod_booking')
+        );
 
-        $mform->addElement('select', 'rule_react_on_event_event',
-            get_string('ruleevent', 'mod_booking'), $allowedevents);
+        $mform->addElement(
+            'select',
+            'rule_react_on_event_event',
+            get_string('ruleevent', 'mod_booking'),
+            $allowedevents
+        );
 
         // Add info about settings concerning bookingoption_updated event.
         $url = new moodle_url('/admin/category.php', ['category' => 'modbookingfolder']);
         $linktosettings = $url->out();
 
-        $mform->addElement('static', 'react_on_change_info',
+        $mform->addElement(
+            'static',
+            'react_on_change_info',
             '',
-            get_string('rulereactonchangeevent_desc', 'mod_booking', $linktosettings));
+            get_string('rulereactonchangeevent_desc', 'mod_booking', $linktosettings)
+        );
 
         $conditions = [
             self::ALWAYS => get_string('always', 'mod_booking'),
@@ -189,11 +217,18 @@ class rule_react_on_event implements booking_rule {
             self::NOTFULLWAITINGLIST => get_string('notfullwaitinglist', 'mod_booking'),
         ];
 
-        $mform->addElement('select', 'rule_react_on_event_condition',
-            get_string('ruleeventcondition', 'mod_booking'), $conditions);
+        $mform->addElement(
+            'select',
+            'rule_react_on_event_condition',
+            get_string('ruleeventcondition', 'mod_booking'),
+            $conditions
+        );
 
-        $mform->addElement('text', 'rule_react_on_event_after_completion',
-        get_string('rulereactoneventaftercompletion', 'mod_booking'));
+        $mform->addElement(
+            'text',
+            'rule_react_on_event_after_completion',
+            get_string('rulereactoneventaftercompletion', 'mod_booking')
+        );
         $mform->setType('rule_react_on_event_after_completion', PARAM_INT);
         $mform->setDefault('rule_react_on_event_after_completion', 1);
         $mform->addHelpButton('rule_react_on_event_after_completion', 'rulereactoneventaftercompletion', 'mod_booking');
