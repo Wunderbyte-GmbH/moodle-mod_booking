@@ -162,6 +162,7 @@ class waitforconfirmation extends field_base {
             get_string('confirmationonnotificationwarning', 'mod_booking')
         );
         $mform->hideIf('confirmationonnotificationwarning', 'confirmationonnotification', 'unchecked');
+        $mform->hideIf('confirmationonnotificationwarning', 'waitforconfirmation', 'neq', 2);
 
         $mform->addElement(
             'advcheckbox',
@@ -169,6 +170,7 @@ class waitforconfirmation extends field_base {
             get_string('confirmationonnotificationoneatatime', 'mod_booking')
         );
         $mform->hideIf('confirmationonnotificationoneatatime', 'confirmationonnotification', 'unchecked');
+        $mform->hideIf('confirmationonnotificationoneatatime', 'waitforconfirmation', 'neq', 2);
     }
 
     /**
