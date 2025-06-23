@@ -1415,11 +1415,11 @@ class booking_option {
         }
 
         // The confirmation on the waitinglist is saved here.
-        if ($confirmwaitinglist === 2) {
+        if ($confirmwaitinglist === MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION) {
             self::add_data_to_json($newanswer, 'confirmwaitinglist', 1);
             self::add_data_to_json($newanswer, 'confirmwaitinglist_modifieduserid', $USER->id);
             self::add_data_to_json($newanswer, 'confirmwaitinglist_timemodified', time());
-        } else if ($confirmwaitinglist === 3) {
+        } else if ($confirmwaitinglist === MOD_BOOKING_BO_SUBMIT_STATUS_UN_CONFIRM) {
             // We only remove the key if we are still on waitinglist.
             self::remove_key_from_json($newanswer, 'confirmwaitinglist');
             self::remove_key_from_json($newanswer, 'confirmwaitinglist_modifieduserid');
