@@ -82,12 +82,12 @@ interface bookingextension_interface {
      * Add an Option to col_action in the bookingoptions_wbtable.php
      *
      * @param object $settings
-     * @param bool|object $context
+     * @param mixed $context
      *
      * @return string
      *
      */
-    public static function add_options_to_col_actions(object $settings, bool|object $context): string;
+    public static function add_options_to_col_actions(object $settings, mixed $context): string;
 
     /**
      * Returns array of allowed event keys for booking rule react on event.
