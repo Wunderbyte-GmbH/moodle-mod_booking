@@ -80,6 +80,7 @@ Feature: In a booking - create options and assign or substituing teachers
     And I should see "Assign three" in the "[id^=optiondates_teachers_table] td.reason" "css_element"
     And I click on "Edit" "link" in the "[id^=optiondates_teachers_table] td.edit" "css_element"
     And I click on "Teacher 2" "text" in the ".form-autocomplete-selection.form-autocomplete-multiple" "css_element"
+    And I wait "1" seconds
     And I click on "Teacher 3" "text" in the ".form-autocomplete-selection.form-autocomplete-multiple" "css_element"
     And I set the field "Reason" to "Remove two"
     And I press "Save changes"
