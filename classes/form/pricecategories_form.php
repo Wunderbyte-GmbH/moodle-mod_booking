@@ -255,7 +255,7 @@ class pricecategories_form extends dynamic_form {
      * @param mixed $value
      * @return bool
      */
-    private function value_is_duplicated(array $array, mixed $value): bool {
+    private function value_is_duplicated(array $array, $value): bool {
         // Count all the values in the array.
         $valuecounts = array_count_values($array);
         // Check if the specific value exists more than once.
