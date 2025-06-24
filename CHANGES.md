@@ -1,3 +1,16 @@
+## Version 8.14.8 (2025062400)
+* New feature: Possibility to easily integrate subplugins.
+* New feature: New setting to hide specific booking instances from teacher pages and improved sorting.
+* New feature: Show extra info (entity, custom fields, comments) of option dates in list of booking options.
+* New feature: Teacher selector can now be reduced by profile field value.
+* Improvement: Messages of bookingoption can only be view by users with viewreports permission
+* Improvement: New default - stopp applying rule one day after end of bookingoption
+* Improvement: Messages of bookingoption can only be view by users with viewreports permission
+* Improvement: Finally fix mybookings
+* Improvement: Trim value of user profile field.
+* Bugfix: optionfield config
+* Bugfix: user profile field pref fallback
+
 ## Version 8.14.7 (2025061201)
 * Bugfix: Renamed setting to enable certificates to certificateon.
 
