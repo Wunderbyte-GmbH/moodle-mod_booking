@@ -161,7 +161,7 @@ class bookingoption_description implements renderable, templatable {
     /** @var string $manageresponsesurl */
     private $manageresponsesurl = null;
 
-    /** @var stdClass $responsiblecontactuser */
+    /** @var array $responsiblecontactuser */
     private $responsiblecontactuser = null;
 
     /** @var string $bookingopeningtime */
@@ -413,28 +413,33 @@ class bookingoption_description implements renderable, templatable {
         $colteacher = new col_teacher($optionid, $settings, true);
         $this->teachers = $colteacher->teachers;
 
-        // User object of the responsible contact.
-        $this->responsiblecontactuser = $settings->responsiblecontactuser ?? null;
-        if (!empty($this->responsiblecontactuser)) {
-            $isteacher = false;
-            // For teachers of this course, link to teacherpage instead of user profile.
-            foreach ($settings->teachers as $teacher) {
-                if ($this->responsiblecontactuser->id == $teacher->userid) {
-                    $isteacher = true;
-                }
-            }
-            if ($isteacher) {
-                $this->responsiblecontactuser->link = new moodle_url(
-                    '/mod/booking/teacher.php',
-                    ['teacherid' => $settings->responsiblecontact]
-                );
-            } else {
-                $this->responsiblecontactuser->link = new moodle_url(
+        // Array User object of the responsible contact.
+        $responsibles = $settings->responsiblecontactuser;
+
+        // If no responsible contact is set, we take the first teacher.
+        if (empty($responsibles) && !empty($settings->teachers)) {
+            $teacher = reset($settings->teachers);
+            $responsible = new stdClass();
+            $responsible->id = $teacher->userid;
+            $responsible->firstname = $teacher->firstname ?? '';
+            $responsible->lastname = $teacher->lastname ?? '';
+            $responsible->email = $teacher->email ?? '';
+
+            $responsible->link = (new moodle_url(
+                '/mod/booking/teacher.php',
+                ['teacherid' => $teacher->userid]
+            ));
+            $responsibles = [$responsible];
+        } else {
+            foreach ($responsibles as &$responsiblecontact) {
+                $responsiblecontact->link = (new moodle_url(
                     '/user/profile.php',
-                    ['id' => $this->responsiblecontactuser->id]
-                );
+                    ['id' => $responsiblecontact->id]
+                ));
             }
         }
+
+        $this->responsiblecontactuser = $responsibles;
 
         if (empty($settings->bookingopeningtime)) {
             $this->bookingopeningtime = null;

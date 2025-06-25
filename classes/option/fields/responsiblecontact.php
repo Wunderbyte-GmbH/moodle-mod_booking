@@ -128,7 +128,7 @@ class responsiblecontact extends field_base {
         // Responsible contact person - autocomplete.
         $options = [
             'ajax' => 'mod_booking/form_users_selector',
-            'multiple' => false,
+            'multiple' => true,
             'noselectionstring' => get_string('choose...', 'mod_booking'),
             'valuehtmlcallback' => function ($value) {
                 global $OUTPUT;
@@ -194,37 +194,43 @@ class responsiblecontact extends field_base {
      * @throws \dml_exception
      */
     public static function save_data(stdClass &$formdata, stdClass &$option) {
-
+        global $DB;
         $cmid = $formdata->cmid;
         $optionid = $option->id;
-
         if (!empty($cmid) && !empty($optionid)) {
             // Check if we need to enrol responsible contact users.
             if (get_config('booking', 'responsiblecontactenroltocourse')) {
                 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
                 $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
+                $old = $settings->responsiblecontact;
+                $new = $formdata->responsiblecontact;
 
-                // Now get the role id for the responsible contact.
-                $userid = (int) $formdata->responsiblecontact;
-                if (!empty($userid)) {
-                    $roleid = (int) get_config('booking', 'definedresponsiblecontactrole');
-                    if (empty($roleid)) {
-                        $roleid = 0;
-                    }
-                    $courseid = $formdata->courseid;
-                    if (!empty($courseid)) {
-                        $bookingoption->enrol_user($userid, false, $roleid, false, $courseid, true);
+                // Now get the role id for the responsible contacts and enroll them if they are new.
+                foreach ($new as $contact) {
+                    if (!in_array($contact, $old)) {
+                        $userid = (int) $contact;
+                        if (!empty($userid)) {
+                            $roleid = (int) get_config('booking', 'definedresponsiblecontactrole');
+                            if (empty($roleid)) {
+                                $roleid = 0;
+                            }
+                            $courseid = $formdata->courseid;
+                            if (!empty($courseid)) {
+                                $bookingoption->enrol_user($userid, false, $roleid, false, $courseid, true);
+                            }
+                        }
                     }
                 }
-
-                // Only when the responsible contact changes, we need to make sure, that the old responsible contact is unenrolled.
-                if (
-                    !empty($settings->responsiblecontact)
-                    && ($formdata->responsiblecontact != $settings->responsiblecontact)
-                ) {
-                    $bookingoption->unenrol_user((int)$settings->responsiblecontact);
+                // We need to unenroll the old contacts, that are not in the new array.
+                foreach ($old as $contact) {
+                    if (!in_array($contact, $new)) {
+                        $bookingoption->unenrol_user((int)$userid);
+                    }
                 }
             }
         }
+         // After every process is done we have to transform them into a string and save to DB.
+        $responsiblecontacts = implode(',', $formdata->responsiblecontact);
+        $DB->update_record('booking_options', ['id' => $optionid, 'responsiblecontact' => $responsiblecontacts]);
     }
 }

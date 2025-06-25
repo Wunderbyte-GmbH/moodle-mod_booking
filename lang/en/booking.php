@@ -2121,8 +2121,8 @@ $string['responses'] = 'Responses';
 $string['responsesfields'] = 'Fields in participants list';
 $string['responsesto'] = 'Responses to {$a} ';
 $string['responsible'] = 'Responsible';
-$string['responsiblecontact'] = 'Responsible contact person';
-$string['responsiblecontact_help'] = 'Choose a person who is responsible for this booking option.
+$string['responsiblecontact'] = 'Responsible contact(s)';
+$string['responsiblecontact_help'] = 'Choose contact(s) which are responsible for this booking option.
 This is not supposed to be the teacher!';
 $string['responsiblecontactcanedit'] = 'Allow responsible contacts to edit';
 $string['responsiblecontactcanedit_desc'] = 'Activate this setting if you want to allow responsible contact persons

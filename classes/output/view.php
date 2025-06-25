@@ -570,7 +570,7 @@ class view implements renderable, templatable {
         $responsiblecontacttable = new bookingoptions_wbtable("cmid_{$cmid} responsiblecontacttable");
 
         $wherearray = ['bookingid' => (int)$booking->id];
-        $additionalwhere = "responsiblecontact = $USER->id";
+        $additionalwhere = "CONCAT(',', responsiblecontact, ',') LIKE '%," . $USER->id . ",%'";
 
         [$fields, $from, $where, $params, $filter] =
             booking::get_options_filter_sql(

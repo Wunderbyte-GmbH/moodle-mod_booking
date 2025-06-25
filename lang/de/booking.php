@@ -2067,8 +2067,8 @@ $string['responses'] = 'Buchungen';
 $string['responsesfields'] = 'Felder in der Teilnehmer:innen-Liste';
 $string['responsesto'] = 'Buchungen zu {$a} ';
 $string['responsible'] = 'Zuständig';
-$string['responsiblecontact'] = 'Zuständige Kontaktperson';
-$string['responsiblecontact_help'] = 'Geben Sie eine zuständige Kontaktperson an. Dies sollte jemand anderer als der/die Lehrer/in sein.';
+$string['responsiblecontact'] = 'Zuständige Kontaktperson(en)';
+$string['responsiblecontact_help'] = 'Geben Sie eine zuständige Kontaktperson(en) an. Dies sollte jemand anderer als der/die Lehrer/in sein.';
 $string['responsiblecontactcanedit'] = 'Kontaktpersonen das Editieren erlauben';
 $string['responsiblecontactcanedit_desc'] = 'Aktivieren Sie diese Einstellung, um es Kontaktpersonen zu erlauben,
 die Buchungsoptionen, bei denen Sie eingetragen sind, zu editieren und Teilnehmer:innen-Listen einzusehen.<br>
