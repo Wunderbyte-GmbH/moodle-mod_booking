@@ -95,7 +95,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
      *
      * @param object $values
      *
-     * @return void
+     * @return string
      *
      */
     public function col_image($values) {
@@ -182,15 +182,17 @@ class bookingoptions_wbtable extends wunderbyte_table {
         if (empty($settings->responsiblecontact)) {
             return $ret;
         }
-        if ($user = singleton_service::get_instance_of_user($settings->responsiblecontact)) {
-            $userstring = "$user->firstname $user->lastname";
-            $emailstring = " ($user->email)";
-            if ($this->is_downloading()) {
-                $ret = $userstring . $emailstring;
-            } else {
-                $profileurl = new moodle_url('/user/profile.php', ['id' => $settings->responsiblecontact]);
-                $ret = get_string('responsible', 'mod_booking')
-                    . ": " . html_writer::link($profileurl, $userstring);
+        foreach ($settings->responsiblecontact as $contact) {
+            if ($user = singleton_service::get_instance_of_user((int) $contact)) {
+                $userstring = "$user->firstname $user->lastname";
+                $emailstring = " ($user->email)";
+                if ($this->is_downloading()) {
+                    $ret = $userstring . $emailstring;
+                } else {
+                    $profileurl = new moodle_url('/user/profile.php', ['id' => (int) $contact]);
+                    $ret = get_string('responsible', 'mod_booking')
+                        . ": " . html_writer::link($profileurl, $userstring);
+                }
             }
         }
         return $ret;

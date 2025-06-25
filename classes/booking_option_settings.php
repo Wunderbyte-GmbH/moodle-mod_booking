@@ -242,11 +242,11 @@ class booking_option_settings {
     /** @var string $imageurl url */
     public $imageurl = '';
 
-    /** @var int $responsiblecontact userid of the responsible contact person */
-    public $responsiblecontact = null;
+    /** @var array $responsiblecontact userid of the responsible contact person */
+    public $responsiblecontact = [];
 
-    /** @var stdClass $responsiblecontactuser user object for the responsible contact person */
-    public $responsiblecontactuser = null;
+    /** @var array $responsiblecontactuser user object for the responsible contact person */
+    public $responsiblecontactuser = [];
 
     /** @var int $credits */
     public $credits = null;
@@ -453,7 +453,7 @@ class booking_option_settings {
             $this->dayofweek = $dbrecord->dayofweek;
             $this->availability = $dbrecord->availability;
             $this->status = $dbrecord->status;
-            $this->responsiblecontact = $dbrecord->responsiblecontact;
+            $this->responsiblecontact = !empty($dbrecord->responsiblecontact) ? explode(',', $dbrecord->responsiblecontact) : [];
             $this->sqlfilter = $dbrecord->sqlfilter;
             $this->competencies = $dbrecord->competencies;
 
@@ -797,7 +797,9 @@ class booking_option_settings {
         if (empty($this->responsiblecontact)) {
             return null;
         }
-        $this->responsiblecontactuser = singleton_service::get_instance_of_user((int) $this->responsiblecontact);
+        foreach ($this->responsiblecontact as $contact) {
+            $this->responsiblecontactuser[] = singleton_service::get_instance_of_user((int) $contact);
+        }
     }
 
     /**
