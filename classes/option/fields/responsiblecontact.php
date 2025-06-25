@@ -230,6 +230,9 @@ class responsiblecontact extends field_base {
             }
         }
          // After every process is done we have to transform them into a string and save to DB.
+        if (empty($formdata->responsiblecontact)) {
+            return;
+        }
         $responsiblecontacts = implode(',', $formdata->responsiblecontact);
         $DB->update_record('booking_options', ['id' => $optionid, 'responsiblecontact' => $responsiblecontacts]);
     }
