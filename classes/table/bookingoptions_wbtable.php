@@ -23,8 +23,8 @@
  */
 
 namespace mod_booking\table;
+use mod_booking\booking_answers\booking_answers;
 use core_plugin_manager;
-use mod_booking\booking_answers;
 use mod_booking\local\modechecker;
 use mod_booking\local\override_user_field;
 use mod_booking\output\col_responsiblecontacts;

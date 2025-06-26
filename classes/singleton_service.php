@@ -20,7 +20,7 @@ use core_user;
 use Exception;
 use local_entities\entitiesrelation_handler;
 use mod_booking\booking;
-use mod_booking\booking_answers;
+use mod_booking\booking_answers\booking_answers;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\booking_settings;

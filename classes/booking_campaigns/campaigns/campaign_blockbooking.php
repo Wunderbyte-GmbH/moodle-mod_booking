@@ -17,7 +17,7 @@
 namespace mod_booking\booking_campaigns\campaigns;
 
 use context_system;
-use mod_booking\booking_answers;
+use mod_booking\booking_answers\booking_answers;
 use mod_booking\booking_campaigns\booking_campaign;
 use mod_booking\booking_campaigns\campaigns_info;
 use mod_booking\booking_context_helper;
