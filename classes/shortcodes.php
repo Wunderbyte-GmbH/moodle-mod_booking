@@ -37,6 +37,7 @@ use local_wunderbyte_table\filters\types\standardfilter;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
 use mod_booking\local\shortcode_filterfield;
+use mod_booking\output\booked_users;
 use mod_booking\shortcodes_handler;
 use mod_booking\customfield\booking_handler;
 use mod_booking\local\modechecker;
@@ -46,6 +47,7 @@ use mod_booking\table\bookingoptions_wbtable;
 use mod_booking\table\bulkoperations_table;
 use moodle_url;
 use Throwable;
+use mod_booking\output\renderer;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -1483,6 +1485,38 @@ class shortcodes {
     }
 
     /**
+     * List to approve shortcode.
+     *
+     * @param mixed $shortcode
+     * @param mixed $args
+     * @param mixed $content
+     * @param mixed $env
+     * @param mixed $next
+     *
+     * @return string
+     *
+     */
+    public static function listtoapprove($shortcode, $args, $content, $env, $next) {
+
+        global $PAGE;
+
+        $data = new booked_users(
+            'optionstoconfirm',
+            0,
+            false, // Booked users.
+            true, // Users on waiting list.
+            false, // Reserved answers (e.g. in shopping cart).
+            false, // Users on notify list.
+            false, // Deleted users.
+            false, // Booking history.
+        );
+        /** @var renderer $renderer */
+        $renderer = $PAGE->get_renderer('mod_booking');
+
+        return $renderer->render_booked_users($data);
+    }
+
+    /**
      * By default, we do not show booking options that lie in the past.
      * Shortcode arg values get transmitted as string, so also check for "false" and "0".
      * And apply setting for selflearningcourse.
@@ -1511,5 +1545,6 @@ class shortcodes {
             }
         }
         return;
+
     }
 }

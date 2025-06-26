@@ -1502,6 +1502,7 @@ $string['listentoresponsiblepersonchange'] = "Reagieren auf Änderungen der vera
 $string['listentoteacherschange'] = "Reagieren auf Änderungen des Lehrerenden der Buchungsoption";
 $string['listentotextchange'] = "Reagieren auf Änderungen des Textes der Buchungsoption";
 $string['listentotimestampchange'] = "Reagieren auf Änderungen der Zeitpunktes (und Tages) der Buchungsoption";
+$string['listtoapprove'] = "Liste zur Genehmigung";
 $string['location'] = 'Ort';
 $string['location_help'] = 'Sie können den Namen des Orts manuell eingeben oder aus einer Liste von
                             früheren Orten auswählen. Sie können nur einen Ort angeben. Sobald
