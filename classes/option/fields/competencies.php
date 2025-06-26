@@ -117,6 +117,9 @@ class competencies extends field_base {
             $stringvalue = implode(',', $value);
             $newoption->$key = $stringvalue;
             $formdata->$key = $stringvalue;
+        } else {
+            $newoption->$key = '';
+            $formdata->$key = '';
         }
         $changes = $instance->check_for_changes($formdata, $instance);
         return $changes;
