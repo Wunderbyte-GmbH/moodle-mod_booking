@@ -87,15 +87,13 @@ switch ($scope) {
     default:
         // Headers.
         $table->define_headers([
-            get_string('titleprefix', 'mod_booking'),
-            get_string('bookingoption', 'mod_booking'),
+            get_string('bookingoptionname', 'mod_booking'),
             get_string('answerscount', 'mod_booking'),
             get_string('presencecount', 'mod_booking'),
         ]);
         // Columns.
         $table->define_columns([
-            'titleprefix',
-            'text', // This is the booking option name (without prefix).
+            'option',
             'answerscount',
             'presencecount',
         ]);

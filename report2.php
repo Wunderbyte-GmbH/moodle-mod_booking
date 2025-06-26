@@ -29,6 +29,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 use mod_booking\booking;
 use mod_booking\option\dates_handler;
 use mod_booking\output\booked_users;
+use mod_booking\output\booking_history;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
 use mod_booking\output\renderer;
@@ -50,7 +51,9 @@ $courseid = optional_param('courseid', 0, PARAM_INT);
 
 $ticketicon = '<i class="fa fa-fw fa-sm fa-ticket" aria-hidden="true"></i>&nbsp;';
 $linkicon = '<i class="fa fa-fw fa-xs fa-external-link" aria-hidden="true"></i>&nbsp;';
-$divider = "<span class='report2-nav-divider'>▸</span>";
+$divider = "<span class='mt-1 ml-1 mr-1 mt-4'>
+    <i class='fa-solid fa-2xs fa-angle-right' aria-hidden='true' style='color: gray;'></i>
+</span>";
 
 $r2syscontext = context_system::instance();
 $r2syscap = has_capability('mod/booking:managebookedusers', $r2syscontext);
@@ -134,7 +137,7 @@ if (!empty($optiondateid)) {
         ($r2instancecap ? "</a>" : "</span>") .
         $divider .
         "<a href='{$r2optionurl}' class='report2-option-border'>" .
-        $ticketicon . booking::shorten_text($optionsettings->get_title_with_prefix()) .
+        $ticketicon . $optionsettings->get_title_with_prefix() .
         "</a>";
 
     // Create a navigation dropdown for all optiondates (sessions) of the booking option.
@@ -233,7 +236,7 @@ if (!empty($optiondateid)) {
         ($r2instancecap ? "</a>" : "</span>") .
         $divider .
         "<a href='{$r2optionurl}' class='report2-option-border'>" .
-        $linkicon . booking::shorten_text($optionsettings->get_title_with_prefix()) .
+        $linkicon . $optionsettings->get_title_with_prefix() .
         "</a>";
 
     // Create a navigation dropdown for all optiondates (sessions) of the booking option.
@@ -305,7 +308,7 @@ if (!empty($optiondateid)) {
         ($r2coursecap ? "</a>" : "</span>") .
         $divider .
         "<a href='{$r2instanceurl}' class='report2-instance-border'>" .
-        $linkicon . booking::shorten_text($bookingsettings->name) .
+        $linkicon . $bookingsettings->name .
         "</a>";
 } else if (!empty($courseid)) {
     // We are in course scope.
@@ -340,7 +343,7 @@ if (!empty($optiondateid)) {
         ($r2syscap ? "</a>" : "</span>") .
         $divider .
         "<a href='$r2courseurl' class='report2-course-border'>" .
-        $linkicon . booking::shorten_text($course->fullname) .
+        $linkicon . $course->fullname .
         "</a>";
 } else {
     // We are in system scope.
@@ -363,38 +366,41 @@ if (!empty($optiondateid)) {
 
     $navhtml =
         "<a href='$r2systemurl' class='report2-system-border'>" .
-        $linkicon . booking::shorten_text($SITE->fullname) .
+        $linkicon . $SITE->fullname .
         "</a>";
 }
+
+// Navigation stylings cannot be done in styles.css because of string localization.
+echo booking::generate_localized_css_for_navigation_labels('report2', $scopes);
 
 $url = new moodle_url('/mod/booking/report2.php', $urlparams);
 $PAGE->set_url($url);
 
 echo $OUTPUT->header();
-
-// Add the navigation here.
-echo "<div class='mt-3 mb-5'>$navhtml</div>";
-
-// Title of the page for the current scope.
-echo $OUTPUT->heading("<div class='mb-5'>$ticketicon $heading</div>");
-
-// Navigation stylings cannot be done in styles.css because of string localization.
-echo booking::generate_localized_css_for_navigation_labels('report2', $scopes);
+echo $OUTPUT->heading("<div class='mt-3 mb-5'>$navhtml</div>" .
+    "<div class='mb-5'>" . $ticketicon . $heading . "</div>");
 
 // Now we render the booked users for the provided scope.
 $data = new booked_users(
     $scope,
     $scopeid,
-    true, // Booked users.
-    true, // Users on waiting list.
-    true, // Reserved answers (e.g. in shopping cart).
-    true, // Users on notify list.
-    true, // Deleted users.
-    true, // Booking history.
+    true,
+    true,
+    true,
+    true,
+    true,
     $cmid
 );
 /** @var renderer $renderer */
 $renderer = $PAGE->get_renderer('mod_booking');
 echo $renderer->render_booked_users($data);
+
+// In option scope, we also show booking history.
+if ($scope === 'option') {
+    $optionid = $scopeid;
+    $historydata = new booking_history($optionid);
+    echo $renderer->render_booking_history($historydata);
+}
+$historydata = new booking_history($scopeid);
 
 echo $OUTPUT->footer();

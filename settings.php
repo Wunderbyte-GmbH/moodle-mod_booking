@@ -161,7 +161,8 @@ if ($ADMIN->fulltree) {
     }
 
     // Has PRO version been activated?
-    $proversion = wb_payment::pro_version_is_activated();
+    $forcepro   = (bool)get_config('local_wunderbyte_table', 'activate_booking_pro');
+    $proversion = wb_payment::pro_version_is_activated() || $forcepro;
 
     $settings->add(
         new admin_setting_heading(
@@ -314,7 +315,6 @@ if ($ADMIN->fulltree) {
                 $presenceoptions
             )
         );
-
     } else {
         $settings->add(
             new admin_setting_heading(
@@ -495,18 +495,6 @@ if ($ADMIN->fulltree) {
         )
     );
 
-    if (get_config('booking', 'bookonlyondetailspage')) {
-        // Display of detail dots is only enabled for options bookable on detailspage.
-        $settings->add(
-            new admin_setting_configcheckbox(
-                'booking/showdetaildotsnextbookedalert',
-                get_string('showdetaildotsnextbookedalert', 'mod_booking'),
-                get_string('showdetaildotsnextbookedalert_desc', 'mod_booking'),
-                0
-            )
-        );
-    }
-
     $coloroptions = [
         'primary' => get_string('cdo:buttoncolor:primary', 'mod_booking'),
         'secondary' => get_string('cdo:buttoncolor:secondary', 'mod_booking'),
@@ -581,15 +569,6 @@ if ($ADMIN->fulltree) {
 
     $settings->add(
         new admin_setting_configcheckbox(
-            'booking/automaticbookingoptioncompletion',
-            get_string('automaticbookingoptioncompletion', 'mod_booking'),
-            get_string('automaticbookingoptioncompletion_desc', 'mod_booking'),
-            0
-        )
-    );
-
-    $settings->add(
-        new admin_setting_configcheckbox(
             'booking/bookingdebugmode',
             get_string('bookingdebugmode', 'mod_booking'),
             get_string('bookingdebugmode_desc', 'mod_booking'),
@@ -605,47 +584,7 @@ if ($ADMIN->fulltree) {
             0
         )
     );
-    if ($proversion) {
-        $settings->add(
-            new admin_setting_configcheckbox(
-                'booking/certificateon',
-                get_string('certificateon', 'mod_booking'),
-                get_string('certificateon_desc', 'mod_booking'),
-                0,
-            )
-        );
-        if (get_config('booking', 'certificateon')) {
-            $settings->add(
-                new admin_setting_configselect(
-                    'booking/presencestatustoissuecertificate',
-                    get_string('presencestatustoissuecertificate', 'mod_booking'),
-                    get_string('presencestatustoissuecertificate_desc', 'mod_booking'),
-                    0,
-                    booking::get_possible_presences(true)
-                )
-            );
-        }
-    }
 
-    $settings->add(
-        new admin_setting_configcheckbox(
-            'booking/usecompetencies',
-            get_string('usecompetencies', 'mod_booking'),
-            get_string('usecompetencies_desc', 'mod_booking'),
-            0
-        )
-    );
-
-    if ($proversion) {
-        $settings->add(
-            new admin_setting_configcheckbox(
-                'booking/restrictavailabilityforinstance',
-                get_string('restrictavailabilityforinstance', 'mod_booking'),
-                get_string('restrictavailabilityforinstance_desc', 'mod_booking'),
-                0
-            )
-        );
-    }
     if ($proversion) {
         // PRO feature: "What's new" tab.
         $settings->add(
@@ -1059,19 +998,6 @@ if ($ADMIN->fulltree) {
             get_string('waitinglistheader_desc', 'mod_booking')
         )
     );
-
-    $waitinglistshowplaceonwaitinglist = new admin_setting_configcheckbox(
-        'booking/waitinglistshowplaceonwaitinglist',
-        get_string('waitinglistshowplaceonwaitinglist', 'mod_booking'),
-        get_string('waitinglistshowplaceonwaitinglistinfo', 'mod_booking'),
-        0
-    );
-    $waitinglistshowplaceonwaitinglist->set_updatedcallback(function () {
-        cache_helper::purge_by_event('setbackencodedtables');
-        cache_helper::purge_by_event('changesinwunderbytetable');
-    });
-    $settings->add($waitinglistshowplaceonwaitinglist);
-
     $settings->add(
         new admin_setting_configcheckbox(
             'booking/turnoffwaitinglist',
@@ -1089,7 +1015,6 @@ if ($ADMIN->fulltree) {
             0
         )
     );
-
     $settings->add(
         new admin_setting_configcheckbox(
             'booking/keepusersbookedonreducingmaxanswers',
@@ -1339,18 +1264,6 @@ if ($ADMIN->fulltree) {
             ''
         )
     );
-
-    if (class_exists('local_shopping_cart\shopping_cart')) {
-        $settings->add(
-            new admin_setting_configcheckbox(
-                'booking/screstoreitemfromreserved',
-                get_string('screstoreitemfromreserved', 'mod_booking'),
-                get_string('screstoreitemfromreserved_desc', 'mod_booking'),
-                0
-            )
-        );
-    }
-
     $settings->add(
         new admin_setting_configcheckbox(
             'booking/displayemptyprice',
@@ -1614,6 +1527,14 @@ if ($ADMIN->fulltree) {
                 get_string('waitinglistlowpercentagedesc', 'booking'),
                 20,
                 $waitinglistlowpercentages
+            )
+        );
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/waitinglistshowplaceonwaitinglist',
+                get_string('waitinglistshowplaceonwaitinglist', 'mod_booking'),
+                get_string('waitinglistshowplaceonwaitinglistinfo', 'booking'),
+                0
             )
         );
     } else {
@@ -1919,43 +1840,6 @@ if ($ADMIN->fulltree) {
             [],
             $whichviewopts
         ));
-    }
-
-    if ($proversion) {
-        // Shortcode settings.
-        $settings->add(
-            new admin_setting_heading(
-                'shortcodesettingsheading',
-                get_string('shortcodesettings', 'mod_booking'),
-                get_string('shortcodesettings_desc', 'mod_booking')
-            )
-        );
-
-        $settings->add(
-            new admin_setting_configcheckbox(
-                'booking/shortcodesoff',
-                get_string('shortcodesoff', 'mod_booking'),
-                get_string('shortcodesoff_desc', 'mod_booking'),
-                0
-            )
-        );
-
-        $settings->add(new admin_setting_configtext(
-            'booking/shortcodespassword',
-            get_string('shortcodespassword', 'mod_booking'),
-            get_string('shortcodespassword_desc', 'mod_booking'),
-            '' // Default is empty.
-        ));
-    } else {
-        $settings->add(
-            new admin_setting_heading(
-                'tabwhatsnew',
-                get_string('tabwhatsnew', 'mod_booking'),
-                get_string('prolicensefeatures', 'mod_booking') .
-                get_string('profeatures:shortcodes', 'mod_booking') .
-                get_string('infotext:prolicensenecessary', 'mod_booking')
-            )
-        );
     }
 
     // Global mail templates (PRO).

@@ -65,11 +65,13 @@ echo '<div class="alert alert-secondary alert-dismissible fade show" role="alert
 </div>';
 
 // Check if PRO version is active.
-if (wb_payment::pro_version_is_activated()) {
+$forcepro   = (bool)get_config('local_wunderbyte_table', 'activate_booking_pro');
+if (wb_payment::pro_version_is_activated() || $forcepro) {
     echo campaigns_info::return_rendered_list_of_saved_campaigns();
 
 } else {
     echo html_writer::div(get_string('infotext:prolicensenecessary', 'mod_booking'), 'alert alert-warning');
+    exit;
 }
 
 $PAGE->requires->js_call_amd(

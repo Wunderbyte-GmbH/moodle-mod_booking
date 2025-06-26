@@ -397,6 +397,17 @@ class mod_booking_mod_form extends moodleform_mod {
         );
         $mform->setDefault('defaultsortorder', 'asc');
 
+        // Presence tracking.
+        $menuoptions = [];
+        $menuoptions[0] = get_string('disable');
+        $menuoptions[1] = get_string('enable');
+        $mform->addElement(
+            'select',
+            'enablepresence',
+            get_string('enablepresence', 'booking'),
+            $menuoptions
+        );
+
         // Choose default template.
         $alloptiontemplates = $DB->get_records_menu('booking_options', ['bookingid' => 0], '', $fields = 'id, text', 0, 0);
         $alloptiontemplates[0] = get_string('dontusetemplate', 'booking');
@@ -413,6 +424,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $listoncoursepageoptions = [];
         $listoncoursepageoptions[0] = get_string('hidelistoncoursepage', 'booking');
         $listoncoursepageoptions[1] = get_string('showcoursenameandbutton', 'booking');
+        $listoncoursepageoptions[2] = get_string('showmarketingifnotbooked', 'booking');
         $mform->addElement(
             'select',
             'showlistoncoursepage',
@@ -426,6 +438,17 @@ class mod_booking_mod_form extends moodleform_mod {
         }
         $mform->addHelpButton('showlistoncoursepage', 'showlistoncoursepage', 'booking');
         $mform->setType('showlistoncoursepage', PARAM_INT);
+
+        // Add text field for marketing banner image file.
+        $mform->addElement('text', 'marketingimagefilename', 
+            get_string('marketingimagefilename', 'booking'));
+        $mform->setType('marketingimagefilename', PARAM_FILE);
+        $mform->addHelpButton('marketingimagefilename', 'marketingimagefilename', 'booking');
+        if (!empty($bookingsettings) && !empty($bookingsettings->marketingimagefilename)) {
+            $mform->setDefault('marketingimagefilename', $bookingsettings->marketingimagefilename);
+        } else {
+            $mform->setDefault('marketingimagefilename', 'marketingbanner.jpg');
+        }
 
         $mform->addElement(
             'textarea',
@@ -512,9 +535,6 @@ class mod_booking_mod_form extends moodleform_mod {
             'userpic' => get_string('userpic'),
             'indexnumber' => get_string('indexnumber', 'mod_booking'),
             'email' => get_string('email', 'mod_booking'),
-            'certificate' => get_string('certificate', 'mod_booking'),
-            'allusercertificates' => get_string('allusercertificates', 'mod_booking'),
-            'status' => get_string('presence', 'mod_booking'),
         ];
 
         $reportfields = [ // This is the download file.
@@ -553,9 +573,6 @@ class mod_booking_mod_form extends moodleform_mod {
             'coursestarttime' => get_string('optiondatestart', 'mod_booking'),
         ];
 
-        if (get_config('booking', 'usecompetencies')) {
-            $optionsfields['competencies'] = get_string('competencies', 'mod_booking');
-        }
         $optionsdownloadfields = [
             'identifier' => get_string('optionidentifier', 'mod_booking'),
             'titleprefix' => get_string('titleprefix', 'mod_booking'),
@@ -1022,15 +1039,11 @@ class mod_booking_mod_form extends moodleform_mod {
             case 'semesterstart':
                 $cancancelbookdaysstring = get_string('cancancelbookdays:semesterstart', 'mod_booking');
                 break;
-            case 'bookingclosingtime':
-                $cancancelbookdaysstring = get_string('cancancelbookdays:bookingclosingtime', 'mod_booking');
-                break;
             case 'bookingopeningtime':
                 $cancancelbookdaysstring = get_string('cancancelbookdays:bookingopeningtime', 'mod_booking');
                 break;
-            default:
-                $cancancelbookdaysstring = get_string('cancancelbookdays:coursestarttime', 'mod_booking');
-                $canceldependenton = 'coursestarttime';
+            case 'bookingclosingtime':
+                $cancancelbookdaysstring = get_string('cancancelbookdays:bookingclosingtime', 'mod_booking');
                 break;
         }
 
@@ -1116,18 +1129,15 @@ class mod_booking_mod_form extends moodleform_mod {
             $options = [
                 '' => get_string('choosedots'),
             ];
-            foreach ($records as $id => $record) {
-                if (isset($record->data)) {
-                    $record = $record->data;
-                }
+            foreach ($records as $record) {
                 if (
-                    (empty($record) && $record !== "0")
-                    || in_array($record, $options)
+                    empty($record)
+                    || in_array($record->data, $options)
                 ) {
                     continue;
                 }
 
-                $options[$id] = format_string($record);
+                $options[$record->id] = format_string($record->data);
             }
 
             $mform->addElement(
@@ -1147,46 +1157,6 @@ class mod_booking_mod_form extends moodleform_mod {
             $mform->setDefault('maxoptionsfrominstance', $maxoptionsfrominstancesetting);
             $mform->hideIf('maxoptionsfrominstance', 'maxoptionsfromcategorycount', 'eq', 0);
         }
-
-        $mform->addElement(
-            'advcheckbox',
-            'circumventavailabilityconditions',
-            get_string('circumventavailabilityconditions', 'mod_booking'),
-        );
-        $mform->addElement(
-            'static',
-            'circumventavailabilityconditionsdesc',
-            '',
-            get_string('circumventavailabilityconditions_desc', 'booking')
-        );
-        $mform->hideIf('circumventavailabilityconditionsdesc', 'circumventavailabilityconditions', 'notchecked');
-
-        $mform->addElement(
-            'text',
-            'circumventpassword',
-            get_string('circumventpassword', 'booking'),
-            ''
-        );
-        $mform->setType('circumventpassword', PARAM_TEXT);
-        $mform->hideIf('circumventpassword', 'circumventavailabilityconditions', 'notchecked');
-
-        $circumventcond = booking::get_value_of_json_by_key($bookingid, 'circumventcond') ?? [];
-        if (empty($circumventcond)) {
-            $mform->setDefault(
-                'circumventavailabilityconditions',
-                0,
-            );
-        } else {
-            $mform->setDefault(
-                'circumventavailabilityconditions',
-                1,
-            );
-            $mform->setDefault(
-                'circumventpassword',
-                $circumventcond->cvpwd ?? '',
-            );
-        }
-
         // Miscellaneous settings.
         $mform->addElement(
             'header',
@@ -1626,19 +1596,19 @@ class mod_booking_mod_form extends moodleform_mod {
             core_tag_tag::get_item_tags_array('mod_booking', 'booking', $this->current->id);
         } else {
             $draftitemid = file_get_submitted_draft_itemid('myfilemanager');
-            file_prepare_draft_area($draftitemid, $this->context->id, 'mod_booking', 'myfilemanager', 0, $options);
+            file_prepare_draft_area($draftitemid, null, 'mod_booking', 'myfilemanager', 0, $options);
             $defaultvalues['myfilemanager'] = $draftitemid;
 
             $draftitemid = file_get_submitted_draft_itemid('bookingimages');
-            file_prepare_draft_area($draftitemid, $this->context->id, 'mod_booking', 'bookingimages', 0, $options);
+            file_prepare_draft_area($draftitemid, null, 'mod_booking', 'bookingimages', 0, $options);
             $defaultvalues['bookingimages'] = $draftitemid;
 
             $draftitemid = file_get_submitted_draft_itemid('signinlogoheader');
-            file_prepare_draft_area($draftitemid, $this->context->id, 'mod_booking', 'signinlogoheader', 0, $options);
+            file_prepare_draft_area($draftitemid, null, 'mod_booking', 'signinlogoheader', 0, $options);
             $defaultvalues['signinlogoheader'] = $draftitemid;
 
             $draftitemid = file_get_submitted_draft_itemid('signinlogofooter');
-            file_prepare_draft_area($draftitemid, $this->context->id, 'mod_booking', 'signinlogofooter', 0, $options);
+            file_prepare_draft_area($draftitemid, null, 'mod_booking', 'signinlogofooter', 0, $options);
             $defaultvalues['signinlogofooter'] = $draftitemid;
         }
 

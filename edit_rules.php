@@ -41,17 +41,22 @@ $urlparams = [];
 
 if (empty($cmid) && empty($contextid)) {
     $contextid = context_system::instance()->id;
-} else if (!empty($cmid)) {
-    [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'booking');
-    require_course_login($course, false, $cm);
-    $context = context_module::instance($cmid);
-    $contextid = $context->id;
-    $urlparams = ['cmid' => $cmid];
+} else {
+    if (!empty($cmid)) {
+        [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'booking');
+        require_course_login($course, false, $cm);
+        $context = context_module::instance($cmid);
+        $contextid = $context->id;
+        $urlparams = ['cmid' => $cmid];
+    } else {
+        $contextid = $contextid;
+    }
 }
 
 if (empty($urlparams)) {
     $urlparams = ['contextid' => 1];
 }
+
 
 $context = context::instance_by_id($contextid);
 
@@ -87,10 +92,12 @@ echo $output->heading(get_string('bookingrules', 'mod_booking'));
 echo get_string('linktoshowroom:bookingrules', 'mod_booking');
 
 // Check if PRO version is active. In free version, up to three rules can be edited for whole plugin, but none for coursemodule.
-if (wb_payment::pro_version_is_activated()) {
+$forcepro   = (bool)get_config('local_wunderbyte_table', 'activate_booking_pro');
+if (wb_payment::pro_version_is_activated() || $forcepro) {
     echo booking_rules::get_rendered_list_of_saved_rules($contextid);
 } else if (!empty($cmid)) {
     echo html_writer::div(get_string('infotext:prolicensenecessary', 'mod_booking'), 'alert alert-warning');
+    exit;
 } else {
     $rules = booking_rules::get_list_of_saved_rules($contextid);
     if (isset($rules) && count($rules) < 3) {

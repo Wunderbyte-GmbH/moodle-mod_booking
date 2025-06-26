@@ -69,7 +69,8 @@ echo '<div class="alert alert-info alert-dismissible fade show" role="alert">' .
     <span aria-hidden="true">&times;</span>
     </button>
 </div>';
-if (wb_payment::pro_version_is_activated()) {
+$forcepro   = (bool)get_config('local_wunderbyte_table', 'activate_booking_pro');
+if (wb_payment::pro_version_is_activated() || $forcepro) {
     if (has_capability('mod/booking:editoptionformconfig', context_system::instance())) {
         echo $OUTPUT->render_from_template('mod_booking/settings/optionformconfig', ['contextid' => $context->id]);
     } else {
@@ -77,5 +78,31 @@ if (wb_payment::pro_version_is_activated()) {
     }
 } else {
     echo html_writer::div(get_string('infotext:prolicensenecessary', 'mod_booking'), 'alert alert-info');
+    exit;
 }
 echo $OUTPUT->footer();
+// Erst prüfen, ob PRO freigeschaltet ist (Lizenz oder erzwungen über local_wunderbyte_table).
+$forcepro   = (bool)get_config('local_wunderbyte_table', 'activate_booking_pro');
+if (wb_payment::pro_version_is_activated() || $forcepro) {
+    // Dann prüfen, ob der aktuelle Nutzer dieses Modul überhaupt konfigurieren darf.
+    $modcontext = context_module::instance($cmid);
+    if (has_capability('mod/booking:editoptionformconfig', $modcontext)) {
+        echo $OUTPUT->render_from_template(
+            'mod_booking/settings/optionformconfig',
+            ['contextid' => $modcontext->id]
+        );
+    } else {
+        // realistische Fehlermeldung, wenn die Rolle nicht stimmt.
+        echo html_writer::div(
+            get_string('nopermissiontoaccesspage', 'mod_booking'),
+            'alert alert-danger'
+        );
+    }
+} else {
+    // Hinweis auf benötigte PRO-Lizenz.
+    echo html_writer::div(
+        get_string('infotext:prolicensenecessary', 'mod_booking'),
+        'alert alert-info'
+    );
+    exit;
+}

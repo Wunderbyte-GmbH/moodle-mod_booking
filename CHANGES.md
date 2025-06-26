@@ -1,139 +1,3 @@
-## Version 8.14.7 (2025061201)
-* Bugfix: Renamed setting to enable certificates to certificateon.
-
-## Version 8.14.6 (2025061200)
-* New feature: Create and issue certificates when booking option is completed.
-* Bugfix: Don't throw an error when the teacherid is no valid user.
-* Bugfix: When joining images, we need INNER JOINS for course_modules, modules and context to avoid duplicate rows.
-* Bugfix: No error when there are no competencies.
-* Bugfix: Fix SQL for joined images so it won't break option templates.
-
-## Version 8.14.5 (2025061000)
-* Improvement: Disable booking for user if others are on waitinglist.
-* Bugfix: Fix enrolment confirmation.
-* Tests: Fix behat Scenario. Booking option: Waiting list with prices when waitinglistshowplaceonwaitinglist is not set.
-
-## Version 8.14.4 (2025060600)
-* New Feature: courselist shortcode now supports cards view (type=cards).
-* New Feature: Restore reserved items to the cart of the user
-* New Feature: Add new availability condition which checks booking instance access restriction availabiltiy.
-* New Feature: Assign competency evidence to user.
-* New Feature: Competencies can be assigned to and viewed by users.
-* New Feature: Filter for regular columns in shortcodes.
-* Improvement: Also add format_string to values in report.php to support mlang filters.
-* Improvement: Better description for shortcodes passwords.
-* Improvement: Adjustments for sync_waiting_list().
-* Improvement: Apply instanceavailability condition only if setting is activated.
-* Improvement: Show error message to admins when shortcode fails and debug mode is on.
-* Improvement: Improve user evidence event.
-* Improvement: Add button to option view and trigger filter for competencies.
-* Improvement: Reload entire table container to make sure filter checkboxes are checked correctly.
-* Improvement: Add columnfilter to shortcode and enable display of similar options in optionview
-* Bugfix: Add format_string to customfield headers when booking answers of report.php are downloaded.
-* Bugfix: Bugfix: Fix CSV export of Bookings tracker.
-* Bugfix: Deleted users were shown as booked in some cases.
-* Bugfix: Allow override also when shopping cart is not installed
-* Bugfix: If price is always on or we want to display empty prices, we show '0' as price value even if it's missing.
-* Bugfix: Correct behaviour without shopping cart installed and adapt corresponding test.
-* Bugfix: Avoid error when json column of booking option is NULL.
-* Tests: Add unit test for new instanceavailability condition.
-
-## Version 8.14.3 (2025052700)
-* Improvement: Add time() to strtotime to make it overrideable in tests
-* Improvement: Harden security of shortcodes
-* Improvement: Add explanation how to change order of customfields on detail page
-* Bugfix: Add tearDown and setUp functions to all tests
-* Bugfix: Wrong context in optionformconfig_info
-* Bugfix: Fix working of n days test
-* Bugfix: Assure compatibility with mariadb
-* Bugfix: JSON_TABLE is only supported starting from MariaDB 10.6 and MySQL 8.
-* Bugfix: JSON_TABLE is only supported starting from MariaDB 10.6 and MySQL 8
-* Test: Improve tests mocking time
-
-## Version 8.14.2 (2025052300)
-* Improvement: Move pricecategories to dynamic form with repeat elements
-* Bugfix: Add missing error catching on wrong cmid.
-* Bugfix: Don't create a new group when we already have an id
-* BugFix: send_mail_interval waitinglist order and add tests
-* Bugfix: Don't send reminder messages for cancelled booking options
-* Bugfix: Fix strings of privacy providers (must not include underscores)
-
-## Version 8.14.1 (2025052100)
-* Bugfix: In Bookings tracker show unlimited instead of 0.
-* Bugfix: Fix errors with price categories.
-
-## Version 8.14.0 (2025052000)
-* Improvement: Refactoring for booking_edit_setting with customized options
-* Improvement: PHPUnit teardown fix for booking_campaigns_test and booking_groepenrolment_test
-* Improvement: Performance optimization in booking_manage_waiting_list and booking_maxoptionforcategory
-* Improvement: Reduce delays and refactor duplication tests via DB
-* Improvement: Default editor fallback for Moodle 5.0 compatibility
-* Improvement: Added rowcountselect to bookinghistory
-* Bugfix: Trycatch for list of saved rules
-* Bugfix: Fix SQL for joined image files
-* Bugfix: Don't check changes in timemodified and timecreated
-* Bugfix: Show download button correctly in showrowcountselect
-* Bugfix: Fix language strings so links actually work
-* Bugfix: In Mobile App, use fully booked instead of already booked strings when notifymelist blocks
-
-## Version 8.13.0 (2025051300)
-* Bugfix: Rename rank to userrank because rank is a reserved function of MySQL.
-
-## Version 8.12.9 (2025051200)
-* New Feature: Competencies of booking options
-* New feature: Booking rules now support session reminders
-* Improvement: Usability improvements for bookings tracker
-* Improvement: Got rid of enablepresence instance setting
-* Improvement: booking time not overwritten by billboard
-* Bugfix: enable maxoptionsforcategory with all types of customfields
-* Bugfix: Fix requirelogin for courselist shortcode (and all other shortcodes too).
-* Bugfix: Increase number of booked users on report.php
-* Bugfix: Fix SQL for rank order of answers in waiting list so it'll work with any DB family (also MySQL).
-* Bugfix: No validation for enrollink with empty course
-* Bugfix: Fix rank order for setting waitinglistshowplaceonwaitinglist
-* Bugfix: Catch non existing cmid error in shortcodes
-* Bugfix: Move setting waitinglistshowplaceonwaitinglist to correct place (under waiting list header)
-* Bugfix: Fix missing optiondateid in SQL which led to dates being duplicated
-* Bugfix: Fix uniqueid for student
-* Bugfix: Fix daystonotify override for session reminder rule
-* Bugfix: Fix check_if_rule_still_applies
-* Bugfix: Enable sorting for supplementary columns (customfields) in shortcodes
-* Bugfix: remove unsubscribe button in mobile output
-* Bugfix: missing tab in active nav tabs
-
-## Version 8.12.8 (2025050100)
-* New Feature: Create certificates for completing booking options. Also view and edit certificates in report and placeholders for rules.
-* Improvement: Added new shortcodes allbookingoption and mybookingoptions.
-* Improvement: Added bookotheroptions action.
-* Improvement: Further improvements to the bookings tracker.
-* Bugfix: Booking rules are now deleted correctly.
-* Bugfix: Show error message in business card if the user ID of the organizer is missing.
-* Bugfix: Removed default sorting by lastname, as it disrupted the rank order of the waiting list.
-* Bugfix: Recurring booking opening and closing times now update correctly.
-* Bugfix: Enabled setting unenrolfromgroupofcurrentcourse.
-* Bugfix: Correct order of params of setting uselegacymails.
-* Test: Added unit tests for shortcodes.
-* Test: Added new Behat scenario: Booking actions – create settings for booking action via UI as a teacher and edit it.
-* Test: Added new Behat scenario: Booking actions – create booking action via DB and book it as students.
-
-## Version 8.12.7 (2025042400)
-* New Feature: Link to optiondetails next to booked/cancelled alert for bookondetail
-* Bugfix: Fix course sortorder after course creation via template
-* Tests: refactoring of the backup_restore_test()
-
-## Version 8.12.6 (2025042300)
-* Improvement: for booking history and bookings tracker.
-* Improvement: Implemented unsubscribe to moodle mobile
-* Improvement: Add bookotheroptions action and condition to check if options are available.
-* Improvement: Refactoring shortcodes.
-* Bugfix: Do not hide columns via CSS but add them to sorting correctly, usability improvements
-* Bugfix: No default sorting by lastname, as it destroys rank order of waiting list.
-* Bugfix: Update recurring bookingopening and closingtime correctly
-* Bugfix: Enable setting unenrolfromgroupofcurrentcourse
-* Test: New behat Scenario: Booking actions: create settings for booking action via UI as a teacher and edit it
-* Test: New behat Scenario: Booking actions: create booking action via DB and book it as students
-* Test: New behat Scenario: Booking actions: create userprofilefield action via DB and book it as students
-
 ## Version 8.12.5 (2025041600)
 * New feature: "What's new?" tab in Booking shows booking options made visible within a defined recent number of days.
 * Improvement: Added setting 'redirectonlogintocourse'.
@@ -292,7 +156,7 @@ legacy mail templates with booking rules by using the new templates.
 * New feature: presence counter feature in report2
 * New feature: Show tab on booking view.php with options where the logged-in user is a responsible contact.
 * New feature: Add possibility to download booked users in bookings tracker in different scopes.
-* Improvement: Use is_available of bo_info to check for actual condition results in function option_allows_booking_for_user.
+* Improvement: Use is_available of bo_info to check for actual condition results in function option_allows_overbooking_for_user.
 * Improvement: Skip rules from option (opt in, opt out)
 * Improvement: When PRO is active but selflearningcourse feature is not, we show a link to config settings (within help text)
 * Improvement: Better capability checks for report2.
@@ -1484,7 +1348,7 @@ With cards view, we always have modals.
 
 ## Version 8.1.2 (2024011600)
 **Bugfixes:**
-* Bugfix: No userid needed in option_allows_booking_for_user (we always use logged-in user here).
+* Bugfix: No userid needed in option_allows_overbooking_for_user (we always use logged-in user here).
 * Bugfix: Fix exception for old options with only one date stored in the booking option.
 * Bugfix: Fix automatic creation of new Moodle courses with new option form.
 
