@@ -59,4 +59,8 @@ $shortcodes = [
         'callback' => 'mod_booking\shortcodes::linkbacktocourse',
         'description' => 'linkbacktocourse',
     ],
+    'listtoapprove' => [
+        'callback' => 'mod_booking\shortcodes::listtoapprove',
+        'description' => 'listtoapprove',
+    ],
 ];

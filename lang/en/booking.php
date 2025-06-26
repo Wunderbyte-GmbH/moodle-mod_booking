@@ -1491,6 +1491,7 @@ $string['listentoresponsiblepersonchange'] = "React on change of responsible per
 $string['listentoteacherschange'] = "React on change of teacher of bookingoption";
 $string['listentotextchange'] = "React on change of text of bookingoption";
 $string['listentotimestampchange'] = "React on change of time (and day) of bookingoption";
+$string['listtoapprove'] = "list to approve";
 $string['location'] = 'Location';
 $string['location_help'] = 'You can either enter the location name manually or choose from a list of previous locations.
                                     You can choose one location only. Once you save, the location will be added to the list.';
