@@ -815,4 +815,18 @@ class renderer extends plugin_renderer_base {
         $o .= $this->render_from_template('mod_booking/view', $data);
         return $o;
     }
+    /**
+     * renders col_responsiblecontacts.
+     *
+     * @param object $data
+     *
+     * @return string
+     *
+     */
+    public function render_col_repsonisblecontacts(object $data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/col_responsiblecontact', $data);
+        return $o;
+    }
 }

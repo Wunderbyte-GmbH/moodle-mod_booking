@@ -27,6 +27,7 @@ use core_plugin_manager;
 use mod_booking\booking_answers;
 use mod_booking\local\modechecker;
 use mod_booking\local\override_user_field;
+use mod_booking\output\col_responsiblecontacts;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -178,22 +179,20 @@ class bookingoptions_wbtable extends wunderbyte_table {
         }
 
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
-        $ret = '';
         if (empty($settings->responsiblecontact)) {
-            return $ret;
+            return '';
         }
+        $responsiblestrings = [];
         foreach ($settings->responsiblecontact as $contact) {
-            if ($user = singleton_service::get_instance_of_user((int) $contact)) {
-                $userstring = "$user->firstname $user->lastname";
-                $emailstring = " ($user->email)";
-                if ($this->is_downloading()) {
-                    $ret = $userstring . $emailstring;
-                } else {
-                    $profileurl = new moodle_url('/user/profile.php', ['id' => (int) $contact]);
-                    $ret = get_string('responsible', 'mod_booking')
-                        . ": " . html_writer::link($profileurl, $userstring);
-                }
-            }
+            $user = singleton_service::get_instance_of_user((int) $contact);
+            $responsiblestrings[] = "$user->firstname $user->lastname";
+        }
+        if ($this->is_downloading()) {
+            $ret = implode(' | ', $responsiblestrings);
+        } else {
+            $data = new col_responsiblecontacts($values->id, $settings);
+            $output = singleton_service::get_renderer('mod_booking');
+            $ret = $output->render_col_repsonisblecontacts($data);
         }
         return $ret;
     }
