@@ -82,7 +82,7 @@ class scope_base {
 
         $table->set_sql($fields, $from, $where, $params);
 
-        $this->show_download_button($table, $scopeid, $statusparam);
+        $this->show_download_button($table, $scope, $scopeid, $statusparam);
 
         // Other scopes (system, course, instance).
         $table->define_fulltextsearchcolumns(['titleprefix', 'text', 'coursename', 'instancename']);
