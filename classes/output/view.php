@@ -1223,12 +1223,7 @@ class view implements renderable, templatable {
         if (in_array('responsiblecontact', $optionsfields)) {
             $wbtable->add_classes_to_subcolumns(
                 'cardlist',
-                ['columnclass' => 'text-left pr-2 text-gray'],
-                ['responsiblecontact']
-            );
-            $wbtable->add_classes_to_subcolumns(
-                'cardlist',
-                ['columniclassbefore' => 'fa fa-user fa-fw text-gray'],
+                ['columnclass' => 'text-left pr-2 text-gray d-block'],
                 ['responsiblecontact']
             );
         }
@@ -1457,16 +1452,7 @@ class view implements renderable, templatable {
             );
         }
         if (in_array('responsiblecontact', $optionsfields)) {
-            $wbtable->add_classes_to_subcolumns(
-                'footer',
-                ['columnclass' => 'text-left pr-2 text-gray font-size-sm'],
-                ['responsiblecontact']
-            );
-            $wbtable->add_classes_to_subcolumns(
-                'footer',
-                ['columniclassbefore' => 'fa fa-user fa-fw text-gray font-size-sm'],
-                ['responsiblecontact']
-            );
+            $wbtable->add_classes_to_subcolumns('footer', ['columnclass' => 'text-left font-size-sm'], ['responsiblecontact']);
         }
         if (in_array('bookingopeningtime', $optionsfields)) {
             $wbtable->add_classes_to_subcolumns(

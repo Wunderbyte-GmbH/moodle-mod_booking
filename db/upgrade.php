@@ -5024,7 +5024,7 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2025050701, 'booking');
     }
-    if ($oldversion < 2025061203) {
+    if ($oldversion < 2025062600) {
         // Changing type of field responsiblecontact on table booking_options to text.
         $table = new xmldb_table('booking_options');
         $field = new xmldb_field('responsiblecontact', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'status');
@@ -5033,7 +5033,7 @@ function xmldb_booking_upgrade($oldversion) {
         $dbman->change_field_type($table, $field);
 
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2025061203, 'booking');
+        upgrade_mod_savepoint(true, 2025062600, 'booking');
     }
     return true;
 }
