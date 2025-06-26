@@ -283,6 +283,7 @@ class manageusers_table extends wunderbyte_table {
             return [
                 'success' => 0,
                 'message' => $returnmessage,
+                'reload' => $reload ? 1 : 0,
             ];
         }
 

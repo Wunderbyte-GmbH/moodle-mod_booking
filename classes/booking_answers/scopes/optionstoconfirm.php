@@ -47,8 +47,34 @@ class optionstoconfirm extends option {
      * @return (string|int[])[]
      */
     public function return_sql_for_booked_users(string $scope, int $scopeid, int $statusparam) {
-        $where = " 1 = 1 ";
+
+        global $USER, $DB;
+
+
+        // The where restriction.
+
+        $concat = $DB->sql_concat("ctx_ra.path", "'/%'");
+
+        // We only show the options if the user has the correct capability 'mod/booking:readresponses'in the course module.
+        $where = " EXISTS (
+                        SELECT 1
+                        FROM {booking_options} bo
+                        JOIN {modules} m ON m.name = 'booking'
+                        JOIN {course_modules} cm ON cm.instance = bo.bookingid AND cm.module = m.id
+                        JOIN {context} ctx_cm ON ctx_cm.instanceid = cm.id AND ctx_cm.contextlevel = :contextlevel
+                        JOIN {role_assignments} ra ON ra.userid = :userid
+                        JOIN {context} ctx_ra ON ctx_ra.id = ra.contextid
+                        JOIN {role_capabilities} rc ON rc.roleid = ra.roleid
+                        WHERE bo.id = s1.optionid
+                        AND (ctx_cm.path LIKE $concat OR ctx_cm.id = ctx_ra.id)
+                        AND rc.capability = :capability
+                        AND rc.permission = 1
+                ) ";
+
         $params['statusparam'] = $statusparam;
+        $params['userid'] = $USER->id;
+        $params['capability'] = 'mod/booking:readresponses';
+        $params['contextlevel'] = CONTEXT_MODULE;
 
         // If presence counter is activated, we add that to SQL.
         $selectpresencecount = '';
