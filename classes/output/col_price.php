@@ -27,7 +27,7 @@ namespace mod_booking\output;
 
 use context;
 use local_shopping_cart\local\entities\cartitem;
-use mod_booking\booking_answers;
+use mod_booking\booking_answers\booking_answers;
 use mod_booking\booking_option_settings;
 use mod_booking\price;
 use mod_booking\singleton_service;

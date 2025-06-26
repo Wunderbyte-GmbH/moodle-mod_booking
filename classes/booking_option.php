@@ -64,6 +64,7 @@ use mod_booking\option\fields_info;
 use mod_booking\placeholders\placeholders_info;
 use mod_booking\subbookings\subbookings_info;
 use mod_booking\task\send_completion_mails;
+use mod_booking\booking_answers\booking_answers;
 use moodle_exception;
 use Throwable;
 use function get_config;

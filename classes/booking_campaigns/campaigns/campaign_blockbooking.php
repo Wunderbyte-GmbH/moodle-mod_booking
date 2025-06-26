@@ -17,7 +17,7 @@
 namespace mod_booking\booking_campaigns\campaigns;
 
 use context_system;
-use mod_booking\booking_answers;
+use mod_booking\booking_answers\booking_answers;
 use mod_booking\booking_campaigns\booking_campaign;
 use mod_booking\booking_campaigns\campaigns_info;
 use mod_booking\booking_context_helper;
@@ -40,7 +40,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class campaign_blockbooking implements booking_campaign {
-
     /** @var int $id */
     public $id = 0;
 
@@ -175,10 +174,10 @@ class campaign_blockbooking implements booking_campaign {
             'textarea',
             'blockinglabel',
             get_string('blockinglabel', 'mod_booking'),
-            'rows="2" cols="50"');
+            'rows="2" cols="50"'
+        );
         $mform->setType('blockinglabel', PARAM_TEXT);
         $mform->addHelpButton('blockinglabel', 'blockinglabel', 'mod_booking');
-
     }
 
     /**
@@ -335,7 +334,6 @@ class campaign_blockbooking implements booking_campaign {
         $blocking = false;
 
         switch ($this->blockoperator) {
-
             case 'blockbelow':
                 $blocking = ($settings->maxanswers * $this->percentageavailableplaces * 0.01)
                     > booking_answers::count_places($ba->usersonlist);
@@ -359,7 +357,7 @@ class campaign_blockbooking implements booking_campaign {
             !empty($userid)
             && isset($this->cpfield)
             && !empty($bofieldname = $this->cpfield)
-            ) {
+        ) {
             // If there is a value, it has to match in order to block.
             $blocking = campaigns_info::check_if_profilefield_applies($this->cpvalue, $this->cpfield, $this->cpoperator, $userid);
         }

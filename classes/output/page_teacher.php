@@ -27,7 +27,7 @@ namespace mod_booking\output;
 use context_system;
 use context_module;
 use context_user;
-use mod_booking\booking_answers;
+use mod_booking\booking_answers\booking_answers;
 use mod_booking\singleton_service;
 use moodle_url;
 use renderer_base;

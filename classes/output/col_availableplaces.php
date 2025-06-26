@@ -27,7 +27,7 @@ namespace mod_booking\output;
 
 use context_module;
 use context_system;
-use mod_booking\booking_answers;
+use mod_booking\booking_answers\booking_answers;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;

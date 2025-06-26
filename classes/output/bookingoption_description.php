@@ -30,7 +30,7 @@ use core_plugin_manager;
 use html_writer;
 use local_wunderbyte_table\local\customfield\wbt_field_controller_info;
 use mod_booking\booking;
-use mod_booking\booking_answers;
+use mod_booking\booking_answers\booking_answers;
 use mod_booking\booking_bookit;
 use mod_booking\booking_context_helper;
 use mod_booking\booking_option;

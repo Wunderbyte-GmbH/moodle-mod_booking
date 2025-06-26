@@ -23,14 +23,17 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_booking;
+namespace mod_booking\booking_answers;
 
 use context_system;
+use core\exception\moodle_exception;
+use core_component;
 use dml_exception;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\bo_availability\conditions\customform;
+use mod_booking\booking;
 use mod_booking\singleton_service;
-use stdClass;
+use mod_booking\booking_option_settings;
 use Throwable;
 
 defined('MOODLE_INTERNAL') || die();
@@ -846,223 +849,27 @@ class booking_answers {
      */
     public static function return_sql_for_booked_users(string $scope, int $scopeid, int $statusparam) {
         global $DB;
-        if (!in_array($scope, ["option", "optiondate"])) {
-            $advancedsqlstart = "SELECT
-                bo.id,
-                bo.id as optionid,
-                ba.waitinglist,
-                cm.id AS cmid,
-                c.id AS courseid,
-                c.fullname AS coursename,
-                bo.titleprefix,
-                bo.text,
-                b.name AS instancename,
-                COUNT(ba.id) answerscount,
-                SUM(pcnt.presencecount) presencecount,
-                '" . $scope . "' AS scope
-            FROM {booking_options} bo
-            LEFT JOIN {booking_answers} ba ON bo.id = ba.optionid
-            LEFT JOIN {user} u ON ba.userid = u.id
-            JOIN {course_modules} cm ON bo.bookingid = cm.instance
-            JOIN {booking} b ON b.id = bo.bookingid
-            JOIN {course} c ON c.id = b.course
-            JOIN {modules} m ON m.id = cm.module
-            LEFT JOIN (
-                SELECT boda.optionid, boda.userid, COUNT(*) AS presencecount
-                FROM {booking_optiondates_answers} boda
-                WHERE boda.status = :statustocount
-                GROUP BY boda.optionid, boda.userid
-            ) pcnt
-            ON pcnt.optionid = ba.optionid AND pcnt.userid = u.id";
 
-            if ($statusparam === 0) {
-                $advancedsqlwhere = "WHERE
-                    m.name = 'booking'
-                    AND (ba.waitinglist = 0 OR ba.waitinglist IS NULL)";
-            } else {
-                $advancedsqlwhere = "WHERE
-                m.name = 'booking'
-                AND ba.waitinglist = :statusparam";
-            }
+        $class = self::return_class_for_scope($scope);
+        return $class->return_sql_for_booked_users($scope, $scopeid, $statusparam);
+    }
 
-            $advancedsqlgroupby = "GROUP BY cm.id, c.id, c.fullname, bo.id, ba.waitinglist, bo.titleprefix, bo.text, b.name";
+    /**
+     * Returns class in namespace for scope and throws if it does not exist.
+     *
+     * @param string $scope
+     *
+     * @return scope_base
+     *
+     */
+    public static function return_class_for_scope(string $scope): scope_base {
+        $class = "mod_booking\\booking_answers\\scopes\\" . $scope;
 
-            $advancedsqlend = "ORDER BY bo.titleprefix, bo.text ASC
-                LIMIT 10000000000";
+        if (!class_exists($class)) {
+            throw new moodle_exception('scopedoesnotexist ' . $scope);
+        } else {
+            return new $class();
         }
-
-        $where = '1=1';
-
-        switch ($scope) {
-            case 'optiondate':
-                $optiondateid = $scopeid;
-                // We need to set a limit for the query in mysqlfamily.
-                $fields = 's1.*';
-                $from = " (
-                    SELECT " .
-                        $DB->sql_concat("bo.id", "'-'", "bod.id", "'-'", "u.id") .
-                        " id,
-                        bod.id optiondateid,
-                        bod.coursestarttime,
-                        bod.courseendtime,
-                        ba.userid,
-                        ba.waitinglist,
-                        boda.status,
-                        boda.json,
-                        boda.notes,
-                        bo.id optionid,
-                        bo.titleprefix,
-                        bo.text,
-                        u.firstname,
-                        u.lastname,
-                        u.email,
-                        '" . $scope . "' AS scope
-                    FROM {booking_optiondates} bod
-                    JOIN {booking_options} bo
-                    ON bo.id = bod.optionid
-                    JOIN {booking_answers} ba
-                    ON bo.id = ba.optionid
-                    JOIN {user} u
-                    ON u.id = ba.userid
-                    LEFT JOIN {booking_optiondates_answers} boda
-                    ON bod.id = boda.optiondateid AND bo.id = boda.optionid AND ba.userid = boda.userid
-                    WHERE bod.id = :optiondateid AND ba.waitinglist = :statusparam
-                    ORDER BY u.lastname, u.firstname, bod.coursestarttime ASC
-                    LIMIT 10000000000
-                ) s1";
-                $params = [
-                    'optiondateid' => $optiondateid,
-                    'statusparam' => MOD_BOOKING_STATUSPARAM_BOOKED,
-                ];
-                break;
-            case 'option':
-                $optionid = $scopeid;
-
-                $params = [
-                    'optionid' => $optionid,
-                    'statusparam' => $statusparam,
-                ];
-
-                // If presence counter is activated, we add that to SQL.
-                $selectpresencecount = '';
-                $presencecountsqlpart = '';
-                if (get_config('booking', 'bookingstrackerpresencecounter')) {
-                    $selectpresencecount = 'pcnt.presencecount,';
-                    $presencecountsqlpart =
-                        "LEFT JOIN (
-                            SELECT boda.optionid, boda.userid, COUNT(*) AS presencecount
-                            FROM {booking_optiondates_answers} boda
-                            WHERE boda.optionid = :optionid2 AND boda.status = :statustocount
-                            GROUP BY boda.optionid, boda.userid
-                        ) pcnt
-                        ON pcnt.optionid = ba.optionid AND pcnt.userid = u.id";
-                    $params['optionid2'] = $optionid;
-                    $params['statustocount'] = get_config('booking', 'bookingstrackerpresencecountervaluetocount');
-                }
-
-                // Only for waiting list, we need to add the rank.
-                $ranksqlpart = '';
-                $orderby = ' ORDER BY lastname, firstname, timemodified ASC';
-                if ($statusparam == MOD_BOOKING_STATUSPARAM_WAITINGLIST) {
-                    // For waiting list, we need to determine the rank order.
-                    $ranksqlpart = ', (
-                        SELECT COUNT(*)
-                        FROM (
-                            SELECT
-                                ba.id,
-                                ba.timemodified
-                            FROM {booking_answers} ba
-                            WHERE ba.optionid=:optionid3 AND ba.waitinglist=:statusparam2
-                        ) s3
-                        WHERE (s3.timemodified < s2.timemodified) OR (s3.timemodified = s2.timemodified AND s3.id <= s2.id)
-                    ) AS userrank';
-                    $orderby = ' ORDER BY userrank ASC';
-
-                    // Params for rank order.
-                    $params['statusparam2'] = $statusparam;
-                    $params['optionid3'] = $optionid;
-                }
-
-                // We need to set a limit for the query in mysqlfamily.
-                $fields = 's1.*';
-                $from = "
-                (
-                    SELECT s2.* $ranksqlpart
-                    FROM (
-                        SELECT
-                            ba.id,
-                            u.id AS userid,
-                            u.username,
-                            u.firstname,
-                            u.lastname,
-                            u.email,
-                            ba.waitinglist,
-                            ba.status,
-                            ba.notes,
-                            $selectpresencecount
-                            ba.timemodified,
-                            ba.timecreated,
-                            ba.optionid,
-                            ba.json,
-                            '" . $scope . "' AS scope
-                        FROM {booking_answers} ba
-                        JOIN {user} u ON ba.userid = u.id
-                        $presencecountsqlpart
-                        WHERE ba.optionid=:optionid AND ba.waitinglist=:statusparam
-                        LIMIT 1000000
-                    ) s2
-                    $orderby
-                ) s1";
-
-                break;
-            case 'instance':
-                $cmid = $scopeid;
-                $fields = 's1.*';
-                $from = " (
-                    $advancedsqlstart
-                    $advancedsqlwhere
-                    AND cm.id = :cmid
-                    $advancedsqlgroupby
-                    $advancedsqlend
-                ) s1";
-                $params = [
-                    'cmid' => $cmid,
-                    'statusparam' => $statusparam,
-                    'statustocount' => get_config('booking', 'bookingstrackerpresencecountervaluetocount'),
-                ];
-                break;
-            case 'course':
-                $courseid = $scopeid;
-                $fields = 's1.*';
-                $from = " (
-                    $advancedsqlstart
-                    $advancedsqlwhere
-                    AND c.id = :courseid
-                    $advancedsqlgroupby
-                    $advancedsqlend
-                ) s1";
-                $params = [
-                    'courseid' => $courseid,
-                    'statusparam' => $statusparam,
-                    'statustocount' => get_config('booking', 'bookingstrackerpresencecountervaluetocount'),
-                ];
-                break;
-            case 'system':
-            default:
-                $fields = 's1.*';
-                $from = " (
-                    $advancedsqlstart
-                    $advancedsqlwhere
-                    $advancedsqlgroupby
-                    $advancedsqlend
-                ) s1";
-                $params = [
-                    'statusparam' => $statusparam,
-                    'statustocount' => get_config('booking', 'bookingstrackerpresencecountervaluetocount'),
-                ];
-                break;
-        }
-        return [$fields, $from, $where, $params];
     }
 
     /**

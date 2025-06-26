@@ -24,7 +24,7 @@
  */
 
 use mod_booking\bo_availability\conditions\customform;
-use mod_booking\booking_answers;
+use mod_booking\booking_answers\booking_answers;
 use mod_booking\booking_option;
 use mod_booking\output\booked_users;
 use mod_booking\output\eventslist;
