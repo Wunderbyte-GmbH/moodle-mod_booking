@@ -335,7 +335,7 @@ class campaign_customfield implements booking_campaign {
 
         // Filter for the booking answers created before campaign started.
         $nrofbookedusers = 0;
-        foreach ($ba->usersonlist as $answer) {
+        foreach ($ba->get_usersonlist() as $answer) {
             if ($answer->timecreated < $this->starttime) {
                 $nrofbookedusers++;
             }

@@ -175,7 +175,7 @@ class bookings extends external_api {
                         if ($printusers) {
                             $ba = singleton_service::get_instance_of_booking_answers($settings);
 
-                            foreach ($ba->usersonlist as $user) {
+                            foreach ($ba->get_usersonlist() as $user) {
                                 $tmpuser = [];
                                 $ruser = singleton_service::get_instance_of_user((int)$user->userid);
                                 $tmpuser['id'] = $ruser->id;

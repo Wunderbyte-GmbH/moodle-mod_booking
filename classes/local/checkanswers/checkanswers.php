@@ -161,8 +161,8 @@ class checkanswers {
         $ba = singleton_service::get_instance_of_booking_answers($settings);
 
         $log = [];
-
-        foreach ($ba->answers as $answer) {
+        $bookinganswers = $ba->get_answers();
+        foreach ($bookinganswers as $answer) {
             if (
                 !empty($userid)
                 && $answer->userid != $userid

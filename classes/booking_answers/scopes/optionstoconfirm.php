@@ -27,6 +27,8 @@ namespace mod_booking\booking_answers\scopes;
 
 use context_system;
 use context_module;
+use core_plugin_manager;
+use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking_answers\scope_base;
 use mod_booking\singleton_service;
 
@@ -47,12 +49,9 @@ class optionstoconfirm extends option {
      * @return (string|int[])[]
      */
     public function return_sql_for_booked_users(string $scope, int $scopeid, int $statusparam) {
-
         global $USER, $DB;
 
-
         // The where restriction.
-
         $concat = $DB->sql_concat("ctx_ra.path", "'/%'");
 
         // We only show the options if the user has the correct capability 'mod/booking:readresponses'in the course module.
@@ -156,25 +155,68 @@ class optionstoconfirm extends option {
     }
 
     /**
-     * Returns the DB dependent restriction to only return answers which needed confirmation.
+     * This function calls the set booking extension and loads corresponding sql.
      *
      * @return string
      *
      */
-    public function get_whereneedtoconfirm_sql(): string {
+    private function limit_answers_by_confirmtion_workflow(): string {
+
+        $sql = " AND ( ";
+        $wherearray = [];
+
+        foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
+            $fullclassname = "\\bookingextension_{$plugin->name}\\local\\confirmbooking";
+            if (!class_exists($fullclassname)) {
+                continue;
+            }
+
+            // Each plugin can return a where clause.
+            $class = new $fullclassname();
+            $where = $class->return_where_sql();
+            if (!empty($where)) {
+                $wherearray[] = $where;
+            }
+        }
+
+        if (empty($wherearray)) {
+            $sql .= " 1 = 1 ";
+        } else {
+            $sql .= implode(' OR ', $wherearray);
+        }
+
+        $sql .= " ) ";
+
+        return $sql;
+    }
+
+    /**
+     * Returns the DB dependent restriction to only return answers which needed confirmation.
+     * @param array $params
+     *
+     * @return string
+     *
+     */
+    public function get_whereneedtoconfirm_sql(array &$params): string {
 
         global $DB;
 
-        $driver = $DB->get_dbfamily();
+        $wherearray = [];
 
-        switch ($driver) {
-            case 'postgres':
-                return " bo.json::jsonb ->> 'waitforconfirmation' = '1' ";
-            case 'mysql':
-                return " JSON_UNQUOTE(JSON_EXTRACT(bo.json, '$.waitforconfirmation')) = '1' ";
-            default: // Fallback.
-                throw new \moodle_exception('Unsupported DB driver: ' . $driver);
+        // Now for each activated plugin, we need to collect the sql.
+        foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
+            $fullclassname = "\\bookingextension_{$plugin->name}\\local\\confirmbooking";
+
+            if (!class_exists($fullclassname)) {
+                continue;
+            }
+            $class = new $fullclassname();
+            $where = $class->return_where_sql($params);
+            if (!empty($where)) {
+                $wherearray[] = $where;
+            }
         }
+        return "( " . implode(' OR ', $wherearray) . " )";
     }
 
     /**

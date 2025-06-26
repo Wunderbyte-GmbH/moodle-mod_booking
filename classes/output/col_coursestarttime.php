@@ -102,9 +102,10 @@ class col_coursestarttime implements renderable, templatable {
                 $this->duration = format_time($settings->duration);
 
                 $ba = singleton_service::get_instance_of_booking_answers($settings);
+                $usersonlist = $ba->get_usersonlist();
                 $buyforuser = price::return_user_to_buy_for();
-                if (isset($ba->usersonlist[$buyforuser->id])) {
-                    $timebooked = $ba->usersonlist[$buyforuser->id]->timecreated;
+                if (isset($usersonlist[$buyforuser->id])) {
+                    $timebooked = $usersonlist[$buyforuser->id]->timecreated;
                     $timeremainingsec = $timebooked + $settings->duration - time();
 
                     if ($timeremainingsec <= 0) {

@@ -48,7 +48,6 @@ require_once($CFG->libdir . '/externallib.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class bookit extends external_api {
-
     /**
      * Describes the parameters for bookit.
      *
@@ -60,8 +59,7 @@ class bookit extends external_api {
             'itemid' => new external_value(PARAM_INT, 'itemid'),
             'userid' => new external_value(PARAM_INT, 'userid'),
             'data' => new external_value(PARAM_RAW, 'data'),
-            ]
-        );
+            ]);
     }
 
     /**
@@ -125,7 +123,6 @@ class bookit extends external_api {
             'message' => new external_value(PARAM_RAW, 'Message if any', VALUE_DEFAULT, ''),
             'template' => new external_value(PARAM_TEXT, 'Button template', VALUE_DEFAULT, ''),
             'json' => new external_value(PARAM_RAW, 'Data as json', VALUE_DEFAULT, ''),
-            ]
-        );
+            ]);
     }
 }

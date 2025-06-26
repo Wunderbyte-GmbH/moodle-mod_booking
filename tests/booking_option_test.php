@@ -28,9 +28,9 @@ namespace mod_booking;
 
 use advanced_testcase;
 use coding_exception;
+use mod_booking\booking_answers\booking_answers;
 use mod_booking_generator;
 use mod_booking\local\connectedcourse;
-use mod_booking\option\dates_handler;
 use local_entities\entitiesrelation_handler;
 use context_system;
 use context_module;

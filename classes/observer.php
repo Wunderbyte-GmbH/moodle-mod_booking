@@ -198,7 +198,7 @@ class mod_booking_observer {
             $bookingoption = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
             $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
 
-            foreach ($bookinganswer->users as $user) {
+            foreach ($bookinganswer->get_users() as $user) {
                 /* Third param $bookingoptioncancel = true is important,
                 so we do not trigger bookinganswer_cancelled
                 and send no extra cancellation mails to each user.

@@ -16,6 +16,6 @@ vue3/node_modules
 # Ignore everything in bookingextension subfolders
 bookingextension/*/
 
-# Do not ignore approval_trainer
-!bookingextension/approval_trainer/
-!bookingextension/approval_trainer/**  # Unignore contents too
+# Do not ignore confirmation_trainer
+!bookingextension/confirmation_trainer/
+!bookingextension/confirmation_trainer/**  # Unignore contents too

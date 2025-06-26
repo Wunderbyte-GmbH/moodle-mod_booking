@@ -252,7 +252,7 @@ if (
     $continue->params($confirmarray);
     $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
     $ba = singleton_service::get_instance_of_booking_answers($settings);
-    $booked = booking_answers::count_places($ba->usersonlist);
+    $booked = booking_answers::count_places($ba->get_usersonlist());
     $title = $settings->get_title_with_prefix();
     if ($booked > 0) {
         $title .= ' (' . get_string('xusersarebooked', 'booking', $booked) . ')';

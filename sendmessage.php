@@ -131,7 +131,7 @@ function send_custom_message(int $optionid, string $subject, string $message, ar
 
     // Check, if a bulk message has been sent.
     $answers = singleton_service::get_instance_of_booking_answers($settings);
-    $bookedusers = $answers->usersonlist;
+    $bookedusers = $answers->get_usersonlist();
     if (!empty($selecteduserids) && !empty($bookedusers)) {
         $countselected = count($selecteduserids);
         $countbooked = count($bookedusers);

@@ -467,10 +467,10 @@ final class rules_waitinglist_test extends advanced_testcase {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
         $ba = singleton_service::get_instance_of_booking_answers($settings);
-        $this->assertIsArray($ba->usersonlist);
-        $this->assertCount(1, $ba->usersonlist);
-        $this->assertIsArray($ba->usersonwaitinglist);
-        $this->assertCount(3, $ba->usersonwaitinglist);
+        $this->assertIsArray($ba->get_usersonlist());
+        $this->assertCount(1, $ba->get_usersonlist());
+        $this->assertIsArray($ba->get_usersonwaitinglist());
+        $this->assertCount(3, $ba->get_usersonwaitinglist());
         // Execute tasks, get messages and validate it.
         // Get all scheduled task messages.
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
@@ -696,9 +696,9 @@ final class rules_waitinglist_test extends advanced_testcase {
 
         $answers = singleton_service::get_instance_of_booking_answers($settings);
 
-        $this->assertCount(4, $answers->users);
-        $this->assertCount(1, $answers->usersonlist);
-        $this->assertCount(3, $answers->usersonwaitinglist);
+        $this->assertCount(4, $answers->get_users());
+        $this->assertCount(1, $answers->get_usersonlist());
+        $this->assertCount(3, $answers->get_usersonwaitinglist());
 
         // Enrolled user cancels.
         $this->setUser($student1);
@@ -716,13 +716,13 @@ final class rules_waitinglist_test extends advanced_testcase {
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
         $ba = singleton_service::get_instance_of_booking_answers($settings);
         // Validate cancelled user.
-        $this->assertIsArray($ba->usersonlist);
-        $this->assertCount(1, $ba->usersonlist);
-        $this->assertEquals($student2->id, array_key_first($ba->usersonlist));
+        $this->assertIsArray($ba->get_usersonlist());
+        $this->assertCount(1, $ba->get_usersonlist());
+        $this->assertEquals($student2->id, array_key_first($ba->get_usersonlist()));
         // Validate 1st user on waitinglist.
-        $this->assertIsArray($ba->usersonwaitinglist);
-        $this->assertCount(2, $ba->usersonwaitinglist);
-        $this->assertEquals($student3->id, array_key_first($ba->usersonwaitinglist));
+        $this->assertIsArray($ba->get_usersonwaitinglist());
+        $this->assertCount(2, $ba->get_usersonwaitinglist());
+        $this->assertEquals($student3->id, array_key_first($ba->get_usersonwaitinglist()));
         // Execute tasks, get messages and validate it.
         // Get all scheduled task messages.
 
@@ -780,7 +780,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         $ba2 = singleton_service::get_instance_of_booking_answers($settings);
         // Todo: asserion fails under pgsql only. Potential scenario issues in reordering process / dates.
         // phpcs:ignore
-        //$this->assertEquals($student4->id, array_key_first($ba2->usersonlist));
+        //$this->assertEquals($student4->id, array_key_first($ba2->get_usersonlist()));
     }
 
     /**
@@ -955,10 +955,10 @@ final class rules_waitinglist_test extends advanced_testcase {
         // Asserting that the spot is free to book and 4 users remaining on waitinglist.
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
         $ba = singleton_service::get_instance_of_booking_answers($settings);
-        $this->assertIsArray($ba->usersonlist);
-        $this->assertCount(0, $ba->usersonlist);
-        $this->assertIsArray($ba->usersonwaitinglist);
-        $this->assertCount(4, $ba->usersonwaitinglist);
+        $this->assertIsArray($ba->get_usersonlist());
+        $this->assertCount(0, $ba->get_usersonlist());
+        $this->assertIsArray($ba->get_usersonwaitinglist());
+        $this->assertCount(4, $ba->get_usersonwaitinglist());
 
         // Execute tasks, get messages and validate it.
         // Get all scheduled task messages.
@@ -1298,10 +1298,10 @@ final class rules_waitinglist_test extends advanced_testcase {
 
         // Asserting that the spot is EITHER free to book OR booked by next user AND proper number of users remains on waitinglist.
         $ba = singleton_service::get_instance_of_booking_answers($settings1);
-        $this->assertIsArray($ba->usersonlist);
-        $this->assertCount($expected['usersonlist1'], $ba->usersonlist);
-        $this->assertIsArray($ba->usersonwaitinglist);
-        $this->assertCount($expected['usersonwaitinglist1'], $ba->usersonwaitinglist);
+        $this->assertIsArray($ba->get_usersonlist());
+        $this->assertCount($expected['usersonlist1'], $ba->get_usersonlist());
+        $this->assertIsArray($ba->get_usersonwaitinglist());
+        $this->assertCount($expected['usersonwaitinglist1'], $ba->get_usersonwaitinglist());
 
         // Check for proper number of tasks.
         // Tasks are tested in depth in other tests of this class.

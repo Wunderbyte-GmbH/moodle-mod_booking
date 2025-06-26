@@ -119,9 +119,15 @@ $string['applyunitfactor_desc'] = 'Wenn diese Einstellung aktiviert ist, wird di
  herangezogen und als Faktor für die Preisformel verwendet. Beispiel: Eine Buchungsoption hat die Terminserie "Mo, 15:00 - 16:30". Sie dauert also 2 UE von
  jeweils 45 min. Auf die Preisformel wird also der Einheitenfaktor von 2 angewendet. (Einheitenfaktor wird nur bei vorhandener Preisformel angewendet.)';
 $string['applyuserwhobookedcheckbox'] = 'Ja, ich buche das Training auch für mich selbst.';
+$string['approvalbytrainer'] = "Bestätigung durch Lehrende im Kurs";
+$string['approvalsettings'] = "Bestätigungsworkflows";
+$string['approvalsettings_desc'] = "Booking unterstützt verschiedene Bestätigungsprozesse, wenn Nutzer:innen sich ihre Buchungen bestätigen lassen müssen. Im Standardprozess können Trainer:innen die Anfragen über die Warteliste bestätigen. Andere Prozesse können über Bookingextension Subplugins nachgeladen werden.";
+$string['approvalworkflows'] = 'Bestätigungsworkflows';
+$string['approvalworkflows_desc'] = 'Wählen Sie einen oder mehrere Bestätigungsworkflows aus. In den Buchungsoptionen können je nach Auswahl die genauen Verhalten eingestellt werden.';
 $string['areyousure:book'] = 'Nochmal klicken, um die Buchung zu bestätigen';
 $string['areyousure:cancel'] = 'Nochmal klicken, um die Buchung zu stornieren';
 $string['asglobaltemplate'] = 'Als globale Vorlage hinzufügen';
+$string['askforconfirmationheader'] = '<i class="fa fa-fw fa-lock" aria-hidden="true"></i>&nbsp;Buchen nur nach Bestätigung';
 $string['assesstimefinish'] = 'Ende der Bewertungsperiode';
 $string['assesstimestart'] = 'Start der Bewertungsperiode';
 $string['assignteachers'] = 'Lehrer:innen zuweisen:';
@@ -369,6 +375,7 @@ $string['boconduserprofilefieldnotavailable'] = 'Buchen nicht möglich';
 $string['boconduserprofilefieldoperator'] = 'Operator';
 $string['boconduserprofilefieldvalue'] = 'Wert';
 $string['bonumberofdays'] = "Anzahl der tage";
+$string['bookagain'] = 'Erneut buchen';
 $string['bookanyoneswitchoff'] = '<i class="fa fa-user-times" aria-hidden="true"></i> Buchen von Nutzer:innen, die nicht eingeschrieben sind, nicht erlauben (empfohlen)';
 $string['bookanyoneswitchon'] = '<i class="fa fa-user-plus" aria-hidden="true"></i> Buchen von Nutzer:innen, die nicht eingeschrieben sind, erlauben';
 $string['bookanyonewarning'] = 'Achtung: Sie können nun beliebige Nutzer:innen buchen. Verwenden Sie diese Einstellung nur, wenn Sie genau wissen, was Sie tun.
@@ -376,6 +383,8 @@ $string['bookanyonewarning'] = 'Achtung: Sie können nun beliebige Nutzer:innen 
 $string['booked'] = 'Gebucht';
 $string['bookeddeleted'] = 'Buchung gelöscht';
 $string['bookedpast'] = 'Gebucht (Kurs wurde bereits beendet)';
+$string['bookedpreviousely'] = ' | Bereits gebucht';
+$string['bookedpreviouselyxtimes'] = ' | Bereits {$a} Mal gebucht';
 $string['bookedteachersshowemails'] = 'E-Mail-Adressen von Trainer:innen, bei denen gebucht wurde, anzeigen';
 $string['bookedteachersshowemails_desc'] = 'Wenn Sie diese Einstellung aktivieren, dann werden bereits gebuchten Benutzer:innen
 die E-Mail-Adressen ihrer Trainer:innen angezeigt.';
@@ -1612,6 +1621,7 @@ $string['movedbookinghistory'] = 'Die Buchungsoption wurde von der Buchung mit d
 $string['moveoption'] = 'Option verschieben';
 $string['moveoption_help'] = 'Option in eine andere Buchungsaktivität verschieben';
 $string['moveoptionto'] = 'Buchungsoption in andere Buchungsinstanz verschieben';
+$string['multiplebookings'] = 'Mehrfache Buchungen';
 $string['multipledayofweektimestringshint'] = '<b>Pro Zeile</b> können Sie eine Kombination aus Wochentag und Uhrzeit angeben.<br>Beispiel: "Montag, 10:00 - 12:00" und "Dienstag, 15:00 - 16:30"';
 $string['mustchooseone'] = 'Sie müssen eine Option auswählen';
 $string['mustcombine'] = 'Notwendige Buchungsoptionen';
@@ -1638,6 +1648,7 @@ $string['nobookingselected'] = 'Keine Buchungsoption ausgewählt';
 $string['nocancelreason'] = "Sie müssen eine Grund für die Stornierung angeben";
 $string['nocfnameselected'] = "Nichts ausgewählt. Tippen Sie einen neuen Namen oder wählen Sie einen aus der Liste.";
 $string['nocomments'] = 'Kommentare deaktiviert';
+$string['noconfirmationworkflow'] = 'Keine Bestätigung erforderlich';
 $string['nocourse'] = 'Kein Kurs für Buchungsoption ausgewählt';
 $string['nocourseselected'] = 'Kein Kurs ausgewählt';
 $string['nodatesstring'] = "Aktuell gibt es keine Daten zu dieser Buchungsoption";
@@ -1684,6 +1695,7 @@ $string['noselection'] = 'Keine Auswahl';
 $string['nosemester'] = 'Kein Semester gewählt';
 $string['nosubscribers'] = 'Keine Trainer:innen zugewiesen!';
 $string['notallbooked'] = 'Folgende Nutzer:innen konnten aufgrund nicht mehr verfügbarer Plätze oder durch das Überschreiten des vorgegebenen Buchungslimits pro Nutzer:in nicht gebucht werden: {$a}';
+$string['notallowedtoconfirm'] = "Keine Berechtigung zu buchen";
 $string['notanswered'] = 'Nicht beantwortet';
 $string['notateacher'] = 'Die ausgewählte Person unterrichtet keine buchbaren Kurse und kann daher nicht angezeigt werden.';
 $string['notbookable'] = "Nicht buchbar";
@@ -2636,6 +2648,8 @@ $string['updatedrecords'] = '{$a} Eintrag/Einträge aktualisiert.';
 $string['uploadheaderimages'] = 'Header-Bilder für Buchungsoptionen';
 $string['usecompetencies'] = 'Kompetenzen verwenden';
 $string['usecompetencies_desc'] = 'Buchungsoptionen können mit Kompetenzen versehen und entsprechend dieser Zuweisungen gruppiert angezeigt werden';
+$string['useconfirmationworkflowheader'] = 'Bestätigungs-Workflow-Überschrift verwenden';
+$string['useconfirmationworkflowheader_desc'] = 'Diese Option aktivieren, um die Überschrift für den Bestätigungs-Workflow im Buchungsoptionsformular anzuzeigen.';
 $string['usecoursecategorytemplates'] = 'Verwende Vorlagen für neu zu erstellende Moodle-Kurse';
 $string['usecoursecategorytemplates_desc'] = '';
 $string['usedinbooking'] = 'Das Löschen dieser Kategorie/n ist nicht möglich, da sie verwendet werden!';

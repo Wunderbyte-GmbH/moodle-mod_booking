@@ -910,7 +910,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid, $values);
         $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
 
-        if (booking_answers::count_places($bookinganswers->usersonlist) > 0) {
+        if (booking_answers::count_places($bookinganswers->get_usersonlist()) > 0) {
             // Add a link to redirect to the booking option.
             $link = new moodle_url($CFG->wwwroot . '/mod/booking/report.php', [
                 'id' => $values->cmid,

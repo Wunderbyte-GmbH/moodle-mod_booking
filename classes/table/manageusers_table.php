@@ -167,7 +167,7 @@ class manageusers_table extends wunderbyte_table {
             return "<b>" . ($values->presencecount ?? '0') . "</b>/" . $numberofoptiondates;
         } else {
             $answers = singleton_service::get_instance_of_booking_answers($settings);
-            $numberofbookedusers = count($answers->usersonlist);
+            $numberofbookedusers = count($answers->get_usersonlist());
             $numberofpossiblepresences = $numberofbookedusers * $numberofoptiondates;
             return "<b>" . ($values->presencecount ?? 0) . "</b>/" . $numberofpossiblepresences;
         }
@@ -282,8 +282,8 @@ class manageusers_table extends wunderbyte_table {
         if (!$allowedtoconfirm) {
             return [
                 'success' => 0,
-                'message' => $returnmessage,
-                'reload' => $reload ? 1 : 0,
+                'message' => $returnmessage ?? get_string('notallowedtoconfirm', 'mod_booking'),
+                'reload' => ($reload ?? false) ? 1 : 0,
             ];
         }
 

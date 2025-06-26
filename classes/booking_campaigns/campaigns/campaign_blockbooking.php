@@ -343,17 +343,18 @@ class campaign_blockbooking implements booking_campaign {
         booking_context_helper::fix_booking_page_context($PAGE, $settings->cmid);
 
         $ba = singleton_service::get_instance_of_booking_answers($settings);
+        $usersonlist = $ba->get_usersonlist();
 
         $blocking = false;
 
         switch ($this->blockoperator) {
             case 'blockbelow':
                 $blocking = ($settings->maxanswers * $this->percentageavailableplaces * 0.01)
-                    > booking_answers::count_places($ba->usersonlist);
+                    > booking_answers::count_places($usersonlist);
                 break;
             case 'blockabove':
                 $blocking = ($settings->maxanswers * $this->percentageavailableplaces * 0.01)
-                    < booking_answers::count_places($ba->usersonlist);
+                    < booking_answers::count_places($usersonlist);
                 break;
             case 'blockalways':
                 $blocking = true;

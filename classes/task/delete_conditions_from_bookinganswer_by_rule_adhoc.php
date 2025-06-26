@@ -124,7 +124,8 @@ class delete_conditions_from_bookinganswer_by_rule_adhoc extends \core\task\adho
                 // We should read answers from cache!
                 $settings = singleton_service::get_instance_of_booking_option_settings($taskdata->optionid);
                 $answers = singleton_service::get_instance_of_booking_answers($settings);
-                $ba = $answers->answers[$taskdata->baid];
+                $bookinganswers = $answers->get_answers();
+                $ba = $bookinganswers[$taskdata->baid];
                 // Decode the JSON to an associative array.
                 $data = json_decode($ba->json, true);
                 $change = false;

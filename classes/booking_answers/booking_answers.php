@@ -32,6 +32,7 @@ use dml_exception;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\booking;
+use mod_booking\booking_option;
 use mod_booking\singleton_service;
 use mod_booking\booking_option_settings;
 use Throwable;
@@ -59,25 +60,25 @@ class booking_answers {
     public $bookingoptionsettings = null;
 
     /** @var array array of records from the booking_answers table. */
-    public $answers = [];
+    private $answers = [];
 
     /** @var array array of all user objects (waitinglist and booked) */
-    public $users = [];
+    private $users = [];
 
     /** @var array array of all user objects (no waitinglist, only booked) */
-    public $usersonlist = [];
+    private $usersonlist = [];
 
     /** @var array array of all user objects (waitinglist, no booked) */
-    public $usersonwaitinglist = [];
+    private $usersonwaitinglist = [];
 
     /** @var array array of all user objects (only reserved) */
-    public $usersreserved = [];
+    private $usersreserved = [];
 
     /** @var array array of all user objects (only with deleted booking answer) */
-    public $usersdeleted = [];
+    private $usersdeleted = [];
 
     /** @var array array of all user objects (only those to notify) */
-    public $userstonotify = [];
+    private $userstonotify = [];
 
     /**
      * Constructor for the booking answers class.
@@ -173,7 +174,7 @@ class booking_answers {
                 'users' => $this->users,
                 'usersonlist' => $this->usersonlist,
                 'usersonwaitinglist' => $this->usersonwaitinglist,
-                'usersreserved' => $this->usersreserved,
+                'usersreserved' => $this->get_usersreserved(),
                 'usersdeleted' => $this->usersdeleted,
                 'userstonotify' => $this->userstonotify,
             ];
@@ -190,6 +191,91 @@ class booking_answers {
             $this->userstonotify = $data->userstonotify;
         }
     }
+
+    /**
+     * Get all raw booking answers for this option.
+     *
+     * Returns the full array of answer records (instances of stdClass)
+     * associated with this booking option.
+     *
+     * @return array List of booking answer records.
+     */
+    public function get_answers(): array {
+        return $this->answers;
+    }
+
+    /**
+     * Get all user booking answers (both booked and on waiting list, excluding deleted).
+     *
+     * Returns an array of user answer records keyed by user ID. These include
+     * all users who have a valid (non-deleted) booking answer.
+     *
+     * @return array Array of user booking answers.
+     */
+    public function get_users(): array {
+        return $this->users;
+    }
+
+    /**
+     * Get all users who are booked (on the confirmed booking list).
+     *
+     * Returns an array of user booking answers where users are marked as booked
+     * (not on the waiting list or reserved).
+     *
+     * @return array Array of booked user records indexed by user ID.
+     */
+    public function get_usersonlist(): array {
+        return $this->usersonlist;
+    }
+
+    /**
+     * Get all users who are on the waiting list.
+     *
+     * Returns an array of user booking answers for users currently
+     * on the waiting list for this booking option.
+     *
+     * @return array Array of waiting list user records indexed by user ID.
+     */
+    public function get_usersonwaitinglist(): array {
+        return $this->usersonwaitinglist;
+    }
+
+    /**
+     * Get all users with reserved bookings.
+     *
+     * Returns an array of user booking answers for users who are currently
+     * marked as reserved for this booking option.
+     *
+     * @return array Array of reserved user records indexed by user ID.
+     */
+    public function get_usersreserved(): array {
+        return $this->usersreserved;
+    }
+
+    /**
+     * Get all users with deleted booking answers.
+     *
+     * Returns an array of user booking answers that were marked as deleted
+     * for this booking option.
+     *
+     * @return array Array of deleted user records indexed by user ID.
+     */
+    public function get_usersdeleted(): array {
+        return $this->usersdeleted;
+    }
+
+    /**
+     * Get all users who are on the notification list.
+     *
+     * Returns an array of user booking answers for users who have requested
+     * to be notified if a place becomes available.
+     *
+     * @return array Array of user records to notify, indexed by user ID.
+     */
+    public function get_userstonotify(): array {
+        return $this->userstonotify;
+    }
+
 
     /**
      * Checks booking status of $userid for this booking option. If no $userid is given $USER is used (logged in user)
@@ -313,11 +399,19 @@ class booking_answers {
             $returnarray['minanswers'] = $this->bookingoptionsettings->minanswers;
         }
 
-        // First check list of booked users.
+        // As we have m ultiple bookings functionality,
+        // we need to check if user has records in any types of booking (booked, reserved, waitinglist).
+
+        // Consider user has no records for this option in booking_answers table.
+        // When we found any record we change it to true.
+        $hasuseranybookingrecord = false;
+
+        // Check list of booked users.
         if (
             isset($this->usersonlist[$userid])
             && $this->usersonlist[$userid]->waitinglist == MOD_BOOKING_STATUSPARAM_BOOKED
         ) {
+            $hasuseranybookingrecord = true;
             $answer = $this->usersonlist[$userid];
             if (!empty($answer->json)) {
                 $jsonobject = json_decode($answer->json);
@@ -328,19 +422,29 @@ class booking_answers {
             }
 
             $returnarray = ['iambooked' => $returnarray];
-        } else if (
+        }
+
+        // Check reserved list.
+        if (
             isset($this->usersreserved[$userid])
             && $this->usersreserved[$userid]->waitinglist == MOD_BOOKING_STATUSPARAM_RESERVED
         ) {
+            $hasuseranybookingrecord = true;
             $returnarray = ['iamreserved' => $returnarray];
-        } else if (
+        }
+
+        // Check waiting list.
+        if (
             isset($this->usersonwaitinglist[$userid])
             && $this->usersonwaitinglist[$userid]->waitinglist == MOD_BOOKING_STATUSPARAM_WAITINGLIST
         ) {
-            // Now check waiting list.
+            $hasuseranybookingrecord = true;
             $returnarray = ['onwaitinglist' => $returnarray];
-        } else {
-            // Else it's not booked.
+        }
+
+        // If the user does not exist in any of the lists (booked, reserved, or waiting list),
+        // then the user has no booking record for this booking option.
+        if (!$hasuseranybookingrecord) {
             $returnarray = ['notbooked' => $returnarray];
         }
 

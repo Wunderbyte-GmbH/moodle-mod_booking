@@ -411,12 +411,14 @@ class subbooking_additionalperson implements booking_subbooking {
         // We never show the subbooking when we are only in waitforconfirmation.
         if (!empty($settings->waitforconfirmation)) {
             $ba = singleton_service::get_instance_of_booking_answers($settings);
+            $usersreserved = $ba->get_usersreserved();
+            $usersonwaitinglist = $ba->get_usersonwaitinglist();
 
             // When the user is neither on waitinglist, nor on reserved, don't show subbookings.
             if (
                 !(
-                    ($ba->usersonwaitinglist[$userid] ?? false)
-                    || ($ba->usersreserved[$userid] ?? false)
+                    ($usersonwaitinglist[$userid] ?? false)
+                    || ($usersreserved[$userid] ?? false)
                 )
             ) {
                 return false;

@@ -65,9 +65,11 @@ $settings = singleton_service::get_instance_of_booking_option_settings($optionid
 $answer = singleton_service::get_instance_of_booking_answers($settings);
 
 $userid = $USER->id;
-if (isset($answer->usersonlist[$userid])) {
+$usersonlist = $answer->get_usersonlist();
+$usersonwaitinglist = $answer->get_usersonwaitinglist();
+if (isset($usersonlist[$userid])) {
     $text = get_string('viewconfirmationbooked', 'booking');
-} else if (isset($answer->usersonwaitinglist[$userid])) {
+} else if (isset($usersonwaitinglist[$userid])) {
     $text = get_string('viewconfirmationwaiting', 'booking');
 } else {
     echo $OUTPUT->error_text(get_string("notbooked", "booking"));

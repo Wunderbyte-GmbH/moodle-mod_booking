@@ -301,7 +301,7 @@ class booking_bookit {
              Second the reaction code should be included in the condition classes themselves, to improve maintainability. */
             if ($id < MOD_BOOKING_BO_COND_BOOKITBUTTON) {
                 $isavailable = true;
-            } else if ($id === MOD_BOOKING_BO_COND_BOOKITBUTTON) {
+            } else if ($id === MOD_BOOKING_BO_COND_BOOKITBUTTON || $id === MOD_BOOKING_BO_COND_REBOOKITBUTTON) {
                 $cache = cache::make('mod_booking', 'confirmbooking');
                 $cachekey = $userid . "_" . $settings->id . "_bookit";
                 $now = time();

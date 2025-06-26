@@ -207,7 +207,7 @@ class customform_form extends dynamic_form {
                                     $ba = singleton_service::get_instance_of_booking_answers($settings);
                                     $expectedvalue = $linearray[0];
                                     $filteredba = array_filter(
-                                        $ba->usersonlist,
+                                        $ba->get_usersonlist(),
                                         function ($userbookings) use ($identifier, $expectedvalue) {
                                             return isset($userbookings->$identifier)
                                                     && $userbookings->$identifier === $expectedvalue;

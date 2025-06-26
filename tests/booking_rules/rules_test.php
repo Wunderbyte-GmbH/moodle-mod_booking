@@ -1523,7 +1523,7 @@ final class rules_test extends advanced_testcase {
         // Book option1 by the 1st student.
         $result = $plugingenerator->create_answer(['optionid' => $option1->id, 'userid' => $student1->id]);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $result);
-        $answer1 = singleton_service::get_instance_of_booking_answers($settings1)->answers;
+        $answer1 = singleton_service::get_instance_of_booking_answers($settings1)->get_answers();
         $this->assertIsArray($answer1);
         $this->assertCount(1, $answer1);
         $answer1 = array_shift($answer1);
@@ -1545,7 +1545,7 @@ final class rules_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $result);
 
         // Create custom form records for answers of the option2.
-        $answers2 = singleton_service::get_instance_of_booking_answers($settings2)->answers;
+        $answers2 = singleton_service::get_instance_of_booking_answers($settings2)->get_answers();
         $this->assertIsArray($answers2);
         $this->assertCount(2, $answers2);
         // Create option2/student2 answer custom form data record.
@@ -1576,13 +1576,13 @@ final class rules_test extends advanced_testcase {
         $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
         $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
 
-        $answer11 = singleton_service::get_instance_of_booking_answers($settings1)->answers;
+        $answer11 = singleton_service::get_instance_of_booking_answers($settings1)->get_answers();
         $this->assertIsArray($answer11);
         $this->assertCount(1, $answer11);
         $answer11 = array_shift($answer11);
         $this->assertStringContainsString($formrecord1->customform_shorttext_1, $answer11->json);
 
-        $answers2 = singleton_service::get_instance_of_booking_answers($settings2)->answers;
+        $answers2 = singleton_service::get_instance_of_booking_answers($settings2)->get_answers();
         $this->assertIsArray($answers2);
         $this->assertCount(2, $answers2);
         $answer22 = array_shift($answers2);
@@ -1597,12 +1597,12 @@ final class rules_test extends advanced_testcase {
         $res = ob_get_clean();
 
         // Verify no json string in the answer for option1.
-        $answer11 = singleton_service::get_instance_of_booking_answers($settings1)->answers;
+        $answer11 = singleton_service::get_instance_of_booking_answers($settings1)->get_answers();
         $answer11 = array_shift($answer11);
         $this->assertStringNotContainsString($formrecord1->customform_shorttext_1, $answer11->json);
 
         // Verify json strings in the answers for option2.
-        $answers2 = singleton_service::get_instance_of_booking_answers($settings2)->answers;
+        $answers2 = singleton_service::get_instance_of_booking_answers($settings2)->get_answers();
         // String must be present for student2.
         $answer22 = array_shift($answers2);
         $this->assertStringContainsString($formrecord2->customform_shorttext_1, $answer22->json);

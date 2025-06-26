@@ -88,7 +88,6 @@ class alreadybooked implements bo_condition {
      * @return bool True if available
      */
     public function is_available(booking_option_settings $settings, int $userid, bool $not = false): bool {
-
         global $DB;
 
         // This is the return value. Not available to begin with.
@@ -102,6 +101,12 @@ class alreadybooked implements bo_condition {
         // If the user is not yet booked we return true.
         if (!isset($bookinginformation['iambooked'])) {
             $isavailable = true;
+        }
+
+        // Check if multiple bookings are enabled. If enabled, this condition must be bypassed.
+        $ismultipbookingsoptionenable = $settings->jsonobject->multiplebookings ?? 0;
+        if ($ismultipbookingsoptionenable) {
+            $isavailable = true; // Will prevent this condition.
         }
 
         // If it's inversed, we inverse.

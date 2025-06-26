@@ -144,7 +144,7 @@ final class moveoption_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         $ba = singleton_service::get_instance_of_booking_answers($settings);
-        $this->assertCount(1, $ba->usersonlist);
+        $this->assertCount(1, $ba->get_usersonlist());
 
         $this->assertEquals($booking1->id, $settings->bookingid);
 
@@ -207,7 +207,7 @@ final class moveoption_test extends advanced_testcase {
 
         // Check if a user is booked correctly.
         $ba = singleton_service::get_instance_of_booking_answers($newsettings);
-        $this->assertCount(1, $ba->usersonlist);
+        $this->assertCount(1, $ba->get_usersonlist());
     }
     /**
      * Data provider for condition_bookingpolicy_test

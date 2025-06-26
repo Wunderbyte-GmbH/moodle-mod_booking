@@ -63,8 +63,9 @@ class executerestscript extends booking_action {
             $userid = $USER->id;
         }
 
-        if (isset($ba->usersonlist[$userid])) {
-            $bajson = $ba->usersonlist[$userid];
+        $usersonlist = $ba->get_usersonlist();
+        if (isset($usersonlist[$userid])) {
+            $bajson = $usersonlist[$userid];
             $restscriptresponse = self::get_script_response($bajson, $actiondata);
             if ($restscriptresponse) {
                 $event = rest_script_success::create([

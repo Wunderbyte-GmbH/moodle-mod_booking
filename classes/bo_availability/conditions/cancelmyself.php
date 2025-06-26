@@ -158,7 +158,8 @@ class cancelmyself implements bo_condition {
                         ) {
                             $isavailable = true;
                         } else {
-                            $ba = $bookinganswer->usersonwaitinglist[$userid];
+                            $usersonwaitinglist = $bookinganswer->get_usersonwaitinglist();
+                            $ba = $usersonwaitinglist[$userid];
                             if (!empty($ba->json)) {
                                 $jsonobject = json_decode($ba->json);
                                 if (!empty($jsonobject->confirmwaitinglist)) {
@@ -375,7 +376,8 @@ class cancelmyself implements bo_condition {
         $coolingoffperiod = get_config('booking', 'coolingoffperiod');
         if ($coolingoffperiod > 0) {
             $ba = singleton_service::get_instance_of_booking_answers($settings);
-            $timemodified = $ba->users[$userid]->timemodified ?? 0;
+            $answersusers = $ba->get_users();
+            $timemodified = $answersusers[$userid]->timemodified ?? 0;
             if (strtotime("+ $coolingoffperiod seconds", $timemodified) > time()) {
                 return true;
             }

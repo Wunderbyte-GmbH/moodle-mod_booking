@@ -155,7 +155,8 @@ class enrollink {
         $bo = singleton_service::get_instance_of_booking_option($cmid, $this->bundle->optionid);
         $settings = singleton_service::get_instance_of_booking_option_settings($bo->id);
         $ba = singleton_service::get_instance_of_booking_answers($settings);
-        foreach ($ba->users as $bauserid => $userdata) {
+        $answersusers = $ba->get_users();
+        foreach ($answersusers as $bauserid => $userdata) {
             if ($userid == $bauserid) {
                 return MOD_BOOKING_AUTOENROL_STATUS_ALREADY_ENROLLED;
             }
@@ -406,11 +407,13 @@ class enrollink {
     ): bool {
         global $USER, $DB;
 
-        if (!isset($bookinganswer->answers[$baid])) {
+        $bookinganswers = $bookinganswer->get_answers();
+
+        if (!isset($bookinganswers[$baid])) {
             return false;
         }
 
-        $answer = $bookinganswer->answers[$baid];
+        $answer = $bookinganswers[$baid];
         $key = self::enrolusersaction_applies($answer);
 
         if (empty($key)) {
@@ -437,7 +440,7 @@ class enrollink {
 
         // Check if user who bought was enrolled fo the course. If so, add item to db.
         if (
-            isset($bookinganswer->answers[$baid])
+            isset($bookinganswers[$baid])
             && self::enroluseraction_allows_enrolment($bookinganswer, $baid)
         ) {
             $el = self::get_instance($data->erlid);
@@ -449,7 +452,8 @@ class enrollink {
 
         if ($freeplaces) {
             $bas = singleton_service::get_instance_of_booking_answers($settings);
-            $barecord = $bas->answers[$baid];
+            $basanswers = $bas->get_answers();
+            $barecord = $basanswers[$baid];
 
             // Trigger event.
             $event = enrollink_triggered::create([
@@ -505,8 +509,8 @@ class enrollink {
         object $bookinganswer,
         int $baid
     ): bool {
-
-        $answer = $bookinganswer->answers[$baid];
+        $bookinganswers = $bookinganswer->get_answers();
+        $answer = $bookinganswers[$baid];
         if (!$answer->json) {
             return true;
         }

@@ -93,14 +93,15 @@ class datesandentities {
             $output = $PAGE->get_renderer('mod_booking');
             if ($settings->selflearningcourse == 1) {
                 $ba = singleton_service::get_instance_of_booking_answers($settings);
+                $usersonlist = $ba->get_usersonlist();
 
                 $value = get_string('selflearningcourseplaceholder', 'mod_booking');
 
                 if (
                     $settings->duration > 0
-                    && isset($ba->usersonlist[$userid])
+                    && isset($usersonlist[$userid])
                 ) {
-                    $timebooked = $ba->usersonlist[$userid]->timecreated;
+                    $timebooked = $usersonlist[$userid]->timecreated;
                     $timeremainingsec = $timebooked + $settings->duration - time();
 
                     if ($timeremainingsec < 0) {

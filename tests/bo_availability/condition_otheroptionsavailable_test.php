@@ -146,7 +146,7 @@ final class condition_otheroptionsavailable_test extends advanced_testcase {
             $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
             $answers = singleton_service::get_instance_of_booking_answers($settings);
-            $this->assertCount(1, $answers->users);
+            $this->assertCount(1, $answers->get_users());
         }
         $relatedidstring = implode(',', array_keys($relatedoptions));
 
@@ -209,7 +209,7 @@ final class condition_otheroptionsavailable_test extends advanced_testcase {
                 $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
             } else {
                 $answers = singleton_service::get_instance_of_booking_answers($settings);
-                $this->assertCount(1, $answers->users);
+                $this->assertCount(1, $answers->get_users());
             }
         }
 

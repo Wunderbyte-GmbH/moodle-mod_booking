@@ -118,7 +118,7 @@ class askforconfirmation implements bo_condition {
                         && (
                             isset($bookinginformation['notbooked']['fullybooked'])
                             && $bookinginformation['notbooked']['fullybooked'] === true
-                            && ($settings->maxoverbooking > booking_answers::count_places($bookinganswer->usersonwaitinglist))
+                            && ($settings->maxoverbooking > $bookinginformation['notbooked']['waiting'])
                         )
                     )
                 ||

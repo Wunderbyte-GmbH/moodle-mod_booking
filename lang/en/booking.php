@@ -121,9 +121,15 @@ $string['applyunitfactor_desc'] = 'If this setting is active, the educational un
  Example: A booking option has a date series like "Mon, 15:00 - 16:30". So it lasts 2 educational units (45 min each).
  So a unit factor of 2 will be applied to the price formula. (Unit factor will only be applied if a price formula is present.)';
 $string['applyuserwhobookedcheckbox'] = 'Yes, I am booking the training also for myself.';
+$string['approvalbytrainer'] = "Approval by the teacher";
+$string['approvalsettings'] = "Approval workflows";
+$string['approvalsettings_desc'] = "Booking supports various confirmation processes when users need to have to have their bookings confirmed. In the standard process, trainers can confirm the requests from the waiting list. Other processes can be added via Bookingextension subplugins.";
+$string['approvalworkflows'] = 'Approval workflows';
+$string['approvalworkflows_desc'] = 'Select one or more approval workflows. Depending on the selection, specific behaviors can be configured in the booking options.';
 $string['areyousure:book'] = 'Click again to confirm booking';
 $string['areyousure:cancel'] = 'Click again to confirm cancellation';
 $string['asglobaltemplate'] = 'Use as global template';
+$string['askforconfirmationheader'] = '<i class="fa fa-fw fa-lock" aria-hidden="true"></i>&nbsp;Demand confirmation';
 $string['assesstimefinish'] = 'End of the assessment period';
 $string['assesstimestart'] = 'Start of the assessment period';
 $string['assignteachers'] = 'Assign teachers:';
@@ -376,6 +382,7 @@ $string['boconduserprofilefieldnotavailable'] = 'Not allowed to book';
 $string['boconduserprofilefieldoperator'] = 'Operator';
 $string['boconduserprofilefieldvalue'] = 'Value';
 $string['bonumberofdays'] = "Number of days";
+$string['bookagain'] = "Book again";
 $string['bookanyoneswitchoff'] = '<i class="fa fa-user-times" aria-hidden="true"></i> Do not allow booking of users who are not enrolled (recommended)';
 $string['bookanyoneswitchon'] = '<i class="fa fa-user-plus" aria-hidden="true"></i> Allow booking of users who are not enrolled';
 $string['bookanyonewarning'] = 'Be careful: You can now book any users you want. Only use this setting if you know what you are doing.
@@ -383,6 +390,8 @@ $string['bookanyonewarning'] = 'Be careful: You can now book any users you want.
 $string['booked'] = 'Booked';
 $string['bookeddeleted'] = 'Booking removed';
 $string['bookedpast'] = 'Booked (course finished)';
+$string['bookedpreviousely'] = ' | Previousely booked';
+$string['bookedpreviouselyxtimes'] = ' | Previousely booked {$a} times';
 $string['bookedteachersshowemails'] = 'Show teacher\'s email addresses to booked users';
 $string['bookedteachersshowemails_desc'] = 'If you activate this setting, booked users can see
 the e-mail address of their teacher.';
@@ -1614,6 +1623,7 @@ $string['movedbookinghistory'] = 'The booking option has been moved from the boo
 $string['moveoption'] = 'Move booking option';
 $string['moveoption_help'] = 'Move booking option to different booking instance';
 $string['moveoptionto'] = 'Move booking option to other booking instance';
+$string['multiplebookings'] = 'Multiple bookings';
 $string['multipledayofweektimestringshint'] = 'You can enter enter one combination of week day and time <b>per line</b>.<br>Example: "Monday, 10:00 - 12:00" and "Tuesday, 15:00 - 16:30"';
 $string['multiselect'] = 'Multiple selection';
 $string['mustchooseone'] = 'You must choose an option before saving. Nothing was saved.';
@@ -1642,6 +1652,7 @@ $string['nobookingselected'] = 'No booking option selected';
 $string['nocancelreason'] = "You need to give a reason for canceling this booking option";
 $string['nocfnameselected'] = "Nothing selected. Either type new name or select one from the list.";
 $string['nocomments'] = 'Commenting disabled';
+$string['noconfirmationworkflow'] = 'No confirmtion necessary';
 $string['nocourse'] = 'No course selected for this booking option';
 $string['nocourseselected'] = 'No course selected';
 $string['nodatesstring'] = "There are currently no dates associated with this booking option";
@@ -1688,6 +1699,7 @@ $string['noselection'] = 'No selection';
 $string['nosemester'] = 'No semester chosen';
 $string['nosubscribers'] = 'There are no teachers assigned!';
 $string['notallbooked'] = 'The following users could not be booked due to reaching the max number of bookings per user or lack of available places for the booking option: {$a}';
+$string['notallowedtoconfirm'] = "Not allowed to confirm";
 $string['notanswered'] = 'Not answered';
 $string['notateacher'] = 'The user selected is not teaching any courses and is probably not a teacher.';
 $string['notbookable'] = "Not bookable";
@@ -2706,6 +2718,8 @@ $string['updatedrecords'] = '{$a} record(s) updated.';
 $string['uploadheaderimages'] = 'Header images for booking options';
 $string['usecompetencies'] = 'Use competencies';
 $string['usecompetencies_desc'] = 'Booking options can be tagged with competencies and sorted accordingly';
+$string['useconfirmationworkflowheader'] = 'Use confirmation workflow header';
+$string['useconfirmationworkflowheader_desc'] = 'Enable this option to use the confirmation workflow header in the booking option form.';
 $string['usecoursecategorytemplates'] = 'Use templates for newly created Moodle courses';
 $string['usecoursecategorytemplates_desc'] = '';
 $string['usedinbooking'] = 'You can\'t delete this category, because you\'re using it in booking!';
