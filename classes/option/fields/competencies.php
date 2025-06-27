@@ -314,7 +314,7 @@ class competencies extends field_base {
             }
 
             // Assign competence to user.
-            api::get_user_competency($userid, $competencyid);
+            $uc = api::get_user_competency($userid, $competencyid);
 
             // Link competence to user evidence to make it visible in the UI.
             // One competence can have multiple evidences.
@@ -344,6 +344,11 @@ class competencies extends field_base {
 
             $link = new user_evidence_competency(0, $link);
             $link->create();
+
+            // Now trigger the user event.
+            $uc->read();
+            $event = \core\event\competency_user_competency_rated::create_from_user_competency($uc);
+            $event->trigger();
         }
         return $competencies;
     }
