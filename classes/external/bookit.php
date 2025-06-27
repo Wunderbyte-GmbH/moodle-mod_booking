@@ -31,6 +31,7 @@ use external_function_parameters;
 use external_value;
 use external_single_structure;
 use mod_booking\booking_bookit;
+use mod_booking\price;
 use mod_booking\singleton_service;
 use mod_booking\subbookings\subbookings_info;
 
@@ -100,7 +101,10 @@ class bookit extends external_api {
             ];
         }
 
-        list ($templates, $data) = booking_bookit::render_bookit_template_data($settings, $userid, false);
+        // To make sure we still render for the right user.
+        price::set_bookforuser($userid);
+
+        [$templates, $data] = booking_bookit::render_bookit_template_data($settings, $userid, false);
 
         return [
             'status' => $status,

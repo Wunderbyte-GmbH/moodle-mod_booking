@@ -24,6 +24,7 @@
 
 namespace mod_booking;
 
+use cache;
 use cache_helper;
 use context_module;
 use context_system;
@@ -60,6 +61,9 @@ class price {
 
     /** @var int $itemid if area is 'option' then itemid will be the optionid */
     public $itemid;
+
+    /** @var int $bookforuserid A static value which can be set in one request. */
+    private static $bookforuserid;
 
     /**
      * Constructor.
@@ -882,7 +886,10 @@ class price {
 
         global $USER;
 
-        if ($userid === 0) {
+        // Shopping Cart logic has precedence here.
+        if (
+            $userid === 0
+        ) {
             if (class_exists('local_shopping_cart\shopping_cart')) {
                 $context = context_system::instance();
                 if (has_capability('local/shopping_cart:cashier', $context)) {
@@ -890,6 +897,26 @@ class price {
                 }
             }
         }
+
+        if (empty($userid) || $USER->id == $userid) {
+            // We can implement an override via singleton.
+
+            if (!empty(self::$bookforuserid)) {
+                $userid = self::$bookforuserid;
+            } else {
+                $cache = cache::make('mod_booking', 'bookforuser');
+                $result = $cache->get('bookforuser');
+                if ($result) {
+                    [$userid, $expirationtime] = $result;
+                    if ($expirationtime > time()) {
+                        self::$bookforuserid = $userid;
+                    } else {
+                        $userid = $USER->id;
+                    }
+                }
+            }
+        }
+
         if ($userid) {
             $user = singleton_service::get_instance_of_user($userid);
         } else {
@@ -898,6 +925,27 @@ class price {
         return $user;
     }
 
+    /**
+     * Sets the userid to singleton and cache.
+     * Validity is only 30 seconds.
+     * This is only meant to render correctly in one request and in following webservices.
+     *
+     * @param int $userid
+     *
+     * @return [type]
+     *
+     */
+    public static function set_bookforuser(int $userid) {
+        self::$bookforuserid = $userid;
+        $cache = cache::make('mod_booking', 'bookforuser');
+        $cache->set(
+            'bookforuser',
+            [
+                $userid,
+                time() + 10,
+            ]
+        );
+    }
 
     /**
      * Function to determine price category for user and return shortname of category.
