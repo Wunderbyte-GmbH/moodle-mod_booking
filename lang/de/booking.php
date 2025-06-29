@@ -118,9 +118,15 @@ $string['applyunitfactor_desc'] = 'Wenn diese Einstellung aktiviert ist, wird di
  herangezogen und als Faktor für die Preisformel verwendet. Beispiel: Eine Buchungsoption hat die Terminserie "Mo, 15:00 - 16:30". Sie dauert also 2 UE von
  jeweils 45 min. Auf die Preisformel wird also der Einheitenfaktor von 2 angewendet. (Einheitenfaktor wird nur bei vorhandener Preisformel angewendet.)';
 $string['applyuserwhobookedcheckbox'] = 'Ja, ich buche das Training auch für mich selbst.';
+$string['approvalbytrainer'] = "Bestätigung durch Lehrende im Kurs";
+$string['approvalsettings'] = "Bestätigungsworkflows";
+$string['approvalsettings_desc'] = "Booking unterstützt verschiedene Bestätigungsprozesse, wenn Nutzer:innen sich ihre Buchungen bestätigen lassen müssen. Im Standardprozess können Trainer:innen die Anfragen über die Warteliste bestätigen. Andere Prozesse können über Bookingextension Subplugins nachgeladen werden.";
+$string['approvalworkflows'] = 'Bestätigungsworkflows';
+$string['approvalworkflows_desc'] = 'Wählen Sie einen oder mehrere Bestätigungsworkflows aus. In den Buchungsoptionen können je nach Auswahl die genauen Verhalten eingestellt werden.';
 $string['areyousure:book'] = 'Nochmal klicken, um die Buchung zu bestätigen';
 $string['areyousure:cancel'] = 'Nochmal klicken, um die Buchung zu stornieren';
 $string['asglobaltemplate'] = 'Als globale Vorlage hinzufügen';
+$string['askforconfirmationheader'] = '<i class="fa fa-fw fa-lock" aria-hidden="true"></i>&nbsp;Buchen nur nach Bestätigung';
 $string['assesstimefinish'] = 'Ende der Bewertungsperiode';
 $string['assesstimestart'] = 'Start der Bewertungsperiode';
 $string['assignteachers'] = 'Lehrer:innen zuweisen:';
@@ -2586,6 +2592,8 @@ $string['updatedrecords'] = '{$a} Eintrag/Einträge aktualisiert.';
 $string['uploadheaderimages'] = 'Header-Bilder für Buchungsoptionen';
 $string['usecompetencies'] = 'Kompetenzen verwenden';
 $string['usecompetencies_desc'] = 'Buchungsoptionen können mit Kompetenzen versehen und entsprechend dieser Zuweisungen gruppiert angezeigt werden';
+$string['useconfirmationworkflowheader'] = 'Bestätigungs-Workflow-Überschrift verwenden';
+$string['useconfirmationworkflowheader_desc'] = 'Diese Option aktivieren, um die Überschrift für den Bestätigungs-Workflow im Buchungsoptionsformular anzuzeigen.';
 $string['usecoursecategorytemplates'] = 'Verwende Vorlagen für neu zu erstellende Moodle-Kurse';
 $string['usecoursecategorytemplates_desc'] = '';
 $string['usedinbooking'] = 'Das Löschen dieser Kategorie/n ist nicht möglich, da sie verwendet werden!';

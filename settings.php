@@ -884,6 +884,67 @@ if ($ADMIN->fulltree) {
         );
     }
 
+    // PRO feature: Workflow confirmation settings.
+    if ($proversion) {
+        $settings->add(
+            new admin_setting_heading(
+                'approvalsettings',
+                get_string('approvalsettings', 'mod_booking'),
+                get_string('approvalsettings_desc', 'mod_booking'),
+            )
+        );
+
+        // Checkbox: Use confirmation workflow header.
+        $settings->add(new admin_setting_configcheckbox(
+            'mod_booking/useconfirmationworkflowheader',
+            get_string('useconfirmationworkflowheader', 'booking'),
+            get_string('useconfirmationworkflowheader_desc', 'booking'),
+            0 // Default: off.
+        ));
+
+        $confirmationworkflows['bookingextension_approval_trainer'] = get_string('approvalbytrainer', 'mod_booking');
+        // We retrieve all available bookingextensions
+        foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
+            // If there is a confirm_booking class, we use this.
+            $class = "\\bookingextension_{$plugin->name}\\local\\confirm_booking.php";
+
+            if (class_exists($class)) {
+                $confirmbooking = new $class();
+                $confirmationworkflows[$plugin->name] = $confirmbooking->get_name();
+            }
+        }
+        $settings->add(
+            new admin_setting_configmultiselect(
+                'approvalworkflows',
+                get_string('approvalworkflows', 'mod_booking'),
+                get_string('approvalworkflows_desc', 'mod_booking'),
+                ['bookingextension_approval_trainer'], // Default is the standard Plugin.
+                $confirmationworkflows,
+            )
+        );
+    } else {
+        $settings->add(
+            new admin_setting_heading(
+                'tabwhatsnew',
+                get_string('tabwhatsnew', 'mod_booking'),
+                get_string('prolicensefeatures', 'mod_booking') .
+                get_string('profeatures:tabwhatsnew', 'mod_booking') .
+                get_string('infotext:prolicensenecessary', 'mod_booking')
+            )
+        );
+
+         $settings->add(
+            new admin_setting_heading(
+                'approvalsettings',
+                get_string('approvalsettings', 'mod_booking'),
+                get_string('prolicensefeatures', 'mod_booking') .
+                get_string('profeatures:approval', 'mod_booking') .
+                get_string('infotext:prolicensenecessary', 'mod_booking')
+            )
+        );
+    }
+
+
     // PRO feature: Cancellation settings.
     if ($proversion) {
         $settings->add(

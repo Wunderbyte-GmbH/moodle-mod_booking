@@ -120,9 +120,15 @@ $string['applyunitfactor_desc'] = 'If this setting is active, the educational un
  Example: A booking option has a date series like "Mon, 15:00 - 16:30". So it lasts 2 educational units (45 min each).
  So a unit factor of 2 will be applied to the price formula. (Unit factor will only be applied if a price formula is present.)';
 $string['applyuserwhobookedcheckbox'] = 'Yes, I am booking the training also for myself.';
+$string['approvalbytrainer'] = "Approval by the teacher";
+$string['approvalsettings'] = "Approval workflows";
+$string['approvalsettings_desc'] = "Booking supports various confirmation processes when users need to have to have their bookings confirmed. In the standard process, trainers can confirm the requests from the waiting list. Other processes can be added via Bookingextension subplugins.";
+$string['approvalworkflows'] = 'Approval workflows';
+$string['approvalworkflows_desc'] = 'Select one or more approval workflows. Depending on the selection, specific behaviors can be configured in the booking options.';
 $string['areyousure:book'] = 'Click again to confirm booking';
 $string['areyousure:cancel'] = 'Click again to confirm cancellation';
 $string['asglobaltemplate'] = 'Use as global template';
+$string['askforconfirmationheader'] = '<i class="fa fa-fw fa-lock" aria-hidden="true"></i>&nbsp;Verfügbarkeit einschränken';
 $string['assesstimefinish'] = 'End of the assessment period';
 $string['assesstimestart'] = 'Start of the assessment period';
 $string['assignteachers'] = 'Assign teachers:';
@@ -2654,6 +2660,8 @@ $string['updatedrecords'] = '{$a} record(s) updated.';
 $string['uploadheaderimages'] = 'Header images for booking options';
 $string['usecompetencies'] = 'Use competencies';
 $string['usecompetencies_desc'] = 'Booking options can be tagged with competencies and sorted accordingly';
+$string['useconfirmationworkflowheader'] = 'Use confirmation workflow header';
+$string['useconfirmationworkflowheader_desc'] = 'Enable this option to use the confirmation workflow header in the booking option form.';
 $string['usecoursecategorytemplates'] = 'Use templates for newly created Moodle courses';
 $string['usecoursecategorytemplates_desc'] = '';
 $string['usedinbooking'] = 'You can\'t delete this category, because you\'re using it in booking!';

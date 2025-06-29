@@ -40,7 +40,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class waitforconfirmation extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -59,7 +58,7 @@ class waitforconfirmation extends field_base {
      * This identifies the header under which this particular field should be displayed.
      * @var string
      */
-    public static $header = MOD_BOOKING_HEADER_ADVANCEDOPTIONS;
+    public static $header = MOD_BOOKING_HEADER_ASKFORCONFIRMATION;
 
     /**
      * An int value to define if this field is standard or used in a different context.
@@ -92,7 +91,8 @@ class waitforconfirmation extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         if (isset($formdata->waitforconfirmation)) {
             booking_option::add_data_to_json($newoption, "waitforconfirmation", $formdata->waitforconfirmation);
@@ -125,10 +125,14 @@ class waitforconfirmation extends field_base {
 
         // Standardfunctionality to add a header to the mform (only if its not yet there).
         if ($applyheader) {
-            fields_info::add_header_to_mform($mform, self::$header);
+            $header = !get_config('mod_booking', 'useconfirmationworkflowheader')
+                ? MOD_BOOKING_HEADER_ADVANCEDOPTIONS : self::$header;
+            fields_info::add_header_to_mform($mform, $header);
         }
 
         $mform->addElement('advcheckbox', 'waitforconfirmation', get_string('waitforconfirmation', 'mod_booking'));
+
+        $mform->addElement('static', 'waitforconfirmationdescription', '', get_string('workflowdescription', 'bookingextension_approval_trainer'));
     }
 
     /**
@@ -141,7 +145,6 @@ class waitforconfirmation extends field_base {
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
         if (!empty($data->importing)) {
-
             $data->waitforconfirmation = $data->waitforconfirmation
                 ?? booking_option::get_value_of_json_by_key($data->id, "waitforconfirmation") ?? 0;
         } else {
