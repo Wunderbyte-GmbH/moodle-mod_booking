@@ -660,6 +660,11 @@ class booking_answers {
             $bookingplaceslowpercentage = get_config('booking', 'bookingplaceslowpercentage');
             $actualpercentage = ($bookinginformation['freeonlist'] / $bookinginformation['maxanswers']) * 100;
 
+            // Check if percentage is a negative value. In this case, set it to zero to prevent bugs when the option is overbooked.
+            if (($bookinginformation['freeonlist'] < 0)) {
+                $bookinginformation['freeonlist'] = 0;
+            }
+
             if ($bookinginformation['freeonlist'] == 0) {
                 // No places left.
                 $bookinginformation['bookingplacesinfotext'] = get_string('bookingplacesfullmessage', 'mod_booking');
