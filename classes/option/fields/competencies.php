@@ -344,10 +344,15 @@ class competencies extends field_base {
 
             $link = new user_evidence_competency(0, $link);
             $link->create();
+            $grade = 1.0; // 1.0 = proficient; 0.0 = not proficient
+            $note = 'Automatically graded by mod_booking plugin';
 
+            // Assign and trigger event.
+            api::grade_competency($userid, $competencyid, $grade, $note);
             // Now trigger the user event.
             $uc->read();
-            $event = \core\event\competency_user_competency_rated::create_from_user_competency($uc);
+            // Create and trigger the evidence created event.
+            $event = competency_user_evidence_created::create_from_user_evidence($userevidence);
             $event->trigger();
         }
         return $competencies;
