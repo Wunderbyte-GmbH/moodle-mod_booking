@@ -1637,12 +1637,18 @@ if ($ADMIN->fulltree) {
                 ''
             )
         );
+
         $settings->add(
-            new admin_setting_configcheckbox(
+            new admin_setting_configselect(
                 'booking/bookingplacesinfotexts',
                 get_string('bookingplacesinfotexts', 'mod_booking'),
-                get_string('bookingplacesinfotextsinfo', 'booking'),
-                0
+                get_string('bookingplacesinfotextsinfo', 'mod_booking'),
+                0,
+                [
+                    0 => get_string('placesinfoshowbooked', 'mod_booking'),
+                    1 => get_string('placesinfoshowinfotexts', 'mod_booking'),
+                    2 => get_string('placesinfoshowfreeonly', 'mod_booking'),
+                ]
             )
         );
 
