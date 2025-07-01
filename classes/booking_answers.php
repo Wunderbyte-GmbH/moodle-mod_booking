@@ -647,16 +647,17 @@ class booking_answers {
         // Booking places.
         $context = context_system::instance();
 
-        if (
-            !has_capability('mod/booking:updatebooking', $context)
-            && get_config('booking', 'bookingplacesinfotexts')
-        ) {
+        // Variable $bookingplacesinfotexts can be on of follwing values:
+        // 0 => show booked places (Ex. 1/2)
+        // 1 => show info texts (Ex. Fully bookd)
+        // 2 => show free places only (1 place left).
+        $bookingplacesinfotexts = get_config('booking', 'bookingplacesinfotexts');
+
+        if (!has_capability('mod/booking:updatebooking', $context) && $bookingplacesinfotexts) {
             $bookinginformation['showbookingplacesinfotext'] = true;
         }
 
-        if (
-            !empty($bookinginformation['maxanswers'])
-        ) {
+        if (!empty($bookinginformation['maxanswers'])) {
             $bookingplaceslowpercentage = get_config('booking', 'bookingplaceslowpercentage');
             $actualpercentage = ($bookinginformation['freeonlist'] / $bookinginformation['maxanswers']) * 100;
 
@@ -680,6 +681,12 @@ class booking_answers {
                 $bookinginformation['bookingplacesinfotext'] = get_string('bookingplacesenoughmessage', 'mod_booking');
                 $bookinginformation['bookingplacesclass'] = 'text-success avail';
                 $bookinginformation['bookingplacesiconclass'] = 'avail';
+            }
+
+            // If (show free places only) is chosen.
+            if ($bookingplacesinfotexts == '2') {
+                $bookinginformation['bookingplacesinfotext']
+                    = get_string('bookingplacesplacesleft', 'mod_booking', $bookinginformation['freeonlist']);
             }
         } else {
             $bookinginformation['bookingplacesinfotext'] = get_string('bookingplacesunlimitedmessage', 'mod_booking');
