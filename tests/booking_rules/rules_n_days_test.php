@@ -71,11 +71,11 @@ final class rules_n_days_test extends advanced_testcase {
      * Test rule on before and after cursestart events.
      *
      * @covers \mod_booking\booking_option::update
-     * @covers \mod_booking\option\field_base->check_for_changes
-     * @covers \mod_booking\booking_rules\rules\rule_react_on_event->execute
-     * @covers \mod_booking\booking_rules\actions\send_mail->execute
-     * @covers \mod_booking\booking_rules\conditions\select_users->execute
-     * @covers \mod_booking\placeholders\placeholders\changes->return_value
+     * @covers \mod_booking\option\field_base::check_for_changes
+     * @covers \mod_booking\booking_rules\rules\rule_react_on_event::execute
+     * @covers \mod_booking\booking_rules\actions\send_mail::execute
+     * @covers \mod_booking\booking_rules\conditions\select_users::execute
+     * @covers \mod_booking\placeholders\placeholders\changes::return_value
      *
      * @param array $data
      * @param array $expected

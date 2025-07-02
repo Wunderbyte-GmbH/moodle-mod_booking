@@ -27,7 +27,6 @@
 namespace mod_booking;
 
 use advanced_testcase;
-
 use mod_booking\bo_availability\bo_info;
 use mod_booking\local\override_user_field;
 use stdClass;
@@ -106,7 +105,7 @@ final class circumvent_userprofilecondition_test extends advanced_testcase {
     /**
      * Test booking, cancelation, option has started etc.
      *
-     * @covers \override_user_field->set_userprefs
+     * @covers \mod_booking\local\override_user_field::set_userprefs
      *
      * @param array $data
      * @param array $expected

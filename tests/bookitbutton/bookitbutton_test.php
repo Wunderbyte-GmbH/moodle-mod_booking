@@ -64,7 +64,7 @@ final class bookitbutton_test extends advanced_testcase {
     /**
      * Test of booking option with price as well as cancellation by user.
      *
-     * @covers \booking_bookit
+     * @covers \mod_booking\booking_bookit::render_bookit_template_data
      *
      * @param array $coursedata
      * @param array $pricecategories

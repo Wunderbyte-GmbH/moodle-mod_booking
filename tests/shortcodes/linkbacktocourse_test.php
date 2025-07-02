@@ -62,7 +62,7 @@ final class linkbacktocourse_test extends advanced_testcase {
     /**
      * Test creation and display of shortcode linkbacktocourse.
      *
-     * @covers \shortcodes::linkbacktocourse
+     * @covers \mod_booking\shortcodes::linkbacktocourse
      *
      * @param array $data
      * @param array $expected

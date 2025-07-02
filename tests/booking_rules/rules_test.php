@@ -76,8 +76,8 @@ final class rules_test extends advanced_testcase {
     /**
      * Test rules for "test if message is triggered on payment confirmation".
      *
-     * @covers \condition\alreadybooked::is_available
-     * @covers \condition\onwaitinglist::is_available
+     * @covers \mod_booking\bo_availability\conditions\alreadybooked::is_available
+     * @covers \mod_booking\bo_availability\conditions\onwaitinglist::is_available
      * @covers \mod_booking\event\bookingoption_freetobookagain
      * @covers \mod_booking\event\bookingoptionwaitinglist_booked
      * @covers \mod_booking\booking_rules\rules\rule_react_on_event
@@ -197,11 +197,11 @@ final class rules_test extends advanced_testcase {
      * Test rule on option's teacher added.
      *
      * @covers \mod_booking\event\teacher_added
-     * @covers \mod_booking\teachers_handler\subscribe_teacher_to_booking_option
-     * @covers \mod_booking\booking_rules\rules\rule_react_on_event->execute
-     * @covers \mod_booking\booking_rules\actions\send_mail->execute
-     * @covers \mod_booking\booking_rules\conditions\select_users->execute
-     * @covers \mod_booking\tasks\send_mail_by_rule_adhoc->execute
+     * @covers \mod_booking\teachers_handler::subscribe_teacher_to_booking_option
+     * @covers \mod_booking\booking_rules\rules\rule_react_on_event::execute
+     * @covers \mod_booking\booking_rules\actions\send_mail::execute
+     * @covers \mod_booking\booking_rules\conditions\select_users::execute
+     * @covers \mod_booking\task\send_mail_by_rule_adhoc::execute
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -297,11 +297,11 @@ final class rules_test extends advanced_testcase {
      * Test rule on option's teacher removed.
      *
      * @covers \mod_booking\event\teacher_removed
-     * @covers \mod_booking\teachers_handler\unsubscribe_teacher_from_booking_option
-     * @covers \mod_booking\booking_rules\rules\rule_react_on_event->execute
-     * @covers \mod_booking\booking_rules\actions\send_mail->execute
-     * @covers \mod_booking\booking_rules\conditions\select_teacher_in_bo->execute
-     * @covers \mod_booking\tasks\send_mail_by_rule_adhoc->execute
+     * @covers \mod_booking\teachers_handler::unsubscribe_teacher_from_booking_option
+     * @covers \mod_booking\booking_rules\rules\rule_react_on_event::execute
+     * @covers \mod_booking\booking_rules\actions\send_mail::execute
+     * @covers \mod_booking\booking_rules\conditions\select_teacher_in_bo::execute
+     * @covers \mod_booking\task\send_mail_by_rule_adhoc::execute
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -406,12 +406,12 @@ final class rules_test extends advanced_testcase {
      *
      * @covers \mod_booking\event\bookinganswer_cancelled
      * @covers \mod_booking\event\bookingoption_cancelled
-     * @covers \mod_booking\option->user_delete_response
+     * @covers \mod_booking\booking_option::user_delete_response
      * @covers \mod_booking\booking_option::cancelbookingoption
-     * @covers \mod_booking\booking_rules\rules\rule_react_on_event->execute
-     * @covers \mod_booking\booking_rules\conditions\select_student_in_bo->execute
-     * @covers \mod_booking\booking_rules\conditions\select_teacher_in_bo->execute
-     * @covers \mod_booking\booking_rules\actions\send_mail->execute
+     * @covers \mod_booking\booking_rules\rules\rule_react_on_event::execute
+     * @covers \mod_booking\booking_rules\conditions\select_student_in_bo::execute
+     * @covers \mod_booking\booking_rules\conditions\select_teacher_in_bo::execute
+     * @covers \mod_booking\booking_rules\actions\send_mail::execute
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -538,11 +538,11 @@ final class rules_test extends advanced_testcase {
      * Test rule on before and after cursestart events.
      *
      * @covers \mod_booking\booking_option::update
-     * @covers \mod_booking\option\field_base->check_for_changes
-     * @covers \mod_booking\booking_rules\rules\rule_react_on_event->execute
-     * @covers \mod_booking\booking_rules\actions\send_mail->execute
-     * @covers \mod_booking\booking_rules\conditions\select_users->execute
-     * @covers \mod_booking\placeholders\placeholders\changes->return_value
+     * @covers \mod_booking\option\field_base::check_for_changes
+     * @covers \mod_booking\booking_rules\rules\rule_react_on_event::execute
+     * @covers \mod_booking\booking_rules\actions\send_mail::execute
+     * @covers \mod_booking\booking_rules\conditions\select_users::execute
+     * @covers \mod_booking\placeholders\placeholders\changes::return_value
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -746,10 +746,10 @@ final class rules_test extends advanced_testcase {
      *
      * @covers \mod_booking\event\bookinganswer_cancelled
      * @covers \mod_booking\event\bookingoption_cancelled
-     * @covers \mod_booking\booking_rules\rules\rule_react_on_event->execute
-     * @covers \mod_booking\booking_rules\conditions\select_users->execute
-     * @covers \mod_booking\booking_rules\conditions\select_teacher_in_bo->execute
-     * @covers \mod_booking\booking_rules\actions\send_mail->execute
+     * @covers \mod_booking\booking_rules\rules\rule_react_on_event::execute
+     * @covers \mod_booking\booking_rules\conditions\select_users::execute
+     * @covers \mod_booking\booking_rules\conditions\select_teacher_in_bo::execute
+     * @covers \mod_booking\booking_rules\actions\send_mail::execute
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -862,12 +862,12 @@ final class rules_test extends advanced_testcase {
      * Test rule on booking_option_update event.
      *
      * @covers \mod_booking\booking_option::update
-     * @covers \mod_booking\option\field_base->check_for_changes
+     * @covers \mod_booking\option\field_base::check_for_changes
      * @covers \mod_booking\event\bookingoption_updated
-     * @covers \mod_booking\booking_rules\rules\rule_react_on_event->execute
-     * @covers \mod_booking\booking_rules\actions\send_mail->execute
-     * @covers \mod_booking\booking_rules\conditions\select_teacher_in_bo->execute
-     * @covers \mod_booking\placeholders\placeholders\changes->return_value
+     * @covers \mod_booking\booking_rules\rules\rule_react_on_event::execute
+     * @covers \mod_booking\booking_rules\actions\send_mail::execute
+     * @covers \mod_booking\booking_rules\conditions\select_teacher_in_bo::execute
+     * @covers \mod_booking\placeholders\placeholders\changes::return_value
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -976,8 +976,8 @@ final class rules_test extends advanced_testcase {
     /**
      * Test rules on ask for confirmation of the booking.
      *
-     * @covers \condition\confirmation::is_available
-     * @covers \condition\onwaitinglist::is_available
+     * @covers \mod_booking\bo_availability\conditions\confirmation::is_available
+     * @covers \mod_booking\bo_availability\conditions\onwaitinglist::is_available
      * @covers \mod_booking\event\bookinganswer_waitingforconfirmation
      * @covers \mod_booking\event\bookingoptionwaitinglist_booked
      * @covers \mod_booking\booking_rules\rules\rule_react_on_event
@@ -1130,8 +1130,8 @@ final class rules_test extends advanced_testcase {
     /**
      * Test rules for "booking on waitinglist booked" and "option free to bookagain" events.
      *
-     * @covers \condition\alreadybooked::is_available
-     * @covers \condition\onwaitinglist::is_available
+     * @covers \mod_booking\bo_availability\conditions\alreadybooked::is_available
+     * @covers \mod_booking\bo_availability\conditions\onwaitinglist::is_available
      * @covers \mod_booking\event\bookingoption_freetobookagain
      * @covers \mod_booking\event\bookingoptionwaitinglist_booked
      * @covers \mod_booking\booking_rules\rules\rule_react_on_event
@@ -1293,13 +1293,13 @@ final class rules_test extends advanced_testcase {
     /**
      * Test rule on option being completed for user.
      *
-     * @covers \mod_booking\option->completion
+     * @covers \mod_booking\booking_option::user_completed_option
      * @covers \mod_booking\event\bookingoption_booked
      * @covers \mod_booking\event\bookingoption_completed
-     * @covers \mod_booking\booking_rules\rules\rule_react_on_event->execute
-     * @covers \mod_booking\booking_rules\conditions\select_user_from_event->execute
-     * @covers \mod_booking\booking_rules\conditions\match_userprofilefield->execute
-     * @covers \mod_booking\booking_rules\actions\send_mail->execute
+     * @covers \mod_booking\booking_rules\rules\rule_react_on_event::execute
+     * @covers \mod_booking\booking_rules\conditions\select_user_from_event::execute
+     * @covers \mod_booking\booking_rules\conditions\match_userprofilefield::execute
+     * @covers \mod_booking\booking_rules\actions\send_mail::execute
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -1433,7 +1433,7 @@ final class rules_test extends advanced_testcase {
     /**
      * Test booking option availability: \condition\customform with supporting of data deletion.
      *
-     * @covers \condition\customform::is_available
+     * @covers \mod_booking\bo_availability\conditions\customform::is_available
      *
      * @param array $bdata
      * @throws \coding_exception

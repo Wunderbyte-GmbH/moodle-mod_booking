@@ -75,7 +75,7 @@ final class condition_bookingpolicy_test extends advanced_testcase {
     /**
      * Test booking option availability: \condition\bookingpolicy.
      *
-     * @covers \condition\bookingpolicy::is_available
+     * @covers \mod_booking\bo_availability\conditions\bookingpolicy::is_available
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -146,7 +146,7 @@ final class condition_bookingpolicy_test extends advanced_testcase {
     /**
      * Test booking option availability: \condition\customform.
      *
-     * @covers \condition\customform::is_available
+     * @covers \mod_booking\bo_availability\conditions\customform::is_available
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -247,7 +247,7 @@ final class condition_bookingpolicy_test extends advanced_testcase {
     /**
      * Test booking option availability: \condition\max_number_of_bookings.
      *
-     * @covers \condition\max_number_of_bookings::is_available
+     * @covers \mod_booking\bo_availability\conditions\max_number_of_bookings::is_available
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -331,9 +331,9 @@ final class condition_bookingpolicy_test extends advanced_testcase {
     /**
      * Test booking option availability: \condition\selectusers.
      *
-     * @covers \condition\selectusers::is_available
-     * @covers \condition\previouslybooked::is_available
-     * @covers \condition\enrolledincourse::is_available
+     * @covers \mod_booking\bo_availability\conditions\selectusers::is_available
+     * @covers \mod_booking\bo_availability\conditions\previouslybooked::is_available
+     * @covers \mod_booking\bo_availability\conditions\enrolledincourse::is_available
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -478,8 +478,8 @@ final class condition_bookingpolicy_test extends advanced_testcase {
     /**
      * Test booking option availability: \condition\jsonuserfields.
      *
-     * @covers \condition\userprofilefield_1_default::is_available
-     * @covers \condition\userprofilefield_2_custom::is_available
+     * @covers \mod_booking\bo_availability\conditions\userprofilefield_1_default::is_available
+     * @covers \mod_booking\bo_availability\conditions\userprofilefield_2_custom::is_available
      *
      * @param array $bdata
      * @throws \coding_exception

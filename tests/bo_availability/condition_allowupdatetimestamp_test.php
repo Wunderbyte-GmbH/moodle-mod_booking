@@ -61,8 +61,8 @@ final class condition_allowupdatetimestamp_test extends advanced_testcase {
     /**
      * Test booking, cancelation, option has started etc.
      *
-     * @covers \condition\iscancelled::is_available
-     * @covers \condition\hasstarted::is_available
+     * @covers \mod_booking\bo_availability\conditions\iscancelled::is_available
+     * @covers \mod_booking\bo_availability\conditions\optionhasstarted::is_available
      * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception

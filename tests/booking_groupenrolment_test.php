@@ -70,7 +70,7 @@ final class booking_groupenrolment_test extends advanced_testcase {
     /**
      * Test booking, cancelation, option has started etc.
      *
-     * @covers \classes\booking_option::enrol_user
+     * @covers \mod_booking\booking_option::enrol_user
      *
      * @param array $data
      * @throws \coding_exception

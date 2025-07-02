@@ -66,12 +66,12 @@ final class condition_all_test extends advanced_testcase {
     /**
      * Test booking, cancelation, option has started etc.
      *
-     * @covers \condition\bookitbutton::is_available
-     * @covers \condition\alreadybooked::is_available
-     * @covers \condition\fullybooked::is_available
-     * @covers \condition\confirmation::render_page
-     * @covers \condition\notifymelist::is_available
-     * @covers \condition\isloggedin::is_available
+     * @covers \mod_booking\bo_availability\conditions\bookitbutton::is_available
+     * @covers \mod_booking\bo_availability\conditions\alreadybooked::is_available
+     * @covers \mod_booking\bo_availability\conditions\fullybooked::is_available
+     * @covers \mod_booking\bo_availability\conditions\confirmation::render_page
+     * @covers \mod_booking\bo_availability\conditions\notifymelist::is_available
+     * @covers \mod_booking\bo_availability\conditions\isloggedin::is_available
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -159,7 +159,7 @@ final class condition_all_test extends advanced_testcase {
     /**
      * Test of booking option with price as well as cancellation by user.
      *
-     * @covers \condition\priceset::is_available
+     * @covers \mod_booking\bo_availability\conditions\priceisset::is_available
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -309,7 +309,7 @@ final class condition_all_test extends advanced_testcase {
     /**
      * Test of booking option with zero price as different displayemptyprice settings.
      *
-     * @covers \condition\priceset::is_available
+     * @covers \mod_booking\bo_availability\conditions\priceisset::is_available
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -471,7 +471,7 @@ final class condition_all_test extends advanced_testcase {
     /**
      * Test of booking option with fallback different displayemptyprice settings.
      *
-     * @covers \condition\priceset::is_available
+     * @covers \mod_booking\bo_availability\conditions\priceisset::is_available
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -715,12 +715,12 @@ final class condition_all_test extends advanced_testcase {
     /**
      * Test booking, cancelation, option has started etc.
      *
-     * @covers \condition\bookitbutton::is_available
-     * @covers \condition\alreadybooked::is_available
-     * @covers \condition\fullybooked::is_available
-     * @covers \condition\confirmation::render_page
-     * @covers \condition\notifymelist::is_available
-     * @covers \condition\isloggedin::is_available
+     * @covers \mod_booking\bo_availability\conditions\bookitbutton::is_available
+     * @covers \mod_booking\bo_availability\conditions\alreadybooked::is_available
+     * @covers \mod_booking\bo_availability\conditions\fullybooked::is_available
+     * @covers \mod_booking\bo_availability\conditions\confirmation::render_page
+     * @covers \mod_booking\bo_availability\conditions\notifymelist::is_available
+     * @covers \mod_booking\bo_availability\conditions\isloggedin::is_available
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -903,7 +903,7 @@ final class condition_all_test extends advanced_testcase {
     /**
      * Test of booking option availability by cohorts and bookingtime.
      *
-     * @covers \condition\boking_time::is_available
+     * @covers \mod_booking\bo_availability\conditions\booking_time::is_available
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -1030,8 +1030,9 @@ final class condition_all_test extends advanced_testcase {
     /**
      * Test enrol user and add to group.
      *
-     * @covers \booking_option->enrol_user
-     * @covers \option\fields\addtogroup::save_data
+     * @covers \mod_booking\booking_bookit::bookit
+     * @covers \mod_booking\booking_option::enrol_user
+     * @covers \mod_booking\option\fields\addtogroup::save_data
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -1131,7 +1132,7 @@ final class condition_all_test extends advanced_testcase {
     /**
      * Test add to group.
      *
-     * @covers \condition\boking_time::is_available
+     * @covers \mod_booking\bo_availability\conditions\booking_time::is_available
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -1209,10 +1210,10 @@ final class condition_all_test extends advanced_testcase {
     /**
      * Test add to group.
      *
-     * @covers \condition\alreadybooked::is_available
-     * @covers \condition\confirmation::is_available
-     * @covers \condition\onwaitinglist::is_available
-     * @covers \condition\askforconfirmation::render_page
+     * @covers \mod_booking\bo_availability\conditions\alreadybooked::is_available
+     * @covers \mod_booking\bo_availability\conditions\confirmation::is_available
+     * @covers \mod_booking\bo_availability\conditions\onwaitinglist::is_available
+     * @covers \mod_booking\bo_availability\conditions\askforconfirmation::render_page
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -1293,9 +1294,9 @@ final class condition_all_test extends advanced_testcase {
     /**
      * Test add to group.
      *
-     * @covers \condition\askforconfirmation::is_available
-     * @covers \condition\onwaitinglist::is_available
-     * @covers \condition\priceset::is_available
+     * @covers \mod_booking\bo_availability\conditions\askforconfirmation::is_available
+     * @covers \mod_booking\bo_availability\conditions\onwaitinglist::is_available
+     * @covers \mod_booking\bo_availability\conditions\priceisset::is_available
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -1508,8 +1509,8 @@ final class condition_all_test extends advanced_testcase {
     /**
      * Test booking option availability: \condition\bookwithcredits.
      *
-     * @covers \condition\bookwithcredits::is_available
-     * @covers \condition\confirmbookwithcredits::is_available
+     * @covers \mod_booking\bo_availability\conditions\bookwithcredits::is_available
+     * @covers \mod_booking\bo_availability\conditions\confirmbookwithcredits::is_available
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -1623,9 +1624,9 @@ final class condition_all_test extends advanced_testcase {
     /**
      * Test overbooking with price when confirmation and waiting list disabled.
      *
-     * @covers \condition\askforconfirmation::is_available
-     * @covers \condition\onwaitinglist::is_available
-     * @covers \condition\priceset::is_available
+     * @covers \mod_booking\bo_availability\conditions\askforconfirmation::is_available
+     * @covers \mod_booking\bo_availability\conditions\onwaitinglist::is_available
+     * @covers \mod_booking\bo_availability\conditions\priceisset::is_available
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -1753,11 +1754,12 @@ final class condition_all_test extends advanced_testcase {
     /**
      * Test overlapping.
      *
-     * @covers \condition\isbookable::is_available
-     * @covers \condition\bookitbutton::is_available
-     * @covers \condition\alreadybooked::is_available
-     * @covers \condition\overlapping::is_available
-     * @covers \condition\overlappingproxy::is_available
+     * @covers \mod_booking\bo_availability\conditions\isbookable::is_available
+     * @covers \mod_booking\bo_availability\conditions\bookitbutton::is_available
+     * @covers \mod_booking\bo_availability\conditions\alreadybooked::is_available
+     * @covers \mod_booking\bo_availability\conditions\nooverlapping::is_available
+     * @covers \mod_booking\bo_availability\conditions\nooverlappingproxy::is_available
+     *
      * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception
@@ -1860,11 +1862,12 @@ final class condition_all_test extends advanced_testcase {
     /**
      * Test overlapping.
      *
-     * @covers \condition\isbookable::is_available
-     * @covers \condition\bookitbutton::is_available
-     * @covers \condition\alreadybooked::is_available
-     * @covers \condition\overlapping::is_available
-     * @covers \condition\overlappingproxy::is_available
+     * @covers \mod_booking\bo_availability\conditions\isbookable::is_available
+     * @covers \mod_booking\bo_availability\conditions\bookitbutton::is_available
+     * @covers \mod_booking\bo_availability\conditions\alreadybooked::is_available
+     * @covers \mod_booking\bo_availability\conditions\nooverlapping::is_available
+     * @covers \mod_booking\bo_availability\conditions\nooverlappingproxy::is_available
+     *
      * @param array $bdata
      * @throws \coding_exception
      * @throws \dml_exception

@@ -63,12 +63,8 @@ final class booking_action_test extends advanced_testcase {
     /**
      * Test booking, cancelation, option has started etc.
      *
-     * @covers \condition\bookitbutton::is_available
-     * @covers \condition\alreadybooked::is_available
-     * @covers \condition\fullybooked::is_available
-     * @covers \condition\confirmation::render_page
-     * @covers \condition\notifymelist::is_available
-     * @covers \condition\isloggedin::is_available
+     * @covers \mod_booking\bo_actions\action_types\userprofilefield
+     * @covers \mod_booking\bo_actions\action_types\cancelbooking
      *
      * @param array $data
      * @param array $expected

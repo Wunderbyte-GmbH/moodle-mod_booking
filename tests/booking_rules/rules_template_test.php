@@ -84,8 +84,8 @@ final class rules_template_test extends advanced_testcase {
     /**
      * Test rulestemplate for "payment_confirmation".
      *
-     * @covers \condition\alreadybooked::is_available
-     * @covers \condition\onwaitinglist::is_available
+     * @covers \mod_booking\bo_availability\conditions\alreadybooked::is_available
+     * @covers \mod_booking\bo_availability\conditions\onwaitinglist::is_available
      * @covers \mod_booking\event\bookingoption_freetobookagain
      * @covers \mod_booking\event\bookingoptionwaitinglist_booked
      * @covers \mod_booking\booking_rules\rules\rule_react_on_event
@@ -210,11 +210,11 @@ final class rules_template_test extends advanced_testcase {
      * Test rulestemplate on before and after coursestart events.
      *
      * @covers \mod_booking\booking_option::update
-     * @covers \mod_booking\option\field_base->check_for_changes
-     * @covers \mod_booking\booking_rules\rules\rule_react_on_event->execute
-     * @covers \mod_booking\booking_rules\actions\send_mail->execute
-     * @covers \mod_booking\booking_rules\conditions\select_users->execute
-     * @covers \mod_booking\placeholders\placeholders\changes->return_value
+     * @covers \mod_booking\option\field_base::check_for_changes
+     * @covers \mod_booking\booking_rules\rules\rule_react_on_event::execute
+     * @covers \mod_booking\booking_rules\actions\send_mail::execute
+     * @covers \mod_booking\booking_rules\conditions\select_users::execute
+     * @covers \mod_booking\placeholders\placeholders\changes::return_value
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -335,12 +335,12 @@ final class rules_template_test extends advanced_testcase {
      * Test rulestemplate on booking_option_update event.
      *
      * @covers \mod_booking\booking_option::update
-     * @covers \mod_booking\option\field_base->check_for_changes
+     * @covers \mod_booking\option\field_base::check_for_changes
      * @covers \mod_booking\event\bookingoption_updated
-     * @covers \mod_booking\booking_rules\rules\rule_react_on_event->execute
-     * @covers \mod_booking\booking_rules\actions\send_mail->execute
-     * @covers \mod_booking\booking_rules\conditions\select_teacher_in_bo->execute
-     * @covers \mod_booking\placeholders\placeholders\changes->return_value
+     * @covers \mod_booking\booking_rules\rules\rule_react_on_event::execute
+     * @covers \mod_booking\booking_rules\actions\send_mail::execute
+     * @covers \mod_booking\booking_rules\conditions\select_teacher_in_bo::execute
+     * @covers \mod_booking\placeholders\placeholders\changes::return_value
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -445,8 +445,8 @@ final class rules_template_test extends advanced_testcase {
     /**
      * Test rulestemplate for "booking on waitinglist booked".
      *
-     * @covers \condition\alreadybooked::is_available
-     * @covers \condition\onwaitinglist::is_available
+     * @covers \mod_booking\bo_availability\conditions\alreadybooked::is_available
+     * @covers \mod_booking\bo_availability\conditions\onwaitinglist::is_available
      * @covers \mod_booking\event\bookingoption_freetobookagain
      * @covers \mod_booking\event\bookingoptionwaitinglist_booked
      * @covers \mod_booking\booking_rules\rules\rule_react_on_event
@@ -608,13 +608,12 @@ final class rules_template_test extends advanced_testcase {
     /**
      * Test rulestemplate on option being completed for user.
      *
-     * @covers \mod_booking\option->completion
      * @covers \mod_booking\event\bookingoption_booked
      * @covers \mod_booking\event\bookingoption_completed
-     * @covers \mod_booking\booking_rules\rules\rule_react_on_event->execute
-     * @covers \mod_booking\booking_rules\conditions\select_user_from_event->execute
-     * @covers \mod_booking\booking_rules\conditions\match_userprofilefield->execute
-     * @covers \mod_booking\booking_rules\actions\send_mail->execute
+     * @covers \mod_booking\booking_rules\rules\rule_react_on_event::execute
+     * @covers \mod_booking\booking_rules\conditions\select_user_from_event::execute
+     * @covers \mod_booking\booking_rules\conditions\match_userprofilefield::execute
+     * @covers \mod_booking\booking_rules\actions\send_mail::execute
      *
      * @param array $bdata
      * @throws \coding_exception

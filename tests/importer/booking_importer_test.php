@@ -69,7 +69,8 @@ final class booking_importer_test extends advanced_testcase {
     /**
      * Test process_data of CSV import.
      *
-     * @covers \bookingoptionsimporter->execute_bookingoptions_csv_import
+     * @covers \mod_booking\importer\bookingoptionsimporter::execute_bookingoptions_csv_import
+     *
      * @throws \coding_exception
      * @throws \dml_exception
      */

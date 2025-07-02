@@ -63,7 +63,7 @@ final class booking_action_bookotheroption_test extends advanced_testcase {
     /**
      * Test booking option action - book other options.
      *
-     * @covers \bo_actions\action_types\bookotheroptions
+     * @covers \mod_booking\bo_actions\action_types\bookotheroptions
      *
      * @param array $data
      * @param array $expected

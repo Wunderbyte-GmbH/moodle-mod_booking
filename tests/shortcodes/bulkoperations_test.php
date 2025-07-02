@@ -62,7 +62,7 @@ final class bulkoperations_test extends advanced_testcase {
     /**
      * Test creation and display of shortcode bulkoperations.
      *
-     * @covers \shortcodes::bulkoperations
+     * @covers \mod_booking\shortcodes::bulkoperations
      *
      * @param array $data
      * @param array $expected

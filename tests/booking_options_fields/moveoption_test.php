@@ -68,7 +68,7 @@ final class moveoption_test extends advanced_testcase {
     /**
      * Test move option
      *
-     * @covers \option\fields\moveoption
+     * @covers \mod_booking\option\fields\moveoption
      *
      * @param array $data
      * @param array $expected

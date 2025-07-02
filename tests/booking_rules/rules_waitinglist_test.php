@@ -82,8 +82,8 @@ final class rules_waitinglist_test extends advanced_testcase {
     /**
      * Test rules for "option free to bookagain" and "notification in intervals" events when waitinglist is forced.
      *
-     * @covers \condition\alreadybooked::is_available
-     * @covers \condition\onwaitinglist::is_available
+     * @covers \mod_booking\bo_availability\conditions\alreadybooked::is_available
+     * @covers \mod_booking\bo_availability\conditions\onwaitinglist::is_available
      * @covers \mod_booking\event\bookingoption_freetobookagain
      * @covers \mod_booking\event\bookingoptionwaitinglist_booked
      * @covers \mod_booking\booking_rules\rules\rule_react_on_event
@@ -305,8 +305,8 @@ final class rules_waitinglist_test extends advanced_testcase {
      * Test rules for "option free to bookagain" and "notification in intervals" events
      * ...when waitinglist is forced and maxanswers has been increased.
      *
-     * @covers \condition\alreadybooked::is_available
-     * @covers \condition\onwaitinglist::is_available
+     * @covers \mod_booking\bo_availability\conditions\alreadybooked::is_available
+     * @covers \mod_booking\bo_availability\conditions\onwaitinglist::is_available
      * @covers \mod_booking\event\bookingoption_freetobookagain
      * @covers \mod_booking\event\bookingoptionwaitinglist_booked
      * @covers \mod_booking\booking_rules\rules\rule_react_on_event
@@ -558,8 +558,8 @@ final class rules_waitinglist_test extends advanced_testcase {
      * Test rules for "option free to bookagain" and "notification in intervals" events
      * ...when waitinglist is reorderd and booking is cancelled.
      *
-     * @covers \condition\alreadybooked::is_available
-     * @covers \condition\onwaitinglist::is_available
+     * @covers \mod_booking\bo_availability\conditions\alreadybooked::is_available
+     * @covers \mod_booking\bo_availability\conditions\onwaitinglist::is_available
      * @covers \mod_booking\event\bookingoption_freetobookagain
      * @covers \mod_booking\event\bookingoptionwaitinglist_booked
      * @covers \mod_booking\booking_rules\rules\rule_react_on_event
@@ -785,8 +785,8 @@ final class rules_waitinglist_test extends advanced_testcase {
      * Test rules for "option free to bookagain" and "notification in intervals" events
      * ...when waitinglist is reordered forced and bookingoption cancelled.
      *
-     * @covers \condition\alreadybooked::is_available
-     * @covers \condition\onwaitinglist::is_available
+     * @covers \mod_booking\bo_availability\conditions\alreadybooked::is_available
+     * @covers \mod_booking\bo_availability\conditions\onwaitinglist::is_available
      * @covers \mod_booking\event\bookingoption_freetobookagain
      * @covers \mod_booking\event\bookingoptionwaitinglist_booked
      * @covers \mod_booking\booking_rules\rules\rule_react_on_event
@@ -1082,8 +1082,8 @@ final class rules_waitinglist_test extends advanced_testcase {
      * If this user has the right value in the field, he will be enrolled automatically.
      * In this case, freetobookagain message should not be send (or scheduled).
      *
-     * @covers \condition\alreadybooked::is_available
-     * @covers \condition\onwaitinglist::is_available
+     * @covers \mod_booking\bo_availability\conditions\alreadybooked::is_available
+     * @covers \mod_booking\bo_availability\conditions\onwaitinglist::is_available
      * @covers \mod_booking\event\bookingoption_freetobookagain
      * @covers \mod_booking\event\bookingoptionwaitinglist_booked
      * @covers \mod_booking\booking_rules\rules\rule_react_on_event

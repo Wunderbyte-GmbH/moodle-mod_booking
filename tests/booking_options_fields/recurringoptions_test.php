@@ -68,16 +68,15 @@ final class recurringoptions_test extends advanced_testcase {
     /**
      * Test creation and update of recurring options.
      *
-     * @covers \condition\bookitbutton::is_available
-     * @covers \condition\alreadybooked::is_available
-     * @covers \condition\fullybooked::is_available
-     * @covers \condition\confirmation::render_page
-     * @covers \option\fields\recurringoptions::save_data
-     * @covers \option\fields\recurringoptions::definition_after_data
-     * @covers \option\fields\recurringoptions::update_options
-     * @covers \option\fields\recurringoptions::update_records
-     * @covers \option\fields\recurringoptions::find_constant_delta
-     * @covers \booking_option::update
+     * @covers \mod_booking\bo_availability\conditions\bookitbutton::is_available
+     * @covers \mod_booking\bo_availability\conditions\alreadybooked::is_available
+     * @covers \mod_booking\bo_availability\conditions\fullybooked::is_available
+     * @covers \mod_booking\bo_availability\conditions\confirmation::render_page
+     * @covers \mod_booking\option\fields\recurringoptions::save_data
+     * @covers \mod_booking\option\fields\recurringoptions::definition_after_data
+     * @covers \mod_booking\option\fields\recurringoptions::update_options
+     * @covers \mod_booking\option\fields\recurringoptions::update_records
+     * @covers \mod_booking\booking_option::update
      *
      * @param array $data
      * @param array $expected
@@ -394,17 +393,15 @@ final class recurringoptions_test extends advanced_testcase {
     /**
      * Test allchildrenaction to see if unlinking and deletion of children is working as expected.
      *
-     * @covers \condition\bookitbutton::is_available
-     * @covers \condition\alreadybooked::is_available
-     * @covers \condition\fullybooked::is_available
-     * @covers \condition\confirmation::render_page
-     * @covers \option\fields\recurringoptions::save_data
-     * @covers \option\fields\recurringoptions::definition_after_data
-     * @covers \option\fields\recurringoptions::update_options
-     * @covers \option\fields\recurringoptions::update_records
-     * @covers \option\fields\recurringoptions::find_constant_delta
-     * @covers \option\fields\recurringoptions::allchildrenaction
-     * @covers \booking_option::update
+     * @covers \mod_booking\bo_availability\conditions\bookitbutton::is_available
+     * @covers \mod_booking\bo_availability\conditions\alreadybooked::is_available
+     * @covers \mod_booking\bo_availability\conditions\fullybooked::is_available
+     * @covers \mod_booking\bo_availability\conditions\confirmation::render_page
+     * @covers \mod_booking\option\fields\recurringoptions::save_data
+     * @covers \mod_booking\option\fields\recurringoptions::definition_after_data
+     * @covers \mod_booking\option\fields\recurringoptions::update_options
+     * @covers \mod_booking\option\fields\recurringoptions::update_records
+     * @covers \mod_booking\booking_option::update
      *
      * @param mixed $data
      * @param mixed $expected

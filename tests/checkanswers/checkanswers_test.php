@@ -66,7 +66,9 @@ final class checkanswers_test extends advanced_testcase {
     /**
      * Test of booking option with price as well as cancellation by user.
      *
-     * @covers \condition\priceset::is_available
+     * @covers \mod_booking\booking_bookit::bookit
+     * @covers \mod_booking\local\checkanswers\checkanswers::create_bookinganswers_check_tasks
+     *
      * @param array $bdata
      * @dataProvider booking_common_settings_provider
      *

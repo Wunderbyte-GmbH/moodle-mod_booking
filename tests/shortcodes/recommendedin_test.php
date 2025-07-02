@@ -64,7 +64,7 @@ final class recommendedin_test extends advanced_testcase {
     /**
      * Test creation and display of shortcode recommendedin.
      *
-     * @covers \shortcodes::recommendedin
+     * @covers \mod_booking\shortcodes::recommendedin
      *
      * @param array $data
      * @param array $expected

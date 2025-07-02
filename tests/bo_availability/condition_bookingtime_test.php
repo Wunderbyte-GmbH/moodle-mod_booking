@@ -67,7 +67,7 @@ final class condition_bookingtime_test extends advanced_testcase {
     /**
      * Test bookingtime.
      *
-     * @covers \condition\booking_time::is_available
+     * @covers \mod_booking\bo_availability\conditions\booking_time::is_available
      *
      * @param array $bdata
      * @throws \coding_exception

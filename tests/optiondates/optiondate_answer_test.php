@@ -76,7 +76,8 @@ final class optiondate_answer_test extends advanced_testcase {
     /**
      * Test save_record and get_record methods.
      *
-     * @covers \mod_booking/local/optiondates/optiondate
+     * @covers \mod_booking\local\optiondates\optiondate_answer
+     *
      * @dataProvider data_provider
      * @param int $userid
      * @param int $optiondateid
@@ -112,7 +113,8 @@ final class optiondate_answer_test extends advanced_testcase {
     /**
      * Test delete_record method.
      *
-     * @covers \mod_booking/local/optiondates/optiondate
+     * @covers \mod_booking\local\optiondates\optiondate_answer
+     *
      * @dataProvider data_provider
      * @param int $userid
      * @param int $optiondateid
@@ -143,7 +145,8 @@ final class optiondate_answer_test extends advanced_testcase {
     /**
      * Test delete_record method.
      *
-     * @covers \mod_booking/local/optiondates/optiondate
+     * @covers \mod_booking\local\optiondates\optiondate_answer
+     *
      * @dataProvider data_provider
      * @param int $userid
      * @param int $optiondateid

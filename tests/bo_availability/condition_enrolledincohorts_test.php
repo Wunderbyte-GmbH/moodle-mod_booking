@@ -61,7 +61,7 @@ final class condition_enrolledincohorts_test extends advanced_testcase {
     /**
      * Test of booking option availability by cohorts and bookingtime.
      *
-     * @covers \condition\enrolledincohorts::is_available
+     * @covers \mod_booking\bo_availability\conditions\enrolledincohorts::is_available
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -197,7 +197,7 @@ final class condition_enrolledincohorts_test extends advanced_testcase {
 
     /**
      * Test add to group.
-     * @covers \condition\enrolledincohorts::is_available
+     * @covers \mod_booking\bo_availability\conditions\enrolledincohorts::is_available
      *
      * @param array $bdata
      * @throws \coding_exception

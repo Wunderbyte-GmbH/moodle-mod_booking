@@ -63,12 +63,12 @@ final class condition_otheroptionsavailable_test extends advanced_testcase {
     /**
      * Test booking, cancelation, option has started etc.
      *
-     * @covers \condition\bookitbutton::is_available
-     * @covers \condition\alreadybooked::is_available
-     * @covers \condition\fullybooked::is_available
-     * @covers \condition\confirmation::render_page
-     * @covers \condition\notifymelist::is_available
-     * @covers \condition\isloggedin::is_available
+     * @covers \mod_booking\bo_availability\conditions\bookitbutton::is_available
+     * @covers \mod_booking\bo_availability\conditions\alreadybooked::is_available
+     * @covers \mod_booking\bo_availability\conditions\fullybooked::is_available
+     * @covers \mod_booking\bo_availability\conditions\confirmation::render_page
+     * @covers \mod_booking\bo_availability\conditions\notifymelist::is_available
+     * @covers \mod_booking\bo_availability\conditions\isloggedin::is_available
      *
      * @param array $data
      * @param array $expected

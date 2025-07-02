@@ -73,7 +73,7 @@ final class booking_option_test extends advanced_testcase {
      *
      * @covers \mod_booking\event\teacher_added
      * @covers \mod_booking\booking_option::update
-     * @covers \mod_booking\option\field_base->check_for_changes
+     * @covers \mod_booking\option\field_base::check_for_changes
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -198,7 +198,7 @@ final class booking_option_test extends advanced_testcase {
     /**
      * Test adding of entiy to the bookig option.
      *
-     * @covers \mod_booking\booking_option::create
+     * @covers \mod_booking\booking_option::update
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -284,7 +284,7 @@ final class booking_option_test extends advanced_testcase {
     /**
      * Test delete responses.
      *
-     * @covers ::delete_responses_activitycompletion
+     * @covers \mod_booking\booking_option::delete_responses_activitycompletion
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -397,8 +397,8 @@ final class booking_option_test extends advanced_testcase {
     /**
      * Test enrol user and add to group.
      *
-     * @covers \booking_option->enrol_user
-     * @covers \local\connectedcourse
+     * @covers \mod_booking\booking_option::enrol_user
+     * @covers \mod_booking\local\connectedcourse
      *
      * @param array $bdata
      * @throws \coding_exception

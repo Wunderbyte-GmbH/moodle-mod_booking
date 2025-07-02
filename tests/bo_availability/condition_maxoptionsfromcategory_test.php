@@ -66,7 +66,7 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
     /**
      * Test of booking options with max options from category.
      *
-     * @covers \booking_bookit
+     * @covers \mod_booking\booking_bookit
      *
      * @param array $coursedata
      * @param array $expected

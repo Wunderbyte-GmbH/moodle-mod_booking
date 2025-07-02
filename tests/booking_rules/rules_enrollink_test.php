@@ -78,9 +78,9 @@ final class rules_enrollink_test extends advanced_testcase {
      * Test rule on answer and option being cancelled.
      *
      * @covers \mod_booking\event\enrollink_triggered
-     * @covers \mod_booking\booking_rules\rules\rule_react_on_event->execute
-     * @covers \mod_booking\booking_rules\conditions\select_student_in_bo->execute
-     * @covers \mod_booking\booking_rules\actions\send_mail->execute
+     * @covers \mod_booking\booking_rules\rules\rule_react_on_event::execute
+     * @covers \mod_booking\booking_rules\conditions\select_student_in_bo::execute
+     * @covers \mod_booking\booking_rules\actions\send_mail::execute
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -376,9 +376,9 @@ final class rules_enrollink_test extends advanced_testcase {
      * Test rule on answer and option being cancelled.
      *
      * @covers \mod_booking\event\enrollink_triggered
-     * @covers \mod_booking\booking_rules\rules\rule_react_on_event->execute
-     * @covers \mod_booking\booking_rules\conditions\select_student_in_bo->execute
-     * @covers \mod_booking\booking_rules\actions\send_mail->execute
+     * @covers \mod_booking\booking_rules\rules\rule_react_on_event::execute
+     * @covers \mod_booking\booking_rules\conditions\select_student_in_bo::execute
+     * @covers \mod_booking\booking_rules\actions\send_mail::execute
      *
      * @param array $bdata
      * @throws \coding_exception

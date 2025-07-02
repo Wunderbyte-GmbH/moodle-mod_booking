@@ -64,7 +64,7 @@ final class allbookingoptions_test extends advanced_testcase {
     /**
      * Test creation and display of shortcode allbookingoptions.
      *
-     * @covers \shortcodes::allbookingoptions_test
+     * @covers \mod_booking\shortcodes::allbookingoptions
      *
      * @param array $data
      * @param array $expected

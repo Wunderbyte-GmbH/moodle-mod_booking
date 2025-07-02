@@ -82,8 +82,7 @@ final class competency_test extends advanced_testcase {
     /**
      * Test rulestemplate on option being completed for user.
      *
-     * @covers \mod_booking\option->completion
-     * @covers \mod_booking\classes\option\fields\competency
+     * @covers \mod_booking\option\fields\competencies
      *
      * @param array $bdata
      * @throws \coding_exception

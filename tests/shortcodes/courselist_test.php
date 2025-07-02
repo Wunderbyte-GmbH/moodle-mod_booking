@@ -64,7 +64,7 @@ final class courselist_test extends advanced_testcase {
     /**
      * Test creation and display of shortcode courselist.
      *
-     * @covers \shortcodes::courselist
+     * @covers \mod_booking\shortcodes::courselist
      *
      * @param array $data
      * @param array $expected
