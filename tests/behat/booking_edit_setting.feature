@@ -198,8 +198,12 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     And I visit "/mod/booking/customfield.php"
     And I wait "1" seconds
     ## Recommended from G.M.
-    And I visit "//admin/webservice/testclient.php"
+    And I visit "/admin/webservice/testclient.php"
     And I wait "1" seconds
+    And I visit "/admin/tool/behat/index.php"
+    And I set the field "component" to "behat_mod_booking"
+    And I press "Filter"
+    And I should see "Create booking option in booking instance" in the ".steps-definitions .step" "css_element"
     ## Already tested in other feature/
     ##And I visit "/mod/booking/instancetemplatessettings.php"
     ##And I visit "/mod/booking/semesters.php"
@@ -208,6 +212,8 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     ##And I visit "/mod/booking/edit_campaigns.php"
     ##And I visit "/admin/category.php?category=modbookingfolder"
     ##And I visit "/admin/settings.php?section=modsettingbooking"
+    ## Recommended admin pages
+    And I log out
 
   @javascript
   Scenario: Booking settings: control deprecated email templates
