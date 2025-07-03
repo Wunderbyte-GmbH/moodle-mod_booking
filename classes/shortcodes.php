@@ -1328,7 +1328,10 @@ class shortcodes {
                     ) {
                         $configdata = json_decode($customfield->configdata ?? '[]');
 
-                        if (!empty($configdata->multiselect)) {
+                        if (
+                            !empty($configdata->multiselect)
+                            || $customfield->type == 'multiselect'
+                        ) {
                             if (!empty($additionalwhere)) {
                                 $additionalwhere .= " AND ";
                             }
