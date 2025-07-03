@@ -220,6 +220,9 @@ class teachers_handler {
         }
 
         foreach ($teacherids as $newteacherid) {
+            if (empty($newteacherid)) {
+                continue;
+            }
             $dosubscribe = true;
             if (in_array($newteacherid, $oldteacherids)) {
                 // Teacher is already subscribed to booking option.
@@ -261,7 +264,7 @@ class teachers_handler {
         foreach ($oldteacherids as $oldteacherid) {
             if (!in_array($oldteacherid, $teacherids)) {
                 // The teacher has been removed.
-                if (!self::unsubscribe_teacher_from_booking_option($oldteacherid, $this->optionid, $optionsettings->cmid)) {
+                if (!empty($oldteacherid) && !self::unsubscribe_teacher_from_booking_option($oldteacherid, $this->optionid, $optionsettings->cmid)) {
                     throw new moodle_exception(
                         'cannotremovesubscriber',
                         'booking',
