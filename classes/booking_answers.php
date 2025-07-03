@@ -1224,6 +1224,7 @@ class booking_answers {
                 $withcoursestarttimesselect
             FROM {booking_answers} ba
             JOIN {booking_options} bo ON ba.optionid = bo.id
+            JOIN {user} u ON ba.userid = u.id AND u.deleted = 0
             WHERE $where
             ORDER BY ba.timemodified ASC";
 
