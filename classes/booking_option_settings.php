@@ -664,7 +664,7 @@ class booking_option_settings {
                 $this->load_subpluginssettings($optionid);
                 $dbrecord->subpluginssettings = $this->subpluginssettings;
             } else {
-                $this->subpluginssettings = $dbrecord->subpluginssettings;
+                $this->subpluginssettings = $dbrecord->subpluginssettings ?? [];
             }
             return $dbrecord;
         }
