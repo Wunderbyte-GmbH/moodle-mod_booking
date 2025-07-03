@@ -22,6 +22,8 @@ use mod_booking\singleton_service;
 use Throwable;
 use user_picture;
 
+defined('MOODLE_INTERNAL') || die();
+require_once($CFG->dirroot . '/local/wunderbyte_table/lib/phpwordinit.php');
 /**
  * Class for generating the signin sheet as PDF using TCPDF
  *
@@ -165,6 +167,12 @@ class signinsheet_generator {
     public $extracols = [];
 
     /**
+     * extra columns to display
+     * @var string
+     */
+    public $saveasformat = '';
+
+    /**
      *
      * @var string $orderby order users
      */
@@ -246,6 +254,7 @@ class signinsheet_generator {
         $this->extrasessioncols = $pdfoptions->extrasessioncols;
         $this->addemptyrows = $pdfoptions->addemptyrows;
         $this->includeteachers = $pdfoptions->includeteachers;
+        $this->saveasformat = $pdfoptions->saveasformat;
 
         if ($this->orientation == "P") {
             $this->colwidth = 210;
@@ -292,6 +301,280 @@ class signinsheet_generator {
 
         $this->pdf = new signin_pdf($this->orientation, PDF_UNIT, PDF_PAGE_FORMAT);
     }
+
+    /**
+     * Returns the user's full name in the format "Lastname, Firstname",
+     * handling empty values gracefully.
+     *
+     * @param stdClass $user The user object with optional firstname and lastname properties.
+     * @return string The formatted full name.
+     */
+    function get_user_fullname($user): string {
+        if (empty($user->lastname) && empty($user->firstname)) {
+            return '';
+        } else if (empty($user->lastname)) {
+            return $user->firstname;
+        } else if (empty($user->firstname)) {
+            return $user->lastname;
+        } else {
+            return "{$user->lastname}, {$user->firstname}";
+        }
+    }
+
+
+    /**
+     * Prepares HTML content for the signinsheet based on users and settings.
+     *
+     * This function takes the configured HTML template, processes it to include user data,
+     * session columns, and other customizations. It handles:
+     * - Extracting and applying user templates from the configuration
+     * - Adding extra session columns with rotated headers
+     * - Generating individual user rows with their data
+     * - Adding logos and titles
+     * - Preparing the final output in the specified format (PDF/Word)
+     *
+     * @param array $users Array of user objects containing user information to be displayed
+     * @param object $settings Booking option settings object containing configuration parameters
+     * @return void
+     */
+    public function prepare_html() {
+        global $DB;
+        $addsqlwhere = '';
+        $groupparams = [];
+        $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
+
+        if (groups_get_activity_groupmode($this->bookingoption->booking->cm) == SEPARATEGROUPS &&
+                 !has_capability('moodle/site:accessallgroups',
+                        \context_course::instance($this->bookingoption->booking->course->id))) {
+            list($groupsql, $groupparams) = \mod_booking\booking::booking_get_groupmembers_sql(
+                    $this->bookingoption->booking->course->id);
+            $addsqlwhere .= " AND u.id IN ($groupsql)";
+        }
+
+        $userinfofields = $DB->get_records('user_info_field', []);
+        $remove = [
+            'signinextracols1',
+            'signinextracols2',
+            'signinextracols3',
+            'fullname',
+            'signature',
+            'rownumber',
+            'role',
+            'userpic',
+            'places',
+        ];
+
+        foreach ($userinfofields as $field) {
+            $remove[] = $field->shortname;
+        }
+
+        $mainuserfields = \core_user\fields::for_name()->get_sql('u')->selects;
+        $mainuserfields = trim($mainuserfields, ', ');
+
+        $userfields = array_diff($this->allfields, $remove);
+        if (!empty($userfields)) {
+            $userfields = ', u.' . implode(', u.', $userfields);
+        } else {
+            $userfields = '';
+        }
+
+        list($select1, $from1, $filter1, $params1) = booking_option_settings::return_sql_for_custom_profile_field($userinfofields);
+
+        $sql =
+        "SELECT u.id, ba.timecreated as bookingtime, ba.places, " . $mainuserfields . $userfields . $select1 .
+        " FROM {booking_answers} ba
+        LEFT JOIN {user} u ON u.id = ba.userid
+        $from1
+        WHERE ba.optionid = :optionid AND ba.waitinglist = 0 " .
+                 $addsqlwhere . "ORDER BY u.{$this->orderby} ASC";
+
+        $users = $DB->get_records_sql(
+                $sql,
+                array_merge($groupparams,
+                                ['optionid' => $this->optionid]));
+
+             if ($this->includeteachers) {
+
+            $mainuserfields = \core_user\fields::for_name()->get_sql('u')->selects;
+            $mainuserfields = trim($mainuserfields, ', ');
+
+            $teachers = $DB->get_records_sql(
+                    'SELECT u.id, ' . $mainuserfields . $userfields .
+                    '
+            FROM {booking_teachers} bt
+            LEFT JOIN {user} u ON u.id = bt.userid
+            WHERE bt.optionid = :optionid ' .
+                    $addsqlwhere . "ORDER BY u.{$this->orderby} ASC",
+                    array_merge($groupparams,
+                            ['optionid' => $this->optionid]));
+            foreach ($teachers as $teacher) {
+                $teacher->isteacher = true;
+                array_push($users, $teacher);
+            }
+        }
+
+        // Retrieve the configuration HTML.
+        $confightml = get_config('booking', 'receipthtml');
+
+        // Extract user template from the configuration HTML.
+        preg_match('/\[\[users\]\](.*?)\[\[\/users\]\]/s', $confightml, $matches);
+        $usertemplate = isset($matches[1]) ? $matches[1] : '';
+
+        // Get extra session columns.
+        $extrasessioncols = $this->get_extra_session_columns();
+
+        // Generate session header columns with vertical text
+        $sessionheader = '';
+        foreach ($extrasessioncols as $sessiondate) {
+            $sessionheader .= '<th style="transform: rotate(-90deg);">' . $sessiondate . '</th>';
+        }
+
+        if (count($extrasessioncols) > 0) {
+            $confightml = preg_replace('/(<\/tr>)/', $sessionheader . '$1', $confightml);
+        }
+
+        // Generate user rows with session columns.
+        $userrows = '';
+        foreach ($users as $user) {
+            $row = $usertemplate;
+            $replacements = [
+                '[[fullname]]' => $this->get_user_fullname($user),
+                '[[email]]' => $user->email,
+                '[[signature]]' => '',
+            ];
+
+            $sessioncols = str_repeat('<td></td>', count($extrasessioncols));
+
+            foreach ($replacements as $placeholder => $realvalue) {
+                $row = str_replace($placeholder, $realvalue, $row);
+            }
+
+            // Append session columns to the user row.
+            $row = str_replace('</tr>', $sessioncols . '</tr>', $row);
+            $userrows .= $row;
+        }
+
+        // Replace the [[users]] section with generated user rows.
+        $htmloutput = preg_replace('/\[\[users\]\].*?\[\[\/users\]\]/s', $userrows, $confightml);
+
+        // Determine the header title
+        if ($this->title == 2) {
+            $headertitle = format_string($settings->get_title_with_prefix());
+        } else if ($this->title == 1) {
+            $headertitle = format_string($this->bookingoption->booking->settings->name) . ': ' .
+                format_string($settings->get_title_with_prefix());
+        } else {
+            $headertitle = format_string($this->bookingoption->booking->settings->name, '');
+        }
+
+        
+        $location = '';
+        if (class_exists('local_entities\entitiesrelation_handler') && !empty($settings->entity)) {
+            if (!empty($settings->entity['parentname'])) {
+                $location = $settings->entity['parentname'] . " (" . $settings->entity['name'] . ")";
+            } else {
+                $location = $settings->entity['name'] ?? $settings->location ?? '';
+            }
+        } else if (!empty($settings->location)) {
+            $location = $settings->location;
+        }
+
+        $dayofweektime = !empty($settings->dayofweektime) ? $settings->dayofweektime : '';
+        $teachers = !empty($this->teachers) ? implode(', ', $this->teachers) : '';
+        $dates = $this->pdfsessions != -1 && $this->pdfsessions != -2 ? $this->sessionsstring : '';
+
+        $htmloutput = str_replace('[[location]]', $location, $htmloutput);
+        $htmloutput = str_replace('[[dayofweektime]]', $dayofweektime, $htmloutput);
+        $htmloutput = str_replace('[[teachers]]', $teachers, $htmloutput);
+        $htmloutput = str_replace('[[dates]]', $dates, $htmloutput);
+        // Add the logo URL to HTML
+        if ($this->signinsheetlogo) {
+            $url = \moodle_url::make_pluginfile_url(
+                $this->signinsheetlogo->get_contextid(),
+                $this->signinsheetlogo->get_component(),
+                $this->signinsheetlogo->get_filearea(),
+                $this->signinsheetlogo->get_itemid(),
+                $this->signinsheetlogo->get_filepath(),
+                $this->signinsheetlogo->get_filename()
+            );
+
+            $src = $url->out();
+            $htmloutput = str_replace('[[logourl]]', $src, $htmloutput);
+        }
+
+        // Replace table name placeholder.
+        $htmloutput = str_replace('[[tablename]]', $headertitle, $htmloutput);
+
+        // Output the document in the specified format.
+        switch ($this->saveasformat) {
+            case 'pdf':
+                $this->download_pdf_from_html($htmloutput, $settings);
+                break;
+            case 'word':
+                $this->download_word_from_html($htmloutput, $settings);
+                break;
+            default:
+                $this->download_pdf($users, $settings);
+                break;
+        }
+    }
+
+
+
+    private function download_word_from_html($htmloutput, $settings) {
+        global $DB, $PAGE;
+        $worddoc = new \PhpOffice\PhpWord\PhpWord();
+        \PhpOffice\PhpWord\Settings::setOutputEscapingEnabled(true);
+        $pageorientation = ($this->orientation === 'L') ? 'landscape' : 'portrait';
+        $sectionstyle = [
+        'orientation' => $pageorientation,
+        ];
+        $section = $worddoc->addSection($sectionstyle);
+
+        \PhpOffice\PhpWord\Shared\Html::addHtml($section, $htmloutput, false, false);
+        $extrasessioncols = $this->get_extra_session_columns();
+
+        // Write the document to a temporary file.
+        $filename = $settings->get_title_with_prefix() . '.docx';
+        $temppath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $filename;
+        try {
+            // Save the document.
+            $worddoc->save($temppath, 'Word2007');
+            // Make sure any output buffers are clean.
+        if (ob_get_contents()) {
+        ob_end_clean();
+        }
+        // Check file exists and is readable.
+        if (file_exists($temppath) && is_readable($temppath)) {
+        // Set headers for download.
+        header("Content-Description: File Transfer");
+        header("Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+        header('Content-Disposition: attachment; filename="' . basename($filename) . '"');
+        header("Cache-Control: must-revalidate");
+        header("Expires: 0");
+        header("Pragma: public");
+        header("Content-Length: " . filesize($temppath));
+        // Clear output buffer and stream the file.
+        ob_clean();
+        flush();
+        readfile($temppath);
+        // Proper exit.
+        exit;
+        } else {
+        throw new Exception("File could not be read.");
+        }
+        } catch (\Exception $e) {
+        // Handle and log exceptions.
+        echo "An error occurred while downloading the document: " . $e->getMessage();
+        }
+    }
+
+
+
+
+
+
+
 
     /**
      * Generate PDF and prepare it for download

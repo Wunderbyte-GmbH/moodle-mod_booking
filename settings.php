@@ -1920,6 +1920,17 @@ if ($ADMIN->fulltree) {
             get_string('cfgsignin_desc', 'mod_booking')
         )
     );
+
+    $settings->add(
+        new admin_setting_configtextarea(
+            'booking/receipthtml',
+            get_string('receipthtml', 'local_shopping_cart'),
+            get_string('receipthtml:description', 'local_shopping_cart'),
+            '', /* $defaultreceipthtml */
+            PARAM_RAW
+        )
+    );
+
     $settings->add(
         new admin_setting_configcheckbox(
             'booking/numberrows',

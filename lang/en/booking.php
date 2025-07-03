@@ -2422,6 +2422,12 @@ $string['signinextracols'] = 'Additional column';
 $string['signinextracols_desc'] = 'You can print up to 3 additional columns on the sign-in sheet. Fill in the column title or leave it blank for no additional column';
 $string['signinextracolsheading'] = 'Additional columns on the sign-in sheet';
 $string['signinextrasessioncols'] = 'Add extra columns for dates';
+$string['signinghtml'] = 'HTML-Vorlage zur Erstellung von Kassenbelegen';
+$string['signinghtml:description'] = 'Sie können die folgenden Platzhalter verwenden:
+[[price]], [[credits]], [[fee]], [[discount]], [[pos]], [[name]], [[location]], [[dayofweektime]], [[originalprice]], [[outstandingprice]] zwischen [[items]] und [[/items]].
+Außerhalb von [[items]] können Sie auch [[sum]], [[semester]], [[semestername]], [[semestershort]], [[firstname]], [[lastname]], [[mail]], [[address]],
+[[date]], [[invoice_number]] und [[order_number]] verwenden.
+Verwenden Sie nur einfaches HTML, das von TCPDF unterstützt wird.';
 $string['signinhidedate'] = 'Hide dates';
 $string['signinlogo'] = 'Logo to display on the sign-in sheet';
 $string['signinlogofooter'] = 'Logo in footer to display on the sign-in sheet';

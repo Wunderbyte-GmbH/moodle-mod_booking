@@ -2360,6 +2360,12 @@ $string['signinextracols'] = 'Extra Spalte auf der Unterschriftenliste';
 $string['signinextracols_desc'] = 'Sie können bis zu 3 extra Spalten auf der Unterschriftenliste abbilden. Geben Sie den Titel der Spalte ein, oder lassen Sie das Feld leer, um keine extra Spalte anzuzeigen';
 $string['signinextracolsheading'] = 'Zusätzliche Spalten auf der Unterschriftenliste';
 $string['signinextrasessioncols'] = 'Extra-Spalten für Termine hinzufügen';
+$string['signinghtml'] = 'HTML-Vorlage zur Erstellung von Kassenbelegen';
+$string['signinghtml:description'] = 'Sie können die folgenden Platzhalter verwenden:
+[[price]], [[credits]], [[fee]], [[discount]], [[pos]], [[name]], [[location]], [[dayofweektime]], [[originalprice]], [[outstandingprice]] zwischen [[items]] und [[/items]].
+Außerhalb von [[items]] können Sie auch [[sum]], [[semester]], [[semestername]], [[semestershort]], [[firstname]], [[lastname]], [[mail]], [[address]],
+[[date]], [[invoice_number]] und [[order_number]] verwenden.
+Verwenden Sie nur einfaches HTML, das von TCPDF unterstützt wird.';
 $string['signinhidedate'] = 'Termine ausblenden';
 $string['signinlogo'] = 'Logo für die Unterschriftenliste';
 $string['signinlogofooter'] = 'Logo in der Fußzeile auf der Unterschriftenliste';

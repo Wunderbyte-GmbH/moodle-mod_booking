@@ -51,6 +51,7 @@ $signinextrasessioncols = optional_param('signinextrasessioncols', -1, PARAM_INT
 $pdftitle = optional_param('pdftitle', 1, PARAM_INT);
 $addemptyrows = optional_param('addemptyrows', 0, PARAM_INT);
 $includeteachers = optional_param('includeteachers', 0, PARAM_INT);
+$saveasformat = optional_param('saveasformat', '', PARAM_TEXT);
 
 // Search.
 $searchdate = optional_param('searchdate', 0, PARAM_INT);
@@ -195,6 +196,20 @@ $event = \mod_booking\event\report_viewed::create(
 );
 $event->trigger();
 
+// if ($action == 'downloadsigninsheet') {
+//     $pdfoptions = new stdClass();
+//     $pdfoptions->orientation = $orientation;
+//     $pdfoptions->orderby = $orderby;
+//     $pdfoptions->title = $pdftitle;
+//     $pdfoptions->sessions = $pdfsessions;
+//     $pdfoptions->extrasessioncols = $signinextrasessioncols;
+//     $pdfoptions->addemptyrows = $addemptyrows;
+//     $pdfoptions->includeteachers = $includeteachers;
+//     $pdf = new mod_booking\signinsheet\signinsheet_generator($pdfoptions, $bookingoption);
+//     $pdf->download_signinsheet();
+//     die();
+// }
+
 if ($action == 'downloadsigninsheet') {
     $pdfoptions = new stdClass();
     $pdfoptions->orientation = $orientation;
@@ -204,8 +219,9 @@ if ($action == 'downloadsigninsheet') {
     $pdfoptions->extrasessioncols = $signinextrasessioncols;
     $pdfoptions->addemptyrows = $addemptyrows;
     $pdfoptions->includeteachers = $includeteachers;
+    $pdfoptions->saveasformat = $saveasformat;
     $pdf = new mod_booking\signinsheet\signinsheet_generator($pdfoptions, $bookingoption);
-    $pdf->download_signinsheet();
+    $pdf->prepare_html();
     die();
 }
 
