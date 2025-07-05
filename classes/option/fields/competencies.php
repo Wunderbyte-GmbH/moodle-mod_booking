@@ -344,7 +344,7 @@ class competencies extends field_base {
 
             $link = new user_evidence_competency(0, $link);
             $link->create();
-            $grade = 1.0; // 1.0 = proficient; 0.0 = not proficient
+            $grade = 1; // 1 = proficient; 0 = not proficient
             $note = 'Automatically graded by mod_booking plugin';
 
             // Assign and trigger event.
