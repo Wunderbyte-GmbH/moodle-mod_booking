@@ -430,7 +430,7 @@ function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedown
 
     // Check the contextlevel is as expected - if your plugin is a block.
     // We need context course if wee like to acces template files.
-    if (!in_array($context->contextlevel, [CONTEXT_MODULE, CONTEXT_COURSE])) {
+    if (!in_array($context->contextlevel, [CONTEXT_MODULE, CONTEXT_COURSE, CONTEXT_SYSTEM], true)) {
         return false;
     }
 
@@ -440,6 +440,7 @@ function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedown
         && $filearea !== 'bookingimages'
         && $filearea !== 'myfilemanageroption'
         && $filearea !== 'bookingoptionimage'
+        && $filearea !== 'mod_booking_signinlogo'
         && $filearea !== 'signinlogoheader'
         && $filearea !== 'signinlogofooter'
         && $filearea !== 'templatefile'

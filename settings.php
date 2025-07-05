@@ -1940,7 +1940,7 @@ if ($ADMIN->fulltree) {
         )
     );
 
-    $name = 'booking/signinlogo';
+    $name = 'mod_booking/signinlogo';
     $title = get_string('signinlogoheader', 'mod_booking');
     $description = $title;
     $fileoptions = ['maxfiles' => 1, 'accepted_types' => ['image']];

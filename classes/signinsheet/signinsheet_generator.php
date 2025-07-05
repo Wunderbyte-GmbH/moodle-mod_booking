@@ -420,8 +420,24 @@ class signinsheet_generator {
         preg_match('/\[\[users\]\](.*?)\[\[\/users\]\]/s', $confightml, $matches);
         $usertemplate = isset($matches[1]) ? $matches[1] : '';
 
-        // Get extra session columns.
+        if ($this->pdfsessions == -1) {
+                $dates = get_string('signinsheetdatetofillin', 'booking') . ": ________________________";
+        }
+
         $extrasessioncols = $this->get_extra_session_columns();
+        if (!empty($extrasessioncols)) {
+            $this->allfields = array_unique(array_merge($this->allfields, $extrasessioncols));
+        }
+
+        // Session handling logic
+        if ($this->pdfsessions == 0) {
+            // Logic to integrate based on existing session data
+            $val = [];
+            foreach ($this->sessions as $session) {
+                $val[] = userdate($session->coursestarttime) . " - " . userdate($session->courseendtime);
+            }
+            $dates = implode(", ", $val);
+        }
 
         // Generate session header columns with vertical text
         $sessionheader = '';
@@ -441,18 +457,23 @@ class signinsheet_generator {
                 '[[fullname]]' => $this->get_user_fullname($user),
                 '[[email]]' => $user->email,
                 '[[signature]]' => '',
+                '[[institution]]' => $user->institution ?? '',
+                '[[description]]' => format_text_email($user->description ?? '', FORMAT_HTML),
+                '[[city]]' => $user->city ?? '',
+                '[[country]]' => $user->country ?? '',
+                '[[idnumber]]' => $user->idnumber ?? '',
+                '[[phone1]]' => $user->phone1 ?? '',
+                '[[department]]' => $user->department ?? '',
+                '[[address]]' => $user->address ?? '',
+                '[[places]]' => $user->places ?? '',
             ];
-
             $sessioncols = str_repeat('<td></td>', count($extrasessioncols));
-
             foreach ($replacements as $placeholder => $realvalue) {
                 $row = str_replace($placeholder, $realvalue, $row);
             }
-
-            // Append session columns to the user row.
             $row = str_replace('</tr>', $sessioncols . '</tr>', $row);
             $userrows .= $row;
-        }
+     }
 
         // Replace the [[users]] section with generated user rows.
         $htmloutput = preg_replace('/\[\[users\]\].*?\[\[\/users\]\]/s', $userrows, $confightml);
@@ -488,7 +509,7 @@ class signinsheet_generator {
         $htmloutput = str_replace('[[teachers]]', $teachers, $htmloutput);
         $htmloutput = str_replace('[[dates]]', $dates, $htmloutput);
         // Add the logo URL to HTML
-        if ($this->signinsheetlogo) {
+        if ($this->get_signinsheet_logo()) {
             $url = \moodle_url::make_pluginfile_url(
                 $this->signinsheetlogo->get_contextid(),
                 $this->signinsheetlogo->get_component(),
@@ -499,6 +520,7 @@ class signinsheet_generator {
             );
 
             $src = $url->out();
+            //  $src = 'https://farm9.staticflickr.com/8505/8441256181_4e98d8bff5_z_d.jpg';
             $htmloutput = str_replace('[[logourl]]', $src, $htmloutput);
         }
 
@@ -514,13 +536,26 @@ class signinsheet_generator {
                 $this->download_word_from_html($htmloutput, $settings);
                 break;
             default:
-                $this->download_pdf($users, $settings);
+                $this->download_pdf_from_html($users, $settings);
                 break;
         }
     }
 
 
 
+    /**
+     * Converts HTML content to a Word document and downloads it
+     *
+     * @param string $htmloutput The HTML content to convert to Word format
+     * @param object $settings The booking option settings object containing title information
+     *
+     * Takes HTML content, converts it to a Word document using PHPWord library,
+     * saves it to a temporary file and forces download of the resulting .docx file.
+     * The filename is based on the booking option title.
+     *
+     * @throws Exception If file cannot be read or downloaded
+     * @return void
+     */
     private function download_word_from_html($htmloutput, $settings) {
         global $DB, $PAGE;
         $worddoc = new \PhpOffice\PhpWord\PhpWord();
@@ -571,7 +606,20 @@ class signinsheet_generator {
 
 
 
-
+    private function download_pdf_from_html($htmloutput, $settings) {
+        $pdf = new signin_pdf($this->orientation, PDF_UNIT, PDF_PAGE_FORMAT);
+        $pdf->AddPage();
+        $pdf->writeHTML($htmloutput, true, false, true, false, '');
+        $filenamepdf = $settings->get_title_with_prefix() . '.pdf';
+        $pdf->Output(sys_get_temp_dir() . DIRECTORY_SEPARATOR . $filenamepdf, 'F');
+        $downloadfilename = $settings->get_title_with_prefix();
+        // Replace special characters to prevent errors.
+        $downloadfilename = str_replace(' ', '_', $downloadfilename); // Replaces all spaces with underscores.
+        $downloadfilename = preg_replace('/[^A-Za-z0-9\_]/', '', $downloadfilename); // Removes special chars.
+        $downloadfilename = preg_replace('/\_+/', '_', $downloadfilename); // Replace multiple underscores with exactly one.
+        $downloadfilename = format_string($downloadfilename);
+        $pdf->Output($downloadfilename . '.pdf', 'D');
+    }
 
 
 
@@ -987,7 +1035,7 @@ class signinsheet_generator {
                 $this->bookingoption->booking->settings->id, 'sortorder,filepath,filename', false);
 
         if (!$files) {
-            $files = $fs->get_area_files(\context_system::instance()->id, 'booking',
+            $files = $fs->get_area_files(\context_system::instance()->id, 'mod_booking',
                     'mod_booking_signinlogo', 0, 'sortorder,filepath,filename', false);
         }
 
