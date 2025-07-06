@@ -1924,8 +1924,8 @@ if ($ADMIN->fulltree) {
     $settings->add(
         new admin_setting_configtextarea(
             'booking/receipthtml',
-            get_string('receipthtml', 'local_shopping_cart'),
-            get_string('receipthtml:description', 'local_shopping_cart'),
+            get_string('signinghtml', 'mod_booking'),
+            get_string('signinghtml:description', 'mod_booking'),
             '', /* $defaultreceipthtml */
             PARAM_RAW
         )
