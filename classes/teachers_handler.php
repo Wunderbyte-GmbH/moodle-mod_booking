@@ -264,7 +264,14 @@ class teachers_handler {
         foreach ($oldteacherids as $oldteacherid) {
             if (!in_array($oldteacherid, $teacherids)) {
                 // The teacher has been removed.
-                if (!empty($oldteacherid) && !self::unsubscribe_teacher_from_booking_option($oldteacherid, $this->optionid, $optionsettings->cmid)) {
+                if (
+                    !empty($oldteacherid)
+                    && !self::unsubscribe_teacher_from_booking_option(
+                        $oldteacherid,
+                        $this->optionid,
+                        $optionsettings->cmid
+                    )
+                ) {
                     throw new moodle_exception(
                         'cannotremovesubscriber',
                         'booking',
