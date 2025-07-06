@@ -439,9 +439,9 @@ class signinsheet_generator {
             $this->allfields = array_unique(array_merge($this->allfields, $extrasessioncols));
         }
 
-        // Session handling logic
+        // Session handling logic.
         if ($this->pdfsessions == 0) {
-            // Logic to integrate based on existing session data
+            // Logic to integrate based on existing session data.
             $val = [];
             foreach ($this->sessions as $session) {
                 $val[] = userdate($session->coursestarttime) . " - " . userdate($session->courseendtime);
@@ -449,15 +449,11 @@ class signinsheet_generator {
             $dates = implode(", ", $val);
         }
 
-        // Generate session header columns with vertical text
+        // Generate session header columns with vertical text.
         $sessionheader = '';
         foreach ($extrasessioncols as $sessiondate) {
-            $sessionheader .= '<th>' . $sessiondate . '</th>';
+            $sessionheader .= '<th class="vertical-text">' . $sessiondate . '</th>';
         }
-
-        // if (count($extrasessioncols) > 0) {
-        // $confightml = preg_replace('/(<\/tr>)/', $sessionheader . '$1', $confightml);
-        // }
 
         if (count($extrasessioncols) > 0) {
         // Target only the header row inside the table with class "signaturetable".
@@ -497,7 +493,7 @@ class signinsheet_generator {
         // Replace the [[users]] section with generated user rows.
         $htmloutput = preg_replace('/\[\[users\]\].*?\[\[\/users\]\]/s', $userrows, $confightml);
 
-        // Determine the header title
+        // Determine the header title.
         if ($this->title == 2) {
             $headertitle = format_string($settings->get_title_with_prefix());
         } else if ($this->title == 1) {
@@ -526,7 +522,7 @@ class signinsheet_generator {
         $htmloutput = str_replace('[[dayofweektime]]', $dayofweektime, $htmloutput);
         $htmloutput = str_replace('[[teachers]]', $teachers, $htmloutput);
         $htmloutput = str_replace('[[dates]]', $dates, $htmloutput);
-        // Add the logo URL to HTML
+        // Add the logo URL to HTML.
         if ($this->get_signinsheet_logo()) {
             $url = \moodle_url::make_pluginfile_url(
                 $this->signinsheetlogo->get_contextid(),
@@ -537,8 +533,8 @@ class signinsheet_generator {
                 $this->signinsheetlogo->get_filename()
             );
 
-            // $src = $url->out();
-             $src = 'https://farm9.staticflickr.com/8505/8441256181_4e98d8bff5_z_d.jpg';
+             $src = $url->out();
+             // $src = 'https://farm9.staticflickr.com/8505/8441256181_4e98d8bff5_z_d.jpg';
             $htmloutput = str_replace('[[logourl]]', $src, $htmloutput);
         }
 

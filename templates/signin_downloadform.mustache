@@ -159,4 +159,79 @@
 			</button>
 		</div>
 	</form>
+    <form data-region="booking-download-signinsheet-form" method="get" action="{{baseurl}}">
+		<div class="card-header">
+			<h5 class="card-title mb-0">
+				<i class="fa fa-list fa-fw" aria-hidden="true"></i>&nbsp;{{#str}}signinsheetconfigure, mod_booking{{/str}}
+			</h5>
+		</div>
+	    <div class="card-body p-y-4">
+		    <input name="optionid" type="hidden" value="{{optionid}}">
+		    <input name="id" type="hidden" value="{{id}}">
+		    <input name="action" type="hidden" value="downloadsigninsheethtml">
+		    <div class="container-fluid">
+			    <div class="row p-y-1 mt-3">
+				    <div class="col-md-4 span4 col-4">
+						<input id="signin-portrait" checked="checked" type="radio" class="m-r-1" name="orientation" value="P"><label for="signin-portrait">{{#str}}pdfportrait, mod_booking{{/str}}</label><br>
+					    <input id="signin-landscape" type="radio" class="m-r-1" name="orientation" value="L"><label for="signin-landscape">{{#str}}pdflandscape, mod_booking{{/str}}</label><br>
+				    </div>
+				    <div class="col-md-4 span4 col-4">
+						<input id="signin-sort-lastname" checked="checked" type="radio" class="m-r-1" name="orderby" value="lastname"><label for="signin-sort-lastname">{{#str}}sortbylastname, grades{{/str}}</label><br>
+					    <input id="signin-sort-firstname" type="radio" class="m-r-1" name="orderby" value="firstname"><label for="signin-sort-firstname">{{#str}}sortbyfirstname, grades{{/str}}</label><br>
+					</div>
+				</div>
+				<div class="row  p-y-1 mt-3">
+				    <div class="col-md-6 span6 col-6">
+					    <label for="signin-pdftitle">{{#str}}choosepdftitle, mod_booking{{/str}}</label>
+					    <div>
+						    <select name="pdftitle" id="signin-pdftitle" class="custom-select">
+						        <option value="1" selected>{{titleinstanceoption}}</option>
+						        <option value="2">{{titleoption}}</option>
+						        <option value="3">{{instanceoption}}</option>
+						    </select>
+					    </div>
+				    </div>
+				    <div class="col-md-6 span6 col-6">
+					    <label for="signin-onesession">{{#str}}signinonesession, mod_booking{{/str}}</label>
+					    <div>
+						    <select name="pdfsessions" id="signin-onesession" class="custom-select">
+								<option value="0">{{#str}} all {{/str}}</option>
+								<option value="-1">{{#str}} signinadddatemanually, booking {{/str}}</option>
+								<option value="-2" selected>{{#str}} signinhidedate, booking {{/str}}</option>
+						        {{#sessions}}
+						        <option value="{{id}}">{{coursestarttime}} - {{courseendtime}}</option>
+						        {{/sessions}}
+						    </select>
+					    </div>
+				    </div>
+			    </div>
+				<div class="row  p-y-1 mt-3">
+					{{#teachersexist}}
+					<div class="col-md-6 span6 col-6">
+						<label for="includeteachers">{{#str}}includeteachers, mod_booking{{/str}}</label>
+						<input id="includeteachers" class="usercheckbox" name="includeteachers" value="1" type="checkbox">
+					</div>
+					{{/teachersexist}}
+					<div class="col-md-6 span6 col-6">
+						<label for="signinextrasessioncols">{{#str}}signinextrasessioncols, mod_booking{{/str}}</label>
+					    <div>
+						    <select name="signinextrasessioncols" id="signinextrasessioncols" class="custom-select">
+								<option value="-1">{{#str}}none{{/str}}</option>
+								<option value="0" selected>{{#str}}all{{/str}}</option>
+						        {{#sessions}}
+						        <option value="{{id}}">{{sessiondateonly}}</option>
+						        {{/sessions}}
+						    </select>
+					    </div>
+					</div>
+				</div>
+		    </div>
+		</div>
+		<div class="card-footer">
+			<button type="submit" class="btn btn-primary btn-sm" name="downloadsigninsheethtml">
+				<i class="fa fa-download fa-fw" aria-hidden="true"></i>&nbsp;{{#str}} signinformatbutton, mod_booking {{/str}}
+			</button>
+		</div>
+	</form>
 </div>
+

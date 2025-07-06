@@ -2422,6 +2422,7 @@ $string['signinextracols'] = 'Additional column';
 $string['signinextracols_desc'] = 'You can print up to 3 additional columns on the sign-in sheet. Fill in the column title or leave it blank for no additional column';
 $string['signinextracolsheading'] = 'Additional columns on the sign-in sheet';
 $string['signinextrasessioncols'] = 'Add extra columns for dates';
+$string['signinformat'] = 'Save as';
 $string['signinformatbutton'] = 'Create from html template';
 $string['signinghtml'] = 'HTML template for generating signature sheets';
 $string['signinghtml:description'] = 'You can use the following placeholders:
