@@ -15,13 +15,27 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template mod_booking/col_responsiblecontacts
+    @template mod_booking/col_responsiblecontact
 
     Classes required for JS:
     * none
 
     Data attributes required for JS:
     * data-region
+
+    Example context (json):
+    {
+        "responsiblecontact": [
+        {
+            "name": "Maxima Yoga",
+            "url": "https://www.maximayoga.example.com"
+        },
+        {
+            "name": "Billy Teachy",
+            "url": "https://www.johndoe.example.com"
+        }
+    ]
+    }
 }}
 <span class="col-repsoniblecontact-repsonsiblecontacts-container flex-wrap-container">
 {{#contacts}}
