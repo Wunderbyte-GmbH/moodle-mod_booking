@@ -1677,12 +1677,18 @@ if ($ADMIN->fulltree) {
                 $bookingplaceslowpercentages
             )
         );
+
         $settings->add(
-            new admin_setting_configcheckbox(
+            new admin_setting_configselect(
                 'booking/waitinglistinfotexts',
                 get_string('waitinglistinfotexts', 'mod_booking'),
-                get_string('waitinglistinfotextsinfo', 'booking'),
-                0
+                get_string('waitinglistinfotextsinfo', 'mod_booking'),
+                0,
+                [
+                    0 => get_string('placesinfoshowbooked', 'mod_booking'),
+                    1 => get_string('placesinfoshowinfotexts', 'mod_booking'),
+                    2 => get_string('placesinfoshowfreeonly', 'mod_booking'),
+                ]
             )
         );
 
