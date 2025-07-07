@@ -92,19 +92,19 @@ class mod_booking_mod_form extends moodleform_mod {
             'checkbox',
             'enablecompletionenabled',
             '',
-            get_string('completionoptioncompletedform', 'booking')
+            get_string('completionoptioncompletedform', 'mod_booking')
         );
         $group[] = $mform->createElement(
             'text',
             'enablecompletion',
-            get_string('completionoptioncompletedform', 'booking'),
+            get_string('completionoptioncompletedform', 'mod_booking'),
             ['size' => '1']
         );
 
         $mform->addGroup(
             $group,
             'enablecompletiongroup',
-            get_string('enablecompletiongroup', 'booking'),
+            get_string('enablecompletiongroup', 'mod_booking'),
             [' '],
             false
         );
@@ -162,7 +162,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement(
             'select',
             'instancetemplateid',
-            get_string('populatefromtemplate', 'booking'),
+            get_string('populatefromtemplate', 'mod_booking'),
             $bookininstancetemplates
         );
 
@@ -170,7 +170,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement(
             'text',
             'name',
-            get_string('bookingname', 'booking'),
+            get_string('bookingname', 'mod_booking'),
             ['size' => '64']
         );
         if (!empty($CFG->formatstringstriptags)) {
@@ -263,10 +263,10 @@ class mod_booking_mod_form extends moodleform_mod {
             $eventstrings[$item] = $item;
         }
         $options = [
-                'noselectionstring' => get_string('noeventtypeselected', 'booking'),
+                'noselectionstring' => get_string('noeventtypeselected', 'mod_booking'),
                 'tags' => true,
         ];
-        $mform->addElement('autocomplete', 'eventtype', get_string('eventtype', 'booking'), $eventstrings, $options);
+        $mform->addElement('autocomplete', 'eventtype', get_string('eventtype', 'mod_booking'), $eventstrings, $options);
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('eventtype', PARAM_TEXT);
         } else {
@@ -275,17 +275,17 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addRule('eventtype', null, 'required', null, 'client');
         $mform->addHelpButton('eventtype', 'eventtype', 'mod_booking');
 
-        $this->standard_intro_elements(get_string('bookingtext', 'booking'));
+        $this->standard_intro_elements(get_string('bookingtext', 'mod_booking'));
 
         $mform->addElement(
             'text',
             'duration',
-            get_string('bookingduration', 'booking'),
+            get_string('bookingduration', 'mod_booking'),
             ['size' => '64']
         );
         $mform->setType('duration', PARAM_TEXT);
 
-        $mform->addElement('text', 'points', get_string('bookingpoints', 'booking'), 0);
+        $mform->addElement('text', 'points', get_string('bookingpoints', 'mod_booking'), 0);
         $mform->setType('points', PARAM_FLOAT);
 
         $teachers = get_enrolled_users($coursecontext, 'mod/booking:addinstance');
@@ -298,14 +298,20 @@ class mod_booking_mod_form extends moodleform_mod {
         $options = [
                 'tags' => true,
         ];
-        $mform->addElement('autocomplete', 'organizatorname', get_string('organizatorname', 'booking'), $teachersstring, $options);
+        $mform->addElement(
+            'autocomplete',
+            'organizatorname',
+            get_string('organizatorname', 'mod_booking'),
+            $teachersstring,
+            $options
+        );
         $mform->setType('organizatorname', PARAM_RAW);
         $mform->addHelpButton('organizatorname', 'organizatorname', 'mod_booking');
 
         $mform->addElement(
             'text',
             'pollurl',
-            get_string('bookingpollurl', 'booking'),
+            get_string('bookingpollurl', 'mod_booking'),
             ['size' => '64']
         );
         $mform->setType('pollurl', PARAM_TEXT);
@@ -314,7 +320,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement(
             'text',
             'pollurlteachers',
-            get_string('bookingpollurlteachers', 'booking'),
+            get_string('bookingpollurlteachers', 'mod_booking'),
             ['size' => '64']
         );
         $mform->setType('pollurlteachers', PARAM_TEXT);
@@ -352,7 +358,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement(
             'autocomplete',
             'showviews',
-            get_string('showviews', 'booking'),
+            get_string('showviews', 'mod_booking'),
             $whichviewopts,
             $options
         );
@@ -399,11 +405,11 @@ class mod_booking_mod_form extends moodleform_mod {
 
         // Choose default template.
         $alloptiontemplates = $DB->get_records_menu('booking_options', ['bookingid' => 0], '', $fields = 'id, text', 0, 0);
-        $alloptiontemplates[0] = get_string('dontusetemplate', 'booking');
+        $alloptiontemplates[0] = get_string('dontusetemplate', 'mod_booking');
         $mform->addElement(
             'select',
             'templateid',
-            get_string('defaulttemplate', 'booking'),
+            get_string('defaulttemplate', 'mod_booking'),
             $alloptiontemplates
         );
         $mform->setDefault('templateid', 0);
@@ -411,12 +417,12 @@ class mod_booking_mod_form extends moodleform_mod {
         // Choose if extra info should be shown right on the course page.
         // Note: "List on course page" is no longer supported.
         $listoncoursepageoptions = [];
-        $listoncoursepageoptions[0] = get_string('hidelistoncoursepage', 'booking');
-        $listoncoursepageoptions[1] = get_string('showcoursenameandbutton', 'booking');
+        $listoncoursepageoptions[0] = get_string('hidelistoncoursepage', 'mod_booking');
+        $listoncoursepageoptions[1] = get_string('showcoursenameandbutton', 'mod_booking');
         $mform->addElement(
             'select',
             'showlistoncoursepage',
-            get_string('showlistoncoursepage', 'booking'),
+            get_string('showlistoncoursepage', 'mod_booking'),
             $listoncoursepageoptions
         );
         if (!empty($bookingsettings)) {
@@ -424,17 +430,17 @@ class mod_booking_mod_form extends moodleform_mod {
         } else {
             $mform->setDefault('showlistoncoursepage', 0); // List on course page is turned off by default for new instances.
         }
-        $mform->addHelpButton('showlistoncoursepage', 'showlistoncoursepage', 'booking');
+        $mform->addHelpButton('showlistoncoursepage', 'showlistoncoursepage', 'mod_booking');
         $mform->setType('showlistoncoursepage', PARAM_INT);
 
         $mform->addElement(
             'textarea',
             'coursepageshortinfo',
-            get_string('coursepageshortinfolbl', 'booking'),
+            get_string('coursepageshortinfolbl', 'mod_booking'),
             'wrap="virtual" rows="5" cols="65"'
         );
-        $mform->setDefault('coursepageshortinfo', get_string('coursepageshortinfo', 'booking'));
-        $mform->addHelpButton('coursepageshortinfo', 'coursepageshortinfolbl', 'booking');
+        $mform->setDefault('coursepageshortinfo', get_string('coursepageshortinfo', 'mod_booking'));
+        $mform->addHelpButton('coursepageshortinfo', 'coursepageshortinfolbl', 'mod_booking');
         $mform->setType('coursepageshortinfo', PARAM_TEXT);
         // Hide short info for the first two options.
         $mform->hideIf('coursepageshortinfo', 'showlistoncoursepage', 'in', [0]);
@@ -483,22 +489,22 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement(
             'autocomplete',
             'bookingmanager',
-            get_string('usernameofbookingmanager', 'booking'),
+            get_string('usernameofbookingmanager', 'mod_booking'),
             $choosepotentialmanager
         );
-        $mform->addHelpButton('bookingmanager', 'usernameofbookingmanager', 'booking');
+        $mform->addHelpButton('bookingmanager', 'usernameofbookingmanager', 'mod_booking');
         $mform->setType('bookingmanager', PARAM_TEXT);
         $mform->setDefault('bookingmanager', $USER->username);
         $mform->addRule('bookingmanager', null, 'required', null, 'client');
 
         // Configure fields and columns section.
-        $mform->addElement('header', 'configurefields', get_string('configurefields', 'booking'));
+        $mform->addElement('header', 'configurefields', get_string('configurefields', 'mod_booking'));
 
         $tmpaddfields = $DB->get_records('user_info_field', []);
 
         $responsesfields = [
             'completed' => get_string('completed', 'mod_booking'),
-            'invisible' => get_string('invisible', 'mod_booking'),
+            'status' => get_string('presence', 'mod_booking'),
             'rating' => get_string('rating', 'core_rating'),
             'numrec' => get_string('numrec', 'mod_booking'),
             'places' => get_string('places', 'mod_booking'),
@@ -514,23 +520,23 @@ class mod_booking_mod_form extends moodleform_mod {
             'email' => get_string('email', 'mod_booking'),
             'certificate' => get_string('certificate', 'mod_booking'),
             'allusercertificates' => get_string('allusercertificates', 'mod_booking'),
-            'status' => get_string('presence', 'mod_booking'),
         ];
 
         $reportfields = [ // This is the download file.
-            'optionid' => get_string("optionid", "booking"),
-            'booking' => get_string("bookingoptionname", "booking"),
-            'institution' => get_string("institution", "booking"),
-            'location' => get_string("location", "booking"),
-            'coursestarttime' => get_string("coursestarttime", "booking"),
+            'optionid' => get_string("optionid", "mod_booking"),
+            'booking' => get_string("bookingoptionname", "mod_booking"),
+            'institution' => get_string("institution", "mod_booking"),
+            'location' => get_string("location", "mod_booking"),
+            'coursestarttime' => get_string("coursestarttime", "mod_booking"),
             'city' => new lang_string('city'),
             'department' => new lang_string('department'),
-            'courseendtime' => get_string("courseendtime", "booking"),
-            'numrec' => get_string("numrec", "booking"), 'userid' => get_string("userid", "booking"),
+            'courseendtime' => get_string("courseendtime", "mod_booking"),
+            'numrec' => get_string("numrec", "mod_booking"), 'userid' => get_string("userid", "mod_booking"),
             'username' => get_string("username"), 'firstname' => get_string("firstname"),
             'lastname' => get_string("lastname"), 'email' => get_string("email"),
             'completed' => get_string("completed", "mod_booking"),
-            'waitinglist' => get_string("waitinglist", "booking"),
+            'waitinglist' => get_string("waitinglist", "mod_booking"),
+            'status' => get_string('presence', 'mod_booking'),
             'groups' => get_string("group"),
             'notes' => get_string('notes', 'mod_booking'),
             'idnumber' => get_string("idnumber"),
@@ -582,7 +588,8 @@ class mod_booking_mod_form extends moodleform_mod {
             $optionsdownloadfields['price'] = get_string('price', 'mod_booking');
         }
 
-        $signinsheetfields = ['fullname' => get_string('fullname', 'mod_booking'),
+        $signinsheetfields = [
+            'fullname' => get_string('fullname', 'mod_booking'),
             'institution' => get_string('institution', 'mod_booking'),
             'description' => new lang_string('description'),
             'city' => new lang_string('city'),
@@ -716,7 +723,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement(
             'header',
             'uploadheaderimages',
-            get_string('uploadheaderimages', 'booking')
+            get_string('uploadheaderimages', 'mod_booking')
         );
 
         $customfieldsrecords = booking_handler::get_customfields();
@@ -736,7 +743,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement(
             'filemanager',
             'bookingimages',
-            get_string('bookingimages', 'booking'),
+            get_string('bookingimages', 'mod_booking'),
             null,
             ['subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 500, 'accepted_types' => ['image']]
         );
@@ -758,42 +765,42 @@ class mod_booking_mod_form extends moodleform_mod {
             $mform->addElement(
                 'advcheckbox',
                 'copymail',
-                get_string("copymail", "booking")
+                get_string("copymail", "mod_booking")
             );
 
             $mform->addElement(
                 'advcheckbox',
                 'sendmailtobooker',
-                get_string('sendmailtobooker', 'booking')
+                get_string('sendmailtobooker', 'mod_booking')
             );
-            $mform->addHelpButton('sendmailtobooker', 'sendmailtobooker', 'booking');
+            $mform->addHelpButton('sendmailtobooker', 'sendmailtobooker', 'mod_booking');
 
-            $mform->addElement('text', 'daystonotify', get_string('daystonotify', 'booking'));
+            $mform->addElement('text', 'daystonotify', get_string('daystonotify', 'mod_booking'));
             $mform->setType('daystonotify', PARAM_INT);
             $mform->setDefault('daystonotify', 0);
-            $mform->addHelpButton('daystonotify', 'daystonotify', 'booking');
+            $mform->addHelpButton('daystonotify', 'daystonotify', 'mod_booking');
 
-            $mform->addElement('text', 'daystonotify2', get_string('daystonotify2', 'booking'));
+            $mform->addElement('text', 'daystonotify2', get_string('daystonotify2', 'mod_booking'));
             $mform->setType('daystonotify2', PARAM_INT);
             $mform->setDefault('daystonotify2', 0);
-            $mform->addHelpButton('daystonotify2', 'daystonotify', 'booking');
+            $mform->addHelpButton('daystonotify2', 'daystonotify', 'mod_booking');
 
-            $mform->addElement('text', 'daystonotifyteachers', get_string('daystonotifyteachers', 'booking'));
+            $mform->addElement('text', 'daystonotifyteachers', get_string('daystonotifyteachers', 'mod_booking'));
             $mform->setDefault('daystonotifyteachers', 0);
-            $mform->addHelpButton('daystonotifyteachers', 'daystonotify', 'booking');
+            $mform->addHelpButton('daystonotifyteachers', 'daystonotify', 'mod_booking');
             $mform->setType('daystonotifyteachers', PARAM_INT);
 
             $mailtemplatessource = [];
-            $mailtemplatessource[0] = get_string('mailtemplatesinstance', 'booking');
-            $mailtemplatessource[1] = get_string('mailtemplatesglobal', 'booking');
+            $mailtemplatessource[0] = get_string('mailtemplatesinstance', 'mod_booking');
+            $mailtemplatessource[1] = get_string('mailtemplatesglobal', 'mod_booking');
             $mform->addElement(
                 'select',
                 'mailtemplatessource',
-                get_string('mailtemplatessource', 'booking'),
+                get_string('mailtemplatessource', 'mod_booking'),
                 $mailtemplatessource
             );
             $mform->setDefault('mailtemplatessource', 0); // Instance specific mail templates are the default.
-            $mform->addHelpButton('mailtemplatessource', 'mailtemplatessource', 'booking');
+            $mform->addHelpButton('mailtemplatessource', 'mailtemplatessource', 'mod_booking');
 
             $mform->setType('mailtemplatessource', PARAM_INT);
 
@@ -824,7 +831,7 @@ class mod_booking_mod_form extends moodleform_mod {
             $mform->addElement(
                 'editor',
                 'bookedtext',
-                get_string('bookedtext', 'booking'),
+                get_string('bookedtext', 'mod_booking'),
                 null,
                 $editoroptions
             );
@@ -840,7 +847,7 @@ class mod_booking_mod_form extends moodleform_mod {
             $mform->addElement(
                 'editor',
                 'waitingtext',
-                get_string('waitingtext', 'booking'),
+                get_string('waitingtext', 'mod_booking'),
                 null,
                 $editoroptions
             );
@@ -856,21 +863,21 @@ class mod_booking_mod_form extends moodleform_mod {
             $mform->addElement(
                 'editor',
                 'notifyemail',
-                get_string('notifyemail', 'booking'),
+                get_string('notifyemail', 'mod_booking'),
                 null,
                 $editoroptions
             );
             $default = [
-                'text' => get_string('notifyemailmessage', 'booking', $fieldmapping),
+                'text' => get_string('notifyemailmessage', 'mod_booking', $fieldmapping),
                 'format' => FORMAT_HTML,
             ];
             $default['text'] = str_replace("\n", '<br/>', $default['text']);
             $mform->setDefault('notifyemail', $default);
-            $mform->addHelpButton('notifyemail', 'placeholders', 'booking');
+            $mform->addHelpButton('notifyemail', 'placeholders', 'mod_booking');
             $mform->disabledIf('notifyemail', 'mailtemplatessource', 'eq', 1);
 
             $default = [
-                'text' => get_string('notifyemailteachersmessage', 'booking', $fieldmapping),
+                'text' => get_string('notifyemailteachersmessage', 'mod_booking', $fieldmapping),
                 'format' => FORMAT_HTML,
             ];
             $default['text'] = str_replace("\n", '<br/>', $default['text']);
@@ -878,19 +885,19 @@ class mod_booking_mod_form extends moodleform_mod {
             $mform->addElement(
                 'editor',
                 'notifyemailteachers',
-                get_string('notifyemailteachers', 'booking'),
+                get_string('notifyemailteachers', 'mod_booking'),
                 null,
                 $editoroptions
             );
             $mform->setDefault('notifyemailteachers', $default);
-            $mform->addHelpButton('notifyemailteachers', 'placeholders', 'booking');
+            $mform->addHelpButton('notifyemailteachers', 'placeholders', 'mod_booking');
             $mform->disabledIf('notifyemailteachers', 'mailtemplatessource', 'eq', 1);
             $mform->setType('notifyemailteachers', PARAM_RAW);
 
             $mform->addElement(
                 'editor',
                 'statuschangetext',
-                get_string('statuschangetext', 'booking'),
+                get_string('statuschangetext', 'mod_booking'),
                 null,
                 $editoroptions
             );
@@ -906,7 +913,7 @@ class mod_booking_mod_form extends moodleform_mod {
             $mform->addElement(
                 'editor',
                 'userleave',
-                get_string('userleave', 'booking'),
+                get_string('userleave', 'mod_booking'),
                 null,
                 $editoroptions
             );
@@ -922,7 +929,7 @@ class mod_booking_mod_form extends moodleform_mod {
             $mform->addElement(
                 'editor',
                 'deletedtext',
-                get_string('deletedtext', 'booking'),
+                get_string('deletedtext', 'mod_booking'),
                 null,
                 $editoroptions
             );
@@ -939,7 +946,7 @@ class mod_booking_mod_form extends moodleform_mod {
             $mform->addElement(
                 'editor',
                 'bookingchangedtext',
-                get_string('bookingchangedtext', 'booking'),
+                get_string('bookingchangedtext', 'mod_booking'),
                 null,
                 $editoroptions
             );
@@ -955,7 +962,7 @@ class mod_booking_mod_form extends moodleform_mod {
             $mform->addElement(
                 'editor',
                 'pollurltext',
-                get_string('pollurltext', 'booking'),
+                get_string('pollurltext', 'mod_booking'),
                 null,
                 $editoroptions
             );
@@ -971,7 +978,7 @@ class mod_booking_mod_form extends moodleform_mod {
             $mform->addElement(
                 'editor',
                 'pollurlteacherstext',
-                get_string('pollurlteacherstext', 'booking'),
+                get_string('pollurlteacherstext', 'mod_booking'),
                 null,
                 $editoroptions
             );
@@ -987,17 +994,17 @@ class mod_booking_mod_form extends moodleform_mod {
             $mform->addElement(
                 'editor',
                 'activitycompletiontext',
-                get_string('activitycompletiontext', 'booking'),
+                get_string('activitycompletiontext', 'mod_booking'),
                 null,
                 $editoroptions
             );
             $default = [
-                'text' => get_string('activitycompletiontextmessage', 'booking', $fieldmapping),
+                'text' => get_string('activitycompletiontextmessage', 'mod_booking', $fieldmapping),
                 'format' => FORMAT_HTML,
             ];
             $default['text'] = str_replace("\n", '<br/>', $default['text']);
             $mform->setDefault('activitycompletiontext', $default);
-            $mform->addHelpButton('activitycompletiontext', 'placeholders', 'booking');
+            $mform->addHelpButton('activitycompletiontext', 'placeholders', 'mod_booking');
             $mform->disabledIf('activitycompletiontext', 'mailtemplatessource', 'eq', 1);
         }
         // Booking and cancelling actions.
@@ -1047,7 +1054,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement(
             'select',
             'cancelrelativedate',
-            get_string('cancancelbooksetting', 'booking'),
+            get_string('cancancelbooksetting', 'mod_booking'),
             $canceloptions
         );
         $mform->addHelpButton('cancelrelativedate', 'cancancelbooksetting', 'mod_booking');
@@ -1091,7 +1098,7 @@ class mod_booking_mod_form extends moodleform_mod {
             $mform->addElement(
                 'text',
                 'maxoptionsfromcategorycount',
-                get_string('maxoptionsfromcategorycount', 'booking', $customfieldname),
+                get_string('maxoptionsfromcategorycount', 'mod_booking', $customfieldname),
                 0
             );
             $savedsettings = booking::get_value_of_json_by_key($bookingid, 'maxoptionsfromcategory') ?? '';
@@ -1133,7 +1140,7 @@ class mod_booking_mod_form extends moodleform_mod {
             $mform->addElement(
                 'select',
                 'maxoptionsfromcategoryvalue',
-                get_string('maxoptionsfromcategoryvalue', 'booking', $customfieldname),
+                get_string('maxoptionsfromcategoryvalue', 'mod_booking', $customfieldname),
                 $options
             );
             $mform->getElement('maxoptionsfromcategoryvalue')->setMultiple(true);
@@ -1157,14 +1164,14 @@ class mod_booking_mod_form extends moodleform_mod {
             'static',
             'circumventavailabilityconditionsdesc',
             '',
-            get_string('circumventavailabilityconditions_desc', 'booking')
+            get_string('circumventavailabilityconditions_desc', 'mod_booking')
         );
         $mform->hideIf('circumventavailabilityconditionsdesc', 'circumventavailabilityconditions', 'notchecked');
 
         $mform->addElement(
             'text',
             'circumventpassword',
-            get_string('circumventpassword', 'booking'),
+            get_string('circumventpassword', 'mod_booking'),
             ''
         );
         $mform->setType('circumventpassword', PARAM_TEXT);
@@ -1197,18 +1204,18 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement(
             'editor',
             'bookingpolicy',
-            get_string("bookingpolicy", "booking"),
+            get_string("bookingpolicy", "mod_booking"),
             null,
             null
         );
         $mform->setType('bookingpolicy', PARAM_CLEANHTML);
 
-        $mform->addElement('advcheckbox', 'autoenrol', get_string('autoenrol', 'booking'));
+        $mform->addElement('advcheckbox', 'autoenrol', get_string('autoenrol', 'mod_booking'));
         $mform->setDefault('autoenrol', 1);
-        $mform->addHelpButton('autoenrol', 'autoenrol', 'booking');
+        $mform->addHelpButton('autoenrol', 'autoenrol', 'mod_booking');
 
-        $mform->addElement('advcheckbox', 'addtogroup', get_string('addtogroup', 'booking'));
-        $mform->addHelpButton('addtogroup', 'addtogroup', 'booking');
+        $mform->addElement('advcheckbox', 'addtogroup', get_string('addtogroup', 'mod_booking'));
+        $mform->addHelpButton('addtogroup', 'addtogroup', 'mod_booking');
         $mform->hideIf('addtogroup', 'autoenrol', 'notchecked');
 
         $groupoptions = [
@@ -1248,15 +1255,15 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->setDefault('maxperuser', 0);
         $mform->addHelpButton('maxperuser', 'maxperuser', 'mod_booking');
 
-        $mform->addElement('advcheckbox', 'showinapi', get_string("showinapi", "booking"));
+        $mform->addElement('advcheckbox', 'showinapi', get_string("showinapi", "mod_booking"));
 
-        $mform->addElement('advcheckbox', 'numgenerator', get_string("numgenerator", "booking"));
+        $mform->addElement('advcheckbox', 'numgenerator', get_string("numgenerator", "mod_booking"));
 
-        $mform->addElement('text', 'paginationnum', get_string('paginationnum', 'booking'), 0);
+        $mform->addElement('text', 'paginationnum', get_string('paginationnum', 'mod_booking'), 0);
         $mform->setDefault('paginationnum', MOD_BOOKING_PAGINATIONDEF);
         $mform->setType('paginationnum', PARAM_INT);
 
-        $mform->addElement('text', 'banusernames', get_string('banusernames', 'booking'), 0);
+        $mform->addElement('text', 'banusernames', get_string('banusernames', 'mod_booking'), 0);
         $mform->setType('banusernames', PARAM_TEXT);
         $mform->addHelpButton('banusernames', 'banusernames', 'mod_booking');
 
@@ -1323,14 +1330,14 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement('select', 'ratings', get_string('ratings', 'mod_booking'), $opts);
         $mform->setDefault('ratings', 0);
 
-        $mform->addElement('advcheckbox', 'removeuseronunenrol', get_string("removeuseronunenrol", "booking"));
+        $mform->addElement('advcheckbox', 'removeuseronunenrol', get_string("removeuseronunenrol", "mod_booking"));
 
         if (get_config('booking', 'conditionsoverwritingbillboard')) {
-            $mform->addElement('advcheckbox', 'overwriteblockingwarnings', get_string("overwriteblockingwarnings", "booking"));
+            $mform->addElement('advcheckbox', 'overwriteblockingwarnings', get_string("overwriteblockingwarnings", "mod_booking"));
             $mform->addElement(
                 'textarea',
                 'billboardtext',
-                get_string("billboardtext", "booking"),
+                get_string("billboardtext", "mod_booking"),
                 null,
                 null
             );
@@ -1348,13 +1355,13 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement(
             'header',
             'bookingoptiontextheader',
-            get_string('textdependingonstatus', 'booking')
+            get_string('textdependingonstatus', 'mod_booking')
         );
 
         $mform->addElement(
             'editor',
             'beforecompletedtext',
-            get_string("beforecompletedtext", "booking"),
+            get_string("beforecompletedtext", "mod_booking"),
             null,
             null
         );
@@ -1363,7 +1370,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement(
             'editor',
             'aftercompletedtext',
-            get_string("aftercompletedtext", "booking"),
+            get_string("aftercompletedtext", "mod_booking"),
             null,
             null
         );
@@ -1372,19 +1379,19 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement(
             'editor',
             'beforebookedtext',
-            get_string("beforebookedtext", "booking"),
+            get_string("beforebookedtext", "mod_booking"),
             null,
             null
         );
         $mform->setType('beforebookedtext', PARAM_CLEANHTML);
 
         // Sign-In Sheet Configuration.
-        $mform->addElement('header', 'cfgsigninheader', get_string('cfgsignin', 'booking'));
+        $mform->addElement('header', 'cfgsigninheader', get_string('cfgsignin', 'mod_booking'));
 
         $mform->addElement(
             'filemanager',
             'signinlogoheader',
-            get_string('signinlogoheader', 'booking'),
+            get_string('signinlogoheader', 'mod_booking'),
             null,
             ['subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 1, 'accepted_types' => ['image']]
         );
@@ -1392,7 +1399,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement(
             'filemanager',
             'signinlogofooter',
-            get_string('signinlogofooter', 'booking'),
+            get_string('signinlogofooter', 'mod_booking'),
             null,
             ['subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 1, 'accepted_types' => ['image']]
         );
@@ -1401,7 +1408,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement(
             'header',
             'teachers',
-            get_string('teachers', 'booking')
+            get_string('teachers', 'mod_booking')
         );
 
         $teacherroleid = [0 => ''];
@@ -1419,7 +1426,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addElement(
             'header',
             'customreporttemplates',
-            get_string('customreporttemplates', 'booking')
+            get_string('customreporttemplates', 'mod_booking')
         );
 
         $customreporttemplates = ['' => ''];
@@ -1428,7 +1435,7 @@ class mod_booking_mod_form extends moodleform_mod {
         foreach ($reporttemplatesdata as $key => $value) {
             $customreporttemplates[$value->id] = $value->name;
         }
-        $mform->addElement('select', 'customtemplateid', get_string('customreporttemplate', 'booking'), $customreporttemplates);
+        $mform->addElement('select', 'customtemplateid', get_string('customreporttemplate', 'mod_booking'), $customreporttemplates);
 
         if ($isproversion) {
             $electivehandler = new elective();
@@ -1438,24 +1445,24 @@ class mod_booking_mod_form extends moodleform_mod {
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         /*
         // Category.
-        $mform->addElement('header', 'categoryheader', get_string('categoryheader', 'booking'));
+        $mform->addElement('header', 'categoryheader', get_string('categoryheader', 'mod_booking'));
 
         $url = $CFG->wwwroot . '/mod/booking/categories.php';
         if (isset($COURSE->id)) {
             $url .= '?courseid=' . $COURSE->id;
         }
 
-        $select = $mform->addElement('select', 'categoryid', get_string('categoryheader', 'booking'),
+        $select = $mform->addElement('select', 'categoryid', get_string('categoryheader', 'mod_booking'),
                 $options, array('size' => 15));
         $select->setMultiple(true);
 
         $mform->addElement('html',
-                '<a target="_blank" href="' . $url . '">' . get_string('addcategory', 'booking') .
+                '<a target="_blank" href="' . $url . '">' . get_string('addcategory', 'mod_booking') .
                          '</a>');
 
         // Connected bookings.
         $mform->addElement('header', 'conectedbookingheader',
-                get_string('connectedbooking', 'booking'));
+                get_string('connectedbooking', 'mod_booking'));
 
         $bookings = $DB->get_records('booking', array('course' => $COURSE->id));
 
@@ -1473,63 +1480,63 @@ class mod_booking_mod_form extends moodleform_mod {
         // Custom labels.
         $mform->addElement('header', 'customlabels', get_string('customlabelsdeprecated', 'mod_booking'));
 
-        $mform->addElement('text', 'btncacname', get_string('btncacname', 'booking'),
+        $mform->addElement('text', 'btncacname', get_string('btncacname', 'mod_booking'),
                 array('size' => '64'));
         $mform->setType('btncacname', PARAM_TEXT);
 
-        $mform->addElement('text', 'lblteachname', get_string('lblteachname', 'booking'),
+        $mform->addElement('text', 'lblteachname', get_string('lblteachname', 'mod_booking'),
                 array('size' => '64'));
         $mform->setType('lblteachname', PARAM_TEXT);
 
-        $mform->addElement('text', 'lblsputtname', get_string('lblsputtname', 'booking'),
+        $mform->addElement('text', 'lblsputtname', get_string('lblsputtname', 'mod_booking'),
                 array('size' => '64'));
         $mform->setType('lblsputtname', PARAM_TEXT);
 
-        $mform->addElement('text', 'btnbooknowname', get_string('btnbooknowname', 'booking'),
+        $mform->addElement('text', 'btnbooknowname', get_string('btnbooknowname', 'mod_booking'),
                 array('size' => '64'));
         $mform->setType('btnbooknowname', PARAM_TEXT);
 
-        $mform->addElement('text', 'btncancelname', get_string('btncancelname', 'booking'),
+        $mform->addElement('text', 'btncancelname', get_string('btncancelname', 'mod_booking'),
                 array('size' => '64'));
         $mform->setType('btncancelname', PARAM_TEXT);
 
-        $mform->addElement('text', 'lblbooking', get_string('lblbooking', 'booking'),
+        $mform->addElement('text', 'lblbooking', get_string('lblbooking', 'mod_booking'),
                 array('size' => '64'));
         $mform->setType('lblbooking', PARAM_TEXT);
 
-        $mform->addElement('text', 'lbllocation', get_string('lbllocation', 'booking'),
+        $mform->addElement('text', 'lbllocation', get_string('lbllocation', 'mod_booking'),
                 array('size' => '64'));
         $mform->setType('lbllocation', PARAM_TEXT);
 
-        $mform->addElement('text', 'lblinstitution', get_string('lblinstitution', 'booking'),
+        $mform->addElement('text', 'lblinstitution', get_string('lblinstitution', 'mod_booking'),
                 array('size' => '64'));
         $mform->setType('lblinstitution', PARAM_TEXT);
 
-        $mform->addElement('text', 'lblname', get_string('lblname', 'booking'),
+        $mform->addElement('text', 'lblname', get_string('lblname', 'mod_booking'),
                 array('size' => '64'));
         $mform->setType('lblname', PARAM_TEXT);
 
-        $mform->addElement('text', 'lblsurname', get_string('lblsurname', 'booking'),
+        $mform->addElement('text', 'lblsurname', get_string('lblsurname', 'mod_booking'),
                 array('size' => '64'));
         $mform->setType('lblsurname', PARAM_TEXT);
 
         $mform->addElement('text', 'booktootherbooking',
-                get_string('lblbooktootherbooking', 'booking'), array('size' => '64'));
+                get_string('lblbooktootherbooking', 'mod_booking'), array('size' => '64'));
         $mform->setType('booktootherbooking', PARAM_TEXT);
 
-        $mform->addElement('text', 'lblacceptingfrom', get_string('lblacceptingfrom', 'booking'),
+        $mform->addElement('text', 'lblacceptingfrom', get_string('lblacceptingfrom', 'mod_booking'),
                 array('size' => '64'));
         $mform->setType('lblacceptingfrom', PARAM_TEXT);
 
-        $mform->addElement('text', 'lblnumofusers', get_string('lblnumofusers', 'booking'),
+        $mform->addElement('text', 'lblnumofusers', get_string('lblnumofusers', 'mod_booking'),
                 array('size' => '64'));
         $mform->setType('lblnumofusers', PARAM_TEXT);
 
         // Automatic option creation.
         $mform->addElement('header', 'autcrheader',
-                get_string('autcrheader', 'booking'));
+                get_string('autcrheader', 'mod_booking'));
 
-        $mform->addElement('static', 'description', '', get_string('autcrwhatitis', 'booking'));
+        $mform->addElement('static', 'description', '', get_string('autcrwhatitis', 'mod_booking'));
 
         $cfields = $DB->get_records_menu('user_info_field', null, '', 'shortname, name', 0, 0);
         $cftemplates = $DB->get_records_menu('booking_options', array('bookingid' => 0), '', 'id, text', 0, 0);
@@ -1537,13 +1544,13 @@ class mod_booking_mod_form extends moodleform_mod {
         array_unshift($cfields, '');
         array_unshift($cftemplates, '');
 
-        $mform->addElement('checkbox', 'autcractive', get_string('enable', 'booking'));
-        $mform->addElement('select', 'autcrprofile', get_string('customprofilefield', 'booking'), $cfields);
+        $mform->addElement('checkbox', 'autcractive', get_string('enable', 'mod_booking'));
+        $mform->addElement('select', 'autcrprofile', get_string('customprofilefield', 'mod_booking'), $cfields);
         $mform->disabledIf('autcrprofile', 'autcractive');
-        $mform->addElement('text', 'autcrvalue', get_string('customprofilefieldvalue', 'booking'));
+        $mform->addElement('text', 'autcrvalue', get_string('customprofilefieldvalue', 'mod_booking'));
         $mform->setType('autcrvalue', PARAM_TEXT);
         $mform->disabledIf('autcrvalue', 'autcractive');
-        $mform->addElement('select', 'autcrtemplate', get_string('optiontemplate', 'booking'), $cftemplates);
+        $mform->addElement('select', 'autcrtemplate', get_string('optiontemplate', 'mod_booking'), $cftemplates);
         $mform->disabledIf('autcrtemplate', 'autcractive');
         */
 
@@ -1767,26 +1774,26 @@ class mod_booking_mod_form extends moodleform_mod {
         }
 
         if (isset($data['bookingmanager']) && $DB->count_records('user', ['username' => $data['bookingmanager']]) != 1) {
-            $errors['bookingmanager'] = get_string('bookingmanagererror', 'booking');
+            $errors['bookingmanager'] = get_string('bookingmanagererror', 'mod_booking');
         }
 
         if (!in_array($data['whichview'], $data['showviews'])) {
-            $errors['whichview'] = get_string('whichviewerror', 'booking');
+            $errors['whichview'] = get_string('whichviewerror', 'mod_booking');
         }
 
         if (strlen($data['pollurl']) > 0) {
             if (!filter_var($data['pollurl'], FILTER_VALIDATE_URL)) {
-                $errors['pollurl'] = get_string('entervalidurl', 'booking');
+                $errors['pollurl'] = get_string('entervalidurl', 'mod_booking');
             }
         }
 
         if ($data['paginationnum'] < 1) {
-                $errors['paginationnum'] = get_string('errorpagination', 'booking');
+                $errors['paginationnum'] = get_string('errorpagination', 'mod_booking');
         }
 
         if (strlen($data['pollurlteachers']) > 0) {
             if (!filter_var($data['pollurlteachers'], FILTER_VALIDATE_URL)) {
-                $errors['pollurlteachers'] = get_string('entervalidurl', 'booking');
+                $errors['pollurlteachers'] = get_string('entervalidurl', 'mod_booking');
             }
         }
 
