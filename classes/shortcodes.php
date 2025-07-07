@@ -1330,7 +1330,7 @@ class shortcodes {
 
                         if (
                             !empty($configdata->multiselect)
-                            || (isset($customfield->type) && $customfield->type) == 'multiselect'
+                            || (isset($customfield->type) && $customfield->type == 'multiselect')
                         ) {
                             if (!empty($additionalwhere)) {
                                 $additionalwhere .= " AND ";
