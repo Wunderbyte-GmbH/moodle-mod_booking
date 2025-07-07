@@ -89,12 +89,7 @@ class shortcodes {
         [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(0, 0, '', null, null, [], [], null, [], $additionalwhere);
 
-        // By default, we do not show booking options that have ended in the past.
-        // Shortcode arg values get transmitted as string, so also check for "false" and "0".
-        if (empty($args['all']) || $args['all'] == "false" || $args['all'] == "0") {
-            $startoftoday = strtotime('today'); // Will be 00:00:00 of the current day.
-            $where .= " AND courseendtime > $startoftoday ";
-        }
+        self::applyallarg($args, $where);
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
@@ -215,12 +210,7 @@ class shortcodes {
                     $additionalwhere
                 );
 
-        // By default, we do not show booking options that lie in the past.
-        // Shortcode arg values get transmitted as string, so also check for "false" and "0".
-        if (empty($args['all']) || $args['all'] == "false" || $args['all'] == "0") {
-            $startoftoday = strtotime('today'); // Will be 00:00:00 of the current day.
-            $where .= " AND courseendtime > $startoftoday ";
-        }
+        self::applyallarg($args, $where);
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
@@ -638,12 +628,8 @@ class shortcodes {
                 );
 
                 $params = array_merge($tempparams, $params);
-        // By default, we do not show booking options that lie in the past.
-        // Shortcode arg values get transmitted as string, so also check for "false" and "0".
-        if (empty($args['all']) || $args['all'] == "false" || $args['all'] == "0") {
-            $startoftoday = strtotime('today'); // Will be 00:00:00 of the current day.
-            $where .= " AND courseendtime > $startoftoday ";
-        }
+        self::applyallarg($args, $where);
+
         if (!empty($additionalparams)) {
             foreach ($additionalparams as $key => $value) {
                 $params[$key] = $value;
@@ -1457,5 +1443,36 @@ class shortcodes {
                 break;
         }
         return $viewparam;
+    }
+
+    /**
+     * By default, we do not show booking options that lie in the past.
+     * Shortcode arg values get transmitted as string, so also check for "false" and "0".
+     * And apply setting for selflearningcourse.
+     *
+     * @param mixed $args
+     * @param mixed $where
+     *
+     * @return void
+     *
+     */
+    private static function applyallarg($args, &$where) {
+        if (empty($args['all']) || $args['all'] == "false" || $args['all'] == "0") {
+            $startoftoday = strtotime('today'); // Will be 00:00:00 of the current day.
+            $selflearncoursesetting = get_config('booking', 'selflearningcoursedisplayinshortcode');
+            switch ($selflearncoursesetting) {
+                case "0":
+                    $where .= " AND (courseendtime > $startoftoday AND courseendtime <> coursestarttime) ";
+                    break;
+                case false:
+                case "1":
+                    $where .= " AND courseendtime > $startoftoday ";
+                    break;
+                case "2":
+                    $where .= " AND (courseendtime > $startoftoday OR courseendtime = coursestarttime)";
+                    break;
+            }
+        }
+        return;
     }
 }

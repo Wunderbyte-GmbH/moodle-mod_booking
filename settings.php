@@ -1122,6 +1122,20 @@ if ($ADMIN->fulltree) {
                 ''
             )
         );
+        $selflearnshortcodeoptions = [
+            0 => get_string('selflearncoursesnotdisplayed', 'mod_booking'),
+            1 => get_string('selflearncoursessortingdateinfuture', 'mod_booking'),
+            2 => get_string('selflearncoursesall', 'mod_booking'),
+        ];
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/selflearningcoursedisplayinshortcode',
+                get_string('selflearningcoursedisplayinshortcode', 'mod_booking'),
+                get_string('selflearningcoursedisplayinshortcodedesc', 'mod_booking'),
+                1,
+                $selflearnshortcodeoptions
+            )
+        );
     } else {
         $settings->add(
             new admin_setting_heading(

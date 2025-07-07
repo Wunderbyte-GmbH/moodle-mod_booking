@@ -374,11 +374,13 @@ class competencies extends field_base {
      *
      * @param string $competencies
      * @param booking_option|null $currentoption
+     * @param bool $displayall
      * @return string
      */
     public static function get_list_of_similar_options(
         $competencies,
-        $currentoption = null
+        $currentoption = null,
+        $displayall = true
     ): string {
         if (
             !get_config('booking', 'usecompetencies')
@@ -390,9 +392,12 @@ class competencies extends field_base {
         $args = [
             'cmid' => isset($currentoption) && isset($currentoption->cmid) ? $currentoption->cmid : '',
             'columnfilter_competencies' => $competencies,
-            'all' => "true",
             'exclude' => 'competencies', // Make sure the button that triggers the filter is not displayed.
         ];
+        if ($displayall) {
+            $args['all'] = "true";
+        }
+
         $env = new stdClass();
         $list = shortcodes::allbookingoptions('courselist', $args, null, $env, $env);
         return $list;
