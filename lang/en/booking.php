@@ -2766,6 +2766,7 @@ $string['waitinglistinfotextsinfo'] = 'Select how place availability for the wai
 $string['waitinglistlowmessage'] = 'Only a few waiting list places left!';
 $string['waitinglistlowpercentage'] = 'Percentage for waiting list low message';
 $string['waitinglistlowpercentagedesc'] = 'If the available places on the waiting list reach or get below this percentage a waiting list low message will be shown.';
+$string['waitinglistplacesplacesleft'] = '{$a} places left on the waiting list';
 $string['waitinglistshowplaceonwaitinglist'] = 'Ranked waiting list';
 $string['waitinglistshowplaceonwaitinglistinfo'] = 'Waiting list: Shows the exact place of the user on the waitinglist.
 It\'s possible to re-rank the order of users on the waiting list manually.';

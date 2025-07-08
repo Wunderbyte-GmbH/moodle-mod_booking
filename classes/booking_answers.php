@@ -701,12 +701,15 @@ class booking_answers {
                 $bookinginformation['maxanswers'] = true;
             }
         }
+
+        // Variable $bookingplacesinfotexts can be on of follwing values:
+        // 0 => show booked places (Ex. 1/2)
+        // 1 => show info texts (Ex. Fully bookd)
+        // 2 => show free places only (1 place left).
+        $waitingplacesinfotexts = get_config('booking', 'waitinglistinfotexts');
         // Waiting list places.
         if (!empty($bookinginformation['maxoverbooking'])) {
-            if (
-                !has_capability('mod/booking:updatebooking', $context)
-                && get_config('booking', 'waitinglistinfotexts')
-            ) {
+            if (!has_capability('mod/booking:updatebooking', $context) && $waitingplacesinfotexts) {
                 $bookinginformation['showwaitinglistplacesinfotext'] = true;
             }
 
@@ -730,6 +733,12 @@ class booking_answers {
                 // Still enough places left.
                 $bookinginformation['waitinglistplacesinfotext'] = get_string('waitinglistenoughmessage', 'mod_booking');
                 $bookinginformation['waitinglistplacesclass'] = 'text-success';
+            }
+
+            // If (show free places only) is chosen.
+            if ($waitingplacesinfotexts == '2') {
+                $bookinginformation['waitinglistplacesinfotext']
+                    = get_string('waitinglistplacesplacesleft', 'mod_booking', $bookinginformation['freeonwaitinglist']);
             }
         }
     }
