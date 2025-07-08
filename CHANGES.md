@@ -1,3 +1,19 @@
+## Version 8.14.9 (2025070800)
+* Improvement: Provide settings about display of selflearning courses in shortcode
+* Improvement: Support customfield multiselect with multiple values
+* Improvement: On competency attribution, also trigger corresponding event.
+* Improvement: Add book for user logic
+* Bugfix: Selected users availability not deleted properly
+* Bugfix: Don't count deleted users in bookinganswers object
+* Bugfix: Add missing presence status to fields and columns sections.
+* Bugfix: Fix parenthesis typo which destroyed logic for multiselect.
+* Bugfix: Integer grade_competency() expected
+* Bugfix: Prevent empty teacherid
+* Bugfix: prevent Error from empty PluginSettings
+* Bugfix: Fixed incorrect booking location information is displayed.
+* Bugfix: Fix delete competencies
+* Tests: New behat "Booking settings: control presence of strings on all settings pages"
+
 ## Version 8.14.8 (2025062400)
 * New feature: Possibility to easily integrate subplugins.
 * New feature: New setting to hide specific booking instances from teacher pages and improved sorting.
