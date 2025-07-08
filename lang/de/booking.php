@@ -530,7 +530,7 @@ $string['bookingplacesinfotextsinfo'] = 'Wählen Sie aus, wie die Platzverfügba
 $string['bookingplaceslowmessage'] = 'Nur noch wenige Plätze verfügbar!';
 $string['bookingplaceslowpercentage'] = 'Buchungsplätze: Prozentsatz für "Nur noch wenige Plätze verfügbar"-Nachricht';
 $string['bookingplaceslowpercentagedesc'] = 'Wenn die Anzahl verbookingstrackerpresencecounterfügbarer Buchungsplätze diesen Prozentsatz erreicht oder unter diesen Prozentsatz sinkt, wird eine Nachricht angezeigt, dass nur noch wenige Plätze verfügbar sind.';
-$string['bookingplacesplacesleft'] = 'Noch {$a} Plätze frei';
+$string['bookingplacesplacesleft'] = '{$a} freie Plätze';
 $string['bookingplacesunlimitedmessage'] = 'Sofort verfügbar';
 $string['bookingpoints'] = 'Kurspunkte';
 $string['bookingpolicy'] = 'Buchungsbedingungen - Booking Policy';
@@ -2695,6 +2695,7 @@ $string['waitinglistinfotextsinfo'] = 'Wählen Sie aus, wie die Platzverfügbark
 $string['waitinglistlowmessage'] = 'Nur noch wenige Wartelistenplätze!';
 $string['waitinglistlowpercentage'] = 'Warteliste: Prozentsatz für "Nur noch wenige Plätze verfügbar"-Nachricht';
 $string['waitinglistlowpercentagedesc'] = 'Wenn die Anzahl verfügbarer Wartelistenplätze diesen Prozentsatz erreicht oder unter diesen Prozentsatz sinkt, wird eine Nachricht angezeigt, dass nur noch wenige Plätze verfügbar sind.';
+$string['waitinglistplacesplacesleft'] = '{$a} freie Plätze auf der Warteliste';
 $string['waitinglistshowplaceonwaitinglist'] = 'Wartelistenplätze aktivieren';
 $string['waitinglistshowplaceonwaitinglistinfo'] = 'Warteliste: Zeige den Platz der Nutzer:innen auf der Warteliste an.
 Sie können die Reihenfolge der Nutzer:innen auf der Warteliste per Drag & Drop anpassen.';
