@@ -68,7 +68,7 @@ $string['addtogroup'] = 'Automatically enrol users in group of linked course';
 $string['addtogroup_help'] = 'Automatically enrol users in group that is linked in settings of bookingoption. Group will be created automatically with name: Booking name - Option name';
 $string['addtogroupofcurrentcourse'] = 'Automatically enrol users to group(s) of current course';
 $string['addtogroupofcurrentcourse_help'] = "Choose group(s) of current course the users should be enroled to, once they booked at least one of the bookingoptions in this instance. Groups need to be created first within is course.</br>
-It's also possible to enrol users into a specific group of for each bookingoption the have booked. These groups will are named after the bookingoption";
+It's also possible to enrol users into a specific group for each bookingoption the have booked. These groups will are named after the bookingoption";
 $string['addtogroupofcurrentcoursebookingoption'] = "Enrol in specific group for each booked option";
 $string['addusertogroup'] = 'Add user to group: ';
 $string['adminparameter_desc'] = "Use parameter that are set in the admin settings.";
