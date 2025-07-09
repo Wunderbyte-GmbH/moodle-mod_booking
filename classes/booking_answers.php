@@ -354,6 +354,34 @@ class booking_answers {
     }
 
     /**
+     * Verify if a user is actually on the booked list or not.
+     *
+     * @param int $userid
+     * @return bool
+     */
+    public function user_booked(int $userid) {
+
+        if (isset($this->usersonlist[$userid])) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Verify if a user is actually on the booked list or not.
+     *
+     * @param int $userid
+     * @return stdClass|null
+     */
+    public function user_get_last_active_booking(int $userid) {
+
+        if (isset($this->usersonlist[$userid])) {
+            return $this->usersonlist[$userid];
+        }
+        return null;
+    }
+
+    /**
      * This function checks if the current instance of the booking option is overlapping with other bookings of this given user.
      *
      * @param int $userid

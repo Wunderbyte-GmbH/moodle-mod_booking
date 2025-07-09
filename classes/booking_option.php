@@ -1766,7 +1766,14 @@ class booking_option {
             // ...until the duration of the self-learning course has passed #684.
             // Use booking_check_if_teacher here instead of $isteacher to make this independent of the function call.
             if (!empty($this->settings->selflearningcourse) && !$isteacher) {
-                $now = time();
+                // The inscription time is always from the time the user was actually booked.
+                if ($ba = $bookinganswers->user_get_last_active_booking($userid)) {
+                    // Timecreated is not a perfect solution, because users could have been on the waitinglist.
+                    $now = $ba->timecreated;
+                } else {
+                    $now = time();
+                }
+
                 $duration = $this->settings->duration ?? 0;
                 $end = empty($duration) ? 0 : $now + $duration;
                 // Enrol using the default role from now until now + duration.
