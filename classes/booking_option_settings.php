@@ -346,6 +346,14 @@ class booking_option_settings {
     }
 
     /**
+     * Helper function to get all properties of booking option settings.
+     * @return array
+     */
+    public function get_booking_option_properties(): array {
+        return array_keys(get_object_vars($this));
+    }
+
+    /**
      * Set all the values from DB, if necessary.
      * If we have passed on the cached object, we use this one.
      *

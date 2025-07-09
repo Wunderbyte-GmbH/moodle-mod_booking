@@ -2780,6 +2780,8 @@ The associated course can be found here: {$a->courselink}
 $string['waitingtextsubject'] = 'Booking status for {$a->title} has changed';
 $string['waitingtextsubjectbookingmanager'] = 'Booking status for {$a->title} has changed';
 $string['waitspaceavailable'] = 'Places on waiting list available';
+$string['warningcustomfieldsforbiddenshortname'] = 'You cannot use the following shortname(s) for custom fields: <b>{$a}</b>.
+Please choose another shortname.';
 $string['wednesday'] = 'Wednesday';
 $string['week'] = "Week";
 $string['whatsnew'] = 'What\'s new?';

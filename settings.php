@@ -40,6 +40,9 @@ use mod_booking\utils\wb_payment;
 /** @var \admin_settingpage $settings */
 $settings;
 
+$handler = booking_handler::create();
+echo $handler->check_for_forbidden_shortnames_and_return_warning();
+
 $ADMIN->add(
     'modsettings',
     new admin_category(

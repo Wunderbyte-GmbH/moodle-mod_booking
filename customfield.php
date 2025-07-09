@@ -45,7 +45,9 @@ $output = $PAGE->get_renderer('core_customfield');
 $handler = booking_handler::create();
 $outputpage = new \core_customfield\output\management($handler);
 
-echo $output->header(),
-        $output->heading(new lang_string('bookingcustomfield', 'mod_booking')),
-        $output->render($outputpage),
-        $output->footer();
+echo
+    $output->header(),
+    $output->heading(new lang_string('bookingcustomfield', 'mod_booking')),
+    $handler->check_for_forbidden_shortnames_and_return_warning(),
+    $output->render($outputpage),
+    $output->footer();
