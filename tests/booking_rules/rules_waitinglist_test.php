@@ -730,7 +730,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
         $this->assertCount(0, $tasks);
 
-        time_mock::set_mock_time(strtotime('now', time()));
+        time_mock::set_mock_time(strtotime('now'));
         $time = time_mock::get_mock_time();
 
         $student3answer = $DB->get_record('booking_answers', [
