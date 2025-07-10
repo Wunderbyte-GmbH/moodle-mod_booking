@@ -4086,7 +4086,7 @@ class booking_option {
             // If it was fully booked, we need to trigger the places free again event.
             self::check_if_free_to_book_again($settings, 0, $fullybooked);
         } else if (
-            ($originaloption->maxanswers ?? 0) < ($newoption->maxanswers ?? 0)
+            ($originaloption->maxanswers ?? 0) > ($newoption->maxanswers ?? 0)
             && !get_config('booking', 'keepusersbookedonreducingmaxanswers')
             && empty($newoption->waitforconfirmation)
         ) {
