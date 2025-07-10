@@ -200,6 +200,8 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     ## Recommended from G.M.
     And I visit "/admin/webservice/testclient.php"
     And I wait "1" seconds
+    And I visit "/admin/webservice/documentation.php"
+    And I wait "1" seconds
     And I visit "/cache/admin.php"
     And I wait "1" seconds
     And I visit "/admin/tool/behat/index.php"
