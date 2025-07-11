@@ -1,3 +1,9 @@
+## Version 8.14.10 (2025071100)
+* Improvement: Show warning when creating forbidden shortnames for customfields.
+* Improvement: Choice of mulitple displays of free places
+* Bugfix: Selflearningcourse inscription always starts with timecreated
+* Bugfix: Correct sync waitinglist trigger
+
 ## Version 8.14.9 (2025070800)
 * Improvement: Provide settings about display of selflearning courses in shortcode
 * Improvement: Support customfield multiselect with multiple values
