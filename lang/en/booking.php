@@ -633,6 +633,7 @@ $string['btnviewavailable'] = "View available options";
 $string['bulkoperations'] = 'Zeige Liste von Buchungsoptionen um Massenoperationen zu ermöglichen';
 $string['bulkoperationsheader'] = 'Update data for selected bookingoption(s)';
 $string['cachedef_bookedusertable'] = 'Booked users table (cache)';
+$string['cachedef_bookforuser'] = 'Book for user (Cache)';
 $string['cachedef_bookinganswers'] = 'Bookinganswers (Cache)';
 $string['cachedef_bookinghistorytable'] = 'Booking history table (Cache)';
 $string['cachedef_bookingoptions'] = 'Booking options (cache)';
