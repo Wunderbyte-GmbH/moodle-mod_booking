@@ -116,7 +116,7 @@ class optionstoconfirm extends option {
             $params['statusparam2'] = $statusparam;
         }
 
-        $whereneedtoconfirm = " AND " . self::get_whereneedtoconfirm_sql();
+        $whereneedtoconfirm = " AND " . self::get_whereneedtoconfirm_sql($params);
         $whereneedtoconfirmjoin = " JOIN {booking_options} bo ON bo.id = ba.optionid ";
 
         // We need to set a limit for the query in mysqlfamily.

@@ -111,11 +111,13 @@ class askforconfirmation implements bo_condition {
         // ... then with waitforconfirmation = 2, booking should be possible only on the waitinglist.
         if (
             !isset($bookinginformation['onwaitinglist'])
-            && (
-                    (
-                    $settings->waitforconfirmation == 1
-                    || (!empty($settings->jsonobject->useprice))
-                        && (
+            && (!empty($settings->waitforconfirmation)
+            || (!empty($settings->jsonobject->useprice))
+                // Free spots on waitinglist given.
+                && $settings->maxoverbooking > booking_answers::count_places($bookinganswer->get_usersonwaitinglist())
+                && (
+                        (
+                            // Fully booked.
                             isset($bookinginformation['notbooked']['fullybooked'])
                             && $bookinginformation['notbooked']['fullybooked'] === true
                             && ($settings->maxoverbooking > $bookinginformation['notbooked']['waiting'])
