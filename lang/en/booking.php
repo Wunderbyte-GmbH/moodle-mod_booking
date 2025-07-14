@@ -119,6 +119,7 @@ $string['applyunitfactor_desc'] = 'If this setting is active, the educational un
  to calculate the number of educational units. This number will be used as factor for the price formula.
  Example: A booking option has a date series like "Mon, 15:00 - 16:30". So it lasts 2 educational units (45 min each).
  So a unit factor of 2 will be applied to the price formula. (Unit factor will only be applied if a price formula is present.)';
+$string['applyuserwhobookedcheckbox'] = 'Yes, I am booking the training also for myself.';
 $string['areyousure:book'] = 'Click again to confirm booking';
 $string['areyousure:cancel'] = 'Click again to confirm cancellation';
 $string['asglobaltemplate'] = 'Use as global template';
@@ -1166,7 +1167,7 @@ $string['enrolusersaction:alert'] = '<div class="alert alert-info" role="alert">
 </span>
 </div>';
 $string['enroluserstowaitinglist'] = "Put booking users on waitinglist and enrol only after confirmation?";
-$string['enroluserwhobookedtocourse'] = "Do you also want to be enrolled to the linked course? <br> In this case, your seat will be deducted from the purchased spots.";
+$string['enroluserwhobookedtocourse'] = "Do you also want to book the option for yourself?";
 $string['enroluserwhobookedtocoursewarning'] = "If you purchase only one seat and choose to be enrolled yourself, there will be no enrollment link created.";
 $string['enteruserprofilefield'] = "Select users by entering a value for custom user profile field. Attention! This targets all the users on the plattform.";
 $string['entervalidurl'] = 'Please, enter a valid URL!';
