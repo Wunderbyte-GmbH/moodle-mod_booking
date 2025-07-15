@@ -254,7 +254,7 @@ class signinsheet_generator {
         $this->extrasessioncols = $pdfoptions->extrasessioncols;
         $this->addemptyrows = $pdfoptions->addemptyrows;
         $this->includeteachers = $pdfoptions->includeteachers;
-        $this->saveasformat = $pdfoptions->saveasformat;
+        $this->saveasformat = $pdfoptions->saveasformat ?? '';
 
         if ($this->orientation == "P") {
             $this->colwidth = 210;
@@ -534,7 +534,6 @@ class signinsheet_generator {
             );
 
              $src = $url->out();
-             // $src = 'https://farm9.staticflickr.com/8505/8441256181_4e98d8bff5_z_d.jpg';
             $htmloutput = str_replace('[[logourl]]', $src, $htmloutput);
         }
 
