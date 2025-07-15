@@ -1,1 +1,0 @@
-This is the folder where you can add booking extensions.
