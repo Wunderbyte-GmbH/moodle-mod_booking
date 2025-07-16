@@ -179,7 +179,8 @@ class duration extends field_base {
                 false,
                 new moodle_url(
                     '/admin/settings.php',
-                    ['section' => 'modsettingbooking']
+                    ['section' => 'modsettingbooking'],
+                    'admin-selflearningcourseactive'
                 )
             );
         } else {
