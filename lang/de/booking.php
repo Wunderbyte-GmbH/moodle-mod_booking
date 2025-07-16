@@ -1625,6 +1625,7 @@ $string['nobookingselected'] = 'Keine Buchungsoption ausgewählt';
 $string['nocancelreason'] = "Sie müssen eine Grund für die Stornierung angeben";
 $string['nocfnameselected'] = "Nichts ausgewählt. Tippen Sie einen neuen Namen oder wählen Sie einen aus der Liste.";
 $string['nocomments'] = 'Kommentare deaktiviert';
+$string['noconfirmationworkflow'] = 'Keine Bestätigung erforderlich';
 $string['nocourse'] = 'Kein Kurs für Buchungsoption ausgewählt';
 $string['nocourseselected'] = 'Kein Kurs ausgewählt';
 $string['nodatesstring'] = "Aktuell gibt es keine Daten zu dieser Buchungsoption";

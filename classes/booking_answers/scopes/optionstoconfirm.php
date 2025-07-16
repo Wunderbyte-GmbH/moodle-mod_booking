@@ -27,6 +27,7 @@ namespace mod_booking\booking_answers\scopes;
 
 use context_system;
 use context_module;
+use core_plugin_manager;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking_answers\scope_base;
 use mod_booking\output\booked_users;
@@ -360,6 +361,42 @@ class optionstoconfirm extends option {
         ) s1";
 
         return [$fields, $from, $where, $params];
+    }
+
+    /**
+     * This function calls the set booking extension and loads corresponding sql.
+     *
+     * @return string
+     *
+     */
+    private function limit_answers_by_confirmtion_workflow(): string {
+
+        $sql = " AND ( ";
+        $wherearray = [];
+
+        foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
+            $fullclassname = "\\bookingextension_{$plugin->name}\\local\\confirmbooking";
+            if (!class_exists($fullclassname)) {
+                continue;
+            }
+
+            // Each plugin can return a where clause.
+            $class = new $fullclassname();
+            $where = $class->return_where_sql();
+            if (!empty($where)) {
+                $wherearray[] = $where;
+            }
+        }
+
+        if (empty($wherearray)) {
+            $sql .= " 1 = 1 ";
+        } else {
+            $sql .= implode(' OR ', $wherearray);
+        }
+
+        $sql .= " ) ";
+
+        return $sql;
     }
 
     /**

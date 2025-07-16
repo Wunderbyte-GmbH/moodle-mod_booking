@@ -131,8 +131,6 @@ class waitforconfirmation extends field_base {
         }
 
         $mform->addElement('advcheckbox', 'waitforconfirmation', get_string('waitforconfirmation', 'mod_booking'));
-
-        $mform->addElement('static', 'waitforconfirmationdescription', '', get_string('workflowdescription', 'bookingextension_approval_trainer'));
     }
 
     /**

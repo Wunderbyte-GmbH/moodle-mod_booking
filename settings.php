@@ -130,6 +130,10 @@ $ADMIN->add(
 // Load all settings from booking extensions.
 foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
     $fullclassname = "\\bookingextension_{$plugin->name}\\{$plugin->name}";
+
+    if (!class_exists($fullclassname)) {
+        continue;
+    }
     $plugin = new $fullclassname();
     if (!$plugin instanceof bookingextension_interface) {
         continue; // Skip if the plugin does not implement the interface.
@@ -902,7 +906,7 @@ if ($ADMIN->fulltree) {
             0 // Default: off.
         ));
 
-        $confirmationworkflows['bookingextension_approval_trainer'] = get_string('approvalbytrainer', 'mod_booking');
+        $confirmationworkflows['bookingextension_confirmation_trainer'] = get_string('approvalbytrainer', 'mod_booking');
         // We retrieve all available bookingextensions
         foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
             // If there is a confirm_booking class, we use this.
@@ -918,7 +922,7 @@ if ($ADMIN->fulltree) {
                 'approvalworkflows',
                 get_string('approvalworkflows', 'mod_booking'),
                 get_string('approvalworkflows_desc', 'mod_booking'),
-                ['bookingextension_approval_trainer'], // Default is the standard Plugin.
+                ['bookingextension_confirmation_trainer'], // Default is the standard Plugin.
                 $confirmationworkflows,
             )
         );
