@@ -30,6 +30,7 @@ use context_system;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
+use mod_booking\option\timeintervall_handler;
 use MoodleQuickForm;
 use stdClass;
 
@@ -224,7 +225,12 @@ class booking_time implements bo_condition {
             get_string('restrictanswerperiodopening', 'mod_booking')
         );
 
-        $mform->addElement('date_time_selector', 'bookingopeningtime', get_string('from', 'mod_booking'));
+        $mform->addElement(
+            'date_time_selector',
+            'bookingopeningtime',
+            get_string('from', 'mod_booking'),
+            timeintervall_handler::set_timeintervall(),
+        );
         $mform->setType('bookingopeningtime', PARAM_INT);
         $mform->setDefault('bookingopeningtime', self::prettytime(time()));
         $mform->hideIf('bookingopeningtime', 'restrictanswerperiodopening', 'notchecked');
@@ -235,7 +241,12 @@ class booking_time implements bo_condition {
             get_string('restrictanswerperiodclosing', 'mod_booking')
         );
 
-        $mform->addElement('date_time_selector', 'bookingclosingtime', get_string('until', 'mod_booking'));
+        $mform->addElement(
+            'date_time_selector',
+            'bookingclosingtime',
+            get_string('until', 'mod_booking'),
+            timeintervall_handler::set_timeintervall(),
+        );
         $mform->setType('bookingclosingtime', PARAM_INT);
         $mform->setDefault('bookingclosingtime', self::prettytime(time()));
         $mform->hideIf('bookingclosingtime', 'restrictanswerperiodclosing', 'notchecked');

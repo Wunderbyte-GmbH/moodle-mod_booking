@@ -23,6 +23,7 @@ use mod_booking\booking_campaigns\campaigns_info;
 use mod_booking\booking_context_helper;
 use mod_booking\booking_option_settings;
 use mod_booking\customfield\booking_handler;
+use mod_booking\option\timeintervall_handler;
 use mod_booking\singleton_service;
 use mod_booking\task\purge_campaign_caches;
 use MoodleQuickForm;
@@ -40,7 +41,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class campaign_blockbooking implements booking_campaign {
-
     /** @var int $id */
     public $id = 0;
 
@@ -147,12 +147,22 @@ class campaign_blockbooking implements booking_campaign {
 
         campaigns_info::add_customfields_to_form($mform, $ajaxformdata);
 
-        $mform->addElement('date_time_selector', 'starttime', get_string('campaignstart', 'mod_booking'));
+        $mform->addElement(
+            'date_time_selector',
+            'starttime',
+            get_string('campaignstart', 'mod_booking'),
+            timeintervall_handler::set_timeintervall()
+        );
         $mform->setType('starttime', PARAM_INT);
         $mform->setDefault("starttime", self::prettytime(time() + 3600));
         $mform->addHelpButton('starttime', 'campaignstart', 'mod_booking');
 
-        $mform->addElement('date_time_selector', 'endtime', get_string('campaignend', 'mod_booking'));
+        $mform->addElement(
+            'date_time_selector',
+            'endtime',
+            get_string('campaignend', 'mod_booking'),
+            timeintervall_handler::set_timeintervall(),
+        );
         $mform->setType('endtime', PARAM_INT);
           $mform->setDefault("endtime", self::prettytime(time() + 3600));
         $mform->addHelpButton('endtime', 'campaignend', 'mod_booking');
@@ -177,10 +187,10 @@ class campaign_blockbooking implements booking_campaign {
             'textarea',
             'blockinglabel',
             get_string('blockinglabel', 'mod_booking'),
-            'rows="2" cols="50"');
+            'rows="2" cols="50"'
+        );
         $mform->setType('blockinglabel', PARAM_TEXT);
         $mform->addHelpButton('blockinglabel', 'blockinglabel', 'mod_booking');
-
     }
 
     /**
@@ -337,7 +347,6 @@ class campaign_blockbooking implements booking_campaign {
         $blocking = false;
 
         switch ($this->blockoperator) {
-
             case 'blockbelow':
                 $blocking = ($settings->maxanswers * $this->percentageavailableplaces * 0.01)
                     > booking_answers::count_places($ba->usersonlist);
@@ -361,7 +370,7 @@ class campaign_blockbooking implements booking_campaign {
             !empty($userid)
             && isset($this->cpfield)
             && !empty($bofieldname = $this->cpfield)
-            ) {
+        ) {
             // If there is a value, it has to match in order to block.
             $blocking = campaigns_info::check_if_profilefield_applies($this->cpvalue, $this->cpfield, $this->cpoperator, $userid);
         }

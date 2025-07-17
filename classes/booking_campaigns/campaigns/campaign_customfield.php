@@ -20,6 +20,7 @@ use mod_booking\booking_campaigns\booking_campaign;
 use mod_booking\booking_campaigns\campaigns_info;
 use mod_booking\booking_option_settings;
 use mod_booking\customfield\booking_handler;
+use mod_booking\option\timeintervall_handler;
 use mod_booking\singleton_service;
 use mod_booking\task\purge_campaign_caches;
 use MoodleQuickForm;
@@ -37,7 +38,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class campaign_customfield implements booking_campaign {
-
     /** @var int $id */
     public $id = 0;
 
@@ -140,12 +140,23 @@ class campaign_customfield implements booking_campaign {
 
         campaigns_info::add_customfields_to_form($mform, $ajaxformdata);
 
-        $mform->addElement('date_time_selector', 'starttime', get_string('campaignstart', 'mod_booking'));
+        $mform->addElement(
+            'date_time_selector',
+            'starttime',
+            get_string('campaignstart', 'mod_booking'),
+            timeintervall_handler::set_timeintervall(),
+        );
         $mform->setType('starttime', PARAM_INT);
         $mform->addHelpButton('starttime', 'campaignstart', 'mod_booking');
         $mform->setDefault('starttime', self::prettytime(time() + 3600));
 
-        $mform->addElement('date_time_selector', 'endtime', get_string('campaignend', 'mod_booking'));
+        $mform->addElement(
+            'date_time_selector',
+            'endtime',
+            get_string('campaignend'),
+            'mod_booking',
+            timeintervall_handler::set_timeintervall(),
+        );
         $mform->setType('endtime', PARAM_INT);
         $mform->addHelpButton('endtime', 'campaignend', 'mod_booking');
         $mform->setDefault('endtime', self::prettytime(time() + 3600));

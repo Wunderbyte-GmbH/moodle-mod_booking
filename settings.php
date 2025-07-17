@@ -134,7 +134,6 @@ foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension'
     if (!$plugin instanceof bookingextension_interface) {
         continue; // Skip if the plugin does not implement the interface.
     }
-    /** @var bookingextension_interface $plugin */
     $plugin->load_settings($ADMIN, 'modbookingfolder', $hassiteconfig);
 }
 
@@ -320,6 +319,17 @@ if ($ADMIN->fulltree) {
             cache_helper::purge_by_event('changesinwunderbytetable');
         });
         $settings->add($showoptiondatesextrainfo);
+
+        // Setting to change steps in timeselector to 5 minutes.
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/timeintervalls',
+                get_string('timeintervalls', 'mod_booking'),
+                get_string('timeintervalls_desc', 'mod_booking'),
+                0
+            )
+        );
+
 
         // Turn off modals.
         $settings->add(
