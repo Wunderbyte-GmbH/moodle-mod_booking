@@ -39,6 +39,10 @@ $enrollink = enrollink::get_instance($erlid);
 $info = $enrollink->enrolment_blocking();
 if (!empty($info)) {
     $infostring = $enrollink->get_readable_info($info);
+    $PAGE->set_context(context_system::instance());
+    $PAGE->set_url('/mod/booking/enrollink.php', ['erlid' => $erlid]);
+    $output = $PAGE->get_renderer('mod_booking');
+    echo $OUTPUT->header();
     echo $output->render_from_template(
         'mod_booking/enrollink',
         [
