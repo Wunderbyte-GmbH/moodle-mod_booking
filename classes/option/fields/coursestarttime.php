@@ -184,6 +184,7 @@ class coursestarttime extends field_base {
             get_string('selflearningcoursecoursestarttime', 'mod_booking')
         );
         $mform->setType('coursestarttime', PARAM_INT);
+        $mform->setDefault("coursestarttime", self::prettytime(time() + 3600));
         $mform->addHelpButton(
             'coursestarttime',
             'selflearningcoursecoursestarttime',
@@ -193,5 +194,23 @@ class coursestarttime extends field_base {
             $selflearningcourselabel
         );
         $mform->hideIf('coursestarttime', 'selflearningcourse', 'neq', 1);
+    }
+    /**
+     * Makes the minutes always to be zero.
+     *
+     * @param int $timestamp
+     *
+     * @return int
+     *
+     */
+    private static function prettytime(int $timestamp) {
+        $prettytimestamp = make_timestamp(
+            (int)date('Y', $timestamp),
+            (int)date('n', $timestamp),
+            (int)date('j', $timestamp),
+            (int)date('H', $timestamp),
+            0,
+        );
+        return $prettytimestamp;
     }
 }

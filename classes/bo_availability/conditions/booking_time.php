@@ -226,6 +226,7 @@ class booking_time implements bo_condition {
 
         $mform->addElement('date_time_selector', 'bookingopeningtime', get_string('from', 'mod_booking'));
         $mform->setType('bookingopeningtime', PARAM_INT);
+        $mform->setDefault('bookingopeningtime', self::prettytime(time()));
         $mform->hideIf('bookingopeningtime', 'restrictanswerperiodopening', 'notchecked');
 
         $mform->addElement(
@@ -236,6 +237,7 @@ class booking_time implements bo_condition {
 
         $mform->addElement('date_time_selector', 'bookingclosingtime', get_string('until', 'mod_booking'));
         $mform->setType('bookingclosingtime', PARAM_INT);
+        $mform->setDefault('bookingclosingtime', self::prettytime(time()));
         $mform->hideIf('bookingclosingtime', 'restrictanswerperiodclosing', 'notchecked');
 
         $mform->addElement(
@@ -480,4 +482,22 @@ class booking_time implements bo_condition {
             $defaultvalues->bo_cond_booking_time_overrideoperator = $acdefault->overrideoperator;
         }
     }*/
+    /**
+     * Makes the minutes always to be zero.
+     *
+     * @param int $timestamp
+     *
+     * @return int
+     *
+     */
+    private static function prettytime(int $timestamp) {
+        $prettytimestamp = make_timestamp(
+            (int)date('Y', $timestamp),
+            (int)date('n', $timestamp),
+            (int)date('j', $timestamp),
+            (int)date('H', $timestamp),
+            0,
+        );
+        return $prettytimestamp;
+    }
 }

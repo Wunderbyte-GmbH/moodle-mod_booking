@@ -149,10 +149,12 @@ class campaign_blockbooking implements booking_campaign {
 
         $mform->addElement('date_time_selector', 'starttime', get_string('campaignstart', 'mod_booking'));
         $mform->setType('starttime', PARAM_INT);
+        $mform->setDefault("starttime", self::prettytime(time() + 3600));
         $mform->addHelpButton('starttime', 'campaignstart', 'mod_booking');
 
         $mform->addElement('date_time_selector', 'endtime', get_string('campaignend', 'mod_booking'));
         $mform->setType('endtime', PARAM_INT);
+          $mform->setDefault("endtime", self::prettytime(time() + 3600));
         $mform->addHelpButton('endtime', 'campaignend', 'mod_booking');
 
         // Price factor (multiplier).
@@ -393,5 +395,23 @@ class campaign_blockbooking implements booking_campaign {
      */
     public function get_id_of_campaign(): int {
         return $this->id ?? 0;
+    }
+    /**
+     * Returns timestamp with 00 minutes.
+     *
+     * @param int $timestamp
+     *
+     * @return int
+     *
+     */
+    private static function prettytime(int $timestamp) {
+        $prettytimestamp = make_timestamp(
+            (int)date('Y', $timestamp),
+            (int)date('n', $timestamp),
+            (int)date('j', $timestamp),
+            (int)date('H', $timestamp),
+            0,
+        );
+        return $prettytimestamp;
     }
 }
