@@ -262,6 +262,18 @@ class bookingoptionsimporter {
                 'type' => PARAM_EMAIL,
                 'importinstruction' => get_string('importuseremail', 'mod_booking'),
             ],
+            [
+                'name' => 'coursestarttime',
+                'mandatory' => false,
+                'type' => PARAM_TEXT,
+                'importinstruction' => "coursestarttime",
+            ],
+             [
+                'name' => 'courseendtime',
+                'mandatory' => false,
+                'type' => PARAM_TEXT,
+                'importinstruction' => "courseendtime",
+            ],
         ];
         return $columnssequential;
     }
