@@ -34,7 +34,7 @@ use local_entities\entitiesrelation_handler;
 use mod_booking\customfield\optiondate_cfields;
 use mod_booking\option\dates_handler;
 use mod_booking\option\optiondate;
-use mod_booking\option\timeintervall_handler;
+use mod_booking\option\time_handler;
 use moodle_exception;
 use moodle_url;
 use MoodleQuickForm;
@@ -696,7 +696,7 @@ class dates {
             'date_time_selector',
             MOD_BOOKING_FORM_COURSESTARTTIME . $idx,
             get_string("coursestarttime", "booking"),
-            timeintervall_handler::set_timeintervall(),
+            time_handler::set_timeintervall(),
         );
         $mform->setType(MOD_BOOKING_FORM_COURSESTARTTIME . $idx, PARAM_INT);
         $time = self::timestamp_to_array($starttime);
@@ -707,7 +707,7 @@ class dates {
             'date_time_selector',
             MOD_BOOKING_FORM_COURSEENDTIME . $idx,
             get_string("courseendtime", "booking"),
-            timeintervall_handler::set_timeintervall(),
+            time_handler::set_timeintervall(),
         );
         $mform->setType(MOD_BOOKING_FORM_COURSEENDTIME . $idx, PARAM_INT);
         $time = self::timestamp_to_array($endtime);

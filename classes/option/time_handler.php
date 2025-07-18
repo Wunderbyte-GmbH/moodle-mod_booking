@@ -26,13 +26,13 @@ namespace mod_booking\option;
 
 
 /**
- * Control and manage booking dates.
+ * Prettify time display and set time.
  *
  * @copyright Wunderbyte GmbH <info@wunderbyte.at>
  * @author David Ala
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class timeintervall_handler {
+class time_handler {
     /**
      * Sets timeintervall according to setting.
      *
@@ -41,5 +41,25 @@ class timeintervall_handler {
      */
     public static function set_timeintervall() {
         return !empty((get_config('booking', 'timeintervalls'))) ? ['step' => 5] : [];
+    }
+    /**
+     * Makes the minutes always to be zero.
+     *
+     * @param int $timestamp
+     * @param bool $nextfullhour
+     *
+     * @return int
+     *
+     */
+    public static function prettytime(int $timestamp, bool $nextfullhour = true) {
+        $timestamp = $nextfullhour ? $timestamp + 3600 : $timestamp;
+        $prettytimestamp = make_timestamp(
+            (int)date('Y', $timestamp),
+            (int)date('n', $timestamp),
+            (int)date('j', $timestamp),
+            (int)date('H', $timestamp),
+            0,
+        );
+        return $prettytimestamp;
     }
 }

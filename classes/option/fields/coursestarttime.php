@@ -27,7 +27,7 @@ namespace mod_booking\option\fields;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
-use mod_booking\option\timeintervall_handler;
+use mod_booking\option\time_handler;
 use mod_booking\utils\wb_payment;
 use MoodleQuickForm;
 use stdClass;
@@ -183,10 +183,10 @@ class coursestarttime extends field_base {
             'date_time_selector',
             'coursestarttime',
             get_string('selflearningcoursecoursestarttime', 'mod_booking'),
-            timeintervall_handler::set_timeintervall(),
+            time_handler::set_timeintervall(),
         );
         $mform->setType('coursestarttime', PARAM_INT);
-        $mform->setDefault("coursestarttime", self::prettytime(time() + 3600));
+        $mform->setDefault("coursestarttime", time_handler::prettytime(time()));
         $mform->addHelpButton(
             'coursestarttime',
             'selflearningcoursecoursestarttime',
@@ -196,23 +196,5 @@ class coursestarttime extends field_base {
             $selflearningcourselabel
         );
         $mform->hideIf('coursestarttime', 'selflearningcourse', 'neq', 1);
-    }
-    /**
-     * Makes the minutes always to be zero.
-     *
-     * @param int $timestamp
-     *
-     * @return int
-     *
-     */
-    private static function prettytime(int $timestamp) {
-        $prettytimestamp = make_timestamp(
-            (int)date('Y', $timestamp),
-            (int)date('n', $timestamp),
-            (int)date('j', $timestamp),
-            (int)date('H', $timestamp),
-            0,
-        );
-        return $prettytimestamp;
     }
 }

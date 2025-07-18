@@ -23,7 +23,7 @@ use mod_booking\booking_campaigns\campaigns_info;
 use mod_booking\booking_context_helper;
 use mod_booking\booking_option_settings;
 use mod_booking\customfield\booking_handler;
-use mod_booking\option\timeintervall_handler;
+use mod_booking\option\time_handler;
 use mod_booking\singleton_service;
 use mod_booking\task\purge_campaign_caches;
 use MoodleQuickForm;
@@ -151,20 +151,20 @@ class campaign_blockbooking implements booking_campaign {
             'date_time_selector',
             'starttime',
             get_string('campaignstart', 'mod_booking'),
-            timeintervall_handler::set_timeintervall()
+            time_handler::set_timeintervall()
         );
         $mform->setType('starttime', PARAM_INT);
-        $mform->setDefault("starttime", self::prettytime(time() + 3600));
+        $mform->setDefault("starttime", time_handler::prettytime(time()));
         $mform->addHelpButton('starttime', 'campaignstart', 'mod_booking');
 
         $mform->addElement(
             'date_time_selector',
             'endtime',
             get_string('campaignend', 'mod_booking'),
-            timeintervall_handler::set_timeintervall(),
+            time_handler::set_timeintervall(),
         );
         $mform->setType('endtime', PARAM_INT);
-          $mform->setDefault("endtime", self::prettytime(time() + 3600));
+        $mform->setDefault("endtime", time_handler::prettytime(time()));
         $mform->addHelpButton('endtime', 'campaignend', 'mod_booking');
 
         // Price factor (multiplier).
@@ -404,23 +404,5 @@ class campaign_blockbooking implements booking_campaign {
      */
     public function get_id_of_campaign(): int {
         return $this->id ?? 0;
-    }
-    /**
-     * Returns timestamp with 00 minutes.
-     *
-     * @param int $timestamp
-     *
-     * @return int
-     *
-     */
-    private static function prettytime(int $timestamp) {
-        $prettytimestamp = make_timestamp(
-            (int)date('Y', $timestamp),
-            (int)date('n', $timestamp),
-            (int)date('j', $timestamp),
-            (int)date('H', $timestamp),
-            0,
-        );
-        return $prettytimestamp;
     }
 }

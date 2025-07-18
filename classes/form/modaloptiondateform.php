@@ -18,7 +18,7 @@ namespace mod_booking\form;
 
 use html_writer;
 use mod_booking\option\dates_handler;
-use mod_booking\option\timeintervall_handler;
+use mod_booking\option\time_handler;
 use stdClass;
 
 /**
@@ -56,7 +56,7 @@ class modaloptiondateform extends \core_form\dynamic_form {
             'date_time_selector',
             'optiondatestart',
             get_string('optiondatestart', 'booking'),
-            timeintervall_handler::set_timeintervall(),
+            time_handler::set_timeintervall(),
         );
         // Info: Help buttons in repeat_elements groups are causing problems with Moodle 4.0.
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
@@ -66,7 +66,7 @@ class modaloptiondateform extends \core_form\dynamic_form {
             'date_time_selector',
             'optiondateend',
             get_string('optiondateend', 'booking'),
-            timeintervall_handler::set_timeintervall(),
+            time_handler::set_timeintervall(),
         );
         // Info: Help buttons in repeat_elements groups are causing problems with Moodle 4.0.
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found

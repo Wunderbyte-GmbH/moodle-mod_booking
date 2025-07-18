@@ -30,7 +30,7 @@ use context_system;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
-use mod_booking\option\timeintervall_handler;
+use mod_booking\option\time_handler;
 use MoodleQuickForm;
 use stdClass;
 
@@ -229,10 +229,10 @@ class booking_time implements bo_condition {
             'date_time_selector',
             'bookingopeningtime',
             get_string('from', 'mod_booking'),
-            timeintervall_handler::set_timeintervall(),
+            time_handler::set_timeintervall(),
         );
         $mform->setType('bookingopeningtime', PARAM_INT);
-        $mform->setDefault('bookingopeningtime', self::prettytime(time()));
+        $mform->setDefault('bookingopeningtime', time_handler::prettytime(time()));
         $mform->hideIf('bookingopeningtime', 'restrictanswerperiodopening', 'notchecked');
 
         $mform->addElement(
@@ -245,10 +245,10 @@ class booking_time implements bo_condition {
             'date_time_selector',
             'bookingclosingtime',
             get_string('until', 'mod_booking'),
-            timeintervall_handler::set_timeintervall(),
+            time_handler::set_timeintervall(),
         );
         $mform->setType('bookingclosingtime', PARAM_INT);
-        $mform->setDefault('bookingclosingtime', self::prettytime(time()));
+        $mform->setDefault('bookingclosingtime', time_handler::prettytime(time()));
         $mform->hideIf('bookingclosingtime', 'restrictanswerperiodclosing', 'notchecked');
 
         $mform->addElement(
@@ -493,22 +493,5 @@ class booking_time implements bo_condition {
             $defaultvalues->bo_cond_booking_time_overrideoperator = $acdefault->overrideoperator;
         }
     }*/
-    /**
-     * Makes the minutes always to be zero.
-     *
-     * @param int $timestamp
-     *
-     * @return int
-     *
-     */
-    private static function prettytime(int $timestamp) {
-        $prettytimestamp = make_timestamp(
-            (int)date('Y', $timestamp),
-            (int)date('n', $timestamp),
-            (int)date('j', $timestamp),
-            (int)date('H', $timestamp),
-            0,
-        );
-        return $prettytimestamp;
-    }
+
 }

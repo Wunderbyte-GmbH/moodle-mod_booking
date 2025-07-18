@@ -330,7 +330,6 @@ if ($ADMIN->fulltree) {
             )
         );
 
-
         // Turn off modals.
         $settings->add(
             new admin_setting_configcheckbox(
