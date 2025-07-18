@@ -185,7 +185,9 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $responsiblestrings = [];
         foreach ($settings->responsiblecontact as $contact) {
             $user = singleton_service::get_instance_of_user((int) $contact);
-            $responsiblestrings[] = "$user->firstname $user->lastname";
+            if (isset($user->firstname) && $user->lastname) {
+                $responsiblestrings[] = "$user->firstname $user->lastname $user->email";
+            }
         }
         if ($this->is_downloading()) {
             $ret = implode(' | ', $responsiblestrings);
