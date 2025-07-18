@@ -833,6 +833,8 @@ class shortcodes {
         // Set common table options requirelogin, sortorder, sortby.
         self::set_common_table_options_from_arguments($table, $args);
 
+        $table->define_cache('mod_booking', 'mybookingoptionstable');
+
         try {
             $out = $table->outhtml($perpage, true);
         } catch (Throwable $e) {
