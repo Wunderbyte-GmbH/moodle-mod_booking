@@ -80,6 +80,10 @@ class booking_rules {
               JOIN {course_modules} cm ON c.instanceid = cm.id AND c.contextlevel = 70 -- CONTEXT_MODULE
               JOIN {modules} m ON m.id = cm.module AND m.name = 'booking'
              WHERE cm.deletioninprogress = 0
+             UNION
+            SELECT br2.*
+              FROM {booking_rules} br2
+              JOIN {context} c2 ON c2.id = br2.contextid AND c2.contextlevel = 10 -- CONTEXT_SYSTEM
           ORDER BY id ASC";
 
         if (empty($contextid)) {
