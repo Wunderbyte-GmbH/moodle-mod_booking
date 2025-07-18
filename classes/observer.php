@@ -25,6 +25,7 @@
 
 use core\event\base;
 use core\event\course_module_updated;
+use local_shopping_cart\event\item_added;
 use local_wunderbyte_table\event\template_switched;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
@@ -36,6 +37,7 @@ use mod_booking\event\bookinganswer_presencechanged;
 use mod_booking\event\bookinganswer_notesedited;
 use mod_booking\event\bookingoption_booked;
 use mod_booking\local\checkanswers\checkanswers;
+use mod_booking\local\mobile\customformstore;
 use mod_booking\local\respondapi\handlers\respondapi_handler;
 use mod_booking\option\fields\certificate;
 use mod_booking\output\view;
@@ -576,6 +578,25 @@ class mod_booking_observer {
     public static function bookinganswer_notesedited(bookinganswer_notesedited $event) {
         // In the future, we might want to do something here.
         // For now, we just return.
+        return;
+    }
+
+    /**
+     * React on the item added event from local shoppingcart.
+     * @param item_added $event
+     * @return void
+     */
+    public static function shoppingcart_item_added(item_added $event) {
+        $eventdata = $event->get_data();
+        if (
+            empty($eventdata)
+            || ($eventdata['other']['component'] ?? null) !== 'mod_booking'
+        ) {
+            return;
+        }
+        // Any data that is stored in a form is deleted from the cache if an item is added to the shoppingcart.
+        $customformstore = new customformstore($eventdata['userid'], $eventdata['other']['itemid']);
+        $customformstore->delete_customform_data();
         return;
     }
 }

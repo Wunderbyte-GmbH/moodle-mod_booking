@@ -141,7 +141,6 @@ class customformstore {
                 if (!(int) $data[$identifier]) {
                     $errors[$identifier] = get_string('error:chooseint', 'mod_booking');
                 }
-
             }
             if (!empty($formelement->notempty)) {
                 if (empty($data[$identifier])) {

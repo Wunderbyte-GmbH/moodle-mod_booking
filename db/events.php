@@ -110,4 +110,8 @@ $observers = [
         'eventname' => '\mod_booking\event\bookinganswer_notesedited',
         'callback' => 'mod_booking_observer::bookinganswer_notesedited',
     ],
+    [
+        'eventname' => '\local_shopping_cart\event\item_added',
+        'callback' => 'mod_booking_observer::shoppingcart_item_added',
+    ],
 ];
