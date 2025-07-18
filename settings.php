@@ -352,6 +352,18 @@ if ($ADMIN->fulltree) {
                 $presenceoptions
             )
         );
+
+        if (class_exists('local_shopping_cart\shopping_cart')) {
+            // Display shoppingcart history.
+            $settings->add(
+                new admin_setting_configcheckbox(
+                    'booking/displayshoppingcarthistory',
+                    get_string('displayshoppingcarthistory', 'mod_booking'),
+                    get_string('displayshoppingcarthistory_desc', 'mod_booking'),
+                    1
+                )
+            );
+        }
     } else {
         $settings->add(
             new admin_setting_heading(

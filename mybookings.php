@@ -44,6 +44,10 @@ echo $OUTPUT->header();
 
 echo $OUTPUT->heading(get_string('mybookingoptions', 'mod_booking'));
 
+if (class_exists('local_shopping_cart\shopping_cart')) {
+    echo local_shopping_cart\shortcodes::shoppingcarthistory('', [], '', (object)[], fn($a) => $a);
+}
+
 echo shortcodes::mycourselist('', [], '', (object)[], fn($a) => $a);
 
 echo $OUTPUT->footer();
