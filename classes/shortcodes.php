@@ -744,7 +744,6 @@ class shortcodes {
         $pageurl = $course->shortname . $PAGE->url->out();
         $perpage = self::check_perpage($args);
 
-        $table = self::init_table_for_courses();
         if (!empty($args['cmid'])) {
             $booking = singleton_service::get_instance_of_booking_settings_by_cmid((int)$args['cmid']);
             $wherearray['bookingid'] = (int)$booking->id;
