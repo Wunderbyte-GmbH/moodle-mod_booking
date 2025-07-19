@@ -178,8 +178,11 @@ class mod_booking_generator extends testing_module_generator {
             foreach ($teacherarr as $teacher) {
                 $record->teachersforoption[] = $this->get_user(trim($teacher));
             }
+        } else {
+            $record->teachersforoption = [];
         }
 
+        // Process semesterID.
         if (!empty($record->semesterid)) {
             // Force $bookingsettings->semesterid by given $record->semesterid.
             $DB->set_field('booking', 'semesterid', $record->semesterid, ['id' => $record->bookingid]);
