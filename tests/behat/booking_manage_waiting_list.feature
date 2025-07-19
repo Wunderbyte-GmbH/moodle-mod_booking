@@ -190,6 +190,7 @@ Feature: In a course add a booking option and manage its waiting list
     And I should see "student3@example.com" in the "tr[id^='waitinglist'][id$='r1'] td.columnclass.email" "css_element"
     And I should see "student4@example.com" in the "tr[id^='waitinglist'][id$='r2'] td.columnclass.email" "css_element"
     And I click on "tr[id^='waitinglist'][id$='r2'] [data-methodname='unconfirmbooking']" "css_element"
+    And I wait "1" seconds
     And I click on "Delete" "button" in the ".modal-footer" "css_element"
     And I log out
     ## Validate availability and buy option as student 3
