@@ -182,6 +182,17 @@ class mod_booking_generator extends testing_module_generator {
             $record->teachersforoption = [];
         }
 
+        // Process option responsible contact persons.
+        if (!empty($record->responsiblecontact)) {
+            $rcparr = explode(',', $record->responsiblecontact);
+            $record->responsiblecontact = [];
+            foreach ($rcparr as $rcp) {
+                $record->responsiblecontact[] = $this->get_user(trim($rcp));
+            }
+        } else {
+            $record->responsiblecontact = [];
+        }
+
         // Process semesterID.
         if (!empty($record->semesterid)) {
             // Force $bookingsettings->semesterid by given $record->semesterid.
