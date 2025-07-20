@@ -1260,7 +1260,7 @@ class booking_option {
                 $waitinglist === MOD_BOOKING_STATUSPARAM_BOOKED
                 && (
                     $status != MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL
-                    && !empty($this->settings->waitforconfirmation)
+                    && $this->settings->waitforconfirmation == 1
                 )
                 || (
                     ($status === MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL)
@@ -2362,7 +2362,19 @@ class booking_option {
         if ($bookingstatus = reset($bookingstatus)) {
             if (
                 isset($bookingstatus['fullybooked'])
-                && !$bookingstatus['fullybooked']
+                && (!$bookingstatus['fullybooked']
+                    && (
+                        (    // Other users already waiting and given user not yet on list.
+                            (empty($bookingstatus['waiting'])
+                            || empty($settings->jsonobject->useprice)
+                            )
+                        ||
+                            isset($bookinganswer->users[$userid])
+                        )
+                        || $confirmstatus == MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL
+                        || $settings->jsonobject->waitforconfirmation != 2
+                    )
+                )
             ) {
                 $status = MOD_BOOKING_STATUSPARAM_BOOKED;
             } else if (
