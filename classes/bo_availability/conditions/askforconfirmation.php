@@ -111,21 +111,22 @@ class askforconfirmation implements bo_condition {
         // ... then with waitforconfirmation = 2, booking should be possible only on the waitinglist.
         if (
             !isset($bookinginformation['onwaitinglist'])
-            && ((
-                $settings->waitforconfirmation == 1
-                || (!empty($settings->jsonobject->useprice))
-                    && (
-                        isset($bookinginformation['notbooked']['fullybooked'])
-                        && $bookinginformation['notbooked']['fullybooked'] === true
-                        && ($settings->maxoverbooking > booking_answers::count_places($bookinganswer->usersonwaitinglist))
+            && (
+                    (
+                    $settings->waitforconfirmation == 1
+                    || (!empty($settings->jsonobject->useprice))
+                        && (
+                            isset($bookinginformation['notbooked']['fullybooked'])
+                            && $bookinginformation['notbooked']['fullybooked'] === true
+                            && ($settings->maxoverbooking > booking_answers::count_places($bookinganswer->usersonwaitinglist))
+                        )
                     )
-                )
-            ||
-                ($settings->waitforconfirmation == 2
-                && isset($bookinginformation['notbooked']['fullybooked'])
-                && $bookinginformation['notbooked']['fullybooked'] === false
-                && (!isset($bookinginformation['notbooked']['waiting'])
-                    || $bookinginformation['notbooked']['waiting'] > 0))
+                ||
+                    ($settings->waitforconfirmation == 2
+                    && isset($bookinginformation['notbooked']['fullybooked'])
+                    && $bookinginformation['notbooked']['fullybooked'] === false
+                    && (!isset($bookinginformation['notbooked']['waiting'])
+                        || $bookinginformation['notbooked']['waiting'] > 0))
             )
         ) {
             if (

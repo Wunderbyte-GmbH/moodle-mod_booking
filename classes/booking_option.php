@@ -2365,15 +2365,18 @@ class booking_option {
                 && (!$bookingstatus['fullybooked']
                     && (
                         (    // Other users already waiting and given user not yet on list.
+                            // No one waiting.
                             (empty($bookingstatus['waiting'])
+                            // No price set.
                             || empty($settings->jsonobject->useprice)
                             )
                         ||
+                            // User already on list.
                             isset($bookinganswer->users[$userid])
                         )
                         || $confirmstatus == MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL
-                        || $settings->jsonobject->waitforconfirmation != 2
                     )
+                    //&& $settings->jsonobject->waitforconfirmation != 2
                 )
             ) {
                 $status = MOD_BOOKING_STATUSPARAM_BOOKED;
