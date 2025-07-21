@@ -1375,14 +1375,6 @@ final class rules_waitinglist_test extends advanced_testcase {
         // Create course.
         $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
-        $this->getDataGenerator()->create_custom_profile_field([
-            'datatype' => 'text',
-            'shortname' => 'pricecat',
-            'name' => 'pricecat',
-        ]);
-        set_config('pricecategoryfield', 'pricecat', 'booking');
-        set_config('displayemptyprice', 1, 'booking');
-
         // Create users, some of them with second price category.
         $student1 = $this->getDataGenerator()->create_user();
         $student2 = $this->getDataGenerator()->create_user($testdata['student2settings'] ?? []);
@@ -1436,7 +1428,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course1->id;
         $record->maxoverbooking = 10; // Enable waitinglist.
-        $record->waitforconfirmation = 0;
+        $record->waitforconfirmation = 2;
         $record->description = 'Will start in 2050';
         $record->optiondateid_0 = "0";
         $record->daystonotify_0 = "0";
@@ -1468,63 +1460,61 @@ final class rules_waitinglist_test extends advanced_testcase {
         // Book the student2 on waitinglist.
         $this->setUser($student2);
         singleton_service::destroy_user($student2->id);
-        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student2->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id);
+        $result = booking_bookit::bookit('option', $settings1->id, $student2->id);
         $result = booking_bookit::bookit('option', $settings1->id, $student2->id);
         [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
-        // // Book the student3 via waitinglist.
-        // time_mock::set_mock_time(strtotime('+1 days', time()));
-        // $time = time_mock::get_mock_time();
-        // $this->setUser($student3);
-        // singleton_service::destroy_user($student3->id);
-        // $result = booking_bookit::bookit('option', $settings1->id, $student3->id);
-        // [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student3->id, true);
-        // $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
+        // Book the student3 via waitinglist.
+        time_mock::set_mock_time(strtotime('+1 days', time()));
+        $time = time_mock::get_mock_time();
+        $this->setUser($student3);
+        singleton_service::destroy_user($student3->id);
+        $result = booking_bookit::bookit('option', $settings1->id, $student3->id);
+        $result = booking_bookit::bookit('option', $settings1->id, $student3->id);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student3->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
-        // // Book the student4 via waitinglist.
-        // time_mock::set_mock_time(strtotime('+1 day', time()));
-        // $time = time_mock::get_mock_time();
-        // $this->setUser($student4);
-        // singleton_service::destroy_user($student4->id);
-        // $result = booking_bookit::bookit('option', $settings1->id, $student4->id);
-        // [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student4->id, true);
-        // $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
+        // Book the student4 via waitinglist.
+        time_mock::set_mock_time(strtotime('+1 day', time()));
+        $time = time_mock::get_mock_time();
+        $this->setUser($student4);
+        singleton_service::destroy_user($student4->id);
+        $result = booking_bookit::bookit('option', $settings1->id, $student4->id);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student4->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMBOOKIT, $id);
+        $result = booking_bookit::bookit('option', $settings1->id, $student4->id);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student4->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // First user cancels.
-        // $this->setUser($student1);
-        // singleton_service::destroy_user($student1->id);
-        // // Render to see if "cancel purchase" present.
-        // $buttons = booking_bookit::render_bookit_button($settings1, $student1->id);
-        // $this->assertStringContainsString('Cancel purchase', $buttons);
-        // // Cancellation of purcahse if shopping_cart installed.
-        // // Getting history of purchased item and verify.
-        // $item = shopping_cart_history::get_most_recent_historyitem('mod_booking', 'option', $settings1->id, $student1->id);
-        // shopping_cart::add_quota_consumed_to_item($item, $student1->id);
-        // shoppingcart_history_list::add_round_config($item);
-        // $this->assertEquals($settings1->id, $item->itemid);
-        // $this->assertEquals($student1->id, $item->userid);
-        // $this->assertEquals($pricecategorydata1->defaultvalue, (int) $item->price);
-        // $this->assertEquals(0, $item->quotaconsumed);
-        // // Actual cancellation of purcahse and verify.
-        // $res = shopping_cart::cancel_purchase($settings1->id, 'option', $student1->id, 'mod_booking', $item->id, 0);
-        // $this->assertEquals(1, $res['success']);
-        // $this->assertEquals($pricecategorydata1->defaultvalue, $res['credit']);
-        // $this->assertEmpty($res['error']);
+        $this->setUser($student1);
+        singleton_service::destroy_user($student1->id);
+        // Render to see if "Undo my booking" present.
+        $buttons = booking_bookit::render_bookit_button($settings1, $student1->id);
+        $this->assertStringContainsString('Undo my booking', $buttons);
+        $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMCANCEL, $id);
+        $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
 
-        // $ba = singleton_service::get_instance_of_booking_answers($settings1);
-        // $answersofoption = $DB->get_records('booking_answers', ['optionid' => $settings1->id]);
+        // Even if there is a free spot, a "new" user can not book with setting waitforconfirmation = 2.
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id);
 
-        // // Try to book EXTERNAL user - not yet on waitinglist.
-        // // Result depends on waitforconfirmation setting.
-        // $this->setUser($student5);
-        // singleton_service::destroy_user($student5->id);
-        // $answer = $DB->get_record('booking_answers', ['userid' => $student5->id]);
-        // $result = booking_bookit::bookit('option', $settings1->id, $student5->id);
-        // $answer = $DB->get_record('booking_answers', ['userid' => $student5->id]);
-        // [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student5->id, true);
-        // $this->assertEquals($expected['newuserresponse'], $id);
+        // Try to book EXTERNAL user - not yet on waitinglist.
+        // Result depends on waitforconfirmation setting.
+        $this->setUser($student6);
+        singleton_service::destroy_user($student6->id);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student6->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id);
+        $button1 = booking_bookit::render_bookit_button($settings1, $student6->id);
+        // This booking should lead user to be booked only on waitinglist.
+        $result = booking_bookit::bookit('option', $settings1->id, $student6->id);
+        $answer6 = $DB->get_record('booking_answers', ['userid' => $student6->id]);
+        $button2 = booking_bookit::render_bookit_button($settings1, $student6->id);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student6->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // // Asserting that the spot is EITHER free to book OR booked by next user AND proper number of users remains on waitinglist.
         // $ba = singleton_service::get_instance_of_booking_answers($settings1);
