@@ -764,7 +764,8 @@ class booking_option_settings {
                         u.username
                     FROM {booking_teachers} t
                LEFT JOIN {user} u ON t.userid = u.id
-                   WHERE t.optionid = :optionid",
+                   WHERE t.optionid = :optionid
+                   ORDER BY u.lastname, u.firstname",
             ['optionid' => $this->id]
         );
 
