@@ -1,3 +1,15 @@
+## Version 8.14.11 (2025072100)
+* Improvement: Possibility to select multiple users as responsible contact.
+* Improvement: Possibility to display shoppingcarthistory in mybookings.php
+* Improvement: add coursestarttime and courseendtime to optionimporter
+* Improvement: Add anchor to link for selflearningcourse setting.
+* Improvement: Better strings for enrolment checkbox options
+* Bugfix: invalidate cache of customformcondition of option when item is put into cart
+* Bugfix: Define cache for mycourselist (mybookings.php)
+* Bugfix: Make sure we only return rules for existing booking instances.
+* Bugfix: Use inline-block instead of inline for table list row
+* Bugfix: Correctly display error message of enrollink
+
 ## Version 8.14.10 (2025071100)
 * Improvement: Show warning when creating forbidden shortnames for customfields.
 * Improvement: Choice of mulitple displays of free places
