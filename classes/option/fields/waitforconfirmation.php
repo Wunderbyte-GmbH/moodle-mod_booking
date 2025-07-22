@@ -93,7 +93,6 @@ class waitforconfirmation extends field_base {
         int $updateparam,
         $returnvalue = null
     ): array {
-
         if (isset($formdata->waitforconfirmation)) {
             booking_option::add_data_to_json($newoption, "waitforconfirmation", $formdata->waitforconfirmation);
             if (isset($formdata->confirmationonnotification)) {
@@ -152,8 +151,19 @@ class waitforconfirmation extends field_base {
             $waitforconfirmationoptions
         );
 
-        $mform->addElement('advcheckbox', 'confirmationonnotification', get_string('confirmationonnotification', 'mod_booking'));
-        $mform->hideIf('confirmationonnotification', 'waitforconfirmation', 'neq', 2);
+        // Confirmation on notification.
+        $confirmationonnotificationoptions = [
+            0 => get_string('confirmationonnotificationnoopen', 'mod_booking'),
+            1 => get_string('confirmationonnotificationyesforall', 'mod_booking'),
+            2 => get_string('confirmationonnotificationyesoneatatime', 'mod_booking'),
+        ];
+        $mform->addElement(
+            'select',
+            'confirmationonnotification',
+            get_string('confirmationonnotification', 'mod_booking'),
+            $confirmationonnotificationoptions
+        );
+        $mform->hideIf('confirmationonnotification', 'waitforconfirmation', 'eq', 0);
 
         $mform->addElement(
             'static',

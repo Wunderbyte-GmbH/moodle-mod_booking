@@ -108,7 +108,6 @@ class confirm_bookinganswer_withprice implements booking_rule_action {
         // Check if booking option has confirmationonnotification enabled,
         // in this case we need to set some settings for the booking answer record
         // for the user who is going to reserve this (priced) option.
-        // TODO: MDL-0 Set null for the other answers for current booking option when confirmationonnotification is equal to 2.
 
         $bookingoptionsettings = singleton_service::get_instance_of_booking_option_settings($record->optionid);
         if ($bookingoptionsettings->confirmationonnotification == 0) {
@@ -132,8 +131,38 @@ class confirm_bookinganswer_withprice implements booking_rule_action {
             $bookinganswer->id,
             null,
             MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION,
-            $erlid = "",
-            $historystatus = 0
+            "",
+            0
         );
+
+        // Set json to null for all other users on waiting list for this optuion
+        // in booking answer records if confirmationonnotification is equal to 2.
+        if ($bookingoptionsettings->confirmationonnotification == 2) {
+            // Get sprecific booking answer record.
+            $bookinganswers = $DB->get_records('booking_answers', [
+                'optionid' => $record->optionid,
+                'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+            ]);
+
+            foreach ($bookinganswers as $ba) {
+                if ($ba->userid == $record->userid) {
+                    continue;
+                }
+
+                // Update booking answer.
+                booking_option::write_user_answer_to_db(
+                    $ba->bookingid,
+                    $ba->frombookingid,
+                    $ba->userid,
+                    $ba->optionid,
+                    MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+                    $ba->id,
+                    null,
+                    MOD_BOOKING_BO_SUBMIT_STATUS_UN_CONFIRM,
+                    "",
+                    0
+                );
+            }
+        }
     }
 }
