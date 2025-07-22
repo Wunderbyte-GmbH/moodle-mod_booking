@@ -597,9 +597,23 @@ class shortcodes {
         if ($cfwhere = self::set_customfield_wherearray($args, $wherearray, $tempparams, $columnfilters) ?? '') {
             $tempwherearray[] = $cfwhere;
         }
+        $cmidsfromcourse = [];
+        if (isset($args['courseid'])) {
+            $courseid = $args['courseid'];
+            try {
+                $modinfo = get_fast_modinfo($courseid);
+                if (isset($modinfo->instances['booking'])) {
+                    foreach ($modinfo->instances['booking'] as $bookinginstance) {
+                        $cmidsfromcourse[] = $bookinginstance->id;
+                    }
+                }
+            } catch (Throwable $e) {
+                return get_string('shortcode:courseidnotexisting', 'mod_booking', $args['courseid']);
+            }
+        }
 
         try {
-            if ($cmidwhere = self::set_cmid_wherearray($args, $wherearray, $tempparams)) {
+            if ($cmidwhere = self::set_cmid_wherearray($args, $wherearray, $tempparams, $cmidsfromcourse)) {
                 $tempwherearray[] = $cmidwhere;
             }
         } catch (Throwable $e) {
@@ -1369,15 +1383,30 @@ class shortcodes {
      * @param array $args
      * @param array $wherearray
      * @param array $params
+     * @param array $cmidsfromcourse
      *
      * @return string
      *
      */
-    private static function set_cmid_wherearray(array &$args, array &$wherearray, &$params = []) {
+    private static function set_cmid_wherearray(
+        array &$args,
+        array &$wherearray,
+        array &$params = [],
+        array $cmidsfromcourse = [],
+    ) {
         global $DB;
         if (empty($args['cmid']) && !empty($args['id'])) {
             $args['cmid'] = $args['id'];
         }
+
+        if (!empty($args['cmid']) && !empty($cmidsfromcourse)) {
+            $cmids = explode(',', $args['cmid'] ?? '');
+            $cmidsfromcourse = array_merge($cmids, array_values($cmidsfromcourse));
+            $args['cmid'] = implode(',', $cmidsfromcourse);
+        } else if (!empty($cmidsfromcourse)) {
+            $args['cmid'] = implode(',', $cmidsfromcourse);
+        }
+
         $additionalwhere = "";
         if (!empty($args['cmid'])) {
             $bookings = [];

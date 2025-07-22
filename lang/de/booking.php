@@ -2286,6 +2286,7 @@ $string['sessions'] = 'Termin(e)';
 $string['shoppingcart'] = 'Zahlungsoptionen mit Shopping Cart Plugin definieren';
 $string['shoppingcartplaceholder'] = 'Warenkorb';
 $string['shortcode:cmidnotexisting'] = 'Der Kursmodul ID {$a} existiert nicht für die Aktivität Booking';
+$string['shortcode:courseidnotexisting'] = 'Die Moodle Kurs Id {$a} existiert';
 $string['shortcode:error'] = "Dieser Shortcode führt zu einer fehlerhaften Ausgabe. Überprüfen Sie die Parameter";
 $string['shortcodenotsupportedonyourdb'] = "Dieser Shortcode funktioniert nur auf Postgres & Mariadb Datenbanken.";
 $string['shortcodesettings'] = "Shortcodes Einstellungen";
