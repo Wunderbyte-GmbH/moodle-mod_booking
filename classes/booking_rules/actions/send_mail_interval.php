@@ -18,7 +18,9 @@ namespace mod_booking\booking_rules\actions;
 
 use mod_booking\booking_rules\booking_rule_action;
 use mod_booking\placeholders\placeholders_info;
+use mod_booking\singleton_service;
 use mod_booking\task\send_mail_by_rule_adhoc;
+use mod_booking\booking_rules\actions\confirm_bookinganswer_withprice;
 use MoodleQuickForm;
 use stdClass;
 
@@ -261,5 +263,9 @@ class send_mail_interval implements booking_rule_action {
 
         // Now queue the task or reschedule it if it already exists (with matching data).
         \core\task\manager::reschedule_or_queue_adhoc_task($task);
+
+        // Set confirmation settings for the booking answer record.
+        $action = new confirm_bookinganswer_withprice();
+        $action->execute($record);
     }
 }

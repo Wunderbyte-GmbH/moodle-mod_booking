@@ -820,6 +820,7 @@ $string['confirmationonnotification'] = 'Open booking for notified user';
 $string['confirmationonnotificationoneatatime'] = 'Only the <b>one </b> person who was last notified should be able to book';
 $string['confirmationonnotificationwarning'] = '<div class="alert alert-warning" role="alert">Please note that you must configure a corresponding rule for this function to work.</div>';
 $string['confirmbooking'] = 'Confirmation of this booking';
+$string['confirmbookinganswerwithprice'] = 'Confirm booking answer when a price is set and user notification is enabled.';
 $string['confirmbookinglong'] = 'Do you really want to confirm this booking?';
 $string['confirmbookingoffollowing'] = 'Please confirm the booking of following course';
 $string['confirmbookingtitle'] = "Confirm booking";
