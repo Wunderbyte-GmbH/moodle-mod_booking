@@ -743,7 +743,7 @@ if (!$tableallbookings->is_downloading()) {
         $shoppingcartfrom = "
         LEFT JOIN ( SELECT itemid,price,userid, currency FROM {local_shopping_cart_history} sch
             WHERE itemid = :shitemid AND componentname LIKE 'mod_booking'
-                AND paymentstatus = 2 ORDER BY timecreated LIMIT 1)
+                AND paymentstatus = 2 ORDER BY timecreated)
                 as s2 ON s2.itemid = ba.optionid AND s2.userid = ba.userid ";
         $sqlvalues['shitemid'] = $sqlvalues['optionid'];
     } else {
@@ -807,7 +807,7 @@ if (!$tableallbookings->is_downloading()) {
             $certificatefrom = "";
     }
 
-    // ALL USERS - START To make compatible MySQL and PostgreSQL - http://hyperpolyglot.org/db.
+    // ALL USERS.
     $fields = 'ba.id, ' . $mainuserfields . ',
             ba.optionid,
             u.username,
