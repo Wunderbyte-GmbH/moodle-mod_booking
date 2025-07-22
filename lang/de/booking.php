@@ -808,6 +808,7 @@ $string['confirmationonnotification'] = 'Buchungen für benachrichtigte Personen
 $string['confirmationonnotificationoneatatime'] = 'Nur die <b>eine</b>, zuletzt benachrichtigte Person soll buchen können';
 $string['confirmationonnotificationwarning'] = '<div class="alert alert-warning" role="alert">Achtung, damit diese Funktion funktioniert, müssen Sie eine entsprechende Regel konfigurieren.</div>';
 $string['confirmbooking'] = 'Bestätigen der Buchung';
+$string['confirmbookinganswerwithprice'] = 'Buchungsantwort bestätigen, wenn ein Preis festgelegt ist und die Benachrichtigung für Benutzer aktiviert ist.';
 $string['confirmbookinglong'] = 'Wollen Sie diese Buchung wirklich bestätigen?';
 $string['confirmbookingoffollowing'] = 'Bitte bestätigen Sie folgende Buchung';
 $string['confirmbookingtitle'] = "Buchung bestätigen";
