@@ -39,6 +39,7 @@ use invalid_parameter_exception;
 use local_entities\entitiesrelation_handler;
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\bo_availability\conditions\optionhasstarted;
+use mod_booking\event\booking_debug;
 use mod_booking\event\booking_rulesexecutionfailed;
 use mod_booking\event\bookinganswer_presencechanged;
 use mod_booking\event\bookinganswer_notesedited;
@@ -4023,6 +4024,14 @@ class booking_option {
         // If no ID provided we treat record as new and set id to "0".
         $optionid = is_array($data) ? ($data['id'] ?? 0) : ($data->id ?? 0);
         $originaloption = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $originaloptionid = $originaloption->id ?? $originaloption->optionid ?? 0;
+        $originaloptionbookingid = $originaloption->bookingid ?? 0;
+        $originaloptionmaxanswers = $originaloption->maxanswers ?? 0;
+        $originaloptioncmid = $originaloption->cmid ?? 0;
+
+        $ba = singleton_service::get_instance_of_booking_answers($originaloption);
+        // Check if the original option is fully booked.
+        $originalfullybooked = $ba->is_fully_booked();
 
         // If $formdata is an array, we need to run set_data.
         if (is_array($data) || isset($data->importing)) {
@@ -4074,26 +4083,40 @@ class booking_option {
 
         // Sync the waiting list and send status change mails.
         if (
-            !empty($originaloption->id) // If we have an old option at all.
-            && !empty($originaloption->bookingid) // If it's not a template.
-            && ($originaloption->maxanswers ?? 0) < ($newoption->maxanswers ?? 0) // Only then we show if we need to sync.
+            !empty($originaloptionid) // If we have an old option at all.
+            && !empty($originaloptionbookingid) // If it's not a template.
+            && ($originaloptionmaxanswers ?? 0) < ($newoption->maxanswers ?? 0) // Only then we show if we need to sync.
         ) {
             // We have more places now, so we can sync without danger.
 
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-            $ba = singleton_service::get_instance_of_booking_answers($originaloption);
-            // Check if the option is fully booked.
-            $fullybooked = $ba->is_fully_booked();
             // Do not sync waitinglist if it is enforced.
             if (empty($newoption->waitforconfirmation)) {
                 $option->sync_waiting_list();
             }
 
+            if (get_config('booking', 'bookingdebugmode')) {
+                // If debug mode is enabled, we create a debug message.
+                $event = booking_debug::create([
+                    'objectid' => $optionid ?? 0,
+                    'context' => context_system::instance(),
+                    'relateduserid' => $USER->id ?? 0,
+                    'other' => [
+                        'originalfullybooked' => $originalfullybooked ?? '',
+                        'originaloptionid' => $originaloptionid ?? 0,
+                        'originaloptionbookingid' => $originaloptionbookingid ?? 0,
+                        'originaloptionmaxanswers' => $originaloptionmaxanswers ?? 0,
+                        'newoptionmaxanswers' => $newoption->maxanswers ?? 0,
+                    ],
+                ]);
+                $event->trigger();
+            }
+
             // If it was fully booked, we need to trigger the places free again event.
-            self::check_if_free_to_book_again($settings, 0, $fullybooked);
+            self::check_if_free_to_book_again($settings, 0, $originalfullybooked);
         } else if (
-            ($originaloption->maxanswers ?? 0) > ($newoption->maxanswers ?? 0)
+            ($originaloptionmaxanswers ?? 0) > ($newoption->maxanswers ?? 0)
             && !get_config('booking', 'keepusersbookedonreducingmaxanswers')
             && empty($newoption->waitforconfirmation)
         ) {
@@ -4131,7 +4154,7 @@ class booking_option {
             return !empty($value);
         });
         $changes = array_merge($feedbackpost, $feedbackformchanges);
-        $cmid = $originaloption->cmid ?? $data->cmid ?? 0;
+        $cmid = $originaloptioncmid ?? $data->cmid ?? 0;
 
         // Only react on changes if update is triggered via formsave (see comment at beginning of function - cases A) & B))...
         // ... since otherwise previous data is unreliable.

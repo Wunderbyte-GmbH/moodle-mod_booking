@@ -33,7 +33,6 @@ use moodle_url;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class booking_debug extends \core\event\base {
-
     /**
      * Booking init.
      * @return void
@@ -65,7 +64,9 @@ class booking_debug extends \core\event\base {
      * @return moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/booking/subscribeusers.php',
-                ['id' => $this->contextinstanceid, 'optionid' => $this->objectid]);
+        return new \moodle_url(
+            '/mod/booking/subscribeusers.php',
+            ['id' => $this->contextinstanceid, 'optionid' => $this->objectid]
+        );
     }
 }
