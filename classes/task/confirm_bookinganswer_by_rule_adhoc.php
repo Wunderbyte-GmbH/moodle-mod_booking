@@ -87,7 +87,7 @@ class confirm_bookinganswer_by_rule_adhoc extends \core\task\adhoc_task {
                 && ($taskdata->rulejson !== $ruleinstance->rulejson)
             ) {
                 mtrace(
-                    'send_mail_by_rule_adhoc task: Rule has changed. Mail was NOT SENT for option.'
+                    'confirm_bookinganswer_by_rule_adhoc task: Rule has changed. Confirmation was NOT given for option.'
                     . $taskdata->optionid . ' and user ' . $taskdata->userid .  PHP_EOL
                 );
                 return;
@@ -127,8 +127,8 @@ class confirm_bookinganswer_by_rule_adhoc extends \core\task\adhoc_task {
                 $optionsettings = singleton_service::get_instance_of_booking_option_settings($taskdata->optionid);
                 if ($optionsettings->confirmationonnotification == 0) {
                     mtrace(
-                        'send_mail_by_rule_adhoc task: confirmationonnotification is equal to 0 for option.'
-                        . $taskdata->optionid . ' and user ' . $taskdata->userid .  PHP_EOL
+                        'confirm_bookinganswer_by_rule_adhoc task: setting in the booking option is set to 0, so no confirmation '
+                        . 'is required for this option.' . $taskdata->optionid . ' and user ' . $taskdata->userid . PHP_EOL
                     );
                     return;
                 }
