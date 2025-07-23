@@ -1582,7 +1582,6 @@ final class rules_waitinglist_test extends advanced_testcase {
         [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
-
         // Check for proper number of tasks.
         // Tasks are tested in depth in other tests of this class.
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
@@ -1644,13 +1643,18 @@ final class rules_waitinglist_test extends advanced_testcase {
                     // The student2 (next on waitinglist) to be on the list, because he doesn't need to pay.
                     'usersonlist1' => 1,
                     'usersonwaitinglist1' => 3,
-                    'taskcount1' => 0, // So no tasks expected.
+                    // So no tasks expected.
+                    'taskcount1' => 0,
                     // Therefore (student2 already took the place), the external user can only book on the list.
                     'newuserresponse' => MOD_BOOKING_BO_COND_ONWAITINGLIST,
-                    'messagecount' => 0, // So no tasks expected.
-                    'student2waitinglistvalue' => MOD_BOOKING_STATUSPARAM_BOOKED, // Student 2 booking answer waitinglist expected value.
-                    'student2bajsonvalue' => null, // Student 2 booking answer json expected value after rule execution.
-                    'student2condtionvalue' => MOD_BOOKING_BO_COND_ALREADYBOOKED, // Student 2 booking condition after rule execution.
+                    // So no tasks expected.
+                    'messagecount' => 0,
+                    // Student 2 booking answer waitinglist expected value.
+                    'student2waitinglistvalue' => MOD_BOOKING_STATUSPARAM_BOOKED,
+                    // Student 2 booking answer json expected value after rule execution.
+                    'student2bajsonvalue' => null,
+                    // Student 2 booking condition after rule execution.
+                    'student2condtionvalue' => MOD_BOOKING_BO_COND_ALREADYBOOKED,
                     'student2bajsonvalue2' => null,
                     'student3bajsonvalue2' => null,
                 ],
@@ -1669,11 +1673,16 @@ final class rules_waitinglist_test extends advanced_testcase {
                     'usersonlist1' => 0,
                     'usersonwaitinglist1' => 3,
                     'taskcount1' => 2, // Tasks expected.
-                    'newuserresponse' => MOD_BOOKING_BO_COND_PRICEISSET, // Therefore new user can book with price.
-                    'messagecount' => 1, // Tasks expected.
-                    'student2waitinglistvalue' => MOD_BOOKING_STATUSPARAM_WAITINGLIST, // Student 2 booking answer waitinglist expected value.
-                    'student2bajsonvalue' => null, // Student 2 booking answer json expected value after rule execution.
-                    'student2condtionvalue' => MOD_BOOKING_BO_COND_PRICEISSET, // Student 2 booking condition after rule execution.
+                    // Therefore new user can book with price.
+                    'newuserresponse' => MOD_BOOKING_BO_COND_PRICEISSET,
+                    // Tasks expected.
+                    'messagecount' => 1,
+                    // Student 2 booking answer waitinglist expected value.
+                    'student2waitinglistvalue' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+                    // Student 2 booking answer json expected value after rule execution.
+                    'student2bajsonvalue' => null,
+                    // Student 2 booking condition after rule execution.
+                    'student2condtionvalue' => MOD_BOOKING_BO_COND_PRICEISSET,
                     'student2bajsonvalue2' => null,
                     'student3bajsonvalue2' => null,
                 ],
@@ -1691,13 +1700,18 @@ final class rules_waitinglist_test extends advanced_testcase {
                     // Since user has to pay, we expect no one booked and user still on waitinglist.
                     'usersonlist1' => 0,
                     'usersonwaitinglist1' => 4,
-                    'taskcount1' => 2, // Tasks expected.
+                    // Tasks expected.
+                    'taskcount1' => 2,
                     // With confirmation only on waitinglist, new user is blocked from booking and put on waitinglist.
                     'newuserresponse' => MOD_BOOKING_BO_COND_ONWAITINGLIST,
-                    'messagecount' => 1, // Tasks expected.
-                    'student2waitinglistvalue' => MOD_BOOKING_STATUSPARAM_WAITINGLIST, // Student 2 booking answer waitinglist expected value.
-                    'student2bajsonvalue' => null, // Student 2 booking answer json value after rule execution.
-                    'student2condtionvalue' => MOD_BOOKING_BO_COND_ONWAITINGLIST, // Student 2 booking condition after rule execution.
+                    // Tasks expected.
+                    'messagecount' => 1,
+                    // Student 2 booking answer waitinglist expected value.
+                    'student2waitinglistvalue' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+                    // Student 2 booking answer json value after rule execution.
+                    'student2bajsonvalue' => null,
+                    // Student 2 booking condition after rule execution.
+                    'student2condtionvalue' => MOD_BOOKING_BO_COND_ONWAITINGLIST,
                     'student2bajsonvalue2' => null,
                     'student3bajsonvalue2' => null,
 
@@ -1710,19 +1724,25 @@ final class rules_waitinglist_test extends advanced_testcase {
                     'bookseconduser' => false,
                     'waitforconfirmation' => 2,
                     'student5settings' => [],
-                    'confirmationonnotification' => 1, // Users will be notified and json value for the first prson on waiting list will be null.
+                    // Users will be notified and json value for the first prson on waiting list will be null.
+                    'confirmationonnotification' => 1,
                 ],
                 [
                     // Since user has to pay, we expect no one booked and user still on waitinglist.
                     'usersonlist1' => 0,
                     'usersonwaitinglist1' => 4,
-                    'taskcount1' => 2, // Tasks expected.
+                    // Tasks expected.
+                    'taskcount1' => 2,
                     // With confirmation only on waitinglist, new user is blocked from booking and put on waitinglist.
                     'newuserresponse' => MOD_BOOKING_BO_COND_ONWAITINGLIST,
-                    'messagecount' => 1, // Tasks expected.
-                    'student2waitinglistvalue' => MOD_BOOKING_STATUSPARAM_WAITINGLIST, // Student 2 booking answer waitinglist expected value.
-                    'student2bajsonvalue' => 'json', // Student 2 booking answer json value after rule execution.
-                    'student2condtionvalue' => MOD_BOOKING_BO_COND_PRICEISSET, // Student 2 booking condition after rule execution.
+                    // Tasks expected.
+                    'messagecount' => 1,
+                    // Student 2 booking answer waitinglist expected value.
+                    'student2waitinglistvalue' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+                    // Student 2 booking answer json value after rule execution.
+                    'student2bajsonvalue' => 'json',
+                    // Student 2 booking condition after rule execution.
+                    'student2condtionvalue' => MOD_BOOKING_BO_COND_PRICEISSET,
                     'student2bajsonvalue2' => 'json',
                     'student3bajsonvalue2' => 'json',
                 ],
@@ -1735,19 +1755,25 @@ final class rules_waitinglist_test extends advanced_testcase {
                     'bookseconduser' => false,
                     'waitforconfirmation' => 2,
                     'student5settings' => [],
-                    'confirmationonnotification' => 2, // Users will be notified and json value for the first prson on waiting list will be null.
+                    // Users will be notified and json value for the first prson on waiting list will be null.
+                    'confirmationonnotification' => 2,
                 ],
                 [
                     // Since user has to pay, we expect no one booked and user still on waitinglist.
                     'usersonlist1' => 0,
                     'usersonwaitinglist1' => 4,
-                    'taskcount1' => 2, // Tasks expected.
+                    // Tasks expected.
+                    'taskcount1' => 2,
                     // With confirmation only on waitinglist, new user is blocked from booking and put on waitinglist.
                     'newuserresponse' => MOD_BOOKING_BO_COND_ONWAITINGLIST,
-                    'messagecount' => 1, // Tasks expected.
-                    'student2waitinglistvalue' => MOD_BOOKING_STATUSPARAM_WAITINGLIST, // Student 2 booking answer waitinglist expected value.
-                    'student2bajsonvalue' => 'json', // Student 2 booking answer json value after rule execution.
-                    'student2condtionvalue' => MOD_BOOKING_BO_COND_ONWAITINGLIST, // Student 2 booking condition after rule execution.
+                    // Tasks expected.
+                    'messagecount' => 1,
+                    // Student 2 booking answer waitinglist expected value.
+                    'student2waitinglistvalue' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+                    // Student 2 booking answer json value after rule execution.
+                    'student2bajsonvalue' => 'json',
+                    // Student 2 booking condition after rule execution.
+                    'student2condtionvalue' => MOD_BOOKING_BO_COND_ONWAITINGLIST,
                     'student2bajsonvalue2' => null,
                     'student3bajsonvalue2' => 'json',
                 ],
