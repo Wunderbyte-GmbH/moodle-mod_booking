@@ -4069,7 +4069,7 @@ class booking_option {
         if (
             !empty($originaloptionid) // If we have an old option at all.
             && !empty($originaloptionbookingid) // If it's not a template.
-            && ($originaloptionmaxanswers ?? 0) < ($newoption->maxanswers ?? 0) // Only then we show if we need to sync.
+            && ($originaloptionmaxanswers < ($newoption->maxanswers ?? 0)) // Only then we show if we need to sync.
         ) {
             // We have more places now, so we can sync without danger.
 
@@ -4087,10 +4087,10 @@ class booking_option {
                     'context' => context_system::instance(),
                     'relateduserid' => $USER->id ?? 0,
                     'other' => [
-                        'originalfullybooked' => $originalfullybooked ?? '',
-                        'originaloptionid' => $originaloptionid ?? 0,
-                        'originaloptionbookingid' => $originaloptionbookingid ?? 0,
-                        'originaloptionmaxanswers' => $originaloptionmaxanswers ?? 0,
+                        'originalfullybooked' => $originalfullybooked,
+                        'originaloptionid' => $originaloptionid,
+                        'originaloptionbookingid' => $originaloptionbookingid,
+                        'originaloptionmaxanswers' => $originaloptionmaxanswers,
                         'newoptionmaxanswers' => $newoption->maxanswers ?? 0,
                     ],
                 ]);
@@ -4100,7 +4100,7 @@ class booking_option {
             // If it was fully booked, we need to trigger the places free again event.
             self::check_if_free_to_book_again($settings, 0, $originalfullybooked);
         } else if (
-            ($originaloptionmaxanswers ?? 0) > ($newoption->maxanswers ?? 0)
+            ($originaloptionmaxanswers > ($newoption->maxanswers ?? 0))
             && !get_config('booking', 'keepusersbookedonreducingmaxanswers')
             && empty($newoption->waitforconfirmation)
         ) {
@@ -4138,7 +4138,11 @@ class booking_option {
             return !empty($value);
         });
         $changes = array_merge($feedbackpost, $feedbackformchanges);
-        $cmid = $originaloptioncmid ?? $data->cmid ?? 0;
+
+        // Set correct cmid.
+        if (empty($cmid = $originaloptioncmid)) {
+            $cmid = $data->cmid ?? 0;
+        }
 
         // Only react on changes if update is triggered via formsave (see comment at beginning of function - cases A) & B))...
         // ... since otherwise previous data is unreliable.
