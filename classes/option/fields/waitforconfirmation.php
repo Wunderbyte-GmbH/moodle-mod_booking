@@ -203,7 +203,10 @@ class waitforconfirmation extends field_base {
                 if (!empty($confirmationonnotification)) {
                     $data->confirmationonnotification = $confirmationonnotification;
                 }
-                $confirmationonnotificationoneatatime = booking_option::get_value_of_json_by_key($data->id, "confirmationonnotificationoneatatime");
+                $confirmationonnotificationoneatatime = booking_option::get_value_of_json_by_key(
+                    $data->id,
+                    "confirmationonnotificationoneatatime"
+                );
                 if (!empty($confirmationonnotificationoneatatime)) {
                     $data->confirmationonnotificationoneatatime = $confirmationonnotificationoneatatime;
                 }

@@ -143,7 +143,8 @@ class confirm_bookinganswer_by_rule_adhoc extends \core\task\adhoc_task {
                 ]);
 
                 // The record of booking answer for an optoon with price will be updated to set confirmation json.
-                // And the record of booking answers with no price price will be updated to set waiting list to 0 as it should be confirmed.
+                // And the record of booking answers with no price price will be updated to set
+                // waiting list to 0 as it should be confirmed.
                 if ($optionsettings->jsonobject->useprice == 0) {
                     $user = singleton_service::get_instance_of_user($taskdata->userid);
                     $option = singleton_service::get_instance_of_booking_option($optionsettings->cmid, $optionsettings->id);

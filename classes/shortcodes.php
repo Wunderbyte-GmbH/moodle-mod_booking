@@ -1392,7 +1392,7 @@ class shortcodes {
         array &$args,
         array &$wherearray,
         array &$params = [],
-        array $cmidsfromcourse = [],
+        array $cmidsfromcourse = []
     ) {
         global $DB;
         if (empty($args['cmid']) && !empty($args['id'])) {
