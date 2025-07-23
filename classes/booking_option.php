@@ -927,7 +927,7 @@ class booking_option {
             get_config('booking', 'turnoffwaitinglist')
             || (get_config('booking', 'turnoffwaitinglistaftercoursestart') && time() > $settings->coursestarttime)
             || !$optionhasstarted->is_available($settings, 0)
-            || !empty($settings->jsonobject->useprice)
+            || !empty($settings->jsonobject->useprice) // Important: We need to use the useprice JSON setting here!
         ) {
             // ... we return right away.
             return;
