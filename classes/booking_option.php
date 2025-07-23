@@ -922,12 +922,10 @@ class booking_option {
 
         if (
             // If waiting list is turned off globally...
-            // ... or optionhasstarted does not allow users to be booked after the start of the option ...
-            // ... or if the booking option has a price ...
+            // ... or optionhasstarted does not allow users to be booked after the start of the option..
             get_config('booking', 'turnoffwaitinglist')
             || (get_config('booking', 'turnoffwaitinglistaftercoursestart') && time() > $settings->coursestarttime)
             || !$optionhasstarted->is_available($settings, 0)
-            || !empty($settings->jsonobject->useprice) // Important: We need to use the useprice JSON setting here!
         ) {
             // ... we return right away.
             return;
@@ -958,6 +956,12 @@ class booking_option {
                     }
 
                     $user = singleton_service::get_instance_of_user($currentanswer->userid);
+
+                    // If the booking option has a price, we don't sync waitinglist.
+                    $price = price::get_price('option', $settings->id, $user);
+                    if (isset($price["price"]) && !empty((float)$price["price"])) {
+                        continue;
+                    }
 
                     // We delete the booking answers cache - because settings (limits, etc.) could be changed!
                     self::purge_cache_for_answers($this->optionid);
@@ -990,6 +994,12 @@ class booking_option {
                 array_push($usersonwaitinglist, $currentanswer);
 
                 $user = singleton_service::get_instance_of_user($currentanswer->userid);
+
+                // If the booking option has a price, we don't sync waitinglist.
+                $price = price::get_price('option', $settings->id, $user);
+                if (isset($price["price"]) && !empty((float)$price["price"])) {
+                    continue;
+                }
 
                 // We delete the booking answers cache - because settings (limits, etc.) could be changed!
                 self::purge_cache_for_answers($this->optionid);
@@ -1043,6 +1053,12 @@ class booking_option {
             // If option was set to unlimited, we book all users that have been on the waiting list and inform them.
             foreach ($ba->usersonwaitinglist as $currentanswer) {
                 $user = singleton_service::get_instance_of_user($currentanswer->userid);
+
+                // If the booking option has a price, we don't sync waitinglist.
+                $price = price::get_price('option', $settings->id, $user);
+                if (isset($price["price"]) && !empty((float)$price["price"])) {
+                    continue;
+                }
 
                 // We delete the booking answers cache - because settings (limits, etc.) could be changed!
                 self::purge_cache_for_answers($this->optionid);
