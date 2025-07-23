@@ -37,7 +37,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class send_mail_interval implements booking_rule_action {
-    /** @var string $rulename */
+    /** @var string $actionname */
     public $actionname = 'send_mail_interval';
 
     /** @var string $rulejson */
@@ -236,8 +236,14 @@ class send_mail_interval implements booking_rule_action {
 
         $this->counter++;
 
-        $task = new send_mail_by_rule_adhoc();
+        // Create adhioc to set confirmation settings for the booking answer record.
+        $action = new confirm_bookinganswer();
+        $action->set_next_runtime_for_adhoc($nextruntime);
+        $action->set_ruleid($this->ruleid);
+        $action->execute($record);
 
+        // Create adhoc for sending email.
+        $task = new send_mail_by_rule_adhoc();
         $taskdata = [
             // We need the JSON, so we can check if the rule still applies...
             // ...on task execution.
@@ -263,9 +269,5 @@ class send_mail_interval implements booking_rule_action {
 
         // Now queue the task or reschedule it if it already exists (with matching data).
         \core\task\manager::reschedule_or_queue_adhoc_task($task);
-
-        // Set confirmation settings for the booking answer record.
-        $action = new confirm_bookinganswer_withprice();
-        $action->execute($record);
     }
 }

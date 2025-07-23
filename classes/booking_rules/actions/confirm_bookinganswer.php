@@ -16,9 +16,8 @@
 
 namespace mod_booking\booking_rules\actions;
 
-use mod_booking\booking_option;
 use mod_booking\booking_rules\booking_rule_action;
-use mod_booking\singleton_service;
+use mod_booking\task\confirm_bookinganswer_by_rule_adhoc;
 use MoodleQuickForm;
 use stdClass;
 
@@ -34,13 +33,25 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class confirm_bookinganswer_withprice implements booking_rule_action {
+class confirm_bookinganswer implements booking_rule_action {
+    /** @var string $actionname */
+    public $actionname = 'confirm_bookinganswer';
+
+    /** @var int $ruleid */
+    public $ruleid = null;
+
+    /**
+     * The adhoc task will be runned at this time.
+     * @var int $actionname
+     */
+    public $adhocnextruntime = 0;
+
     /**
      * Load json data from DB into the object.
      * @param stdClass $record a rule action record from DB
      */
     public function set_actiondata(stdClass $record) {
-        $this->set_actiondata_from_json($record->rulejson);
+        // Nothing to set.
     }
 
     /**
@@ -103,66 +114,46 @@ class confirm_bookinganswer_withprice implements booking_rule_action {
      * @param stdClass $record
      */
     public function execute(stdClass $record) {
-        global $DB;
+        $task = new confirm_bookinganswer_by_rule_adhoc();
 
-        // Check if booking option has confirmationonnotification enabled,
-        // in this case we need to set some settings for the booking answer record
-        // for the user who is going to reserve this (priced) option.
-
-        $bookingoptionsettings = singleton_service::get_instance_of_booking_option_settings($record->optionid);
-        if ($bookingoptionsettings->confirmationonnotification == 0) {
-            return;
-        }
-
-        // Get sprecific booking answer record.
-        $bookinganswer = $DB->get_record('booking_answers', [
-            'optionid' => $record->optionid,
+        $taskdata = [
+            'rulename' => $record->rulename,
+            'ruleid' => $this->ruleid,
             'userid' => $record->userid,
-            'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
-        ]);
-
-        // Update booking answer.
-        booking_option::write_user_answer_to_db(
-            $bookinganswer->bookingid,
-            $bookinganswer->frombookingid,
-            $bookinganswer->userid,
-            $bookinganswer->optionid,
-            MOD_BOOKING_STATUSPARAM_WAITINGLIST,
-            $bookinganswer->id,
-            null,
-            MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION,
-            "",
-            0
-        );
-
-        // Set json to null for all other users on waiting list for this optuion
-        // in booking answer records if confirmationonnotification is equal to 2.
-        if ($bookingoptionsettings->confirmationonnotification == 2) {
-            // Get sprecific booking answer record.
-            $bookinganswers = $DB->get_records('booking_answers', [
-                'optionid' => $record->optionid,
-                'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
-            ]);
-
-            foreach ($bookinganswers as $ba) {
-                if ($ba->userid == $record->userid) {
-                    continue;
-                }
-
-                // Update booking answer.
-                booking_option::write_user_answer_to_db(
-                    $ba->bookingid,
-                    $ba->frombookingid,
-                    $ba->userid,
-                    $ba->optionid,
-                    MOD_BOOKING_STATUSPARAM_WAITINGLIST,
-                    $ba->id,
-                    null,
-                    MOD_BOOKING_BO_SUBMIT_STATUS_UN_CONFIRM,
-                    "",
-                    0
-                );
-            }
+            'optionid' => $record->optionid,
+            'cmid' => $record->cmid,
+        ];
+        // Only add the optiondateid if it is set.
+        // We need it for session reminders.
+        if (!empty($record->optiondateid)) {
+            $taskdata['optiondateid'] = $record->optiondateid;
         }
+        $task->set_custom_data($taskdata);
+        $task->set_userid($record->userid);
+
+        if ($this->adhocnextruntime !== 0) {
+            $task->set_next_run_time($this->adhocnextruntime);
+        }
+
+        // Now queue the task or reschedule it if it already exists (with matching data).
+        \core\task\manager::reschedule_or_queue_adhoc_task($task);
+    }
+
+    /**
+     * Summary of set_next_runtime
+     * @param mixed $timeinseconds
+     * @return void
+     */
+    public function set_next_runtime_for_adhoc($timeinseconds) {
+        $this->adhocnextruntime = $timeinseconds;
+    }
+
+    /**
+     * Setter for ruleid.
+     * @param mixed $ruleid
+     * @return void
+     */
+    public function set_ruleid($ruleid) {
+        $this->ruleid = $ruleid;
     }
 }
