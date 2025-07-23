@@ -1582,24 +1582,16 @@ final class rules_waitinglist_test extends advanced_testcase {
         [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
-        // Confirm booking as admin.
-        if (!$testdata['manual_confirmation']) {
-            // Check for proper number of tasks.
-            // Tasks are tested in depth in other tests of this class.
-            $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
-            $this->assertCount(2, $tasks);
 
-            // In the future we run tasks.
-            // No free seats available, so no messages should be send.
-            time_mock::set_mock_time(strtotime('+3 day', time()));
-            $this->runAdhocTasks();
+        // Check for proper number of tasks.
+        // Tasks are tested in depth in other tests of this class.
+        $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $this->assertCount(2, $tasks);
 
-            $bookinganswer = $DB->get_record('booking_answers', ['userid' => $student2->id]);
-            // Confirmation key will be set to booking answer but user not enrolled automatically as the enrollogic...
-            // ... is different without price.
-            // TODO: MDL-0 Fix enrollogic for confirm action for options without price.
-            $this->assertNotEmpty($bookinganswer->json);
-        }
+        // In the future we run tasks.
+        // No free seats available, so no messages should be send.
+        time_mock::set_mock_time(strtotime('+3 day', time()));
+        $this->runAdhocTasks();
 
         [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
@@ -1615,7 +1607,6 @@ final class rules_waitinglist_test extends advanced_testcase {
         return [
             'confirm_manually' => [
                 [
-                    'manual_confirmation' => true,
                 ],
                 [
 
@@ -1623,7 +1614,6 @@ final class rules_waitinglist_test extends advanced_testcase {
             ],
             'confirm_via_task' => [
                 [
-                    'manual_confirmation' => false,
                 ],
                 [
 
