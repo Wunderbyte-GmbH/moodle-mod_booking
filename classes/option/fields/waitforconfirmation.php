@@ -40,7 +40,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class waitforconfirmation extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -92,7 +91,8 @@ class waitforconfirmation extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         if (isset($formdata->waitforconfirmation)) {
             booking_option::add_data_to_json($newoption, "waitforconfirmation", $formdata->waitforconfirmation);
@@ -141,7 +141,6 @@ class waitforconfirmation extends field_base {
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
         if (!empty($data->importing)) {
-
             $data->waitforconfirmation = $data->waitforconfirmation
                 ?? booking_option::get_value_of_json_by_key($data->id, "waitforconfirmation") ?? 0;
         } else {
