@@ -959,7 +959,11 @@ class booking_option {
 
                     // If the booking option has a price, we don't sync waitinglist.
                     $price = price::get_price('option', $settings->id, $user);
-                    if (isset($price["price"]) && !empty((float)$price["price"])) {
+                    if (
+                        !empty($settings->jsonobject->useprice) // This is important to check first!
+                        && isset($price["price"])
+                        && !empty((float)$price["price"])
+                    ) {
                         continue;
                     }
 
@@ -997,7 +1001,11 @@ class booking_option {
 
                 // If the booking option has a price, we don't sync waitinglist.
                 $price = price::get_price('option', $settings->id, $user);
-                if (isset($price["price"]) && !empty((float)$price["price"])) {
+                if (
+                    !empty($settings->jsonobject->useprice) // This is important to check first!
+                    && isset($price["price"])
+                    && !empty((float)$price["price"])
+                ) {
                     continue;
                 }
 
@@ -1056,7 +1064,11 @@ class booking_option {
 
                 // If the booking option has a price, we don't sync waitinglist.
                 $price = price::get_price('option', $settings->id, $user);
-                if (isset($price["price"]) && !empty((float)$price["price"])) {
+                if (
+                    !empty($settings->jsonobject->useprice) // This is important to check first!
+                    && isset($price["price"])
+                    && !empty((float)$price["price"])
+                ) {
                     continue;
                 }
 
