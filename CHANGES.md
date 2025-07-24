@@ -1,3 +1,14 @@
+## Version 8.14.12 (2025072402)
+* Improvement: Allow courseid in allbookings shortcode to fetch all options from instances in moodle course (#1080).
+* Bugfix: Fetch price for multiple users in report.
+* Bugfix: Possible bugfix for bookingoption_freetobookagain not being sent when maxanswers is increased.
+* Bugfix: Fix sync waiting list and only sync if json setting useprice is turned off (#1073).
+* Bugfix: Set cmid correctly in class booking_option.
+* Bugfix: Fix for #1073 (check for json setting useprice at all checks for price).
+* Bugfix: Fix logic for multiple responsible contacts.
+* Bugfix: Fix broken setting to allow responsible contacts editing of booking options.
+* Bugfix: Fix broken gear menu (dropdown menu) caused by add_options_to_col_actions.
+
 ## Version 8.14.11 (2025072100)
 * Improvement: Possibility to select multiple users as responsible contact.
 * Improvement: Possibility to display shoppingcarthistory in mybookings.php
