@@ -741,10 +741,14 @@ if (!$tableallbookings->is_downloading()) {
             s2.price price,
             s2.currency currency ";
         $shoppingcartfrom = "
-        LEFT JOIN ( SELECT itemid,price,userid, currency FROM {local_shopping_cart_history} sch
-            WHERE itemid = :shitemid AND componentname LIKE 'mod_booking'
-                AND paymentstatus = 2 ORDER BY timecreated)
-                as s2 ON s2.itemid = ba.optionid AND s2.userid = ba.userid ";
+            LEFT JOIN (
+                SELECT itemid, price, userid, currency, timecreated
+                FROM {local_shopping_cart_history} sch
+                WHERE itemid = :shitemid
+                AND componentname LIKE 'mod_booking'
+                AND paymentstatus = 2
+                ORDER BY timecreated DESC LIMIT 1
+            ) AS s2 ON s2.itemid = ba.optionid AND s2.userid = ba.userid ";
         $sqlvalues['shitemid'] = $sqlvalues['optionid'];
     } else {
         $shoppingcartfields = "";
@@ -1307,10 +1311,14 @@ if (!$tableallbookings->is_downloading()) {
             s2.price price,
             s2.currency currency ";
         $shoppingcartfrom = "
-        LEFT JOIN ( SELECT itemid,price,userid, currency FROM {local_shopping_cart_history} sch
-            WHERE itemid = :shitemid AND componentname LIKE 'mod_booking'
-                AND paymentstatus = 2 ORDER BY timecreated LIMIT 1)
-                as s2 ON s2.itemid = ba.optionid AND s2.userid = ba.userid ";
+        LEFT JOIN (
+            SELECT itemid, price, userid, currency, timecreated
+            FROM {local_shopping_cart_history} sch
+            WHERE itemid = :shitemid
+            AND componentname LIKE 'mod_booking'
+            AND paymentstatus = 2 ORDER BY timecreated DESC LIMIT 1
+        ) AS s2
+        ON s2.itemid = ba.optionid AND s2.userid = ba.userid ";
         $sqlvalues['shitemid'] = $sqlvalues['optionid'];
     } else {
         $shoppingcartfields = "";
