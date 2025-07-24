@@ -2223,6 +2223,7 @@ $string['selectteacherswithprofilefieldonlyvalue'] = '⤷ Wert';
 $string['selectteacherswithprofilefieldonlyvaluedesc'] = 'Geben Sie entweder den exakten Wert oder eine Bestich-getrennte Liste an Werten ein';
 $string['selectuserfromevent'] = "Wähle Nutzer:in vom Ereignis";
 $string['selectusers'] = "Wähle Nutzer:innen ohne direkte Verbindung zur Buchungsoption";
+$string['selectusersfromuserfieldofeventuser'] = "Wähle Nutzer:in aus Profilfeld von Person des Events";
 $string['selectusershoppingcart'] = "Wähle Nutzer:in die Ratenzahlung zu leisten hat";
 $string['selflearncoursesall'] = "Alle anzeigen";
 $string['selflearncoursesnotdisplayed'] = "Keine anzeigen";
