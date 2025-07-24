@@ -861,7 +861,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $link = '';
 
         $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid, $values);
-        $bookinganswers = singleton_service::get_instance_of_booking_answers($settings, 0);
+        $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
 
         if (booking_answers::count_places($bookinganswers->usersonlist) > 0) {
             // Add a link to redirect to the booking option.
@@ -1250,7 +1250,10 @@ class bookingoptions_wbtable extends wunderbyte_table {
         }
         foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
             $class = "\\bookingextension_{$plugin->name}\\{$plugin->name}";
-            $ddoptions[] = $class::add_options_to_col_actions($settings, $context);
+            $ddoptionsfromplugin = $class::add_options_to_col_actions($settings, $context);
+            if (!empty($ddoptionsfromplugin)) {
+                $ddoptions[] = $ddoptionsfromplugin;
+            }
         }
         if (!empty($ddoptions)) {
             $ret .= '<div class="dropdown d-inline">
