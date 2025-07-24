@@ -442,6 +442,7 @@ class bookingoption_description implements renderable, templatable {
             $responsibles = [];
         }
 
+        // List of responsible contact users.
         $this->responsiblecontactuser = $responsibles;
 
         if (empty($settings->bookingopeningtime)) {

@@ -1694,11 +1694,15 @@ function booking_check_if_teacher($optionoroptionid = null, int $userid = 0) {
             return false;
         }
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $isresponsiblecontact = false;
+        if (!empty($settings->responsiblecontact) && in_array($userid, $settings->responsiblecontact)) {
+            $isresponsiblecontact = true;
+        }
         if (in_array($userid, $settings->teacherids)) {
             return true;
         } else if (
             get_config('booking', 'responsiblecontactcanedit')
-            && $settings->responsiblecontact == $userid
+            && $isresponsiblecontact
         ) {
             return true;
         } else {
