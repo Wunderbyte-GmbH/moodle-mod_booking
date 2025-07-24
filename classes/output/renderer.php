@@ -823,7 +823,7 @@ class renderer extends plugin_renderer_base {
      * @return string
      *
      */
-    public function render_col_repsonisblecontacts(object $data) {
+    public function render_col_responsiblecontacts(object $data) {
         $o = '';
         $data = $data->export_for_template($this);
         $o .= $this->render_from_template('mod_booking/col_responsiblecontact', $data);

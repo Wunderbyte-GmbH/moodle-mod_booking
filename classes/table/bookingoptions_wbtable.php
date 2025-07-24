@@ -28,6 +28,7 @@ use mod_booking\booking_answers;
 use mod_booking\local\modechecker;
 use mod_booking\local\override_user_field;
 use mod_booking\output\col_responsiblecontacts;
+use mod_booking\output\renderer;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -183,18 +184,38 @@ class bookingoptions_wbtable extends wunderbyte_table {
             return '';
         }
         $responsiblestrings = [];
-        foreach ($settings->responsiblecontact as $contact) {
-            $user = singleton_service::get_instance_of_user((int) $contact);
-            if (isset($user->firstname) && $user->lastname) {
-                $responsiblestrings[] = "$user->firstname $user->lastname $user->email";
+        foreach ($settings->responsiblecontact as $contactid) {
+            $user = singleton_service::get_instance_of_user((int)$contactid);
+            if (empty($user->firstname)) {
+                debugging(
+                    "musi_table function col_responsiblecontact: firstname is missing for user with id $contactid",
+                    DEBUG_DEVELOPER
+                );
+                $user->firstname = '';
             }
+            if (empty($user->lastname)) {
+                debugging(
+                    "musi_table function col_responsiblecontact: lastname is missing for user with id $contactid",
+                    DEBUG_DEVELOPER
+                );
+                $user->lastname = '';
+            }
+            if (empty($user->email)) {
+                debugging(
+                    "musi_table function col_responsiblecontact: email is missing for user with id $contactid",
+                    DEBUG_DEVELOPER
+                );
+                $user->email = '';
+            }
+            $responsiblestrings[] = "$user->firstname $user->lastname ($user->email)";
         }
         if ($this->is_downloading()) {
-            $ret = implode(' | ', $responsiblestrings);
+            $ret = implode(', ', $responsiblestrings);
         } else {
             $data = new col_responsiblecontacts($values->id, $settings);
+            /** @var renderer $output */
             $output = singleton_service::get_renderer('mod_booking');
-            $ret = $output->render_col_repsonisblecontacts($data);
+            $ret = $output->render_col_responsiblecontacts($data);
         }
         return $ret;
     }

@@ -179,7 +179,7 @@ class responsiblecontact extends field_base {
         } else {
             if (!empty($data->responsiblecontact)) {
                 // We set throwerror to true...
-                // ... because on importing, we want it to fail, if teacher is not found.
+                // ... because on importing, we want it to fail, if responsiblecontact is not found.
                 $userids = teachers_handler::get_user_ids_from_string($data->responsiblecontact, true);
                 $data->responsiblecontact = $userids[0] ?? [];
             } else {
@@ -204,36 +204,32 @@ class responsiblecontact extends field_base {
             if (get_config('booking', 'responsiblecontactenroltocourse')) {
                 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
                 $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
-                $old = $settings->responsiblecontact;
-                $new = $formdata->responsiblecontact;
+                $oldcontacts = $settings->responsiblecontact;
+                if (empty($formdata->responsiblecontact)) {
+                    $formdata->responsiblecontact = '';
+                }
+                $newcontacts = array_map('trim', explode(',', $formdata->responsiblecontact ?? ''));
 
-                // Now get the role id for the responsible contacts and enroll them if they are new.
-                foreach ($new as $contact) {
-                    if (!in_array($contact, $old)) {
-                        $userid = (int) $contact;
-                        if (!empty($userid)) {
-                            $roleid = (int) get_config('booking', 'definedresponsiblecontactrole');
-                            if (empty($roleid)) {
-                                $roleid = 0;
-                            }
-                            $courseid = $formdata->courseid;
-                            if (!empty($courseid)) {
-                                $bookingoption->enrol_user($userid, false, $roleid, false, $courseid, true);
-                            }
+                // Now get the role id for the responsible contacts and enroll them if they are newcontacts.
+                foreach ($newcontacts as $newcontact) {
+                    if (!empty($newcontact) && !in_array($newcontact, $oldcontacts)) {
+                        $roleid = (int) get_config('booking', 'definedresponsiblecontactrole');
+                        if (empty($roleid)) {
+                            $roleid = 0;
+                        }
+                        $courseid = $formdata->courseid ?? 0;
+                        if (!empty($courseid)) {
+                            $bookingoption->enrol_user((int) $newcontact, false, $roleid, false, $courseid, true);
                         }
                     }
                 }
-                // We need to unenroll the old contacts, that are not in the new array.
-                foreach ($old as $contact) {
-                    if (!in_array($contact, $new)) {
-                        $bookingoption->unenrol_user((int)$userid);
+                // We need to unenrol the oldcontacts contacts, that are not in the newcontacts array.
+                foreach ($oldcontacts as $oldcontact) {
+                    if (!empty($oldcontact) && !in_array($oldcontact, $newcontacts)) {
+                        $bookingoption->unenrol_user((int)$oldcontact);
                     }
                 }
             }
-        }
-         // After every process is done we have to transform them into a string and save to DB.
-        if (empty($formdata->responsiblecontact)) {
-            return;
         }
     }
 }
