@@ -1422,8 +1422,6 @@ final class rules_waitinglist_test extends advanced_testcase {
      * @covers \mod_booking\booking_rules\conditions\select_teacher_in_bo
      * @covers \mod_booking\booking_rules\conditions\select_student_in_bo
      *
-     * @param array $testdata
-     * @param array $expected
      * @throws \coding_exception
      * @throws \dml_exception
      */
