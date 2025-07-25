@@ -14,14 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Adhoc Task to send a mail by a rule at a certain time.
- *
- * @package mod_booking
- * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace mod_booking\task;
 
 defined('MOODLE_INTERNAL') || die();
@@ -37,10 +29,17 @@ use mod_booking\singleton_service;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * Class to handle adhoc Task to send a mail by a rule at a certain time.
+ * Ad-hoc task that confirms booking answers with a price,
+ * or sets the confirmation JSON for booking answers with no price for persons on the waiting list.
+ *
+ * Thistask will execute only if 'confirmationonnotification' is enabled.
+ *
+ * If 'confirmationonnotification' is equal to 2, the task will set the confirmation
+ * only for only one person at a time from the waiting list.
  *
  * @package mod_booking
- * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Mahdi Poustini
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class confirm_bookinganswer_by_rule_adhoc extends \core\task\adhoc_task {

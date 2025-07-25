@@ -1243,7 +1243,6 @@ class booking_option {
                 case MOD_BOOKING_STATUSPARAM_NOTIFYMELIST:
                     // If we are not yet booked and we need manual confirmation...
                     // ... We switch booking param to waitinglist.
-                    // TODO: Check in which cases this takes place!
                     if (!empty($this->settings->waitforconfirmation)) {
                         $waitinglist = MOD_BOOKING_STATUSPARAM_WAITINGLIST;
                     }
