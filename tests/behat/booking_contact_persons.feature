@@ -16,6 +16,8 @@ Feature: In a booking - create options with different contact persons settings a
     And the following "courses" exist:
       | fullname | shortname | category | enablecompletion |
       | Course 1 | C1        | 0        | 1                |
+      | Course 2 | C2        | 0        | 1                |
+      | Course 3 | C3        | 0        | 1                |
     And the following "course enrolments" exist:
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
@@ -91,4 +93,32 @@ Feature: In a booking - create options with different contact persons settings a
     And I should see "Teacher 1" in the ".mod-booking-row" "css_element"
     And I should see "Teacher 3" in the ".mod-booking-row" "css_element"
     And I close all opened windows
+    And I log out
+
+@javascript
+Scenario: Booking option: manage responsible contact persons for courseconnection
+    Given the following config values are set as admin:
+      | config                          | value | plugin  |
+      | responsiblecontactenroltocourse | 1     | booking |
+    And I log in as "admin"
+    And I set the following administration settings values:
+      | definedresponsiblecontactrole | Non-editing teacher |
+    ## New behavior - direct link to the connected course
+    And the following "mod_booking > options" exist:
+      | booking   | text         | description  | importing | chooseorcreatecourse | course | enrolmentstatus | limitanswers | maxanswers | teachersforoption | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
+      | MyBooking | Option4: CC2 | Enroll_later | 1         | 1                    | C2     | 0               | 0            | 0          | teacher1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+      | MyBooking | Option5: CC3 | Enroll_now   | 1         | 1                    | C3     | 2               | 0            | 0          | teacher1          | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
+    ## enrolmentstatus: 0 enrol at coursestart; 1 enrolment done; 2 immediately enrol
+    And I am on the "MyBooking" Activity page
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r5" "css_element"
+    And I follow "Responsible contact(s)"
+    And I set the field "Responsible contact(s)" to "rcp2@example.com,rcp3@example.com"
+    And I press "Save"
+    And I am on "Course 3" course homepage
+    And I follow "Participants"
+    ##And I wait "50" seconds
+    And the following should exist in the "participants" table:
+      | Email address    | Roles               | Status |
+      | rcp2@example.com | Non-editing teacher | Active |
+      | rcp3@example.com | Non-editing teacher | Active |
     And I log out
