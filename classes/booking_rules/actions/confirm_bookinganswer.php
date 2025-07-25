@@ -26,11 +26,17 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * action how to identify concerned users by matching booking option field and user profile field.
+ * Action to create an ad-hoc task that confirms booking answers with a price,
+ * or sets the confirmation JSON for booking answers with no price for persons on the waiting list.
+ *
+ * The ad-hoc task will execute only if 'confirmationonnotification' is enabled.
+ *
+ * If 'confirmationonnotification' is equal to 2, the task will set the confirmation
+ * only for only one person at a time from the waiting list.
  *
  * @package mod_booking
- * @copyright 2024 Wunderbyte GmbH <info@wunderbyte.at>
- * @author Georg Maißer
+ * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Mahdi Poustini
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class confirm_bookinganswer implements booking_rule_action {
@@ -79,7 +85,7 @@ class confirm_bookinganswer implements booking_rule_action {
      * @return string the name of the rule action
      */
     public function get_name_of_action($localized = true) {
-        return get_string('confirmbookinganswerwithprice', 'mod_booking');
+        return get_string('confirmbookinganswer', 'mod_booking');
     }
 
     /**

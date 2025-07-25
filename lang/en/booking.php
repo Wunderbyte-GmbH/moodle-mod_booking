@@ -823,7 +823,7 @@ $string['confirmationonnotificationwarning'] = '<div class="alert alert-warning"
 $string['confirmationonnotificationyesforall'] = 'Yes, for all notified users';
 $string['confirmationonnotificationyesoneatatime'] = 'Yes, confirmation only for one user at a time';
 $string['confirmbooking'] = 'Confirmation of this booking';
-$string['confirmbookinganswerwithprice'] = 'Confirm booking answer when a price is set and user notification is enabled.';
+$string['confirmbookinganswer'] = 'Confirm booking answer when user notification is enabled.';
 $string['confirmbookinglong'] = 'Do you really want to confirm this booking?';
 $string['confirmbookingoffollowing'] = 'Please confirm the booking of following course';
 $string['confirmbookingtitle'] = "Confirm booking";

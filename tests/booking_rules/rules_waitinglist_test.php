@@ -1426,10 +1426,8 @@ final class rules_waitinglist_test extends advanced_testcase {
      * @param array $expected
      * @throws \coding_exception
      * @throws \dml_exception
-     *
-     * @dataProvider waitinglist_notification_provider
      */
-    public function test_waitinglist_notification_enable_booking(array $testdata, array $expected): void {
+    public function test_waitinglist_notification_enable_booking(): void {
         global $DB;
 
         $bdata = self::booking_common_settings_provider();
@@ -1594,31 +1592,6 @@ final class rules_waitinglist_test extends advanced_testcase {
 
         [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
-    }
-
-    /**
-     * Data provider for test waitinglist with price.
-     *
-     * @return array
-     *
-     */
-    public static function waitinglist_notification_provider(): array {
-        return [
-            'confirm_manually' => [
-                [
-                ],
-                [
-
-                ],
-            ],
-            'confirm_via_task' => [
-                [
-                ],
-                [
-
-                ],
-            ],
-        ];
     }
 
     /**
