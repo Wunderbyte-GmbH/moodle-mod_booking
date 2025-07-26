@@ -2296,6 +2296,10 @@ $string['sessionremindermailsubject'] = 'Erinnerung: Sie haben demnächst einen 
 $string['sessionremindershint'] = 'Mit <a href="{$a}" target="_blank">Buchungsregeln</a> können Sie Benachrichtigungen für Termine einrichten';
 $string['sessionremindersruleexists'] = 'Es gibt mindestens eine Buchungsregel, die für diesen Termin angewendet wird.';
 $string['sessions'] = 'Termin(e)';
+$string['sharedplaces'] = 'Geteilte Plätze';
+$string['sharedplaces_help'] = 'Gebuchte Plätze einer anderen Buchungsoption werden addiert. Haben beide Optionen 10 verfügbare Plätze und nur eine wird gebucht, bleiben nur noch 9 Plätze in beiden.';
+$string['sharedplacespriority'] = 'Hat Vorrang';
+$string['sharedplacespriority_help'] = 'Wenn zwei verbundene Buchungsoptionen gleichzeitig freie Plätze haben, soll diese zuerst gebucht werden.';
 $string['shoppingcart'] = 'Zahlungsoptionen mit Shopping Cart Plugin definieren';
 $string['shoppingcartplaceholder'] = 'Warenkorb';
 $string['shortcode:cmidnotexisting'] = 'Der Kursmodul ID {$a} existiert nicht für die Aktivität Booking';
