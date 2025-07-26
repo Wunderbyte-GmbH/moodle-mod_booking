@@ -13,6 +13,7 @@ Feature: In a booking - create options with different contact persons settings a
       | rcp2     | RCP       | 2        | rcp2@example.com     | RCP2     |
       | rcp3     | RCP       | 3        | rcp3@example.com     | RCP3     |
       | rcp4     | RCP       | 4        | rcp4@example.com     | RCP4     |
+      | rcp5     | RCP       | 5        | rcp5@example.com     | RCP5     |
     And the following "courses" exist:
       | fullname | shortname | category | enablecompletion |
       | Course 1 | C1        | 0        | 1                |
@@ -41,7 +42,7 @@ Feature: In a booking - create options with different contact persons settings a
       | booking   | text                    | course | description  | teachersforoption | responsiblecontact  | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | MyBooking | Option1: RCP only       | C1     | Option deskr |                   | rcp1,rcp2,rcp3,rcp4 | 0              | 0              | 2346937200        | 2347110000      |
       | MyBooking | Option2: Teachers only  | C1     | Option deskr | teacher2,teacher1 |                     | 0              | 0              | 2347110000        | 2347282800      |
-      | MyBooking | Option3: Teachers & RCP | C1     | Option deskr | teacher3,teacher1 | rcp1,rcp4           | 0              | 0              | 2347369200        | 2347542000      |
+      | MyBooking | Option3: Teachers & RCP | C1     | Option deskr | teacher3,teacher1 | rcp1,rcp4,rcp5      | 0              | 0              | 2347369200        | 2347542000      |
     ## 2044/05/15 - 2044/05/17
     ## 2044/05/17 - 2044/05/19
     ## 2044/05/20 - 2044/05/22
@@ -49,7 +50,29 @@ Feature: In a booking - create options with different contact persons settings a
 
   @javascript
   Scenario: Booking option: validate list of responsible contact persons
-    Given I am on the "MyBooking" Activity page logged in as teacher1
+    ## Validate if responsible contact persons can edit booking options
+    Given the following config values are set as admin:
+      | config                    | value | plugin  |
+      | responsiblecontactcanedit | 1     | booking |
+    ## Validate rcp with no role (should not happens in reality)
+    And I am on the "MyBooking" Activity page logged in as rcp5
+    And I should see "You cannot enrol yourself in this course"
+    ## Validate rcp with "manager" role
+    And I am on the "MyBooking" Activity page logged in as rcp4
+    And "//div[contains(@class, 'allbookingoptionstable_r1')]//i[contains(@class, 'fa-pen')]" "xpath_element" should exist
+    And "//div[contains(@class, 'allbookingoptionstable_r2')]//i[contains(@class, 'fa-pen')]" "xpath_element" should exist
+    And "//div[contains(@class, 'allbookingoptionstable_r3')]//i[contains(@class, 'fa-pen')]" "xpath_element" should exist
+    ## Validate rcp with "student" role (should not happens in reality)
+    And I am on the "MyBooking" Activity page logged in as rcp3
+    And "//div[contains(@class, 'allbookingoptionstable_r1')]//i[contains(@class, 'fa-pen')]" "xpath_element" should not exist
+    And "//div[contains(@class, 'allbookingoptionstable_r2')]//i[contains(@class, 'fa-pen')]" "xpath_element" should not exist
+    And "//div[contains(@class, 'allbookingoptionstable_r3')]//i[contains(@class, 'fa-pen')]" "xpath_element" should not exist
+    ## Validate rcp with "editingteacher" role
+    And I am on the "MyBooking" Activity page logged in as rcp1
+    And "//div[contains(@class, 'allbookingoptionstable_r1')]//i[contains(@class, 'fa-pen')]" "xpath_element" should exist
+    And "//div[contains(@class, 'allbookingoptionstable_r2')]//i[contains(@class, 'fa-pen')]" "xpath_element" should not exist
+    And "//div[contains(@class, 'allbookingoptionstable_r3')]//i[contains(@class, 'fa-pen')]" "xpath_element" should exist
+    And I am on the "MyBooking" Activity page logged in as teacher1
     ## Validate teachers and rcps on the list page
     And I should not see "Teacher" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "RCP 1" in the ".allbookingoptionstable_r1 .col-repsoniblecontact-repsonsiblecontacts-container" "css_element"
