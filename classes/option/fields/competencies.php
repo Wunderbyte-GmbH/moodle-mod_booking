@@ -219,6 +219,63 @@ class competencies extends field_base {
     }
 
     /**
+     * Return values for bookingoption_updated event.
+     *
+     * @param array $changes
+     *
+     * @return array
+     *
+     */
+    public function get_changes_description(array $changes): array {
+        $oldcompetencies = $changes['oldvalue'] ?? [];
+        $newcompetencies = $changes['newvalue'] ?? [];
+
+        // Ensure we have two arrays.
+        if (!empty($oldcompetencies) && !is_array($oldcompetencies)) {
+            $oldcompetencies = explode(',', $oldcompetencies) ?? [];
+        }
+        if (!empty($newcompetencies) && !is_array($newcompetencies)) {
+            $newcompetencies = explode(',', $newcompetencies) ?? [];
+        }
+        // Get array of competencies.
+        $competencies = self::get_competencies_including_framework();
+        // Process each changes to get readable competency names.
+        $oldvalue = [];
+        $newvalue = [];
+        foreach ($oldcompetencies as $compid) {
+            $oldvalue[] = get_string(
+                'changesinentity',
+                'mod_booking',
+                (object) ['id' => $compid, 'name' => $competencies[$compid] ?? '']
+            );
+        }
+        foreach ($newcompetencies as $compid) {
+            $newvalue[] = get_string(
+                'changesinentity',
+                'mod_booking',
+                (object) ['id' => $compid, 'name' => $competencies[$compid] ?? '']
+            );
+        }
+        // Create readable description.
+        $fieldnamestring = get_string($changes['fieldname'], 'booking');
+        $infotext = get_string('changeinfochanged', 'booking', $fieldnamestring);
+        $oldvalue = !empty($oldvalue) ? implode(', ', $oldvalue) : '';
+        $newvalue = !empty($newvalue) ? implode(', ', $newvalue) : '';
+
+        $returnarray = [
+            'oldvalue' => $oldvalue,
+            'newvalue' => $newvalue,
+            'fieldname' => get_string($changes['fieldname'], 'booking'),
+        ];
+
+        if (empty($oldvalue) && empty($newvalue)) {
+            $returnarray['info'] = $infotext;
+        }
+
+        return $returnarray;
+    }
+
+    /**
      * Standard function to transfer stored value to form.
      * @param stdClass $data
      * @param booking_option_settings $settings
