@@ -276,4 +276,57 @@ class certificate extends field_base {
         }
         return $id;
     }
+
+    /**
+     * Return values for bookingoption_updated event.
+     *
+     * @param array $changes
+     *
+     * @return array
+     *
+     */
+    public function get_changes_description(array $changes): array {
+        if (!class_exists('tool_certificate\certificate')) {
+            return[];
+        }
+
+        global $DB;
+
+        $oldcertid = (int) $changes['oldvalue'] ?? 0;
+        $newcertid = (int) $changes['newvalue'] ?? 0;
+
+        $oldvalue = '';
+        if (!empty($oldcertid)) {
+            $certname = $DB->get_field('tool_certificate_templates', 'name', ['id' => $oldcertid]);
+            $oldvalue = get_string(
+                'changesinentity',
+                'mod_booking',
+                (object) ['id' => $oldcertid, 'name' => ($certname ?? '')]
+            );
+        }
+        $newvalue = '';
+        if (!empty($newcertid)) {
+            $certname = $DB->get_field('tool_certificate_templates', 'name', ['id' => $newcertid]);
+            $newvalue = get_string(
+                'changesinentity',
+                'mod_booking',
+                (object) ['id' => $newcertid, 'name' => ($certname ?? '')]
+            );
+        }
+
+        $fieldnamestring = get_string($changes['fieldname'], 'booking');
+        $infotext = get_string('changeinfochanged', 'booking', $fieldnamestring);
+
+        $returnarray = [
+            'oldvalue' => $oldvalue,
+            'newvalue' => $newvalue,
+            'fieldname' => get_string($changes['fieldname'], 'booking'),
+        ];
+
+        if (empty($oldvalue) && empty($newvalue)) {
+            $returnarray['info'] = $infotext;
+        }
+
+        return $returnarray;
+    }
 }
