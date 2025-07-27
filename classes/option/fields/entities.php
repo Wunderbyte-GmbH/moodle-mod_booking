@@ -311,10 +311,10 @@ class entities extends field_base {
         $oldentity = $changes['oldvalue'] ?? [];
         $newentity = $changes['newvalue'] ?? [];
 
-        $fieldname = get_string($changes['fieldname'], 'booking');
-        $infotext = get_string('changeinfochanged', 'booking', $fieldname);
-        $oldvalue = isset($oldentity['id']) ? get_string('changesinentity', 'mod_booking', $oldentity) : '';
-        $newvalue = isset($newentity['id']) ? get_string('changesinentity', 'mod_booking', $newentity) : '';
+        $fieldnamestring = get_string($changes['fieldname'], 'booking');
+        $infotext = get_string('changeinfochanged', 'booking', $fieldnamestring);
+        $oldvalue = isset($oldentity->id) ? get_string('changesinentity', 'mod_booking', $oldentity) : '';
+        $newvalue = isset($newentity->id) ? get_string('changesinentity', 'mod_booking', $newentity) : '';
 
         $returnarray = [
             'oldvalue' => $oldvalue,
