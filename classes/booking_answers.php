@@ -252,10 +252,34 @@ class booking_answers {
 
         $returnarray = [];
 
-        $returnarray['waiting'] = self::count_places($this->usersonwaitinglist);
-        $returnarray['booked'] = self::count_places($this->usersonlist);
-        $returnarray['reserved'] = self::count_places($this->usersreserved);
+        $sharedplaceswithoptions = booking_option::get_value_of_json_by_key($this->optionid, "sharedplaceswithoptions");
 
+        $returnarray['booked'] = self::count_places($this->usersonlist);
+
+        $highestbookings = 0;
+        foreach ($sharedplaceswithoptions as $sharedoptionid) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($sharedoptionid);
+            $ba = singleton_service::get_instance_of_booking_answers($settings);
+            $booked = self::count_places($ba->usersonlist);
+            if ($booked > $highestbookings) {
+                $highestbookings = $booked;
+            }
+        }
+        $returnarray['booked'] += $highestbookings;
+
+        $returnarray['waiting'] = self::count_places($this->usersonwaitinglist);
+        $highestbookings = 0;
+        foreach ($sharedplaceswithoptions as $sharedoptionid) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($sharedoptionid);
+            $ba = singleton_service::get_instance_of_booking_answers($settings);
+            $booked = self::count_places($ba->usersonwaitinglist);
+            if ($booked > $highestbookings) {
+                $highestbookings = $booked;
+            }
+        }
+        $returnarray['waiting'] += $highestbookings;
+
+        $returnarray['reserved'] = self::count_places($this->usersreserved);
         $returnarray['onnotifylist'] = $this->user_on_notificationlist($userid);
 
         // We can't set the value if it's not true, because of the way mustache templates work.

@@ -24,12 +24,14 @@
 
 namespace mod_booking\option\fields;
 
+use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
+use moodle_exception;
 use MoodleQuickForm;
 use stdClass;
 
@@ -71,7 +73,10 @@ class sharedplaces extends field_base {
      * Additionally to the classname, there might be others keys which should instantiate this class.
      * @var array
      */
-    public static $alternativeimportidentifiers = [];
+    public static $alternativeimportidentifiers = [
+        'sharedplaceswithoptions',
+        'sharedplacespriority',
+    ];
 
     /**
      * This is an array of incompatible field ids.
@@ -140,7 +145,7 @@ class sharedplaces extends field_base {
             $bookingoptionarray = [];
             $sharedplacesoptions = [
                 'tags' => false,
-                'multiple' => false,
+                'multiple' => true,
             ];
             if (
                 $bookingoptionrecords = $DB->get_records_sql(
@@ -296,5 +301,88 @@ class sharedplaces extends field_base {
             }
         }
         return $changes;
+    }
+
+    /**
+     * Gets the shared options.
+     *
+     * @param int $optionid
+     *
+     * @return array
+     *
+     */
+    public static function get_sharedplaces_options(int $optionid) {
+        global $DB;
+
+        $databasetype = $DB->get_dbfamily();
+
+        switch ($databasetype) {
+            case 'postgres':
+                $where = "(json::jsonb -> 'sharedplaceswithoptions') @> to_jsonb(ARRAY[:optionid]::text[])
+                          AND (json::jsonb -> 'sharedplacespriority')::int = 1
+                ";
+                break;
+            case 'mysql':
+                $where = "JSON_CONTAINS(json->'$.sharedplaceswithoptions', '[:optionid]')
+                          AND JSON_EXTRACT(json, '$.sharedplacespriority') = 1;";
+                break;
+            default:
+                throw new moodle_exception('Unsupported database type for JSON key extraction.');
+        }
+
+        $sql = "SELECT *
+                FROM {booking_options}
+                WHERE $where;
+        ";
+
+        $params = [
+            'optionid' => $optionid,
+        ];
+
+        return $DB->get_records_sql($sql, $params);
+    }
+
+    /**
+     * Gets the shared options.
+     *
+     * @param int $optionid
+     *
+     * @return array
+     *
+     */
+    private static function get_sharedplaces_options_postgres(int $optionid) {
+
+        global $DB;
+
+        $sql = "SELECT *
+                FROM {booking_options}
+                WHERE
+                (json::json -> 'sharedplaceswithoptions') ? :optionid
+                AND (json::json ->> 'sharedplacespriority')::int = 1;";
+        $params['optionid'] = $optionid;
+        $returnarray = $DB->get_records_sql($sql, $params);
+        return $returnarray;
+    }
+
+    /**
+     * Gets the shared options.
+     *
+     * @param int $optionid
+     *
+     * @return array
+     *
+     */
+    private static function get_sharedplaces_options_mysql(int $optionid) {
+        global $DB;
+
+        $sql = "SELECT id
+                FROM booking_options
+                WHERE
+                (json -> 'sharedplaceswithoptions') ? :optionid
+                AND (json ->> 'sharedplacespriority')::int = 1";
+
+        $params['optionid'] = $optionid;
+        $returnarray = $DB->get_records_sql($sql, $params);
+        return $returnarray;
     }
 }

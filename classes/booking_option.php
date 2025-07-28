@@ -50,6 +50,7 @@ use mod_booking\bo_actions\actions_info;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\option\fields\recurringoptions;
+use mod_booking\option\fields\sharedplaces;
 use stdClass;
 use moodle_url;
 use mod_booking\booking_utils;
@@ -928,6 +929,21 @@ class booking_option {
             || !$optionhasstarted->is_available($settings, 0)
         ) {
             // ... we return right away.
+            return;
+        }
+
+        // Here, we check if we need to sync another option than the present one.
+        // It's a feature of the sharedplaces functionality...
+        // ... here we count booked places over multiple options.
+        // One of these options can have priority. If so, we don't sync this option, but the other one.
+        $sharedoptionids = sharedplaces::get_sharedplaces_options($settings->id);
+
+        if (!empty($sharedoptionids)) {
+            foreach ($sharedoptionids as $sharedoptionid) {
+                $sharedsettings = singleton_service::get_instance_of_booking_option_settings($sharedoptionid);
+                $sharedoption = singleton_service::get_instance_of_booking_option($sharedsettings->cmid, $sharedoptionid);
+                $sharedoption->sync_waiting_list();
+            }
             return;
         }
 
