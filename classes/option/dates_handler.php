@@ -25,6 +25,7 @@
 namespace mod_booking\option;
 use Exception;
 use html_writer;
+use mod_booking\output\renderer;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -119,6 +120,7 @@ class dates_handler {
 
         if ($loadexistingdates) {
             // Add already existing optiondates to form.
+            /** @var renderer $output */
             $output = $PAGE->get_renderer('mod_booking');
             $data = new \mod_booking\output\bookingoption_dates($this->optionid);
             $mform->addElement('html', '<div class="optiondates-list">');

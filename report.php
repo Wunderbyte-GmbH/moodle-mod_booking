@@ -742,14 +742,23 @@ if (!$tableallbookings->is_downloading()) {
             s2.currency currency ";
         $shoppingcartfrom = "
             LEFT JOIN (
-                SELECT itemid, price, userid, currency, timecreated
+                SELECT sch.itemid, sch.price, sch.userid, sch.currency, sch.timecreated
                 FROM {local_shopping_cart_history} sch
-                WHERE itemid = :shitemid
+                JOIN (
+                    SELECT userid, MAX(timecreated) AS timecreated
+                    FROM {local_shopping_cart_history}
+                    WHERE itemid = :shitemid1
+                    AND componentname = 'mod_booking'
+                    AND paymentstatus = 2
+                    GROUP BY userid
+                ) latest
+                ON sch.userid = latest.userid AND sch.timecreated = latest.timecreated
+                WHERE itemid = :shitemid2
                 AND componentname LIKE 'mod_booking'
                 AND paymentstatus = 2
-                ORDER BY timecreated DESC LIMIT 1
             ) AS s2 ON s2.itemid = ba.optionid AND s2.userid = ba.userid ";
-        $sqlvalues['shitemid'] = $sqlvalues['optionid'];
+        $sqlvalues['shitemid1'] = $sqlvalues['optionid'];
+        $sqlvalues['shitemid2'] = $sqlvalues['optionid'];
     } else {
         $shoppingcartfields = "";
         $shoppingcartfrom = "";
@@ -1312,14 +1321,24 @@ if (!$tableallbookings->is_downloading()) {
             s2.currency currency ";
         $shoppingcartfrom = "
         LEFT JOIN (
-            SELECT itemid, price, userid, currency, timecreated
+            SELECT sch.itemid, sch.price, sch.userid, sch.currency, sch.timecreated
             FROM {local_shopping_cart_history} sch
-            WHERE itemid = :shitemid
+            JOIN (
+                SELECT userid, MAX(timecreated) AS timecreated
+                FROM {local_shopping_cart_history}
+                WHERE itemid = :shitemid1
+                AND componentname = 'mod_booking'
+                AND paymentstatus = 2
+                GROUP BY userid
+            ) latest
+            ON sch.userid = latest.userid AND sch.timecreated = latest.timecreated
+            WHERE itemid = :shitemid2
             AND componentname LIKE 'mod_booking'
-            AND paymentstatus = 2 ORDER BY timecreated DESC LIMIT 1
+            AND paymentstatus = 2
         ) AS s2
         ON s2.itemid = ba.optionid AND s2.userid = ba.userid ";
-        $sqlvalues['shitemid'] = $sqlvalues['optionid'];
+        $sqlvalues['shitemid1'] = $sqlvalues['optionid'];
+        $sqlvalues['shitemid2'] = $sqlvalues['optionid'];
     } else {
         $shoppingcartfields = "";
         $shoppingcartfrom = "";
