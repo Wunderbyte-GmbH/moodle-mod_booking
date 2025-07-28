@@ -25,7 +25,8 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * Condition how to identify concerned users by fetching id(s) from a userprofilefield of the user of the event (triggered or concerned).
+ * Condition how to identify concerned users by fetching id(s) from a
+ * userprofilefield of the user of the event (triggered or concerned).
  *
  * @package mod_booking
  * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
@@ -39,11 +40,11 @@ class select_users_from_userfield_of_eventuser implements booking_rule_condition
     /** @var string $conditionnamestringid Id of localized string for name of rule condition*/
     protected $conditionnamestringid = 'selectusersfromuserfieldofeventuser';
 
-    /** @var string $selecteduserofevent */
-    public $selecteduserofevent = null;
-
     /** @var string $fieldofuserfromevent */
     public $fieldofuserfromevent = null;
+
+    /** @var string $userfromeventtype */
+    public $userfromeventtype = null;
 
     /** @var string $rulejson a json string for a booking rule */
     public $rulejson = '';
@@ -79,7 +80,7 @@ class select_users_from_userfield_of_eventuser implements booking_rule_condition
         $ruleobj = json_decode($json);
         $conditiondata = $ruleobj->conditiondata;
         $this->fieldofuserfromevent = $conditiondata->fieldofuserfromevent;
-        $this->selecteduserofevent = $conditiondata->selecteduserofevent;
+        $this->userfromeventtype = $conditiondata->userfromeventtype;
     }
 
     /**
@@ -92,7 +93,6 @@ class select_users_from_userfield_of_eventuser implements booking_rule_condition
     public function add_condition_to_mform(MoodleQuickForm &$mform, ?array &$ajaxformdata = null) {
         global $DB;
 
-
         // Get a list of allowed option fields to compare with custom user profile field.
         // Currently we only use fields containing VARCHAR in DB.
         $userfields = profile_get_custom_fields();
@@ -103,6 +103,9 @@ class select_users_from_userfield_of_eventuser implements booking_rule_condition
 
             // Create an array of key => value pairs for the dropdown.
             foreach ($userfields as $customuserprofilefield) {
+                if (($customuserprofilefield->datatype ?? '') !== 'text') {
+                    continue;
+                }
                 $customuserprofilefieldsarray[$customuserprofilefield->shortname] = $customuserprofilefield->name;
             }
 
@@ -144,7 +147,7 @@ class select_users_from_userfield_of_eventuser implements booking_rule_condition
         $jsonobject->conditionname = $this->conditionname;
         $jsonobject->conditiondata = new stdClass();
         $jsonobject->conditiondata->fieldofuserfromevent = $data->fieldofuserfromevent ?? '';
-        $jsonobject->conditiondata->selecteduserofevent = $data->selecteduserofevent ?? '';
+        $jsonobject->conditiondata->userfromeventtype = $data->userfromeventtype ?? '';
 
         $data->rulejson = json_encode($jsonobject);
     }
@@ -162,7 +165,7 @@ class select_users_from_userfield_of_eventuser implements booking_rule_condition
         $conditiondata = $jsonobject->conditiondata;
 
         $data->fieldofuserfromevent = $conditiondata->fieldofuserfromevent;
-        $data->selecteduserofevent = $conditiondata->selecteduserofevent;
+        $data->userfromeventtype = $conditiondata->userfromeventtype;
     }
 
     /**
@@ -174,60 +177,42 @@ class select_users_from_userfield_of_eventuser implements booking_rule_condition
     public function execute(stdClass &$sql, array &$params): void {
         global $DB;
 
-        $sqlcomparepart = "";
+        // We need multiple Queries here because the splitting of multiple userids is not working correctly for MariaDB/MySQL.
+        $data = json_decode($params['json']);
+        $usertype = $data->conditiondata->userfromeventtype;
+        $userid = $data->datafromevent->$usertype;
+        $customfieldname = $data->conditiondata->fieldofuserfromevent ?? '';
+        $subsql = "
+            SELECT uid.data
+            FROM {user_info_data} uid
+            JOIN {user_info_field} uif ON uid.fieldid = uif.id
+            WHERE uid.userid = :userid AND uif.shortname = :shortname
+        ";
 
-        // I can modify the whole sql here!
-        // Userid is in params.
+        $subparams = [
+            'userid' => $userid,
+            'shortname' => $customfieldname,
+        ];
 
-        // 1. Make sure it's the right user.
-        // 2. Check in the given custom user profilefield for values
-        // 3. Explode these in case there are multiple (",")
-        // 4. if numeric -> use as userids
+        $rawvalue = $DB->get_field_sql($subsql, $subparams, IGNORE_MISSING);
 
+        if (empty($rawvalue)) {
+            return; // No data, exit early.
+        }
 
-        // $concat = $DB->sql_concat("'%'", "bo.$this->optionfield", "'%'");
-        // switch ($this->operator) {
-        //     case '~':
-        //         $sqlcomparepart = $DB->sql_compare_text("ud.data") .
-        //             " LIKE $concat
-        //               AND bo." . $this->optionfield . " <> ''
-        //               AND bo." . $this->optionfield . " IS NOT NULL";
-        //         break;
-        //     case '=':
-        //     default:
-        //         $sqlcomparepart = $DB->sql_compare_text("ud.data") . " = bo." . $this->optionfield;
-        //         break;
-        // }
+        // Split by comma and trim values.
+        $userids = array_filter(array_map('trim', explode(',', $rawvalue)));
 
-        // // We pass the restriction to the userid in the params.
-        // // If its not 0, we add the restirction.
-        // $anduserid = '';
-        // if (!empty($params['userid'])) {
-        //     // We cannot use params twice, so we need to use userid2.
-        //     $params['userid2'] = $params['userid'];
-        //     $anduserid = "AND ud.userid = :userid2";
-        // }
+        [$insql, $inparams] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, 'uid');
 
-        // // If the select contains optiondate, we also need to include it in uniqueid.
-        // if (strpos($sql->select, 'optiondate') !== false) {
-        //     $concat = $DB->sql_concat("bo.id", "'-'", "bod.id", "'-'", "ud.userid");
-        // } else {
-        //     $concat = $DB->sql_concat("bo.id", "'-'", "ud.userid");
-        // }
+        $sql->from .= "
+            JOIN {user} u ON u.id $insql";
 
-        // // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
-        // $sql->select = " $concat uniqueid, " . $sql->select;
-        // $sql->select .= ", ud.userid userid ";
+        // First col is uniqueid.
+        $select = "CONCAT(bo.id, '_', u.id) AS uniqueid, u.id userid, " . $sql->select;
+        $sql->select = $select;
 
-        // $sql->from .= " JOIN {user_info_data} ud ON $sqlcomparepart ";
-
-        // $sql->where .= " AND ud.fieldid IN (
-        //             SELECT DISTINCT id
-        //             FROM {user_info_field} uif
-        //             WHERE uif.shortname = :cpfield
-        //         )
-        //         $anduserid ";
-
-        // $params['cpfield'] = $this->cpfield;
+        // Merge new params into existing params.
+        $params = array_merge($params, $inparams);
     }
 }
