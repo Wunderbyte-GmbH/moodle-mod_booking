@@ -723,8 +723,8 @@ $string['certificatemodalheader'] = 'Zertifikate von {$a}';
 $string['certificateon'] = 'Zertifikatserstellung aktivieren <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['certificateon_desc'] = 'Aktivieren Sie diese Einstellung, wenn sie Zertifikate für den Abschluss von Buchungsoptionen ausstellen möchten.';
 $string['certificateurl'] = 'Zeritifikat URL';
-$string['certificatewithexperation'] = 'Ablaufdatum: {$a}';
-$string['certificatewithoutexperation'] = 'Kein Ablaufdatum.';
+$string['certificatewithexpiration'] = 'Ablaufdatum: {$a}';
+$string['certificatewithoutexpiration'] = 'Kein Ablaufdatum.';
 $string['cfcostcenter'] = "Benutzerdefiniertes Buchungsoptionsfeld für die Kostenstelle";
 $string['cfcostcenter_desc'] = "Wenn Sie Kostenstellen verwenden, müssen Sie hier angeben,
 in welchem benutzerdefinierten Buchungsoptionsfeld diese gespeichert werden.";
