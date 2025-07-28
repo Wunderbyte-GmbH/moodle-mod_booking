@@ -701,10 +701,10 @@ class all_userbookings extends \table_sql {
         $lastcode = end($code);
 
         if (empty($lastexpiredate)) {
-            $text = get_string('certificatewithoutexperation', 'mod_booking');
+            $text = get_string('certificatewithoutexpiration', 'mod_booking');
         } else {
             $dateformatted = userdate($lastexpiredate);
-            $text = get_string('certificatewithexperation', 'mod_booking', $dateformatted);
+            $text = get_string('certificatewithexpiration', 'mod_booking', $dateformatted);
         }
         $statusicon = ($now < $lastexpiredate) ? $checkmark : $cross;
         $url = new moodle_url("/pluginfile.php/1/tool_certificate/issues/{$lasttimecreated}/{$lastcode}.pdf");
@@ -738,7 +738,7 @@ class all_userbookings extends \table_sql {
                 'code' => $code,
                 'timecreated' => userdate($timecreated),
                 'expires' => !empty($cert->expires) ? userdate($cert->expires)
-                    : get_string('certificatewithoutexperation', 'mod_booking'),
+                    : get_string('certificatewithoutexpiration', 'mod_booking'),
                 'url' => $url,
             ];
         }
