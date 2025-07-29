@@ -913,6 +913,8 @@ class booking_option {
 
     /**
      * "Sync" users on waiting list, based on edited option - if has limit or not.
+     * @return bool
+     *
      */
     public function sync_waiting_list() {
         global $USER;
@@ -920,6 +922,8 @@ class booking_option {
         $context = context_module::instance(($this->cmid));
         $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
         $optionhasstarted = new optionhasstarted();
+
+        $result = false;
 
         if (
             // If waiting list is turned off globally...
@@ -929,7 +933,7 @@ class booking_option {
             || !$optionhasstarted->is_available($settings, 0)
         ) {
             // ... we return right away.
-            return;
+            return false;
         }
 
         // Here, we check if we need to sync another option than the present one.
@@ -942,9 +946,13 @@ class booking_option {
             foreach ($sharedoptionids as $sharedoptionid) {
                 $sharedsettings = singleton_service::get_instance_of_booking_option_settings($sharedoptionid);
                 $sharedoption = singleton_service::get_instance_of_booking_option($sharedsettings->cmid, $sharedoptionid);
-                $sharedoption->sync_waiting_list();
+                $result = $sharedoption->sync_waiting_list();
             }
-            return;
+            self::purge_cache_for_answers($this->optionid);
+            // We only stop execution if we have synced a user before.
+            if ($result) {
+                return $result;
+            }
         }
 
         $ba = singleton_service::get_instance_of_booking_answers($settings);
@@ -986,7 +994,7 @@ class booking_option {
                     // We delete the booking answers cache - because settings (limits, etc.) could be changed!
                     self::purge_cache_for_answers($this->optionid);
 
-                    $this->user_submit_response($user, 0, 0, 0, MOD_BOOKING_VERIFIED);
+                    $result = $this->user_submit_response($user, 0, 0, 0, MOD_BOOKING_VERIFIED);
                     $this->enrol_user_coursestart($currentanswer->userid);
 
                     // Before sending, we delete the booking answers cache again.
@@ -1107,6 +1115,8 @@ class booking_option {
                 $messagecontroller->send_or_queue();
             }
         }
+        // We need the return value only in a specific context.
+        return $result;
     }
 
     /**

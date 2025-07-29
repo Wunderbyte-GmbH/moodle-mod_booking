@@ -318,7 +318,7 @@ class sharedplaces extends field_base {
 
         switch ($databasetype) {
             case 'postgres':
-                $where = "(json::jsonb -> 'sharedplaceswithoptions') @> to_jsonb(ARRAY[:optionid]::text[])
+                $where = "(json::jsonb -> 'sharedplaceswithoptions') @> '[$optionid]'::jsonb
                           AND (json::jsonb -> 'sharedplacespriority')::int = 1
                 ";
                 break;
@@ -335,11 +335,7 @@ class sharedplaces extends field_base {
                 WHERE $where;
         ";
 
-        $params = [
-            'optionid' => $optionid,
-        ];
-
-        return $DB->get_records_sql($sql, $params);
+        return $DB->get_fieldset_sql($sql);
     }
 
     /**

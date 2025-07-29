@@ -156,6 +156,7 @@ final class sharedplaces_test extends advanced_testcase {
         $baa = singleton_service::get_instance_of_booking_answers($settingsa);
         $bookinginformation = $baa->return_all_booking_information($student2->id);
         // User 1 is successfully booked.
+        // Not booked because we fetch info for user 2.
         $this->assertEquals(0, $bookinginformation["notbooked"]["freeonlist"]);
 
         // Now book user 2 in option B.
@@ -228,6 +229,30 @@ final class sharedplaces_test extends advanced_testcase {
         // We take student two off option A.
         $option->user_delete_response($student2->id);
 
+        // Because student B is still blocking the queue of option C, it's student 1 coming in.
+        $baa = singleton_service::get_instance_of_booking_answers($settingsa);
+        $bookinginformation = $baa->return_all_booking_information($student1->id);
+        $this->assertEquals(1, $bookinginformation["iambooked"]["freeonwaitinglist"]);
+
+        // We book student 2 again on the waitinglist of option A.
+        $result = booking_bookit::bookit('option', $settingsa->id, $student2->id);
+        $result = booking_bookit::bookit('option', $settingsa->id, $student2->id);
+
+        // Now we delete first student 2 from Option B.
+        $option = singleton_service::get_instance_of_booking_option($settingsb->cmid, $settingsb->id);
+        $option->user_delete_response($student2->id);
+
+        // Option B has no one booked and no waitnglist.
+        // But because it's linked with C, we get the C information.
+        $bab = singleton_service::get_instance_of_booking_answers($settingsb);
+        $bookinginformation = $bac->return_all_booking_information($student2->id);
+        $this->assertEquals(0, $bookinginformation["notbooked"]["freeonwaitinglist"]);
+        $this->assertEquals(0, $bookinginformation["notbooked"]["freeonlist"]);
+
+        // Now we delete first student 2 from Option A.
+        $option = singleton_service::get_instance_of_booking_option($settingsa->cmid, $settingsa->id);
+        $option->user_delete_response($student1->id);
+
         // Now it's student 3 coming in from Option C to be booked before, because of priority.
         $bac = singleton_service::get_instance_of_booking_answers($settingsc);
         $bookinginformation = $bac->return_all_booking_information($student3->id);
@@ -235,7 +260,7 @@ final class sharedplaces_test extends advanced_testcase {
 
         // Student 1 is still on the waitinglist.
         $baa = singleton_service::get_instance_of_booking_answers($settingsa);
-        $bookinginformation = $baa->return_all_booking_information($student1->id);
+        $bookinginformation = $baa->return_all_booking_information($student2->id);
         $this->assertEquals(1, $bookinginformation["onwaitinglist"]["freeonwaitinglist"]);
 
         // TearDown at the very end.
