@@ -36,8 +36,9 @@ Feature: In a booking - create options with different contact persons settings a
       | rcp4     | C1     | manager        |
     And I clean booking cache
     And the following "activities" exist:
-      | activity | course | name      | intro               | bookingmanager | eventtype | Default view for booking options | Booking option name  |
-      | booking  | C1     | MyBooking | Booking description | admin1         | Webinar   | All bookings                     | New option - Webinar |
+      | activity | course | name      | intro               | bookingmanager | eventtype | autoenrol | Default view for booking options | Booking option name  |
+      | booking  | C1     | MyBooking | Booking description | admin1         | Webinar   | 1         | All bookings                     | New option - Webinar |
+    ## "autoenrol = 1" is required to enroll in the connected course
     And the following "mod_booking > options" exist:
       | booking   | text                    | course | description  | teachersforoption | responsiblecontact  | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | MyBooking | Option1: RCP only       | C1     | Option deskr |                   | rcp1,rcp2,rcp3,rcp4 | 0              | 0              | 2346937200        | 2347110000      |
@@ -128,14 +129,27 @@ Scenario: Booking option: manage responsible contact persons for courseconnectio
       | definedresponsiblecontactrole | Non-editing teacher |
     ## New behavior - direct link to the connected course
     And the following "mod_booking > options" exist:
-      | booking   | text         | description  | importing | chooseorcreatecourse | course | enrolmentstatus | limitanswers | maxanswers | teachersforoption | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
-      | MyBooking | Option4: CC2 | Enroll_later | 1         | 1                    | C2     | 0               | 0            | 0          | teacher1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
-      | MyBooking | Option5: CC3 | Enroll_now   | 1         | 1                    | C3     | 2               | 0            | 0          | teacher1          | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
+      | booking   | text         | description       | importing | chooseorcreatecourse | course | enrolmentstatus | limitanswers | maxanswers | teachersforoption | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
+      | MyBooking | Option4: new | Enrol_now-new     | 1         | 2                    | C1     | 0               | 0            | 0          | teacher1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+      | MyBooking | Option5: CC3 | Enrol_now-existed | 1         | 1                    | C3     | 2               | 0            | 0          | teacher1          | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
     ## enrolmentstatus: 0 enrol at coursestart; 1 enrolment done; 2 immediately enrol
     And I am on the "MyBooking" Activity page
+    ## Add 2 RCPs and validate enrolments
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r5" "css_element"
     And I follow "Responsible contact(s)"
     And I set the field "Responsible contact(s)" to "rcp2@example.com,rcp3@example.com"
+    And I press "Save"
+    And I am on "Course 3" course homepage
+    And I follow "Participants"
+    And the following should exist in the "participants" table:
+      | Email address    | Roles               | Status |
+      | rcp2@example.com | Non-editing teacher | Active |
+      | rcp3@example.com | Non-editing teacher | Active |
+    ## Remove 1 RCP, leave another 1 and validate enrolment / unenrolment
+    And I am on the "MyBooking" Activity page
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r5" "css_element"
+    And I follow "Responsible contact(s)"
+    And I set the field "Responsible contact(s)" to "rcp2@example.com"
     And I press "Save"
     And I am on "Course 3" course homepage
     And I follow "Participants"
@@ -143,5 +157,7 @@ Scenario: Booking option: manage responsible contact persons for courseconnectio
     And the following should exist in the "participants" table:
       | Email address    | Roles               | Status |
       | rcp2@example.com | Non-editing teacher | Active |
-      | rcp3@example.com | Non-editing teacher | Active |
+    And the following should not exist in the "participants" table:
+      | Email address    |
+      | rcp3@example.com |
     And I log out
