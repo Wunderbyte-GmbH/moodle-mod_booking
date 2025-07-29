@@ -119,8 +119,8 @@ Feature: In a booking - create options with different contact persons settings a
     And I close all opened windows
     And I log out
 
-@javascript
-Scenario: Booking option: manage responsible contact persons for courseconnection
+  @javascript
+  Scenario: Booking option: manage responsible contact persons for courseconnection
     Given the following config values are set as admin:
       | config                          | value | plugin  |
       | responsiblecontactenroltocourse | 1     | booking |
@@ -161,8 +161,8 @@ Scenario: Booking option: manage responsible contact persons for courseconnectio
       | rcp3@example.com |
     And I log out
 
-@javascript
-Scenario: Booking option: manage responsible contact persons for newly created connected course
+  @javascript
+  Scenario: Booking option: manage responsible contact persons for newly created connected course
     Given the following config values are set as admin:
       | config                          | value | plugin  |
       | responsiblecontactenroltocourse | 1     | booking |
