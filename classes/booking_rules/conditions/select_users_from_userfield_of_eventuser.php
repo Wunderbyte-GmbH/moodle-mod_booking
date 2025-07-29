@@ -147,7 +147,7 @@ class select_users_from_userfield_of_eventuser implements booking_rule_condition
         $jsonobject->conditionname = $this->conditionname;
         $jsonobject->conditiondata = new stdClass();
         $jsonobject->conditiondata->fieldofuserfromevent = $data->fieldofuserfromevent ?? '';
-        $jsonobject->conditiondata->userfromeventtype = $data->userfromeventtype ?? '';
+        $jsonobject->conditiondata->userfromeventtype = $data->condition_select_user_from_event_type ?? '';
 
         $data->rulejson = json_encode($jsonobject);
     }
@@ -165,7 +165,7 @@ class select_users_from_userfield_of_eventuser implements booking_rule_condition
         $conditiondata = $jsonobject->conditiondata;
 
         $data->fieldofuserfromevent = $conditiondata->fieldofuserfromevent;
-        $data->userfromeventtype = $conditiondata->userfromeventtype;
+        $data->condition_select_user_from_event_type = $conditiondata->userfromeventtype;
     }
 
     /**
