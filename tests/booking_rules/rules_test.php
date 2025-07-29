@@ -1675,7 +1675,9 @@ final class rules_test extends advanced_testcase {
             'actionname' => 'send_mail',
             'actiondata' => $actstr,
             'rulename' => 'rule_react_on_event',
-            'ruledata' => '{"boevent":"\\\\mod_booking\\\\event\\\\bookinganswer_cancelled","aftercompletion":0,"condition":"0", "cancelrules":[]}',
+            'ruledata' =>
+                '{"boevent":"\\\\mod_booking\\\\event\\\\bookinganswer_cancelled",' .
+                '"aftercompletion":0,"condition":"0","cancelrules":[]}',
         ];
         $rule1 = $plugingenerator->create_rule($ruledata1);
 
