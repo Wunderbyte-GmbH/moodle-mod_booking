@@ -83,15 +83,64 @@ final class booking_importer_test extends advanced_testcase {
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
         // Create user(s).
-        $useremails = ['teacher1@example.com', 'teacher2@example.com', 'user1@example.com'];
-        $userdata = new stdClass();
-        $userdata->email = $useremails[0];
-        $userdata->timezone = 'Europe/London';
-        $user1 = $this->getDataGenerator()->create_user($userdata); // Booking manager and teacher.
-        $userdata->email = $useremails[1];
-        $user2 = $this->getDataGenerator()->create_user($userdata); // Teacher.
-        $userdata->email = $useremails[2];
-        $user3 = $this->getDataGenerator()->create_user($userdata); // Student.
+        $teachers = [
+            [
+                'username' => 'teacher1',
+                'firstname' => 'Teacher',
+                'lastname' => '1',
+                'email' => 'teacher1@example.com',
+                'timezone' => 'Europe/London',
+            ],
+            [
+                'username' => 'teacher2',
+                'firstname' => 'Teacher',
+                'lastname' => '2',
+                'email' => 'teacher2@example.com',
+                'timezone' => 'Europe/London',
+            ],
+        ];
+        $teacher1 = $this->getDataGenerator()->create_user($teachers[0]);
+        $teacher2 = $this->getDataGenerator()->create_user($teachers[1]);
+        $teacherids = [$teacher1->id, $teacher2->id];
+        $users = [
+            [
+                'username' => 'student1',
+                'firstname' => 'Student',
+                'lastname' => '1',
+                'email' => 'user1@example.com',
+                'timezone' => 'Europe/London',
+            ],
+        ];
+        $user1 = $this->getDataGenerator()->create_user($users[0]);
+        $userids = [$user1->id];
+
+        $rcps = [
+            [
+                'username' => 'rcp1',
+                'firstname' => 'RCP',
+                'lastname' => '1',
+                'email' => 'rcp1@example.com',
+                'timezone' => 'Europe/London',
+            ],
+            [
+                'username' => 'rcp2',
+                'firstname' => 'RCP',
+                'lastname' => '2',
+                'email' => 'rcp2@example.com',
+                'timezone' => 'Europe/London',
+            ],
+            [
+                'username' => 'rcp3',
+                'firstname' => 'RCP',
+                'lastname' => '2',
+                'email' => 'rcp3@example.com',
+                'timezone' => 'Europe/London',
+            ],
+        ];
+        $rcp1 = $this->getDataGenerator()->create_user($rcps[0]);
+        $rcp2 = $this->getDataGenerator()->create_user($rcps[1]);
+        $rcp3 = $this->getDataGenerator()->create_user($rcps[2]);
+        $rcpids = [$rcp1->id, $rcp2->id, $rcp3->id];
 
         // Create booking settings prior create booking module in course: price categories and semester.
         /** @var mod_booking_generator $plugingenerator */
@@ -122,16 +171,16 @@ final class booking_importer_test extends advanced_testcase {
             'mergeparam' => 2,
         ];
         $bdata['course'] = $course->id;
-        $bdata['bookingmanager'] = $user1->username;
+        $bdata['bookingmanager'] = $teacher1->username;
 
         $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
 
         // Finish to configure users (must be done from admin).
         $this->setAdminUser();
 
-        $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'editingteacher');
-        $this->getDataGenerator()->enrol_user($user2->id, $course->id, 'teacher');
-        $this->getDataGenerator()->enrol_user($user3->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($teacher1->id, $course->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($teacher2->id, $course->id, 'teacher');
+        $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'student');
 
         // Get coursemodule of bookjng instance.
         $cmb1 = get_coursemodule_from_instance('booking', $booking1->id);
@@ -141,7 +190,7 @@ final class booking_importer_test extends advanced_testcase {
         $bookingobj1 = singleton_service::get_instance_of_booking_by_bookingid($booking1->id);
 
         // Prepare import (should work in behalf of teacher).
-        $this->setUser($user1);
+        $this->setUser($teacher1);
 
         // Prepare import options.
         $formdata = new stdClass();
@@ -157,7 +206,7 @@ final class booking_importer_test extends advanced_testcase {
         // Perform import of CSV: 3 new booking options have to be created.
         $res = $bookingcsvimport1->execute_bookingoptions_csv_import(
             $formdata,
-            file_get_contents($this->get_full_path_of_csv_file('options_coma_new', '01')),
+            file_get_contents($this->get_full_path_of_csv_file('options_coma_new', '02')),
         );
         // Check success of import process.
         $this->assertIsArray($res);
@@ -166,6 +215,7 @@ final class booking_importer_test extends advanced_testcase {
         $this->assertEquals(3, $res['numberofsuccessfullyupdatedrecords']);
         // Check actual records count.
         $this->assertEquals(3, $bookingobj1->get_all_options_count());
+
         // Get 1st option.
         $option1 = $bookingobj1->get_all_options(0, 0, "0-Allgemeines Turnen");
         $this->assertEquals(1, count($option1));
@@ -187,11 +237,23 @@ final class booking_importer_test extends advanced_testcase {
         // Check if the user is subscribed.
         $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
         $ba = singleton_service::get_instance_of_booking_answers($settings);
-        $this->assertEquals(MOD_BOOKING_STATUSPARAM_BOOKED, $ba->user_status($user3->id));
+        $this->assertEquals(MOD_BOOKING_STATUSPARAM_BOOKED, $ba->user_status($user1->id));
 
         // Create booking option object to get extra detsils.
         singleton_service::destroy_booking_option_singleton($option1->id);
         $bookingoptionobj = singleton_service::get_instance_of_booking_option($cmb1->id, $option1->id);
+
+        // Verify teacher for 1st option.
+        $opt1teachers = $bookingoptionobj->get_teachers();
+        $this->assertEquals(2, count($opt1teachers));
+        foreach ($opt1teachers as $id => $teacher) {
+            $this->assertTrue(in_array($id, $teacherids));
+        }
+        // Verify responsible contacts for 1st option.
+        $this->assertEquals(1, count($settings->responsiblecontact));
+        foreach ($settings->responsiblecontact as $id => $rcp) {
+            $this->assertTrue(in_array($id, $rcpids));
+        }
 
         // Booking option must have sessions.
         $this->assertEquals(true, booking_utils::booking_option_has_optiondates($option1->id));
@@ -234,11 +296,11 @@ final class booking_importer_test extends advanced_testcase {
         // Check if the user is subscribed.
         $settings = singleton_service::get_instance_of_booking_option_settings($option3->id);
         $ba = singleton_service::get_instance_of_booking_answers($settings);
-        $this->assertEquals(MOD_BOOKING_STATUSPARAM_BOOKED, $ba->user_status($user3->id));
+        $this->assertEquals(MOD_BOOKING_STATUSPARAM_BOOKED, $ba->user_status($user1->id));
 
         // Create booking option object to get extra detsils.
         $bookingoptionobj = new booking_option($cmb1->id, $option3->id);
-        // Verify teacher for 1st option.
+        // Verify teacher for 3rd option.
         $teacher3 = $bookingoptionobj->get_teachers();
         $this->assertEmpty($teacher3);
 
