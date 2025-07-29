@@ -2300,6 +2300,7 @@ $string['sharedplaces'] = 'Geteilte Plätze';
 $string['sharedplaces_help'] = 'Gebuchte Plätze einer anderen Buchungsoption werden addiert. Haben beide Optionen 10 verfügbare Plätze und nur eine wird gebucht, bleiben nur noch 9 Plätze in beiden.';
 $string['sharedplacespriority'] = 'Hat Vorrang';
 $string['sharedplacespriority_help'] = 'Wenn zwei verbundene Buchungsoptionen gleichzeitig freie Plätze haben, soll diese zuerst gebucht werden.';
+$string['sharedplacespriorityerror'] = 'Folgende Buchungsoption hat bereits Vorrang, weshalb diese keinen Vorrang haben kann: <br> {$a}';
 $string['shoppingcart'] = 'Zahlungsoptionen mit Shopping Cart Plugin definieren';
 $string['shoppingcartplaceholder'] = 'Warenkorb';
 $string['shortcode:cmidnotexisting'] = 'Der Kursmodul ID {$a} existiert nicht für die Aktivität Booking';

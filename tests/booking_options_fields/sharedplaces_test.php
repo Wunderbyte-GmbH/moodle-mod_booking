@@ -130,14 +130,14 @@ final class sharedplaces_test extends advanced_testcase {
         $record = [
             'id' => $optiona->id,
             'cmid' => $optiona->cmid,
-            'sharedplaceswithoptions' => [$optionc->id],
+            'sharedplaceswithoptions' => ["$optionc->id"],
         ];
         booking_option::update($record);
 
         $record = [
             'id' => $optionb->id,
             'cmid' => $optionb->cmid,
-            'sharedplaceswithoptions' => [$optionc->id],
+            'sharedplaceswithoptions' => ["$optionc->id"],
         ];
         booking_option::update($record);
 
@@ -216,8 +216,8 @@ final class sharedplaces_test extends advanced_testcase {
         $record = [
             'id' => $optionc->id,
             'cmid' => $optionc->cmid,
-            'sharedplaceswithoptions' => [$optiona->id, $optionb->id],
-            'sharedplacespriority' => 1,
+            'sharedplaceswithoptions' => ["$optiona->id", "$optionb->id"],
+            'sharedplacespriority' => "1",
         ];
         booking_option::update($record);
 

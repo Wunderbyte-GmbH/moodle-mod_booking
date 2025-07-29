@@ -24,6 +24,7 @@
 
 namespace mod_booking\option\fields;
 
+use core\output\html_writer;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
@@ -205,11 +206,39 @@ class sharedplaces extends field_base {
         $sharedplaceswithoptions = booking_option::get_value_of_json_by_key($data->id, "sharedplaceswithoptions");
         $sharedplacespriority = booking_option::get_value_of_json_by_key($data->id, "sharedplacespriority");
         if (!empty($sharedplaceswithoptions)) {
-            $data->sharedplaceswithoptions = $sharedplaceswithoptions;
+            // We need to make sure that we save the optionids as strings.
+            $data->sharedplaceswithoptions = array_map(fn($a) => "$a", $sharedplaceswithoptions);
         }
         if (!empty($sharedplacespriority)) {
             $data->sharedplacespriority = $sharedplacespriority;
         }
+    }
+
+    /**
+     * This function adds error keys for form validation.
+     * @param array $data
+     * @param array $files
+     * @param array $errors
+     * @return array
+     */
+    public static function validation(array $data, array $files, array &$errors) {
+
+        if (!empty($data['sharedplacespriority'])) {
+            $sharedoptions = self::get_sharedplaces_options($data['id']);
+        }
+
+        // This is the case when other options reference this option.
+        if (!empty($sharedoptions)) {
+            $settings = singleton_service::get_instance_of_booking_option_settings(reset($sharedoptions));
+            $linktoption = html_writer::link(
+                "/mod/booking/editoptions.php?id=$settings->cmid&optionid=$settings->id",
+                $settings->get_title_with_prefix()
+            );
+
+            $errors['sharedplacespriority'] = get_string('sharedplacespriorityerror', 'mod_booking', $linktoption);
+        }
+
+        return $errors;
     }
 
     /**
@@ -318,8 +347,8 @@ class sharedplaces extends field_base {
 
         switch ($databasetype) {
             case 'postgres':
-                $where = "(json::jsonb -> 'sharedplaceswithoptions') @> '[$optionid]'::jsonb
-                          AND (json::jsonb -> 'sharedplacespriority')::int = 1
+                $where = "(json::jsonb -> 'sharedplaceswithoptions') @> '[\"$optionid\"]'::jsonb
+                          AND (json::jsonb ->> 'sharedplacespriority')::int = 1
                 ";
                 break;
             case 'mysql':
@@ -330,7 +359,7 @@ class sharedplaces extends field_base {
                 throw new moodle_exception('Unsupported database type for JSON key extraction.');
         }
 
-        $sql = "SELECT *
+        $sql = "SELECT id
                 FROM {booking_options}
                 WHERE $where;
         ";

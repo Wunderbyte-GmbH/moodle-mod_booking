@@ -2362,6 +2362,7 @@ $string['sharedplaces'] = 'Shared places';
 $string['sharedplaces_help'] = 'Booked places of another booking option are added. If both options have 10 available places and only one is booked, only 9 places remain in both.';
 $string['sharedplacespriority'] = 'Has priority';
 $string['sharedplacespriority_help'] = 'If two linked booking options have free places at the same time, this one should be booked first.';
+$string['sharedplacespriorityerror'] = 'The following booking option already has priority, so this one cannot have priority: <br> {$a}';
 $string['shoppingcart'] = 'Set payment options with shopping cart plugin';
 $string['shoppingcartplaceholder'] = 'Shoppingcart';
 $string['shortcode:cmidnotexisting'] = 'The course module id {$a} does not exist for the booking activity.';

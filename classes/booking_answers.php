@@ -252,7 +252,7 @@ class booking_answers {
 
         $returnarray = [];
 
-        $sharedplaceswithoptions = booking_option::get_value_of_json_by_key($this->optionid, "sharedplaceswithoptions");
+        $sharedplaceswithoptions = booking_option::get_value_of_json_by_key($this->optionid, "sharedplaceswithoptions") ?? [];
 
         $returnarray['booked'] = self::count_places($this->usersonlist);
 
