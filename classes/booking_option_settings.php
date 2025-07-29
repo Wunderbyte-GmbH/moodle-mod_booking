@@ -242,7 +242,7 @@ class booking_option_settings {
     /** @var string $imageurl url */
     public $imageurl = '';
 
-    /** @var array $responsiblecontact userid of the responsible contact person */
+    /** @var array $responsiblecontact array of userid(s) of the responsible contact person(s) */
     public $responsiblecontact = [];
 
     /** @var array $responsiblecontactuser user object for the responsible contact person */

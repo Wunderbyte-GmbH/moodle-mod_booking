@@ -177,11 +177,20 @@ class responsiblecontact extends field_base {
                 $data->responsiblecontact = $settings->responsiblecontact ?? [];
             }
         } else {
+            // We are importing.
             if (!empty($data->responsiblecontact)) {
                 // We set throwerror to true...
                 // ... because on importing, we want it to fail, if responsiblecontact is not found.
-                $userids = teachers_handler::get_user_ids_from_string($data->responsiblecontact, true);
-                $data->responsiblecontact = $userids[0] ?? [];
+                if (is_string($data->responsiblecontact)) {
+                    $userids = teachers_handler::get_user_ids_from_string($data->responsiblecontact, true);
+                    $data->responsiblecontact = $userids ?? [];
+                } else if (is_array($data->responsiblecontact)) {
+                    // If it's already an array, we assume it's userids.
+                    return;
+                } else {
+                    // If it's not a string or array, we set it to an empty array.
+                    $data->responsiblecontact = [];
+                }
             } else {
                 $data->responsiblecontact = $settings->responsiblecontact ?? [];
             }

@@ -594,21 +594,21 @@ class teachers_handler {
     /**
      * This function can retrieve the userids from a string with either emails or usernames.
      *
-     * @param mixed $userstring
+     * @param string|array $users string can contain userids, emails or usernames, can also be already an array of userids
      * @param bool $email // if false, it's usernames, not usermails.
      * @param bool $throwerror If not finding the email should throw an error.
      * @return array
      */
-    public static function get_user_ids_from_string($userstring, $email = true, $throwerror = false) {
+    public static function get_user_ids_from_string($users, $email = true, $throwerror = false) {
 
         global $DB;
 
-        if (empty($userstring)) {
+        if (empty($users)) {
             return [];
         }
         // First we explode teacheremail, there might be mulitple teachers.
         // We always use comma as separator.
-        $teacheremails = array_map('strtolower', explode(',', $userstring)); // Convert input to lowercase.
+        $teacheremails = array_map('strtolower', explode(',', $users)); // Convert input to lowercase.
         $column = $email ? 'LOWER(email)' : 'LOWER(username)';  // Ensure case-insensitive comparison.
 
         [$inorequal, $params] = $DB->get_in_or_equal($teacheremails, SQL_PARAMS_NAMED);
