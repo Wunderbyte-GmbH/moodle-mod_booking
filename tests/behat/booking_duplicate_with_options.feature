@@ -7,9 +7,12 @@ Feature: In a booking create booking option with multiple custom options
     Given the following "users" exist:
       | username | firstname | lastname | email                | idnumber |
       | teacher1 | Teacher   | 1        | teacher1@example.com | T1       |
+      | teacher2 | Teacher   | 2        | teacher2@example.com | T2       |
       | admin1   | Admin     | 1        | admin1@example.com   | A1       |
       | student1 | Student   | 1        | student1@example.com | S1       |
       | student2 | Student   | 2        | student2@example.com | S2       |
+      | rcp1     | RCP       | 1        | rcp1@example.com     | RCP1     |
+      | rcp2     | RCP       | 2        | rcp2@example.com     | RCP2     |
     And the following "courses" exist:
       | fullname | shortname | category | enablecompletion |
       | Course 1 | C1        | 0        | 1                |
@@ -17,9 +20,12 @@ Feature: In a booking create booking option with multiple custom options
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
       | teacher1 | C1     | manager        |
+      | teacher2 | C1     | teacher        |
       | admin1   | C1     | manager        |
       | student1 | C1     | student        |
       | student2 | C1     | student        |
+      | rcp1     | C1     | editingteacher |
+      | rcp2     | C1     | teacher        |
     And I clean booking cache
     And the following "activities" exist:
       | activity | course | name       | intro                  | bookingmanager | eventtype | Default view for booking options | Activate e-mails (confirmations, notifications and more) | Booking option name  |
@@ -37,11 +43,11 @@ Feature: In a booking create booking option with multiple custom options
     And I change viewport size to "1366x10000"
 
   @javascript
-  Scenario: Duplication of booking option with teacher
+  Scenario: Duplication of booking option with teachers and responsible contacts
     ## To cover an issue reported in #551
     Given the following "mod_booking > options" exist:
-      | booking    | text               | course | description | teachersforoption |
-      | My booking | Duplication source | C1     | Source      | teacher1          |
+      | booking    | text               | course | description | teachersforoption | responsiblecontact |
+      | My booking | Duplication source | C1     | Source      | teacher1,teacher2 | rcp1,rcp2          |
     And I am on the "My booking" Activity page logged in as teacher1
     And I should see "Duplication source" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
@@ -52,6 +58,9 @@ Feature: In a booking create booking option with multiple custom options
     When I press "Save"
     Then I should see "Test option - Copy1" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "Teacher 1" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "Teacher 2" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "RCP 1" in the ".allbookingoptionstable_r2 .col-repsoniblecontact-repsonsiblecontacts-container" "css_element"
+    And I should see "RCP 2" in the ".allbookingoptionstable_r2 .col-repsoniblecontact-repsonsiblecontacts-container" "css_element"
 
   @javascript
   Scenario: Duplication of booking option with course
