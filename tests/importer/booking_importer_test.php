@@ -245,15 +245,12 @@ final class booking_importer_test extends advanced_testcase {
 
         // Verify teacher for 1st option.
         $opt1teachers = $bookingoptionobj->get_teachers();
-        $this->assertEquals(2, count($opt1teachers));
-        foreach ($opt1teachers as $id => $teacher) {
-            $this->assertTrue(in_array($id, $teacherids));
-        }
+        $this->assertEquals(2, count($settings->teacherids));
+        $this->assertEmpty(array_diff($settings->teacherids, $teacherids));
+
         // Verify responsible contacts for 1st option.
         $this->assertEquals(1, count($settings->responsiblecontact));
-        foreach ($settings->responsiblecontact as $id => $rcp) {
-            $this->assertTrue(in_array($id, $rcpids));
-        }
+        $this->assertEmpty(array_diff($settings->responsiblecontact, $rcpids));
 
         // Booking option must have sessions.
         $this->assertEquals(true, booking_utils::booking_option_has_optiondates($option1->id));
@@ -303,6 +300,10 @@ final class booking_importer_test extends advanced_testcase {
         // Verify teacher for 3rd option.
         $teacher3 = $bookingoptionobj->get_teachers();
         $this->assertEmpty($teacher3);
+
+        // Verify responsible contacts for 3rd option.
+        $this->assertEquals(2, count($settings->responsiblecontact));
+        $this->assertEmpty(array_diff($settings->responsiblecontact, $rcpids));
 
         // Bookimg option must have sessions.
         $this->assertEquals(true, booking_utils::booking_option_has_optiondates($option3->id));
