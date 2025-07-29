@@ -119,8 +119,8 @@ Feature: In a booking - create options with different contact persons settings a
     And I close all opened windows
     And I log out
 
-  @javascript
-  Scenario: Booking option: manage responsible contact persons for courseconnection
+@javascript
+Scenario: Booking option: manage responsible contact persons for courseconnection
     Given the following config values are set as admin:
       | config                          | value | plugin  |
       | responsiblecontactenroltocourse | 1     | booking |
@@ -153,7 +153,54 @@ Feature: In a booking - create options with different contact persons settings a
     And I press "Save"
     And I am on "Course 3" course homepage
     And I follow "Participants"
-    ##And I wait "50" seconds
+    And the following should exist in the "participants" table:
+      | Email address    | Roles               | Status |
+      | rcp2@example.com | Non-editing teacher | Active |
+    And the following should not exist in the "participants" table:
+      | Email address    |
+      | rcp3@example.com |
+    And I log out
+
+@javascript
+Scenario: Booking option: manage responsible contact persons for newly created connected course
+    Given the following config values are set as admin:
+      | config                          | value | plugin  |
+      | responsiblecontactenroltocourse | 1     | booking |
+    And I log in as "admin"
+    And I set the following administration settings values:
+      | definedresponsiblecontactrole | Non-editing teacher |
+    ## New behavior - direct link to the connected course
+    And the following "mod_booking > options" exist:
+      | booking   | text        | description       | importing | chooseorcreatecourse | course | enrolmentstatus | limitanswers | maxanswers | teachersforoption | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
+      | MyBooking | Option4-new | Enrol_now-new     | 1         | 2                    | C1     | 0               | 0            | 0          | teacher1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+    ## enrolmentstatus: 0 enrol at coursestart; 1 enrolment done; 2 immediately enrol
+    And I am on the "MyBooking" Activity page
+    ## Add 2 RCPs and validate enrolments
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r4" "css_element"
+    And I follow "Responsible contact(s)"
+    And I set the field "Responsible contact(s)" to "rcp2@example.com,rcp3@example.com"
+    And I press "Save"
+    When I click on "Book now" "text" in the ".allbookingoptionstable_r4 .booknow" "css_element"
+    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r4" "css_element"
+    ##Then I should see "Booked" in the ".allbookingoptionstable_r4" "css_element"
+    ## Verify enrolled immediately
+    Then I click on "Start" "link" in the ".allbookingoptionstable_r4" "css_element"
+    And I wait to be redirected
+    And I should see "Option4-new" in the "#page-header" "css_element"
+    And I follow "Participants"
+    And the following should exist in the "participants" table:
+      | Email address    | Roles               | Status |
+      | rcp2@example.com | Non-editing teacher | Active |
+      | rcp3@example.com | Non-editing teacher | Active |
+    ## Remove 1 RCP, leave another 1 and validate enrolment / unenrolment
+    And I am on the "MyBooking" Activity page
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r4" "css_element"
+    And I follow "Responsible contact(s)"
+    And I set the field "Responsible contact(s)" to "rcp2@example.com"
+    And I press "Save"
+    And I click on "Start" "link" in the ".allbookingoptionstable_r4" "css_element"
+    And I wait to be redirected
+    And I follow "Participants"
     And the following should exist in the "participants" table:
       | Email address    | Roles               | Status |
       | rcp2@example.com | Non-editing teacher | Active |
