@@ -159,7 +159,7 @@ class campaign_customfield implements booking_campaign {
         );
         $mform->setType('endtime', PARAM_INT);
         $mform->addHelpButton('endtime', 'campaignend', 'mod_booking');
-        $mform->setDefault('endtime', time_handler::prettytime(time() + 3600));
+        $mform->setDefault('endtime', time_handler::prettytime(time()));
         // Price factor (multiplier).
         $mform->addElement('float', 'pricefactor', get_string('pricefactor', 'mod_booking'), null);
         $mform->setDefault('pricefactor', 1);
