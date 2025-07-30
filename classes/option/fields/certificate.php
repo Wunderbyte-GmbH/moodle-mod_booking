@@ -26,6 +26,7 @@ namespace mod_booking\option\fields;
 
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
+use mod_booking\option\dates_handler;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use mod_booking\singleton_service;
@@ -271,10 +272,11 @@ class certificate extends field_base {
                     'bookingoptionid' => $settings->id,
                     'bookingoptionname' => $settings->get_title_with_prefix(),
                     'bookingoptiondescription' => strip_tags($settings->description),
+                    'location' => $settings->location,
+                    'institution' => $settings->institution,
                     'teachers' => self::return_teachers_for_certificate($settings->teachers),
                     'sessions' => self::return_sessions_for_certificate($settings->sessions),
                     'duration' => self::return_duration_for_certificate($settings),
-                    'enitiy' => $settings->entity,
                 ]
             );
         }
@@ -294,7 +296,7 @@ class certificate extends field_base {
         foreach ($teachers as $teacher) {
             $certificateteachers[] = "$teacher->firstname $teacher->lastname";
         }
-        return implode("\n", $certificateteachers);
+        return implode("<br />", $certificateteachers);
     }
 
     /**
@@ -311,8 +313,14 @@ class certificate extends field_base {
             foreach ($settings->sessions as $session) {
                 $duration += ($session->courseendtime - $session->coursestarttime);
             }
-        } else {
+        } else if (
+            !empty($settings->courseendtime)
+            && !empty($settings->coursestarttime)
+            && $settings->courseendtime > $settings->coursestarttime
+        ) {
             $duration = $settings->courseendtime - $settings->coursestarttime;
+        } else {
+            return '';
         }
         $hours = (string)floor($duration / 3600);
         $minutes = (string)floor(($duration % 3600) / 60);
@@ -333,10 +341,15 @@ class certificate extends field_base {
     private static function return_sessions_for_certificate(array $sessions) {
         $dates = "";
         foreach ($sessions as $session) {
-             $dates .= date("d.m.Y H:i", $session->coursestarttime) . ' - ' . date("d.m.Y H:i", $session->courseendtime) . "\n";
+            $dates .= dates_handler::prettify_optiondates_start_end(
+                $session->coursestarttime,
+                $session->courseendtime,
+                current_language(),
+                false
+            ) . "<br />";
         }
         return $dates;
-	}
+    }
 
     /**
      * Return values for bookingoption_updated event.
