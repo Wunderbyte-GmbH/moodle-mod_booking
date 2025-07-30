@@ -149,9 +149,11 @@ class fields_info {
             case MOD_BOOKING_HEADER_DATES:
                 $headericon = '<i class="fa fa-fw fa-calendar" aria-hidden="true"></i>';
                 break;
-            case MOD_BOOKING_HEADER_SHAREDPLACES:
+            // Todo: Add this when we integrate shared places.
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /* case MOD_BOOKING_HEADER_SHAREDPLACES:
                 $headericon = '<i class="fa fa-fw fa-share-alt" aria-hidden="true"></i>';
-                break;
+                break; */
             case MOD_BOOKING_HEADER_CERTIFICATE:
                 $headericon = '<i class="fa fa-fw fa-certificate" aria-hidden="true"></i>';
                 break;
