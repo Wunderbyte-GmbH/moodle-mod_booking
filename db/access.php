@@ -357,4 +357,11 @@ $capabilities = [
             'editingteacher' => CAP_ALLOW,
         ],
     ],
+    'mod/booking:executebulkoperations' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ],
+    ],
 ];

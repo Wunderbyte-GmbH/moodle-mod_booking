@@ -1017,7 +1017,7 @@ class shortcodes {
             return $error['message'];
         }
 
-        if (!is_siteadmin()) {
+        if (!is_siteadmin() && !has_capability('mod/booking:executebulkoperations', context_system::instance())) {
             return get_string('nopermissiontoaccesscontent', 'mod_booking');
         }
 
