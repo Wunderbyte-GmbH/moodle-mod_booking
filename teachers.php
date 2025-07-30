@@ -54,13 +54,25 @@ echo $OUTPUT->header();
 
 $teacherids = [];
 
-// Now get all teachers that we're interested in.
-$sqlteachers =
-    "SELECT DISTINCT bt.userid, u.firstname, u.lastname, u.email
-    FROM {booking_teachers} bt
-    LEFT JOIN {user} u
-    ON u.id = bt.userid
-    ORDER BY u.lastname ASC";
+$bookinginstances = get_config('booking', 'allteacherspagebookinginstances');
+if (
+    empty($bookinginstances)
+    || !is_array($bookinginstances)
+    || (
+        count($bookinginstances) == 1
+        && $bookinginstances[0] == 0
+    )
+) {
+    // Now get ALL teachers.
+    $sqlteachers =
+        "SELECT DISTINCT bt.userid, u.firstname, u.lastname, u.email
+        FROM {booking_teachers} bt
+        LEFT JOIN {user} u
+        ON u.id = bt.userid
+        ORDER BY u.lastname ASC";
+}
+
+
 
 if ($teacherrecords = $DB->get_records_sql($sqlteachers)) {
     foreach ($teacherrecords as $teacherrecord) {
