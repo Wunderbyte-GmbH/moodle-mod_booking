@@ -2664,7 +2664,7 @@ function mod_booking_tool_certificate_fields() {
     $handler = tool_certificate\customfield\issue_handler::create();
     $handler->ensure_field_exists(
         'bookingoptionid',
-        'number',
+        'text',
         "",
         false,
         0
@@ -2678,10 +2678,30 @@ function mod_booking_tool_certificate_fields() {
     );
     $handler->ensure_field_exists(
         'bookingoptiondescription',
-        'text',
+        'textarea',
         get_string('bookingoptiondescription', 'mod_booking'),
         true,
         get_string('bookingoptiondescription', 'mod_booking'),
+    );
+    $handler->ensure_field_exists(
+        'teachers',
+        'textarea',
+        get_string('teachers', 'mod_booking'),
+        true,
+        get_string('teachers', 'mod_booking'),
+    );
+    $handler->ensure_field_exists(
+        'sessions',
+        'textarea',
+        get_string('sessions', 'mod_booking'),
+        true,
+        get_string('sessions', 'mod_booking'),
+    );$handler->ensure_field_exists(
+        'duration',
+        'textarea',
+        get_string('duration', 'mod_booking'),
+        true,
+        get_string('duration', 'mod_booking'),
     );
 }
 

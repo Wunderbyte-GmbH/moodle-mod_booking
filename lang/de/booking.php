@@ -1100,6 +1100,7 @@ $string['duplicationrestoreteachers'] = 'Trainer:innen inkludieren';
 $string['duration'] = "Dauer";
 $string['duration:minutes'] = 'Dauer (Minuten)';
 $string['duration:units'] = 'Einheiten ({$a} min)';
+$string['durationforcertificate'] = 'Dauer: {$a->hours} Stunde(n) {$a->minutes} Minute(n).';
 $string['easyavailabilitypreviouslybooked'] = 'Einfache bereits gebuchte Voraussetzung';
 $string['easyavailabilityselectusers'] = 'Einfache NutzerInnen Voraussetzung';
 $string['easybookingclosingtime'] = 'Einfache Buchungsendzeit';

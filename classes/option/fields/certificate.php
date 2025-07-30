@@ -271,11 +271,72 @@ class certificate extends field_base {
                     'bookingoptionid' => $settings->id,
                     'bookingoptionname' => $settings->get_title_with_prefix(),
                     'bookingoptiondescription' => strip_tags($settings->description),
+                    'teachers' => self::return_teachers_for_certificate($settings->teachers),
+                    'sessions' => self::return_sessions_for_certificate($settings->sessions),
+                    'duration' => self::return_duration_for_certificate($settings),
+                    'enitiy' => $settings->entity,
                 ]
             );
         }
         return $id;
     }
+
+    /**
+     * Helper function to return Teachers for certificate.
+     *
+     * @param array $teachers
+     *
+     * @return string
+     *
+     */
+    private static function return_teachers_for_certificate(array $teachers) {
+        $certificateteachers = [];
+        foreach ($teachers as $teacher) {
+            $certificateteachers[] = "$teacher->firstname $teacher->lastname";
+        }
+        return implode("\n", $certificateteachers);
+    }
+
+    /**
+     * Helper function to return Duration for certificate.
+     *
+     * @param object $settings
+     *
+     * @return string
+     *
+     */
+    private static function return_duration_for_certificate(object $settings) {
+        if (!empty($settings->sessions)) {
+            $duration = 0;
+            foreach ($settings->sessions as $session) {
+                $duration += ($session->courseendtime - $session->coursestarttime);
+            }
+        } else {
+            $duration = $settings->courseendtime - $settings->coursestarttime;
+        }
+        $hours = (string)floor($duration / 3600);
+        $minutes = (string)floor(($duration % 3600) / 60);
+        $a = new stdClass();
+        $a->hours = $hours;
+        $a->minutes = $minutes;
+        return get_string('durationforcertificate', 'mod_booking', $a);
+    }
+
+    /**
+     * Helper function to return Sessions for certificate.
+     *
+     * @param array $sessions
+     *
+     * @return string
+     *
+     */
+    private static function return_sessions_for_certificate(array $sessions) {
+        $dates = "";
+        foreach ($sessions as $session) {
+             $dates .= date("d.m.Y H:i", $session->coursestarttime) . ' - ' . date("d.m.Y H:i", $session->courseendtime) . "\n";
+        }
+        return $dates;
+	}
 
     /**
      * Return values for bookingoption_updated event.

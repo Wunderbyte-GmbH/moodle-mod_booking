@@ -1111,6 +1111,7 @@ $string['duplicationrestoreteachers'] = 'Include teachers';
 $string['duration'] = "Duration";
 $string['duration:minutes'] = 'Duration (minutes)';
 $string['duration:units'] = 'Units ({$a} min)';
+$string['durationforcertificate'] = 'Duration: {$a->hours} hour(s) {$a->minutes} minute(s).';
 $string['easyavailabilitypreviouslybooked'] = 'Easy already booked condition';
 $string['easyavailabilityselectusers'] = 'Easy selected users condition';
 $string['easybookingclosingtime'] = 'Easy booking closing time';
