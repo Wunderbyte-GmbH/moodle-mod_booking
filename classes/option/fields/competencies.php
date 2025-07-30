@@ -113,6 +113,9 @@ class competencies extends field_base {
         $key = fields_info::get_class_name(static::class);
         $value = $formdata->{$key} ?? null;
 
+        // Important: get changes as array/object, before converting to string.
+        $changes = $instance->check_for_changes($formdata, $instance);
+
         if (!empty($value)) {
             $stringvalue = implode(',', $value);
             $newoption->$key = $stringvalue;
@@ -121,7 +124,6 @@ class competencies extends field_base {
             $newoption->$key = '';
             $formdata->$key = '';
         }
-        $changes = $instance->check_for_changes($formdata, $instance);
         return $changes;
     }
 
