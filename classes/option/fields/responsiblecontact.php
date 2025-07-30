@@ -92,15 +92,18 @@ class responsiblecontact extends field_base {
         int $updateparam,
         $returnvalue = null
     ): array {
+
+        $instance = new responsiblecontact();
+        $mockclass = new stdClass();
+        $mockclass->id = $formdata->id ?? 1;
+        $changes = $instance->check_for_changes($formdata, $instance, $mockclass);
+
         // Here to convert the multiple contacts array and save it as string.
         if (!empty($formdata->responsiblecontact)) {
             $formdata->responsiblecontact = implode(',', $formdata->responsiblecontact);
         }
         parent::prepare_save_field($formdata, $newoption, $updateparam, 0);
-        $instance = new responsiblecontact();
-        $mockclass = new stdClass();
-        $mockclass->id = $formdata->id ?? 1;
-        $changes = $instance->check_for_changes($formdata, $instance, $mockclass);
+
         return $changes;
     }
 
