@@ -56,7 +56,7 @@ $teacherids = [];
 $params = [];
 
 // Now get all teachers that we're interested in.
-$bookinginstances = get_config('booking', 'allteacherspagebookinginstances');
+$bookinginstances = explode(',', get_config('booking', 'allteacherspagebookinginstances'));
 
 if (
     empty($bookinginstances)
