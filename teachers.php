@@ -53,8 +53,11 @@ $PAGE->add_body_class('page-mod-booking-allteachers');
 echo $OUTPUT->header();
 
 $teacherids = [];
+$params = [];
 
+// Now get all teachers that we're interested in.
 $bookinginstances = get_config('booking', 'allteacherspagebookinginstances');
+
 if (
     empty($bookinginstances)
     || !is_array($bookinginstances)
@@ -70,11 +73,20 @@ if (
         LEFT JOIN {user} u
         ON u.id = bt.userid
         ORDER BY u.lastname ASC";
+} else {
+    [$insql, $params] = $DB->get_in_or_equal($bookinginstances, SQL_PARAMS_NAMED);
+    // In this case, we only want teachers from the selected booking instances.
+    $sqlteachers =
+        "SELECT DISTINCT bt.userid, u.firstname, u.lastname, u.email
+        FROM {booking} b
+        JOIN {booking_options} bo ON bo.bookingid = b.id
+        JOIN {booking_teachers} bt ON bt.optionid = bo.id
+        JOIN {user} u ON u.id = bt.userid
+        WHERE b.id $insql
+        ORDER BY u.lastname ASC";
 }
 
-
-
-if ($teacherrecords = $DB->get_records_sql($sqlteachers)) {
+if ($teacherrecords = $DB->get_records_sql($sqlteachers, $params)) {
     foreach ($teacherrecords as $teacherrecord) {
         $teacherids[] = $teacherrecord->userid;
     }
