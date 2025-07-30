@@ -96,6 +96,7 @@ $string['allowupdate'] = 'Buchungen dürfen gelöscht/aktualisiert werden';
 $string['allowupdatedays'] = 'Tage vor Referenzdatum';
 $string['allratings'] = 'Jede/r kann bewerten';
 $string['allteachers'] = 'Alle Trainer:innen';
+$string['allteacherspagebookinginstances'] = 'Auf der "Alle Trainer:innen"-Seite nur Trainer:innen aus den folgenden Buchungsintanzen anzeigen (nichts auswählen, um ALLE Trainer:innen anzuzeigen)';
 $string['allusercertificates'] = 'Zertifikate des Users';
 $string['allusersbooked'] = 'Alle {$a} Nutzer:innen wurden erfolgreich für diese Buchungsoption gebucht.';
 $string['alreadybooked'] = 'Bereits gebucht';

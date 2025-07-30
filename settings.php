@@ -834,6 +834,15 @@ if ($ADMIN->fulltree) {
         }
         $settings->add(
             new admin_setting_configmultiselect(
+                'booking/allteacherspagebookinginstances',
+                get_string('allteacherspagebookinginstances', 'mod_booking'),
+                '',
+                [0],
+                $bookinginstances
+            )
+        );
+        $settings->add(
+            new admin_setting_configmultiselect(
                 'booking/teacherpageshiddenbookingids',
                 get_string('teacherpageshiddenbookingids', 'mod_booking'),
                 '',

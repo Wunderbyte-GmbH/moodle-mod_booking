@@ -70,6 +70,7 @@ if ($teacherrecords = $DB->get_records_sql($sqlteachers)) {
 
 // Now prepare the data for all teachers.
 $data = new page_allteachers($teacherids);
+/** @var \mod_booking\output\renderer $output */
 $output = $PAGE->get_renderer('mod_booking');
 
 // And return the rendered page showing all teachers.
