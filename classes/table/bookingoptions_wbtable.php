@@ -785,9 +785,11 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
         $ret = '';
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
+
         if (!empty($settings->dayofweektime)) {
-            $ret = $settings->dayofweektime;
+            $ret = dates_handler::render_dayofweektime_strings($settings->dayofweektime, ' | ');
         }
+
         return $ret;
     }
 

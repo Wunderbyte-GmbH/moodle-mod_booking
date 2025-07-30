@@ -212,37 +212,47 @@ class dates_handler {
         }
 
         $semester = new semester($semesterid);
-        $dayinfo = self::prepare_day_info($reoccurringdatestring);
 
-        // If an invalid day string was entered, we'll have an empty $dayinfo array.
-        if (empty($dayinfo)) {
-            return [];
-        }
+        $reoccurringdatestrings = self::split_and_trim_reoccurringdatestring($reoccurringdatestring);
 
-        $j = 1;
-        sscanf($dayinfo['starttime'], "%d:%d", $hours, $minutes);
-        $startseconds = ($hours * 60 * 60) + ($minutes * 60);
-        sscanf($dayinfo['endtime'], "%d:%d", $hours, $minutes);
-        $endseconds = $hours * 60 * 60 + $minutes * 60;
-        for ($i = strtotime($dayinfo['day'], $semester->startdate); $i <= $semester->enddate; $i = strtotime('+1 week', $i)) {
-            $date = new stdClass();
-            $date->starttimestamp = $i + $startseconds;
-            $date->endtimestamp = $i + $endseconds;
+        foreach ($reoccurringdatestrings as $reoccurringdatestring) {
+            $dayinfo = self::prepare_day_info($reoccurringdatestring);
 
-            // Check if the date is on a holiday and only add if it isn't.
-            if (self::is_on_a_holiday($date)) {
-                continue;
+            // If an invalid day string was entered, we'll have an empty $dayinfo array.
+            if (empty($dayinfo)) {
+                return [];
             }
 
-            $date->date = date('Y-m-d', $i);
-            $date->starttime = $dayinfo['starttime'];
-            $date->endtime = $dayinfo['endtime'];
-            $date->dateid = 'newdate-' . $j;
-            $j++;
+            $j = 1;
+            sscanf($dayinfo['starttime'], "%d:%d", $hours, $minutes);
+            $startseconds = ($hours * 60 * 60) + ($minutes * 60);
+            sscanf($dayinfo['endtime'], "%d:%d", $hours, $minutes);
+            $endseconds = $hours * 60 * 60 + $minutes * 60;
 
-            $date->string = self::prettify_optiondates_start_end($date->starttimestamp, $date->endtimestamp, current_language());
-            $datearray['dates'][] = $date;
+            for ($i = strtotime($dayinfo['day'], $semester->startdate); $i <= $semester->enddate; $i = strtotime('+1 week', $i)) {
+                $date = new stdClass();
+                $date->starttimestamp = $i + $startseconds;
+                $date->endtimestamp = $i + $endseconds;
+
+                // Check if the date is on a holiday and only add if it isn't.
+                if (self::is_on_a_holiday($date)) {
+                    continue;
+                }
+                $date->date = date('Y-m-d', $i);
+                $date->starttime = $dayinfo['starttime'];
+                $date->endtime = $dayinfo['endtime'];
+                $date->dateid = 'newdate-' . $j;
+                $j++;
+
+                $date->string = self::prettify_optiondates_start_end(
+                    $date->starttimestamp,
+                    $date->endtimestamp,
+                    current_language()
+                );
+                $datearray['dates'][] = $date;
+            }
         }
+
         return $datearray;
     }
 
@@ -269,11 +279,66 @@ class dates_handler {
     }
 
     /**
+     * Helper function to split a reoccurring date string into an array.
+     * @param string $reoccurringdatestring, e.g. "Mo, 10:00-11:00 & Di, 12:00-13:00"
+     * @return array array of separate strings
+     */
+    public static function split_and_trim_reoccurringdatestring(string $reoccurringdatestring = ''): array {
+        $pattern = '/\r?\n/';  // Regex pattern for separators.
+        if (preg_match($pattern, $reoccurringdatestring)) {
+            // Split by the pattern and trim each part.
+            $parts = preg_split($pattern, $reoccurringdatestring);
+            return array_map('trim', $parts);
+        }
+        if (empty($reoccurringdatestring)) {
+            // If the string is empty, return an empty array.
+            return [];
+        }
+        // If no separator is found, return the trimmed input.
+        return [trim($reoccurringdatestring)];
+    }
+
+    /**
+     * Helper function to render a list of dayofweektimestrings.
+     * @param string $reoccurringdatestring full string containing one or multiple dayofweektime strings
+     * @param string $separator optional separator, default is ', '
+     * @return string rendered string
+     */
+    public static function render_dayofweektime_strings(string $reoccurringdatestring = '', string $separator = ', '): string {
+        if (empty($reoccurringdatestring)) {
+            return '';
+        }
+        $reoccurringdatestrings = self::split_and_trim_reoccurringdatestring($reoccurringdatestring);
+        if (!empty($reoccurringdatestrings)) {
+            $strings = [];
+            $localweekdays = self::get_localized_weekdays(current_language());
+            foreach ($reoccurringdatestrings as $reoccurringdatestring) {
+                $dayinfo = self::prepare_day_info($reoccurringdatestring);
+                if (isset($dayinfo['day']) && $dayinfo['starttime'] && $dayinfo['endtime']) {
+                    $strings[] = $localweekdays[$dayinfo['day']] . ', ' . $dayinfo['starttime'] . ' - ' . $dayinfo['endtime'];
+                } else if (!empty($reoccurringdatestring)) {
+                    $strings[] = $reoccurringdatestring;
+                } else {
+                    $strings[] = get_string('datenotset', 'mod_booking');
+                }
+            }
+            return implode($separator, $strings);
+        }
+        return '';
+    }
+
+    /**
      * Prepare an array containing the weekday, start time and end time.
      * @param string $reoccurringdatestring
      * @return array
      */
     public static function prepare_day_info(string $reoccurringdatestring): array {
+        // Important: If we have multiple day of weektime strings, we have to handle this before.
+        // In this case, this function needs to be called for each string separately!
+        // If it gets called with a string containing multiple days, it will only handle the first one.
+        $reoccurringdatestrings = self::split_and_trim_reoccurringdatestring($reoccurringdatestring);
+        $reoccurringdatestring = $reoccurringdatestrings[0] ?? '';
+
         $reoccurringdatestring = strtolower($reoccurringdatestring);
         $reoccurringdatestring = str_replace('-', ' ', $reoccurringdatestring);
         $reoccurringdatestring = str_replace(',', ' ', $reoccurringdatestring);

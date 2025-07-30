@@ -42,7 +42,6 @@ use moodle_exception;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class customfields extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -94,7 +93,8 @@ class customfields extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         // No need to do anything here.
         return [];
@@ -150,10 +150,8 @@ class customfields extends field_base {
      * @return void
      */
     public static function validation(array $data, array $files, array &$errors) {
-
         $cfhandler = booking_handler::create();
         $errors = array_merge($errors, $cfhandler->instance_form_validation($data, $files));
-
     }
 
     /**

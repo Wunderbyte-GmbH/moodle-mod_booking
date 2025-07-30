@@ -126,7 +126,12 @@ class dates {
             $mform->hideIf('semesterid', 'selflearningcourse', 'eq', 1);
             $elements[] = $element;
 
-            $element = $mform->addElement('text', 'dayofweektime', get_string('reoccurringdatestring', 'mod_booking'));
+            $element = $mform->addElement(
+                'textarea',
+                'dayofweektime',
+                get_string('reoccurringdatestring', 'mod_booking'),
+                'rows="3" cols="30"'
+            );
             $mform->addHelpButton('dayofweektime', 'reoccurringdatestring', 'mod_booking');
             $mform->setType('dayofweektime', PARAM_TEXT);
             $element->setValue($dayofweektime);
