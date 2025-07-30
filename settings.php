@@ -1250,6 +1250,15 @@ if ($ADMIN->fulltree) {
 
     $settings->add(
         new admin_setting_configcheckbox(
+            'booking/displayinfoaboutrules',
+            get_string('displayinfoaboutrules', 'mod_booking'),
+            '',
+            1
+        )
+    );
+
+    $settings->add(
+        new admin_setting_configcheckbox(
             'booking/limitchangestrackinginrules',
             get_string('limitchangestrackinginrules', 'mod_booking'),
             get_string('limitchangestrackinginrulesdesc', 'mod_booking'),

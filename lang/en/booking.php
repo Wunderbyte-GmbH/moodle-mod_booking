@@ -1075,6 +1075,7 @@ $string['disablepricecategory'] = 'Disable price category';
 $string['disablepricecategory_help'] = 'When you disable a price category, you will not be able to use it anymore.';
 $string['displayemptyprice'] = 'Display price if it is 0';
 $string['displayemptyprice_desc'] = "If a booking option has prices for some price categories and not for others, you can decide if users for whom the option is free see the price 0.";
+$string['displayinfoaboutrules'] = 'Display warning about the need to configure rules?';
 $string['displayloginbuttonforbookingoptions'] = 'Display a button with redirect to login site for bookingoption';
 $string['displayloginbuttonforbookingoptions_desc'] = 'Will be displayed for users not logged in only.';
 $string['displayshoppingcarthistory'] = 'Display shoppingcart history at "my bookings"';

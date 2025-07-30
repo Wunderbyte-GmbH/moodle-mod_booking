@@ -1064,6 +1064,7 @@ $string['disablepricecategory'] = 'Deaktiviere Preiskategorie';
 $string['disablepricecategory_help'] = 'Wenn Sie eine Preiskategorie deaktivieren, kann diese nicht mehr benützt werden.';
 $string['displayemptyprice'] = 'Preis anzeigen wenn dieser 0 ist';
 $string['displayemptyprice_desc'] = 'Wenn eine Buchungsoption Preise für einige Preiskategorien hat und für andere nicht, können Sie entscheiden, ob NutzerInnen, für die die Option kostenlos ist, den Preis 0 angezeigt bekommen oder ob der Preis komplett ausgeblendet wird.';
+$string['displayinfoaboutrules'] = 'Warnung anzeigen, dass Regeln aktiviert werden müssen?';
 $string['displayloginbuttonforbookingoptions'] = 'Zeige in Buchungsoption Button an, der zur Loginseite führt';
 $string['displayloginbuttonforbookingoptions_desc'] = 'Wird nur für nicht eingeloggte Benutzer angezeigt';
 $string['displayshoppingcarthistory'] = 'Warenkorb Transaktionen bei "Meine Buchungen" anzeigen';
