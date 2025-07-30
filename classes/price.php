@@ -87,9 +87,14 @@ class price {
      *
      * @param MoodleQuickForm $mform reference to the Moodle form
      * @param bool $noformula can be used to turn price formula off (e.g. for subbookings)
+     * @param bool $canbeblockedbyconfigsetting priceisalwayson setting can block this checkbox
      * @return void
      */
-    public function add_price_to_mform(MoodleQuickForm &$mform, bool $noformula = false) {
+    public function add_price_to_mform(
+        MoodleQuickForm &$mform,
+        bool $noformula = false,
+        bool $canbeblockedbyconfigsetting = true
+    ) {
 
         $mform->addElement(
             'header',
@@ -112,7 +117,7 @@ class price {
             [0, 1]
         );
 
-        if (get_config('booking', 'priceisalwayson')) {
+        if (get_config('booking', 'priceisalwayson') && $canbeblockedbyconfigsetting) {
             $mform->hardFreeze('useprice');
         } else {
             $useprice = false;
