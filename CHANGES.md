@@ -1,3 +1,11 @@
+## Version 8.14.13 (20250730)
+* New Feature: Confirm user only for waitinglist (#1050).
+* New Feature: Enable multiple responsible contacts ()
+* New Feature: Booking rule condition to select recieving users from profile field
+* Bugfix: Correctly fetch price for multiple users in report.
+* Bugfix: Remove HTML of menu items as it causes problems in aria-labels.
+* Bugfix: Track changes in Entities, Competencies & Certificates
+
 ## Version 8.14.12 (2025072402)
 * Improvement: Allow courseid in allbookings shortcode to fetch all options from instances in moodle course (#1080).
 * Bugfix: Fetch price for multiple users in report.
