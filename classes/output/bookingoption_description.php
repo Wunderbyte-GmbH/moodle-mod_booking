@@ -433,6 +433,9 @@ class bookingoption_description implements renderable, templatable {
         }
         if (!empty($responsibles)) {
             foreach ($responsibles as &$responsiblecontact) {
+                if (empty($responsiblecontact)) {
+                    continue;
+                }
                 $responsiblecontact->link = (new moodle_url(
                     '/user/profile.php',
                     ['id' => $responsiblecontact->id]
