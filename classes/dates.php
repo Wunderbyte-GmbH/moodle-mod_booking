@@ -138,6 +138,16 @@ class dates {
             $mform->hideIf('dayofweektime', 'selflearningcourse', 'eq', 1);
             $elements[] = $element;
 
+            $element = $mform->addElement(
+                'static',
+                'multipledayofweektimestringshint',
+                '',
+                '<i class="fa fa-lightbulb-o" aria-hidden="true"></i>&nbsp;' .
+                get_string('multipledayofweektimestringshint', 'mod_booking')
+            );
+            $mform->hideIf('multipledayofweektimestringshint', 'selflearningcourse', 'eq', 1);
+            $elements[] = $element;
+
             // Button to attach JavaScript to reload the form.
             $mform->registerNoSubmitButton('addoptiondateseries');
             $elements[] = $mform->addElement(

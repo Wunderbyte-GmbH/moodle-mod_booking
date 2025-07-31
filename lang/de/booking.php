@@ -1605,6 +1605,7 @@ $string['movedbookinghistory'] = 'Die Buchungsoption wurde von der Buchung mit d
 $string['moveoption'] = 'Option verschieben';
 $string['moveoption_help'] = 'Option in eine andere Buchungsaktivität verschieben';
 $string['moveoptionto'] = 'Buchungsoption in andere Buchungsinstanz verschieben';
+$string['multipledayofweektimestringshint'] = '<b>Pro Zeile</b> können Sie eine Kombination aus Wochentag und Uhrzeit angeben.<br>Beispiel: "Montag, 10:00 - 12:00" und "Dienstag, 15:00 - 16:30"';
 $string['mustchooseone'] = 'Sie müssen eine Option auswählen';
 $string['mustcombine'] = 'Notwendige Buchungsoptionen';
 $string['mustcombine_help'] = 'Buchungsoptionen mit denen diese Buchungsoption kombiniert werden muss';

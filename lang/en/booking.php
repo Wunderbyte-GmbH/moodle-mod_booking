@@ -1605,6 +1605,7 @@ $string['movedbookinghistory'] = 'The booking option has been moved from the boo
 $string['moveoption'] = 'Move booking option';
 $string['moveoption_help'] = 'Move booking option to different booking instance';
 $string['moveoptionto'] = 'Move booking option to other booking instance';
+$string['multipledayofweektimestringshint'] = 'You can enter enter one combination of week day and time <b>per line</b>.<br>Example: "Monday, 10:00 - 12:00" and "Tuesday, 15:00 - 16:30"';
 $string['multiselect'] = 'Multiple selection';
 $string['mustchooseone'] = 'You must choose an option before saving. Nothing was saved.';
 $string['mustcombine'] = 'Necessary booking options';
