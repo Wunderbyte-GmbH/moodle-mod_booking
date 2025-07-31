@@ -1929,7 +1929,7 @@ if ($ADMIN->fulltree) {
             'htmltemplate',
             [
                 'htmltemplate' => get_string('signinsheet_htmltemplate', 'mod_booking'),
-                'legacy' => get_string('signinsheet_legacy', 'mod_booking')
+                'legacy' => get_string('signinsheet_legacy', 'mod_booking'),
             ]
         )
     );

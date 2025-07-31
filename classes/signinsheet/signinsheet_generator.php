@@ -333,8 +333,6 @@ class signinsheet_generator {
      * - Adding logos and titles
      * - Preparing the final output in the specified format (PDF/Word)
      *
-     * @param array $users Array of user objects containing user information to be displayed
-     * @param object $settings Booking option settings object containing configuration parameters
      * @return void
      */
     public function prepare_html() {
