@@ -154,6 +154,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
         } else {
             // Render col_teacher using a template.
             $data = new col_teacher($values->id, $settings);
+            /** @var \mod_booking\output\renderer $output */
             $output = singleton_service::get_renderer('mod_booking');
             $ret = $output->render_col_teacher($data);
         }
@@ -191,24 +192,24 @@ class bookingoptions_wbtable extends wunderbyte_table {
             }
             if (empty($user->firstname)) {
                 debugging(
-                    " musi_table function col_responsiblecontact:
-                    firstname is missing for user with id $contactid in bookingoption $values->id ",
+                    " musi_table function col_responsiblecontact: " .
+                    "firstname is missing for user with id $contactid in bookingoption $values->id ",
                     DEBUG_DEVELOPER
                 );
                 $user->firstname = '';
             }
             if (empty($user->lastname)) {
                 debugging(
-                    " musi_table function col_responsiblecontact:
-                    lastname is missing for user with id $contactid in bookingoption $values->id ",
+                    " musi_table function col_responsiblecontact: " .
+                    "lastname is missing for user with id $contactid in bookingoption $values->id ",
                     DEBUG_DEVELOPER
                 );
                 $user->lastname = '';
             }
             if (empty($user->email)) {
                 debugging(
-                    " musi_table function col_responsiblecontact:
-                    email is missing for user with id $contactid in bookingoption $values->id ",
+                    " musi_table function col_responsiblecontact: " .
+                    "email is missing for user with id $contactid in bookingoption $values->id ",
                     DEBUG_DEVELOPER
                 );
                 $user->email = '';
@@ -587,6 +588,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
             return '';
         }
 
+        /** @var \mod_booking\output\renderer $output */
         $output = singleton_service::get_renderer('mod_booking');
 
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
@@ -841,6 +843,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
                 || !$ret = $cache->get($cachekey)
             ) {
                 $data = new \mod_booking\output\col_coursestarttime($optionid, $booking);
+                /** @var \mod_booking\output\renderer $output */
                 $output = singleton_service::get_renderer('mod_booking');
                 $ret = $output->render_col_coursestarttime($data);
                 if (empty($settings->selflearningcourse)) {
