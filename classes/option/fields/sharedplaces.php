@@ -352,8 +352,9 @@ class sharedplaces extends field_base {
                 ";
                 break;
             case 'mysql':
-                $where = "JSON_CONTAINS(json->'$.sharedplaceswithoptions', '[:optionid]')
-                          AND JSON_EXTRACT(json, '$.sharedplacespriority') = 1;";
+                // MariaDB uses JSON functions similar to MySQL but may have slight syntax differences.
+                $where = "JSON_CONTAINS(json, :optionid, '$.sharedplaceswithoptions')
+                        AND JSON_UNQUOTE(JSON_EXTRACT(json, '$.sharedplacespriority')) = '1'";
                 break;
             default:
                 throw new moodle_exception('Unsupported database type for JSON key extraction.');
@@ -365,49 +366,5 @@ class sharedplaces extends field_base {
         ";
 
         return $DB->get_fieldset_sql($sql);
-    }
-
-    /**
-     * Gets the shared options.
-     *
-     * @param int $optionid
-     *
-     * @return array
-     *
-     */
-    private static function get_sharedplaces_options_postgres(int $optionid) {
-
-        global $DB;
-
-        $sql = "SELECT *
-                FROM {booking_options}
-                WHERE
-                (json::json -> 'sharedplaceswithoptions') ? :optionid
-                AND (json::json ->> 'sharedplacespriority')::int = 1;";
-        $params['optionid'] = $optionid;
-        $returnarray = $DB->get_records_sql($sql, $params);
-        return $returnarray;
-    }
-
-    /**
-     * Gets the shared options.
-     *
-     * @param int $optionid
-     *
-     * @return array
-     *
-     */
-    private static function get_sharedplaces_options_mysql(int $optionid) {
-        global $DB;
-
-        $sql = "SELECT id
-                FROM booking_options
-                WHERE
-                (json -> 'sharedplaceswithoptions') ? :optionid
-                AND (json ->> 'sharedplacespriority')::int = 1";
-
-        $params['optionid'] = $optionid;
-        $returnarray = $DB->get_records_sql($sql, $params);
-        return $returnarray;
     }
 }
