@@ -456,7 +456,7 @@ class signinsheet_generator {
         }
 
         if (count($extrasessioncols) > 0) {
-        // Target only the header row inside the table with class "signaturetable".
+            // Target only the header row inside the table with class "signaturetable".
             $confightml = preg_replace(
                 '/(<table[^>]*class="signaturetable"[^>]*>.*?<tr[^>]*>.*?)(<\/tr>)/s',
                 '$1' . $sessionheader . '$2',
@@ -592,9 +592,9 @@ class signinsheet_generator {
             if (ob_get_contents()) {
                 ob_end_clean();
             }
-        // Check file exists and is readable.
+            // Check file exists and is readable.
             if (file_exists($temppath) && is_readable($temppath)) {
-            // Set headers for download.
+                // Set headers for download.
                 header("Content-Description: File Transfer");
                 header("Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document");
                 header('Content-Disposition: attachment; filename="' . basename($filename) . '"');
@@ -602,17 +602,17 @@ class signinsheet_generator {
                 header("Expires: 0");
                 header("Pragma: public");
                 header("Content-Length: " . filesize($temppath));
-            // Clear output buffer and stream the file.
+                // Clear output buffer and stream the file.
                 ob_clean();
                 flush();
                 readfile($temppath);
-            // Proper exit.
+                // Proper exit.
                 exit;
             } else {
                 throw new Exception("File could not be read.");
             }
         } catch (\Exception $e) {
-        // Handle and log exceptions.
+            // Handle and log exceptions.
             echo "An error occurred while downloading the document: " . $e->getMessage();
         }
     }
