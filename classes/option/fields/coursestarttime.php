@@ -186,7 +186,7 @@ class coursestarttime extends field_base {
             time_handler::set_timeintervall(),
         );
         $mform->setType('coursestarttime', PARAM_INT);
-        $mform->setDefault("coursestarttime", time_handler::prettytime(time()));
+        $mform->setDefault("coursestarttime", time_handler::prettytime(time(), false));
         $mform->addHelpButton(
             'coursestarttime',
             'selflearningcoursecoursestarttime',
