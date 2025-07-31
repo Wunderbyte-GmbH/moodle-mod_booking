@@ -2737,6 +2737,9 @@ $string['waitingtextsubjectbookingmanager'] = 'Wartelistenbuchung für {$a->titl
 $string['waitspaceavailable'] = 'Wartelistenplätze verfügbar';
 $string['warningcustomfieldsforbiddenshortname'] = 'Sie können die folgenden Kurzbezeichnungen für benutzerdefinierte Felder nicht verwenden: <b>{$a}</b>.
 Bitte wählen Sie eine andere Kurzbezeichnung.';
+$string['warningonlyteachersofselectedinstances'] = 'Hinweis: Hier werden aktuell nur Trainer:innen angezeigt,
+die Trainer:innen in einer der in der <a href="{$a}" target="_blank">globalen Einstellung "allteacherspagebookinginstances"</a>
+ausgewählten Buchungsinstanzen sind.';
 $string['wednesday'] = 'Mittwoch';
 $string['week'] = "Woche";
 $string['whatsnew'] = 'Was ist neu?';

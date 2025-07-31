@@ -2808,6 +2808,9 @@ $string['waitingtextsubjectbookingmanager'] = 'Booking status for {$a->title} ha
 $string['waitspaceavailable'] = 'Places on waiting list available';
 $string['warningcustomfieldsforbiddenshortname'] = 'You cannot use the following shortname(s) for custom fields: <b>{$a}</b>.
 Please choose another shortname.';
+$string['warningonlyteachersofselectedinstances'] = 'Please note: This page is currently only showing teachers
+who are teachers in one of the Booking instances selected in the
+<a href="{$a}" target="_blank">global setting "allteacherspagebookinginstances"</a>.';
 $string['wednesday'] = 'Wednesday';
 $string['week'] = "Week";
 $string['whatsnew'] = 'What\'s new?';

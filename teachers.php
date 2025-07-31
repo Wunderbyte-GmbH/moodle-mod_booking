@@ -74,6 +74,19 @@ if (
         ON u.id = bt.userid
         ORDER BY u.lastname ASC";
 } else {
+    if (has_capability('mod/booking:updatebooking', $context)) {
+        // If the user has the capability to manage bookings, we show a warning.
+        $linktosetting = new moodle_url(
+            '/admin/settings.php',
+            ['section' => 'modsettingbooking'],
+            'admin-allteacherspagebookinginstances'
+        );
+        echo "<div class='alert alert-warning'>" .
+            "<i class='fa fa-lightbulb-o' aria-hidden='true'></i>&nbsp;" .
+            get_string('warningonlyteachersofselectedinstances', 'mod_booking', $linktosetting) .
+        "</div>";
+    }
+
     [$insql, $params] = $DB->get_in_or_equal($bookinginstances, SQL_PARAMS_NAMED);
     // In this case, we only want teachers from the selected booking instances.
     $sqlteachers =
