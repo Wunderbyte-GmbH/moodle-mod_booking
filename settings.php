@@ -1922,6 +1922,20 @@ if ($ADMIN->fulltree) {
     );
 
     $settings->add(
+        new admin_setting_configselect(
+            'booking/signinsheetmode',
+            get_string('signinsheetmode', 'mod_booking'),
+            get_string('signinsheetmode_desc', 'mod_booking'),
+            'htmltemplate',
+            [
+                'htmltemplate' => get_string('signinsheet_htmltemplate', 'mod_booking'),
+                'legacy' => get_string('signinsheet_legacy', 'mod_booking')
+            ]
+        )
+    );
+
+
+    $settings->add(
         new admin_setting_configtextarea(
             'booking/receipthtml',
             get_string('signinghtml', 'mod_booking'),

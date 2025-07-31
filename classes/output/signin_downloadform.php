@@ -60,6 +60,9 @@ class signin_downloadform implements renderable, templatable {
     /** @var bool $teachersexist */
     public $teachersexist = false;
 
+    /** @var string $htmlmode  */
+    public $htmlmode = '';
+
     /**
      * Constructor
      *
@@ -86,6 +89,12 @@ class signin_downloadform implements renderable, templatable {
         $this->baseurl = $url->get_path();
         $this->id = $url->get_param('id');
         $this->optionid = $url->get_param('optionid');
+        $signinsheetmode = get_config('booking', 'signinsheetmode');
+        if ($signinsheetmode === 'htmltemplate') {
+            $this->htmlmode = true;
+        } else {
+            $this->htmlmode = false;
+        }
         if (!empty($bookingoption->teachers)) {
             $this->teachersexist = true;
         }

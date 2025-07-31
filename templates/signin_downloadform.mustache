@@ -55,6 +55,7 @@
 
 }}
 <div class="card hidden mt-3 mb-5" id="signinsheet" aria-hidden="true">
+	{{^htmlmode}}
     <form data-region="booking-download-signinsheet-form" method="get" action="{{baseurl}}">
 		<div class="card-header">
 			<h5 class="card-title mb-0">
@@ -150,6 +151,8 @@
 			</button>
 		</div>
 	</form>
+	{{/htmlmode}}
+	{{#htmlmode}}
     <form data-region="booking-download-signinsheet-form" method="get" action="{{baseurl}}">
 		<div class="card-header">
 			<h5 class="card-title mb-0">
@@ -233,5 +236,6 @@
 			</button>
 		</div>
 	</form>
+	{{/htmlmode}}
 </div>
 
