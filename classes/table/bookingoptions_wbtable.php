@@ -191,21 +191,24 @@ class bookingoptions_wbtable extends wunderbyte_table {
             }
             if (empty($user->firstname)) {
                 debugging(
-                    " musi_table function col_responsiblecontact: firstname is missing for user with id $contactid in bookingoption $values->id ",
+                    " musi_table function col_responsiblecontact:
+                    firstname is missing for user with id $contactid in bookingoption $values->id ",
                     DEBUG_DEVELOPER
                 );
                 $user->firstname = '';
             }
             if (empty($user->lastname)) {
                 debugging(
-                    " musi_table function col_responsiblecontact: lastname is missing for user with id $contactid in bookingoption $values->id ",
+                    " musi_table function col_responsiblecontact:
+                    lastname is missing for user with id $contactid in bookingoption $values->id ",
                     DEBUG_DEVELOPER
                 );
                 $user->lastname = '';
             }
             if (empty($user->email)) {
                 debugging(
-                    " musi_table function col_responsiblecontact: email is missing for user with id $contactid in bookingoption $values->id ",
+                    " musi_table function col_responsiblecontact:
+                    email is missing for user with id $contactid in bookingoption $values->id ",
                     DEBUG_DEVELOPER
                 );
                 $user->email = '';
