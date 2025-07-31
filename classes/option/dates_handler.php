@@ -280,7 +280,7 @@ class dates_handler {
 
     /**
      * Helper function to split a reoccurring date string into an array.
-     * @param string $reoccurringdatestring, e.g. "Mo, 10:00-11:00 & Di, 12:00-13:00"
+     * @param string $reoccurringdatestring e.g. "Mo, 10:00-11:00 & Di, 12:00-13:00"
      * @return array array of separate strings
      */
     public static function split_and_trim_reoccurringdatestring(string $reoccurringdatestring = ''): array {

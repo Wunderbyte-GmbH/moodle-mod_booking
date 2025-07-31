@@ -92,10 +92,10 @@ Feature: In a booking - create options with different contact persons settings a
     ## Onlw "switch to a second window" working and it is mandatory!
     ##And I switch to "Option1: RCP only | Acceptance test site" tab
     And I switch to a second window
-    And I should see "rcp1@example.com" in the ".mod-booking-row .infolist" "css_element"
-    And I should see "rcp2@example.com" in the ".mod-booking-row .infolist" "css_element"
-    And I should see "rcp3@example.com" in the ".mod-booking-row .infolist" "css_element"
-    And I should see "rcp4@example.com" in the ".mod-booking-row .infolist" "css_element"
+    And I should see "RCP 1" in the ".mod-booking-row .infolist" "css_element"
+    And I should see "RCP 2" in the ".mod-booking-row .infolist" "css_element"
+    And I should see "RCP 3" in the ".mod-booking-row .infolist" "css_element"
+    And I should see "RCP 4" in the ".mod-booking-row .infolist" "css_element"
     And I should not see "Teacher" in the ".mod-booking-row" "css_element"
     And I close all opened windows
     ## Validate oprion with teachers only
@@ -110,10 +110,10 @@ Feature: In a booking - create options with different contact persons settings a
     ## Validate oprion with teachers and rcps
     And I click on "Option3: Teachers & RCP" "text" in the ".allbookingoptionstable_r3" "css_element"
     And I switch to a second window
-    And I should see "rcp1@example.com" in the ".mod-booking-row .infolist" "css_element"
-    And I should see "rcp4@example.com" in the ".mod-booking-row .infolist" "css_element"
-    And I should not see "teacher1@example.com" in the ".mod-booking-row .infolist" "css_element"
-    And I should not see "teacher3@example.com" in the ".mod-booking-row .infolist" "css_element"
+    And I should see "RCP 1" in the ".mod-booking-row .infolist" "css_element"
+    And I should see "RCP 4" in the ".mod-booking-row .infolist" "css_element"
+    And I should not see "Teacher 1" in the ".mod-booking-row .infolist" "css_element"
+    And I should not see "Teacher 3" in the ".mod-booking-row .infolist" "css_element"
     And I should see "Teacher 1" in the ".mod-booking-row" "css_element"
     And I should see "Teacher 3" in the ".mod-booking-row" "css_element"
     And I close all opened windows

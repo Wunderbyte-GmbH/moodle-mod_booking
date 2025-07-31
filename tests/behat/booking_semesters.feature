@@ -64,7 +64,7 @@ Feature: As a teacher - configure and use booking's semesters feature.
     And I should see "July" in the "#booking_optiondate_6" "css_element"
     And I press "Save"
     Then I should see "Option - Test Semester" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "Friday, 13:00-14:00" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Friday, 13:00 - 14:00" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Show dates" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I wait "1" seconds
     And I should see "## + 1 year ##%Y##" in the ".allbookingoptionstable_r1 .showdates" "css_element"
