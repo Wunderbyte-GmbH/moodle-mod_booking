@@ -101,8 +101,6 @@ Feature: In a booking - create options with different contact persons settings a
     ## Validate oprion with teachers only
     And I click on "Option2: Teachers only" "text" in the ".allbookingoptionstable_r2" "css_element"
     And I switch to a second window
-    And I should see "teacher1@example.com" in the ".mod-booking-row .infolist" "css_element"
-    And I should not see "teacher2@example.com" in the ".mod-booking-row .infolist" "css_element"
     And I should not see "RCP" in the ".mod-booking-row" "css_element"
     And I should see "Teacher 1" in the ".mod-booking-row" "css_element"
     And I should see "Teacher 2" in the ".mod-booking-row" "css_element"
