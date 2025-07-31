@@ -340,19 +340,19 @@ class sharedplaces extends field_base {
      * @return array
      *
      */
-    public static function get_sharedplaces_options(int $optionid) {
+    public static function get_sharedplaces_options(int $optionid): array {
         global $DB;
-
         $databasetype = $DB->get_dbfamily();
-
+        if (empty($optionid)) {
+            return [];
+        }
+        $sql = "SELECT id FROM {booking_options} WHERE ";
         switch ($databasetype) {
             case 'postgres':
-                $where = "(json::jsonb -> 'sharedplaceswithoptions') @> '[\"$optionid\"]'::jsonb
-                          AND (json::jsonb ->> 'sharedplacespriority')::int = 1
-                ";
+                $where = "(json::jsonb -> 'sharedplaceswithoptions') @> :optionid::jsonb
+                        AND (json::jsonb ->> 'sharedplacespriority')::int = 1";
                 break;
             case 'mysql':
-                // MariaDB uses JSON functions similar to MySQL but may have slight syntax differences.
                 $where = "JSON_CONTAINS(json, :optionid, '$.sharedplaceswithoptions')
                         AND JSON_UNQUOTE(JSON_EXTRACT(json, '$.sharedplacespriority')) = '1'";
                 break;
@@ -360,11 +360,8 @@ class sharedplaces extends field_base {
                 throw new moodle_exception('Unsupported database type for JSON key extraction.');
         }
 
-        $sql = "SELECT id
-                FROM {booking_options}
-                WHERE $where;
-        ";
-
-        return $DB->get_fieldset_sql($sql);
+        $optionidjson = json_encode([$optionid]); // Convert the option ID to JSON.
+        $sql .= $where;
+        return $DB->get_fieldset_sql($sql, ['optionid' => $optionidjson]);
     }
 }
