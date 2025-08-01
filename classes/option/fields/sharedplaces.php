@@ -353,22 +353,20 @@ class sharedplaces extends field_base {
             case 'postgres':
                 $additionalwhere = $onlypriority ? " AND (json::jsonb ->> 'sharedplacespriority')::int = 1 " : '';
                 $where = "(json::jsonb -> 'sharedplaceswithoptions') @> '[\"$optionid\"]'::jsonb
-                          $additionalwhere
+                    $additionalwhere
                 ";
                 break;
             case 'mysql':
                 $additionalwhere = $onlypriority ? " AND JSON_UNQUOTE(JSON_EXTRACT(json, '$.sharedplacespriority')) = '1' " : '';
-                $where = "JSON_CONTAINS(json, :optionid, '$.sharedplaceswithoptions')
+                $where = "JSON_CONTAINS(json, '\"$optionid\"', '$.sharedplaceswithoptions')
                     $additionalwhere
                 ";
                 break;
             default:
                 throw new moodle_exception('Unsupported database type for JSON key extraction.');
         }
-
-        $optionidjson = json_encode([$optionid]); // Convert the option ID to JSON.
         $sql .= $where;
-        return $DB->get_fieldset_sql($sql, ['optionid' => $optionidjson]);
+        return $DB->get_fieldset_sql($sql);
     }
 
 
