@@ -913,10 +913,12 @@ class booking_option {
 
     /**
      * "Sync" users on waiting list, based on edited option - if has limit or not.
+     * @param bool $syncshared
+     *
      * @return bool
      *
      */
-    public function sync_waiting_list() {
+    public function sync_waiting_list($syncshared = false) {
         global $USER;
 
         $context = context_module::instance(($this->cmid));
@@ -940,19 +942,9 @@ class booking_option {
         // It's a feature of the sharedplaces functionality...
         // ... here we count booked places over multiple options.
         // One of these options can have priority. If so, we don't sync this option, but the other one.
-        $sharedoptionids = sharedplaces::get_sharedplaces_options($settings->id);
 
-        if (!empty($sharedoptionids)) {
-            foreach ($sharedoptionids as $sharedoptionid) {
-                $sharedsettings = singleton_service::get_instance_of_booking_option_settings($sharedoptionid);
-                $sharedoption = singleton_service::get_instance_of_booking_option($sharedsettings->cmid, $sharedoptionid);
-                $result = $sharedoption->sync_waiting_list();
-            }
-            self::purge_cache_for_answers($this->optionid);
-            // We only stop execution if we have synced a user before.
-            if ($result) {
-                return $result;
-            }
+        if ($result = sharedplaces::sync_sharedplaces_options($settings->id, true)) {
+            return $result;
         }
 
         $ba = singleton_service::get_instance_of_booking_answers($settings);
@@ -1009,6 +1001,9 @@ class booking_option {
                     );
                     $messagecontroller->send_or_queue();
                 }
+            }
+            if (!$syncshared) {
+                sharedplaces::sync_sharedplaces_options($settings->id, false);
             }
 
             // 2. Update and inform users who have been put on the waiting list because of changed limits.

@@ -336,25 +336,31 @@ class sharedplaces extends field_base {
      * Gets the shared options.
      *
      * @param int $optionid
+     * @param bool $onlypriority
      *
      * @return array
      *
      */
-    public static function get_sharedplaces_options(int $optionid): array {
+    public static function get_sharedplaces_options(int $optionid, bool $onlypriority = false): array {
         global $DB;
         $databasetype = $DB->get_dbfamily();
         if (empty($optionid)) {
             return [];
         }
         $sql = "SELECT id FROM {booking_options} WHERE ";
+
         switch ($databasetype) {
             case 'postgres':
-                $where = "(json::jsonb -> 'sharedplaceswithoptions') @> :optionid::jsonb
-                        AND (json::jsonb ->> 'sharedplacespriority')::int = 1";
+                $additionalwhere = $onlypriority ? " AND (json::jsonb ->> 'sharedplacespriority')::int = 1 " : '';
+                $where = "(json::jsonb -> 'sharedplaceswithoptions') @> '[\"$optionid\"]'::jsonb
+                          $additionalwhere
+                ";
                 break;
             case 'mysql':
+                $additionalwhere = $onlypriority ? " AND JSON_UNQUOTE(JSON_EXTRACT(json, '$.sharedplacespriority')) = '1' " : '';
                 $where = "JSON_CONTAINS(json, :optionid, '$.sharedplaceswithoptions')
-                        AND JSON_UNQUOTE(JSON_EXTRACT(json, '$.sharedplacespriority')) = '1'";
+                    $additionalwhere
+                ";
                 break;
             default:
                 throw new moodle_exception('Unsupported database type for JSON key extraction.');
