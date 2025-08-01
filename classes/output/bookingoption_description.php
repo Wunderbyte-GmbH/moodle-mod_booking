@@ -384,8 +384,12 @@ class bookingoption_description implements renderable, templatable {
         booking_context_helper::fix_booking_page_context($PAGE, $cmid);
 
         // Description from booking option settings formatted as HTML.
-        $this->description = $settings->description;
-
+        if (empty(get_config('booking', 'changedescriptionfield'))) {
+            $this->description = $settings->description;
+        } else {
+            $customfieldshortname = get_config('booking', 'changedescriptionfield');
+            $this->description = $settings->customfields[$customfieldshortname];
+        }
         // Do the same for internal annotation.
         $this->annotation = $settings->annotation;
 
