@@ -2362,17 +2362,6 @@ $string['signinextracolsheading'] = 'Zusätzliche Spalten auf der Unterschriften
 $string['signinextrasessioncols'] = 'Extra-Spalten für Termine hinzufügen';
 $string['signinformat'] = 'Speicherfromat wählen';
 $string['signinformatbutton'] = 'Aus HTML-Vorlage erstellen';
-$string['signinsheethtml'] = 'HTML-Vorlage zur Erstellung von Unterschriftenlisten';
-$string['signinsheethtmldescription'] = 'Sie können die folgenden Platzhalter verwenden:
-
-<b>Innerhalb von [[users]] ... [[/users]]:</b><br>
-[[fullname]], [[email]], [[signature]], [[institution]], [[description]], [[city]], [[country]], [[idnumber]], [[phone1]], [[department]], [[address]], [[places]]<br>
-(ggf. auch benutzerdefinierte Profilfelder, falls konfiguriert)
-
-<b>Außerhalb von [[users]]:</b><br>
-[[location]], [[dayofweektime]], [[teachers]], [[dates]], [[logourl]], [[tablename]]
-
-Verwenden Sie nur einfaches HTML, das von TCPDF / PhpWord unterstützt wird. Um Unterschriften in eine Tabelle einzufügen, verwenden Sie die CSS-Klasse <code>"signaturetable"</code>.';
 $string['signinhidedate'] = 'Termine ausblenden';
 $string['signinlogo'] = 'Logo für die Unterschriftenliste';
 $string['signinlogofooter'] = 'Logo in der Fußzeile auf der Unterschriftenliste';
@@ -2386,6 +2375,17 @@ $string['signinsheetdate'] = 'Termin(e): ';
 $string['signinsheetdatetofillin'] = 'Datum: ';
 $string['signinsheetdownload'] = 'Unterschriftenliste herunterladen';
 $string['signinsheetfields'] = 'Auf der Unterschriftenliste (PDF-Download)';
+$string['signinsheethtml'] = 'HTML-Vorlage zur Erstellung von Unterschriftenlisten';
+$string['signinsheethtmldescription'] = 'Sie können die folgenden Platzhalter verwenden:
+
+<b>Innerhalb von [[users]] ... [[/users]]:</b><br>
+[[fullname]], [[email]], [[signature]], [[institution]], [[description]], [[city]], [[country]], [[idnumber]], [[phone1]], [[department]], [[address]], [[places]]<br>
+(ggf. auch benutzerdefinierte Profilfelder, falls konfiguriert)
+
+<b>Außerhalb von [[users]]:</b><br>
+[[location]], [[dayofweektime]], [[teachers]], [[dates]], [[logourl]], [[tablename]]
+
+Verwenden Sie nur einfaches HTML, das von TCPDF / PhpWord unterstützt wird. Um Unterschriften in eine Tabelle einzufügen, verwenden Sie die CSS-Klasse <code>"signaturetable"</code>.';
 $string['signinsheetlocation'] = 'Ort: ';
 $string['signinsheetmode'] = 'Anwesenheitsliste Modus';
 $string['signinsheetmode_desc'] = 'Wählen Sie den Modus für das Herunterladen der Anwesenheitsliste: HTML-Vorlage oder Legacy-Modus.';

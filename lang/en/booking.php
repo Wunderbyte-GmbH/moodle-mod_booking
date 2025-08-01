@@ -2424,17 +2424,6 @@ $string['signinextracolsheading'] = 'Additional columns on the sign-in sheet';
 $string['signinextrasessioncols'] = 'Add extra columns for dates';
 $string['signinformat'] = 'Save as';
 $string['signinformatbutton'] = 'Create from HTML template';
-$string['signinsheethtml'] = 'HTML template for generating signature sheets';
-$string['signinsheethtmldescription'] = 'You can use the following placeholders:
-
-<b>Inside [[users]] ... [[/users]]:</b><br>
-[[fullname]], [[email]], [[signature]], [[institution]], [[description]], [[city]], [[country]], [[idnumber]], [[phone1]], [[department]], [[address]], [[places]]<br>
-(possibly also custom profile fields, if configured)
-
-<b>Outside of [[users]]:</b><br>
-[[location]], [[dayofweektime]], [[teachers]], [[dates]], [[logourl]], [[tablename]]
-
-Use only basic HTML that is supported by TCPDF / PhpWord. To insert signatures into a table, use the CSS class <code>"signaturetable"</code>.';
 $string['signinhidedate'] = 'Hide dates';
 $string['signinlogo'] = 'Logo to display on the sign-in sheet';
 $string['signinlogofooter'] = 'Logo in footer to display on the sign-in sheet';
@@ -2448,6 +2437,17 @@ $string['signinsheetdate'] = 'Date(s): ';
 $string['signinsheetdatetofillin'] = 'Date: ';
 $string['signinsheetdownload'] = 'Download sign-in sheet';
 $string['signinsheetfields'] = 'Sign-in sheet fields (PDF)';
+$string['signinsheethtml'] = 'HTML template for generating signature sheets';
+$string['signinsheethtmldescription'] = 'You can use the following placeholders:
+
+<b>Inside [[users]] ... [[/users]]:</b><br>
+[[fullname]], [[email]], [[signature]], [[institution]], [[description]], [[city]], [[country]], [[idnumber]], [[phone1]], [[department]], [[address]], [[places]]<br>
+(possibly also custom profile fields, if configured)
+
+<b>Outside of [[users]]:</b><br>
+[[location]], [[dayofweektime]], [[teachers]], [[dates]], [[logourl]], [[tablename]]
+
+Use only basic HTML that is supported by TCPDF / PhpWord. To insert signatures into a table, use the CSS class <code>"signaturetable"</code>.';
 $string['signinsheetlocation'] = 'Location: ';
 $string['signinsheetmode'] = 'Sign-in sheet mode';
 $string['signinsheetmode_desc'] = 'Select the mode for downloading the sign-in sheet: HTML template or Legacy mode.';
