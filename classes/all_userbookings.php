@@ -270,11 +270,14 @@ class all_userbookings extends \table_sql {
      */
     protected function col_selected($values): string {
         if (!$this->is_downloading()) {
-
             if ($values->optionid != $this->optionid) {
                 $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid);
                 $values->cmid = $settings->cmid;
                 $values->text = $settings->text;
+                $values->url = new moodle_url(
+                    '/mod/booking/report.php',
+                    ['id' => $values->cmid, 'optionid' => $values->optionid]
+                );
                 return get_string('sharedplacenoselect', 'mod_booking', $values);
             }
 

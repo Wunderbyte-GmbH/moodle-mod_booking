@@ -2358,7 +2358,7 @@ $string['sessionremindermailsubject'] = 'Reminder: You have an upcoming session'
 $string['sessionremindershint'] = 'You can set up reminders for dates with <a href="{$a}" target="_blank">Booking Rules</a>';
 $string['sessionremindersruleexists'] = 'There is at least one Booking Rule applied for this date.';
 $string['sessions'] = 'Session(s)';
-$string['sharedplacenoselect'] = 'Shared with <a href=\'/mod/booking/report.php?id={$a->cmid}&optionid={$a->optionid}\'>{$a->text}</a>';
+$string['sharedplacenoselect'] = 'Shared with <a href="{$a->url}">{$a->text}</a>';
 $string['sharedplaces'] = 'Shared places';
 $string['sharedplaces_help'] = 'Booked places of another booking option are added. If both options have 10 available places and only one is booked, only 9 places remain in both.';
 $string['sharedplacespriority'] = 'Has priority';
