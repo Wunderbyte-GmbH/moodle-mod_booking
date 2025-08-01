@@ -731,6 +731,8 @@ $string['cfcostcenter_desc'] = "Wenn Sie Kostenstellen verwenden, müssen Sie hi
 in welchem benutzerdefinierten Buchungsoptionsfeld diese gespeichert werden.";
 $string['cfgsignin'] = 'Einstellungen für die Unterschriftenliste';
 $string['cfgsignin_desc'] = 'Konfiguration der Unterschriftenliste';
+$string['changedescriptionfield'] = 'Anstelle Beschreibung der Buchungsoption ein benutzerdefiniertes Buchungsoptionsfeld anzeigen';
+$string['changedescriptionfield_desc'] = 'Zeigt anstelle der Beschreibung der Buchungsoption den Inhalt des ausgewählten benutzerdefinierten Buchungsoptionsfeld der Buchungsoption an. Wenn kein Feld ausgewählt ist, wird die Beschreibung der Buchungsoption angezeigt.';
 $string['changeinfoadded'] = ' wurde hinzugefügt:';
 $string['changeinfocfadded'] = 'Ein Feld wurde hinzugefügt:';
 $string['changeinfocfchanged'] = 'Ein Feld hat sich geändert:';

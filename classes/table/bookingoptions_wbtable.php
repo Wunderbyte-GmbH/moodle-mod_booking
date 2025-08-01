@@ -1410,9 +1410,14 @@ class bookingoptions_wbtable extends wunderbyte_table {
             debugging($debugmessage, DEBUG_DEVELOPER);
             return '';
         }
-
-        $description = $values->description;
-
+        if (empty(get_config("booking", "changedescriptionfield"))) {
+            $description = $values->description;
+        } else {
+            $customfieldshortname = get_config("booking", "changedescriptionfield");
+            $optionid = $values->id;
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+            $description = $settings->customfields[$customfieldshortname] ?? "";
+        }
         // If we download, we want to show text only without HTML tags.
         if ($this->is_downloading()) {
             $description = strip_tags($description, '<br>');

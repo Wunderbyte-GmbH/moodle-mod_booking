@@ -743,6 +743,8 @@ $string['cfcostcenter_desc'] = "If you use cost centers, you have to specify whi
 booking option field is used to store the cost center.";
 $string['cfgsignin'] = 'Sign-In Sheet Configuration';
 $string['cfgsignin_desc'] = 'Configure the sign-in sheet settings';
+$string['changedescriptionfield'] = 'Display a custom booking option field instead of the booking description';
+$string['changedescriptionfield_desc'] = 'Displays the content of the selected custom booking option field of the booking option instead of the booking option description. If no field is selected, the booking option description will be shown.';
 $string['changeinfoadded'] = ' has been added:';
 $string['changeinfocfadded'] = 'A field has been added:';
 $string['changeinfocfchanged'] = 'A field has changed:';

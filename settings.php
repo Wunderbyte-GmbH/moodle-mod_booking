@@ -299,7 +299,23 @@ if ($ADMIN->fulltree) {
             9 => "9",
             10 => "10",
         ];
+        $customfields = booking_handler::get_customfields();
+        if (!empty($customfields)) {
+            $customfieldshortnames = [];
+            foreach ($customfields as $cf) {
+                $customfieldshortnames[$cf->shortname] = "$cf->name ($cf->shortname)";
+            }
 
+            $settings->add(
+                new admin_setting_configselect(
+                    'booking/changedescriptionfield',
+                    get_string('changedescriptionfield', 'mod_booking'),
+                    get_string('changedescriptionfield_desc', 'mod_booking'),
+                    "",
+                    $customfieldshortnames
+                )
+            );
+        }
         $settings->add(
             new admin_setting_configselect(
                 'booking/collapseshowsettings',
@@ -398,12 +414,7 @@ if ($ADMIN->fulltree) {
     );
 
     // Custom fields to be shown on detail page (optionview.php).
-    $customfields = booking_handler::get_customfields();
     if (!empty($customfields)) {
-        $customfieldshortnames = [];
-        foreach ($customfields as $cf) {
-            $customfieldshortnames[$cf->shortname] = "$cf->name ($cf->shortname)";
-        }
         $settings->add(
             new admin_setting_configmultiselect(
                 'booking/optionviewcustomfields',
@@ -414,7 +425,6 @@ if ($ADMIN->fulltree) {
             )
         );
     }
-
     $settings->add(
         new admin_setting_configcheckbox(
             'booking/alloptionsinreport',
