@@ -766,6 +766,42 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
     /**
      * This function is called for each data row to allow processing of the
+     * associated Moodle course's shortname.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string a link to the Moodle course - if there is one
+     * @throws coding_exception
+     */
+    public function col_courseshortname($values) {
+        // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
+        if (empty($values->id)) {
+            $debugmessage = "bookingoptions_wbtable function col_courseshortname: ";
+            $debugmessage .= "id (optionid) is missing from values object - values: ";
+            $debugmessage .= json_encode($values);
+            debugging($debugmessage, DEBUG_DEVELOPER);
+            return '';
+        }
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
+
+        $ret = '';
+
+        $courseid = $settings->courseid;
+        if (empty($courseid)) {
+            // If there is no courseid, we return an empty string.
+            return '';
+        }
+        $course = get_course($courseid);
+        $shortname = $course->shortname;
+        if (empty($shortname)) {
+            // If there is no shortname, we return an empty string.
+            return '';
+        }
+        return $shortname;
+    }
+
+    /**
+     * This function is called for each data row to allow processing of the
      * dayofweektime value.
      *
      * @param object $values Contains object with all the values of record.

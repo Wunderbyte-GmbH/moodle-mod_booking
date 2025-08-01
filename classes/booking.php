@@ -838,6 +838,10 @@ class booking {
                     $headers[] = get_string('course', 'core');
                     $columns[] = 'course';
                     break;
+                case 'courseshortname':
+                    $headers[] = get_string('courseshortname', 'mod_booking');
+                    $columns[] = 'courseshortname';
+                    break;
                 case 'minanswers':
                     $headers[] = get_string('minanswers', 'mod_booking');
                     $columns[] = 'minanswers';

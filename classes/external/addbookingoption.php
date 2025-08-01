@@ -110,7 +110,7 @@ class addbookingoption extends external_api {
             ),
             'enroltocourseshortname' => new external_value(
                 PARAM_RAW,
-                'Shortname of course uses will be enroled to.',
+                'Shortname of course users will be enrolled to.',
                 VALUE_DEFAULT,
                 ''
             ),

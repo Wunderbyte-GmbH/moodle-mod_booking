@@ -879,6 +879,7 @@ $string['coursepageshortinfolbl'] = 'Short info';
 $string['coursepageshortinfolbl_help'] = 'Choose a short info text to show on the course page.';
 $string['courses'] = 'Courses';
 $string['coursesheader'] = 'Moodle course';
+$string['courseshortname'] = 'Shortname of the course';
 $string['coursestart'] = 'Start';
 $string['coursestarttime'] = 'Start time of the course';
 $string['courseurl'] = 'Course URL';

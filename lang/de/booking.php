@@ -861,6 +861,7 @@ $string['coursepageshortinfolbl'] = 'Kurzinfo';
 $string['coursepageshortinfolbl_help'] = 'Geben Sie den Kurzinfo-Text ein, der auf der Kursseite angezeigt werden soll.';
 $string['courses'] = 'Kurse';
 $string['coursesheader'] = 'Moodle-Kurs';
+$string['courseshortname'] = 'Kurzname (shortname) des Kurses';
 $string['coursestart'] = 'Starten';
 $string['coursestarttime'] = 'Kursbeginn';
 $string['createcompetencylink'] = '<a href="{$a}" class="btn btn-outline-secondary" target="_blank" rel="noopener noreferrer">
