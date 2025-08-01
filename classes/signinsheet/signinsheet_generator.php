@@ -463,6 +463,12 @@ class signinsheet_generator {
                             $name = "{$user->lastname}, {$user->firstname}";
                         }
                         break;
+                    case 'firstname':
+                        $name = "{$user->firstname}";
+                        break;
+                    case 'lastname':
+                        $name = "{$user->lastname}";
+                        break;
                     case 'signature':
                         $w = 40;
                         $name = "";
@@ -909,6 +915,12 @@ class signinsheet_generator {
                     } else {
                         $name = get_string('fullname', 'mod_booking');
                     }
+                    break;
+                case 'firstname':
+                    $name = get_string('firstname');
+                    break;
+                case 'lastname':
+                    $name = get_string('lastname');
                     break;
                 case 'signature':
                     $w = 40;
