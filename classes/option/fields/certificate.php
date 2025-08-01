@@ -30,6 +30,7 @@ use mod_booking\option\dates_handler;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use mod_booking\singleton_service;
+use mod_booking\utils\wb_payment;
 use tool_certificate\certificate as toolCertificate;
 use MoodleQuickForm;
 use stdClass;
@@ -164,23 +165,38 @@ class certificate extends field_base {
             return;
         }
 
-        global $DB;
+        // Check if PRO version is activated.
+        if (wb_payment::pro_version_is_activated()) {
+            global $DB;
 
-        // Standardfunctionality to add a header to the mform (only if its not yet there).
-        if ($applyheader) {
-            fields_info::add_header_to_mform($mform, self::$header);
+            // Standardfunctionality to add a header to the mform (only if its not yet there).
+            if ($applyheader) {
+                fields_info::add_header_to_mform($mform, self::$header);
+            }
+
+            $records = $DB->get_records('tool_certificate_templates', []);
+            $selection = [0 => 'no certificate selected'];
+            foreach ($records as $record) {
+                $selection[$record->id] = $record->name;
+            }
+
+            $mform->addElement('autocomplete', 'certificate', get_string('certificate', 'mod_booking'), $selection, []);
+            $mform->setType('certificate', PARAM_INT);
+
+            toolCertificate::add_expirydate_to_form($mform);
+        } else {
+            // If PRO version is not activated, we don't show the certificate field.
+            // We can add a static text to inform the user.
+            if ($applyheader) {
+                fields_info::add_header_to_mform($mform, self::$header);
+            }
+            $mform->addElement(
+                'static',
+                'nolicenseforcertificate',
+                get_string('licensekeycfg', 'mod_booking'),
+                get_string('licensekeycfgdesc', 'mod_booking')
+            );
         }
-
-        $records = $DB->get_records('tool_certificate_templates', []);
-        $selection = [0 => 'no certificate selected'];
-        foreach ($records as $record) {
-            $selection[$record->id] = $record->name;
-        }
-
-        $mform->addElement('autocomplete', 'certificate', get_string('certificate', 'mod_booking'), $selection, []);
-        $mform->setType('certificate', PARAM_INT);
-
-        toolCertificate::add_expirydate_to_form($mform);
     }
 
     /**

@@ -140,6 +140,11 @@ class sharedplaces extends field_base {
     ) {
         global $DB;
 
+        if (empty($formdata['id'])) {
+            // No shared places for templates.
+            return;
+        }
+
         // Check if PRO version is activated.
         if (wb_payment::pro_version_is_activated()) {
             $bookingoptionarray = [];
@@ -166,7 +171,6 @@ class sharedplaces extends field_base {
                     }
                 }
             }
-            $optionid = $formdata['id'];
 
             // Standardfunctionality to add a header to the mform (only if its not yet there).
             if ($applyheader) {
@@ -189,6 +193,17 @@ class sharedplaces extends field_base {
                 get_string('sharedplacespriority', 'mod_booking'),
             );
             $mform->addHelpButton('sharedplacespriority', 'sharedplacespriority', 'mod_booking');
+        } else {
+            // Standardfunctionality to add a header to the mform (only if its not yet there).
+            if ($applyheader) {
+                fields_info::add_header_to_mform($mform, self::$header);
+            }
+            $mform->addElement(
+                'static',
+                'nolicenseforsharedplaces',
+                get_string('licensekeycfg', 'mod_booking'),
+                get_string('licensekeycfgdesc', 'mod_booking')
+            );
         }
     }
 

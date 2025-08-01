@@ -683,18 +683,14 @@ if ($ADMIN->fulltree) {
                 )
             );
         }
-    }
-
-    $settings->add(
-        new admin_setting_configcheckbox(
-            'booking/usecompetencies',
-            get_string('usecompetencies', 'mod_booking'),
-            get_string('usecompetencies_desc', 'mod_booking'),
-            0
-        )
-    );
-
-    if ($proversion) {
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/usecompetencies',
+                get_string('usecompetencies', 'mod_booking'),
+                get_string('usecompetencies_desc', 'mod_booking'),
+                0
+            )
+        );
         $settings->add(
             new admin_setting_configcheckbox(
                 'booking/restrictavailabilityforinstance',
@@ -703,8 +699,6 @@ if ($ADMIN->fulltree) {
                 0
             )
         );
-    }
-    if ($proversion) {
         // PRO feature: "What's new" tab.
         $settings->add(
             new admin_setting_heading(
@@ -731,7 +725,6 @@ if ($ADMIN->fulltree) {
                 $tabwhatsnewdaysarr
             )
         );
-
         // PRO feature: Bookings tracker.
         $settings->add(
             new admin_setting_heading(
@@ -766,7 +759,6 @@ if ($ADMIN->fulltree) {
                 booking::get_possible_presences(true)
             )
         );
-
         // PRO feature: Teacher settings.
         $settings->add(
             new admin_setting_heading(
@@ -1921,30 +1913,29 @@ if ($ADMIN->fulltree) {
         )
     );
 
+    // Classic sign-in sheet mode ("legacy mode").
+    $signinsheetmodes = [
+        'legacy' => get_string('signinsheet_legacy', 'mod_booking'),
+        'htmltemplate' => get_string('signinsheet_htmltemplate', 'mod_booking'),
+    ];
     $settings->add(
         new admin_setting_configselect(
             'booking/signinsheetmode',
             get_string('signinsheetmode', 'mod_booking'),
             get_string('signinsheetmode_desc', 'mod_booking'),
-            'htmltemplate',
-            [
-                'htmltemplate' => get_string('signinsheet_htmltemplate', 'mod_booking'),
-                'legacy' => get_string('signinsheet_legacy', 'mod_booking'),
-            ]
+            'legacy',
+            $signinsheetmodes
         )
     );
-
-
     $settings->add(
         new admin_setting_configtextarea(
-            'booking/receipthtml',
-            get_string('signinghtml', 'mod_booking'),
-            get_string('signinghtml:description', 'mod_booking'),
-            '', /* $defaultreceipthtml */
+            'booking/signinsheethtml',
+            get_string('signinsheethtml', 'mod_booking'),
+            get_string('signinsheethtmldescription', 'mod_booking'),
+            '', /* $defaultsigninsheethtml */
             PARAM_RAW
         )
     );
-
     $settings->add(
         new admin_setting_configcheckbox(
             'booking/numberrows',

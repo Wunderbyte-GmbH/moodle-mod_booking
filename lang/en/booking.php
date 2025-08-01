@@ -2423,9 +2423,9 @@ $string['signinextracols_desc'] = 'You can print up to 3 additional columns on t
 $string['signinextracolsheading'] = 'Additional columns on the sign-in sheet';
 $string['signinextrasessioncols'] = 'Add extra columns for dates';
 $string['signinformat'] = 'Save as';
-$string['signinformatbutton'] = 'Create from html template';
-$string['signinghtml'] = 'HTML template for generating signature sheets';
-$string['signinghtml:description'] = 'You can use the following placeholders:
+$string['signinformatbutton'] = 'Create from HTML template';
+$string['signinsheethtml'] = 'HTML template for generating signature sheets';
+$string['signinsheethtmldescription'] = 'You can use the following placeholders:
 
 <b>Inside [[users]] ... [[/users]]:</b><br>
 [[fullname]], [[email]], [[signature]], [[institution]], [[description]], [[city]], [[country]], [[idnumber]], [[phone1]], [[department]], [[address]], [[places]]<br>
@@ -2441,7 +2441,7 @@ $string['signinlogofooter'] = 'Logo in footer to display on the sign-in sheet';
 $string['signinlogoheader'] = 'Logo in header to display on the sign-in sheet';
 $string['signinonesession'] = 'Display date(s) in the header';
 $string['signinsheet_htmltemplate'] = 'HTML template';
-$string['signinsheet_legacy'] = 'Legacy mode';
+$string['signinsheet_legacy'] = 'Classic sign-in sheet';
 $string['signinsheetaddress'] = 'Address: ';
 $string['signinsheetconfigure'] = 'Configure sign-in sheet';
 $string['signinsheetdate'] = 'Date(s): ';

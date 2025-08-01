@@ -2361,9 +2361,9 @@ $string['signinextracols_desc'] = 'Sie können bis zu 3 extra Spalten auf der Un
 $string['signinextracolsheading'] = 'Zusätzliche Spalten auf der Unterschriftenliste';
 $string['signinextrasessioncols'] = 'Extra-Spalten für Termine hinzufügen';
 $string['signinformat'] = 'Speicherfromat wählen';
-$string['signinformatbutton'] = 'Von html-template erstellen';
-$string['signinghtml'] = 'HTML-Vorlage zur Erstellung von Unterschriftenlisten';
-$string['signinghtml:description'] = 'Sie können die folgenden Platzhalter verwenden:
+$string['signinformatbutton'] = 'Aus HTML-Vorlage erstellen';
+$string['signinsheethtml'] = 'HTML-Vorlage zur Erstellung von Unterschriftenlisten';
+$string['signinsheethtmldescription'] = 'Sie können die folgenden Platzhalter verwenden:
 
 <b>Innerhalb von [[users]] ... [[/users]]:</b><br>
 [[fullname]], [[email]], [[signature]], [[institution]], [[description]], [[city]], [[country]], [[idnumber]], [[phone1]], [[department]], [[address]], [[places]]<br>
@@ -2379,7 +2379,7 @@ $string['signinlogofooter'] = 'Logo in der Fußzeile auf der Unterschriftenliste
 $string['signinlogoheader'] = 'Logo in der Kopfzeile auf der Unterschriftenliste';
 $string['signinonesession'] = 'Termin(e) im Header anzeigen';
 $string['signinsheet_htmltemplate'] = 'HTML-Vorlage';
-$string['signinsheet_legacy'] = 'Legacy-Modus';
+$string['signinsheet_legacy'] = 'Klassische Unterschriftenliste';
 $string['signinsheetaddress'] = 'Adresse: ';
 $string['signinsheetconfigure'] = 'Unterschriftenliste konfigurieren';
 $string['signinsheetdate'] = 'Termin(e): ';

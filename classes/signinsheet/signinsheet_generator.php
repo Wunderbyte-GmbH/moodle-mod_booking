@@ -422,7 +422,7 @@ class signinsheet_generator {
         }
 
         // Retrieve the configuration HTML.
-        $confightml = get_config('booking', 'receipthtml');
+        $confightml = get_config('booking', 'signinsheethtml');
 
         // Extract user template from the configuration HTML.
         preg_match('/\[\[users\]\](.*?)\[\[\/users\]\]/s', $confightml, $matches);
