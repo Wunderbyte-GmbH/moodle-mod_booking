@@ -26,6 +26,7 @@
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\booking_answers;
 use mod_booking\booking_option;
+use mod_booking\option\fields\sharedplaces;
 use mod_booking\output\booked_users;
 use mod_booking\output\eventslist;
 use mod_booking\singleton_service;
@@ -842,8 +843,13 @@ if (!$tableallbookings->is_downloading()) {
             JOIN {booking_options} bo ON bo.id = ba.optionid
             LEFT JOIN {booking_options} otherbookingoption ON otherbookingoption.id = ba.frombookingid ' . $shoppingcartfrom
             . $certificatefrom;
-    $where = ' ba.optionid = :optionid
-             AND ba.waitinglist < 2 ' . $addsqlwhere;
+
+    // With the shared places feature, we get more than one option.
+    // Therefore, we use IN.
+    // First, we see if this option shares with any other option.
+    $spinorequal = sharedplaces::return_shared_places_where_sql($optionid, $sqlvalues);
+    $where = " ba.optionid $spinorequal ";
+    $where .= ' AND ba.waitinglist < 2 ' . $addsqlwhere;
 
     $tableallbookings->set_sql($fields, $from, $where, $sqlvalues);
 
@@ -1372,7 +1378,11 @@ if (!$tableallbookings->is_downloading()) {
             JOIN {booking_options} bo ON bo.id = ba.optionid' . $shoppingcartfrom;
 
     if (!get_config('booking', 'alloptionsinreport')) {
-        $individualbookingoption = " ba.optionid = :optionid AND ";
+        // With the shared places feature, we get more than one option.
+        // Therefore, we use IN.
+        // First, we see if this option shares with any other option.
+        $spinorequal = sharedplaces::return_shared_places_where_sql($optionid, $sqlvalues);
+        $individualbookingoption = " ba.optionid $spinorequal AND ";
     } else {
         $individualbookingoption = " bo.bookingid = :bookingid AND ";
         $sqlvalues['bookingid'] = (int)$bookingoption->bookingid;

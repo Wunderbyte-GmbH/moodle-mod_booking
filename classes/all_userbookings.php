@@ -270,6 +270,14 @@ class all_userbookings extends \table_sql {
      */
     protected function col_selected($values): string {
         if (!$this->is_downloading()) {
+
+            if ($values->optionid != $this->optionid) {
+                $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid);
+                $values->cmid = $settings->cmid;
+                $values->text = $settings->text;
+                return get_string('sharedplacenoselect', 'mod_booking', $values);
+            }
+
             return '<input id="check' . $values->id .
                      '" type="checkbox" class="usercheckbox" name="user[][' . $values->userid .
                      ']" value="' . $values->userid . '" />';

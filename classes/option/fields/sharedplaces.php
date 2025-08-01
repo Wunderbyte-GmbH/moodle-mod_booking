@@ -364,4 +364,63 @@ class sharedplaces extends field_base {
         $sql .= $where;
         return $DB->get_fieldset_sql($sql, ['optionid' => $optionidjson]);
     }
+
+
+    /**
+     * Merges the param and returns a string like IN (1,2).
+     *
+     * @param int $optionid
+     * @param mixed $params
+     *
+     * @return string
+     *
+     */
+    public static function return_shared_places_where_sql(int $optionid, &$params) {
+
+        global $DB;
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $optionids = [(int)$optionid];
+        if (
+            !empty($settings->jsonobject->sharedplaceswithoptions)
+            && is_array($settings->jsonobject->sharedplaceswithoptions)
+        ) {
+            $optionids = array_merge(
+                $optionids,
+                array_map(fn($a) => (int)$a, $settings->jsonobject->sharedplaceswithoptions)
+            );
+        }
+
+        unset($params['optionid']);
+        [$spinorequal, $spparams] = $DB->get_in_or_equal($optionids, SQL_PARAMS_NAMED, 'shpl_');
+        $params = array_merge($params, $spparams);
+
+        return $spinorequal;
+    }
+
+    /**
+     * Syncs the waitinglist of shared options.
+     *
+     * @param int $optionid
+     * @param bool $onlypriority
+     *
+     * @return bool
+     *
+     */
+    public static function sync_sharedplaces_options(int $optionid, $onlypriority = true) {
+        $sharedoptionids = self::get_sharedplaces_options($optionid, $onlypriority);
+
+        if (!empty($sharedoptionids)) {
+            foreach ($sharedoptionids as $sharedoptionid) {
+                $sharedsettings = singleton_service::get_instance_of_booking_option_settings($sharedoptionid);
+                $sharedoption = singleton_service::get_instance_of_booking_option($sharedsettings->cmid, $sharedoptionid);
+                $result = $sharedoption->sync_waiting_list(true);
+            }
+            booking_option::purge_cache_for_answers($optionid);
+            // We only stop execution if we have synced a user before.
+            if ($result) {
+                return $result;
+            }
+        }
+        return false;
+    }
 }

@@ -17,6 +17,7 @@
 namespace mod_booking\signinsheet;
 
 use mod_booking\booking_option_settings;
+use mod_booking\option\fields\sharedplaces;
 use mod_booking\singleton_service;
 use Throwable;
 use user_picture;
@@ -337,20 +338,23 @@ class signinsheet_generator {
             $userfields = '';
         }
 
-        list($select1, $from1, $filter1, $params1) = booking_option_settings::return_sql_for_custom_profile_field($userinfofields);
+        [$select1, $from1, $filter1, $params1] = booking_option_settings::return_sql_for_custom_profile_field($userinfofields);
+
+        $spinorequal = sharedplaces::return_shared_places_where_sql($settings->id, $groupparams);
+        $where = " ba.optionid $spinorequal ";
 
         $sql =
         "SELECT u.id, ba.timecreated as bookingtime, ba.places, " . $mainuserfields . $userfields . $select1 .
         " FROM {booking_answers} ba
         LEFT JOIN {user} u ON u.id = ba.userid
         $from1
-        WHERE ba.optionid = :optionid AND ba.waitinglist = 0 " .
+        WHERE $where AND ba.waitinglist = 0 " .
                  $addsqlwhere . "ORDER BY u.{$this->orderby} ASC";
 
         $users = $DB->get_records_sql(
-                $sql,
-                array_merge($groupparams,
-                                ['optionid' => $this->optionid]));
+            $sql,
+            $groupparams
+        );
 
         // Create fake users for adding empty rows.
         if ($this->addemptyrows > 0) {
@@ -374,19 +378,18 @@ class signinsheet_generator {
         }
 
         if ($this->includeteachers) {
-
             $mainuserfields = \core_user\fields::for_name()->get_sql('u')->selects;
             $mainuserfields = trim($mainuserfields, ', ');
 
             $teachers = $DB->get_records_sql(
-                    'SELECT u.id, ' . $mainuserfields . $userfields .
-                    '
-            FROM {booking_teachers} bt
-            LEFT JOIN {user} u ON u.id = bt.userid
-            WHERE bt.optionid = :optionid ' .
-                    $addsqlwhere . "ORDER BY u.{$this->orderby} ASC",
-                    array_merge($groupparams,
-                            ['optionid' => $this->optionid]));
+                'SELECT u.id, ' . $mainuserfields . $userfields .
+                "
+                FROM {booking_teachers} bt
+                LEFT JOIN {user} u ON u.id = bt.userid
+                WHERE bt.optionid  $spinorequal " .
+                $addsqlwhere . "ORDER BY u.{$this->orderby} ASC",
+                $groupparams
+            );
             foreach ($teachers as $teacher) {
                 $teacher->isteacher = true;
                 array_push($users, $teacher);
