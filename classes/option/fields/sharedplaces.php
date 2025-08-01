@@ -25,7 +25,6 @@
 namespace mod_booking\option\fields;
 
 use html_writer;
-use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
