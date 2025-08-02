@@ -130,19 +130,18 @@ class certificate extends field_base {
 
         // Add expiration key to json.
         $keys = self::$certificatedatekeys;
-        // Process each field and save it to json.
+        // Process each field and save it to json ONLY if certificate has been selected.
         foreach ($keys as $key) {
             $valueexpirydate = $formdata->{$key} ?? null;
 
-            if (!empty($valueexpirydate)) {
+            if (!empty($valueexpirydate) && !empty($value)) {
                 booking_option::add_data_to_json($newoption, $key, $formdata->{$key});
             } else {
                 booking_option::remove_key_from_json($newoption, $key);
             }
 
             $certificatechanges = $instance->check_for_changes($formdata, $instance, $mockdata, $key, $value);
-            if (!empty($certificatechanges)) {
-                //$certificatechanges['changes']['fieldname'] = $key;
+            if (!empty($certificatechanges) && !empty($value)) {
                 $changes[$key] = $certificatechanges;
             };
         }
@@ -395,7 +394,10 @@ class certificate extends field_base {
 
         $oldvaluestr = '';
         $newvaluestr = '';
+        $fieldnamestring = get_string($changes['fieldname'], 'mod_booking');
 
+        // Actual value changes has been displayed for certificate only.
+        // For changes in expiration dates or its type - only general message will be shown.
         switch ($changes['formkey']) {
             case 'certificate':
                 if (!empty($oldvalue)) {
@@ -414,11 +416,19 @@ class certificate extends field_base {
                         (object) ['id' => $newvalue, 'name' => ($certname ?? '')]
                     );
                 }
-            break;
+                break;
+            case 'expirydateabsolute':
+                $fieldnamestring = get_string('changesinexpirydateabsolute', 'mod_booking');
+                break;
+            case 'expirydaterelative':
+                $fieldnamestring = get_string('changesinexpirydaterelative', 'mod_booking');
+                break;
+            case 'expirydatetype':
+                $fieldnamestring = get_string('changesinexpirydatetype', 'mod_booking');
+                break;
         }
 
-        $fieldnamestring = get_string($changes['formkey'], 'tool_certificate');
-        $infotext = get_string('changeinfochanged', 'booking', $fieldnamestring);
+        $infotext = get_string('changeinfochanged', 'mod_booking', $fieldnamestring);
 
         if (empty($oldvaluestr) && empty($newvaluestr)) {
             $returnarray['info'] = $infotext;
@@ -426,7 +436,7 @@ class certificate extends field_base {
             $returnarray = [
                 'oldvalue' => $oldvaluestr,
                 'newvalue' => $newvaluestr,
-                'fieldname' => get_string($changes['fieldname'], 'booking'),
+                'fieldname' => get_string($changes['fieldname'], 'mod_booking'),
             ];
         }
 

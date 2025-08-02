@@ -760,6 +760,9 @@ $string['changesemester:warning'] = '<strong>Be careful:</strong> By clicking "S
 and be replaced with dates of the chosen semester.';
 $string['changesemesteradhoctaskstarted'] = 'Success. The dates will be re-generated the next time CRON is running. This may take several minutes.';
 $string['changesinentity'] = '{$a->name} (ID: {$a->id})';
+$string['changesinexpirydateabsolute'] = 'Certificate: an absolute value of expiration date';
+$string['changesinexpirydaterelative'] = 'Certificate: a relative value of expiration date';
+$string['changesinexpirydatetype'] = 'Certificate: the type of expiration date';
 $string['checkbox'] = "Checkbox";
 $string['checkdelimiter'] = 'Check if data is separated via the selected symbol.';
 $string['checkdelimiteroremptycontent'] = 'Check if data is given and separated via the selected symbol.';
