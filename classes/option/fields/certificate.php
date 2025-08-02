@@ -114,12 +114,19 @@ class certificate extends field_base {
         $changes = [];
         $key = fields_info::get_class_name(static::class);
         $value = $formdata->{$key} ?? null;
+        $mockdata = new stdClass();
+        $mockdata->id = $formdata->id;
 
         if (!empty($value)) {
             booking_option::add_data_to_json($newoption, $key, $formdata->{$key});
         } else {
             booking_option::remove_key_from_json($newoption, $key);
         }
+
+        $certificatechanges = $instance->check_for_changes($formdata, $instance, $mockdata, $key, $value);
+        if (!empty($certificatechanges)) {
+            $changes[$key] = $certificatechanges;
+        };
 
         // Add expiration key to json.
         $keys = self::$certificatedatekeys;
@@ -132,12 +139,13 @@ class certificate extends field_base {
             } else {
                 booking_option::remove_key_from_json($newoption, $key);
             }
-        }
 
-        $certificatechanges = $instance->check_for_changes($formdata, $instance, null, $key, $value);
-        if (!empty($certificatechanges)) {
-            $changes[$key] = $certificatechanges;
-        };
+            $certificatechanges = $instance->check_for_changes($formdata, $instance, $mockdata, $key, $value);
+            if (!empty($certificatechanges)) {
+                //$certificatechanges['changes']['fieldname'] = $key;
+                $changes[$key] = $certificatechanges;
+            };
+        }
 
         // We can return an warning message here.
         return ['changes' => $changes];
@@ -229,7 +237,7 @@ class certificate extends field_base {
         $keys = self::$certificatedatekeys;
         // Process each field and save it to set_data.
         foreach ($keys as $key) {
-            $valueexpirydate = $formdata->{$key} ?? null;
+            $valueexpirydate = $data->{$key} ?? null;
 
             if (!empty($valueexpirydate) && !empty($data->importing)) {
                 $data->{$key} = $data->{$key} ?? booking_option::get_value_of_json_by_key((int) $data->id, $key) ?? 0;
@@ -382,39 +390,44 @@ class certificate extends field_base {
 
         global $DB;
 
-        $oldcertid = (int) $changes['oldvalue'] ?? 0;
-        $newcertid = (int) $changes['newvalue'] ?? 0;
+        $oldvalue = (int) $changes['oldvalue'] ?? 0;
+        $newvalue = (int) $changes['newvalue'] ?? 0;
 
-        $oldvalue = '';
-        if (!empty($oldcertid)) {
-            $certname = $DB->get_field('tool_certificate_templates', 'name', ['id' => $oldcertid]);
-            $oldvalue = get_string(
-                'changesinentity',
-                'mod_booking',
-                (object) ['id' => $oldcertid, 'name' => ($certname ?? '')]
-            );
-        }
-        $newvalue = '';
-        if (!empty($newcertid)) {
-            $certname = $DB->get_field('tool_certificate_templates', 'name', ['id' => $newcertid]);
-            $newvalue = get_string(
-                'changesinentity',
-                'mod_booking',
-                (object) ['id' => $newcertid, 'name' => ($certname ?? '')]
-            );
+        $oldvaluestr = '';
+        $newvaluestr = '';
+
+        switch ($changes['formkey']) {
+            case 'certificate':
+                if (!empty($oldvalue)) {
+                    $certname = $DB->get_field('tool_certificate_templates', 'name', ['id' => $oldvalue]);
+                    $oldvaluestr = get_string(
+                        'changesinentity',
+                        'mod_booking',
+                        (object) ['id' => $oldvalue, 'name' => ($certname ?? '')]
+                    );
+                }
+                if (!empty($newvalue)) {
+                    $certname = $DB->get_field('tool_certificate_templates', 'name', ['id' => $newvalue]);
+                    $newvaluestr = get_string(
+                        'changesinentity',
+                        'mod_booking',
+                        (object) ['id' => $newvalue, 'name' => ($certname ?? '')]
+                    );
+                }
+            break;
         }
 
-        $fieldnamestring = get_string($changes['fieldname'], 'booking');
+        $fieldnamestring = get_string($changes['formkey'], 'tool_certificate');
         $infotext = get_string('changeinfochanged', 'booking', $fieldnamestring);
 
-        $returnarray = [
-            'oldvalue' => $oldvalue,
-            'newvalue' => $newvalue,
-            'fieldname' => get_string($changes['fieldname'], 'booking'),
-        ];
-
-        if (empty($oldvalue) && empty($newvalue)) {
+        if (empty($oldvaluestr) && empty($newvaluestr)) {
             $returnarray['info'] = $infotext;
+        } else {
+            $returnarray = [
+                'oldvalue' => $oldvaluestr,
+                'newvalue' => $newvaluestr,
+                'fieldname' => get_string($changes['fieldname'], 'booking'),
+            ];
         }
 
         return $returnarray;
