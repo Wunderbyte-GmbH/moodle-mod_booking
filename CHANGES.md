@@ -1,3 +1,21 @@
+## Version 8.15.0 (2025080400)
+* New feature: New fields from booking option in Booking certificate feature.
+* New feature: Booking now supports multiple dayofweektime strings to create date series for multiple weekdays.
+* New feature: Add button to switch HTML/legacy view for new sign-in sheet (which now supports MS word export).
+* Improvement: Better display of shopping cart bookings on mybookings.php.
+* Improvement: New capability for managers to execute bulk operations.
+* Improvement: Possibility to hide warning about rules.
+* Improvement: Show booked places in common list.
+* Improvement: Add possibility to export course shortname in options download.
+* Improvement: Show warning when all teachers page is reduced and add a link to setting (only for admins and managers).
+* Improvement: Show hint on how to use multiple dayofweektime strings for better usability.
+* Improvement: Refactor and fix pro version logic.
+* Bugfix: Don’t block price for subbookings with priceisalwayson setting.
+* Bugfix: Responsible contact not existing anymore.
+* Bugfix: Fallback for responsible user not existing anymore.
+* Bugfix: Improve logic to also sync waiting list when only users on shared options are present.
+* Bugfix: Fix SQL for MariaDB.
+
 ## Version 8.14.13 (20250730)
 * New Feature: Confirm user only for waitinglist (#1050).
 * New Feature: Enable multiple responsible contacts ()
