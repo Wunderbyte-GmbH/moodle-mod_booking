@@ -23,6 +23,8 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
+
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Mink\Exception\DriverException;
 use mod_booking\booking;
@@ -34,7 +36,7 @@ use mod_booking\bo_availability\conditions\maxoptionsfromcategory;
 /**
  * To create booking specific behat scearios.
  */
-class behat_mod_booking extends \behat_base {
+class behat_mod_booking extends behat_base {
     /**
      * Create booking option in booking instance
      * @Given /^I create booking option "(?P<optionname_string>(?:[^"]|\\")*)" in "(?P<instancename_string>(?:[^"]|\\")*)"$/
