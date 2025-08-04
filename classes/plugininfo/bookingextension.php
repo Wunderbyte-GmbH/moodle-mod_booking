@@ -72,7 +72,7 @@ class bookingextension extends base {
      * @return string
      *
      */
-    public static function add_options_to_col_actions(object $settings, mixed $context): string {
+    public static function add_options_to_col_actions(object $settings, $context): string {
         return '';
     }
 
