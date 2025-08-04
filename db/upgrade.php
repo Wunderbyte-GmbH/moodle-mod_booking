@@ -5037,5 +5037,16 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2025072400, 'booking');
     }
+
+    if ($oldversion < 2025080401) {
+        global $CFG;
+        // Move ID 425 to 391 in JSON config.
+        require_once($CFG->dirroot . '/mod/booking/db/upgradelib.php');
+        booking_upgrade_change_id_425_to_391();
+
+        // Upgrade savepoint.
+        upgrade_mod_savepoint(true, 2025080401, 'booking');
+    }
+
     return true;
 }
