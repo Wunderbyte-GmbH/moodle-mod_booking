@@ -19,8 +19,9 @@ namespace mod_booking\signinsheet;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields\sharedplaces;
 use mod_booking\singleton_service;
-use Throwable;
+use Exception;
 use user_picture;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/local/wunderbyte_table/lib/phpwordinit.php');
@@ -138,7 +139,7 @@ class signinsheet_generator {
     /**
      * signinsheet logo fetched from booking module setting
      * (admin level) as string
-     * @var string
+     * @var \stored_file
      */
     public $signinsheetlogo = '';
 
@@ -242,7 +243,7 @@ class signinsheet_generator {
      * @param ?\mod_booking\booking_option $bookingoption
      *
      */
-    public function __construct(\stdClass $pdfoptions, ?\mod_booking\booking_option $bookingoption = null) {
+    public function __construct(stdClass $pdfoptions, ?\mod_booking\booking_option $bookingoption = null) {
 
         global $DB;
 
@@ -360,6 +361,8 @@ class signinsheet_generator {
             'signinextracols2',
             'signinextracols3',
             'fullname',
+            'firstname',
+            'lastname',
             'signature',
             'rownumber',
             'role',
@@ -468,8 +471,10 @@ class signinsheet_generator {
             $row = $usertemplate;
             $replacements = [
                 '[[fullname]]' => $this->get_user_fullname($user),
-                '[[email]]' => $user->email,
-                '[[signature]]' => '',
+                '[[firstname]]' => $user->firstname ?? '',
+                '[[lastname]]' => $user->lastname ?? '',
+                '[[email]]' => $user->email ?? '',
+                '[[signature]]' => $user->signature ?? '',
                 '[[institution]]' => $user->institution ?? '',
                 '[[description]]' => format_text_email($user->description ?? '', FORMAT_HTML),
                 '[[city]]' => $user->city ?? '',
@@ -498,7 +503,7 @@ class signinsheet_generator {
             $headertitle = format_string($this->bookingoption->booking->settings->name) . ': ' .
                 format_string($settings->get_title_with_prefix());
         } else {
-            $headertitle = format_string($this->bookingoption->booking->settings->name, '');
+            $headertitle = format_string($this->bookingoption->booking->settings->name, null);
         }
 
         $location = '';
@@ -609,7 +614,7 @@ class signinsheet_generator {
             } else {
                 throw new Exception("File could not be read.");
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Handle and log exceptions.
             echo "An error occurred while downloading the document: " . $e->getMessage();
         }
@@ -675,6 +680,9 @@ class signinsheet_generator {
             'signinextracols2',
             'signinextracols3',
             'fullname',
+            'firstname',
+            'lastname',
+            'email',
             'signature',
             'rownumber',
             'role',
@@ -719,7 +727,7 @@ class signinsheet_generator {
 
         // Create fake users for adding empty rows.
         if ($this->addemptyrows > 0) {
-            $fakeuser = new \stdClass();
+            $fakeuser = new stdClass();
             $fakeuser->id = 0;
             $fakeuser->city = '';
             $fakeuser->firstname = '';
@@ -830,41 +838,49 @@ class signinsheet_generator {
                             $name = "{$user->lastname}, {$user->firstname}";
                         }
                         break;
+                    case 'firstname':
+                        $w = 20;
+                        $name = $user->firstname ?? '';
+                        break;
+                    case 'lastname':
+                        $w = 20;
+                        $name = $user->lastname ?? '';
+                        break;
                     case 'signature':
                         $w = 40;
-                        $name = "";
+                        $name = $user->signature ?? '';
                         break;
                     case 'institution':
-                        $name = $user->institution;
+                        $name = $user->institution ?? '';
                         break;
                     case 'description':
-                        $name = format_text_email($user->description, FORMAT_HTML);
+                        $name = format_text_email($user->description ?? '', FORMAT_HTML);
                         break;
                     case 'city':
-                        $name = $user->city;
+                        $name = $user->city ?? '';
                         break;
                     case 'country':
-                        $name = $user->country;
+                        $name = $user->country ?? '';
                         break;
                     case 'idnumber':
-                        $name = $user->idnumber;
+                        $name = $user->idnumber ?? '';
                         break;
                     case 'email':
                         $w = 60;
-                        $name = $user->email;
+                        $name = $user->email ?? '';
                         break;
                     case 'phone1':
-                        $name = $user->phone1;
+                        $name = $user->phone1 ?? '';
                         break;
                     case 'department':
-                        $name = $user->department;
+                        $name = $user->department ?? '';
                         break;
                     case 'address':
-                        $name = $user->address;
+                        $name = $user->address ?? '';
                         break;
                     case 'places':
                         $w = 15;
-                        $name = $user->places;
+                        $name = $user->places ?? '';
                         break;
                     case 'role':
                             // Check if the user is a fake user.
@@ -900,8 +916,8 @@ class signinsheet_generator {
                         if (@getimagesize($out)) {
                             $this->pdf->Image(
                                 $out,
-                                '',
-                                '',
+                                null,
+                                null,
                                 0,
                                 $h,
                                 '',
@@ -1013,7 +1029,7 @@ class signinsheet_generator {
                 // Show all sessions.
                 $val = [];
                 foreach ($settings->sessions as $time) {
-                    $tmpdate = new \stdClass();
+                    $tmpdate = new stdClass();
                     $tmpdate->leftdate = userdate(
                         $time->coursestarttime,
                         get_string('strftimedatetime', 'langconfig')
@@ -1177,8 +1193,8 @@ class signinsheet_generator {
         if ($this->get_signinsheet_logo()) {
             $this->pdf->Image(
                 '@' . $this->signinsheetlogo->get_content(),
-                '',
-                '',
+                null,
+                null,
                 $this->w,
                 $this->h,
                 '',
@@ -1196,7 +1212,7 @@ class signinsheet_generator {
             );
         }
         // Empty multicell for spacing.
-        $this->pdf->MultiCell(55, 5, '', 0, '', 0, 1, '', '', true);
+        $this->pdf->MultiCell(55, 5, '', 0, '', 0, 1, null, null, true);
 
         $this->pdf->SetFont('freesans', '', 10);
 
@@ -1206,7 +1222,7 @@ class signinsheet_generator {
             $headertitle = format_string($this->bookingoption->booking->settings->name) . ': ' .
                 format_string($settings->get_title_with_prefix());
         } else {
-            $headertitle = format_string($this->bookingoption->booking->settings->name, '');
+            $headertitle = format_string($this->bookingoption->booking->settings->name, null);
         }
 
         $this->pdf->writeHTMLCell(
@@ -1293,7 +1309,7 @@ class signinsheet_generator {
             get_string('teachers', 'mod_booking') . ": " . implode(', ', $this->teachers),
             0,
             1,
-            '',
+            false,
             0
         );
         $this->pdf->Ln();
@@ -1307,7 +1323,7 @@ class signinsheet_generator {
                 get_string('signinsheetdate', 'booking'),
                 0,
                 1,
-                '',
+                false,
                 0
             );
             $this->pdf->SetFont('freesans', '', 8);
@@ -1412,6 +1428,14 @@ class signinsheet_generator {
                     } else {
                         $name = get_string('fullname', 'mod_booking');
                     }
+                    break;
+                case 'firstname':
+                    $w = 20;
+                    $name = get_string('firstname');
+                    break;
+                case 'lastname':
+                    $w = 20;
+                    $name = get_string('lastname');
                     break;
                 case 'signature':
                     $w = 40;

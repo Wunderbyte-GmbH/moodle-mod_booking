@@ -27,6 +27,8 @@
 
 namespace mod_booking\signinsheet;
 
+use pdf;
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/pdflib.php');
@@ -40,8 +42,7 @@ require_once($CFG->libdir . '/pdflib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
-class signin_pdf extends \pdf {
-
+class signin_pdf extends pdf {
     /**
      * $file
      *
@@ -56,7 +57,7 @@ class signin_pdf extends \pdf {
      * @return bool
      */
     public function go_to_newline($h) {
-        return $this->checkPageBreak($h, '', true);
+        return $this->checkPageBreak($h, null, true);
     }
 
     /**
@@ -78,8 +79,25 @@ class signin_pdf extends \pdf {
                 $h = 15;
             }
 
-            $this->Image('@' . $signinsheetlogofooter, '', '', $w, $h, $filetype, '', 'T', true,
-                    150, 'C', false, false, 1, false, false, false);
+            $this->Image(
+                '@' . $signinsheetlogofooter,
+                null,
+                null,
+                $w,
+                $h,
+                $filetype,
+                '',
+                'T',
+                true,
+                150,
+                'C',
+                false,
+                false,
+                1,
+                false,
+                false,
+                false
+            );
         }
     }
 
