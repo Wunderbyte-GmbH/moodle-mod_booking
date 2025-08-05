@@ -1,3 +1,7 @@
+## Version 8.15.1 (2025080500)
+* Improvement: Support up to 50 form elements in custom form condition.
+* Bugfix: Checks if bookingextension classes exist.
+
 ## Version 8.15.0 (2025080400)
 * New feature: New fields from booking option in Booking certificate feature.
 * New feature: Booking now supports multiple dayofweektime strings to create date series for multiple weekdays.
