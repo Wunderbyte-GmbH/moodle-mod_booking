@@ -130,6 +130,9 @@ $ADMIN->add(
 // Load all settings from booking extensions.
 foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
     $fullclassname = "\\bookingextension_{$plugin->name}\\{$plugin->name}";
+    if (!class_exists($fullclassname)) {
+        continue; // Skip if the class does not exist.
+    }
     $plugin = new $fullclassname();
     if (!$plugin instanceof bookingextension_interface) {
         continue; // Skip if the plugin does not implement the interface.

@@ -137,6 +137,9 @@ class rule_react_on_event implements booking_rule {
         $allevents = get_list_of_booking_events();
         foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
             $class = "\\bookingextension_{$plugin->name}\\{$plugin->name}";
+            if (!class_exists($class)) {
+                continue; // Skip if the class does not exist.
+            }
             $pluginevents = $class::get_allowedruleeventkeys();
             $allowedeventkeys = array_merge($allowedeventkeys, $pluginevents);
             $events = core_component::get_component_classes_in_namespace("bookingextension_{$plugin->name}", 'event');

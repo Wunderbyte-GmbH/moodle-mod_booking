@@ -1297,6 +1297,9 @@ class bookingoptions_wbtable extends wunderbyte_table {
         }
         foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
             $class = "\\bookingextension_{$plugin->name}\\{$plugin->name}";
+            if (!class_exists($class)) {
+                continue;
+            }
             $ddoptionsfromplugin = $class::add_options_to_col_actions($settings, $context);
             if (!empty($ddoptionsfromplugin)) {
                 $ddoptions[] = $ddoptionsfromplugin;

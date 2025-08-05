@@ -585,6 +585,9 @@ class bookingoption_description implements renderable, templatable {
         }
         foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
             $class = "\\bookingextension_{$plugin->name}\\{$plugin->name}";
+            if (!class_exists($class)) {
+                continue; // Skip if the class does not exist.
+            }
             $sublplugindata = $class::set_template_data_for_optionview($settings);
             if (!empty($sublplugindata)) {
                 foreach ($sublplugindata as $data) {
