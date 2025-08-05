@@ -253,7 +253,8 @@ class customform implements bo_condition {
             $counter = 1;
             $previous = 0;
 
-            while ($counter <= 20) {
+            // Up to 50 elements are possible. 20 was too few for some clients. 50 is more than enough.
+            while ($counter <= 50) {
                 $buttonarray = [];
 
                 // Create a select to chose which type of form element to display.
