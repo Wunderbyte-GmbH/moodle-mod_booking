@@ -18,7 +18,8 @@
  * The rest_script_success event.
  *
  * @package mod_booking
- * @copyright 2023 Georgg Maißer, Wunderbyte GmbH
+ * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Georg Maißer, Jacob Viertel
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -33,12 +34,10 @@ namespace mod_booking\event;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class rest_script_success extends \core\event\base {
-
     /**
      * Init
      *
      * @return void
-     *
      */
     protected function init() {
         $this->data['crud'] = 'r'; // Meaning: r = read.
@@ -50,7 +49,6 @@ class rest_script_success extends \core\event\base {
      * Get name
      *
      * @return string
-     *
      */
     public static function get_name() {
         return get_string('restscriptsuccess', 'booking');
@@ -60,7 +58,6 @@ class rest_script_success extends \core\event\base {
      * Get description
      *
      * @return string
-     *
      */
     public function get_description() {
         return "Script could be executed properly! Userid: '{$this->userid}',
@@ -71,7 +68,6 @@ class rest_script_success extends \core\event\base {
      * Get_url
      *
      * @return \moodle_url
-     *
      */
     public function get_url() {
         return new \moodle_url('/mod/booking/view.php', ['id' => $this->contextinstanceid]);

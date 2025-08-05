@@ -135,7 +135,7 @@ class waitforconfirmation extends field_base {
 
         // Standardfunctionality to add a header to the mform (only if its not yet there).
         if ($applyheader) {
-            $header = !get_config('mod_booking', 'useconfirmationworkflowheader')
+            $header = !get_config('booking', 'useconfirmationworkflowheader')
                 ? MOD_BOOKING_HEADER_ADVANCEDOPTIONS : self::$header;
             fields_info::add_header_to_mform($mform, $header);
         }

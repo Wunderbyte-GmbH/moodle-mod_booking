@@ -941,14 +941,14 @@ if ($ADMIN->fulltree) {
 
         // Checkbox: Use confirmation workflow header.
         $settings->add(new admin_setting_configcheckbox(
-            'mod_booking/useconfirmationworkflowheader',
-            get_string('useconfirmationworkflowheader', 'booking'),
-            get_string('useconfirmationworkflowheader_desc', 'booking'),
+            'booking/useconfirmationworkflowheader',
+            get_string('useconfirmationworkflowheader', 'mod_booking'),
+            get_string('useconfirmationworkflowheader_desc', 'mod_booking'),
             0 // Default: off.
         ));
 
         $confirmationworkflows['bookingextension_confirmation_trainer'] = get_string('approvalbytrainer', 'mod_booking');
-        // We retrieve all available bookingextensions
+        // We retrieve all available bookingextensions.
         foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
             // If there is a confirm_booking class, we use this.
             $class = "\\bookingextension_{$plugin->name}\\local\\confirm_booking.php";
@@ -960,10 +960,10 @@ if ($ADMIN->fulltree) {
         }
         $settings->add(
             new admin_setting_configmultiselect(
-                'approvalworkflows',
+                'booking/approvalworkflows',
                 get_string('approvalworkflows', 'mod_booking'),
                 get_string('approvalworkflows_desc', 'mod_booking'),
-                ['bookingextension_confirmation_trainer'], // Default is the standard Plugin.
+                ['bookingextension_confirmation_trainer'], // Default is the standard plugin.
                 $confirmationworkflows,
             )
         );
@@ -979,14 +979,14 @@ if ($ADMIN->fulltree) {
         );
 
          $settings->add(
-            new admin_setting_heading(
-                'approvalsettings',
-                get_string('approvalsettings', 'mod_booking'),
-                get_string('prolicensefeatures', 'mod_booking') .
-                get_string('profeatures:approval', 'mod_booking') .
-                get_string('infotext:prolicensenecessary', 'mod_booking')
-            )
-        );
+             new admin_setting_heading(
+                 'approvalsettings',
+                 get_string('approvalsettings', 'mod_booking'),
+                 get_string('prolicensefeatures', 'mod_booking') .
+                 get_string('profeatures:approval', 'mod_booking') .
+                 get_string('infotext:prolicensenecessary', 'mod_booking')
+             )
+         );
     }
 
 
@@ -2029,7 +2029,7 @@ if ($ADMIN->fulltree) {
         )
     );
 
-    $name = 'mod_booking/signinlogo';
+    $name = 'booking/signinlogo';
     $title = get_string('signinlogoheader', 'mod_booking');
     $description = $title;
     $fileoptions = ['maxfiles' => 1, 'accepted_types' => ['image']];

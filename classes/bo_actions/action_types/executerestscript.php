@@ -46,7 +46,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class executerestscript extends booking_action {
-
     /**
      * Apply action.
      * @param stdClass $actiondata
@@ -171,21 +170,27 @@ class executerestscript extends booking_action {
         $mform->addElement('text', 'secrettoken', get_string('bosecrettoken', 'mod_booking'));
         $mform->setType('secrettoken', PARAM_TEXT);
 
-        $mform->addElement('advcheckbox',
+        $mform->addElement(
+            'advcheckbox',
             'customformparameter',
             get_string('customformparamsvalue', 'mod_booking'),
-            get_string('customformparams_desc', 'mod_booking'));
+            get_string('customformparams_desc', 'mod_booking')
+        );
         $mform->setDefault('customformparameter', 1);
 
-        $mform->addElement('advcheckbox',
+        $mform->addElement(
+            'advcheckbox',
             'adminparameter',
             get_string('adminparametervalue', 'mod_booking'),
-            get_string('adminparameter_desc', 'mod_booking'));
+            get_string('adminparameter_desc', 'mod_booking')
+        );
 
-        $mform->addElement('advcheckbox',
+        $mform->addElement(
+            'advcheckbox',
             'userparameter',
             get_string('userparametervalue', 'mod_booking'),
-            get_string('userparameter_desc', 'mod_booking'));
+            get_string('userparameter_desc', 'mod_booking')
+        );
     }
 
     /**
@@ -200,9 +205,9 @@ class executerestscript extends booking_action {
         $errors = [];
         foreach ($data as $key => $value) {
             if (
-                $key == 'numberofdays' &&
-                !is_null($value) &&
-                !is_number($value)
+                $key == 'numberofdays'
+                && !is_null($value)
+                && !is_number($value)
             ) {
                 $errors[$key] = get_string('bocondcustomformnumberserror', 'mod_booking');
             }
