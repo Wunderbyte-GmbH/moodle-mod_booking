@@ -113,10 +113,10 @@ class askforconfirmation implements bo_condition {
             !isset($bookinginformation['onwaitinglist'])
             && (
                     (
-                    $settings->waitforconfirmation == 1
-                    || (!empty($settings->jsonobject->useprice))
-                        && (
-                            isset($bookinginformation['notbooked']['fullybooked'])
+                        $settings->waitforconfirmation == 1
+                        || (
+                            !empty($settings->jsonobject->useprice)
+                            && isset($bookinginformation['notbooked']['fullybooked'])
                             && $bookinginformation['notbooked']['fullybooked'] === true
                             && ($settings->maxoverbooking > $bookinginformation['notbooked']['waiting'])
                         )
