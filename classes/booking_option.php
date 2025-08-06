@@ -1303,7 +1303,7 @@ class booking_option {
                 && (
                     $status != MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL
                     && ($this->settings->waitforconfirmation == 1
-                    || ($this->settings->waitforconfirmation == 2 && !empty($bookinganswers->usersonwaitinglist)))
+                    || ($this->settings->waitforconfirmation == 2 && !empty($bookinganswers->get_usersonwaitinglist())))
                 )
                 || (
                     ($status === MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL)
