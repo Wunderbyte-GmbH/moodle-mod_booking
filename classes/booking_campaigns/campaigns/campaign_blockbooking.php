@@ -406,4 +406,12 @@ class campaign_blockbooking implements booking_campaign {
     public function get_id_of_campaign(): int {
         return $this->id ?? 0;
     }
+
+    /**
+     * Return boolean if price is user-specific.
+     * @return bool
+     */
+    public function user_specific_price(): bool {
+        return $this->userspecificprice;
+    }
 }

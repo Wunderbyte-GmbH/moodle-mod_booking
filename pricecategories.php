@@ -65,6 +65,7 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('pricecategory', 'mod_booking'));
 echo get_string('pricecategoriessubtitle', 'mod_booking');
 
+/** @var \mod_booking\output\renderer $output */
 $output = $PAGE->get_renderer('mod_booking');
 $data = new pricecategories($mform->render());
 echo $output->render_pricecategories($data);

@@ -41,7 +41,6 @@ use stdClass;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 interface booking_campaign {
-
     /**
      * Adds the form elements for this campaign to the provided mform.
      * @param MoodleQuickForm $mform the mform where the campaign should be added
@@ -118,4 +117,10 @@ interface booking_campaign {
      * @return int
      */
     public function get_id_of_campaign(): int;
+
+    /**
+     * Return boolean if price is user-specific.
+     * @return bool
+     */
+    public function user_specific_price(): bool;
 }

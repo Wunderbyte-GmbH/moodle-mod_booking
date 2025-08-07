@@ -1009,7 +1009,7 @@ class price {
             $userid = $USER->id;
         }
 
-        $cache = \cache::make('mod_booking', 'cachedprices');
+        $cache = cache::make('mod_booking', 'cachedprices');
         // We need to combine area with itemid for uniqueness!
 
         $usercachekey = $area . $itemid . "_" . $userid;
@@ -1020,18 +1020,18 @@ class price {
         // For speed, we have cached prices for all and individual prices as well.
         // If we have a cached user price, we can return it right away.
         // If not, we look for the price for all.
-        if ($cacheduserprices === true) {
+        if ($cacheduserprices === true && !defined('BEHAT_SITE_RUNNING')) {
             return [];
-        } else if ($cacheduserprices) { // No price found.
+        } else if ($cacheduserprices && !defined('BEHAT_SITE_RUNNING')) { // No price found.
             $prices = $cacheduserprices;
         } else {
             // Here, we haven't found a user price. We still might have a general price.
             $cachedprices = $cache->get($cachekey);
-            if ($cachedprices === true) { // No price found.
+            if ($cachedprices === true && !defined('BEHAT_SITE_RUNNING')) { // No price found.
                 // We set the user price, to know the next time.
                 $cache->set($usercachekey, true);
                 return [];
-            } else if ($cachedprices && is_array($cachedprices)) {
+            } else if ($cachedprices && is_array($cachedprices) && !defined('BEHAT_SITE_RUNNING')) {
                 $prices = $cachedprices;
 
                 // At this point, we have the general prices, but we might have a user specific camapaign override.
@@ -1097,7 +1097,7 @@ class price {
             return $pricecategory;
         }
 
-        $cache = \cache::make('mod_booking', 'cachedpricecategories');
+        $cache = cache::make('mod_booking', 'cachedpricecategories');
         $cachedpricecategory = $cache->get($identifier);
 
         // If we don't have the cache, we need to retrieve the value from db.
@@ -1222,7 +1222,7 @@ class price {
 
             $userspecificprice = empty($userid) ? false : true;
 
-            if ($campaign->userspecificprice !== $userspecificprice) {
+            if ($campaign->user_specific_price() !== $userspecificprice) {
                 continue;
             }
             if ($campaign->campaign_is_active($itemid, $settings)) {
