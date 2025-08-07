@@ -334,6 +334,11 @@ final class bookinghistory_test extends advanced_testcase {
                         'key' => 'notifymelist',
                         'value' => 1,
                     ],
+                    [
+                        'component' => 'bookingextension_confirmation_trainer',
+                        'key' => 'confirmation_trainer_enabled',
+                        'value' => 1,
+                    ],
                 ],
                 'coursesettings' => [
                     'firstcourse' => [
