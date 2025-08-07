@@ -282,16 +282,14 @@ class manageusers_table extends wunderbyte_table {
                 } else {
                     $returnmessage = $message;
                 }
-
-                // This condition should only be checked if at least one plugin of type "bookingextension" is being used.
-                if (!$allowedtoconfirm) {
-                    return [
-                        'success' => 0,
-                        'message' => $returnmessage ?? get_string('notallowedtoconfirm', 'mod_booking'),
-                        'reload' => ($reload ?? false) ? 1 : 0,
-                    ];
-                }
             }
+        }
+        if (!$allowedtoconfirm) {
+            return [
+                'success' => 0,
+                'message' => $returnmessage ?? get_string('notallowedtoconfirm', 'mod_booking'),
+                'reload' => ($reload ?? false) ? 1 : 0,
+            ];
         }
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
