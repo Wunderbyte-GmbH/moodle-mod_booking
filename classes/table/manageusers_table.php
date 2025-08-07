@@ -269,6 +269,11 @@ class manageusers_table extends wunderbyte_table {
             $class = "\\bookingextension_{$plugin->name}\\local\\confirmbooking";
 
             if (class_exists($class)) {
+                // Check if bookingextention is enabled.
+                if (!get_config($plugin->name, $plugin->name . '_enabled')) {
+                    continue;
+                }
+
                 [$allowed, $message, $reload] = $class::has_capability_to_confirm_booking($optionid, $USER->id, $userid);
                 if ($allowed) {
                     // If only one subplugin allows it, we can continue.
