@@ -2023,11 +2023,16 @@ class booking_option {
      *
      */
     private function sourcecoursegroup_unenrol_actions(int $userid) {
+        // Check if json is valid.
+        if (empty($this->booking->settings->json)) {
+            return;
+        }
+
         $bsettings = json_decode($this->booking->settings->json);
         if (empty($bsettings->unenrolfromgroupofcurrentcourse)) {
             return;
         }
-        $bsettings = json_decode($this->booking->settings->json);
+
         $groups = groups_get_all_groups($this->booking->course->id);
         $groups = array_filter($groups, fn ($g) => $g->idnumber == MOD_BOOKING_ENROL_GROUPTYPE_SOURCECOURSE . $this->option->id);
         foreach ($groups as $groupid => $group) {
