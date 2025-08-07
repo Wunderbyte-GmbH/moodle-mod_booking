@@ -270,7 +270,7 @@ class manageusers_table extends wunderbyte_table {
 
             if (class_exists($class)) {
                 // Check if bookingextention is enabled.
-                if (!get_config($plugin->name, $plugin->name . '_enabled')) {
+                if (!get_config('bookingextension_' . $plugin->name, $plugin->name . '_enabled')) {
                     continue;
                 }
 
