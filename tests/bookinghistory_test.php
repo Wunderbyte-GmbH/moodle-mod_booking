@@ -216,8 +216,6 @@ final class bookinghistory_test extends advanced_testcase {
             $this->assertCount(1, $answers);
             $historyrecords = $DB->get_records('booking_history');
             $this->assertCount(3, $historyrecords);
-            // Kick Historyrecord booked out of the array.
-            array_pop($historyrecords);
             $status = end($historyrecords)->status;
             $this->assertEquals($expected['historystatus'][1], $status);
         }
