@@ -84,7 +84,7 @@ class alloptions extends option {
 
         $table->set_sql($fields, $from, $where, $params);
 
-        $this->show_download_button($table, $scopeid, $statusparam);
+        $this->show_download_button($table, $scope, $scopeid, $statusparam);
 
         $table->define_fulltextsearchcolumns(['firstname', 'lastname', 'email']);
         switch ($statusparam) {
@@ -234,14 +234,11 @@ class alloptions extends option {
      * Each scope can decide under which circumstances it actually adds the downloadbutton.
      *
      * @param wunderbyte_table $table
-     * @param int $scopeid
-     * @param int $statuspa
-     * @param wunderbyte_table $table
      * @param string $scope
      * @param int $scopeid
      * @param int $statusparam
      *
-     * @return [type]
+     * @return void
      *
      */
     public function show_download_button(wunderbyte_table &$table, string $scope, int $scopeid, int $statusparam) {

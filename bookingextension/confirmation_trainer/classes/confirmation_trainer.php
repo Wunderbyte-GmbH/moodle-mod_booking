@@ -145,8 +145,7 @@ class confirmation_trainer extends bookingextension implements bookingextension_
      * @param int $approverid
      * @param int $userid
      *
-     * @return array      * @return array // Returns [false, 'Reason why you are not allowed to book']
-
+     * @return array // Returns [false, 'Reason why you are not allowed to book']
      *
      */
     public static function has_capability_to_confirm_booking(int $optionid, int $approverid, int $userid): array {

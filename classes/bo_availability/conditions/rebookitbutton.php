@@ -292,6 +292,7 @@ class rebookitbutton implements bo_condition {
      * @param bool $isavailable
      * @param bool $full
      * @param booking_option_settings $settings
+     * @param int $userid
      * @return string
      */
     private function get_description_string($isavailable, $full, $settings, $userid = null): string {
