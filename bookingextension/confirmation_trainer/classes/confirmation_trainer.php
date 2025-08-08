@@ -99,8 +99,14 @@ class confirmation_trainer extends bookingextension implements bookingextension_
         ));
         $confirmationtrainersettings->add(new admin_setting_configcheckbox(
             'bookingextension_confirmation_trainer/confirmationtrainerenabled',
-            get_string('bookingextensionconfirmationtrainer:confirmationtrainerenabled', 'bookingextension_confirmation_trainer'),
-            get_string('bookingextensionconfirmationtrainer:confirmationtrainerenabled_desc', 'bookingextension_confirmation_trainer'),
+            get_string(
+                'bookingextensionconfirmationtrainer:confirmationtrainerenabled',
+                'bookingextension_confirmation_trainer'
+            ),
+            get_string(
+                'bookingextensionconfirmationtrainer:confirmationtrainerenabled_desc',
+                'bookingextension_confirmation_trainer'
+            ),
             0
         ));
 

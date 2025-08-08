@@ -567,7 +567,7 @@ class booking_option {
         $allanswers = [];
         foreach ($recordset as $record) {
             if (!isset($allanswers[$record->id])) {
-                $allanswers[$record->id] = $record; // $record->id is u.id
+                $allanswers[$record->id] = $record; // The $record->id is the u.id .
             }
         }
         $recordset->close();
@@ -1297,20 +1297,20 @@ class booking_option {
             }
         }
 
-            // Should users who want to book be parked in the waitinglist waiting for confirmation.
-            if (
-                $waitinglist === MOD_BOOKING_STATUSPARAM_BOOKED
-                && (
-                    $status != MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL
-                    && ($this->settings->waitforconfirmation == 1
-                    || ($this->settings->waitforconfirmation == 2 && !empty($bookinganswers->get_usersonwaitinglist())))
-                )
-                || (
-                    ($status === MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL)
-                    && enrollink::enrolmentstatus_waitinglist($this->settings)
-                )
-            ) {
-                $waitinglist = MOD_BOOKING_STATUSPARAM_WAITINGLIST;
+        // Should users who want to book be parked in the waitinglist waiting for confirmation.
+        if (
+            $waitinglist === MOD_BOOKING_STATUSPARAM_BOOKED
+            && (
+                $status != MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL
+                && ($this->settings->waitforconfirmation == 1
+                || ($this->settings->waitforconfirmation == 2 && !empty($bookinganswers->get_usersonwaitinglist())))
+            )
+            || (
+                ($status === MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL)
+                && enrollink::enrolmentstatus_waitinglist($this->settings)
+            )
+        ) {
+            $waitinglist = MOD_BOOKING_STATUSPARAM_WAITINGLIST;
 
             // When admin confirms a user user in waiting list, this condition will be met.
             if (!is_null($currentanswerid)) {

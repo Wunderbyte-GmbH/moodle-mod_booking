@@ -199,7 +199,11 @@ class confirmation_trainer extends field_base {
             }
         }
 
-        $mform->addElement('advcheckbox', 'confirmationtrainerenabled', get_string('confirmationtrainerenabled', 'bookingextension_confirmation_trainer'));
+        $mform->addElement(
+            'advcheckbox',
+            'confirmationtrainerenabled',
+            get_string('confirmationtrainerenabled', 'bookingextension_confirmation_trainer')
+        );
         $mform->hideIf('confirmationtrainerenabled', 'waitforconfirmation', 'neq', 1);
         $mform->addElement(
             'static',

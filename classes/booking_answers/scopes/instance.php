@@ -37,7 +37,7 @@ use mod_booking\table\manageusers_table;
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class course extends scope_base {
+class instance extends scope_base {
     /**
      * Returns the sql to fetch booked users with a certain status.
      * Orderd by timemodified, to be able to sort them.
