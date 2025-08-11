@@ -88,32 +88,35 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform = & $this->_form;
 
         $group = [];
+        $suffix = $this->get_suffix();
+        $completionenabledelement = 'completionenabled' . $suffix;
         $group[] = & $mform->createElement(
             'checkbox',
-            'enablecompletionenabled',
+            $completionenabledelement,
             '',
             get_string('completionoptioncompletedform', 'mod_booking')
         );
+        $enablecompletionelement = 'enablecompletion' . $suffix;
         $group[] = $mform->createElement(
             'text',
-            'enablecompletion',
+            $enablecompletionelement,
             get_string('completionoptioncompletedform', 'mod_booking'),
             ['size' => '1']
         );
-
+        $enablecompletiongroupelement = 'enablecompletiongroup' . $suffix;
         $mform->addGroup(
             $group,
-            'enablecompletiongroup',
+            $enablecompletiongroupelement,
             get_string('enablecompletiongroup', 'mod_booking'),
             [' '],
             false
         );
-        $mform->disabledIf('enablecompletion', 'enablecompletionenabled', 'notchecked');
-        $mform->setDefault('enablecompletion', 1);
-        $mform->setType('enablecompletion', PARAM_INT);
-        $mform->addHelpButton('enablecompletiongroup', 'enablecompletion', 'mod_booking');
+        $mform->disabledIf($enablecompletionelement, $completionenabledelement, 'notchecked');
+        $mform->setDefault($enablecompletionelement, 1);
+        $mform->setType($enablecompletionelement, PARAM_INT);
+        $mform->addHelpButton($enablecompletiongroupelement, 'enablecompletion', 'mod_booking');
 
-        return ['enablecompletiongroup'];
+        return [$enablecompletiongroupelement];
     }
 
     /**
@@ -125,7 +128,7 @@ class mod_booking_mod_form extends moodleform_mod {
      *
      */
     public function completion_rule_enabled($data) {
-        return !empty($data['enablecompletion'] != 0);
+        return !empty($data['completionenabled' . $this->get_suffix()] != 0);
     }
 
     /**
