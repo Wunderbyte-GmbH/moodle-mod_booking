@@ -1130,7 +1130,7 @@ $string['electivedeselectbtn'] = 'Wahlfach abwählen';
 $string['electivenotbookable'] = 'Nicht buchbar';
 $string['electivesbookedsuccess'] = 'Ihre ausgewählten Wahlfächer wurden erfolgreich gebucht.';
 $string['electivesettings'] = 'Wahlfach Einstellungen';
-$string['email'] = "Email";
+$string['email'] = "E-Mail";
 $string['emailbody'] = 'E-Mail Text';
 $string['emailsettings'] = 'E-Mail-Einstellungen <span class="badge bg-warning"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Veraltet</span>';
 $string['enable'] = 'Enable';
