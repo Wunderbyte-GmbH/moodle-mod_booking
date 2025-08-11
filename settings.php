@@ -287,6 +287,23 @@ if ($ADMIN->fulltree) {
             )
         );
 
+        $customfields = booking_handler::get_customfields();
+        if (!empty($customfields)) {
+            $customfieldshortnames = [0 => get_string('showdescriptionnormally', 'mod_booking')];
+            foreach ($customfields as $cf) {
+                $customfieldshortnames[$cf->shortname] = "$cf->name ($cf->shortname)";
+            }
+            $settings->add(
+                new admin_setting_configselect(
+                    'booking/changedescriptionfield',
+                    get_string('changedescriptionfield', 'mod_booking'),
+                    get_string('changedescriptionfield_desc', 'mod_booking'),
+                    0,
+                    $customfieldshortnames
+                )
+            );
+        }
+
         $options = [
             1 => "1",
             2 => "2",
@@ -299,23 +316,6 @@ if ($ADMIN->fulltree) {
             9 => "9",
             10 => "10",
         ];
-        $customfields = booking_handler::get_customfields();
-        if (!empty($customfields)) {
-            $customfieldshortnames = [];
-            foreach ($customfields as $cf) {
-                $customfieldshortnames[$cf->shortname] = "$cf->name ($cf->shortname)";
-            }
-
-            $settings->add(
-                new admin_setting_configselect(
-                    'booking/changedescriptionfield',
-                    get_string('changedescriptionfield', 'mod_booking'),
-                    get_string('changedescriptionfield_desc', 'mod_booking'),
-                    "",
-                    $customfieldshortnames
-                )
-            );
-        }
         $settings->add(
             new admin_setting_configselect(
                 'booking/collapseshowsettings',

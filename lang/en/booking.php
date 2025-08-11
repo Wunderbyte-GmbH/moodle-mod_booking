@@ -2398,6 +2398,7 @@ $string['showcustomfields'] = 'Custom booking option fields';
 $string['showcustomfields_desc'] = 'Select the custom booking option fields to be shown on the sign-in sheet';
 $string['showdates'] = 'Show dates';
 $string['showdescription'] = 'Show description';
+$string['showdescriptionnormally'] = 'Show description normally';
 $string['showdetaildotsnextbookedalert'] = 'Show link to details for booked options';
 $string['showdetaildotsnextbookedalert_desc'] = 'If this option is activated, a small button with three dots is displayed next to the information that a booking option has been booked.
 This button linkes to the detailview of that option.';

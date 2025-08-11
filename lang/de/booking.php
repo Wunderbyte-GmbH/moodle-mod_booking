@@ -2333,6 +2333,7 @@ $string['showcustomfields'] = 'Anzuzeigende benutzerdefnierte Buchungsoptionsfel
 $string['showcustomfields_desc'] = 'Wählen Sie die benutzerdefinierte Buchungsoptionfelder, die auf der Unterschriftenliste abgedruckt werden sollen';
 $string['showdates'] = 'Zeige Termine';
 $string['showdescription'] = 'Beschreibung anzeigen';
+$string['showdescriptionnormally'] = 'Beschreibung normal anzeigen';
 $string['showdetaildotsnextbookedalert'] = 'Bei gebuchten Optionen Link zu Details anzeigen';
 $string['showdetaildotsnextbookedalert_desc'] = 'Wenn diese Option aktiviert ist, wird für Nutzende neben der Info dass eine Buchungsoption gebucht ist noch ein kleiner Button mit drei Punkten angezeigt,
 der mit Detailansicht jener Option verlinkt ist.';

@@ -388,7 +388,7 @@ class bookingoption_description implements renderable, templatable {
             $this->description = $settings->description;
         } else {
             $customfieldshortname = get_config('booking', 'changedescriptionfield');
-            $this->description = $settings->customfields[$customfieldshortname];
+            $this->description = $settings->customfields[$customfieldshortname] ?? "";
         }
         // Do the same for internal annotation.
         $this->annotation = $settings->annotation;
