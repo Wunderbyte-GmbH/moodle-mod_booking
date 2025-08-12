@@ -1,3 +1,11 @@
+## Version 8.15.2 (2025081200)
+* Feature: Added possibility to replace booking option description
+with the value of a defined booking option customfield.
+* Improvement: If no signinsheethtml is provided, use default HTML template.
+* Bugfix: Fix bugs for new changedescriptionfield setting.
+* Bugfix: Fix broken activity completion #1095.
+* Bugfix: Hardcode suffix "_booking" as get_suffix() is only supported from Moodle 4.3 onwards.
+
 ## Version 8.15.1 (2025080500)
 * Improvement: Support up to 50 form elements in custom form condition.
 * Bugfix: Checks if bookingextension classes exist.
