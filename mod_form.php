@@ -88,7 +88,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform = & $this->_form;
 
         $group = [];
-        $suffix = $this->get_suffix();
+        $suffix = "_booking"; // Note: $this->get_suffix() only works from Moodle 4.3 onwards.
         $completionenabledelement = 'completionenabled' . $suffix;
         $group[] = & $mform->createElement(
             'checkbox',
@@ -128,7 +128,7 @@ class mod_booking_mod_form extends moodleform_mod {
      *
      */
     public function completion_rule_enabled($data) {
-        return !empty($data['completionenabled' . $this->get_suffix()] != 0);
+        return !empty($data['completionenabled_booking'] != 0);
     }
 
     /**
