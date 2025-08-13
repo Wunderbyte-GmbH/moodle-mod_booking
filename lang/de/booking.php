@@ -2593,6 +2593,8 @@ $string['tuesday'] = 'Dienstag';
 $string['turnoffmodals'] = "Keine Modale verwenden.";
 $string['turnoffmodals_desc'] = "Für manche Schritte vor dem Buchen werden aktuell Modale verwendet. Diese Einstellung führt dazu, dass der ganze Prozess direkt in der Seite, ohne Modale, abläuft.
 <b>Bitte beachten:</b> Wenn Sie die <b>Karten-Ansicht</b> von Booking verwenden, werden weiterhin Modale verwendet, Modale können <b>nur bei der Listen-Ansicht</b> ausgeschaltet werden.";
+$string['turnoffrulesdisplay'] = 'Reiter Regeln in der Buchungsoption ausblenden';
+$string['turnoffrulesdisplay_desc'] = 'Der Reiter Regeln wird in der Buchungsoption nicht mehr angezeigt.';
 $string['turnoffwaitinglist'] = 'Warteliste global deaktivieren';
 $string['turnoffwaitinglist_desc'] = 'Aktivieren Sie diese Einstellung, um die Warteliste auf der gesamten
  Plattform auszuschalten (z.B. weil Sie nur die Benachrichtigungsliste verwenden möchten).';
