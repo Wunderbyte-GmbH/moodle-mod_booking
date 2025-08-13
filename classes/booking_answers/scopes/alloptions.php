@@ -27,8 +27,6 @@ namespace mod_booking\booking_answers\scopes;
 
 use context_system;
 use local_wunderbyte_table\wunderbyte_table;
-use mod_booking\booking_answers\scope_base;
-use mod_booking\output\booked_users;
 use mod_booking\table\manageusers_table;
 use moodle_url;
 

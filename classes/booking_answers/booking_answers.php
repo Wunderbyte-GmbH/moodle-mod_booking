@@ -27,7 +27,6 @@ namespace mod_booking\booking_answers;
 
 use context_system;
 use core\exception\moodle_exception;
-use core_component;
 use dml_exception;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\bo_availability\conditions\customform;

@@ -26,9 +26,7 @@
 namespace mod_booking\booking_answers\scopes;
 
 use context_module;
-use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking_answers\scope_base;
-use mod_booking\table\manageusers_table;
 
 /**
  * Class for booking answers.
