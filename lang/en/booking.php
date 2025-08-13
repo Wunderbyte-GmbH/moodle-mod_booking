@@ -808,7 +808,6 @@ $string['completionchangedhistory'] = 'The completion status was changed from "{
 $string['completionmodule'] = 'Upon completion of the selected course activity, enable bulk deletion of user bookings';
 $string['completionmodule_help'] = 'Display bulk deletion button for booking answers, if another course module has been completed. The bookings of users will be deleted with a click of a button on the report page! Only activities with completion enabled can be selected from the list.';
 $string['completionoptioncompletedcminfo'] = 'Get the following number of booked options marked as completed by teachers, managers or admin: {$a}';
-$string['completionoptioncompletedform'] = 'Given number of the booked options has to be marked as completed. This has to be done by teacher, manager or admin.';
 $string['conditionselectstudentinbo_desc'] = 'Select all students of the booking option (affected by the rule) having a certain role.';
 $string['conditionselectstudentinboroles'] = 'Choose role';
 $string['conditionselectteacherinbo_desc'] = 'Select the teachers of the booking option (affected by the rule).';
@@ -1150,9 +1149,11 @@ $string['email'] = "Email";
 $string['emailbody'] = 'Email body';
 $string['emailsettings'] = 'E-mail settings <span class="badge bg-warning"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Deprecated</span>';
 $string['enable'] = 'Enable';
-$string['enablecompletion'] = 'At least one of the booked options has to be marked as completed';
-$string['enablecompletion_help'] = 'To mark the options as completed, open the "Configure fields and columns" section and add the "Completed" field under "Manage responses". The options can then be marked as completed on the report page.';
-$string['enablecompletiongroup'] = 'Activity completion';
+$string['enablecompletionmincompleted'] = 'Min. number of completed booking options';
+$string['enablecompletionmincompleted_help'] = 'A user must be set to "Completed" in at least as many booking options as you specify here.
+To mark users as "Completed", open the "Configure fields and columns" section (of the Booking instance) and add the "Completed" field under "Manage responses".
+The users can then be marked as completed on the report page. This has to be done by teacher, manager or admin.';
+$string['enablecompletionminnumber'] = 'Minimum number: ';
 $string['enddate'] = "Enddate";
 $string['endtime'] = "Endtime";
 $string['endtimenotset'] = 'End date not set';

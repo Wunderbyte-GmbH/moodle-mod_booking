@@ -794,7 +794,6 @@ $string['completionchangedhistory'] = 'Der Abschluss wurde von "{$a->completiono
 $string['completionmodule'] = 'Aktiviere Massenlöschung von getätigten Buchungen basierend auf den Aktivitätsabschluss einer Kursaktivität';
 $string['completionmodule_help'] = 'Button zum Löschen aller Buchungen anzeigen, wenn eine andere Kursaktivität abgeschlossen wurde. Die Buchungen von Nutzer:innen werden mit einem Klick auf einen Button auf der Berichtsseite gelöscht! Nur Aktivitäten mit aktiviertem Abschluss können aus der Liste ausgewählt werden.';
 $string['completionoptioncompletedcminfo'] = 'Vervollständigen Sie eine Option';
-$string['completionoptioncompletedform'] = 'Mindestens eine der gebuchten Optionen muss als abgeschlossen markiert sein. Das kann von Trainer:in, Kursersteller:in oder Manager:in durchgeführt werden.';
 $string['conditionselectstudentinbo_desc'] = 'Nutzer:innen der von der Regel betroffenen Buchungsoption wählen.';
 $string['conditionselectstudentinboroles'] = 'Rolle wählen';
 $string['conditionselectteacherinbo_desc'] = 'Trainer:innen der von der Regel betroffenen Buchungsoption wählen.';
@@ -1133,10 +1132,13 @@ $string['electivesettings'] = 'Wahlfach Einstellungen';
 $string['email'] = "E-Mail";
 $string['emailbody'] = 'E-Mail Text';
 $string['emailsettings'] = 'E-Mail-Einstellungen <span class="badge bg-warning"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Veraltet</span>';
-$string['enable'] = 'Enable';
-$string['enablecompletion'] = 'Es muss mindestens eine der Buchungen als abgeschlossen markiert werden.';
-$string['enablecompletion_help'] = 'Um die Optionen als abgeschlossen zu markieren, fügen Sie unter dem Punkt "Spalten und Felder anpassen" bei "Buchungen verwalten" das Feld "Abgeschlossen" hinzu. Danach können die Optionen auf der Berichtsseite als abgeschlossen markiert werden.';
-$string['enablecompletiongroup'] = 'Aktivitätsabschluss';
+$string['enable'] = 'Aktivieren';
+$string['enablecompletionmincompleted'] = 'Mindestanzahl an Buchungsoptionen, in denen der/die Nutzer:in auf "Abgeschlossen" gesetzt werden muss';
+$string['enablecompletionmincompleted_help'] = 'Ein:e Nutzer:in muss in mindestens so vielen Buchungsoptionen auf "Abgeschlossen" gesetzt werden, wie Sie hier angeben,
+um die Buchungsaktivität (Buchungsinstanz) abzuschließen.
+Um die Nutzer:innen als abgeschlossen markieren zu können, fügen Sie unter dem Punkt "Spalten und Felder anpassen" bei "Buchungen verwalten" das Feld "Abgeschlossen" hinzu.
+Danach können die Optionen auf der Berichtsseite als abgeschlossen markiert werden. Das kann von Trainer:in, Kursersteller:in oder Manager:in durchgeführt werden.';
+$string['enablecompletionminnumber'] = 'Mindestanzahl: ';
 $string['enddate'] = "Enddatum";
 $string['endtime'] = "Endzeit";
 $string['endtimenotset'] = 'Kursende nicht festgelegt';
