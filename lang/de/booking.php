@@ -585,6 +585,8 @@ $string['bookingstrackerpresencecounter_desc'] = 'Zähler anzeigen, der die Gesa
 Definieren Sie in der nächsten Einstellung, welcher Anwesenheitsstatus gezählt werden soll.';
 $string['bookingstrackerpresencecountervaluetocount'] = 'Anwesenheitsstatus, der gezählt werden soll';
 $string['bookingstrackerpresencecountervaluetocount_desc'] = 'Die Anzahl der Anwesenheiten wird für den ausgewählten Status gezählt und im Buchungstracker angezeigt.';
+$string['bookingstrackerswitchviewtypetoanswers'] = 'Zur Einzelansicht wechseln';
+$string['bookingstrackerswitchviewtypetooptions'] = 'Buchungen pro Buchungsoption zusammenfassen';
 $string['bookingsubbooking'] = "Zusatzbuchungen";
 $string['bookingsubbookingadd'] = 'Füge eine Zusatzbuchung hinzu';
 $string['bookingsubbookingdelete'] = 'Lösche Zusatzbuchung';

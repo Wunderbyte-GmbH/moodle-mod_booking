@@ -25,10 +25,13 @@
 
 namespace mod_booking\booking_answers\scopes;
 
+use local_wunderbyte_table\filters\types\standardfilter;
 use local_wunderbyte_table\wunderbyte_table;
+use mod_booking\booking;
 use mod_booking\booking_answers\scope_base;
 use mod_booking\singleton_service;
 use context_module;
+use mod_booking\table\manageusers_table;
 use moodle_url;
 
 /**
@@ -39,6 +42,136 @@ use moodle_url;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class optiondate extends scope_base {
+    /**
+     * Render users table based on status param
+     *
+     * @param string $scope
+     * @param int $scopeid
+     * @param int $statusparam
+     * @param string $tablenameprefix
+     * @param array $columns
+     * @param array $headers
+     * @param bool $sortable
+     * @param bool $paginate
+     * @return wunderbyte_table|null
+     */
+    public function return_users_table(
+        string $scope,
+        int $scopeid,
+        int $statusparam,
+        string $tablenameprefix,
+        array $columns,
+        array $headers = [],
+        bool $sortable = false,
+        bool $paginate = false
+    ) {
+        global $DB;
+
+        // In optiondate scope, we have only booked users.
+        if ($statusparam != 0) {
+            return null;
+        }
+
+        [$fields, $from, $where, $params] = $this->return_sql_for_booked_users($scope, $scopeid, $statusparam);
+
+        $tablename = "{$tablenameprefix}_{$scope}_{$scopeid}";
+        $table = new manageusers_table($tablename);
+
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        // Todo: $table->define_baseurl() ...
+        $table->define_cache('mod_booking', "bookedusertable");
+        $table->define_columns($columns);
+        $table->define_headers($headers);
+
+        if ($sortable) {
+            $table->sortablerows = true;
+        }
+
+        if ($paginate) {
+            $table->use_pages = true;
+        }
+
+        $table->set_sql($fields, $from, $where, $params);
+
+        $this->show_download_button($table, $scope, $scopeid, $statusparam);
+
+        // Only in optiondate.
+        // We are in optiondate scope, so scopeid is optiondateid.
+        $optionid = $DB->get_field('booking_optiondates', 'optionid', ['id' => $scopeid]);
+        $cmid = singleton_service::get_instance_of_booking_option_settings($optionid)->cmid;
+        if (!empty($cmid)) {
+            // Add checkboxes, so we can perform actions for more than one selected user.
+            $table->addcheckboxes = true;
+
+            // Add fulltext search.
+            $table->define_fulltextsearchcolumns(['firstname', 'lastname', 'email', 'notes']);
+
+            // Add sorting.
+            $sortablecolumns = [
+                'firstname' => get_string('firstname'),
+                'lastname' => get_string('lastname'),
+                'email' => get_string('email'),
+                'status' => get_string('presence', 'mod_booking'),
+            ];
+            $table->define_sortablecolumns($sortablecolumns);
+
+            // Add filter for presence status.
+            $presencestatusfilter = new standardfilter('status', get_string('presence', 'mod_booking'));
+            $presencestatusfilter->add_options(booking::get_array_of_possible_presence_statuses());
+            $table->add_filter($presencestatusfilter);
+
+            $table->filteronloadinactive = true;
+            $table->showfilterontop = true;
+
+            $table->actionbuttons[] = [
+                'label' => get_string('presence', 'mod_booking'), // Name of your action button.
+                'class' => 'btn btn-primary btn-sm ml-2',
+                'href' => '#', // You can either use the link, or JS, or both.
+                'iclass' => 'fa fa-user-o', // Add an icon before the label.
+                'formname' => 'mod_booking\\form\\optiondates\\modal_change_status',
+                'nomodal' => false,
+                'id' => -1,
+                'selectionmandatory' => true,
+                'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+                    'scope' => 'optiondate',
+                    'titlestring' => 'changepresencestatus',
+                    'submitbuttonstring' => 'save',
+                    'component' => 'mod_booking',
+                    'cmid' => $cmid,
+                    'optionid' => $optionid ?? 0,
+                    'optiondateid' => $scopeid ?? 0,
+                ],
+            ];
+
+            $table->actionbuttons[] = [
+                'label' => get_string('notes', 'mod_booking'), // Name of your action button.
+                'class' => 'btn btn-primary btn-sm ml-1',
+                'href' => '#', // You can either use the link, or JS, or both.
+                'iclass' => 'fa fa-pencil', // Add an icon before the label.
+                // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+                /* 'methodname' => 'mymethod', // The method needs to be added to your child of wunderbyte_table class. */
+                'formname' => 'mod_booking\\form\\optiondates\\modal_change_notes',
+                'nomodal' => false,
+                'id' => -1,
+                'selectionmandatory' => true,
+                'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+                    'scope' => 'optiondate',
+                    'titlestring' => 'notes',
+                    'submitbuttonstring' => 'save',
+                    'component' => 'mod_booking',
+                    'cmid' => $cmid,
+                    'optionid' => $optionid ?? 0,
+                    'optiondateid' => $scopeid ?? 0,
+                ],
+            ];
+        }
+
+        // Add checkboxes for multi-selection.
+        $table->addcheckboxes = true;
+
+        return $table;
+    }
+
     /**
      * Returns the sql to fetch booked users with a certain status.
      * Orderd by timemodified, to be able to sort them.
@@ -109,12 +242,12 @@ class optiondate extends scope_base {
             'firstname' => get_string('firstname', 'core'),
             'lastname'  => get_string('lastname', 'core'),
             'email'     => get_string('email', 'core'),
-            'status'    => get_string('presence', 'mod_booking'),
-            'notes'     => get_string('notes', 'mod_booking'),
         ];
 
         switch ($statusparam) {
             case MOD_BOOKING_STATUSPARAM_BOOKED:
+                $columns['status'] = get_string('presence', 'mod_booking');
+                $columns['notes'] = get_string('notes', 'mod_booking');
                 break;
             case MOD_BOOKING_STATUSPARAM_WAITINGLIST:
                 break;

@@ -49,7 +49,7 @@ class alloptions extends option {
      * @param array $headers
      * @param bool $sortable
      * @param bool $paginate
-     * @return ?string
+     * @return wunderbyte_table|null
      */
     public function return_users_table(
         string $scope,
@@ -60,7 +60,7 @@ class alloptions extends option {
         array $headers = [],
         bool $sortable = false,
         bool $paginate = false
-    ): wunderbyte_table {
+    ) {
         [$fields, $from, $where, $params] = $this->return_sql_for_booked_users($scope, $scopeid, $statusparam);
 
         $tablename = "{$tablenameprefix}_{$scope}_{$scopeid}";

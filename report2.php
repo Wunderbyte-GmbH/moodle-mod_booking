@@ -47,6 +47,7 @@ $optiondateid = optional_param('optiondateid', 0, PARAM_INT);
 $optionid = optional_param('optionid', 0, PARAM_INT);
 $cmid = optional_param('cmid', 0, PARAM_INT);
 $courseid = optional_param('courseid', 0, PARAM_INT);
+$viewtype = optional_param('viewtype', 'options', PARAM_RAW); // Can be 'options' or 'answers'.
 
 $ticketicon = '<i class="fa fa-fw fa-sm fa-ticket" aria-hidden="true"></i>&nbsp;';
 $linkicon = '<i class="fa fa-fw fa-xs fa-external-link" aria-hidden="true"></i>&nbsp;';
@@ -232,7 +233,7 @@ if (!empty($optiondateid)) {
         $ticketicon . booking::shorten_text($bookingsettings->name) .
         ($r2instancecap ? "</a>" : "</span>") .
         $divider .
-        "<a href='{$r2optionurl}' class='report2-option-border'>" .
+        "<a href='{$r2optionurl}' target='_blank' class='report2-option-border'>" .
         $linkicon . booking::shorten_text($optionsettings->get_title_with_prefix()) .
         "</a>";
 
@@ -304,7 +305,7 @@ if (!empty($optiondateid)) {
         $ticketicon . booking::shorten_text($course->fullname) .
         ($r2coursecap ? "</a>" : "</span>") .
         $divider .
-        "<a href='{$r2instanceurl}' class='report2-instance-border'>" .
+        "<a href='{$r2instanceurl}' target='_blank' class='report2-instance-border'>" .
         $linkicon . booking::shorten_text($bookingsettings->name) .
         "</a>";
 } else if (!empty($courseid)) {
@@ -339,7 +340,7 @@ if (!empty($optiondateid)) {
         $ticketicon . booking::shorten_text($SITE->fullname) .
         ($r2syscap ? "</a>" : "</span>") .
         $divider .
-        "<a href='$r2courseurl' class='report2-course-border'>" .
+        "<a href='$r2courseurl' target='_blank' class='report2-course-border'>" .
         $linkicon . booking::shorten_text($course->fullname) .
         "</a>";
 } else {
@@ -362,7 +363,7 @@ if (!empty($optiondateid)) {
     $heading = get_string('managebookedusers_heading', 'mod_booking', $a);
 
     $navhtml =
-        "<a href='$r2systemurl' class='report2-system-border'>" .
+        "<a href='$r2systemurl' target='_blank' class='report2-system-border'>" .
         $linkicon . booking::shorten_text($SITE->fullname) .
         "</a>";
 }
@@ -380,6 +381,41 @@ echo $OUTPUT->heading("<div class='mb-5'>$ticketicon $heading</div>");
 
 // Navigation stylings cannot be done in styles.css because of string localization.
 echo booking::generate_localized_css_for_navigation_labels('report2', $scopes);
+
+// Switch to turn booking of anyone ON or OFF.
+if ($viewtype == 'answers') {
+    set_user_preference('bookingstrackerviewtype', 'answers');
+    // Show button to switch back to aggregated options view.
+    $url = new moodle_url(
+        '/mod/booking/report2.php',
+        [
+            'optionid' => $optionid,
+            'optiondateid' => $optiondateid,
+            'cmid' => $cmid,
+            'courseid' => $courseid,
+            'viewtype' => 'options',
+        ]
+    );
+    echo '<a class="btn btn-light" href="' . $url . '">' .
+        '<i class="fa fa-object-group" aria-hidden="true"></i>&nbsp;' .
+        get_string('bookingstrackerswitchviewtypetooptions', 'mod_booking') . '</a>';
+} else {
+    set_user_preference('bookingstrackerviewtype', 'options');
+    // Show button to switch back to non-aggregated separate booking answers.
+    $url = new moodle_url(
+        '/mod/booking/report2.php',
+        [
+            'optionid' => $optionid,
+            'optiondateid' => $optiondateid,
+            'cmid' => $cmid,
+            'courseid' => $courseid,
+            'viewtype' => 'answers',
+        ]
+    );
+    echo '<a class="btn btn-light" href="' . $url . '">' .
+        '<i class="fa fa-object-ungroup" aria-hidden="true"></i>&nbsp;' .
+        get_string('bookingstrackerswitchviewtypetoanswers', 'mod_booking') . '</a>';
+}
 
 // Now we render the booked users for the provided scope.
 $data = new booked_users(

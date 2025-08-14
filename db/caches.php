@@ -103,7 +103,7 @@ $definitions = [
             'setbacksessionanswers',
         ],
     ],
-    'bookedusertable' => [ // This cache uses optionids as keys.
+    'bookedusertable' => [
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,
         'staticacceleration' => true,

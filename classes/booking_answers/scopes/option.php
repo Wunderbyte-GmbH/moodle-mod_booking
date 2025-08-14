@@ -52,7 +52,7 @@ class option extends scope_base {
      * @param array $headers
      * @param bool $sortable
      * @param bool $paginate
-     * @return ?string
+     * @return wunderbyte_table|null
      */
     public function return_users_table(
         string $scope,
@@ -63,7 +63,7 @@ class option extends scope_base {
         array $headers = [],
         bool $sortable = false,
         bool $paginate = false
-    ): wunderbyte_table {
+    ) {
         [$fields, $from, $where, $params] = $this->return_sql_for_booked_users($scope, $scopeid, $statusparam);
 
         $tablename = "{$tablenameprefix}_{$scope}_{$scopeid}";
@@ -203,23 +203,24 @@ class option extends scope_base {
             'firstname' => get_string('firstname', 'core'),
             'lastname'  => get_string('lastname', 'core'),
             'email'     => get_string('email', 'core'),
-            'status'    => get_string('presence', 'mod_booking'),
-            'notes'     => get_string('notes', 'mod_booking'),
         ];
-
-        if (!get_config('booking', 'bookingstrackerpresencecounter')) {
-            $columns['presencecount'] = get_string('presencecount', 'mod_booking');
-        }
 
         switch ($statusparam) {
             case MOD_BOOKING_STATUSPARAM_BOOKED:
+                if (get_config('booking', 'bookingstrackerpresencecounter')) {
+                    $columns['presencecount'] = get_string('presencecount', 'mod_booking');
+                }
+                $columns['status'] = get_string('presence', 'mod_booking');
+                $columns['notes'] = get_string('notes', 'mod_booking');
                 break;
             case MOD_BOOKING_STATUSPARAM_WAITINGLIST:
                 $columns['action_confirm_delete'] = get_string('bookingstrackerdelete', 'mod_booking');
-
-                // We add the user rank at the first place.
                 if (get_config('booking', 'waitinglistshowplaceonwaitinglist')) {
-                    $columns = array_merge(['userrank' => get_string('userrank', 'mod_booking')], $columns);
+                    // Use array_merge to add the user rank at the first place.
+                    $columns = array_merge(
+                        ['userrank' => get_string('userrank', 'mod_booking')],
+                        $columns
+                    );
                 }
                 break;
             case MOD_BOOKING_STATUSPARAM_RESERVED:
@@ -357,7 +358,7 @@ class option extends scope_base {
      * @param int $scopeid
      * @param int $statusparam
      *
-     * @return [type]
+     * @return void
      *
      */
     public function show_download_button(wunderbyte_table &$table, string $scope, int $scopeid, int $statusparam) {

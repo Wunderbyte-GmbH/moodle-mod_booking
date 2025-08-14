@@ -515,7 +515,7 @@ class manageusers_table extends wunderbyte_table {
      * This handles the action column with buttons, icons, checkboxes.
      *
      * @param stdClass $values
-     * @return void
+     * @return bool|string
      */
     public function col_action_confirm_delete($values) {
 
@@ -610,7 +610,7 @@ class manageusers_table extends wunderbyte_table {
      * This handles the delete action column.
      *
      * @param stdClass $values
-     * @return void
+     * @return bool|string
      */
     public function col_action_delete($values) {
 
@@ -639,14 +639,17 @@ class manageusers_table extends wunderbyte_table {
         // This transforms the array to make it easier to use in mustache template.
         table::transform_actionbuttons_array($data);
 
-        return $OUTPUT->render_from_template('local_wunderbyte_table/component_actionbutton', ['showactionbuttons' => $data]);
+        return $OUTPUT->render_from_template(
+            'local_wunderbyte_table/component_actionbutton',
+            ['showactionbuttons' => $data]
+        );
     }
 
     /**
      * This handles the presence status action column.
      *
      * @param stdClass $values
-     * @return void
+     * @return bool|string
      */
     public function col_actions($values) {
 
@@ -708,6 +711,9 @@ class manageusers_table extends wunderbyte_table {
         // This transforms the array to make it easier to use in mustache template.
         table::transform_actionbuttons_array($data);
 
-        return $OUTPUT->render_from_template('local_wunderbyte_table/component_actionbutton', ['showactionbuttons' => $data]);
+        return $OUTPUT->render_from_template(
+            'local_wunderbyte_table/component_actionbutton',
+            ['showactionbuttons' => $data]
+        );
     }
 }

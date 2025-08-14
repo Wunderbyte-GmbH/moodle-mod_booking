@@ -596,6 +596,8 @@ $string['bookingstrackerpresencecounter_desc'] = 'Display a counter that shows t
 Define in the next setting which presence status should be counted.';
 $string['bookingstrackerpresencecountervaluetocount'] = 'Presence status to count';
 $string['bookingstrackerpresencecountervaluetocount_desc'] = 'This presence status will be counted and displayed in the booking tracker.';
+$string['bookingstrackerswitchviewtypetoanswers'] = 'Summarize bookings for each booking option';
+$string['bookingstrackerswitchviewtypetooptions'] = 'View all bookings separately';
 $string['bookingsubbooking'] = "Subbooking";
 $string['bookingsubbookingadd'] = 'Add a subbooking';
 $string['bookingsubbookingdelete'] = 'Delete subbooking';
