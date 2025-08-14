@@ -91,14 +91,26 @@ class booking_answers {
      * MOD_BOOKING_STATUSPARAM_NOTBOOKED (4) ... user has not booked the option
      * MOD_BOOKING_STATUSPARAM_DELETED (5) ... user answer was deleted
      *
-     * @param booking_option_settings $bookingoptionsettings
+     * @param booking_option_settings|null $bookingoptionsettings
      * @throws dml_exception
      */
-    public function __construct(booking_option_settings $bookingoptionsettings) {
-
+    public function __construct($bookingoptionsettings = null) {
         global $DB, $CFG;
 
-        $optionid = $bookingoptionsettings->id;
+        if (empty($bookingoptionsettings)) {
+            $this->optionid = 0;
+            $this->bookingoptionsettings = null;
+            $this->answers = [];
+            $this->users = [];
+            $this->usersonlist = [];
+            $this->usersonwaitinglist = [];
+            $this->usersreserved = [];
+            $this->usersdeleted = [];
+            $this->userstonotify = [];
+            return;
+        }
+
+        $optionid = $bookingoptionsettings->id ?? 0;
         $this->optionid = $optionid;
         $this->bookingoptionsettings = $bookingoptionsettings;
 
@@ -988,12 +1000,12 @@ class booking_answers {
      * @param string $scope option | instance | course | system
      * @param int $scopeid optionid | cmid | courseid | 0
      * @param int $statusparam
-     * @return (string|int[])[]
+     * @return array
      */
-    public static function return_sql_for_booked_users(string $scope, int $scopeid, int $statusparam) {
+    public function return_sql_for_booked_users(string $scope, int $scopeid, int $statusparam): array {
         global $DB;
 
-        $class = self::return_class_for_scope($scope);
+        $class = $this->return_class_for_scope($scope);
         return $class->return_sql_for_booked_users($scope, $scopeid, $statusparam);
     }
 
@@ -1005,8 +1017,8 @@ class booking_answers {
      * @return scope_base
      *
      */
-    public static function return_class_for_scope(string $scope): scope_base {
-        $class = "mod_booking\\booking_answers\\scopes\\" . $scope;
+    public function return_class_for_scope(string $scope): scope_base {
+        $class = "\\mod_booking\\booking_answers\\scopes\\" . $scope;
 
         if (!class_exists($class)) {
             throw new moodle_exception('scopedoesnotexist ' . $scope);

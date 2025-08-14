@@ -36,60 +36,8 @@ use mod_booking\booking_answers\scope_base;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class system extends scope_base {
-    /**
-     * Returns the sql to fetch booked users with a certain status.
-     * Orderd by timemodified, to be able to sort them.
-     * @param string $scope option | instance | course | system
-     * @param int $scopeid optionid | cmid | courseid | 0
-     * @param int $statusparam
-     * @return (string|int[])[]
-     */
-    public function return_sql_for_booked_users(string $scope, int $scopeid, int $statusparam) {
-
-        $fields = 's1.*';
-        $where = ' 1 = 1 ';
-        $from = " (
-            SELECT
-                bo.id,
-                bo.id as optionid,
-                ba.waitinglist,
-                cm.id AS cmid,
-                c.id AS courseid,
-                c.fullname AS coursename,
-                bo.titleprefix,
-                bo.text,
-                b.name AS instancename,
-                COUNT(ba.id) answerscount,
-                SUM(pcnt.presencecount) presencecount,
-                '" . $scope . "' AS scope
-            FROM {booking_options} bo
-            LEFT JOIN {booking_answers} ba ON bo.id = ba.optionid
-            LEFT JOIN {user} u ON ba.userid = u.id
-            JOIN {course_modules} cm ON bo.bookingid = cm.instance
-            JOIN {booking} b ON b.id = bo.bookingid
-            JOIN {course} c ON c.id = b.course
-            JOIN {modules} m ON m.id = cm.module
-            LEFT JOIN (
-                SELECT boda.optionid, boda.userid, COUNT(*) AS presencecount
-                FROM {booking_optiondates_answers} boda
-                WHERE boda.status = :statustocount
-                GROUP BY boda.optionid, boda.userid
-            ) pcnt
-            ON pcnt.optionid = ba.optionid AND pcnt.userid = u.id
-            WHERE
-                m.name = 'booking'
-                AND ba.waitinglist = :statusparam
-            GROUP BY cm.id, c.id, c.fullname, bo.id, ba.waitinglist, bo.titleprefix, bo.text, b.name
-            ORDER BY bo.titleprefix, bo.text ASC
-                LIMIT 10000000000
-        ) s1";
-        $params = [
-            'statusparam' => $statusparam,
-            'statustocount' => get_config('booking', 'bookingstrackerpresencecountervaluetocount'),
-        ];
-
-        return [$fields, $from, $where, $params];
-    }
+    /* System does not need to override the return_sql_for_booked_users function
+    as it is already implemented in the parent scope_base class.*/
 
     /**
      * Helper function to check capability for logged-in user in provided scope.

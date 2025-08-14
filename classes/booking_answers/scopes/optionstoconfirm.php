@@ -44,9 +44,9 @@ class optionstoconfirm extends option {
      * @param string $scope option | instance | course | system
      * @param int $scopeid optionid | cmid | courseid | 0
      * @param int $statusparam
-     * @return (string|int[])[]
+     * @return array
      */
-    public function return_sql_for_booked_users(string $scope, int $scopeid, int $statusparam) {
+    public function return_sql_for_booked_users(string $scope, int $scopeid, int $statusparam): array {
         global $USER, $DB;
 
         // The where restriction.

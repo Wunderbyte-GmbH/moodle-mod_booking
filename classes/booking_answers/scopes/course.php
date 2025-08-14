@@ -42,13 +42,14 @@ class course extends scope_base {
      * @param string $scope option | instance | course | system
      * @param int $scopeid optionid | cmid | courseid | 0
      * @param int $statusparam
-     * @return (string|int[])[]
+     * @return array
      */
-    public function return_sql_for_booked_users(string $scope, int $scopeid, int $statusparam) {
+    public function return_sql_for_booked_users(string $scope, int $scopeid, int $statusparam): array {
 
         $courseid = $scopeid;
         $fields = 's1.*';
         $where = ' 1 = 1 ';
+        $wherepart = $this->get_wherepart_for_booked_users($statusparam);
         $from = " (
             SELECT
                 bo.id,
@@ -77,10 +78,7 @@ class course extends scope_base {
                 GROUP BY boda.optionid, boda.userid
             ) pcnt
             ON pcnt.optionid = ba.optionid AND pcnt.userid = u.id
-            WHERE
-                m.name = 'booking'
-                AND ba.waitinglist = :statusparam
-                AND c.id = :courseid
+            $wherepart AND c.id = :courseid
             GROUP BY cm.id, c.id, c.fullname, bo.id, ba.waitinglist, bo.titleprefix, bo.text, b.name
             ORDER BY bo.titleprefix, bo.text ASC
                 LIMIT 10000000000

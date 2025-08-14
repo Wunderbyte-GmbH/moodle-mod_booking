@@ -61,7 +61,7 @@ class scope_base {
         bool $sortable = false,
         bool $paginate = false
     ): wunderbyte_table {
-        [$fields, $from, $where, $params] = self::return_sql_for_booked_users($scope, $scopeid, $statusparam);
+        [$fields, $from, $where, $params] = $this->return_sql_for_booked_users($scope, $scopeid, $statusparam);
 
         $tablename = "{$tablenameprefix}_{$scope}_{$scopeid}";
         $table = new manageusers_table($tablename);
@@ -104,12 +104,13 @@ class scope_base {
      * @param string $scope option | instance | course | system
      * @param int $scopeid optionid | cmid | courseid | 0
      * @param int $statusparam
-     * @return (string|int[])[]
+     * @return array
      */
-    public function return_sql_for_booked_users(string $scope, int $scopeid, int $statusparam) {
+    public function return_sql_for_booked_users(string $scope, int $scopeid, int $statusparam): array {
 
         $fields = 's1.*';
         $where = ' 1 = 1 ';
+        $wherepart = $this->get_wherepart_for_booked_users($statusparam);
         $from = " (
             SELECT
                 bo.id,
@@ -138,13 +139,12 @@ class scope_base {
                 GROUP BY boda.optionid, boda.userid
             ) pcnt
             ON pcnt.optionid = ba.optionid AND pcnt.userid = u.id
-            WHERE
-                m.name = 'booking'
-                AND ba.waitinglist = :statusparam
+            $wherepart
             GROUP BY cm.id, c.id, c.fullname, bo.id, ba.waitinglist, bo.titleprefix, bo.text, b.name
             ORDER BY bo.titleprefix, bo.text ASC
                 LIMIT 10000000000
         ) s1";
+
         $params = [
             'statusparam' => $statusparam,
             'statustocount' => get_config('booking', 'bookingstrackerpresencecountervaluetocount'),
@@ -240,5 +240,26 @@ class scope_base {
      */
     public function has_capability_in_scope($scopeid, $capability) {
         return has_capability($capability, context_system::instance());
+    }
+
+    /**
+     * Helper function to get the $wherepart for the return_sql_for_booked_users function.
+     * @param int $statusparam
+     * @return string the where part of the sql query
+     */
+    public function get_wherepart_for_booked_users(int $statusparam): string {
+        $wherepart = '';
+        // For the booked users section, we want to show all booking options, even if they have no answers.
+        if ($statusparam === 0) {
+            $wherepart = "WHERE
+                m.name = 'booking'
+                AND (ba.waitinglist = 0 OR ba.waitinglist IS NULL)";
+        } else {
+            // This is the default case for all other sections.
+            $wherepart = "WHERE
+                m.name = 'booking'
+                AND ba.waitinglist = :statusparam";
+        }
+        return $wherepart;
     }
 }

@@ -96,8 +96,8 @@ class booked_users implements renderable, templatable {
         bool $showbookinghistory = false,
         int $cmid = 0
     ) {
-
-        $class = booking_answers::return_class_for_scope($scope);
+        $ba = new booking_answers();
+        $class = $ba->return_class_for_scope($scope);
         $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_BOOKED);
 
         $this->bookedusers = $showbooked ?
@@ -186,8 +186,8 @@ class booked_users implements renderable, templatable {
         bool $sortable = false,
         bool $paginate = false
     ): ?string {
-
-        $class = booking_answers::return_class_for_scope($scope);
+        $ba = new booking_answers();
+        $class = $ba->return_class_for_scope($scope);
         $table = $class->return_users_table(
             $scope,
             $scopeid,
