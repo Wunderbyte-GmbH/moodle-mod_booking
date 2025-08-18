@@ -290,7 +290,10 @@ class customformstore {
      *
      */
     private function get_price_for_user(string $pricedata, string $priceidentifier = ""): float {
-
+        // If we have only one price (for all price categories), we can return it right away.
+        if (strpos($pricedata, ',') === false && is_numeric($pricedata)) {
+            return (float)$pricedata;
+        }
         $pairs = explode(',', $pricedata);
         $categoryprices = [];
         foreach ($pairs as $pair) {
