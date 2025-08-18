@@ -737,8 +737,16 @@ class booking_answers {
 
             // If (show free places only) is chosen.
             if ($bookingplacesinfotexts == '2') {
-                $bookinginformation['bookingplacesinfotext']
-                    = get_string('bookingplacesplacesleft', 'mod_booking', $bookinginformation['freeonlist']);
+                if ($bookinginformation['freeonlist'] == 0) {
+                    $bookinginformation['bookingplacesinfotext']
+                        = get_string('fullybooked', 'mod_booking');
+                } else if ($bookinginformation['freeonlist'] == 1) {
+                    $bookinginformation['bookingplacesinfotext']
+                        = get_string('bookingplacesplacesoneleft', 'mod_booking');
+                } else {
+                    $bookinginformation['bookingplacesinfotext']
+                        = get_string('bookingplacesplacesleft', 'mod_booking', $bookinginformation['freeonlist']);
+                }
             }
         } else {
             $bookinginformation['bookingplacesinfotext'] = get_string('bookingplacesunlimitedmessage', 'mod_booking');
@@ -789,8 +797,16 @@ class booking_answers {
 
             // If (show free places only) is chosen.
             if ($waitingplacesinfotexts == '2') {
-                $bookinginformation['waitinglistplacesinfotext']
-                    = get_string('waitinglistplacesplacesleft', 'mod_booking', $bookinginformation['freeonwaitinglist']);
+                if ($bookinginformation['freeonwaitinglist'] == 0) {
+                    $bookinginformation['waitinglistplacesinfotext']
+                        = " (" . get_string('waitinglistfullmessage', 'mod_booking') . ")";
+                } else if ($bookinginformation['freeonwaitinglist'] == 1) {
+                    $bookinginformation['waitinglistplacesinfotext']
+                        = get_string('waitinglistplacesplacesoneleft', 'mod_booking');
+                } else {
+                    $bookinginformation['waitinglistplacesinfotext']
+                        = get_string('waitinglistplacesplacesleft', 'mod_booking', $bookinginformation['freeonwaitinglist']);
+                }
             }
         }
     }
