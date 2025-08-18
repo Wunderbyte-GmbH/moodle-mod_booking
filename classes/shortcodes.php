@@ -1344,9 +1344,16 @@ class shortcodes {
                             }
 
                             foreach ($values as $vkey => $vvalue) {
-                                $additionalwhere .= $vkey > 0 ? ' OR ' : '';
-                                $vvalue = "'%$vvalue%'";
-                                $additionalwhere .= " $customfield->shortname LIKE $vvalue ";
+                                $vvalue = trim($vvalue);
+                                if ($vkey > 0) {
+                                    $additionalwhere .= ' OR ';
+                                }
+                                $additionalwhere .= "(
+                                    {$customfield->shortname} = '$vvalue'
+                                    OR {$customfield->shortname} LIKE '$vvalue,%'
+                                    OR {$customfield->shortname} LIKE '%,$vvalue'
+                                    OR {$customfield->shortname} LIKE '%,$vvalue,%'
+                                )";
                             }
 
                             if (!empty($values)) {
