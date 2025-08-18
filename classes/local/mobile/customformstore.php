@@ -42,7 +42,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class customformstore {
-
     /** @var int */
     protected $userid = 0;
 
@@ -103,13 +102,13 @@ class customformstore {
         foreach ($customform as $key => $formelement) {
             $identifier = 'customform_' . $formelement->formtype . "_" . $key;
             if (
-              $formelement->formtype == 'url' &&
-              !self::isvalidhttpurl($data[$identifier], FILTER_VALIDATE_EMAIL)
+                $formelement->formtype == 'url' &&
+                !self::isvalidhttpurl($data[$identifier])
             ) {
                 $errors[$identifier] = get_string('bocondcustomformurlerror', 'mod_booking');
             } else if (
-              $formelement->formtype == 'mail' &&
-              !filter_var($data[$identifier], FILTER_VALIDATE_EMAIL)
+                $formelement->formtype == 'mail' &&
+                !filter_var($data[$identifier], FILTER_VALIDATE_EMAIL)
             ) {
                 $errors[$identifier] = get_string('bocondcustomformmailerror', 'mod_booking');
             } else if (
@@ -122,7 +121,7 @@ class customformstore {
                         $settings = singleton_service::get_instance_of_booking_option_settings($data['id']);
                         $ba = singleton_service::get_instance_of_booking_answers($settings);
                         $expectedvalue = $linearray[0];
-                        $filteredba = array_filter($ba->usersonlist, function($userbookings) use ($identifier, $expectedvalue) {
+                        $filteredba = array_filter($ba->usersonlist, function ($userbookings) use ($identifier, $expectedvalue) {
                             return isset($userbookings->$identifier) && $userbookings->$identifier === $expectedvalue;
                         });
                         if (count($filteredba) >= $linearray[2] && !empty($linearray[2])) {
@@ -236,7 +235,10 @@ class customformstore {
                     $lines = explode(PHP_EOL, $formelement->value);
                     foreach ($lines as $line) {
                         $linearray = explode(' => ', $line);
-                        if (isset($linearray[3]) && isset($data[$key]) && $data[$key] == $linearray[0]) {
+                        if (
+                            isset($linearray[3])
+                            && isset($data[$key]) && $data[$key] == $linearray[0]
+                        ) {
                             $additionalprice = $this->get_price_for_user($linearray[3]);
                         }
                     }
@@ -295,7 +297,7 @@ class customformstore {
             if (strpos($pair, ':') === false) {
                 continue;
             }
-            list($key, $value) = explode(':', $pair);
+            [$key, $value] = explode(':', $pair);
             $categoryprices[$key] = (float)$value;
         }
 

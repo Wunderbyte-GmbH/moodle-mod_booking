@@ -49,7 +49,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class customform_form extends dynamic_form {
-
     /** @var int $id */
     private $id = null;
 
@@ -232,7 +231,7 @@ class customform_form extends dynamic_form {
                                         $customformstore = new customformstore(
                                             (int) $formdata['userid'],
                                             (int) $formdata['id']
-                                            );
+                                        );
                                         $price = $customformstore->get_price_and_currency_for_user($linearray[3]);
                                         if (!empty($price)) {
                                             $priceinfostring = ' (+' . $price . ')';
