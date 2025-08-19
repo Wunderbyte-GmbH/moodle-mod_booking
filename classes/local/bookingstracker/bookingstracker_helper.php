@@ -83,7 +83,7 @@ class bookingstracker_helper {
         );
 
         $data = [
-            'id' => $values->optionid,
+            'id' => $values->id, // Can be optionid or answerid, depending on scope.
             'text' => $values->text,
             'optionlink' => $optionlink->out(false),
             'report2option' => $report2option->out(false),

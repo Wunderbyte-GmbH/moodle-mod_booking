@@ -391,39 +391,63 @@ echo $OUTPUT->heading("<div class='mb-5'>$ticketicon $heading</div>");
 // Navigation stylings cannot be done in styles.css because of string localization.
 echo booking::generate_localized_css_for_navigation_labels('report2', $scopes);
 
-// Switch to turn booking of anyone ON or OFF.
-if ($viewtype == 'answers') {
-    set_user_preference('bookingstrackerviewtype', 'answers');
-    // Show button to switch back to aggregated options view.
-    $url = new moodle_url(
-        '/mod/booking/report2.php',
-        [
-            'optionid' => $optionid,
-            'optiondateid' => $optiondateid,
-            'cmid' => $cmid,
-            'courseid' => $courseid,
-            'viewtype' => 'options',
-        ]
-    );
-    echo '<a class="btn btn-light" href="' . $url . '">' .
-        '<i class="fa fa-object-group" aria-hidden="true"></i>&nbsp;' .
-        get_string('bookingstrackerswitchviewtypetooptions', 'mod_booking') . '</a>';
-} else {
-    set_user_preference('bookingstrackerviewtype', 'options');
-    // Show button to switch back to non-aggregated separate booking answers.
-    $url = new moodle_url(
-        '/mod/booking/report2.php',
-        [
-            'optionid' => $optionid,
-            'optiondateid' => $optiondateid,
-            'cmid' => $cmid,
-            'courseid' => $courseid,
-            'viewtype' => 'answers',
-        ]
-    );
-    echo '<a class="btn btn-light" href="' . $url . '">' .
-        '<i class="fa fa-object-ungroup" aria-hidden="true"></i>&nbsp;' .
-        get_string('bookingstrackerswitchviewtypetoanswers', 'mod_booking') . '</a>';
+// For option scope and optiondate scope, there is no switch.
+if (empty($optionid) && empty($optiondateid)) {
+    // Switch to turn booking of anyone ON or OFF.
+    if ($viewtype == 'answers') {
+        set_user_preference('bookingstrackerviewtype', 'answers');
+        // Show button to switch back to aggregated options view.
+        $url = new moodle_url(
+            '/mod/booking/report2.php',
+            [
+                'optionid' => $optionid,
+                'optiondateid' => $optiondateid,
+                'cmid' => $cmid,
+                'courseid' => $courseid,
+                'viewtype' => 'options',
+            ]
+        );
+        echo '<a class="btn btn-sm btn-primary" href="' . $url . '">' .
+            '<i class="fa fa-object-group" aria-hidden="true"></i>&nbsp;' .
+            get_string('bookingstrackerswitchviewtypetooptions', 'mod_booking') . '</a>';
+    } else {
+        set_user_preference('bookingstrackerviewtype', 'options');
+        // Show button to switch back to non-aggregated separate booking answers.
+        $url = new moodle_url(
+            '/mod/booking/report2.php',
+            [
+                'optionid' => $optionid,
+                'optiondateid' => $optiondateid,
+                'cmid' => $cmid,
+                'courseid' => $courseid,
+                'viewtype' => 'answers',
+            ]
+        );
+        echo '<a class="btn btn-sm btn-primary" href="' . $url . '">' .
+            '<i class="fa fa-object-ungroup" aria-hidden="true"></i>&nbsp;' .
+            get_string('bookingstrackerswitchviewtypetoanswers', 'mod_booking') . '</a>';
+    }
+}
+
+// Buttons, we only show in option scope can be added here.
+if (!empty($optionid) && empty($optiondateid)) {
+    $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+    $cmid = $optionsettings->cmid;
+    $context = context_module::instance($cmid);
+    if (
+        has_capability('mod/booking:bookforothers', $context)
+        && (
+            has_capability('mod/booking:subscribeusers', $context)
+            || booking_check_if_teacher($optionsettings)
+        )
+    ) {
+        $url = new moodle_url(
+            '/mod/booking/subscribeusers.php',
+            ['id' => $cmid, 'optionid' => $optionid]
+        );
+        echo html_writer::link($url, '<i class="fa fa-users fa-fw" aria-hidden="true"></i>&nbsp;' .
+                get_string('bookotherusers', 'booking'), ['class' => 'btn btn-primary btn-sm']);
+    }
 }
 
 // Now we render the booked users for the provided scope.

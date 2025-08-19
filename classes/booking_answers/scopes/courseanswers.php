@@ -15,28 +15,27 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Booking answers scope: system - non-aggregated.
+ * Booking answers scope: course - non-aggregated.
  * @package mod_booking
  * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @author Georg Maißer, Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 namespace mod_booking\booking_answers\scopes;
 
-use context_system;
+use context_course;
 use mod_booking\booking_answers\scope_base_answers;
 use mod_booking\output\booked_users;
 use mod_booking\table\manageusers_table;
 
 /**
- * Booking answers scope: system - non-aggregated.
+ * Booking answers scope: course - non-aggregated.
  * @package mod_booking
  * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @author Georg Maißer, Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class systemanswers extends scope_base_answers {
+class courseanswers extends scope_base_answers {
     /**
      * Returns the sql to fetch booked users with a certain status.
      * Orderd by timemodified, to be able to sort them.
@@ -46,11 +45,12 @@ class systemanswers extends scope_base_answers {
      * @return array
      */
     public function return_sql_for_booked_users(string $scope, int $scopeid, int $statusparam): array {
-
+        $courseid = $scopeid;
         $fields = 's1.*';
         $where = ' 1 = 1 ';
 
         $params['statusparam'] = $statusparam;
+        $params['courseid'] = $courseid;
         if (get_config('booking', 'bookingstrackerpresencecounter')) {
             $params['statustocount'] = get_config('booking', 'bookingstrackerpresencecountervaluetocount');
         }
@@ -65,15 +65,11 @@ class systemanswers extends scope_base_answers {
             FROM (
                 $selectpart
                 WHERE ba.waitinglist=:statusparam
+                AND c.id=:courseid
                 LIMIT 1000000
             ) s2
             $endpart
         ) s1";
-
-        $params = [
-            'statusparam' => $statusparam,
-            'statustocount' => get_config('booking', 'bookingstrackerpresencecountervaluetocount'),
-        ];
 
         return [$fields, $from, $where, $params];
     }
@@ -156,6 +152,6 @@ class systemanswers extends scope_base_answers {
      * @param string $capability
      */
     public function has_capability_in_scope($scopeid, $capability) {
-        return has_capability($capability, context_system::instance());
+        return has_capability($capability, context_course::instance($scopeid));
     }
 }

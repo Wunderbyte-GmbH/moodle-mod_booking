@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Booking answers scope class.
+ * Booking answers scope: options to confirm.
  *
  * @package mod_booking
  * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
@@ -31,7 +31,8 @@ use core_plugin_manager;
 use mod_booking\singleton_service;
 
 /**
- * Class for booking answers.
+ * Booking answers scope: options to confirm.
+ *
  * @package mod_booking
  * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @author Georg Maißer

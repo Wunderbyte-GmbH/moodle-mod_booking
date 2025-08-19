@@ -92,8 +92,20 @@ class manageusers_table extends wunderbyte_table {
      * @return string
      */
     public function col_timemodified(stdClass $values) {
-
+        if ($this->is_downloading()) {
+            return $values->timemodified ?? '';
+        }
         return userdate($values->timemodified);
+    }
+
+    /**
+     * Return titleprefix.
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_titleprefix(stdClass $values) {
+        return $values->titleprefix ?? '';
     }
 
     /**

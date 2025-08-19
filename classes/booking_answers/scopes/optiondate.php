@@ -15,11 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Booking answers scope class.
- *
+ * Booking answers scope: optiondate.
  * @package mod_booking
  * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
- * @author Georg Maißer
+ * @author Georg Maißer, Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -35,10 +34,10 @@ use mod_booking\table\manageusers_table;
 use moodle_url;
 
 /**
- * Class for booking answers.
+ * Booking answers scope: optiondate.
  * @package mod_booking
  * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
- * @author Georg Maißer
+ * @author Georg Maißer, Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class optiondate extends scope_base {
@@ -236,7 +235,7 @@ class optiondate extends scope_base {
      * @return array
      *
      */
-    public function return_cols_for_tables(int $statusparam) {
+    public function return_cols_for_tables(int $statusparam): array {
 
         $columns = [
             'firstname' => get_string('firstname', 'core'),

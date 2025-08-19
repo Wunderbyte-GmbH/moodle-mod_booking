@@ -15,11 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Booking answers scope class.
- *
+ * Scope base class.
  * @package mod_booking
  * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
- * @author Georg Maißer
+ * @author Georg Maißer, Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -30,10 +29,10 @@ use local_wunderbyte_table\wunderbyte_table;
 use moodle_url;
 
 /**
- * Class for booking answers.
+ * Scope base class.
  * @package mod_booking
  * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
- * @author Georg Maißer
+ * @author Georg Maißer, Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class scope_base {
@@ -145,7 +144,7 @@ class scope_base {
      * @param int $statusparam
      * @return string the where part of the sql query
      */
-    public function get_wherepart_for_booked_users(int $statusparam): string {
+    public function get_wherepart(int $statusparam): string {
         $wherepart = '';
         // For the booked users section, we want to show all booking options, even if they have no answers.
         if ($statusparam === 0) {
