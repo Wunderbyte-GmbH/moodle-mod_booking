@@ -27,6 +27,9 @@ namespace mod_booking\booking_answers\scopes;
 
 use context_system;
 use mod_booking\booking_answers\scope_base;
+use mod_booking\output\booked_users;
+use mod_booking\table\manageusers_table;
+use local_wunderbyte_table\wunderbyte_table;
 
 /**
  * Class for booking answers.
@@ -36,8 +39,139 @@ use mod_booking\booking_answers\scope_base;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class system extends scope_base {
-    /* System does not need to override the return_sql_for_booked_users function
-    as it is already implemented in the parent scope_base class.*/
+    /**
+     * Returns the sql to fetch booked users with a certain status.
+     * Orderd by timemodified, to be able to sort them.
+     * @param string $scope option | instance | course | system
+     * @param int $scopeid optionid | cmid | courseid | 0
+     * @param int $statusparam
+     * @return array
+     */
+    public function return_sql_for_booked_users(string $scope, int $scopeid, int $statusparam): array {
+        $fields = 's1.*';
+        $where = ' 1 = 1 ';
+        $wherepart = $this->get_wherepart_for_booked_users($statusparam);
+        $from = " (
+            SELECT
+                bo.id,
+                bo.id as optionid,
+                ba.waitinglist,
+                cm.id AS cmid,
+                c.id AS courseid,
+                c.fullname AS coursename,
+                bo.titleprefix,
+                bo.text,
+                b.name AS instancename,
+                COUNT(ba.id) answerscount,
+                SUM(pcnt.presencecount) presencecount,
+                '" . $scope . "' AS scope
+            FROM {booking_options} bo
+            LEFT JOIN {booking_answers} ba ON bo.id = ba.optionid
+            LEFT JOIN {user} u ON ba.userid = u.id
+            JOIN {course_modules} cm ON bo.bookingid = cm.instance
+            JOIN {booking} b ON b.id = bo.bookingid
+            JOIN {course} c ON c.id = b.course
+            JOIN {modules} m ON m.id = cm.module
+            LEFT JOIN (
+                SELECT boda.optionid, boda.userid, COUNT(*) AS presencecount
+                FROM {booking_optiondates_answers} boda
+                WHERE boda.status = :statustocount
+                GROUP BY boda.optionid, boda.userid
+            ) pcnt
+            ON pcnt.optionid = ba.optionid AND pcnt.userid = u.id
+            $wherepart
+            GROUP BY cm.id, c.id, c.fullname, bo.id, ba.waitinglist, bo.titleprefix, bo.text, b.name
+            ORDER BY bo.titleprefix, bo.text ASC
+                LIMIT 10000000000
+        ) s1";
+
+        $params = [
+            'statusparam' => $statusparam,
+            'statustocount' => get_config('booking', 'bookingstrackerpresencecountervaluetocount'),
+        ];
+
+        return [$fields, $from, $where, $params];
+    }
+
+    /**
+     * Render users table based on status param
+     *
+     * @param string $scope
+     * @param int $scopeid
+     * @param int $statusparam
+     * @param string $tablenameprefix
+     * @param array $columns
+     * @param array $headers
+     * @param bool $sortable
+     * @param bool $paginate
+     * @return wunderbyte_table|null
+     */
+    public function return_users_table(
+        string $scope,
+        int $scopeid,
+        int $statusparam,
+        string $tablenameprefix,
+        array $columns,
+        array $headers = [],
+        bool $sortable = false,
+        bool $paginate = false
+    ) {
+        [$fields, $from, $where, $params] = $this->return_sql_for_booked_users($scope, $scopeid, $statusparam);
+
+        $tablename = "{$tablenameprefix}_{$scope}_{$scopeid}";
+        $table = new manageusers_table($tablename);
+
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        // Todo: $table->define_baseurl() ...
+        $table->define_cache('mod_booking', "bookedusertable");
+        $table->define_columns($columns);
+        $table->define_headers($headers);
+
+        if ($sortable) {
+            $table->sortablerows = true;
+        }
+
+        if ($paginate) {
+            $table->use_pages = true;
+        }
+
+        $table->set_sql($fields, $from, $where, $params);
+
+        $this->show_download_button($table, $scope, $scopeid, $statusparam);
+
+        $table->define_fulltextsearchcolumns(['titleprefix', 'text', 'coursename', 'instancename']);
+        $sortablecolumns = [
+            'titleprefix' => get_string('titleprefix', 'mod_booking'),
+            'text' => get_string('bookingoption', 'mod_booking'),
+            'answerscount' => get_string('answerscount', 'mod_booking'),
+            'presencecount' => get_string('presencecount', 'mod_booking'),
+        ];
+
+        $table->define_sortablecolumns($sortablecolumns);
+
+        return $table;
+    }
+
+    /**
+     * This functions defines the columns for each scope.
+     *
+     * @param int $statusparam
+     *
+     * @return array
+     *
+     */
+    public function return_cols_for_tables(int $statusparam): array {
+        $columns = [
+            'titleprefix' => get_string('titleprefix', 'mod_booking'),
+            'text'  => get_string('bookingoption', 'mod_booking'),
+            'answerscount'     => get_string('answerscount', 'mod_booking'),
+        ];
+
+        if (get_config('booking', 'bookingstrackerpresencecounter')) {
+            $columns['presencecount'] = get_string('presencecount', 'mod_booking');
+        }
+        return $columns;
+    }
 
     /**
      * Helper function to check capability for logged-in user in provided scope.

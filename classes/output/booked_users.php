@@ -27,18 +27,14 @@
 
 namespace mod_booking\output;
 
-use context_module;
-use context_course;
-use context_system;
 use local_wunderbyte_table\filters\types\datepicker;
 use local_wunderbyte_table\filters\types\standardfilter;
 use mod_booking\booking;
 use mod_booking\booking_answers\booking_answers;
+use mod_booking\booking_answers\scope_base;
 use mod_booking\singleton_service;
 use mod_booking\table\booking_history_table;
-use mod_booking\table\manageusers_table;
 use moodle_exception;
-use moodle_url;
 use renderer_base;
 use renderable;
 use templatable;
@@ -97,6 +93,7 @@ class booked_users implements renderable, templatable {
         int $cmid = 0
     ) {
         $ba = new booking_answers();
+        /** @var scope_base $class */
         $class = $ba->return_class_for_scope($scope);
         $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_BOOKED);
 
@@ -187,6 +184,7 @@ class booked_users implements renderable, templatable {
         bool $paginate = false
     ): ?string {
         $ba = new booking_answers();
+        /** @var scope_base $class */
         $class = $ba->return_class_for_scope($scope);
         $table = $class->return_users_table(
             $scope,
@@ -224,6 +222,7 @@ class booked_users implements renderable, templatable {
 
         switch ($scope) {
             case 'system':
+            case 'systemanswers':
                 $wherepart = '';
                 $params = [];
                 break;
@@ -233,6 +232,7 @@ class booked_users implements renderable, templatable {
                 $params = ['optionid' => $optionid];
                 break;
             case 'instance':
+            case 'instanceanswers':
                 $cmid = $scopeid; // Cmid - not bookingid!
                 $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
                 $bookingid = $bookingsettings->id;
@@ -240,6 +240,7 @@ class booked_users implements renderable, templatable {
                 $params = ['bookingid' => $bookingid];
                 break;
             case 'course':
+            case 'courseanswers':
                 $courseid = $scopeid;
                 $wherepart = "WHERE c.id = :courseid";
                 $params = ['courseid' => $courseid];

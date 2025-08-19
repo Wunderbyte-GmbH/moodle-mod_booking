@@ -1466,6 +1466,39 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                 $bookingrulesnode->add_class('disabled-profeature');  // Add a custom class for non-pro users.
             }
         }
+
+        // Bookings Tracker.
+        if (has_capability('mod/booking:managebookedusers', $context)) {
+            $bookingstrackernode = $navref->add(
+                get_string('bookingstracker', 'mod_booking') . " ($bookingsettings->name)",
+                new moodle_url(
+                    '/mod/booking/report2.php',
+                    ['cmid' => $cm->id]
+                ),
+                navigation_node::TYPE_CUSTOM,
+                null,
+                'nav_bookingstracker'
+            );
+
+            if (!$proversion) {
+                $bookingstrackernode->add_class('disabled-profeature');  // Add a custom class for non-pro users.
+            }
+        }
+        if (has_capability('mod/booking:managebookedusers', context_system::instance())) {
+            $bookingstrackernodesystem = $navref->add(
+                get_string('bookingstracker', 'mod_booking') . " (" . get_string('report2labelsystem', 'mod_booking') . ")",
+                new moodle_url(
+                    '/mod/booking/report2.php'
+                ),
+                navigation_node::TYPE_CUSTOM,
+                null,
+                'nav_bookingstrackersystem'
+            );
+
+            if (!$proversion) {
+                $bookingstrackernodesystem->add_class('disabled-profeature');  // Add a custom class for non-pro users.
+            }
+        }
     }
 
     // We currently never show these entries as we are not sure if they work correctly.
@@ -2589,6 +2622,7 @@ function mod_booking_cm_info_view(cm_info $cm) {
 
         // Show course name, a short info text and a button redirecting to available booking options.
         $data = new coursepage_shortinfo_and_button($cm);
+        /** @var  \mod_booking\output\renderer $output */
         $output = $PAGE->get_renderer('mod_booking');
         $html .= $output->render_coursepage_shortinfo_and_button($data);
     }

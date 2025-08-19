@@ -34,6 +34,7 @@ use mod_booking\booking;
 use mod_booking\booking_option;
 use mod_booking\singleton_service;
 use mod_booking\booking_option_settings;
+use mod_booking\booking_answers\scope_base;
 use Throwable;
 
 defined('MOODLE_INTERNAL') || die();
@@ -1004,7 +1005,7 @@ class booking_answers {
      */
     public function return_sql_for_booked_users(string $scope, int $scopeid, int $statusparam): array {
         global $DB;
-
+        /** @var scope_base $class */
         $class = $this->return_class_for_scope($scope);
         return $class->return_sql_for_booked_users($scope, $scopeid, $statusparam);
     }

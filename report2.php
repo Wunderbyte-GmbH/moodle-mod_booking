@@ -268,6 +268,9 @@ if (!empty($optiondateid)) {
     $PAGE->set_url(new moodle_url('/mod/booking/report2.php', ['cmid' => $cmid]));
     $scopes = ['system', 'course', 'instance'];
     $scope = 'instance';
+    if ($viewtype == 'answers') {
+        $scope .= 'answers'; // Non-aggregated, individual answers view.
+    }
     $scopeid = $cmid;
     $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
     [$course, $cm] = get_course_and_cm_from_cmid($cmid);
@@ -313,6 +316,9 @@ if (!empty($optiondateid)) {
     $PAGE->set_url(new moodle_url('/mod/booking/report2.php', ['courseid' => $courseid]));
     $scopes = ['system', 'course'];
     $scope = 'course'; // A moodle course containing (a) booking option(s).
+    if ($viewtype == 'answers') {
+        $scope .= 'answers'; // Non-aggregated, individual answers view.
+    }
     $scopeid = $courseid;
     $course = get_course($courseid);
     require_course_login($course, false);
@@ -349,6 +355,9 @@ if (!empty($optiondateid)) {
     $scopes = ['system'];
     require_login(1, false);
     $scope = 'system'; // The whole site.
+    if ($viewtype == 'answers') {
+        $scope .= 'answers'; // Non-aggregated, individual answers view.
+    }
     $scopeid = 0;
     $urlparams = []; // For PAGE url.
 

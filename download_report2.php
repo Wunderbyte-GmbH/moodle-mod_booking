@@ -23,6 +23,7 @@
  */
 
 use local_wunderbyte_table\wunderbyte_table;
+use mod_booking\booking_answers\booking_answers;
 use mod_booking\table\manageusers_table;
 
 require_once("../../config.php");
@@ -50,57 +51,12 @@ $table = wunderbyte_table::instantiate_from_tablecache_hash($encodedtable);
 $table->headers = [];
 $table->columns = [];
 
-switch ($scope) {
-    case 'optiondate':
-        $table->define_headers([
-            get_string('lastname'),
-            get_string('firstname'),
-            get_string('email'),
-            get_string('presence', 'mod_booking'),
-            get_string('notes', 'mod_booking'),
-        ]);
-        // Columns.
-        $table->define_columns([
-            'lastname',
-            'firstname',
-            'email',
-            'status',
-            'notes',
-        ]);
-        break;
-    case 'option':
-        // Headers.
-        $table->define_headers([
-            get_string('lastname'),
-            get_string('firstname'),
-            get_string('email'),
-            get_string('presencecount', 'mod_booking'),
-        ]);
-        // Columns.
-        $table->define_columns([
-            'lastname',
-            'firstname',
-            'email',
-            'presencecount',
-        ]);
-        break;
-    default:
-        // Headers.
-        $table->define_headers([
-            get_string('titleprefix', 'mod_booking'),
-            get_string('bookingoption', 'mod_booking'),
-            get_string('answerscount', 'mod_booking'),
-            get_string('presencecount', 'mod_booking'),
-        ]);
-        // Columns.
-        $table->define_columns([
-            'titleprefix',
-            'text', // This is the booking option name (without prefix).
-            'answerscount',
-            'presencecount',
-        ]);
-        break;
-}
+$ba = new booking_answers();
+/** @var \mod_booking\booking_answers\scope_base $class */
+$class = $ba->return_class_for_scope($scope);
+$columns = $class->return_cols_for_tables($statusparam);
+$table->define_headers(array_values($columns));
+$table->define_columns(array_keys($columns));
 
 // File name and sheet name.
 $fileandsheetname = "download"; // Todo: Better name depending on scope etc.
