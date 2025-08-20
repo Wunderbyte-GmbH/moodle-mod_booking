@@ -3794,7 +3794,7 @@ class booking_option {
                 // Show collapsible progressbar.
                 $html .=
                     "<p class='mb-0 mt-1'>
-                        $icon <a data-toggle='collapse' href='#progressbarContainer$optionid' role='button'
+                        $icon <a data-toggle='collapse' data-bs-toggle='collapse' href='#progressbarContainer$optionid' role='button'
                         aria-expanded='false' aria-controls='progressbarContainer$optionid'>$alreadypassed: $consumedpercentage%</a>
                     </p>
                     <div class='collapse' id='progressbarContainer$optionid'>

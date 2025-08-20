@@ -150,7 +150,7 @@ if (!$teachersinstancereporttable->is_downloading()) {
     $settingsurl = new moodle_url('/admin/settings.php', ['section' => 'modsettingbooking']);
     echo '<div class="alert alert-secondary alert-dismissible fade show" role="alert">' .
         get_string('teachersinstancereport:subtitle', 'mod_booking', $settingsurl->out(false)) .
-        '<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        '<button type="button" class="close" data-dismiss="alert" data-bs-dismiss="alert" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>';

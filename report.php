@@ -1279,7 +1279,9 @@ if (!$tableallbookings->is_downloading()) {
             '<i class="fa fa-users" aria-hidden="true"></i>' . get_string('deletedusers', 'mod_booking'),
             [
                 'data-toggle' => "collapse",
-                'href' => "#collapseDeletedlist",
+                'data-target' => "#collapseDeletedlist",
+                'data-bs-toggle' => "collapse",
+                'data-bs-target' => "#collapseDeletedlist",
                 'role' => "button",
                 'aria-expanded' => "false",
                 'aria-controls' => "collapseDeletedlist",

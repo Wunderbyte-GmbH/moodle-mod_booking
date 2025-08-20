@@ -98,7 +98,7 @@
                         </div>
                         {{/messagingispossible}}
                         {{^messagingispossible}}
-                        <div style="display: inline-block;" data-toggle="tooltip" data-placement="right" title="{{#str}} messagingteacherimpossible, mod_booking {{/str}}">
+                        <div style="display: inline-block;" data-toggle="tooltip" data-bs-toggle="tooltip" data-placement="right" title="{{#str}} messagingteacherimpossible, mod_booking {{/str}}">
                             <a id="message-user-button" role="button" class="btn btn-light disabled">
                                 <span>
                                     <i class="icon fa fa-comment-o fa-fw iconsmall" title="{{#str}} messagebutton, mod_booking {{/str}}"
@@ -136,7 +136,8 @@
                     <ul class="nav nav-tabs" id="nav-tab" role="tablist">
                         {{#optiontables}}
                         <li class="nav-item">
-                            <a class="nav-link {{class}}" id="nav-tab-{{tablename}}" data-toggle="tab" href="#nav-table-{{tablename}}" role="tab" aria-controls="nav-tab-{{tablename}}">
+                            <a class="nav-link {{class}}" id="nav-tab-{{tablename}}" data-toggle="tab" data-bs-toggle="tab"
+                                href="#nav-table-{{tablename}}" role="tab" aria-controls="nav-tab-{{tablename}}">
                                 {{bookinginstancename}}
                             </a>
                         </li>

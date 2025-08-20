@@ -145,7 +145,7 @@ Feature: Create enrollink availability form for booking options with connected c
     ## Confirm teacher's purchase by themself
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r2" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r2" "css_element"
-    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
+    And I click on "[data-bs-target='#accordion-item-waitinglist']" "css_element"
     And I click on ".confirmbooking-username-teacher1 i" "css_element"
     And I wait "1" seconds
     And I click on "Book" "button" in the ".modal-footer" "css_element"
