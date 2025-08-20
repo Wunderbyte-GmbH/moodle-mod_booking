@@ -45,7 +45,7 @@ class confirmation {
 
             if (class_exists($classname)) {
                 // Skip if subplugin is disabled.
-                if (!get_config('bookingextension_' . $plugin->name, $plugin->name . '_enabled')) {
+                if (!get_config('bookingextension_' . $plugin->name, str_replace('_', '', $plugin->name) . 'enabled')) {
                     continue;
                 }
 
