@@ -90,8 +90,8 @@ class bookingstracker_helper {
             'report2instance' => $report2instance->out(false),
             'report2course' => $report2course->out(false),
             'report2system' => $report2system->out(false),
-            'instancename' => $values->instancename ? booking::shorten_text($values->instancename) : null,
-            'coursename' => $values->coursename ? booking::shorten_text($values->coursename) : null,
+            'instancename' => !empty($values->instancename) ? booking::shorten_text($values->instancename) : null,
+            'coursename' => !empty($values->coursename) ? booking::shorten_text($values->coursename) : null,
             'systemname' => $SITE->fullname ? booking::shorten_text($SITE->fullname) : null,
         ];
 

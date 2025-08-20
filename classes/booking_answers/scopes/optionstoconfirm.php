@@ -28,7 +28,10 @@ namespace mod_booking\booking_answers\scopes;
 use context_system;
 use context_module;
 use core_plugin_manager;
+use mod_booking\output\booked_users;
 use mod_booking\singleton_service;
+use mod_booking\table\manageusers_table;
+use local_wunderbyte_table\wunderbyte_table;
 
 /**
  * Booking answers scope: options to confirm.
@@ -39,6 +42,175 @@ use mod_booking\singleton_service;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class optionstoconfirm extends option {
+    /**
+     * Render users table based on status param
+     *
+     * @param string $scope
+     * @param int $scopeid
+     * @param int $statusparam
+     * @param string $tablenameprefix
+     * @param array $columns
+     * @param array $headers
+     * @param bool $sortable
+     * @param bool $paginate
+     * @return wunderbyte_table|null
+     */
+    public function return_users_table(
+        string $scope,
+        int $scopeid,
+        int $statusparam,
+        string $tablenameprefix,
+        array $columns,
+        array $headers = [],
+        bool $sortable = false,
+        bool $paginate = false
+    ) {
+        [$fields, $from, $where, $params] = $this->return_sql_for_booked_users($scope, $scopeid, $statusparam);
+
+        $tablename = "{$tablenameprefix}_{$scope}_{$scopeid}";
+        $table = new manageusers_table($tablename);
+
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        // Todo: $table->define_baseurl() ...
+        $table->define_cache('mod_booking', "bookedusertable");
+        $table->define_columns($columns);
+        $table->define_headers($headers);
+
+        if ($sortable) {
+            $table->sortablerows = true;
+        }
+
+        if ($paginate) {
+            $table->use_pages = true;
+        }
+
+        $table->set_sql($fields, $from, $where, $params);
+
+        $this->show_download_button($table, $scope, $scopeid, $statusparam);
+
+        // Only in option.
+        $optionid = $scopeid;
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $cmid = $settings->cmid;
+
+        $table->define_fulltextsearchcolumns(['firstname', 'lastname', 'email']);
+        switch ($statusparam) {
+            case MOD_BOOKING_STATUSPARAM_DELETED:
+                $sortablecolumns = [
+                    'firstname' => get_string('firstname'),
+                    'lastname' => get_string('lastname'),
+                    'email' => get_string('email'),
+                    'timemodified' => get_string('timemodified', 'mod_booking'),
+                ];
+                $table->sort_default_column = 'timemodified';
+                $table->sort_default_order = SORT_DESC;
+                break;
+            case MOD_BOOKING_STATUSPARAM_BOOKED:
+                $sortablecolumns = [
+                    'firstname' => get_string('firstname'),
+                    'lastname' => get_string('lastname'),
+                    'email' => get_string('email'),
+                    'status' => get_string('presence', 'mod_booking'),
+                    'presencecount' => get_string('presencecount', 'mod_booking'),
+                ];
+                $table->sort_default_column = 'lastname';
+                $table->sort_default_order = SORT_ASC;
+                break;
+            case MOD_BOOKING_STATUSPARAM_WAITINGLIST:
+                if (
+                    get_config('booking', 'waitinglistshowplaceonwaitinglist')
+                    && $scope === 'option'
+                ) {
+                    $sortablecolumns = [];
+                    $table->sort_default_column = 'userrank';
+                    $table->sort_default_order = SORT_ASC;
+                } else {
+                    $sortablecolumns = [
+                        'firstname' => get_string('firstname'),
+                        'lastname' => get_string('lastname'),
+                        'email' => get_string('email'),
+                    ];
+                    $table->sort_default_column = 'lastname';
+                    $table->sort_default_order = SORT_ASC;
+                }
+                break;
+            default:
+                $sortablecolumns = [
+                    'firstname' => get_string('firstname'),
+                    'lastname' => get_string('lastname'),
+                    'email' => get_string('email'),
+                ];
+                $table->sort_default_column = 'lastname';
+                $table->sort_default_order = SORT_ASC;
+                break;
+        }
+
+        $table->define_sortablecolumns($sortablecolumns);
+
+        if (
+            $statusparam == MOD_BOOKING_STATUSPARAM_BOOKED
+            && !empty($cmid)
+            && !empty($optionid)
+        ) {
+            $table->actionbuttons[] = booked_users::create_action_button(
+                'presence',
+                'fa fa-user-o',
+                'mod_booking\\form\\optiondates\\modal_change_status',
+                [
+                    'scope' => 'option',
+                    'titlestring' => 'changepresencestatus',
+                    'submitbuttonstring' => 'save',
+                    'component' => 'mod_booking',
+                    'cmid' => $cmid,
+                    'optionid' => $optionid ?? 0,
+                ],
+                'btn btn-primary btn-sm ml-2'
+            );
+
+            $table->actionbuttons[] = booked_users::create_action_button(
+                'notes',
+                'fa fa-pencil',
+                'mod_booking\\form\\optiondates\\modal_change_notes',
+                [
+                    'scope' => 'option',
+                    'titlestring' => 'notes',
+                    'submitbuttonstring' => 'save',
+                    'component' => 'mod_booking',
+                    'cmid' => $cmid,
+                    'optionid' => $optionid ?? 0,
+                ]
+            );
+        }
+
+        if ($statusparam != MOD_BOOKING_STATUSPARAM_DELETED) {
+            $table->addcheckboxes = true;
+            $table->actionbuttons[] = booked_users::create_delete_button();
+        }
+
+        return $table;
+    }
+
+    /**
+     * This functions defines the columns for each scope.
+     *
+     * @param int $statusparam
+     *
+     * @return array
+     *
+     */
+    public function return_cols_for_tables(int $statusparam): array {
+
+        $columns = [
+            'text' => get_string('bookingoptionname', 'mod_booking'),
+            'firstname' => get_string('firstname', 'core'),
+            'lastname'  => get_string('lastname', 'core'),
+            'email'     => get_string('email', 'core'),
+            'action_confirm' => get_string('confirmbooking', 'mod_booking'),
+        ];
+
+        return $columns;
+    }
+
     /**
      * Returns the sql to fetch booked users with a certain status.
      * Orderd by timemodified, to be able to sort them.
@@ -116,7 +288,9 @@ class optionstoconfirm extends option {
         }
 
         $whereneedtoconfirm = " AND " . self::get_whereneedtoconfirm_sql($params);
-        $whereneedtoconfirmjoin = " JOIN {booking_options} bo ON bo.id = ba.optionid ";
+        $whereneedtoconfirmjoin = " JOIN {booking_options} bo ON bo.id = ba.optionid
+                                    JOIN {course_modules} cm ON bo.bookingid = cm.instance
+                                    JOIN {modules} m ON m.id = cm.module AND m.name = 'booking'";
 
         // We need to set a limit for the query in mysqlfamily.
         $fields = 's1.*';
@@ -134,11 +308,14 @@ class optionstoconfirm extends option {
                     ba.waitinglist,
                     ba.status,
                     ba.notes,
+                    bo.text,
                     $selectpresencecount
                     ba.timemodified,
                     ba.timecreated,
                     ba.optionid,
                     ba.json,
+                    cm.id AS cmid,
+                    cm.course AS courseid,
                     '" . $scope . "' AS scope
                 FROM {booking_answers} ba
                 JOIN {user} u ON ba.userid = u.id
