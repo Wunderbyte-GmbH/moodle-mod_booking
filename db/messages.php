@@ -31,7 +31,6 @@ $messageproviders = [
             'pop-up' => MESSAGE_PERMITTED,
             'email' => MESSAGE_PERMITTED,
         ],
-        'capability' => 'mod/booking:cansendmessages',
     ],
 
     'sendmessages' => [
