@@ -309,6 +309,9 @@ class manageusers_table extends wunderbyte_table {
         $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
         $user = singleton_service::get_instance_of_user($userid);
 
+        // Inserting into History Table.
+        booking_option::booking_history_insert(MOD_BOOKING_STATUSPARAM_WAITINGLIST_CONFIRMED, $baid, $optionid, $settings->bookingid);
+
         // If booking option is booked with a price, we don't book directly but just allow to book.
         // Exeption: The booking is autoenrol and needs to be booked directly...
         // In this case price can be given for bookingoption, but was already payed before.
@@ -347,9 +350,6 @@ class manageusers_table extends wunderbyte_table {
             ]
         );
         $event->trigger();
-
-        // Inserting into History Table.
-        booking_option::booking_history_insert(MOD_BOOKING_STATUSPARAM_WAITINGLIST_CONFIRMED, $baid, $optionid, $userid);
 
         return [
             'success' => 1,
