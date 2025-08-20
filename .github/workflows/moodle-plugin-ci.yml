@@ -3,12 +3,89 @@ name: Moodle Plugin CI
 on: [push, pull_request]
 
 jobs:
-  ci:
+  moodle500:
     uses: Wunderbyte-GmbH/catalyst-moodle-workflows/.github/workflows/ci.yml@main
     with:
       # Change these based on your plugin's requirements
       disable_release: true  # Use true if using the tag-based release workflow
-      # moodle_branches: "MOODLE_401_STABLE MOODLE_402_STABLE"  # Optional: Only test specific Moodle versions
+      moodle_branches: "MOODLE_500_STABLE"  # Optional: Only test specific Moodle versions
+
+      # Command to install more dependencies
+      extra_plugin_runners: |
+        moodle-plugin-ci add-plugin --branch MOODLE_500_TESTING Wunderbyte-GmbH/moodle-local_wunderbyte_table
+        moodle-plugin-ci add-plugin --branch MOODLE_401_DEV Wunderbyte-GmbH/moodle-local_shopping_cart
+        moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-local_entities
+        moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-customfield_dynamicformat
+        moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-tool_mocktesttime
+        moodle-plugin-ci add-plugin --branch master branchup/moodle-filter_shortcodes
+        moodle-plugin-ci add-plugin --branch MOODLE_500_STABLE moodleworkplace/moodle-tool_certificate
+
+      # If you need to ignore specific paths (third-party libraries are ignored by default)
+      ignore_paths: 'vue3,moodle/tests/fixtures,moodle/Sniffs,moodle/vue3'
+
+      # Specify paths to ignore for mustache lint
+      mustache_ignore_names: 'bookingoption_dates_custom_list_items.mustache,form_booking_options_selector_suggestion.mustache,table_list_container.mustache,optiondatesteacherstable_list.mustache,optiondatesteacherstable_list_row.mustache,optiondatesteacherstable_list_container.mustache,option_collapsible_close.mustache,option_collapsible_open.mustache,static.mustache,advcheckbox.mustache,select.mustache,shorttext.mustache,mobile_details_button.mustache,mobile_mybookings_list.mustache,mobile_booking_option_details.mustache,mobile_view_page.mustache'
+
+      # Specify paths to ignore for code checker
+      codechecker_ignore_paths: 'OpenTBS, TinyButStrong'
+
+      # Specify paths to ignore for PHPDoc checker
+      phpdocchecker_ignore_paths: 'OpenTBS, TinyButStrong'
+
+      # If you need to disable specific tests
+      # disable_phpcpd: true
+      # disable_mustache: true
+      # disable_phpunit: true
+      # disable_grunt: true
+      # disable_phpdoc: true
+      # disable_phpcs: true
+      # disable_phplint: true
+      # disable_ci_validate: true
+
+      # If you need to enable PHPMD
+      enable_phpmd: true
+
+      # For strict code quality checks
+      codechecker_max_warnings: 0
+
+      # Override to exclude stale AMD file check (similar to your current workaround)
+      workarounds: |
+        # Set additional environment variables
+        echo "SOME_PATHS=OpenTBS, TinyButStrong" >> $GITHUB_ENV
+
+        # WORKAROUND 17/04/2025: The following code is a workaround for the "File is stale and needs to be rebuilt" error
+        # This occurs when AMD modules import Moodle core dependencies
+        # See issue: https://github.com/moodlehq/moodle-plugin-ci/issues/350
+        # This workaround should be removed once the issue is fixed upstream
+        # Load NVM and use the version from .nvmrc
+        export NVM_DIR="$HOME/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+        # Go to moodle directory
+        cd moodle
+
+        # Use NVM to set Node version and ensure grunt-cli is installed
+        nvm use
+        npm install
+        npm install -g grunt-cli
+
+        # Go back to plugin directory
+        cd ../plugin
+
+        # Pre-build AMD files to avoid stale file warnings
+        echo "=== Building AMD files before CI check ==="
+        grunt --gruntfile ../moodle/Gruntfile.js amd
+        echo "AMD files built successfully"
+
+        # Go Back to main directory
+        cd ..
+        # END OF WORKAROUND
+  moodle450:
+    uses: Wunderbyte-GmbH/catalyst-moodle-workflows/.github/workflows/ci.yml@main
+    with:
+      # Change these based on your plugin's requirements
+      disable_release: true  # Use true if using the tag-based release workflow
+      moodle_branches: "MOODLE_401_STABLE MOODLE_404_STABLE MOODLE_405_STABLE"  # Optional: Only test specific Moodle versions
       min_php: '7.4'  # Optional: Set minimum PHP version
 
       # Command to install more dependencies
