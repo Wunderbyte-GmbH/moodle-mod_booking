@@ -59,7 +59,7 @@
 
 {{#dayofweektime}}<div class="bo_dayofweektime">{{#str}}dayofweektime, mod_booking{{/str}}: {{.}}</div>{{/dayofweektime}}
 
-<a class="collapse-description" data-toggle="collapse" href="#collapsedescription_{{modalcounter}}" role="button" aria-expanded="false" aria-controls="collapsedescription_{{modalcounter}}">
+<a class="collapse-description" data-toggle="collapse" data-bs-toggle="collapse" href="#collapsedescription_{{modalcounter}}" role="button" aria-expanded="false" aria-controls="collapsedescription_{{modalcounter}}">
     {{#str}} showdescription, mod_booking {{/str}}
 </a>
 
@@ -72,7 +72,7 @@
         {{#description}}<div class="bo_description"><p>{{{.}}}</p></div>{{/description}}
         {{#price}}<div class="bo_price">{{.}} {{currency}} {{pricecategoryname}}</div>{{/price}}
         {{> mod_booking/bookingoption_description_teachers }}
-        <a class="collapseoptiondatesbutton" data-toggle="collapse" href="#collapseoptiondates_{{modalcounter}}" role="button" aria-expanded="false" aria-controls="collapseoptiondates_{{modalcounter}}">
+        <a class="collapseoptiondatesbutton" data-toggle="collapse" data-bs-toggle="collapse" href="#collapseoptiondates_{{modalcounter}}" role="button" aria-expanded="false" aria-controls="collapseoptiondates_{{modalcounter}}">
             {{#str}} showdates, mod_booking {{/str}}
         </a>
         <div id="collapseoptiondates_{{modalcounter}}" class="collapse list-group-item">
