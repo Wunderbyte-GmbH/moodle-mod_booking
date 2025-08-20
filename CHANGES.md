@@ -1,3 +1,11 @@
+## Version 8.15.3 (2025082000)
+* Feature: New setting to hide Booking Rules section in booking option edit form.
+* Improvement: Better strings for activity completion.
+* Improvement: Improvements for feature to show free instead of booked places.
+* Bugfix: Fix activity completion and make it less confusing.
+* Bugfix: Make sure price modifier for custom form also works without pricecategories set.
+* Accessibility: Role "alert" on button.
+
 ## Version 8.15.2 (2025081200)
 * Feature: Added possibility to replace booking option description
 with the value of a defined booking option customfield.
