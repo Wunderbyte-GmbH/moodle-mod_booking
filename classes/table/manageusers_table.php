@@ -29,6 +29,7 @@ use core_plugin_manager;
 use mod_booking\enrollink;
 use mod_booking\event\bookinganswer_confirmed;
 use mod_booking\local\bookingstracker\bookingstracker_helper;
+use mod_booking\local\confirmationworkflow\confirmation;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -274,28 +275,11 @@ class manageusers_table extends wunderbyte_table {
 
         $userid = $record->userid;
         $optionid = $record->optionid;
-        $allowedtoconfirm = false;
 
-        // Booking extions can break this execution to check if the current user has actually the right.
-        foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
-            $class = "\\bookingextension_{$plugin->name}\\local\\confirmbooking";
+        // Check all bookingextension subplugins for confirm capability.
+        [$allowedtoconfirm, $returnmessage, $reload] =
+            confirmation::check_confirm_capability($optionid, $USER->id, $userid);
 
-            if (class_exists($class)) {
-                // Check if bookingextention is enabled.
-                if (!get_config('bookingextension_' . $plugin->name, $plugin->name . '_enabled')) {
-                    continue;
-                }
-
-                [$allowed, $message, $reload] = $class::has_capability_to_confirm_booking($optionid, $USER->id, $userid);
-                if ($allowed) {
-                    // If only one subplugin allows it, we can continue.
-                    $allowedtoconfirm = true;
-                    break;
-                } else {
-                    $returnmessage = $message;
-                }
-            }
-        }
         if (!$allowedtoconfirm) {
             return [
                 'success' => 0,
@@ -310,7 +294,12 @@ class manageusers_table extends wunderbyte_table {
         $user = singleton_service::get_instance_of_user($userid);
 
         // Inserting into History Table.
-        booking_option::booking_history_insert(MOD_BOOKING_STATUSPARAM_WAITINGLIST_CONFIRMED, $baid, $optionid, $settings->bookingid);
+        booking_option::booking_history_insert(
+            MOD_BOOKING_STATUSPARAM_WAITINGLIST_CONFIRMED,
+            $baid,
+            $optionid,
+            $settings->bookingid
+        );
 
         // If booking option is booked with a price, we don't book directly but just allow to book.
         // Exeption: The booking is autoenrol and needs to be booked directly...
