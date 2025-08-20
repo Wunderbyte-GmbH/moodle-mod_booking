@@ -858,7 +858,7 @@ class bo_info {
         string $classes = 'alert alert-danger',
         bool $includeprice = false,
         bool $fullwidth = true,
-        string $role = 'alert',
+        string $role = '',
         string $area = 'option',
         bool $nojs = true,
         string $dataaction = '', // Use 'noforward' to disable automatic forwarding.
