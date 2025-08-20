@@ -26,7 +26,7 @@ use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
-require_once($CFG->dirroot.'/calendar/lib.php');
+require_once($CFG->dirroot . '/calendar/lib.php');
 
 /**
  * Deal with elective
@@ -35,7 +35,6 @@ require_once($CFG->dirroot.'/calendar/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class enrollink {
-
     /** @var static $instances  */
     private static $instances = [];
 
@@ -358,7 +357,7 @@ class enrollink {
      *
      */
     public function get_readable_info($info): string {
-        $string = get_string('enrollink:'. $info, 'mod_booking');
+        $string = get_string('enrollink:' . $info, 'mod_booking');
         return $string;
     }
 
@@ -594,5 +593,74 @@ class enrollink {
             'erlid',
             ['baid' => $baid]
         );
+    }
+
+    /**
+     * Reads the number of booked licenses from the booking answer.
+     *
+     * @param object $answer
+     *
+     * @return int
+     */
+    public static function return_number_of_booked_licenses_from_booking_answer(object $answer): int {
+        if (empty($answer->json)) {
+            return 0;
+        }
+
+        $data = json_decode($answer->json, true); // decode as array
+
+        if (empty($data['condition_customform']) || !is_array($data['condition_customform'])) {
+            return 0;
+        }
+
+        // Look for keys like customform_enrolusersaction_1, _2, etc.
+        foreach ($data['condition_customform'] as $key => $value) {
+            if (preg_match('/^customform_enrolusersaction_\d+$/', $key)) {
+                return (int) $value;
+            }
+        }
+
+        return 0;
+    }
+
+    /**
+     * Updates the number of booked enrollinks in the json of a booking answer.
+     *
+     * @param object $answer
+     * @param int $nritems
+     *
+     * @return void
+     *
+     */
+    public static function update_number_of_booked_licenses_for_booking_answer(object $answer, int $nritems): void {
+
+        global $DB, $USER;
+
+        if (empty($answer->json)) {
+            return;
+        }
+
+        $data = json_decode($answer->json, true); // decode as array
+
+        if (empty($data['condition_customform']) || !is_array($data['condition_customform'])) {
+            return;
+        }
+
+        // Look for keys like customform_enrolusersaction_1, _2, etc.
+        foreach ($data['condition_customform'] as $key => $value) {
+            if (preg_match('/^customform_enrolusersaction_\d+$/', $key)) {
+                $data['condition_customform'][$key] = "$nritems";
+            }
+        }
+
+        $data = [
+            'id' => $answer->baid,
+            'json' => json_encode($data),
+            'timemodified' => time(),
+            'usermodified' => $USER->id,
+            'places' => $nritems,
+        ];
+
+        $DB->update_record('booking_answers', $data);
     }
 }
