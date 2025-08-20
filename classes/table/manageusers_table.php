@@ -608,6 +608,97 @@ class manageusers_table extends wunderbyte_table {
     }
 
     /**
+     * This handles the action column with buttons, icons, checkboxes.
+     *
+     * @param stdClass $values
+     * @return bool|string
+     */
+    public function col_action_confirm($values) {
+        global $OUTPUT, $USER;
+
+        $optionid = $values->optionid;
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $ba = singleton_service::get_instance_of_booking_answers($settings);
+
+        if (!empty($values->json)) {
+            $jsonobject = json_decode($values->json);
+            if (!empty($jsonobject->confirmwaitinglist)) {
+                $data[] = [
+                    'label' => get_string('unconfirm', 'mod_booking'), // Name of your action button.
+                    'class' => "btn btn-nolabel unconfirmbooking-username-{$values->username} ",
+                    'href' => '#', // You can either use the link, or JS, or both.
+                    'iclass' => 'fa fa-ban', // Add an icon before the label.
+                    'id' => $values->id,
+                    'name' => $values->id,
+                    'methodname' => 'unconfirmbooking', // The method needs to be added to your child of wunderbyte_table class.
+                    // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+                    'data' => [
+                        'id' => $values->id,
+                        'labelcolumn' => 'username',
+                        'titlestring' => 'unconfirmbooking',
+                        'bodystring' => 'unconfirmbookinglong',
+                        'submitbuttonstring' => 'delete',
+                        'component' => 'mod_booking',
+                        'optionid' => $values->optionid,
+                        'userid' => $values->userid,
+                    ],
+                ];
+            }
+        }
+
+        [$allowedtoconfirm, $returnmessage, $reload] =
+            confirmation::check_confirm_capability($optionid, $USER->id, $values->userid);
+
+        if (!$allowedtoconfirm) {
+            $data[] = [
+                'label' => $returnmessage ?? '', // Name of your action button.
+                'class' => "badge bg-secondary p-2",
+                'href' => '#', // You can either use the link, or JS, or both.
+                'iclass' => '', // Add an icon before the label.
+                'id' => $values->id,
+                'name' => $values->id,
+                'methodname' => '', // The method needs to be added to your child of wunderbyte_table class.
+                'data' => [], // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+            ];
+        }
+
+        if (
+            (!$ba->is_fully_booked() || !empty($settings->jsonobject->useprice))
+            && empty($data)
+            && $allowedtoconfirm
+        ) {
+            $data[] = [
+                'label' => '', // Name of your action button.
+                'class' => "btn btn-nolabel confirmbooking-username-{$values->username} ",
+                'href' => '#', // You can either use the link, or JS, or both.
+                'iclass' => 'fa fa-check', // Add an icon before the label.
+                'id' => $values->id,
+                'name' => $values->id,
+                'methodname' => 'confirmbooking', // The method needs to be added to your child of wunderbyte_table class.
+                'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+                    'id' => $values->id,
+                    'labelcolumn' => 'username',
+                    'titlestring' => 'confirmbooking',
+                    'bodystring' => 'confirmbookinglong',
+                    'submitbuttonstring' => 'booking:choose',
+                    'component' => 'mod_booking',
+                    'optionid' => $values->optionid,
+                    'userid' => $values->userid,
+                ],
+            ];
+        }
+
+        // This transforms the array to make it easier to use in mustache template.
+        table::transform_actionbuttons_array($data);
+
+        return $OUTPUT->render_from_template(
+            'local_wunderbyte_table/component_actionbutton',
+            ['showactionbuttons' => $data]
+        );
+    }
+
+    /**
      * This handles the delete action column.
      *
      * @param stdClass $values
