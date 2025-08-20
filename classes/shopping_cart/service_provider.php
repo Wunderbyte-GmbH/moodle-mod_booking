@@ -134,7 +134,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             $users = $ba->get_usersreserved();
             $userid = empty($userid) ? $userid : $USER->id;
             $answer = $users[$userid] ?? [];
-            $nritems = enrollink::return_number_of_booked_licenses_from_booking_answer($answer);
+            $nritems = enrollink::return_number_of_booked_licenses_from_booking_answer((object)$answer);
 
             $numberofitems = empty($nritems) ? 1 : $nritems;
             $multipliable = empty($nritems) ? 0 : 1;
@@ -542,7 +542,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
 
             $users = $ba->get_usersreserved();
             if ($answer = $users[$userid]) {
-                $currentlybooked = enrollink::return_number_of_booked_licenses_from_booking_answer($answer);
+                $currentlybooked = enrollink::return_number_of_booked_licenses_from_booking_answer((object)$answer);
                 $bookinginformation = $ba->return_all_booking_information($userid);
                 if (
                     !isset($bookinginformation['freeonlist'])
