@@ -69,6 +69,10 @@ pwIDAQAB
         openssl_public_decrypt($encryptedlicensekey, $licensekey, self::MOD_BOOKING_PUBLIC_KEY);
 
         // Step 3: Do another base64 decode and decrypt using wwwroot.
+        if (empty($licensekey)) {
+            return false;
+        }
+
         $c = base64_decode($licensekey);
         $ivlen = openssl_cipher_iv_length($cipher = "AES-128-CBC");
         $iv = substr($c, 0, $ivlen);
