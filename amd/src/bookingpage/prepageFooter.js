@@ -115,49 +115,48 @@ export function initFooterButtons(optionid, userid, shoppingcartisinstalled) {
         }
 
         // attach click listener
-        element.addEventListener('click', (evt) => {
-            // If hidden by class 'hidden' ignore
-            if (element.classList.contains('hidden')) {
+        element.addEventListener('click', function (evt) {
+            // If hidden or blocked, ignore as before.
+            if (this.classList.contains('hidden')) {
+                return;
+            }
+            if (this.dataset.blocked === 'true') {
                 return;
             }
 
-            // The logic might be blocked because eg a form is there to prevent it.
-            if (element.dataset.blocked === 'true') {
-                return;
-            }
+            // IMPORTANT: stop Bootstrap / other handlers from running on this click,
+            // and prevent the default anchor navigation.
+            evt.preventDefault();
+            // stop propagation and stop other listeners on the same element from running (Bootstrap's listener is later).
+            evt.stopImmediatePropagation();
+
+            const action = this.dataset.action;
 
             switch (action) {
                 case 'back':
                     backToPreviousPage(optionid, userid);
                     break;
-
                 case 'continue':
                 case 'continuepost':
                     continueToNextPage(optionid, userid);
                     break;
-
                 case 'checkout':
                     closeModal(optionid);
-                    if (element.dataset.href) {
-                        window.location.href = element.dataset.href;
+                    if (this.dataset.href) {
+                        window.location.href = this.dataset.href;
                     }
                     break;
-
                 case 'closemodal':
                     reloadOnBookingView();
                     closeModal(optionid);
                     break;
-
                 case 'closeinline':
                     reloadOnBookingView();
                     closeInline(optionid);
                     break;
-
-                default:
-                    // noop
-                    break;
             }
         });
+
     });
 }
 
