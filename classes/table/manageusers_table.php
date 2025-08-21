@@ -288,6 +288,10 @@ class manageusers_table extends wunderbyte_table {
             ];
         }
 
+        // Check number of required confirmation.
+        $requiredconfirmationscount = confirmation::get_required_confirmation_count($optionid);
+
+
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
         $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
@@ -323,6 +327,22 @@ class manageusers_table extends wunderbyte_table {
             // Check if it's an autoenrollment. If so, we need to change the status.
             if (!empty($erwaitinglist)) {
                 $status = MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL;
+            } else if ($requiredconfirmationscount >= 2) {
+                // If needs more confirmations shoudl still wait on waiting list. otherwise it can be booked.
+                // We need the current confirmation with the required confirmation.
+                $currentconfirmationcount = 0;
+                $answerjson = !empty($record->json) ? json_decode($record->json) : new stdClass();
+                if (property_exists($answerjson, 'confirmationcount')) {
+                    $currentconfirmationcount = (int) $answerjson->confirmationcount;
+                }
+
+                if (($requiredconfirmationscount - 1) === $currentconfirmationcount) {
+                    // So it's the last confirm. No more confirmation is required.
+                    $status = MOD_BOOKING_BO_SUBMIT_STATUS_DEFAULT;
+                } else {
+                    // Need more confirms.
+                    $status = MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION;
+                }
             } else {
                 $status = MOD_BOOKING_BO_SUBMIT_STATUS_DEFAULT;
             }
@@ -665,7 +685,7 @@ class manageusers_table extends wunderbyte_table {
 
         if (
             (!$ba->is_fully_booked() || !empty($settings->jsonobject->useprice))
-            && empty($data)
+            // && empty($data)
             && $allowedtoconfirm
         ) {
             $data[] = [

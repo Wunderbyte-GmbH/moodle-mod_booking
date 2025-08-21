@@ -142,4 +142,14 @@ class confirmbooking implements confirmbooking_interface {
         return " ( JSON_UNQUOTE(JSON_EXTRACT(bo.json, '$.waitforconfirmation')) = '1'
                 AND JSON_UNQUOTE(JSON_EXTRACT(bo.json, '$.confirmationtrainerenabled')) = '1' )";
     }
+
+    /**
+     * Returns the number of required confirmations based on the booking option settings.
+     *
+     * @param int $optionid
+     * @return int Number of confirmations needed (e.g., 1 or 2)
+     */
+    public static function get_required_confirmation_count(int $optionid): int {
+        return 1;
+    }
 }

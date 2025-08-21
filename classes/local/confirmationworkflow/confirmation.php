@@ -63,4 +63,39 @@ class confirmation {
 
         return [$allowedtoconfirm, $returnmessage, $reload];
     }
+
+    /**
+     * Summary of get_required_confirmation_count
+     * @param int $optionid
+     * @return int
+     */
+    public static function get_required_confirmation_count(int $optionid): int {
+        // Default value. Remains zero when no plugin is enabeld.
+        $requiredconfirmationscount = 0;
+
+        // Check each plugin to get required number of confirmation.
+        foreach (\core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
+            $classname = "\\bookingextension_{$plugin->name}\\local\\confirmbooking";
+
+            if (class_exists($classname)) {
+                // Skip if subplugin is disabled.
+                if (!get_config('bookingextension_' . $plugin->name, str_replace('_', '', $plugin->name) . 'enabled')) {
+                    continue;
+                }
+
+                // Skipt if desired function not exists.
+                if (!method_exists($classname, 'get_required_confirmation_count')) {
+                    continue;
+                }
+
+                // We always consider the max number of required conformation. It's required when multiple plugin are enabled.
+                $newvalue = $classname::get_required_confirmation_count($optionid);
+                if ($newvalue > $requiredconfirmationscount) {
+                    $requiredconfirmationscount = $newvalue;
+                }
+            }
+        }
+
+        return $requiredconfirmationscount;
+    }
 }

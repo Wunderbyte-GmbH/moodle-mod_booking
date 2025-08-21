@@ -42,4 +42,12 @@ interface confirmbooking_interface {
      *
      */
     public function get_description(): string;
+
+    /**
+     * Returns the number of required confirmations based on the booking option settings.
+     *
+     * @param int $optionid
+     * @return int Number of confirmations needed (e.g., 1 or 2)
+     */
+    public static function get_required_confirmation_count(int $optionid): int;
 }

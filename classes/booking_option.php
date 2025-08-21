@@ -1182,7 +1182,6 @@ class booking_option {
         }
 
         if (empty($this->option)) {
-            echo "<br>Didn't find option to subscribe user $user->id <br>";
             return false;
         }
 
@@ -1461,16 +1460,31 @@ class booking_option {
             self::add_data_to_json($newanswer, 'selflearningendofsubscription', $end);
         }
 
+        // Count number of confirmations. we need that in some bookingextensions.
+        $confirmationcount = 0;
+        $ba = singleton_service::get_instance_of_booking_answers($settings);
+        $users = $ba->get_usersonlist();
+        if ($answer = $users[$userid] ?? false) {
+            $answerjson = !empty($answer->json) ? json_decode($answer->json) : new stdClass();
+            if (property_exists($answerjson, 'confirmationcount')) {
+                $confirmationcount = $answerjson->confirmationcount;
+            }
+        }
+        // Increase confirmation count.
+        $confirmationcount++;
+
         // The confirmation on the waitinglist is saved here.
         if ($confirmwaitinglist === MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION) {
             self::add_data_to_json($newanswer, 'confirmwaitinglist', 1);
             self::add_data_to_json($newanswer, 'confirmwaitinglist_modifieduserid', $USER->id);
             self::add_data_to_json($newanswer, 'confirmwaitinglist_timemodified', time());
+            self::add_data_to_json($newanswer, 'confirmationcount', $confirmationcount);
         } else if ($confirmwaitinglist === MOD_BOOKING_BO_SUBMIT_STATUS_UN_CONFIRM) {
             // We only remove the key if we are still on waitinglist.
             self::remove_key_from_json($newanswer, 'confirmwaitinglist');
             self::remove_key_from_json($newanswer, 'confirmwaitinglist_modifieduserid');
             self::remove_key_from_json($newanswer, 'confirmwaitinglist_timemodified');
+            self::remove_key_from_json($newanswer, 'confirmationcount');
         }
         if (!empty($erlid)) {
             self::add_data_to_json($newanswer, 'erlid', $erlid);
