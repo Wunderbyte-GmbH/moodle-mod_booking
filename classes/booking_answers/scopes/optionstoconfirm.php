@@ -205,7 +205,7 @@ class optionstoconfirm extends option {
             'firstname' => get_string('firstname', 'core'),
             'lastname'  => get_string('lastname', 'core'),
             'email'     => get_string('email', 'core'),
-            'action_confirm' => get_string('confirmbooking', 'mod_booking'),
+            'action_confirm_delete' => get_string('confirmbooking', 'mod_booking'),
         ];
 
         return $columns;
