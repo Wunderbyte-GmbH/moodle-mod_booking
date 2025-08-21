@@ -187,6 +187,14 @@ class confirmation_trainer extends field_base {
         $fieldstoinstanciate = [],
         $applyheader = true
     ) {
+        if (!get_config('bookingextension_confirmation_trainer', 'confirmationtrainerenabled')) {
+            return;
+        }
+
+        if (!get_config('bookingextension_confirmation_trainer', 'confirmationtrainerenabledinbookingoption')) {
+            return;
+        }
+
         // Add header of subplugin to the mform (only if its not yet there).
         if ($applyheader) {
             $elementexists = $mform->elementExists(self::$header);
@@ -204,6 +212,7 @@ class confirmation_trainer extends field_base {
             'confirmationtrainerenabled',
             get_string('confirmationtrainerenabled', 'bookingextension_confirmation_trainer')
         );
+
         $mform->hideIf('confirmationtrainerenabled', 'waitforconfirmation', 'neq', 1);
         $mform->addElement(
             'static',
@@ -213,6 +222,7 @@ class confirmation_trainer extends field_base {
         );
         $mform->hideIf('waitforconfirmationdescription', 'waitforconfirmation', 'neq', 1);
     }
+
 
     /**
      * This function adds error keys for form validation.
@@ -240,8 +250,11 @@ class confirmation_trainer extends field_base {
                 ?? booking_option::get_value_of_json_by_key($data->id, "confirmationtrainerenabled") ?? 0;
         } else {
             $confirmationtrainerenabled = booking_option::get_value_of_json_by_key($data->id, "confirmationtrainerenabled");
-            if (!empty($confirmationtrainerenabled)) {
+            if ($confirmationtrainerenabled == '0' || $confirmationtrainerenabled == '1') {
                 $data->confirmationtrainerenabled = $confirmationtrainerenabled;
+            } else {
+                $data->confirmationtrainerenabled
+                    = get_config('bookingextension_confirmation_trainer', 'confirmationtrainerenabled');
             }
         }
     }

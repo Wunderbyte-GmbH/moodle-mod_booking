@@ -24,6 +24,8 @@
  */
 $string['bookingextensionconfirmationtrainer:confirmationtrainerenabled'] = "Activate confirmation by trainer";
 $string['bookingextensionconfirmationtrainer:confirmationtrainerenabled_desc'] = "Explanation";
+$string['bookingextensionconfirmationtrainer:confirmationtrainerenabledinbookingoption'] = 'Display in booking option settings';
+$string['bookingextensionconfirmationtrainer:confirmationtrainerenabledinbookingoption_desc'] = 'Make it visible in booking option settings';
 $string['bookingextensionconfirmationtrainer:heading'] = "Confirmation by trainer";
 $string['bookingextensionconfirmationtrainer:heading_desc'] = "Add the possibility to book only after confirmation for trainer";
 $string['confirmationtrainerenabled'] = 'Allow confirmation by trainer';

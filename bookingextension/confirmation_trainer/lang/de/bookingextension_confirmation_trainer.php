@@ -24,6 +24,8 @@
  */
 $string['bookingextensionconfirmationtrainer:confirmationtrainerenabled'] = "Bestätigung durch Trainer aktiviert";
 $string['bookingextensionconfirmationtrainer:confirmationtrainerenabled_desc'] = "Erläuterung";
+$string['bookingextensionconfirmationtrainer:confirmationtrainerenabledinbookingoption'] = 'Anzeige in den Buchungsoptionseinstellungen';
+$string['bookingextensionconfirmationtrainer:confirmationtrainerenabledinbookingoption_desc'] = 'In den Einstellungen der Buchungsoption anzeigen';
 $string['bookingextensionconfirmationtrainer:heading'] = "Bestätigung durch Trainer";
 $string['bookingextensionconfirmationtrainer:heading_desc'] = "Das ist nur eine Demonstration.";
 $string['confirmationtrainerenabled'] = 'Erlaube Bestätigung durch Trainer:innen';
