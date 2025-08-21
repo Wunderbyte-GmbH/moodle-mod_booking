@@ -461,7 +461,8 @@ if there only was one booking option. */
 }
 
 /* DO NOT USE #page-mod-booking-view because this needs to work in shortcodes too! */
-.mod-booking-view-list-image.rounded-left {
+.mod-booking-view-list-image.rounded-left,
+.mod-booking-view-list-image.rounded-start {
     box-shadow: 3px 0 10px 1px rgba(0, 0, 0, 0.1);
     /* stylelint-disable-next-line declaration-no-important */
     border-top-right-radius: 0 !important;
@@ -470,7 +471,8 @@ if there only was one booking option. */
 }
 
 /* DO NOT USE #page-mod-booking-view because this needs to work in shortcodes too! */
-.mod-booking-view-list-image.rounded-right {
+.mod-booking-view-list-image.rounded-right,
+.mod-booking-view-list-image.rounded-end {
     box-shadow: -3px 0 10px 1px rgba(0, 0, 0, 0.1);
     /* stylelint-disable-next-line declaration-no-important */
     border-top-left-radius: 0 !important;
