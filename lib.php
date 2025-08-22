@@ -2725,10 +2725,10 @@ function mod_booking_tool_certificate_fields() {
     $customfields = booking_handler::get_customfields();
     foreach ($customfields as $customfield) {
                $handler->ensure_field_exists(
-                   $customfield->shortname,
+                   'cf' . $customfield->shortname,
                    'text',
                    $customfield->shortname,
-                   $customfield->shortname,
+                   $customfield->name,
                );
     }
 }

@@ -296,7 +296,12 @@ class certificate extends field_base {
             $customfields = booking_handler::get_customfields();
             foreach ($customfields as $customfield) {
                 $placeholder = '{' . $customfield->shortname . '}';
-                $customfielddata["cf" . $customfield->shortname] = customfields::return_value($settings->cmid, $settings->id, $userid, $placeholder);
+                $params = [];
+                $value = customfields::return_value($settings->cmid, $settings->id, $userid, $placeholder, $params, $customfield->shortname);
+                if (empty($value)) {
+                    $value = " ";
+                }
+                $customfielddata['cf' . $customfield->shortname] = $value;
             }
             $bookingoptionfields = [
                 'bookingoptionid' => $settings->id,
