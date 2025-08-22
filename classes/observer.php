@@ -457,7 +457,7 @@ class mod_booking_observer {
                 if (empty($bookedanswer->completion)) {
                     booking_activitycompletion(
                         [$event->relateduserid],
-                        (object)$bookingoption->booking,
+                        $bookingoption->booking->settings,
                         $settings->cmid,
                         $settings->id,
                     );
