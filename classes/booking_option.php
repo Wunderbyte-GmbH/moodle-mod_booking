@@ -1460,24 +1460,65 @@ class booking_option {
             self::add_data_to_json($newanswer, 'selflearningendofsubscription', $end);
         }
 
-        // Count number of confirmations. we need that in some bookingextensions.
-        $confirmationcount = 0;
+        $answer = null; // Exisitng answer.
         $ba = singleton_service::get_instance_of_booking_answers($settings);
         $users = $ba->get_usersonwaitinglist();
         if ($answer = $users[$userid] ?? false) {
-            $answerjson = !empty($answer->json) ? json_decode($answer->json) : new stdClass();
-            if (property_exists($answerjson, 'confirmationcount')) {
-                $confirmationcount = $answerjson->confirmationcount;
+            // Prepare value for the key (confirmationcount).
+            $count = self::get_data_from_json($answer, 'confirmationcount');
+            if (!empty($count) && is_numeric($count)) {
+                $confirmationcount = $count;
+                $confirmationcount++; // Increase confirmation count.
+            } else {
+                $confirmationcount = 1;
             }
+
+            // Prepare value for the key (confirmwaitinglist_modifieduserid).
+            $muid = self::get_data_from_json($answer, 'confirmwaitinglist_modifieduserid');
+            if (is_array($muid)) { // If it is an array, we just add new suer to it.
+                $modifieduserid = $muid;
+                $modifieduserid[] = $USER->id;
+            } else if (is_numeric($muid)) { // If it is a number we chnaged it to array of number and then we add new value.
+                $modifieduserid = [(int) $muid];
+                $modifieduserid[] = $USER->id;
+            } else {
+                $modifieduserid = [];
+                $modifieduserid[] = $USER->id;
+            }
+
+            // Prepare value for the key (confirmwaitinglist_timemodified).
+            $tm = self::get_data_from_json($answer, 'confirmwaitinglist_timemodified');
+            if (is_array($tm)) { // If it is an array, we just add new time to it.
+                $timemodified = $tm;
+                $timemodified[] = time();
+            } else if (is_numeric($tm)) { // If it is a number we chnaged it to array of number and then we add new value.
+                $timemodified = [(int) $tm];
+                $timemodified[] = time();
+            } else {
+                $timemodified = [];
+                $timemodified[] = time();
+            }
+        } else {
+            $confirmationcount = 1;
+            $modifieduserid[] = $USER->id;
+            $timemodified[] = time();
         }
-        // Increase confirmation count.
-        $confirmationcount++;
 
         // The confirmation on the waitinglist is saved here.
-        if ($confirmwaitinglist === MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION) {
+        if (
+            $confirmwaitinglist === MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION
+            ||
+            (
+                !empty($answer)
+                && $answer->waitinglist == MOD_BOOKING_STATUSPARAM_WAITINGLIST // Ensures we save keys on next confirmations.
+                && $confirmwaitinglist == MOD_BOOKING_STATUSPARAM_BOOKED
+                && $settings->waitforconfirmation > 0 // Ensures we dont save the keys when option has no confirmation
+                // in the case an answer will be directly moves to booked from waiting list when a new free place is available.
+            )
+        ) {
             self::add_data_to_json($newanswer, 'confirmwaitinglist', 1);
-            self::add_data_to_json($newanswer, 'confirmwaitinglist_modifieduserid', $USER->id);
-            self::add_data_to_json($newanswer, 'confirmwaitinglist_timemodified', time());
+            self::add_data_to_json($newanswer, 'confirmwaitinglist_modifieduserid', $modifieduserid);
+            self::add_data_to_json($newanswer, 'confirmwaitinglist_timemodified', $timemodified);
             self::add_data_to_json($newanswer, 'confirmationcount', $confirmationcount);
         } else if ($confirmwaitinglist === MOD_BOOKING_BO_SUBMIT_STATUS_UN_CONFIRM) {
             // We only remove the key if we are still on waitinglist.
@@ -3986,6 +4027,23 @@ class booking_option {
         }
         $jsonobject->{$key} = $value;
         $data->json = json_encode($jsonobject);
+    }
+
+    /**
+     * A helper to get data from the json of a booking option.
+     *
+     * @param stdClass $data reference to a data object containing the json key
+     * @param string $key - for example: "disablecancel"
+     * @return int|string|stdClass|array|null
+     */
+    public static function get_data_from_json(stdClass &$data, string $key) {
+        if (!empty($data->json)) {
+            $jsonobject = json_decode($data->json);
+            if (isset($jsonobject->{$key})) {
+                return $jsonobject->{$key};
+            }
+        }
+        return null;
     }
 
     /**
