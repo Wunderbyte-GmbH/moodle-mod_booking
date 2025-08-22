@@ -112,6 +112,9 @@ class singleton_service {
     /** @var array $sanitzedstringkey */
     public array $sanitzedstringkey;
 
+    /** @var array $tempdataforcertificate */
+    public array $tempdataforcertificate;
+
 
     /**
      * Constructor
@@ -869,5 +872,20 @@ class singleton_service {
     public static function destroy_instance() {
         self::$instance = null;
         return true;
+    }
+
+    public static function set_temp_values_for_certificates(int $optionid, int $userid) {
+        $instance = self::get_instance();
+        $instance->tempdataforcertificate[] = $userid;
+        $instance->tempdataforcertificate[] = $optionid;
+    }
+
+    public static function get_temp_values_for_certificates() {
+        $instance = self::get_instance();
+        return $instance->tempdataforcertificate ?? [];
+    }
+    public static function unset_temp_values_for_certificates() {
+        $instance = self::get_instance();
+        unset($instance->kswuserid, $instance->kswoptionid);
     }
 }
