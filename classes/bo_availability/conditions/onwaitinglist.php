@@ -31,6 +31,7 @@ use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_answers\booking_answers;
 use mod_booking\booking_option_settings;
+use mod_booking\local\confirmationworkflow\confirmation;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
 
@@ -117,10 +118,13 @@ class onwaitinglist implements bo_condition {
                 if (empty($settings->waitforconfirmation)) {
                     $isavailable = true;
                 } else if (!empty($ba->json)) {
-                    // Or when confirmation is already given.
-                    $jsonobject = json_decode($ba->json);
+                    // Or when confirmation is already given. Get number of current confirmations then compare it
+                    // with the required number of confirmations. If number of required confirmations is equal to
+                    // number of received confirmations, the button should block.
+                    $currentconfirmationscount = json_decode($ba->json)->confirmationcount; // Current received confirmations.
+                    $requiredconfirmationscount = confirmation::get_required_confirmation_count($bookinganswer->optionid);
                     if (
-                        !empty($jsonobject->confirmwaitinglist)
+                        $currentconfirmationscount === $requiredconfirmationscount
                         || empty($settings->waitforconfirmation)
                     ) {
                         $isavailable = true;

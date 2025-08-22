@@ -1463,7 +1463,7 @@ class booking_option {
         // Count number of confirmations. we need that in some bookingextensions.
         $confirmationcount = 0;
         $ba = singleton_service::get_instance_of_booking_answers($settings);
-        $users = $ba->get_usersonlist();
+        $users = $ba->get_usersonwaitinglist();
         if ($answer = $users[$userid] ?? false) {
             $answerjson = !empty($answer->json) ? json_decode($answer->json) : new stdClass();
             if (property_exists($answerjson, 'confirmationcount')) {
