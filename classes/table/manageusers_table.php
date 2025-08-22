@@ -292,7 +292,6 @@ class manageusers_table extends wunderbyte_table {
         // Check number of required confirmation.
         $requiredconfirmationscount = confirmation::get_required_confirmation_count($optionid);
 
-
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
         $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
