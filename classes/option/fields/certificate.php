@@ -24,11 +24,14 @@
 
 namespace mod_booking\option\fields;
 
+use core_user;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
+use mod_booking\customfield\booking_handler;
 use mod_booking\option\dates_handler;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
+use mod_booking\placeholders\placeholders\customfields;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
 use tool_certificate\certificate as toolCertificate;
@@ -288,20 +291,35 @@ class certificate extends field_base {
         }
         // Create Certificate.
         if ($template->can_issue($userid)) {
+            $user = core_user::get_user($userid);
+            $customfielddata = [];
+            $customfields = booking_handler::get_customfields();
+            foreach ($customfields as $customfield) {
+                $placeholder = '{' . $customfield->shortname . '}';
+                $customfielddata["cf" . $customfield->shortname] = customfields::return_value($settings->cmid, $settings->id, $userid, $placeholder);
+            }
+            $bookingoptionfields = [
+                'bookingoptionid' => $settings->id,
+                'bookingoptionname' => $settings->get_title_with_prefix(),
+                'bookingoptiondescription' => clean_text($settings->description, $format = FORMAT_HTML, $options = ['strip_tags' => true]),
+                'location' => $settings->location,
+                'institution' => $settings->institution,
+                'teachers' => self::return_teachers_for_certificate($settings->teachers),
+                'sessions' => self::return_sessions_for_certificate($settings->sessions),
+                'duration' => self::return_duration_for_certificate($settings),
+            ];
+
+            $data = array_merge(
+                $bookingoptionfields,
+                $customfielddata
+            );
+            singleton_service::set_temp_values_for_certificates($settings->id, $userid);
             $id = $template->issue_certificate(
                 $userid,
                 $certificateexpirydate,
-                [
-                    'bookingoptionid' => $settings->id,
-                    'bookingoptionname' => $settings->get_title_with_prefix(),
-                    'bookingoptiondescription' => strip_tags($settings->description),
-                    'location' => $settings->location,
-                    'institution' => $settings->institution,
-                    'teachers' => self::return_teachers_for_certificate($settings->teachers),
-                    'sessions' => self::return_sessions_for_certificate($settings->sessions),
-                    'duration' => self::return_duration_for_certificate($settings),
-                ]
+                $data
             );
+            singleton_service::unset_temp_values_for_certificates();
         }
         return $id;
     }

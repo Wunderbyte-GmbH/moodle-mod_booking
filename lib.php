@@ -2722,6 +2722,15 @@ function mod_booking_tool_certificate_fields() {
         true,
         get_string('institution', 'mod_booking'),
     );
+    $customfields = booking_handler::get_customfields();
+    foreach ($customfields as $customfield) {
+               $handler->ensure_field_exists(
+                   $customfield->shortname,
+                   'text',
+                   $customfield->shortname,
+                   $customfield->shortname,
+               );
+    }
 }
 
 /**
