@@ -1970,7 +1970,7 @@ $string['profeatures:appearance'] = '<ul>
 <li><b>Optionen für Anwesenheitsstatus</b></li>
 </ul>';
 $string['profeatures:approval'] = '<ul>
-<li><b>Bestätigungsworkflows aktivieren</b></li>
+<li><b>Bestätigungsworkflows (Buchungen müssen durch bestimmte Personen bestätigt werden)</b></li>
 </ul>';
 $string['profeatures:automaticcoursecreation'] = '<ul>
 <li><b>Benutzerdefiniertes Buchungsoptionfeld, das als Kurskategorie von automatisch erstellten Kursen verwendet werden soll</b></li>

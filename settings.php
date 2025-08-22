@@ -949,7 +949,7 @@ if ($ADMIN->fulltree) {
         $settings->add(
             new admin_setting_heading(
                 'tabwhatsnew',
-                get_string('tabwhatsnew', 'mod_booking'),
+                get_string('tabwhatsnew', 'mod_booking') . " " . get_string('badge:pro', 'mod_booking'),
                 get_string('prolicensefeatures', 'mod_booking') .
                 get_string('profeatures:tabwhatsnew', 'mod_booking') .
                 get_string('infotext:prolicensenecessary', 'mod_booking')
@@ -959,7 +959,7 @@ if ($ADMIN->fulltree) {
          $settings->add(
              new admin_setting_heading(
                  'approvalsettings',
-                 get_string('approvalsettings', 'mod_booking'),
+                 get_string('approvalsettings', 'mod_booking') . " " . get_string('badge:pro', 'mod_booking'),
                  get_string('prolicensefeatures', 'mod_booking') .
                  get_string('profeatures:approval', 'mod_booking') .
                  get_string('infotext:prolicensenecessary', 'mod_booking')

@@ -2042,7 +2042,7 @@ $string['profeatures:appearance'] = '<ul>
 <li><b>options for attendance status</b></li>
 </ul>';
 $string['profeatures:approval'] = '<ul>
-<li><b>Use approval workflows</b></li>
+<li><b>Approval workflows (Bookings have to be approved by specific users)</b></li>
 </ul>';
 $string['profeatures:automaticcoursecreation'] = '<ul>
 <li><b>booking option custom field to be used as course category</b></li>
