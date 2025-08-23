@@ -121,7 +121,7 @@ class onwaitinglist implements bo_condition {
                     // Or when confirmation is already given. Get number of current confirmations then compare it
                     // with the required number of confirmations. If number of required confirmations is equal to
                     // number of received confirmations, the button should block.
-                    $currentconfirmationscount = json_decode($ba->json)->confirmationcount; // Current received confirmations.
+                    $currentconfirmationscount = json_decode($ba->json)->confirmationcount ?? 0; // Current received confirmations.
                     $requiredconfirmationscount = confirmation::get_required_confirmation_count($bookinganswer->optionid);
                     if (
                         $currentconfirmationscount === $requiredconfirmationscount
