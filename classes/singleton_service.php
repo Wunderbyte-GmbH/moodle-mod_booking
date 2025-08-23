@@ -874,16 +874,38 @@ class singleton_service {
         return true;
     }
 
+    /**
+     * Set temp values for certificates
+     *
+     * @param int $optionid
+     * @param int $userid
+     *
+     * @return void
+     *
+     */
     public static function set_temp_values_for_certificates(int $optionid, int $userid) {
         $instance = self::get_instance();
         $instance->tempdataforcertificate[] = $userid;
         $instance->tempdataforcertificate[] = $optionid;
     }
 
-    public static function get_temp_values_for_certificates() {
+    /**
+     * Get temp values for certificates
+     *
+     * @return array
+     *
+     */
+    public static function get_temp_values_for_certificates(): array {
         $instance = self::get_instance();
         return $instance->tempdataforcertificate ?? [];
     }
+
+    /**
+     * Unset temp values for certificates
+     *
+     * @return void
+     *
+     */
     public static function unset_temp_values_for_certificates() {
         $instance = self::get_instance();
         unset($instance->kswuserid, $instance->kswoptionid);

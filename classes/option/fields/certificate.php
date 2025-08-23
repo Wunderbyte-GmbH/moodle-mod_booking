@@ -297,7 +297,14 @@ class certificate extends field_base {
             foreach ($customfields as $customfield) {
                 $placeholder = '{' . $customfield->shortname . '}';
                 $params = [];
-                $value = customfields::return_value($settings->cmid, $settings->id, $userid, $placeholder, $params, $customfield->shortname);
+                $value = customfields::return_value(
+                    $settings->cmid,
+                    $settings->id,
+                    $userid,
+                    $placeholder,
+                    $params,
+                    $customfield->shortname
+                );
                 if (empty($value)) {
                     $value = " ";
                 }
@@ -306,7 +313,11 @@ class certificate extends field_base {
             $bookingoptionfields = [
                 'bookingoptionid' => $settings->id,
                 'bookingoptionname' => $settings->get_title_with_prefix(),
-                'bookingoptiondescription' => clean_text($settings->description, $format = FORMAT_HTML, $options = ['strip_tags' => true]),
+                'bookingoptiondescription' => clean_text(
+                    $settings->description,
+                    $format = FORMAT_HTML,
+                    $options = ['strip_tags' => true]
+                ),
                 'location' => $settings->location,
                 'institution' => $settings->institution,
                 'teachers' => self::return_teachers_for_certificate($settings->teachers),
