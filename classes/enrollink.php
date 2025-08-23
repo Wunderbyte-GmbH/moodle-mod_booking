@@ -607,7 +607,7 @@ class enrollink {
             return 0;
         }
 
-        $data = json_decode($answer->json, true); // decode as array
+        $data = json_decode($answer->json, true);
 
         if (empty($data['condition_customform']) || !is_array($data['condition_customform'])) {
             return 0;
@@ -640,7 +640,7 @@ class enrollink {
             return;
         }
 
-        $data = json_decode($answer->json, true); // decode as array
+        $data = json_decode($answer->json, true);
 
         if (empty($data['condition_customform']) || !is_array($data['condition_customform'])) {
             return;

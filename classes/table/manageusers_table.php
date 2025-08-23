@@ -666,7 +666,6 @@ class manageusers_table extends wunderbyte_table {
                 !$ba->is_fully_booked()
                 || !empty($settings->jsonobject->useprice)
             )
-            // && empty($data) // TODO: // We commented it. Make sure that is cause no error.
             && $allowedtoconfirm
         ) {
             $data[] = [

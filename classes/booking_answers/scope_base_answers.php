@@ -40,11 +40,11 @@ use moodle_url;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class scope_base_answers extends scope_base {
-   /**
-    * Helper function to get the $selectpart for the return_sql_for_booked_users function.
-    * @param string $scope
-    * @return string the select part of the sql query
-    */
+    /**
+     * Helper function to get the $selectpart for the return_sql_for_booked_users function.
+     * @param string $scope
+     * @return string the select part of the sql query
+     */
     public function get_selectpart(string $scope): string {
         // If presence counter is activated, we add that to SQL.
         $selectpresencecount = '';

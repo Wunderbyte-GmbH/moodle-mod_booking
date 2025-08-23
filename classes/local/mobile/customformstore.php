@@ -121,9 +121,12 @@ class customformstore {
                         $settings = singleton_service::get_instance_of_booking_option_settings($data['id']);
                         $ba = singleton_service::get_instance_of_booking_answers($settings);
                         $expectedvalue = $linearray[0];
-                        $filteredba = array_filter($ba->get_usersonlist(), function ($userbookings) use ($identifier, $expectedvalue) {
-                            return isset($userbookings->$identifier) && $userbookings->$identifier === $expectedvalue;
-                        });
+                        $filteredba = array_filter(
+                            $ba->get_usersonlist(),
+                            function ($userbookings) use ($identifier, $expectedvalue) {
+                                return isset($userbookings->$identifier) && $userbookings->$identifier === $expectedvalue;
+                            }
+                        );
                         if (count($filteredba) >= $linearray[2] && !empty($linearray[2])) {
                             $errors[$identifier] = get_string(
                                 'bocondcustomformfullybooked',
