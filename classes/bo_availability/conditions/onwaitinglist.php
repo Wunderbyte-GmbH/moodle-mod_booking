@@ -124,7 +124,7 @@ class onwaitinglist implements bo_condition {
                     $currentconfirmationscount = json_decode($ba->json)->confirmationcount ?? 0; // Current received confirmations.
                     $requiredconfirmationscount = confirmation::get_required_confirmation_count($bookinganswer->optionid);
                     if (
-                        $currentconfirmationscount === $requiredconfirmationscount
+                        $currentconfirmationscount >= $requiredconfirmationscount
                         || empty($settings->waitforconfirmation)
                     ) {
                         $isavailable = true;
