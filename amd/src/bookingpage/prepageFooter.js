@@ -18,8 +18,8 @@
  * @copyright  Wunderbyte GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-import { continueToNextPage, backToPreviousPage, setBackModalVariables } from 'mod_booking/bookit';
-import { reloadAllTables } from 'local_wunderbyte_table/reload';
+import {continueToNextPage, backToPreviousPage, setBackModalVariables} from 'mod_booking/bookit';
+import {reloadAllTables} from 'local_wunderbyte_table/reload';
 
 const SELECTORS = {
     MODALID: 'sbPrePageModal_',
@@ -47,7 +47,7 @@ export function initFooterButtons(optionid, userid, shoppingcartisinstalled) {
     let elements = Array.from(document.querySelectorAll(selectorInline));
 
     if (elements.length === 0) {
-        // fallback: try modal-based
+        // Fallback: try modal-based.
         let selectorModal = '[id^="' + SELECTORS.MODALID + optionid + '_"]' + SELECTORS.INMODALFOOTER + ' a';
         elements = Array.from(document.querySelectorAll(selectorModal));
 
@@ -55,7 +55,7 @@ export function initFooterButtons(optionid, userid, shoppingcartisinstalled) {
         const modalSelectorAll = '[id^="' + SELECTORS.MODALID + optionid + '_"]';
         const modalEls = Array.from(document.querySelectorAll(modalSelectorAll));
         modalEls.forEach(modalEl => {
-            // listen to hide.bs.modal
+            // Listen to hide.bs.modal.
             modalEl.addEventListener('hide.bs.modal', () => {
                 setBackModalVariables(optionid);
             });
@@ -85,14 +85,15 @@ export function initFooterButtons(optionid, userid, shoppingcartisinstalled) {
                 // eslint-disable-next-line no-console
                 console.log('closeinline/checkout/continuepost', action);
                 if (shoppingcartisinstalled) {
-                    // dynamic import of cart module — adapt to module export shape.
+                    // Dynamic import of cart module — adapt to module export shape.
                     import('local_shopping_cart/cart')
                         .then(module => {
-                            // module may export default or named exports; support both.
+                            // Module may export default or named exports; support both.
                             const cart = module.default ?? module;
                             // eslint-disable-next-line no-console
                             console.log('cart module loaded', cart);
                             const oncashier = window.location.href.indexOf('cashier.php');
+                            // eslint-disable-next-line promise/always-return
                             if (typeof cart.reinit === 'function') {
                                 if (oncashier > 0) {
                                     cart.reinit(-1);
@@ -106,15 +107,15 @@ export function initFooterButtons(optionid, userid, shoppingcartisinstalled) {
                             console.log('local_shopping_cart/cart could not be loaded');
                         });
                 }
-                // ensure collapse hide handler will reload tables
+                // Ensure collapse hide handler will reload tables
                 listenToCloseInline(optionid);
                 break;
             default:
-                // nothing immediate
+                // Nothing immediate
                 break;
         }
 
-        // attach click listener
+        // Attach click listener
         element.addEventListener('click', function (evt) {
             // If hidden or blocked, ignore as before.
             if (this.classList.contains('hidden')) {
@@ -127,7 +128,7 @@ export function initFooterButtons(optionid, userid, shoppingcartisinstalled) {
             // IMPORTANT: stop Bootstrap / other handlers from running on this click,
             // and prevent the default anchor navigation.
             evt.preventDefault();
-            // stop propagation and stop other listeners on the same element from running (Bootstrap's listener is later).
+            // Stop propagation and stop other listeners on the same element from running (Bootstrap's listener is later).
             evt.stopImmediatePropagation();
 
             const action = this.dataset.action;
@@ -167,11 +168,6 @@ export function initFooterButtons(optionid, userid, shoppingcartisinstalled) {
  * @param {bool} reloadTables
  */
 export function closeModal(optionid, reloadTables = true) {
-    if (typeof window.bootstrap === 'undefined') {
-        // eslint-disable-next-line no-console
-        console.warn('Bootstrap JS is not available. Cannot programmatically hide modals.');
-    }
-
     const modalSelectorAll = '[id^="' + SELECTORS.MODALID + optionid + '_"]';
     const modalEls = Array.from(document.querySelectorAll(modalSelectorAll));
 
@@ -184,19 +180,26 @@ export function closeModal(optionid, reloadTables = true) {
 
             try {
                 let modalInstance = window.bootstrap?.Modal.getInstance(modalEl) ?? null;
+                // eslint-disable-next-line no-console
+                console.log('modal instance', modalInstance);
                 if (!modalInstance && typeof window.bootstrap !== 'undefined') {
-                    // create without showing (do not toggle)
+                    // Create without showing (do not toggle)
                     modalInstance = new window.bootstrap.Modal(modalEl);
                 }
                 if (modalInstance) {
+                    // eslint-disable-next-line no-console
+                    console.log('modal instance - to be hidden', modalInstance);
                     modalInstance.hide();
                 } else {
-                    // fallback: remove 'show' class and backdrop if present
-                    modalEl.classList.remove('show');
+                    // eslint-disable-next-line no-console
+                    console.log('modalEl instance - DOM fallback', modalEl);
+                    // Fallback: remove 'show' class and backdrop if present
+                    hideModalFallback(modalEl);
                 }
             } catch (err) {
                 // eslint-disable-next-line no-console
                 console.warn('Error hiding bootstrap modal instance', err);
+                hideModalFallback(modalEl);
             }
 
             if (reloadTables) {
@@ -209,23 +212,70 @@ export function closeModal(optionid, reloadTables = true) {
         // Now try to hide it immediately as well.
         try {
             let modalInstance = window.bootstrap?.Modal.getInstance(modalEl) ?? null;
+            // eslint-disable-next-line no-console
+            console.log('modal instance (immediate)', modalInstance);
             if (!modalInstance && typeof window.bootstrap !== 'undefined') {
+                // Create without showing (do not toggle)
                 modalInstance = new window.bootstrap.Modal(modalEl);
             }
             if (modalInstance) {
+                // eslint-disable-next-line no-console
+                console.log('modal instance - to be hidden (immediate)', modalInstance);
                 modalInstance.hide();
             } else {
-                modalEl.classList.remove('show');
+                // eslint-disable-next-line no-console
+                console.log('modalEl instance - DON fallback (immediate)', modalEl);
+                hideModalFallback(modalEl);
             }
         } catch (err) {
             // eslint-disable-next-line no-console
             console.warn('Error hiding bootstrap modal instance (immediate)', err);
+            hideModalFallback(modalEl);
         }
 
         if (reloadTables) {
             reloadAllTables();
         }
     });
+}
+
+/**
+ * DOM fallback to hide a modal element and remove backdrop/body state.
+ * Also dispatches bootstrap-like events so other listeners get notified.
+ *
+ *  @param {HTMLElement} modalEl
+ */
+export function hideModalFallback(modalEl) {
+    if (!modalEl) {
+        return;
+    }
+
+    // Remove modal "visible" styling.
+    modalEl.classList.remove('show');
+    modalEl.style.display = 'none';
+    modalEl.setAttribute('aria-hidden', 'true');
+    modalEl.removeAttribute('aria-modal');
+    modalEl.removeAttribute('role');
+
+    // Remove modal-open class from body (undo scroll lock).
+    document.body.classList.remove('modal-open');
+
+    // Remove any modal-backdrop elements left behind.
+    const backdrops = Array.from(document.querySelectorAll('.modal-backdrop'));
+    backdrops.forEach(backdrop => {
+        if (backdrop.parentNode) {
+            backdrop.parentNode.removeChild(backdrop);
+        }
+    });
+
+    // Dispatch events similar to Bootstrap so other code will react.
+    // Bootstrap uses CustomEvent with namespaced names; we emulate them.
+    try {
+        const shownEvent = new CustomEvent('hidden.bs.modal', { bubbles: true, cancelable: true });
+        modalEl.dispatchEvent(shownEvent);
+    } catch (e) {
+        // If CustomEvent is not supported (ancient browsers), ignore.
+    }
 }
 
 /**
