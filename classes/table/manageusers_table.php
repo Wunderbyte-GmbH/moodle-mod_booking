@@ -662,7 +662,10 @@ class manageusers_table extends wunderbyte_table {
         }
 
         if (
-            (!$ba->is_fully_booked() || !empty($settings->jsonobject->useprice))
+            (
+                !$ba->is_fully_booked()
+                || !empty($settings->jsonobject->useprice)
+            )
             // && empty($data) // TODO: // We commented it. Make sure that is cause no error.
             && $allowedtoconfirm
         ) {
@@ -685,8 +688,30 @@ class manageusers_table extends wunderbyte_table {
                     'userid' => $values->userid,
                 ],
             ];
+
+            // Deny booking Button.
+            $data[] = [
+                'label' => '', // Name of your action button.
+                'class' => '',
+                'href' => '#', // You can either use the link, or JS, or both.
+                'iclass' => 'fa fa-thumbs-down', // Add an icon before the label.
+                'id' => $values->id,
+                'name' => $values->id,
+                'methodname' => 'denybooking', // The method needs to be added to your child of wunderbyte_table class.
+                'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+                    'id' => $values->id,
+                    'labelcolumn' => 'username',
+                    'titlestring' => 'deny',
+                    'bodystring' => 'denybookinglong',
+                    'submitbuttonstring' => 'deny',
+                    'component' => 'mod_booking',
+                    'optionid' => $values->optionid,
+                    'userid' => $values->userid,
+                ],
+            ];
         }
 
+        // Trash booking button.
         $data[] = [
             'label' => '', // Name of your action button.
             'class' => '',
@@ -701,26 +726,6 @@ class manageusers_table extends wunderbyte_table {
                 'titlestring' => 'delete',
                 'bodystring' => 'deletebookinglong',
                 'submitbuttonstring' => 'delete',
-                'component' => 'mod_booking',
-                'optionid' => $values->optionid,
-                'userid' => $values->userid,
-            ],
-        ];
-
-        $data[] = [
-            'label' => '', // Name of your action button.
-            'class' => '',
-            'href' => '#', // You can either use the link, or JS, or both.
-            'iclass' => 'fa fa-thumbs-down', // Add an icon before the label.
-            'id' => $values->id,
-            'name' => $values->id,
-            'methodname' => 'denybooking', // The method needs to be added to your child of wunderbyte_table class.
-            'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
-                'id' => $values->id,
-                'labelcolumn' => 'username',
-                'titlestring' => 'deny',
-                'bodystring' => 'denybookinglong',
-                'submitbuttonstring' => 'deny',
                 'component' => 'mod_booking',
                 'optionid' => $values->optionid,
                 'userid' => $values->userid,
