@@ -1586,7 +1586,23 @@ final class rules_waitinglist_test extends advanced_testcase {
         // In the future we run tasks.
         // No free seats available, so no messages should be send.
         time_mock::set_mock_time(strtotime('+3 day', time()));
+        $sink = $this->redirectMessages();
+        ob_start();
         $this->runAdhocTasks();
+        $messages = $sink->get_messages();
+        $res = ob_get_clean();
+        $sink->close();
+
+        // Validate console output.
+        $expected = "send_mail_by_rule_adhoc task: Rule does not apply anymore. Mail was NOT SENT for option "
+            . $option1->id . " and user " . $student2->id;
+        $this->assertStringContainsString($expected, $res);
+        $expected = "confirm_bookinganswer_by_rule_adhoc task: Rule does not apply anymore. NO execution for option "
+            . $option1->id . " and user " . $student3->id;
+        $this->assertStringContainsString($expected, $res);
+        $expected = "send_mail_by_rule_adhoc task: Rule does not apply anymore. Mail was NOT SENT for option "
+            . $option1->id . " and user " . $student3->id;
+        $this->assertStringContainsString($expected, $res);
 
         [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
