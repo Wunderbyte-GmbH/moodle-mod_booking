@@ -1909,76 +1909,10 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
         );
 
         if ($userdata->completed == '1') {
-            $completionold = $userdata->completed;
-            $userdata->completed = '0';
-            $userdata->timemodified = time();
-            $DB->update_record('booking_answers', $userdata);
-            $countcomplete = $DB->count_records(
-                'booking_answers',
-                ['bookingid' => $booking->id, 'userid' => $selecteduser, 'completed' => '1']
-            );
-            $status = MOD_BOOKING_STATUSPARAM_COMPLETION_CHANGED;
-            $answerid = $userdata->id;
-            $optionid = $userdata->optionid;
-            $bookingid = $userdata->bookingid;
-            $userid = $userdata->userid;
-            $completionchange = [
-                'completion' => [
-                    'completionold' => $completionold,
-                    'completionnew' => $userdata->completed,
-                ],
-            ];
-            booking_option::booking_history_insert($status, $answerid, $optionid, $bookingid, $userid, $completionchange);
-
             if ($completion->is_enabled($cm) && $booking->enablecompletion > $countcomplete) {
                 $completion->update_state($cm, COMPLETION_INCOMPLETE, $selecteduser);
             }
         } else {
-            if (get_config('booking', 'certificateon') && !get_config('booking', 'presencestatustoissuecertificate')) {
-                $certid = certificate::issue_certificate($optionid, $selecteduser);
-            }
-            $other = [
-                'cmid' => $cmid,
-            ];
-            if (
-                isset($certid)
-                && !empty($certid)
-            ) {
-                $other['certid'] = $certid;
-            }
-            $completionold = $userdata->completed;
-            $userdata->completed = '1';
-            $userdata->timemodified = time();
-
-            if (get_config('booking', 'usecompetencies')) {
-                $usercompetecies = competencies::assign_competencies($cmid, $optionid, $selecteduser);
-            }
-
-            $status = MOD_BOOKING_STATUSPARAM_COMPLETION_CHANGED;
-            $answerid = $userdata->id;
-            $optionid = $userdata->optionid;
-            $bookingid = $userdata->bookingid;
-            $userid = $userdata->userid;
-            $completionchange = [
-                'completion' => [
-                    'completionold' => $completionold,
-                    'completionnew' => $userdata->completed,
-                ],
-            ];
-            booking_option::booking_history_insert($status, $answerid, $optionid, $bookingid, $userid, $completionchange);
-
-            // Trigger the completion event, in order to send the notification mail.
-            $event = \mod_booking\event\bookingoption_completed::create([
-                'context' => context_module::instance($cmid),
-                'objectid' => $optionid,
-                'userid' => $USER->id,
-                'relateduserid' => $selecteduser,
-                'other' => $other,
-            ]);
-            $event->trigger();
-
-            // Important: userid is the user who triggered, relateduserid is the affected user who completed.
-            $DB->update_record('booking_answers', $userdata);
             $countcomplete = $DB->count_records(
                 'booking_answers',
                 ['bookingid' => $booking->id, 'userid' => $selecteduser, 'completed' => '1']
@@ -1989,9 +1923,6 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
             }
         }
     }
-
-    // After activity completion, we need to purge caches for the option.
-    booking_option::purge_cache_for_answers($optionid);
 }
 
 // GRADING AND RATING.

@@ -160,9 +160,9 @@ final class certificate_bo_completed_test extends advanced_testcase {
         $result = booking_bookit::bookit('option', $settings->id, $student2->id);
         $this->setAdminUser();
         if (empty($data['completionsettings']['multiple'])) {
-            booking_activitycompletion([$student1->id], $booking1, $settings->cmid, $option1->id);
+            $option->toggle_user_completion($student1->id);
         } else {
-            booking_activitycompletion([$student1->id, $student2->id], $booking1, $settings->cmid, $option1->id);
+            $option->toggle_users_completion([$student1->id, $student2->id]);
         }
         $certificates = $DB->get_records('tool_certificate_issues');
         $this->assertCount($expected['certcount'], $certificates);

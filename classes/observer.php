@@ -331,11 +331,22 @@ class mod_booking_observer {
      */
     public static function bookingoption_completed(\mod_booking\event\bookingoption_completed $event) {
 
+        global $CFG;
+        require_once($CFG->dirroot . '/mod/booking/lib.php');
+
         $optionid = $event->objectid;
         $cmid = $event->other['cmid'];
 
         $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
         $selecteduserid = $event->relateduserid;
+
+        // Here, we check if the activity has to be completed for the concerned users.
+        booking_activitycompletion(
+            [$selecteduserid],
+            $bookingoption->booking->settings,
+            $cmid,
+            $optionid
+        );
 
         if (
             empty($bookingoption->booking->settings->sendmail)
@@ -455,12 +466,8 @@ class mod_booking_observer {
                 $settings = singleton_service::get_instance_of_booking_option_settings($bookedanswer->optionid);
                 $bookingoption = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
                 if (empty($bookedanswer->completion)) {
-                    booking_activitycompletion(
-                        [$event->relateduserid],
-                        $bookingoption->booking->settings,
-                        $settings->cmid,
-                        $settings->id,
-                    );
+                    $bookingoption->toggle_user_completion($bookedanswer->userid);
+
                 }
             }
         }

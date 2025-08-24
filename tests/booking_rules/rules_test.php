@@ -1396,7 +1396,7 @@ final class rules_test extends advanced_testcase {
         $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
 
         $this->assertEquals(false, $option->user_completed_option());
-        booking_activitycompletion([$user2->id], $option->booking->settings, $settings->cmid, $option1->id);
+        $option->toggle_user_completion($user2->id);
         $this->assertEquals(true, $option->user_completed_option());
 
         // Get messages.

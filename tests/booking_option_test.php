@@ -371,7 +371,7 @@ final class booking_option_test extends advanced_testcase {
         // In this test, we set completion to the user directly.
         $this->setAdminUser();
         $sink = $this->redirectEvents();
-        booking_activitycompletion([$user1->id], $booking1, $bookingsettings1->cmid, $bookingoption1->id);
+        $bookingoption1->toggle_user_completion($user1->id);
         $events = $sink->get_events();
 
         // Mandatory to get updates on completion.

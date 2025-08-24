@@ -49,8 +49,9 @@ use mod_booking\option\dates_handler;
 use mod_booking\bo_actions\actions_info;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_rules\rules_info;
-use mod_booking\option\fields\recurringoptions;
+use mod_booking\option\fields\certificate;
 use mod_booking\option\fields\sharedplaces;
+use mod_booking\option\fields\competencies;
 use stdClass;
 use moodle_url;
 use mod_booking\booking_utils;
@@ -1160,6 +1161,7 @@ class booking_option {
      * @param int $status 1 added to shopping cart, 2 for confirmation. See MOD_BOOKING_BO_SUBMIT_STATUS_*
      * @param int $verified 0 for unverified, 1 for pending and 2 for verified.
      * @param string $erlid the identifier of the enrollink, if given
+     * @param int $timebooked the timestamp when the booking was made
      * @return bool true if booking was possible, false if meanwhile the booking got full
      */
     public function user_submit_response(
@@ -1168,7 +1170,8 @@ class booking_option {
         $subtractfromlimit = 0,
         $status = MOD_BOOKING_BO_SUBMIT_STATUS_DEFAULT,
         $verified = MOD_BOOKING_UNVERIFIED,
-        $erlid = ""
+        $erlid = "",
+        $timebooked = 0
     ) {
 
         global $USER;
@@ -1294,6 +1297,8 @@ class booking_option {
                     }
                     break;
             }
+        } else if (!empty($timebooked)) {
+            $timecreated = $timebooked;
         }
 
         // Should users who want to book be parked in the waitinglist waiting for confirmation.
@@ -1537,6 +1542,11 @@ class booking_option {
                 new \moodle_exception("dmlwriteexception");
             }
         } else {
+            // When we insert a record, we want timemodified to be the same as time created.
+            // This is necessary if we import old bookings.
+            // It should not ever else play any role.
+            $newanswer->timemodified = $newanswer->timecreated;
+
             if (!$newanswer->id = $DB->insert_record('booking_answers', $newanswer)) {
                 new \moodle_exception("dmlwriteexception");
             }
@@ -2517,6 +2527,114 @@ class booking_option {
             'optionid = :optionid AND completed = 1',
             ['optionid' => $this->optionid]
         );
+    }
+
+    /**
+     * Interface to update options for a couple of users at a time.
+     *
+     * @param array $userids
+     *
+     * @return bool
+     *
+     */
+    public function toggle_users_completion(array $userids) {
+        foreach ($userids as $userid) {
+            if (!$result = $this->toggle_user_completion($userid)) {
+                return $result;
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Function to update the booking_answer record and trigger the completion event.
+     * Also write to history.
+     *
+     * @param int $userid
+     * @param int $timebooked // Pass on a timestamp, if we import old data.
+     *
+     * @return bool
+     *
+     */
+    public function toggle_user_completion(int $userid, int $timebooked = 0) {
+        global $USER, $DB, $USER;
+
+        $cmid = $this->cmid;
+        $optionid = $this->id;
+
+        $settings = $this->settings;
+        $ba = singleton_service::get_instance_of_booking_answers($settings);
+        $users = $ba->get_usersonlist();
+        if (!$userdata = $users[$userid] ?? false) {
+            return false;
+        }
+
+        $completionold = $userdata->completed;
+        $userdata->completed = empty($completionold) ? '1' : '0';
+        $userdata->timemodified = time();
+
+        if (
+            get_config('booking', 'certificateon')
+            && !get_config('booking', 'presencestatustoissuecertificate')
+            && !empty($userdata->completed)
+        ) {
+            $certid = certificate::issue_certificate($this->id, $userdata->id);
+        }
+        $other = [
+            'cmid' => $this->cmid,
+        ];
+        if (
+            isset($certid)
+            && !empty($certid)
+        ) {
+            $other['certid'] = $certid;
+        }
+
+        if (
+            get_config('booking', 'usecompetencies')
+            && !empty($userdata->completed)
+        ) {
+            $usercompetencies = competencies::assign_competencies($cmid, $optionid, $userdata->id);
+        }
+
+        $status = MOD_BOOKING_STATUSPARAM_COMPLETION_CHANGED;
+        $answerid = $userdata->id;
+        $optionid = $userdata->optionid;
+        $bookingid = $userdata->bookingid;
+        $userid = $userdata->userid;
+        $completionchange = [
+            'completion' => [
+                'completionold' => $completionold,
+                'completionnew' => $userdata->completed,
+            ],
+        ];
+        self::booking_history_insert($status, $answerid, $optionid, $bookingid, $userid, $completionchange);
+
+        $data = [
+            'id' => $userdata->baid,
+            'completed' => $userdata->completed,
+            'timemodified' => empty($timebooked) ? time() : $timebooked,
+        ];
+        // Important: userid is the user who triggered, relateduserid is the affected user who completed.
+        $DB->update_record('booking_answers', $data);
+
+        // After activity completion, we need to purge caches for the option.
+        self::purge_cache_for_answers($optionid);
+
+        // Trigger the completion event, in order to send the notification mail.
+        if (!empty($userdata->completed)) {
+            $event = \mod_booking\event\bookingoption_completed::create(
+                [
+                    'context' => context_module::instance($cmid),
+                    'objectid' => $optionid,
+                    'userid' => $USER->id,
+                    'relateduserid' => $userid,
+                    'other' => $other,
+                ]
+            );
+            $event->trigger();
+        }
+        return true;
     }
 
     /**

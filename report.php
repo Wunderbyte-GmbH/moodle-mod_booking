@@ -447,7 +447,8 @@ if (!$tableallbookings->is_downloading()) {
                 $bookingoption->option
             ) || has_capability('mod/booking:readresponses', $context))
         ) {
-            booking_activitycompletion($allselectedusers, $bookingoption->booking->settings, $cm->id, $optionid);
+            $bookingoption->toggle_users_completion($allselectedusers);
+            // booking_activitycompletion($allselectedusers, $bookingoption->booking->settings, $cm->id, $optionid);
             redirect(
                 $url,
                 (empty($bookingoption->option->notificationtext) ? get_string(
