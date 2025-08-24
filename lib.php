@@ -1908,6 +1908,11 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
             ['optionid' => $optionid, 'selecteduser' => $selecteduser]
         );
 
+        $countcomplete = $DB->count_records(
+            'booking_answers',
+            ['bookingid' => $booking->id, 'userid' => $selecteduser, 'completed' => '1']
+        );
+
         if ($userdata->completed == '1') {
             if ($completion->is_enabled($cm) && $booking->enablecompletion > $countcomplete) {
                 $completion->update_state($cm, COMPLETION_INCOMPLETE, $selecteduser);

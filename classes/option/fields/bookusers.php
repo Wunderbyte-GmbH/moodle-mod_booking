@@ -144,12 +144,15 @@ class bookusers extends field_base {
             $bookingoption = singleton_service::get_instance_of_booking_option($formdata->cmid, $formdata->id);
             foreach ($usersids as $userid) {
                 $user = singleton_service::get_instance_of_user($userid);
-                if (!$timebooked = strtotime($formdata->timebooked)) {
+                if (!empty($formdata->timebooked)) {
+                    $parsed = strtotime($formdata->timebooked);
+                    $timebooked = $parsed !== false ? $parsed : null;
+                } else {
                     $timebooked = null;
                 }
                 $bookingoption->user_submit_response($user, 0, 0, 0, MOD_BOOKING_VERIFIED, '', $timebooked);
 
-                if ($formdata->completed) {
+                if (!empty($formdata->completed)) {
                     $bookingoption->toggle_user_completion($userid, $timebooked);
                 }
             }
