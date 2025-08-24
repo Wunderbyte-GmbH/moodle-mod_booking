@@ -2590,6 +2590,7 @@ $string['thankyouwaitinglist'] = '<i class="fa fa-3x fa-clock-o text-primary" ar
 Sie wurden zur Warteliste von <b>{$a}</b> hinzugefügt. Sollte jemand ausfallen, rücken Sie automatisch nach.';
 $string['thisinstance'] = 'Diese Buchung';
 $string['thursday'] = 'Donnerstag';
+$string['timeawarded'] = 'Verliehen am';
 $string['timecreated'] = 'Erstellt';
 $string['timefilter:bookingtime'] = 'Anmeldezeiten';
 $string['timefilter:coursetime'] = 'Kurszeiten';

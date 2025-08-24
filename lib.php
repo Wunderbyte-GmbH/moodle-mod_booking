@@ -2691,6 +2691,13 @@ function mod_booking_tool_certificate_fields() {
         true,
         get_string('institution', 'mod_booking'),
     );
+    $handler->ensure_field_exists(
+        'timeawarded',
+        'text',
+        get_string('timeawarded', 'mod_booking'),
+        true,
+        get_string('timeawarded', 'mod_booking'),
+    );
     $customfields = booking_handler::get_customfields();
     foreach ($customfields as $customfield) {
                $handler->ensure_field_exists(

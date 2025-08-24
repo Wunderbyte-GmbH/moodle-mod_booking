@@ -2571,7 +2571,6 @@ class booking_option {
 
         $completionold = $userdata->completed;
         $userdata->completed = empty($completionold) ? '1' : '0';
-        $userdata->timemodified = time();
 
         if (
             get_config('booking', 'certificateon')

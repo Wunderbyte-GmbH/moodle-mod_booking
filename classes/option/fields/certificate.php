@@ -323,6 +323,7 @@ class certificate extends field_base {
                 'teachers' => self::return_teachers_for_certificate($settings->teachers),
                 'sessions' => self::return_sessions_for_certificate($settings->sessions),
                 'duration' => self::return_duration_for_certificate($settings),
+                'timeawarded' => self::return_timeawarded_for_certificate($settings, $userid),
             ];
 
             $data = array_merge(
@@ -406,6 +407,27 @@ class certificate extends field_base {
             ) . "<br />";
         }
         return $dates;
+    }
+
+    /**
+     * Helper function to return the time the certificate was awarded
+     * @param booking_option_settings $settings
+     * @param int $userid
+     *
+     * @return string
+     *
+     */
+    private static function return_timeawarded_for_certificate(
+        booking_option_settings $settings,
+        int $userid
+    ) {
+        $ba = singleton_service::get_instance_of_booking_answers($settings);
+        $users = $ba->get_usersonlist();
+        if (!$answer = $users[$userid] ?? false) {
+            return '';
+        }
+        // The time awarded is currently the time modified. We might change that at one point.
+        return userdate($answer->timemodified, get_string('strftimedaydate'));
     }
 
     /**

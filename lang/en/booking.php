@@ -2658,6 +2658,7 @@ $string['thankyouwaitinglist'] = '<i class="fa fa-3x fa-clock-o text-primary" ar
  You were added to the waiting list for <b>{$a}</b>. You will automatically move up, in case someone drops out.';
 $string['thisinstance'] = 'This booking instance';
 $string['thursday'] = 'Thursday';
+$string['timeawarded'] = 'Awarded on';
 $string['timecreated'] = 'Time created';
 $string['timefilter:bookingtime'] = 'Booking time';
 $string['timefilter:coursetime'] = 'Course time';
