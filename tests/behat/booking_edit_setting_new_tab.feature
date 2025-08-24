@@ -31,7 +31,7 @@ Feature: Edit booking's "what's new" tab setting as admin and view new tab as st
       | MyBooking | Option-40 | C1     | Option -40  | ## -40 days ##  | ## -40 days ## | 0              | 0              | ## tomorrow ##    | ## +40 days ##  | teacher1          |
       | MyBooking | Option-20 | C1     | Option -20  | ## -20 days ##  | ## -20 days ## | 0              | 0              | ## tomorrow ##    | ## +20 days ##  | teacher1          |
       | MyBooking | Option-10 | C1     | Option -10  | ## -10 days ##  | ## -10 days ## | 0              | 0              | ## tomorrow ##    | ## +10 days ##  | teacher1          |
-      | MyBooking | Option+1  | C1     | Option -40  |                 |                | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | teacher1          |
+      | MyBooking | Option+1  | C1     | Option +1   | ## +1 days ##   |                | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | teacher1          |
     And I change viewport size to "1366x4000"
 
   @javascript
@@ -42,7 +42,7 @@ Feature: Edit booking's "what's new" tab setting as admin and view new tab as st
     Then I should see "Option-40" in the ".wunderbyteTableClass.whatsnewtable" "css_element"
     And I should see "Option-20" in the ".wunderbyteTableClass.whatsnewtable" "css_element"
     And I should see "Option-10" in the ".wunderbyteTableClass.whatsnewtable" "css_element"
-    And I should not see "Option+1" in the ".wunderbyteTableClass.whatsnewtable" "css_element"
+    And I should see "Option+1" in the ".wunderbyteTableClass.whatsnewtable" "css_element"
     And I log out
     ## Update tabwhatsnewdays and validate results
     And the following config values are set as admin:
@@ -54,4 +54,4 @@ Feature: Edit booking's "what's new" tab setting as admin and view new tab as st
     And I should see "Option-10" in the ".wunderbyteTableClass.whatsnewtable" "css_element"
     And I should not see "Option-40" in the ".wunderbyteTableClass.whatsnewtable" "css_element"
     And I should not see "Option-20" in the ".wunderbyteTableClass.whatsnewtable" "css_element"
-    And I should not see "Option+1" in the ".wunderbyteTableClass.whatsnewtable" "css_element"
+    And I should see "Option+1" in the ".wunderbyteTableClass.whatsnewtable" "css_element"
