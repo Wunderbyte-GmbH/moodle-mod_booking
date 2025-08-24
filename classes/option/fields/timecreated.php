@@ -95,9 +95,8 @@ class timecreated extends field_base {
     ): array {
         parent::prepare_save_field($formdata, $newoption, $updateparam, 0);
 
-        $optionid = $formdata->optionid;
-
-        if ($optionid == 0) {
+        $optionid = $formdata->optionid ?? $formdata->id ?? 0;
+        if (empty($optionid)) {
             // The option is new.
             $newoption->timecreated = time();
         } else {
