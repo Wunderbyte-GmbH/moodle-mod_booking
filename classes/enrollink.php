@@ -164,6 +164,9 @@ class enrollink {
         try {
             $user = singleton_service::get_instance_of_user($userid);
             $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
+            if (empty($user) || empty($booking)) {
+                return MOD_BOOKING_AUTOENROL_STATUS_EXCEPTION;
+            }
             // Enrol to bookingoption and reduce places in bookinganswer.
             $bo->user_submit_response(
                 $user,
