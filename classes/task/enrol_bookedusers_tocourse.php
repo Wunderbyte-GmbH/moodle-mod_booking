@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Adhoc Task to enrol booked users to course.
+ * Scheduled task to enrol booked users to course.
  *
  * @package mod_booking
  * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
@@ -36,7 +36,6 @@ use mod_booking\singleton_service;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class enrol_bookedusers_tocourse extends \core\task\scheduled_task {
-
     /**
      * Get name.
      *
@@ -64,7 +63,6 @@ class enrol_bookedusers_tocourse extends \core\task\scheduled_task {
         $boids = $DB->get_records_select_menu('booking_options', $select, ['now' => $now], '', 'id, bookingid');
 
         foreach ($boids as $optionid => $bookingid) {
-
             if ($bookingid) {
                 $cm = get_coursemodule_from_instance('booking', $bookingid);
             } else {
@@ -99,11 +97,12 @@ class enrol_bookedusers_tocourse extends \core\task\scheduled_task {
 
             // Enrol all users to the course.
             foreach ($bookedusers as $bookeduser) {
-
                 mtrace("Try to treat user $bookeduser->userid ");
 
-                if ($bookingsettings->iselective
-                    && $enforceorder == 1) {
+                if (
+                    $bookingsettings->iselective
+                    && $enforceorder == 1
+                ) {
                     if (!elective::check_if_allowed_to_inscribe($boption, $bookeduser->userid)) {
                         continue;
                     }
@@ -111,7 +110,7 @@ class enrol_bookedusers_tocourse extends \core\task\scheduled_task {
 
                 $boption->enrol_user($bookeduser->userid);
 
-                // TODO: check if enrolment successful... (enrol_user needs to return bool).
+                // Todo: check if enrolment successful... (enrol_user needs to return bool).
 
                 if (!empty($boption->option->courseid)) {
                     mtrace("The user with the {$bookeduser->userid} has been enrolled to the course {$boption->option->courseid}.");
@@ -119,10 +118,9 @@ class enrol_bookedusers_tocourse extends \core\task\scheduled_task {
 
                 // We update enrolement status of this option only if it's not an elective.
                 if (empty($bookingsettings->iselective)) {
-                    list($insql, $params) = $DB->get_in_or_equal([$optionid]);
+                    [$insql, $params] = $DB->get_in_or_equal([$optionid]);
                     $DB->set_field_select('booking_options', 'enrolmentstatus', '1', 'id ' . $insql, $params);
                 }
-
             }
         }
     }
