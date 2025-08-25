@@ -448,7 +448,8 @@ if (!$tableallbookings->is_downloading()) {
             ) || has_capability('mod/booking:readresponses', $context))
         ) {
             $bookingoption->toggle_users_completion($allselectedusers);
-            // booking_activitycompletion($allselectedusers, $bookingoption->booking->settings, $cm->id, $optionid);
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /* booking_activitycompletion($allselectedusers, $bookingoption->booking->settings, $cm->id, $optionid); */
             redirect(
                 $url,
                 (empty($bookingoption->option->notificationtext) ? get_string(
