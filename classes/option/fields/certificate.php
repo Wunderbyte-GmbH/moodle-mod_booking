@@ -24,6 +24,7 @@
 
 namespace mod_booking\option\fields;
 
+use core_competency\competency;
 use core_user;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
@@ -324,6 +325,7 @@ class certificate extends field_base {
                 'sessions' => self::return_sessions_for_certificate($settings->sessions),
                 'duration' => self::return_duration_for_certificate($settings),
                 'timeawarded' => self::return_timeawarded_for_certificate($settings, $userid),
+                'competencies' => self::return_competencies_for_certificate($settings->competencies),
             ];
 
             $data = array_merge(
@@ -340,7 +342,24 @@ class certificate extends field_base {
         }
         return $id;
     }
-
+    /**
+     * [Description for return_competency_for_certificate]
+     *
+     * @param string $competencies
+     *
+     * @return string
+     *
+     */
+    private static function return_competencies_for_certificate(string $competencies) {
+        $competenciesarray = explode(',', $competencies);
+        $collected = [];
+        foreach ($competenciesarray as $competencid) {
+            $competency = competency::get_record(['id' => (int) $competencid]);
+            $collected[] = $competency->get('shortname');
+        }
+        $returnstring = implode(', ', $collected);
+        return $returnstring;
+    }
     /**
      * Helper function to return Teachers for certificate.
      *
