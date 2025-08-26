@@ -325,7 +325,7 @@ class certificate extends field_base {
                 'sessions' => self::return_sessions_for_certificate($settings->sessions),
                 'duration' => self::return_duration_for_certificate($settings),
                 'timeawarded' => self::return_timeawarded_for_certificate($settings, $userid),
-                'competencies' => self::return_competencies_for_certificate($settings->competencies),
+                'competencies' => self::return_competencies_for_certificate($settings->competencies ?? ''),
             ];
 
             $data = array_merge(
@@ -351,6 +351,11 @@ class certificate extends field_base {
      *
      */
     private static function return_competencies_for_certificate(string $competencies) {
+
+        if (empty($competencies)) {
+            return '';
+        }
+
         $competenciesarray = explode(',', $competencies);
         $collected = [];
         foreach ($competenciesarray as $competencid) {
