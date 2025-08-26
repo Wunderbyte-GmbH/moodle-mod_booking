@@ -67,8 +67,6 @@ class alloptions extends option {
         $tablename = "{$tablenameprefix}_{$scope}_{$scopeid}";
         $table = new manageusers_table($tablename);
 
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        // Todo: $table->define_baseurl() ...
         $table->define_cache('mod_booking', "bookedusertable");
         $table->define_columns($columns);
         $table->define_headers($headers);

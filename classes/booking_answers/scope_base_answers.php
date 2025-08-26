@@ -25,12 +25,6 @@
 
 namespace mod_booking\booking_answers;
 
-use context_system;
-use local_wunderbyte_table\wunderbyte_table;
-use mod_booking\output\booked_users;
-use mod_booking\table\manageusers_table;
-use moodle_url;
-
 /**
  * Scope base class for non-aggregated answers view.
  *

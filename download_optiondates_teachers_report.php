@@ -23,6 +23,7 @@
  */
 
 use local_wunderbyte_table\wunderbyte_table;
+use mod_booking\table\optiondates_teachers_table;
 
 require_once("../../config.php");
 

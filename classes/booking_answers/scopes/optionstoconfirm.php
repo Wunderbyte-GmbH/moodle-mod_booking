@@ -32,6 +32,7 @@ use mod_booking\output\booked_users;
 use mod_booking\singleton_service;
 use mod_booking\table\manageusers_table;
 use local_wunderbyte_table\wunderbyte_table;
+use moodle_url;
 
 /**
  * Booking answers scope: options to confirm.
@@ -70,8 +71,6 @@ class optionstoconfirm extends option {
         $tablename = "{$tablenameprefix}_{$scope}_{$scopeid}";
         $table = new manageusers_table($tablename);
 
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        // Todo: $table->define_baseurl() ...
         $table->define_cache('mod_booking', "bookedusertable");
         $table->define_columns($columns);
         $table->define_headers($headers);
@@ -393,6 +392,36 @@ class optionstoconfirm extends option {
             }
         }
         return "( " . implode(' OR ', $wherearray) . " )";
+    }
+
+    /**
+     * Each scope can decide under which circumstances it actually adds the downloadbutton.
+     *
+     * @param wunderbyte_table $table
+     * @param string $scope
+     * @param int $scopeid
+     * @param int $statusparam
+     *
+     * @return void
+     *
+     */
+    public function show_download_button(wunderbyte_table &$table, string $scope, int $scopeid, int $statusparam) {
+        if ($this->has_capability_in_scope($scopeid, 'mod/booking:updatebooking')) {
+            $baseurl = new moodle_url(
+                '/mod/booking/download_report2.php',
+                [
+                    'scope' => self::return_classname(),
+                    'statusparam' => $statusparam,
+                ]
+            );
+            $table->define_baseurl($baseurl);
+
+            // We currently support download for booked users only.
+            if ($statusparam == 0) {
+                $table->showdownloadbutton = true;
+                $table->showdownloadbuttonatbottom = true;
+            }
+        }
     }
 
     /**

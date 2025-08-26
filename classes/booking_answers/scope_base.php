@@ -74,7 +74,10 @@ class scope_base {
      *
      */
     public function show_download_button(wunderbyte_table &$table, string $scope, int $scopeid, int $statusparam) {
-        if (self::has_capability_in_scope($scopeid, 'mod/booking:updatebooking')) {
+        $ba = new booking_answers();
+        /** @var \mod_booking\booking_answers\scope_base $class */
+        $class = $ba->return_class_for_scope($scope);
+        if ($class->has_capability_in_scope($scopeid, 'mod/booking:updatebooking')) {
             $baseurl = new moodle_url(
                 '/mod/booking/download_report2.php',
                 [

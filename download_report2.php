@@ -47,6 +47,10 @@ $PAGE->set_url('/download_report2.php');
 /** @var manageusers_table $table */
 $table = wunderbyte_table::instantiate_from_tablecache_hash($encodedtable);
 
+// File name and sheet name.
+$fileandsheetname = "{$scope}_report";
+$table->is_downloading($download, $fileandsheetname, $fileandsheetname);
+
 // Re-initialize, otherwise the defining will not work!
 $table->headers = [];
 $table->columns = [];
@@ -57,9 +61,5 @@ $class = $ba->return_class_for_scope($scope);
 $columns = $class->return_cols_for_tables($statusparam);
 $table->define_headers(array_values($columns));
 $table->define_columns(array_keys($columns));
-
-// File name and sheet name.
-$fileandsheetname = "download"; // Todo: Better name depending on scope etc.
-$table->is_downloading($download, $fileandsheetname, $fileandsheetname);
 
 $table->printtable(20, true);

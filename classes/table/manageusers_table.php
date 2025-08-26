@@ -65,13 +65,12 @@ class manageusers_table extends wunderbyte_table {
      * @return string
      */
     public function col_checkbox(stdClass $values) {
-        if (!$this->is_downloading()) {
-            return '<input id="manageuserstable-check-' . $values->id .
-                     '" type="checkbox" class="usercheckbox" name="user[][' . $values->userid .
-                     ']" value="' . $values->userid . '" />';
-        } else {
+        if ($this->is_downloading()) {
             return '';
         }
+        return '<input id="manageuserstable-check-' . $values->id .
+            '" type="checkbox" class="usercheckbox" name="user[][' . $values->userid .
+            ']" value="' . $values->userid . '" />';
     }
 
     /**
@@ -93,9 +92,9 @@ class manageusers_table extends wunderbyte_table {
      * @param stdClass $values
      * @return string
      */
-    public function col_timemodified(stdClass $values) {
-        if ($this->is_downloading()) {
-            return $values->timemodified ?? '';
+    public function col_timemodified(stdClass $values): string {
+        if (empty($values->timemodified)) {
+            return '';
         }
         return userdate($values->timemodified);
     }
@@ -154,6 +153,9 @@ class manageusers_table extends wunderbyte_table {
      * @return string
      */
     public function col_status(stdClass $values) {
+        if (!isset($values->status) || $values->status === null) {
+            $values->status = MOD_BOOKING_PRESENCE_STATUS_UNKNOWN;
+        }
         $possiblepresences = booking::get_array_of_possible_presence_statuses();
         if (isset($possiblepresences[$values->status])) {
             return $possiblepresences[$values->status];
