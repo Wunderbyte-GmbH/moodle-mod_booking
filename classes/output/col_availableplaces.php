@@ -76,8 +76,13 @@ class col_availableplaces implements renderable, templatable {
         $this->buyforuser = $buyforuser;
         $this->bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
 
-        $cmid = $settings->cmid;
-        $optionid = $settings->id;
+        $cmid = $settings->cmid ?? 0;
+        $optionid = $settings->id ?? 0;
+
+        if (empty($cmid) || empty($optionid)) {
+            $bookinginformation['showmanageresponses'] = null;
+            $bookinginformation['manageresponsesurl'] = '';
+        }
 
         $syscontext = context_system::instance();
         $modcontext = context_module::instance($cmid);
