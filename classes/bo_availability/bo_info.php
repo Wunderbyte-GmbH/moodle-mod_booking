@@ -31,12 +31,8 @@ use mod_booking\booking;
 use mod_booking\booking_bookit;
 use mod_booking\booking_context_helper;
 use mod_booking\booking_option_settings;
-use mod_booking\local\modechecker;
-use mod_booking\output\bookingoption_description;
 use mod_booking\output\button_notifyme;
 use mod_booking\output\col_price;
-use mod_booking\output\prepagemodal;
-use mod_booking\output\simple_modal;
 use mod_booking\price;
 use mod_booking\singleton_service;
 use moodle_exception;
@@ -792,6 +788,7 @@ class bo_info {
         global $PAGE;
 
         $renderedstring = '';
+        /** @var \mod_booking\output\renderer $output */
         $output = $PAGE->get_renderer('mod_booking');
         if (!empty($optionid)) {
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
@@ -813,6 +810,7 @@ class bo_info {
         // Show price and add to cart button.
         if ($showprice && !empty($optionvalues) && $optionid && !empty($usertobuyfor)) {
             $data = new col_price($optionvalues, $settings, $usertobuyfor, $context);
+            booking::convert_prices_to_number_format($data);
             $renderedstring .= $output->render_col_price($data);
         }
 

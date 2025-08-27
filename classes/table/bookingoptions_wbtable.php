@@ -269,7 +269,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
         if (empty($prices)) {
             return '';
         }
-        $formattedprices = array_map(fn($a) => $a->name . ': ' . $a->price . ' ' . $a->currency . ' ', $prices);
+        $formattedprices = array_map(fn($a) => $a->name . ': ' . format_float($a->price, 2) . ' ' . $a->currency . ' ', $prices);
 
         return implode(PHP_EOL, $formattedprices);
     }
