@@ -2058,4 +2058,72 @@ class booking {
         }
         return $numberofdaysbefore;
     }
+
+    /**
+     * Helper function to convert all prices in provided array
+     * into strings with 2 fixed decimals.
+     *
+     * @param array $data reference to the data array.
+     */
+    public static function convert_prices_to_number_format(array &$data) {
+        // Render all prices to 2 fixed decimals.
+        if (!empty($data['price'])) {
+            $data['price'] = format_float(round((float) $data['price'], 2), 2);
+        }
+        if (!empty($data['initialtotal'])) {
+            $data['initialtotal'] = format_float(round((float) $data['initialtotal'], 2), 2);
+        }
+        if (!empty($data['initialtotal_net'])) {
+            $data['initialtotal_net'] = format_float(round((float) $data['initialtotal_net'], 2), 2);
+        }
+        if (!empty($data['discount'])) {
+            $data['discount'] = format_float(round((float) $data['discount'], 2), 2);
+        }
+        if (!empty($data['deductible'])) {
+            $data['deductible'] = format_float(round((float) $data['deductible'], 2), 2);
+        }
+        if (!empty($data['credit'])) {
+            $data['credit'] = format_float(round((float) $data['credit'], 2), 2);
+        }
+        if (!empty($data['remainingcredit'])) {
+            $data['remainingcredit'] = format_float(round((float) $data['remainingcredit'], 2), 2);
+        }
+        if (!empty($data['price_net'])) {
+            $data['price_net'] = format_float(round((float) $data['price_net'], 2), 2);
+        }
+        if (!empty($data['price_gross'])) {
+            $data['price_gross'] = format_float(round((float) $data['price_gross'], 2), 2);
+        }
+        // Also convert prices for each item.
+        if (!empty($data['items'])) {
+            foreach ($data['items'] as &$item) {
+                $item['price'] = format_float(round((float) $item['price'], 2), 2);
+                if (!empty($item['price_net'])) {
+                    $item['price_net'] = format_float(round((float) $item['price_net'], 2), 2);
+                }
+                if (!empty($item['price_gross'])) {
+                    $item['price_gross'] = format_float(round((float) $item['price_gross'], 2), 2);
+                }
+            }
+            $data['items'] = array_values($data['items']);
+        }
+    }
+
+    /**
+     * Helper function to check if cmid belongs to
+     * still existing booking instance.
+     *
+     * @param int $cmid the course module id to check
+     */
+    public static function is_valid_booking_cmid(int $cmid): bool {
+        global $DB;
+        $sql = "SELECT cm.id
+                  FROM {course_modules} cm
+                  JOIN {modules} m ON m.id=cm.module
+                 WHERE m.name='booking'
+                   AND deletioninprogress=0
+                   AND cm.id=:cmid";
+        $params = ['cmid' => $cmid];
+        return !empty($DB->get_records_sql($sql, $params));
+    }
 }
