@@ -883,9 +883,11 @@ final class rules_test extends advanced_testcase {
         $users = [
             ['username' => 'teacher1', 'firstname' => 'Teacher', 'lastname' => '1', 'email' => 'teacher1@example.com'],
             ['username' => 'student1', 'firstname' => 'Student', 'lastname' => '1', 'email' => 'student1@sample.com'],
+            ['username' => 'student2', 'firstname' => 'Student', 'lastname' => '2', 'email' => 'student2@sample.com'],
         ];
         $user1 = $this->getDataGenerator()->create_user($users[0]);
         $user2 = $this->getDataGenerator()->create_user($users[1]);
+        $user3 = $this->getDataGenerator()->create_user($users[2]);
 
         $bdata['course'] = $course->id;
         $bdata['bookingmanager'] = $user2->username;
@@ -896,6 +898,7 @@ final class rules_test extends advanced_testcase {
 
         $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'editingteacher');
         $this->getDataGenerator()->enrol_user($user2->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($user3->id, $course->id, 'student');
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
@@ -912,10 +915,17 @@ final class rules_test extends advanced_testcase {
         $record->courseendtime_0 = strtotime('20 July 2050');
         $option = $plugingenerator->create_option($record);
 
-        // Create booking rule.
+        // Create a booking option answer - book users 2 and 3.
+        $result = $plugingenerator->create_answer(['optionid' => $option->id, 'userid' => $user2->id]);
+        $this->assertSame(MOD_BOOKING_BO_COND_ALREADYBOOKED, $result);
+        $result = $plugingenerator->create_answer(['optionid' => $option->id, 'userid' => $user3->id]);
+        $this->assertSame(MOD_BOOKING_BO_COND_ALREADYBOOKED, $result);
+        singleton_service::destroy_booking_answers($option->id);
+
+        // Create 1st booking rule - email teacher.
         $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
-        $actstr .= '"subject":"OptionChanged","template":"Changes:{changes}","templateformat":"1"}';
-        $ruledata1 = [
+        $actstr .= '"subject":"OptionChanged1","template":"Changes:{changes}","templateformat":"1"}';
+        $ruledata = [
             'name' => 'emailchanges',
             'conditionname' => 'select_teacher_in_bo',
             'contextid' => 1,
@@ -925,7 +935,39 @@ final class rules_test extends advanced_testcase {
             'rulename' => 'rule_react_on_event',
             'ruledata' => '{"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_updated","condition":"0","aftercompletion":""}',
         ];
-        $rule1 = $plugingenerator->create_rule($ruledata1);
+        $rule1 = $plugingenerator->create_rule($ruledata);
+
+        // Create 2nd booking rule - email specific user.
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"OptionChanged2","template":"Changes:{changes}","templateformat":"1"}';
+        $ruledata = [
+            'name' => 'emailchanges',
+            'conditionname' => 'select_users',
+            'contextid' => 1,
+            'conditiondata' => '{"userids":["' . $user2->id . '"]}',
+            'actionname' => 'send_mail',
+            'actiondata' => $actstr,
+            'rulename' => 'rule_react_on_event',
+            'ruledata' => '{"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_updated","condition":"0","aftercompletion":""}',
+        ];
+        $rule2 = $plugingenerator->create_rule($ruledata);
+
+        // Create 3rd booking rule - email booked user.
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"OptionChanged3","template":"Changes:{changes}","templateformat":"1"}';
+        $ruledata = [
+            'name' => 'emailchanges',
+            'conditionname' => 'select_student_in_bo',
+            'contextid' => 1,
+            'conditiondata' => '{"borole":"0"}',
+            'actionname' => 'send_mail',
+            'actiondata' => $actstr,
+            'rulename' => 'rule_react_on_event',
+            'ruledata' => '{"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_updated","condition":"0","aftercompletion":""}',
+        ];
+        $rule3 = $plugingenerator->create_rule($ruledata);
+        $rules = booking_rules::get_list_of_saved_rules();
+        $this->assertCount(3, $rules);
 
         // Trigger and capture emails.
         unset_config('noemailever');
@@ -943,6 +985,9 @@ final class rules_test extends advanced_testcase {
         $record->teachersforoption = [$user1->id];
         booking_option::update($record);
         singleton_service::destroy_booking_option_singleton($option->id);
+        $optionobj2 = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        singleton_service::destroy_instance();
+        $optionobj3 = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
 
         $this->runAdhocTasks();
 
@@ -953,12 +998,15 @@ final class rules_test extends advanced_testcase {
         // Validate console output.
         $expected = "send_mail_by_rule_adhoc task: mail successfully sent for option " . $option->id . " to user " . $user1->id;
         $this->assertStringContainsString($expected, $res);
+        $expected = "send_mail_by_rule_adhoc task: mail successfully sent for option " . $option->id . " to user " . $user2->id;
+        $this->assertStringContainsString($expected, $res);
+        $expected = "send_mail_by_rule_adhoc task: mail successfully sent for option " . $option->id . " to user " . $user3->id;
+        $this->assertStringContainsString($expected, $res);
 
-        // Validate emails. Might be more than one dependitg to Moodle's version.
+        // Validate emails. Might be more than expected 4, dependitg to Moodle's version.
         foreach ($messages as $key => $message) {
-            if (strpos($message->subject, "OptionChanged")) {
-                // Validate email on option change.
-                $this->assertEquals("OptionChanged", $message->subject);
+            if (strpos($message->subject, "OptionChanged1")) {
+                // Validate 1st email on option change.
                 $this->assertStringContainsString("Dates has changed", $message->fullmessage);
                 $this->assertStringContainsString("20 June 2050", $message->fullmessage);
                 $this->assertStringContainsString("20 July 2050", $message->fullmessage);
@@ -969,6 +1017,28 @@ final class rules_test extends advanced_testcase {
                 $this->assertStringContainsString("Description has changed", $message->fullmessage);
                 $this->assertStringContainsString("Test description", $message->fullmessage);
                 $this->assertStringContainsString("Description updated", $message->fullmessage);
+                $this->assertSame($user2->id, $message->useridfrom);
+                $this->assertSame($user1->id, $message->useridto);
+            } else if (strpos($message->subject, "OptionChanged2")) {
+                // Validate 2nd email on option change.
+                $this->assertStringContainsString("Dates has changed", $message->fullmessage);
+                $this->assertStringContainsString("20 June 2050", $message->fullmessage);
+                $this->assertStringContainsString("Teachers has changed", $message->fullmessage);
+                $this->assertStringContainsString("Teacher 1 (ID:", $message->fullmessage);
+                $this->assertStringContainsString("Description has changed", $message->fullmessage);
+                $this->assertStringContainsString("Test description", $message->fullmessage);
+                $this->assertSame($user2->id, $message->useridfrom);
+                $this->assertSame($user2->id, $message->useridto);
+            } else if (strpos($message->subject, "OptionChanged3")) {
+                // Validate 2nd email on option change.
+                $this->assertStringContainsString("Dates has changed", $message->fullmessage);
+                $this->assertStringContainsString("20 June 2050", $message->fullmessage);
+                $this->assertStringContainsString("Teachers has changed", $message->fullmessage);
+                $this->assertStringContainsString("Teacher 1 (ID:", $message->fullmessage);
+                $this->assertStringContainsString("Description has changed", $message->fullmessage);
+                $this->assertStringContainsString("Test description", $message->fullmessage);
+                $this->assertSame($user2->id, $message->useridfrom);
+                $this->assertSame(true, in_array($message->useridto, [$user2->id, $user3->id]));
             }
         }
     }
@@ -1615,7 +1685,6 @@ final class rules_test extends advanced_testcase {
      * Test rule on answer and option being cancelled.
      *
      * @covers \mod_booking\event\bookinganswer_cancelled
-     * @covers \mod_booking\event\bookingoption_cancelled
      * @covers \mod_booking\booking_option::user_delete_response
      * @covers \mod_booking\booking_option::cancelbookingoption
      * @covers \mod_booking\booking_rules\rules\rule_react_on_event::execute
