@@ -68,6 +68,9 @@ class booked_users implements renderable, templatable {
     /** @var string $bookinghistory rendered table of bookinghistory */
     public $bookinghistory;
 
+    /** @var string $optionstoconfirm rendered table of options to confirm */
+    public $optionstoconfirm;
+
     /**
      * Constructor
      *
@@ -90,6 +93,7 @@ class booked_users implements renderable, templatable {
         bool $showtonotify = false,
         bool $showdeleted = false,
         bool $showbookinghistory = false,
+        bool $showoptionstoconfirm = false,
         int $cmid = 0
     ) {
         $ba = new booking_answers();
@@ -153,6 +157,18 @@ class booked_users implements renderable, templatable {
                 array_values($columns),
                 false,
                 true
+            ) : null;
+
+            $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_WAITINGLIST);
+            $this->optionstoconfirm = $showoptionstoconfirm ? $this->render_users_table(
+                $scope,
+                $scopeid,
+                MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+                'optionstoconfirm',
+                array_keys($columns),
+                array_values($columns),
+                // Sorting of waiting list only possible if setting to show place is enabled.
+                (bool)get_config('booking', 'waitinglistshowplaceonwaitinglist')
             ) : null;
 
             // Booking history table.
@@ -399,6 +415,7 @@ class booked_users implements renderable, templatable {
             'userstonotify' => $this->userstonotify ?? null,
             'deletedusers' => $this->deletedusers ?? null,
             'bookinghistory' => $this->bookinghistory ?? null,
+            'optionstoconfirm' => $this->optionstoconfirm ?? null,
         ]);
     }
 

@@ -1505,11 +1505,12 @@ class shortcodes {
             'optionstoconfirm',
             0,
             false, // Booked users.
-            true, // Users on waiting list.
+            false, // Users on waiting list.
             false, // Reserved answers (e.g. in shopping cart).
             false, // Users on notify list.
             false, // Deleted users.
             false, // Booking history.
+            true // Options to confirm.
         );
         /** @var renderer $renderer */
         $renderer = $PAGE->get_renderer('mod_booking');

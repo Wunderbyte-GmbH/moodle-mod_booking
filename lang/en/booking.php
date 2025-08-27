@@ -1831,6 +1831,7 @@ $string['optionspecificcampaignwarning'] = 'If you choose fields here beneath, t
 <span> Watch out: According to your settings, this campaign may disable booking options in many cases.</span>
 </div>
 If you choose a Booking option field AND a Custom user profile field, both requirements have to be fullfilled.';
+$string['optionstoconfirm'] = 'Options to confirm';
 $string['optiontemplate'] = 'Option template';
 $string['optiontemplatename'] = 'Option template name';
 $string['optiontemplatenotsavednovalidlicense'] = 'Booking option template could not be saved as template.
