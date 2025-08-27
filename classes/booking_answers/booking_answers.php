@@ -336,6 +336,25 @@ class booking_answers {
     }
 
     /**
+     * Returns the last completed answer of a booked user.
+     *
+     * @param int $userid
+     * @return \stdClass
+     */
+    public function return_last_completion(int $userid) {
+
+        if (
+            isset($this->usersonlist[$userid])
+            && isset($this->usersonlist[$userid]->completed)
+            && $this->usersonlist[$userid]->completed == 1
+        ) {
+            return $this->usersonlist[$userid];
+        } else {
+            return (object)[];
+        }
+    }
+
+    /**
      * This function returns an array of all the relevant information of the booking status.
      * This will be used mainly for displaying the information.
      *
