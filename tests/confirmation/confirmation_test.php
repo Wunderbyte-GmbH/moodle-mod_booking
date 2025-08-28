@@ -395,20 +395,22 @@ final class confirmation_test extends advanced_testcase {
     }
 
     /**
-     * Tests confirmation capability when confirmation trainer plugin is enabled and only supervisor is allowed to confirm.
-     *
+     * Tests confirmation capability when confirmation trainer plugin is enabled.
+     * @param int $order
+     * @param array $alloweduserkeys
+     * @param array $notalloweduserkeys
      * @return void
+     * @dataProvider confirmation_supervisor_provider
      * @covers \bookingextension_confirmation_supervisor\local\confirmbooking
      */
-    public function test_confirmation_supervisor_only_supervisor(): void {
+    public function test_confirmation_supervisor(int $order, array $alloweduserkeys, array $notalloweduserkeys): void {
         global $DB;
         $this->resetAfterTest(true);
-
-        $order = 1; // Only supervisor.
 
         // Initial config.
         $env = $this->setup_booking_environment(0, $order);
         $course = $env['course'];
+        $users = $env['users'];
         $admin = $env['users']['admin'];
         $student1 = $env['users']['student1'];
         $teacher = $env['users']['teacher'];
@@ -447,12 +449,9 @@ final class confirmation_test extends advanced_testcase {
         $answer = ($bookinganswers->get_users())[$student1->id] ?? null; // Get student 1 answer.
         $this->assertNotEmpty($answer);
 
-        $allowedusers = [$supervisor1]; // Consider the order.
-        $notallowedusers = [$admin, $teacher, $manager];
-
-        foreach ($notallowedusers as $user) {
+        foreach ($notalloweduserkeys as $key) {
             // Ensure user cannot confirm it.
-            $this->setUser($user);
+            $this->setUser($users[$key]);
             $result = $table->action_confirmbooking(0, json_encode(['id' => $answer->baid])); // Confirm answer.
             $this->assertEquals(0, $result['success']); // Make sure confirmation is not successful.
         }
@@ -462,20 +461,20 @@ final class confirmation_test extends advanced_testcase {
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
-        // Now we heck if allowed users can confirm.
-        foreach ($allowedusers as $user) {
+        // Now we heck if allowed users in order can confirm.
+        foreach ($alloweduserkeys as $key) {
             // We even check if allowed users are not able to confirm answer out of the order. so if there is more than one
             // allowed user. we need to make sure that they can not confirm out of order.
-            $outoforderallowedusers = array_filter($allowedusers, fn($u) => $u->id !== $user->id);
-            foreach ($outoforderallowedusers as $otheruser) {
+            $outoforder = array_filter($alloweduserkeys, fn($k) => $k !== $key);
+            foreach ($outoforder as $wrongkey) {
                 // Ensure user cannot confirm it.
-                $this->setUser($otheruser);
+                $this->setUser($users[$wrongkey]);
                 $result = $table->action_confirmbooking(0, json_encode(['id' => $answer->baid])); // Confirm answer.
                 $this->assertEquals(0, $result['success']); // Make sure confirmation is not successful.
             }
 
             // Ensure user can confirm it because it his turn.
-            $this->setUser($user);
+            $this->setUser($users[$key]);
             $result = $table->action_confirmbooking(0, json_encode(['id' => $answer->baid])); // Confirm answer.
             $this->assertEquals(1, $result['success']); // Make sure confirmation is not successful.
         }
@@ -484,6 +483,38 @@ final class confirmation_test extends advanced_testcase {
         $this->setUser($student1);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+    }
+
+    /**
+     * Data provider for test_confirmation_supervisor.
+     *
+     * @return array[]
+     */
+    public static function confirmation_supervisor_provider(): array {
+        return [
+            'only_supervisor' => [
+                1, // Confirmation order.
+                ['supervisor1'], // Allowed users.
+                ['admin', 'teacher', 'manager', 'hr1'], // Not allowed users.
+            ],
+            'hr_then_supervisor' => [
+                2,
+                ['hr1', 'supervisor1'],
+                ['admin', 'teacher', 'manager'],
+            ],
+            'only_hr' => [
+                3,
+                ['hr1'],
+                ['admin', 'teacher', 'manager', 'supervisor1'],
+            ],
+            'supervisor_then_hr' => [
+                4,
+                ['supervisor1', 'hr1'],
+                ['admin', 'teacher', 'manager'],
+            ],
+            // TODO: MDL-0 Add new provider item supervisor_and_hr.
+            // For this item we need some modifications in test_confirmation_supervisor.
+        ];
     }
 
     /**
