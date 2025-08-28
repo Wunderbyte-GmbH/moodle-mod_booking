@@ -25,9 +25,6 @@ use mod_booking\table\manageusers_table;
 use mod_booking_generator;
 use context_module;
 
-
-
-
 /**
  * Tests for confirmation capability.
  *
@@ -75,6 +72,14 @@ final class confirmation_test extends advanced_testcase {
         $exists = $DB->record_exists('user_info_field', ['shortname' => 'supervisor']);
         $this->assertTrue($exists, 'Custom profile field "supervisor" was not created.');
 
+        // The user ID of supervisor will be set in a custom profile for each user.
+        // Here we define a new custom field.
+        $this->create_custom_profile_field('deputy', 'Deputy');
+
+        // Check if supervisor custom prifile field exists.
+        $exists = $DB->record_exists('user_info_field', ['shortname' => 'deputy']);
+        $this->assertTrue($exists, 'Custom profile field "deputy" was not created.');
+
         if (\core_component::get_component_directory('bookingextension_confirmation_supervisor')) {
             // Here we set the supervisor custom field as the field that stores the supervisor's user ID.
             set_config(
@@ -82,9 +87,17 @@ final class confirmation_test extends advanced_testcase {
                 'supervisor',
                 'bookingextension_confirmation_supervisor'
             );
+
+            // Here we set the deputy custom field as the field that stores the deputy's user ID.
+            set_config(
+                'deputy',
+                'deputy',
+                'bookingextension_confirmation_supervisor'
+            );
         }
 
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $coursecotext = \context_course::instance($course->id);
 
         // Create users.
         $student1 = $this->getDataGenerator()->create_user();
@@ -98,6 +111,15 @@ final class confirmation_test extends advanced_testcase {
         $supervisor2 = $this->getDataGenerator()->create_user();
         $hr1 = $this->getDataGenerator()->create_user();
         $hr2 = $this->getDataGenerator()->create_user();
+        $deputy1 = $this->getDataGenerator()->create_user();
+        $deputy2 = $this->getDataGenerator()->create_user();
+        $deputy3 = $this->getDataGenerator()->create_user();
+        $deputylevel2 = $this->getDataGenerator()->create_user();
+
+        $this->grant_capability_to_role('teacher', 'moodle/course:view', $coursecotext);
+        $this->grant_capability_to_role('teacher', 'moodle/course:update', $coursecotext);
+        $this->grant_capability_to_role('manager', 'moodle/course:view', $coursecotext);
+        $this->grant_capability_to_role('manager', 'moodle/course:update', $coursecotext);
 
         // Set custom profile field 'supervisor'.
         profile_save_data((object)['id' => $student1->id, 'profile_field_supervisor' => $supervisor1->id]);
@@ -105,6 +127,10 @@ final class confirmation_test extends advanced_testcase {
         profile_save_data((object)['id' => $student3->id, 'profile_field_supervisor' => $supervisor2->id]);
         profile_save_data((object)['id' => $student4->id, 'profile_field_supervisor' => $supervisor1->id]);
         profile_save_data((object)['id' => $student5->id, 'profile_field_supervisor' => $supervisor2->id]);
+        // Set custom profile field 'deputy'.
+        $deputies = implode(',', [$deputy1->id, $deputy2->id, $deputy3->id]);
+        profile_save_data((object)['id' => $supervisor1->id, 'profile_field_deputy' => $deputies]);
+        profile_save_data((object)['id' => $deputy1->id, 'profile_field_deputy' => $deputylevel2->id]);
 
         // Ensure profile custom filed is set as expected.
         $this->assertEquals($supervisor1->id, profile_user_record($student1->id)->supervisor);
@@ -138,16 +164,36 @@ final class confirmation_test extends advanced_testcase {
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
         $boinfo = new bo_info($settings);
 
-        // Add bookforother capability to roles.
-        $context = context_module::instance($settings->cmid);
-        $teacherroleid = $DB->get_field('role', 'id', ['shortname' => 'teacher']);
-        $managerroleid = $DB->get_field('role', 'id', ['shortname' => 'manager']);
-        assign_capability('mod/booking:bookforothers', CAP_ALLOW, $teacherroleid, $context->id, true);
-        assign_capability('mod/booking:bookforothers', CAP_ALLOW, $managerroleid, $context->id, true);
+        // Create the 'approver' role in system context.
+        $approverroleid = create_role('Approver', 'approver', 'Approver with special booking capabilities');
 
-        // Check if capabilities are added to each role.
-        $hascapability = has_capability('mod/booking:bookforothers', $context, $teacher->id);
-        $hascapability = has_capability('mod/booking:bookforothers', $context, $manager->id);
+        // Assign required capabilities to the role.
+        assign_capability('mod/booking:bookforothers', CAP_ALLOW, $approverroleid, SYSCONTEXTID, true);
+        assign_capability('mod/booking:managebookedusers', CAP_ALLOW, $approverroleid, SYSCONTEXTID, true);
+        assign_capability('mod/booking:readresponses', CAP_ALLOW, $approverroleid, SYSCONTEXTID, true);
+
+        // Assign role to specific users in system context.
+        $syscontext = \context_system::instance();
+        role_assign($approverroleid, $manager->id, $syscontext->id);
+        role_assign($approverroleid, $teacher->id, $syscontext->id);
+        role_assign($approverroleid, $supervisor1->id, $syscontext->id);
+        role_assign($approverroleid, $supervisor2->id, $syscontext->id);
+        role_assign($approverroleid, $hr1->id, $syscontext->id);
+        role_assign($approverroleid, $hr2->id, $syscontext->id);
+        role_assign($approverroleid, $deputy1->id, $syscontext->id);
+        role_assign($approverroleid, $deputy2->id, $syscontext->id);
+        role_assign($approverroleid, $deputy3->id, $syscontext->id);
+
+        // Enrol always admin, teacher, manager & students to course.
+        $this->getDataGenerator()->enrol_user($admin->id, $course->id);
+        $this->getDataGenerator()->enrol_user($student1->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id, 'teacher');
+        $this->getDataGenerator()->enrol_user($manager->id, $course->id, 'manager');
+        $this->getDataGenerator()->enrol_user($student1->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($student2->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($student3->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($student4->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($student5->id, $course->id, 'student');
 
         return [
             'course' => $course,
@@ -168,6 +214,9 @@ final class confirmation_test extends advanced_testcase {
                 'supervisor2' => $supervisor2,
                 'hr1' => $hr1,
                 'hr2' => $hr2,
+                'deputy1' => $deputy1,
+                'deputy2' => $deputy2,
+                'deputy3' => $deputy3,
             ],
         ];
     }
@@ -183,8 +232,6 @@ final class confirmation_test extends advanced_testcase {
 
         // Initial config.
         $env = $this->setup_booking_environment(1, 0);
-        $course = $env['course'];
-        $admin = $env['users']['admin'];
         $student1 = $env['users']['student1'];
         $student2 = $env['users']['student2'];
         $student3 = $env['users']['student3'];
@@ -197,16 +244,6 @@ final class confirmation_test extends advanced_testcase {
         $settings = $env['settings'];
         $boinfo = $env['boinfo'];
         $table = $this->get_table();
-
-        // Enrol users.
-        $this->getDataGenerator()->enrol_user($admin->id, $course->id);
-        $this->getDataGenerator()->enrol_user($student1->id, $course->id, 'student');
-        $this->getDataGenerator()->enrol_user($student2->id, $course->id, 'student');
-        $this->getDataGenerator()->enrol_user($student3->id, $course->id, 'student');
-        $this->getDataGenerator()->enrol_user($student4->id, $course->id, 'student');
-        $this->getDataGenerator()->enrol_user($student5->id, $course->id, 'student');
-        $this->getDataGenerator()->enrol_user($teacher->id, $course->id, 'teacher');
-        $this->getDataGenerator()->enrol_user($manager->id, $course->id, 'manager');
 
         /*********************************************
          * Book first user. Admi should be able to confirm it.
@@ -348,11 +385,8 @@ final class confirmation_test extends advanced_testcase {
 
         // Initial config.
         $env = $this->setup_booking_environment(0, 0);
-        $course = $env['course'];
         $admin = $env['users']['admin'];
         $student1 = $env['users']['student1'];
-        $student2 = $env['users']['student2'];
-        $student3 = $env['users']['student3'];
         $teacher = $env['users']['teacher'];
         $manager = $env['users']['manager'];
         $supervisor1 = $env['users']['supervisor1'];
@@ -360,14 +394,6 @@ final class confirmation_test extends advanced_testcase {
         $settings = $env['settings'];
         $boinfo = $env['boinfo'];
         $table = $this->get_table();
-
-        // Enrol users.
-        $this->getDataGenerator()->enrol_user($admin->id, $course->id);
-        $this->getDataGenerator()->enrol_user($student1->id, $course->id, 'student');
-        $this->getDataGenerator()->enrol_user($student2->id, $course->id, 'student');
-        $this->getDataGenerator()->enrol_user($student3->id, $course->id, 'student');
-        $this->getDataGenerator()->enrol_user($teacher->id, $course->id, 'teacher');
-        $this->getDataGenerator()->enrol_user($manager->id, $course->id, 'manager');
 
         /*********************************************
          * Book a user. Admin, manager, teacher, supervisor & HR should not be able to confirm it.
@@ -405,11 +431,12 @@ final class confirmation_test extends advanced_testcase {
      * @param int $order
      * @param array $alloweduserkeys
      * @param array $notalloweduserkeys
+     * @param array $confirmations Number of required confirmations
      * @return void
      * @dataProvider confirmation_supervisor_provider
      * @covers \bookingextension_confirmation_supervisor\local\confirmbooking
      */
-    public function test_confirmation_supervisor(int $order, array $alloweduserkeys, array $notalloweduserkeys): void {
+    public function test_confirmation_supervisor(int $order, array $alloweduserkeys, array $notalloweduserkeys, int $confirmations): void {
         global $DB;
 
         if (!\core_component::get_component_directory('bookingextension_confirmation_supervisor')) {
@@ -420,29 +447,11 @@ final class confirmation_test extends advanced_testcase {
 
         // Initial config.
         $env = $this->setup_booking_environment(0, $order);
-        $course = $env['course'];
         $users = $env['users'];
-        $admin = $env['users']['admin'];
         $student1 = $env['users']['student1'];
-        $teacher = $env['users']['teacher'];
-        $manager = $env['users']['manager'];
-        $supervisor1 = $env['users']['supervisor1'];
-        $supervisor2 = $env['users']['supervisor2'];
-        $hr1 = $env['users']['hr1'];
-        $hr2 = $env['users']['hr2'];
         $settings = $env['settings'];
         $boinfo = $env['boinfo'];
         $table = $this->get_table();
-
-        // Enrol users.
-        $this->getDataGenerator()->enrol_user($admin->id, $course->id);
-        $this->getDataGenerator()->enrol_user($student1->id, $course->id, 'student');
-        $this->getDataGenerator()->enrol_user($teacher->id, $course->id, 'teacher');
-        $this->getDataGenerator()->enrol_user($manager->id, $course->id, 'manager');
-        $this->getDataGenerator()->enrol_user($supervisor1->id, $course->id, 'manager');
-        $this->getDataGenerator()->enrol_user($supervisor2->id, $course->id, 'manager');
-        $this->getDataGenerator()->enrol_user($hr1->id, $course->id, 'manager');
-        $this->getDataGenerator()->enrol_user($hr2->id, $course->id, 'manager');
 
         /*********************************************
          * Book 1st user. Supervisor should be able to confirm it. Admin, Teacher, Manager & HR should NOT be able to confirm it.
@@ -523,24 +532,44 @@ final class confirmation_test extends advanced_testcase {
                 1, // Confirmation order.
                 ['supervisor1'], // Allowed users.
                 ['admin', 'teacher', 'manager', 'hr1'], // Not allowed users.
+                1, // Number of required confirmations.
             ],
             'hr_then_supervisor' => [
                 2,
                 ['hr1', 'supervisor1'],
                 ['admin', 'teacher', 'manager'],
+                2,
             ],
             'only_hr' => [
                 3,
                 ['hr1'],
                 ['admin', 'teacher', 'manager', 'supervisor1'],
+                1,
             ],
             'supervisor_then_hr' => [
                 4,
                 ['supervisor1', 'hr1'],
                 ['admin', 'teacher', 'manager'],
+                2,
             ],
-            // TODO: MDL-0 Add new provider item supervisor_and_hr.
-            // For this item we need some modifications in test_confirmation_supervisor.
+            'supervisor_or_hr --> hr' => [
+                5,
+                ['hr1'],
+                ['admin', 'teacher', 'manager'],
+                1,
+            ],
+            'supervisor_or_hr --> supervisor' => [
+                5,
+                ['supervisor1'],
+                ['admin', 'teacher', 'manager'],
+                1,
+            ],
+            'only_supervisor_or_deputy' => [
+                1,
+                ['deputy1'],
+                ['admin', 'teacher', 'manager', 'hr1'],
+                1,
+            ],
         ];
     }
 
@@ -596,5 +625,16 @@ final class confirmation_test extends advanced_testcase {
         $field->defaultdataformat = FORMAT_HTML;
         $field->param1 = 30; // Max length for 'text'.
         $field->id = $DB->insert_record('user_info_field', $field);
+    }
+
+    /**
+     *
+     */
+    private function grant_capability_to_role(string $rolename, string $capability, \core\context $context) {
+        global $DB;
+        $roleid = $DB->get_field('role', 'id', ['shortname' => $rolename], MUST_EXIST);
+        assign_capability($capability, CAP_ALLOW, $roleid, $context->id, true);
+        // Clear access caches so changes take effect in the test run.
+        accesslib_clear_all_caches_for_unit_testing();
     }
 }
