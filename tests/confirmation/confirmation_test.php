@@ -58,11 +58,14 @@ final class confirmation_test extends advanced_testcase {
             empty($confirmationtrainerenabled) ? 0 : 1,
             'bookingextension_confirmation_trainer'
         );
-        set_config(
-            'confirmationsupervisorenabled',
-            empty($confirmationsupervisorenabled) ? 0 : 1,
-            'bookingextension_confirmation_supervisor'
-        );
+
+        if (\core_component::get_component_directory('bookingextension_confirmation_supervisor')) {
+            set_config(
+                'confirmationsupervisorenabled',
+                empty($confirmationsupervisorenabled) ? 0 : 1,
+                'bookingextension_confirmation_supervisor'
+            );
+        }
 
         // The user ID of supervisor will be set in a custom profile for each user.
         // Here we define a new custom field.
@@ -72,12 +75,14 @@ final class confirmation_test extends advanced_testcase {
         $exists = $DB->record_exists('user_info_field', ['shortname' => 'supervisor']);
         $this->assertTrue($exists, 'Custom profile field "supervisor" was not created.');
 
-        // Here we set the supervisor custom field as the field that stores the supervisor's user ID.
-        set_config(
-            'supervisor',
-            'supervisor',
-            'bookingextension_confirmation_supervisor'
-        );
+        if (\core_component::get_component_directory('bookingextension_confirmation_supervisor')) {
+            // Here we set the supervisor custom field as the field that stores the supervisor's user ID.
+            set_config(
+                'supervisor',
+                'supervisor',
+                'bookingextension_confirmation_supervisor'
+            );
+        }
 
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
@@ -104,9 +109,10 @@ final class confirmation_test extends advanced_testcase {
         // Ensure profile custom filed is set as expected.
         $this->assertEquals($supervisor1->id, profile_user_record($student1->id)->supervisor);
 
-        // Set HR user ID in config.
-        set_config('confirmation_supervisor_hrusers', "{$hr1->id},{$hr2->id}", 'bookingextension_confirmation_supervisor');
-
+        if (\core_component::get_component_directory('bookingextension_confirmation_supervisor')) {
+            // Set HR user ID in config.
+            set_config('confirmation_supervisor_hrusers', "{$hr1->id},{$hr2->id}", 'bookingextension_confirmation_supervisor');
+        }
 
         // Create booking module.
         $bookingmanager = $this->getDataGenerator()->create_user();
@@ -405,6 +411,11 @@ final class confirmation_test extends advanced_testcase {
      */
     public function test_confirmation_supervisor(int $order, array $alloweduserkeys, array $notalloweduserkeys): void {
         global $DB;
+
+        if (!\core_component::get_component_directory('bookingextension_confirmation_supervisor')) {
+            $this->markTestSkipped('Subplugin confirmation_supervisor is not available.');
+        }
+
         $this->resetAfterTest(true);
 
         // Initial config.
@@ -483,6 +494,22 @@ final class confirmation_test extends advanced_testcase {
         $this->setUser($student1);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // TODO: MDL-0 Check that, after confirmation, approvers can no longer approve it again.
+    }
+
+    /**
+     * Test if confirmation meets the expectations when both confirmation_trainer
+     * and confirmation_supervisor plugin are enabled.
+     * @return void
+     * @covers \bookingextension_confirmation_trainer\local\confirmbooking
+     * @covers \bookingextension_confirmation_supervisor\local\confirmbooking
+     *
+     */
+    public function test_confirmation_mixed(): void {
+        // TODO: MDL-0 Some options use cofirmation trainer, some use confirmation supervisor.
+        // Make sure results correspond to expectations.
+        $this->assertTrue(true);
     }
 
     /**
