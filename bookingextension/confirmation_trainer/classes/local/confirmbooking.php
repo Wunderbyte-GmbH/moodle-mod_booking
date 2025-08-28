@@ -25,6 +25,7 @@
 
 namespace bookingextension_confirmation_trainer\local;
 
+use context_course;
 use local_taskflow\local\supervisor\supervisor;
 use mod_booking\bo_availability\conditions\confirmation;
 use mod_booking\local\interfaces\bookingextension\confirmbooking_interface;
@@ -47,14 +48,23 @@ class confirmbooking implements confirmbooking_interface {
      *
      */
     public static function has_capability_to_confirm_booking(int $optionid, int $approverid, int $userid): array {
-
+        global $USER;
         $approved = false;
         $message = get_string('notallowedtoconfirm', 'bookingextension_confirmation_trainer');
         $reload = false;
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $context = context_module::instance($settings->cmid);
-        if (has_capability('mod/booking:bookforothers', $context)) {
+        $contextcourse = context_course::instance($settings->courseid);
+
+        // $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
+        // $bookingisteacher = booking_check_if_teacher($option->option, $USER->id);
+
+        if (
+            has_capability('mod/booking:bookforothers', $context)
+            && has_capability('moodle/course:view', $contextcourse)
+            && has_capability('moodle/course:update', $contextcourse)
+        ) {
             $approved = true;
             $message = '';
         }
