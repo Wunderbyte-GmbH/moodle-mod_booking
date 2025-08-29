@@ -144,13 +144,13 @@ class mod_booking_generator extends testing_module_generator {
 
         if (!isset($record['bookingid'])) {
             throw new coding_exception(
-                'bookingid must be present in phpunit_util::create_option() $record'
+                'bookingid must be present in mod_booking_generator::create_option() $record'
             );
         }
 
         if (!isset($record['text'])) {
             throw new coding_exception(
-                'text must be present in phpunit_util::create_option() $record'
+                'text must be present in mod_booking_generator::create_option() $record'
             );
         }
 
@@ -386,23 +386,26 @@ class mod_booking_generator extends testing_module_generator {
         $ruleobject->actionname = $ruledraft->actionname;
         $ruleobject->actiondata = json_decode($ruledraft->actiondata);
         $ruleobject->rulename = $ruledraft->rulename;
-        $ruleobject->ruledata = json_decode($ruledraft->ruledata);
+        // Compatibility for old tests on tules.
+        if (!empty($ruledraft->ruledata)) {
+            $ruleobject->ruledata = json_decode($ruledraft->ruledata);
+        }
         if (empty($ruleobject->ruledata)) {
             $ruleobject->ruledata = new stdClass();
+            $ruleobject->ruledata->boevent = $ruledraft->eventname ?? $ruledraft->boevent ?? '';
+            $ruleobject->ruledata->aftercompletion = $ruledraft->aftercompletion ?? '';
+            $ruleobject->ruledata->condition = $ruledraft->condition ?? '';
+            $ruleobject->ruledata->cancelrules = $ruledraft->cancelrules ?? [];
         }
-
-        // Setup event name if provided explicitly or from ruledata if provided.
-        if (!empty($ruledraft->eventname)) {
-            $record->eventname = $ruledraft->eventname;
-        } else if (!empty($ruleobject->ruledata->boevent)) {
-            $record->eventname = $ruleobject->ruledata->boevent;
+        // It is critical of having eventname.
+        $record->eventname = $ruledraft->eventname ?? $ruleobject->ruledata->boevent ?? '';
+        if (empty($record->eventname) && $record->rulename == 'rule_react_on_event') {
+            throw new coding_exception(
+                'rule_react_on_event: eventname (boevent) must be present in mod_booking_generator::create_option() $record'
+            );
         }
-
         // Setup rule overriding.
-        if (empty($ruleobject->ruledata->cancelrules)) {
-            $ruleobject->ruledata->cancelrules = []; // Should be defined explicitly.
-        }
-        if (!empty($ruledraft->cancelrules)) {
+        if (!empty($ruledraft->cancelrules) && is_array($ruledraft->cancelrules)) {
             $cancelrules = explode(',', $ruledraft->cancelrules);
             foreach ($cancelrules as $cancelrule) {
                 if ($ruleid = $this->get_rule($cancelrule)) {
