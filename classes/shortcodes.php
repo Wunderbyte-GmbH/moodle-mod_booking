@@ -247,6 +247,7 @@ class shortcodes {
         $showfilter = !empty($args['filter']) ? true : false;
         $showsort = !empty($args['sort']) ? true : false;
         $showsearch = !empty($args['search']) ? true : false;
+        $inactivefilter = empty($args['filteronloadactive']) ? true : false;
 
         view::apply_standard_params_for_bookingtable(
             $table,
@@ -255,7 +256,7 @@ class shortcodes {
             $showsearch,
             $showsort,
             false,
-            true,
+            $inactivefilter,
             $viewparam
         );
 
