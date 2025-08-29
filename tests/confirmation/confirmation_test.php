@@ -114,7 +114,6 @@ final class confirmation_test extends advanced_testcase {
         $deputy1 = $this->getDataGenerator()->create_user();
         $deputy2 = $this->getDataGenerator()->create_user();
         $deputy3 = $this->getDataGenerator()->create_user();
-        $deputylevel2 = $this->getDataGenerator()->create_user();
 
         $this->grant_capability_to_role('teacher', 'moodle/course:view', $coursecotext);
         $this->grant_capability_to_role('teacher', 'moodle/course:update', $coursecotext);
@@ -130,7 +129,6 @@ final class confirmation_test extends advanced_testcase {
         // Set custom profile field 'deputy'.
         $deputies = implode(',', [$deputy1->id, $deputy2->id, $deputy3->id]);
         profile_save_data((object)['id' => $supervisor1->id, 'profile_field_deputy' => $deputies]);
-        profile_save_data((object)['id' => $deputy1->id, 'profile_field_deputy' => $deputylevel2->id]);
 
         // Ensure profile custom filed is set as expected.
         $this->assertEquals($supervisor1->id, profile_user_record($student1->id)->supervisor);
@@ -436,7 +434,13 @@ final class confirmation_test extends advanced_testcase {
      * @dataProvider confirmation_supervisor_provider
      * @covers \bookingextension_confirmation_supervisor\local\confirmbooking
      */
-    public function test_confirmation_supervisor(int $order, array $alloweduserkeys, array $notalloweduserkeys, int $confirmations): void {
+    public function test_confirmation_supervisor(
+        int $order,
+        array $alloweduserkeys,
+        array $notalloweduserkeys,
+        int $confirmations,
+        array $replacements
+    ): void {
         global $DB;
 
         if (!\core_component::get_component_directory('bookingextension_confirmation_supervisor')) {
@@ -483,28 +487,50 @@ final class confirmation_test extends advanced_testcase {
 
         // Now we heck if allowed users in order can confirm.
         foreach ($alloweduserkeys as $key) {
-            // We even check if allowed users are not able to confirm answer out of the order. so if there is more than one
-            // allowed user. we need to make sure that they can not confirm out of order.
+            // We even check if allowed users (or their replacements) are not able to confirm answer out of the order.
+            // So if there is more than one allowed user, we need to make sure that they (or their replacements) can not
+            // confirm out of order.
             $outoforder = array_filter($alloweduserkeys, fn($k) => $k !== $key);
             foreach ($outoforder as $wrongkey) {
                 // Ensure user cannot confirm it.
                 $this->setUser($users[$wrongkey]);
                 $result = $table->action_confirmbooking(0, json_encode(['id' => $answer->baid])); // Confirm answer.
                 $this->assertEquals(0, $result['success']); // Make sure confirmation is not successful.
+
+                // Ensure user replacment who can confirm in behalf of approver with $wrongkey is not allowed to confirm the answer.
+                if (!empty($replacements[$wrongkey])) {
+                    $rkeys = $replacements[$wrongkey];
+                    foreach ($rkeys as $userkey) {
+                        $this->setUser($users[$userkey]);
+                        $result = $table->action_confirmbooking(0, json_encode(['id' => $answer->baid])); // Confirm answer.
+                        $this->assertEquals(0, $result['success']); // Make sure confirmation is not successful.
+                    }
+                }
             }
 
             // Ensure user can confirm it because it his turn.
             $this->setUser($users[$key]);
             $result = $table->action_confirmbooking(0, json_encode(['id' => $answer->baid])); // Confirm answer.
             $this->assertEquals(1, $result['success']); // Make sure confirmation is not successful.
+
+            // Now the desired allowed user has confirmed the answer. That means the other users who are alloweerd
+            // to confirm in behalf of the desired approover should not be longer possible to conform the answer.
+            // First we check any replacement for the approver is defined. The we try to confirm the the booking answer.
+            // This replaced person should not be able to confirm the booking answer.
+            if (!empty($replacements[$key])) {
+                $rkeys = $replacements[$key];
+                foreach ($rkeys as $userkey) {
+                    $this->setUser($users[$userkey]);
+                    $result = $table->action_confirmbooking(0, json_encode(['id' => $answer->baid])); // Confirm answer.
+                    $this->assertEquals(0, $result['success']); // Make sure confirmation is not successful.
+                }
+            }
         }
 
         // Answer should be fully booked.
         $this->setUser($student1);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
-
-        // TODO: MDL-0 Check that, after confirmation, approvers can no longer approve it again.
     }
 
     /**
@@ -528,47 +554,103 @@ final class confirmation_test extends advanced_testcase {
      */
     public static function confirmation_supervisor_provider(): array {
         return [
-            'only_supervisor' => [
+            'Only supervsior --> by Supervisor' => [
                 1, // Confirmation order.
-                ['supervisor1'], // Allowed users.
+                ['supervisor1'], // Allowed users (Order of keys is important).
                 ['admin', 'teacher', 'manager', 'hr1'], // Not allowed users.
                 1, // Number of required confirmations.
+                ['supervisor1' => ['deputy1', 'deputy2']], // Users replacements.
             ],
-            'hr_then_supervisor' => [
+            'Only supervsior --> by Deputy 1' => [
+                1,
+                ['deputy1'],
+                ['admin', 'teacher', 'manager', 'hr1', 'hr2'],
+                1,
+                ['deputy1' => ['deputy2', 'supervisor1']],
+            ],
+            'Only supervsior --> by Deputy 2' => [
+                1,
+                ['deputy2'],
+                ['admin', 'teacher', 'manager', 'hr1'],
+                1,
+                ['deputy1' => ['deputy2', 'supervisor1']],
+            ],
+            'HR then supervisor --> by Supervisor 1' => [
                 2,
                 ['hr1', 'supervisor1'],
                 ['admin', 'teacher', 'manager'],
                 2,
+                ['supervisor1' => ['deputy1', 'deputy2'], 'hr1' => ['hr2']],
             ],
-            'only_hr' => [
+            'HR then supervisor --> by Deputy 1' => [
+                2,
+                ['hr1', 'deputy1'],
+                ['admin', 'teacher', 'manager'],
+                2,
+                ['deputy1' => ['deputy2', 'supervisor1'], 'h1' => ['hr2']],
+            ],
+            'HR then supervisor --> by Deputy 2' => [
+                2,
+                ['hr1', 'deputy2'],
+                ['admin', 'teacher', 'manager'],
+                2,
+                ['deputy2' => ['deputy1', 'supervisor1'], 'h1' => ['hr2']],
+            ],
+            'Only HR --> by HR1' => [
                 3,
                 ['hr1'],
+                ['admin', 'teacher', 'manager', 'supervisor1', 'deputy1', 'deputy2'],
+                1,
+                ['hr1' => ['hr2']],
+            ],
+            'Only HR --> by HR2' => [
+                3,
+                ['hr2'],
                 ['admin', 'teacher', 'manager', 'supervisor1'],
                 1,
+                ['hr' => ['hr1']],
             ],
-            'supervisor_then_hr' => [
+            'Supervisor then HR --> by Supervisor 1' => [
                 4,
                 ['supervisor1', 'hr1'],
                 ['admin', 'teacher', 'manager'],
                 2,
+                ['supervisor1' => ['deputy1', 'deputy2'], 'hr1' => ['hr2']],
             ],
-            'supervisor_or_hr --> hr' => [
+            'Supervisor then HR --> by Deputy 1' => [
+                4,
+                ['deputy1', 'hr1'],
+                ['admin', 'teacher', 'manager'],
+                2,
+                ['deputy1' => ['deputy2', 'supervisor1'], 'h1' => ['hr2']],
+            ],
+            'Supervisor then HR --> by Deputy 2' => [
+                4,
+                ['deputy2', 'hr1'],
+                ['admin', 'teacher', 'manager'],
+                2,
+                ['deputy2' => ['deputy1', 'supervisor1'], 'h1' => ['hr2']],
+            ],
+            'Supervisor or HR --> by HR' => [
                 5,
                 ['hr1'],
                 ['admin', 'teacher', 'manager'],
                 1,
+                ['hr1' => ['hr2', 'supervisor1', 'deputy1', 'deputy2']],
             ],
-            'supervisor_or_hr --> supervisor' => [
+            'Supervisor or HR --> by Supervisor' => [
                 5,
                 ['supervisor1'],
                 ['admin', 'teacher', 'manager'],
                 1,
+                ['supervisor1' => ['hr1', 'hr2', 'deputy1', 'deputy2']],
             ],
-            'only_supervisor_or_deputy' => [
-                1,
+            'Supervisor or HR --> by Deputy1' => [
+                5,
                 ['deputy1'],
-                ['admin', 'teacher', 'manager', 'hr1'],
+                ['admin', 'teacher', 'manager'],
                 1,
+                ['deputy1' => ['hr1', 'hr2', 'supervisor1', 'deputy2']],
             ],
         ];
     }
