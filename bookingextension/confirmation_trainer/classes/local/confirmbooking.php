@@ -55,11 +55,12 @@ class confirmbooking implements confirmbooking_interface {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $context = context_module::instance($settings->cmid);
-        $contextcourse = context_course::instance($settings->courseid);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
+        $contextcourse = context_course::instance($bookingsettings->course);
 
         // $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
         // $bookingisteacher = booking_check_if_teacher($option->option, $USER->id);
-
+        // TODO: MDL-0 Chekc if course:view & course:update capabilites are correct to determine trainer.
         if (
             has_capability('mod/booking:bookforothers', $context)
             && has_capability('moodle/course:view', $contextcourse)
