@@ -833,7 +833,7 @@ final class rules_test extends advanced_testcase {
 
         // Create a booking option answer.
         $result = $plugingenerator->create_answer(['optionid' => $option1->id, 'userid' => $user2->id]);
-        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $result);
+        $this->assertSame(MOD_BOOKING_BO_COND_ALREADYBOOKED, $result);
         singleton_service::destroy_booking_answers($option1->id);
 
         // Cancel entire booking option.
@@ -842,20 +842,47 @@ final class rules_test extends advanced_testcase {
         // Get messages.
         $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
 
-        // Validate scheduled adhoc tasks.
-        // phpcs:ignore
-        //$this->assertCount(1, $messages); // Override does not work in phpunit, 2 messages.
-        $keys = array_keys($messages);
-        // Task 1 has to be "override".
-        $message = $messages[$keys[0]];
-        $customdata = $message->get_custom_data();
-        $this->assertEquals("overridesubj", $customdata->customsubject);
-        $this->assertEquals("overridemsg", $customdata->custommessage);
-        $this->assertEquals($user1->id, $customdata->userid);
-        $this->assertStringContainsString($boevent2, $customdata->rulejson);
-        $this->assertStringContainsString($cancelrules2, $customdata->rulejson);
-        $this->assertStringContainsString($ruledata2['conditiondata'], $customdata->rulejson);
-        $this->assertStringContainsString($ruledata2['actiondata'], $customdata->rulejson);
+        // Validate scheduled adhoc tasks. Order might be free. Override does not applied yet, 2 messages scheduled.
+        foreach ($messages as $key => $message) {
+            $customdata = $message->get_custom_data();
+            if (strpos($customdata->customsubject, "overridesubj") !== false) {
+                $this->assertSame("overridemsg", $customdata->custommessage);
+                $this->assertSame($user1->id, $customdata->userid);
+                $this->assertStringContainsString($boevent2, $customdata->rulejson);
+                $this->assertStringContainsString($cancelrules2, $customdata->rulejson);
+                $this->assertStringContainsString($ruledata2['conditiondata'], $customdata->rulejson);
+                $this->assertStringContainsString($ruledata2['actiondata'], $customdata->rulejson);
+            } else if (strpos($customdata->customsubject, "answcancsubj") !== false) {
+                $this->assertSame("answcancmsg", $customdata->custommessage);
+                $this->assertSame($user2->id, $customdata->userid);
+                $this->assertStringContainsString($ruledata1['conditiondata'], $customdata->rulejson);
+                $this->assertStringContainsString($ruledata1['actiondata'], $customdata->rulejson);
+            } else {
+                continue;
+            }
+        }
+
+        // Override working only upon execution of adhoc task.
+        unset_config('noemailever');
+        ob_start();
+        $messagesink = $this->redirectMessages();
+
+        $this->runAdhocTasks();
+
+        $sentmessages = $messagesink->get_messages();
+        $res = ob_get_clean();
+        $messagesink->close();
+
+        // Validate override.
+        foreach ($sentmessages as $key => $sentmessage) {
+            if (strpos($sentmessage->subject, "overridesubj") !== false) {
+                $this->assertSame("overridemsg", $sentmessage->fullmessage);
+                $this->assertSame($user2->id, $sentmessage->useridfrom);
+                $this->assertSame($user1->id, $sentmessage->useridto);
+            } else {
+                $this->assertSame("answcancmsg", $sentmessage->fullmessage, 'Error: no overriding, answcancmsg message foun');
+            }
+        }
     }
 
     /**
