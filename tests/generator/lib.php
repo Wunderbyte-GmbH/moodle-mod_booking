@@ -389,6 +389,9 @@ class mod_booking_generator extends testing_module_generator {
         // Compatibility for old tests on tules.
         if (!empty($ruledraft->ruledata)) {
             $ruleobject->ruledata = json_decode($ruledraft->ruledata);
+            if (empty($ruleobject->ruledata->cancelrules)) {
+                $ruleobject->ruledata->cancelrules = [];
+            }
         }
         if (empty($ruleobject->ruledata)) {
             $ruleobject->ruledata = new stdClass();
@@ -404,12 +407,11 @@ class mod_booking_generator extends testing_module_generator {
                 'rule_react_on_event: eventname (boevent) must be present in mod_booking_generator::create_option() $record'
             );
         }
-        // Setup rule overriding.
-        if (!empty($ruledraft->cancelrules) && is_array($ruledraft->cancelrules)) {
-            $cancelrules = explode(',', $ruledraft->cancelrules);
-            foreach ($cancelrules as $cancelrule) {
+        // Fix rule overriding - convert all rulenames to IDs.
+        foreach ($ruleobject->ruledata->cancelrules as $key => $cancelrule) {
+            if (!empty($cancelrule) && !is_numeric($cancelrule)) {
                 if ($ruleid = $this->get_rule($cancelrule)) {
-                    $ruleobject->ruledata->cancelrules[] = $ruleid;
+                    $ruleobject->ruledata->cancelrules[$key] = $ruleid;
                 }
             }
         }
