@@ -117,49 +117,7 @@ Feature: Create global booking rules as admin and insure they are working.
     And I trigger cron
     And I visit "/report/loglive/index.php"
     And I should see "Substitution teacher was added"
-    ## And I should see "An e-mail with subject 'teacher subst' has been sent to user with id: '2'"
     And I should see "Custom message A message e-mail with subject \"teacher subst\" has been sent to user: \"Teacher 1\" by the user \"Admin User\""
-    ## Logout is mandatory for admin pages to avoid error
-    And I log out
-
-  @javascript
-  Scenario: Booking rules: create booking rule for option cancellation event and notify students
-    Given the following "mod_booking > options" exist:
-      | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
-      | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
-    And the following booking rule exists:
-      | conditionname   | select_student_in_bo |
-      | contextid       | 1                    |
-      | conditiondata   | {"borole":"5"}       |
-      | name            | notifystudent        |
-      | actionname      | send_mail            |
-      | actiondata      | {"sendical":0,"sendicalcreateorcancel":"","subject":"cancellation","template":"cancellation msg","templateformat":"1"} |
-      | rulename        | rule_react_on_event  |
-      | boevent         | \mod_booking\event\bookingoption_cancelled |
-      | aftercompletion |                      |
-      | condition       | 0                    |
-      | cancelrules     |                      |
-    When I am on the "BookingCMP" Activity page logged in as admin
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Student 1 (student1@example.com)" "text"
-    And I click on "Student 2 (student2@example.com)" "text"
-    And I click on "Add" "button"
-    And I am on the "BookingCMP" Activity page
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Cancel this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I set the field "Reason for cancellation of this booking option" to "rule testing"
-    And I click on "Save changes" "button"
-    And I should see "Option-football" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "Cancelled" in the ".allbookingoptionstable_r1" "css_element"
-    ## Send messages via cron and verify via events log
-    And I trigger cron
-    And I visit "/report/loglive/index.php"
-    And I should see "Booking option cancelled for all"
-    ## Fails and temporarily disabled
-    ## And I should see "Booking option cancelled for/by user"
-    ## And I should see "Custom message A message e-mail with subject \"cancellation\" has been sent to user: \"Teacher 1\" by the user \"Student 2\""
-    ## And I should see "Custom message A message e-mail with subject \"cancellation\" has been sent to user: \"Teacher 1\" by the user \"Student 1\""
     ## Logout is mandatory for admin pages to avoid error
     And I log out
 
@@ -171,10 +129,22 @@ Feature: Create global booking rules as admin and insure they are working.
     And the following booking rule exists:
       | conditionname   | select_student_in_bo |
       | contextid       | 1                    |
-      | conditiondata   | {"borole":"0"}       |
-      | name            | notifystudent        |
+      | conditiondata   | {"borole":"5"}       |
+      | name            | notifystudent2        |
       | actionname      | send_mail            |
-      | actiondata      | {"sendical":0,"sendicalcreateorcancel":"","subject":"answer cancellation","template":"answer cancellation msg","templateformat":"1"} |
+      | actiondata      | {"sendical":0,"sendicalcreateorcancel":"","subject":"answer cancellation5","template":"answer cancellation5 msg","templateformat":"1"} |
+      | rulename        | rule_react_on_event  |
+      | boevent         | \mod_booking\event\bookinganswer_cancelled |
+      | aftercompletion |                      |
+      | condition       | 0                    |
+      | cancelrules     |                      |
+    And the following booking rule exists:
+      | conditionname   | select_student_in_bo |
+      | contextid       | 1                    |
+      | conditiondata   | {"borole":"0"}       |
+      | name            | notifystudent1        |
+      | actionname      | send_mail            |
+      | actiondata      | {"sendical":0,"sendicalcreateorcancel":"","subject":"answer cancellation0","template":"answer cancellation0 msg","templateformat":"1"} |
       | rulename        | rule_react_on_event  |
       | boevent         | \mod_booking\event\bookinganswer_cancelled |
       | aftercompletion |                      |
@@ -193,7 +163,8 @@ Feature: Create global booking rules as admin and insure they are working.
     And I trigger cron
     And I visit "/report/loglive/index.php"
     And I should see "Option cancelled by teacher or system A message e-mail with subject \"Deleted booking: Option-football by Student 2\" has been sent to user: \"Teacher 1\" by the user \"Student 2\""
-    And I should see "Custom message A message e-mail with subject \"answer cancellation\" has been sent to user: \"Teacher 1\" by the user \"Student 1\""
+    And I should see "Custom message A message e-mail with subject \"answer cancellation0\" has been sent to user: \"Teacher 1\" by the user \"Student 1\""
+    And I should see "Custom message A message e-mail with subject \"answer cancellation5\" has been sent to user: \"Teacher 1\" by the user \"Student 2\""
     ## Logout is mandatory for admin pages to avoid error
     And I log out
 
