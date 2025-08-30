@@ -497,9 +497,9 @@ Feature: Create global booking rules as admin and insure they are working.
       | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | teachersforoption  |
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | teacher1, teacher2 |
     And the following booking rule exists:
-      | conditionname   | select_users                   |
+      | conditionname   | select_student_in_bo           |
       | contextid       | 1                              |
-      | conditiondata   | {"userids":["2"]}              |
+      | conditiondata   | {"borole":"0"}                 |
       | name            | notifyadmin                    |
       | actionname      | send_mail                      |
       | actiondata      | {"sendical":0,"sendicalcreateorcancel":"","subject":"answcancsubj","template":"answcancmsg","templateformat":"1"} |
@@ -534,10 +534,9 @@ Feature: Create global booking rules as admin and insure they are working.
     And I trigger cron
     And I visit "/report/loglive/index.php"
     And I should see "Booking option cancelled for all"
-    ## Fails and temporarily disabled
-    ## And I should see "Booking option cancelled for/by user"
-    ## And I should not see "Custom message A message e-mail with subject \"answcancsubj\" has been sent to user"
-    ## And I should see "Custom message A message e-mail with subject \"overridesubj\" has been sent to user: \"Teacher 1\" by the user \"Teacher 2\""
+    And I should see "Custom message A message e-mail with subject \"overridesubj\" has been sent to user: \"Teacher 1\" by the user \"Teacher 2\""
+    And I should see "Custom message A message e-mail with subject \"overridesubj\" has been sent to user: \"Teacher 1\" by the user \"Teacher 1\""
+    And I should not see "Custom message A message e-mail with subject \"answcancsubj\" has been sent to user"
     ## Logout is mandatory for admin pages to avoid error
     And I log out
 
