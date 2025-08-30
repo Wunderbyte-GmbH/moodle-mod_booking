@@ -193,7 +193,7 @@ class enrolmentstatus extends field_base {
         }
 
         $changes = [];
-        $value = $formdata->enrolmentstatus;
+        $value = $formdata->enrolmentstatus ?? 0;
 
         $mockdata = empty($mockdata) ? new stdClass() : $mockdata;
 
