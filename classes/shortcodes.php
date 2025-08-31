@@ -1432,7 +1432,7 @@ class shortcodes {
                 $params = array_merge($tempparams, $params ?? []);
         }
         if (empty($additionalwhere)) {
-            $additionalwhere = " ( 1=1 ) ";
+            $additionalwhere = " ( bookingid > 0 ) ";
         }
         return $additionalwhere;
     }
