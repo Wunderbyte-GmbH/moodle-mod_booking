@@ -1111,7 +1111,7 @@ class booking_answers {
                 $answers = [];
                 // We don't have any answers, we get the ones we need.
                 if (!$data) {
-                    [$sql, $params] = $this->return_sql_to_get_answers(0, $bookingid, $userid, $status);
+                    [$sql, $params] = self::return_sql_to_get_answers(0, $bookingid, $userid, $status);
 
                     $answers = $DB->get_records_sql($sql, $params);
 
@@ -1130,7 +1130,7 @@ class booking_answers {
                     }
 
                     if (!empty($statustofetch)) {
-                        [$sql, $params] = $this->return_sql_to_get_answers(0, $bookingid, $userid, $statustofetch);
+                        [$sql, $params] = self::return_sql_to_get_answers(0, $bookingid, $userid, $statustofetch);
                         $answers = $DB->get_records_sql($sql, $params);
                     }
 
@@ -1191,10 +1191,11 @@ class booking_answers {
      * @param int $bookingid
      * @param int $userid
      * @param array $status
+     * @param bool $onlycompleted
      *
      * @return array
      */
-    private function return_sql_to_get_answers(
+    private static function return_sql_to_get_answers(
         int $optionid = 0,
         int $bookingid = 0,
         int $userid = 0,
@@ -1203,7 +1204,8 @@ class booking_answers {
             MOD_BOOKING_STATUSPARAM_WAITINGLIST,
             MOD_BOOKING_STATUSPARAM_RESERVED,
             MOD_BOOKING_STATUSPARAM_NOTIFYMELIST,
-        ]
+        ],
+        $onlycompleted = false
     ) {
         global $DB;
 
@@ -1227,6 +1229,11 @@ class booking_answers {
             $params['userid'] = $userid;
             $wherearray[] = ' ba.userid = :userid ';
         }
+
+        if ($onlycompleted) {
+            $wherearray[] = ' ba.completed = 1 ';
+        }
+
         $overlapping = bo_info::check_for_sqljson_key_in_array('bo.availability', 'nooverlappinghandling');
         $withcoursestarttimesselect = ", $overlapping as nooverlappinghandling";
 
@@ -1255,5 +1262,28 @@ class booking_answers {
             ORDER BY ba.timemodified ASC";
 
         return [$sql, $params];
+    }
+
+    /**
+     * This function counts completed booking answers with status booked over all instances.
+     * It does not use the caching we implemented in get_all_answers_for_user_cached, so use with care.
+     *
+     * @param int $userid
+     * @param int $optionid
+     * @param int $bookingid
+     *
+     * @return int
+     *
+     */
+    public static function count_answers_of_user(
+        int $userid,
+        int $optionid = 0,
+        int $bookingid = 0
+    ): int {
+        global $DB;
+
+        [$sql, $params] = self::return_sql_to_get_answers($optionid, $bookingid, $userid, [MOD_BOOKING_STATUSPARAM_BOOKED], true);
+        $records = $DB->get_records_sql($sql, $params);
+        return count($records);
     }
 }
