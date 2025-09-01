@@ -2316,18 +2316,25 @@ function booking_delete_instance($id) {
     global $DB;
 
     if (!$booking = $DB->get_record("booking", ["id" => "$id"])) {
-        return false;
+        $msg = "booking_delete_instance - Error: No booking record exists for bookingid {$id}.";
+        mtrace($msg);
+        debugging($msg, DEBUG_DEVELOPER);
+        return true;
     }
 
     if (!$cm = get_coursemodule_from_instance('booking', $id)) {
-        return false;
+        $msg = "booking_delete_instance - Error: No course module record exists for corresponding bookingid {$id} (not cmid!)";
+        mtrace($msg);
+        debugging($msg, DEBUG_DEVELOPER);
+        return true;
     }
 
     if (!$context = context_module::instance($cm->id, IGNORE_MISSING)) {
-        return false;
+        $msg = "booking_delete_instance - Error: Module context for cmid {$cm->id} could not be created.";
+        mtrace($msg);
+        debugging($msg, DEBUG_DEVELOPER);
+        return true;
     }
-
-    $result = true;
 
     $alloptionids = booking::get_all_optionids($id);
     foreach ($alloptionids as $optionid) {
@@ -2385,11 +2392,15 @@ function booking_delete_instance($id) {
     }
 
     if (!$DB->delete_records("booking_answers", ["bookingid" => "$booking->id"])) {
-        $result = false;
+        $msg = "booking_delete_instance - Error: Booking answers for bookingid {$booking->id} could not be deleted.";
+        debugging($msg, DEBUG_DEVELOPER);
+        mtrace($msg);
     }
 
     if (!$DB->delete_records('booking_optiondates', ["bookingid" => "$booking->id"])) {
-        $result = false;
+        $msg = "booking_delete_instance - Error: Booking optionsdates for bookingid {$booking->id} could not be deleted.";
+        debugging($msg, DEBUG_DEVELOPER);
+        mtrace($msg);
     } else {
         // If optiondates are deleted we also have to delete the associated entries in booking_optiondates_teachers.
         // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
@@ -2399,7 +2410,9 @@ function booking_delete_instance($id) {
 
     // We also need to delete the booking teachers in the booking_teachers table!
     if (!$DB->delete_records('booking_teachers', ["bookingid" => "$booking->id"])) {
-        $result = false;
+        $msg = "booking_delete_instance - Error: Booking teachers for bookingid {$booking->id} could not be deleted.";
+        debugging($msg, DEBUG_DEVELOPER);
+        mtrace($msg);
     }
 
     // Delete any entity relations for the booking instance.
@@ -2407,16 +2420,22 @@ function booking_delete_instance($id) {
     // TODO: this should be moved into delete_booking_option.
     if (class_exists('local_entities\entitiesrelation_handler')) {
         if (!entitiesrelation_handler::delete_entities_relations_by_bookingid($booking->id)) {
-            $result = false;
+            $msg = "booking_delete_instance - Error: Entities relations for bookingid {$booking->id} could not be deleted.";
+            debugging($msg, DEBUG_DEVELOPER);
+            mtrace($msg);
         }
     }
 
     if (!$DB->delete_records("event", ["instance" => "$booking->id"])) {
-        $result = false;
+        $msg = "booking_delete_instance - Error: Events for bookingid {$booking->id} could not be deleted.";
+        debugging($msg, DEBUG_DEVELOPER);
+        mtrace($msg);
     }
 
     if (!$DB->delete_records("booking", ["id" => "$booking->id"])) {
-        $result = false;
+        $msg = "booking_delete_instance - Error: Record in table booking for bookingid {$booking->id} could not be deleted.";
+        debugging($msg, DEBUG_DEVELOPER);
+        mtrace($msg);
     }
 
     // When deleting an instance, we need to invalidate the cache for booking instances.
@@ -2425,7 +2444,7 @@ function booking_delete_instance($id) {
     // Delete rules of this instance.
     booking_rules::delete_rules_by_context($context->id);
 
-    return $result;
+    return true;
 }
 
 /**
