@@ -946,27 +946,6 @@ if ($ADMIN->fulltree) {
             get_string('useconfirmationworkflowheader_desc', 'mod_booking'),
             0 // Default: off.
         ));
-
-        $confirmationworkflows['bookingextension_confirmation_trainer'] = get_string('approvalbytrainer', 'mod_booking');
-        // We retrieve all available bookingextensions.
-        foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
-            // If there is a confirm_booking class, we use this.
-            $class = "\\bookingextension_{$plugin->name}\\local\\confirm_booking.php";
-
-            if (class_exists($class)) {
-                $confirmbooking = new $class();
-                $confirmationworkflows[$plugin->name] = $confirmbooking->get_name();
-            }
-        }
-        $settings->add(
-            new admin_setting_configmultiselect(
-                'booking/approvalworkflows',
-                get_string('approvalworkflows', 'mod_booking'),
-                get_string('approvalworkflows_desc', 'mod_booking'),
-                ['bookingextension_confirmation_trainer'], // Default is the standard plugin.
-                $confirmationworkflows,
-            )
-        );
     } else {
         $settings->add(
             new admin_setting_heading(
