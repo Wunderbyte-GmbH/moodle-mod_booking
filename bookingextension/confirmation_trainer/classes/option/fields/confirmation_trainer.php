@@ -142,7 +142,7 @@ class confirmation_trainer extends field_base {
         $value = ''
     ): array {
 
-        if (!isset($self)) {
+        if (!isset($self) || !isset($formdata->id)) {
             return [];
         }
 
