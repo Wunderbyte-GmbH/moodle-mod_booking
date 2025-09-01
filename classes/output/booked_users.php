@@ -227,6 +227,46 @@ class booked_users implements renderable, templatable {
     }
 
     /**
+     * Returns an instance of wunderbyte table for testing purposes.
+     * This function is only accessible from PHPunit tests.
+     * @param string $scope
+     * @param int $scopeid
+     * @param int $statusparam
+     * @param bool $sortable
+     * @param bool $paginate
+     * @return \local_wunderbyte_table\wunderbyte_table|null
+     */
+    public function return_raw_table(
+        string $scope,
+        int $scopeid,
+        int $statusparam,
+    ): \local_wunderbyte_table\wunderbyte_table|null {
+
+        if (!defined('PHPUNIT_TEST') || !PHPUNIT_TEST) {
+            return null;
+        }
+
+        $ba = new booking_answers();
+        /** @var scope_base $class */
+        $class = $ba->return_class_for_scope($scope);
+        $columns = $class->return_cols_for_tables($statusparam);
+        $table = $class->return_users_table(
+            $scope,
+            $scopeid,
+            $statusparam,
+            $scope,
+            array_keys($columns),
+            array_values($columns),
+            false,
+            false
+        );
+
+        $table->outhtml(20000, false);
+
+        return $table;
+    }
+
+    /**
      * Helper function to get a booking history table for the provided scope and id.
      * @param string $scope can be system, option, instance, user
      * @param int $scopeid 0 for system, optionid for option, cmid for instance, userid for user

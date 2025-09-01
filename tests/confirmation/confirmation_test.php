@@ -17,11 +17,13 @@
 namespace mod_booking;
 
 use advanced_testcase;
+use mod_booking\output\booked_users;
 use mod_booking\singleton_service;
 use mod_booking\booking_bookit;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_answers\booking_answers;
 use mod_booking\table\manageusers_table;
+use local_wunderbyte_table\wunderbyte_table;
 use mod_booking_generator;
 use context_module;
 
@@ -241,7 +243,7 @@ final class confirmation_test extends advanced_testcase {
         $hr1 = $env['users']['hr1'];
         $settings = $env['settings'];
         $boinfo = $env['boinfo'];
-        $table = $this->get_table();
+        $table = $this->get_manage_users_table();
 
         /*********************************************
          * Book first user. Admi should be able to confirm it.
@@ -391,7 +393,7 @@ final class confirmation_test extends advanced_testcase {
         $hr1 = $env['users']['hr1'];
         $settings = $env['settings'];
         $boinfo = $env['boinfo'];
-        $table = $this->get_table();
+        $table = $this->get_manage_users_table();
 
         /*********************************************
          * Book a user. Admin, manager, teacher, supervisor & HR should not be able to confirm it.
@@ -438,7 +440,7 @@ final class confirmation_test extends advanced_testcase {
         int $order,
         array $alloweduserkeys,
         array $notalloweduserkeys,
-        int $confirmations,
+        int $requiredconfirmations,
         array $replacements
     ): void {
         global $DB;
@@ -453,38 +455,58 @@ final class confirmation_test extends advanced_testcase {
         $env = $this->setup_booking_environment(0, $order);
         $users = $env['users'];
         $student1 = $env['users']['student1'];
+        $student2 = $env['users']['student2'];
         $settings = $env['settings'];
         $boinfo = $env['boinfo'];
-        $table = $this->get_table();
+        $mutable = $this->get_manage_users_table(); // Manage users table.
 
         /*********************************************
-         * Book 1st user. Supervisor should be able to confirm it. Admin, Teacher, Manager & HR should NOT be able to confirm it.
+         * Book 1st & 2nd users. Supervisor should be able to confirm their answers.
+         * Admin, Teacher, Manager & HR should NOT be able to confirm their answers.
          *********************************************/
+        // Login as student 1 & book.
         $this->setUser($student1);
-
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id);
         $result = booking_bookit::bookit('option', $settings->id, $student1->id); // Book the first user.
-
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
+        // Login as student 2 & book.
+        $this->setUser($student2);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id);
+        $result = booking_bookit::bookit('option', $settings->id, $student2->id); // Book the 2nd user.
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
+
         $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
-        $answer = ($bookinganswers->get_users())[$student1->id] ?? null; // Get student 1 answer.
-        $this->assertNotEmpty($answer);
+        $student1answer = ($bookinganswers->get_users())[$student1->id] ?? null; // Get student 1 answer.
+        $this->assertNotEmpty($student1answer);
+        $student2answer = ($bookinganswers->get_users())[$student2->id] ?? null; // Get student 1 answer.
+        $this->assertNotEmpty($student2answer);
 
         foreach ($notalloweduserkeys as $key) {
-            // Ensure user cannot confirm it.
+            // Ensure the disallowed user cannot confirm any answers.
             $this->setUser($users[$key]);
-            $result = $table->action_confirmbooking(0, json_encode(['id' => $answer->baid])); // Confirm answer.
+            // Student 1 answer.
+            $result = $mutable->action_confirmbooking(0, json_encode(['id' => $student1answer->baid])); // Confirm answer.
+            $this->assertEquals(0, $result['success']); // Make sure confirmation is not successful.
+            // Student 2 answer.
+            $result = $mutable->action_confirmbooking(0, json_encode(['id' => $student2answer->baid])); // Confirm answer.
             $this->assertEquals(0, $result['success']); // Make sure confirmation is not successful.
         }
 
-        // Answer should be still on waiting list.
+        // Answer of student 1 & 2 should be still on waiting list.
         $this->setUser($student1);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
+        $this->setUser($student2);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
+
+        $confirmationscount = 0;
         // Now we heck if allowed users in order can confirm.
         foreach ($alloweduserkeys as $key) {
             // We even check if allowed users (or their replacements) are not able to confirm answer out of the order.
@@ -494,7 +516,7 @@ final class confirmation_test extends advanced_testcase {
             foreach ($outoforder as $wrongkey) {
                 // Ensure user cannot confirm it.
                 $this->setUser($users[$wrongkey]);
-                $result = $table->action_confirmbooking(0, json_encode(['id' => $answer->baid])); // Confirm answer.
+                $result = $mutable->action_confirmbooking(0, json_encode(['id' => $student1answer->baid])); // Confirm answer.
                 $this->assertEquals(0, $result['success']); // Make sure confirmation is not successful.
 
                 // Ensure user replacment who can confirm in behalf of approver with $wrongkey is not allowed to confirm the answer.
@@ -502,26 +524,50 @@ final class confirmation_test extends advanced_testcase {
                     $rkeys = $replacements[$wrongkey];
                     foreach ($rkeys as $userkey) {
                         $this->setUser($users[$userkey]);
-                        $result = $table->action_confirmbooking(0, json_encode(['id' => $answer->baid])); // Confirm answer.
+                        $result = $mutable->action_confirmbooking(0, json_encode(['id' => $student1answer->baid])); // Confirm answer.
                         $this->assertEquals(0, $result['success']); // Make sure confirmation is not successful.
                     }
                 }
             }
 
-            // Ensure user can confirm it because it his turn.
+            // Ensure user can confirm it because it their turn.
             $this->setUser($users[$key]);
-            $result = $table->action_confirmbooking(0, json_encode(['id' => $answer->baid])); // Confirm answer.
-            $this->assertEquals(1, $result['success']); // Make sure confirmation is not successful.
 
-            // Now the desired allowed user has confirmed the answer. That means the other users who are alloweerd
-            // to confirm in behalf of the desired approover should not be longer possible to conform the answer.
+            // Check the number of records that the user sees in the table.
+            // Since we booked options with student 1 and student 2,
+            // the approver should see both answers in the table.
+            $viewingtable = $this->get_booked_users_table();
+            $this->assertCount(2, $viewingtable->rawdata);
+            $usersids = array_map(fn($record) => $record->userid, $viewingtable->rawdata);
+            $this->assertContains($student1->id, $usersids);
+            $this->assertContains($student2->id, $usersids);
+
+            // Now we confirm student 1's booking answer. The approver should be able to confirm it.
+            $result = $mutable->action_confirmbooking(0, json_encode(['id' => $student1answer->baid])); // Confirm answer.
+            $this->assertEquals(1, $result['success']); // Make sure confirmation is not successful.
+            $confirmationscount++;
+
+            // Now we check the records in the table. The record for student 1 should no longer be visible
+            // if all approvers have confirmed the answer.
+            // We compare the number of required confirmations with the number of confirmations
+            // to determine if all approvers have confirmed the answer.
+            if ($requiredconfirmations == $confirmationscount) {
+                $viewingtable = $this->get_booked_users_table();
+                $this->assertCount(1, $viewingtable->rawdata);
+                $usersids = array_map(fn($record) => $record->userid, $viewingtable->rawdata);
+                $this->assertNotContains($student1->id, $usersids);
+                $this->assertContains($student2->id, $usersids);
+            }
+
+            // Now the desired allowed user has confirmed the answer. That means the other users who are allowed
+            // to confirm in behalf of the desired approver should not be longer possible to confirm the answer.
             // First we check any replacement for the approver is defined. The we try to confirm the the booking answer.
             // This replaced person should not be able to confirm the booking answer.
             if (!empty($replacements[$key])) {
                 $rkeys = $replacements[$key];
                 foreach ($rkeys as $userkey) {
                     $this->setUser($users[$userkey]);
-                    $result = $table->action_confirmbooking(0, json_encode(['id' => $answer->baid])); // Confirm answer.
+                    $result = $mutable->action_confirmbooking(0, json_encode(['id' => $student1answer->baid])); // Confirm answer.
                     $this->assertEquals(0, $result['success']); // Make sure confirmation is not successful.
                 }
             }
@@ -659,7 +705,7 @@ final class confirmation_test extends advanced_testcase {
      * Intantiates a manageusers_table.
      * @return manageusers_table
      */
-    private function get_table(): manageusers_table {
+    private function get_manage_users_table(): manageusers_table {
         $ba = new booking_answers();
         $scope = 'optionstoconfirm';
         $scopeid = 0;
@@ -667,6 +713,32 @@ final class confirmation_test extends advanced_testcase {
         $tablename = "{$tablenameprefix}_{$scope}_{$scopeid}";
         $table = new manageusers_table($tablename);
         return $table;
+    }
+
+    /**
+     * This function returns the table that the approver will see in the UI.
+     * With this table, we can determine the actual records that will be returned to the approver.
+     *
+     * @return wunderbyte_table|null
+     */
+    private function get_booked_users_table(): wunderbyte_table|null {
+        $bookeduserstable = new booked_users(
+            'optionstoconfirm',
+            0,
+            false, // Booked users.
+            false, // Users on waiting list.
+            false, // Reserved answers (e.g. in shopping cart).
+            false, // Users on notify list.
+            false, // Deleted users.
+            false, // Booking history.
+            true // Options to confirm.
+        );
+
+        return $bookeduserstable->return_raw_table(
+            'optionstoconfirm',
+            0,
+            MOD_BOOKING_STATUSPARAM_WAITINGLIST
+        );
     }
 
     /**
