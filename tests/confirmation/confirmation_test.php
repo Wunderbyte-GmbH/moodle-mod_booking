@@ -116,6 +116,8 @@ final class confirmation_test extends advanced_testcase {
         $deputy1 = $this->getDataGenerator()->create_user();
         $deputy2 = $this->getDataGenerator()->create_user();
         $deputy3 = $this->getDataGenerator()->create_user();
+        $deputy4 = $this->getDataGenerator()->create_user();
+        $deputy5 = $this->getDataGenerator()->create_user();
 
         $this->grant_capability_to_role('teacher', 'moodle/course:view', $coursecotext);
         $this->grant_capability_to_role('teacher', 'moodle/course:update', $coursecotext);
@@ -183,6 +185,8 @@ final class confirmation_test extends advanced_testcase {
         role_assign($approverroleid, $deputy1->id, $syscontext->id);
         role_assign($approverroleid, $deputy2->id, $syscontext->id);
         role_assign($approverroleid, $deputy3->id, $syscontext->id);
+        role_assign($approverroleid, $deputy4->id, $syscontext->id);
+        role_assign($approverroleid, $deputy5->id, $syscontext->id);
 
         // Enrol always admin, teacher, manager & students to course.
         $this->getDataGenerator()->enrol_user($admin->id, $course->id);
@@ -217,6 +221,8 @@ final class confirmation_test extends advanced_testcase {
                 'deputy1' => $deputy1,
                 'deputy2' => $deputy2,
                 'deputy3' => $deputy3,
+                'deputy4' => $deputy4,
+                'deputy5' => $deputy5,
             ],
         ];
     }
@@ -524,7 +530,7 @@ final class confirmation_test extends advanced_testcase {
                     $rkeys = $replacements[$wrongkey];
                     foreach ($rkeys as $userkey) {
                         $this->setUser($users[$userkey]);
-                        $result = $mutable->action_confirmbooking(0, json_encode(['id' => $student1answer->baid])); // Confirm answer.
+                        $result = $mutable->action_confirmbooking(0, json_encode(['id' => $student1answer->baid]));
                         $this->assertEquals(0, $result['success']); // Make sure confirmation is not successful.
                     }
                 }
@@ -577,6 +583,99 @@ final class confirmation_test extends advanced_testcase {
         $this->setUser($student1);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+    }
+
+    /**
+     * Check if the a shared deputy between 2 supervisors can see the answers of both supervisors
+     * while the supervisors should see only the their subordinates.
+     *
+     * @dataProvider supervisors_with_same_deputy_provider
+     * @return void
+     * @covers \bookingextension_confirmation_supervisor\local\confirmbooking
+     */
+    public function test_supervisors_with_same_deputy(string $userkey, array $mustsee, array $mustnotsee): void {
+        global $DB;
+
+        if (!\core_component::get_component_directory('bookingextension_confirmation_supervisor')) {
+            $this->markTestSkipped('Subplugin confirmation_supervisor is not available.');
+        }
+
+        $this->resetAfterTest(true);
+
+        // Initial config.
+        $env = $this->setup_booking_environment(0, 1);
+        $users = $env['users'];
+        $deputy1 = $env['users']['deputy1'];
+        $deputy2 = $env['users']['deputy2'];
+        $deputy3 = $env['users']['deputy3'];
+        $deputy4 = $env['users']['deputy4'];
+        $deputy5 = $env['users']['deputy5'];
+        $supervisor1 = $env['users']['supervisor1'];
+        $supervisor2 = $env['users']['supervisor2'];
+        $settings = $env['settings'];
+        $boinfo = $env['boinfo'];
+        $mutable = $this->get_manage_users_table(); // Manage users table.
+
+        // Set custom profile field 'deputy'. Deputy 1 is shared between supervisor 1 & supervisor 2.
+        $deputies = implode(',', [$deputy1->id, $deputy2->id, $deputy3->id]);
+        profile_save_data((object)['id' => $supervisor1->id, 'profile_field_deputy' => $deputies]);
+        $deputies = implode(',', [$deputy1->id, $deputy4->id, $deputy5->id]);
+        profile_save_data((object)['id' => $supervisor2->id, 'profile_field_deputy' => $deputies]);
+
+        // Book options 1 for the students 1 to 5.
+        $studnetkeys = ['student1', 'student2', 'student3', 'student4', 'student5'];
+        foreach ($studnetkeys as $studnetkey) {
+            $this->setUser($users[$studnetkey]);
+            booking_bookit::bookit('option', $settings->id, $users[$studnetkey]->id);
+        }
+
+        // Get answers.
+        $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
+        $this->assertCount(5, $bookinganswers->get_usersonwaitinglist());
+
+        // We have defined in setup_booking_environment function:
+        // Supervisor1 is set for students 1,2 & 4.
+        // Supervisor1 is set for students 3 & 5.
+        // We have follwing expectations:
+        // The supervisor 1 should see the answers of students 1,2 & 4.
+        // The supervisor 2 should see the answers of students 3 & 5.
+        // The deputy 1 should see the answers of all students as it is a selected by both supervisor 1 & supervisor2 as deputy.
+        // The deputies 2 & 3 should see the answers of students 1,2 & 4 same as supervisor1.
+        // The deputies 4 & 5 should see the answers of students 3 & 5 same as supervisor2.
+        // We check each case using data provider.
+
+        // Check the number of records that the user sees in the table based on expectations.
+        $this->setUser($users[$userkey]);
+        $viewingtable = $this->get_booked_users_table();
+        $this->assertCount(count($mustsee), $viewingtable->rawdata);
+        // Check if user can see their allowed records and able to confirm that.
+        $usersids = array_map(fn($record) => $record->userid, $viewingtable->rawdata);
+        foreach ($mustsee as $allowedkey) {
+            $this->setUser($users[$userkey]); // Switch to approver.
+            $this->assertContains($users[$allowedkey]->id, $usersids);
+            $answer = ($bookinganswers->get_users())[$users[$allowedkey]->id] ?? null; // Get student's answer.
+            $this->assertNotEmpty($answer);
+            $result = $mutable->action_confirmbooking(0, json_encode(['id' => $answer->baid]));
+            $this->assertEquals(1, $result['success']); // Make sure confirmation is successful.
+            // switch user to student to see if their response is really confirmed.
+            $this->setUser($users[$allowedkey]);
+            [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $users[$allowedkey]->id, true);
+            $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+        }
+
+        // Ensure user cannot see their forbiiden records.
+        foreach ($mustnotsee as $forbiddenkey) {
+            $this->setUser($users[$userkey]); // Switch to approver.
+            $this->assertNotContains($users[$forbiddenkey]->id, $usersids);
+            $answer = ($bookinganswers->get_users())[$users[$forbiddenkey]->id] ?? null; // Get student's answer.
+            $this->assertNotEmpty($answer);
+            $result = $mutable->action_confirmbooking(0, json_encode(['id' => $answer->baid]));
+            $this->assertEquals(0, $result['success']); // Make sure confirmation is successful.
+            // switch user to student to ensure their response is not confirmed.
+            $this->setUser($users[$allowedkey]);
+            [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $users[$forbiddenkey]->id, true);
+            $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
+        }
     }
 
     /**
@@ -697,6 +796,51 @@ final class confirmation_test extends advanced_testcase {
                 ['admin', 'teacher', 'manager'],
                 1,
                 ['deputy1' => ['hr1', 'hr2', 'supervisor1', 'deputy2']],
+            ],
+        ];
+    }
+
+    /**
+     * Summary of Summary of supervisors_with_same_deputy.
+     *
+     * @return array[]
+     */
+    public static function supervisors_with_same_deputy_provider(): array {
+        return [
+            'supervisor1' => [
+                'supervisor1', // User.
+                ['student1', 'student2', 'student4'], // Must see.
+                ['student3', 'student5'], // Must not see.
+            ],
+            'supervisor2' => [
+                'supervisor2',
+                ['student3', 'student5'],
+                ['student1', 'student2', 'student4'],
+            ],
+            'deputy1' => [
+                'deputy1',
+                ['student1', 'student2', 'student3', 'student4', 'student5'],
+                [],
+            ],
+            'deputy2' => [
+                'deputy2',
+                ['student1', 'student2', 'student4'],
+                ['student3', 'student5'],
+            ],
+            'deputy3' => [
+                'deputy3',
+                ['student1', 'student2', 'student4'],
+                ['student3', 'student5'],
+            ],
+            'deputy4' => [
+                'deputy4',
+                ['student3', 'student5'],
+                ['student1', 'student2', 'student4'],
+            ],
+            'deputy5' => [
+                'deputy5',
+                ['student3', 'student5'],
+                ['student1', 'student2', 'student4'],
             ],
         ];
     }
