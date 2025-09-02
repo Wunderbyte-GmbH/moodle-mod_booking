@@ -30,6 +30,7 @@ use local_taskflow\local\supervisor\supervisor;
 use mod_booking\bo_availability\conditions\confirmation;
 use mod_booking\local\interfaces\bookingextension\confirmbooking_interface;
 use context_module;
+use context_system;
 use mod_booking\singleton_service;
 
 /**
@@ -48,7 +49,7 @@ class confirmbooking implements confirmbooking_interface {
      *
      */
     public static function has_capability_to_confirm_booking(int $optionid, int $approverid, int $userid): array {
-        global $USER;
+        global $USER, $DB;
         $approved = false;
         $message = get_string('notallowedtoconfirm', 'bookingextension_confirmation_trainer');
         $reload = false;
@@ -58,13 +59,14 @@ class confirmbooking implements confirmbooking_interface {
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
         $contextcourse = context_course::instance($bookingsettings->course);
 
-        // $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
-        // $bookingisteacher = booking_check_if_teacher($option->option, $USER->id);
-        // TODO: MDL-0 Chekc if course:view & course:update capabilites are correct to determine trainer.
+        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
+        $isteacher = booking_check_if_teacher($option->option, $USER->id);
+
+        // TODO: MDL-0 Check if we need a capability to allow managers.
         if (
             has_capability('mod/booking:bookforothers', $context)
-            && has_capability('moodle/course:view', $contextcourse)
-            && has_capability('moodle/course:update', $contextcourse)
+            &&
+            ($isteacher || is_siteadmin())
         ) {
             $approved = true;
             $message = '';
