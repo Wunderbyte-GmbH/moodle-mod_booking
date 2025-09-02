@@ -223,9 +223,9 @@ class customformstore {
         $settings = singleton_service::get_instance_of_booking_option_settings($this->itemid);
         $formdata = customform::return_formelements($settings);
         $data = (array) $this->get_customform_data(); // One of the values here indicates the right key for formdata.
-        $additionalprice = 0;
 
         foreach ($formdata as $formdatakey => $formelement) {
+            $additionalprice = 0;
             if (
                 !isset($formelement->formtype) ||
                 !isset($formelement->value)
