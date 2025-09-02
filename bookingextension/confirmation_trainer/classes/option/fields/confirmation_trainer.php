@@ -111,7 +111,7 @@ class confirmation_trainer extends field_base {
     ): array {
 
         if (
-            isset($formdata->waitforconfirmation)
+            !empty($formdata->waitforconfirmation)
         ) {
             booking_option::add_data_to_json($newoption, "confirmationtrainerenabled", $formdata->confirmationtrainerenabled);
         }
@@ -155,7 +155,7 @@ class confirmation_trainer extends field_base {
             return $changes;
         }
 
-        $newvalue = $formdata->confirmationtrainerenabled;
+        $newvalue = $formdata->confirmationtrainerenabled ?? 0;
         $oldvalue = booking_option::get_value_of_json_by_key($formdata->id, "confirmationtrainerenabled");
 
         if ($newvalue != $oldvalue) {
@@ -254,7 +254,7 @@ class confirmation_trainer extends field_base {
                 $data->confirmationtrainerenabled = $confirmationtrainerenabled;
             } else {
                 $data->confirmationtrainerenabled
-                    = get_config('bookingextension_confirmation_trainer', 'confirmationtrainerenabled');
+                    = get_config('bookingextension_confirmation_trainer', 'confirmationtrainerenabled') ?? 0;
             }
         }
     }
