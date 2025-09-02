@@ -1072,6 +1072,7 @@ $string['deny'] = 'Verweigern';
 $string['denybooking'] = 'Verweigern';
 $string['denybookinglong'] = 'Wollen Sie diese Buchung wirklich verweigern?';
 $string['department'] = 'Abteilung';
+$string['deputiesalreadyset'] = 'Sie haben folgende(n) Stellvertreter*in(nen) festgelegt:';
 $string['description'] = 'Beschreibung';
 $string['descriptionmaxlength'] = 'Maximale Länge der Beschreibung';
 $string['descriptionmaxlength_desc'] = 'Die Beschreibung einer Buchungsoption kann nicht länger sein';

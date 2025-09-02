@@ -71,6 +71,9 @@ class booked_users implements renderable, templatable {
     /** @var string $optionstoconfirm rendered table of options to confirm */
     public $optionstoconfirm;
 
+    /** @var string $optionstoconfirmadditionaltexts rendered additional texts for the table of options to confirm */
+    public $optionstoconfirmadditionaltexts;
+
     /**
      * Constructor
      *
@@ -160,6 +163,8 @@ class booked_users implements renderable, templatable {
             ) : null;
 
             $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_WAITINGLIST);
+            $this->optionstoconfirmadditionaltexts
+                = $this->render_additional_texts($scope, $scopeid, MOD_BOOKING_STATUSPARAM_WAITINGLIST);
             $this->optionstoconfirm = $showoptionstoconfirm ? $this->render_users_table(
                 $scope,
                 $scopeid,
@@ -456,6 +461,7 @@ class booked_users implements renderable, templatable {
             'deletedusers' => $this->deletedusers ?? null,
             'bookinghistory' => $this->bookinghistory ?? null,
             'optionstoconfirm' => $this->optionstoconfirm ?? null,
+            'optionstoconfirmadditionaltexts' => $this->optionstoconfirmadditionaltexts ?? null,
         ]);
     }
 
@@ -512,5 +518,21 @@ class booked_users implements renderable, templatable {
                 'component' => 'mod_booking',
             ],
         ];
+    }
+
+    /**
+     * Renders an additional text and returns HTML.
+     * @param string $scope
+     * @param int $scopeid
+     * @param int $statusparam
+     * @return bool|string
+     */
+    public function render_additional_texts(string $scope, int $scopeid, int $statusparam) {
+        global $OUTPUT;
+        $ba = new booking_answers();
+        /** @var scope_base $class */
+        $class = $ba->return_class_for_scope($scope);
+        $data['texts'] = $class->get_additional_texts($statusparam);
+        return $OUTPUT->render_from_template('mod_booking/additional_texts', $data);
     }
 }

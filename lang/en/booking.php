@@ -1086,6 +1086,7 @@ $string['deny'] = 'Deny';
 $string['denybooking'] = 'Deny';
 $string['denybookinglong'] = 'Do you really want to deny this booking?';
 $string['department'] = 'Department';
+$string['deputiesalreadyset'] = 'You have set following user(s) as your deputy/deputies:';
 $string['description'] = 'Description';
 $string['descriptionmaxlength'] = 'Maximum length of description';
 $string['descriptionmaxlength_desc'] = 'The description of a booking option can\'t be longer';
