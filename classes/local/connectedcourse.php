@@ -128,7 +128,7 @@ class connectedcourse {
                 break;
             case 1:
                 // Choose a Moodle course.
-                $newoption->courseid = $formdata->courseid ?: 0;
+                $newoption->courseid = $formdata->courseid ?? 0;
                 break;
             case 2:
                 // Create new Moodle course.
