@@ -105,7 +105,7 @@ class courseid extends field_base {
 
         global $DB;
 
-        if (is_array($formdata->courseid)) {
+        if (isset($formdata->courseid) && is_array($formdata->courseid)) {
             $formdata->courseid = reset($formdata->courseid);
         }
 
