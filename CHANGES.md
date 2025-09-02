@@ -1,3 +1,36 @@
+## Version 8.16.0 (2025090200)
+* Improvement: Add support for time awarded for certificate.
+* Improvement: Reorder buttons for improved UX.
+* Improvement: Improve scope logic for bookings tracker and fix download problems.
+* Improvement: Separate activitycompletion and optioncompletion; add timebooked key on import.
+* Improvement: Refactor scope handling for better maintainability.
+* Improvement: bookingoptioncustomfields are now usable in certificates.
+* Improvement: Add list to approve shortcode.
+* Improvement: Add Booking Extensions in Git.
+* Improvement: Restrict optionstoconfirm to users with capability in booking instance.
+* Improvement: Add filteronloadactive argument to courselist shortcode.
+* Improvement: Add new helper function to check if cmid belongs to booking instance.
+* Improvement: Add new function return_last_completion to booking_answers.
+* Improvement: Add new booking_answers function to retrieve all completed answers.
+* Bugfix: Deal with empty competencies in booking options.
+* Bugfix: Fix in col_availableplaces class that broke [allbookingoptions] shortcode.
+* Bugfix: Fix booking option enrolllink creation to match updated proceeding logic.
+* Bugfix: Revert deleted lines to fix PHPUnit tests.
+* Bugfix: Use proper debugging in booking_delete_instance to avoid false returns.
+* Bugfix: Ignore bookingextension changes for duplicated/recurring options.
+* Bugfix: Don't include templates in allbookingoptions shortcode.
+* Bugfix: Certificate now triggers correctly on course completion.
+* Bugfix: Handle error when accessing usersonlist in booking_answers.
+* Update: Allow for higher confirmation count than necessary to be allowed to book.
+* Update: Convert confirmwaitinglist_modifieduserid and _timemodified to array. #1057
+* Update: Add new event bookinganswer_denied. #1057
+* Update: Add logic to handle confirmation with confirmation supervisor plugin. #1057
+* Update: Add plugin setting to control visibility of confirmation enable checkbox. #1057
+* Refactor: booking_answers class (#1069).
+* Feature: Certificates can now use bookingoptioncustomfields.
+* Feature: Add temporary settings array for shortcodes in certificates.
+* Test: Add new test for booking_answer class (#1069).
+
 ## Version 8.15.3 (2025082000)
 * Feature: New setting to hide Booking Rules section in booking option edit form.
 * Improvement: Better strings for activity completion.
