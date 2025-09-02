@@ -487,6 +487,7 @@ class optionstoconfirm extends option {
             $texts[] = $text;
             // Attach each user as a text object.
             foreach ($deputies as $deputyuserid) {
+                $deputyuserid = (int)$deputyuserid;
                 $deputy = singleton_service::get_instance_of_user($deputyuserid);
                 $text = new \stdClass();
                 $text->text = "{$deputy->firstname} {$deputy->lastname}";
