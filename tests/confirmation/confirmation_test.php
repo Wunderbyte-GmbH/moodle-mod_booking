@@ -334,47 +334,6 @@ final class confirmation_test extends advanced_testcase {
         $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
         $answer = ($bookinganswers->get_users())[$student4->id] ?? null;
         $this->assertNotEmpty($answer);
-
-        // TODO: MDL-0 Re-enable the commented part once we find a solution in confirmation_trainer
-        // to prevent a supervisor from confirming a booking answer.
-
-        // Ensure supervisor cannot confirm it.
-        /*
-        $this->setUser($supervisor1);
-        $result = $table->action_confirmbooking(0, json_encode(['id' => $answer->baid])); // Confirm answer.
-        $this->assertEquals(0, $result['success']); // Make sure confirmation is successful.
-
-        $this->setUser($student4);
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student4->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
-        */
-
-        /*********************************************
-         * Book 5th user. HR1 should NOT be able to confirm it.
-         *********************************************/
-        /*
-        $this->setUser($student5);
-
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student5->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id);
-        $result = booking_bookit::bookit('option', $settings->id, $student5->id);
-
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student5->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
-
-        $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
-        $answer = ($bookinganswers->get_users())[$student5->id] ?? null;
-        $this->assertNotEmpty($answer);
-
-        // Ensure HR cannot confirm it.
-        $this->setUser($hr1);
-        $result = $table->action_confirmbooking(0, json_encode(['id' => $answer->baid])); // Confirm answer.
-        $this->assertEquals(0, $result['success']); // Make sure confirmation is successful.
-
-        $this->setUser($student4);
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student5->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
-        */
     }
 
     /**
