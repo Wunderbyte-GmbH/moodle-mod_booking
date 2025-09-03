@@ -51,7 +51,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class booking_subbookit {
-
     /** @var booking_option_settings $settings */
     public $settings = null;
 
@@ -69,9 +68,10 @@ class booking_subbookit {
         global $PAGE;
         $PAGE->set_context(context_system::instance());
 
+        /** @var \mod_booking\output\renderer $output */
         $output = $PAGE->get_renderer('mod_booking');
 
-        list($templates, $datas) = self::render_bookit_template_data($settings, $subbookingid, $userid);
+        [$templates, $datas] = self::render_bookit_template_data($settings, $subbookingid, $userid);
 
         $html = '';
 
@@ -96,7 +96,8 @@ class booking_subbookit {
         booking_option_settings $settings,
         int $subbookingid,
         int $userid = 0,
-        bool $renderprepagemodal = true) {
+        bool $renderprepagemodal = true
+    ) {
 
         // Get blocking conditions, including prepages$prepages etc.
         $results = bo_subinfo::get_subcondition_results($settings->id, $subbookingid, $userid);
@@ -106,17 +107,16 @@ class booking_subbookit {
         $extrabuttoncondition = '';
         $justmyalert = false;
         foreach ($results as $result) {
-
-            switch ($result['button'] ) {
+            switch ($result['button']) {
                 case MOD_BOOKING_BO_BUTTON_MYBUTTON:
                     $buttoncondition = $result['classname'];
                     break;
-                case MOD_BOOKING_BO_BUTTON_MYALERT;
+                case MOD_BOOKING_BO_BUTTON_MYALERT:
                     // Here we could use a more sophisticated way of rights management.
                     // Right now, the logic is just linked to one right.
                     $context = context_module::instance(($settings->cmid));
                     if (has_capability('mod/booking:bookforothers', $context)) {
-                        // We still render the alert, but just in supplement to the other butotn.
+                        // We still render the alert, but just in supplement to the other button.
                         $extrabuttoncondition = $result['classname'];
                     } else {
                         $buttoncondition = $result['classname'];
@@ -145,7 +145,7 @@ class booking_subbookit {
                 $condition = new $extrabuttoncondition();
             }
 
-            list($template, $data) = $condition->render_button($settings, $subbookingid, 0, $full);
+            [$template, $data] = $condition->render_button($settings, $subbookingid, 0, $full);
 
             // This supports multiple templates as well.
             $datas[] = new bookit_button($data);
@@ -154,7 +154,7 @@ class booking_subbookit {
         }
 
         $condition = new $buttoncondition();
-        list($template, $data) = $condition->render_button($settings, $subbookingid, 0, $full);
+        [$template, $data] = $condition->render_button($settings, $subbookingid, 0, $full);
 
         $datas[] = new bookit_button($data);
         $templates[] = $template;
@@ -176,9 +176,11 @@ class booking_subbookit {
 
         // Make sure the user has the right to book in principle.
         $context = context_system::instance();
-        if (!empty($userid)
+        if (
+            !empty($userid)
             && $userid != $USER->id
-            && !has_capability('mod/booking:bookforothers', $context)) {
+            && !has_capability('mod/booking:bookforothers', $context)
+        ) {
             throw new moodle_exception('norighttoaccess', 'mod_booking');
         }
 
@@ -216,7 +218,7 @@ class booking_subbookit {
         // phpcs:ignore
         // $cm = get_coursemodule_from_instance('booking', $bookingoption->bookingid);
 
-        // TODO: Find out if the executing user has the right to access this instance.
+        // Todo: Find out if the executing user has the right to access this instance.
         // This can lead to problems, rights should be checked further up.
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         /* $context = context_module::instance($cm->id);
