@@ -923,7 +923,7 @@ class bo_info {
                     if (!empty($label)) {
                         $label .= " / ";
                     }
-                    $label .= $priceitem['price'];
+                    $label .= format_float($priceitem['price'] ?? 0.0, 2);
                 }
                 $currstring = isset($priceitem["currency"]) ? " " .  $priceitem["currency"] : '';
                 $label .= $currstring;
@@ -935,7 +935,7 @@ class bo_info {
                     || (isset($priceitem["price"]) && !empty((float)$priceitem["price"]))
                 ) {
                     $currstring = isset($priceitem["currency"]) ? " " .  $priceitem["currency"] : '';
-                    $label = $priceitem["price"] ?? '0';
+                    $label = format_float($priceitem['price'] ?? 0.0, 2);
                     $label .= $currstring;
                 }
             }
