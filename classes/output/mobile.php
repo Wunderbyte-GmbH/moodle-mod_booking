@@ -380,7 +380,6 @@ class mobile {
         $settings = singleton_service::get_instance_of_booking_option_settings($recordid);
         $tmpoutputdata = $settings->return_booking_option_information();
         $tmpoutputdata['maxsessions'] = $maxdatabeforecollapsable;
-        $tmpoutputdata = $settings->return_booking_option_information();
         if (
             strlen(strip_tags($tmpoutputdata['description'])) >
             (int) get_config('booking', 'collapsedescriptionmaxlength')

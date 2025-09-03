@@ -165,6 +165,10 @@ class bookit_price implements renderable, templatable {
             'priceitems' => $this->priceitem,
         ];
 
+        if (isset($this->cartitem['price']) && is_numeric($this->cartitem['price'])) {
+            $returnarray['priceformatted'] = format_float($this->cartitem['price'], 2);
+        }
+
         if ($this->nojs) {
             $returnarray['nojs'] = 1;
         }

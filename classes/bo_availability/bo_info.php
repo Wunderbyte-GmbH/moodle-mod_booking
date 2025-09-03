@@ -958,7 +958,7 @@ class bo_info {
         if ($includeprice && $settings->useprice) {
             if ($price = price::get_price('option', $settings->id, $user)) {
                 $data['price'] = [
-                    'price' => $price['price'],
+                    'price' => format_float($price['price'], 2),
                     'currency' => $price['currency'] ?? '',
                 ];
             }

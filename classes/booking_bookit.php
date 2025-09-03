@@ -78,7 +78,6 @@ class booking_bookit {
 
         foreach ($templates as $template) {
             $data = array_shift($datas);
-
             if ($template == 'mod_booking/bookingpage/prepagemodal') {
                 $html .= $output->render_prepagemodal($data);
             } else if ($template == 'mod_booking/bookingpage/prepageinline') {

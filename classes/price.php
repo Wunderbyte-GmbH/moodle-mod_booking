@@ -869,7 +869,7 @@ class price {
             $area === "option" && isset($price['price'])
         ) {
             $customformstore = new customformstore($user->id, $itemid);
-            $price['price'] = $customformstore->modify_price($price['price'], $categoryidentifier);
+            $price['price'] = $customformstore->modify_price((float)$price['price'], $categoryidentifier);
         }
 
         if (isset($price['price'])) {
@@ -1229,7 +1229,7 @@ class price {
                 foreach ($prices as &$price) {
                     $price->price = $campaign->get_campaign_price($price->price, $userid);
                     // Render all prices to 2 fixed decimals.
-                    $price->price = number_format(round((float) $price->price, 2), 2, '.', '');
+                    $price->price = format_float(round((float)$price->price, 2), 2);
                     // Campaign price factor has been applied.
                 }
             }

@@ -1572,6 +1572,10 @@ class booking_option_settings {
             ], $this->teachers)),
         ];
 
+        if (isset($price['price']) && is_numeric($price['price'])) {
+            $returnarray['priceformatted'] = format_float($price['price'], 2);
+        }
+
         return $returnarray;
     }
 
