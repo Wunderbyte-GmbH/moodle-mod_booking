@@ -39,6 +39,9 @@ use context_module;
 final class confirmation_test extends advanced_testcase {
     /**
      * Creates booking course, users, and booking option with given settings.
+     * @param int $confirmationtrainerenabled
+     * @param int $confirmationsupervisorenabled
+     * @return array
      */
     private function setup_booking_environment(
         int $confirmationtrainerenabled,
@@ -396,7 +399,8 @@ final class confirmation_test extends advanced_testcase {
      * @param int $order
      * @param array $alloweduserkeys
      * @param array $notalloweduserkeys
-     * @param array $confirmations Number of required confirmations
+     * @param array $requiredconfirmations Number of required confirmations
+     * @param array $replacements Users who can confirm in place of allowed user.
      * @return void
      * @dataProvider confirmation_supervisor_provider
      * @covers \bookingextension_confirmation_supervisor\local\confirmbooking
@@ -548,8 +552,11 @@ final class confirmation_test extends advanced_testcase {
      * Check if the a shared deputy between 2 supervisors can see the answers of both supervisors
      * while the supervisors should see only the their subordinates.
      *
-     * @dataProvider supervisors_with_same_deputy_provider
+     * @param string $userkey
+     * @param array $mustsee
+     * @param array $mustnotsee
      * @return void
+     * @dataProvider supervisors_with_same_deputy_provider
      * @covers \bookingextension_confirmation_supervisor\local\confirmbooking
      */
     public function test_supervisors_with_same_deputy(string $userkey, array $mustsee, array $mustnotsee): void {
@@ -920,16 +927,5 @@ final class confirmation_test extends advanced_testcase {
         $field->defaultdataformat = FORMAT_HTML;
         $field->param1 = 30; // Max length for 'text'.
         $field->id = $DB->insert_record('user_info_field', $field);
-    }
-
-    /**
-     *
-     */
-    private function grant_capability_to_role(string $rolename, string $capability, \core\context $context) {
-        global $DB;
-        $roleid = $DB->get_field('role', 'id', ['shortname' => $rolename], MUST_EXIST);
-        assign_capability($capability, CAP_ALLOW, $roleid, $context->id, true);
-        // Clear access caches so changes take effect in the test run.
-        accesslib_clear_all_caches_for_unit_testing();
     }
 }

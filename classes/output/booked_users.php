@@ -85,6 +85,7 @@ class booked_users implements renderable, templatable {
      * @param bool $showtonotify
      * @param bool $showdeleted
      * @param bool $showbookinghistory
+     * @param bool $showoptionstoconfirm
      * @param int $cmid optional course module id of booking instance
      */
     public function __construct(
@@ -237,8 +238,6 @@ class booked_users implements renderable, templatable {
      * @param string $scope
      * @param int $scopeid
      * @param int $statusparam
-     * @param bool $sortable
-     * @param bool $paginate
      * @return \local_wunderbyte_table\wunderbyte_table|null
      */
     public function return_raw_table(
