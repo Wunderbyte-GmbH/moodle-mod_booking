@@ -127,19 +127,6 @@ $ADMIN->add(
     )
 );
 
-// Load all settings from booking extensions.
-foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
-    $fullclassname = "\\bookingextension_{$plugin->name}\\{$plugin->name}";
-    if (!class_exists($fullclassname)) {
-        continue; // Skip if the class does not exist.
-    }
-    $plugin = new $fullclassname();
-    if (!$plugin instanceof bookingextension_interface) {
-        continue; // Skip if the plugin does not implement the interface.
-    }
-    $plugin->load_settings($ADMIN, 'modbookingfolder', $hassiteconfig);
-}
-
 $ADMIN->add('modbookingfolder', $settings);
 
 if ($ADMIN->fulltree) {
@@ -188,6 +175,12 @@ if ($ADMIN->fulltree) {
         foreach ($userprofilefields as $userprofilefield) {
             $userprofilefieldsarray[$userprofilefield->shortname] = "$userprofilefield->name ($userprofilefield->shortname)";
         }
+    }
+    // This will be used multiple times.
+    $records = booking_handler::get_customfields();
+    $customfieldsarray["-1"] = get_string('choose...', 'mod_booking');
+    foreach ($records as $record) {
+        $customfieldsarray[$record->shortname] = format_string("$record->name ($record->shortname)");
     }
 
     $settings->add(
@@ -932,7 +925,7 @@ if ($ADMIN->fulltree) {
     if ($proversion) {
         $settings->add(
             new admin_setting_heading(
-                'approvalsettings',
+                'approvalsettingsheader',
                 get_string('approvalsettings', 'mod_booking'),
                 get_string('approvalsettings_desc', 'mod_booking'),
             )
@@ -945,6 +938,35 @@ if ($ADMIN->fulltree) {
             get_string('useconfirmationworkflowheader_desc', 'mod_booking'),
             0 // Default: off.
         ));
+
+        $deputyfields = $customfieldsarray;
+        $deputyfields[-1] = get_string('dontusefuction', 'mod_booking');
+        // Set the first entry first.
+        $deputyfields = [-1 => $deputyfields[-1]] + array_diff_key($deputyfields, [-1 => '']);
+
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/deputyidfield',
+                get_string('usedeputiesforconfirmation', 'mod_booking'),
+                get_string('usedeputiesforconfirmation_desc', 'mod_booking'),
+                -1,
+                $deputyfields
+            )
+        );
+
+        // Load all settings from booking extensions.
+        foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
+            $fullclassname = "\\bookingextension_{$plugin->name}\\{$plugin->name}";
+            if (!class_exists($fullclassname)) {
+                continue; // Skip if the class does not exist.
+            }
+            $plugin = new $fullclassname();
+            if (!$plugin instanceof bookingextension_interface) {
+                continue; // Skip if the plugin does not implement the interface.
+            }
+            // TODO: This is not very stable. Maybe alter $settings object.
+            $plugin->load_settings($ADMIN, 'modbookingfolder', $hassiteconfig);
+        }
     } else {
         $settings->add(
             new admin_setting_heading(
@@ -1014,9 +1036,6 @@ if ($ADMIN->fulltree) {
             )
         );
     }
-
-    // Will be needed more than once. So initialize here.
-    $customfieldsarray["-1"] = get_string('choose...', 'mod_booking');
 
     // Pro feature: Overbooking of booking options.
     if ($proversion) {
@@ -1114,10 +1133,6 @@ if ($ADMIN->fulltree) {
                 ''
             )
         );
-        $records = booking_handler::get_customfields();
-        foreach ($records as $record) {
-            $customfieldsarray[$record->shortname] = format_string("$record->name ($record->shortname)");
-        }
         $settings->add(
             new admin_setting_configselect(
                 'booking/newcoursecategorycfield',
