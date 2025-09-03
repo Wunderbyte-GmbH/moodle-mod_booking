@@ -851,11 +851,11 @@ class shortcodes {
                 $table->showcountlabel = $showfilter ? true : false;
 
         if (
-                    isset($args['filterontop'])
-                    && (
-                        $args['filterontop'] == '1'
-                        || $args['filterontop'] == 'true'
-                    )
+            isset($args['filterontop'])
+            && (
+                $args['filterontop'] == '1'
+                || $args['filterontop'] == 'true'
+            )
         ) {
             $table->showfilterontop = true;
         } else {
@@ -1527,6 +1527,11 @@ class shortcodes {
             false, // Booking history.
             true // Options to confirm.
         );
+
+        if (isset($args['deputyselect']) && !empty($args['deputyselect'])) {
+            $data->deputyselect = 1;
+        }
+
         /** @var renderer $renderer */
         $renderer = $PAGE->get_renderer('mod_booking');
 

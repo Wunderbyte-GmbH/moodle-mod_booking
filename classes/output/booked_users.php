@@ -75,6 +75,9 @@ class booked_users implements renderable, templatable {
     /** @var string $optionstoconfirmadditionaltexts rendered additional texts for the table of options to confirm */
     public $optionstoconfirmadditionaltexts;
 
+    /** @var string $deputyselect rendered additional texts for the table of options to confirm */
+    public $deputyselect;
+
     /**
      * Constructor
      *
@@ -462,6 +465,7 @@ class booked_users implements renderable, templatable {
             'bookinghistory' => $this->bookinghistory ?? null,
             'optionstoconfirm' => $this->optionstoconfirm ?? null,
             'optionstoconfirmadditionaltexts' => $this->optionstoconfirmadditionaltexts ?? null,
+            'deputyselect' => $this->deputyselect ?? null,
         ]);
     }
 
