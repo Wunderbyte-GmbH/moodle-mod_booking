@@ -2107,6 +2107,19 @@ class booking {
             }
             $data['items'] = array_values($data['items']);
         }
+        // Also convert prices for each history item.
+        if (!empty($data['historyitems'])) {
+            foreach ($data['historyitems'] as &$hitem) {
+                $hitem['price'] = format_float(round((float) $hitem['price'], 2), 2);
+                if (!empty($hitem['price_net'])) {
+                    $hitem['price_net'] = format_float(round((float) $hitem['price_net'], 2), 2);
+                }
+                if (!empty($hitem['price_gross'])) {
+                    $hitem['price_gross'] = format_float(round((float) $hitem['price_gross'], 2), 2);
+                }
+            }
+            $data['historyitems'] = array_values($data['historyitems']);
+        }
     }
 
     /**
