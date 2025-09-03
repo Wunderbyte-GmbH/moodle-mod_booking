@@ -753,7 +753,11 @@ class shortcodes {
             return $error['message'];
         }
 
-        $userid = $USER->id;
+        if (isset($args['userid']) && !empty($args['userid'])) {
+            $userid = $args['userid'];
+        } else {
+            $userid = $USER->id;
+        }
         self::fix_args($args);
         $wherearray = [];
         $course = $PAGE->course;

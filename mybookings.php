@@ -31,6 +31,7 @@ require_login(0, false);
 use mod_booking\shortcodes;
 
 $url = new moodle_url('/mod/booking/mybookings.php');
+$userid = optional_param('userid', 0, PARAM_INT);
 $PAGE->set_url($url);
 
 $PAGE->set_context(context_user::instance($USER->id));
@@ -44,7 +45,7 @@ echo $OUTPUT->header();
 
 echo $OUTPUT->heading(get_string('mybookingoptions', 'mod_booking'));
 
-echo shortcodes::mycourselist('', [], '', (object)[], fn($a) => $a);
+echo shortcodes::mycourselist('', ['userid' => $userid], '', (object)[], fn($a) => $a);
 
 if (class_exists('local_shopping_cart\shopping_cart') && get_config('booking', 'displayshoppingcarthistory')) {
     echo local_shopping_cart\shortcodes::shoppingcarthistory('', [], '', (object)[], fn($a) => $a);
