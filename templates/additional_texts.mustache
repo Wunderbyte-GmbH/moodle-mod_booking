@@ -23,19 +23,21 @@
     Data attributes required for JS:
     * data-region
 
-     Example context (array of json):
-    [
-        {
-            "text" : "Here is the text body",
-            "class" : "text-danger",
-            "link": "https://example.com"
-        },
-        {
-            "text" : "Here is the text body",
-            "class" : "text-wanrning",
-            "link": ""
-        }
-    ]
+    Example context (json):
+    {
+        "texts": [
+            {
+                "text" : "Here is the text body",
+                "class" : "text-danger",
+                "link": "https://example.com"
+            },
+            {
+                "text" : "Here is the text body",
+                "class" : "text-wanrning",
+                "link": ""
+            }
+        ]
+    }
 }}
 {{#texts}}
     {{#link}}
