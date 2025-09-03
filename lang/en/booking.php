@@ -1200,8 +1200,10 @@ $string['enrolmentstatus_help'] = 'Notice: In order for automatic enrolment to w
  "Automatically enrol users" to "Yes".';
 $string['enrolmultipleusers'] = 'Enrol multiple users';
 $string['enrolusersaction:alert'] = '<div class="alert alert-info" role="alert">
-<i class="fa fa-info-circle"></i>
-<span><b>This function refers to the selected course in the Moodle Courses area..</b> <br>
+<i class="fa fa-info-circle" aria-hidden="true"></i>
+<span>
+As <b>value</b>, enter the default number of users to be enrolled (can be changed by the user who books).
+This function also refers to the selected course in the Moodle Courses area.
 </span>
 </div>';
 $string['enroluserstowaitinglist'] = "Put booking users on waitinglist and enrol only after confirmation?";

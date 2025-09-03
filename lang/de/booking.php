@@ -933,6 +933,10 @@ $string['customfieldvalue_help'] = 'Sie können einen beliebigen Wert für das F
                                         <li>BigBlueButtonMeeting</li>
                                     </ul> verwendet haben, geben Sie den vollständigen Link zum Meeting beginnend mit https:// oder http:// an.';
 $string['customform'] = "Customform";
+$string['customformenrolmultipleusers'] = '<div class="alert alert-info" role="alert">
+<i class="fa fa-info-circle" aria-hidden="true"></i>&nbsp;
+Geben Sie die Standard-Anzahl der Nutzer:innen ein, für die gebucht werden soll (kann von der buchenden Person geändert werden).
+</div>';
 $string['customformnotchecked'] = 'Noch nicht akzeptiert.';
 $string['customformparams_desc'] = "Benutze die Parameter aus der customform.";
 $string['customformparamsvalue'] = "Customform Parameter";
@@ -1182,8 +1186,10 @@ $string['enrolmentstatus_help'] = 'Achtung: Damit die automatische Einschreibung
  müssen Sie in den Einstellungen der Buchungsinstanz "Nutzer:innen automatisch einschreiben" auf "Ja" setzen.';
 $string['enrolmultipleusers'] = 'Mehrere Nutzer:innen einschreiben';
 $string['enrolusersaction:alert'] = '<div class="alert alert-info" role="alert">
-<i class="fa fa-info-circle"></i>
-<span><b>Diese Funktion bezieht sich auf den ausgewählten Kurs im Bereich Moodle Kurse.</b> <br>
+<i class="fa fa-info-circle" aria-hidden="true"></i>
+<span>
+Geben Sie unter <b>Wert</b> die Standard-Anzahl der Nutzer:innen ein, für die gebucht werden soll (kann von der buchenden Person geändert werden).
+Diese Funktion bezieht sich auch auf den ausgewählten Kurs im Bereich Moodle Kurse.
 </span>
 </div>';
 $string['enroluserstowaitinglist'] = "Buchende NutzerInnen auf die Warteliste setzen und erst nach Bestätigung einschreiben?";
