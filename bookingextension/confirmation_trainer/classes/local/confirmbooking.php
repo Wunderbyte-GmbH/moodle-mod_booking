@@ -56,18 +56,11 @@ class confirmbooking implements confirmbooking_interface {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $context = context_module::instance($settings->cmid);
-        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
-        $contextcourse = context_course::instance($bookingsettings->course);
 
-        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
-        $isteacher = booking_check_if_teacher($option->option, $USER->id);
-
-        // TODO: MDL-0 Check if we need a capability to allow managers.
-        if (
-            has_capability('mod/booking:bookforothers', $context)
-            &&
-            ($isteacher || is_siteadmin())
-        ) {
+        // TODO: MDL-0 Since supervisor and HR have the same capability, we need to check
+        // if we really need something to prevent the user from confirming the booking answer
+        // when the user is a supervisor or HR.
+        if (has_capability('mod/booking:bookforothers', $context)) {
             $approved = true;
             $message = '';
         }
