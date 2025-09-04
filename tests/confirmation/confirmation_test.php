@@ -399,7 +399,7 @@ final class confirmation_test extends advanced_testcase {
      * @param int $order
      * @param array $alloweduserkeys
      * @param array $notalloweduserkeys
-     * @param array $requiredconfirmations Number of required confirmations
+     * @param int $requiredconfirmations Number of required confirmations
      * @param array $replacements Users who can confirm in place of allowed user.
      * @return void
      * @dataProvider confirmation_supervisor_provider
