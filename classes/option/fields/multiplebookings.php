@@ -91,8 +91,10 @@ class multiplebookings extends field_base {
         if (empty($formdata->multiplebookings)) {
             // This will store the correct JSON to $optionvalues->json.
             booking_option::add_data_to_json($newoption, "multiplebookings", 0); // 0 means could not have multiple bookings.
+            booking_option::add_data_to_json($newoption, "allowtobookagainafter", 0); // 0 means could not have multiple bookings.
         } else {
             booking_option::add_data_to_json($newoption, "multiplebookings", 1); // 1 means can have multiple bookings.
+            booking_option::add_data_to_json($newoption, "allowtobookagainafter", $formdata->allowtobookagainafter);
         }
 
         parent::prepare_save_field($formdata, $newoption, $updateparam, '');
@@ -130,6 +132,13 @@ class multiplebookings extends field_base {
             null,
             [0, 1]
         );
+
+        $mform->addElement(
+            'duration',
+            'allowtobookagainafter',
+            get_string('allowtobookagainafter', 'mod_booking')
+        );
+        $mform->hideIf('allowtobookagainafter', 'multiplebookings', 'neq', '1');
     }
 
     /**
@@ -152,6 +161,9 @@ class multiplebookings extends field_base {
             // Load sync status from JSON (default to 0 if not found).
             $multiplebookings = booking_option::get_value_of_json_by_key($settings->id, 'multiplebookings') ?? 0;
             $data->multiplebookings = (int)$multiplebookings;
+
+            $allowtobookagainafter = booking_option::get_value_of_json_by_key($settings->id, 'allowtobookagainafter') ?? 0;
+            $data->allowtobookagainafter = (int)$allowtobookagainafter;
         }
     }
 }

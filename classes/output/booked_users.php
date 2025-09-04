@@ -69,6 +69,9 @@ class booked_users implements renderable, templatable {
     /** @var string $bookinghistory rendered table of bookinghistory */
     public $bookinghistory;
 
+    /** @var string $previouslybooked rendered table of previouslybooked */
+    public $previouslybooked;
+
     /** @var string $optionstoconfirm rendered table of options to confirm */
     public $optionstoconfirm;
 

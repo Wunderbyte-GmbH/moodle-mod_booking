@@ -1276,6 +1276,25 @@ class booking_option {
                     // Else, we might move from booked to waitinglist, we just continue.
 
                     if ($ismultipbookingsoptionenable) {
+                        // When the multiple booking option is enabled, we need to check if the user
+                        // is trying to book the option after the configured period of time.
+                        // If the configured time has not passed, we don’t allow the user to book an option again.
+                        $allowtobookagainafter = self::get_value_of_json_by_key($this->id, 'allowtobookagainafter');
+                        // TODO: MDL-0 replace timemodified with timebooked to calculate required passed rime correctly.
+                        if ($currentanswer->timemodified + $allowtobookagainafter >= time()) {
+                            return true;
+                        }
+
+                        // When the multiple booking option is enabled, we need to update the waitinglist column value
+                        // of previously booked records from MOD_BOOKING_STATUSPARAM_BOOKED
+                        // to MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED, and then insert a new record.
+                        self::change_booking_answer_waitinglist_status(
+                            MOD_BOOKING_STATUSPARAM_BOOKED,
+                            MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED,
+                            $user->id,
+                            $this->optionid
+                        );
+
                         // If user is rebooking the option, we need to insert a new record.
                         // So to prevent any record update in booking_answerts table, we need to set record id to null.
                         $currentanswerid = null;
@@ -4669,5 +4688,34 @@ class booking_option {
                 break;
         }
         return $status;
+    }
+
+    /**
+     * Updates the waitinglist column to the given value in the booking answers table
+     * where the conditions are met.
+     * @param int $currentvalue
+     * @param int $newvalue
+     * @param int $userid
+     * @param int $optiondateid
+     * @return void
+     */
+    public static function change_booking_answer_waitinglist_status(
+        int $currentvalue,
+        int $newvalue,
+        int $userid,
+        int $optiondateid
+    ) {
+        global $DB;
+        // Update column waitinglist.
+        $DB->set_field(
+            'booking_answers',
+            'waitinglist',
+            $newvalue,
+            [
+                'optionid' => $optiondateid,
+                'userid' => $userid,
+                'waitinglist' => $currentvalue,
+            ]
+        );
     }
 }
