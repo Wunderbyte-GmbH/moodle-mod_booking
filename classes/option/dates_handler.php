@@ -58,6 +58,13 @@ class dates_handler {
     public int $bookingid = 0;
 
     /**
+     * Pretty timestamps are stored here to avoid multiple calls.
+     *
+     * @var array
+     */
+    public static array $prettytimestamps = [];
+
+    /**
      * Constructor.
      * @param int $optionid
      * @param int $bookingid
@@ -808,92 +815,86 @@ class dates_handler {
     public static function prettify_datetime(
         int $starttime,
         int $endtime = 0,
-        $lang = '',
-        $showweekdays = false,
+        string $lang = '',
+        bool $showweekdays = false,
         bool $ashtml = false
-    ) {
-
-        if (empty($lang)) {
+    ): stdClass {
+        if ($lang === '') {
             $lang = current_language();
         }
 
+        // Singleton cache for expensive calls (lives for the request).
+        static $cache = [
+            'formats' => [],
+            'dates'   => [],
+            'strings' => [],
+        ];
+
+        // Load format strings only once per language.
+        if (!isset($cache['formats'][$lang])) {
+            $cache['formats'][$lang] = [
+                'time'         => new lang_string('strftimetime', 'langconfig', null, $lang),
+                'date'         => new lang_string('strftimedate', 'langconfig', null, $lang),
+                'daydate'      => new lang_string('strftimedaydate', 'langconfig', null, $lang),
+                'datetime'     => new lang_string('strftimedatetime', 'langconfig', null, $lang),
+                'daydatetime'  => new lang_string('strftimedaydatetime', 'langconfig', null, $lang),
+            ];
+        }
+        $formats = $cache['formats'][$lang];
+
+        // Cache string lookup (like "h").
+        if (!isset($cache['strings']['h'])) {
+            $cache['strings']['h'] = get_string('h', 'mod_booking');
+        }
+        $h = $cache['strings']['h'];
+
+        // Helper closure for caching userdate results.
+        $getdate = function (int $ts, $format) use ($lang, &$cache) {
+            $key = $ts . '|' . (string)$format . '|' . $lang;
+            if (!isset($cache['dates'][$key])) {
+                $cache['dates'][$key] = userdate($ts, $format);
+            }
+            return $cache['dates'][$key];
+        };
+
         $date = new stdClass();
+        $date->starttimestamp = $starttime;
+        $date->starttime      = $getdate($starttime, $formats['time']);
+        $date->startdate      = $getdate($starttime, $showweekdays ? $formats['daydate'] : $formats['date']);
+        $date->startdatetime  = $getdate($starttime, $showweekdays ? $formats['daydatetime'] : $formats['datetime']);
 
-        // Time only.
-        $strftimetime = new lang_string('strftimetime', 'langconfig', null, $lang); // 10:30.
-
-        // Dates only.
-        $strftimedate = new lang_string('strftimedate', 'langconfig', null, $lang); // 3. February 2023.
-        $strftimedaydate = new lang_string('strftimedaydate', 'langconfig', null, $lang); // Friday, 3. February 2023".
-
-        // Times & Dates.
-        $strftimedatetime = new lang_string('strftimedatetime', 'langconfig', null, $lang); // 3. February 2023, 11:45.
-        $strftimedaydatetime = new lang_string('strftimedaydatetime', 'langconfig', null, $lang);
-        // Friday, 3. February 2023, 11:45.
-
-        $date->starttimestamp = $starttime; // Unix timestamps.
-        $date->starttime = userdate($starttime, $strftimetime); // 10:30.
-
-        if (!empty($endtime)) {
-            $date->endtimestamp = $endtime; // Unix timestamps.
-            $date->endtime = userdate($endtime, $strftimetime); // 10:30.
+        if ($endtime) {
+            $date->endtimestamp = $endtime;
+            $date->endtime      = $getdate($endtime, $formats['time']);
+            $date->enddate      = $getdate($endtime, $showweekdays ? $formats['daydate'] : $formats['date']);
+            $date->enddatetime  = $getdate($endtime, $showweekdays ? $formats['daydatetime'] : $formats['datetime']);
         }
 
+        // HTML output.
         if ($ashtml) {
-            $date->startdate = userdate($starttime, $strftimedaydate); // Friday, 3. February 2023.
-            $date->startdatetime = userdate($starttime, $strftimedaydatetime); // Friday, 3. February 2023, 11:45.
             $datespan = html_writer::span($date->startdate, 'date');
             $timespan = html_writer::span($date->starttime, 'time');
 
-            if (!empty($endtime)) {
-                $date->enddatetime = userdate($endtime, $strftimedaydatetime); // Friday, 3. February 2023, 12:45.
-                $date->enddate = userdate($endtime, $strftimedaydate); // Friday, 3. February 2023.
-                $timespan = html_writer::span($date->starttime . ' - ' . $date->endtime . get_string('h', 'mod_booking'), 'time');
+            if ($endtime) {
+                $timespan = html_writer::span($date->starttime . ' - ' . $date->endtime . $h, 'time');
                 if ($date->startdate !== $date->enddate) {
-                    $datespan = html_writer::span($date->startdate . ' - ' . $date->enddate, 'date');
+                    $datespan = html_writer::span($date->startdate . ' - ' . $date->enddate, 'date');
                 }
             }
-
             $date->htmlstring = $datespan . $timespan;
         }
-        if ($showweekdays) {
-            $date->startdate = userdate($starttime, $strftimedaydate); // Friday, 3. February 2023.
-            $date->startdatetime = userdate($starttime, $strftimedaydatetime) . get_string('h', 'mod_booking');
-            // Friday, 3. February 2023, 11:45.
-            $date->datestring = $date->startdatetime;
 
-            if (!empty($endtime)) {
-                $date->enddatetime = userdate($endtime, $strftimedaydatetime);
-                // Friday, 3. February 2023, 12:45.
-                $date->enddate = userdate($endtime, $strftimedaydate); // Friday, 3. February 2023.
-                $date->datestring .= " - ";
-                $date->datestring .= $date->startdate != $date->enddate ?
-                    $date->enddatetime . get_string('h', 'mod_booking') :
-                    // Friday, 3. February 2023, 11:45 - Saturday, 4. February 2023, 12:45.
-                    $date->endtime . get_string('h', 'mod_booking');
-                    // Friday, 3. February 2023, 11:45 - 12:45.
-            }
-        } else {
-            // Without weekdays.
-            $date->startdate = userdate($starttime, $strftimedate); // 3. February 2023.
-            $date->startdatetime = userdate($starttime, $strftimedatetime); // 3. February 2023, 11:45.
-            $date->datestring = $date->startdatetime;
-
-            if (!empty($endtime)) {
-                $date->enddatetime = userdate($endtime, $strftimedatetime);
-                $date->enddate = userdate($endtime, $strftimedate); // 3. February 2023.
-                $date->enddatetime = userdate($endtime, $strftimedatetime);
-                // Friday, 3. February 2023, 12:45.
-                $date->datestring .= " - ";
-                $date->datestring .= $date->startdate != $date->enddate ?
-                    $date->enddatetime . get_string('h', 'mod_booking') : // 3. February 2023, 11:45 - 4. February 2023, 12:45.
-                    $date->endtime . get_string('h', 'mod_booking'); // 3. February 2023, 11:45 - 12:45.
-            }
+        // Datestring.
+        $date->datestring = $date->startdatetime . ($showweekdays ? $h : '');
+        if ($endtime) {
+            $date->datestring .= " - ";
+            $date->datestring .= $date->startdate !== $date->enddate
+                ? $date->enddatetime . $h
+                : $date->endtime . $h;
         }
 
         return $date;
     }
-
 
     /**
      * This function creates timessots between two timestamps depending on the duration.

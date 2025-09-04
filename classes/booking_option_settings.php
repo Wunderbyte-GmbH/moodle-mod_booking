@@ -1525,9 +1525,13 @@ class booking_option_settings {
      * ... we want one central function where we always get all the necessary keys.
      *
      * @param object|null $user
+     * @param bool $includesessions
      * @return array
      */
-    public function return_booking_option_information(?object $user = null): array {
+    public function return_booking_option_information(
+        ?object $user = null,
+        bool $includesessions = true
+    ): array {
 
         global $USER;
 
@@ -1542,6 +1546,19 @@ class booking_option_settings {
 
         $canceluntil = booking_option::return_cancel_until_date($this->id);
 
+        if ($includesessions) {
+            $sessions = array_values(array_map(fn($a) => [
+                'coursestarttime' => userdate($a->coursestarttime),
+                'courseendtime' => userdate($a->courseendtime),
+                'concatinatedstartendtime' => dates_handler::prettify_optiondates_start_end(
+                    $a->coursestarttime,
+                    $a->courseendtime,
+                    current_language(),
+                ),
+            ], $this->sessions));
+        } else {
+            $sessions = [];
+        }
         $returnarray = [
             'itemid' => $this->id,
             'title' => $this->get_title_with_prefix(),
@@ -1556,25 +1573,13 @@ class booking_option_settings {
             'coursestarttime' => $this->coursestarttime ?? 0,
             'courseendtime' => $this->courseendtime ?? 0,
             'costcenter' => $this->costcenter ?? '',
-            'sessions' => array_values(array_map(fn($a) => [
-                'coursestarttime' => userdate($a->coursestarttime),
-                'courseendtime' => userdate($a->courseendtime),
-                'concatinatedstartendtime' => dates_handler::prettify_optiondates_start_end(
-                    $a->coursestarttime,
-                    $a->courseendtime,
-                    current_language(),
-                ),
-            ], $this->sessions)),
+            'sessions' => $sessions,
             'teachers' => array_values(array_map(fn($a) => [
                 'firstname' => $a->firstname,
                 'lastname' => $a->lastname,
                 'email' => str_replace('@', '&#64;', $a->email ?? ''),
             ], $this->teachers)),
         ];
-
-        if (isset($price['price']) && is_numeric($price['price'])) {
-            $returnarray['priceformatted'] = format_float($price['price'], 2);
-        }
 
         return $returnarray;
     }

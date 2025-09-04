@@ -264,7 +264,7 @@ class priceissetagain implements bo_condition {
 
         $user = singleton_service::get_instance_of_user($userid);
 
-        $data = $settings->return_booking_option_information($user);
+        $data = $settings->return_booking_option_information($user, false);
 
         $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
         $bookinginformation = $bookinganswer->return_all_booking_information($userid);

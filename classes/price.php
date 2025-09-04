@@ -1227,7 +1227,7 @@ class price {
             }
             if ($campaign->campaign_is_active($itemid, $settings)) {
                 foreach ($prices as &$price) {
-                    $price->price = $campaign->get_campaign_price($price->price, $userid);
+                    $price->price = $campaign->get_campaign_price((float)$price->price, $userid);
                     // Render all prices to 2 fixed decimals.
                     $price->price = format_float(round((float)$price->price, 2), 2);
                     // Campaign price factor has been applied.

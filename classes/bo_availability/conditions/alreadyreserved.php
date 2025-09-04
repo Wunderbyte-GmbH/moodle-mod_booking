@@ -239,7 +239,7 @@ class alreadyreserved implements bo_condition {
                 }
             }
 
-            $data = $settings->return_booking_option_information($user);
+            $data = $settings->return_booking_option_information($user, false);
 
             if ($fullwidth) {
                 $data['fullwidth'] = $fullwidth;

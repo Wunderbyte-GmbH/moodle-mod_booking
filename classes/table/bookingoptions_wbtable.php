@@ -1183,7 +1183,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
             if ($canupdate) {
                 // Cancel booking options.
                 // Find out if the booking option has a price or not.
-                $optioninfo = $settings->return_booking_option_information();
+                $optioninfo = $settings->return_booking_option_information($USER, false);
                 $optionhasprice = empty($optioninfo['price']) ? false : true;
 
                 if ($optionhasprice && class_exists('local_shopping_cart\shopping_cart')) {
