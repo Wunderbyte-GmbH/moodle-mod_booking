@@ -186,11 +186,9 @@ define('MOD_BOOKING_BO_COND_CONFIRMBOOKWITHCREDITS', -40);
 define('MOD_BOOKING_BO_COND_BOOKWITHCREDITS', -50);
 
 define('MOD_BOOKING_BO_COND_NOSHOPPINGCART', -60);
-define('MOD_BOOKING_BO_COND_PRICEISSETAGAIN', -67); // Rebook an option with price.
 define('MOD_BOOKING_BO_COND_PRICEISSET', -70);
 
 define('MOD_BOOKING_BO_COND_CONFIRMBOOKIT', -80);
-define('MOD_BOOKING_BO_COND_REBOOKITBUTTON', -87); // Rebook an option without price.
 define('MOD_BOOKING_BO_COND_BOOKITBUTTON', -90); // This is only used to show the book it button.
 define('MOD_BOOKING_BO_COND_CONFIRMATION', -100); // This is the last page after booking.
 

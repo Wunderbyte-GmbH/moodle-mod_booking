@@ -92,6 +92,7 @@ $string['allowoverbooking'] = 'Überbuchen erlauben';
 $string['allowoverbookingheader'] = 'Buchungsoptionen überbuchen <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['allowoverbookingheader_desc'] = 'Berechtigten Nutzer:innen erlauben, Kurse zu überbuchen.
  (Achtung: Dies kann zu unerwünschtem Verhalten führen. Nur aktivieren, wenn wirklich benötigt.)';
+$string['allowtobookagainafter'] = 'Erneute Buchung erlauben nach:';
 $string['allowupdate'] = 'Buchungen dürfen gelöscht/aktualisiert werden';
 $string['allowupdatedays'] = 'Tage vor Referenzdatum';
 $string['allratings'] = 'Jede/r kann bewerten';
@@ -1620,7 +1621,7 @@ $string['movedbookinghistory'] = 'Die Buchungsoption wurde von der Buchung mit d
 $string['moveoption'] = 'Option verschieben';
 $string['moveoption_help'] = 'Option in eine andere Buchungsaktivität verschieben';
 $string['moveoptionto'] = 'Buchungsoption in andere Buchungsinstanz verschieben';
-$string['multiplebookings'] = 'Mehrfache Buchungen';
+$string['multiplebookings'] = 'Erneute Buchung erlauben';
 $string['multipledayofweektimestringshint'] = '<b>Pro Zeile</b> können Sie eine Kombination aus Wochentag und Uhrzeit angeben.<br>Beispiel: "Montag, 10:00 - 12:00" und "Dienstag, 15:00 - 16:30"';
 $string['mustchooseone'] = 'Sie müssen eine Option auswählen';
 $string['mustcombine'] = 'Notwendige Buchungsoptionen';

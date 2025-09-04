@@ -88,7 +88,7 @@ class alreadybooked implements bo_condition {
      * @return bool True if available
      */
     public function is_available(booking_option_settings $settings, int $userid, bool $not = false): bool {
-        global $DB;
+        global $DB, $USER;
 
         // This is the return value. Not available to begin with.
         $isavailable = false;
@@ -103,10 +103,18 @@ class alreadybooked implements bo_condition {
             $isavailable = true;
         }
 
-        // Check if multiple bookings are enabled. If enabled, this condition must be bypassed.
+        $allanswers = $bookinganswer->get_users();
+        $currentanswer = $allanswers[$USER->id] ?? null;
+        $timebooked = (int) (empty($currentanswer) ) ? 0 : $currentanswer->timemodified;
+        // TODO: MDL-0 Replace timemodified with timebooked
+        // after the column is added to booking_answers table.
+
+        // Check if multiple bookings are enabled and if the required time to wait before
+        // the next book is passed, then this condition does not blocks.
         $ismultipbookingsoptionenable = $settings->jsonobject->multiplebookings ?? 0;
-        if ($ismultipbookingsoptionenable) {
-            $isavailable = true; // Will prevent this condition.
+        $allowtobookagainafter = $settings->jsonobject->allowtobookagainafter ?? 0;
+        if ($ismultipbookingsoptionenable && ($timebooked + $allowtobookagainafter) <= time()) {
+            $isavailable = true;
         }
 
         // If it's inversed, we inverse.

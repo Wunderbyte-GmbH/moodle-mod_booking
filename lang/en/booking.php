@@ -94,6 +94,7 @@ $string['allowoverbooking'] = 'Allow overbooking';
 $string['allowoverbookingheader'] = 'Overbooking of booking options <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['allowoverbookingheader_desc'] = 'Allow administrators and entitled users to overbook booking options.
   (Be careful: This can lead to unexpected behavior. Only activate this if you really need it.)';
+$string['allowtobookagainafter'] = 'Allow to book again after:';
 $string['allowupdate'] = 'Allow booking to be updated';
 $string['allowupdatedays'] = 'Days before reference date';
 $string['allratings'] = 'Everybody can rate';
@@ -1640,7 +1641,7 @@ $string['movedbookinghistory'] = 'The booking option has been moved from the boo
 $string['moveoption'] = 'Move booking option';
 $string['moveoption_help'] = 'Move booking option to different booking instance';
 $string['moveoptionto'] = 'Move booking option to other booking instance';
-$string['multiplebookings'] = 'Multiple bookings';
+$string['multiplebookings'] = 'Allow to book again';
 $string['multipledayofweektimestringshint'] = 'You can enter enter one combination of week day and time <b>per line</b>.<br>Example: "Monday, 10:00 - 12:00" and "Tuesday, 15:00 - 16:30"';
 $string['multiselect'] = 'Multiple selection';
 $string['mustchooseone'] = 'You must choose an option before saving. Nothing was saved.';
