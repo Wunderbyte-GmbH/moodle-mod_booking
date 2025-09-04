@@ -184,11 +184,12 @@ class waitforconfirmation extends field_base {
             $data->waitforconfirmation = $data->waitforconfirmation
                 ?? booking_option::get_value_of_json_by_key($data->id, "waitforconfirmation") ?? 0;
         } else {
-            $waitforconfirmation = booking_option::get_value_of_json_by_key($data->id, "waitforconfirmation");
-            if (!empty($waitforconfirmation)) {
-                $data->waitforconfirmation = $waitforconfirmation;
-
-                $confirmationonnotification = booking_option::get_value_of_json_by_key($data->id, "confirmationonnotification");
+            $data->waitforconfirmation = booking_option::get_value_of_json_by_key($data->id, "waitforconfirmation") ?? 0;
+            if (!empty($data->waitforconfirmation)) {
+                $confirmationonnotification = booking_option::get_value_of_json_by_key(
+                    $data->id,
+                    "confirmationonnotification"
+                ) ?? 0;
                 if (!empty($confirmationonnotification)) {
                     $data->confirmationonnotification = $confirmationonnotification;
                 }
