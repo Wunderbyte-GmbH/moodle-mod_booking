@@ -1,3 +1,22 @@
+## Version 8.16.1 (2025090401)
+* Improvement: Better info string for enrol multiple users.
+* Improvement: Localize prices with format_float.
+* Improvement: Add possibility to add userid for mybookings.
+* Improvement: Let any user with the 'bookbrothers' capability confirm booking answers.
+* Improvement: Add warning when I have a deputy active.
+* Improvement: Add assertions to check that approvers’ view of the table contains only allowed records.
+* Improvement: Ensure an approver’s replacement cannot confirm if main approver is not allowed.
+* Improvement: Add course:view and course:update capabilities to determine trainer and prevent bypassing supervisor when confirmation_supervisor is off.
+* Improvement: Add deputy to confirmation_test.
+* Improvement: Skip test_confirmation_supervisor when confirmation_supervisor plugin is not available.
+* Improvement: Use course ID from booking settings instead of booking option settings instance.
+* Bugfix: Moodle 5 not yet supported on Branch MOODLE_401_DEV.
+* Bugfix: Pass user ID as integer.
+* Bugfix: Use course ID from booking settings instance instead of booking option settings instance.
+* Feature: New PHPUnit test to cover confirmation trainer & confirmation supervisor.
+* Feature: New property in booking used class key to be exposed in confirm.
+* Test: Add new unit test for confirmation trainer & confirmation supervisor.
+
 ## Version 8.16.0 (2025090200)
 * Improvement: Add support for time awarded for certificate.
 * Improvement: Reorder buttons for improved UX.
