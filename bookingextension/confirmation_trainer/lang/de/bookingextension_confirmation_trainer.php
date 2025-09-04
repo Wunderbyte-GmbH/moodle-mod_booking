@@ -27,7 +27,10 @@ $string['bookingextensionconfirmationtrainer:confirmationtrainerenabled_desc'] =
 $string['bookingextensionconfirmationtrainer:confirmationtrainerenabledinbookingoption'] = 'Anzeige in den Buchungsoptionseinstellungen';
 $string['bookingextensionconfirmationtrainer:confirmationtrainerenabledinbookingoption_desc'] = 'In den Einstellungen der Buchungsoption anzeigen';
 $string['bookingextensionconfirmationtrainer:heading'] = "Bestätigung durch Trainer";
-$string['bookingextensionconfirmationtrainer:heading_desc'] = "Das ist nur eine Demonstration.";
+$string['bookingextensionconfirmationtrainer:heading_desc'] = 'Die Bestätigung durch Vorgesetzte ermöglicht es, im hier definierten Nutzer/innen-Profilfeld die Moodle-IDs ihrer Vorgesetzten zu hinterlegen, die dann Freigaben erteilen können.
+Zusätzlich ist es möglich, Stellvertretungen zu ernennen. Hierfür müssen in das ausgewählte Profilfeld des/der Vorgesetzten die User-IDs der Stellvertretenden eingetragen werden. Diese haben dann alle Rechte, die auch die Vorgesetzten haben.
+Diese Funktion kann mit fixen Nutzer/innen kombiniert werden ("confirmation_supervisor_hrusers"). Wird zusätzlich die standardmäßige "Bestätigung durch Trainer:in" ausgewählt, haben Trainer:innen ebenfalls die Möglichkeit zu bestätigen.
+Ausführliche Einstellungen zur Bestätigung einzelner Buchungsoptionen lassen sich in den jeweiligen Einstellungen festlegen (z. B. die Reihenfolge des Bestätigungsprozesses).';
 $string['confirmationtrainerenabled'] = 'Erlaube Bestätigung durch Trainer:innen';
 $string['notallowedtoconfirm'] = "Keine Berechtigung zu buchen";
 $string['pluginname'] = 'Bestätigungsworkflow durch Trainer:in';
