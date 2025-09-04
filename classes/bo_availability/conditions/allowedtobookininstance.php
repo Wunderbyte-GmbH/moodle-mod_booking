@@ -55,12 +55,15 @@ class allowedtobookininstance implements bo_condition {
     /** @var stdClass $customsettings an stdclass coming from the json which passes custom settings */
     public $customsettings = null;
 
+    /** @var int $optionid Id of the option of the singleton */
+    public $optionid;
+
     /**
      * Singleton instance.
      *
      * @var object
      */
-    private static $instance = null;
+    private static $instances = null;
 
     /**
      * Singleton instance.
@@ -70,10 +73,10 @@ class allowedtobookininstance implements bo_condition {
      *
      */
     public static function instance(?int $id = null): object {
-        if (empty(self::$instance)) {
-            self::$instance = new self($id);
+        if (!isset(self::$instances[$id])) {
+            self::$instances[$id] = new self($id);
         }
-        return self::$instance;
+        return self::$instances[$id];
     }
 
     /**
@@ -84,7 +87,7 @@ class allowedtobookininstance implements bo_condition {
      */
     private function __construct(?int $id = null) {
         if ($id) {
-            $this->id = $id;
+            $this->optionid = $id;
         }
     }
 
