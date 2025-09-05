@@ -36,93 +36,57 @@ export var SELECTORS = {
     MODALHEADER: 'div.modalHeader',
     MODALBUTTONAREA: 'div.modalButtonArea',
     MODALFOOTER: 'div.modalFooter',
-    CONTINUEBUTTON: 'a.continue-button', // Don't want to find button right now.
-    BACKBUTTON: 'a.back-button', // Don't want to find button right now.
+    CONTINUEBUTTON: 'a.continue-button',
+    BACKBUTTON: 'a.back-button',
     BOOKITBUTTON: 'div.booking-button-area.noprice',
     INMODALBUTTON: 'div.in-modal-button',
     STATICBACKDROP: 'div.modal-backdrop',
 };
 
 /**
- * Initializes the bookit button for the normal bookit function.
- * @param {integer} itemid
- * @param {string} area
+ * Initializes delegated bookit button handling.
  */
-export const initbookitbutton = (itemid, area) => {
+export const initbookitbutton = () => {
 
-    const initselector = SELECTORS.BOOKITBUTTON +
-    '[data-itemid]' +
-    '[data-area]';
-
-    if (!itemid || !area) {
-        const initbuttons = document.querySelectorAll(initselector);
-        initbuttons.forEach(button => {
-            const inititemid = button.dataset.itemid;
-            const initarea = button.dataset.area;
-            initbookitbutton(inititemid, initarea);
-        });
+    const container = document.querySelector('body'); // or a closer wrapper if you know it
+    if (!container) {
         return;
     }
 
-    const selector = SELECTORS.BOOKITBUTTON +
-    '[data-itemid="' + itemid + '"]' +
-    '[data-area="' + area + '"]';
+    // Add one event listener only once
+    if (!container.dataset.bookitDelegated) {
+        container.dataset.bookitDelegated = 'true';
 
-    const buttons = document.querySelectorAll(selector);
+        container.addEventListener('click', (e) => {
+            const button = e.target.closest(SELECTORS.BOOKITBUTTON + '[data-itemid][data-area]');
+            if (!button) {
+                return;
+            }
 
-    if (!buttons) {
-        return;
-    }
+            // Ignore disabled buttons
+            if (button.classList.contains('disabled')) {
+                return;
+            }
 
-    // We support more than one booking button on the same page.
-    buttons.forEach(button => {
+            const {itemid, area, userid} = button.dataset;
 
-        if (button.dataset.nojs) {
-            return;
-        }
-
-        // We don't run code on disabled buttons.
-        if (button.classList.contains('disabled')) {
-            return;
-        }
-
-        if (!button.dataset.initialized) {
-            button.dataset.initialized = 'true';
-
-            const userid = button.dataset.userid;
-
-            button.addEventListener('click', (e) => {
-
-                // E.stopPropagation();
-
-                const data = button.dataset;
-
-                if (e.target.classList.contains('shopping-cart-cancel-button')) {
-
-                    import('local_shopping_cart/shistory')
-                    // eslint-disable-next-line promise/always-return
+            if (e.target.classList.contains('shopping-cart-cancel-button')) {
+                import('local_shopping_cart/shistory')
                     .then(shoppingcart => {
-                        const confirmCancelModal = shoppingcart.confirmCancelModal;
-                        // Now you can use the specific function
-                        confirmCancelModal(button, 0);
+                        shoppingcart.confirmCancelModal(button, 0);
+                        return true;
                     })
                     .catch(err => {
-                        // Handle any errors, including if the module doesn't exist
                         // eslint-disable-next-line no-console
-                        console.log(err);
+                        console.error(err);
                     });
-
-
-                } else if (
-                    e.target.classList.contains('btn')
-                ) {
-                    if (!e.target.href || e.target.href.length < 2) {
-                        bookit(itemid, area, userid, data);
-                    }
+            } else if (e.target.classList.contains('btn')) {
+                if (!e.target.href || e.target.href.length < 2) {
+                    bookit(itemid, area, userid, button.dataset);
                 }
-            });
-        }
-    });
+            }
+        });
+    }
 };
 
 /**
