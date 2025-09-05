@@ -62,8 +62,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright 2023 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class bookingoptions_wbtable extends wunderbyte_table
-{
+class bookingoptions_wbtable extends wunderbyte_table {
     /**
      * This function is called for each data row to allow processing of the
      * invisible value. It's called 'invisibleoption' so it does not interfere with
@@ -73,8 +72,7 @@ class bookingoptions_wbtable extends wunderbyte_table
      * @return string $invisible Returns visibility of the booking option as string.
      * @throws coding_exception
      */
-    public function col_invisibleoption($values)
-    {
+    public function col_invisibleoption($values) {
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -102,8 +100,7 @@ class bookingoptions_wbtable extends wunderbyte_table
      * @return string
      *
      */
-    public function col_image($values)
-    {
+    public function col_image($values) {
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -131,8 +128,7 @@ class bookingoptions_wbtable extends wunderbyte_table
      * @return string $string Return name of the booking option.
      * @throws dml_exception
      */
-    public function col_teacher($values)
-    {
+    public function col_teacher($values) {
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -173,8 +169,7 @@ class bookingoptions_wbtable extends wunderbyte_table
      * @return string $string Return a link to the responsible contact's user profile.
      * @throws dml_exception
      */
-    public function col_responsiblecontact($values)
-    {
+    public function col_responsiblecontact($values) {
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -240,8 +235,7 @@ class bookingoptions_wbtable extends wunderbyte_table
      * @return string $string Return name of the booking option.
      * @throws dml_exception
      */
-    public function col_booknow($values)
-    {
+    public function col_booknow($values) {
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -266,8 +260,7 @@ class bookingoptions_wbtable extends wunderbyte_table
      * @param object $values
      * @return string
      */
-    public function col_price($values)
-    {
+    public function col_price($values) {
         if (!$this->is_downloading()) {
             return '';
         }
@@ -288,8 +281,7 @@ class bookingoptions_wbtable extends wunderbyte_table
      * @param object $values
      * @return string
      */
-    public function col_invisible($values)
-    {
+    public function col_invisible($values) {
         if (!$this->is_downloading()) {
             return '';
         }
@@ -315,8 +307,7 @@ class bookingoptions_wbtable extends wunderbyte_table
      * @return string $string Return name of the booking option.
      * @throws dml_exception
      */
-    public function col_text($values)
-    {
+    public function col_text($values) {
 
         global $PAGE;
 
@@ -396,8 +387,7 @@ class bookingoptions_wbtable extends wunderbyte_table
      * @return string the progress bar HTML
      * @throws dml_exception
      */
-    public function col_progressbar($values)
-    {
+    public function col_progressbar($values) {
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -428,8 +418,7 @@ class bookingoptions_wbtable extends wunderbyte_table
      * @return string the comments HTML
      * @throws dml_exception
      */
-    public function col_comments($values)
-    {
+    public function col_comments($values) {
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -486,8 +475,7 @@ class bookingoptions_wbtable extends wunderbyte_table
      * @return string the ratings HTML
      * @throws dml_exception
      */
-    public function col_ratings($values)
-    {
+    public function col_ratings($values) {
         global $DB, $USER;
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
@@ -589,8 +577,7 @@ class bookingoptions_wbtable extends wunderbyte_table
      * @return string $coursestarttime Returns course start time as a readable string.
      * @throws coding_exception
      */
-    public function col_bookings($values)
-    {
+    public function col_bookings($values) {
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -637,8 +624,7 @@ class bookingoptions_wbtable extends wunderbyte_table
      * @return string location
      * @throws coding_exception
      */
-    public function col_location($values)
-    {
+    public function col_location($values) {
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -682,8 +668,7 @@ class bookingoptions_wbtable extends wunderbyte_table
      * @return string institution
      * @throws coding_exception
      */
-    public function col_institution($values)
-    {
+    public function col_institution($values) {
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -706,8 +691,7 @@ class bookingoptions_wbtable extends wunderbyte_table
      * @return string a link to the Moodle course - if there is one
      * @throws coding_exception
      */
-    public function col_course($values)
-    {
+    public function col_course($values) {
         global $USER;
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
@@ -788,8 +772,7 @@ class bookingoptions_wbtable extends wunderbyte_table
      * @return string a link to the Moodle course - if there is one
      * @throws coding_exception
      */
-    public function col_courseshortname($values)
-    {
+    public function col_courseshortname($values) {
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
             $debugmessage = "bookingoptions_wbtable function col_courseshortname: ";
@@ -825,8 +808,7 @@ class bookingoptions_wbtable extends wunderbyte_table
      * @return string $dayofweektime String for date series, e.g. "Mon, 16:00 - 17:00"
      * @throws coding_exception
      */
-    public function col_dayofweektime($values)
-    {
+    public function col_dayofweektime($values) {
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -855,8 +837,7 @@ class bookingoptions_wbtable extends wunderbyte_table
      * @return string a string containing collapsible dates
      * @throws coding_exception
      */
-    public function col_showdates($values)
-    {
+    public function col_showdates($values) {
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -920,8 +901,7 @@ class bookingoptions_wbtable extends wunderbyte_table
      * @throws moodle_exception
      * @throws coding_exception
      */
-    public function col_manageresponses($values)
-    {
+    public function col_manageresponses($values) {
         global $CFG, $DB;
 
         // Link is empty on default.
@@ -966,8 +946,7 @@ class bookingoptions_wbtable extends wunderbyte_table
      * @throws moodle_exception
      * @throws coding_exception
      */
-    public function col_action($values)
-    {
+    public function col_action($values) {
         global $OUTPUT, $USER;
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
@@ -1289,9 +1268,9 @@ class bookingoptions_wbtable extends wunderbyte_table
                         'returnurl' => $returnurl,
                     ]
                 ), $OUTPUT->pix_icon(
-                        't/copy',
-                        get_string('duplicatebookingoption', 'mod_booking')
-                    ) .
+                    't/copy',
+                    get_string('duplicatebookingoption', 'mod_booking')
+                ) .
                     get_string('duplicatebookingoption', 'mod_booking')) . '</div>';
 
                 $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
@@ -1364,8 +1343,7 @@ class bookingoptions_wbtable extends wunderbyte_table
      * @return string a string containing the minanswers description and value
      * @throws coding_exception
      */
-    public function col_minanswers($values)
-    {
+    public function col_minanswers($values) {
         $ret = '';
         if (!empty($values->minanswers)) {
             if (!$this->is_downloading()) {
@@ -1384,8 +1362,7 @@ class bookingoptions_wbtable extends wunderbyte_table
      * @return string a string containing the text depending on userstatus
      * @throws coding_exception
      */
-    public function col_statusdescription($values)
-    {
+    public function col_statusdescription($values) {
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -1430,8 +1407,7 @@ class bookingoptions_wbtable extends wunderbyte_table
      * @return string $ret the return string
      * @throws coding_exception
      */
-    public function col_description($values)
-    {
+    public function col_description($values) {
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -1456,7 +1432,8 @@ class bookingoptions_wbtable extends wunderbyte_table
             return strip_tags($description);
         }
 
-        $ret = format_text($description);
+        $formatted = format_text($description);
+        $ret = $formatted;
 
         if (!empty(get_config('booking', 'collapsedescriptionmaxlength'))) {
             // Use the renderer to output this column.
@@ -1470,7 +1447,7 @@ class bookingoptions_wbtable extends wunderbyte_table
                 !$ret = $cache->get($cachekey)
             ) {
                 $maxlength = (int) get_config('booking', 'collapsedescriptionmaxlength');
-                $ret = $description;
+                $ret = $formatted;
                 // Show collapsible for long descriptions.
                 $shortdescription = strip_tags($ret, '<br>');
                 if (strlen($shortdescription) > $maxlength) {
@@ -1501,8 +1478,7 @@ class bookingoptions_wbtable extends wunderbyte_table
      * @return string a string containing the booking opening time
      * @throws coding_exception
      */
-    public function col_bookingopeningtime($values)
-    {
+    public function col_bookingopeningtime($values) {
         $bookingopeningtime = $values->bookingopeningtime;
         if (empty($bookingopeningtime)) {
             return '';
@@ -1526,8 +1502,7 @@ class bookingoptions_wbtable extends wunderbyte_table
      * @return string a string containing the booking closing time
      * @throws coding_exception
      */
-    public function col_bookingclosingtime($values)
-    {
+    public function col_bookingclosingtime($values) {
         $bookingclosingtime = $values->bookingclosingtime;
         if (empty($bookingclosingtime)) {
             return '';
@@ -1551,8 +1526,7 @@ class bookingoptions_wbtable extends wunderbyte_table
      * @return string a string containing a link to the attachment
      * @throws coding_exception
      */
-    public function col_attachment($values)
-    {
+    public function col_attachment($values) {
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -1574,8 +1548,7 @@ class bookingoptions_wbtable extends wunderbyte_table
      * @return string a string containing a link to the attachment
      * @throws coding_exception
      */
-    public function col_competencies($values)
-    {
+    public function col_competencies($values) {
         if (empty($values->competencies)) {
             return '';
         }
