@@ -243,7 +243,7 @@ class booked_users implements renderable, templatable {
     public function return_raw_table(
         string $scope,
         int $scopeid,
-        int $statusparam,
+        int $statusparam
     ): \local_wunderbyte_table\wunderbyte_table|null {
 
         if (!defined('PHPUNIT_TEST') || !PHPUNIT_TEST) {
