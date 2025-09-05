@@ -837,7 +837,7 @@ $string['configurefields'] = 'Configure fields and columns';
 $string['confirmactivtyfrom'] = 'Confirm users activity from';
 $string['confirmationmessagesettings'] = 'Confirmation e-mail settings';
 $string['confirmationonnotification'] = 'Open booking for notified user?';
-$string['confirmationonnotificationnoopen'] = 'No, keep it open for all users';
+$string['confirmationonnotificationnoopen'] = "Notifications have no effects with confirmations";
 $string['confirmationonnotificationoneatatime'] = 'Only the <b>one </b> person who was last notified should be able to book';
 $string['confirmationonnotificationwarning'] = '<div class="alert alert-warning" role="alert">Please note that you must configure a corresponding rule for this function to work.</div>';
 $string['confirmationonnotificationyesforall'] = 'Yes, for all notified users';

@@ -822,7 +822,7 @@ $string['conditiontextfield'] = 'Wert';
 $string['configurefields'] = 'Spalten und Felder anpassen';
 $string['confirmationmessagesettings'] = 'Buchungsbestätigungseinstellungen';
 $string['confirmationonnotification'] = 'Buchungen für benachrichtigte Personen erlauben';
-$string['confirmationonnotificationnoopen'] = 'Nein, für alle BenutzerInnen offen lassen';
+$string['confirmationonnotificationnoopen'] = 'Benachrichtigungen haben keinen Einfluss auf Freigabebestätigung';
 $string['confirmationonnotificationoneatatime'] = 'Nur die <b>eine</b>, zuletzt benachrichtigte Person soll buchen können';
 $string['confirmationonnotificationwarning'] = '<div class="alert alert-warning" role="alert">Achtung, damit diese Funktion funktioniert, müssen Sie eine entsprechende Regel konfigurieren.</div>';
 $string['confirmationonnotificationyesforall'] = 'Ja, für alle benachrichtigten BenutzerInnen';
