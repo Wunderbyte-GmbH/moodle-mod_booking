@@ -25,10 +25,13 @@ use mod_booking\booking_answers\booking_answers;
 use mod_booking\table\manageusers_table;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking_generator;
-use context_module;
+use tool_mocktesttime\time_mock;
+use local_shopping_cart\shopping_cart;
+use local_shopping_cart\local\cartstore;
+use local_shopping_cart_generator;
 
 /**
- * Tests for booking when musltiple bookings is enabled.
+ * Tests booking when multiple bookings is enabled.
  *
  * @package mod_booking
  * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
@@ -69,8 +72,11 @@ final class booking_test extends advanced_testcase {
         $booking = $this->getDataGenerator()->create_module('booking', [
             'course' => $course->id,
             'bookingmanager' => $bookingmanager->username,
-            'cancancelbook' => 1,
+            'cancancelbook' => 0,
         ]);
+
+        time_mock::init();
+        time_mock::set_mock_time(strtotime('now'));
 
         return [
             'course' => $course,
@@ -82,13 +88,28 @@ final class booking_test extends advanced_testcase {
         ];
     }
 
+
     /**
-     * Tests confirmation capability when confirmation trainer plugin is enabled.
+     * This function gets the predefined environment settings and then creates an option based on the provided data.
+     * It then calls the book function to book the option. In some cases, it rebooks the option to check if everything
+     * is working correctly when multiple booking is enabled.
      *
      * @dataProvider booking_provider
      * @covers \bookingextension_confirmation_trainer\local\confirmbooking
+     * @param array $otherbookingoptionsettings
+     * @param string $userbookingfunction
+     * @param int $clockforwardshift
+     * @param array $expected
+     * @param int $tryrebooking
+     * @return void
      */
-    public function test_booking($otherbookingoptionsettings, string $userbookingfunction): void {
+    public function test_booking(
+        array $otherbookingoptionsettings,
+        string $userbookingfunction,
+        int $clockforwardshift,
+        array $expected,
+        int $tryrebooking
+    ): void {
         global $DB;
         $this->resetAfterTest(true);
 
@@ -103,7 +124,30 @@ final class booking_test extends advanced_testcase {
         /** @var mod_booking_generator $generator */
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_booking');
 
-        $option = $generator->create_option((object)array_merge(
+        // If userprice is available, we need to create a credit for the user and create a price category.
+        if (!empty($otherbookingoptionsettings['useprice'])) {
+            /** @var local_shopping_cart_generator $shoppingcartgenerator */
+            $shoppingcartgenerator = self::getDataGenerator()->get_plugin_generator('local_shopping_cart');
+            $usercreditdata = [
+                'userid' => $student1->id,
+                'credit' => 100,
+                'currency' => 'EUR',
+            ];
+            $shoppingcartgenerator->create_user_credit($usercreditdata);
+
+            $pricecategorydata = (object) [
+                'ordernum' => 1,
+                'name' => 'default',
+                'identifier' => 'default',
+                'defaultvalue' => 100,
+                'pricecatsortorder' => 1,
+            ];
+
+            $generator->create_pricecategory($pricecategorydata);
+        }
+
+        // Merge the default booking option settings with the provided ones from the data provider.
+        $bookingoptionsettings = array_merge(
             [
                 'bookingid' => $bookingmodule->id,
                 'courseid' => $course->id,
@@ -111,64 +155,96 @@ final class booking_test extends advanced_testcase {
                 'chooseorcreatecourse' => 1,
             ],
             $otherbookingoptionsettings
-        ));
+        );
+        // Create a booking option.
+        $option = $generator->create_option((object)$bookingoptionsettings);
 
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
         $boinfo = new bo_info($settings);
 
+        $data['userbookingfunction'] = $userbookingfunction;
+        $data['boinfo'] = $boinfo;
+        $data['settings'] = $settings;
+        $data['student1'] = $student1;
+        $data['clockforwardshift'] = $clockforwardshift;
+        $data['expected'] = $expected;
+
+        // Book for the first time and check if expectations are met.
+        $this->book($data);
+
+        // We need to book the option again to verify that everything works correctly, but only if
+        // multiple bookings are enabled and the required time has passed since the previous booking.
+        if (!empty($tryrebooking)) {
+            $this->book($data);
+            $answers = $DB->get_records('booking_answers', null, 'timecreated ASC');
+            $this->assertCount(2, $answers);
+            $answers = array_values($answers);
+            $this->assertSame(MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED, (int) $answers[0]->waitinglist);
+            $this->assertSame(MOD_BOOKING_STATUSPARAM_BOOKED, (int) $answers[1]->waitinglist);
+
+            // Book for the N time and check if expectations are met.
+            for ($i = 3; $i <= 10; $i++) {
+                $this->book($data);
+                $answers = $DB->get_records('booking_answers', null, 'timecreated ASC');
+                $this->assertCount($i, $answers);
+                $answers = array_values($answers);
+                // The waitinglist column should have value equal to MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED
+                // for all the answers expect the last one.
+                for ($ai = 0; $ai < ($i - 1); $ai++) {
+                    $this->assertSame(
+                        MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED,
+                        (int) $answers[$ai]->waitinglist
+                    );
+                }
+                // The waitinglist column value of the last answer should be equal to MOD_BOOKING_STATUSPARAM_BOOKED.
+                $this->assertSame(
+                    MOD_BOOKING_STATUSPARAM_BOOKED,
+                    (int) $answers[count($answers) - 1]->waitinglist
+                );
+            }
+        }
+    }
+
+    /**
+     * Books an option.
+     * @param mixed $data
+     * @return void
+     */
+    private function book($data) {
+        $userbookingfunction = $data['userbookingfunction'];
+        $boinfo = $data['boinfo'];
+        $settings = $data['settings'];
+        $student1 = $data['student1'];
+        $clockforwardshift = $data['clockforwardshift'];
+        $expected = $data['expected'];
+        // Call the provided function from the data provider to book the option once,
+        // and check if any exceptions in the function are met.
         call_user_func([$this, $userbookingfunction], $boinfo, $settings, $student1);
 
+        // After calling the provided function from the data provider, the option should be booked.
         $this->setUser($student1);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
-    }
 
-    /**
-     * Checks the expections when the option needs no confirmation then books the option.
-     * @param mixed $boinfo
-     * @param mixed $settings
-     * @param mixed $student
-     * @return void
-     */
-    public function student_books($boinfo, $settings, $student) {
-        $this->setUser($student);
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
-        $result = booking_bookit::bookit('option', $settings->id, $student->id); // Book the first user.
-
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMBOOKIT, $id);
-        $result = booking_bookit::bookit('option', $settings->id, $student->id); // Book the first user.
-
+        // There should be a booked answer.
         $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
-        $answer = ($bookinganswers->get_users())[$student->id] ?? null; // Get student 1 answer.
+        $answers = $bookinganswers->get_users();
+        $this->assertCount(1, $answers);
+        $answer = $answers[$student1->id] ?? null; // Get student 1 answer.
         $this->assertNotEmpty($answer);
-    }
+        $this->assertSame(MOD_BOOKING_STATUSPARAM_BOOKED, (int) $answer->waitinglist);
 
-    /**
-     * Checks the expections when the option needs confirmation then books the option.
-     * @param mixed $boinfo
-     * @param mixed $settings
-     * @param mixed $student
-     * @return void
-     */
-    public function student_books_on_waiting_list($boinfo, $settings, $student) {
-        $this->setUser($student);
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id);
-        $result = booking_bookit::bookit('option', $settings->id, $student->id); // Book the first user.
+        // We advance the time and check bo_availabilty to see if expectation are met.
+        $time = time_mock::get_mock_time();
+        $this->assertSame(time(), $time);
+        time_mock::set_mock_time($time + $clockforwardshift); // Jump N seconds into the future.
+        $future = time_mock::get_mock_time();
+        $this->assertEquals(time(), $future);
 
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
-
-        $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
-        $answer = ($bookinganswers->get_users())[$student->id] ?? null; // Get student 1 answer.
-        $this->assertNotEmpty($answer);
-
-        $this->setAdminUser(); // Switch user - admin.
-        $table = $this->get_manage_users_table();
-        $result = $table->action_confirmbooking(0, json_encode(['id' => $answer->baid]));
-        $this->assertEquals(1, $result['success']); // Make sure confirmation is successful.
+        // No we are in future, we will check the booking option availability.
+        // It should match the expected value from the data provider.
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals($expected['bo_availability'], $id);
     }
 
     /**
@@ -177,28 +253,128 @@ final class booking_test extends advanced_testcase {
      */
     public static function booking_provider(): array {
         return [
-            'Option' => [
+            'Option - Multiple: No, Confirmation: No, Price: No' => [
                 'bookingsoptionsettings' => [], // Additional booking options settings.
-                'student_books', // Student book function.
+                'student_books_without_price', // Name of the function within we can book the option.
+                'clockforwardshift' => 0, // Amount of time to add to clock to forward the clock.
+                'expected' => [ // Expections to book again.
+                    'bo_availability' => MOD_BOOKING_BO_COND_ALREADYBOOKED, // Expected amount of bo_availability
+                    // when attempting to book the option for the seconds time.
+                ],
+                'tryrebooking' => 0,
             ],
-
-            'Option - with multiople bookings' => [
+            'Option - Multiple: Yes, Confirmation: No, Price: No, After: after 30 seconds' => [
+                'bookingsoptionsettings' => [
+                    'waitforconfirmation' => 0,
+                    'multiplebookings' => 1,
+                    'allowtobookagainafter' => 60, // 60 seconds.
+                ],
+                'student_books_without_price',
+                'clockforwardshift' => 30,
+                'expected' => [
+                    'bo_availability' => MOD_BOOKING_BO_COND_ALREADYBOOKED, // Clockforwardshift > allowtobookagainafter.
+                ],
+                'tryrebooking' => 0,
+            ],
+            'Option - Multiple: Yes, Confirmation: No, Price: No, After: 70 seconds' => [
+                'bookingsoptionsettings' => [
+                    'waitforconfirmation' => 0,
+                    'multiplebookings' => 1,
+                    'allowtobookagainafter' => 60, // 60 seconds.
+                ],
+                'student_books_without_price',
+                'clockforwardshift' => 70,
+                'expected' => [
+                    'bo_availability' => MOD_BOOKING_BO_COND_BOOKITBUTTON, // Clockforwardshift > allowtobookagainafter.
+                ],
+                'tryrebooking' => 1,
+            ],
+            'Option - Multiple: Yes, Confirmation: Yes, Price: No, After: 30 seconds' => [
                 'bookingsoptionsettings' => [
                     'waitforconfirmation' => 1,
                     'confirmationtrainerenabled' => 1,
+                    'multiplebookings' => 1,
+                    'allowtobookagainafter' => 60, // 60 seconds.
                 ],
-                'student_books_on_waiting_list',
+                'student_books_without_price_on_waiting_list',
+                'clockforwardshift' => 30,
+                'expected' => [
+                    'bo_availability' => MOD_BOOKING_BO_COND_ALREADYBOOKED, // Clockforwardshift < allowtobookagainafter.
+                ],
+                'tryrebooking' => 0,
             ],
-            /*
-            'Option - with multiople bookings - with price' => [
+            'Option - Multiple: Yes, Confirmation: Yes, Price: No, After: 60 seconds' => [
                 'bookingsoptionsettings' => [
-                    'text' => 'Option 1',
-                    'chooseorcreatecourse' => 1,
                     'waitforconfirmation' => 1,
                     'confirmationtrainerenabled' => 1,
+                    'multiplebookings' => 1,
+                    'allowtobookagainafter' => 60, // 60 seconds.
                 ],
+                'student_books_without_price_on_waiting_list',
+                'clockforwardshift' => 60,
+                'expected' => [
+                    'bo_availability' => MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, // Clockforwardshift = allowtobookagainafter.
+                ],
+                'tryrebooking' => 1,
             ],
-            */
+            'Option - Multiple: Yes, Confirmation: Yes, Price: No, After: 70 seconds' => [
+                'bookingsoptionsettings' => [
+                    'waitforconfirmation' => 1,
+                    'confirmationtrainerenabled' => 1,
+                    'multiplebookings' => 1,
+                    'allowtobookagainafter' => 60, // 60 seconds.
+                ],
+                'student_books_without_price_on_waiting_list',
+                'clockforwardshift' => 70,
+                'expected' => [
+                    'bo_availability' => MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, // Clockforwardshift > allowtobookagainafter.
+                ],
+                'tryrebooking' => 1,
+            ],
+            'Option - Multiple: No, Confirmation: No, Price: Yes' => [
+                'bookingsoptionsettings' => [
+                    'useprice' => 1,
+                    'importing' => 1,
+                ],
+                'student_books_with_price',
+                'clockforwardshift' => 0,
+                'expected' => [
+                    'bo_availability' => MOD_BOOKING_BO_COND_ALREADYBOOKED,
+                ],
+                'tryrebooking' => 0,
+            ],
+            'Option - Multiple: Yes, Confirmation: Yes, Price: Yes, After: 30 seconds' => [
+                'bookingsoptionsettings' => [
+                    'waitforconfirmation' => 1,
+                    'confirmationtrainerenabled' => 1,
+                    'multiplebookings' => 1,
+                    'allowtobookagainafter' => 60, // 60 seconds.
+                    'useprice' => 1,
+                    'importing' => 1,
+                ],
+                'student_books_with_price_on_waitinglist',
+                'clockforwardshift' => 30,
+                'expected' => [
+                    'bo_availability' => MOD_BOOKING_BO_COND_ALREADYBOOKED, // Clockforwardshift < allowtobookagainafter.
+                ],
+                'tryrebooking' => 0,
+            ],
+            'Option - Multiple: Yes, Confirmation: Yes, Price: Yes, After: 70 seconds' => [
+                'bookingsoptionsettings' => [
+                    'waitforconfirmation' => 1,
+                    'confirmationtrainerenabled' => 1,
+                    'multiplebookings' => 1,
+                    'allowtobookagainafter' => 60, // 60 seconds.
+                    'useprice' => 1,
+                    'importing' => 1,
+                ],
+                'student_books_with_price_on_waitinglist',
+                'clockforwardshift' => 70,
+                'expected' => [
+                    'bo_availability' => MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, // Clockforwardshift > allowtobookagainafter.
+                ],
+                'tryrebooking' => 1,
+            ],
         ];
     }
 
@@ -240,5 +416,131 @@ final class booking_test extends advanced_testcase {
             0,
             MOD_BOOKING_STATUSPARAM_WAITINGLIST
         );
+    }
+
+    /**
+     * Checks the expections when the option needs no confirmation then books the option.
+     * @param mixed $boinfo
+     * @param mixed $settings
+     * @param mixed $student
+     * @return void
+     */
+    private function student_books_without_price($boinfo, $settings, $student) {
+        $this->setUser($student);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+        $result = booking_bookit::bookit('option', $settings->id, $student->id); // Book the first user.
+
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMBOOKIT, $id);
+        $result = booking_bookit::bookit('option', $settings->id, $student->id); // Book the first user.
+
+        $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
+        $answer = ($bookinganswers->get_users())[$student->id] ?? null; // Get student 1 answer.
+        $this->assertNotEmpty($answer);
+    }
+
+    /**
+     * Checks the expections when the option needs no confirmation then books the option.
+     * @param mixed $boinfo
+     * @param mixed $settings
+     * @param mixed $student
+     * @return void
+     */
+    private function student_books_with_price($boinfo, $settings, $student) {
+        $this->setUser($student);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student->id, true);
+        if (class_exists('local_shopping_cart\shopping_cart')) {
+            $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
+        } else {
+            $this->assertEquals(MOD_BOOKING_BO_COND_NOSHOPPINGCART, $id);
+        }
+
+        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+
+        // Admin confirms the users booking.
+        $this->setAdminUser();
+        // Verify price.
+        $price = price::get_price('option', $settings->id);
+        // Default price expected.
+        $this->assertEquals(100, $price["price"]);
+        // Purchase item in behalf of user if shopping_cart installed.
+        if (class_exists('local_shopping_cart\shopping_cart')) {
+            // Clean cart.
+            shopping_cart::delete_all_items_from_cart($student->id);
+            // Set user to buy in behalf of.
+            shopping_cart::buy_for_user($student->id);
+            // Get cached data or setup defaults.
+            $cartstore = cartstore::instance($student->id);
+            // Put in a test item with given ID (or default if ID > 4).
+            shopping_cart::add_item_to_cart('mod_booking', 'option', $settings->id, -1);
+            // Confirm cash payment.
+            $res = shopping_cart::confirm_payment($student->id, LOCAL_SHOPPING_CART_PAYMENT_METHOD_CASHIER_CASH);
+        }
+        // In this test, we book the user directly (we don't test the payment process).
+        $option->user_submit_response($student, 0, 0, 0, MOD_BOOKING_VERIFIED);
+    }
+
+    /**
+     * Checks the expections when the option needs confirmation then books the option.
+     * @param mixed $boinfo
+     * @param mixed $settings
+     * @param mixed $student
+     * @return void
+     */
+    private function student_books_with_price_on_waitinglist($boinfo, $settings, $student) {
+        $this->setUser($student);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id);
+
+        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+
+        // Admin confirms the users booking.
+        $this->setAdminUser();
+        // Verify price.
+        $price = price::get_price('option', $settings->id);
+        // Default price expected.
+        $this->assertEquals(100, $price["price"]);
+        // Purchase item in behalf of user if shopping_cart installed.
+        if (class_exists('local_shopping_cart\shopping_cart')) {
+            // Clean cart.
+            shopping_cart::delete_all_items_from_cart($student->id);
+            // Set user to buy in behalf of.
+            shopping_cart::buy_for_user($student->id);
+            // Get cached data or setup defaults.
+            $cartstore = cartstore::instance($student->id);
+            // Put in a test item with given ID (or default if ID > 4).
+            shopping_cart::add_item_to_cart('mod_booking', 'option', $settings->id, -1);
+            // Confirm cash payment.
+            $res = shopping_cart::confirm_payment($student->id, LOCAL_SHOPPING_CART_PAYMENT_METHOD_CASHIER_CASH);
+        }
+        // In this test, we book the user directly (we don't test the payment process).
+        $option->user_submit_response($student, 0, 0, 0, MOD_BOOKING_VERIFIED);
+    }
+
+    /**
+     * Checks the expections when the option needs confirmation then books the option.
+     * @param mixed $boinfo
+     * @param mixed $settings
+     * @param mixed $student
+     * @return void
+     */
+    private function student_books_without_price_on_waiting_list($boinfo, $settings, $student) {
+        $this->setUser($student);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id);
+        $result = booking_bookit::bookit('option', $settings->id, $student->id); // Book the first user.
+
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
+
+        $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
+        $answer = ($bookinganswers->get_users())[$student->id] ?? null; // Get student 1 answer.
+        $this->assertNotEmpty($answer);
+
+        $this->setAdminUser(); // Switch user - admin.
+        $table = $this->get_manage_users_table();
+        $result = $table->action_confirmbooking(0, json_encode(['id' => $answer->baid]));
+        $this->assertEquals(1, $result['success']); // Make sure confirmation is successful.
     }
 }
