@@ -153,8 +153,7 @@ class campaign_customfield implements booking_campaign {
         $mform->addElement(
             'date_time_selector',
             'endtime',
-            get_string('campaignend'),
-            'mod_booking',
+            get_string('campaignend', 'mod_booking'),
             time_handler::set_timeintervall(),
         );
         $mform->setType('endtime', PARAM_INT);
