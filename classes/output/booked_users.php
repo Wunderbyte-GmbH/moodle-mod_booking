@@ -29,6 +29,7 @@ namespace mod_booking\output;
 
 use local_wunderbyte_table\filters\types\datepicker;
 use local_wunderbyte_table\filters\types\standardfilter;
+use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
 use mod_booking\booking_answers\booking_answers;
 use mod_booking\booking_answers\scope_base;
@@ -238,13 +239,13 @@ class booked_users implements renderable, templatable {
      * @param string $scope
      * @param int $scopeid
      * @param int $statusparam
-     * @return \local_wunderbyte_table\wunderbyte_table|null
+     * @return ?wunderbyte_table
      */
     public function return_raw_table(
         string $scope,
         int $scopeid,
         int $statusparam
-    ): \local_wunderbyte_table\wunderbyte_table|null {
+    ): ?wunderbyte_table {
 
         if (!defined('PHPUNIT_TEST') || !PHPUNIT_TEST) {
             return null;
