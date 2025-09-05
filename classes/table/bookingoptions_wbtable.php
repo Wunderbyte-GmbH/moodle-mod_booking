@@ -62,7 +62,8 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright 2023 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class bookingoptions_wbtable extends wunderbyte_table {
+class bookingoptions_wbtable extends wunderbyte_table
+{
     /**
      * This function is called for each data row to allow processing of the
      * invisible value. It's called 'invisibleoption' so it does not interfere with
@@ -72,7 +73,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @return string $invisible Returns visibility of the booking option as string.
      * @throws coding_exception
      */
-    public function col_invisibleoption($values) {
+    public function col_invisibleoption($values)
+    {
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -100,7 +102,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @return string
      *
      */
-    public function col_image($values) {
+    public function col_image($values)
+    {
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -128,7 +131,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @return string $string Return name of the booking option.
      * @throws dml_exception
      */
-    public function col_teacher($values) {
+    public function col_teacher($values)
+    {
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -169,7 +173,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @return string $string Return a link to the responsible contact's user profile.
      * @throws dml_exception
      */
-    public function col_responsiblecontact($values) {
+    public function col_responsiblecontact($values)
+    {
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -186,7 +191,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
         }
         $responsiblestrings = [];
         foreach ($settings->responsiblecontact as $contactid) {
-            $user = singleton_service::get_instance_of_user((int)$contactid);
+            $user = singleton_service::get_instance_of_user((int) $contactid);
             if (empty($user)) {
                 continue;
             }
@@ -235,7 +240,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @return string $string Return name of the booking option.
      * @throws dml_exception
      */
-    public function col_booknow($values) {
+    public function col_booknow($values)
+    {
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -260,7 +266,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @param object $values
      * @return string
      */
-    public function col_price($values) {
+    public function col_price($values)
+    {
         if (!$this->is_downloading()) {
             return '';
         }
@@ -281,7 +288,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @param object $values
      * @return string
      */
-    public function col_invisible($values) {
+    public function col_invisible($values)
+    {
         if (!$this->is_downloading()) {
             return '';
         }
@@ -307,7 +315,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @return string $string Return name of the booking option.
      * @throws dml_exception
      */
-    public function col_text($values) {
+    public function col_text($values)
+    {
 
         global $PAGE;
 
@@ -354,9 +363,9 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
             // The current page is not /mod/booking/optionview.php.
             $url = new moodle_url("/mod/booking/optionview.php", [
-                "optionid" => (int)$settings->id,
-                "cmid" => (int)$cmid,
-                "userid" => (int)$buyforuser->id,
+                "optionid" => (int) $settings->id,
+                "cmid" => (int) $cmid,
+                "userid" => (int) $buyforuser->id,
                 'returnto' => 'url',
                 'returnurl' => $returnurl,
             ]);
@@ -387,7 +396,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @return string the progress bar HTML
      * @throws dml_exception
      */
-    public function col_progressbar($values) {
+    public function col_progressbar($values)
+    {
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -418,7 +428,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @return string the comments HTML
      * @throws dml_exception
      */
-    public function col_comments($values) {
+    public function col_comments($values)
+    {
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -438,7 +449,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
         // TODO: We still need to figure out how we can fix comments in combination with wb-table-search.
         // Notice: We already have a webservice called init_comments which might help us!
         //     // Important: Without init commenting won't work.
-		//     global $CFG;
+        //     global $CFG;
         //     require_once($CFG->dirroot. '/comment/lib.php');
 
         //     comment::init();
@@ -475,7 +486,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @return string the ratings HTML
      * @throws dml_exception
      */
-    public function col_ratings($values) {
+    public function col_ratings($values)
+    {
         global $DB, $USER;
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
@@ -548,7 +560,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
             if (!empty($context) && !empty($bookingsettings)) {
                 if ($bookingsettings->ratings > 0) {
                     $ratingshtml =
-                    "<div>
+                        "<div>
                         <select class='starrating' id='rate$values->id' data-current-rating='$myrating' data-itemid='$values->id'>
                             <option value='1'>1</option>
                             <option value='2'>2</option>
@@ -577,7 +589,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @return string $coursestarttime Returns course start time as a readable string.
      * @throws coding_exception
      */
-    public function col_bookings($values) {
+    public function col_bookings($values)
+    {
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -624,7 +637,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @return string location
      * @throws coding_exception
      */
-    public function col_location($values) {
+    public function col_location($values)
+    {
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -668,7 +682,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @return string institution
      * @throws coding_exception
      */
-    public function col_institution($values) {
+    public function col_institution($values)
+    {
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -691,7 +706,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @return string a link to the Moodle course - if there is one
      * @throws coding_exception
      */
-    public function col_course($values) {
+    public function col_course($values)
+    {
         global $USER;
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
@@ -726,7 +742,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
         if (
             get_config('booking', 'linktomoodlecourseonbookedbutton')
             && (!has_capability('mod/booking:updatebooking', $context)
-            && !$isteacherofthisoption)
+                && !$isteacherofthisoption)
         ) {
             return '';
         }
@@ -747,8 +763,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
             !empty($settings->courseid)
             && (
                 $status == MOD_BOOKING_STATUSPARAM_BOOKED
-                    || has_capability('mod/booking:updatebooking', $context)
-                    || $isteacherofthisoption
+                || has_capability('mod/booking:updatebooking', $context)
+                || $isteacherofthisoption
             )
         ) {
             // The link will be shown to everyone who...
@@ -772,7 +788,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @return string a link to the Moodle course - if there is one
      * @throws coding_exception
      */
-    public function col_courseshortname($values) {
+    public function col_courseshortname($values)
+    {
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
             $debugmessage = "bookingoptions_wbtable function col_courseshortname: ";
@@ -808,7 +825,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @return string $dayofweektime String for date series, e.g. "Mon, 16:00 - 17:00"
      * @throws coding_exception
      */
-    public function col_dayofweektime($values) {
+    public function col_dayofweektime($values)
+    {
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -837,7 +855,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @return string a string containing collapsible dates
      * @throws coding_exception
      */
-    public function col_showdates($values) {
+    public function col_showdates($values)
+    {
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -901,7 +920,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @throws moodle_exception
      * @throws coding_exception
      */
-    public function col_manageresponses($values) {
+    public function col_manageresponses($values)
+    {
         global $CFG, $DB;
 
         // Link is empty on default.
@@ -946,7 +966,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @throws moodle_exception
      * @throws coding_exception
      */
-    public function col_action($values) {
+    public function col_action($values)
+    {
         global $OUTPUT, $USER;
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
@@ -1039,7 +1060,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
                 new moodle_url(
                     '/mod/booking/editoptions.php',
                     [
-                        'id' => $cmid, 'optionid' => $optionid,
+                        'id' => $cmid,
+                        'optionid' => $optionid,
                         'returnto' => 'url',
                         'returnurl' => $returnurl,
                     ]
@@ -1058,7 +1080,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
                 ),
                 '<i class="icon fa fa-ticket fa-fw" aria-hidden="true"
                     aria-label="' . get_string('manageresponses', 'mod_booking') .
-                    '" title="' . get_string('manageresponses', 'mod_booking') . '" >
+                '" title="' . get_string('manageresponses', 'mod_booking') . '" >
                 </i>' .
                 get_string('manageresponses', 'mod_booking')
             ) . '</div>';
@@ -1074,7 +1096,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
                     ),
                     '<i class="icon fa fa-sitemap fa-fw" aria-hidden="true"
                         aria-label="' . get_string('bookingstracker', 'mod_booking') .
-                        '" title="' . get_string('bookingstracker', 'mod_booking') . '" >
+                    '" title="' . get_string('bookingstracker', 'mod_booking') . '" >
                     </i>' .
                     get_string('bookingstracker', 'mod_booking')
                 ) . '</div>';
@@ -1084,13 +1106,15 @@ class bookingoptions_wbtable extends wunderbyte_table {
             if (
                 has_capability('mod/booking:bookforothers', $context) &&
                 (has_capability('mod/booking:subscribeusers', $context) ||
-                booking_check_if_teacher($values))
+                    booking_check_if_teacher($values))
             ) {
                 $subscribeusersurl = new moodle_url(
                     '/mod/booking/subscribeusers.php',
-                    ['id' => $cmid, 'optionid' => $optionid,
-                    'returnto' => 'url',
-                    'returnurl' => $returnurl,
+                    [
+                        'id' => $cmid,
+                        'optionid' => $optionid,
+                        'returnto' => 'url',
+                        'returnurl' => $returnurl,
                     ]
                 );
                 $ddoptions[] = '<div class="dropdown-item">' .
@@ -1113,18 +1137,18 @@ class bookingoptions_wbtable extends wunderbyte_table {
             $link = $override->get_circumvent_link($optionid);
             if (!empty($link)) {
                 $ddoptions[] = '<div class="dropdown-item">' .
-                        html_writer::link(
-                            '#',
-                            $OUTPUT->pix_icon(
-                                'i/link',
-                                get_string('copycircumventlink', 'mod_booking')
-                            ) .
-                            get_string('copycircumventlink', 'mod_booking'),
-                            [
-                                'class' => 'copy_to_clipboard',
-                                'onclick' => "navigator.clipboard.writeText('$link'); return false;",
-                            ]
-                        ) . '</div>';
+                    html_writer::link(
+                        '#',
+                        $OUTPUT->pix_icon(
+                            'i/link',
+                            get_string('copycircumventlink', 'mod_booking')
+                        ) .
+                        get_string('copycircumventlink', 'mod_booking'),
+                        [
+                            'class' => 'copy_to_clipboard',
+                            'onclick' => "navigator.clipboard.writeText('$link'); return false;",
+                        ]
+                    ) . '</div>';
             }
 
             $ddoptions[] = '<div class="dropdown-item">' .
@@ -1145,8 +1169,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
                             't/email',
                             get_string('sendmailtoallbookedusers', 'mod_booking')
                         ) .
-                        get_string('sendmailtoallbookedusers', 'booking')) .
-                    '</div>';
+                            get_string('sendmailtoallbookedusers', 'booking')) .
+                        '</div>';
                 }
             }
 
@@ -1257,26 +1281,30 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
                 $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(new moodle_url(
                     '/mod/booking/editoptions.php',
-                    ['id' => $cmid, 'optionid' => -1, 'copyoptionid' => $optionid,
-                        'returnto' => 'url', 'returnurl' => $returnurl,
+                    [
+                        'id' => $cmid,
+                        'optionid' => -1,
+                        'copyoptionid' => $optionid,
+                        'returnto' => 'url',
+                        'returnurl' => $returnurl,
                     ]
                 ), $OUTPUT->pix_icon(
-                    't/copy',
-                    get_string('duplicatebookingoption', 'mod_booking')
-                ) .
-                        get_string('duplicatebookingoption', 'mod_booking')) . '</div>';
+                        't/copy',
+                        get_string('duplicatebookingoption', 'mod_booking')
+                    ) .
+                    get_string('duplicatebookingoption', 'mod_booking')) . '</div>';
 
                 $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
                     new moodle_url('/mod/booking/report.php', [
-                            'id' => $cmid,
-                            'optionid' => $optionid,
-                            'action' => 'deletebookingoption',
-                            'sesskey' => sesskey(),
-                            'returnto' => 'url',
-                            'returnurl' => $returnurl,
-                        ]),
+                        'id' => $cmid,
+                        'optionid' => $optionid,
+                        'action' => 'deletebookingoption',
+                        'sesskey' => sesskey(),
+                        'returnto' => 'url',
+                        'returnurl' => $returnurl,
+                    ]),
                     $OUTPUT->pix_icon('t/delete', get_string('deletethisbookingoption', 'mod_booking')) .
-                            get_string('deletethisbookingoption', 'mod_booking')
+                    get_string('deletethisbookingoption', 'mod_booking')
                 ) . '</div>';
             }
             // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
@@ -1308,8 +1336,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
         if (!empty($ddoptions)) {
             $ret .= '<div class="dropdown d-inline">
                     <button class="bookingoption-edit-button dropdown-toggle btn btn-light btn-sm" id="action-menu-toggle-' .
-                        $optionid .
-                        '" title="" role="button" data-toggle="dropdown"
+                $optionid .
+                '" title="" role="button" data-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false">
                         <i class="icon fa fa-cog fa-fw" aria-hidden="true"
                             aria-label="' . get_string('settings') . '" title="' . get_string('settings') . '" >
@@ -1336,7 +1364,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @return string a string containing the minanswers description and value
      * @throws coding_exception
      */
-    public function col_minanswers($values) {
+    public function col_minanswers($values)
+    {
         $ret = '';
         if (!empty($values->minanswers)) {
             if (!$this->is_downloading()) {
@@ -1355,7 +1384,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @return string a string containing the text depending on userstatus
      * @throws coding_exception
      */
-    public function col_statusdescription($values) {
+    public function col_statusdescription($values)
+    {
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -1400,7 +1430,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @return string $ret the return string
      * @throws coding_exception
      */
-    public function col_description($values) {
+    public function col_description($values)
+    {
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -1428,21 +1459,34 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $ret = format_text($description);
 
         if (!empty(get_config('booking', 'collapsedescriptionmaxlength'))) {
-            $maxlength = (int)get_config('booking', 'collapsedescriptionmaxlength');
+            // Use the renderer to output this column.
+            $lang = current_language();
+            $optionid = $values->id;
 
-            // Show collapsible for long descriptions.
-            $shortdescription = strip_tags($ret, '<br>');
-            if (strlen($shortdescription) > $maxlength) {
-                $ret =
-                    '<div>
-                        <a data-toggle="collapse" href="#collapseDescription' . $values->id . '" role="button"
-                            aria-expanded="false" aria-controls="collapseDescription">
-                            <i class="fa fa-info-circle" aria-hidden="true"></i>&nbsp;' .
-                            get_string('showdescription', 'mod_booking') . '...</a>
-                    </div>
-                    <div class="collapse" id="collapseDescription' . $values->id . '">
-                        <div class="card card-body border-1 mt-1 mb-1 mr-3">' . $ret . '</div>
-                    </div>';
+            $cachekey = "shortdescription$optionid$lang";
+            $cache = cache::make($this->cachecomponent, $this->rawcachename);
+
+            if (
+                !$ret = $cache->get($cachekey)
+            ) {
+                $maxlength = (int) get_config('booking', 'collapsedescriptionmaxlength');
+                $ret = $description;
+                // Show collapsible for long descriptions.
+                $shortdescription = strip_tags($ret, '<br>');
+                if (strlen($shortdescription) > $maxlength) {
+                    $ret =
+                        '<div>
+                            <a data-toggle="collapse" href="#collapseDescription' . $values->id . '" role="button"
+                                aria-expanded="false" aria-controls="collapseDescription">
+                                <i class="fa fa-info-circle" aria-hidden="true"></i>&nbsp;' .
+                        get_string('showdescription', 'mod_booking') . '...</a>
+                        </div>
+                        <div class="collapse" id="collapseDescription' . $values->id . '">
+                            <div class="card card-body border-1 mt-1 mb-1 mr-3">' . $ret . '</div>
+                        </div>';
+                }
+
+                $cache->set($cachekey, $ret);
             }
         }
 
@@ -1457,7 +1501,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @return string a string containing the booking opening time
      * @throws coding_exception
      */
-    public function col_bookingopeningtime($values) {
+    public function col_bookingopeningtime($values)
+    {
         $bookingopeningtime = $values->bookingopeningtime;
         if (empty($bookingopeningtime)) {
             return '';
@@ -1481,7 +1526,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @return string a string containing the booking closing time
      * @throws coding_exception
      */
-    public function col_bookingclosingtime($values) {
+    public function col_bookingclosingtime($values)
+    {
         $bookingclosingtime = $values->bookingclosingtime;
         if (empty($bookingclosingtime)) {
             return '';
@@ -1505,7 +1551,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @return string a string containing a link to the attachment
      * @throws coding_exception
      */
-    public function col_attachment($values) {
+    public function col_attachment($values)
+    {
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -1527,7 +1574,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @return string a string containing a link to the attachment
      * @throws coding_exception
      */
-    public function col_competencies($values) {
+    public function col_competencies($values)
+    {
         if (empty($values->competencies)) {
             return '';
         }
