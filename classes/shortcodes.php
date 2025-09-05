@@ -1431,9 +1431,9 @@ class shortcodes {
                     $bookings[] = $booking->id;
                 }
             }
-                [$inorequal, $tempparams] = $DB->get_in_or_equal($bookings, SQL_PARAMS_NAMED);
-                $additionalwhere = " (bookingid $inorequal) ";
-                $params = array_merge($tempparams, $params ?? []);
+            [$inorequal, $tempparams] = $DB->get_in_or_equal($bookings, SQL_PARAMS_NAMED);
+            $additionalwhere = " (bookingid $inorequal) ";
+            $params = array_merge($tempparams, $params ?? []);
         }
         if (empty($additionalwhere)) {
             $additionalwhere = " ( bookingid > 0 ) ";
