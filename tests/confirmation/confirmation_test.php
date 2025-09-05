@@ -867,9 +867,9 @@ final class confirmation_test extends advanced_testcase {
      * This function returns the table that the approver will see in the UI.
      * With this table, we can determine the actual records that will be returned to the approver.
      *
-     * @return wunderbyte_table|null
+     * @return ?wunderbyte_table
      */
-    private function get_booked_users_table(): wunderbyte_table|null {
+    private function get_booked_users_table(): ?wunderbyte_table {
         $bookeduserstable = new booked_users(
             'optionstoconfirm',
             0,
