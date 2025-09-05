@@ -712,14 +712,14 @@ class bo_info {
                 if (class_exists('local_shopping_cart\shopping_cart')) {
                     shopping_cart::add_item_to_cart('mod_booking', 'option', $optionid, $userid);
                 } else {
-                    throw new moodle_exception('tousepriceinstallshoppingcart', 'mod_booking');
+                    throw new moodle_exception('error:tousepriceinstallshoppingcart', 'mod_booking');
                 }
             }
         }
 
         // We throw an exception if we didn't get a valid pagenumber.
         if (empty($condition)) {
-            throw new moodle_exception('wrongpagenumberforprebookingpage', 'mod_booking');
+            throw new moodle_exception('error:wrongpagenumberforprebookingpage', 'mod_booking');
         }
 
         $data = self::return_data_for_steps($conditions, $pagenumber);

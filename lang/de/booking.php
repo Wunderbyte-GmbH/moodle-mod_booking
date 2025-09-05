@@ -49,7 +49,6 @@ $string['addcustomfieldorcomment'] = 'Kommentar oder benutzerdefiniertes Feld hi
 $string['adddatebutton'] = "Füge Datum hinzu";
 $string['addedrecords'] = '{$a} Eintrag/Einträge hinzugefügt.';
 $string['addholiday'] = 'Ferien(tag) hinzufügen';
-$string['additionalfields'] = 'Zusätzliche Felder';
 $string['additionalpricecategories'] = 'Preiskategorien hinzufügen oder bearbeiten';
 $string['addmorebookings'] = 'Buchungen hinzufügen';
 $string['addnewcategory'] = 'Neue Kategorie hinzufügen';
@@ -933,10 +932,6 @@ $string['customfieldvalue_help'] = 'Sie können einen beliebigen Wert für das F
                                         <li>BigBlueButtonMeeting</li>
                                     </ul> verwendet haben, geben Sie den vollständigen Link zum Meeting beginnend mit https:// oder http:// an.';
 $string['customform'] = "Customform";
-$string['customformenrolmultipleusers'] = '<div class="alert alert-info" role="alert">
-<i class="fa fa-info-circle" aria-hidden="true"></i>&nbsp;
-Geben Sie die Standard-Anzahl der Nutzer:innen ein, für die gebucht werden soll (kann von der buchenden Person geändert werden).
-</div>';
 $string['customformnotchecked'] = 'Noch nicht akzeptiert.';
 $string['customformparams_desc'] = "Benutze die Parameter aus der customform.";
 $string['customformparamsvalue'] = "Customform Parameter";
@@ -964,18 +959,6 @@ $string['customreporttemplate'] = 'Vorlage für benutzerdefinierten Bericht';
 $string['customreporttemplates'] = 'Vorlagen für benutzerdefinierte Berichte';
 $string['customuserprofilefield'] = "Benutzerdefiniertes User Profilfeld";
 $string['customuserprofilefield_help'] = "Wenn Sie ein Benutzerdefiniertes User Profilfeld auswählen, ist der Preis-Teil der Kampagne nur für NutzerInnen wirksam, die auch einen bestimmten Wert in einem bestimmten Profilfeld haben.";
-$string['dashboard_auswertung'] = 'Auswertung';
-$string['dashboard_bookingfields'] = 'Buchungsoptionsfelder';
-$string['dashboard_managelocation'] = 'Standorte verwalten';
-$string['dashboard_mydashboard'] = 'Mein Dashboard';
-$string['dashboard_neue_stornos'] = 'Neue Stornos';
-$string['dashboard_new_bookings'] = 'Buchungen';
-$string['dashboard_noshows'] = 'Nicht erschienen';
-$string['dashboard_organisation'] = 'Organisation';
-$string['dashboard_overview'] = 'Übersicht';
-$string['dashboard_ppl_wl'] = 'Personen in Wartelisten';
-$string['dashboard_stats'] = 'Auswertung';
-$string['dashboard_zeitraum'] = 'Zeitraum';
 $string['dashboardsummary'] = 'Allgemein';
 $string['dashboardsummary_desc'] = 'Enthält Konfiguration und Einstellungen für die gesamte Moodle Seite.';
 $string['dataincomplete'] = 'Der Datensatz mit "componentid" {$a->id} ist unvollständig und konnte nicht gänzlich eingefügt werden. Überprüfen Sie das Feld "{$a->field}".';
@@ -1253,6 +1236,9 @@ $string['error:selflearningcourseallowsnodates'] = 'Buchungsoptionen vom Typ "{$
 $string['error:semestermissingbutcanceldependentonsemester'] = 'Die Einstellung zur Berechnung der
 Stornierungsfrist ab Semesterbeginn ist aktiv, aber das Semester fehlt!';
 $string['error:taskalreadystarted'] = 'Sie haben bereits einen Task gestartet!';
+$string['error:tousepriceinstallshoppingcart'] = 'Sie müssen das Warenkorb-Plugin (local_shopping_cart) installieren,
+wenn Sie möchten, dass Benutzer etwas kaufen können, das einen Preis hat.';
+$string['error:wrongpagenumberforprebookingpage'] = 'Die Seitenzahl für die Vorbuchungsseite ist ungültig.';
 $string['error:wrongteacherid'] = 'Fehler: Für die angegebene "teacherid" wurde kein:e Nutzer:in gefunden.';
 $string['errorduplicatepricecategoryidentifier'] = 'Identifikatoren von Preiskategorien müssen eindeutig sein.';
 $string['errorduplicatepricecategoryname'] = 'Namen von Preiskategorien müssen eindeutig sein.';
@@ -1611,11 +1597,6 @@ $string['mobileresetsubmission'] = 'Einreichungsformular zurücksetzen';
 $string['mobilesetsubmission'] = 'Einreichen';
 $string['mobilesettings'] = 'Einstellungen für die Moodle App';
 $string['mobilesettings_desc'] = 'Hier können Sie besondere Einstellungen für die Moodle Mobile App treffen.';
-$string['mobilesubmission'] = 'Mobile Einreichung';
-$string['mobilesubmissiondisabled'] = 'Mobile Einreichung ist deaktiviert';
-$string['mobilesubmissionenabled'] = 'Mobile Einreichung ist aktiviert';
-$string['mobilesubmissionform'] = 'Mobile Einreichungsformular';
-$string['mobilesubmissionform_desc'] = 'Einschalten oder Ausschalten der mobilen Einreichungsformulare';
 $string['mobilesubmittedsuccess'] = 'Sie können fortfahren und den Kurs buchen';
 $string['mobileviewoptionsdesc'] = 'Auswahl der möglichen Ansichten in der Mobilen-Ansicht';
 $string['mobileviewoptionstext'] = 'Mobile Ansichten';
@@ -1628,7 +1609,6 @@ $string['mod/booking:reducedoptionform4'] = 'Buchungsoption reduziert 4';
 $string['mod/booking:reducedoptionform5'] = 'Buchungsoption reduziert 5';
 $string['mod/booking:seepersonalteacherinformation'] = 'Detailinfos über Lehrende anzeigen';
 $string['modaloptiondateformtitle'] = 'Benutzerdefinierte Termine';
-$string['modelinformation'] = 'Dieses Feld ist notwendig, um Fragen vollständig zu erfassen. Ist das Feld leer, kann die Frage lediglich einer Skala zugeordnet werden.';
 $string['modulename'] = 'Buchung';
 $string['modulenameplural'] = 'Buchungen';
 $string['monday'] = 'Montag';
@@ -2731,7 +2711,6 @@ $string['viewparam:listimglefthalf'] = 'Listen-Ansicht mit Bild links über die 
 $string['viewparam:listimgright'] = 'Listen-Ansicht mit Bild rechts';
 $string['visibilitystatus'] = 'Sichtbarkeitsstatus';
 $string['visibleoptions'] = 'Sichtbare Buchungsoptionen';
-$string['vue_dashboard_booking_instances'] = 'Booking instances';
 $string['vuebookingstatsback'] = 'Zurück';
 $string['vuebookingstatsbooked'] = 'Gebucht';
 $string['vuebookingstatsbookingoptions'] = 'Buchungsoptionen';
