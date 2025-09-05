@@ -232,9 +232,9 @@ class customform_form extends dynamic_form {
                                             (int) $formdata['userid'],
                                             (int) $formdata['id']
                                         );
-                                        $price = $customformstore->get_price_and_currency_for_user($linearray[3]);
-                                        if (!empty($price)) {
-                                            $priceinfostring = ' (+' . $price . ')';
+                                        $priceandcurrency = $customformstore->get_price_and_currency_for_user($linearray[3]);
+                                        if (!empty($priceandcurrency)) {
+                                            $priceinfostring = ' (+' . $priceandcurrency . ')';
                                         }
                                     }
                                     // Append infos to select.
