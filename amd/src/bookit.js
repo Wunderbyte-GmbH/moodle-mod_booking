@@ -68,6 +68,11 @@ export const initbookitbutton = () => {
                 return;
             }
 
+            // Ignore disabled buttons
+            if (button.dataset.nojs == 1) {
+                return;
+            }
+
             const {itemid, area, userid} = button.dataset;
 
             if (e.target.classList.contains('shopping-cart-cancel-button')) {
