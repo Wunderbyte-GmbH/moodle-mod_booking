@@ -27,10 +27,7 @@ $string['bookingextensionconfirmationtrainer:confirmationtrainerenabled_desc'] =
 $string['bookingextensionconfirmationtrainer:confirmationtrainerenabledinbookingoption'] = 'Display in booking option settings';
 $string['bookingextensionconfirmationtrainer:confirmationtrainerenabledinbookingoption_desc'] = 'Make it visible in booking option settings';
 $string['bookingextensionconfirmationtrainer:heading'] = "Confirmation by trainer";
-$string['bookingextensionconfirmationtrainer:heading_desc'] = 'Supervisor confirmation allows you to store the Moodle IDs of supervisors in the defined user profile field. These supervisors can then issue approvals. In addition, it is possible to appoint deputies. To do so, enter the user ID(s) of the deputy/deputies into the selected profile field of the supervisor. Deputies are granted the same rights as the supervisor.
-This function can also be combined with fixed users ("confirmation_supervisor_hrusers"). If the standard option "confirmation by trainer" is also selected, trainers will additionally be able to approve.
-Detailed settings for the confirmation of individual booking options can be configured directly in their respective settings (e.g., defining the sequence of the confirmation process).';
-$string['confirmationtrainerenabled'] = 'Allow confirmation by trainer';
+$string['bookingextensionconfirmationtrainer:heading_desc'] = 'Allow confirmation by trainer(s) of the bookingoption. If you active other confirmation extensions the confirmation can be from any of the active extensions.';
 $string['notallowedtoconfirm'] = "Not allowed to confirm";
 $string['pluginname'] = 'Confirmation workflow by trainer';
 $string['workflowdescription'] = 'In the standard workflow, users will just book on the waitinglist, if in a booking option the "Book only after confirmation"-checkbox is set. As a teacher or any person, who has the corresponding capabilities (mod/booking:bookforothers & mod/booking:subscribeusers) you can view the users on the waitinglist and, from there, confirm users.';
