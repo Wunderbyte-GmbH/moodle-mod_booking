@@ -334,6 +334,9 @@ $data = new booked_users(
     true,
     true,
     true,
+    true,
+    false,
+    false,
     true
 );
 /** @var renderer $renderer */

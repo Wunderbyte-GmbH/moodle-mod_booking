@@ -1934,6 +1934,7 @@ $string['presenceoptions_desc'] = "Which status should be possible?";
 $string['presencestatustoissuecertificate'] = 'Certification issue with presence status <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['presencestatustoissuecertificate_desc'] = "If set, you can trigger the issue of a certificate ONLY with the chosen presence. The completion of the booking option then no longer issues a certificate.";
 $string['previous'] = 'Previous';
+$string['previouselybooked'] = 'Previousely booked';
 $string['price'] = 'Price';
 $string['pricecategories'] = 'Booking: Price categories';
 $string['pricecategoriessaved'] = 'Price categories were saved';
@@ -2692,6 +2693,7 @@ $string['thankyouwaitinglist'] = '<i class="fa fa-3x fa-clock-o text-primary" ar
 $string['thisinstance'] = 'This booking instance';
 $string['thursday'] = 'Thursday';
 $string['timeawarded'] = 'Awarded on';
+$string['timebooked'] = 'Time booked';
 $string['timecreated'] = 'Time created';
 $string['timefilter:bookingtime'] = 'Booking time';
 $string['timefilter:coursetime'] = 'Course time';
