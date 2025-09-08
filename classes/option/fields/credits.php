@@ -39,7 +39,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class credits extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -91,7 +90,8 @@ class credits extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         return parent::prepare_save_field($formdata, $newoption, $updateparam, '');
     }
@@ -142,8 +142,11 @@ class credits extends field_base {
         $cachekey = $userid . "_" . $newanswer->optionid . '_bookwithcredits';
         // Only if we find the form in cache, we save it to the answer.
         // We can just overwrite any preivous answer.
-        if ($data = $cache->get($cachekey)) {
-
+        $data = $cache->get($userid);
+        if (
+            $data !== false
+            && isset($data[$cachekey])
+        ) {
             if (!isset($newanswer->json)) {
                 $jsonobject = new stdClass();
             } else {
