@@ -171,6 +171,7 @@ class bookings extends external_api {
                         $option['teachers'] = [];
 
                         $settings = singleton_service::get_instance_of_booking_option_settings($record->id);
+                        $option['imgurl'] = $settings->imageurl ?? '';
 
                         if ($printusers) {
                             $ba = singleton_service::get_instance_of_booking_answers($settings);
@@ -259,6 +260,7 @@ class bookings extends external_api {
                             'location' => new external_value(PARAM_TEXT, 'Location'),
                             'institution' => new external_value(PARAM_TEXT, 'Institution'),
                             'address' => new external_value(PARAM_TEXT, 'Address'),
+                            'imgurl' => new external_value(PARAM_URL, 'Image url5'),
                             'users' => new external_multiple_structure(new external_single_structure(
                                 [
                                     'id' => new external_value(PARAM_INT, 'User ID'),
