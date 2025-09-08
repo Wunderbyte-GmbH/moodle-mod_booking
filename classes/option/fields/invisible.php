@@ -105,7 +105,10 @@ class invisible extends field_base {
             // The option is new.
             $newoption->timemadevisible = time();
         } else if (
-            $change['fieldname'] == 'invisible'
+            isset($change['fieldname'])
+            && isset($change['oldvalue'])
+            && isset($change['newvalue'])
+            && $change['fieldname'] == 'invisible'
             && in_array($change['oldvalue'], [1, 2]) // Was invisible.
             && $change['newvalue'] == 0 // Was set to visible.
         ) {
