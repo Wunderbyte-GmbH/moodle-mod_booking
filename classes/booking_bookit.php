@@ -304,28 +304,28 @@ class booking_bookit {
                 $cache = cache::make('mod_booking', 'confirmbooking');
                 $cachekey = $userid . "_" . $settings->id . "_bookit";
                 $now = time();
-                $cache->set($cachekey, $now);
+                $cache->set($userid, [$cachekey => $now]);
 
                 $isavailable = false;
             } else if ($id === MOD_BOOKING_BO_COND_BOOKWITHCREDITS) {
                 $cache = cache::make('mod_booking', 'confirmbooking');
                 $cachekey = $userid . "_" . $settings->id . "_bookwithcredits";
                 $now = time();
-                $cache->set($cachekey, $now);
+                $cache->set($userid, [$cachekey => $now]);
 
                 $isavailable = false;
             } else if ($id === MOD_BOOKING_BO_COND_BOOKWITHSUBSCRIPTION) {
                 $cache = cache::make('mod_booking', 'confirmbooking');
                 $cachekey = $userid . "_" . $settings->id . "_bookwithsubscription";
                 $now = time();
-                $cache->set($cachekey, $now);
+                $cache->set($userid, [$cachekey => $now]);
 
                 $isavailable = false;
             } else if ($id === MOD_BOOKING_BO_COND_CONFIRMBOOKIT) {
                 // Make sure cache is not blocking anymore.
                 $cache = cache::make('mod_booking', 'confirmbooking');
                 $cachekey = $userid . "_" . $settings->id . '_bookit';
-                $cache->delete($cachekey);
+                $cache->delete($userid);
 
                 // This means we can actuall book.
                 $isavailable = true;
@@ -337,7 +337,7 @@ class booking_bookit {
                 // Now, before actually booking, we also need to subtract the credit from the concerned user.
                 // Get the used custom profile field.
                 if (!$profilefield = get_config('booking', 'bookwithcreditsprofilefield')) {
-                    $cache->delete($cachekey);
+                    $cache->delete($userid);
                     throw new moodle_exception('nocreditsfielddefined', 'mod_booking');
                 }
 
@@ -374,7 +374,7 @@ class booking_bookit {
                     $cache = cache::make('mod_booking', 'confirmbooking');
                     $cachekey = $userid . "_" . $settings->id . "_cancel";
                     $now = time();
-                    $cache->set($cachekey, $now);
+                    $cache->set($userid, [$cachekey => $now]);
                 }
             } else if ($id === MOD_BOOKING_BO_COND_CONFIRMCANCEL) {
                 // Here we are already one step further and only confirm the cancelation.
@@ -383,7 +383,7 @@ class booking_bookit {
                 // Make sure cache is not blocking anymore.
                 $cache = cache::make('mod_booking', 'confirmbooking');
                 $cachekey = $userid . "_" . $settings->id . '_cancel';
-                $cache->delete($cachekey);
+                $cache->delete($userid);
 
                 return [
                     'status' => 1,
