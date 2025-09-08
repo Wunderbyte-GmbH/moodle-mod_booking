@@ -287,9 +287,6 @@ class booking_option_settings {
     /** @var int $confirmationonnotification Only books to waitinglist and manually confirm every booking. */
     public $confirmationonnotification = 0;
 
-    /** @var int $confirmationonnotificationoneatatime Only books to waitinglist and manually confirm every booking. */
-    public $confirmationonnotificationoneatatime = 0;
-
     /** @var int $useprice flag that indicates if we use price or not */
     public $useprice = 0;
 
@@ -1157,12 +1154,6 @@ class booking_option_settings {
                 $dbrecord->confirmationonnotification = $this->confirmationonnotification;
             }
 
-            if (!empty($this->jsonobject->confirmationonnotificationoneatatime)) {
-                $this->confirmationonnotificationoneatatime = (int)$this->jsonobject->confirmationonnotificationoneatatime;
-                $this->jsonobject->confirmationonnotificationoneatatime = $this->confirmationonnotificationoneatatime;
-                $dbrecord->confirmationonnotificationoneatatime = $this->confirmationonnotificationoneatatime;
-            }
-
             // Selflearningcourse flag for course with duration but no optiondates.
             if (!empty($this->jsonobject->selflearningcourse)) {
                 $this->selflearningcourse = (int)$this->jsonobject->selflearningcourse;
@@ -1176,7 +1167,6 @@ class booking_option_settings {
             $this->selflearningcourse = $dbrecord->selflearningcourse ?? 0;
             $this->waitforconfirmation = $dbrecord->waitforconfirmation ?? 0;
             $this->confirmationonnotification = $dbrecord->confirmationonnotification ?? 0;
-            $this->confirmationonnotificationoneatatime = $dbrecord->confirmationonnotificationoneatatime ?? 0;
             $this->jsonobject = $dbrecord->jsonobject ?? null;
         }
     }

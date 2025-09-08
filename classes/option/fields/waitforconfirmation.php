@@ -97,13 +97,6 @@ class waitforconfirmation extends field_base {
             booking_option::add_data_to_json($newoption, "waitforconfirmation", $formdata->waitforconfirmation);
             if (isset($formdata->confirmationonnotification)) {
                 booking_option::add_data_to_json($newoption, "confirmationonnotification", $formdata->confirmationonnotification);
-                if (isset($formdata->confirmationonnotificationoneatatime)) {
-                    booking_option::add_data_to_json(
-                        $newoption,
-                        "confirmationonnotificationoneatatime",
-                        $formdata->confirmationonnotification
-                    );
-                }
             }
         }
 
@@ -176,14 +169,6 @@ class waitforconfirmation extends field_base {
             );
             $mform->hideIf('confirmationonnotificationwarning', 'confirmationonnotification', 'eq', 0);
         }
-
-        $mform->addElement(
-            'advcheckbox',
-            'confirmationonnotificationoneatatime',
-            get_string('confirmationonnotificationoneatatime', 'mod_booking')
-        );
-        $mform->hideIf('confirmationonnotificationoneatatime', 'confirmationonnotification', 'unchecked');
-        $mform->hideIf('confirmationonnotificationoneatatime', 'waitforconfirmation', 'neq', 2);
     }
 
     /**
@@ -206,13 +191,6 @@ class waitforconfirmation extends field_base {
                 $confirmationonnotification = booking_option::get_value_of_json_by_key($data->id, "confirmationonnotification");
                 if (!empty($confirmationonnotification)) {
                     $data->confirmationonnotification = $confirmationonnotification;
-                }
-                $confirmationonnotificationoneatatime = booking_option::get_value_of_json_by_key(
-                    $data->id,
-                    "confirmationonnotificationoneatatime"
-                );
-                if (!empty($confirmationonnotificationoneatatime)) {
-                    $data->confirmationonnotificationoneatatime = $confirmationonnotificationoneatatime;
                 }
             }
         }
