@@ -5048,5 +5048,19 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2025081201, 'booking');
     }
 
+    if ($oldversion < 2025090908) {
+        // Define field timebooked to be added to booking_answers.
+        $table = new xmldb_table('booking_answers');
+        $field = new xmldb_field('timebooked', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'json');
+
+        // Conditionally launch add field timebooked.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2025090908, 'booking');
+    }
+
     return true;
 }

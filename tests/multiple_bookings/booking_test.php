@@ -30,6 +30,10 @@ use local_shopping_cart\shopping_cart;
 use local_shopping_cart\local\cartstore;
 use local_shopping_cart_generator;
 
+defined('MOODLE_INTERNAL') || die();
+global $CFG;
+require_once($CFG->dirroot . '/mod/booking/lib.php');
+
 /**
  * Tests booking when multiple bookings is enabled.
  *

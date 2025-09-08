@@ -105,9 +105,9 @@ class alreadybooked implements bo_condition {
 
         $allanswers = $bookinganswer->get_users();
         $currentanswer = $allanswers[$USER->id] ?? null;
-        $timebooked = (int) (empty($currentanswer) ) ? 0 : $currentanswer->timemodified;
-        // TODO: MDL-0 Replace timemodified with timebooked
-        // after the column is added to booking_answers table.
+
+        // Get the real booking time.
+        $timebooked = (int) (empty($currentanswer) ) ? 0 : $currentanswer->timebooked;
 
         // Check if multiple bookings are enabled and if the required time to wait before
         // the next book is passed, then this condition does not blocks.

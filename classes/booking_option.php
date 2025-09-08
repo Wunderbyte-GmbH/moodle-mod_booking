@@ -1280,8 +1280,7 @@ class booking_option {
                         // is trying to book the option after the configured period of time.
                         // If the configured time has not passed, we don’t allow the user to book an option again.
                         $allowtobookagainafter = self::get_value_of_json_by_key($this->id, 'allowtobookagainafter');
-                        // TODO: MDL-0 replace timemodified with timebooked to calculate required passed rime correctly.
-                        if ($currentanswer->timemodified + $allowtobookagainafter >= time()) {
+                        if ($currentanswer->timebooked + $allowtobookagainafter > time()) {
                             return true;
                         }
 
@@ -1470,6 +1469,14 @@ class booking_option {
         $newanswer->timemodified = $now;
         $newanswer->timecreated = $timecreated ?? $now;
         $newanswer->waitinglist = $waitinglist;
+
+        // Store the real booking time in the bookinganswers table.
+        // The real booking time is the moment when the user's booking process is finished.
+        // To determine this moment, we can check the value of the waitinglist column
+        // when it is set to MOD_BOOKING_STATUSPARAM_BOOKED.
+        if ($waitinglist == MOD_BOOKING_STATUSPARAM_BOOKED) {
+            $newanswer->timebooked = $now;
+        }
 
         // When a user submits a userform, we need to save this as well.
         customform::add_json_to_booking_answer($newanswer, $userid);
