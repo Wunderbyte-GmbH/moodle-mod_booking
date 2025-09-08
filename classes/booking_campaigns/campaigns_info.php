@@ -46,7 +46,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class campaigns_info {
-
     /**
      * Add form fields to mform.
      *
@@ -54,8 +53,10 @@ class campaigns_info {
      * @param ?array $ajaxformdata
      * @return void
      */
-    public static function add_campaigns_to_mform(MoodleQuickForm &$mform,
-        ?array &$ajaxformdata = null) {
+    public static function add_campaigns_to_mform(
+        MoodleQuickForm &$mform,
+        ?array &$ajaxformdata = null
+    ) {
 
         // First, get all the type of campaigns there are.
         $campaigns = self::get_campaigns();
@@ -73,19 +74,32 @@ class campaigns_info {
         $buttonargs = ['class' => 'd-none'];
 
         $categoryselect = [
-            $mform->createElement('select', 'bookingcampaigntype',
-            get_string('campaigntype', 'mod_booking'), $campaignsforselect),
-            $mform->createElement('submit', 'btn_bookingcampaigntype',
-                get_string('bookingcampaign', 'mod_booking'), $buttonargs),
+            $mform->createElement(
+                'select',
+                'bookingcampaigntype',
+                get_string('campaigntype', 'mod_booking'),
+                $campaignsforselect
+            ),
+            $mform->createElement(
+                'submit',
+                'btn_bookingcampaigntype',
+                get_string('bookingcampaign', 'mod_booking'),
+                $buttonargs
+            ),
         ];
-        $mform->addGroup($categoryselect, 'bookingcampaigntype',
-            get_string('campaigntype', 'mod_booking'), [' '], false);
+        $mform->addGroup(
+            $categoryselect,
+            'bookingcampaigntype',
+            get_string('campaigntype', 'mod_booking'),
+            [' '],
+            false
+        );
         $mform->setType('btn_bookingcampaigntype', PARAM_NOTAGS);
 
         if (isset($ajaxformdata['bookingcampaigntype'])) {
             $campaign = self::get_campaign_by_name($ajaxformdata['bookingcampaigntype']);
         } else {
-            list($campaign) = $campaigns;
+            [$campaign] = $campaigns;
         }
 
         if (empty($campaign)) {
@@ -106,7 +120,7 @@ class campaigns_info {
             'booking_campaigns\campaigns'
         );
 
-        return array_map(fn($a) => new $a, array_keys($campaigns));
+        return array_map(fn($a) => new $a(), array_keys($campaigns));
     }
 
     /**
@@ -117,7 +131,7 @@ class campaigns_info {
     public static function get_campaign_by_type(int $campaigntype) {
 
         $campaignname = '';
-        switch($campaigntype) {
+        switch ($campaigntype) {
             case MOD_BOOKING_CAMPAIGN_TYPE_CUSTOMFIELD:
                 $campaignname = 'campaign_customfield';
                 break;
@@ -172,7 +186,6 @@ class campaigns_info {
         $campaign->set_defaults($data, $record);
 
         return (object)$data;
-
     }
 
     /**
@@ -268,10 +281,15 @@ class campaigns_info {
     public static function add_customfields_to_form(MoodleQuickForm &$mform, ?array &$ajaxformdata = null) {
         global $DB;
         $mform->addElement('text', 'name', get_string('campaignname', 'mod_booking'));
-        $mform->addHelpButton('name', 'campaign_name', 'mod_booking');
+        $mform->addHelpButton('name', 'campaignname', 'mod_booking');
+        $mform->setType('name', PARAM_TEXT);
 
-        $mform->addElement('static', 'warning', '',
-                get_string('optionspecificcampaignwarning', 'mod_booking'));
+        $mform->addElement(
+            'static',
+            'warning',
+            '',
+            get_string('optionspecificcampaignwarning', 'mod_booking')
+        );
 
         // Custom field name.
         $records = booking_handler::get_customfields();
@@ -282,8 +300,12 @@ class campaigns_info {
             $fieldnames[$record->shortname] = $record->name;
         }
 
-        $mform->addElement('select', 'bofieldname',
-            get_string('campaignfieldname', 'mod_booking'), $fieldnames);
+        $mform->addElement(
+            'select',
+            'bofieldname',
+            get_string('campaignfieldname', 'mod_booking'),
+            $fieldnames
+        );
         $mform->addHelpButton('bofieldname', 'campaignfieldname', 'mod_booking');
         $mform->registerNoSubmitButton('btn_bofieldname');
         $mform->addElement(
@@ -298,8 +320,12 @@ class campaigns_info {
             '!~' => get_string('containsnotplain', 'mod_booking'),
         ];
 
-        $mform->addElement('select', 'campaignfieldnameoperator',
-            get_string('blockoperator', 'mod_booking'), $operators);
+        $mform->addElement(
+            'select',
+            'campaignfieldnameoperator',
+            get_string('blockoperator', 'mod_booking'),
+            $operators
+        );
         $mform->hideIf('campaignfieldnameoperator', 'bofieldname', 'eq', "0");
 
         $fieldvalues = [];
@@ -337,8 +363,13 @@ class campaigns_info {
             'tags' => true,
             'multiple' => false,
         ];
-        $mform->addElement('autocomplete', 'fieldvalue',
-            get_string('campaignfieldvalue', 'mod_booking'), $fieldvalues, $options);
+        $mform->addElement(
+            'autocomplete',
+            'fieldvalue',
+            get_string('campaignfieldvalue', 'mod_booking'),
+            $fieldvalues,
+            $options
+        );
         $mform->addHelpButton('fieldvalue', 'campaignfieldvalue', 'mod_booking');
         $mform->hideIf('fieldvalue', 'bofieldname', 'eq', "0");
 
@@ -348,16 +379,24 @@ class campaigns_info {
             $customuserprofilefieldsarray = [];
             $customuserprofilefieldsarray[0] = get_string('choose...', 'mod_booking');
 
-            $mform->addElement('static', 'warning', '',
-                get_string('userspecificcampaignwarning', 'mod_booking'));
+            $mform->addElement(
+                'static',
+                'warning',
+                '',
+                get_string('userspecificcampaignwarning', 'mod_booking')
+            );
 
             // Create an array of key => value pairs for the dropdown.
             foreach ($customuserprofilefields as $customuserprofilefield) {
                 $customuserprofilefieldsarray[$customuserprofilefield->shortname] = format_string($customuserprofilefield->name);
             }
 
-            $mform->addElement('select', 'cpfield',
-                get_string('customuserprofilefield', 'mod_booking'), $customuserprofilefieldsarray);
+            $mform->addElement(
+                'select',
+                'cpfield',
+                get_string('customuserprofilefield', 'mod_booking'),
+                $customuserprofilefieldsarray
+            );
 
             $mform->addHelpButton('cpfield', 'customuserprofilefield', 'mod_booking');
 
@@ -367,8 +406,12 @@ class campaigns_info {
                 '!~' => get_string('containsnot', 'mod_booking'),
             ];
 
-            $mform->addElement('select', 'cpoperator',
-                get_string('blockoperator', 'mod_booking'), $operators);
+            $mform->addElement(
+                'select',
+                'cpoperator',
+                get_string('blockoperator', 'mod_booking'),
+                $operators
+            );
             $mform->hideIf('cpoperator', 'cpfield', 'eq', "0");
 
             $fieldnames = [];

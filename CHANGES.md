@@ -2160,7 +2160,7 @@ In shopping cart, a new setting can then be activated to avoid booking of items 
 
 ## Version 8.0.8 (2023042400)
 **New features:**
-* New feature: Booking campaings - Reduce booking prices and increase booking limit for a specified time period for specific booking options.
+* New feature: Booking campaigns - Reduce booking prices and increase booking limit for a specified time period for specific booking options.
 
 **Improvements:**
 * Improvement: Mustache linting for github actions.

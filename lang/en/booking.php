@@ -2025,6 +2025,9 @@ $string['profeatures:appearance'] = '<ul>
 <li><b>turn off modals</b></li>
 <li><b>options for attendance status</b></li>
 </ul>';
+$string['profeatures:approval'] = '<ul>
+<li><b>Use approval workflows</b></li>
+</ul>';
 $string['profeatures:automaticcoursecreation'] = '<ul>
 <li><b>booking option custom field to be used as course category</b></li>
 <li><b>mark course with tags to use as templates</b></li>

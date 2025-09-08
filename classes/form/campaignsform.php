@@ -88,7 +88,7 @@ class campaignsform extends dynamic_form {
     }
 
     /**
-     * Campaings validation.
+     * campaigns validation.
      *
      * @param array $data
      * @param array $files

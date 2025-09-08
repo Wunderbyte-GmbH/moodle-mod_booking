@@ -141,8 +141,8 @@ final class booking_campaigns_test extends advanced_testcase {
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
 
-        // Create 1st blocking campaing: with "above" condition.
-        $campaingdata1 = (object) [
+        // Create 1st blocking campaign: with "above" condition.
+        $campaigndata1 = (object) [
             'bofieldname' => 'spt1',
             'fieldvalue' => 'tennis',
             'campaignfieldnameoperator' => '=',
@@ -154,19 +154,19 @@ final class booking_campaigns_test extends advanced_testcase {
             'hascapability' => null,
             'percentageavailableplaces' => 30,
         ];
-        $campaing1 = [
+        $campaign1 = [
             'name' => 'bloking_above30',
             'type' => 1,
             'starttime' => strtotime('yesterday'),
             'endtime' => strtotime('now + 1 month'),
             'pricefactor' => 1,
             'limitfactor' => 1,
-            'json' => json_encode($campaingdata1),
+            'json' => json_encode($campaigndata1),
         ];
-        $plugingenerator->create_campaign($campaing1);
+        $plugingenerator->create_campaign($campaign1);
 
-        // Create 2nd blocking campaing: with "below" condition.
-        $campaingdata2 = (object) [
+        // Create 2nd blocking campaign: with "below" condition.
+        $campaigndata2 = (object) [
             'bofieldname' => 'spt1',
             'fieldvalue' => 'yoga',
             'campaignfieldnameoperator' => '=',
@@ -178,19 +178,19 @@ final class booking_campaigns_test extends advanced_testcase {
             'hascapability' => null,
             'percentageavailableplaces' => 30,
         ];
-        $campaing2 = [
+        $campaign2 = [
             'name' => 'bloking_below30',
             'type' => 1,
             'starttime' => strtotime('yesterday'),
             'endtime' => strtotime('now + 1 month'),
             'pricefactor' => 1,
             'limitfactor' => 1,
-            'json' => json_encode($campaingdata2),
+            'json' => json_encode($campaigndata2),
         ];
-        $plugingenerator->create_campaign($campaing2);
+        $plugingenerator->create_campaign($campaign2);
 
-        // Create 3rd blocking campaing: with multiple custom user profile fields and without bofield.
-        $campaingdata3 = (object) [
+        // Create 3rd blocking campaign: with multiple custom user profile fields and without bofield.
+        $campaigndata3 = (object) [
             'bofieldname' => '0',
             'campaignfieldnameoperator' => null,
             'fieldvalue' => '',
@@ -202,17 +202,17 @@ final class booking_campaigns_test extends advanced_testcase {
             'hascapability' => "",
             'percentageavailableplaces' => 50,
         ];
-        $campaing3 = [
+        $campaign3 = [
             'name' => 'multiple_user_fields',
             'type' => 1,
             'starttime' => strtotime('yesterday'),
             'endtime' => strtotime('now + 1 month'),
             'pricefactor' => 1,
             'limitfactor' => 1,
-            'json' => json_encode($campaingdata3),
+            'json' => json_encode($campaigndata3),
         ];
 
-        $plugingenerator->create_campaign($campaing3);
+        $plugingenerator->create_campaign($campaign3);
 
         // Create 1st booking option.
         $record = new stdClass();
@@ -345,24 +345,24 @@ final class booking_campaigns_test extends advanced_testcase {
         $campaigns = singleton_service::get_all_campaigns();
         foreach ($campaigns as $campaignobj) {
             switch ($campaignobj->name) {
-                case $campaing1['name']:
-                    $campaing1['id'] = $campaignobj->id;
+                case $campaign1['name']:
+                    $campaign1['id'] = $campaignobj->id;
                     break;
-                case $campaing2['name']:
-                    $campaing2['id'] = $campaignobj->id;
+                case $campaign2['name']:
+                    $campaign2['id'] = $campaignobj->id;
                     break;
             }
         }
-        // Adjust 1st blocking campaing: set to future only.
-        $campaing1['name'] = 'bloking_above30-future';
-        $campaing1['starttime'] = strtotime('now + 2 day');
-        $plugingenerator->create_campaign($campaing1);
-        // Adjust 2nd blocking campaing: with "below" condition.
-        $campaingdata2->blockinglabel = 'block_below_50';
-        $campaingdata2->percentageavailableplaces = 50;
-        $campaing2['json'] = json_encode($campaingdata2);
-        $campaing2['name'] = 'bloking_below50';
-        $plugingenerator->create_campaign($campaing2);
+        // Adjust 1st blocking campaign: set to future only.
+        $campaign1['name'] = 'bloking_above30-future';
+        $campaign1['starttime'] = strtotime('now + 2 day');
+        $plugingenerator->create_campaign($campaign1);
+        // Adjust 2nd blocking campaign: with "below" condition.
+        $campaigndata2->blockinglabel = 'block_below_50';
+        $campaigndata2->percentageavailableplaces = 50;
+        $campaign2['json'] = json_encode($campaigndata2);
+        $campaign2['name'] = 'bloking_below50';
+        $plugingenerator->create_campaign($campaign2);
 
         // Reset caches (campaigns and options).
         singleton_service::reset_campaigns();
@@ -592,8 +592,8 @@ final class booking_campaigns_test extends advanced_testcase {
         $option3 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option3->id); // Mandatory there.
 
-        // Create blocking campaing.
-        $campaingdata1 = (object) [
+        // Create blocking campaign.
+        $campaigndata1 = (object) [
             'bofieldname' => 'bcustom1',
             'fieldvalue' => 'exclude',
             'campaignfieldnameoperator' => '!~', // Does not contains!
@@ -605,20 +605,20 @@ final class booking_campaigns_test extends advanced_testcase {
             'hascapability' => null,
             'percentageavailableplaces' => 50,
         ];
-        $campaing1 = new stdClass();
-        $campaing1 = [
+        $campaign1 = new stdClass();
+        $campaign1 = [
             'name' => 'bloking1',
             'type' => 1,
             'starttime' => strtotime('yesterday'),
             'endtime' => strtotime('now + 1 week'),
             'pricefactor' => 1,
             'limitfactor' => 1,
-            'json' => json_encode($campaingdata1),
+            'json' => json_encode($campaigndata1),
         ];
-        $plugingenerator->create_campaign($campaing1);
+        $plugingenerator->create_campaign($campaign1);
 
-        // Create 2nd blocking campaing: with multiple custom user profile fields and without bofield.
-        $campaingdata2 = (object) [
+        // Create 2nd blocking campaign: with multiple custom user profile fields and without bofield.
+        $campaigndata2 = (object) [
             'bofieldname' => '0',
             'campaignfieldnameoperator' => null,
             'fieldvalue' => '',
@@ -630,16 +630,16 @@ final class booking_campaigns_test extends advanced_testcase {
             'hascapability' => "",
             'percentageavailableplaces' => 50,
         ];
-        $campaing2 = [
+        $campaign2 = [
             'name' => 'multiple_user_fields',
             'type' => 1,
             'starttime' => strtotime('yesterday'),
             'endtime' => strtotime('now + 1 month'),
             'pricefactor' => 1,
             'limitfactor' => 1,
-            'json' => json_encode($campaingdata2),
+            'json' => json_encode($campaigndata2),
         ];
-        $plugingenerator->create_campaign($campaing2);
+        $plugingenerator->create_campaign($campaign2);
 
         $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
         $optionobj1 = singleton_service::get_instance_of_booking_option($settings1->cmid, $option1->id);
@@ -808,7 +808,7 @@ final class booking_campaigns_test extends advanced_testcase {
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
 
-        $campaingdata2 = (object) [
+        $campaigndata2 = (object) [
             'bofieldname' => 'spt1',
             'fieldvalue' => 'yoga',
             'campaignfieldnameoperator' => '!~', // Not contain.
@@ -820,16 +820,16 @@ final class booking_campaigns_test extends advanced_testcase {
             'hascapability' => "",
             'percentageavailableplaces' => 50,
         ];
-        $campaing2 = [
+        $campaign2 = [
             'name' => 'not containing yoga no students, no employees',
             'type' => 1,
             'starttime' => strtotime('yesterday'),
             'endtime' => strtotime('now + 1 month'),
             'pricefactor' => 1,
             'limitfactor' => 1,
-            'json' => json_encode($campaingdata2),
+            'json' => json_encode($campaigndata2),
         ];
-        $plugingenerator->create_campaign($campaing2);
+        $plugingenerator->create_campaign($campaign2);
 
         // Create 1st booking option.
         $record = new stdClass();
@@ -961,8 +961,8 @@ final class booking_campaigns_test extends advanced_testcase {
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
 
-        // Create 1st blocking campaing: with multiple custom user profile fields and without bofield.
-        $campaingdata1 = (object) [
+        // Create 1st blocking campaign: with multiple custom user profile fields and without bofield.
+        $campaigndata1 = (object) [
             'bofieldname' => '0',
             'campaignfieldnameoperator' => null,
             'fieldvalue' => '',
@@ -974,16 +974,16 @@ final class booking_campaigns_test extends advanced_testcase {
             'hascapability' => "",
             'percentageavailableplaces' => 50,
         ];
-        $campaing1 = [
+        $campaign1 = [
             'name' => 'multiple_user_fields',
             'type' => 1,
             'starttime' => strtotime('yesterday'),
             'endtime' => strtotime('now + 1 month'),
             'pricefactor' => 1,
             'limitfactor' => 1,
-            'json' => json_encode($campaingdata1),
+            'json' => json_encode($campaigndata1),
         ];
-        $plugingenerator->create_campaign($campaing1);
+        $plugingenerator->create_campaign($campaign1);
 
         // Create 1st booking option.
         $record = new stdClass();

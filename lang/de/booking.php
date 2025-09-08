@@ -1953,6 +1953,9 @@ $string['profeatures:appearance'] = '<ul>
 <li><b>Modale (Fenster) ausschalten</b></li>
 <li><b>Optionen für Anwesenheitsstatus</b></li>
 </ul>';
+$string['profeatures:approval'] = '<ul>
+<li><b>Bestätigungsworkflows aktivieren</b></li>
+</ul>';
 $string['profeatures:automaticcoursecreation'] = '<ul>
 <li><b>Benutzerdefiniertes Buchungsoptionfeld, das als Kurskategorie von automatisch erstellten Kursen verwendet werden soll</b></li>
 <li><b>Markieren Sie den Kurs mit Tags, um ihn als Vorlage zu verwenden</b></li>

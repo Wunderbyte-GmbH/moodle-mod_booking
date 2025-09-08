@@ -126,9 +126,6 @@ class enrolledincohorts implements bo_condition {
      * @return bool true if available
      */
     public function is_available(booking_option_settings $settings, int $userid, bool $not = false): bool {
-
-        global $USER;
-
         // This is the return value. Not available to begin with.
         $isavailable = false;
         $neededcohorts = $this->customsettings->cohortids;
@@ -471,6 +468,7 @@ class enrolledincohorts implements bo_condition {
                 $shortclassname = end($classnameparts); // Without namespace.
                 $shortclassname = str_replace("_", "", $shortclassname); // Remove underscroll.
                 $overrideconditionsarray[$overridecondition->id] =
+                    // Mdlcode-disable-next-line cannot-parse-string.
                     get_string('bocond' . $shortclassname, 'mod_booking');
             }
 
@@ -489,6 +487,7 @@ class enrolledincohorts implements bo_condition {
                                 && isset($currentcondition->overridable)
                                 && ($currentcondition->overridable == true)
                             ) {
+                                // Mdlcode-disable-next-line cannot-parse-string.
                                 $overrideconditionsarray[$jsoncondition->id] = get_string('bocond' .
                                     str_replace("_", "", $jsoncondition->name), 'mod_booking'); // Remove underscroll.
                             }

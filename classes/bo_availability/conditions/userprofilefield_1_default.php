@@ -51,7 +51,6 @@ require_once($CFG->dirroot . '/user/profile/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class userprofilefield_1_default implements bo_condition {
-
     /** @var int $id Id is set via json during construction but we still need a default ID */
     public $id = MOD_BOOKING_BO_COND_JSON_USERPROFILEFIELD;
 
@@ -350,7 +349,6 @@ class userprofilefield_1_default implements bo_condition {
 
         // Check if PRO version is activated.
         if (wb_payment::pro_version_is_activated()) {
-
             // Choose the user profile field which is used to store each user's price category.
             $userprofilefields = $DB->get_columns('user', true);
             if (!empty($userprofilefields)) {
@@ -361,8 +359,8 @@ class userprofilefield_1_default implements bo_condition {
 
                 // Create an array of key => value pairs for the dropdown.
                 foreach ($userprofilefields as $key => $value) {
-
                     if ($stringmanager->string_exists($key, 'core')) {
+                        // Mdlcode-disable-next-line cannot-parse-string.
                         $userprofilefieldsarray[$key] = get_string($key);
                     } else {
                         $userprofilefieldsarray[$key] = $key;
@@ -457,6 +455,7 @@ class userprofilefield_1_default implements bo_condition {
                     $shortclassname = end($classnameparts); // Without namespace.
                     $shortclassname = str_replace("_", "", $shortclassname); // Remove underscroll.
                     $overrideconditionsarray[$overridecondition->id] =
+                        // Mdlcode-disable-next-line cannot-parse-string.
                         get_string('bocond' . $shortclassname, 'mod_booking');
                 }
 
@@ -475,6 +474,7 @@ class userprofilefield_1_default implements bo_condition {
                                     && isset($currentcondition->overridable)
                                     && ($currentcondition->overridable == true)
                                 ) {
+                                    // Mdlcode-disable-next-line cannot-parse-string.
                                     $overrideconditionsarray[$jsoncondition->id] = get_string('bocond' .
                                         str_replace("_", "", $jsoncondition->name), 'mod_booking');
                                 }
@@ -507,7 +507,8 @@ class userprofilefield_1_default implements bo_condition {
                 'static',
                 'bo_cond_userprofilefield_1_default_restrict',
                 get_string('boconduserprofilefield1defaultrestrict', 'mod_booking'),
-                get_string('proversiononly', 'mod_booking'));
+                get_string('proversiononly', 'mod_booking')
+            );
         }
 
         $mform->addElement('html', '<hr class="w-50"/>');
@@ -628,14 +629,12 @@ class userprofilefield_1_default implements bo_condition {
             $description = $full ? get_string('boconduserprofilefieldfullavailable', 'mod_booking') :
                 get_string('boconduserprofilefieldavailable', 'mod_booking');
         } else {
-
             if (!$this->customsettings) {
                 // This description can only works with the right custom settings.
                 $availabilityarray = json_decode($settings->availability);
 
                 foreach ($availabilityarray as $availability) {
                     if (strpos($availability->class, 'userprofilefield_1_default') > 0) {
-
                         $this->customsettings = (object)$availability;
                     }
                 }

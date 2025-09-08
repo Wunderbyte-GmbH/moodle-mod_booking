@@ -199,6 +199,7 @@ class campaign_blockbooking implements booking_campaign {
      * @return string
      */
     public function get_name_of_campaign_type(bool $localized = true): string {
+        // Mdlcode-disable-next-line cannot-parse-string.
         return $localized ? get_string($this->bookingcampaigntypestringid, 'mod_booking') : $this->bookingcampaigntype;
     }
 
@@ -218,16 +219,16 @@ class campaign_blockbooking implements booking_campaign {
             $jsonobject = json_decode($data->json);
         }
 
-        $jsonobject->bofieldname = $data->bofieldname;
-        $jsonobject->campaignfieldnameoperator = $data->campaignfieldnameoperator;
-        $jsonobject->fieldvalue = $data->fieldvalue;
+        $jsonobject->bofieldname = $data->bofieldname ?? '';
+        $jsonobject->campaignfieldnameoperator = $data->campaignfieldnameoperator ?? '';
+        $jsonobject->fieldvalue = $data->fieldvalue ?? '';
         $jsonobject->cpfield = $data->cpfield ?? '';
         $jsonobject->cpoperator = $data->cpoperator ?? '';
         $jsonobject->cpvalue = $data->cpvalue ?? '';
-        $jsonobject->blockoperator = $data->blockoperator;
-        $jsonobject->blockinglabel = $data->blockinglabel;
+        $jsonobject->blockoperator = $data->blockoperator ?? '';
+        $jsonobject->blockinglabel = $data->blockinglabel ?? '';
         $jsonobject->hascapability = $data->hascapability ?? '';
-        $jsonobject->percentageavailableplaces = $data->percentageavailableplaces;
+        $jsonobject->percentageavailableplaces = $data->percentageavailableplaces ?? 50.0;
         $record->json = json_encode($jsonobject);
 
         $record->name = $data->name;

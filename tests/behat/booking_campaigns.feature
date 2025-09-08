@@ -45,7 +45,7 @@ Feature: Create booking campaigns for booking options as admin and booking it as
     And I click on "Add campaign" "text"
     And I set the field "Campaign type" to "Change price or booking limit"
     And I set the following fields to these values:
-      | Custom name for the campaign | campaing1          |
+      | Custom name for the campaign | campaign1          |
       | endtime[year]                | ## + 1 year ##%Y## |
       | Price factor                 | 0.5                |
       | Booking limit factor         | 2                  |
@@ -55,7 +55,7 @@ Feature: Create booking campaigns for booking options as admin and booking it as
     And I set the field "Value" to "tenis"
     And I click on "Save changes" "button"
     And I wait until the page is ready
-    And I should see "campaing1"
+    And I should see "campaign1"
     And I click on "Edit" "text" in the ".booking-campaigns-list" "css_element"
     And I wait "1" seconds
     And I set the field "Custom name for the campaign" to "campaign1"
@@ -70,7 +70,7 @@ Feature: Create booking campaigns for booking options as admin and booking it as
     And I click on "Add campaign" "text"
     And I set the field "Campaign type" to "Block certain booking options"
     And I set the following fields to these values:
-      | Custom name for the campaign   | blogcampaing1      |
+      | Custom name for the campaign   | blogcampaign1      |
       | endtime[year]                  | ## + 1 year ##%Y## |
       | blockoperator                  | blockabove         |
       | Percentage of available places | 30                 |
@@ -81,13 +81,13 @@ Feature: Create booking campaigns for booking options as admin and booking it as
     And I set the field "Value" to "tenis"
     And I click on "Save changes" "button"
     And I wait until the page is ready
-    And I should see "blogcampaing1"
+    And I should see "blogcampaign1"
     And I click on "Edit" "text" in the ".booking-campaigns-list" "css_element"
     And I wait "1" seconds
-    And I set the field "Custom name for the campaign" to "blockingcampaing1"
+    And I set the field "Custom name for the campaign" to "blockingcampaign1"
     And I click on "Save changes" "button"
     And I wait until the page is ready
-    And I should see "blockingcampaing1"
+    And I should see "blockingcampaign1"
 
   ## @javascript - JS no need for this test
   Scenario: Booking campaigns: create booking campaign via DB and view as teacher
@@ -107,7 +107,7 @@ Feature: Create booking campaigns for booking options as admin and booking it as
     Given the following "mod_booking > campaigns" exist:
       | name      | type | json                                                                                                                                                                                                                                        | starttime   | endtime        | pricefactor | limitfactor |
       | campaign3 | 1    | {"bofieldname":"spt1","fieldvalue":"yoga","blockoperator":"blockabove","blockinglabel":"Above30","hascapability":null,"percentageavailableplaces":30, "campaignfieldnameoperator" : "=", "cpfield" : "", "cpoperator" : "", "cpvalue" : ""} | ## today ## | ## + 1 year ## | 1           | 1           |
-    ## Verify "above" blocking campaing - student1 can book
+    ## Verify "above" blocking campaign - student1 can book
     When I am on the "BookingCMP" Activity page logged in as student1
     And I should see "Option-football" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "88.00 EUR" in the ".allbookingoptionstable_r1 .pricecurrency" "css_element"
@@ -123,12 +123,12 @@ Feature: Create booking campaigns for booking options as admin and booking it as
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Start" in the ".allbookingoptionstable_r3" "css_element"
     And I log out
-    ## Verify "above" blocking campaing - student2 can NOT book
+    ## Verify "above" blocking campaign - student2 can NOT book
     And I am on the "BookingCMP" Activity page logged in as student2
     Then I should see "Above30" in the ".allbookingoptionstable_r3 .booknow" "css_element"
     And I should not see "Book now" in the ".allbookingoptionstable_r3 .booknow" "css_element"
     And I log out
-    ## Verify "above" blocking campaing - book student2 by admin
+    ## Verify "above" blocking campaign - book student2 by admin
     And I am on the "BookingCMP" Activity page logged in as admin
     And I should see "Above30" in the ".allbookingoptionstable_r3 .booknow" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r3 .booknow" "css_element"
