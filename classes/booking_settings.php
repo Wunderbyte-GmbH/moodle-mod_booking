@@ -545,15 +545,15 @@ class booking_settings {
             }
 
             // If we do not have it yet, we have to load the booking manager's user object from DB.
-            if (empty($dbrecord->bookingmanageruser) && !empty($dbrecord->bookingmanager)) {
+            if (($dbrecord->bookingmanageruser ?? null) === null && !empty($dbrecord->bookingmanager)) {
                 $dbrecord->bookingmanageruser = $this->load_bookingmanageruser_from_db($dbrecord->bookingmanager);
             }
             if (!empty($dbrecord->bookingmanageruser)) {
                 $this->bookingmanageruser = $dbrecord->bookingmanageruser;
             } else {
                 // Make sure, it's always null if booking manager could not be found.
-                $dbrecord->bookingmanageruser = null;
-                $this->bookingmanageruser = null;
+                $dbrecord->bookingmanageruser = (object)[];
+                $this->bookingmanageruser = (object)[];
             }
 
             return $dbrecord;
