@@ -1901,6 +1901,7 @@ $string['presenceoptions_desc'] = "Welcher Status soll zur Verfügung stehen?";
 $string['presencestatustoissuecertificate'] = 'Zertifikatsausstellung mit Anwesenheitsstatus <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['presencestatustoissuecertificate_desc'] = "Wenn aktiviert, kann ein Zertifikat NUR mit dem ausgewählten Anwesenheitsstatus ausgestellt werden. Der Abschluss der Buchungsoption hat dann keine Auswirkung mehr.";
 $string['previous'] = 'Vorherige';
+$string['previouselybooked'] = 'Bereits gebucht';
 $string['price'] = 'Preis';
 $string['pricecategories'] = 'Buchung: Preiskategorien';
 $string['pricecategoriessaved'] = 'Preiskategorien wurden gespeichert';
@@ -2591,6 +2592,7 @@ Sie wurden zur Warteliste von <b>{$a}</b> hinzugefügt. Sollte jemand ausfallen,
 $string['thisinstance'] = 'Diese Buchung';
 $string['thursday'] = 'Donnerstag';
 $string['timeawarded'] = 'Verliehen am';
+$string['timebooked'] = 'Buchungszeit';
 $string['timecreated'] = 'Erstellt';
 $string['timefilter:bookingtime'] = 'Anmeldezeiten';
 $string['timefilter:coursetime'] = 'Kurszeiten';

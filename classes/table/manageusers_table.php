@@ -100,6 +100,19 @@ class manageusers_table extends wunderbyte_table {
     }
 
     /**
+     * Return column timebooked.
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_timebooked(stdClass $values): string {
+        if (empty($values->timebooked)) {
+            return '';
+        }
+        return userdate($values->timebooked);
+    }
+
+    /**
      * Return titleprefix.
      *
      * @param stdClass $values

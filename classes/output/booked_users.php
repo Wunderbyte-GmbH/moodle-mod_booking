@@ -93,6 +93,7 @@ class booked_users implements renderable, templatable {
      * @param bool $showdeleted
      * @param bool $showbookinghistory
      * @param bool $showoptionstoconfirm
+     * @param bool $showpreviouslybooked
      * @param int $cmid optional course module id of booking instance
      */
     public function __construct(
@@ -105,6 +106,7 @@ class booked_users implements renderable, templatable {
         bool $showdeleted = false,
         bool $showbookinghistory = false,
         bool $showoptionstoconfirm = false,
+        bool $showpreviouslybooked = false,
         int $cmid = 0
     ) {
         $ba = new booking_answers();
@@ -182,6 +184,17 @@ class booked_users implements renderable, templatable {
                 array_values($columns),
                 // Sorting of waiting list only possible if setting to show place is enabled.
                 (bool)get_config('booking', 'waitinglistshowplaceonwaitinglist')
+            ) : null;
+
+            $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED);
+            $this->previouslybooked = $showpreviouslybooked ? $this->render_users_table(
+                $scope,
+                $scopeid,
+                MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED,
+                'previouslybooked',
+                array_keys($columns),
+                array_values($columns),
+                false
             ) : null;
 
             // Booking history table.
@@ -468,6 +481,7 @@ class booked_users implements renderable, templatable {
             'bookinghistory' => $this->bookinghistory ?? null,
             'optionstoconfirm' => $this->optionstoconfirm ?? null,
             'optionstoconfirmadditionaltexts' => $this->optionstoconfirmadditionaltexts ?? null,
+            'previouslybooked' => $this->previouslybooked ?? null,
             'deputyselect' => $this->deputyselect ?? null,
         ]);
     }

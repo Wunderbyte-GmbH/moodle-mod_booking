@@ -132,6 +132,17 @@ class option extends scope_base {
                     $table->sort_default_order = SORT_ASC;
                 }
                 break;
+            case MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED:
+                $sortablecolumns = [
+                    'firstname' => get_string('firstname'),
+                    'lastname' => get_string('lastname'),
+                    'email' => get_string('email'),
+                    'timebooked' => get_string('timebooked', 'mod_booking'),
+                ];
+                $table->sort_default_column = 'timebooked';
+                $table->sort_default_order = SORT_DESC;
+
+                break;
             default:
                 $sortablecolumns = [
                     'firstname' => get_string('firstname'),
@@ -231,6 +242,9 @@ class option extends scope_base {
             case MOD_BOOKING_STATUSPARAM_BOOKED_DELETED:
                 $columns['timemodified'] = get_string('timemodified', 'mod_booking');
                 break;
+            case MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED:
+                $columns['timebooked'] = get_string('timebooked', 'mod_booking');
+                break;
         }
 
         return $columns;
@@ -323,6 +337,7 @@ class option extends scope_base {
                     $selectpresencecount
                     ba.timemodified,
                     ba.timecreated,
+                    ba.timebooked,
                     ba.optionid,
                     ba.json,
                     '" . $scope . "' AS scope
