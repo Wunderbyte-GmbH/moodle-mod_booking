@@ -943,8 +943,16 @@ class booking_option_settings {
                                  AND source is not null", ['optionid' => $optionid], IGNORE_MULTIPLE)
         ) {
             // If an image has been uploaded for the option, let's create the according URL.
-            $this->imageurl = $CFG->wwwroot . "/pluginfile.php/" . $imgfile->contextid .
-                "/mod_booking/bookingoptionimage/" . $optionid . $imgfile->filepath . $imgfile->filename;
+
+            $url = moodle_url::make_pluginfile_url(
+                $imgfile->contextid,
+                'mod_booking',
+                'bookingoptionimage',
+                $optionid,
+                $imgfile->filepath,
+                $imgfile->filename
+            );
+            $this->imageurl = $url->out(false);
 
             return;
         } else {
@@ -988,9 +996,17 @@ class booking_option_settings {
 
                     if (!empty($imgfile)) {
                         // If a fallback image has been found for the customfield value, then use this one.
-                        $this->imageurl = $CFG->wwwroot . "/pluginfile.php/" . $imgfile->contextid .
-                            "/mod_booking/bookingimages/" . $bookingid . $imgfile->filepath . $imgfile->filename;
 
+                        $url = moodle_url::make_pluginfile_url(
+                            $imgfile->contextid,
+                            'mod_booking',
+                            'bookingimages',
+                            $bookingid,
+                            $imgfile->filepath,
+                            $imgfile->filename
+                        );
+
+                        $this->imageurl = $url->out(false);
                         return;
                     }
                 }
@@ -1007,9 +1023,17 @@ class booking_option_settings {
             AND source is not null", ['bookingid' => $bookingid]);
 
             if (!empty($imgfile)) {
+
+                $url = moodle_url::make_pluginfile_url(
+                    $imgfile->contextid,
+                    'mod_booking',
+                    'bookingimages',
+                    $bookingid,
+                    $imgfile->filepath,
+                    $imgfile->filename
+                );
                 // If a fallback image has been found for the customfield value, then use this one.
-                $this->imageurl = $CFG->wwwroot . "/pluginfile.php/" . $imgfile->contextid .
-                    "/mod_booking/bookingimages/" . $bookingid . $imgfile->filepath . $imgfile->filename;
+                $this->imageurl = $url->out(false);
 
                 return;
             }
