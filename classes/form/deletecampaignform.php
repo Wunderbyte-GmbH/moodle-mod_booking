@@ -82,10 +82,8 @@ class deletecampaignform extends dynamic_form {
      * @return void
      */
     public function set_data_for_dynamic_submission(): void {
-
         $data = (object) $this->_ajaxformdata;
         $this->set_data($data);
-
     }
 
     /**

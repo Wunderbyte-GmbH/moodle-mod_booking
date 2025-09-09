@@ -482,7 +482,7 @@ class optionstoconfirm extends option {
             // First line as a description.
             $text = new \stdClass();
             $text->text = get_string('deputiesalreadyset', 'mod_booking');
-            $text->class = 'text-warning font-weight-bold';
+            $text->class = '';
             $text->link = '';
             $texts[] = $text;
             // Attach each user as a text object.
@@ -491,9 +491,12 @@ class optionstoconfirm extends option {
                 $deputy = singleton_service::get_instance_of_user($deputyuserid);
                 $text = new \stdClass();
                 $text->text = "{$deputy->firstname} {$deputy->lastname}";
-                $text->class = 'btn btn-primary btn-sm';
+                $text->class = 'link-primary';
                 $text->link = new \moodle_url('/user/profile.php', ['id' => $deputy->id]);
                 $texts[] = $text;
+            }
+            if (!empty($texts)) {
+                $texts[count($texts) - 1]->last = true;
             }
             return $texts;
         }
