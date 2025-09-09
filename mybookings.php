@@ -1,4 +1,6 @@
 <?php
+
+use mod_booking\singleton_service;
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -32,10 +34,18 @@ use mod_booking\shortcodes;
 
 $url = new moodle_url('/mod/booking/mybookings.php');
 $userid = optional_param('userid', 0, PARAM_INT);
+$completed = optional_param('completed', 0, PARAM_INT);
 $PAGE->set_url($url);
 
-$PAGE->set_context(context_user::instance($USER->id));
-$PAGE->navigation->extend_for_user($USER);
+if (!empty($userid)) {
+    $user = singleton_service::get_instance_of_user($userid);
+} else {
+    $user = $USER;
+    $userid = $USER->id;
+}
+
+$PAGE->set_context(context_user::instance($user->id));
+$PAGE->navigation->extend_for_user($user);
 $mybookingsurl = new moodle_url('/mod/booking/mybookings.php');
 $PAGE->navbar->add(get_string('mybookingoptions', 'mod_booking'), $mybookingsurl);
 
@@ -45,7 +55,7 @@ echo $OUTPUT->header();
 
 echo $OUTPUT->heading(get_string('mybookingoptions', 'mod_booking'));
 
-echo shortcodes::mycourselist('', ['userid' => $userid], '', (object)[], fn($a) => $a);
+echo shortcodes::mycourselist('', ['userid' => $userid, 'completed' => $completed], '', (object)[], fn($a) => $a);
 
 if (class_exists('local_shopping_cart\shopping_cart') && get_config('booking', 'displayshoppingcarthistory')) {
     echo local_shopping_cart\shortcodes::shoppingcarthistory('', [], '', (object)[], fn($a) => $a);

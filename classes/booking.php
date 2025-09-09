@@ -1218,10 +1218,10 @@ class booking {
             $innerfrom .= " JOIN {booking_answers} ba
                           ON ba.optionid=bo.id ";
 
-            $outerfrom .= ", ba.waitinglist, ba.userid as bookeduserid ";
+            $outerfrom .= ", ba.waitinglist, ba.userid as bookeduserid, ba.completed ";
             $where .= " AND waitinglist $inorequal
                         AND bookeduserid=:bookeduserid ";
-            $groupby .= " , ba.waitinglist, ba.userid ";
+            $groupby .= " , ba.waitinglist, ba.userid, ba.completed ";
 
             $params['bookeduserid'] = $userid;
 

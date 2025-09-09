@@ -780,6 +780,10 @@ class shortcodes {
         // Additional where condition for both card and list views.
         $additionalwhere = self::set_customfield_wherearray($args, $wherearray) ?? '';
 
+        if (!empty($args['completed'])) {
+            $wherearray['completed'] = 1;
+        }
+
         [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(
                     0,
