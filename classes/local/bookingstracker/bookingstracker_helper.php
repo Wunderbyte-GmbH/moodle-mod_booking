@@ -39,59 +39,117 @@ use mod_booking\booking;
  */
 class bookingstracker_helper {
     /**
+     * Link to a specific booking option view.
+     * @var moodle_url|null
+     */
+    protected ?moodle_url $optionviewlink = null;
+
+    /**
+     * Report (report2.php) link scoped to a single option.
+     * @var moodle_url|null
+     */
+    protected ?moodle_url $reportoptionlink = null;
+
+    /**
+     * Report (report2.php) link scoped to the booking instance (cmid).
+     * @var moodle_url|null
+     */
+    protected ?moodle_url $reportinstancelink = null;
+
+    /**
+     * Report (report2.php) link scoped to the course.
+     * @var moodle_url|null
+     */
+    protected ?moodle_url $reportcourselink = null;
+
+    /**
+     * Report (report2.php) link scoped to the whole system.
+     * @var moodle_url|null
+     */
+    protected ?moodle_url $reportsystemlink = null;
+
+    /**
+     * Raw values provided by caller (cmid, optionid, courseid, text, etc.).
+     *
+     * @var stdClass
+     */
+    protected stdClass $values;
+
+    /**
+     * HTML as an icon for the text.
+     * @var string
+     */
+    protected string $texticon = '<i class="fa fa-ticket" aria-hidden="true"></i>&nbsp;';
+
+    /**
      * Return option column.
      *
      * @param stdClass $values
-     * @return string
+     * @return void
      */
-    public static function render_col_text(stdClass $values): string {
-        global $OUTPUT, $SITE;
+    public function __construct(stdClass $values) {
+        $this->values = $values;
 
-        if (empty($values->optionid)) {
-            return '';
-        }
-
-        $optionlink = new moodle_url(
+        // Set default values for each property.
+        // You can change each link with setters when you instantiate the class.
+        $this->optionviewlink = new moodle_url(
             '/mod/booking/view.php',
             [
-                'id' => $values->cmid,
-                'optionid' => $values->optionid,
+                'id' => $this->values->cmid,
+                'optionid' => $this->values->optionid,
                 'whichview' => 'showonlyone',
             ]
         );
 
-        $report2option = new moodle_url(
+        // Report2option.
+        $this->reportoptionlink = new moodle_url(
             '/mod/booking/report2.php',
             [
-                'cmid' => $values->cmid,
-                'optionid' => $values->optionid,
+                'cmid' => $this->values->cmid,
+                'optionid' => $this->values->optionid,
             ]
         );
 
-        $report2instance = new moodle_url(
+        // Report2instance.
+        $this->reportinstancelink = new moodle_url(
             '/mod/booking/report2.php',
-            ['cmid' => $values->cmid]
+            ['cmid' => $this->values->cmid]
         );
 
-        $report2course = new moodle_url(
+        // Report2course.
+        $this->reportcourselink = new moodle_url(
             '/mod/booking/report2.php',
-            ['courseid' => $values->courseid]
+            ['courseid' => $this->values->courseid]
         );
 
-        $report2system = new moodle_url(
+        $this->reportsystemlink = new moodle_url(
             '/mod/booking/report2.php'
         );
+    }
+
+    /**
+     * Return option column.
+     *
+     * @return string
+     */
+    public function render_col_text(): string {
+        global $OUTPUT, $SITE;
+
+        if (empty($this->values->optionid)) {
+            return '';
+        }
 
         $data = [
-            'id' => $values->id, // Can be optionid or answerid, depending on scope.
-            'text' => $values->text,
-            'optionlink' => $optionlink->out(false),
-            'report2option' => $report2option->out(false),
-            'report2instance' => $report2instance->out(false),
-            'report2course' => $report2course->out(false),
-            'report2system' => $report2system->out(false),
-            'instancename' => !empty($values->instancename) ? booking::shorten_text($values->instancename) : null,
-            'coursename' => !empty($values->coursename) ? booking::shorten_text($values->coursename) : null,
+            'id' => $this->values->id, // Can be optionid or answerid, depending on scope.
+            'text' => $this->values->text,
+            'texticon' => $this->texticon,
+            'optionlink' => $this->optionviewlink->out(false),
+            'report2option' => $this->reportoptionlink->out(false),
+            'report2instance' => $this->reportinstancelink->out(false),
+            'report2course' => $this->reportcourselink->out(false),
+            'report2system' => $this->reportsystemlink->out(false),
+            'instancename' => !empty($this->values->instancename) ? booking::shorten_text($this->values->instancename) : null,
+            'coursename' => !empty($this->values->coursename) ? booking::shorten_text($this->values->coursename) : null,
             'systemname' => $SITE->fullname ? booking::shorten_text($SITE->fullname) : null,
         ];
 
@@ -100,5 +158,122 @@ class bookingstracker_helper {
             return '';
         }
         return (string) $output;
+    }
+
+    /* ====================================================================== *
+     * Setters (fluent)                                                       *
+     * ====================================================================== */
+
+    /**
+     * Set the option view link.
+     *
+     * @param moodle_url $url
+     * @return self
+     */
+    public function set_optionviewlink(moodle_url $url): self {
+        $this->optionviewlink = $url;
+        return $this;
+    }
+
+    /**
+     * Set the report link for a single option.
+     *
+     * @param moodle_url $url
+     * @return self
+     */
+    public function set_reportoptionlink(moodle_url $url): self {
+        $this->reportoptionlink = $url;
+        return $this;
+    }
+
+    /**
+     * Set the report link for the booking instance (cmid).
+     *
+     * @param moodle_url $url
+     * @return self
+     */
+    public function set_reportinstancelink(moodle_url $url): self {
+        $this->reportinstancelink = $url;
+        return $this;
+    }
+
+    /**
+     * Set the report link for the course.
+     *
+     * @param moodle_url $url
+     * @return self
+     */
+    public function set_reportcourselink(moodle_url $url): self {
+        $this->reportcourselink = $url;
+        return $this;
+    }
+
+    /**
+     * Set the system-wide report link.
+     *
+     * @param moodle_url $url
+     * @return self
+     */
+    public function set_reportsystemlink(moodle_url $url): self {
+        $this->reportsystemlink = $url;
+        return $this;
+    }
+
+    /**
+     * Sets the icon of the text.
+     * @param string $html
+     * @return void
+     */
+    public function set_texticon(string $html) {
+        $this->texticon = $html;
+    }
+
+    /* ====================================================================== *
+     * Getters                                                                *
+     * ====================================================================== */
+
+    /**
+     * Get the option view link (lazy).
+     *
+     * @return moodle_url
+     */
+    public function get_optionviewlink(): moodle_url {
+        return $this->optionviewlink;
+    }
+
+    /**
+     * Get the report link scoped to a single option (lazy).
+     *
+     * @return moodle_url
+     */
+    public function get_reportoptionlink(): moodle_url {
+        return $this->reportoptionlink;
+    }
+
+    /**
+     * Get the report link scoped to the booking instance (cmid) (lazy).
+     *
+     * @return moodle_url
+     */
+    public function get_reportinstancelink(): moodle_url {
+        return $this->reportinstancelink;
+    }
+
+    /**
+     * Get the report link scoped to the course (lazy).
+     *
+     * @return moodle_url
+     */
+    public function get_reportcourselink(): moodle_url {
+        return $this->reportcourselink;
+    }
+
+    /**
+     * Get the system-wide report link.
+     *
+     * @return moodle_url
+     */
+    public function get_reportsystemlink(): moodle_url {
+        return $this->reportsystemlink;
     }
 }

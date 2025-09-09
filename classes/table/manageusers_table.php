@@ -119,7 +119,15 @@ class manageusers_table extends wunderbyte_table {
         if ($this->is_downloading()) {
             return $values->text ?? '';
         }
-        return bookingstracker_helper::render_col_text($values);
+
+        $helper = new bookingstracker_helper($values);
+        if ($values->scope === 'optionstoconfirm') {
+            // We don’t need to show the report page link, so we replace it with the option
+            // view page in the approvers table where they confirm an answer.
+            $helper->set_texticon('');
+            $helper->set_reportoptionlink($helper->get_optionviewlink());
+        }
+        return $helper->render_col_text();
     }
 
     /**
