@@ -949,21 +949,6 @@ if ($ADMIN->fulltree) {
             0 // Default: off.
         ));
 
-        $deputyfields = $customfieldsarray;
-        $deputyfields[-1] = get_string('dontusefuction', 'mod_booking');
-        // Set the first entry first.
-        $deputyfields = [-1 => $deputyfields[-1]] + array_diff_key($deputyfields, [-1 => '']);
-
-        $settings->add(
-            new admin_setting_configselect(
-                'booking/deputyidfield',
-                get_string('usedeputiesforconfirmation', 'mod_booking'),
-                get_string('usedeputiesforconfirmation_desc', 'mod_booking'),
-                -1,
-                $deputyfields
-            )
-        );
-
         // Load all settings from booking extensions.
         foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
             $fullclassname = "\\bookingextension_{$plugin->name}\\{$plugin->name}";
