@@ -382,6 +382,7 @@ $string['bookanyonewarning'] = 'Achtung: Sie können nun beliebige Nutzer:innen 
 $string['booked'] = 'Gebucht';
 $string['bookeddeleted'] = 'Buchung gelöscht';
 $string['bookedpast'] = 'Gebucht (Kurs wurde bereits beendet)';
+$string['bookedplaces'] = 'Anzahl an gebuchten Plätzen der Buchungsoption';
 $string['bookedpreviousely'] = ' | Bereits gebucht';
 $string['bookedpreviouselyxtimes'] = ' | Bereits {$a} Mal gebucht';
 $string['bookedteachersshowemails'] = 'E-Mail-Adressen von Trainer:innen, bei denen gebucht wurde, anzeigen';
