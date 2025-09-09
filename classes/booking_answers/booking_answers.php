@@ -309,7 +309,7 @@ class booking_answers {
         global $DB, $CFG;
         $answers = $this->userspreviouslybooked;
         if (count($answers) !== 0) {
-            return [];
+            return $answers;
         }
 
         try {
