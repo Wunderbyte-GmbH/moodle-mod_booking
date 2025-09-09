@@ -131,6 +131,7 @@ class additionalperson_form extends dynamic_form {
         }
 
         $mform->addElement('hidden', 'id', $id);
+        $mform->addElement('hidden', 'optionid', $subbooking->optionid ?? 0);
 
         $mform->addElement(
             'static',
@@ -184,9 +185,24 @@ class additionalperson_form extends dynamic_form {
      * @return array $errors
      */
     public function validation($data, $files): array {
+        global $USER;
         $errors = [];
 
         $counter = 1;
+        $optionsettings = singleton_service::get_instance_of_booking_option_settings($data['optionid']);
+        $ba = singleton_service::get_instance_of_booking_answers($optionsettings);
+        $boinfo = $ba->return_all_booking_information($USER->id);
+        $userinfo = $boinfo['iamreserved'];
+        if (
+            $boinfo['iamreserved']['fullybooked']
+        ) {
+            $errors['subbooking_addpersons'] = get_string('nomoreseats', 'mod_booking');
+        } else if (
+            $boinfo['iamreserved']['freeonlist'] < (int)$data['subbooking_addpersons']
+        ) {
+            $errors['subbooking_addpersons'] = get_string('limitedseats', 'mod_booking', $boinfo['iamreserved']['freeonlist']);
+        }
+
         while ($data["subbooking_addpersons"] >= $counter) {
             if (empty($data['person_firstname_' . $counter])) {
                 $errors['person_firstname_' . $counter] = get_string('error:entervalue', 'mod_booking');
