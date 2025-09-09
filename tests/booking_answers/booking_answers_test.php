@@ -79,8 +79,6 @@ final class booking_answers_test extends advanced_testcase {
             'cancancelbook' => 0,
         ]);
 
-
-
         return [
             'course' => $course,
             'bookingmodule' => $booking,
@@ -231,8 +229,6 @@ final class booking_answers_test extends advanced_testcase {
             booking_bookit::bookit('option', $settings1->id, $student3->id);
             booking_bookit::bookit('option', $settings1->id, $student3->id);
 
-
-            $b = $DB->get_records('booking_answers', ['waitinglist' => 6]);
             $previouslybooked = $bookinganswers1->get_userspreviouslybooked();
             $this->assertCount($expected['count_previouslybooked'][1], $previouslybooked[$student3->id]);
             // TODO: MDL-0 When Student 2 books the option again, it should not be placed on the waiting list,
