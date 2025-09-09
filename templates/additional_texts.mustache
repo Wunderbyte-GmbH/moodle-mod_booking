@@ -41,7 +41,7 @@
 }}
 {{#texts}}
     {{#link}}
-        <a href="{{link}}" class="{{class}}">{{text}}</a>
+        <a href="{{link}}" class="{{class}}">{{text}}</a>{{^last}}, {{/last}}
     {{/link}}
     {{^link}}
         <span class="{{class}}">{{text}}</span>

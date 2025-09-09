@@ -120,15 +120,10 @@
     {{#optionstoconfirm}}
         <div class="card">
             {{#deputyselect}}
-                <div data-region="tf-selectuserformcontainer">
-                        <div class="form-autocomplete-selection w-100" role="listbox" aria-atomic="true" tabindex="0">
-                            <span class="m-1 h-5"></span>
-                        </div>
-                        <div class="form-autocomplete-input d-md-inline-block me-md-2 position-relative">
-                            <input type="text" class="form-control">
-                            <span class="form-autocomplete-downarrow position-absolute p-1">▼</span>
-                        </div>
-                </div>
+                <button class="btn btn-primary" id="booking-booked-users-open-deputy-modal">
+                    {{#str}} adddeputies, mod_booking {{/str}}
+                </button>
+                <div id="my-deputy-modal"></div>
             {{/deputyselect}}
             <div class="card-header bg-transparent" id="accordion-heading-optionstoconfirm">
                 <div class="bookingstracker-header" role="button" data-toggle="collapse" data-target="#accordion-item-optionstoconfirm" aria-expanded="false" aria-controls="accordion-item-optionstoconfirm">
@@ -144,3 +139,9 @@
         </div>
     {{/optionstoconfirm}}
 </div>
+
+{{#js}}
+    require(['mod_booking/dynamicdeputymodal'], function(fn) {
+        fn.init();
+    });
+{{/js}}

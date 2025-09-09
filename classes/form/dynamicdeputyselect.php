@@ -16,6 +16,8 @@
 
 namespace mod_booking\form;
 
+use mod_booking\singleton_service;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -44,12 +46,11 @@ class dynamicdeputyselect extends dynamic_form {
         $mform = $this->_form;
 
         $options = [
-            'multiple' => false,
+            'multiple' => true,
             'noselectionstring' => '',
             'ajax' => 'mod_booking/form_users_selector',
         ];
-
-        $mform->addElement('autocomplete', 'userid', get_string('selectdeputy', 'booking'), [], $options);
+        $mform->addElement('autocomplete', 'deputies', get_string('selectdeputy', 'booking'), [], $options);
     }
 
     /**
@@ -64,7 +65,7 @@ class dynamicdeputyselect extends dynamic_form {
     public function process_dynamic_submission() {
 
         $data = $this->get_data();
-
+        $this->update_user_field($data);
         return $data;
     }
 
@@ -79,15 +80,27 @@ class dynamicdeputyselect extends dynamic_form {
      *     $this->set_data(get_entity($this->_ajaxformdata['cmid']));
      */
     public function set_data_for_dynamic_submission(): void {
-
         global $USER;
-        $data = new stdClass();
 
-        if (!empty($data->userid)) {
-            // TODO: check if this really works
-            $this->update_user_field($data->userid);
+        $data = new stdClass();
+        if (empty($data->userid)) {
+            $userid = $data->userid ?? $USER->id;
+        }
+        $user = singleton_service::get_instance_of_user($userid, true);
+        $deputyfield = get_config('bookingextension_confirmation_supervisor', 'deputy');
+        if ($deputyfield) {
+            $existingdeputies = $user->profile[$deputyfield] ?? false;
         }
 
+        if ($existingdeputies) {
+            $data->deputies = [];
+            $userids = explode(",", $existingdeputies);
+            foreach ($userids as $uid) {
+                $existingdeputy = singleton_service::get_instance_of_user($uid);
+                $data->deputies[$existingdeputy->id] =
+                    "$existingdeputy->firstname $existingdeputy->lastname (ID: $existingdeputy->id) $existingdeputy->email";
+            }
+        }
         $this->set_data($data);
     }
 
@@ -100,33 +113,28 @@ class dynamicdeputyselect extends dynamic_form {
     private function update_user_field($value) {
         global $DB, $USER;
 
-        // TODO: Make sure, this works for multiple users!
+        $field = get_config('bookingextension_confirmation_supervisor', 'deputy');
 
-        $field = get_config('mod_booking', 'confirmationdeputyfield');
+        $user = singleton_service::get_instance_of_user($USER->id, true);
 
-        // $userid = $USER->id;
-        // if (!$user = $DB->get_record('user', ['id' => $userid], '*')) {
-        //     return false; // User not found
-        // }
-        // Maybe we need to use a different user than user.
-
-        // Load custom profile data.
-        profile_load_data($USER);
-
-        // Check if field is a standard field (exists in mdl_user table).
-        $standardfields = $DB->get_columns('user');
-        $isstandard = array_key_exists($field, $standardfields);
-
-        if ($isstandard) {
-            // Update standard field.
-            $USER->$field = $value;
-            user_update_user($user, false, false);
+        if (isset($user->profile[$field])) {
+            foreach ($value->deputies as $i => $string) {
+                // This is a little hacky as the data we set is set as string not int, we fetch the id from the string.
+                if (
+                    str_contains($string, "(ID:")
+                    && preg_match('/\(ID:\s*(\d+)\)/', $string, $matches)
+                ) {
+                    $value->deputies[$i] = $matches[1];
+                }
+            }
+            $deputies = implode(',', $value->deputies);
+            profile_save_custom_fields($user->id, [$field => $deputies]);
+            singleton_service::unset_instance_of_user($user->id);
         } else {
-            // Assume custom profile field; prefix required by Moodle.
-            $customfield = 'profile_field_' . $field;
-            $USER->$customfield = $value;
-            profile_save_data($user);
+            // For the moment we only support custom user profile fields.
+            return false;
         }
+
         return true;
     }
 
@@ -173,11 +181,10 @@ class dynamicdeputyselect extends dynamic_form {
     }
 
     /**
-     * {@inheritDoc}
-     * @see moodleform::get_data()
+     * Check access for dynamic submission.
+     *
+     * @return void
      */
-    public function get_data() {
-        $data = parent::get_data();
-        return $data;
+    protected function check_access_for_dynamic_submission(): void {
     }
 }

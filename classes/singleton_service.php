@@ -497,6 +497,19 @@ class singleton_service {
         }
     }
 
+    /**
+     * Service to create and return singleton instance of Moodle user.
+     *
+     * @param int $userid
+     *
+     * @return bool
+     */
+    public static function unset_instance_of_user(int $userid) {
+        $instance = self::get_instance();
+        unset($instance->users[$userid]);
+        return true;
+    }
+
 
     /**
      * When invalidating the cache, we need to also destroy the booking_users_object.

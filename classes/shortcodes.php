@@ -1528,7 +1528,12 @@ class shortcodes {
             true // Options to confirm.
         );
 
-        if (isset($args['deputyselect']) && !empty($args['deputyselect'])) {
+        // Without values in the config setting deputyselect makes no sense.
+        if (
+            isset($args['deputyselect'])
+            && !empty($args['deputyselect'])
+            && !empty(get_config('bookingextension_confirmation_supervisor', 'deputy'))
+        ) {
             $data->deputyselect = 1;
         }
 
