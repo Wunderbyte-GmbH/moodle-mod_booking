@@ -278,6 +278,15 @@ $string['bocondfullybookedoverrideavailable'] = 'Buchen';
 $string['bocondfullybookedoverridefullavailable'] = 'Buchen möglich';
 $string['bocondfullybookedoverridefullnotavailable'] = 'Ausgebucht';
 $string['bocondfullybookedoverridenotavailable'] = 'Ausgebucht';
+$string['bocondhascompetency'] = 'Benutzer:in hat bestimmte Kompetenzen';
+$string['bocondhascompetencyavailable'] = 'Buchen';
+$string['bocondhascompetencyfullavailable'] = 'Buchen möglich';
+$string['bocondhascompetencyfullnotavailable'] = 'Nur Benutzer:innen, die die folgende(n) Kompetenz(en) haben, dürfen buchen: {$a}
+    <br>Sie haben aber das Recht dennoch zu buchen.';
+$string['bocondhascompetencyfullnotavailableand'] = 'Nur Benutzer:innen, die die folgende(n) Kompetenz(en) haben, dürfen buchen: {$a}
+<br>Sie haben aber das Recht dennoch zu buchen.';
+$string['bocondhascompetencynotavailable'] = 'Buchen nicht möglich, da Sie mindestens eine der folgenden Kompetenzen nicht haben: {$a}';
+$string['bocondhascompetencynotavailableand'] = 'Buchen nicht möglich, da Sie nicht alle der folgenden Kompetenzen haben: {$a}';
 $string['bocondinstanceavailability'] = 'instanceavailability: Voraussetzungen der Instanz';
 $string['bocondinstanceavailabilityavailable'] = 'Buchen';
 $string['bocondinstanceavailabilityfullavailable'] = 'Buchen möglich';
