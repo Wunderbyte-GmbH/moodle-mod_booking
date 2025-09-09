@@ -307,10 +307,6 @@ class booking_answers {
      */
     public function get_userspreviouslybooked(): array {
         global $DB, $CFG;
-        $answers = $this->userspreviouslybooked;
-        if (count($answers) !== 0) {
-            return $answers;
-        }
 
         try {
             if (!empty($this->optionid)) {
