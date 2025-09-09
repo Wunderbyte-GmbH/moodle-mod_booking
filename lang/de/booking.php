@@ -2104,6 +2104,7 @@ die Buchungsoptionen, bei denen Sie eingetragen sind, zu editieren und Teilnehme
 <b>Wichtig:</b> Die Kontaktperson braucht zusätzlich das Recht <b>mod/booking:addeditownoption</b>.';
 $string['responsiblecontactenroltocourse'] = 'Kontaktperson in verbundenen Moodle-Kurs einschreiben';
 $string['responsiblecontactenroltocourse_desc'] = 'Bitte definieren Sie auch die Rolle, die die Kontaktperson im verbundenen Moodle-Kurs haben soll.';
+$string['responsiblecontactshowfirstteacher'] = 'Auf der Detailseite die erste Trainer:in als Kontaktperson anzeigen, falls keine Kontaktperson gesetzt ist.';
 $string['restresponse'] = "rest_response";
 $string['restrictanswerperiodclosing'] = 'Buchen nur bis zu einem bestimmten Zeitpunkt ermöglichen';
 $string['restrictanswerperiodopening'] = 'Buchen erst ab einem bestimmten Zeitpunkt ermöglichen';

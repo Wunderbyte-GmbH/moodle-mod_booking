@@ -2180,6 +2180,7 @@ to edit their booking options and to see and edit the list of booked users.<br>
 <b>mod/booking:addeditownoption</b>.';
 $string['responsiblecontactenroltocourse'] = 'Enrol responsible contact person to connected Moodle course';
 $string['responsiblecontactenroltocourse_desc'] = 'Please also define the role the responsible contact person should have in the connected Moodle course.';
+$string['responsiblecontactshowfirstteacher'] = 'On details page, if no responsible contact is set, show the first teacher as responsible contact.';
 $string['restresponse'] = "rest_response";
 $string['restrictanswerperiodclosing'] = 'Booking is possible only until a certain date';
 $string['restrictanswerperiodopening'] = 'Booking is possible only after a certain date';

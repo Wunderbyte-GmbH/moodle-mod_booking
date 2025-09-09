@@ -477,6 +477,15 @@ if ($ADMIN->fulltree) {
 
     $settings->add(
         new admin_setting_configcheckbox(
+            'booking/responsiblecontactshowfirstteacher',
+            get_string('responsiblecontactshowfirstteacher', 'mod_booking'),
+            '',
+            0
+        )
+    );
+
+    $settings->add(
+        new admin_setting_configcheckbox(
             'booking/responsiblecontactenroltocourse',
             get_string('responsiblecontactenroltocourse', 'mod_booking'),
             get_string('responsiblecontactenroltocourse_desc', 'mod_booking'),

@@ -421,14 +421,33 @@ class bookingoption_description implements renderable, templatable {
         // Array User object of the responsible contact.
         $responsibles = $settings->responsiblecontactuser;
 
+
         // If no responsible contact is set, we take the first teacher.
-        if (empty($responsibles) && !empty($settings->teachers)) {
+        if (
+            get_config('booking', 'responsiblecontactshowfirstteacher')
+            && empty($responsibles)
+            && !empty($settings->teachers)
+        ) {
             $teacher = reset($settings->teachers);
             $responsible = new stdClass();
             $responsible->id = $teacher->userid;
             $responsible->firstname = $teacher->firstname ?? '';
             $responsible->lastname = $teacher->lastname ?? '';
-            $responsible->email = $teacher->email ?? '';
+            $teacheruser = singleton_service::get_instance_of_user($teacher->userid);
+            if (
+                !empty($teacher->email)
+                && (
+                    $teacheruser->maildisplay == 1
+                    || has_capability('mod/booking:updatebooking', $syscontext)
+                    || get_config('booking', 'teachersshowemails')
+                    || (
+                        get_config('booking', 'bookedteachersshowemails')
+                        && (booking_answers::number_actively_booked($USER->id, $teacher->userid) > 0)
+                    )
+                )
+            ) {
+                $responsible->email = $teacher->email;
+            }
 
             $responsible->link = (new moodle_url(
                 '/mod/booking/teacher.php',
@@ -436,15 +455,17 @@ class bookingoption_description implements renderable, templatable {
             ));
             $responsibles = [$responsible];
         }
+
+        // Add link to profile page of responsible contact.
         if (!empty($responsibles)) {
             foreach ($responsibles as &$responsiblecontact) {
                 if (empty($responsiblecontact)) {
                     continue;
                 }
-                $responsiblecontact->link = (new moodle_url(
+                $responsiblecontact->link = new moodle_url(
                     '/user/profile.php',
                     ['id' => $responsiblecontact->id]
-                ));
+                );
             }
         } else {
             $responsibles = [];
