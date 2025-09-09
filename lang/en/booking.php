@@ -283,6 +283,15 @@ $string['bocondfullybookedoverrideavailable'] = 'Book it';
 $string['bocondfullybookedoverridefullavailable'] = 'Booking is possible';
 $string['bocondfullybookedoverridefullnotavailable'] = 'Fully booked - but you have the right to book a user anyways.';
 $string['bocondfullybookedoverridenotavailable'] = 'Fully booked';
+$string['bocondhascompetency'] = 'User has certain competenc(y|ies)';
+$string['bocondhascompetencyavailable'] = 'Book it';
+$string['bocondhascompetencyfullavailable'] = 'Booking is possible';
+$string['bocondhascompetencyfullnotavailable'] = 'Only users who have at least one of the following competencies are allowed to book: {$a}
+    <br>But you have the right to book a user anyways.';
+$string['bocondhascompetencyfullnotavailableand'] = 'Only users who have all of the following competencies are allowed to book: {$a}
+    <br>But you have the right to book a user anyways.';
+$string['bocondhascompetencynotavailable'] = 'Booking not possible. You need at least one of the following competencies: {$a}';
+$string['bocondhascompetencynotavailableand'] = 'Booking not possible because you do not have all of the following competencies: {$a}';
 $string['bocondinstanceavailability'] = 'instanceavailability: Access restrictions';
 $string['bocondinstanceavailabilityavailable'] = 'Book it';
 $string['bocondinstanceavailabilityfullavailable'] = 'Booking is possible';
