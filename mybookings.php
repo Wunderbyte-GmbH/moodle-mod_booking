@@ -1,6 +1,4 @@
 <?php
-
-use mod_booking\singleton_service;
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -31,6 +29,7 @@ require_once($CFG->dirroot . '/mod/booking/locallib.php');
 require_login(0, false);
 
 use mod_booking\shortcodes;
+use mod_booking\singleton_service;
 
 $url = new moodle_url('/mod/booking/mybookings.php');
 $userid = optional_param('userid', 0, PARAM_INT);
