@@ -981,7 +981,7 @@ class booking_option {
                     if (!empty($settings->waitforconfirmation)) {
                         // If we wait for confirmation, we do not book users from waiting list automatically.
                         $confirmationcount = confirmation::get_required_confirmation_count($settings->id);
-                        $jsonobject = json_decode($currentanswer->json);
+                        $jsonobject = empty($currentanswer->json) ? (object)[] : json_decode($currentanswer->json);
                         $userconfirmationcount = $jsonobject->confirmationcount ?? 0;
                         if ($userconfirmationcount < $confirmationcount) {
                             continue;
