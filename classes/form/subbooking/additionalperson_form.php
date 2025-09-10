@@ -192,13 +192,12 @@ class additionalperson_form extends dynamic_form {
         $optionsettings = singleton_service::get_instance_of_booking_option_settings($data['optionid']);
         $ba = singleton_service::get_instance_of_booking_answers($optionsettings);
         $boinfo = $ba->return_all_booking_information($USER->id);
-        $userinfo = $boinfo['iamreserved'];
         if (
-            $boinfo['iamreserved']['fullybooked']
+            !empty($boinfo['iamreserved']['fullybooked'])
         ) {
             $errors['subbooking_addpersons'] = get_string('nomoreseats', 'mod_booking');
         } else if (
-            $boinfo['iamreserved']['freeonlist'] < (int)$data['subbooking_addpersons']
+            !empty($boinfo['iamreserved']['freeonlist']) && $boinfo['iamreserved']['freeonlist'] < (int)$data['subbooking_addpersons']
         ) {
             $errors['subbooking_addpersons'] = get_string('limitedseats', 'mod_booking', $boinfo['iamreserved']['freeonlist']);
         }
