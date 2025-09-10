@@ -60,7 +60,7 @@ class booking_history_table extends wunderbyte_table {
         }
 
         $helper = new bookingstracker_helper($values);
-        if ($values->scope === 'optionstoconfirm') {
+        if (!empty($values->scope) && $values->scope === 'optionstoconfirm') {
             // We don’t need to show the report page link, so we replace it with the option
             // view page in the approvers table where they confirm an answer.
             $helper->set_texticon('');
