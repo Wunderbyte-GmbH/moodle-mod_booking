@@ -54,7 +54,12 @@ echo $OUTPUT->header();
 
 echo $OUTPUT->heading(get_string('mybookingoptions', 'mod_booking'));
 
-echo shortcodes::mycourselist('', ['userid' => $userid, 'completed' => $completed], '', (object)[], fn($a) => $a);
+if ($userid != $USER->id) {
+    $arguments = ['userid' => $userid, 'completed' => $completed, 'exclude' => 'booknow'];
+} else {
+    $arguments = ['userid' => $userid, 'completed' => $completed];
+}
+echo shortcodes::mycourselist('', $arguments, '', (object)[], fn($a) => $a);
 
 if (class_exists('local_shopping_cart\shopping_cart') && get_config('booking', 'displayshoppingcarthistory')) {
     echo local_shopping_cart\shortcodes::shoppingcarthistory('', [], '', (object)[], fn($a) => $a);
