@@ -288,7 +288,7 @@ class onwaitinglist implements bo_condition {
                 // The answer will have the confirmation key.
                 $usersonwaitinglist = $ba->get_usersonwaitinglist();
                 if ($useranswer = $usersonwaitinglist[$userid] ?? false) {
-                    $jsonobject = json_decode($useranswer->json);
+                    $jsonobject = !empty($useranswer->json) ? json_decode($useranswer->json) : (object)[];
                     if (empty($jsonobject->confirmwaitinglist)) {
                         return get_string('bocondonwaitinglistwaitforconfirmation', 'mod_booking');
                     }
