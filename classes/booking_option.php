@@ -2668,7 +2668,7 @@ class booking_option {
             && !get_config('booking', 'presencestatustoissuecertificate')
             && !empty($userdata->completed)
         ) {
-            $certid = certificate::issue_certificate($this->id, $userdata->id);
+            $certid = certificate::issue_certificate($this->id, $userdata->id, $timebooked);
         }
         $other = [
             'cmid' => $this->cmid,
