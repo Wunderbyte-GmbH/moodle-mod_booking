@@ -120,10 +120,7 @@
     {{#optionstoconfirm}}
         <div class="card">
             {{#deputyselect}}
-                <button class="btn btn-primary" id="booking-booked-users-open-deputy-modal">
-                    {{#str}} adddeputies, mod_booking {{/str}}
-                </button>
-                <div id="my-deputy-modal"></div>
+                {{> mod_booking/deputyselect }}
             {{/deputyselect}}
             <div class="card-header bg-transparent" id="accordion-heading-optionstoconfirm">
                 <div class="bookingstracker-header" role="button" data-toggle="collapse" data-target="#accordion-item-optionstoconfirm" aria-expanded="false" aria-controls="accordion-item-optionstoconfirm">
@@ -139,9 +136,3 @@
         </div>
     {{/optionstoconfirm}}
 </div>
-
-{{#js}}
-    require(['mod_booking/dynamicdeputymodal'], function(fn) {
-        fn.init();
-    });
-{{/js}}
