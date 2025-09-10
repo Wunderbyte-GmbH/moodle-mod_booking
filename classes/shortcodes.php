@@ -1533,6 +1533,7 @@ class shortcodes {
             isset($args['deputyselect'])
             && !empty($args['deputyselect'])
             && !empty(get_config('bookingextension_confirmation_supervisor', 'deputy'))
+            && require_capability('mod/booking:assigndeputies', context_system::instance())
         ) {
             $data->deputyselect = 1;
         }
