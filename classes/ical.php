@@ -264,7 +264,7 @@ class ical {
         } else if ($this->updated) {
             $icalmethod = 'REQUEST';
         } else {
-            $icalmethod = 'PUBLISH';
+            $icalmethod = 'REQUEST';
         }
 
         // This is where we attach the iCal.
