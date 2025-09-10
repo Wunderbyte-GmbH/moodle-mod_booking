@@ -459,6 +459,7 @@ class subbooking_additionalperson implements booking_subbooking {
             [
                 'optionid' => $settings->id,
                 'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
+                'userid' => $userid,
             ]
         );
 
