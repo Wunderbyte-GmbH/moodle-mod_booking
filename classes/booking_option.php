@@ -1276,7 +1276,13 @@ class booking_option {
                     $ismultipbookingsoptionenable = self::get_value_of_json_by_key($this->id, 'multiplebookings');
                     // If we come from sync_waiting_list it might be possible that someone is moved from booked to waiting list.
                     // If we are already booked and multiple bookings is not enabled, we don't do anything.
-                    if ($waitinglist == MOD_BOOKING_STATUSPARAM_BOOKED && ! $ismultipbookingsoptionenable) {
+                    if (
+                        $waitinglist == MOD_BOOKING_STATUSPARAM_BOOKED
+                        && (
+                            !$ismultipbookingsoptionenable
+                            || $currentanswer->timemodified == $timebooked
+                        )
+                    ) {
                         return true;
                     }
                     // Else, we might move from booked to waitinglist, we just continue.
@@ -1293,17 +1299,22 @@ class booking_option {
                         // When the multiple booking option is enabled, we need to update the waitinglist column value
                         // of previously booked records from MOD_BOOKING_STATUSPARAM_BOOKED
                         // to MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED, and then insert a new record.
-                        self::change_booking_answer_waitinglist_status(
-                            MOD_BOOKING_STATUSPARAM_BOOKED,
-                            MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED,
-                            $user->id,
-                            $this->optionid
-                        );
+
+                        if ($currentanswer->timebooked < ($timebooked ?? time())) {
+                            $timecreated = $timebooked ?? time();
+                            self::change_booking_answer_waitinglist_status(
+                                MOD_BOOKING_STATUSPARAM_BOOKED,
+                                MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED,
+                                $user->id,
+                                $this->optionid
+                            );
+                        } else {
+                            $waitinglist = MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED;
+                        }
 
                         // If user is rebooking the option, we need to insert a new record.
                         // So to prevent any record update in booking_answerts table, we need to set record id to null.
                         $currentanswerid = null;
-                        $timecreated = null;
                     }
                     break;
                 case MOD_BOOKING_STATUSPARAM_RESERVED:
@@ -1321,7 +1332,9 @@ class booking_option {
                     }
                     break;
             }
-        } else if (!empty($timebooked)) {
+        }
+
+        if (!empty($timebooked)) {
             $timecreated = $timebooked;
         }
 
@@ -1410,7 +1423,7 @@ class booking_option {
 
         // To avoid a problem with the payment process, we catch any error that might occur.
         try {
-            $this->after_successful_booking_routine($user, $waitinglist);
+            $this->after_successful_booking_routine($user, $waitinglist, $timebooked);
             return true;
         } catch (Exception $e) {
             // We do not want this to fail if there was an exception.
@@ -1480,8 +1493,16 @@ class booking_option {
         // The real booking time is the moment when the user's booking process is finished.
         // To determine this moment, we can check the value of the waitinglist column
         // when it is set to MOD_BOOKING_STATUSPARAM_BOOKED.
-        if ($waitinglist == MOD_BOOKING_STATUSPARAM_BOOKED) {
-            $newanswer->timebooked = $now;
+        if (
+            in_array(
+                $waitinglist,
+                [
+                    MOD_BOOKING_STATUSPARAM_BOOKED,
+                    MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED,
+                ]
+            )
+        ) {
+            $newanswer->timebooked = $timecreated ?? $now;
         }
 
         // When a user submits a userform, we need to save this as well.
@@ -1681,9 +1702,10 @@ class booking_option {
      *
      * @param stdClass $user
      * @param int $waitinglist
+     * @param int $timebooked
      * @return bool
      */
-    public function after_successful_booking_routine(stdClass $user, int $waitinglist) {
+    public function after_successful_booking_routine(stdClass $user, int $waitinglist, int $timebooked = 0) {
 
         global $DB, $USER;
 
@@ -1704,12 +1726,26 @@ class booking_option {
 
         $other = [];
         $ba = singleton_service::get_instance_of_booking_answers($this->settings);
-        $usersonlist = $ba->get_usersonlist();
-        if (isset($usersonlist[$user->id])) {
-            $answer = $usersonlist[$user->id];
-            $other['baid'] = $answer->baid;
-            $other['json'] = $answer->json ?? '';
+
+        if (empty($timebooked)) {
+            $usersonlist = $ba->get_usersonlist();
+            if (isset($usersonlist[$user->id])) {
+                $answer = $usersonlist[$user->id];
+            }
+        } else {
+            $answer = $DB->get_record(
+                'booking_answers',
+                [
+                    'timebooked' => $timebooked,
+                    'userid' => $user->id,
+                    'optionid' => $this->optionid,
+                ]
+            );
+            $answer->baid = $answer->id;
         }
+
+        $other['baid'] = $answer->baid;
+        $other['json'] = $answer->json ?? '';
 
         $answers = $ba->get_answers();
 
@@ -2595,14 +2631,24 @@ class booking_option {
 
         $settings = $this->settings;
         $ba = singleton_service::get_instance_of_booking_answers($settings);
-        $users = $ba->get_usersonlist();
-        if (!$userdata = $users[$userid] ?? false) {
-            return false;
+
+        if (empty($timebooked)) {
+            $users = $ba->get_usersonlist();
+            if (!$userdata = $users[$userid] ?? false) {
+                return false;
+            }
+        } else {
+            $userdata = $DB->get_record('booking_answers', ['timebooked' => $timebooked, 'userid' => $userid]);
+            $userdata->baid = $userdata->id;
+            $userdata->id = $userdata->userid;
+            if (!empty($userdata->completed)) {
+                return false;
+            }
         }
 
         $completionold = $userdata->completed;
         $userdata->completed = empty($completionold) ? '1' : '0';
-        $userdata->timemodified = time();
+        $userdata->timemodified = empty($timebooked) ? time() : $timebooked;
         if (get_config('booking', 'bookingdebugmode')) {
             $event = booking_debug::create([
                 'objectid' => $optionid,
