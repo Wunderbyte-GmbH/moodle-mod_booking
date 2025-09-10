@@ -315,6 +315,7 @@ $string['bocondonwaitinglistavailable'] = 'Buchen';
 $string['bocondonwaitinglistfullavailable'] = 'Buchen möglich';
 $string['bocondonwaitinglistfullnotavailable'] = 'Nutzer:in ist auf der Warteliste';
 $string['bocondonwaitinglistnotavailable'] = 'Sie sind auf der Warteliste';
+$string['bocondonwaitinglistwaitforconfirmation'] = 'Warten auf Bestätigung';
 $string['bocondoptionhasstarted'] = 'Hat bereits begonnen';
 $string['bocondoptionhasstartedavailable'] = 'Buchen';
 $string['bocondoptionhasstartedfullavailable'] = 'Buchen möglich';

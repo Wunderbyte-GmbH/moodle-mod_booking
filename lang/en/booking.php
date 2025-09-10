@@ -323,6 +323,7 @@ $string['bocondonwaitinglistavailable'] = 'Book it';
 $string['bocondonwaitinglistfullavailable'] = 'Booking is possible';
 $string['bocondonwaitinglistfullnotavailable'] = 'User is on the waiting list';
 $string['bocondonwaitinglistnotavailable'] = 'You are on the waiting list';
+$string['bocondonwaitinglistwaitforconfirmation'] = 'Wait for confirmation';
 $string['bocondoptionhasstarted'] = 'Has already started';
 $string['bocondoptionhasstartedavailable'] = 'Book it';
 $string['bocondoptionhasstartedfullavailable'] = 'Booking is possible';
