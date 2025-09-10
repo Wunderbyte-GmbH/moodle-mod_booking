@@ -1,3 +1,38 @@
+## Version 8.16.2 (2025091000)
+* Feature: Added coursestarttime to shortcodes.
+* Improvement: Add filteronloadaction param to shortcode allbookingoptions.
+* Improvement: Better performance when showing description in table.
+* Improvement: Better Javascript performance.
+* Improvement: Delete unnecessary key confirmationnotificationoneatatime.
+* Improvement: Fix description for bookingextension.
+* Improvement: Increase the static acceleration size for better performance.
+* Improvement: Better performance during availability checks.
+* Improvement: Return image URL in bookings webservice.
+* Improvement: Possibility to only show completed courses in mybookings.
+* Improvement: New setting to show first teacher as responsible contact on teachers page.
+* Improvement: Make links configurable in bookingtracker_helper for column text in manageusers_table.
+* Improvement: Performance improvement for when there are many sessions – check output before production.
+* Bugfix: Possible behat fix – wait until booking history is loaded.
+* Bugfix: Replace report2option link with optionlink for col_text.
+* Bugfix: Missing isset checks for change array.
+* Bugfix: Cast to float for format_float.
+* Bugfix: Fix campaign string.
+* Bugfix: No format_float in apply_campaigns.
+* Bugfix: Prepage modals work again normally with performance improved JS.
+* Bugfix: Make sure we look for the bookingmanager only once per cache cycle.
+* Bugfix: Fix image URL creation.
+* Bugfix: Fix for case if $values->scope is not set or empty.
+* Bugfix: Correctly use allowedtobookinstance singleton.
+* Bugfix: Fix PHP 7.4 compatibility.
+* Bugfix: Fix behat (invisible characters).
+* Bugfix: Fix PHPUnit (invisible characters).
+* Bugfix: Fix for the case if $boinfo['iamreserved'] is empty.
+* Bugfix: Make sure to add subbooking persons to the right user answer.
+* Bugfix: Validation for subbooking places.
+* Bugfix: Don't proceed with sending mail if no user was found.
+* Bugfix: Small fix for shopping cart errors display.
+* Bugfix: No line break between price and currency.
+
 ## Version 8.16.1 (2025090401)
 * Improvement: Better info string for enrol multiple users.
 * Improvement: Localize prices with format_float.
