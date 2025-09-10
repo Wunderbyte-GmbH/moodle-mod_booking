@@ -23,17 +23,30 @@ import ModalForm from 'core_form/modalform';
 import {get_string as getString} from 'core/str';
 
 const SELECTORS = {
-    TRIGGERMODALBUTTON: '#booking-booked-users-open-deputy-modal'
+    TRIGGERMODALBUTTON: 'button[data-id="booking-booked-users-open-deputy-modal"]'
 };
 
 export const init = () => {
-    const deputymodalbutton = document.querySelector(SELECTORS.TRIGGERMODALBUTTON);
-    if (deputymodalbutton) {
-        deputymodalbutton.addEventListener('click', () => {
-            deputySelectModal(deputymodalbutton);
-        });
+
+    const container = document.querySelector('body');
+    if (!container) {
+        return;
     }
 
+    // Add one event listener only once
+    if (!container.dataset.deputyButtonDelegated) {
+        container.dataset.deputyButtonDelegated = 'true';
+
+        container.addEventListener('click', (e) => {
+            const button = e.target.closest(
+                SELECTORS.TRIGGERMODALBUTTON
+            );
+            if (!button) {
+                return;
+            }
+            deputySelectModal(button);
+        });
+    }
 };
 
 /**
