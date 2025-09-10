@@ -45,6 +45,7 @@ use mod_booking\event\bookinganswer_presencechanged;
 use mod_booking\event\bookinganswer_notesedited;
 use mod_booking\event\bookinganswer_waitingforconfirmation;
 use mod_booking\event\bookingoption_bookedviaautoenrol;
+use mod_booking\local\confirmationworkflow\confirmation;
 use mod_booking\option\dates_handler;
 use mod_booking\bo_actions\actions_info;
 use mod_booking\bo_availability\bo_info;
@@ -718,11 +719,6 @@ class booking_option {
             $fullybooked = false;
         }
 
-        // If waitforconfirmation is turned on, we will never sync waitinglist (we do it manually).
-        if (!empty($optionsettings->waitforconfirmation)) {
-            $syncwaitinglist = false;
-        }
-
         // Delete all booked options including completed.
         $conditions = ['userid' => $userid, 'optionid' => $this->optionid];
         if ($deleteall === false) {
@@ -980,6 +976,16 @@ class booking_option {
                     $currentanswer = array_shift($usersonwaitinglist);
                     if (empty($currentanswer->userid)) {
                         continue;
+                    }
+
+                    if (!empty($settings->waitforconfirmation)) {
+                        // If we wait for confirmation, we do not book users from waiting list automatically.
+                        $confirmationcount = confirmation::get_required_confirmation_count($settings->id);
+                        $jsonobject = json_decode($currentanswer->json);
+                        $userconfirmationcount = $jsonobject->confirmationcount ?? 0;
+                        if ($userconfirmationcount < $confirmationcount) {
+                            continue;
+                        }
                     }
 
                     $user = singleton_service::get_instance_of_user($currentanswer->userid);
@@ -4383,9 +4389,7 @@ class booking_option {
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
             // Do not sync waitinglist if it is enforced.
-            if (empty($newoption->waitforconfirmation)) {
-                $option->sync_waiting_list();
-            }
+            $option->sync_waiting_list();
 
             if (get_config('booking', 'bookingdebugmode')) {
                 // If debug mode is enabled, we create a debug message.
