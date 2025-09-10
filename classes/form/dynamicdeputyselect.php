@@ -186,5 +186,6 @@ class dynamicdeputyselect extends dynamic_form {
      * @return void
      */
     protected function check_access_for_dynamic_submission(): void {
+        require_capability('mod/booking:assigndeputies', context_system::instance());
     }
 }

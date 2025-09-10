@@ -423,6 +423,7 @@ $string['bookelectivesbtn'] = 'Book selected electives';
 $string['booking'] = 'Booking';
 $string['booking:addeditownoption'] = 'Add new option and edit own options.';
 $string['booking:addinstance'] = 'Add new booking';
+$string['booking:assigndeputies'] = 'Assign deputies';
 $string['booking:bookanyone'] = 'Allowed to book anyone';
 $string['booking:bookforothers'] = "Book for others";
 $string['booking:calculateprices'] = "Can recalculate prices";
