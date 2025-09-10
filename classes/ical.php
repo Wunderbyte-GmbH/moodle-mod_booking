@@ -378,6 +378,11 @@ class ical {
 
         // If no bookingmanager was set, we fall back to the no-reply address.
         $fromuseremail = empty($this->fromuser->email) ? $noreplyaddress : $this->fromuser->email;
+        if (!empty($this->fromuser->firstname) || !empty($this->fromuser->lastname)) {
+            $fromusername = "{$this->fromuser->firstname} {$this->fromuser->lastname}";
+        } else {
+            $fromusername = "{$CFG->wwwroot}";
+        }
 
         $veventparts = [
             "BEGIN:VEVENT",
@@ -387,15 +392,19 @@ class ical {
             "DTEND:{$dtend}",
             "DTSTAMP:{$this->dtstamp}",
             "DTSTART:{$dtstart}",
-            "LOCATION:{$this->location}",
             "PRIORITY:5",
             "SUMMARY:{$this->summary}",
             "TRANSP:OPAQUE{$this->status}",
-            "ORGANIZER;CN={$fromuseremail}:MAILTO:{$fromuseremail}",
-            "ATTENDEE;CUTYPE=INDIVIDUAL;ROLE={$this->role};PARTSTAT={$this->partstat};RSVP=false;" .
+            "ORGANIZER;CN={$fromusername}:MAILTO:{$fromuseremail}",
+            "ATTENDEE;CUTYPE=INDIVIDUAL;ROLE={$this->role};PARTSTAT={$this->partstat};RSVP=TRUE;" .
                 "CN={$this->userfullname};LANGUAGE=en:MAILTO:{$this->user->email}",
             "UID:{$uid}",
         ];
+
+        if (!empty($this->location)) {
+            $veventparts[] = "LOCATION:{$this->location}";
+        }
+
 
         // If the event has been updated then add the sequence value before END:VEVENT.
         if ($this->updated) {
