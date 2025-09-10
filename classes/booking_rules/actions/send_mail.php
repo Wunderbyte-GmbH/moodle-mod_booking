@@ -194,6 +194,10 @@ class send_mail implements booking_rule_action {
     public function execute(stdClass $record) {
         global $DB;
 
+        if (!isset($record->userid)) {
+            return;
+        }
+
         $task = new send_mail_by_rule_adhoc();
 
         $taskdata = [
