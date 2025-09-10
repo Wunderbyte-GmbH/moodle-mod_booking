@@ -73,7 +73,6 @@ class additionalperson_form extends dynamic_form {
      * @return void
      */
     public function set_data_for_dynamic_submission(): void {
-
         global $USER;
 
         $data = new stdClass();
@@ -81,7 +80,6 @@ class additionalperson_form extends dynamic_form {
         $formdata = $this->_ajaxformdata;
         $subbooking = subbookings_info::get_subbooking_by_area_and_id('subbooking', $formdata['id']);
 
-        // Todo: get these values.
         $userid = $USER->id; // Might be a different user!
         $optionid = $subbooking->optionid;
         $subbookingid = $subbooking->id;
@@ -99,8 +97,6 @@ class additionalperson_form extends dynamic_form {
      * @return stdClass|null
      */
     public function process_dynamic_submission(): stdClass {
-        global $PAGE, $USER;
-
         $data = $this->get_data();
 
         self::store_data_in_cache($data);
@@ -195,11 +191,13 @@ class additionalperson_form extends dynamic_form {
         if (
             !empty($boinfo['iamreserved']['fullybooked'])
         ) {
-            $errors['subbooking_addpersons'] = get_string('nomoreseats', 'mod_booking');
+            $errors['subbooking_addpersons'] =
+                get_string('nomoreseats', 'mod_booking');
         } else if (
             !empty($boinfo['iamreserved']['freeonlist']) && $boinfo['iamreserved']['freeonlist'] < (int)$data['subbooking_addpersons']
         ) {
-            $errors['subbooking_addpersons'] = get_string('limitedseats', 'mod_booking', $boinfo['iamreserved']['freeonlist']);
+            $errors['subbooking_addpersons'] =
+                get_string('limitedseats', 'mod_booking', $boinfo['iamreserved']['freeonlist']);
         }
 
         while ($data["subbooking_addpersons"] >= $counter) {
