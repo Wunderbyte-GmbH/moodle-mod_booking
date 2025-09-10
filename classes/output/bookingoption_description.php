@@ -421,7 +421,6 @@ class bookingoption_description implements renderable, templatable {
         // Array User object of the responsible contact.
         $responsibles = $settings->responsiblecontactuser;
 
-
         // If no responsible contact is set, we take the first teacher.
         if (
             get_config('booking', 'responsiblecontactshowfirstteacher')
