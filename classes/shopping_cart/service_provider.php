@@ -79,6 +79,9 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
 
             $item = booking_bookit::answer_booking_option($area, $itemid, MOD_BOOKING_STATUSPARAM_RESERVED, $userid);
 
+            if (empty($item)) {
+                return ['error' => 'novalidarea'];
+            }
             // Initialize.
             $serviceperiodstart = $item['coursestarttime'];
             $serviceperiodend = $item['courseendtime'];
