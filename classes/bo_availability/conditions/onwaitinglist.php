@@ -289,7 +289,11 @@ class onwaitinglist implements bo_condition {
                 $usersonwaitinglist = $ba->get_usersonwaitinglist();
                 if ($useranswer = $usersonwaitinglist[$userid] ?? false) {
                     $jsonobject = !empty($useranswer->json) ? json_decode($useranswer->json) : (object)[];
-                    if (empty($jsonobject->confirmwaitinglist)) {
+                    $confirmationcount = confirmation::get_required_confirmation_count($settings->id);
+                    if (
+                        empty($jsonobject->confirmwaitinglist)
+                        || $jsonobject->confirmwaitinglist < $confirmationcount
+                    ) {
                         return get_string('bocondonwaitinglistwaitforconfirmation', 'mod_booking');
                     }
                 }
