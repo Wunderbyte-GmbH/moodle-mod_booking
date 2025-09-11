@@ -489,7 +489,7 @@ class hascompetency implements bo_condition {
      * @param booking_option_settings $settings
      * @return string
      */
-    private function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings): string {
+    private function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings, int $userid = 0): string {
 
         if (
             !$isavailable
