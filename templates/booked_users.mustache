@@ -122,6 +122,9 @@
             {{#deputyselect}}
                 {{> mod_booking/deputyselect }}
             {{/deputyselect}}
+            {{#deputydisplay}}
+                {{> mod_booking/deputydisplay }}
+            {{/deputydisplay}}
             <div class="card-header bg-transparent" id="accordion-heading-optionstoconfirm">
                 <div class="bookingstracker-header" role="button" data-toggle="collapse" data-target="#accordion-item-optionstoconfirm" aria-expanded="false" aria-controls="accordion-item-optionstoconfirm">
                     <i class="fa fa-fw fa-hourglass" aria-hidden="true"></i>&nbsp;{{#str}} optionstoconfirm, mod_booking {{/str}}
@@ -129,7 +132,6 @@
             </div>
             <div id="accordion-item-optionstoconfirm" class="collapse" aria-labelledby="accordion-heading-optionstoconfirm" data-parent="#accordion-usertables">
             <div class="card-body p-0">
-                <div>{{{optionstoconfirmadditionaltexts}}}</div>
                 {{{optionstoconfirm}}}
             </div>
             </div>

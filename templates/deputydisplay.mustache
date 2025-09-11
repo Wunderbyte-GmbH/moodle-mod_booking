@@ -39,11 +39,13 @@
         ]
     }
 }}
-{{#texts}}
-    {{#link}}
-        <a href="{{link}}" class="{{class}}">{{text}}</a>{{^last}}, {{/last}}
-    {{/link}}
-    {{^link}}
-        <span class="{{class}}">{{text}}</span>
-    {{/link}}
-{{/texts}}
+    <div data-id="deputy-display" class="alert alert-info" role="alert">
+        {{#deputydisplay}}
+                {{#link}}
+                    <a href="{{link}}" class="{{class}}">{{text}}</a>{{^last}}, {{/last}}
+                {{/link}}
+                {{^link}}
+                    <span class="{{class}}">{{text}}</span>
+                {{/link}}
+        {{/deputydisplay}}
+    </div>
