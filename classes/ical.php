@@ -417,7 +417,6 @@ class ical {
             $veventparts[] = "LOCATION:{$this->location}";
         }
 
-
         // If the event has been updated then add the sequence value before END:VEVENT.
         if ($this->updated) {
             if (!$data = $DB->get_record('booking_icalsequence', ['userid' => $this->user->id, 'optionid' => $this->option->id])) {
@@ -489,6 +488,9 @@ class ical {
     /**
      * Fold a single iCalendar content line to <=75 octets using RFC 5545 folding.
      * Preserves UTF-8 characters (does not split mid-char) and adds CRLF + space.
+     * @param string $line
+     * @param int $limit
+     * @return string
      */
     public function fold_line(string $line, int $limit = 75): string {
         $out = '';
@@ -522,6 +524,10 @@ class ical {
      * - Prefers folding at spaces or after '>' (end of tag).
      * - Avoids breaking inside "http://", "https://".
      * - Uses CRLF line endings.
+     *
+     * @param string $line
+     * @param int $limit
+     * @return string
      */
     public function fold_html_line(string $line, int $limit = 75): string {
         $encoding = 'UTF-8';
