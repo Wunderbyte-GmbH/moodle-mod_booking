@@ -1426,8 +1426,6 @@ class view implements renderable, templatable {
 
         $wbtable->add_subcolumns('footer', $columnsfooter);
 
-
-
         if (in_array('booknow', $optionsfields)) {
             $wbtable->add_subcolumns('rightside', ['booknow', 'course', 'progressbar', 'ratings']);
         } else {
