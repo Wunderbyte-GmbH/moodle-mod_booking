@@ -36,6 +36,7 @@ use local_wunderbyte_table\filters\types\intrange;
 use local_wunderbyte_table\filters\types\standardfilter;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
+use mod_booking\form\dynamicdeputyselect;
 use mod_booking\local\shortcode_filterfield;
 use mod_booking\output\booked_users;
 use mod_booking\shortcodes_handler;
@@ -1534,11 +1535,12 @@ class shortcodes {
             isset($args['deputyselect'])
             && !empty($args['deputyselect'])
             && !empty(get_config('bookingextension_confirmation_supervisor', 'deputy'))
-            && has_capability('mod/booking:assigndeputies', context_system::instance())
         ) {
-            $data->deputyselect = 1;
+            if (has_capability('mod/booking:assigndeputies', context_system::instance())) {
+                $data->deputyselect = 1;
+            }
+            $data->deputydisplay = dynamicdeputyselect::get_display_deputies_data();
         }
-
         /** @var renderer $renderer */
         $renderer = $PAGE->get_renderer('mod_booking');
 
