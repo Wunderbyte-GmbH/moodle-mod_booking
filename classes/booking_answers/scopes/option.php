@@ -394,27 +394,4 @@ class option extends scope_base {
         }
     }
 
-    /**
-     * Returns the text to be shown as an extra description for the scope.
-     *
-     * This function returns an array of objects. Each object contains the properties:
-     *  - 'text'
-     *  - 'class'
-     *  - 'link'
-     *
-     * Example:
-     * [
-     *     {
-     *         'text': 'any text',
-     *         'class': 'any class',
-     *         'link': 'a valid link or an empty string'
-     *     }
-     * ]
-     *
-     * @param int $statusparam
-     * @return array Array of objects containing 'text', 'class', and 'link' properties.
-     */
-    public function get_additional_texts(int $statusparam): array {
-        return [];
-    }
 }
