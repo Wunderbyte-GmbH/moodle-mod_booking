@@ -467,7 +467,6 @@ class mod_booking_observer {
                 $bookingoption = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
                 if (empty($bookedanswer->completion)) {
                     $bookingoption->toggle_user_completion($bookedanswer->userid);
-
                 }
             }
         }
@@ -605,5 +604,54 @@ class mod_booking_observer {
         $customformstore = new customformstore($eventdata['userid'], $eventdata['other']['itemid']);
         $customformstore->delete_customform_data();
         return;
+    }
+
+    /**
+     * Observer for the competency_updated event.
+     *
+     * @param \core\event\competency_updated $event
+     */
+    public static function competency_updated(\core\event\competency_updated $event): void {
+        $competencyid = (int)$event->objectid;
+        cache_helper::invalidate_by_event('setbackcompetenciesshortnamescache', [$competencyid]);
+    }
+
+    /**
+     * Observer for the competency_deleted event.
+     *
+     * @param \core\event\competency_deleted $event
+     */
+    public static function competency_deleted(\core\event\competency_deleted $event): void {
+        cache_helper::purge_by_event('setbackusercompetenciescache');
+    }
+
+    /**
+     * Observer for the competency_user_competency_rated event.
+     *
+     * @param \core\event\competency_user_competency_rated $event
+     */
+    public static function competency_user_competency_rated(\core\event\competency_user_competency_rated $event): void {
+        $userid = (int)$event->relateduserid;
+        cache_helper::invalidate_by_event('setbackusercompetenciescache', [$userid]);
+    }
+
+    /**
+     * Observer for the competency_user_competency_rated_in_plan event.
+     *
+     * @param \core\event\competency_user_competency_rated_in_plan $event
+     */
+    public static function competency_user_competency_rated_in_plan(\core\event\competency_user_competency_rated_in_plan $event): void {
+        $userid = (int)$event->relateduserid;
+        cache_helper::invalidate_by_event('setbackusercompetenciescache', [$userid]);
+    }
+
+    /**
+     * Observer for the competency_user_competency_rated_in_course event.
+     *
+     * @param \core\event\competency_user_competency_rated_in_course $event
+     */
+    public static function competency_user_competency_rated_in_course(\core\event\competency_user_competency_rated_in_course $event): void {
+        $userid = (int)$event->relateduserid;
+        cache_helper::invalidate_by_event('setbackusercompetenciescache', [$userid]);
     }
 }

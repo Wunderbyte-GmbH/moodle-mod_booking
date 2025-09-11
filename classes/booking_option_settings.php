@@ -1023,7 +1023,6 @@ class booking_option_settings {
             AND source is not null", ['bookingid' => $bookingid]);
 
             if (!empty($imgfile)) {
-
                 $url = moodle_url::make_pluginfile_url(
                     $imgfile->contextid,
                     'mod_booking',

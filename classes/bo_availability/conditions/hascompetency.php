@@ -31,7 +31,9 @@ use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking;
 use mod_booking\booking_option_settings;
+use mod_booking\local\competencies\competencies_handler;
 use mod_booking\local\override_user_field;
+use mod_booking\option\fields\competencies;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
 use MoodleQuickForm;
@@ -141,14 +143,11 @@ class hascompetency implements bo_condition {
             $competencyids = $this->customsettings->competencyids;
             $hascompetency = true; // We start with true.
 
+            // Operator: AND.
             if (empty($this->customsettings->competencyidsoperator) || $this->customsettings->competencyidsoperator != 'OR') {
                 foreach ($competencyids as $competencyid) {
                     try {
-                        $usercompetency = user_competency::get_record([
-                            'userid' => $userid,
-                            'competencyid' => $competencyid,
-                        ]);
-                        $hascompetency = $hascompetency && !empty($usercompetency);
+                        $hascompetency = $hascompetency && competencies_handler::user_has_competency($userid, $competencyid);
                     } catch (Throwable $e) {
                         // If an error occurs, we assume the user does not have the competency.
                         $hascompetency = false;
@@ -157,15 +156,12 @@ class hascompetency implements bo_condition {
                     // We only get true, if the user has ALL selected competencies.
                 }
             } else {
+                // Operator: OR.
                 $hascompetency = false;
                 foreach ($competencyids as $competencyid) {
                     try {
                         // As soon as we find one of the competencies for the users, we break.
-                        $usercompetency = user_competency::get_record([
-                            'userid' => $userid,
-                            'competencyid' => $competencyid,
-                        ]);
-                        if (!empty($usercompetency)) {
+                        if (competencies_handler::user_has_competency($userid, $competencyid)) {
                             $hascompetency = true;
                             break;
                         }
@@ -258,30 +254,25 @@ class hascompetency implements bo_condition {
     public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0) {
         global $DB;
 
-        // TODO: Continue here...
-
         // Check if PRO version is activated.
         if (wb_payment::pro_version_is_activated()) {
-            $coursesarray = [];
+            $competenciesarray = [];
             if (
-                $courserecords = $DB->get_records_sql(
-                    "SELECT id, fullname
-                FROM {course}"
-                )
+                $competenciesrecords = $DB->get_records('competency')
             ) {
-                foreach ($courserecords as $courserecord) {
-                    $coursesarray[$courserecord->id] =
-                        "$courserecord->fullname (ID: $courserecord->id)";
+                foreach ($competenciesrecords as $competenciesrecord) {
+                    $competenciesarray[$competenciesrecord->id] =
+                        "$competenciesrecord->shortname (ID: $competenciesrecord->id)";
                 }
             }
 
             $mform->addElement(
                 'advcheckbox',
-                'bo_cond_enrolledincourse_restrict',
-                get_string('bocondenrolledincourse', 'mod_booking')
+                'bo_cond_hascompetency_restrict',
+                get_string('bocondhascompetency', 'mod_booking')
             );
 
-            $enrolledincourseoptions = [
+            $hascompetencyoptions = [
                 'tags' => false,
                 'multiple' => true,
             ];
@@ -291,45 +282,45 @@ class hascompetency implements bo_condition {
                 'AND' => get_string('overrideoperator:and', 'mod_booking'),
             ];
 
-            $courseoperator = [
-                'OR' => get_string('onecoursemustbefound', 'mod_booking'),
-                'AND' => get_string('allcoursesmustbefound', 'mod_booking'),
+            $competencyoperator = [
+                'OR' => get_string('onecompetencymustbefound', 'mod_booking'),
+                'AND' => get_string('allcompetenciesmustbefound', 'mod_booking'),
             ];
 
             $mform->addElement(
                 'autocomplete',
-                'bo_cond_enrolledincourse_courseids',
-                get_string('courses', 'mod_booking'),
-                $coursesarray,
-                $enrolledincourseoptions
+                'bo_cond_hascompetency_competencyids',
+                get_string('competencies', 'mod_booking'),
+                $competenciesarray,
+                $hascompetencyoptions
             );
-            $mform->hideIf('bo_cond_enrolledincourse_courseids', 'bo_cond_enrolledincourse_restrict', 'notchecked');
+            $mform->hideIf('bo_cond_hascompetency_competencyids', 'bo_cond_hascompetency_restrict', 'notchecked');
 
             $mform->addElement(
                 'select',
-                'bo_cond_enrolledincourse_courseids_operator',
+                'bo_cond_hascompetency_competencyids_operator',
                 get_string('overrideoperator', 'mod_booking'),
-                $courseoperator
+                $competencyoperator
             );
-            $mform->setDefault('bo_cond_enrolledincourse_courseids_operator', 'AND');
-            $mform->hideIf('bo_cond_enrolledincourse_courseids_operator', 'bo_cond_enrolledincourse_restrict', 'notchecked');
+            $mform->setDefault('bo_cond_hascompetency_competencyids_operator', 'AND');
+            $mform->hideIf('bo_cond_hascompetency_competencyids_operator', 'bo_cond_hascompetency_restrict', 'notchecked');
 
             $mform->addElement(
                 'checkbox',
-                'bo_cond_enrolledincourse_overrideconditioncheckbox',
+                'bo_cond_hascompetency_overrideconditioncheckbox',
                 get_string('overrideconditioncheckbox', 'mod_booking')
             );
-            $mform->hideIf('bo_cond_enrolledincourse_overrideconditioncheckbox', 'bo_cond_enrolledincourse_restrict', 'notchecked');
+            $mform->hideIf('bo_cond_hascompetency_overrideconditioncheckbox', 'bo_cond_hascompetency_restrict', 'notchecked');
 
             $mform->addElement(
                 'select',
-                'bo_cond_enrolledincourse_overrideoperator',
+                'bo_cond_hascompetency_overrideoperator',
                 get_string('overrideoperator', 'mod_booking'),
                 $overrideoperators
             );
             $mform->hideIf(
-                'bo_cond_enrolledincourse_overrideoperator',
-                'bo_cond_enrolledincourse_overrideconditioncheckbox',
+                'bo_cond_hascompetency_overrideoperator',
+                'bo_cond_hascompetency_overrideconditioncheckbox',
                 'notchecked'
             );
 
@@ -381,14 +372,14 @@ class hascompetency implements bo_condition {
             ];
             $mform->addElement(
                 'autocomplete',
-                'bo_cond_enrolledincourse_overridecondition',
+                'bo_cond_hascompetency_overridecondition',
                 get_string('overridecondition', 'mod_booking'),
                 $overrideconditionsarray,
                 $options
             );
             $mform->hideIf(
-                'bo_cond_enrolledincourse_overridecondition',
-                'bo_cond_enrolledincourse_overrideconditioncheckbox',
+                'bo_cond_hascompetency_overridecondition',
+                'bo_cond_hascompetency_overrideconditioncheckbox',
                 'notchecked'
             );
         } else {
@@ -412,7 +403,7 @@ class hascompetency implements bo_condition {
      */
     public function get_condition_object_for_json(stdClass $fromform): stdClass {
         $conditionobject = new stdClass();
-        if (!empty($fromform->bo_cond_enrolledincourse_restrict)) {
+        if (!empty($fromform->bo_cond_hascompetency_restrict)) {
             // Remove the namespace from classname.
             $classname = __CLASS__;
             $classnameparts = explode('\\', $classname);
@@ -421,12 +412,12 @@ class hascompetency implements bo_condition {
             $conditionobject->id = $this->id;
             $conditionobject->name = $shortclassname;
             $conditionobject->class = $classname;
-            $conditionobject->courseids = $fromform->bo_cond_enrolledincourse_courseids;
-            $conditionobject->courseidsoperator = $fromform->bo_cond_enrolledincourse_courseids_operator;
+            $conditionobject->competencyids = $fromform->bo_cond_hascompetency_competencyids;
+            $conditionobject->competencyidsoperator = $fromform->bo_cond_hascompetency_competencyids_operator;
 
-            if (!empty($fromform->bo_cond_enrolledincourse_overrideconditioncheckbox)) {
-                $conditionobject->overrides = $fromform->bo_cond_enrolledincourse_overridecondition;
-                $conditionobject->overrideoperator = $fromform->bo_cond_enrolledincourse_overrideoperator;
+            if (!empty($fromform->bo_cond_hascompetency_overrideconditioncheckbox)) {
+                $conditionobject->overrides = $fromform->bo_cond_hascompetency_overridecondition;
+                $conditionobject->overrideoperator = $fromform->bo_cond_hascompetency_overrideoperator;
             }
         }
         // Might be an empty object if restriction is not set.
@@ -439,15 +430,15 @@ class hascompetency implements bo_condition {
      * @param stdClass $acdefault the condition object from JSON
      */
     public function set_defaults(stdClass &$defaultvalues, stdClass $acdefault) {
-        if (!empty($acdefault->courseids)) {
-            $defaultvalues->bo_cond_enrolledincourse_restrict = "1";
-            $defaultvalues->bo_cond_enrolledincourse_courseids = $acdefault->courseids;
-            $defaultvalues->bo_cond_enrolledincourse_courseids_operator = $acdefault->courseidsoperator ?? 'AND';
+        if (!empty($acdefault->competencyids)) {
+            $defaultvalues->bo_cond_hascompetency_restrict = "1";
+            $defaultvalues->bo_cond_hascompetency_competencyids = $acdefault->competencyids;
+            $defaultvalues->bo_cond_hascompetency_competencyids_operator = $acdefault->competencyidsoperator ?? 'AND';
         }
         if (!empty($acdefault->overrides)) {
-            $defaultvalues->bo_cond_enrolledincourse_overrideconditioncheckbox = "1";
-            $defaultvalues->bo_cond_enrolledincourse_overridecondition = $acdefault->overrides;
-            $defaultvalues->bo_cond_enrolledincourse_overrideoperator = $acdefault->overrideoperator;
+            $defaultvalues->bo_cond_hascompetency_overrideconditioncheckbox = "1";
+            $defaultvalues->bo_cond_hascompetency_overridecondition = $acdefault->overrides;
+            $defaultvalues->bo_cond_hascompetency_overrideoperator = $acdefault->overrideoperator;
         }
     }
 
@@ -498,7 +489,7 @@ class hascompetency implements bo_condition {
      * @param booking_option_settings $settings
      * @return string
      */
-    private function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings) {
+    private function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings, int $userid = 0): string {
 
         if (
             !$isavailable
@@ -510,45 +501,47 @@ class hascompetency implements bo_condition {
         global $DB;
 
         if ($isavailable) {
-            $description = $full ? get_string('bocondenrolledincoursefullavailable', 'mod_booking') :
-                get_string('bocondenrolledincourseavailable', 'mod_booking');
+            $description = $full ? get_string('bocondhascompetencyfullavailable', 'mod_booking') :
+                get_string('bocondhascompetencyavailable', 'mod_booking');
         } else {
             if (!$this->customsettings) {
                 // This description can only work with the right custom settings.
                 $availabilityarray = json_decode($settings->availability);
 
                 foreach ($availabilityarray as $availability) {
-                    if (strpos($availability->class, 'enrolledincourse') > 0) {
+                    if (strpos($availability->class, 'hascompetency') > 0) {
                         $this->customsettings = (object)$availability;
                     }
                 }
             }
 
-            if (!isset($this->customsettings->courseids)) {
-                return 'Error in "enrolledincourse" availability condition: no course ids are set!';
+            if (!isset($this->customsettings->competencyids)) {
+                return 'Error in "hascompetency" availability condition: no competency ids are set!';
             }
 
             $a = '';
-            $coursestringsarr = [];
-            foreach ($this->customsettings->courseids as $courseid) {
-                if ($course = singleton_service::get_course($courseid)) {
-                    $coursestringsarr[] = $course->fullname;
+            $competencystringsarr = [];
+            foreach ($this->customsettings->competencyids as $competencyid) {
+                $shortname = competencies_handler::get_competency_shortname_by_id($competencyid);
+                if (empty($shortname)) {
+                    continue;
                 }
+                $competencystringsarr[] = $shortname;
             }
 
-            $a = implode(', ', $coursestringsarr);
+            $a = implode(', ', $competencystringsarr);
 
             if (
-                isset($this->customsettings->courseidsoperator)
-                && $this->customsettings->courseidsoperator == 'OR'
+                isset($this->customsettings->competencyidsoperator)
+                && $this->customsettings->competencyidsoperator == 'OR'
             ) {
                 $description = $full ?
-                    get_string('bocondenrolledincoursefullnotavailable', 'mod_booking', $a) :
-                    get_string('bocondenrolledincoursenotavailable', 'mod_booking', $a);
+                    get_string('bocondhascompetencyfullnotavailable', 'mod_booking', $a) :
+                    get_string('bocondhascompetencynotavailable', 'mod_booking', $a);
             } else {
                 $description = $full ?
-                    get_string('bocondenrolledincoursefullnotavailableand', 'mod_booking', $a) :
-                    get_string('bocondenrolledincoursenotavailableand', 'mod_booking', $a);
+                    get_string('bocondhascompetencyfullnotavailableand', 'mod_booking', $a) :
+                    get_string('bocondhascompetencynotavailableand', 'mod_booking', $a);
             }
         }
 
