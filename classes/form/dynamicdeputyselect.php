@@ -129,6 +129,7 @@ class dynamicdeputyselect extends dynamic_form {
             }
             $deputies = implode(',', $value->deputies);
             profile_save_custom_fields($user->id, [$field => $deputies]);
+            $this->enrol_deputies($user->profile[$field], $value->deputies);
             singleton_service::unset_instance_of_user($user->id);
         } else {
             // For the moment we only support custom user profile fields.
@@ -136,6 +137,72 @@ class dynamicdeputyselect extends dynamic_form {
         }
 
         return true;
+    }
+
+    /**
+     * Make sure current deputies are enroled in supervisor role
+     * and unenrol them from role on deletion if this was their only supervisor task.
+     *
+     * @param string $formerdeputiesstring
+     * @param array $newdeputies
+     *
+     * @return void
+     *
+     */
+    private function enrol_deputies(string $formerdeputiesstring, array $newdeputies) {
+        global $DB;
+
+        $supervisorroleid = get_config('local_taskflow', 'supervisorrole');
+        if (!empty($formerdeputiesstring)) {
+            $formerdeputies = explode(',', $formerdeputiesstring);
+
+            // Find deleted values (in old but not in new).
+            $deleted = array_diff($formerdeputies, $newdeputies);
+            $added = array_diff($newdeputies, $formerdeputies);
+        } else {
+            $added = $newdeputies;
+            $deleted = [];
+        }
+
+        // Assign the new deputies to the role of supervisor.
+        $systemcontext = context_system::instance();
+        foreach ($added as $newid) {
+            role_assign($supervisorroleid, $newid, $systemcontext->id);
+        }
+
+        // For deleted deputies check if they are in the role of supervisor or deputy for any other user.
+        $supervisorfield = get_config('bookingextension_confirmation_supervisor', 'supervisor');
+        $deputyfield = get_config('bookingextension_confirmation_supervisor', 'deputy');
+
+        $sql = "SELECT u.id,
+                u.username,
+                u.firstname,
+                u.lastname
+            FROM {user} u
+            LEFT JOIN {user_info_data} d1
+                ON d1.userid = u.id
+                AND d1.fieldid = (SELECT id FROM {user_info_field} WHERE shortname = :sv LIMIT 1)
+            LEFT JOIN {user_info_data} d2
+                ON d2.userid = u.id
+                AND d2.fieldid = (SELECT id FROM {user_info_field} WHERE shortname = :dp LIMIT 1)
+            WHERE (d1.data LIKE :id1
+                OR d2.data LIKE :id2);";
+
+        $params = [
+            'sv' => $supervisorfield,
+            'dp' => $deputyfield,
+        ];
+
+        foreach ($deleted as $deleteid) {
+            $string = "%$deleteid%";
+            $params['id1'] = $string;
+            $params['id2'] = $string;
+            $users = $DB->get_records_sql($sql, $params);
+            if ($users) {
+                continue;
+            }
+            role_unassign($supervisorroleid, $deleteid, $systemcontext->id);
+        }
     }
 
     /**
