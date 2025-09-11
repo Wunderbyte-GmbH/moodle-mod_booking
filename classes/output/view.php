@@ -816,6 +816,10 @@ class view implements renderable, templatable {
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($this->cmid);
         $optionsfields = explode(',', $bookingsettings->optionsfields);
 
+        if (!in_array('booknow', $optionsfields)) {
+            $optionsfields[] = 'booknow'; // We always need the booknow field for the buttons.
+        }
+
         $sortorder = $bookingsettings->defaultsortorder === "desc" ? SORT_DESC : SORT_ASC;
 
         // Set default sort order.
