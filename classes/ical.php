@@ -365,12 +365,16 @@ class ical {
         foreach ($matches[0] as $url) {
             $fulldescriptionhtml = str_replace($url, '<a href="' . $url . '">Link</a>', $fulldescriptionhtml);
         }
+        // Limit line length to 75 characters.
+        $fulldescriptionhtml = $this->fold_html_line($fulldescriptionhtml);
 
         $fulldescription = rtrim(strip_tags(preg_replace("/<br>|<\/p>/", "\n", $fulldescription)));
         $fulldescription = str_replace("\n", "\\n", $fulldescription);
 
         // Remove CR and CRLF from description as the description must be on one line to work with ical.
         $fulldescription = str_replace(["\r\n", "\n", "\r"], ' ', $fulldescription);
+        // Limit line length to 75 characters.
+        $fulldescription = $this->fold_line($fulldescription);
 
         // Make sure that we fall back onto some reasonable no-reply address.
         $noreplyaddressdefault = 'noreply@' . get_host_from_url($CFG->wwwroot);
@@ -384,11 +388,20 @@ class ical {
             $fromusername = "{$CFG->wwwroot}";
         }
 
+        // Fold the attendee line if it is more than 75 characters long.
+        $attendee = "ATTENDEE;CUTYPE=INDIVIDUAL;ROLE={$this->role};PARTSTAT={$this->partstat};RSVP=TRUE;" .
+                "CN={$this->userfullname};LANGUAGE=en:MAILTO:{$this->user->email}";
+        // The fold_line function keeps the ATTENDEE line valid by adding a space at the start of the next line
+        // whenever the line breaks.
+        $attendee = $this->fold_line($attendee);
+
         $veventparts = [
             "BEGIN:VEVENT",
             "CLASS:PUBLIC",
-            "DESCRIPTION:{$fulldescription}",
-            "X-ALT-DESC;FMTTYPE=text/html:{$fulldescriptionhtml}",
+            "DESCRIPTION:",
+            "{$fulldescription}", // Put the description content in the next line.
+            "X-ALT-DESC;FMTTYPE=text/html:",
+            "{$fulldescriptionhtml}",
             "DTEND:{$dtend}",
             "DTSTAMP:{$this->dtstamp}",
             "DTSTART:{$dtstart}",
@@ -396,8 +409,7 @@ class ical {
             "SUMMARY:{$this->summary}",
             "TRANSP:OPAQUE{$this->status}",
             "ORGANIZER;CN={$fromusername}:MAILTO:{$fromuseremail}",
-            "ATTENDEE;CUTYPE=INDIVIDUAL;ROLE={$this->role};PARTSTAT={$this->partstat};RSVP=TRUE;" .
-                "CN={$this->userfullname};LANGUAGE=en:MAILTO:{$this->user->email}",
+            "{$attendee}",
             "UID:{$uid}",
         ];
 
@@ -472,5 +484,87 @@ class ical {
         $text = wordwrap($text, 75, "\n ", true);
 
         return $text;
+    }
+
+    /**
+     * Fold a single iCalendar content line to <=75 octets using RFC 5545 folding.
+     * Preserves UTF-8 characters (does not split mid-char) and adds CRLF + space.
+     */
+    public function fold_line(string $line, int $limit = 75): string {
+        $out = '';
+        $bytes = 0;
+        $chunk = '';
+
+        // Iterate by Unicode chars but track byte length.
+        $len = mb_strlen($line, 'UTF-8');
+        for ($i = 0; $i < $len; $i++) {
+            $ch = mb_substr($line, $i, 1, 'UTF-8');
+            $chbytes = strlen($ch); // Bytes for this char in UTF-8.
+
+            if ($bytes + $chbytes >= $limit) {
+                // Emit current chunk, then start a new folded line.
+                $out .= $chunk . "\r\n" . ' ';
+                $chunk = $ch;
+                $bytes = $chbytes + 1; // Account for the leading space on next physical line.
+            } else {
+                $chunk .= $ch;
+                $bytes += $chbytes;
+            }
+        }
+        return $out . $chunk;
+    }
+
+    /**
+     * Fold a long iCalendar HTML line (X-ALT-DESC) without breaking tags or URLs.
+     *
+     * - Ensures each physical line is <=75 octets (including the leading space on
+     *   continuation lines).
+     * - Prefers folding at spaces or after '>' (end of tag).
+     * - Avoids breaking inside "http://", "https://".
+     * - Uses CRLF line endings.
+     */
+    public function fold_html_line(string $line, int $limit = 75): string {
+        $encoding = 'UTF-8';
+        $out = '';
+        $offset = 0;
+        $first = true;
+        $total = strlen($line);
+
+        while ($offset < $total) {
+            $maxcontent = $first ? $limit : $limit - 1; // Continuation reserves 1 byte for space.
+            if (($total - $offset) <= $maxcontent) {
+                // Last chunk fits.
+                $chunk = substr($line, $offset);
+                $offset = $total;
+            } else {
+                // Propose a chunk.
+                $chunk = mb_strcut($line, $offset, $maxcontent, $encoding);
+
+                // Look for safe break position inside chunk.
+                $safepos = max(
+                    strrpos($chunk, ' '), // Last space.
+                    strrpos($chunk, '>') // Or after tag.
+                );
+
+                // Avoid cutting inside URLs.
+                $httppos = strrpos($chunk, 'http');
+                if ($httppos !== false && $httppos > $safepos) {
+                    $safepos = strrpos(substr($chunk, 0, $httppos), ' ');
+                }
+
+                if ($safepos !== false && $safepos > 0) {
+                    $chunk = substr($chunk, 0, $safepos + 1); // Keep delimiter.
+                }
+                $offset += strlen($chunk);
+            }
+
+            if ($first) {
+                $out .= $chunk;
+                $first = false;
+            } else {
+                $out .= "\r\n" . ' ' . $chunk;
+            }
+        }
+        return $out;
     }
 }
