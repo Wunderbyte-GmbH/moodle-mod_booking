@@ -82,8 +82,6 @@ final class condition_hascompetency_test extends advanced_testcase {
 
         singleton_service::destroy_instance();
 
-        $syscontextid = context_system::instance()->id;
-
         $this->setAdminUser();
 
         set_config('timezone', 'Europe/Kyiv');
@@ -97,14 +95,6 @@ final class condition_hascompetency_test extends advanced_testcase {
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
         $user3 = $this->getDataGenerator()->create_user();
-
-        // Create a test role, so we can remove the mod/booking:bookforothers capability.
-        $roleid = create_role('Test Role', 'testrole', 'A test role');
-        assign_capability('mod/booking:bookforothers', CAP_PROHIBIT, $roleid, $syscontextid);
-
-        role_assign($roleid, $user1->id, $syscontextid);
-        role_assign($roleid, $user2->id, $syscontextid);
-        role_assign($roleid, $user3->id, $syscontextid);
 
         $scale = $this->getDataGenerator()->create_scale([
             'scale' => 'Not proficient,Proficient',
