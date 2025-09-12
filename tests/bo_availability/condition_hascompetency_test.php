@@ -178,10 +178,11 @@ final class condition_hascompetency_test extends advanced_testcase {
         // User 3 has no competencies.
         $this->assertEmpty(user_competency::get_records(['userid' => $user3->id]));
 
-        [$course, $cm] = get_course_and_cm_from_cmid($booking->cmid);
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /*[$course, $cm] = get_course_and_cm_from_cmid($booking->cmid);
         // Before the creation, we need to fix the page context.
         $PAGE->set_cm($cm, $course);
-        $PAGE->set_context(context_module::instance($booking->cmid));
+        $PAGE->set_context(context_module::instance($booking->cmid));*/
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
