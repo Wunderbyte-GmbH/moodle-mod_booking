@@ -1299,9 +1299,9 @@ class booking_option {
                         // When the multiple booking option is enabled, we need to update the waitinglist column value
                         // of previously booked records from MOD_BOOKING_STATUSPARAM_BOOKED
                         // to MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED, and then insert a new record.
-
-                        if ($currentanswer->timebooked < ($timebooked ?? time())) {
-                            $timecreated = $timebooked ?? time();
+                        $comparingtime = empty($timebooked) ? time() : $timebooked;
+                        if ($currentanswer->timebooked < $comparingtime) {
+                            $timecreated = $comparingtime;
                             self::change_booking_answer_waitinglist_status(
                                 MOD_BOOKING_STATUSPARAM_BOOKED,
                                 MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED,
