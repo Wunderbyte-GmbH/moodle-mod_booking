@@ -17,8 +17,8 @@
 namespace mod_booking;
 
 use advanced_testcase;
+use context_system;
 use stdClass;
-use tool_mocktesttime\time_mock;
 use mod_booking_generator;
 use mod_booking\option\fields_info;
 use mod_booking\bo_availability\bo_info;
@@ -34,9 +34,10 @@ use mod_booking\bo_availability\bo_info;
 final class ical_test extends advanced_testcase {
     /**
      * Setup environment.
+     * @param int $numberofdatesinoption
      * @return array
      */
-    protected function setup_environment() {
+    protected function setup_environment($numberofdatesinoption = 1) {
         global $DB, $CFG;
         $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
@@ -101,10 +102,29 @@ final class ical_test extends advanced_testcase {
         ];
         $plugingenerator->create_rule($rule3data);
 
+        $record = new stdClass();
+        $record->bookingid = $bookingmodule1->id;
+        $record->text = 'Test option1';
+        $record->chooseorcreatecourse = 1; // Reqiured.
+        $record->courseid = $course1->id;
+        $record->maxanswers = 2;
+        $record->useprice = 0;
+        $record->importing = 1;
+        for ($i = 0; $i < $numberofdatesinoption; $i++) {
+            $record->{"optiondateid_$i"} = "0";
+            $record->{"daystonotify_$i"} = "0";
+            $record->{"coursestarttime_$i"} = strtotime('20 June 2050') + ($i * 3600 * 24);
+            $record->{"courseendtime_$i"} = strtotime('20 July 2050') + ($i * 3600 * 24);
+        }
+
+        $option = $plugingenerator->create_option($record);
+
         return [
             'course' => $course1,
             'bookingmodule' => $bookingmodule1,
             'plugingenerator' => $plugingenerator,
+            'option' => $option,
+            'record' => $record,
             'users' => [
                 'student1' => $student1,
                 'student2' => $student2,
@@ -113,35 +133,80 @@ final class ical_test extends advanced_testcase {
     }
 
     /**
-     * Test creation of ical file.
+     * Checks if ical creates the booking ics file.
+     * @covers \mod_booking\ical
+     * @dataProvider ical_class_provider
+     * @param int $numberofdates
+     * @return void
+     */
+    public function test_ical_class(int $numberofdates): void {
+        $env = $this->setup_environment($numberofdates);
+        $option = $env['option'];
+        $student1 = $env['users']['student1'];
+        $this->resetAfterTest();
+
+        // Settings.
+        $optionsettings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($optionsettings->cmid);
+        $bookingmanager = $bookingsettings->bookingmanageruser;
+
+        $ical = new ical($bookingsettings, $optionsettings, $student1, $bookingmanager, false);
+        $attachments = $ical->get_attachments(true);
+        $attachname = $ical->get_name();
+        $this->assertArrayHasKey('booking.ics', $attachments);
+        $this->assertEquals('booking.ics', $attachname);
+
+        $file = file_get_contents($attachments['booking.ics']);
+        $this->assertNotEmpty($file, 'ICS file content is empty');
+
+        // General structure.
+        $this->assertStringContainsString('BEGIN:VCALENDAR', $file);
+        $this->assertStringContainsString('END:VCALENDAR', $file);
+
+        // Check that there is exactly N VEVENT.
+        $this->assertEquals($numberofdates, substr_count($file, 'BEGIN:VEVENT'));
+        $this->assertEquals($numberofdates, substr_count($file, 'END:VEVENT'));
+
+        // Core fields.
+        $this->assertStringContainsString('SUMMARY:', $file, 'ICS file missing SUMMARY');
+        $this->assertStringContainsString('DTSTART:', $file, 'ICS file missing DTSTART');
+        $this->assertStringContainsString('DTEND:', $file, 'ICS file missing DTEND');
+        $this->assertStringContainsString('UID:', $file, 'ICS file missing UID');
+        $this->assertStringContainsString('SEQUENCE:', $file, 'ICS file missing SEQUENCE');
+
+        // Attendee line should include student’s email.
+        $this->assertStringContainsString('ATTENDEE', $file, 'ICS file missing ATTENDEE');
+        $this->assertStringContainsString('MAILTO:' . $student1->email, $file);
+
+        // Organizer should be present (booking manager or noreply fallback).
+        $this->assertStringContainsString('ORGANIZER', $file);
+
+        // If you expect a CANCEL status, check it.
+        $this->assertStringContainsString('STATUS:CANCELLED', $file, 'ICS file should be marked cancelled');
+
+        // Optionally: ensure proper folding (line breaks with CRLF + space).
+        $this->assertMatchesRegularExpression('/\r\n /', $file, 'ICS file lines are not folded properly');
+    }
+
+    /**
+     * Scenario:
+     * We book an option for 2 students.
+     * We must have some adhoc tasks for each user that sends a message.
+     * Every booked user must receive a message.
+     * The ICS file with method REQUEST.
+     *
      * @covers \mod_booking\message_controller
+     * @covers \mod_booking\ical
      * @return void
      */
     public function test_create_calendar(): void {
         global $DB;
         // Get environment.
-        $env = $this->setup_environment();
-        $course = $env['course'];
-        $bookingmodule = $env['bookingmodule'];
-        $plugingenerator = $env['plugingenerator'];
+        $env = $this->setup_environment(1);
+        $option = $env['option'];
         $student1 = $env['users']['student1'];
         $student2 = $env['users']['student2'];
         $this->resetAfterTest();
-
-        $record = new stdClass();
-        $record->bookingid = $bookingmodule->id;
-        $record->text = 'Test option1';
-        $record->chooseorcreatecourse = 1; // Reqiured.
-        $record->courseid = $course->id;
-        $record->maxanswers = 2;
-        $record->useprice = 0;
-        $record->importing = 1;
-        $record->optiondateid_0 = "0";
-        $record->daystonotify_0 = "0";
-        $record->coursestarttime_0 = strtotime('20 June 2050');
-        $record->courseendtime_0 = strtotime('20 July 2050');
-
-        $option = $plugingenerator->create_option($record);
 
         // Verify if all sessions were updated correctly.
         $optiondata = (object)[
@@ -174,20 +239,319 @@ final class ical_test extends advanced_testcase {
         // Sink messages.
         $sink = $this->redirectMessages();
         $eventsink = $this->redirectEvents();
-
+        ob_start();
         // Run adhoc tasks (this executes send_mail_by_rule_adhoc).
         $this->runAdhocTasks();
-
         $messages = $sink->get_messages();
-        $events = $eventsink->get_events();
+        $res = ob_get_clean();
         $sink->close();
 
         // Assert: one message was sent.
         $this->assertCount(2, $messages);
 
+        // Get first message.
         $msg = $messages[0];
         $this->assertEquals('mod_booking', $msg->component);
         $this->assertEquals($student1->id, $msg->useridto);
         $this->assertEquals('Test', $msg->subject);
+
+        // Check the created ics file for the user.
+        $fs = get_file_storage();
+        $files = $fs->get_area_files(
+            context_system::instance()->id,
+            'mod_booking',
+            'message_attachments',
+            $student1->id,
+            'id',
+            false
+        );
+        $this->assertNotEmpty($files, 'ICS attachment not found in file storage.');
+
+        $icsfile = reset($files); // First (and usually only) file.
+        $this->assertInstanceOf(\stored_file::class, $icsfile);
+        $this->assertEquals('booking.ics', $icsfile->get_filename());
+        $this->assertEquals('text/calendar', $icsfile->get_mimetype());
+
+        // Get content as string.
+        $content = $icsfile->get_content();
+        $this->assertNotEmpty($content, 'ICS file content is empty.');
+
+        // Now you can assert ICS internals.
+        $this->assertStringContainsString('BEGIN:VCALENDAR', $content);
+        $this->assertStringContainsString('BEGIN:VEVENT', $content);
+        $this->assertStringContainsString('SUMMARY:', $content);
+        $this->assertStringContainsString('ATTENDEE', $content);
+        // It should have REQUEST method as user booked the option.
+        $this->assertStringContainsString('METHOD:REQUEST', $content);
+    }
+
+    /**
+     * Scenario:
+     * We book an option for 2 students.
+     * Admin changes the title of the booking option.
+     * We must have some adhoc tasks for each user that sends a message.
+     * Every booked user must receive a message.
+     * The ICS file with method REQUEST.
+     *
+     * @covers \mod_booking\message_controller
+     * @covers \mod_booking\ical
+     * @return void
+     */
+    public function test_update_calendar(): void {
+        global $DB;
+        // Get environment.
+        $env = $this->setup_environment(1);
+        $option = $env['option'];
+        $record = $env['record'];
+        $student1 = $env['users']['student1'];
+        $student2 = $env['users']['student2'];
+        $this->resetAfterTest();
+
+        // Verify if all sessions were updated correctly.
+        $optiondata = (object)[
+            'id' => $option->id,
+            'cmid' => $option->cmid,
+        ];
+        fields_info::set_data($optiondata);
+        [$dates, $highestindexchild] = dates::get_list_of_submitted_dates((array)$optiondata);
+        $this->assertCount(1, $dates);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $boinfo = new bo_info($settings);
+
+        // Book student 1.
+        booking_bookit::bookit('option', $settings->id, $student1->id);
+        booking_bookit::bookit('option', $settings->id, $student1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // Book student 2.
+        booking_bookit::bookit('option', $settings->id, $student2->id);
+        booking_bookit::bookit('option', $settings->id, $student2->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // Check if adhoc tasks are created.
+        $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $this->assertCount(2, $tasks);
+
+        // Run adhoc tasks. Now users will receive ics file of booking event.
+        // These messages are not something that we nedd to check. We need to check the messages on
+        // update event.
+        ob_start();
+        $this->runAdhocTasks();
+        $res = ob_get_clean();
+
+        // Change title of the option.
+        // Update booking.
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $record->id = $option->id;
+        $record->cmid = $settings->cmid;
+        $record->text = 'New booking option text';
+        booking_option::update($record);
+        singleton_service::destroy_booking_option_singleton($option->id);
+
+        // Check if adhoc tasks are created as we updated the booking option and defined a rule for it.
+        $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $this->assertCount(2, $tasks); // As we have two students we should have 2 adhoc tasks.
+
+        // Delete files as we have a conditin in message_controlelr that prevents
+        // deleting files for the unit tests. This important to prevent duplication.
+        $fs = get_file_storage();
+        $fs->delete_area_files(
+            context_system::instance()->id,
+            'mod_booking',
+            'message_attachments'
+        );
+
+        // Sink messages.
+        $sink = $this->redirectMessages();
+        $eventsink = $this->redirectEvents();
+        ob_start();
+        // Run adhoc tasks (this executes send_mail_by_rule_adhoc).
+        $this->runAdhocTasks();
+        $messages = $sink->get_messages();
+        $res = ob_get_clean();
+        $sink->close();
+
+        // Assert: one message was sent.
+        $this->assertCount(2, $messages);
+
+        // Get first message.
+        $msg = $messages[0];
+        $this->assertEquals('mod_booking', $msg->component);
+        $this->assertEquals($student1->id, $msg->useridto);
+        $this->assertEquals('Test', $msg->subject);
+
+        // Check the created ics file for the user.
+        $fs = get_file_storage();
+        $files = $fs->get_area_files(
+            context_system::instance()->id,
+            'mod_booking',
+            'message_attachments',
+            $student1->id,
+            'id',
+            false
+        );
+        $this->assertNotEmpty($files, 'ICS attachment not found in file storage.');
+
+        $icsfile = reset($files); // First (and usually only) file.
+        $this->assertInstanceOf(\stored_file::class, $icsfile);
+        $this->assertEquals('booking.ics', $icsfile->get_filename());
+        $this->assertEquals('text/calendar', $icsfile->get_mimetype());
+
+        // Get content as string.
+        $content = $icsfile->get_content();
+        $this->assertNotEmpty($content, 'ICS file content is empty.');
+
+        // Now you can assert ICS internals.
+        $this->assertStringContainsString('BEGIN:VCALENDAR', $content);
+        $this->assertStringContainsString('BEGIN:VEVENT', $content);
+        $this->assertStringContainsString('SUMMARY:', $content);
+        $this->assertStringContainsString('ATTENDEE', $content);
+        // It should have REQUEST method as user booked the option.
+        $this->assertStringContainsString('METHOD:REQUEST', $content);
+    }
+
+    /**
+     * Scenario:
+     * We book an option for 2 students.
+     * One student cancels the booking answer.
+     * We must have some adhoc tasks for each user that sends a message.
+     * The user who cancels the booknig option must receive a message.
+     * The ICS file with method CANCEL.
+     *
+     * @covers \mod_booking\message_controller
+     * @covers \mod_booking\ical
+     * @return void
+     */
+    public function test_cancel_calendar(): void {
+        global $DB;
+        // Get environment.
+        $env = $this->setup_environment(1);
+        $option = $env['option'];
+        $record = $env['record'];
+        $student1 = $env['users']['student1'];
+        $student2 = $env['users']['student2'];
+        $this->resetAfterTest();
+
+        // Verify if all sessions were updated correctly.
+        $optiondata = (object)[
+            'id' => $option->id,
+            'cmid' => $option->cmid,
+        ];
+        fields_info::set_data($optiondata);
+        [$dates, $highestindexchild] = dates::get_list_of_submitted_dates((array)$optiondata);
+        $this->assertCount(1, $dates);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $boinfo = new bo_info($settings);
+
+        // Book student 1.
+        booking_bookit::bookit('option', $settings->id, $student1->id);
+        booking_bookit::bookit('option', $settings->id, $student1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // Book student 2.
+        booking_bookit::bookit('option', $settings->id, $student2->id);
+        booking_bookit::bookit('option', $settings->id, $student2->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // Check if adhoc tasks are created.
+        $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $this->assertCount(2, $tasks);
+
+        // Run adhoc tasks. Now users will receive ics file of booking event.
+        // These messages are not something that we nedd to check. We need to check the messages on
+        // update event.
+        ob_start();
+        $this->runAdhocTasks();
+        $res = ob_get_clean();
+
+        // Cancel the booking answer.
+        $optioninstance = singleton_service::get_instance_of_booking_option($option->cmid, $option->id);
+        $optioninstance->user_delete_response($student1->id);
+
+        // Check if adhoc tasks are created as we updated the booking option and defined a rule for it.
+        $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $this->assertCount(1, $tasks); // As we have two students we should have 2 adhoc tasks.
+
+        // Delete files as we have a conditin in message_controlelr that prevents
+        // deleting files for the unit tests. This important to prevent duplication.
+        $fs = get_file_storage();
+        $fs->delete_area_files(
+            context_system::instance()->id,
+            'mod_booking',
+            'message_attachments'
+        );
+
+        // Sink messages.
+        $sink = $this->redirectMessages();
+        $eventsink = $this->redirectEvents();
+        ob_start();
+        // Run adhoc tasks (this executes send_mail_by_rule_adhoc).
+        $this->runAdhocTasks();
+        $messages = $sink->get_messages();
+        $res = ob_get_clean();
+        $sink->close();
+
+        // Assert: one message was sent.
+        $this->assertCount(1, $messages);
+
+        // Get first message.
+        $msg = $messages[0];
+        $this->assertEquals('mod_booking', $msg->component);
+        $this->assertEquals($student1->id, $msg->useridto);
+        $this->assertEquals('Test', $msg->subject);
+
+        // Check the created ics file for the user.
+        $fs = get_file_storage();
+        $files = $fs->get_area_files(
+            context_system::instance()->id,
+            'mod_booking',
+            'message_attachments',
+            $student1->id,
+            'id',
+            false
+        );
+        $this->assertNotEmpty($files, 'ICS attachment not found in file storage.');
+
+        $icsfile = reset($files); // First (and usually only) file.
+        $this->assertInstanceOf(\stored_file::class, $icsfile);
+        $this->assertEquals('booking.ics', $icsfile->get_filename());
+        $this->assertEquals('text/calendar', $icsfile->get_mimetype());
+
+        // Get content as string.
+        $content = $icsfile->get_content();
+        $this->assertNotEmpty($content, 'ICS file content is empty.');
+
+        // Now you can assert ICS internals.
+        $this->assertStringContainsString('BEGIN:VCALENDAR', $content);
+        $this->assertStringContainsString('BEGIN:VEVENT', $content);
+        $this->assertStringContainsString('SUMMARY:', $content);
+        $this->assertStringContainsString('ATTENDEE', $content);
+        // It should have REQUEST method as user booked the option.
+        $this->assertStringContainsString('METHOD:CANCEL', $content);
+    }
+
+    /**
+     * Data provider for test_ical_class.
+     *
+     * @return array
+     */
+    public static function ical_class_provider(): array {
+        return [
+            'Option with single date' => [
+                1, // Number of dates in the booking option.
+            ],
+            'Option with double dates' => [
+                2,
+            ],
+            'Option with triple dates' => [
+                3,
+            ],
+        ];
     }
 }
