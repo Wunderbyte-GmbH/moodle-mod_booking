@@ -517,6 +517,11 @@ class message_controller {
                         $context = context_system::instance(); // Use a suitable context, such as course or module context.
                         $tempfilepath = $attachments['booking.ics'];
 
+                        // Moodle’s file API enforces uniqueness on (contextid, component, filearea, itemid, filepath, filename).
+                        // If you try to create a second file with the same tuple, you get the duplicate key violation you
+                        // saw in phpunit test as we dont delete the file.
+                        $itemid = $this->messagedata->userto->id ?? 0;
+
                         // Check if the file exists in the temp path.
                         if (file_exists($tempfilepath)) {
                             // Prepare file record in Moodle storage.
@@ -524,7 +529,7 @@ class message_controller {
                                     'contextid' => $context->id,
                                     'component' => 'mod_booking', // Change to your component.
                                     'filearea' => 'message_attachments', // A custom file area for attachments.
-                                    'itemid' => 0, // Item ID (0 for general use or unique identifier for the message).
+                                    'itemid' => $itemid, // Item ID (0 for general use or unique identifier for the message).
                                     'filepath' => '/', // Always use '/' as the root directory.
                                     'filename' => $attachname,
                                     'userid' => $this->messagedata->userto->id,
