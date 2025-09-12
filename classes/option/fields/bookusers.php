@@ -148,7 +148,7 @@ class bookusers extends field_base {
                     $parsed = strtotime($formdata->timebooked);
                     $timebooked = $parsed !== false ? $parsed : null;
                 } else {
-                    $timebooked = null;
+                    $timebooked = 0;
                 }
                 $bookingoption->user_submit_response($user, 0, 0, 0, MOD_BOOKING_VERIFIED, '', $timebooked);
 
