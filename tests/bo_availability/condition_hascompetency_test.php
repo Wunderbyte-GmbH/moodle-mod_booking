@@ -82,8 +82,6 @@ final class condition_hascompetency_test extends advanced_testcase {
 
         singleton_service::destroy_instance();
 
-        $syscontextid = context_system::instance()->id;
-
         $this->setAdminUser();
 
         set_config('timezone', 'Europe/Kyiv');
@@ -97,14 +95,6 @@ final class condition_hascompetency_test extends advanced_testcase {
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
         $user3 = $this->getDataGenerator()->create_user();
-
-        // Create a test role, so we can remove the mod/booking:bookforothers capability.
-        $roleid = create_role('Test Role', 'testrole', 'A test role');
-        assign_capability('mod/booking:bookforothers', CAP_PROHIBIT, $roleid, $syscontextid);
-
-        role_assign($roleid, $user1->id, $syscontextid);
-        role_assign($roleid, $user2->id, $syscontextid);
-        role_assign($roleid, $user3->id, $syscontextid);
 
         $scale = $this->getDataGenerator()->create_scale([
             'scale' => 'Not proficient,Proficient',
@@ -160,9 +150,9 @@ final class condition_hascompetency_test extends advanced_testcase {
 
         $this->setAdminUser();
 
-        $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'student');
         $this->getDataGenerator()->enrol_user($user2->id, $course->id, 'student');
-        $this->getDataGenerator()->enrol_user($user3->id, $course->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($user3->id, $course->id, 'student');
 
         // User 1 has both competencies.
         api::get_user_competency($user1->id, $competency1->get('id'));
@@ -177,12 +167,6 @@ final class condition_hascompetency_test extends advanced_testcase {
 
         // User 3 has no competencies.
         $this->assertEmpty(user_competency::get_records(['userid' => $user3->id]));
-
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /*[$course, $cm] = get_course_and_cm_from_cmid($booking->cmid);
-        // Before the creation, we need to fix the page context.
-        $PAGE->set_cm($cm, $course);
-        $PAGE->set_context(context_module::instance($booking->cmid));*/
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
