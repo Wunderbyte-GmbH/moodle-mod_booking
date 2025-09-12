@@ -791,6 +791,11 @@ class shortcodes {
             $wherearray['completed'] = 1;
         }
 
+        $statusarray = [MOD_BOOKING_STATUSPARAM_BOOKED];
+        if (!empty($args['statuswaitinglist'])) {
+            $statusarray[] = MOD_BOOKING_STATUSPARAM_WAITINGLIST;
+        }
+
         [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(
                     0,
@@ -801,7 +806,7 @@ class shortcodes {
                     [],
                     $wherearray,
                     $userid,
-                    [MOD_BOOKING_STATUSPARAM_BOOKED],
+                    $statusarray,
                     $additionalwhere
                 );
 
