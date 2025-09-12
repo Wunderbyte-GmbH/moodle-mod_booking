@@ -1744,8 +1744,10 @@ class booking_option {
             $answer->baid = $answer->id;
         }
 
-        $other['baid'] = $answer->baid;
-        $other['json'] = $answer->json ?? '';
+        if (!empty($answer)) {
+            $other['baid'] = $answer->baid;
+            $other['json'] = $answer->json ?? '';
+        }
 
         $answers = $ba->get_answers();
 
