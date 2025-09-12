@@ -280,7 +280,6 @@ final class rules_selflearningcourse_test extends advanced_testcase {
         self::tearDown();
     }
 
-
     /**
      * Data provider for condition_bookingpolicy_test
      *

@@ -208,7 +208,6 @@ final class bookitbutton_test extends advanced_testcase {
         }
     }
 
-
     /**
      * Data provider for condition_bookingpolicy_test
      *

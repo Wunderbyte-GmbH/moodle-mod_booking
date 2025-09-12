@@ -147,7 +147,6 @@ class bo_info {
                             || has_capability('mod/booking:bookforothers', context_module::instance($settings->cmid))
                         )
                         && $result['button'] == MOD_BOOKING_BO_BUTTON_MYALERT
-                        && !defined('PHPUNIT_TEST')
                     ) {
                         continue;
                     }

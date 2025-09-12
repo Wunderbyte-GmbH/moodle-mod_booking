@@ -474,7 +474,6 @@ final class condition_bookingpolicy_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
     }
 
-
     /**
      * Test booking option availability: \condition\jsonuserfields.
      *

@@ -37,7 +37,6 @@ use mod_booking\bo_availability\bo_info;
 use stdClass;
 use tool_mocktesttime\time_mock;
 
-
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');

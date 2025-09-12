@@ -338,7 +338,6 @@ final class booking_groupenrolment_test extends advanced_testcase {
         ];
     }
 
-
     /**
      * Provides the data that's constant for the test.
      *
