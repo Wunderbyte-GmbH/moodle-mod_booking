@@ -33,7 +33,6 @@ use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
 use tool_mocktesttime\time_mock;
 
-
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
@@ -465,7 +464,6 @@ final class bookinghistory_test extends advanced_testcase {
         ],
         ];
     }
-
 
     /**
      * Provides the data that's constant for the test.

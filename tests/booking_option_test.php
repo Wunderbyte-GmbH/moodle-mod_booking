@@ -38,7 +38,6 @@ use core_course_category;
 use stdClass;
 use tool_mocktesttime\time_mock;
 
-
 /**
  * Class handling tests for booking options.
  *

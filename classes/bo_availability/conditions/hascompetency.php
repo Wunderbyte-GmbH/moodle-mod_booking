@@ -489,7 +489,7 @@ class hascompetency implements bo_condition {
      * @param booking_option_settings $settings
      * @return string
      */
-    private function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings, int $userid = 0): string {
+    private function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings): string {
 
         if (
             !$isavailable
@@ -524,6 +524,8 @@ class hascompetency implements bo_condition {
             foreach ($this->customsettings->competencyids as $competencyid) {
                 $shortname = competencies_handler::get_competency_shortname_by_id($competencyid);
                 if (empty($shortname)) {
+                    debugging('Error in "hascompetency" availability condition: shortname for competency with id ' .
+                        $competencyid . ' not found!', DEBUG_DEVELOPER);
                     continue;
                 }
                 $competencystringsarr[] = $shortname;

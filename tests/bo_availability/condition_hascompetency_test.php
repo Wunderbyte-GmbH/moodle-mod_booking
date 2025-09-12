@@ -82,6 +82,8 @@ final class condition_hascompetency_test extends advanced_testcase {
 
         singleton_service::destroy_instance();
 
+        $syscontextid = context_system::instance()->id;
+
         $this->setAdminUser();
 
         set_config('timezone', 'Europe/Kyiv');
@@ -95,6 +97,14 @@ final class condition_hascompetency_test extends advanced_testcase {
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
         $user3 = $this->getDataGenerator()->create_user();
+
+        // Create a test role, so we can remove the mod/booking:bookforothers capability.
+        $roleid = create_role('Test Role', 'testrole', 'A test role');
+        assign_capability('mod/booking:bookforothers', CAP_PROHIBIT, $roleid, $syscontextid);
+
+        role_assign($roleid, $user1->id, $syscontextid);
+        role_assign($roleid, $user2->id, $syscontextid);
+        role_assign($roleid, $user3->id, $syscontextid);
 
         $scale = $this->getDataGenerator()->create_scale([
             'scale' => 'Not proficient,Proficient',
@@ -160,7 +170,6 @@ final class condition_hascompetency_test extends advanced_testcase {
         $this->assertNotEmpty(user_competency::get_records(['userid' => $user1->id, 'competencyid' => $competency1->get('id')]));
         $this->assertNotEmpty(user_competency::get_records(['userid' => $user1->id, 'competencyid' => $competency2->get('id')]));
 
-
         // User 2 has only one competency.
         api::get_user_competency($user2->id, $competency1->get('id'));
         $this->assertNotEmpty(user_competency::get_records(['userid' => $user2->id, 'competencyid' => $competency1->get('id')]));
@@ -196,7 +205,6 @@ final class condition_hascompetency_test extends advanced_testcase {
         $record->bo_cond_hascompetency_competencyids_operator = "AND";
         $option = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option->id);
-
 
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
         $boinfo = new bo_info($settings);

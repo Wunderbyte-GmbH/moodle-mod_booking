@@ -31,7 +31,6 @@ use coding_exception;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
 
-
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
@@ -470,7 +469,6 @@ final class certificate_bo_completed_test extends advanced_testcase {
         // Mandatory clean-up.
         singleton_service::destroy_instance();
     }
-
 
     /**
      * Generator for Certificates.

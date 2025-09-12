@@ -640,7 +640,9 @@ class mod_booking_observer {
      *
      * @param \core\event\competency_user_competency_rated_in_plan $event
      */
-    public static function competency_user_competency_rated_in_plan(\core\event\competency_user_competency_rated_in_plan $event): void {
+    public static function competency_user_competency_rated_in_plan(
+        \core\event\competency_user_competency_rated_in_plan $event
+    ): void {
         $userid = (int)$event->relateduserid;
         cache_helper::invalidate_by_event('setbackusercompetenciescache', [$userid]);
     }
@@ -650,7 +652,9 @@ class mod_booking_observer {
      *
      * @param \core\event\competency_user_competency_rated_in_course $event
      */
-    public static function competency_user_competency_rated_in_course(\core\event\competency_user_competency_rated_in_course $event): void {
+    public static function competency_user_competency_rated_in_course(
+        \core\event\competency_user_competency_rated_in_course $event
+    ): void {
         $userid = (int)$event->relateduserid;
         cache_helper::invalidate_by_event('setbackusercompetenciescache', [$userid]);
     }
