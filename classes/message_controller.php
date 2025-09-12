@@ -551,8 +551,10 @@ class message_controller {
                 // In all other cases, use message_send.
                 if (message_send($this->messagedata)) {
                     if (!empty($this->rulesettings->actiondata) && !empty($this->rulesettings->actiondata->sendical)) {
-                        // Tidy up the now not needed file.
-                        $storedfile->delete();
+                        if (!PHPUNIT_TEST) {
+                            // Tidy up the now not needed file.
+                            $storedfile->delete();
+                        }
                     }
 
                     // Use an event to log that a message has been sent.
