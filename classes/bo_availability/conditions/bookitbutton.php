@@ -154,7 +154,7 @@ class bookitbutton implements bo_condition {
 
         $isavailable = $this->is_available($settings, $userid, $not);
 
-        $description = $this->get_description_string($isavailable, $full, $settings);
+        $description = !$isavailable ? $this->get_description_string($isavailable, $full, $settings) : '';
 
         return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_BOOK, MOD_BOOKING_BO_BUTTON_MYBUTTON];
     }
