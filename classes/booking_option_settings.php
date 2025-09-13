@@ -593,7 +593,7 @@ class booking_option_settings {
 
             // If the key "teacherids" is not yet set, we need to load from DB.
             if (!isset($dbrecord->teacherids)) {
-                $this->load_teacherids_from_db();
+                $this->teacherids = array_keys($this->teachers);
                 $dbrecord->teacherids = $this->teacherids;
             } else {
                 $this->teacherids = $dbrecord->teacherids;
@@ -802,7 +802,7 @@ class booking_option_settings {
             return null;
         }
         foreach ($this->responsiblecontact as $contact) {
-            $this->responsiblecontactuser[] = singleton_service::get_instance_of_user((int) $contact);
+            $this->responsiblecontactuser[$contact] = singleton_service::get_instance_of_user((int) $contact);
         }
     }
 
