@@ -28,6 +28,7 @@ $string['bookingextensionconfirmationtrainer:confirmationtrainerenabledinbooking
 $string['bookingextensionconfirmationtrainer:confirmationtrainerenabledinbookingoption_desc'] = 'Make it visible in booking option settings';
 $string['bookingextensionconfirmationtrainer:heading'] = "Confirmation by trainer";
 $string['bookingextensionconfirmationtrainer:heading_desc'] = 'Allow confirmation by trainer(s) of the bookingoption. If you active other confirmation extensions the confirmation can be from any of the active extensions.';
+$string['confirmationtrainerenabled'] = 'Allow confirmation by trainer';
 $string['notallowedtoconfirm'] = "Not allowed to confirm";
 $string['pluginname'] = 'Confirmation workflow by trainer';
 $string['workflowdescription'] = 'In the standard workflow, users will just book on the waitinglist, if in a booking option the "Book only after confirmation"-checkbox is set. As a teacher or any person, who has the corresponding capabilities (mod/booking:bookforothers & mod/booking:subscribeusers) you can view the users on the waitinglist and, from there, confirm users.';
