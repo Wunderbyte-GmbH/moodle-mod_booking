@@ -141,7 +141,7 @@ Feature: Create enrollink availability form for booking options with connected c
     And I should see "You were added to the waiting list for Option-waitinglist." in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
     And I follow "Close"
     And I should not see "75.00 EUR" in the ".allbookingoptionstable_r2 .booknow" "css_element"
-    And I should see "User is on the waiting list" in the ".allbookingoptionstable_r2 .booknow" "css_element"
+    And I should see "Wait for confirmation" in the ".allbookingoptionstable_r2 .booknow" "css_element"
     ## Confirm teacher's purchase by themself
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r2" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r2" "css_element"
