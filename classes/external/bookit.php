@@ -105,6 +105,7 @@ class bookit extends external_api {
 
         [$templates, $data] = booking_bookit::render_bookit_template_data($settings, $userid, false);
 
+        // On booking, we clear the user-specific cache of the booking option answers.
         $cache = cache::make('mod_booking', 'bookingoptionsanswers');
         $cachekey = "$settings->id";
         $bacache = $cache->get($cachekey);

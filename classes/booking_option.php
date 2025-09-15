@@ -3813,6 +3813,9 @@ class booking_option {
         // We also need to destroy outdated singletons.
         singleton_service::destroy_booking_option_singleton($optionid);
 
+        // At the end, we re-write into singleton.
+        singleton_service::get_instance_of_booking_option_settings($optionid);
+
         // We also purge the answers cache.
         self::purge_cache_for_answers($optionid);
     }
@@ -3834,6 +3837,10 @@ class booking_option {
 
         // We also need to destroy the booked_user_information.
         cache_helper::purge_by_event('setbackmyoptionstable');
+
+        // At the end, we re-write into singleton.
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        singleton_service::get_instance_of_booking_answers($settings);
     }
 
     /**
