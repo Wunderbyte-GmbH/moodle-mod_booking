@@ -1335,4 +1335,36 @@ class booking_answers {
         $records = $DB->get_records_sql($sql, $params);
         return count($records);
     }
+
+    /**
+     * This function counts completed booking answers with status booked over all instances.
+     * It does not use the caching we implemented in get_all_answers_for_user_cached, so use with care.
+     *
+     * @param int $userid
+     * @param int $optionid
+     * @param int $bookingid
+     *
+     * @return int
+     *
+     */
+    public static function count_allanswers_of_user(
+        int $userid,
+        int $optionid = 0,
+        int $bookingid = 0
+    ): int {
+        global $DB;
+
+        [$sql, $params] = self::return_sql_to_get_answers(
+            $optionid,
+            $bookingid,
+            $userid,
+            [
+                MOD_BOOKING_STATUSPARAM_BOOKED,
+                MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+                MOD_BOOKING_STATUSPARAM_RESERVED,
+            ]
+        );
+        $records = $DB->get_records_sql($sql, $params);
+        return count($records);
+    }
 }
