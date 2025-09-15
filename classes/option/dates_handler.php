@@ -260,7 +260,7 @@ class dates_handler {
             }
         }
 
-        return $datearray;
+        return $datearray ?? [];
     }
 
     /**
