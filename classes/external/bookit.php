@@ -26,6 +26,7 @@ declare(strict_types=1);
 
 namespace mod_booking\external;
 
+use cache;
 use external_api;
 use external_function_parameters;
 use external_value;
@@ -103,6 +104,18 @@ class bookit extends external_api {
         price::set_bookforuser($userid);
 
         [$templates, $data] = booking_bookit::render_bookit_template_data($settings, $userid, false);
+
+        $cache = cache::make('mod_booking', 'bookingoptionsanswers');
+        $cachekey = "$settings->id";
+        $bacache = $cache->get($cachekey);
+        $user = price::return_user_to_buy_for();
+
+        if (
+            !empty($bacache)
+            && isset($bacache->usercache[$user->id])
+        ) {
+            unset($bacache->usercache[$user->id]);
+        }
 
         return [
             'status' => $status,
