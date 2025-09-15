@@ -282,7 +282,7 @@ class onwaitinglist implements bo_condition {
             $description = $full ? get_string('bocondonwaitinglistfullavailable', 'mod_booking') :
                 get_string('bocondonwaitinglistavailable', 'mod_booking');
         } else {
-            if ($settings->waitforconfirmation == 1) {
+            if ($settings->waitforconfirmation > 0) {
                 // We need a separate string when waitinglist is only waiting for confirmation.
                 $ba = singleton_service::get_instance_of_booking_answers($settings);
                 // The answer will have the confirmation key.
