@@ -2777,7 +2777,7 @@ register_shutdown_function(function () {
         return;
     }
 
-    // To avoid loops, we need a counter.
+    // To avoid infinite loops, we need a counter.
     $counter = 0;
     $rules = rules_info::$rulestoexecute;
     while (
