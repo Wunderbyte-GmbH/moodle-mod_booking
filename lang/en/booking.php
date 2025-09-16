@@ -2590,6 +2590,7 @@ $string['tabwhatsnewdays_desc'] = 'Enter the number of days into the past until 
 Example: If you choose 30 then a booking option which has been set to visible or created longer than 30 days ago will not
 show up in the "What\'s new?"-Tab. 0 means that only booking options having been created or set to visible today will be shown.';
 $string['tagdeleted'] = 'Tag template was deleted!';
+$string['tagnotfoundindb'] = 'Tag could not be found or does not exist.';
 $string['tagsuccessfullysaved'] = 'Tag was saved.';
 $string['tagtag'] = 'Tag';
 $string['tagtemplates'] = 'Tag templates';

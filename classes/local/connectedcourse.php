@@ -247,12 +247,24 @@ class connectedcourse {
         global $DB, $USER;
         $where = "c.id IN (SELECT t.itemid FROM {tag_instance} t";
         $configs = get_config('booking', 'templatetags');
-
         if (empty($configs)) {
             return [];
         }
+        $configsarray = explode(',', str_replace(' ', '', $configs));
+        if (count($configsarray) == 1 && $configsarray[0] == "0") {
+            return [];
+        }
+        // Use array_filter to remove the "0" strings ("notags" option).
+        $configsarray = array_filter($configsarray, function ($value) {
+            return $value != "0";
+        });
+        // Reset array keys to get a consecutive index starting from 0.
+        $configsarray = array_values($configsarray);
+        if (empty($configsarray)) {
+            return [];
+        }
         // Search courses that are tagged with the specified tag.
-        $configtags['OR'] = explode(',', str_replace(' ', '', $configs));
+        $configtags['OR'] = $configsarray;
 
         $params = [];
 
@@ -323,7 +335,7 @@ class connectedcourse {
                 JOIN {context} ctx ON c.id = ctx.instanceid
                 AND ctx.contextlevel = :contextcourse
                 WHERE " .
-                $whereclause . "ORDER BY c.sortorder";
+                $whereclause . " ORDER BY c.sortorder ";
         $list = $DB->get_records_sql(
             $sql,
             ['contextcourse' => CONTEXT_COURSE] + $params
