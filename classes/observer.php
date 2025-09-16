@@ -448,7 +448,7 @@ class mod_booking_observer {
         global $DB, $CFG;
 
         // Check if there is an associated booking_answer with status 'booked' for the userid and courseid.
-        $sql = 'SELECT ba.userid, bo.courseid, ba.optionid, ba.completed
+        $sql = 'SELECT ba.id, ba.userid, bo.courseid, ba.optionid, ba.completed
                 FROM {booking_answers} ba
                 JOIN {booking_options} bo
                 ON ba.optionid = bo.id
