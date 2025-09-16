@@ -465,7 +465,7 @@ class mod_booking_observer {
             foreach ($bookedanswers as $bookedanswer) {
                 $settings = singleton_service::get_instance_of_booking_option_settings($bookedanswer->optionid);
                 $bookingoption = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
-                if (empty($bookedanswer->completion)) {
+                if (empty($bookedanswer->completed)) {
                     $bookingoption->toggle_user_completion($bookedanswer->userid);
                 }
             }
