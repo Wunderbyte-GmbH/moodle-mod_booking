@@ -926,9 +926,7 @@ class price {
             $user = singleton_service::get_instance_of_user($userid);
         } else {
             $user = $USER;
-            $userid = $USER->id;
         }
-        self::$bookforuserid = $userid;
         return $user;
     }
 

@@ -324,9 +324,6 @@ class singleton_service {
             try {
                 $booking = new booking($cmid);
                 $instance->bookingsbycmid[$cmid] = $booking;
-                if (!isset($instance->bookingsettingsbycmid[$cmid])) {
-                    $instance->bookingsettingsbycmid[$cmid] = $booking->settings;
-                }
                 return $booking;
             } catch (Exception $e) {
                 return null;
