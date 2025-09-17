@@ -33,6 +33,7 @@ use mod_booking\booking_option;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\calendar;
 use mod_booking\elective;
+use mod_booking\event\booking_debug;
 use mod_booking\event\bookinganswer_presencechanged;
 use mod_booking\event\bookinganswer_notesedited;
 use mod_booking\event\bookingoption_booked;
@@ -454,11 +455,32 @@ class mod_booking_observer {
                 ON ba.optionid = bo.id
                 WHERE ba.userid = :userid AND ba.waitinglist = 0 AND bo.courseid = :courseid';
         $params = ['userid' => $event->relateduserid, 'courseid' => $event->courseid];
-
+        if (get_config('booking', 'bookingdebugmode')) {
+                    $event = booking_debug::create([
+                        'objectid' => $event->courseid,
+                        'context' => context_system::instance(),
+                        'relateduserid' => $event->relateduserid,
+                        'other' => [
+                            'eventparams' => json_encode($event),
+                        ],
+                    ]);
+                    $event->trigger();
+                }
         // Only execute if there are associated booking_answers.
         if ($bookedanswers = $DB->get_records_sql($sql, $params)) {
             // Call the enrolment function.
             elective::enrol_booked_users_to_course();
+        }
+        if (get_config('booking', 'bookingdebugmode')) {
+            $event = booking_debug::create([
+                'objectid' => $event->courseid,
+                'context' => context_system::instance(),
+                'relateduserid' => $event->relateduserid,
+                'other' => [
+                    'bookedanswers' => json_encode($bookedanswers),
+                ],
+            ]);
+            $event->trigger();
         }
         if (!empty($bookedanswers) && get_config('booking', 'automaticbookingoptioncompletion')) {
             require_once($CFG->dirroot . '/mod/booking/lib.php');
