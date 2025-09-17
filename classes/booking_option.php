@@ -2572,7 +2572,20 @@ class booking_option {
         $completionold = $userdata->completed;
         $userdata->completed = empty($completionold) ? '1' : '0';
         $userdata->timemodified = time();
-
+        if (get_config('booking', 'bookingdebugmode')) {
+                    $event = booking_debug::create([
+                        'objectid' => $optionid,
+                        'context' => context_system::instance(),
+                        'relateduserid' => $USER->id,
+                        'other' => [
+                            'users' => $users,
+                            'completed' => $userdata->completed,
+                            'userid' => $userid,
+                            'optionid' => $optionid
+                        ],
+                    ]);
+                    $event->trigger();
+                }
         if (
             get_config('booking', 'certificateon')
             && !get_config('booking', 'presencestatustoissuecertificate')
