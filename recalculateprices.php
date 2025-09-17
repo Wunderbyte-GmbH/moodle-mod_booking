@@ -60,6 +60,7 @@ $data->back = $url->out(false);
 $url = new \moodle_url('/mod/booking/recalculateprices.php', ['id' => $cmid, 'submit' => true]);
 $data->continue = $url->out(false);
 $data->alertmsg = get_string('alertrecalculate', 'mod_booking');
+$data->hascap = has_capability('mod/booking:calculateprices', $context);
 
 if ($submit) {
     $price = new price('option');

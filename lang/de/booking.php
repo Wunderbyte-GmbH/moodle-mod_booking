@@ -416,6 +416,7 @@ $string['booking:addeditownoption'] = 'Neue Buchungsoptionen anlegen und eigene 
 $string['booking:addinstance'] = 'Neue Buchungsinstanz anlegen';
 $string['booking:bookanyone'] = 'Darf alle Nutzer:innen buchen';
 $string['booking:bookforothers'] = "Für andere buchen";
+$string['booking:calculateprices'] = "Darf Preise neu berechnen";
 $string['booking:canoverbook'] = "Darf überbuchen";
 $string['booking:canreviewsubstitutions'] = "Kann Vertretungen als kontrolliert markieren";
 $string['booking:canseeinvisibleoptions'] = 'Unsichtbare Buchungsoptionen sehen.';
@@ -1689,6 +1690,7 @@ $string['nooverlappingsettingcheckbox'] = 'Reagiere auf den Versuch überlappend
 $string['nooverlapwarning'] = 'Achtung, diese Option überlappt mit der/den von Ihnen gebuchten Option(en): {$a}';
 $string['nopermissiontoaccesscontent'] = '<div class="alert alert-danger" role="alert">Sie sind nicht berechtigt, auf diese Inhalte zuzugreifen.</div>';
 $string['nopermissiontoaccesspage'] = '<div class="alert alert-danger" role="alert">Sie sind nicht berechtigt, auf diese Seite zuzugreifen.</div>';
+$string['nopermissiontoexecuteaction'] = '<div class="alert alert-danger" role="alert">Sie sind nicht berechtigt, diese Aktion durchzuführen.</div>';
 $string['nopricecategoriesyet'] = 'Es wurden noch keine Preiskategorien angelegt.';
 $string['nopricecategoryselected'] = 'Geben Sie den Namen einer neuen Preiskategorie ein';
 $string['nopriceformulaset'] = 'Sie müssen zuerst eine Formel in den Buchungseinstellungen eintragen. <a href="{$a->url}" target="_blank">Formel hier bearbeiten.</a>';

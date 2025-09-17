@@ -424,6 +424,7 @@ $string['booking:addeditownoption'] = 'Add new option and edit own options.';
 $string['booking:addinstance'] = 'Add new booking';
 $string['booking:bookanyone'] = 'Allowed to book anyone';
 $string['booking:bookforothers'] = "Book for others";
+$string['booking:calculateprices'] = "Can recalculate prices";
 $string['booking:canoverbook'] = "Has permission to overbook";
 $string['booking:canreviewsubstitutions'] = "Allowed to review teacher substitutions (control checkbox)";
 $string['booking:canseeinvisibleoptions'] = 'View invisible options.';
@@ -1711,6 +1712,7 @@ $string['nooverlappingsettingcheckbox'] = 'Restrict booking of overlapping optio
 $string['nooverlapwarning'] = 'Warning, this option overlaps with your already booked option(s): {$a}';
 $string['nopermissiontoaccesscontent'] = '<div class="alert alert-danger" role="alert">You have no permission to access this content.</div>';
 $string['nopermissiontoaccesspage'] = '<div class="alert alert-danger" role="alert">You have no permission to access this page.</div>';
+$string['nopermissiontoexecuteaction'] = '<div class="alert alert-danger" role="alert">You have no permission to execute this action.</div>';
 $string['nopricecategoriesyet'] = 'No price categories have been created yet.';
 $string['nopricecategoryselected'] = 'Enter the name of a new price category';
 $string['nopriceformulaset'] = 'No formula set on setting page. <a href="{$a->url}" target="_blank">Set it here.</a>';
