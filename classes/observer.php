@@ -433,7 +433,18 @@ class mod_booking_observer {
         rules_info::collect_rules_for_execution($event);
         if (PHPUNIT_TEST) {
             // Process after every event when unit testing.
-            rules_info::filter_rules_and_execute();
+            // To avoid infinite loops, we need a counter.
+            $counter = 0;
+            while (
+                (count(rules_info::$rulestoexecute) > 0
+                || count(rules_info::$eventstoexecute) > 0)
+                && $counter < 10
+            ) {
+                rules_info::filter_rules_and_execute();
+
+                rules_info::events_to_execute();
+                $counter++;
+            }
         }
     }
 
