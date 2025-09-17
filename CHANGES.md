@@ -1,3 +1,28 @@
+## Version 8.17.0 (2025091700)
+* Feature: New hascompetency condition.
+* Improvement: Restore singleton after purging cache.
+* Improvement: Fixes for ical (*.ics) files.
+* Performance: Invalidate cache on clicking on bookit.
+* Performance: Better use of singleton patterns.
+* Performance: Avoid unnecessary DB call.
+* Performance: Don't render descriptions we don't need.
+* Bugfix: In unsubscribe.php we need to purge answers cache, not options cache!
+* Bugfix: Fix bug in selection of template courses.
+* Bugfix: Fixed skipping of Booking Rules.
+* Bugfix: Correct status for subbooking.
+* Bugfix: Responsible contacts - Mustache does not like associative arrays, so we make sure, we have array values only.
+* Bugfix: Fix exception when creating date series with empty text area.
+* Bugfix: Course completed observer has now a unique column.
+* Bugfix: Small typo completion.
+* Bugfix: Added missing language string.
+* Bugfix: Remove unnecessary PAGE context fix.
+* Bugfix: Fix unit tests, linting and improve code quality.
+* Bugfix: Subbookings create shortterm reservations in booking answers.
+* Bugfix: Don't set idnumber of targetcourse (fixes indumbertaken error).
+* Tests: Final fix for condition_hascompetency_test - enrol users as students to course.
+* Tests: Add PHPUnit tests for ICS calendar generation in mod_booking.
+* Tests: Check if message is sent on book event.
+
 ## Version 8.16.2 (2025091000)
 * Feature: Added coursestarttime to shortcodes.
 * Improvement: Add filteronloadaction param to shortcode allbookingoptions.
