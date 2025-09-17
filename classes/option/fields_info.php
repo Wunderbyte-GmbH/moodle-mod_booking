@@ -352,12 +352,6 @@ class fields_info {
                     continue;
                 }
             }
-            // We filter for setting to show rules tab.
-            if (!empty(get_config('booking', 'turnoffrulesdisplay'))) {
-                if ($classname == 'mod_booking\\option\\fields\\applybookingrules') {
-                    continue;
-                }
-            }
             // We might only want only normal save classes.
             if ($save === MOD_BOOKING_EXECUTION_NORMAL) {
                 if (!class_exists($classname) || $classname::$save !== MOD_BOOKING_EXECUTION_NORMAL) {

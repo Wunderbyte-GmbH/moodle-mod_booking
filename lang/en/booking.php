@@ -2710,8 +2710,6 @@ $string['tuesday'] = 'Tuesday';
 $string['turnoffmodals'] = "Turn off modals";
 $string['turnoffmodals_desc'] = "Some steps during the booking process will open modals. This settings will show the information inline, no modals will open.
 <b>Please note:</b> If you use the Booking <b>cards view</b>, then modals will still be used. You can <b>only turn them off for list view</b>.";
-$string['turnoffrulesdisplay'] = 'Hide "Rules" section in booking option edit form';
-$string['turnoffrulesdisplay_desc'] = 'The "Rules" section will no longer be displayed in the booking option edit form.';
 $string['turnoffwaitinglist'] = 'Turn off waiting list globally';
 $string['turnoffwaitinglist_desc'] = 'Activate this setting, if you do not want to use the waiting list
  feature on this site (e.g. because you only want to use the notification list).';
