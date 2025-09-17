@@ -42,7 +42,11 @@ final class ical_test extends advanced_testcase {
         $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
         // Create users.
-        $student1 = $this->getDataGenerator()->create_user();
+        $student1 = $this->getDataGenerator()->create_user([
+            'firstname' => 'Maximiliana',
+            'lastname'  => 'Hieronymopolous-Cavendish-Montenegresco',
+            'email'  => 'Maximiliana.Hieronymopolous-Cavendish-Montenegresco@example.com',
+        ]);
         $student2 = $this->getDataGenerator()->create_user();
         $teacher1 = $this->getDataGenerator()->create_user();
 
@@ -176,7 +180,8 @@ final class ical_test extends advanced_testcase {
 
         // Attendee line should include student’s email.
         $this->assertStringContainsString('ATTENDEE', $file, 'ICS file missing ATTENDEE');
-        $this->assertStringContainsString('MAILTO:' . $student1->email, $file);
+        $unfolded = preg_replace("/\r\n[ \t]/", '', $file);
+        $this->assertStringContainsString('MAILTO:' . $student1->email, $unfolded);
 
         // Organizer should be present (booking manager or noreply fallback).
         $this->assertStringContainsString('ORGANIZER', $file);
