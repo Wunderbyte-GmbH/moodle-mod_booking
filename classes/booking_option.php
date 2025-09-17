@@ -2057,7 +2057,6 @@ class booking_option {
             // Group has been deleted and must be created and groupid updated in DB. Or group does not yet exist.
             $data = new stdClass();
             $data->id = $this->option->id;
-            $newgroupdata->idnumber = MOD_BOOKING_ENROL_GROUPTYPE_TARGETCOURSE . $this->option->id;
             $data->groupid = groups_create_group($newgroupdata);
             if ($data->groupid) {
                 $DB->update_record('booking_options', $data);
