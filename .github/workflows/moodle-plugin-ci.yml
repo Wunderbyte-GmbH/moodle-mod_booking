@@ -12,7 +12,7 @@ jobs:
 
       # Command to install more dependencies
       extra_plugin_runners: |
-        moodle-plugin-ci add-plugin --branch MOODLE_500_TESTING Wunderbyte-GmbH/moodle-local_wunderbyte_table
+        moodle-plugin-ci add-plugin --branch MOODLE_401_DEV Wunderbyte-GmbH/moodle-local_wunderbyte_table
         moodle-plugin-ci add-plugin --branch MOODLE_401_DEV Wunderbyte-GmbH/moodle-local_shopping_cart
         moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-local_entities
         moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-customfield_dynamicformat
@@ -80,7 +80,7 @@ jobs:
         # Go Back to main directory
         cd ..
         # END OF WORKAROUND
-  moodle450:
+  moodle401to405:
     uses: Wunderbyte-GmbH/catalyst-moodle-workflows/.github/workflows/ci.yml@main
     with:
       # Change these based on your plugin's requirements
