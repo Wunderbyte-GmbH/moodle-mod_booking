@@ -463,7 +463,8 @@ class teachers_instance_report_table extends table_sql {
         }
 
         if (!$this->is_downloading()) {
-            $retstring = '<a data-toggle="collapse" data-bs-toggle="collapse" href="#substitutionsforteacher-' . $values->teacherid .
+            $retstring = '<a data-toggle="collapse" data-bs-toggle="collapse" ' .
+                'href="#substitutionsforteacher-' . $values->teacherid .
                 '" role="button" aria-expanded="false" aria-controls="substitutionsforteacher">
                 <i class="fa fa-handshake-o"></i> ' . get_string('substitutions', 'mod_booking') .
                 '</a><div class="collapse" id="substitutionsforteacher-' . $values->teacherid . '">' .
