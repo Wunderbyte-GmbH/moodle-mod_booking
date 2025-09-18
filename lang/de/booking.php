@@ -580,6 +580,12 @@ $string['bookingruletemplatesactive'] = 'Vorgefertigte Templates für Regeln akt
 $string['bookings'] = 'Buchungen';
 $string['bookingsaved'] = '<b>Vielen Dank für Ihre Buchung!</b> <br /> Ihre Buchung wurde erfolgreich gespeichert und ist somit abgeschlossen. Sie können nun weitere Online-Seminare buchen oder bereits getätigte Buchungen verwalten';
 $string['bookingsettings'] = 'Buchung: Einstellungen';
+$string['bookingstatusbooked'] = 'Gebucht';
+$string['bookingstatusdeleted'] = 'Gelöscht';
+$string['bookingstatusonnotificationlist'] = 'Auf der Benachrichtigungsliste';
+$string['bookingstatusonwaitinglist'] = 'Auf der Warteliste';
+$string['bookingstatuspreviouslybooked'] = 'Bereits gebucht';
+$string['bookingstatusreserved'] = 'Reserviert';
 $string['bookingstracker'] = "Buchungstracker";
 $string['bookingstracker_desc'] = "Hier können Sie den Buchungstracker aktivieren.
 Er erlaubt es berechtigten Benutzer/innen, die Buchungen der gesamten Seite auf verschiedenen hierarchischen Buchungsebenen
@@ -2492,6 +2498,7 @@ $string['successfullysorted'] = 'Erfolgreich sortiert';
 $string['sucessfullybooked'] = 'Erfolgreich gebucht';
 $string['sumunits'] = 'Summe UE';
 $string['sunday'] = 'Sonntag';
+$string['supervisorteam'] = 'Team der Vorgesetzten';
 $string['switchtemplates'] = 'Nutzer:innen können die Ansicht wechseln';
 $string['switchtemplates_help'] = 'Aktivieren Sie diese Einstellung, um es Nutzer:innen zu ermöglichen zwischen verschiedenen Ansichten zu wechseln.
 Definieren Sie im nächsten Schritt die Ansichten zwischen denen gewechselt werden kann.';
