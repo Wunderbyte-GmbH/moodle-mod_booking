@@ -1586,6 +1586,40 @@ class shortcodes {
             }
         }
         return;
+    }
 
+    /**
+     * Shortcode: Supervisor's team.
+     * Table of the answers with status booked, reserver & on waiting list.
+     *
+     * @param mixed $shortcode
+     * @param mixed $args
+     * @param mixed $content
+     * @param mixed $env
+     * @param mixed $next
+     *
+     * @return string
+     *
+     */
+    public static function supervisorteam($shortcode, $args, $content, $env, $next) {
+
+        global $PAGE;
+
+        $data = new booked_users(
+            'supervisorteam',
+            0,
+            true, // Booked users.
+            true, // Users on waiting list.
+            true, // Reserved answers (e.g. in shopping cart).
+            false, // Users on notify list.
+            false, // Deleted users.
+            false, // Booking history.
+            false // Options to confirm.
+        );
+
+        /** @var renderer $renderer */
+        $renderer = $PAGE->get_renderer('mod_booking');
+
+        return $renderer->render_booked_users($data);
     }
 }

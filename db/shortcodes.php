@@ -63,4 +63,8 @@ $shortcodes = [
         'callback' => 'mod_booking\shortcodes::listtoapprove',
         'description' => 'listtoapprove',
     ],
+    'supervisorteam' => [
+        'callback' => 'mod_booking\shortcodes::supervisorteam',
+        'description' => 'supervisorteam',
+    ],
 ];
