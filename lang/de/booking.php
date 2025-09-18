@@ -2512,6 +2512,7 @@ $string['tableheadermaxoverbooking'] = 'Wartelistenplätze';
 $string['tableheaderminanswers'] = 'Mindestteilnehmerzahl';
 $string['tableheaderteacher'] = 'Trainer:in(nen)';
 $string['tableheadertext'] = 'Kursbezeichnung';
+$string['tableheaderwaitforconfirmation'] = 'Warten auf Bestätigung';
 $string['tabwhatsnew'] = 'Buchungs-Tab: "Was ist neu?"';
 $string['tabwhatsnew_desc'] = 'Sie können diesen Tab verwenden, um Benutzer:innen alle neuen Buchungen anzuzeigen,
 die innerhalb der letzten X Tage (die Anzahl können Sie hier angeben) auf sichtbar gesetzt ODER erstellt wurden.

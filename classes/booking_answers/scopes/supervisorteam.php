@@ -129,4 +129,23 @@ class supervisorteam extends optionstoconfirm {
 
         return $columns;
     }
+
+    /**
+     * Returns a new array of labels for the tables.
+     * You can set a custom name for each table.
+     * Possible keys are:
+     * - bookings
+     * - waitinglist
+     * - reservedusers
+     * - userstonotify
+     * - deletedbookings
+     * - bookinghistory
+     * @param array $defaultlables
+     * @return array
+     */
+    public function get_lables_of_tables(array $defaultlables): array {
+        $newlabels = $defaultlables;
+        $newlabels['waitinglist'] = get_string('tableheaderwaitforconfirmation', 'mod_booking');
+        return $newlabels;
+    }
 }
