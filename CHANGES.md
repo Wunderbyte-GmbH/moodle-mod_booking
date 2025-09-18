@@ -1,3 +1,8 @@
+## Version 8.17.1 (2025091800)
+* Improvement: Check capability for recalculateprices.
+* Improvement: Add contains-partially-option for circumvent condition.
+* Tests: Improve and fix some phpunit and behat tests.
+
 ## Version 8.17.0 (2025091700)
 * Feature: New hascompetency condition.
 * Improvement: Restore singleton after purging cache.
