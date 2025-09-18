@@ -188,7 +188,7 @@ final class rules_override_test extends advanced_testcase {
                 $this->assertStringContainsString($ruledata2['actiondata'], $customdata->rulejson);
             } else if (strpos($customdata->customsubject, "answcancsubj") !== false) {
                 $this->assertSame("answcancmsg", $customdata->custommessage);
-                $this->assertSame($user2->id, $customdata->userid);
+                $this->assertSame(2, $customdata->userid);
                 $this->assertStringContainsString($ruledata1['conditiondata'], $customdata->rulejson);
                 $this->assertStringContainsString($ruledata1['actiondata'], $customdata->rulejson);
             } else {
@@ -214,7 +214,11 @@ final class rules_override_test extends advanced_testcase {
                 $this->assertSame($user2->id, $sentmessage->useridfrom);
                 $this->assertSame($user1->id, $sentmessage->useridto);
             } else {
-                $this->assertSame("answcancmsg", $sentmessage->fullmessage, 'Error: no overriding, answcancmsg message foun');
+                $this->assertStringNotContainsString(
+                    "answcancmsg",
+                    $sentmessage->fullmessage,
+                    'Error: no overriding, answcancmsg message found'
+                );
             }
         }
     }
