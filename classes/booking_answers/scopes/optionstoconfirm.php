@@ -286,7 +286,7 @@ class optionstoconfirm extends option {
             $params['statusparam2'] = $statusparam;
         }
 
-        $whereneedtoconfirm = " AND " . self::get_whereneedtoconfirm_sql($params);
+        $whereneedtoconfirm = " AND " . $this->get_whereneedtoconfirm_sql($params);
         $whereneedtoconfirmjoin = " JOIN {booking_options} bo ON bo.id = ba.optionid
                                     JOIN {course_modules} cm ON bo.bookingid = cm.instance
                                     JOIN {modules} m ON m.id = cm.module AND m.name = 'booking'";

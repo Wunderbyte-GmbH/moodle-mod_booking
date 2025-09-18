@@ -112,6 +112,32 @@ class manageusers_table extends wunderbyte_table {
         return userdate($values->timebooked);
     }
 
+     /**
+      * Returns lable of the booking status.
+      * @param \stdClass $values
+      * @return string
+      */
+    public function col_bookingstatus(stdClass $values): string {
+        switch ($values->waitinglist) {
+            case MOD_BOOKING_STATUSPARAM_BOOKED:
+                return get_string('bookingstatusbooked', 'mod_booking');
+            case MOD_BOOKING_STATUSPARAM_WAITINGLIST:
+                return get_string('bookingstatusonwaitinglist', 'mod_booking');
+            case MOD_BOOKING_STATUSPARAM_RESERVED:
+                return get_string('bookingstatusreserved', 'mod_booking');
+            case MOD_BOOKING_STATUSPARAM_NOTIFYMELIST:
+                return get_string('bookingstatusonnotificationlist', 'mod_booking');
+            case MOD_BOOKING_STATUSPARAM_NOTBOOKED:
+                return get_string('notbooked', 'mod_booking');
+            case MOD_BOOKING_STATUSPARAM_DELETED:
+                return get_string('bookingstatusdeleted', 'mod_booking');
+            case MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED:
+                return get_string('bookingstatuspreviouslybooked', 'mod_booking');
+            default:
+                return get_string('notbooked', 'booking');
+        }
+    }
+
     /**
      * Return titleprefix.
      *
