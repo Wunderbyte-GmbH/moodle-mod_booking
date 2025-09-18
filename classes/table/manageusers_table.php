@@ -24,7 +24,7 @@
  */
 
 namespace mod_booking\table;
-use core\exception\moodle_exception;
+use moodle_exception;
 use core_plugin_manager;
 use mod_booking\enrollink;
 use mod_booking\event\bookinganswer_confirmed;
