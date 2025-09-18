@@ -127,7 +127,7 @@
             {{/deputydisplay}}
             <div class="card-header bg-transparent" id="accordion-heading-optionstoconfirm">
                 <div class="bookingstracker-header" role="button" data-toggle="collapse" data-target="#accordion-item-optionstoconfirm" aria-expanded="false" aria-controls="accordion-item-optionstoconfirm">
-                    <i class="fa fa-fw fa-hourglass" aria-hidden="true"></i>&nbsp;{{#str}} optionstoconfirm, mod_booking {{/str}}
+                    <i class="fa fa-fw fa-hourglass" aria-hidden="true"></i>&nbsp;{{#labels.6}}{{.}}{{/labels.6}}
                 </div>
             </div>
             <div id="accordion-item-optionstoconfirm" class="collapse" aria-labelledby="accordion-heading-optionstoconfirm" data-parent="#accordion-usertables">
@@ -141,7 +141,7 @@
         <div class="card">
             <div class="card-header bg-transparent" id="accordion-heading-previouslybooked">
                 <div class="bookingstracker-header" role="button" data-toggle="collapse" data-target="#accordion-item-previouslybooked" aria-expanded="false" aria-controls="accordion-item-optionstoconfirm">
-                    <i class="fa fa-fw fa-hourglass" aria-hidden="true"></i>&nbsp;{{#str}} previouselybooked, mod_booking {{/str}}
+                    <i class="fa fa-fw fa-hourglass" aria-hidden="true"></i>&nbsp;{{#labels.7}}{{.}}{{/labels.7}}
                 </div>
             </div>
             <div id="accordion-item-previouslybooked" class="collapse" aria-labelledby="accordion-heading-previouslybooked" data-parent="#accordion-usertables">

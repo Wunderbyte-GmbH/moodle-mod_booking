@@ -2611,6 +2611,7 @@ $string['tableheadermaxoverbooking'] = 'Waiting list places';
 $string['tableheaderminanswers'] = 'Min. number of participants';
 $string['tableheaderteacher'] = 'Teacher(s)';
 $string['tableheadertext'] = 'Course name';
+$string['tableheaderwaitforconfirmation'] = 'Wait for confirmation';
 $string['tabwhatsnew'] = 'Booking tab: "What\'s new?"';
 $string['tabwhatsnew_desc'] = 'You can use this tab to show users all new bookings that have been
 set to visible OR have been created within a certain number of days (counted from today) which you can define here.

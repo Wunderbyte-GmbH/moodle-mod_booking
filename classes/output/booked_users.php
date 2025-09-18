@@ -81,6 +81,9 @@ class booked_users implements renderable, templatable {
     /** @var string $deputyselect rendered additional texts for the table of options to confirm */
     public $deputyselect;
 
+    /** @var array $labels Labels of the tables */
+    public $labels;
+
     /**
      * Constructor
      *
@@ -113,6 +116,14 @@ class booked_users implements renderable, templatable {
         /** @var scope_base $class */
         $class = $ba->return_class_for_scope($scope);
         $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_BOOKED);
+
+        $defalutlabels = self::default_tables_labels();
+        // Get the custom labels of the tables from the scope class.
+        if (method_exists($class, 'get_lables_of_tables')) {
+            $this->labels = $class->get_lables_of_tables($defalutlabels);
+        } else {
+            $this->labels = $defalutlabels;
+        }
 
         $this->bookedusers = $showbooked ?
             $this->render_users_table(
@@ -481,6 +492,7 @@ class booked_users implements renderable, templatable {
             'deputydisplay' => $this->deputydisplay ?? null,
             'previouslybooked' => $this->previouslybooked ?? null,
             'deputyselect' => $this->deputyselect ?? null,
+            'labels' => array_values($this->labels) ?? null,
         ]);
     }
 
@@ -536,6 +548,23 @@ class booked_users implements renderable, templatable {
                 'submitbuttonstring' => 'delete',
                 'component' => 'mod_booking',
             ],
+        ];
+    }
+
+    /**
+     * Return an array of the default labels of the tables.
+     * @return array
+     */
+    public static function default_tables_labels(): array {
+        return [
+            'bookings' => get_string('bookings', 'mod_booking'),
+            'waitinglist' => get_string('waitinglist', 'mod_booking'),
+            'reservedusers' => get_string('reservedusers', 'mod_booking'),
+            'userstonotify' => get_string('userstonotify', 'mod_booking'),
+            'deletedbookings' => get_string('deletedbookings', 'mod_booking'),
+            'bookinghistory' => get_string('bookinghistory', 'mod_booking'),
+            'optionstoconfirm' => get_string('optionstoconfirm', 'mod_booking'),
+            'previouselybooked' => get_string('previouselybooked', 'mod_booking'),
         ];
     }
 }
