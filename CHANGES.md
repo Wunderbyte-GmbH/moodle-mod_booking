@@ -1,3 +1,6 @@
+## Version 8.17.2 (2025091900)
+* Bugfix: Don't use singleton pattern on bookforuser function.
+
 ## Version 8.17.1 (2025091800)
 * Improvement: Check capability for recalculateprices.
 * Improvement: Add contains-partially-option for circumvent condition.
