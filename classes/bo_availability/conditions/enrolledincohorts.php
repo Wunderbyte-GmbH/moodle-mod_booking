@@ -182,25 +182,17 @@ class enrolledincohorts implements bo_condition {
                 $where = "
                     (
                         availability IS NOT NULL
-                        AND NOT EXISTS (
-                            SELECT 1
-                            FROM jsonb_array_elements(availability::jsonb) elem
-                            WHERE elem ->> 'sqlfilter' = '1'
-                        )
+                        AND NOT (availability::jsonb @> '[{\"sqlfilter\":\"1\"}]')
                     )";
             } else if (
                 $databasetype == 'mysql'
                 && db_is_at_least_mariadb_106_or_mysql_8() // JSON_TABLE is only available in MariaDB 10.6+ and MySQL 8.0+.
             ) {
                 $where = "
-                (
-                    availability IS NOT NULL
-                    AND NOT EXISTS (
-                        SELECT 1
-                        FROM JSON_TABLE(availability, '$[*]' COLUMNS (sqlfilter VARCHAR(10) PATH '$.sqlfilter')) jt
-                        WHERE jt.sqlfilter = '1'
-                    )
-                )";
+                    (
+                        availability IS NOT NULL
+                        AND NOT JSON_CONTAINS(availability, '{\"sqlfilter\":\"1\"}', '$')
+                    )";
             } else {
                 return ["", "", "", $params, ""];
             }
