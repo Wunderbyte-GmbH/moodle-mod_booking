@@ -52,6 +52,13 @@ class rules_info {
     public static $rulestoexecute = [];
 
     /**
+     * Collect rules we want to cancel at the end of the request.
+     *
+     * @var array
+     */
+    public static $rulestocancel = [];
+
+    /**
      * Collect events to execute them at the end of the request.
      *
      * @var array
@@ -406,9 +413,9 @@ class rules_info {
 
         // Check if rule is from booking plugin or another.
         if (
-            $data['component'] !== 'mod_booking' &&
-            strpos($data['component'], 'bookingextension_') !== 0
-            ) {
+            $data['component'] !== 'mod_booking'
+            && strpos($data['component'], 'bookingextension_') !== 0
+        ) {
             if (!self::proceed_with_event($event, $data)) {
                 return;
             };
@@ -467,7 +474,7 @@ class rules_info {
 
         $rulestoexecute = $allrules;
 
-        foreach ($allrules as $ruleid => $rulearray) {
+        foreach ($allrules as $rkey => $rulearray) {
             // Run through all the excluded rules of this array and unset them.
             $rule = $rulearray['rule'];
 
@@ -475,10 +482,17 @@ class rules_info {
                 // Inactive rules can't exculde others.
                 continue;
             }
+            if (in_array($rulearray['ruleid'], array_values(self::$rulestocancel))) {
+                // This rule has been cancelled by another rule.
+                unset($rulestoexecute[$rkey]);
+                unset(self::$rulestoexecute[$rkey]);
+                continue;
+            }
             $ruleobject = json_decode($rule->rulejson);
             $ruledata = $ruleobject->ruledata;
             if (!empty($ruledata->cancelrules)) {
                 foreach ($ruledata->cancelrules as $cancelrule) {
+                    self::$rulestocancel[$cancelrule] = $cancelrule;
                     foreach ($rulestoexecute as $key => $rulearray) {
                         if ($rulearray['ruleid'] == $cancelrule) {
                             unset($rulestoexecute[$key]);

@@ -424,6 +424,7 @@ $string['booking:addeditownoption'] = 'Add new option and edit own options.';
 $string['booking:addinstance'] = 'Add new booking';
 $string['booking:bookanyone'] = 'Allowed to book anyone';
 $string['booking:bookforothers'] = "Book for others";
+$string['booking:calculateprices'] = "Can recalculate prices";
 $string['booking:canoverbook'] = "Has permission to overbook";
 $string['booking:canreviewsubstitutions'] = "Allowed to review teacher substitutions (control checkbox)";
 $string['booking:canseeinvisibleoptions'] = 'View invisible options.';
@@ -588,10 +589,9 @@ $string['bookingrulecondition'] = "Condition of the rule";
 $string['bookingruledeactivate'] = "<b>Deactivate</b> booking rule";
 $string['bookingruleisactive'] = "Rule is active and applied";
 $string['bookingruleisnotactive'] = "Rule is not active und will not be applied";
-$string['bookingrules'] = 'Booking Rules (PRO)';
+$string['bookingrules'] = 'Booking Rules';
 $string['bookingrulesnootherfound'] = 'No other rules found';
 $string['bookingrulesothercontextheading'] = 'Links to rules in other contexts:';
-$string['bookingruleswithbadge'] = 'Booking: Rules <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['bookingruletemplate'] = 'Deactivate preconfigured templates for rules.';
 $string['bookingruletemplates'] = 'Load a template rule';
 $string['bookingruletemplatesactive'] = 'Activate preconfigured templates for rules.';
@@ -1712,6 +1712,7 @@ $string['nooverlappingsettingcheckbox'] = 'Restrict booking of overlapping optio
 $string['nooverlapwarning'] = 'Warning, this option overlaps with your already booked option(s): {$a}';
 $string['nopermissiontoaccesscontent'] = '<div class="alert alert-danger" role="alert">You have no permission to access this content.</div>';
 $string['nopermissiontoaccesspage'] = '<div class="alert alert-danger" role="alert">You have no permission to access this page.</div>';
+$string['nopermissiontoexecuteaction'] = '<div class="alert alert-danger" role="alert">You have no permission to execute this action.</div>';
 $string['nopricecategoriesyet'] = 'No price categories have been created yet.';
 $string['nopricecategoryselected'] = 'Enter the name of a new price category';
 $string['nopriceformulaset'] = 'No formula set on setting page. <a href="{$a->url}" target="_blank">Set it here.</a>';
@@ -2604,6 +2605,7 @@ $string['tabwhatsnewdays_desc'] = 'Enter the number of days into the past until 
 Example: If you choose 30 then a booking option which has been set to visible or created longer than 30 days ago will not
 show up in the "What\'s new?"-Tab. 0 means that only booking options having been created or set to visible today will be shown.';
 $string['tagdeleted'] = 'Tag template was deleted!';
+$string['tagnotfoundindb'] = 'Tag could not be found or does not exist.';
 $string['tagsuccessfullysaved'] = 'Tag was saved.';
 $string['tagtag'] = 'Tag';
 $string['tagtemplates'] = 'Tag templates';
@@ -2710,8 +2712,6 @@ $string['tuesday'] = 'Tuesday';
 $string['turnoffmodals'] = "Turn off modals";
 $string['turnoffmodals_desc'] = "Some steps during the booking process will open modals. This settings will show the information inline, no modals will open.
 <b>Please note:</b> If you use the Booking <b>cards view</b>, then modals will still be used. You can <b>only turn them off for list view</b>.";
-$string['turnoffrulesdisplay'] = 'Hide "Rules" section in booking option edit form';
-$string['turnoffrulesdisplay_desc'] = 'The "Rules" section will no longer be displayed in the booking option edit form.';
 $string['turnoffwaitinglist'] = 'Turn off waiting list globally';
 $string['turnoffwaitinglist_desc'] = 'Activate this setting, if you do not want to use the waiting list
  feature on this site (e.g. because you only want to use the notification list).';

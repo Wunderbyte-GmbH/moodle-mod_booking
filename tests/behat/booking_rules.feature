@@ -468,15 +468,15 @@ Feature: Create global booking rules as admin and insure they are working.
       | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | teachersforoption  |
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | teacher1, teacher2 |
     And the following booking rule exists:
-      | conditionname   | select_student_in_bo           |
-      | contextid       | 1                              |
-      | conditiondata   | {"borole":"0"}                 |
+      | conditionname   | select_user_from_event        |
+      | contextid       | 1                             |
+      | conditiondata   | {"userfromeventtype":"relateduserid"}   |
       | name            | notifyadmin                    |
       | actionname      | send_mail                      |
       | actiondata      | {"sendical":0,"sendicalcreateorcancel":"","subject":"answcancsubj","template":"answcancmsg","templateformat":"1"} |
       | rulename        | rule_react_on_event            |
       | boevent         | \mod_booking\event\bookinganswer_cancelled |
-      | aftercompletion |                                |
+      | aftercompletion | 1                              |
       | condition       | 0                              |
       | cancelrules     |                                |
     And the following booking rule exists:
@@ -488,7 +488,7 @@ Feature: Create global booking rules as admin and insure they are working.
       | actiondata      | {"sendical":0,"sendicalcreateorcancel":"","subject":"overridesubj","template":"overridemsg","templateformat":"1"} |
       | rulename        | rule_react_on_event            |
       | boevent         | \mod_booking\event\bookingoption_cancelled |
-      | aftercompletion |                                |
+      | aftercompletion | 1                              |
       | condition       | 0                              |
       | cancelrules     | notifyadmin                    |
     And the following "mod_booking > answers" exist:

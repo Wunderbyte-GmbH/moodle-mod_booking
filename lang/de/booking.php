@@ -416,6 +416,7 @@ $string['booking:addeditownoption'] = 'Neue Buchungsoptionen anlegen und eigene 
 $string['booking:addinstance'] = 'Neue Buchungsinstanz anlegen';
 $string['booking:bookanyone'] = 'Darf alle Nutzer:innen buchen';
 $string['booking:bookforothers'] = "Für andere buchen";
+$string['booking:calculateprices'] = "Darf Preise neu berechnen";
 $string['booking:canoverbook'] = "Darf überbuchen";
 $string['booking:canreviewsubstitutions'] = "Kann Vertretungen als kontrolliert markieren";
 $string['booking:canseeinvisibleoptions'] = 'Unsichtbare Buchungsoptionen sehen.';
@@ -576,10 +577,9 @@ $string['bookingrulecondition'] = "Kondition der Regel";
 $string['bookingruledeactivate'] = "Regel für diese Buchungsoption <b>deaktivieren</b>";
 $string['bookingruleisactive'] = "Regel ist aktiv und wird angewandt";
 $string['bookingruleisnotactive'] = "Regel ist nicht aktiv und wird nicht angewandt";
-$string['bookingrules'] = 'Buchung: Regeln';
+$string['bookingrules'] = 'Buchungsregeln';
 $string['bookingrulesnootherfound'] = 'Keine anderen Regeln gefunden';
 $string['bookingrulesothercontextheading'] = 'Link zu Regeln in anderen Kontexten';
-$string['bookingruleswithbadge'] = 'Buchung: Regeln <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['bookingruletemplate'] = 'Vorgefertigte Templates für Regeln deaktivieren';
 $string['bookingruletemplates'] = 'Lade eine Template-Regel';
 $string['bookingruletemplatesactive'] = 'Vorgefertigte Templates für Regeln aktivieren';
@@ -1690,6 +1690,7 @@ $string['nooverlappingsettingcheckbox'] = 'Reagiere auf den Versuch überlappend
 $string['nooverlapwarning'] = 'Achtung, diese Option überlappt mit der/den von Ihnen gebuchten Option(en): {$a}';
 $string['nopermissiontoaccesscontent'] = '<div class="alert alert-danger" role="alert">Sie sind nicht berechtigt, auf diese Inhalte zuzugreifen.</div>';
 $string['nopermissiontoaccesspage'] = '<div class="alert alert-danger" role="alert">Sie sind nicht berechtigt, auf diese Seite zuzugreifen.</div>';
+$string['nopermissiontoexecuteaction'] = '<div class="alert alert-danger" role="alert">Sie sind nicht berechtigt, diese Aktion durchzuführen.</div>';
 $string['nopricecategoriesyet'] = 'Es wurden noch keine Preiskategorien angelegt.';
 $string['nopricecategoryselected'] = 'Geben Sie den Namen einer neuen Preiskategorie ein';
 $string['nopriceformulaset'] = 'Sie müssen zuerst eine Formel in den Buchungseinstellungen eintragen. <a href="{$a->url}" target="_blank">Formel hier bearbeiten.</a>';
@@ -2518,6 +2519,7 @@ $string['tabwhatsnewdays'] = 'Anzahl Tage für "Was ist neu?"';
 $string['tabwhatsnewdays_desc'] = 'Geben Sie die Anzahl an Tagen in der Vergangenheit an bis wann eine Buchungsoption als neu gilt.
 Beispiel: Wenn Sie hier 30 angeben, dann werden Buchungsoptionen, die vor mehr als 30 Tagen auf sichtbar gestellt (oder erstellt) wurden,
 im "Was ist neu?"-Tab nicht angezeigt. 0 bedeutet, dass nur Buchungsoptionen angezeigt werden, die heute erstellt oder auf sichtbar gestellt wurden.';
+$string['tagnotfoundindb'] = 'Tag konnte nicht gefunden werden oder existiert nicht.';
 $string['tagsuccessfullysaved'] = 'Schlagwort erfolgreich gespeichert.';
 $string['tagtag'] = 'Schlagwort';
 $string['tagtemplates'] = 'Schlagwort Vorlagen';
@@ -2622,8 +2624,6 @@ $string['tuesday'] = 'Dienstag';
 $string['turnoffmodals'] = "Keine Modale verwenden.";
 $string['turnoffmodals_desc'] = "Für manche Schritte vor dem Buchen werden aktuell Modale verwendet. Diese Einstellung führt dazu, dass der ganze Prozess direkt in der Seite, ohne Modale, abläuft.
 <b>Bitte beachten:</b> Wenn Sie die <b>Karten-Ansicht</b> von Booking verwenden, werden weiterhin Modale verwendet, Modale können <b>nur bei der Listen-Ansicht</b> ausgeschaltet werden.";
-$string['turnoffrulesdisplay'] = 'Abschnitt "Regeln" im Buchungsoptionsformular ausblenden';
-$string['turnoffrulesdisplay_desc'] = 'Der Abschnitt "Regeln" wird im Buchungsoptionsformular nicht mehr angezeigt.';
 $string['turnoffwaitinglist'] = 'Warteliste global deaktivieren';
 $string['turnoffwaitinglist_desc'] = 'Aktivieren Sie diese Einstellung, um die Warteliste auf der gesamten
  Plattform auszuschalten (z.B. weil Sie nur die Benachrichtigungsliste verwenden möchten).';

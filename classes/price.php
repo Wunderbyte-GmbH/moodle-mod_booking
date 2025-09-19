@@ -906,18 +906,12 @@ class price {
         if (empty($userid) || $USER->id == $userid) {
             // We can implement an override via singleton.
 
-            if (!empty(self::$bookforuserid)) {
-                $userid = self::$bookforuserid;
-            } else {
-                $cache = cache::make('mod_booking', 'bookforuser');
-                $result = $cache->get('bookforuser');
-                if ($result) {
-                    [$userid, $expirationtime] = $result;
-                    if ($expirationtime > time()) {
-                        self::$bookforuserid = $userid;
-                    } else {
-                        $userid = $USER->id;
-                    }
+            $cache = cache::make('mod_booking', 'bookforuser');
+            $result = $cache->get('bookforuser');
+            if ($result) {
+                [$userid, $expirationtime] = $result;
+                if ($expirationtime > time()) {
+                    $userid = $USER->id;
                 }
             }
         }

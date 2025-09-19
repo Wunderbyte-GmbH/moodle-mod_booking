@@ -419,7 +419,8 @@ class bookingoption_description implements renderable, templatable {
         $this->teachers = $colteacher->teachers;
 
         // Array User object of the responsible contact.
-        $responsibles = $settings->responsiblecontactuser;
+        // Mustache does not like associative arrays, so we make sure, we have array values only.
+        $responsibles = array_values($settings->responsiblecontactuser);
 
         // If no responsible contact is set, we take the first teacher.
         if (

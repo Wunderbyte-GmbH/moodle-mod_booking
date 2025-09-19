@@ -166,7 +166,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
         } else if (strpos($area, 'subbooking') === 0) {
             // As a subbooking can have different slots, we use the area to provide the subbooking id.
             // The syntax is "subbooking-1" for the subbooking id 1.
-            $item = booking_bookit::answer_subbooking_option($area, $itemid, $userid);
+            $item = booking_bookit::answer_subbooking_option($area, $itemid, MOD_BOOKING_STATUSPARAM_RESERVED, $userid);
 
             // Initialize.
             $serviceperiodstart = $item['coursestarttime'];

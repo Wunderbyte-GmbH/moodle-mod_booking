@@ -349,16 +349,6 @@ if ($ADMIN->fulltree) {
             )
         );
 
-        // Setting to change steps in timeselector to 5 minutes.
-        $settings->add(
-            new admin_setting_configcheckbox(
-                'booking/turnoffrulesdisplay',
-                get_string('turnoffrulesdisplay', 'mod_booking'),
-                get_string('turnoffrulesdisplay_desc', 'mod_booking'),
-                0
-            )
-        );
-
         // Turn off modals.
         $settings->add(
             new admin_setting_configcheckbox(

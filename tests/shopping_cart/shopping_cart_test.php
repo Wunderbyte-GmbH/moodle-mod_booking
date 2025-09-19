@@ -40,6 +40,8 @@ use local_shopping_cart\shopping_cart_credits;
 use local_shopping_cart_generator;
 use stdClass;
 use tool_mocktesttime\time_mock;
+use mod_booking\booking_rules\booking_rules;
+use mod_booking\booking_rules\rules_info;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -73,6 +75,9 @@ final class shopping_cart_test extends advanced_testcase {
         parent::tearDown();
         // Mandatory clean-up.
         singleton_service::destroy_instance();
+        // Mandatory to deal with static variable in the booking_rules.
+        rules_info::destroy_singletons();
+        booking_rules::$rules = [];
         cartstore::reset();
     }
 

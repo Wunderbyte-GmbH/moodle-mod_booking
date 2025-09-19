@@ -222,8 +222,6 @@ class courseid extends field_base {
         $mform->addHelpButton('courseid', 'connectedmoodlecourse', 'mod_booking');
         $mform->hideIf('courseid', 'chooseorcreatecourse', 'neq', 1);
 
-        $templatetags = get_config('booking', 'templatetags');
-
         $options = [
             'tags' => false,
             'multiple' => false,

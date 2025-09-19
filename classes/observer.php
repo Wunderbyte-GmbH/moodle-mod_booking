@@ -433,7 +433,18 @@ class mod_booking_observer {
         rules_info::collect_rules_for_execution($event);
         if (PHPUNIT_TEST) {
             // Process after every event when unit testing.
-            rules_info::filter_rules_and_execute();
+            // To avoid infinite loops, we need a counter.
+            $counter = 0;
+            while (
+                (count(rules_info::$rulestoexecute) > 0
+                || count(rules_info::$eventstoexecute) > 0)
+                && $counter < 10
+            ) {
+                rules_info::filter_rules_and_execute();
+
+                rules_info::events_to_execute();
+                $counter++;
+            }
         }
     }
 
@@ -456,16 +467,16 @@ class mod_booking_observer {
                 WHERE ba.userid = :userid AND ba.waitinglist = 0 AND bo.courseid = :courseid';
         $params = ['userid' => $event->relateduserid, 'courseid' => $event->courseid];
         if (get_config('booking', 'bookingdebugmode')) {
-                    $event = booking_debug::create([
-                        'objectid' => $event->courseid,
-                        'context' => context_system::instance(),
-                        'relateduserid' => $event->relateduserid,
-                        'other' => [
-                            'eventparams' => json_encode($event),
-                        ],
-                    ]);
-                    $event->trigger();
-                }
+            $event = booking_debug::create([
+                'objectid' => $event->courseid,
+                'context' => context_system::instance(),
+                'relateduserid' => $event->relateduserid,
+                'other' => [
+                    'eventparams' => json_encode($event),
+                ],
+            ]);
+            $event->trigger();
+        }
         // Only execute if there are associated booking_answers.
         if ($bookedanswers = $DB->get_records_sql($sql, $params)) {
             // Call the enrolment function.

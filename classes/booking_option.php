@@ -2057,7 +2057,6 @@ class booking_option {
             // Group has been deleted and must be created and groupid updated in DB. Or group does not yet exist.
             $data = new stdClass();
             $data->id = $this->option->id;
-            $newgroupdata->idnumber = MOD_BOOKING_ENROL_GROUPTYPE_TARGETCOURSE . $this->option->id;
             $data->groupid = groups_create_group($newgroupdata);
             if ($data->groupid) {
                 $DB->update_record('booking_options', $data);
@@ -2573,19 +2572,19 @@ class booking_option {
         $userdata->completed = empty($completionold) ? '1' : '0';
         $userdata->timemodified = time();
         if (get_config('booking', 'bookingdebugmode')) {
-                    $event = booking_debug::create([
-                        'objectid' => $optionid,
-                        'context' => context_system::instance(),
-                        'relateduserid' => $USER->id,
-                        'other' => [
-                            'users' => $users,
-                            'completed' => $userdata->completed,
-                            'userid' => $userid,
-                            'optionid' => $optionid
-                        ],
-                    ]);
-                    $event->trigger();
-                }
+            $event = booking_debug::create([
+                'objectid' => $optionid,
+                'context' => context_system::instance(),
+                'relateduserid' => $USER->id,
+                'other' => [
+                    'users' => $users,
+                    'completed' => $userdata->completed,
+                    'userid' => $userid,
+                    'optionid' => $optionid,
+                ],
+            ]);
+            $event->trigger();
+        }
         if (
             get_config('booking', 'certificateon')
             && !get_config('booking', 'presencestatustoissuecertificate')
@@ -3826,6 +3825,9 @@ class booking_option {
         // We also need to destroy outdated singletons.
         singleton_service::destroy_booking_option_singleton($optionid);
 
+        // At the end, we re-write into singleton.
+        singleton_service::get_instance_of_booking_option_settings($optionid);
+
         // We also purge the answers cache.
         self::purge_cache_for_answers($optionid);
     }
@@ -3847,6 +3849,10 @@ class booking_option {
 
         // We also need to destroy the booked_user_information.
         cache_helper::purge_by_event('setbackmyoptionstable');
+
+        // At the end, we re-write into singleton.
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        singleton_service::get_instance_of_booking_answers($settings);
     }
 
     /**
