@@ -281,9 +281,10 @@ final class ical_test extends advanced_testcase {
 
         // Get first message.
         $msg = $messages[0];
-        $this->assertEquals('mod_booking', $msg->component);
-        $this->assertEquals($student1->id, $msg->useridto);
-        $this->assertEquals('Test', $msg->subject);
+        $this->assertSame('mod_booking', $msg->component);
+        // Order of messages is not guaranteed, so we check that the recipient is one of the two students.
+        $this->assertSame(true, in_array($msg->useridto, [$student1->id, $student2->id]));
+        $this->assertSame('Test', $msg->subject);
 
         // Check the created ics file for the user.
         $fs = get_file_storage();
