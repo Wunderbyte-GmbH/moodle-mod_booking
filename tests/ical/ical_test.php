@@ -22,6 +22,8 @@ use stdClass;
 use mod_booking_generator;
 use mod_booking\option\fields_info;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\booking_rules\booking_rules;
+use mod_booking\booking_rules\rules_info;
 
 /**
  * Tests for ical.
@@ -32,6 +34,29 @@ use mod_booking\bo_availability\bo_info;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class ical_test extends advanced_testcase {
+    /**
+     * Tests set up.
+     */
+    public function setUp(): void {
+        parent::setUp();
+        $this->resetAfterTest();
+        singleton_service::destroy_instance();
+    }
+
+    /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        global $DB;
+
+        parent::tearDown();
+        // Mandatory to solve potential cache issues.
+        singleton_service::destroy_instance();
+        // Mandatory to deal with static variable in the booking_rules.
+        rules_info::destroy_singletons();
+        booking_rules::$rules = [];
+    }
+
     /**
      * Setup environment.
      * @param int $numberofdatesinoption
