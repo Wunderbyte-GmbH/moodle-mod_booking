@@ -1,3 +1,7 @@
+## Version 8.17.3 (2025091901)
+* Improvement: Introduce Bootstrap 5 and make adjustments to prepare for Moodle 5 version.
+* Improvement: Fixes for ical (*.ics) files.
+
 ## Version 8.17.2 (2025091900)
 * Bugfix: Don't use singleton pattern on bookforuser function.
 
