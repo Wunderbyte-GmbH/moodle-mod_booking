@@ -32,6 +32,7 @@ use context_course;
 use context_module;
 use context_system;
 use context;
+use core\task\manager;
 use dml_exception;
 use Exception;
 use html_writer;
@@ -53,6 +54,7 @@ use mod_booking\booking_rules\rules_info;
 use mod_booking\option\fields\certificate;
 use mod_booking\option\fields\sharedplaces;
 use mod_booking\option\fields\competencies;
+use mod_booking\task\assign_competency;
 use stdClass;
 use moodle_url;
 use mod_booking\booking_utils;
@@ -2657,7 +2659,7 @@ class booking_option {
                 'context' => context_system::instance(),
                 'relateduserid' => $USER->id,
                 'other' => [
-                    'users' => $users,
+                    'userdata' => $userdata,
                     'completed' => $userdata->completed,
                     'userid' => $userid,
                     'optionid' => $optionid,
@@ -2687,8 +2689,26 @@ class booking_option {
             && !empty($userdata->completed)
         ) {
             try {
-                $usercompetencies = competencies::assign_competencies($cmid, $optionid, $userdata->id);
-            } catch (Exception $e) {
+                $context = context_module::instance($settings->cmid);
+                if (!has_capability('moodle/competency:competencygrade', $context)) {
+                    $task = new assign_competency();
+                    // We need to execute the task as admin user.
+                    $task->set_userid(get_admin()->id);
+                    $task->set_custom_data([
+                        'cmid' => $cmid,
+                        'optionid' => $optionid,
+                        'userid' => $userid,
+                    ]);
+                    manager::queue_adhoc_task($task);
+                } else {
+                    // Call your static function in mod_booking.
+                    competencies::assign_competencies(
+                        $settings->cmid,
+                        $optionid,
+                        $userid
+                    );
+                }
+            } catch (Throwable $e) {
                 $message = $e->getMessage();
                 if (get_config('booking', 'bookingdebugmode')) {
                     $event = booking_debug::create([
@@ -2717,7 +2737,7 @@ class booking_option {
         ];
         try {
             self::booking_history_insert($status, $answerid, $optionid, $bookingid, $userid, $completionchange);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $message = $e->getMessage();
             if (get_config('booking', 'bookingdebugmode')) {
                 $event = booking_debug::create([

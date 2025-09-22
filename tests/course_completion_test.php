@@ -29,8 +29,11 @@ namespace mod_booking;
 use advanced_testcase;
 use coding_exception;
 use completion_completion;
+use context_system;
 use mod_booking_generator;
 use tool_mocktesttime\time_mock;
+use core_competency\api;
+use core_competency\competency;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -100,12 +103,14 @@ final class course_completion_test extends advanced_testcase {
                 }
             }
         }
+        $this->setAdminUser();
+        [$competency1, $competency2] = $this->create_competencies();
+        $c1id = $competency1->get('id');
+        $c2id = $competency2->get('id');
 
         $bdata['course'] = $course->id;
         $bdata['bookingmanager'] = $users["bookingmanager"]->username;
         $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
-
-        $this->setAdminUser();
 
         // For the moment, we enrol all users, this can be adapted if needed.
         foreach ($users as $user) {
@@ -125,6 +130,7 @@ final class course_completion_test extends advanced_testcase {
 
         $option['bookingid'] = $booking1->id;
         $option['courseid'] = $course->id;
+        $option['competencies'] = [$c1id, $c2id];
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
@@ -190,9 +196,26 @@ final class course_completion_test extends advanced_testcase {
                             'key' => 'automaticbookingoptioncompletion',
                             'value' => 1,
                         ],
+                        [
+                            'component' => 'booking',
+                            'key' => 'usecompetencies',
+                            'value' => 1,
+                        ],
                     ],
                     'coursesettings' => [
                         'firstcourse' => [
+                            'enablecompletion' => 1,
+                        ],
+                        'second' => [
+                            'enablecompletion' => 1,
+                        ],
+                        'third' => [
+                            'enablecompletion' => 1,
+                        ],
+                        'fourth' => [
+                            'enablecompletion' => 1,
+                        ],
+                        'fifth' => [
                             'enablecompletion' => 1,
                         ],
                     ],
@@ -266,5 +289,63 @@ final class course_completion_test extends advanced_testcase {
                 ],
             ],
         ];
+    }
+
+
+    /**
+     * Create two competencies
+     *
+     * @return array
+     *
+     */
+    private function create_competencies() {
+
+        $scale = $this->getDataGenerator()->create_scale([
+            'scale' => 'Not proficient,Proficient',
+            'name' => 'Test Competency Scale',
+        ]);
+
+        // Create a competency.
+        $framework = api::create_framework((object)[
+            'shortname' => 'testframework',
+            'idnumber' => 'testframework',
+            'contextid' => context_system::instance()->id,
+            'scaleid' => $scale->id,
+            'scaleconfiguration' => json_encode([
+                ['scaleid' => $scale->id],
+                ['id' => 1, 'scaledefault' => 1, 'proficient' => 0],
+                ['id' => 2, 'scaledefault' => 0, 'proficient' => 1],
+            ]),
+        ]);
+        // Create compentencies.
+        $record = (object)[
+            'shortname' => 'testcompetency',
+            'idnumber' => 'testcompetency',
+            'competencyframeworkid' => $framework->get('id'),
+            'scaleid' => null,
+            'description' => 'A test competency',
+            'id' => 0,
+            'scaleconfiguration' => null,
+            'parentid' => 0,
+        ];
+        $competency1 = new competency(0, $record);
+        $competency1->set('sortorder', 0);
+        $competency1->create();
+
+        $record = (object)[
+            'shortname' => 'testcompetency2',
+            'idnumber' => 'testcompetency2',
+            'competencyframeworkid' => $framework->get('id'),
+            'scaleid' => null,
+            'description' => 'A test competency2',
+            'id' => 0,
+            'scaleconfiguration' => null,
+            'parentid' => 0,
+        ];
+        $competency2 = new competency(0, $record);
+        $competency2->set('sortorder', 0);
+        $competency2->create();
+
+        return [$competency1, $competency2];
     }
 }

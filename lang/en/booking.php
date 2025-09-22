@@ -137,6 +137,7 @@ $string['asglobaltemplate'] = 'Use as global template';
 $string['askforconfirmationheader'] = '<i class="fa fa-fw fa-lock" aria-hidden="true"></i>&nbsp;Demand confirmation';
 $string['assesstimefinish'] = 'End of the assessment period';
 $string['assesstimestart'] = 'Start of the assessment period';
+$string['assigncompetency'] = 'Assign competencies';
 $string['assignteachers'] = 'Assign teachers:';
 $string['associatedcourse'] = 'Associated course';
 $string['astemplate'] = 'Use as template in this course';

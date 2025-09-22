@@ -134,6 +134,7 @@ $string['asglobaltemplate'] = 'Als globale Vorlage hinzufügen';
 $string['askforconfirmationheader'] = '<i class="fa fa-fw fa-lock" aria-hidden="true"></i>&nbsp;Buchen nur nach Bestätigung';
 $string['assesstimefinish'] = 'Ende der Bewertungsperiode';
 $string['assesstimestart'] = 'Start der Bewertungsperiode';
+$string['assigncompetency'] = 'Weise kompetenzen zu';
 $string['assignteachers'] = 'Lehrer:innen zuweisen:';
 $string['associatedcourse'] = 'Dazu gehörender Kurs';
 $string['astemplate'] = 'Als Vorlage in diesem Kurs hinzufügen';
