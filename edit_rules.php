@@ -66,8 +66,10 @@ $PAGE->set_url($url);
 $PAGE->activityheader->disable();
 
 if ($contextid == 1) {
-    admin_externalpage_setup('modbookingeditrules');
-    $PAGE->set_pagelayout('admin');
+    if (is_siteadmin()) {
+        admin_externalpage_setup('modbookingeditrules');
+    }
+    $PAGE->set_pagelayout('standard');
 } else {
     $PAGE->set_pagelayout('standard');
 }
