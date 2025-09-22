@@ -2686,7 +2686,22 @@ class booking_option {
             get_config('booking', 'usecompetencies')
             && !empty($userdata->completed)
         ) {
-            $usercompetencies = competencies::assign_competencies($cmid, $optionid, $userdata->id);
+            try {
+                $usercompetencies = competencies::assign_competencies($cmid, $optionid, $userdata->id);
+            } catch (Exception $e) {
+                $message = $e->getMessage();
+                if (get_config('booking', 'bookingdebugmode')) {
+                    $event = booking_debug::create([
+                        'objectid' => $optionid,
+                        'context' => context_system::instance(),
+                        'relateduserid' => $USER->id,
+                        'other' => [
+                            'message' => $message,
+                        ],
+                    ]);
+                    $event->trigger();
+                }
+            }
         }
 
         $status = MOD_BOOKING_STATUSPARAM_COMPLETION_CHANGED;
@@ -2700,8 +2715,22 @@ class booking_option {
                 'completionnew' => $userdata->completed,
             ],
         ];
-        self::booking_history_insert($status, $answerid, $optionid, $bookingid, $userid, $completionchange);
-
+        try {
+            self::booking_history_insert($status, $answerid, $optionid, $bookingid, $userid, $completionchange);
+        } catch (Exception $e) {
+            $message = $e->getMessage();
+            if (get_config('booking', 'bookingdebugmode')) {
+                $event = booking_debug::create([
+                    'objectid' => $optionid,
+                    'context' => context_system::instance(),
+                    'relateduserid' => $USER->id,
+                    'other' => [
+                        'message' => $message,
+                    ],
+                ]);
+                $event->trigger();
+            }
+        }
         $data = [
             'id' => $userdata->baid,
             'completed' => $userdata->completed,
