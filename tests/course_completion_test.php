@@ -70,7 +70,7 @@ final class course_completion_test extends advanced_testcase {
      *
      * @dataProvider booking_common_settings_provider
      */
-    public function test_course_completion(array $data, array $expected): void {
+    public function test_course_completion(array $data, array $expected = []): void {
         global $DB;
 
         $standarddata = self::provide_standard_data();
@@ -92,7 +92,7 @@ final class course_completion_test extends advanced_testcase {
         // Fetch standarddata for booking.
         $bdata = $standarddata['booking'];
         // Apply the custom settings for the first booking.
-        // Apply custom booking settings
+        // Apply custom booking settings.
         if (!empty($data['bookingsettings'])) {
             foreach ($data['bookingsettings'] as $setting) {
                 foreach ($setting as $key => $value) {
@@ -122,7 +122,6 @@ final class course_completion_test extends advanced_testcase {
                 }
             }
         }
-
 
         $option['bookingid'] = $booking1->id;
         $option['courseid'] = $course->id;
