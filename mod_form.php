@@ -1069,9 +1069,16 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $mform->hideIf('cancelrelativedate', 'cancancelbook', 'eq', 0);
         $mform->hideIf('cancelrelativedate', 'disablecancel', 'neq', 0);
+
+        $previoussetting = booking::get_value_of_json_by_key($bookingid, 'cancelrelativedate');
+        if (!$previoussetting) {
+            $canceldefault = (int) get_config('booking', 'defaultcanceldate') ?? MOD_BOOKING_CANCANCELBOOK_RELATIVE;
+        } else {
+            $canceldefault = (int) $previoussetting;
+        }
         $mform->setDefault(
             'cancelrelativedate',
-            (int)booking::get_value_of_json_by_key($bookingid, 'cancelrelativedate') ?? MOD_BOOKING_CANCANCELBOOK_RELATIVE
+            $canceldefault
         );
 
         $mform->addElement('date_time_selector', 'allowupdatetimestamp', get_string('canceldateabsolute', 'mod_booking'));

@@ -1020,6 +1020,21 @@ if ($ADMIN->fulltree) {
                 PARAM_INT
             )
         );
+
+        $canceloptions = [
+            MOD_BOOKING_CANCANCELBOOK_ABSOLUTE => get_string('cancancelbookabsolute', 'mod_booking'),
+            MOD_BOOKING_CANCANCELBOOK_RELATIVE => get_string('cancancelbookrelativedesc', 'mod_booking'),
+            MOD_BOOKING_CANCANCELBOOK_UNLIMITED => get_string('cancancelbookunlimited', 'mod_booking'),
+        ];
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/defaultcanceldate',
+                get_string('defaultcanceldate', 'mod_booking'),
+                get_string('defaultcanceldate_desc', 'mod_booking'),
+                0,
+                $canceloptions
+            )
+        );
     } else {
         $settings->add(
             new admin_setting_heading(
