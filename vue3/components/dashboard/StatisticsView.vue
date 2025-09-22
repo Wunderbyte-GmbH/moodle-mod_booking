@@ -117,7 +117,7 @@ const color = '#0063A6';
 </script>
 <style lang="scss" scoped>
 @import "vue-select/dist/vue-select.css";
- @import './scss/custom.scss';
+ @import '../../scss/custom.scss';
 
 .infoblock {
   min-height: 100px;

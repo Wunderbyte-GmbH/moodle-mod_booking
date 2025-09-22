@@ -23,6 +23,10 @@
 
 // Import needed libraries
 import { createApp } from 'vue';
+import PrimeVue from 'primevue/config'
+import 'primevue/resources/themes/lara-light-blue/theme.css'
+import 'primevue/resources/primevue.min.css'
+import 'primeicons/primeicons.css'
 import VueInputAutowidth from 'vue-input-autowidth';
 import { createAppStore } from './store';
 import Notifications from '@kyvg/vue3-notification';
