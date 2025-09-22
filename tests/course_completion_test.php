@@ -64,12 +64,13 @@ final class course_completion_test extends advanced_testcase {
      *
      * @param array $data
      * @param array $expected
+     * @covers \mod_booking\booking_option
      * @throws \coding_exception
      * @throws \dml_exception
      *
      * @dataProvider booking_common_settings_provider
      */
-    public function test_course_completion (array $data, array $expected): void {
+    public function test_course_completion(array $data, array $expected): void {
         global $DB;
 
         $standarddata = self::provide_standard_data();
@@ -91,7 +92,7 @@ final class course_completion_test extends advanced_testcase {
         // Fetch standarddata for booking.
         $bdata = $standarddata['booking'];
         // Apply the custom settings for the first booking.
-       // Apply custom booking settings
+        // Apply custom booking settings
         if (!empty($data['bookingsettings'])) {
             foreach ($data['bookingsettings'] as $setting) {
                 foreach ($setting as $key => $value) {
@@ -99,7 +100,6 @@ final class course_completion_test extends advanced_testcase {
                 }
             }
         }
-
 
         $bdata['course'] = $course->id;
         $bdata['bookingmanager'] = $users["bookingmanager"]->username;
@@ -116,12 +116,12 @@ final class course_completion_test extends advanced_testcase {
 
         $option = $standarddata['option'];
         if (!empty($data['optionsettings'])) {
-        foreach ($data['optionsettings'] as $setting) {
-            foreach ($setting as $key => $value) {
-                $option[$key] = $value;
+            foreach ($data['optionsettings'] as $setting) {
+                foreach ($setting as $key => $value) {
+                    $option[$key] = $value;
+                }
             }
         }
-}
 
 
         $option['bookingid'] = $booking1->id;
@@ -168,50 +168,52 @@ final class course_completion_test extends advanced_testcase {
      * @return array
      * @throws \UnexpectedValueException
      */
-  /**
- * Data provider for condition_bookingpolicy_test
- *
- * @return array
- * @throws \UnexpectedValueException
- */
-public static function booking_common_settings_provider(): array {
+    /**
+     * Data provider for condition_bookingpolicy_test
+     *
+     * @return array
+     * @throws \UnexpectedValueException
+     */
+    public static function booking_common_settings_provider(): array {
 
-    return [
-        'coursecompletion' => [
-            // First element = $data
-            [
-                'pluginsettings' => [
-                    [
-                        'component' => 'booking',
-                        'key' => 'notifymelist',
-                        'value' => 1,
+        return [
+            'coursecompletion' => [
+                // First element = $data.
+                [
+                    'pluginsettings' => [
+                        [
+                            'component' => 'booking',
+                            'key' => 'notifymelist',
+                            'value' => 1,
+                        ],
+                        [
+                            'component' => 'booking',
+                            'key' => 'automaticbookingoptioncompletion',
+                            'value' => 1,
+                        ],
                     ],
-                ],
-                'coursesettings' => [
-                    'firstcourse' => [
-                        'enablecompletion' => 1,
+                    'coursesettings' => [
+                        'firstcourse' => [
+                            'enablecompletion' => 1,
+                        ],
                     ],
-                ],
-                'userssettings' => [
-                    'student1' => [], // Just a demo how params could be set.
-                ],
-                'bookingsettings' => [
-                    [
-                        'cancancelbook' => 1,
+                    'userssettings' => [
+                        'student1' => [], // Just a demo how params could be set.
                     ],
-                ],
-                'optionsettings' => [
-                    [
-                        'useprice' => 0, // Disable price for this option.
+                    'bookingsettings' => [
+                        [
+                            'cancancelbook' => 1,
+                        ],
+                    ],
+                    'optionsettings' => [
+                        [
+                            'useprice' => 0, // Disable price for this option.
+                        ],
                     ],
                 ],
             ],
-            // Second element = $expected (empty array if not needed)
-            []
-        ],
-    ];
-}
-
+        ];
+    }
 
     /**
      * Provides the data that's constant for the test.
@@ -221,49 +223,49 @@ public static function booking_common_settings_provider(): array {
      */
     private static function provide_standard_data(): array {
         return [
-        'booking' => [
-            'name' => 'Test',
-            'eventtype' => 'Test event',
-            'enablecompletion' => 1,
-            'bookedtext' => ['text' => 'text'],
-            'waitingtext' => ['text' => 'text'],
-            'notifyemail' => ['text' => 'text'],
-            'statuschangetext' => ['text' => 'text'],
-            'deletedtext' => ['text' => 'text'],
-            'pollurltext' => ['text' => 'text'],
-            'pollurlteacherstext' => ['text' => 'text'],
-            'notificationtext' => ['text' => 'text'],
-            'userleave' => ['text' => 'text'],
-            'tags' => '',
-            'completion' => 2,
-            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
-        ],
-        'option' => [
-            'text' => 'Test option1',
-            'coursestarttime_0' => strtotime('now + 1 day'),
-            'courseendtime_0' => strtotime('now + 2 day'),
-            'importing' => 1,
-            'useprice' => 1,
-            'default' => 50, // Default price.
-        ],
-        'users' => [ // Number of entries corresponds to number of users.
-            [
-                'name' => 'student1',
-                'params' => [],
+            'booking' => [
+                'name' => 'Test',
+                'eventtype' => 'Test event',
+                'enablecompletion' => 1,
+                'bookedtext' => ['text' => 'text'],
+                'waitingtext' => ['text' => 'text'],
+                'notifyemail' => ['text' => 'text'],
+                'statuschangetext' => ['text' => 'text'],
+                'deletedtext' => ['text' => 'text'],
+                'pollurltext' => ['text' => 'text'],
+                'pollurlteacherstext' => ['text' => 'text'],
+                'notificationtext' => ['text' => 'text'],
+                'userleave' => ['text' => 'text'],
+                'tags' => '',
+                'completion' => 2,
+                'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
             ],
-            [
-                'name' => 'student2',
-                'params' => [],
+            'option' => [
+                'text' => 'Test option1',
+                'coursestarttime_0' => strtotime('now + 1 day'),
+                'courseendtime_0' => strtotime('now + 2 day'),
+                'importing' => 1,
+                'useprice' => 1,
+                'default' => 50, // Default price.
             ],
-            [
-                'name' => 'bookingmanager', // Bookingmanager always needs to be set.
-                'params' => [],
+            'users' => [ // Number of entries corresponds to number of users.
+                [
+                    'name' => 'student1',
+                    'params' => [],
+                ],
+                [
+                    'name' => 'student2',
+                    'params' => [],
+                ],
+                [
+                    'name' => 'bookingmanager', // Bookingmanager always needs to be set.
+                    'params' => [],
+                ],
+                [
+                    'name' => 'teacher',
+                    'params' => [],
+                ],
             ],
-            [
-                'name' => 'teacher',
-                'params' => [],
-            ],
-        ],
         ];
     }
 }
