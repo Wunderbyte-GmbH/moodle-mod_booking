@@ -714,6 +714,16 @@ if ($ADMIN->fulltree) {
                 0
             )
         );
+
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/alwaysbookanyone',
+                get_string('alwaysbookanyone', 'mod_booking'),
+                get_string('alwaysbookanyone_desc', 'mod_booking'),
+                0
+            )
+        );
+
         // PRO feature: "What's new" tab.
         $settings->add(
             new admin_setting_heading(

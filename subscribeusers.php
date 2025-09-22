@@ -45,6 +45,10 @@ $unsubscribe = optional_param('unsubscribe', false, PARAM_BOOL);
 $agree = optional_param('agree', false, PARAM_BOOL);
 $bookanyone = optional_param('bookanyone', false, PARAM_BOOL);
 
+if (get_config('booking', 'alwaysbookanyone')) {
+    $bookanyone = true;
+}
+
 // If we have already submitted the form, we don't want to fall into the agree policy.
 $formsubmitted = optional_param('submitbutton', '', PARAM_TEXT);
 
