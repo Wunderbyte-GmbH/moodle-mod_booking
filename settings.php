@@ -1660,7 +1660,7 @@ if ($ADMIN->fulltree) {
         $settings->add(
             new admin_setting_configcheckbox(
                 'booking/duplicationrestorebookings',
-                get_string('duplicationrestorebookings', 'mod_booking'),
+                get_string('duplicationrestorebookingoptions', 'mod_booking'),
                 '',
                 1
             )
