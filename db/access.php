@@ -378,4 +378,12 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
+    'mod/booking:importoptions' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'coursecreator' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+    ],
 ];

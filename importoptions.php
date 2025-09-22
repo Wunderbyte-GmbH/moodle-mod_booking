@@ -53,7 +53,7 @@ $PAGE->activityheader->disable();
 $groupmode = groups_get_activity_groupmode($cm);
 $context = context_module::instance($cm->id);
 
-require_capability('mod/booking:updatebooking', $context);
+require_capability('mod/booking:importoptions', $context);
 
 $PAGE->navbar->add(get_string("importcsvtitle", "booking"));
 $booking = singleton_service::get_instance_of_booking_by_cmid((int)$cm->id);
