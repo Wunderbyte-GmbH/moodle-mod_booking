@@ -216,7 +216,7 @@ function findElementById(jsonData, idToFind) {
 </script>
 
 <style lang="scss" scoped>
-@import './scss/custom.scss';
+@import '../scss/custom.scss';
 
 .fade-enter-active,
 .fade-leave-active {

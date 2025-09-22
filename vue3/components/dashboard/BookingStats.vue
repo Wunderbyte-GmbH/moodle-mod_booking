@@ -68,7 +68,7 @@
 
 
 <style lang="scss" scoped>
- @import './scss/custom.scss';
+ @import '../../scss/custom.scss';
 
   .thead-light th {
     background: $vuelightcontent;

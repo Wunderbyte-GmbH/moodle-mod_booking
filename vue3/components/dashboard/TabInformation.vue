@@ -169,7 +169,7 @@ GetAccStats()
 </script>
 
 <style lang="scss" scoped>
-@import './scss/custom.scss';
+@import '../../scss/custom.scss';
 
 .pre {
   width: 100%;

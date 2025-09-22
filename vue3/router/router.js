@@ -23,9 +23,9 @@
 
 // Import needed libraries
 import { createRouter, createWebHashHistory } from 'vue-router';
-import notFound from '../components/NotFound';
-import bookingDashboard from '../components/BookingDashboard'
-import configForm from '../components/dashboard/ConfigForm'
+import notFound from '../components/NotFound.vue';
+import bookingDashboard from '../components/BookingDashboard.vue'
+import configForm from '../components/dashboard/ConfigForm.vue'
 
 // All available routes
 const routes = [
