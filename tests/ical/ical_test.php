@@ -22,6 +22,8 @@ use stdClass;
 use mod_booking_generator;
 use mod_booking\option\fields_info;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\booking_rules\booking_rules;
+use mod_booking\booking_rules\rules_info;
 
 /**
  * Tests for ical.
@@ -33,6 +35,29 @@ use mod_booking\bo_availability\bo_info;
  */
 final class ical_test extends advanced_testcase {
     /**
+     * Tests set up.
+     */
+    public function setUp(): void {
+        parent::setUp();
+        $this->resetAfterTest();
+        singleton_service::destroy_instance();
+    }
+
+    /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        global $DB;
+
+        parent::tearDown();
+        // Mandatory to solve potential cache issues.
+        singleton_service::destroy_instance();
+        // Mandatory to deal with static variable in the booking_rules.
+        rules_info::destroy_singletons();
+        booking_rules::$rules = [];
+    }
+
+    /**
      * Setup environment.
      * @param int $numberofdatesinoption
      * @return array
@@ -42,7 +67,11 @@ final class ical_test extends advanced_testcase {
         $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
         // Create users.
-        $student1 = $this->getDataGenerator()->create_user();
+        $student1 = $this->getDataGenerator()->create_user([
+            'firstname' => 'Maximiliana',
+            'lastname'  => 'Hieronymopolous-Cavendish-Montenegresco',
+            'email'  => 'Maximiliana.Hieronymopolous-Cavendish-Montenegresco@example.com',
+        ]);
         $student2 = $this->getDataGenerator()->create_user();
         $teacher1 = $this->getDataGenerator()->create_user();
 
@@ -176,7 +205,8 @@ final class ical_test extends advanced_testcase {
 
         // Attendee line should include student’s email.
         $this->assertStringContainsString('ATTENDEE', $file, 'ICS file missing ATTENDEE');
-        $this->assertStringContainsString('MAILTO:' . $student1->email, $file);
+        $unfolded = preg_replace("/\r\n[ \t]/", '', $file);
+        $this->assertStringContainsString('MAILTO:' . $student1->email, $unfolded);
 
         // Organizer should be present (booking manager or noreply fallback).
         $this->assertStringContainsString('ORGANIZER', $file);
@@ -251,9 +281,10 @@ final class ical_test extends advanced_testcase {
 
         // Get first message.
         $msg = $messages[0];
-        $this->assertEquals('mod_booking', $msg->component);
-        $this->assertEquals($student1->id, $msg->useridto);
-        $this->assertEquals('Test', $msg->subject);
+        $this->assertSame('mod_booking', $msg->component);
+        // Order of messages is not guaranteed, so we check that the recipient is one of the two students.
+        $this->assertSame(true, in_array($msg->useridto, [$student1->id, $student2->id]));
+        $this->assertSame('Test', $msg->subject);
 
         // Check the created ics file for the user.
         $fs = get_file_storage();

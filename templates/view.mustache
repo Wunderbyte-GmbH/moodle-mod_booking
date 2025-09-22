@@ -46,7 +46,9 @@
   {{^elective}}
     {{#showonlyone}}
       <li class="nav-item mr-1" role="presentation">
-        <button class="nav-link active" id="showonlyone-tab" data-toggle="pill" data-target="#showonlyone"
+        <button class="nav-link active" id="showonlyone-tab"
+          data-toggle="pill" data-target="#showonlyone"
+          data-bs-toggle="pill" data-bs-target="#showonlyone"
           type="button" role="tab" aria-controls="showonlyone" aria-selected="true">
           {{#str}} bookingoption, mod_booking {{/str}}
         </button>
@@ -54,7 +56,9 @@
     {{/showonlyone}}
     {{#whatsnewtable}}
       <li class="nav-item mr-1" role="presentation">
-        <button class="nav-link {{#showwhatsnew}}active{{/showwhatsnew}}" id="whatsnew-tab" data-toggle="pill" data-target="#whatsnew"
+        <button class="nav-link {{#showwhatsnew}}active{{/showwhatsnew}}" id="whatsnew-tab"
+          data-toggle="pill" data-target="#whatsnew"
+          data-bs-toggle="pill" data-bs-target="#whatsnew"
           type="button" role="tab" aria-controls="whatsnew" aria-selected="true">
           {{#whatsnewtabtitle}}{{.}}{{/whatsnewtabtitle}}
         </button>
@@ -62,7 +66,9 @@
     {{/whatsnewtable}}
     {{#alloptionstable}}
       <li class="nav-item mr-1" role="presentation">
-        <button class="nav-link {{#showall}}active{{/showall}}" id="all-options-tab" data-toggle="pill" data-target="#all-options"
+        <button class="nav-link {{#showall}}active{{/showall}}" id="all-options-tab"
+          data-toggle="pill" data-target="#all-options"
+          data-bs-toggle="pill" data-bs-target="#all-options"
           type="button" role="tab" aria-controls="all-options" aria-selected="true">
           {{#str}} showallbookingoptions, mod_booking {{/str}}
         </button>
@@ -70,7 +76,9 @@
     {{/alloptionstable}}
     {{#activeoptionstable}}
       <li class="nav-item mr-1" role="presentation">
-        <button class="nav-link {{#showactive}}active{{/showactive}}" id="active-options-tab" data-toggle="pill" data-target="#active-options"
+        <button class="nav-link {{#showactive}}active{{/showactive}}" id="active-options-tab"
+          data-toggle="pill" data-target="#active-options"
+          data-bs-toggle="pill" data-bs-target="#active-options"
           type="button" role="tab" aria-controls="active-options" aria-selected="true">
           {{#str}} activebookingoptions, mod_booking {{/str}}
         </button>
@@ -78,7 +86,9 @@
     {{/activeoptionstable}}
     {{#myoptionstable}}
       <li class="nav-item mr-1" role="presentation">
-        <button class="nav-link {{#mybooking}}active{{/mybooking}}" id="my-options-tab" data-toggle="pill" data-target="#my-options"
+        <button class="nav-link {{#mybooking}}active{{/mybooking}}" id="my-options-tab"
+          data-toggle="pill" data-target="#my-options"
+          data-bs-toggle="pill" data-bs-target="#my-options"
           type="button" role="tab" aria-controls="my-options" aria-selected="true">
           {{#str}} showmybookingsonly, mod_booking {{/str}}
         </button>
@@ -86,7 +96,9 @@
     {{/myoptionstable}}
     {{#optionsiteachtable}}
       <li class="nav-item mr-1" role="presentation">
-        <button class="nav-link {{#myoptions}}active{{/myoptions}}" id="options-i-teach-tab" data-toggle="pill" data-target="#options-i-teach"
+        <button class="nav-link {{#myoptions}}active{{/myoptions}}" id="options-i-teach-tab"
+          data-toggle="pill" data-target="#options-i-teach"
+          data-bs-toggle="pill" data-bs-target="#options-i-teach"
           type="button" role="tab" aria-controls="options-i-teach" aria-selected="true">
           {{#str}} optionsiteach, mod_booking {{/str}}
         </button>
@@ -94,7 +106,9 @@
     {{/optionsiteachtable}}
     {{#responsiblecontacttable}}
       <li class="nav-item mr-1" role="presentation">
-        <button class="nav-link {{#optionsiamresponsiblefor}}active{{/optionsiamresponsiblefor}}" id="options-i-am-responsible-for-tab" data-toggle="pill" data-target="#options-i-am-responsible-for"
+        <button class="nav-link {{#optionsiamresponsiblefor}}active{{/optionsiamresponsiblefor}}" id="options-i-am-responsible-for-tab"
+          data-toggle="pill" data-target="#options-i-am-responsible-for"
+          data-bs-toggle="pill" data-bs-target="#options-i-am-responsible-for"
           type="button" role="tab" aria-controls="options-i-am-responsible-for" aria-selected="true">
           {{#str}} optionsiamresponsiblefor, mod_booking {{/str}}
         </button>
@@ -102,7 +116,9 @@
     {{/responsiblecontacttable}}
     {{#myinstitutiontable}}
       <li class="nav-item mr-1" role="presentation">
-        <button class="nav-link {{#myinstitution}}active{{/myinstitution}}" id="myinstitution-tab" data-toggle="pill" data-target="#myinstitution"
+        <button class="nav-link {{#myinstitution}}active{{/myinstitution}}" id="myinstitution-tab"
+          data-toggle="pill" data-target="#myinstitution"
+          data-bs-toggle="pill" data-bs-target="#myinstitution"
           type="button" role="tab" aria-controls="myinstitution" aria-selected="true">
           {{#str}} myinstitution, mod_booking {{/str}}{{#myinstitutionname}} ({{{.}}}){{/myinstitutionname}}
         </button>
@@ -110,7 +126,9 @@
     {{/myinstitutiontable}}
     {{#visibleoptionstable}}
       <li class="nav-item mr-1" role="presentation">
-        <button class="nav-link {{#visibleoptions}}active{{/visibleoptions}}" id="visibleoptions-tab" data-toggle="pill" data-target="#visibleoptions"
+        <button class="nav-link {{#visibleoptions}}active{{/visibleoptions}}" id="visibleoptions-tab"
+          data-toggle="pill" data-target="#visibleoptions"
+          data-bs-toggle="pill" data-bs-target="#visibleoptions"
           type="button" role="tab" aria-controls="visibleoptions" aria-selected="true">
           {{#str}} visibleoptions, mod_booking {{/str}}
         </button>
@@ -118,7 +136,9 @@
     {{/visibleoptionstable}}
     {{#invisibleoptionstable}}
       <li class="nav-item mr-1" role="presentation">
-        <button class="nav-link {{#invisibleoptions}}active{{/invisibleoptions}}" id="invisibleoptions-tab" data-toggle="pill" data-target="#invisibleoptions"
+        <button class="nav-link {{#invisibleoptions}}active{{/invisibleoptions}}" id="invisibleoptions-tab"
+          data-toggle="pill" data-target="#invisibleoptions"
+          data-bs-toggle="pill" data-bs-target="#invisibleoptions"
           type="button" role="tab" aria-controls="invisibleoptions" aria-selected="true">
           {{#str}} invisibleoptions, mod_booking {{/str}}
         </button>
@@ -126,7 +146,9 @@
     {{/invisibleoptionstable}}
     {{#fieldofstudytable}}
       <li class="nav-item mr-1" role="presentation">
-        <button class="nav-link {{#showfieldofstudy}}active{{/showfieldofstudy}}" id="showfieldofstudy-tab" data-toggle="pill" data-target="#showfieldofstudy"
+        <button class="nav-link {{#showfieldofstudy}}active{{/showfieldofstudy}}" id="showfieldofstudy-tab"
+          data-toggle="pill" data-target="#showfieldofstudy"
+          data-bs-toggle="pill" data-bs-target="#showfieldofstudy"
           type="button" role="tab" aria-controls="showfieldofstudy" aria-selected="true">
           {{#str}} showmyfieldofstudyonly, mod_booking {{/str}}
         </button>
@@ -135,7 +157,9 @@
   {{/elective}}
   {{#elective}}
     <li class="nav-item mr-1" role="presentation">
-      <button class="nav-link {{#elective}}active{{/elective}}" id="elective-tab" data-toggle="pill" data-target="#elective"
+      <button class="nav-link {{#elective}}active{{/elective}}" id="elective-tab"
+        data-toggle="pill" data-target="#elective"
+        data-bs-toggle="pill" data-bs-target="#elective"
         type="button" role="tab" aria-controls="elective" aria-selected="true">
         {{#str}} elective, mod_booking {{/str}}
       </button>

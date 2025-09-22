@@ -1380,7 +1380,7 @@ $string['helptext:emailsettings'] = '<div class="alert alert-warning style="marg
 <span>&nbsp;Veraltete Funktion, bitte migrieren Sie ihre Vorlagen und Einstellungen zu <a href="{$a}">Buchungs Regeln</a></span>!
 </div>';
 $string['helptext:placeholders'] = '<div class="alert alert-info" style="margin-left: 200px;">
-<a data-toggle="collapse" href="#collapsePlaceholdersHelptext" role="button" aria-expanded="false" aria-controls="collapsePlaceholdersHelptext">
+<a data-toggle="collapse" data-bs-toggle="collapse" href="#collapsePlaceholdersHelptext" role="button" aria-expanded="false" aria-controls="collapsePlaceholdersHelptext">
   <i class="fa fa-question-circle" aria-hidden="true"></i><span>&nbsp;Platzhalter, die Sie in Ihren E-Mails verwenden können.</span>
 </a>
 </div>
@@ -1951,7 +1951,7 @@ $string['priceformulaadd'] = 'Absolutwert';
 $string['priceformulaadd_help'] = 'Zusätzlicher Wert, der zum Ergebnis <strong>addiert</strong> werden soll.';
 $string['priceformulaheader'] = 'Preisformel <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['priceformulaheader_desc'] = "Eine Preisformel verwenden, um Preise automatisch berechnen zu können.";
-$string['priceformulainfo'] = '<a data-toggle="collapse" href="#priceformula" role="button" aria-expanded="false" aria-controls="priceformula">
+$string['priceformulainfo'] = '<a data-toggle="collapse" data-bs-toggle="collapse" href="#priceformula" role="button" aria-expanded="false" aria-controls="priceformula">
 <i class="fa fa-code"></i> Preisformel-JSON anzeigen...
 </a>
 <div class="collapse" id="priceformula">
@@ -1982,7 +1982,7 @@ $string['profeatures:appearance'] = '<ul>
 <li><b>Optionen für Anwesenheitsstatus</b></li>
 </ul>';
 $string['profeatures:approval'] = '<ul>
-<li><b>Bestätigungsworkflows aktivieren</b></li>
+<li><b>Bestätigungsworkflows (Buchungen müssen durch bestimmte Personen bestätigt werden)</b></li>
 </ul>';
 $string['profeatures:automaticcoursecreation'] = '<ul>
 <li><b>Benutzerdefiniertes Buchungsoptionfeld, das als Kurskategorie von automatisch erstellten Kursen verwendet werden soll</b></li>

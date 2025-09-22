@@ -1315,14 +1315,14 @@ class bookingoptions_wbtable extends wunderbyte_table {
         if (!empty($ddoptions)) {
             $ret .= '<div class="dropdown d-inline">
                     <button class="bookingoption-edit-button dropdown-toggle btn btn-light btn-sm" id="action-menu-toggle-' .
-                $optionid .
-                '" title="" role="button" data-toggle="dropdown"
+                        $optionid .
+                        '" title="" role="button" data-toggle="dropdown" data-bs-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false">
                         <i class="icon fa fa-cog fa-fw" aria-hidden="true"
                             aria-label="' . get_string('settings') . '" title="' . get_string('settings') . '" >
                         </i>
                     </button>
-                    <div class="dropdown-menu dropdown-menu-right menu align-tr-br" id="action-menu-' .
+                    <div class="dropdown-menu dropdown-menu-right dropdown-menu-end menu align-tr-br" id="action-menu-' .
                 $optionid .
                 '-menu" data-rel="menu-content"
                         aria-labelledby="action-menu-toggle-3" role="menu" data-align="tr-br">';
@@ -1453,7 +1453,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
                 if (strlen($shortdescription) > $maxlength) {
                     $ret =
                         '<div>
-                            <a data-toggle="collapse" href="#collapseDescription' . $values->id . '" role="button"
+                            <a data-toggle="collapse" data-bs-toggle="collapse"
+								href="#collapseDescription' . $values->id . '" role="button"
                                 aria-expanded="false" aria-controls="collapseDescription">
                                 <i class="fa fa-info-circle" aria-hidden="true"></i>&nbsp;' .
                         get_string('showdescription', 'mod_booking') . '...</a>

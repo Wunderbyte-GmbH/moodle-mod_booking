@@ -88,7 +88,7 @@ if ($targetcmid > 0) {
             $url->param('movetocmid', $cm->id);
             $url->param('sesskey', sesskey());
             $button = new single_button($url, get_string('move'), 'get');
-            $button->class = 'float-right';
+            $button->class = 'float-right float-end';
             $renderer = $PAGE->get_renderer('core');
             $content[] = $bookinginstance->name . $renderer->render($button);
         }

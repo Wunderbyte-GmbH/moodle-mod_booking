@@ -1404,7 +1404,7 @@ $string['helptext:emailsettings'] = '<div class="alert alert-warning style="marg
 <span>&nbsp;Deprecated function, please migrate your templates & settings to <a href="{$a}">Booking Rules</a></span>!
 </div>';
 $string['helptext:placeholders'] = '<div class="alert alert-info" style="margin-left: 200px;">
-<a data-toggle="collapse" href="#collapsePlaceholdersHelptext" role="button" aria-expanded="false" aria-controls="collapsePlaceholdersHelptext">
+<a data-toggle="collapse" data-bs-toggle="collapse" href="#collapsePlaceholdersHelptext" role="button" aria-expanded="false" aria-controls="collapsePlaceholdersHelptext">
   <i class="fa fa-question-circle" aria-hidden="true"></i><span>&nbsp;Placeholders you can use in your emails.</span>
 </a>
 </div>
@@ -1970,7 +1970,7 @@ $string['priceformulaadd'] = 'Absolute value';
 $string['priceformulaadd_help'] = 'Additional value to <strong>add</strong> to the result.';
 $string['priceformulaheader'] = 'Price formula <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['priceformulaheader_desc'] = "Use a price formula to automatically calculate prices for booking options.";
-$string['priceformulainfo'] = '<a data-toggle="collapse" href="#priceformula" role="button" aria-expanded="false" aria-controls="priceformula">
+$string['priceformulainfo'] = '<a data-toggle="collapse" data-bs-toggle="collapse" href="#priceformula" role="button" aria-expanded="false" aria-controls="priceformula">
 <i class="fa fa-code"></i> Show JSON for price formula...
 </a>
 <div class="collapse" id="priceformula">
@@ -2054,7 +2054,7 @@ $string['profeatures:appearance'] = '<ul>
 <li><b>options for attendance status</b></li>
 </ul>';
 $string['profeatures:approval'] = '<ul>
-<li><b>Use approval workflows</b></li>
+<li><b>Approval workflows (Bookings have to be approved by specific users)</b></li>
 </ul>';
 $string['profeatures:automaticcoursecreation'] = '<ul>
 <li><b>booking option custom field to be used as course category</b></li>

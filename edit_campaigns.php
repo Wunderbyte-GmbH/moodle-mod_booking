@@ -59,7 +59,7 @@ echo $output->header();
 echo $output->heading(get_string('bookingcampaignswithbadge', 'mod_booking'));
 echo '<div class="alert alert-secondary alert-dismissible fade show" role="alert">' .
     get_string('bookingcampaignssubtitle', 'mod_booking') .
-    '<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    '<button type="button" class="close btn-close" data-dismiss="alert" data-bs-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
     </button>
 </div>';

@@ -67,11 +67,11 @@ Feature: In a course add a booking option and manage its waiting list
     And I click on "Student 3 (student3@example.com)" "text"
     When I click on "Add" "button"
     ## Book 2 students
-    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
+    And I click on "[data-bs-target='#accordion-item-waitinglist']" "css_element"
     And I click on ".confirmbooking-username-student1 i" "css_element"
     And I wait "1" seconds
     And I click on "Book" "button" in the ".modal-footer" "css_element"
-    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
+    And I click on "[data-bs-target='#accordion-item-waitinglist']" "css_element"
     And I click on ".confirmbooking-username-student2 i" "css_element"
     And I wait "1" seconds
     And I click on "Book" "button" in the ".modal-footer" "css_element"
@@ -82,7 +82,7 @@ Feature: In a course add a booking option and manage its waiting list
     And I click on "Student 5 (student5@example.com)" "text"
     When I click on "Add" "button"
     ## Verify location
-    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
+    And I click on "[data-bs-target='#accordion-item-waitinglist']" "css_element"
     And I should see "student3@example.com" in the "//tr[contains(@id, 'waitinglist') and contains(@id, '_r1')]" "xpath_element"
     And I should see "student4@example.com" in the "//tr[contains(@id, 'waitinglist') and contains(@id, '_r2')]" "xpath_element"
     ## Resort rows
@@ -93,7 +93,7 @@ Feature: In a course add a booking option and manage its waiting list
     ## Force cache clean-up because of change settings "on the fly"
     And I clean booking cache
     And I reload the page
-    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
+    And I click on "[data-bs-target='#accordion-item-waitinglist']" "css_element"
     And I drag "tr[id^='waitinglist'][id$='r2'] span[data-drag-type='move']" "css_element" and I drop it in "tr[id^='waitinglist'][id$='r1'] span[data-drag-type='move']" "css_element"
     And I wait "1" seconds
     And I should see "student4@example.com" in the "tr[id^='waitinglist'][id$='r1'] td.columnclass.email" "css_element"
@@ -125,7 +125,7 @@ Feature: In a course add a booking option and manage its waiting list
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
     ## Confirm all 4 students' bookings
-    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
+    And I click on "[data-bs-target='#accordion-item-waitinglist']" "css_element"
     ## All listed below delays are critical for the test to pass at GitHub!
     ## Order of confirmation 1->4 is important - so "confirmbooking" element is always "1"!
     And I wait until the page is ready
@@ -133,19 +133,19 @@ Feature: In a course add a booking option and manage its waiting list
     And I wait until the page is ready
     And I click on "Book" "button" in the ".modal-footer" "css_element"
     And I wait until the page is ready
-    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
+    And I click on "[data-bs-target='#accordion-item-waitinglist']" "css_element"
     And I wait until the page is ready
     And I click on the element with the number "2" with the dynamic identifier "waitinglist" and action "confirmbooking"
     And I wait until the page is ready
     And I click on "Book" "button" in the ".modal-footer" "css_element"
     And I wait until the page is ready
-    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
+    And I click on "[data-bs-target='#accordion-item-waitinglist']" "css_element"
     And I wait until the page is ready
     And I click on the element with the number "3" with the dynamic identifier "waitinglist" and action "confirmbooking"
     And I wait until the page is ready
     And I click on "Book" "button" in the ".modal-footer" "css_element"
     And I wait until the page is ready
-    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
+    And I click on "[data-bs-target='#accordion-item-waitinglist']" "css_element"
     And I wait until the page is ready
     And I click on the element with the number "4" with the dynamic identifier "waitinglist" and action "confirmbooking"
     And I wait until the page is ready
@@ -186,7 +186,7 @@ Feature: In a course add a booking option and manage its waiting list
     And I click on "Student 2 (student2@example.com)" "text"
     And I click on "Remove" "button"
     ## Cancel waiting list for student 4
-    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
+    And I click on "[data-bs-target='#accordion-item-waitinglist']" "css_element"
     And I should see "student3@example.com" in the "tr[id^='waitinglist'][id$='r1'] td.columnclass.email" "css_element"
     And I should see "student4@example.com" in the "tr[id^='waitinglist'][id$='r2'] td.columnclass.email" "css_element"
     And I click on "tr[id^='waitinglist'][id$='r2'] [data-methodname='unconfirmbooking']" "css_element"
@@ -229,7 +229,7 @@ Feature: In a course add a booking option and manage its waiting list
     And I click on "Student 4 (student4@example.com)" "text"
     When I click on "Add" "button"
     ## 2 students are on waitinglist
-    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
+    And I click on "[data-bs-target='#accordion-item-waitinglist']" "css_element"
     And I should see "student3@example.com" in the "#accordion-item-waitinglist" "css_element"
     And I should see "student4@example.com" in the "#accordion-item-waitinglist" "css_element"
     ## Adjust option settings
@@ -254,7 +254,7 @@ Feature: In a course add a booking option and manage its waiting list
     And I click on "Student 4 (student4@example.com)" "text"
     When I click on "Add" "button"
     ## 2 students are on waitinglist
-    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
+    And I click on "[data-bs-target='#accordion-item-waitinglist']" "css_element"
     And I should see "student1@example.com" in the "#accordion-item-waitinglist" "css_element"
     And I should see "student4@example.com" in the "#accordion-item-waitinglist" "css_element"
     ## Adjust option settings

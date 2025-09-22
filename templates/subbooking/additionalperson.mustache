@@ -38,8 +38,11 @@
         <div class="card mb-2">
             <div class="card-header text-left" id="headingSb{{itemid}}">
                 <h5 class="mb-0">
-                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseSb{{itemid}}" aria-expanded="true" aria-controls="collapseSb{{itemid}}">
-                    <i class="fa fa-plus-square"></i> {{name}}
+                <button class="btn btn-link"
+                    data-toggle="collapse" data-bs-toggle="collapse"
+                    data-target="#collapseSb{{itemid}}" data-bs-target="#collapseSb{{itemid}}"
+                    aria-expanded="true" aria-controls="collapseSb{{itemid}}">
+                    <i class="fa fa-plus-square" aria-hidden="true"></i>&nbsp;{{name}}
                 </button>
                 </h5>
             </div>

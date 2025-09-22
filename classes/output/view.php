@@ -1162,7 +1162,7 @@ class view implements renderable, templatable {
         $wbtable->add_subcolumns('cardbody', $cardbody);
         $wbtable->add_classes_to_subcolumns('cardbody', ['columnkeyclass' => 'd-none']);
         $wbtable->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'd-none'], ['coursestarttime', 'courseendtime']);
-        $wbtable->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'float-right'], ['action']);
+        $wbtable->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'float-right float-end'], ['action']);
         $wbtable->add_classes_to_subcolumns(
             'cardbody',
             ['columnvalueclass' => 'text-center booking-option-info-invisible'],

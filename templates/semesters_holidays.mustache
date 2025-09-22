@@ -35,20 +35,20 @@
 }}
 <div class="alert alert-secondary alert-dismissible fade show" role="alert">
   {{#str}} semesterssubtitle, mod_booking {{/str}}
-  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+  <button type="button" class="close btn-close" data-dismiss="alert" data-bs-dismiss="alert" aria-label="Close">
     <span aria-hidden="true">&times;</span>
   </button>
 </div>
 <nav>
   <div class="nav nav-tabs" id="nav-tab" role="tablist">
-    <a class="nav-link {{^renderedchangesemesterform}}active{{/renderedchangesemesterform}}" id="semesters-tab" data-toggle="tab" href="#semestersform" role="tab" aria-controls="semestersform" aria-selected="true">
+    <a class="nav-link {{^renderedchangesemesterform}}active{{/renderedchangesemesterform}}" id="semesters-tab" data-toggle="tab" data-bs-toggle="tab" href="#semestersform" role="tab" aria-controls="semestersform" aria-selected="true">
       {{#str}} semesters, mod_booking {{/str}}
     </a>
-    <a class="nav-link" id="holidays-tab" data-toggle="tab" href="#holidaysform" role="tab" aria-controls="holidaysform" aria-selected="false">
+    <a class="nav-link" id="holidays-tab" data-toggle="tab" data-bs-toggle="tab" href="#holidaysform" role="tab" aria-controls="holidaysform" aria-selected="false">
       {{#str}} holidays, mod_booking {{/str}}
     </a>
     {{#renderedchangesemesterform}}
-    <a class="nav-link active" id="changesemester-tab" data-toggle="tab" href="#changesemesterform" role="tab" aria-controls="changesemesterform" aria-selected="false">
+    <a class="nav-link active" id="changesemester-tab" data-toggle="tab" data-bs-toggle="tab" href="#changesemesterform" role="tab" aria-controls="changesemesterform" aria-selected="false">
       {{#str}} changesemester, mod_booking {{/str}}
     </a>
     {{/renderedchangesemesterform}}

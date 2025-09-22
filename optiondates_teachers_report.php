@@ -90,7 +90,7 @@ $instancereportsurl = new moodle_url('/mod/booking/teachers_instance_report.php'
 // Dismissible alert containing the description of the report.
 echo '<div class="alert alert-secondary alert-dismissible fade show" role="alert">' .
     get_string('optiondatesteachersreport_desc', 'mod_booking') .
-    '<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    '<button type="button" class="close btn-close" data-dismiss="alert" data-bs-dismiss="alert" aria-label="Close">
     <span aria-hidden="true">&times;</span>
     </button>
 </div>';
