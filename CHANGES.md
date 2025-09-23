@@ -1,3 +1,27 @@
+## Version 8.17.4 (2025092300)
+* New Feature: Allow Multiple bookings
+* New Feature: Show team bookings for supervisor (supervisorteam shortcode)
+* New Feature: New hascompetency condition.
+* Improvement: Add deputies via select modal
+* Improvement: Add special string for waiting for confirmation
+* Improvement: Confirm users on waitinglist and sync them only when allowed
+* Improvement: Possibility to exclude booknow button in shortcodes
+* Improvement: Allow for old bookings to be completed and issue certificates
+* Improvment: Add argument statuswaitinglist to mycourselist shortcode to also show waitinglist options
+* Improvement: Make the labels of the tables in booked_users.mustache dynamic.
+* Improvement: New capability for importoptions
+* Improvement: Setting to set toggle always to book anyone
+* Improvement: Apply competency via task, if no moodle/competency:competencygrade capability
+* Bugfix: Correctly apply old date for old certificates
+* Bugfix: course completed observer has now an unique column
+* Bugfix: Add booknow everywhere we need it
+* Bugfix: Set timebooked to 0 where it is not set.
+* Bugfix: Fix time comparison condition.
+* Bugfix: fix vulnerabilities vue for display in dashboard
+* Bugfix: Enable edit_rules on context sys for users with capability
+* Bugfix: Correct description for duplicatebookingoptions
+* Test: Created new test for coursecompletion triggers bookingoptioncompletion
+
 ## Version 8.17.3 (2025091901)
 * Improvement: Introduce Bootstrap 5 and make adjustments to prepare for Moodle 5 version.
 * Improvement: Fixes for ical (*.ics) files.
