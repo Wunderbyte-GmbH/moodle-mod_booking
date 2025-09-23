@@ -1667,33 +1667,21 @@ if ($ADMIN->fulltree) {
         );
     }
 
-    if ($proversion) {
-        $settings->add(
-            new admin_setting_heading(
-                'duplicationrestoreoption',
-                get_string('duplicationrestoreoption', 'mod_booking'),
-                get_string('duplicationrestoreoption_desc', 'mod_booking')
-            )
-        );
-        $settings->add(
-            new admin_setting_configcheckbox(
-                'booking/duplicatemoodlecourses',
-                get_string('duplicatemoodlecourses', 'mod_booking'),
-                get_string('duplicatemoodlecourses_desc', 'mod_booking'),
-                0
-            )
-        );
-    } else {
-        $settings->add(
-            new admin_setting_heading(
-                'duplicationrestoreoption',
-                get_string('duplicationrestoreoption', 'mod_booking'),
-                get_string('prolicensefeatures', 'mod_booking') .
-                get_string('profeatures:duplicationrestoreoption', 'mod_booking') .
-                get_string('infotext:prolicensenecessary', 'mod_booking')
-            )
-        );
-    }
+    $settings->add(
+        new admin_setting_heading(
+            'duplicationrestoreoption',
+            get_string('duplicationrestoreoption', 'mod_booking'),
+            get_string('duplicationrestoreoption_desc', 'mod_booking')
+        )
+    );
+    $settings->add(
+        new admin_setting_configcheckbox(
+            'booking/duplicatemoodlecourses',
+            get_string('duplicatemoodlecourses', 'mod_booking'),
+            get_string('duplicatemoodlecourses_desc', 'mod_booking'),
+            0
+        )
+    );
 
     if ($proversion) {
         $settings->add(
