@@ -218,12 +218,14 @@ class enrolledincohorts implements bo_condition {
             // Default is AND - all cohorts must be met by user.
             $where = "
             availability IS NOT NULL
-            AND ((NOT EXISTS (
-                            SELECT 1
-                            FROM jsonb_array_elements(availability::jsonb) elem
-                            WHERE elem ->> 'sqlfilter' = '1'
-                        ))
-                OR (CASE
+            AND
+            (
+                (
+                    NOT (availability::jsonb @> '[{\"sqlfilter\":\"1\"}]')
+                )
+                OR
+                (
+                    CASE
                     WHEN (availability::jsonb->0->>'cohortidsoperator') = 'OR' THEN
                         EXISTS (
                             SELECT 1
@@ -263,11 +265,7 @@ class enrolledincohorts implements bo_condition {
             $where = "
                 availability IS NOT NULL
                 AND ((
-                    (NOT EXISTS (
-                        SELECT 1
-                        FROM JSON_TABLE(availability, '$[*]' COLUMNS (sqlfilter VARCHAR(10) PATH '$.sqlfilter')) jt
-                        WHERE jt.sqlfilter = '1'
-                    ))
+                    (AND NOT JSON_CONTAINS(availability, '{\"sqlfilter\":\"1\"}', '$'))
                 )
                 OR (
                     id IN (
