@@ -25,11 +25,11 @@
             <strong>
               <div
                 class="mr-2"
-                v-html="store.state.strings[value.classname.replace(/_/g, '')]"
+                v-html="value.name"
               />
             </strong>
           </label>
-          <i> {{ store.state.strings.vuecapabilityoptionsnecessary }}</i>
+          <i> {{value.name}}</i>
         </span>
         <span v-else>
           <input
