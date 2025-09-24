@@ -153,11 +153,19 @@ final class condition_enrolledincohorts_test extends advanced_testcase {
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOHORTS, $id);
 
+        // This user should not see the booking option.
+        $rawdata = $plugingenerator->create_table_for_one_option($settings->id);
+        $this->assertEquals(0, count($rawdata)); // We expect that the student cant see the option.
+
         // Try to book student2 - allowed.
         $this->setUser($student2);
 
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+
+        // This user should see the booking option.
+        $rawdata = $plugingenerator->create_table_for_one_option($settings->id);
+        $this->assertEquals(1, count($rawdata)); // We expect that the student can see the option.
 
         $result = booking_bookit::bookit('option', $settings->id, $student2->id);
         $result = booking_bookit::bookit('option', $settings->id, $student2->id);
@@ -169,6 +177,10 @@ final class condition_enrolledincohorts_test extends advanced_testcase {
 
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student3->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOHORTS, $id);
+
+        // This user should not see the booking option.
+        $rawdata = $plugingenerator->create_table_for_one_option($settings->id);
+        $this->assertEquals(0, count($rawdata)); // We expect that the student cant see the option.
 
         // Now we  update test availability setting(s).
         $this->setAdminUser();
@@ -183,6 +195,10 @@ final class condition_enrolledincohorts_test extends advanced_testcase {
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
 
+        // This user should see the booking option.
+        $rawdata = $plugingenerator->create_table_for_one_option($settings->id);
+        $this->assertEquals(1, count($rawdata)); // We expect that the student can see the option.
+
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
@@ -193,6 +209,10 @@ final class condition_enrolledincohorts_test extends advanced_testcase {
 
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student3->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOHORTS, $id);
+
+        // This user should not see the booking option.
+        $rawdata = $plugingenerator->create_table_for_one_option($settings->id);
+        $this->assertEquals(0, count($rawdata)); // We expect that the student cant see the option.
     }
 
     /**
