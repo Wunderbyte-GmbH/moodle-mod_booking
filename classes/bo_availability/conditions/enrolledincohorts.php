@@ -537,7 +537,7 @@ class enrolledincohorts implements bo_condition {
             $conditionobject->class = $classname;
             $conditionobject->cohortids = $fromform->bo_cond_enrolledincohorts_cohortids;
             $conditionobject->cohortidsoperator = $fromform->bo_cond_enrolledincohorts_cohortids_operator;
-            $conditionobject->sqlfilter = $fromform->bo_cond_enrolledincohorts_sqlfiltercheck ?? 0;
+            $conditionobject->sqlfilter = (string) ($fromform->bo_cond_enrolledincohorts_sqlfiltercheck ?? 0);
 
             if (!empty($fromform->bo_cond_enrolledincohorts_overrideconditioncheckbox)) {
                 $conditionobject->overrides = $fromform->bo_cond_enrolledincohorts_overridecondition;
