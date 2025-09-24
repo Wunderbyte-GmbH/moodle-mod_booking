@@ -28,6 +28,7 @@ $string['bookingextensionconfirmationtrainer:confirmationtrainerenabledinbooking
 $string['bookingextensionconfirmationtrainer:confirmationtrainerenabledinbookingoption_desc'] = 'Make it visible in booking option settings';
 $string['bookingextensionconfirmationtrainer:heading'] = "Confirmation by trainer";
 $string['bookingextensionconfirmationtrainer:heading_desc'] = 'Allow confirmation by trainer(s) of the bookingoption. If you active other confirmation extensions the confirmation can be from any of the active extensions.';
+$string['confirmationtrainer'] = '';
 $string['confirmationtrainerenabled'] = 'Allow confirmation by trainer';
 $string['notallowedtoconfirm'] = "Not allowed to confirm";
 $string['pluginname'] = 'Confirmation workflow by trainer';
