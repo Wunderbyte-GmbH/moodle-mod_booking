@@ -87,6 +87,7 @@ final class optionformconfig_info_test extends advanced_testcase {
         $this->assertEquals('success', $status);
         $record = $DB->get_record('booking_form_config', ['id' => $record->id]);
         $this->assertFalse($record);
+        return;
     }
 
     /**
@@ -103,6 +104,7 @@ final class optionformconfig_info_test extends advanced_testcase {
         $this->assertIsArray($result);
         $this->assertCount(count(optionformconfig_info::CAPABILITIES), $result);
         $this->assertArrayHasKey('json', $result[0]);
+        return;
     }
 
     /**
@@ -116,6 +118,7 @@ final class optionformconfig_info_test extends advanced_testcase {
         $context = context_system::instance();
         $capability = optionformconfig_info::return_capability_for_user($context->id);
         $this->assertContains($capability, optionformconfig_info::CAPABILITIES);
+        return;
     }
 
     /**
@@ -125,6 +128,7 @@ final class optionformconfig_info_test extends advanced_testcase {
     public function test_get_classname_returns_localized_string() {
         $name = optionformconfig_info::get_classname('mod_booking\\option\\fields\\prepare_import');
         $this->assertIsString($name);
+        return;
     }
 
     /**
@@ -141,5 +145,6 @@ final class optionformconfig_info_test extends advanced_testcase {
         $message = optionformconfig_info::return_message_stored_optionformconfig($context->id);
         $this->assertIsString($message);
         $this->assertStringContainsString('No special', $message);
+        return;
     }
 }
