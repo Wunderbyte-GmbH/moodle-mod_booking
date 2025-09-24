@@ -68,10 +68,9 @@ class get_option_field_config extends external_api {
      * @return array
      * @throws dml_exception
      */
-    public static function execute(
-                        int $contextid = 0): array {
-
-        $params = external_api::validate_parameters(self::execute_parameters(),
+    public static function execute(int $contextid = 0): array {
+        $params = external_api::validate_parameters(
+            self::execute_parameters(),
             [
                 'contextid' => $contextid,
             ]
