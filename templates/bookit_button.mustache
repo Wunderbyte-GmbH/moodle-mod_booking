@@ -66,25 +66,25 @@
         {{/onlist}}
         {{#top}}
             <div class="booking-button-toparea mb-1 mt-1 p-1 {{class}}"
-                 role="{{role}}"
+
                  {{#nojs}}data-nojs="1"{{/nojs}}>
                 {{{label}}}
             </div>
         {{/top}}
         {{#main}}
             {{#link}}
-                <a class="booking-button-mainarea mb-1 mt-1 p-1 {{class}}" role="{{role}}" href="{{link}}" data-action="bookondetail">
+                <a class="booking-button-mainarea mb-1 mt-1 p-1 {{class}}" href="{{link}}" data-action="bookondetail">
                     {{{label}}}
                 </a>
             {{/link}}
             {{^link}}
-                <div class="booking-button-mainarea mb-1 mt-1 p-1 {{class}}" role="{{role}}">
+                <div class="booking-button-mainarea mb-1 mt-1 p-1 {{class}}" >
                     {{{label}}}
                 </div>
             {{/link}}
         {{/main}}
         {{#sub}}
-            <div class="booking-button-subarea h6 mb-1 mt-1 p-1 text-nowrap {{class}}" role="{{role}}">{{{label}}}</div>
+            <div class="booking-button-subarea h6 mb-1 mt-1 p-1 text-nowrap {{class}}" >{{{label}}}</div>
         {{/sub}}
         {{#showdetaildots}}
             <div class="booking-booked-dots-button p-1">
