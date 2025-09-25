@@ -126,8 +126,8 @@ class applybookingrules extends field_base {
         $instance = new applybookingrules();
         $mockdata = new stdClass();
         $mockdata->id = $formdata->optionid ?? $formdata->id;
-        $mockdata->skipbookingrules = $formdata->skipbookingrules;
-        $mockdata->skipbookingrulesmode = $formdata->skipbookingrulesmode;
+        $mockdata->skipbookingrules = $formdata->skipbookingrules ?? [];
+        $mockdata->skipbookingrulesmode = $formdata->skipbookingrulesmode ?? 0;
 
         // Todo: Write changes function.
         $changes1 = $instance->check_for_changes($formdata, $instance, $mockdata, 'skipbookingrulesmode');
