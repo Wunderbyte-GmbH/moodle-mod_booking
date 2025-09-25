@@ -265,7 +265,7 @@ class enrolledincohorts implements bo_condition {
             $where = "
                 availability IS NOT NULL
                 AND ((
-                    (AND NOT JSON_CONTAINS(availability, '{\"sqlfilter\":\"1\"}', '$'))
+                    (NOT JSON_CONTAINS(availability, '{\"sqlfilter\":\"1\"}', '$'))
                 )
                 OR (
                     id IN (
