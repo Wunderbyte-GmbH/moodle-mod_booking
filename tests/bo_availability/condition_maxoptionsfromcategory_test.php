@@ -369,7 +369,7 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
         // Test 1: Standard booking instance.
         // Booking should be possible, no price.
         $returnarray[] = [
-            'courses' => $courses,
+            'coursedata' => $courses,
             'expected' => [
                 'maxoneoptionblock' =>
                     [   'bookingconfig' => $bookingconfig['on'],

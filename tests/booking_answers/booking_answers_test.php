@@ -252,8 +252,8 @@ final class booking_answers_test extends advanced_testcase {
     public static function booking_answers_all_methods_dataprovider(): array {
         return [
             'Option 1 - Multiplebookings disabled' => [
-                'option_settings' => [],
-                'expectations' => [
+                'optionsettings' => [],
+                'expected' => [
                     'count_answers' => 5,
                     'count_users' => 5,
                     'count_usersonlist' => 3,
@@ -262,11 +262,11 @@ final class booking_answers_test extends advanced_testcase {
                 ],
             ],
             'Option 2 - Multiplebookings enabled' => [
-                'option_settings' => [
+                'optionsettings' => [
                     'multiplebookings' => 1, // Allow to book again.
                     'allowtobookagainafter' => 60, // Allow to book again after 60 seconds.
                 ],
-                'expectations' => [
+                'expected' => [
                     'count_answers' => 5,
                     'count_users' => 5,
                     'count_usersonlist' => 3,

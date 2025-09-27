@@ -516,7 +516,7 @@ final class rules_selflearningcourse_test extends advanced_testcase {
         // Test 1: Standard booking instance.
         // Booking should be possible, no price.
         $returnarray[] = [
-            'courses' => $courses,
+            'coursedata' => $courses,
             'pricecategories' => $standardpricecategories,
             'rules' => $rules,
             'expected' => [

@@ -258,7 +258,7 @@ final class booking_test extends advanced_testcase {
     public static function booking_provider(): array {
         return [
             'Option - Multiple: No, Confirmation: No, Price: No' => [
-                'bookingsoptionsettings' => [], // Additional booking options settings.
+                'otherbookingoptionsettings' => [], // Additional booking options settings.
                 'student_books_without_price', // Name of the function within we can book the option.
                 'clockforwardshift' => 0, // Amount of time to add to clock to forward the clock.
                 'expected' => [ // Expections to book again.
@@ -268,7 +268,7 @@ final class booking_test extends advanced_testcase {
                 'tryrebooking' => 0,
             ],
             'Option - Multiple: Yes, Confirmation: No, Price: No, After: after 30 seconds' => [
-                'bookingsoptionsettings' => [
+                'otherbookingoptionsettings' => [
                     'waitforconfirmation' => 0,
                     'multiplebookings' => 1,
                     'allowtobookagainafter' => 60, // 60 seconds.
@@ -281,7 +281,7 @@ final class booking_test extends advanced_testcase {
                 'tryrebooking' => 0,
             ],
             'Option - Multiple: Yes, Confirmation: No, Price: No, After: 70 seconds' => [
-                'bookingsoptionsettings' => [
+                'otherbookingoptionsettings' => [
                     'waitforconfirmation' => 0,
                     'multiplebookings' => 1,
                     'allowtobookagainafter' => 60, // 60 seconds.
@@ -294,7 +294,7 @@ final class booking_test extends advanced_testcase {
                 'tryrebooking' => 1,
             ],
             'Option - Multiple: Yes, Confirmation: Yes, Price: No, After: 30 seconds' => [
-                'bookingsoptionsettings' => [
+                'otherbookingoptionsettings' => [
                     'waitforconfirmation' => 1,
                     'confirmationtrainerenabled' => 1,
                     'multiplebookings' => 1,
@@ -308,7 +308,7 @@ final class booking_test extends advanced_testcase {
                 'tryrebooking' => 0,
             ],
             'Option - Multiple: Yes, Confirmation: Yes, Price: No, After: 60 seconds' => [
-                'bookingsoptionsettings' => [
+                'otherbookingoptionsettings' => [
                     'waitforconfirmation' => 1,
                     'confirmationtrainerenabled' => 1,
                     'multiplebookings' => 1,
@@ -322,7 +322,7 @@ final class booking_test extends advanced_testcase {
                 'tryrebooking' => 1,
             ],
             'Option - Multiple: Yes, Confirmation: Yes, Price: No, After: 70 seconds' => [
-                'bookingsoptionsettings' => [
+                'otherbookingoptionsettings' => [
                     'waitforconfirmation' => 1,
                     'confirmationtrainerenabled' => 1,
                     'multiplebookings' => 1,
@@ -336,7 +336,7 @@ final class booking_test extends advanced_testcase {
                 'tryrebooking' => 1,
             ],
             'Option - Multiple: No, Confirmation: No, Price: Yes' => [
-                'bookingsoptionsettings' => [
+                'otherbookingoptionsettings' => [
                     'useprice' => 1,
                     'importing' => 1,
                 ],
@@ -348,7 +348,7 @@ final class booking_test extends advanced_testcase {
                 'tryrebooking' => 0,
             ],
             'Option - Multiple: Yes, Confirmation: Yes, Price: Yes, After: 30 seconds' => [
-                'bookingsoptionsettings' => [
+                'otherbookingoptionsettings' => [
                     'waitforconfirmation' => 1,
                     'confirmationtrainerenabled' => 1,
                     'multiplebookings' => 1,
@@ -364,7 +364,7 @@ final class booking_test extends advanced_testcase {
                 'tryrebooking' => 0,
             ],
             'Option - Multiple: Yes, Confirmation: Yes, Price: Yes, After: 70 seconds' => [
-                'bookingsoptionsettings' => [
+                'otherbookingoptionsettings' => [
                     'waitforconfirmation' => 1,
                     'confirmationtrainerenabled' => 1,
                     'multiplebookings' => 1,
