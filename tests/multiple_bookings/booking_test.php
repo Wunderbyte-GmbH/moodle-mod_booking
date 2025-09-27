@@ -100,16 +100,16 @@ final class booking_test extends advanced_testcase {
      *
      * @dataProvider booking_provider
      * @covers \bookingextension_confirmation_trainer\local\confirmbooking
-     * @param array $otherbookingoptionsettings
      * @param string $userbookingfunction
+     * @param array $otherbookingoptionsettings
      * @param int $clockforwardshift
      * @param array $expected
      * @param int $tryrebooking
      * @return void
      */
     public function test_booking(
-        array $otherbookingoptionsettings,
         string $userbookingfunction,
+        array $otherbookingoptionsettings,
         int $clockforwardshift,
         array $expected,
         int $tryrebooking
@@ -258,8 +258,8 @@ final class booking_test extends advanced_testcase {
     public static function booking_provider(): array {
         return [
             'Option - Multiple: No, Confirmation: No, Price: No' => [
-                'otherbookingoptionsettings' => [], // Additional booking options settings.
                 'student_books_without_price', // Name of the function within we can book the option.
+                'otherbookingoptionsettings' => [], // Additional booking options settings.
                 'clockforwardshift' => 0, // Amount of time to add to clock to forward the clock.
                 'expected' => [ // Expections to book again.
                     'bo_availability' => MOD_BOOKING_BO_COND_ALREADYBOOKED, // Expected amount of bo_availability
@@ -268,12 +268,12 @@ final class booking_test extends advanced_testcase {
                 'tryrebooking' => 0,
             ],
             'Option - Multiple: Yes, Confirmation: No, Price: No, After: after 30 seconds' => [
+                'student_books_without_price',
                 'otherbookingoptionsettings' => [
                     'waitforconfirmation' => 0,
                     'multiplebookings' => 1,
                     'allowtobookagainafter' => 60, // 60 seconds.
                 ],
-                'student_books_without_price',
                 'clockforwardshift' => 30,
                 'expected' => [
                     'bo_availability' => MOD_BOOKING_BO_COND_ALREADYBOOKED, // Clockforwardshift > allowtobookagainafter.
@@ -281,12 +281,12 @@ final class booking_test extends advanced_testcase {
                 'tryrebooking' => 0,
             ],
             'Option - Multiple: Yes, Confirmation: No, Price: No, After: 70 seconds' => [
+                'student_books_without_price',
                 'otherbookingoptionsettings' => [
                     'waitforconfirmation' => 0,
                     'multiplebookings' => 1,
                     'allowtobookagainafter' => 60, // 60 seconds.
                 ],
-                'student_books_without_price',
                 'clockforwardshift' => 70,
                 'expected' => [
                     'bo_availability' => MOD_BOOKING_BO_COND_BOOKITBUTTON, // Clockforwardshift > allowtobookagainafter.
@@ -294,13 +294,13 @@ final class booking_test extends advanced_testcase {
                 'tryrebooking' => 1,
             ],
             'Option - Multiple: Yes, Confirmation: Yes, Price: No, After: 30 seconds' => [
+                'student_books_without_price_on_waiting_list',
                 'otherbookingoptionsettings' => [
                     'waitforconfirmation' => 1,
                     'confirmationtrainerenabled' => 1,
                     'multiplebookings' => 1,
                     'allowtobookagainafter' => 60, // 60 seconds.
                 ],
-                'student_books_without_price_on_waiting_list',
                 'clockforwardshift' => 30,
                 'expected' => [
                     'bo_availability' => MOD_BOOKING_BO_COND_ALREADYBOOKED, // Clockforwardshift < allowtobookagainafter.
@@ -308,13 +308,13 @@ final class booking_test extends advanced_testcase {
                 'tryrebooking' => 0,
             ],
             'Option - Multiple: Yes, Confirmation: Yes, Price: No, After: 60 seconds' => [
+                'student_books_without_price_on_waiting_list',
                 'otherbookingoptionsettings' => [
                     'waitforconfirmation' => 1,
                     'confirmationtrainerenabled' => 1,
                     'multiplebookings' => 1,
                     'allowtobookagainafter' => 60, // 60 seconds.
                 ],
-                'student_books_without_price_on_waiting_list',
                 'clockforwardshift' => 60,
                 'expected' => [
                     'bo_availability' => MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, // Clockforwardshift = allowtobookagainafter.
@@ -322,13 +322,13 @@ final class booking_test extends advanced_testcase {
                 'tryrebooking' => 1,
             ],
             'Option - Multiple: Yes, Confirmation: Yes, Price: No, After: 70 seconds' => [
+                'student_books_without_price_on_waiting_list',
                 'otherbookingoptionsettings' => [
                     'waitforconfirmation' => 1,
                     'confirmationtrainerenabled' => 1,
                     'multiplebookings' => 1,
                     'allowtobookagainafter' => 60, // 60 seconds.
                 ],
-                'student_books_without_price_on_waiting_list',
                 'clockforwardshift' => 70,
                 'expected' => [
                     'bo_availability' => MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, // Clockforwardshift > allowtobookagainafter.
@@ -336,11 +336,11 @@ final class booking_test extends advanced_testcase {
                 'tryrebooking' => 1,
             ],
             'Option - Multiple: No, Confirmation: No, Price: Yes' => [
+                'student_books_with_price',
                 'otherbookingoptionsettings' => [
                     'useprice' => 1,
                     'importing' => 1,
                 ],
-                'student_books_with_price',
                 'clockforwardshift' => 0,
                 'expected' => [
                     'bo_availability' => MOD_BOOKING_BO_COND_ALREADYBOOKED,
@@ -348,6 +348,7 @@ final class booking_test extends advanced_testcase {
                 'tryrebooking' => 0,
             ],
             'Option - Multiple: Yes, Confirmation: Yes, Price: Yes, After: 30 seconds' => [
+                'student_books_with_price_on_waitinglist',
                 'otherbookingoptionsettings' => [
                     'waitforconfirmation' => 1,
                     'confirmationtrainerenabled' => 1,
@@ -356,7 +357,6 @@ final class booking_test extends advanced_testcase {
                     'useprice' => 1,
                     'importing' => 1,
                 ],
-                'student_books_with_price_on_waitinglist',
                 'clockforwardshift' => 30,
                 'expected' => [
                     'bo_availability' => MOD_BOOKING_BO_COND_ALREADYBOOKED, // Clockforwardshift < allowtobookagainafter.
@@ -364,6 +364,7 @@ final class booking_test extends advanced_testcase {
                 'tryrebooking' => 0,
             ],
             'Option - Multiple: Yes, Confirmation: Yes, Price: Yes, After: 70 seconds' => [
+                'student_books_with_price_on_waitinglist',
                 'otherbookingoptionsettings' => [
                     'waitforconfirmation' => 1,
                     'confirmationtrainerenabled' => 1,
@@ -372,7 +373,6 @@ final class booking_test extends advanced_testcase {
                     'useprice' => 1,
                     'importing' => 1,
                 ],
-                'student_books_with_price_on_waitinglist',
                 'clockforwardshift' => 70,
                 'expected' => [
                     'bo_availability' => MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, // Clockforwardshift > allowtobookagainafter.
