@@ -166,7 +166,7 @@ final class booking_course_connection_test extends advanced_testcase {
         $record = new stdClass();
         $record->bookingid = $booking1->id;
         $record->text = 'Test option1 (enroll on start)';
-        $record->chooseorcreatecourse = 1; // Reqiured.
+        $record->chooseorcreatecourse = 1; // Choose an existing Moodle course.
         $record->courseid = $course2->id;
         $record->enrolmentstatus = 0; // Enrol at coursestart.
         $record->optiondateid_0 = "0";
@@ -185,7 +185,7 @@ final class booking_course_connection_test extends advanced_testcase {
 
         // Create 2nd booking option - existing course, enrol immediately.
         $record->text = 'Test option2 (enroll now)';
-        $record->chooseorcreatecourse = 1;
+        $record->chooseorcreatecourse = 1; // Choose an existing Moodle course.
         $record->courseid = $course3->id;
         $record->enrolmentstatus = 2; // Enrol now.
         $record->responsiblecontact = [];
@@ -210,6 +210,7 @@ final class booking_course_connection_test extends advanced_testcase {
         // Now check if the user is enrolled to the course. We should get two courses.
         $courses = enrol_get_users_courses($student1->id);
         $this->assertEquals(2, count($courses));
+        $this->assertEquals(true, in_array('Test course 1', array_column($courses, 'fullname')));
         $this->assertEquals(true, in_array('Test course 3', array_column($courses, 'fullname')));
         $this->assertEquals(false, in_array('Test course 2', array_column($courses, 'fullname')));
 
@@ -222,12 +223,16 @@ final class booking_course_connection_test extends advanced_testcase {
         $this->assertEquals(0, count($courses));
         $courses = enrol_get_users_courses($rcp3->id);
         $this->assertEquals(1, count($courses));
+        $this->assertEquals(true, in_array('Test course 3', array_column($courses, 'fullname')));
 
         // Create 3rd booking option - new empty course, enrol at coursestart.
         $record->text = 'Option3-empty_course-enrol_at_start';
-        $record->chooseorcreatecourse = 2;
+        // We must explicitly reset id and cmid to create a new option.
+        $record->id = 0;
+        $record->cmid = 0;
+        $record->chooseorcreatecourse = 2; // Create new Moodle course.
         $record->enrolmentstatus = 0; // Enrol at coursestart.
-        $record->responsiblecontact = implode(',', [$rcp1->username, $rcp2->username]);
+        $record->responsiblecontact = [];
         $option3 = $plugingenerator->create_option($record);
 
         $settings3 = singleton_service::get_instance_of_booking_option_settings($option3->id);
@@ -236,7 +241,10 @@ final class booking_course_connection_test extends advanced_testcase {
 
         // Create 4th booking option - new empty course, enrol immediately.
         $record->text = 'Option4-empty_course-enrol_now';
-        $record->chooseorcreatecourse = 2;
+        // We must explicitly reset id and cmid to create a new option.
+        $record->id = 0;
+        $record->cmid = 0;
+        $record->chooseorcreatecourse = 2; // Create new Moodle course.
         $record->enrolmentstatus = 2; // Enroll now.
         $record->responsiblecontact = [];
         $option4 = $plugingenerator->create_option($record);
@@ -248,6 +256,9 @@ final class booking_course_connection_test extends advanced_testcase {
         // Enrolments of responsible contacts in the connected courses works only via option update.
         $record->id = $option4->id;
         $record->cmid = $settings4->cmid;
+        // We must explicitly provide an ID of newly created cnnected course.
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $settings4->courseid;
         $record->responsiblecontact = [$rcp1->id, $rcp3->id];
         booking_option::update($record);
         $settings4 = singleton_service::get_instance_of_booking_option_settings($option4->id);
@@ -267,12 +278,15 @@ final class booking_course_connection_test extends advanced_testcase {
         // Validate rcp1 enrolments.
         $courses = enrol_get_users_courses($rcp1->id);
         $this->assertEquals(2, count($courses));
+        $this->assertEquals(true, in_array('Test course 3', array_column($courses, 'fullname')));
         $this->assertEquals(true, in_array('Option4-empty_course-enrol_now', array_column($courses, 'fullname')));
         $this->assertEquals(false, in_array('Option3-empty_course-enrol_at_start', array_column($courses, 'fullname')));
         $courses = enrol_get_users_courses($rcp2->id);
         $this->assertEquals(0, count($courses));
         $courses = enrol_get_users_courses($rcp3->id);
         $this->assertEquals(2, count($courses));
+        $this->assertEquals(true, in_array('Test course 3', array_column($courses, 'fullname')));
+        $this->assertEquals(true, in_array('Option4-empty_course-enrol_now', array_column($courses, 'fullname')));
 
         // Create custom booking field category and field.
         $categorydata            = new stdClass();
@@ -299,7 +313,10 @@ final class booking_course_connection_test extends advanced_testcase {
 
         // Create 5th booking option - new empty course, enrol at coursestart.
         $record->text = 'Option5-empty_course_existing_cat-enrol';
-        $record->chooseorcreatecourse = 2;
+        // We must explicitly reset id and cmid to create a new option.
+        $record->id = 0;
+        $record->cmid = 0;
+        $record->chooseorcreatecourse = 2; // Create new Moodle course.
         $record->enrolmentstatus = 2; // Enroll now.
         $record->customfield_coursecat = 'BookCat1';
         $record->responsiblecontact = [];
@@ -311,13 +328,19 @@ final class booking_course_connection_test extends advanced_testcase {
         // Enrolments of responsible contacts in the connected courses works only via option update.
         $record->id = $option5->id;
         $record->cmid = $settings5->cmid;
+        // We must explicitly provide an ID of newly created cnnected course.
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $settings5->courseid;
         $record->responsiblecontact = [$rcp1->id, $rcp2->id];
         booking_option::update($record);
         $settings5 = singleton_service::get_instance_of_booking_option_settings($option5->id);
 
         // Create 6th booking option - new empty course, enrol immediately.
         $record->text = 'Option6-empty_course_new_cat-enrol';
-        $record->chooseorcreatecourse = 2;
+        // We must explicitly reset id and cmid to create a new option.
+        $record->id = 0;
+        $record->cmid = 0;
+        $record->chooseorcreatecourse = 2; // Create new Moodle course.
         $record->enrolmentstatus = 2; // Enroll now.
         $record->customfield_coursecat = 'NewBookCat';
         $record->responsiblecontact = [];
@@ -329,6 +352,9 @@ final class booking_course_connection_test extends advanced_testcase {
         // Enrolments of responsible contacts in the connected courses works only via option update.
         $record->id = $option6->id;
         $record->cmid = $settings6->cmid;
+        // We must explicitly provide an ID of newly created cnnected course.
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $settings6->courseid;
         $record->responsiblecontact = [$rcp1->id, $rcp3->id];
         booking_option::update($record);
         $settings6 = singleton_service::get_instance_of_booking_option_settings($option6->id);
@@ -383,6 +409,11 @@ final class booking_course_connection_test extends advanced_testcase {
 
         // Create 7th booking option - course form template into existing category, enrol at coursestart.
         $record->text = 'Option7-course_template_existing_cat-enrol';
+        // We must explicitly reset id and cmid to create a new option.
+        $record->id = 0;
+        $record->cmid = 0;
+        $record->chooseorcreatecourse = 3; // Create new Moodle course from template.
+        $record->coursetemplateid = $taggedcourse->id;
         $record->enrolmentstatus = 2; // Enroll now.
         $record->customfield_coursecat = 'BookCat1';
         $record->responsiblecontact = [];
@@ -390,18 +421,24 @@ final class booking_course_connection_test extends advanced_testcase {
         $settings7 = singleton_service::get_instance_of_booking_option_settings($option7->id);
         // To avoid retrieving the singleton with the wrong settings, we destroy it.
         singleton_service::destroy_booking_singleton_by_cmid($settings7->cmid);
-        // TODO: We can connect course from template only via updationg of option. Does it a bug?
+
         $record->id = $option7->id;
         $record->cmid = $settings7->cmid;
-        $record->chooseorcreatecourse = 3;
-        $record->coursetemplateid = $taggedcourse->id;
+        // We must explicitly provide an ID of newly created cnnected course.
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $settings7->courseid;
         $record->responsiblecontact = [$rcp1->id, $rcp2->id];
         booking_option::update($record);
 
         // Create 8th booking option - course form template into new category, enrol immediately.
         $record->text = 'Option8-course_template_new_cat-enrol';
+        // We must explicitly reset id and cmid to create a new option.
+        $record->id = 0;
+        $record->cmid = 0;
         $record->enrolmentstatus = 2; // Enroll now.
         $record->customfield_coursecat = 'TemplateBookCat';
+        $record->chooseorcreatecourse = 3; // Create new Moodle course from template.
+        $record->coursetemplateid = $taggedcourse->id;
         $record->responsiblecontact = [];
         $option8 = $plugingenerator->create_option($record);
         $settings8 = singleton_service::get_instance_of_booking_option_settings($option8->id);
@@ -410,8 +447,9 @@ final class booking_course_connection_test extends advanced_testcase {
         // TODO: We can connect course from template only via updationg of option. Does it a bug?
         $record->id = $option8->id;
         $record->cmid = $settings8->cmid;
-        $record->chooseorcreatecourse = 3;
-        $record->coursetemplateid = $taggedcourse->id;
+        // We must explicitly provide an ID of newly created cnnected course.
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $settings8->courseid;
         $record->responsiblecontact = [$rcp1->id, $rcp3->id];
         booking_option::update($record);
 
