@@ -1029,6 +1029,7 @@ class booking_option {
             if (
                 $optionupdated
                 && has_capability('mod/booking:deleteresponses', $context)
+                && !get_config('booking', 'keepusersbookedonreducingmaxanswers')
             ) {
                 // 2. Update and inform users who have been put on the waiting list because of changed limits.
                 $usersonlist = array_merge($ba->get_usersonlist(), $ba->get_usersreserved());
