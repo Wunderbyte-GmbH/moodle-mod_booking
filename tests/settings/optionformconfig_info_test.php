@@ -29,9 +29,7 @@ namespace mod_booking;
 use advanced_testcase;
 use context_course;
 use context_system;
-use mod_booking\local\optiondates\optiondate_answer;
 use mod_booking\settings\optionformconfig\optionformconfig_info;
-use tool_mocktesttime\time_mock;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -93,8 +91,9 @@ final class optionformconfig_info_test extends advanced_testcase {
     /**
      * Mandatory clean-up after each test.
      * @covers \mod_booking\settings\optionformconfig\optionformconfig_info
+     * @return void
      */
-    public function test_return_configured_fields_returns_array() {
+    public function test_return_configured_fields_returns_array(): void {
         $this->resetAfterTest(true);
         $this->setAdminUser();
 
@@ -110,8 +109,9 @@ final class optionformconfig_info_test extends advanced_testcase {
     /**
      * Mandatory clean-up after each test.
      * @covers \mod_booking\settings\optionformconfig\optionformconfig_info
+     * @return void
      */
-    public function test_return_capability_for_user_with_admin() {
+    public function test_return_capability_for_user_with_admin(): void {
         $this->resetAfterTest(true);
         $this->setAdminUser();
 
@@ -124,8 +124,9 @@ final class optionformconfig_info_test extends advanced_testcase {
     /**
      * Mandatory clean-up after each test.
      * @covers \mod_booking\settings\optionformconfig\optionformconfig_info
+     * @return void
      */
-    public function test_get_classname_returns_localized_string() {
+    public function test_get_classname_returns_localized_string(): void {
         $name = optionformconfig_info::get_classname('mod_booking\\option\\fields\\prepare_import');
         $this->assertIsString($name);
         return;
@@ -134,8 +135,9 @@ final class optionformconfig_info_test extends advanced_testcase {
     /**
      * Mandatory clean-up after each test.
      * @covers \mod_booking\settings\optionformconfig\optionformconfig_info
+     * @return void
      */
-    public function test_return_message_stored_optionformconfig_without_record() {
+    public function test_return_message_stored_optionformconfig_without_record(): void {
         $this->resetAfterTest(true);
         $this->setAdminUser();
 
