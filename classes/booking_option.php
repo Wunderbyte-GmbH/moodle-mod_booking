@@ -1026,7 +1026,10 @@ class booking_option {
                 sharedplaces::sync_sharedplaces_options($settings->id, false);
             }
 
-            if ($optionupdated) {
+            if (
+                $optionupdated
+                && has_capability('mod/booking:deleteresponses', $context)
+            ) {
                 // 2. Update and inform users who have been put on the waiting list because of changed limits.
                 $usersonlist = array_merge($ba->get_usersonlist(), $ba->get_usersreserved());
                 usort($usersonlist, fn($a, $b) => $a->timemodified < $b->timemodified ? -1 : 1);
