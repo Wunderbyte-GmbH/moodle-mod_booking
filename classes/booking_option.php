@@ -923,11 +923,12 @@ class booking_option {
     /**
      * "Sync" users on waiting list, based on edited option - if has limit or not.
      * @param bool $syncshared
+     * @param bool $optionupdated
      *
      * @return bool
      *
      */
-    public function sync_waiting_list($syncshared = false) {
+    public function sync_waiting_list($syncshared = false, $optionupdated = false) {
         global $USER;
 
         $context = context_module::instance(($this->cmid));
@@ -1025,75 +1026,77 @@ class booking_option {
                 sharedplaces::sync_sharedplaces_options($settings->id, false);
             }
 
-            // 2. Update and inform users who have been put on the waiting list because of changed limits.
-            $usersonlist = array_merge($ba->get_usersonlist(), $ba->get_usersreserved());
-            usort($usersonlist, fn($a, $b) => $a->timemodified < $b->timemodified ? -1 : 1);
-            // We delete the booking answers cache - because settings (limits, etc.) could be changed!
-            self::purge_cache_for_answers($this->optionid);
-
-            while (booking_answers::count_places($usersonlist) > $settings->maxanswers) {
-                $currentanswer = array_pop($usersonlist);
-                array_push($usersonwaitinglist, $currentanswer);
-
-                $user = singleton_service::get_instance_of_user($currentanswer->userid);
-
-                // If the booking option has a price, we don't sync waitinglist.
-                $price = price::get_price('option', $settings->id, $user);
-                if (
-                    !empty($settings->jsonobject->useprice) // This is important to check first!
-                    && isset($price["price"])
-                    && !empty((float)$price["price"])
-                ) {
-                    continue;
-                }
-
+            if ($optionupdated) {
+                // 2. Update and inform users who have been put on the waiting list because of changed limits.
+                $usersonlist = array_merge($ba->get_usersonlist(), $ba->get_usersreserved());
+                usort($usersonlist, fn($a, $b) => $a->timemodified < $b->timemodified ? -1 : 1);
                 // We delete the booking answers cache - because settings (limits, etc.) could be changed!
                 self::purge_cache_for_answers($this->optionid);
 
-                $this->user_submit_response($user, 0, 0, 0, MOD_BOOKING_VERIFIED);
-                $this->unenrol_user($currentanswer->userid);
+                while (booking_answers::count_places($usersonlist) > $settings->maxanswers) {
+                    $currentanswer = array_pop($usersonlist);
+                    array_push($usersonwaitinglist, $currentanswer);
 
-                // Before sending, we delete the booking answers cache again.
-                self::purge_cache_for_answers($this->optionid);
-                $messagecontroller = new message_controller(
-                    MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC,
-                    MOD_BOOKING_MSGPARAM_STATUS_CHANGED,
-                    $this->cmid,
-                    $this->optionid,
-                    $currentanswer->userid,
-                    $this->bookingid
-                );
-                $messagecontroller->send_or_queue();
-            }
+                    $user = singleton_service::get_instance_of_user($currentanswer->userid);
 
-            // 3. If users drop out of the waiting list because of changed limits, delete and inform them.
-            while (booking_answers::count_places($usersonwaitinglist) > $settings->maxoverbooking) {
-                $currentanswer = array_pop($usersonwaitinglist);
-                // The fourth param needs to be false here, so we do not run into a recursion.
-                $this->user_delete_response($currentanswer->userid, false, false, false);
+                    // If the booking option has a price, we don't sync waitinglist.
+                    $price = price::get_price('option', $settings->id, $user);
+                    if (
+                        !empty($settings->jsonobject->useprice) // This is important to check first!
+                        && isset($price["price"])
+                        && !empty((float)$price["price"])
+                    ) {
+                        continue;
+                    }
 
-                $event = bookinganswer_cancelled::create([
-                    'objectid' => $this->optionid,
-                    'context' => $context,
-                    'userid' => $USER->id, // The user who did cancel.
-                    'relateduserid' => $currentanswer->userid, // Affected user - the user who was cancelled.
-                    'other' => [
-                        'extrainfo' => 'Answer deleted by sync_waiting_list.',
-                    ],
-                ]);
-                $event->trigger();
+                    // We delete the booking answers cache - because settings (limits, etc.) could be changed!
+                    self::purge_cache_for_answers($this->optionid);
 
-                // Before sending, we delete the booking answers cache!
-                self::purge_cache_for_answers($this->optionid);
-                $messagecontroller = new message_controller(
-                    MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC,
-                    MOD_BOOKING_MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM,
-                    $this->cmid,
-                    $this->optionid,
-                    $currentanswer->userid,
-                    $this->bookingid
-                );
-                $messagecontroller->send_or_queue();
+                    $this->user_submit_response($user, 0, 0, 0, MOD_BOOKING_VERIFIED);
+                    $this->unenrol_user($currentanswer->userid);
+
+                    // Before sending, we delete the booking answers cache again.
+                    self::purge_cache_for_answers($this->optionid);
+                    $messagecontroller = new message_controller(
+                        MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC,
+                        MOD_BOOKING_MSGPARAM_STATUS_CHANGED,
+                        $this->cmid,
+                        $this->optionid,
+                        $currentanswer->userid,
+                        $this->bookingid
+                    );
+                    $messagecontroller->send_or_queue();
+                }
+
+                // 3. If users drop out of the waiting list because of changed limits, delete and inform them.
+                while (booking_answers::count_places($usersonwaitinglist) > $settings->maxoverbooking) {
+                    $currentanswer = array_pop($usersonwaitinglist);
+                    // The fourth param needs to be false here, so we do not run into a recursion.
+                    $this->user_delete_response($currentanswer->userid, false, false, false);
+
+                    $event = bookinganswer_cancelled::create([
+                        'objectid' => $this->optionid,
+                        'context' => $context,
+                        'userid' => $USER->id, // The user who did cancel.
+                        'relateduserid' => $currentanswer->userid, // Affected user - the user who was cancelled.
+                        'other' => [
+                            'extrainfo' => 'Answer deleted by sync_waiting_list.',
+                        ],
+                    ]);
+                    $event->trigger();
+
+                    // Before sending, we delete the booking answers cache!
+                    self::purge_cache_for_answers($this->optionid);
+                    $messagecontroller = new message_controller(
+                        MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC,
+                        MOD_BOOKING_MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM,
+                        $this->cmid,
+                        $this->optionid,
+                        $currentanswer->userid,
+                        $this->bookingid
+                    );
+                    $messagecontroller->send_or_queue();
+                }
             }
         } else {
             // If option was set to unlimited, we book all users that have been on the waiting list and inform them.
@@ -4506,7 +4509,7 @@ class booking_option {
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
             // Do not sync waitinglist if it is enforced.
-            $option->sync_waiting_list();
+            $option->sync_waiting_list(false, true);
 
             if (get_config('booking', 'bookingdebugmode')) {
                 // If debug mode is enabled, we create a debug message.
@@ -4533,7 +4536,7 @@ class booking_option {
             && empty($newoption->waitforconfirmation)
         ) {
             // We have less places now, so we only sync if the setting to keep users booked is turned off.
-            $option->sync_waiting_list();
+            $option->sync_waiting_list(false, true);
         }
         try {
             // Now check, if there are rules to execute.
