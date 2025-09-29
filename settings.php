@@ -1304,7 +1304,7 @@ if ($ADMIN->fulltree) {
             'booking/keepusersbookedonreducingmaxanswers',
             get_string('keepusersbookedonreducingmaxanswers', 'mod_booking'),
             get_string('keepusersbookedonreducingmaxanswers_desc', 'mod_booking'),
-            0
+            1
         )
     );
 
