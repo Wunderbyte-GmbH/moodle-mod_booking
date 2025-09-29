@@ -169,11 +169,7 @@ class booking_answers {
                         $this->usersonwaitinglist[$answer->userid] = $answer;
                         break;
                     case MOD_BOOKING_STATUSPARAM_RESERVED:
-                        if (self::count_places($this->usersonlist) < $this->bookingoptionsettings->maxanswers) {
-                            $this->usersonlist[$answer->userid] = $answer;
-                        } else {
-                            $this->usersonwaitinglist[$answer->userid] = $answer;
-                        }
+                        $this->usersonlist[$answer->userid] = $answer;
                         $this->usersreserved[$answer->userid] = $answer;
                         break;
                     case MOD_BOOKING_STATUSPARAM_DELETED:
