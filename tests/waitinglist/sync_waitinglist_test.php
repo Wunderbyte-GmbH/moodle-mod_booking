@@ -41,6 +41,17 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
+
+/**
+ * This test calls two separate processes
+ * (simulate_ongoing_booking and simulate_ongoing_reserversation_and_cancel.php)
+ * We can test here race conditions. It's important turn off static accelation in the bookinganswers cache.
+ * Else, purging in one branch will not have the wanted effect in the other branch.
+ *
+ *
+ *
+ */
+
 /**
  * Test waitinglist.
  *

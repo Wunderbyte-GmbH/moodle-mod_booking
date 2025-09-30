@@ -106,7 +106,7 @@ foreach ($users as $user) {
 
     $sql = "SELECT COUNT(ID) FROM {booking_answers} where waitinglist IN (0,2)";
     $count = $DB->count_records_sql($sql);
-    if ($count >= 100) {
+    if ($count >= 101) {
         usleep(2000);
     }
 }
