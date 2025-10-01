@@ -147,43 +147,44 @@ class sharedplaces extends field_base {
 
         // Check if PRO version is activated.
         if (wb_payment::pro_version_is_activated()) {
-            $bookingoptionarray = [];
-            $sharedplacesoptions = [
-                'tags' => false,
-                'multiple' => true,
-            ];
-            if (
-                $bookingoptionrecords = $DB->get_records_sql(
-                    "SELECT bo.id optionid, bo.titleprefix, bo.text optionname, b.name instancename
-                    FROM {booking_options} bo
-                    LEFT JOIN {booking} b
-                    ON bo.bookingid = b.id"
-                )
-            ) {
-                foreach ($bookingoptionrecords as $bookingoptionrecord) {
-                    if (!empty($bookingoptionrecord->titleprefix)) {
-                        $bookingoptionarray[$bookingoptionrecord->optionid] =
-                            "$bookingoptionrecord->titleprefix - $bookingoptionrecord->optionname " .
-                                "($bookingoptionrecord->instancename)";
-                    } else {
-                        $bookingoptionarray[$bookingoptionrecord->optionid] =
-                            "$bookingoptionrecord->optionname ($bookingoptionrecord->instancename)";
-                    }
-                }
-            }
-
             // Standardfunctionality to add a header to the mform (only if its not yet there).
             if ($applyheader) {
                 fields_info::add_header_to_mform($mform, self::$header);
             }
 
+            $sharedplacesoptions = [
+                'tags' => false,
+                'multiple' => true,
+                'noselectionstring' => get_string('choose...', 'mod_booking'),
+                'ajax' => 'mod_booking/form_booking_options_selector',
+                'valuehtmlcallback' => function ($value) {
+                    global $OUTPUT;
+                    if (empty($value)) {
+                        return get_string('choose...', 'mod_booking');
+                    }
+                    $optionsettings = singleton_service::get_instance_of_booking_option_settings((int)$value);
+                    $instancesettings = singleton_service::get_instance_of_booking_settings_by_cmid($optionsettings->cmid);
+
+                    $details = (object)[
+                        'id' => $optionsettings->id,
+                        'titleprefix' => $optionsettings->titleprefix,
+                        'text' => $optionsettings->text,
+                        'instancename' => $instancesettings->name,
+                    ];
+                    return $OUTPUT->render_from_template(
+                        'mod_booking/form_booking_options_selector_suggestion',
+                        $details
+                    );
+                },
+            ];
             $mform->addElement(
                 'autocomplete',
                 'sharedplaceswithoptions',
                 get_string('sharedplaces', 'mod_booking'),
-                $bookingoptionarray,
+                [],
                 $sharedplacesoptions
             );
+
             $mform->addHelpButton('sharedplaceswithoptions', 'sharedplaces', 'mod_booking');
 
             $mform->addElement(
