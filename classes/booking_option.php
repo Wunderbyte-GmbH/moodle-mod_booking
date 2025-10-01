@@ -1754,7 +1754,7 @@ class booking_option {
         }
 
         if (!empty($answer)) {
-            $other['baid'] = $answer->baid;
+            $other['baid'] = $answer->baid ?? 0;
             $other['json'] = $answer->json ?? '';
         }
 
