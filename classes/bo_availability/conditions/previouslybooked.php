@@ -240,33 +240,41 @@ class previouslybooked implements bo_condition {
         // Check if PRO version is activated.
         if (wb_payment::pro_version_is_activated()) {
 
-            $bookingoptionarray = [];
-            if ($bookingoptionrecords = $DB->get_records_sql(
-                "SELECT bo.id optionid, bo.titleprefix, bo.text optionname, b.name instancename
-                FROM {booking_options} bo
-                LEFT JOIN {booking} b
-                ON bo.bookingid = b.id")) {
-                foreach ($bookingoptionrecords as $bookingoptionrecord) {
-                    if (!empty($bookingoptionrecord->titleprefix)) {
-                        $bookingoptionarray[$bookingoptionrecord->optionid] =
-                            "$bookingoptionrecord->titleprefix - $bookingoptionrecord->optionname " .
-                                "($bookingoptionrecord->instancename)";
-                    } else {
-                        $bookingoptionarray[$bookingoptionrecord->optionid] =
-                            "$bookingoptionrecord->optionname ($bookingoptionrecord->instancename)";
-                    }
-                }
-            }
-
             $mform->addElement('advcheckbox', 'bo_cond_previouslybooked_restrict',
                     get_string('bocondpreviouslybookedrestrict', 'mod_booking'));
 
             $previouslybookedoptions = [
                 'tags' => false,
                 'multiple' => false,
+                'noselectionstring' => get_string('choose...', 'mod_booking'),
+                'ajax' => 'mod_booking/form_booking_options_selector',
+                'valuehtmlcallback' => function ($value) {
+                    global $OUTPUT;
+                    if (empty($value)) {
+                        return get_string('choose...', 'mod_booking');
+                    }
+                    $optionsettings = singleton_service::get_instance_of_booking_option_settings((int)$value);
+                    $instancesettings = singleton_service::get_instance_of_booking_settings_by_cmid($optionsettings->cmid);
+
+                    $details = (object)[
+                        'id' => $optionsettings->id,
+                        'titleprefix' => $optionsettings->titleprefix,
+                        'text' => $optionsettings->text,
+                        'instancename' => $instancesettings->name,
+                    ];
+                    return $OUTPUT->render_from_template(
+                        'mod_booking/form_booking_options_selector_suggestion',
+                        $details
+                    );
+                },
             ];
-            $mform->addElement('autocomplete', 'bo_cond_previouslybooked_optionid',
-                get_string('bocondpreviouslybookedoptionid', 'mod_booking'), $bookingoptionarray, $previouslybookedoptions);
+            $mform->addElement(
+                'autocomplete',
+                'bo_cond_previouslybooked_optionid',
+                get_string('bocondpreviouslybookedoptionid', 'mod_booking'),
+                [],
+                $previouslybookedoptions
+            );
             $mform->setType('bo_cond_previouslybooked_optionid', PARAM_INT);
             $mform->hideIf('bo_cond_previouslybooked_optionid', 'bo_cond_previouslybooked_restrict', 'notchecked');
 
