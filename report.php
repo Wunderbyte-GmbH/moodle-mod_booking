@@ -225,6 +225,12 @@ if ($action == 'downloadsigninsheet') {
     die();
 }
 
+if ($action == 'downloadchecklist') {
+    $pdf = new mod_booking\checklist\checklist_generator($bookingoption);
+    $pdf->generate_pdf();
+    die();
+}
+
 if (
     $action == 'copytotemplate' && has_capability('mod/booking:manageoptiontemplates', $context) &&
          confirm_sesskey()

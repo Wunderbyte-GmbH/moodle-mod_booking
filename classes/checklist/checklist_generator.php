@@ -1,0 +1,157 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+namespace mod_booking\checklist;
+
+use mod_booking\singleton_service;
+use mod_booking\booking_option;
+use stdClass;
+use TCPDF;
+
+defined('MOODLE_INTERNAL') || die();
+
+
+/**
+ * Class checklist_generator
+ *
+ * @package    mod_booking
+ * @copyright  2025 Christian Badusch <christian.badusch@wunderbyte.at>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class checklist_generator {
+    /**
+     * @var \mod_booking\booking_option $bookingoption
+     */
+    private $bookingoption;
+
+    /**
+     * @var string
+     */
+    private $orientation;
+
+    /**
+     * checklist_generator constructor.
+     *
+     * @param \mod_booking\booking_option $bookingoption
+     */
+    public function __construct(\mod_booking\booking_option $bookingoption) {
+        $this->bookingoption = $bookingoption;
+        $this->orientation = 'P'; // Portrait by default.
+    }
+
+    /**
+     * Prepares and generates a PDF from the checklist HTML.
+     *
+     * @return void
+     */
+    public function generate_pdf() {
+        // Retrieve checklist HTML from configuration.
+        $checklisthtml = get_config('mod_booking', 'checklisthtml');
+        
+        // Use a default template if not configured.
+        if (empty(trim(strip_tags($checklisthtml)))) {
+            $checklisthtml = $this->get_default_checklist_html();
+        }
+
+        $replacements = $this->get_placeholder_replacements();
+
+        // Replace placeholders in the configured HTML.
+        $htmloutput = strtr($checklisthtml, $replacements);
+
+        // Generate PDF from the HTML.
+        $this->download_pdf_from_html($htmloutput);
+    }
+
+    /**
+     * Maps placeholder strings to their actual values.
+     *
+     * @return array
+     */
+    private function get_placeholder_replacements(): array {
+        return [
+            '[[teachers]]' => implode(', ', $this->get_teachers_names($this->bookingoption)),
+            '[[contact]]' => $this->get_responsible_contact($this->bookingoption),
+            // Add other placeholders here as needed.
+        ];
+    }
+
+    /**
+     * Generates a PDF file from HTML and downloads it.
+     *
+     * @param string $html
+     * @return void
+     */
+    private function download_pdf_from_html(string $html) {
+        $pdf = new checklist_pdf($this->orientation, PDF_UNIT, PDF_PAGE_FORMAT);
+        $pdf->SetPrintHeader(false);
+        $pdf->SetPrintFooter(false);
+        $pdf->AddPage();
+        $pdf->writeHTML($html, true, false, true, false, '');
+        $pdf->Output('checklist.pdf', 'D');
+    }
+
+    /**
+     * Retrieve teacher names.
+     *
+     * @param \mod_booking\booking_option $bookingoption
+     * @return array
+     */
+    private function get_teachers_names($bookingoption) {
+        if (empty($bookingoption->teachers)) {
+            return [];
+        }
+
+        return array_map(function($teacher) {
+            return "{$teacher->firstname} {$teacher->lastname}";
+        }, $bookingoption->teachers);
+    }
+
+    /**
+     * Retrieve the contact responsible.
+     *
+     * @param \mod_booking\booking_option $bookingoption
+     * @return string
+     */
+    private function get_responsible_contact($bookingoption) {
+        // This method would fetch the responsible contact.
+        return $bookingoption->option->responsiblecontact ?: 'Not specified';
+    }
+
+    /**
+     * Provide default HTML for the checklist.
+     *
+     * @return string
+     */
+    protected function get_default_checklist_html(): string {
+        return '
+            <ul> 
+                <li>Teachers: [[teachers]]</li>
+                <li>Contact: [[contact]]</li>
+            </ul>';
+    }
+
+    /**
+     * Cleanup and sanitize filename.
+     *
+     * @param string $filename
+     * @return string
+     */
+    private function cleanup_filename(string $filename): string {
+        $filename = str_replace(' ', '_', $filename); // Replaces all spaces with underscores.
+        $filename = preg_replace('/[^A-Za-z0-9\_]/', '', $filename); // Removes special chars.
+        return preg_replace('/\_+/', '_', $filename); // Replace multiple underscores with exactly one.
+    }
+}

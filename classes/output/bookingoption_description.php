@@ -194,6 +194,9 @@ class bookingoption_description implements renderable, templatable {
     /** @var array $subpluginstemplatedata */
     private $subpluginstemplatedata = [];
 
+    /** @var bool $showdownloadcheckbox */
+    private $showdownloadcheckbox = false;
+
     /**
      * Constructor.
      *
@@ -371,6 +374,16 @@ class bookingoption_description implements renderable, templatable {
                 // Moodle 4.1 and older.
                 $this->manageresponsesurl = html_entity_decode($link->out(), ENT_COMPAT);
             }
+        }
+
+        if (has_capability('mod/booking:downloadchecklist', $modcontext)) {
+            // $this->showdownloadcheckbox = true;
+            $checkboxurl = $link = new moodle_url($CFG->wwwroot . '/mod/booking/report.php', [
+                'id' => $cmid,
+                'optionid' => $optionid,
+                'action' => 'downloadchecklist',
+            ]);
+            $this->showdownloadcheckbox = $checkboxurl;
         }
 
         // We need this to render a link to manage bookings in the template.
@@ -679,6 +692,7 @@ class bookingoption_description implements renderable, templatable {
             'competencies' => $this->competencies,
             'competencyheader' => $this->competencyheader,
             'subpluginstemplatedata' => $this->subpluginstemplatedata,
+            'showdownloadcheckbox' => $this->showdownloadcheckbox,
         ];
 
         if (!empty($this->timeremaining)) {
@@ -728,7 +742,6 @@ class bookingoption_description implements renderable, templatable {
                 }
             }
         }
-
         return $returnarray;
     }
 

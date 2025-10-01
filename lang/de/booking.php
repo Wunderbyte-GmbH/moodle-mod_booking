@@ -795,6 +795,7 @@ $string['checkbox'] = "Checkbox";
 $string['checkdelimiter'] = 'Überprüfen Sie die Spaltennamen durch das angegebene Zeichen getrennt sind.';
 $string['checkdelimiteroremptycontent'] = 'Überprüfen Sie ob Daten vorhanden und durch das angegebene Zeichen getrennt sind.';
 $string['checkedanswersdeleted'] = 'Die ausgewählten Buchungen wurden gelöscht.';
+$string['checklistdownload'] = 'Checkliste herunterladen';
 $string['checkoutidentifier'] = "Bestellnummer";
 $string['choose...'] = 'Auswählen...';
 $string['choosedifferentvalue'] = 'Wählen Sie einen anderen Wert als im oberen Feld';

@@ -2012,6 +2012,15 @@ if ($ADMIN->fulltree) {
         )
     );
     $settings->add(
+        new admin_setting_configtextarea(
+            'booking/checklisthtml',
+            get_string('checklisthtml', 'mod_booking'),
+            get_string('checklisthtmldescription', 'mod_booking'),
+            '', /* $defaultsigninsheethtml */
+            PARAM_RAW
+        )
+    );
+    $settings->add(
         new admin_setting_configcheckbox(
             'booking/numberrows',
             get_string('numberrows', 'mod_booking'),

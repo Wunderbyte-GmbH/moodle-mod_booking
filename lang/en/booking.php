@@ -811,6 +811,7 @@ $string['checkbox'] = "Checkbox";
 $string['checkdelimiter'] = 'Check if data is separated via the selected symbol.';
 $string['checkdelimiteroremptycontent'] = 'Check if data is given and separated via the selected symbol.';
 $string['checkedanswersdeleted'] = 'The selected bookings were deleted successfully.';
+$string['checklistdownload'] = 'Download checklist';
 $string['checkoutidentifier'] = "Ordernumber";
 $string['choose...'] = 'Choose...';
 $string['choosedifferentvalue'] = 'Choose different value than in first field';

@@ -300,6 +300,12 @@
                         {{/subpluginstemplatedata}}
                 </div>
             </div>
+            {{#showdownloadcheckbox}}
+            <a href="{{{showdownloadcheckbox}}}" 
+            class="btn btn-primary" role="button">
+            <i class="fa fa-download fa-fw" aria-hidden="true"></i>&nbsp;{{#str}}checklistdownload, mod_booking{{/str}}
+            </a>
+            {{/showdownloadcheckbox}}
         </div>
         {{#competencyheader}}
             <details class="competency">
