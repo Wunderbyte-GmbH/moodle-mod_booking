@@ -19,8 +19,12 @@
  *
  * @package mod_booking
  * @since Moodle 3.0
+ * @copyright 2021 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Christian Badusch
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
  */
+
 
 namespace mod_booking\checklist;
 

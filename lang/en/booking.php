@@ -812,6 +812,11 @@ $string['checkdelimiter'] = 'Check if data is separated via the selected symbol.
 $string['checkdelimiteroremptycontent'] = 'Check if data is given and separated via the selected symbol.';
 $string['checkedanswersdeleted'] = 'The selected bookings were deleted successfully.';
 $string['checklistdownload'] = 'Download checklist';
+$string['checklisthtml'] = 'Checkliste template';
+$string['checklisthtmldescription'] = 'You can use the following placeholders in your template:<br>
+<b>General placeholders:</b><br>
+[[booking_id]], [[booking_text]], [[max_answers]], [[institution]], [[location]], [[coursestarttime]], [[courseendtime]], [[description]], [[address]], [[teachers]], [[titleprefix]], [[dayofweektime]], [[annotation]], [[courseid]], [[course_url]], [[option_times]], [[contact]]<br>
+These placeholders will be replaced with the corresponding data from the booking option. Use only basic HTML that is supported by TCPDF, as CSS capabilities are limited. For a basic list layout, you can use simple HTML tags like <code>&lt;ul&gt;</code> and <code>&lt;li&gt;</code> to structure your content. Ensure URLs, dates, and other dynamic content are correctly formatted for readability.';
 $string['checkoutidentifier'] = "Ordernumber";
 $string['choose...'] = 'Choose...';
 $string['choosedifferentvalue'] = 'Choose different value than in first field';

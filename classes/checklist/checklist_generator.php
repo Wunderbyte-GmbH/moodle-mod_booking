@@ -21,9 +21,6 @@ use mod_booking\booking_option;
 use stdClass;
 use TCPDF;
 
-defined('MOODLE_INTERNAL') || die();
-
-
 /**
  * Class checklist_generator
  *
@@ -128,7 +125,7 @@ class checklist_generator {
             return [];
         }
 
-        return array_map(function($teacher) {
+        return array_map(function ($teacher) {
             return "{$teacher->firstname} {$teacher->lastname}";
         }, $bookingoption->teachers);
     }
@@ -151,7 +148,7 @@ class checklist_generator {
      */
     protected function get_default_checklist_html(): string {
         return '
-            <ul> 
+            <ul>
                 <li>Teachers: [[teachers]]</li>
                 <li>Contact: [[contact]]</li>
             </ul>';
