@@ -1713,7 +1713,7 @@ $string['nopricecategoryselected'] = 'Geben Sie den Namen einer neuen Preiskateg
 $string['nopriceformulaset'] = 'Sie müssen zuerst eine Formel in den Buchungseinstellungen eintragen. <a href="{$a->url}" target="_blank">Formel hier bearbeiten.</a>';
 $string['nopriceisset'] = 'Kein Preis für Preiskategorie {$a} vorhanden';
 $string['noratings'] = 'Bewertungen deaktiviert';
-$string['norestriction'] = 'Keine Eischränkung';
+$string['norestriction'] = 'Keine Einschränkung';
 $string['noresultsviewable'] = 'Die Ergebnisse sind momentan nicht einsehbar';
 $string['norighttobook'] = 'Sie haben zur Zeit keine Berechtigung Buchungen vorzunehmen. Loggen Sie sich ein, schreiben Sie sich in diesen Kurs ein oder kontaktieren Sie den/die Administrator/in.';
 $string['norowsselected'] = 'Sie haben noch nichts ausgewählt. Bitte schließen Sie dieses Fenster und wählen Sie zunächst die Zeilen aus, die Sie bearbeiten möchten.';
@@ -2791,6 +2791,7 @@ $string['vuenotificationtitleactionsuccess'] = 'Die Konfiguration wurde erfolgre
 $string['vuenotificationtitleunsave'] = 'Keine ungespeicherten Änderungen erkannt';
 $string['waitforconfirmation'] = 'Buchen immer nur nach Bestätigung';
 $string['waitforconfirmationonwaitinglist'] = 'Bestätigung nur bei Wartelistenplatz';
+$string['waitforconfirmationselect'] = 'Buchen nach Bestätigung';
 $string['waitinglist'] = 'Warteliste';
 $string['waitinglistconfirmed'] = 'Wartelistenplatz bestätigt';
 $string['waitinglistdeleted'] = 'Von der Warteliste gelöscht';

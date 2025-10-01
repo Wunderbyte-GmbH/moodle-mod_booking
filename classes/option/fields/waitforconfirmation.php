@@ -142,7 +142,7 @@ class waitforconfirmation extends field_base {
         $mform->addElement(
             'select',
             'waitforconfirmation',
-            get_string('waitforconfirmation', 'mod_booking'),
+            get_string('waitforconfirmationselect', 'mod_booking'),
             $waitforconfirmationoptions
         );
 

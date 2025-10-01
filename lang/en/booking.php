@@ -2883,6 +2883,7 @@ $string['vuenotificationtitleactionsuccess'] = 'Configuration was {$a}';
 $string['vuenotificationtitleunsave'] = 'No unsaved changes detected';
 $string['waitforconfirmation'] = 'Book always only after confirmation';
 $string['waitforconfirmationonwaitinglist'] = 'Confirmation only for waitinglist';
+$string['waitforconfirmationselect'] = 'Book after confirmation';
 $string['waitinglist'] = 'Waiting list';
 $string['waitinglistconfirmed'] = 'Waitinglist confirmed';
 $string['waitinglistdeleted'] = 'From waitinglist deleted';
