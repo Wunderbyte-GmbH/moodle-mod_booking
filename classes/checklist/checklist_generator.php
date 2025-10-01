@@ -59,8 +59,7 @@ class checklist_generator {
      */
     public function generate_pdf() {
         // Retrieve checklist HTML from configuration.
-        $checklisthtml = get_config('mod_booking', 'checklisthtml');
-        
+        $checklisthtml = get_config('booking', 'checklisthtml');
         // Use a default template if not configured.
         if (empty(trim(strip_tags($checklisthtml)))) {
             $checklisthtml = $this->get_default_checklist_html();
@@ -82,7 +81,22 @@ class checklist_generator {
      */
     private function get_placeholder_replacements(): array {
         return [
+            '[[booking_id]]' => $this->bookingoption->option->id,
+            '[[booking_text]]' => $this->bookingoption->option->text,
+            '[[max_answers]]' => $this->bookingoption->option->maxanswers,
+            '[[institution]]' => $this->bookingoption->option->institution,
+            '[[location]]' => $this->bookingoption->option->location,
+            '[[coursestarttime]]' => userdate($this->bookingoption->option->coursestarttime),
+            '[[courseendtime]]' => userdate($this->bookingoption->option->courseendtime),
+            '[[description]]' => format_text($this->bookingoption->option->description, FORMAT_HTML),
+            '[[address]]' => $this->bookingoption->option->address,
             '[[teachers]]' => implode(', ', $this->get_teachers_names($this->bookingoption)),
+            '[[titleprefix]]' => $this->bookingoption->option->titleprefix,
+            '[[dayofweektime]]' => $this->bookingoption->option->dayofweektime,
+            '[[annotation]]' => $this->bookingoption->option->annotation,
+            '[[courseid]]' => $this->bookingoption->option->courseid,
+            '[[course_url]]' => (new \moodle_url('/course/view.php', ['id' => $this->bookingoption->option->courseid]))->out(),
+            '[[option_times]]' => $this->bookingoption->optiontimes,
             '[[contact]]' => $this->get_responsible_contact($this->bookingoption),
             // Add other placeholders here as needed.
         ];
