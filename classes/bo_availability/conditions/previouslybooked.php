@@ -47,7 +47,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class previouslybooked implements bo_condition {
-
     /** @var int $id Id is set via json during construction */
     public $id = MOD_BOOKING_BO_COND_JSON_PREVIOUSLYBOOKED;
 
@@ -239,9 +238,11 @@ class previouslybooked implements bo_condition {
 
         // Check if PRO version is activated.
         if (wb_payment::pro_version_is_activated()) {
-
-            $mform->addElement('advcheckbox', 'bo_cond_previouslybooked_restrict',
-                    get_string('bocondpreviouslybookedrestrict', 'mod_booking'));
+            $mform->addElement(
+                'advcheckbox',
+                'bo_cond_previouslybooked_restrict',
+                get_string('bocondpreviouslybookedrestrict', 'mod_booking')
+            );
 
             $previouslybookedoptions = [
                 'tags' => false,
@@ -278,18 +279,28 @@ class previouslybooked implements bo_condition {
             $mform->setType('bo_cond_previouslybooked_optionid', PARAM_INT);
             $mform->hideIf('bo_cond_previouslybooked_optionid', 'bo_cond_previouslybooked_restrict', 'notchecked');
 
-            $mform->addElement('checkbox', 'bo_cond_previouslybooked_overrideconditioncheckbox',
-                get_string('overrideconditioncheckbox', 'mod_booking'));
+            $mform->addElement(
+                'checkbox',
+                'bo_cond_previouslybooked_overrideconditioncheckbox',
+                get_string('overrideconditioncheckbox', 'mod_booking')
+            );
             $mform->hideIf('bo_cond_previouslybooked_overrideconditioncheckbox', 'bo_cond_previouslybooked_restrict', 'notchecked');
 
             $overrideoperators = [
                 'OR' => get_string('overrideoperator:or', 'mod_booking'),
                 'AND' => get_string('overrideoperator:and', 'mod_booking'),
             ];
-            $mform->addElement('select', 'bo_cond_previouslybooked_overrideoperator',
-                get_string('overrideoperator', 'mod_booking'), $overrideoperators);
-            $mform->hideIf('bo_cond_previouslybooked_overrideoperator',
-                'bo_cond_previouslybooked_overrideconditioncheckbox', 'notchecked');
+            $mform->addElement(
+                'select',
+                'bo_cond_previouslybooked_overrideoperator',
+                get_string('overrideoperator', 'mod_booking'),
+                $overrideoperators
+            );
+            $mform->hideIf(
+                'bo_cond_previouslybooked_overrideoperator',
+                'bo_cond_previouslybooked_overrideconditioncheckbox',
+                'notchecked'
+            );
 
             $overrideconditions = bo_info::get_conditions(MOD_BOOKING_CONDPARAM_CANBEOVERRIDDEN);
             $overrideconditionsarray = [];
@@ -318,9 +329,11 @@ class previouslybooked implements bo_condition {
                             $currentclassname = $jsoncondition->class;
                             $currentcondition = $currentclassname::instance();
                             // Currently conditions of the same type cannot be combined with each other.
-                            if ($jsoncondition->id != $this->id
+                            if (
+                                $jsoncondition->id != $this->id
                                 && isset($currentcondition->overridable)
-                                && ($currentcondition->overridable == true)) {
+                                && ($currentcondition->overridable == true)
+                            ) {
                                 $overrideconditionsarray[$jsoncondition->id] = get_string('bocond' .
                                     str_replace("_", "", $jsoncondition->name), 'mod_booking');
                             }
@@ -334,16 +347,26 @@ class previouslybooked implements bo_condition {
                 'tags' => false,
                 'multiple' => true,
             ];
-            $mform->addElement('autocomplete', 'bo_cond_previouslybooked_overridecondition',
-                get_string('overridecondition', 'mod_booking'), $overrideconditionsarray, $options);
-            $mform->hideIf('bo_cond_previouslybooked_overridecondition',
+            $mform->addElement(
+                'autocomplete',
+                'bo_cond_previouslybooked_overridecondition',
+                get_string('overridecondition', 'mod_booking'),
+                $overrideconditionsarray,
+                $options
+            );
+            $mform->hideIf(
+                'bo_cond_previouslybooked_overridecondition',
                 'bo_cond_previouslybooked_overrideconditioncheckbox',
-                'notchecked');
+                'notchecked'
+            );
         } else {
             // No PRO license is active.
-            $mform->addElement('static', 'bo_cond_previouslybooked_restrict',
+            $mform->addElement(
+                'static',
+                'bo_cond_previouslybooked_restrict',
                 get_string('bocondpreviouslybookedrestrict', 'mod_booking'),
-                get_string('proversiononly', 'mod_booking'));
+                get_string('proversiononly', 'mod_booking')
+            );
         }
 
         $mform->addElement('html', '<hr class="w-50"/>');
@@ -455,14 +478,12 @@ class previouslybooked implements bo_condition {
             $description = $full ? get_string('bocondpreviouslybookedfullavailable', 'mod_booking') :
                 get_string('bocondpreviouslybookedavailable', 'mod_booking');
         } else {
-
             if (!$this->customsettings) {
                 // This description can only work with the right custom settings.
                 $availabilityarray = json_decode($settings->availability);
 
                 foreach ($availabilityarray as $availability) {
                     if (strpos($availability->class, 'previouslybooked') > 0) {
-
                         $this->customsettings = (object)$availability;
                     }
                 }
