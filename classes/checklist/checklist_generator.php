@@ -71,6 +71,11 @@ class checklist_generator {
         $this->download_pdf_from_html($htmloutput);
     }
 
+    /**
+     * Returns all the dates in a single string.
+     *
+     * @return string
+     */
     private function get_concatenated_dates(): string {
         $sessions = $this->bookingoption->return_array_of_sessions();
         if (empty($sessions)) {
@@ -161,10 +166,55 @@ class checklist_generator {
      */
     protected function get_default_checklist_html(): string {
         return '
-            <ul>
-                <li>Teachers: [[teachers]]</li>
-                <li>Contact: [[contact]]</li>
-            </ul>';
+            <table cellpadding="5" width="100%" border="1">
+    <thead>
+        <tr>
+            <th colspan="2" style="background-color: #cce5ff; text-align: left;">Seminar Information</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>[[booking_text]]</td>
+            <td>Erster Kurstag: [[coursestarttime]]</td>
+        </tr>
+        <tr>
+            <td>Daten: [[dates]]  <br>Referent/in: [[teachers]]</td>
+            <td>Raum: [[location]] [[institution]]</td>
+        </tr>
+        <tr>
+            <th colspan="2" style="background-color: #cce5ff; text-align: left;">Vorbereitung</th>
+        </tr>
+        <tr>
+            <td colspan="2">
+                ☐ Check 1<br>
+                ☐ Check 2<br>
+                ☐ Check 3<br>
+            </td>
+        </tr>
+
+        <tr>
+            <th colspan="2" style="background-color: #cce5ff; text-align: left;">2 Wochen vor Seminarbeginn</th>
+        </tr>
+        <tr>
+            <td colspan="2">
+                ☐ Check 1<br>
+                ☐ Check 2<br>
+                ☐ Check 3<br>
+            </td>
+        </tr>
+
+        <tr>
+            <th colspan="2" style="background-color: #cce5ff; text-align: left;">Seminarabschluss</th>
+        </tr>
+        <tr>
+            <td colspan="2">
+                ☐ Check 1<br>
+                ☐ Check 2<br>
+                ☐ Check 3<br>
+            </td>
+        </tr>
+    </tbody>
+</table>';
     }
 
     /**
@@ -179,4 +229,3 @@ class checklist_generator {
         return preg_replace('/\_+/', '_', $filename); // Replace multiple underscores with exactly one.
     }
 }
- 
