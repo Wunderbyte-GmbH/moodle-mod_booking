@@ -875,9 +875,9 @@ final class condition_all_test extends advanced_testcase {
 
         // And try again to book user4 again.
         $this->setUser($student4);
-        $result = booking_bookit::bookit('option', $settings->id, $student4->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student4->id, false);
-        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMBOOKIT, $id);
+        // The confirmation for waitinglist is coming from MOD_BOOKING_BO_COND_ASKFORCONFIRMATION.
+        $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id);
         $result = booking_bookit::bookit('option', $settings->id, $student4->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student4->id, false);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);

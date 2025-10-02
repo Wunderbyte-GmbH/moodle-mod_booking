@@ -112,6 +112,8 @@ class askforconfirmation implements bo_condition {
         if (
             !isset($bookinginformation['onwaitinglist'])
             && (
+                    ($bookinginformation['notbooked']['freeonwaitinglist'] ?? 0) == -1
+                ||
                     (
                         $settings->waitforconfirmation == 1
                         || (
