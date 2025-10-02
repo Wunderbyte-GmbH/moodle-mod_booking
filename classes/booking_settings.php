@@ -374,6 +374,9 @@ class booking_settings {
     /** @var string $customfieldsforfilter */
     public $customfieldsforfilter = null;
 
+    /** @var string $toporientation */
+    public $toporientation = null;
+
     /**
      * Constructor for the booking settings class.
      *
@@ -515,6 +518,7 @@ class booking_settings {
             $this->coursepageshortinfo = $dbrecord->coursepageshortinfo;
             $this->bookingimagescustomfield = $dbrecord->bookingimagescustomfield;
             $this->defaultoptionsort = $dbrecord->defaultoptionsort;
+            $this->toporientation = $dbrecord->toporientation;
             $this->defaultsortorder = $dbrecord->defaultsortorder;
             $this->showviews = $dbrecord->showviews;
             $this->customtemplateid = $dbrecord->customtemplateid;

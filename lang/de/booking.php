@@ -2458,6 +2458,8 @@ Verwenden Sie nur einfaches HTML, das von TCPDF / PhpWord unterstützt wird. Um 
 $string['signinsheetlocation'] = 'Ort: ';
 $string['signinsheetmode'] = 'Anwesenheitsliste Modus';
 $string['signinsheetmode_desc'] = 'Wählen Sie den Modus für das Herunterladen der Anwesenheitsliste: HTML-Vorlage oder Legacy-Modus.';
+$string['signinsheettoporientation'] = 'Ausrichtung oberer Button-Unterschriftenliste';
+$string['signinsheettoporientationdesc_help'] = 'Legt die Standardausrichtung für den oberen Download-Button der Unterschriftenliste fest. Wählen Sie zwischen Hochformat und Querformat.';
 $string['skipbookingrulesmode'] = 'Anwendung der Buchungsregeln';
 $string['skipbookingrulesoptin'] = 'Opt in: Nur folgende Regeln anwenden';
 $string['skipbookingrulesoptout'] = 'Opt out: Folgende Regeln nicht anwenden';

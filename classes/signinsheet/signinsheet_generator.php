@@ -685,7 +685,6 @@ class signinsheet_generator {
             'fullname',
             'firstname',
             'lastname',
-            'email',
             'signature',
             'rownumber',
             'role',

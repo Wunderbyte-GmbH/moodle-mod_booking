@@ -1419,6 +1419,22 @@ class mod_booking_mod_form extends moodleform_mod {
             ['subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 1, 'accepted_types' => ['image']]
         );
 
+        // Add the new settings dropdown for the sign-in sheet top orientation.
+        $orientationoptions = [
+            'L' => get_string('pdflandscape', 'mod_booking'),
+            'P' => get_string('pdfportrait', 'mod_booking'),
+        ];
+
+        $mform->addElement(
+            'select',
+            'toporientation',
+            get_string('signinsheettoporientation', 'mod_booking'),
+            $orientationoptions
+        );
+        $mform->addHelpButton('toporientation', 'signinsheettoporientationdesc', 'mod_booking');
+        $mform->setDefault('toporientation', 'P');
+        $mform->setType('toporientation', PARAM_ALPHA);
+
         // Teachers.
         $mform->addElement(
             'header',
