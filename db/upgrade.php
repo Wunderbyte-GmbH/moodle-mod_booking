@@ -5061,6 +5061,19 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2025100101, 'booking');
     }
+    if ($oldversion < 2025100201) { // Update the version number to the next one in your sequence.
+        // Define field toporientation to be added to the booking table.
+        $table = new xmldb_table('booking');
+        $field = new xmldb_field('toporientation', XMLDB_TYPE_CHAR, '1', null, XMLDB_NOTNULL, null, 'P', 'defaultsortorder');
+
+        // Conditionally launch add field toporientation.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2025100201, 'booking'); // Update to your new version number.
+    }
 
     return true;
 }
