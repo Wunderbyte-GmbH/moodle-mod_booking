@@ -84,7 +84,7 @@ class checklist_generator {
         $dates = array_map(function ($session) {
             return $session['datestring'];
         }, $sessions);
-        return implode(', ', $dates);
+        return implode('<br>', $dates);
     }
 
 
