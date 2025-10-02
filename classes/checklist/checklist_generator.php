@@ -174,14 +174,19 @@ class checklist_generator {
     <tbody>
         <tr>
             <td>[[booking_text]]</td>
-            <td>Erster Kurstag: [[coursestarttime]]</td>
+            <td>'
+            .  get_string('checklistfirstcourseday', 'booking') . ' [[coursestarttime]]</td>
         </tr>
         <tr>
-            <td>Daten: [[dates]]  <br>Referent/in: [[teachers]]</td>
-            <td>Raum: [[location]] [[institution]]</td>
+            <td>'
+            .  get_string('checklistdaten', 'booking') . ': [[dates]]  <br>'
+            .  get_string('checklistreferentin', 'booking') . ': [[teachers]]</td>
+            <td>'
+            .  get_string('checklistraum', 'booking') . ': [[location]] [[institution]]</td>
         </tr>
         <tr>
-            <th colspan="2" style="background-color: #cce5ff; text-align: left;"><b>Vorbereitung</b></th>
+            <th colspan="2" style="background-color: #cce5ff; text-align: left;"><b>'
+            .  get_string('checklistpreparation', 'booking') . '</b></th>
         </tr>
         <tr>
             <td colspan="2">
@@ -223,7 +228,8 @@ class checklist_generator {
             </td>
         </tr>
         <tr>
-            <th colspan="2" style="background-color: #cce5ff; text-align: left;"><b>2 Wochen vor Seminarbeginn</b></th>
+            <th colspan="2" style="background-color: #cce5ff; text-align: left;"><b>'
+            .  get_string('checklisttwoweeksprior', 'booking') . '</b></th>
         </tr>
         <tr>
             <td colspan="2">
@@ -234,7 +240,8 @@ class checklist_generator {
         </tr>
 
         <tr>
-            <th colspan="2" style="background-color: #cce5ff; text-align: left;"><b>Seminarabschluss</b></th>
+            <th colspan="2" style="background-color: #cce5ff; text-align: left;"><b>'
+            .  get_string('checklistseminarabschluss', 'booking') . '</b></th>
         </tr>
         <tr>
             <td colspan="2">

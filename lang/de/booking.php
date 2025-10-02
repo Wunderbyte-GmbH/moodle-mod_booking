@@ -795,12 +795,19 @@ $string['checkbox'] = "Checkbox";
 $string['checkdelimiter'] = 'Überprüfen Sie die Spaltennamen durch das angegebene Zeichen getrennt sind.';
 $string['checkdelimiteroremptycontent'] = 'Überprüfen Sie ob Daten vorhanden und durch das angegebene Zeichen getrennt sind.';
 $string['checkedanswersdeleted'] = 'Die ausgewählten Buchungen wurden gelöscht.';
+$string['checklistdaten'] = 'Daten';
 $string['checklistdownload'] = 'Checkliste herunterladen';
+$string['checklistfirstcourseday'] = 'Erster Kurstag:';
 $string['checklisthtml'] = 'Checkliste template';
 $string['checklisthtmldescription'] = 'Sie können die folgenden Platzhalter in Ihrer Vorlage verwenden:<br>
 <b>Allgemeine Platzhalter:</b><br>
 [[booking_id]], [[booking_text]], [[max_answers]], [[institution]], [[location]], [[coursestarttime]], [[courseendtime]], [[description]], [[address]], [[teachers]], [[titleprefix]], [[dayofweektime]], [[annotation]], [[courseid]], [[course_url]], [[option_times]], [[contact]], [[dates]]<br>
 Diese Platzhalter werden durch die entsprechenden Daten aus der Buchungsoption ersetzt. Verwenden Sie nur grundlegendes HTML, da die CSS-Fähigkeiten von TCPDF begrenzt sind. Für eine einfache Listenstruktur können Sie Tags wie <code>&lt;ul&gt;</code> und <code>&lt;li&gt;</code> verwenden, um Ihre Inhalte zu strukturieren. Stellen Sie sicher, dass URLs, Daten und andere dynamische Inhalte korrekt formatiert sind, um die Lesbarkeit zu gewährleisten.';
+$string['checklistpreparation'] = 'Vorbereitung';
+$string['checklistraum'] = 'Raum';
+$string['checklistreferentin'] = 'Referent/in';
+$string['checklistseminarabschluss'] = 'Seminarabschluss';
+$string['checklisttwoweeksprior'] = '2 Wochen vor Seminarbeginn';
 $string['checkoutidentifier'] = "Bestellnummer";
 $string['choose...'] = 'Auswählen...';
 $string['choosedifferentvalue'] = 'Wählen Sie einen anderen Wert als im oberen Feld';
