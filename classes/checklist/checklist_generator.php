@@ -71,6 +71,18 @@ class checklist_generator {
         $this->download_pdf_from_html($htmloutput);
     }
 
+    private function get_concatenated_dates(): string {
+        $sessions = $this->bookingoption->return_array_of_sessions();
+        if (empty($sessions)) {
+            return '';
+        }
+        $dates = array_map(function ($session) {
+            return $session['datestring'];
+        }, $sessions);
+        return implode(', ', $dates);
+    }
+
+
     /**
      * Maps placeholder strings to their actual values.
      *
@@ -95,6 +107,7 @@ class checklist_generator {
             '[[course_url]]' => (new \moodle_url('/course/view.php', ['id' => $this->bookingoption->option->courseid]))->out(),
             '[[option_times]]' => $this->bookingoption->optiontimes,
             '[[contact]]' => $this->get_responsible_contact($this->bookingoption),
+            '[[dates]]' => $this->get_concatenated_dates(),
             // Add other placeholders here as needed.
         ];
     }
@@ -166,3 +179,4 @@ class checklist_generator {
         return preg_replace('/\_+/', '_', $filename); // Replace multiple underscores with exactly one.
     }
 }
+ 
