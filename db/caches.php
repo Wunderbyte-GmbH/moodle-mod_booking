@@ -86,11 +86,14 @@ $definitions = [
         'staticaccelerationsize' => 1000,
         'invalidationevents' => ['setbackoptionsettings'],
     ],
-    'bookingoptionsanswers' => [ // This cache uses optionids as keys.
+    // The bookingoptionsanswers is crucial.
+    // The optionids are the keys, the lists of booked, reserved. etc users are provided in this cache.
+    // Don't use static accelartion, as this will add latency to the renewal of the cache...
+    // ... and thus the risk of deciding access on an outdated knowledge.
+    'bookingoptionsanswers' => [
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,
-        'staticacceleration' => true,
-        'staticaccelerationsize' => 1500,
+        'staticacceleration' => false,
         'invalidationevents' => ['setbackoptionsanswers'],
     ],
     'bookinganswers' => [ // This cache uses optionids as keys.
