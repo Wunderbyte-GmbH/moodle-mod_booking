@@ -234,7 +234,7 @@ class optionstoconfirm extends option {
                         JOIN {role_assignments} ra ON ra.userid = :userid
                         JOIN {context} ctx_ra ON ctx_ra.id = ra.contextid
                         JOIN {role_capabilities} rc ON rc.roleid = ra.roleid
-                        WHERE bo.id = s1.optionid
+                        WHERE bo.id = optionid
                         AND (ctx_cm.path LIKE $concat OR ctx_cm.id = ctx_ra.id)
                         AND rc.capability = :capability
                         AND rc.permission = 1
