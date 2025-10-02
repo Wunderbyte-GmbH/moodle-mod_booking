@@ -165,11 +165,10 @@ class checklist_generator {
      * @return string
      */
     protected function get_default_checklist_html(): string {
-        return '
-            <table cellpadding="5" width="100%" border="1">
+        return '<table cellpadding="5" width="100%" border="1">
     <thead>
         <tr>
-            <th colspan="2" style="background-color: #cce5ff; text-align: left;">Seminar Information</th>
+            <th colspan="2" style="background-color: #cce5ff; text-align: left;"><b>Seminar Information</b></th>
         </tr>
     </thead>
     <tbody>
@@ -182,7 +181,49 @@ class checklist_generator {
             <td>Raum: [[location]] [[institution]]</td>
         </tr>
         <tr>
-            <th colspan="2" style="background-color: #cce5ff; text-align: left;">Vorbereitung</th>
+            <th colspan="2" style="background-color: #cce5ff; text-align: left;"><b>Vorbereitung</b></th>
+        </tr>
+        <tr>
+            <td colspan="2">
+              ☐ Check 1
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+              ☐ Check 2
+            </td>
+        </tr>
+        <tr>
+            <td >
+              ☐ Check 3
+            </td>
+            <td bgcolor="gray">
+              &#8594; SubCheck 3
+            </td>
+        </tr>
+        <tr>
+            <td >
+              ☐ Check 4
+            </td>
+            <td bgcolor="gray">
+              ☐ SubCheck 4
+            </td>
+        </tr>
+        <tr>
+            <td >
+              ☐ Check 5
+            </td>
+            <td bgcolor="gray">
+              ☐ SubCheck 5
+            </td>
+        </tr>
+                <tr>
+            <td colspan="2">
+              ☐ Check 6
+            </td>
+        </tr>
+        <tr>
+            <th colspan="2" style="background-color: #cce5ff; text-align: left;"><b>2 Wochen vor Seminarbeginn</b></th>
         </tr>
         <tr>
             <td colspan="2">
@@ -193,18 +234,7 @@ class checklist_generator {
         </tr>
 
         <tr>
-            <th colspan="2" style="background-color: #cce5ff; text-align: left;">2 Wochen vor Seminarbeginn</th>
-        </tr>
-        <tr>
-            <td colspan="2">
-                ☐ Check 1<br>
-                ☐ Check 2<br>
-                ☐ Check 3<br>
-            </td>
-        </tr>
-
-        <tr>
-            <th colspan="2" style="background-color: #cce5ff; text-align: left;">Seminarabschluss</th>
+            <th colspan="2" style="background-color: #cce5ff; text-align: left;"><b>Seminarabschluss</b></th>
         </tr>
         <tr>
             <td colspan="2">
@@ -214,7 +244,7 @@ class checklist_generator {
             </td>
         </tr>
     </tbody>
-</table>';
+    </table>';
     }
 
     /**
