@@ -741,7 +741,7 @@ class booking {
             AND ba.userid = ?
             AND ba.waitinglist <= ?
             AND (bo.courseendtime = 0 OR bo.courseendtime > ?)",
-            [$this->id, $user->id, MOD_BOOKING_STATUSPARAM_WAITINGLIST, time()]
+            [$this->id, $user->id, MOD_BOOKING_STATUSPARAM_BOOKED, time()]
         );
 
         return (int)$activebookingcount;
