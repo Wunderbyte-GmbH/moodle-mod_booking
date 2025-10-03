@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace mod_booking;
+
+use Throwable;
 defined('MOODLE_INTERNAL') || die();
 
 use cache_helper;
@@ -543,7 +545,7 @@ class message_controller {
                             $this->messagedata->attachname = $attachname;
                         } else {
                             // Todo: There is possibly a better way to handle this error nicely - or remove the check entirely.
-                            throw new \moodle_exception('Attachment file not found.');
+                            throw new moodle_exception('Attachment file not found.');
                         }
                     }
                 }
@@ -553,7 +555,12 @@ class message_controller {
                     if (!empty($this->rulesettings->actiondata) && !empty($this->rulesettings->actiondata->sendical)) {
                         if (!PHPUNIT_TEST) {
                             // Tidy up the now not needed file.
-                            $storedfile->delete();
+                            try {
+                                $storedfile->delete();
+                            } catch (Throwable $e) {
+                                // do nothing.
+                            }
+
                         }
                     }
 
