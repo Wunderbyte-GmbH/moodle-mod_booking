@@ -102,6 +102,7 @@ class option_form_bulk extends dynamic_form {
             "teachers",
             "titleprefix",
             "waitforconfirmation",
+            "bookingoptionimage",
         ];
 
         foreach (array_keys($fields) as $field) {
