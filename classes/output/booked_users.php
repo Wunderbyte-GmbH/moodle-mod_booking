@@ -259,7 +259,7 @@ class booked_users implements renderable, templatable {
         $table->showreloadbutton = true;
         $table->showrowcountselect = true;
 
-        $html = $table->outhtml(20, false);
+        $html = $table->outhtml(10, false);
         return count($table->rawdata) > 0 ? $html : null;
     }
 
