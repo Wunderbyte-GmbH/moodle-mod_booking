@@ -148,7 +148,8 @@ class booked_users implements renderable, templatable {
                 array_keys($columns),
                 array_values($columns),
                 // Sorting of waiting list only possible if setting to show place is enabled.
-                (bool)get_config('booking', 'waitinglistshowplaceonwaitinglist')
+                (bool)get_config('booking', 'waitinglistshowplaceonwaitinglist'),
+                true
             ) : null;
 
             $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_RESERVED);
@@ -192,7 +193,8 @@ class booked_users implements renderable, templatable {
                 array_keys($columns),
                 array_values($columns),
                 // Sorting of waiting list only possible if setting to show place is enabled.
-                (bool)get_config('booking', 'waitinglistshowplaceonwaitinglist')
+                (bool)get_config('booking', 'waitinglistshowplaceonwaitinglist'),
+                true
             ) : null;
 
             $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED);
