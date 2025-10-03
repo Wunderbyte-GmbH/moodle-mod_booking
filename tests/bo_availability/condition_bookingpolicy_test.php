@@ -329,6 +329,103 @@ final class condition_bookingpolicy_test extends advanced_testcase {
     }
 
     /**
+     * Test booking option availability: \condition\max_number_of_bookings.
+     *
+     * @covers \mod_booking\bo_availability\conditions\max_number_of_bookings::is_available
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_settings_provider
+     */
+    public function test_booking_maxperuser_waitinglist_confirm_teacher(array $bdata): void {
+
+        // Set test objective setting(s).
+        $bdata['maxperuser'] = 1;
+
+        // Setup test data.
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        // Create users.
+        $student1 = $this->getDataGenerator()->create_user();
+        $student2 = $this->getDataGenerator()->create_user();
+        $teacher = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
+
+        $bdata['course'] = $course1->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($booking1->id);
+        singleton_service::destroy_booking_singleton_by_cmid($bookingsettings->cmid);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($booking1->id);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($student1->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($student2->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($teacher->id, $course1->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course1->id);
+
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option1';
+        $record->chooseorcreatecourse = 1; // Reqiured.
+        $record->courseid = $course1->id;
+        // Set test objective setting(s).
+        $record->waitforconfirmation = 1;
+        $record->confirmationtrainerenabled = 1;
+        $record->teachersforoption = $teacher->username;
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option1 = $plugingenerator->create_option($record);
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $optionobj1 = singleton_service::get_instance_of_booking_option($settings1->cmid, $settings1->id);
+        $boinfo1 = new bo_info($settings1);
+
+        $record->text = 'Test option2';
+        $record->waitforconfirmation = 0;
+        unset($record->confirmationtrainerenabled);
+        $option2 = $plugingenerator->create_option($record);
+        $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
+        $boinfo2 = new bo_info($settings2);
+
+        // Book the student1.
+        $this->setUser($student1);
+
+        // Book option 1 on waitinglist.
+        $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
+
+        // We are not allowed to book 2nd option - maxperuser exceeded.
+        $result = booking_bookit::bookit('option', $settings2->id, $student1->id);
+        [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_MAX_NUMBER_OF_BOOKINGS, $id);
+
+        // Now we can actually book.
+        //$result = booking_bookit::bookit('option', $settings->id, $student1->id);
+        //list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+        //$this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+        $this->setUser($teacher);
+
+        //$teacherobj = singleton_service::get_instance_of_user($teacher->id);
+        $optionobj1->user_submit_response(
+                $student1,
+                0,
+                0,
+                0,
+                MOD_BOOKING_VERIFIED
+            );
+
+        $this->setAdminUser();
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+    }
+
+    /**
      * Test booking option availability: \condition\selectusers.
      *
      * @covers \mod_booking\bo_availability\conditions\selectusers::is_available
