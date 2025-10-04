@@ -557,10 +557,10 @@ class message_controller {
                             // Tidy up the now not needed file.
                             try {
                                 $storedfile->delete();
+                            // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
                             } catch (Throwable $e) {
-                                // do nothing.
+                                // Do nothing.
                             }
-
                         }
                     }
 
