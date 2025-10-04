@@ -281,7 +281,7 @@ final class condition_bookingpolicy_test extends advanced_testcase {
 
         $this->getDataGenerator()->enrol_user($student1->id, $course1->id);
         $this->getDataGenerator()->enrol_user($student2->id, $course1->id);
-        $this->getDataGenerator()->enrol_user($teacher->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($teacher->id, $course1->id, 'editingteacher');
         $this->getDataGenerator()->enrol_user($bookingmanager->id, $course1->id);
 
         $record = new stdClass();
@@ -405,22 +405,18 @@ final class condition_bookingpolicy_test extends advanced_testcase {
         [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_MAX_NUMBER_OF_BOOKINGS, $id);
 
-        // Now we can actually book.
-        //$result = booking_bookit::bookit('option', $settings->id, $student1->id);
-        //list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
-        //$this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+        // Confirm student1's booking as a teacher.
         $this->setUser($teacher);
-
-        //$teacherobj = singleton_service::get_instance_of_user($teacher->id);
         $optionobj1->user_submit_response(
-                $student1,
-                0,
-                0,
-                0,
-                MOD_BOOKING_VERIFIED
-            );
+            $student1,
+            0,
+            0,
+            0,
+            MOD_BOOKING_VERIFIED
+        );
 
-        $this->setAdminUser();
+        // Validate student1 already booking.
+        $this->setUser($student1);
         [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
     }
