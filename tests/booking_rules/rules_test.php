@@ -1675,6 +1675,255 @@ final class rules_test extends advanced_testcase {
     }
 
     /**
+     * Test rule on answer and option being cancelled.
+     *
+     * @covers \mod_booking\event\bookinganswer_cancelled
+     * @covers \mod_booking\booking_option::user_delete_response
+     * @covers \mod_booking\booking_option::cancelbookingoption
+     * @covers \mod_booking\booking_rules\rules\rule_react_on_event::execute
+     * @covers \mod_booking\booking_rules\conditions\select_student_in_bo::execute
+     * @covers \mod_booking\booking_rules\conditions\select_teacher_in_bo::execute
+     * @covers \mod_booking\booking_rules\actions\send_mail::execute
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_rule_on_answer_cancelled_deputy_of_supervisor_receives_mail(array $bdata): void {
+
+        singleton_service::destroy_instance();
+
+        set_config('timezone', 'Europe/Kyiv');
+        set_config('forcetimezone', 'Europe/Kyiv');
+
+        // Allow optioncacellation.
+        $bdata['cancancelbook'] = 1;
+
+        // Add a user profile field of text type for supervisor.
+        $fieldid1 = $this->getDataGenerator()->create_custom_profile_field([
+            'shortname' => 'supervisor', 'name' => 'Supervisor', 'datatype' => 'text',
+        ])->id;
+
+        // Add a user profile field of text type for deputy.
+        $fieldid2 = $this->getDataGenerator()->create_custom_profile_field([
+            'shortname' => 'deputy', 'name' => 'Deputy', 'datatype' => 'text',
+        ])->id;
+
+        // Setup test data.
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $deputy2 = $this->getDataGenerator()->create_user();
+        $deputy = $this->getDataGenerator()->create_user();
+        $string = "$deputy->id,$deputy2->id";
+        $supervisor = $this->getDataGenerator()->create_user(['profile_field_deputy' => $string]);
+        $user1 = $this->getDataGenerator()->create_user(['profile_field_supervisor' => (string)$supervisor->id]);
+        $user2 = $this->getDataGenerator()->create_user();
+        $user3 = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $user1->username;
+
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($user2->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($user3->id, $course->id, 'student');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        // Create booking rule - "bookinganswer_cancelled".
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"answcancsubj","template":"answcancmsg","templateformat":"1"}';
+        $ruledata1 = [
+            'name' => 'notifystudents',
+            'conditionname' => 'select_deputy_of_supervisor',
+            'contextid' => 1,
+            'conditiondata' => '{"fieldofuserfromevent":"supervisor","fieldofuserfromeventdeputy":"deputy","userfromeventtype":"relateduserid"}',
+            'actionname' => 'send_mail',
+            'actiondata' => $actstr,
+            'rulename' => 'rule_react_on_event',
+            'ruledata' =>
+                '{"boevent":"\\\\mod_booking\\\\event\\\\bookinganswer_cancelled",' .
+                '"aftercompletion":0,"condition":"0","cancelrules":[]}',
+        ];
+        $rule1 = $plugingenerator->create_rule($ruledata1);
+
+        // Create booking option 1.
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Option-2050';
+        $record->chooseorcreatecourse = 1; // Connected existing course.
+        $record->courseid = $course->id;
+        $record->description = 'Will start tomorrow';
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('20 June 2050 15:00');
+        $record->courseendtime_0 = strtotime('20 July 2050 14:00');
+        $record->teachersforoption = $user1->username;
+        $option1 = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option1->id);
+
+        // Create a booking option answer.
+        $result = $plugingenerator->create_answer(['optionid' => $option1->id, 'userid' => $user1->id]);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $result);
+        $result = $plugingenerator->create_answer(['optionid' => $option1->id, 'userid' => $user3->id]);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $result);
+        singleton_service::destroy_booking_answers($option1->id);
+
+        // Cancel booking option answer for user1.
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        $option->user_delete_response($user1->id);
+        // Cancel entire booking option.
+        booking_option::cancelbookingoption($option1->id);
+
+        // Run adhock tasks.
+        $sink = $this->redirectMessages();
+        $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $this->assertCount(2, $tasks);
+        ob_start();
+        $this->runAdhocTasks();
+        $messages = $sink->get_messages();
+        $res = ob_get_clean();
+        $sink->close();
+        // If this causes failures because of the order, make less strict comparison. Maybe first message is send to first deputy...
+        $this->assertEquals($deputy2->id, $messages[0]->useridto);
+        $this->assertEquals($deputy->id, $messages[1]->useridto);
+    }
+
+    /**
+     * Test rule on answer and option being cancelled.
+     *
+     * @covers \mod_booking\event\bookinganswer_cancelled
+     * @covers \mod_booking\booking_option::user_delete_response
+     * @covers \mod_booking\booking_option::cancelbookingoption
+     * @covers \mod_booking\booking_rules\rules\rule_react_on_event::execute
+     * @covers \mod_booking\booking_rules\conditions\select_student_in_bo::execute
+     * @covers \mod_booking\booking_rules\conditions\select_teacher_in_bo::execute
+     * @covers \mod_booking\booking_rules\actions\send_mail::execute
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_rule_on_waitforconfirmation_deputy_of_supervisor_receives_mail(array $bdata): void {
+
+        singleton_service::destroy_instance();
+
+        set_config('timezone', 'Europe/Kyiv');
+        set_config('forcetimezone', 'Europe/Kyiv');
+
+        // Allow optioncacellation.
+        $bdata['cancancelbook'] = 1;
+
+        // Add a user profile field of text type for supervisor.
+        $fieldid1 = $this->getDataGenerator()->create_custom_profile_field([
+            'shortname' => 'supervisor', 'name' => 'Supervisor', 'datatype' => 'text',
+        ])->id;
+
+        // Add a user profile field of text type for deputy.
+        $fieldid2 = $this->getDataGenerator()->create_custom_profile_field([
+            'shortname' => 'deputy', 'name' => 'Deputy', 'datatype' => 'text',
+        ])->id;
+
+        // Setup test data.
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $deputy2 = $this->getDataGenerator()->create_user();
+        $deputy = $this->getDataGenerator()->create_user();
+        $string = "$deputy->id,$deputy2->id";
+        $supervisor = $this->getDataGenerator()->create_user(['profile_field_deputy' => $string]);
+        $user1 = $this->getDataGenerator()->create_user(['profile_field_supervisor' => (string)$supervisor->id]);
+        $user2 = $this->getDataGenerator()->create_user();
+        $user3 = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $user1->username;
+
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($user2->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($user3->id, $course->id, 'student');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        // Create booking rule - "bookinganswer_cancelled".
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"answcancsubj","template":"answcancmsg","templateformat":"1"}';
+        $ruledata1 = [
+            'name' => 'notifystudents',
+            'conditionname' => 'select_deputy_of_supervisor',
+            'contextid' => 1,
+            'conditiondata' => '{"fieldofuserfromevent":"supervisor","fieldofuserfromeventdeputy":"deputy","userfromeventtype":"relateduserid"}',
+            'actionname' => 'send_mail',
+            'actiondata' => $actstr,
+            'rulename' => 'rule_react_on_event',
+            'ruledata' =>
+                '{"boevent":"\\\\mod_booking\\\\event\\\\bookinganswer_waitingforconfirmation",' .
+                '"aftercompletion":0,"condition":"0","cancelrules":[]}',
+        ];
+        $rule1 = $plugingenerator->create_rule($ruledata1);
+
+        // Create booking option 1.
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Option-2050';
+        $record->chooseorcreatecourse = 1; // Connected existing course.
+        $record->waitforconfirmation = 1; // Connected existing course.
+        $record->courseid = $course->id;
+        $record->description = 'Will start tomorrow';
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('20 June 2050 15:00');
+        $record->courseendtime_0 = strtotime('20 July 2050 14:00');
+        $record->teachersforoption = $user1->username;
+        $option1 = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option1->id);
+            $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $boinfo = new bo_info($settings);
+        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+
+        // User tries to book this option:
+                // Book the student1 right away.
+        $this->setUser($user2);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $user2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id);
+        $result = booking_bookit::bookit('option', $settings->id, $user2->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $user2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
+        // User doesn't have supervisor, so no tasks expected.
+        $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $this->assertEmpty($tasks);
+
+        $this->setUser($user1);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $user1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id);
+        $result = booking_bookit::bookit('option', $settings->id, $user1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $user1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
+
+        // Run adhock tasks.
+        $sink = $this->redirectMessages();
+        $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $this->assertCount(2, $tasks);
+        ob_start();
+        $this->runAdhocTasks();
+        $messages = $sink->get_messages();
+        $res = ob_get_clean();
+        $sink->close();
+        // If this causes failures because of the order, make less strict comparison. Maybe first message is send to first deputy...
+        $this->assertEquals($deputy2->id, $messages[0]->useridto);
+        $this->assertEquals($deputy->id, $messages[1]->useridto);
+    }
+
+    /**
      * Data provider for condition_bookingpolicy_test
      *
      * @return array
