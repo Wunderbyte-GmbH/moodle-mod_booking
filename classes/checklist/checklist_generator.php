@@ -95,24 +95,26 @@ class checklist_generator {
      */
     private function get_placeholder_replacements(): array {
         return [
-            '[[booking_id]]' => $this->bookingoption->option->id,
-            '[[booking_text]]' => $this->bookingoption->option->text,
-            '[[max_answers]]' => $this->bookingoption->option->maxanswers,
-            '[[institution]]' => $this->bookingoption->option->institution,
+            '[[booking_id]]' => $this->bookingoption->option->id ?? '',
+            '[[booking_text]]' => $this->bookingoption->option->text ?? '',
+            '[[max_answers]]' => $this->bookingoption->option->maxanswers ?? '',
+            '[[institution]]' => $this->bookingoption->option->institution ?? '',
             '[[location]]' => $this->bookingoption->option->location,
-            '[[coursestarttime]]' => userdate($this->bookingoption->option->coursestarttime),
-            '[[courseendtime]]' => userdate($this->bookingoption->option->courseendtime),
-            '[[description]]' => format_text($this->bookingoption->option->description, FORMAT_HTML),
-            '[[address]]' => $this->bookingoption->option->address,
-            '[[teachers]]' => implode(', ', $this->get_teachers_names($this->bookingoption)),
-            '[[titleprefix]]' => $this->bookingoption->option->titleprefix,
-            '[[dayofweektime]]' => $this->bookingoption->option->dayofweektime,
-            '[[annotation]]' => $this->bookingoption->option->annotation,
-            '[[courseid]]' => $this->bookingoption->option->courseid,
-            '[[course_url]]' => (new \moodle_url('/course/view.php', ['id' => $this->bookingoption->option->courseid]))->out(),
-            '[[option_times]]' => $this->bookingoption->optiontimes,
-            '[[contact]]' => $this->get_responsible_contact($this->bookingoption),
-            '[[dates]]' => $this->get_concatenated_dates(),
+            '[[coursestarttime]]' => userdate($this->bookingoption->option->coursestarttime) ?? '',
+            '[[courseendtime]]' => userdate($this->bookingoption->option->courseendtime) ?? '',
+            '[[description]]' => format_text($this->bookingoption->option->description, FORMAT_HTML) ?? '',
+            '[[address]]' => $this->bookingoption->option->address ?? '',
+            '[[teachers]]' => implode(', ', $this->get_teachers_names($this->bookingoption)) ?? '',
+            '[[titleprefix]]' => $this->bookingoption->option->titleprefix ?? '',
+            '[[dayofweektime]]' => $this->bookingoption->option->dayofweektime ?? '',
+            '[[annotation]]' => $this->bookingoption->option->annotation ?? '',
+            '[[courseid]]' => $this->bookingoption->option->courseid ?? '',
+            '[[course_url]]' => property_exists($this->bookingoption->option, 'courseid') && $this->bookingoption->option->courseid
+                ? (new \moodle_url('/course/view.php', ['id' => $this->bookingoption->option->courseid]))->out()
+                : '',
+            '[[option_times]]' => $this->bookingoption->optiontimes ?? '',
+            '[[contact]]' => $this->get_responsible_contact($this->bookingoption) ?? '',
+            '[[dates]]' => $this->get_concatenated_dates() ?? '',
             // Add other placeholders here as needed.
         ];
     }
@@ -123,7 +125,7 @@ class checklist_generator {
      * @param string $html
      * @return void
      */
-    private function download_pdf_from_html(string $html) {
+    public function download_pdf_from_html(string $html) {
         $pdf = new checklist_pdf($this->orientation, PDF_UNIT, PDF_PAGE_FORMAT);
         $pdf->SetPrintHeader(false);
         $pdf->SetPrintFooter(false);
@@ -155,8 +157,11 @@ class checklist_generator {
      * @return string
      */
     private function get_responsible_contact($bookingoption) {
-        // This method would fetch the responsible contact.
-        return $bookingoption->option->responsiblecontact ?: 'Not specified';
+        // Check if the property exists and is not empty, otherwise provide a fallback.
+        if (property_exists($bookingoption->option, 'responsiblecontact') && !empty($bookingoption->option->responsiblecontact)) {
+            return $bookingoption->option->responsiblecontact;
+        }
+        return 'Not specified';
     }
 
     /**
