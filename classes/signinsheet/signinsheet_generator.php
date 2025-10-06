@@ -337,7 +337,7 @@ class signinsheet_generator {
      * @return void
      */
     public function prepare_html() {
-        global $DB,$PAGE;
+        global $DB, $PAGE;
         $addsqlwhere = '';
         $groupparams = [];
         $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
