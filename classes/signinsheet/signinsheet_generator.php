@@ -489,7 +489,6 @@ class signinsheet_generator {
                 '[[places]]' => $user->places ?? '',
             ];
 
-            $name = "";
             $userobj = singleton_service::get_instance_of_user($user->id);
             $userpic = new user_picture($userobj);
             if (empty($userpic)) {
