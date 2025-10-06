@@ -1741,7 +1741,8 @@ final class rules_test extends advanced_testcase {
             'name' => 'notifystudents',
             'conditionname' => 'select_deputy_of_supervisor',
             'contextid' => 1,
-            'conditiondata' => '{"fieldofuserfromevent":"supervisor","fieldofuserfromeventdeputy":"deputy","userfromeventtype":"relateduserid"}',
+            'conditiondata' =>
+                '{"fieldofuserfromevent":"supervisor","fieldofuserfromeventdeputy":"deputy","userfromeventtype":"relateduserid"}',
             'actionname' => 'send_mail',
             'actiondata' => $actstr,
             'rulename' => 'rule_react_on_event',
@@ -1861,7 +1862,8 @@ final class rules_test extends advanced_testcase {
             'name' => 'notifystudents',
             'conditionname' => 'select_deputy_of_supervisor',
             'contextid' => 1,
-            'conditiondata' => '{"fieldofuserfromevent":"supervisor","fieldofuserfromeventdeputy":"deputy","userfromeventtype":"relateduserid"}',
+            'conditiondata' =>
+                '{"fieldofuserfromevent":"supervisor","fieldofuserfromeventdeputy":"deputy","userfromeventtype":"relateduserid"}',
             'actionname' => 'send_mail',
             'actiondata' => $actstr,
             'rulename' => 'rule_react_on_event',
