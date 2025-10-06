@@ -699,6 +699,8 @@ class booking_option {
      *     after the whole booking option was cancelled, false by default
      * @param bool $syncwaitinglist set this to false, if you do not want to sync_waiting_list here (avoid recursions)
      * @param bool $deleteall set this to true if you want to delete a complete answers too
+     * @param bool $openruleexecution saves a timestamp as a flag in the record that there might still be a...
+     * Corresponding rule not executed (because this was triggered by a service provider and rules had no time to be executed yet)
      * @return bool true if booking was deleted successfully, otherwise false
      */
     public function user_delete_response(
@@ -706,7 +708,8 @@ class booking_option {
         $cancelreservation = false,
         $bookingoptioncancel = false,
         $syncwaitinglist = true,
-        $deleteall = false
+        $deleteall = false,
+        $openruleexecution = false
     ) {
         global $USER, $DB;
 
@@ -759,6 +762,7 @@ class booking_option {
                 ) {
                     $result->waitinglist = MOD_BOOKING_STATUSPARAM_DELETED;
                     $result->timemodified = time();
+                    $result->openruleexecution = $openruleexecution ? time() : 0;
                     // We mark all the booking answers as deleted.
                     $DB->update_record('booking_answers', $result);
                     // Also delete corresponding entries in booking_optiondates_answers table.

@@ -332,7 +332,13 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
         require_once($CFG->dirroot . '/mod/booking/lib.php');
 
         if ($area === 'option') {
-            booking_bookit::answer_booking_option($area, $itemid, MOD_BOOKING_STATUSPARAM_DELETED, $userid);
+            booking_bookit::answer_booking_option(
+                $area,
+                $itemid,
+                MOD_BOOKING_STATUSPARAM_DELETED,
+                $userid,
+                true
+            );
             return true;
         } else if (strpos($area, 'subbooking') === 0) {
             // As a subbooking can have different slots, we use the area to provide the subbooking id.

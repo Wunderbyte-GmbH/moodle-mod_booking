@@ -519,9 +519,10 @@ class booking_bookit {
      * @param int $itemid
      * @param int $status
      * @param int $userid
+     * @param bool $openruleexecution
      * @return array
      */
-    public static function answer_booking_option(string $area, int $itemid, int $status, int $userid = 0): array {
+    public static function answer_booking_option(string $area, int $itemid, int $status, int $userid = 0, bool $openruleexecution = false): array {
 
         global $PAGE, $USER;
 
@@ -560,7 +561,7 @@ class booking_bookit {
                 }
                 break;
             case MOD_BOOKING_STATUSPARAM_DELETED:
-                if (!$bookingoption->user_delete_response($user->id)) {
+                if (!$bookingoption->user_delete_response($user->id, false, false, true, false, $openruleexecution)) {
                     return [];
                 }
                 break;
