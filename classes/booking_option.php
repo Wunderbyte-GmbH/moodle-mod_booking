@@ -749,8 +749,14 @@ class booking_option {
                 ]
             );
         } else {
+            // Normally, we will have only one record which is not deleted or previously booked.
+            // But we still fetch an array to make sure of it.
+            // We skip all the records which are already deleted or previously booked.
+            // And then we update the records with status param deleted which are not yet deleted or previously booked.
             foreach ($results as $result) {
-                if ($result->waitinglist != MOD_BOOKING_STATUSPARAM_DELETED) {
+                if (
+                    !in_array($result->waitinglist, [MOD_BOOKING_STATUSPARAM_DELETED, MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED])
+                ) {
                     $result->waitinglist = MOD_BOOKING_STATUSPARAM_DELETED;
                     $result->timemodified = time();
                     // We mark all the booking answers as deleted.
