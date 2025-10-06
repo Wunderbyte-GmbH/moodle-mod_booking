@@ -337,7 +337,7 @@ class signinsheet_generator {
      * @return void
      */
     public function prepare_html() {
-        global $DB;
+        global $DB,$PAGE;
         $addsqlwhere = '';
         $groupparams = [];
         $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
@@ -488,6 +488,18 @@ class signinsheet_generator {
                 '[[address]]' => $user->address ?? '',
                 '[[places]]' => $user->places ?? '',
             ];
+
+            $name = "";
+            $userobj = singleton_service::get_instance_of_user($user->id);
+            $userpic = new user_picture($userobj);
+            if (empty($userpic)) {
+                $replacements['[[userpic]]'] = '';
+            } else {
+                $userpictureurl = $userpic->get_url($PAGE);
+                $out = $userpictureurl->out();
+                $replacements['[[userpic]]'] = '<img src="' . $out . '"/>';
+            }
+
             $sessioncols = str_repeat('<td></td>', count($extrasessioncols));
             foreach ($replacements as $placeholder => $realvalue) {
                 $row = str_replace($placeholder, $realvalue, $row);

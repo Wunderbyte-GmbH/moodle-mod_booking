@@ -2457,7 +2457,7 @@ $string['signinsheethtml'] = 'HTML-Vorlage zur Erstellung von Unterschriftenlist
 $string['signinsheethtmldescription'] = 'Sie können die folgenden Platzhalter verwenden:
 
 <b>Innerhalb von [[users]] ... [[/users]]:</b><br>
-[[fullname]], [[firstname]], [[lastname]], [[email]], [[signature]], [[institution]], [[description]], [[city]], [[country]], [[idnumber]], [[phone1]], [[department]], [[address]], [[places]]<br>
+[[fullname]], [[firstname]], [[lastname]], [[email]], [[signature]], [[institution]], [[description]], [[city]], [[country]], [[idnumber]], [[phone1]], [[department]], [[address]], [[places]], [[userpic]]<br>
 (ggf. auch benutzerdefinierte Profilfelder, falls konfiguriert)
 
 <b>Außerhalb von [[users]]:</b><br>

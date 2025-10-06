@@ -2539,7 +2539,7 @@ $string['signinsheethtml'] = 'HTML template for generating signature sheets';
 $string['signinsheethtmldescription'] = 'You can use the following placeholders:
 
 <b>Inside [[users]] ... [[/users]]:</b><br>
-[[fullname]], [[firstname]], [[lastname]], [[email]], [[signature]], [[institution]], [[description]], [[city]], [[country]], [[idnumber]], [[phone1]], [[department]], [[address]], [[places]]<br>
+[[fullname]], [[firstname]], [[lastname]], [[email]], [[signature]], [[institution]], [[description]], [[city]], [[country]], [[idnumber]], [[phone1]], [[department]], [[address]], [[places]], [[userpic]]<br>
 (possibly also custom profile fields, if configured)
 
 <b>Outside of [[users]]:</b><br>
