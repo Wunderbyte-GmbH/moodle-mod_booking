@@ -377,7 +377,6 @@ class bookingoption_description implements renderable, templatable {
         }
 
         if (has_capability('mod/booking:downloadchecklist', $modcontext)) {
-            // $this->showdownloadcheckbox = true;
             $checkboxurl = $link = new moodle_url($CFG->wwwroot . '/mod/booking/report.php', [
                 'id' => $cmid,
                 'optionid' => $optionid,
