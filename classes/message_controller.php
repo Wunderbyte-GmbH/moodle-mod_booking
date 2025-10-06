@@ -568,8 +568,16 @@ class message_controller {
                     }
                 }
 
+                if (!empty($this->rulesettings->actiondata->sendical)) {
+                    // If message contains attachment (ics file), we need to mail it using PHPMailer
+                    // as Moodle core can not send messages with mime type text/calendar.
+                    $sent = $this->send_message_with_ical_attachment($this->messagedata);
+                } else {
+                    $sent = message_send($this->messagedata);
+                }
+
                 // In all other cases, use message_send.
-                if (message_send($this->messagedata)) {
+                if ($sent) {
                     if (!empty($this->rulesettings->actiondata) && !empty($this->rulesettings->actiondata->sendical)) {
                         if (!PHPUNIT_TEST) {
                             // Tidy up the now not needed file.
@@ -753,5 +761,56 @@ class message_controller {
                 throw new moodle_exception('ERROR: Unknown message parameter!');
         }
         return $fieldname;
+    }
+
+    /**
+     * Send message via PHPMailer.
+     * @param \core\message\message $eventdata
+     * @return bool
+     */
+    public function send_message_with_ical_attachment(\core\message\message $eventdata): bool {
+
+        try {
+            $icscontent = $eventdata->attachment->get_content(); // ICS file content.
+
+            $userto = $this->messagedata->userto;
+            $userfrom = $this->messagedata->userfrom;
+
+            $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+            $mail->CharSet = 'UTF-8';
+            $mail->setFrom($userfrom->email, fullname($userfrom) . '(via MTS)'); // TODO: MDL-0 Changes hardcoded stuff.
+            $mail->addAddress($userto->email, fullname($userto));
+            $mail->Subject = $this->messagedata->subject;
+            $mail->isHTML(true);
+
+            // Normal body text.
+            $mail->Body = $eventdata->fullmessagehtml;
+            $mail->AltBody = $eventdata->fullmessage;
+
+            $method = ($this->rulesettings->actiondata->sendicalcreateorcancel === 'cancel')
+                ? 'CANCEL'
+                : 'REQUEST';
+
+            // Add inline calendar data (not as attachment)
+            $mail->Ical = $icscontent;
+
+            // Add inline text/calendar part (this is key!).
+            // $mail->addStringAttachment(
+            //     $icscontent,
+            //     'booking.ics',
+            //     'base64',
+            //     "text/calendar; method={$method}; charset=UTF-8"
+            // );
+
+            // Optional: this header helps Outlook recognise it.
+            $mail->addCustomHeader('Content-Class', 'urn:content-classes:calendarmessage');
+
+            // Optional: ensures proper MIME order
+            $mail->ContentType = 'multipart/alternative';
+
+            return $mail->send();
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 }
