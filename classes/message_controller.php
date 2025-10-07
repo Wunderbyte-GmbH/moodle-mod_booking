@@ -569,8 +569,7 @@ class message_controller {
                 }
 
                 // Check if checked: Use a non-native mailer instead of Moodle’s built-in one.
-                $nonnativemailer = get_config('mod_booking', 'usenonnativemailer');
-
+                $nonnativemailer = get_config('booking', 'usenonnativemailer');
                 if (!empty($this->rulesettings->actiondata->sendical) && !empty($nonnativemailer)) {
                     // If message contains attachment (ics file), we need to mail it using PHPMailer
                     // as Moodle core can not send messages with mime type text/calendar.
