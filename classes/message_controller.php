@@ -765,20 +765,33 @@ class message_controller {
 
     /**
      * Send message via PHPMailer.
+     * This method sends the invitation as inline calendar data (not as an attachment).
+     * This ensures that the recipient will see Accept and Decline buttons in mail clients such as Outlook.
      * @param \core\message\message $eventdata
      * @return bool
      */
     public function send_message_with_ical_attachment(\core\message\message $eventdata): bool {
-
+        global $CFG, $SITE;
         try {
             $icscontent = $eventdata->attachment->get_content(); // ICS file content.
 
             $userto = $this->messagedata->userto;
             $userfrom = $this->messagedata->userfrom;
 
+            // Generate from string.
+            $fromdetails = new stdClass();
+            $fromdetails->name = fullname($userfrom);
+            $fromdetails->url = preg_replace('#^https?://#', '', $CFG->wwwroot);
+            $fromdetails->siteshortname = format_string($SITE->shortname);
+            $fromstring = $fromdetails->name;
+            if ($CFG->emailfromvia == EMAIL_VIA_ALWAYS) {
+                $fromstring = get_string('emailvia', 'core', $fromdetails);
+            }
+
+            // Craete mail instance.
             $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
             $mail->CharSet = 'UTF-8';
-            $mail->setFrom($userfrom->email, fullname($userfrom) . '(via MTS)'); // TODO: MDL-0 Changes hardcoded stuff.
+            $mail->setFrom($userfrom->email, $fromstring);
             $mail->addAddress($userto->email, fullname($userto));
             $mail->Subject = $this->messagedata->subject;
             $mail->isHTML(true);
@@ -787,25 +800,13 @@ class message_controller {
             $mail->Body = $eventdata->fullmessagehtml;
             $mail->AltBody = $eventdata->fullmessage;
 
-            $method = ($this->rulesettings->actiondata->sendicalcreateorcancel === 'cancel')
-                ? 'CANCEL'
-                : 'REQUEST';
-
-            // Add inline calendar data (not as attachment)
+            // Add inline calendar data (not as attachment).
             $mail->Ical = $icscontent;
-
-            // Add inline text/calendar part (this is key!).
-            // $mail->addStringAttachment(
-            //     $icscontent,
-            //     'booking.ics',
-            //     'base64',
-            //     "text/calendar; method={$method}; charset=UTF-8"
-            // );
 
             // Optional: this header helps Outlook recognise it.
             $mail->addCustomHeader('Content-Class', 'urn:content-classes:calendarmessage');
 
-            // Optional: ensures proper MIME order
+            // Optional: ensures proper MIME order.
             $mail->ContentType = 'multipart/alternative';
 
             return $mail->send();
