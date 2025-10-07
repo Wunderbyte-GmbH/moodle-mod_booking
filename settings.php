@@ -1981,6 +1981,14 @@ if ($ADMIN->fulltree) {
         )
     );
     $settings->add(
+        new admin_setting_configcheckbox(
+            'booking/usenonnativemailer',
+            get_string('usenonnativemailer', 'mod_booking'),
+            get_string('usenonnativemailer_desc', 'mod_booking'),
+            0
+        )
+    );
+    $settings->add(
         new admin_setting_heading(
             'mod_booking_signinsheet',
             get_string('cfgsignin', 'mod_booking'),

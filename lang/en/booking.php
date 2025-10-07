@@ -2807,6 +2807,8 @@ $string['usedinbookinginstances'] = 'Template is used in following booking insta
 $string['uselegacymailtemplates'] = 'Still use legacy mail templates';
 $string['uselegacymailtemplates_desc'] = 'This function is deprecated and will be removed in the near future. We strongly encourage you to migrate your templates & settings to <a href="{$a}">Booking Rules</a>.
  <span class="text-danger"><b>Be careful:</b> If you uncheck this box, your email templates in your booking-instances won\'t be shown and used anymore.</span>';
+$string['usenonnativemailer'] = 'Use a non-native mailer instead of Moodle’s built-in one';
+$string['usenonnativemailer_desc'] = 'If checked, emails with calendar invitations will be sent using a non-native mailer instead of Moodle’s built-in one to ensure that recipients see the Accept/Decline buttons.';
 $string['usenotificationlist'] = 'Use notification list';
 $string['useonlyonefield'] = 'No additional field';
 $string['useprice'] = 'Only book with price';
