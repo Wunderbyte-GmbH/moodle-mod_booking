@@ -245,7 +245,7 @@ Feature: In a course add a booking option and manage its waiting list
     And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
     And I log out
     ## Unlimited waitinglist with free place available now
-    ## Check for https://github.com/Wunderbyte-GmbH/moodle-mod_booking/commit/ce9b9fc96bb094a4ff248437bd3914da31499e1e  
+    ## Check for https://github.com/Wunderbyte-GmbH/moodle-mod_booking/commit/ce9b9fc96bb094a4ff248437bd3914da31499e1e
     And I am on the "My booking" Activity page logged in as teacher1
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I set the field "Max. number of participants" to "5"
@@ -284,3 +284,45 @@ Feature: In a course add a booking option and manage its waiting list
     And I click on "Save" "button"
     And I should see "0" in the ".allbookingoptionstable_r1 .col-ap-availableplaces" "css_element"
     And I should see "Waiting list: 4/4" in the ".allbookingoptionstable_r1 .col-ap-waitingplacesavailable" "css_element"
+
+  @javascript
+  Scenario: Booking option: validate waiting list labels
+    Given the following config values are set as admin:
+      | config                            | value | plugin  |
+      | bookingplacesinfotexts            | 2     | booking |
+      | waitinglistinfotexts              | 2     | booking |
+      | waitinglistshowplaceonwaitinglist |       | booking | 
+    And the following "mod_booking > options" exist:
+      | booking    | text                   | course | description  | importing | teachersforoption | maxanswers | maxoverbooking | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
+      | My booking | Unlimited WL, full     | C1     | Waiting list | 1         | teacher1          | 2          | -1             | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+      | My booking | Unlimited WL, not full | C1     | Waiting list | 1         | teacher1          | 2          | -1             | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+      | My booking | Limited WL, full       | C1     | Waiting list | 1         | teacher1          | 2          | 4              | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+      | My booking | Limited WL, not full   | C1     | Waiting list | 1         | teacher1          | 2          | 4              | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+    And the following "mod_booking > answers" exist:
+      | booking    | option                 | user     |
+      | My booking | Unlimited WL, full     | student1 |
+      | My booking | Unlimited WL, full     | student2 |
+      | My booking | Unlimited WL, full     | student3 |
+      | My booking | Unlimited WL, not full | student1 |
+      | My booking | Limited WL, full       | student1 |
+      | My booking | Limited WL, full       | student2 |
+      | My booking | Limited WL, full       | student3 |
+      | My booking | Limited WL, not full   | student1 |
+    And I am on the "My booking" Activity page logged in as student4
+    And I should see "Limited WL, full" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Fully booked" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "(3 places left on the waiting list)" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Book it - on waitinglist" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Limited WL, not full" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "1 place left" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "(4 places left on the waiting list)" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "Unlimited WL, full" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Fully booked" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "(Unlimited places left on the waiting list)" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Book it - on waitinglist" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Unlimited WL, not full" in the ".allbookingoptionstable_r4" "css_element"
+    And I should see "1 place left" in the ".allbookingoptionstable_r4" "css_element"
+    And I should see "(Unlimited places left on the waiting list)" in the ".allbookingoptionstable_r4" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r4" "css_element"
+    And I log out
