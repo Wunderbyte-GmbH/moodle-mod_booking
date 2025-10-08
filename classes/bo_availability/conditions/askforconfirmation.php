@@ -113,7 +113,11 @@ class askforconfirmation implements bo_condition {
             !isset($bookinginformation['onwaitinglist'])
             && (
                     (
-                        ($bookinginformation['notbooked']['freeonwaitinglist'] ?? 0) == -1
+                        (
+                            ($bookinginformation['notbooked']['freeonwaitinglist'] ?? 0) == -1
+                        ||
+                            ($bookinginformation['notbooked']['freeonwaitinglist'] ?? 0) > 0
+                        )
                         && isset($bookinginformation['notbooked']['fullybooked'])
                         && $bookinginformation['notbooked']['fullybooked'] === true
                     )
