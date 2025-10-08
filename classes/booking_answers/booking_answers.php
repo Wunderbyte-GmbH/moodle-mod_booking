@@ -990,6 +990,25 @@ class booking_answers {
                         = get_string('waitinglistplacesplacesleft', 'mod_booking', $bookinginformation['freeonwaitinglist']);
                 }
             }
+        } else {
+            if ($bookinginformation['freeonwaitinglist'] == -1) {
+                if (!has_capability('mod/booking:updatebooking', $context) && $waitingplacesinfotexts) {
+                    $bookinginformation['showwaitinglistplacesinfotext'] = true;
+                    if ($waitingplacesinfotexts == '1') {
+                        // Show Still enough places left.
+                        $bookinginformation['waitinglistplacesinfotext'] = get_string('waitinglistenoughmessage', 'mod_booking');
+                    } else {
+                        // Other cases - show unlimited places left.
+                        $bookinginformation['waitinglistplacesinfotext'] = get_string(
+                            'waitinglistplacesplacesleft',
+                            'mod_booking',
+                            get_string('bookingplacesunlimitedmessage', 'mod_booking')
+                        );
+                    }
+                    
+                }
+                $bookinginformation['waitinglistplacesclass'] = 'text-success avail';
+            }
         }
     }
 
