@@ -239,6 +239,25 @@ Feature: In a course add a booking option and manage its waiting list
     And I click on "Save" "button"
     And I should see "4" in the ".allbookingoptionstable_r1 .col-ap-availableplaces" "css_element"
     And I should see "Waiting list: 0/2" in the ".allbookingoptionstable_r1 .col-ap-waitingplacesavailable" "css_element"
+    And I log out
+    ## Validate that student5 could book on waiting list
+    And I am on the "My booking" Activity page logged in as student5
+    And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
+    And I log out
+    ## Unlimited waitinglist with free place available now
+    ## Check for https://github.com/Wunderbyte-GmbH/moodle-mod_booking/commit/ce9b9fc96bb094a4ff248437bd3914da31499e1e  
+    And I am on the "My booking" Activity page logged in as teacher1
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I set the field "Max. number of participants" to "5"
+    And I set the field "Max. number of places on waiting list" to "-1"
+    And I click on "Save" "button"
+    And I should see "5" in the ".allbookingoptionstable_r1 .col-ap-availableplaces" "css_element"
+    And I should see "(Waiting list: 0/Unlimited)" in the ".allbookingoptionstable_r1" "css_element"
+    ## Validate that student5 could book now
+    And I am on the "My booking" Activity page logged in as student5
+    And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "(Waiting list: 0/Unlimited)" in the ".allbookingoptionstable_r1" "css_element"
+    And I log out
 
   @javascript
   Scenario: Booking option: reconfiguration of forced waiting list
