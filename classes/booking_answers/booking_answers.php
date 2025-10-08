@@ -991,7 +991,7 @@ class booking_answers {
                 }
             }
         } else {
-            if ($bookinginformation['freeonwaitinglist'] == -1) {
+            if (isset($bookinginformation['freeonwaitinglist']) && $bookinginformation['freeonwaitinglist'] == -1) {
                 if (!has_capability('mod/booking:updatebooking', $context) && $waitingplacesinfotexts) {
                     $bookinginformation['showwaitinglistplacesinfotext'] = true;
                     if ($waitingplacesinfotexts == '1') {
@@ -1005,7 +1005,6 @@ class booking_answers {
                             get_string('bookingplacesunlimitedmessage', 'mod_booking')
                         );
                     }
-                    
                 }
                 $bookinginformation['waitinglistplacesclass'] = 'text-success avail';
             }
