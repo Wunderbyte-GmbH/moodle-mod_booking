@@ -51,6 +51,8 @@ $fields = 'bo.id AS optionid, bo.text AS name, bo.bookingid AS bookingid';
 $table->set_sql($fields,
     "{booking_options} bo", 'bo.bookingid = 0');
 
+$table->is_sortable = false;
+
 $table->define_baseurl($pageurl);
 
 $PAGE->set_url($pageurl);
