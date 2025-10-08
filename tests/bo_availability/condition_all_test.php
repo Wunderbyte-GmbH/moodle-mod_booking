@@ -852,11 +852,8 @@ final class condition_all_test extends advanced_testcase {
         $this->setUser($student3);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student3->id, false);
 
-        // Bookitbutton blocks.
-        $result = booking_bookit::bookit('option', $settings->id, $student3->id);
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student3->id, false);
-
-        // Now student3 is on waitinglist.
+        // Book student3 is on waitinglist.
+        // Bookitbutton should NOT block if there are places on waitinglist.
         $result = booking_bookit::bookit('option', $settings->id, $student3->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student3->id, false);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
