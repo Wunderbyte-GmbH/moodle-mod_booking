@@ -607,8 +607,13 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
             $ret .= "$booked / ";
             $ret .= $maxanswers ?? get_string('unlimitedplaces', 'mod_booking');
-            if ($maxoverbooking) {
+            if ($maxoverbooking > 0) {
                 $ret .= " (" . get_string('waitinglist', 'mod_booking') . ": $waiting / $maxoverbooking)";
+            } else if ($maxoverbooking < 0) {
+                $ret .= " ("
+                    . get_string('waitinglist', 'mod_booking')
+                    . ": $waiting / " . get_string('unlimitedplaces', 'mod_booking')
+                    . ")";
             }
         } else {
             $ret = $output->render_col_availableplaces($data);
