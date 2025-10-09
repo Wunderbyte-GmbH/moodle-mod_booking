@@ -703,7 +703,6 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMCANCEL, $id);
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
-        //$this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
 
         // Continue as admin.
         $this->setAdminUser();
@@ -767,7 +766,6 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMCANCEL, $id);
         $result = booking_bookit::bookit('option', $settings->id, $student2->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
-        //$this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
 
         singleton_service::destroy_booking_option_singleton($option->id);
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
