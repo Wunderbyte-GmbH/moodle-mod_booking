@@ -242,7 +242,7 @@ Feature: In a course add a booking option and manage its waiting list
     And I log out
     ## Validate that student5 could book on waiting list
     And I am on the "My booking" Activity page logged in as student5
-    And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Book it - on waitinglist" in the ".allbookingoptionstable_r1" "css_element"
     And I log out
     ## Unlimited waitinglist with free place available now
     ## Check for https://github.com/Wunderbyte-GmbH/moodle-mod_booking/commit/ce9b9fc96bb094a4ff248437bd3914da31499e1e
@@ -291,7 +291,7 @@ Feature: In a course add a booking option and manage its waiting list
       | config                            | value | plugin  |
       | bookingplacesinfotexts            | 2     | booking |
       | waitinglistinfotexts              | 2     | booking |
-      | waitinglistshowplaceonwaitinglist |       | booking | 
+      | waitinglistshowplaceonwaitinglist |       | booking |
     And the following "mod_booking > options" exist:
       | booking    | text                   | course | description  | importing | teachersforoption | maxanswers | maxoverbooking | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | My booking | Unlimited WL, full     | C1     | Waiting list | 1         | teacher1          | 2          | -1             | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
