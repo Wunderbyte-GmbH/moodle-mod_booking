@@ -1450,6 +1450,7 @@ $string['icalcfg'] = 'Calendar settings and configuration of iCal attachements';
 $string['icalcfgdesc'] = 'Configure calendar settings and the iCal (*.ics) files that are attached to e-mail messages. These files alow adding the booking dates to the personal calendar.';
 $string['icalfieldlocation'] = 'Text to display in iCal field location';
 $string['icalfieldlocationdesc'] = 'Choose from the dropdown list what what text should be used for the calendar field location';
+$string['icsattachementerror'] = 'Something were wrong when trying to attach ICS file to the email in message controller.';
 $string['id'] = "Id";
 $string['identifier'] = 'Identification';
 $string['ifdefinedusedtomatch'] = 'If defined, will be used to match.';

@@ -16,6 +16,7 @@
 
 namespace mod_booking;
 
+use mod_booking\event\booking_debug;
 use Throwable;
 defined('MOODLE_INTERNAL') || die();
 
@@ -506,28 +507,31 @@ class message_controller {
                         $update = true;
                     }
 
-                    // Pass the update param - false will create a remove calendar invite.
-                    /* Todo: The system still fires an unsubscribe message.
-                    I believe this is a hangover of the old non rules booking system. (danbuntu) */
-                    [$attachments, $attachname] = $this->get_attachments($update);
+                    // Attempt to attach the file.
+                    try {
+                        // Pass the update param - false will create a remove calendar invite.
+                        /* Todo: The system still fires an unsubscribe message.
+                        I believe this is a hangover of the old non rules booking system. (danbuntu) */
+                        [$attachments, $attachname] = $this->get_attachments($update);
 
-                    if (!empty($attachments)) {
-                        // Todo: this should probably be a method in the ical class.
-                        // Left here to limit to number of changed files.
-                        // Store the file correctly in order to be able to attach it.
-                        $fs = get_file_storage();
-                        $context = context_system::instance(); // Use a suitable context, such as course or module context.
-                        $tempfilepath = $attachments['booking.ics'];
+                        if (!empty($attachments)) {
+                            // Todo: this should probably be a method in the ical class.
+                            // Left here to limit to number of changed files.
+                            // Store the file correctly in order to be able to attach it.
+                            $fs = get_file_storage();
+                            $context = context_system::instance(); // Use a suitable context, such as course or module context.
+                            $tempfilepath = $attachments['booking.ics'];
 
-                        // Moodle’s file API enforces uniqueness on (contextid, component, filearea, itemid, filepath, filename).
-                        // If you try to create a second file with the same tuple, you get the duplicate key violation you
-                        // saw in phpunit test as we dont delete the file.
-                        $itemid = $this->messagedata->userto->id ?? 0;
+                            // Moodle’s file API enforces uniqueness
+                            // on (contextid, component, filearea, itemid, filepath, filename).
+                            // If you try to create a second file with the same tuple, you get the duplicate key violation you
+                            // saw in phpunit test as we dont delete the file.
+                            $itemid = $this->messagedata->userto->id ?? 0;
 
-                        // Check if the file exists in the temp path.
-                        if (file_exists($tempfilepath)) {
-                            // Prepare file record in Moodle storage.
-                            $filerecord = [
+                            // Check if the file exists in the temp path.
+                            if (file_exists($tempfilepath)) {
+                                // Prepare file record in Moodle storage.
+                                $filerecord = [
                                     'contextid' => $context->id,
                                     'component' => 'mod_booking', // Change to your component.
                                     'filearea' => 'message_attachments', // A custom file area for attachments.
@@ -535,17 +539,31 @@ class message_controller {
                                     'filepath' => '/', // Always use '/' as the root directory.
                                     'filename' => $attachname,
                                     'userid' => $this->messagedata->userto->id,
-                            ];
+                                ];
 
-                            // Create or retrieve the file in Moodle's file storage.
-                            $storedfile = $fs->create_file_from_pathname($filerecord, $tempfilepath);
+                                // Create or retrieve the file in Moodle's file storage.
+                                $storedfile = $fs->create_file_from_pathname($filerecord, $tempfilepath);
 
-                            // Set the file as an attachment.
-                            $this->messagedata->attachment = $storedfile;
-                            $this->messagedata->attachname = $attachname;
-                        } else {
-                            // Todo: There is possibly a better way to handle this error nicely - or remove the check entirely.
-                            throw new moodle_exception('Attachment file not found.');
+                                // Set the file as an attachment.
+                                $this->messagedata->attachment = $storedfile;
+                                $this->messagedata->attachname = $attachname;
+                            } else {
+                                // Todo: There is possibly a better way to handle this error nicely - or remove the check entirely.
+                                throw new moodle_exception('Attachment file not found.');
+                            }
+                        }
+                    } catch (Throwable $e) {
+                        if (get_config('booking', 'bookingdebugmode')) {
+                            $event = booking_debug::create([
+                                'objectid' => $this->optionid,
+                                'context' => context_system::instance(),
+                                'relateduserid' => $this->messagedata->userto->id,
+                                'other' => [
+                                    'systemmessage' => get_string('icsattachementerror', 'mod_booking'),
+                                    'exceptionerrormessage' => $e->getMessage(),
+                                ],
+                            ]);
+                            $event->trigger();
                         }
                     }
                 }

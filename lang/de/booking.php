@@ -1426,6 +1426,7 @@ $string['icalcfg'] = 'Kalender-Einstellungen und iCal-Attachments';
 $string['icalcfgdesc'] = 'Einstellungen für die Einträge im Moodle-Kalender und iCal-Dateien, die an E-Mails angehängt werden können. Mit iCal-Dateien können Termine zum persönlichen Kalender hinzugefügt werden.';
 $string['icalfieldlocation'] = 'Text, der im iCal-Feld angezeigt werden soll';
 $string['icalfieldlocationdesc'] = 'Wählen Sie aus der Dropdown-Liste, welcher Text für das Kalender-Feld verwendet werden soll.';
+$string['icsattachementerror'] = 'Beim Versuch, die ICS-Datei in message_controller.php an die E-Mail anzuhängen, ist ein Fehler aufgetreten.';
 $string['id'] = "Id";
 $string['identifier'] = 'Identifikator';
 $string['ifdefinedusedtomatch'] = 'Wenn angegeben findet der Abgleich über diesen Wert statt.';
