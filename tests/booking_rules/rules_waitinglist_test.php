@@ -578,6 +578,8 @@ final class rules_waitinglist_test extends advanced_testcase {
 
         set_config('timezone', 'Europe/Kyiv');
         set_config('forcetimezone', 'Europe/Kyiv');
+        // Config settings to reorder waitinaglist.
+        set_config('waitinglistshowplaceonwaitinglist', 1, 'booking');
 
         time_mock::set_mock_time(strtotime('-4 days', time()));
         $time = time_mock::get_mock_time();
@@ -733,7 +735,7 @@ final class rules_waitinglist_test extends advanced_testcase {
 
         time_mock::set_mock_time(strtotime('now'));
         $time = time_mock::get_mock_time();
-
+        // Reorder the waitinglist - set student 3 as last on waitinglist by updating timemodified to actual time.
         $student3answer = $DB->get_record('booking_answers', [
             'userid' => $student3->id,
             'waitinglist' => 1,
@@ -743,11 +745,6 @@ final class rules_waitinglist_test extends advanced_testcase {
         $student3answer->timemodified = $time;
         // Update directly in the DB to avoid mocking table data (like timemodified).
         $DB->update_record('booking_answers', $student3answer);
-
-        // Reorder the waitinglist.
-        $answer = $DB->get_record('booking_answers', ['userid' => $student4->id]);
-        $answer->timemodified = $time;
-        $DB->update_record('booking_answers', $answer);
 
         // Check that now the updated record is really the one with the highest timemodified.
         $waitinglistentries = $DB->get_records('booking_answers', [
@@ -778,12 +775,14 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id);
         $this->assertStringContainsString('Book it - on waitinglist', $description);
 
+        $this->setAdminUser();
+        // Since the waitinglist was reordered, student4 should be on list.
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student4->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
         singleton_service::destroy_booking_option_singleton($option->id);
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
         $ba2 = singleton_service::get_instance_of_booking_answers($settings);
-        // Todo: asserion fails under pgsql only. Potential scenario issues in reordering process / dates.
-        // phpcs:ignore
-        //$this->assertEquals($student4->id, array_key_first($ba2->get_usersonlist()));
+        $this->assertEquals($student4->id, array_key_first($ba2->get_usersonlist()));
     }
 
     /**
