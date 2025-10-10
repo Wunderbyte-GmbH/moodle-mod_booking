@@ -582,7 +582,9 @@ final class rules_waitinglist_test extends advanced_testcase {
         time_mock::set_mock_time(strtotime('-4 days', time()));
         $time = time_mock::get_mock_time();
 
+        // User can cancel booking at any time.
         $bdata['cancancelbook'] = 1;
+        $bdata['cancelrelativedate'] = 2;
 
         // Create course.
         $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
@@ -701,8 +703,12 @@ final class rules_waitinglist_test extends advanced_testcase {
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMCANCEL, $id);
-        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+        $result1 = booking_bookit::bookit('option', $settings->id, $student1->id);
+        // After cancellation, student1 can book again only on waitinglist -.
+        // Because next user (student2) from waitinglist had been booked.
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id);
+        $this->assertStringContainsString('Book it - on waitinglist', $description);
 
         // Continue as admin.
         $this->setAdminUser();
@@ -766,6 +772,11 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMCANCEL, $id);
         $result = booking_bookit::bookit('option', $settings->id, $student2->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
+        // After cancellation, student2 can book again only on waitinglist -.
+        // Because next user (student3) from waitinglist had been booked.
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id);
+        $this->assertStringContainsString('Book it - on waitinglist', $description);
 
         singleton_service::destroy_booking_option_singleton($option->id);
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
