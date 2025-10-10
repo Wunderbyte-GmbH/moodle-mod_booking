@@ -2666,6 +2666,64 @@ class booking_option {
         $completionold = $userdata->completed;
         $userdata->completed = empty($completionold) ? '1' : '0';
         $userdata->timemodified = empty($timebooked) ? time() : $timebooked;
+
+        $data = [
+            'id' => $userdata->baid,
+            'completed' => $userdata->completed,
+            'timemodified' => empty($timebooked) ? time() : $timebooked,
+        ];
+        $other = [
+            'cmid' => $this->cmid,
+        ];
+
+        // Important: userid is the user who triggered, relateduserid is the affected user who completed.
+        $DB->update_record('booking_answers', $data);
+
+        // After activity completion, we need to purge caches for the option.
+        self::purge_cache_for_answers($optionid);
+
+        // Trigger the completion event, in order to send the notification mail.
+        if (!empty($userdata->completed)) {
+            $event = \mod_booking\event\bookingoption_completed::create(
+                [
+                    'context' => context_module::instance($cmid),
+                    'objectid' => $optionid,
+                    'userid' => $USER->id,
+                    'relateduserid' => $userid,
+                    'other' => $other,
+                ]
+            );
+            $event->trigger();
+        }
+
+        $status = MOD_BOOKING_STATUSPARAM_COMPLETION_CHANGED;
+        $answerid = $userdata->id;
+        $optionid = $userdata->optionid;
+        $bookingid = $userdata->bookingid;
+        $userid = $userdata->userid;
+        $completionchange = [
+            'completion' => [
+                'completionold' => $completionold,
+                'completionnew' => $userdata->completed,
+            ],
+        ];
+        try {
+            self::booking_history_insert($status, $answerid, $optionid, $bookingid, $userid, $completionchange);
+        } catch (Throwable $e) {
+            $message = $e->getMessage();
+            if (get_config('booking', 'bookingdebugmode')) {
+                $event = booking_debug::create([
+                    'objectid' => $optionid,
+                    'context' => context_system::instance(),
+                    'relateduserid' => $USER->id,
+                    'other' => [
+                        'message' => $message,
+                    ],
+                ]);
+                $event->trigger();
+            }
+        }
+
         if (get_config('booking', 'bookingdebugmode')) {
             $event = booking_debug::create([
                 'objectid' => $optionid,
@@ -2687,9 +2745,7 @@ class booking_option {
         ) {
             $certid = certificate::issue_certificate($this->id, $userdata->id, $timebooked);
         }
-        $other = [
-            'cmid' => $this->cmid,
-        ];
+
         if (
             isset($certid)
             && !empty($certid)
@@ -2737,57 +2793,6 @@ class booking_option {
             }
         }
 
-        $status = MOD_BOOKING_STATUSPARAM_COMPLETION_CHANGED;
-        $answerid = $userdata->id;
-        $optionid = $userdata->optionid;
-        $bookingid = $userdata->bookingid;
-        $userid = $userdata->userid;
-        $completionchange = [
-            'completion' => [
-                'completionold' => $completionold,
-                'completionnew' => $userdata->completed,
-            ],
-        ];
-        try {
-            self::booking_history_insert($status, $answerid, $optionid, $bookingid, $userid, $completionchange);
-        } catch (Throwable $e) {
-            $message = $e->getMessage();
-            if (get_config('booking', 'bookingdebugmode')) {
-                $event = booking_debug::create([
-                    'objectid' => $optionid,
-                    'context' => context_system::instance(),
-                    'relateduserid' => $USER->id,
-                    'other' => [
-                        'message' => $message,
-                    ],
-                ]);
-                $event->trigger();
-            }
-        }
-        $data = [
-            'id' => $userdata->baid,
-            'completed' => $userdata->completed,
-            'timemodified' => empty($timebooked) ? time() : $timebooked,
-        ];
-        // Important: userid is the user who triggered, relateduserid is the affected user who completed.
-        $DB->update_record('booking_answers', $data);
-
-        // After activity completion, we need to purge caches for the option.
-        self::purge_cache_for_answers($optionid);
-
-        // Trigger the completion event, in order to send the notification mail.
-        if (!empty($userdata->completed)) {
-            $event = \mod_booking\event\bookingoption_completed::create(
-                [
-                    'context' => context_module::instance($cmid),
-                    'objectid' => $optionid,
-                    'userid' => $USER->id,
-                    'relateduserid' => $userid,
-                    'other' => $other,
-                ]
-            );
-            $event->trigger();
-        }
         return true;
     }
 
