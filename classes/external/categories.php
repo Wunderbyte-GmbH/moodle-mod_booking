@@ -75,7 +75,6 @@ function mod_booking_showsubcategories($catid, $DB, $courseid) {
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class categories extends external_api {
-
     /**
      * Describes the parameters for bookings categories.
      *
@@ -84,8 +83,7 @@ class categories extends external_api {
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
             'courseid' => new external_value(PARAM_TEXT, 'Course id', VALUE_DEFAULT, ''),
-            ]
-        );
+            ]);
     }
 
     /**

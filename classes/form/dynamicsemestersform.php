@@ -48,7 +48,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class dynamicsemestersform extends dynamic_form {
-
     /**
      * Get context for dynamic submission.
      * @return context
@@ -73,13 +72,13 @@ class dynamicsemestersform extends dynamic_form {
     protected function transform_data_to_semester_array(stdClass $semesterdata): array {
         $semestersarray = [];
 
-        if (!empty($semesterdata->semesteridentifier) && is_array($semesterdata->semesteridentifier)
+        if (
+            !empty($semesterdata->semesteridentifier) && is_array($semesterdata->semesteridentifier)
             && !empty($semesterdata->semestername) && is_array($semesterdata->semestername)
             && !empty($semesterdata->semesterstart) && is_array($semesterdata->semesterstart)
-            && !empty($semesterdata->semesterend) && is_array($semesterdata->semesterend)) {
-
+            && !empty($semesterdata->semesterend) && is_array($semesterdata->semesterend)
+        ) {
             foreach ($semesterdata->semesteridentifier as $idx => $semesteridentifier) {
-
                 $semester = new stdClass();
                 $semester->identifier = trim($semesteridentifier);
                 $semester->name = trim($semesterdata->semestername[$idx]);
@@ -113,7 +112,6 @@ class dynamicsemestersform extends dynamic_form {
                 $data->semesterstart[] = $existingsemester->startdate;
                 $data->semesterend[] = $existingsemester->enddate;
             }
-
         } else {
             // No semesters found in DB.
             $data->semesters = 0;
@@ -147,7 +145,6 @@ class dynamicsemestersform extends dynamic_form {
         }
 
         foreach ($semestersarray as $semester) {
-
             $semester->identifier = trim($semester->identifier);
             $semester->name = trim($semester->name);
 
@@ -190,8 +187,11 @@ class dynamicsemestersform extends dynamic_form {
         // Options to store help button texts etc.
         $repeateloptions = [];
 
-        $semesterlabel = html_writer::tag('b', get_string('semester', 'booking') . ' {no}',
-            ['class' => 'semesterlabel']);
+        $semesterlabel = html_writer::tag(
+            'b',
+            get_string('semester', 'booking') . ' {no}',
+            ['class' => 'semesterlabel']
+        );
         $repeatedsemesters[] = $mform->createElement('static', 'semesterlabel', $semesterlabel);
 
         $repeatedsemesters[] = $mform->createElement('text', 'semesteridentifier', get_string('semesteridentifier', 'booking'));
@@ -223,8 +223,17 @@ class dynamicsemestersform extends dynamic_form {
             $numberofsemesterstoshow = count($existingsemesters);
         }
 
-        $this->repeat_elements($repeatedsemesters, $numberofsemesterstoshow,
-            $repeateloptions, 'semesters', 'addsemester', 1, get_string('addsemester', 'mod_booking'), true, 'deletesemester');
+        $this->repeat_elements(
+            $repeatedsemesters,
+            $numberofsemesterstoshow,
+            $repeateloptions,
+            'semesters',
+            'addsemester',
+            1,
+            get_string('addsemester', 'mod_booking'),
+            true,
+            'deletesemester'
+        );
 
         // Buttons.
         $this->add_action_buttons();

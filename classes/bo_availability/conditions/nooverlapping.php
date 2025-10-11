@@ -424,7 +424,6 @@ class nooverlapping implements bo_condition {
         $conditionobject = new stdClass();
 
         if (!empty($fromform->bo_cond_nooverlapping_restrict)) {
-
             $classname = __CLASS__;
             $classnameparts = explode('\\', $classname);
             $shortclassname = end($classnameparts);

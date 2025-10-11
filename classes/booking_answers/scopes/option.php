@@ -393,5 +393,4 @@ class option extends scope_base {
             }
         }
     }
-
 }

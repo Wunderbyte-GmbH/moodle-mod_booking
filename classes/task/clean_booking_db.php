@@ -38,7 +38,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class clean_booking_db extends \core\task\scheduled_task {
-
     /**
      * Get name of module.
      * @return string
@@ -63,14 +62,16 @@ class clean_booking_db extends \core\task\scheduled_task {
         cache_helper::purge_by_event('setbackcachedteachersjournal');
 
         // Remove entries from table "booking_teachers" that belong to non-existing options.
-        $DB->delete_records_select('booking_teachers',
-        "bookingid NOT IN (
+        $DB->delete_records_select(
+            'booking_teachers',
+            "bookingid NOT IN (
             SELECT cm.instance
             FROM {course_modules} cm
             JOIN {modules} m
             ON m.id = cm.module
             WHERE m.name = 'booking'
-        )");
+        )"
+        );
 
         // TODO: In the future, we can add additional cleaning.
     }

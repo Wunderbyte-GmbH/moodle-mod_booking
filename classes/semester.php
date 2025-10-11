@@ -28,7 +28,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class semester {
-
     /** @var int $id the semester id */
     public $id = 0;
 

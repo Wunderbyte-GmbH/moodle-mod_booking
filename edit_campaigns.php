@@ -67,7 +67,6 @@ echo '<div class="alert alert-secondary alert-dismissible fade show" role="alert
 // Check if PRO version is active.
 if (wb_payment::pro_version_is_activated()) {
     echo campaigns_info::return_rendered_list_of_saved_campaigns();
-
 } else {
     echo html_writer::div(get_string('infotext:prolicensenecessary', 'mod_booking'), 'alert alert-warning');
 }
@@ -79,4 +78,3 @@ $PAGE->requires->js_call_amd(
 );
 
 echo $output->footer();
-

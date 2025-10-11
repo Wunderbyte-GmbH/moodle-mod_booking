@@ -38,7 +38,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class wb_payment {
-
     /**
      * MOD_BOOKING_PUBLIC_KEY
      *

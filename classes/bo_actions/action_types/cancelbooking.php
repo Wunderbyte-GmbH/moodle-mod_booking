@@ -46,7 +46,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class cancelbooking extends booking_action {
-
     /**
      * Apply action.
      * @param stdClass $actiondata
@@ -80,11 +79,12 @@ class cancelbooking extends booking_action {
 
         $mform->addElement('text', 'boactionname', get_string('boactionname', 'mod_booking'));
 
-        $mform->addElement('advcheckbox',
+        $mform->addElement(
+            'advcheckbox',
             'boactioncancelbooking',
             get_string('boactioncancelbookingvalue', 'mod_booking'),
-            get_string('boactioncancelbookingdesc', 'mod_booking'));
+            get_string('boactioncancelbookingdesc', 'mod_booking')
+        );
         $mform->setDefault('boactioncancelbooking', 1);
-
     }
 }

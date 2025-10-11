@@ -38,7 +38,6 @@ require_once($CFG->libdir . '/formslib.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class subscribeusersactivity extends \moodleform {
-
     /**
      * {@inheritDoc}
      * @see moodleform::definition()
@@ -48,8 +47,15 @@ class subscribeusersactivity extends \moodleform {
 
         $mform = $this->_form; // Don't forget the underscore!
 
-        $bookingoptions = $DB->get_records_list("booking_options", "bookingid", [$this->_customdata['bookingid']], '',
-            'id,text,coursestarttime,location', '', '');
+        $bookingoptions = $DB->get_records_list(
+            "booking_options",
+            "bookingid",
+            [$this->_customdata['bookingid']],
+            '',
+            'id,text,coursestarttime,location',
+            '',
+            ''
+        );
 
         $values = [];
 

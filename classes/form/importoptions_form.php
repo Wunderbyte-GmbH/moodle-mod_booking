@@ -40,7 +40,6 @@ require_once("$CFG->libdir/formslib.php");
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class importoptions_form extends moodleform {
-
     /**
      *
      * {@inheritDoc}
@@ -50,8 +49,13 @@ class importoptions_form extends moodleform {
         global $CFG;
 
         $mform = $this->_form;
-        $mform->addElement('filepicker', 'csvfile', get_string('csvfile', 'booking'), null,
-                ['maxbytes' => $CFG->maxbytes, 'accepted_types' => '*']);
+        $mform->addElement(
+            'filepicker',
+            'csvfile',
+            get_string('csvfile', 'booking'),
+            null,
+            ['maxbytes' => $CFG->maxbytes, 'accepted_types' => '*']
+        );
         $mform->addRule('csvfile', null, 'required', null, 'client');
 
         $choices = csv_import_reader::get_delimiter_list();
@@ -75,7 +79,7 @@ class importoptions_form extends moodleform {
         $mform->addHelpButton('dateparseformat', 'dateparseformat', 'mod_booking');
 
         $this->add_action_buttons(true, get_string('import'));
-        $mform->addElement('header', 'importinfo', get_string('import') . ' ' . get_string('info') );
+        $mform->addElement('header', 'importinfo', get_string('import') . ' ' . get_string('info'));
         $mform->addElement('html', '<div class="qheader">' . $this->_customdata['importer']->display_importinfo() . '</div>');
     }
 

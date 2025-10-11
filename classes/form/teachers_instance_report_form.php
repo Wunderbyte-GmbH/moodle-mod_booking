@@ -27,7 +27,7 @@ namespace mod_booking\form;
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->libdir.'/formslib.php');
+require_once($CFG->libdir . '/formslib.php');
 
 use moodleform;
 
@@ -40,7 +40,6 @@ use moodleform;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class teachers_instance_report_form extends moodleform {
-
     /**
      * Defines the form fields.
      */
@@ -55,12 +54,14 @@ class teachers_instance_report_form extends moodleform {
         $teachersarr = [
             0 => get_string('allteachers', 'mod_booking'),
         ];
-        if ($teacherrecords = $DB->get_records_sql(
-            "SELECT DISTINCT u.id, u.firstname, u.lastname, u.email
+        if (
+            $teacherrecords = $DB->get_records_sql(
+                "SELECT DISTINCT u.id, u.firstname, u.lastname, u.email
             FROM {booking_teachers} bt
             JOIN {user} u
             ON u.id = bt.userid"
-        )) {
+            )
+        ) {
             foreach ($teacherrecords as $t) {
                 $teachersarr[$t->id] = "$t->firstname $t->lastname ($t->email)";
             }

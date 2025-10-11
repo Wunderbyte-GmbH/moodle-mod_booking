@@ -46,7 +46,6 @@ require_once($CFG->libdir . '/externallib.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class set_checked_booking_instance extends external_api {
-
     /**
      * Describes the parameters for unenrol user.
      *
@@ -69,7 +68,8 @@ class set_checked_booking_instance extends external_api {
      */
     public static function execute(int $id): array {
 
-        $params = external_api::validate_parameters(self::execute_parameters(),
+        $params = external_api::validate_parameters(
+            self::execute_parameters(),
             [
                 'id' => $id,
             ]

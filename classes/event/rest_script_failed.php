@@ -33,7 +33,6 @@ namespace mod_booking\event;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class rest_script_failed extends \core\event\base {
-
     /**
      * Init
      *

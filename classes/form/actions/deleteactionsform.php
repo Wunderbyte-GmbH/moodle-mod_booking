@@ -35,7 +35,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class deleteactionsform extends dynamic_form {
-
     /**
      * {@inheritdoc}
      * @see moodleform::definition()
@@ -51,7 +50,6 @@ class deleteactionsform extends dynamic_form {
         $mform->addElement('hidden', 'cmid', $formdata['cmid'] ?? 0);
 
         $mform->addElement('static', 'deleteaction', get_string('reallydeleteaction', 'mod_booking'));
-
     }
 
     /**
@@ -75,7 +73,6 @@ class deleteactionsform extends dynamic_form {
         $data = new stdClass();
 
         $this->set_data($data);
-
     }
 
     /**

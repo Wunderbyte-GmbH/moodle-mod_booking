@@ -33,7 +33,6 @@ namespace mod_booking\event;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class optiondates_teacher_added extends \core\event\base {
-
     /**
      * Init
      *
@@ -74,7 +73,9 @@ class optiondates_teacher_added extends \core\event\base {
      *
      */
     public function get_url() {
-        return new \moodle_url('/mod/booking/optiondates_teachers_report.php',
-                ['cmid' => $this->other['cmid'], 'optionid' => $this->objectid]);
+        return new \moodle_url(
+            '/mod/booking/optiondates_teachers_report.php',
+            ['cmid' => $this->other['cmid'], 'optionid' => $this->objectid]
+        );
     }
 }

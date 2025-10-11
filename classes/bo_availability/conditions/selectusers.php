@@ -51,7 +51,6 @@ require_once($CFG->dirroot . '/user/profile/lib.php');
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class selectusers implements bo_condition {
-
     /** @var int $id Id is set via json during construction but we still need a default ID */
     public $id = MOD_BOOKING_BO_COND_JSON_SELECTUSERS;
 
@@ -235,12 +234,11 @@ class selectusers implements bo_condition {
 
         // Check if PRO version is activated.
         if (wb_payment::pro_version_is_activated()) {
-
             $options = [
                 'ajax' => 'mod_booking/form_users_selector',
                 'multiple' => true,
                 'noselectionstring' => get_string('choose...', 'mod_booking'),
-                'valuehtmlcallback' => function($value) {
+                'valuehtmlcallback' => function ($value) {
                     global $OUTPUT;
                     if (empty($value)) {
                         return get_string('choose...', 'mod_booking');
@@ -256,30 +254,50 @@ class selectusers implements bo_condition {
                         'lastname' => $user->lastname,
                     ];
                     return $OUTPUT->render_from_template(
-                            'mod_booking/form-user-selector-suggestion', $details);
+                        'mod_booking/form-user-selector-suggestion',
+                        $details
+                    );
                 },
             ];
 
-            $mform->addElement('advcheckbox', 'bo_cond_selectusers_restrict',
-                    get_string('bocondselectusersrestrict', 'mod_booking'));
+            $mform->addElement(
+                'advcheckbox',
+                'bo_cond_selectusers_restrict',
+                get_string('bocondselectusersrestrict', 'mod_booking')
+            );
 
-            $mform->addElement('autocomplete', 'bo_cond_selectusers_userids',
-                get_string('bocondselectusersuserids', 'mod_booking'), [], $options);
+            $mform->addElement(
+                'autocomplete',
+                'bo_cond_selectusers_userids',
+                get_string('bocondselectusersuserids', 'mod_booking'),
+                [],
+                $options
+            );
             $mform->addHelpButton('bo_cond_selectusers_userids', 'bocondselectusersuserids', 'mod_booking');
             $mform->hideIf('bo_cond_selectusers_userids', 'bo_cond_selectusers_restrict', 'notchecked');
 
-            $mform->addElement('checkbox', 'bo_cond_selectusers_overrideconditioncheckbox',
-                get_string('overrideconditioncheckbox', 'mod_booking'));
+            $mform->addElement(
+                'checkbox',
+                'bo_cond_selectusers_overrideconditioncheckbox',
+                get_string('overrideconditioncheckbox', 'mod_booking')
+            );
             $mform->hideIf('bo_cond_selectusers_overrideconditioncheckbox', 'bo_cond_selectusers_restrict', 'notchecked');
 
             $overrideoperators = [
                 'OR' => get_string('overrideoperator:or', 'mod_booking'),
                 'AND' => get_string('overrideoperator:and', 'mod_booking'),
             ];
-            $mform->addElement('select', 'bo_cond_selectusers_overrideoperator',
-                get_string('overrideoperator', 'mod_booking'), $overrideoperators);
-            $mform->hideIf('bo_cond_selectusers_overrideoperator', 'bo_cond_selectusers_overrideconditioncheckbox',
-                'notchecked');
+            $mform->addElement(
+                'select',
+                'bo_cond_selectusers_overrideoperator',
+                get_string('overrideoperator', 'mod_booking'),
+                $overrideoperators
+            );
+            $mform->hideIf(
+                'bo_cond_selectusers_overrideoperator',
+                'bo_cond_selectusers_overrideconditioncheckbox',
+                'notchecked'
+            );
 
             $overrideconditions = bo_info::get_conditions(MOD_BOOKING_CONDPARAM_CANBEOVERRIDDEN);
             $overrideconditionsarray = [];
@@ -308,9 +326,11 @@ class selectusers implements bo_condition {
                             $currentclassname = $jsoncondition->class;
                             $currentcondition = $currentclassname::instance();
                             // Currently conditions of the same type cannot be combined with each other.
-                            if ($jsoncondition->id != $this->id
+                            if (
+                                $jsoncondition->id != $this->id
                                 && isset($currentcondition->overridable)
-                                && ($currentcondition->overridable == true)) {
+                                && ($currentcondition->overridable == true)
+                            ) {
                                 $overrideconditionsarray[$jsoncondition->id] = get_string('bocond' .
                                     str_replace("_", "", $jsoncondition->name), 'mod_booking');
                             }
@@ -324,16 +344,26 @@ class selectusers implements bo_condition {
                 'tags' => false,
                 'multiple' => true,
             ];
-            $mform->addElement('autocomplete', 'bo_cond_selectusers_overridecondition',
-                get_string('overridecondition', 'mod_booking'), $overrideconditionsarray, $options);
-            $mform->hideIf('bo_cond_selectusers_overridecondition', 'bo_cond_selectusers_overrideconditioncheckbox',
-                'notchecked');
-
+            $mform->addElement(
+                'autocomplete',
+                'bo_cond_selectusers_overridecondition',
+                get_string('overridecondition', 'mod_booking'),
+                $overrideconditionsarray,
+                $options
+            );
+            $mform->hideIf(
+                'bo_cond_selectusers_overridecondition',
+                'bo_cond_selectusers_overrideconditioncheckbox',
+                'notchecked'
+            );
         } else {
             // No PRO license is active.
-            $mform->addElement('static', 'static:selectusers',
+            $mform->addElement(
+                'static',
+                'static:selectusers',
                 get_string('bocondselectusersrestrict', 'mod_booking'),
-                get_string('proversiononly', 'mod_booking'));
+                get_string('proversiononly', 'mod_booking')
+            );
         }
 
         $mform->addElement('html', '<hr class="w-50"/>');
@@ -416,8 +446,13 @@ class selectusers implements bo_condition {
      * @param bool $fullwidth
      * @return array
      */
-    public function render_button(booking_option_settings $settings,
-        $userid = 0, $full = false, $not = false, bool $fullwidth = true): array {
+    public function render_button(
+        booking_option_settings $settings,
+        $userid = 0,
+        $full = false,
+        $not = false,
+        bool $fullwidth = true
+    ): array {
 
         $label = $this->get_description_string(false, $full, $settings);
 
@@ -468,8 +503,11 @@ class selectusers implements bo_condition {
                 $allowedusersstring = implode(', ', $allowedusersstringarr);
             }
 
-            $description = $full ? get_string('bocondselectusersfullnotavailable',
-                'mod_booking', $allowedusersstring) :
+            $description = $full ? get_string(
+                'bocondselectusersfullnotavailable',
+                'mod_booking',
+                $allowedusersstring
+            ) :
                 get_string('bocondselectusersnotavailable', 'mod_booking');
         }
         return $description;

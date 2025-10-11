@@ -40,7 +40,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class returnurl extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -94,7 +93,8 @@ class returnurl extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         $key = fields_info::get_class_name(static::class);
         $value = $formdata->{$key} ?? null;

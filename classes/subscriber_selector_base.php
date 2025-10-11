@@ -26,7 +26,6 @@ use user_selector_base;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class subscriber_selector_base extends user_selector_base {
-
     /**
      * The id of the booking this selector is being used for
      *

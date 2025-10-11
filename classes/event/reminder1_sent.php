@@ -34,7 +34,6 @@ namespace mod_booking\event;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class reminder1_sent extends \core\event\base {
-
     /**
      * Init
      *
@@ -65,6 +64,6 @@ class reminder1_sent extends \core\event\base {
      */
     public function get_description() {
         return "reminder1_sent: The first reminder message has been sent to all users"
-            ." who booked the option with optionid {$this->objectid}.";
+            . " who booked the option with optionid {$this->objectid}.";
     }
 }

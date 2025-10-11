@@ -42,7 +42,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class courseendtime extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -94,7 +93,8 @@ class courseendtime extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         return [];
     }
@@ -137,6 +137,5 @@ class courseendtime extends field_base {
      * @throws dml_exception
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
-
     }
 }

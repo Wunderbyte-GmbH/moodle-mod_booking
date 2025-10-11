@@ -33,7 +33,6 @@ namespace mod_booking\event;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class bookingoptiondate_deleted extends \core\event\base {
-
     /**
      * Init
      *
@@ -73,7 +72,9 @@ class bookingoptiondate_deleted extends \core\event\base {
      *
      */
     public function get_url() {
-        return new \moodle_url('/mod/booking/report.php',
-                ['id' => $this->contextinstanceid, 'optiondateid' => $this->objectid]);
+        return new \moodle_url(
+            '/mod/booking/report.php',
+            ['id' => $this->contextinstanceid, 'optiondateid' => $this->objectid]
+        );
     }
 }

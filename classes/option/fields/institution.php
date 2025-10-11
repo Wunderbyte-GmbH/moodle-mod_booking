@@ -40,7 +40,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class institution extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -92,7 +91,8 @@ class institution extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = ''): array {
+        $returnvalue = ''
+    ): array {
 
         $key = fields_info::get_class_name(static::class);
         $value = $formdata->{$key} ?? '';
@@ -147,8 +147,13 @@ class institution extends field_base {
                 'noselectionstring' => get_string('noinstitutionselected', 'mod_booking'),
                 'tags' => true,
         ];
-        $mform->addElement('autocomplete', 'institution',
-            get_string('institution', 'mod_booking'), $institutionstrings, $options);
+        $mform->addElement(
+            'autocomplete',
+            'institution',
+            get_string('institution', 'mod_booking'),
+            $institutionstrings,
+            $options
+        );
         $mform->addHelpButton('institution', 'institution', 'mod_booking');
     }
 }

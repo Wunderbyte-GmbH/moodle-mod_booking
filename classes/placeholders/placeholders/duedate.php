@@ -39,7 +39,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class duedate {
-
     /**
      * Function which takes a text, replaces the placeholders...
      * ... and returns the text with the correct values.
@@ -63,7 +62,8 @@ class duedate {
         float $price = 0,
         string &$text = '',
         array &$params = [],
-        int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE) {
+        int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE
+    ) {
 
         $timeformat = get_string('strftimedate', 'langconfig');
 

@@ -41,7 +41,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class aftersubmitaction extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -93,7 +92,8 @@ class aftersubmitaction extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         if (isset($formdata->aftersubmitaction)) {
             switch ($formdata->aftersubmitaction) {
@@ -156,9 +156,9 @@ class aftersubmitaction extends field_base {
 
         // What to do after submit button is pressed.
         $aftersubmitactions = [
-            'submitandgoback' => get_string ('submitandgoback', 'mod_booking'), // Go back to returnurl.
-            'submitandstay' => get_string ('submitandstay', 'mod_booking'), // Stay on edit option form.
-            'submitandadd' => get_string ('submitandadd', 'mod_booking'), // Create a new option after submit.
+            'submitandgoback' => get_string('submitandgoback', 'mod_booking'), // Go back to returnurl.
+            'submitandstay' => get_string('submitandstay', 'mod_booking'), // Stay on edit option form.
+            'submitandadd' => get_string('submitandadd', 'mod_booking'), // Create a new option after submit.
         ];
         // For new booking options, we cannot stay on page, because we have not optionid for returnurl.
         if (empty($formdata['id'])) {

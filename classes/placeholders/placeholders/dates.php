@@ -40,7 +40,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class dates {
-
     /**
      * Function which takes a text, replaces the placeholders...
      * ... and returns the text with the correct values.
@@ -64,14 +63,14 @@ class dates {
         float $price = 0,
         string &$text = '',
         array &$params = [],
-        int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE) {
+        int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE
+    ) {
 
         global $PAGE;
 
         $classname = substr(strrchr(get_called_class(), '\\'), 1);
 
         if (!empty($userid)) {
-
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
             if (empty($cmid)) {
@@ -94,7 +93,6 @@ class dates {
 
             // Save the value to profit from singleton.
             placeholders_info::$placeholders[$cachekey] = $value;
-
         } else {
             $value = get_string('sthwentwrongwithplaceholder', 'mod_booking', $classname);
         }

@@ -22,7 +22,6 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class GoogleUrlApi {
-
     // NOTE: WE DO NOT USE THIS CLASS ANYMORE.
     // LET'S REMOVE IT SOON!
 

@@ -34,7 +34,7 @@ $optionid = required_param('optionid', PARAM_INT);
 $url = new moodle_url('/mod/booking/otherbooking.php', ['id' => $id, 'optionid' => $optionid]);
 $PAGE->set_url($url);
 
-list($course, $cm) = get_course_and_cm_from_cmid($id);
+[$course, $cm] = get_course_and_cm_from_cmid($id);
 
 require_course_login($course, false, $cm);
 $groupmode = groups_get_activity_groupmode($cm);
@@ -53,12 +53,18 @@ $PAGE->set_heading(get_string("editotherbooking", "booking"));
 $PAGE->set_pagelayout('standard');
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string("editotherbooking", "booking") . " [{$option->option->text}]", 3,
-        'helptitle', 'uniqueid');
+echo $OUTPUT->heading(
+    get_string("editotherbooking", "booking") . " [{$option->option->text}]",
+    3,
+    'helptitle',
+    'uniqueid'
+);
 
 echo html_writer::link(
-        new moodle_url('/mod/booking/report.php', ['id' => $cm->id, 'optionid' => $optionid]),
-        get_string('gotomanageresponses', 'booking'), ['style' => 'float:right;']);
+    new moodle_url('/mod/booking/report.php', ['id' => $cm->id, 'optionid' => $optionid]),
+    get_string('gotomanageresponses', 'booking'),
+    ['style' => 'float:right;']
+);
 echo '<br>';
 
 $table = new html_table();
@@ -70,32 +76,46 @@ $table->head = [
 ];
 
 $rules = $DB->get_records_sql(
-        "SELECT bo.id, bo.otheroptionid, bo.userslimit, b.text
+    "SELECT bo.id, bo.otheroptionid, bo.userslimit, b.text
         FROM {booking_other} bo
         LEFT JOIN {booking_options} b ON b.id = bo.otheroptionid
-        WHERE bo.optionid = ?", [$optionid]);
+        WHERE bo.optionid = ?",
+    [$optionid]
+);
 
 $rulestable = [];
 
 foreach ($rules as $rule) {
-
-    $edit = new moodle_url('/mod/booking/otherbookingaddrule.php',
-            ['id' => $cm->id, 'optionid' => $optionid, 'bookingotherid' => $rule->id]);
-    $delete = new moodle_url('/mod/booking/otherbookingaddrule.php',
-            ['id' => $cm->id, 'optionid' => $optionid, 'bookingotherid' => $rule->id, 'delete' => 1]);
+    $edit = new moodle_url(
+        '/mod/booking/otherbookingaddrule.php',
+        ['id' => $cm->id, 'optionid' => $optionid, 'bookingotherid' => $rule->id]
+    );
+    $delete = new moodle_url(
+        '/mod/booking/otherbookingaddrule.php',
+        ['id' => $cm->id, 'optionid' => $optionid, 'bookingotherid' => $rule->id, 'delete' => 1]
+    );
 
     $button = '<div style="width: 100%; text-align: right; display:table;">';
     $buttone = $OUTPUT->single_button($edit, get_string('editrule', 'booking'), 'get');
-    $button .= html_writer::tag('span', $buttone,
-            ['style' => 'text-align: right; display:table-cell;']);
+    $button .= html_writer::tag(
+        'span',
+        $buttone,
+        ['style' => 'text-align: right; display:table-cell;']
+    );
     $buttond = $OUTPUT->single_button($delete, get_string('deleterule', 'booking'), 'get');
-    $button .= html_writer::tag('span', $buttond,
-            ['style' => 'text-align: left; display:table-cell;']);
+    $button .= html_writer::tag(
+        'span',
+        $buttond,
+        ['style' => 'text-align: left; display:table-cell;']
+    );
     $button .= '</div>';
 
     $rulestable[] = ["{$rule->text}", $rule->userslimit,
-                html_writer::tag('span', $button,
-                ['style' => 'text-align: right; display:table-cell;']),
+                html_writer::tag(
+                    'span',
+                    $button,
+                    ['style' => 'text-align: right; display:table-cell;']
+                ),
         ];
 }
 

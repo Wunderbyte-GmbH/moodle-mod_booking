@@ -42,7 +42,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class easy_bookingopeningtime extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -97,7 +96,8 @@ class easy_bookingopeningtime extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         $key = 'bookingopeningtime';
         $value = $formdata->{$key} ?? null;
@@ -145,13 +145,19 @@ class easy_bookingopeningtime extends field_base {
     ) {
 
         // The form is not locked and can be used normally.
-        $mform->addElement('advcheckbox', 'restrictanswerperiodopening',
-                get_string('restrictanswerperiodopening', 'mod_booking'));
+        $mform->addElement(
+            'advcheckbox',
+            'restrictanswerperiodopening',
+            get_string('restrictanswerperiodopening', 'mod_booking')
+        );
         $mform->setType('restrictanswerperiodopening', PARAM_INT);
         $mform->disabledIf('bookingopeningtime', 'restrictanswerperiodopening', 'neq', "1");
 
-        $mform->addElement('date_time_selector', 'bookingopeningtime',
-            get_string('easyavailability:openingtime', 'local_musi'));
+        $mform->addElement(
+            'date_time_selector',
+            'bookingopeningtime',
+            get_string('easyavailability:openingtime', 'local_musi')
+        );
         $mform->setType('bookingopeningtime', PARAM_INT);
     }
 
@@ -164,9 +170,10 @@ class easy_bookingopeningtime extends field_base {
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
-        if (!isset($data->bookingopeningtime)
-            && !empty($settings->bookingopeningtime)) {
-
+        if (
+            !isset($data->bookingopeningtime)
+            && !empty($settings->bookingopeningtime)
+        ) {
             $data->bookingopeningtime = $settings->bookingopeningtime;
             $data->restrictanswerperiodopening = 1;
         }

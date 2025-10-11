@@ -496,7 +496,7 @@ final class rules_enrollink_test extends advanced_testcase {
         // Try to book option1 by the teacher1.
         $this->setUser($teacher1);
         singleton_service::destroy_user($teacher1->id);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $teacher1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $teacher1->id);
         $this->assertEquals(MOD_BOOKING_BO_COND_JSON_CUSTOMFORM, $id);
 
         $price = price::get_price('option', $settings->id);
@@ -517,7 +517,7 @@ final class rules_enrollink_test extends advanced_testcase {
         $this->assertEquals(75, $price["price"]);
 
         $result = booking_bookit::bookit('option', $settings->id, $teacher1->id);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $teacher1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $teacher1->id);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // Admin confirms the users booking.
@@ -533,7 +533,7 @@ final class rules_enrollink_test extends advanced_testcase {
             MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION,
             MOD_BOOKING_VERIFIED
         );
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $teacher1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $teacher1->id);
         $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
         // User buying the bundle.
         $option->user_submit_response(
@@ -543,13 +543,13 @@ final class rules_enrollink_test extends advanced_testcase {
             MOD_BOOKING_BO_SUBMIT_STATUS_DEFAULT,
             MOD_BOOKING_VERIFIED
         );
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $teacher1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $teacher1->id);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         // Student1 also buys a bundle (skip payment process for him).
         $option->user_submit_response($student1, 0, 0, MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION, MOD_BOOKING_VERIFIED);
         $option->user_submit_response($student1, 0, 0, 0, MOD_BOOKING_VERIFIED);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         // Get messages.
@@ -661,7 +661,7 @@ final class rules_enrollink_test extends advanced_testcase {
         $this->setAdminUser();
         $option->user_submit_response($student2, 0, 0, MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL, MOD_BOOKING_VERIFIED);
         $this->assertEquals(1, $enrollink->free_places_left());
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student2->id, true);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         // Proceed with enrolling of student4.
@@ -679,7 +679,7 @@ final class rules_enrollink_test extends advanced_testcase {
         $this->setAdminUser();
         $option->user_submit_response($student3, 0, 0, MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL, MOD_BOOKING_VERIFIED);
         $this->assertEquals(0, $enrollink->free_places_left());
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student3->id, true);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student3->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         // Proceed with enrolling of student5 - no more seats.

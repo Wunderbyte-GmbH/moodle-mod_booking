@@ -162,5 +162,4 @@ class scope_base {
         }
         return $wherepart;
     }
-
 }

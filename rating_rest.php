@@ -35,7 +35,7 @@ $id = required_param('id', PARAM_INT); // Course Module ID.
 $optionid = required_param('optionid', PARAM_INT);
 $value = required_param('value', PARAM_INT);
 
-list($course, $cm) = get_course_and_cm_from_cmid($id, 'booking');
+[$course, $cm] = get_course_and_cm_from_cmid($id, 'booking');
 require_course_login($course, false, $cm);
 
 echo $OUTPUT->header();
@@ -59,8 +59,10 @@ try {
 }
 
 $avg = $DB->get_record_sql(
-        'SELECT IFNULL(AVG(rate), 1) AS rate
+    'SELECT IFNULL(AVG(rate), 1) AS rate
         FROM {booking_ratings}
-        WHERE optionid = ?', [$optionid]);
+        WHERE optionid = ?',
+    [$optionid]
+);
 
 echo json_encode(['rate' => (int) $avg->rate, 'duplicate' => $isinserted]);

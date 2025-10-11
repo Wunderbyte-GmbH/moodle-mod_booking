@@ -47,7 +47,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class userprofilefield extends booking_action {
-
     /**
      * Apply action.
      * @param stdClass $actiondata
@@ -70,15 +69,15 @@ class userprofilefield extends booking_action {
 
         // There are two ways to acces the profile fields, we have to support both.
         $key = "profile_field_" . $actiondata->boactionselectuserprofilefield;
-        if (isset($user->profile[$actiondata->boactionselectuserprofilefield])
-            || isset($user->{$key})) {
-
+        if (
+            isset($user->profile[$actiondata->boactionselectuserprofilefield])
+            || isset($user->{$key})
+        ) {
             switch ($actiondata->boactionuserprofileoperator) {
                 case 'set':
                     $user->{$key} = $actiondata->boactionuserprofilefieldvalue;
                     break;
                 case 'add':
-
                     $number = intval($user->profile[$actiondata->boactionselectuserprofilefield]);
                     $user->{$key} =
                             $number + $actiondata->boactionuserprofilefieldvalue;
@@ -90,15 +89,13 @@ class userprofilefield extends booking_action {
                             $number - $actiondata->boactionuserprofilefieldvalue;
                     break;
                 case 'adddate':
-
                     // First we check if the user has already a value in the field.
 
                     if (empty($user->{$key})) {
-
                         $settings = singleton_service::get_instance_of_booking_option_settings($actiondata->optionid);
                         $startdate = !empty($settings->coursestarttime) ? $settings->coursestarttime : null;
                     } else {
-                        list($startstring, $endstring) = explode(' - ', $user->{$key});
+                        [$startstring, $endstring] = explode(' - ', $user->{$key});
 
                         $startdate = strtotime($endstring, time()) ?? null;
                     }
@@ -145,8 +142,12 @@ class userprofilefield extends booking_action {
 
         $mform->addElement('text', 'boactionname', get_string('boactionname', 'mod_booking'));
 
-        $mform->addElement('select', 'boactionselectuserprofilefield', get_string('userprofilefield', 'mod_booking'),
-            $userprofilefieldsarray);
+        $mform->addElement(
+            'select',
+            'boactionselectuserprofilefield',
+            get_string('userprofilefield', 'mod_booking'),
+            $userprofilefieldsarray
+        );
 
         $operatorarray = [
             'set' => get_string('actionoperator:set', 'mod_booking'),
@@ -155,10 +156,13 @@ class userprofilefield extends booking_action {
             'adddate' => get_string('actionoperator:adddate', 'mod_booking'),
         ];
 
-        $mform->addElement('select', 'boactionuserprofileoperator', get_string('actionoperator', 'mod_booking'),
-            $operatorarray);
+        $mform->addElement(
+            'select',
+            'boactionuserprofileoperator',
+            get_string('actionoperator', 'mod_booking'),
+            $operatorarray
+        );
 
         $mform->addElement('text', 'boactionuserprofilefieldvalue', get_string('boactionuserprofilefieldvalue', 'mod_booking'));
-
     }
 }

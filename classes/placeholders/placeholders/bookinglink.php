@@ -41,7 +41,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class bookinglink {
-
     /**
      * Function which takes a text, replaces the placeholders...
      * ... and returns the text with the correct values.
@@ -91,7 +90,6 @@ class bookinglink {
 
              // Save the value to profit from singleton.
              placeholders_info::$placeholders[$cachekey] = $value;
-
         } else {
             $classname = substr(strrchr(get_called_class(), '\\'), 1);
             $value = get_string('sthwentwrongwithplaceholder', 'mod_booking', $classname);

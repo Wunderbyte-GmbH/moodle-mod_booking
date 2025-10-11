@@ -44,7 +44,6 @@ require_once($CFG->libdir . '/externallib.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class instancetemplate extends external_api {
-
     /**
      * Describes the parameters for mod_booking_instancetemplate.
      *
@@ -53,8 +52,7 @@ class instancetemplate extends external_api {
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
             'id' => new external_value(PARAM_INT, 'ID of booking instance template.'),
-            ]
-        );
+            ]);
     }
 
     /**
@@ -88,7 +86,6 @@ class instancetemplate extends external_api {
             'id' => new external_value(PARAM_INT, 'Template id.'),
             'name' => new external_value(PARAM_TEXT, 'Template name.'),
             'template' => new external_value(PARAM_RAW, 'JSON serialized template data.'),
-            ]
-        );
+            ]);
     }
 }

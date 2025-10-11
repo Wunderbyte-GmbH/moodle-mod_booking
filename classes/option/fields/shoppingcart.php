@@ -39,7 +39,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class shoppingcart extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -93,10 +92,10 @@ class shoppingcart extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         if (class_exists('local_shopping_cart\shopping_cart_handler')) {
-
             // We only run this line to make sure we have the constants.
             $schhandler = new shopping_cart_handler('mod_booking', 'option');
             parent::prepare_save_field($formdata, $newoption, $updateparam, 0);
@@ -125,7 +124,6 @@ class shoppingcart extends field_base {
     ) {
 
         if (class_exists('local_shopping_cart\shopping_cart_handler')) {
-
             // We only run this line to make sure we have the constants.
             $schhandler = new shopping_cart_handler('mod_booking', 'option');
 
@@ -142,7 +140,6 @@ class shoppingcart extends field_base {
      */
     public static function validation(array $data, array $files, array &$errors) {
         if (class_exists('local_shopping_cart\shopping_cart_handler')) {
-
             // We only run this line to make sure we have the constants.
             $schhandler = new shopping_cart_handler('mod_booking', 'option');
 
@@ -162,7 +159,6 @@ class shoppingcart extends field_base {
     public static function save_data(stdClass &$formdata, stdClass &$option, int $index = 0) {
 
         if (class_exists('local_shopping_cart\shopping_cart_handler')) {
-
             // We only run this line to make sure we have the constants.
             $schhandler = new shopping_cart_handler('mod_booking', 'option');
             $schhandler->save_data($formdata, $option);
@@ -179,7 +175,6 @@ class shoppingcart extends field_base {
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
         if (class_exists('local_shopping_cart\shopping_cart_handler')) {
-
             // We only run this line to make sure we have the constants.
             $schhandler = new shopping_cart_handler('mod_booking', 'option', $data->id);
             $schhandler->set_data($data);
@@ -232,7 +227,7 @@ class shoppingcart extends field_base {
             if (
                 $oldvalue != $newvalue
                 && !(empty($oldvalue) && empty($newvalue))
-                ) {
+            ) {
                     // If change was found in any of the shoppingcart fields, return this generic information.
                     return [
                         'changes' => [
@@ -245,5 +240,4 @@ class shoppingcart extends field_base {
         // No changes were found, so array is empty.
         return [];
     }
-
 }

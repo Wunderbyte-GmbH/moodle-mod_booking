@@ -50,7 +50,6 @@ require_once($CFG->libdir . '/externallib.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class get_submission_mobile extends external_api {
-
     /**
      * Describes the parameters for update_bookingnotes.
      *
@@ -69,8 +68,10 @@ class get_submission_mobile extends external_api {
                       'value' => new external_value(PARAM_RAW, 'data value'),
                   ]
               ),
-              'The data to be saved', VALUE_DEFAULT, []
-            ),
+              'The data to be saved',
+              VALUE_DEFAULT,
+              []
+          ),
         ]);
     }
 
@@ -116,8 +117,7 @@ class get_submission_mobile extends external_api {
             'message' => new external_value(PARAM_RAW, 'Message if any', VALUE_DEFAULT, ''),
             'template' => new external_value(PARAM_TEXT, 'Button template', VALUE_DEFAULT, ''),
             'json' => new external_value(PARAM_RAW, 'Data as json', VALUE_DEFAULT, ''),
-            ]
-        );
+            ]);
     }
 
     /**

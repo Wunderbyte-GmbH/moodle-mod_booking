@@ -34,11 +34,13 @@ use mod_booking\placeholders\placeholders_info;
 $cmid = required_param('id', PARAM_INT); // Course Module ID.
 $optionid = required_param('optionid', PARAM_INT); // Option ID.
 
-$url = new moodle_url('/mod/booking/viewconfirmation.php',
-        ['id' => $cmid, 'optionid' => $optionid]);
+$url = new moodle_url(
+    '/mod/booking/viewconfirmation.php',
+    ['id' => $cmid, 'optionid' => $optionid]
+);
 $PAGE->set_url($url);
 
-list($course, $cm) = get_course_and_cm_from_cmid($cmid);
+[$course, $cm] = get_course_and_cm_from_cmid($cmid);
 
 require_course_login($course, false, $cm);
 

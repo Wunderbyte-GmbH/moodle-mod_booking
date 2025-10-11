@@ -41,7 +41,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class elective extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -90,7 +89,8 @@ class elective extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         $value = $formdata->mustcombine ?? null;
 
@@ -146,7 +146,6 @@ class elective extends field_base {
 
         // Add elective mform elements..
         Mod_bookingElective::instance_option_form_definition($mform, $formdata);
-
     }
 
     /**

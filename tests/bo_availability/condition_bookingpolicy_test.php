@@ -130,7 +130,7 @@ final class condition_bookingpolicy_test extends advanced_testcase {
         $this->setUser($student1);
         // Not allowed until policy agreed.
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_BOOKINGPOLICY, $id);
 
         $this->setAdminUser();
@@ -139,7 +139,7 @@ final class condition_bookingpolicy_test extends advanced_testcase {
         $option->user_submit_response($student1, 0, 0, 0, MOD_BOOKING_VERIFIED);
 
         // Verify that user already booked.
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
     }
 
@@ -215,7 +215,7 @@ final class condition_bookingpolicy_test extends advanced_testcase {
 
         // Not allowed until policy agreed.
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, false);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, false);
         $this->assertEquals(MOD_BOOKING_BO_COND_JSON_CUSTOMFORM, $id);
 
         $customformdata = (object) [
@@ -229,7 +229,7 @@ final class condition_bookingpolicy_test extends advanced_testcase {
         $customformstore->set_customform_data($customformdata);
 
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, false);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, false);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         $this->setAdminUser();
@@ -304,12 +304,12 @@ final class condition_bookingpolicy_test extends advanced_testcase {
 
         // We are allowed to book.
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMBOOKIT, $id);
 
         // Now we can actually book.
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         $this->setAdminUser();
@@ -324,7 +324,7 @@ final class condition_bookingpolicy_test extends advanced_testcase {
 
         // We are not allowed to book 2nd option - maxperuser exceeded.
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_MAX_NUMBER_OF_BOOKINGS, $id);
     }
 
@@ -496,39 +496,39 @@ final class condition_bookingpolicy_test extends advanced_testcase {
 
         // Student1 not allowed to book option1 in course1.
         $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
-        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_JSON_SELECTUSERS, $id);
 
         // Student1 not allowed to book option2 in course1.
         $result = booking_bookit::bookit('option', $settings2->id, $student1->id);
-        list($id, $isavailable, $description) = $boinfo2->is_available($settings2->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_JSON_PREVIOUSLYBOOKED, $id);
 
         $this->setUser($student2);
 
         // Student2 has not allowed to book option2 in course1 yet.
         $result = booking_bookit::bookit('option', $settings2->id, $student2->id);
-        list($id, $isavailable, $description) = $boinfo2->is_available($settings2->id, $student2->id, true);
+        [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_JSON_PREVIOUSLYBOOKED, $id);
 
         // Student2 is allowed to book option1 in course1.
         $result = booking_bookit::bookit('option', $settings1->id, $student2->id);
-        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student2->id, true);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMBOOKIT, $id);
 
         // Student2 is actually book option1 in the course1.
         $result = booking_bookit::bookit('option', $settings1->id, $student2->id);
-        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student2->id, true);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         // Student2 now is allowed to book option2 in course1.
         $result = booking_bookit::bookit('option', $settings2->id, $student2->id);
-        list($id, $isavailable, $description) = $boinfo1->is_available($settings2->id, $student2->id, true);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings2->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMBOOKIT, $id);
 
         // Student2 is actually book option2 in the course1.
         $result = booking_bookit::bookit('option', $settings2->id, $student2->id);
-        list($id, $isavailable, $description) = $boinfo1->is_available($settings2->id, $student2->id, true);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings2->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         $this->setAdminUser();
@@ -552,18 +552,18 @@ final class condition_bookingpolicy_test extends advanced_testcase {
 
         // Student1 not allowed to book option3 in course1.
         $result = booking_bookit::bookit('option', $settings3->id, $student1->id);
-        list($id, $isavailable, $description) = $boinfo3->is_available($settings3->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo3->is_available($settings3->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOURSE, $id);
 
         $this->setUser($student2);
 
         // But student2 allowed to book option3 in course1.
         $result = booking_bookit::bookit('option', $settings3->id, $student2->id);
-        list($id, $isavailable, $description) = $boinfo3->is_available($settings3->id, $student2->id, true);
+        [$id, $isavailable, $description] = $boinfo3->is_available($settings3->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMBOOKIT, $id);
 
         $result = booking_bookit::bookit('option', $settings3->id, $student2->id);
-        list($id, $isavailable, $description) = $boinfo3->is_available($settings3->id, $student2->id, true);
+        [$id, $isavailable, $description] = $boinfo3->is_available($settings3->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
     }
 
@@ -686,21 +686,21 @@ final class condition_bookingpolicy_test extends advanced_testcase {
 
         // Student1 does not allowed to book option1 in course1.
         $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
-        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_JSON_USERPROFILEFIELD, $id);
 
         // Student1 does allowed to book option2 in course1.
         $result = booking_bookit::bookit('option', $settings2->id, $student1->id);
-        list($id, $isavailable, $description) = $boinfo2->is_available($settings2->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMBOOKIT, $id);
 
         $result = booking_bookit::bookit('option', $settings2->id, $student1->id);
-        list($id, $isavailable, $description) = $boinfo2->is_available($settings2->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         // Student1 does not allowed to book option3 in course1.
         $result = booking_bookit::bookit('option', $settings3->id, $student1->id);
-        list($id, $isavailable, $description) = $boinfo3->is_available($settings3->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo3->is_available($settings3->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_JSON_CUSTOMUSERPROFILEFIELD, $id);
 
         // Book the student2.
@@ -709,21 +709,21 @@ final class condition_bookingpolicy_test extends advanced_testcase {
 
         // Student2 does not allowed to book option2 in course1.
         $result = booking_bookit::bookit('option', $settings2->id, $student2->id);
-        list($id, $isavailable, $description) = $boinfo2->is_available($settings2->id, $student2->id, true);
+        [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_JSON_CUSTOMUSERPROFILEFIELD, $id);
 
         // Student2 does allowed to book option1 in course1.
         $result = booking_bookit::bookit('option', $settings1->id, $student2->id);
-        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student2->id, true);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMBOOKIT, $id);
 
         $result = booking_bookit::bookit('option', $settings1->id, $student2->id);
-        list($id, $isavailable, $description) = $boinfo1->is_available($settings1->id, $student2->id, true);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         // Student2 does not allowed to book option3 in course1.
         $result = booking_bookit::bookit('option', $settings3->id, $student2->id);
-        list($id, $isavailable, $description) = $boinfo3->is_available($settings3->id, $student2->id, true);
+        [$id, $isavailable, $description] = $boinfo3->is_available($settings3->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_JSON_CUSTOMUSERPROFILEFIELD, $id);
 
         // Book the student3.
@@ -732,11 +732,11 @@ final class condition_bookingpolicy_test extends advanced_testcase {
 
         // Student3 does allowed to book option3 in course1.
         $result = booking_bookit::bookit('option', $settings3->id, $student3->id);
-        list($id, $isavailable, $description) = $boinfo3->is_available($settings3->id, $student3->id, true);
+        [$id, $isavailable, $description] = $boinfo3->is_available($settings3->id, $student3->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMBOOKIT, $id);
 
         $result = booking_bookit::bookit('option', $settings3->id, $student3->id);
-        list($id, $isavailable, $description) = $boinfo1->is_available($settings3->id, $student3->id, true);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings3->id, $student3->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
     }
 

@@ -125,7 +125,6 @@ class modal_confirmcancel extends dynamic_form {
                 get_string("undocancelreason", "mod_booking")
             );
         }
-
     }
 
     /**

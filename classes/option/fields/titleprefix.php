@@ -90,7 +90,8 @@ class titleprefix extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         parent::prepare_save_field($formdata, $newoption, $updateparam, '');
 

@@ -37,7 +37,6 @@ use MoodleQuickForm;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class conditions_info {
-
     /**
      * Add form fields to mform.
      *
@@ -45,15 +44,19 @@ class conditions_info {
      * @param ?array $ajaxformdata
      * @return void
      */
-    public static function add_conditions_to_mform(MoodleQuickForm &$mform,
-        ?array &$ajaxformdata = null) {
+    public static function add_conditions_to_mform(
+        MoodleQuickForm &$mform,
+        ?array &$ajaxformdata = null
+    ) {
 
         $conditions = self::get_conditions();
 
         $conditionsforselect = [];
         foreach ($conditions as $condition) {
-            if (!empty($ajaxformdata['bookingruletype'])
-                && !$condition->can_be_combined_with_bookingruletype($ajaxformdata['bookingruletype'])) {
+            if (
+                !empty($ajaxformdata['bookingruletype'])
+                && !$condition->can_be_combined_with_bookingruletype($ajaxformdata['bookingruletype'])
+            ) {
                 continue;
             }
             $fullclassname = get_class($condition); // With namespace.
@@ -64,19 +67,26 @@ class conditions_info {
 
         $buttonargs = ['style' => 'visibility:hidden;'];
         $mform->registerNoSubmitButton('btn_bookingruleconditiontype');
-        $mform->addElement('select', 'bookingruleconditiontype',
-            get_string('bookingrulecondition', 'mod_booking'), $conditionsforselect);
-        $mform->addElement('submit', 'btn_bookingruleconditiontype',
-            get_string('bookingrulecondition', 'mod_booking'), $buttonargs);
+        $mform->addElement(
+            'select',
+            'bookingruleconditiontype',
+            get_string('bookingrulecondition', 'mod_booking'),
+            $conditionsforselect
+        );
+        $mform->addElement(
+            'submit',
+            'btn_bookingruleconditiontype',
+            get_string('bookingrulecondition', 'mod_booking'),
+            $buttonargs
+        );
         $mform->setType('btn_bookingruleconditiontype', PARAM_NOTAGS);
 
         if (isset($ajaxformdata['bookingruleconditiontype'])) {
             $condition = self::get_condition($ajaxformdata['bookingruleconditiontype']);
         } else {
-            list($condition) = $conditions;
+            [$condition] = $conditions;
         }
         $condition->add_condition_to_mform($mform, $ajaxformdata);
-
     }
 
     /**

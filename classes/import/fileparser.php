@@ -45,7 +45,6 @@ require_once($CFG->libdir . "/csvlib.class.php");
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class fileparser {
-
     /**
      * @var string
      */
@@ -208,8 +207,10 @@ class fileparser {
         // Check if first column is set mandatory and unique.
         // If unique column existis -> key.
         $firstcolumn = $this->fieldnames[0];
-        if ($this->get_param_value($firstcolumn, 'mandatory') == true
-        && $this->get_param_value($firstcolumn, 'unique') == true) {
+        if (
+            $this->get_param_value($firstcolumn, 'mandatory') == true
+            && $this->get_param_value($firstcolumn, 'unique') == true
+        ) {
             $this->uniquekey = $firstcolumn;
         }
 
@@ -245,12 +246,10 @@ class fileparser {
                         $this->records[$firstcolumn] = [];
                     }
                     $this->records[$firstcolumn][$csvrecord[$firstcolumn]] = $data;
-
                 } else { // Without unique key, we build a sequential array.
                     array_push($this->records, $data);
                 }
             }
-
         }
         return $this->exit_and_return_records($cir);
     }
@@ -269,7 +268,6 @@ class fileparser {
         $cir->cleanup(true);
         $cir->close();
         return $this->records;
-
     }
 
 
@@ -301,13 +299,11 @@ class fileparser {
                 ];
             }
         } catch (Exception $e) {
-
             return [
                 'success' => 0,
                 'message' => $e->getMessage(),
             ];
         }
-
     }
 
     /**
@@ -322,7 +318,6 @@ class fileparser {
             // If data was parsed successfully, return 1, else return 0.
             $this->records['success'] = 1;
             $this->trigger_records_imported_event($this->records['numberofsuccessfullyupdatedrecords']);
-
         } else {
             $this->records['success'] = 0;
         }
@@ -357,7 +352,6 @@ class fileparser {
         }
 
         foreach ($csvrecord as $column => $value) {
-
             // Value "0" counts as value and returns valueisset true.
             !$valueisset = (("" !== $value) && (null !== $value)) ? true : false;
 
@@ -381,7 +375,8 @@ class fileparser {
                             $format = $this->settings->dateformat;
                             $this->add_csvwarnings(
                                 "$value is not a valid date format in $column. Format should be Unix timestamp or like: $format",
-                                $line[0]);
+                                $line[0]
+                            );
                             break;
                         }
                         break;
@@ -427,7 +422,6 @@ class fileparser {
         $commacount = substr_count($value, ',');
         if ($commacount == 1) {
             $floatstring = str_replace(',', '.', $value);
-
         } else {
             $floatstring = $value;
         }
@@ -468,8 +462,10 @@ class fileparser {
             return $error;
         }
         foreach ($this->columns as $column) {
-            if (!in_array($column->columnname, array_values($this->fieldnames))
-                && $column->mandatory == true) {
+            if (
+                !in_array($column->columnname, array_values($this->fieldnames))
+                && $column->mandatory == true
+            ) {
                 // Should all keys be there or only mandatory?
                 $error .= get_string('missinglabel', 'mod_booking', $column->columnname);
                 break;
@@ -509,8 +505,10 @@ class fileparser {
         // Check if we have a readable string in correct format.
         $readablestring = false;
         $dateformat = !empty($this->settings->dateformat) ? $this->settings->dateformat : "j.n.Y H:i:s";
-        if (date_create_from_format($dateformat, $value) &&
-                strtotime($value, time())) {
+        if (
+            date_create_from_format($dateformat, $value) &&
+                strtotime($value, time())
+        ) {
                     $readablestring = true;
         }
         // Check accepts all ints.
@@ -566,7 +564,7 @@ class fileparser {
      *
      */
     protected function add_csverror($errorstring, $i) {
-        $this->csverrors[] = nl2br($errorstring.".\nIn line with values: $i ");
+        $this->csverrors[] = nl2br($errorstring . ".\nIn line with values: $i ");
     }
 
     /**
@@ -579,7 +577,7 @@ class fileparser {
      *
      */
     protected function add_csvwarnings($errorstring, $i) {
-        $this->csvwarnings[] = nl2br($errorstring.".\nIn line with values: $i ");
+        $this->csvwarnings[] = nl2br($errorstring . ".\nIn line with values: $i ");
     }
     /**
      * Get line errors.

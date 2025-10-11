@@ -111,15 +111,15 @@ class csvsettings {
             $this->columnsarrayisassociative = true;
             foreach ($columns as $ckey => $cvalue) {
                 $this->columns[$ckey] = new csvcolumn(
-                $ckey,
-                !empty($cvalue['localizedname']) ? $cvalue['localizedname'] : $ckey,
-                null !== $cvalue['mandatory'] ? $cvalue['mandatory'] : null,
-                null !== $cvalue['unique'] ? $cvalue['unique'] : null,
-                !empty($cvalue['type']) ? $cvalue['type'] : null,
-                !empty($cvalue['format']) ? $cvalue['format'] : null,
-                !empty($cvalue['defaultvalue']) ? $cvalue['defaultvalue'] : null,
-                !empty($cvalue['transform']) ? $cvalue['transform'] : null,
-                !empty($cvalue['importinstruction']) ? $cvalue['importinstruction'] : null,
+                    $ckey,
+                    !empty($cvalue['localizedname']) ? $cvalue['localizedname'] : $ckey,
+                    null !== $cvalue['mandatory'] ? $cvalue['mandatory'] : null,
+                    null !== $cvalue['unique'] ? $cvalue['unique'] : null,
+                    !empty($cvalue['type']) ? $cvalue['type'] : null,
+                    !empty($cvalue['format']) ? $cvalue['format'] : null,
+                    !empty($cvalue['defaultvalue']) ? $cvalue['defaultvalue'] : null,
+                    !empty($cvalue['transform']) ? $cvalue['transform'] : null,
+                    !empty($cvalue['importinstruction']) ? $cvalue['importinstruction'] : null,
                 );
             }
         } else {
@@ -128,15 +128,15 @@ class csvsettings {
                     break;
                 }
                 $this->columns[$c['name']] = new csvcolumn(
-                $c['name'],
-                !empty($c['localizedname']) ? $c['localizedname'] : $c['name'],
-                array_key_exists('mandatory', $c) ? $c['mandatory'] : null,
-                array_key_exists('unique', $c) ? $c['unique'] : null,
-                !empty($c['type']) ? $c['type'] : null,
-                !empty($c['format']) ? $c['format'] : null,
-                !empty($c['defaultvalue']) ? $c['defaultvalue'] : null,
-                !empty($c['transform']) ? $c['transform'] : null,
-                !empty($c['importinstruction']) ? $c['importinstruction'] : null,
+                    $c['name'],
+                    !empty($c['localizedname']) ? $c['localizedname'] : $c['name'],
+                    array_key_exists('mandatory', $c) ? $c['mandatory'] : null,
+                    array_key_exists('unique', $c) ? $c['unique'] : null,
+                    !empty($c['type']) ? $c['type'] : null,
+                    !empty($c['format']) ? $c['format'] : null,
+                    !empty($c['defaultvalue']) ? $c['defaultvalue'] : null,
+                    !empty($c['transform']) ? $c['transform'] : null,
+                    !empty($c['importinstruction']) ? $c['importinstruction'] : null,
                 );
             }
         }

@@ -52,7 +52,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class electivenotbookable implements bo_condition {
-
     /** @var int $id Standard Conditions have hardcoded ids. */
     public $id = MOD_BOOKING_BO_COND_ELECTIVENOTBOOKABLE;
 
@@ -112,7 +111,6 @@ class electivenotbookable implements bo_condition {
             if (!elective::is_bookable($settings)) {
                 $isavailable = false;
             }
-
         }
 
         return $isavailable;
@@ -209,7 +207,7 @@ class electivenotbookable implements bo_condition {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        list($template, $data2) = booking_bookit::render_bookit_template_data($settings, 0, false);
+        [$template, $data2] = booking_bookit::render_bookit_template_data($settings, 0, false);
         $data2 = reset($data2);
         $template = reset($template);
 
@@ -282,7 +280,8 @@ class electivenotbookable implements bo_condition {
             'alert',
             'option',
             false,
-            'noforward');
+            'noforward'
+        );
     }
 
     /**

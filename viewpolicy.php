@@ -33,7 +33,7 @@ $booking->apply_tags();
 
 $context = context_course::instance($booking->settings->course);
 
-list($course, $cm) = get_course_and_cm_from_cmid($cmid);
+[$course, $cm] = get_course_and_cm_from_cmid($cmid);
 
 require_login($course->id, false);
 

@@ -36,7 +36,6 @@ require_once("$CFG->libdir/formslib.php");
  * @package mod_booking
  */
 class customreporttemplatesadd_form extends moodleform {
-
     /**
      *
      * {@inheritDoc}
@@ -51,13 +50,18 @@ class customreporttemplatesadd_form extends moodleform {
         $mform->setType('name', PARAM_TEXT);
         $mform->addRule('name', null, 'required', null, 'client');
 
-        $mform->addElement('filemanager', 'templatefile', get_string('templatefile', 'booking'), null,
-                        ['subdirs' => 0,
+        $mform->addElement(
+            'filemanager',
+            'templatefile',
+            get_string('templatefile', 'booking'),
+            null,
+            ['subdirs' => 0,
                         'maxbytes' => $CFG->maxbytes,
                         'areamaxbytes' => 10485760,
                         'maxfiles' => 1,
                         'accepted_types' => ['odt', 'ods', 'docx', 'xlsx'],
-                        ]);
+            ]
+        );
         $mform->addRule('templatefile', null, 'required', null, 'client');
 
         $this->add_action_buttons();

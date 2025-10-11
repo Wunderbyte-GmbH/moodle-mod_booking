@@ -38,7 +38,6 @@ use moodle_url;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class actionsform extends dynamic_form {
-
     /**
      * {@inheritdoc}
      * @see moodleform::definition()
@@ -52,7 +51,6 @@ class actionsform extends dynamic_form {
         $mform->addElement('hidden', 'id', $formdata['id'] ?? 0);
         $mform->addElement('hidden', 'optionid', $formdata['optionid'] ?? 0);
         $mform->addElement('hidden', 'cmid', $formdata['cmid'] ?? 0);
-
     }
 
     /**
@@ -105,11 +103,10 @@ class actionsform extends dynamic_form {
             $data = (object)$this->_ajaxformdata;
             $data = actions_info::set_data_for_form($data);
         } else {
-            $data = (Object)$this->_ajaxformdata;
+            $data = (object)$this->_ajaxformdata;
         }
 
         $this->set_data($data);
-
     }
 
     /**
@@ -122,7 +119,7 @@ class actionsform extends dynamic_form {
      */
     public function validation($data, $files) {
         $errors = [];
-        if ( $data['action_type'] == 'generateprolicense') {
+        if ($data['action_type'] == 'generateprolicense') {
             $errors = generateprolicense::validate_action_form($data);
         }
         return $errors;
@@ -152,5 +149,4 @@ class actionsform extends dynamic_form {
     protected function check_access_for_dynamic_submission(): void {
         require_capability('moodle/site:config', context_system::instance());
     }
-
 }

@@ -98,7 +98,6 @@ class select_deputy_of_supervisor implements booking_rule_condition {
         $userfields = profile_get_custom_fields();
 
         if (!empty($userfields)) {
-
             $mform->addElement(
                 'static',
                 'fieldofuserfromeventdeputy_desc',

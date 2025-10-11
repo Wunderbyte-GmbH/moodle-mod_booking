@@ -29,7 +29,6 @@ use mod_booking\teachers_handler;
  * Structure step to restore one booking activity
  */
 class restore_booking_activity_structure_step extends restore_activity_structure_step {
-
     /**
      * Function that will return the structure to be processed by this restore_step.
      * Must return one array of @restore_path_element elements
@@ -188,8 +187,14 @@ class restore_booking_activity_structure_step extends restore_activity_structure
                 ];
 
                 // Get file.
-                $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
-                                    $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
+                $file = $fs->get_file(
+                    $fileinfo['contextid'],
+                    $fileinfo['component'],
+                    $fileinfo['filearea'],
+                    $fileinfo['itemid'],
+                    $fileinfo['filepath'],
+                    $fileinfo['filename']
+                );
 
                 // Read contents of the old image file.
                 if ($file && $cmid) {
@@ -303,8 +308,14 @@ class restore_booking_activity_structure_step extends restore_activity_structure
             ];
 
             // Get file.
-            $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
-                                $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
+            $file = $fs->get_file(
+                $fileinfo['contextid'],
+                $fileinfo['component'],
+                $fileinfo['filearea'],
+                $fileinfo['itemid'],
+                $fileinfo['filepath'],
+                $fileinfo['filename']
+            );
 
             // Read contents of the old image file.
             if ($file && $cmid) {

@@ -47,7 +47,6 @@ require_once($CFG->libdir . '/externallib.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class toggle_notify_user extends external_api {
-
     /**
      * Describes the parameters for toggle_notify_user.
      *
@@ -57,8 +56,7 @@ class toggle_notify_user extends external_api {
         return new external_function_parameters([
             'userid' => new external_value(PARAM_INT, 'user id'),
             'optionid' => new external_value(PARAM_INT, 'option id'),
-            ]
-        );
+            ]);
     }
 
     /**
@@ -71,8 +69,10 @@ class toggle_notify_user extends external_api {
      */
     public static function execute(int $userid, int $optionid): array {
 
-        $params = self::validate_parameters(self::execute_parameters(),
-                ['userid' => $userid, 'optionid' => $optionid]);
+        $params = self::validate_parameters(
+            self::execute_parameters(),
+            ['userid' => $userid, 'optionid' => $optionid]
+        );
 
         $result = booking_option::toggle_notify_user($params['userid'], $params['optionid']);
 
@@ -86,11 +86,12 @@ class toggle_notify_user extends external_api {
      */
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
-            'status' => new external_value(PARAM_INT,
-                    'Status 1 for user is now on list, 0 for not on list.'),
+            'status' => new external_value(
+                PARAM_INT,
+                'Status 1 for user is now on list, 0 for not on list.'
+            ),
             'optionid' => new external_value(PARAM_INT, 'option id'),
             'error' => new external_value(PARAM_RAW, 'error'),
-            ]
-        );
+            ]);
     }
 }

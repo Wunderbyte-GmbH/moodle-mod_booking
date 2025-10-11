@@ -32,7 +32,6 @@ namespace mod_booking\task;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class remove_activity_completion extends \core\task\scheduled_task {
-
     /**
      * Get task name
      *
@@ -55,7 +54,7 @@ class remove_activity_completion extends \core\task\scheduled_task {
         $params = ['now' => $now];
 
         $result = $DB->get_records_sql(
-                'SELECT ba.id, ba.bookingid, ba.optionid, ba.userid, b.course
+            'SELECT ba.id, ba.bookingid, ba.optionid, ba.userid, b.course
             FROM {booking_answers} ba
             LEFT JOIN {booking_options} bo
             ON bo.id = ba.optionid
@@ -63,7 +62,9 @@ class remove_activity_completion extends \core\task\scheduled_task {
             ON b.id = bo.bookingid
             WHERE bo.removeafterminutes > 0
             AND ba.completed = 1
-                AND ba.timemodified < (:now - bo.removeafterminutes * 60);', $params);
+                AND ba.timemodified < (:now - bo.removeafterminutes * 60);',
+            $params
+        );
 
         require_once($CFG->libdir . '/completionlib.php');
 
@@ -80,8 +81,10 @@ class remove_activity_completion extends \core\task\scheduled_task {
 
             $DB->update_record('booking_answers', $userdata);
 
-            $countcompleted = $DB->count_records('booking_answers',
-                ['bookingid' => $value->bookingid, 'userid' => $userdata->userid, 'completed' => '1']);
+            $countcompleted = $DB->count_records(
+                'booking_answers',
+                ['bookingid' => $value->bookingid, 'userid' => $userdata->userid, 'completed' => '1']
+            );
 
             if ($completion->is_enabled($cm) && $booking->enablecompletion > $countcompleted) {
                 $completion->update_state($cm, COMPLETION_INCOMPLETE, $userdata->userid);

@@ -34,7 +34,7 @@ $url = new moodle_url('/mod/booking/tagtemplatesadd.php', ['id' => $id, 'tagid' 
 $urlredirect = new moodle_url('/mod/booking/tagtemplates.php', ['id' => $id]);
 $PAGE->set_url($url);
 
-list($course, $cm) = get_course_and_cm_from_cmid($id);
+[$course, $cm] = get_course_and_cm_from_cmid($id);
 
 require_course_login($course, false, $cm);
 
@@ -61,7 +61,6 @@ if ($mform->is_cancelled()) {
     redirect($urlredirect, '', 0);
     die();
 } else if ($data = $mform->get_data()) {
-
     // Add new record.
     $tag = new stdClass();
     $tag->id = $data->tagid;

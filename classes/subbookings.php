@@ -33,7 +33,6 @@ use moodle_url;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class subbookings {
-
     /** @var int $id The ID of the booking option. */
     public $id = null;
 
@@ -68,12 +67,13 @@ class subbookings {
      * @return void
      */
     public function user_submit_response(
-            int $userid,
-            int $sboid,
-            string $json = '',
-            int $timestart = 0,
-            int $timeend = 0,
-            bool $addedtocart = false) {
+        int $userid,
+        int $sboid,
+        string $json = '',
+        int $timestart = 0,
+        int $timeend = 0,
+        bool $addedtocart = false
+    ) {
 
         global $DB, $USER;
 
@@ -94,9 +94,5 @@ class subbookings {
         ];
 
         $DB->insert_record('booking_subbooking_answers', $record);
-
     }
-
-
-
 }

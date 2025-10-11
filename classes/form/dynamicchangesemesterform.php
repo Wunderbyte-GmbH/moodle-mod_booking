@@ -47,7 +47,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class dynamicchangesemesterform extends dynamic_form {
-
     /** @var int $cmid */
     private $cmid = null;
 
@@ -81,7 +80,6 @@ class dynamicchangesemesterform extends dynamic_form {
             $this->cmid = $cmid;
 
             $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
-
         } else if ($this->cmid && $this->cmid != 0) {
             $cmid = $this->cmid;
         } else if (isset($this->_ajaxformdata['cmid'])) {
@@ -169,10 +167,12 @@ class dynamicchangesemesterform extends dynamic_form {
         if (empty($data['confirmchangesemester'])) {
             $errors['confirmchangesemester'] = get_string('error:confirmthatyouaresure', 'mod_booking');
         }
-        if (!empty($DB->get_records('task_adhoc', [
+        if (
+            !empty($DB->get_records('task_adhoc', [
             'component' => 'mod_booking',
             'classname' => '\mod_booking\task\task_adhoc_reset_optiondates_for_semester',
-        ]))) {
+            ]))
+        ) {
             $errors['confirmchangesemester'] = get_string('error:taskalreadystarted', 'mod_booking');
         }
 

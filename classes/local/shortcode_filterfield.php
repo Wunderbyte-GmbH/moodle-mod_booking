@@ -73,5 +73,4 @@ class shortcode_filterfield {
         $columns = $DB->get_columns($tablename);
         return array_key_exists($this->shortname, $columns);
     }
-
 }

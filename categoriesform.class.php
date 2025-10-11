@@ -34,7 +34,6 @@ require_once($CFG->libdir . '/formslib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_booking_categories_form extends moodleform {
-
     /**
      * Show sub categories.
      *
@@ -81,8 +80,12 @@ class mod_booking_categories_form extends moodleform {
 
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
-        $mform->addElement('text', 'name', get_string('categoryname', 'booking'),
-                ['size' => '64']);
+        $mform->addElement(
+            'text',
+            'name',
+            get_string('categoryname', 'booking'),
+            ['size' => '64']
+        );
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->setType('name', PARAM_TEXT);
 

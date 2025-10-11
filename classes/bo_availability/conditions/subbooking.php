@@ -46,7 +46,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class subbooking implements bo_condition {
-
     /** @var int $id Standard Conditions have hardcoded ids. */
     public $id = MOD_BOOKING_BO_COND_SUBBOOKING;
 
@@ -265,7 +264,6 @@ class subbooking implements bo_condition {
             $description = $full ? get_string('bocondsubbookingfullavailable', 'mod_booking') :
                 get_string('bocondsubbookingavailable', 'mod_booking');
         } else {
-
             $description = '';
         }
         return $description;

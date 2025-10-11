@@ -32,7 +32,6 @@ require_once($CFG->dirroot . '/mod/booking/backup/moodle2/backup_booking_setting
  * Booking backup task that provides all the settings and steps to perform one complete backup of the activity
  */
 class backup_booking_activity_task extends backup_activity_task {
-
     /**
      * Define (add) particular settings this activity can have.
      */
@@ -46,7 +45,8 @@ class backup_booking_activity_task extends backup_activity_task {
     protected function define_my_steps() {
         // Booking only has one structure step.
         $this->add_step(
-                new backup_booking_activity_structure_step('booking_structure', 'booking.xml'));
+            new backup_booking_activity_structure_step('booking_structure', 'booking.xml')
+        );
     }
 
     /**

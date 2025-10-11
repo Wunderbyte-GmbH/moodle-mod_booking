@@ -36,7 +36,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class bookinganswer_cancelled extends \core\event\base {
-
     /**
      * Init
      *
@@ -101,7 +100,9 @@ class bookinganswer_cancelled extends \core\event\base {
      *
      */
     public function get_url() {
-        return new \moodle_url('/mod/booking/subscribeusers.php',
-                ['id' => $this->contextinstanceid, 'optionid' => $this->objectid]);
+        return new \moodle_url(
+            '/mod/booking/subscribeusers.php',
+            ['id' => $this->contextinstanceid, 'optionid' => $this->objectid]
+        );
     }
 }

@@ -135,8 +135,13 @@ class beforecompletedtext extends field_base {
             fields_info::add_header_to_mform($mform, self::$header);
         }
 
-        $mform->addElement('editor', 'beforecompletedtext',
-                    get_string("beforecompletedtext", "booking"), null, null);
+        $mform->addElement(
+            'editor',
+            'beforecompletedtext',
+            get_string("beforecompletedtext", "booking"),
+            null,
+            null
+        );
         $mform->setType('beforecompletedtext', PARAM_CLEANHTML);
         $mform->addHelpButton('beforecompletedtext', 'beforecompletedtext', 'mod_booking');
     }

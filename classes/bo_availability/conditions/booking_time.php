@@ -493,5 +493,4 @@ class booking_time implements bo_condition {
             $defaultvalues->bo_cond_booking_time_overrideoperator = $acdefault->overrideoperator;
         }
     }*/
-
 }

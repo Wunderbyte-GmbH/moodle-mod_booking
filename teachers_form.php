@@ -38,7 +38,6 @@ require_login(0, false);
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_booking_teachers_form extends moodleform {
-
     /**
      *
      * {@inheritDoc}
@@ -52,23 +51,28 @@ class mod_booking_teachers_form extends moodleform {
         $cm = $this->_customdata['cm'];
 
         if ($this->_customdata['teachers']) {
-
             foreach ($this->_customdata['teachers'] as $user) {
                 if (empty($user->imagealt)) {
                     $user->imagealt = '';
                 }
 
-                $userdata = $DB->get_record('booking_teachers',
-                        ['optionid' => $this->_customdata['option']->id, 'userid' => $user->id]);
+                $userdata = $DB->get_record(
+                    'booking_teachers',
+                    ['optionid' => $this->_customdata['option']->id, 'userid' => $user->id]
+                );
 
                 $checkmark = "&nbsp;";
                 if ($userdata->completed == '1') {
                     $checkmark = "&#x2713;";
                 }
-                $mform->addElement('advcheckbox', "user[{$user->id}]",
-                        $checkmark . " <a href=\"$CFG->wwwroot/user/view.php?id=$user->id\">" .
-                                 fullname($user) . "</a>", '',
-                                ['group' => $this->_customdata['option']->id + 1]);
+                $mform->addElement(
+                    'advcheckbox',
+                    "user[{$user->id}]",
+                    $checkmark . " <a href=\"$CFG->wwwroot/user/view.php?id=$user->id\">" .
+                                 fullname($user) . "</a>",
+                    '',
+                    ['group' => $this->_customdata['option']->id + 1]
+                );
             }
 
             $this->add_checkbox_controller($this->_customdata['option']->id + 1);
@@ -82,16 +86,27 @@ class mod_booking_teachers_form extends moodleform {
 
             $course = $DB->get_record('course', ['id' => $bookingoption->booking->settings->course]);
             $completion = new \completion_info($course);
-            if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC
-                && $bookingoption->booking->settings->enablecompletion > 0) {
-
-                $buttonarray[] = &$mform->createElement('static', 'onlylabel', '',
-                    '<span class="bookinglabelname">' . get_string('withselected', 'booking') . '</span>');
-                $buttonarray[] = &$mform->createElement("submit", 'activitycompletion',
-                    get_string('confirmoptioncompletion', 'booking'));
+            if (
+                $completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC
+                && $bookingoption->booking->settings->enablecompletion > 0
+            ) {
+                $buttonarray[] = &$mform->createElement(
+                    'static',
+                    'onlylabel',
+                    '',
+                    '<span class="bookinglabelname">' . get_string('withselected', 'booking') . '</span>'
+                );
+                $buttonarray[] = &$mform->createElement(
+                    "submit",
+                    'activitycompletion',
+                    get_string('confirmoptioncompletion', 'booking')
+                );
             }
-            $buttonarray[] = &$mform->createElement("submit", 'turneditingon',
-                get_string('turneditingon'));
+            $buttonarray[] = &$mform->createElement(
+                "submit",
+                'turneditingon',
+                get_string('turneditingon')
+            );
         }
 
         $buttonarray[] = &$mform->createElement('cancel');

@@ -45,7 +45,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class subbooking_blocks implements bo_condition {
-
     /** @var int $id Standard Conditions have hardcoded ids. */
     public $id = MOD_BOOKING_BO_COND_SUBBOOKINGBLOCKS;
 
@@ -196,7 +195,7 @@ class subbooking_blocks implements bo_condition {
         $dataarray = [];
         foreach ($settings->subbookings as $subbooking) {
             if ($subbooking->block) {
-                list($data, $template) = $subbooking->return_interface($settings, $userid);
+                [$data, $template] = $subbooking->return_interface($settings, $userid);
                 if (!empty($data)) {
                     $dataarray[] = $data;
                     $templates[] = $template;
@@ -262,7 +261,6 @@ class subbooking_blocks implements bo_condition {
             $description = $full ? get_string('bocondisbookablefullavailable', 'mod_booking') :
                 get_string('bocondisbookableavailable', 'mod_booking');
         } else {
-
             // If we have one or more subbookings, we render the interface here.
             // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
             /* foreach ($settings->subbookings as $subbooking) {
@@ -272,7 +270,6 @@ class subbooking_blocks implements bo_condition {
             } */
 
             $description = '';
-
         }
         return $description;
     }

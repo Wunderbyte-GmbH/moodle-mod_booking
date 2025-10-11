@@ -200,7 +200,7 @@ class subbookings_info {
         int $subbookingid,
         int $cmid,
         int $optionid
-        ) {
+    ) {
         global $DB, $USER;
         $DB->delete_records('booking_subbooking_options', ['id' => (int)$subbookingid]);
 
@@ -318,7 +318,6 @@ class subbookings_info {
     public static function has_soft_subbookings(booking_option_settings $settings, $userid) {
 
         foreach ($settings->subbookings as $subbooking) {
-
             if ($subbooking->block != 0) {
                 continue;
             }
