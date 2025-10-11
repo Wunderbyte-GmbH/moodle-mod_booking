@@ -35,6 +35,8 @@ use mod_booking\form\subscribe_cohort_or_group_form;
 use mod_booking\output\booked_users;
 use mod_booking\output\renderer;
 use mod_booking\singleton_service;
+use mod_booking\booking_existing_user_selector;
+use mod_booking\booking_potential_user_selector;
 
 global $CFG, $DB, $COURSE, $PAGE, $OUTPUT;
 
