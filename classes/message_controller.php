@@ -126,7 +126,8 @@ class message_controller {
     /** @var array $ruleid the id of the running rule. */
     private $ruleid;
 
-    private $ical;
+    /** @var ical $ical */
+    private ical $ical;
 
     /**
      * Constructor
