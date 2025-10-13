@@ -530,6 +530,19 @@ class message_controller {
 
                             // Check if the file exists in the temp path.
                             if (file_exists($tempfilepath)) {
+                                // To prevent any duplication we delete the stored ics file if it is already stored.
+                                $existing = $fs->get_file(
+                                    $context->id,
+                                    'mod_booking',
+                                    'message_attachments',
+                                    $itemid,
+                                    '/',
+                                    $attachname
+                                );
+                                if ($existing) {
+                                    $existing->delete();
+                                }
+
                                 // Prepare file record in Moodle storage.
                                 $filerecord = [
                                     'contextid' => $context->id,
