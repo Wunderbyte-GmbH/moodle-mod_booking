@@ -815,7 +815,7 @@ class message_controller {
                 // From.
                 // Generate from string.
                 $fromdetails = new stdClass();
-                $fromdetails->name = fullname($userfrom);
+                $fromdetails->name = fullname($this->messagedata->userfrom);
                 $fromdetails->url = preg_replace('#^https?://#', '', $CFG->wwwroot);
                 $fromdetails->siteshortname = format_string($SITE->shortname);
                 $fromstring = $fromdetails->name;
