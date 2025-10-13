@@ -16,6 +16,7 @@
 
 namespace mod_booking;
 
+use context_module;
 use mod_booking\booking_user_selector_base;
 use stdClass;
 
@@ -102,7 +103,13 @@ class booking_potential_user_selector extends booking_user_selector_base {
 
         // If true, anyone can be booked - even users not enrolled.
         // To allow this, bookanyone has to be given.
-        if ($bookanyone && has_capability('mod/booking:bookanyone', context_module::instance($this->cm->id))) {
+        if (
+            $bookanyone
+            && has_capability(
+            'mod/booking:bookanyone',
+            context_module::instance($this->cm->id)
+            )
+        ) {
             $enrolledsqlpart = '';
         } else {
             $enrolledsqlpart = "AND u.id IN (
