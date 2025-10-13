@@ -314,6 +314,9 @@ final class booking_test extends advanced_testcase {
                     'confirmationtrainerenabled' => 1,
                     'multiplebookings' => 1,
                     'allowtobookagainafter' => 60, // 60 seconds.
+                    'maxperuser' => 1, // Test for https://github.com/Wunderbyte-GmbH/moodle-mod_booking/issues/1145.
+                    'maxanswers' => 1,
+                    'maxoverbooking' => 1,
                 ],
                 'clockforwardshift' => 60,
                 'expected' => [

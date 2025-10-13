@@ -1019,7 +1019,8 @@ final class rules_test extends advanced_testcase {
         $record->text = 'football';
         $record->chooseorcreatecourse = 1; // Connected existing course.
         $record->courseid = $course1->id;
-        $record->maxanswers = 1;
+        $record->maxanswers = 1; // Test for https://github.com/Wunderbyte-GmbH/moodle-mod_booking/issues/1145.
+        $record->maxperuser = 1;
         $record->waitforconfirmation = 1; // Force waitinglist.
         $record->description = 'Will start in 2050';
         $record->optiondateid_0 = "0";
@@ -1168,6 +1169,7 @@ final class rules_test extends advanced_testcase {
         $record->text = 'football';
         $record->chooseorcreatecourse = 1; // Connected existing course.
         $record->courseid = $course1->id;
+        $record->maxperuser = 1; // Test for https://github.com/Wunderbyte-GmbH/moodle-mod_booking/issues/1145.
         $record->maxanswers = 1;
         $record->maxoverbooking = 2; // Enable waitinglist.
         $record->waitforconfirmation = 1; // Force waitinglist.
