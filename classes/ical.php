@@ -573,4 +573,12 @@ class ical {
         }
         return $out;
     }
+
+    /**
+     * Returns the dates records from the optiondates table.
+     * @return array
+     */
+    public function get_times(): array {
+        return $this->times;
+    }
 }

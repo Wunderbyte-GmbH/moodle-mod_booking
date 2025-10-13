@@ -126,6 +126,8 @@ class message_controller {
     /** @var array $ruleid the id of the running rule. */
     private $ruleid;
 
+    private $ical;
+
     /**
      * Constructor
      *
@@ -583,9 +585,15 @@ class message_controller {
 
                 // Check if checked: Use a non-native mailer instead of Moodle’s built-in one.
                 $nonnativemailer = get_config('booking', 'usenonnativemailer');
-                if (!empty($this->rulesettings->actiondata->sendical) && !empty($nonnativemailer)) {
+                if (
+                    !empty($this->rulesettings->actiondata->sendical)
+                    && !empty($nonnativemailer)
+                    && !empty($this->ical)
+                    && count($this->ical->get_times()) === 1 // Check number of dates in the option.
+                ) {
                     // If message contains attachment (ics file), we need to mail it using PHPMailer
-                    // as Moodle core can not send messages with mime type text/calendar.
+                    // as Moodle core can not send messages with mime type text/calendar. This logic works
+                    // only when there is 1 date, so in the case we have more than one date, we don't use this logic.
                     $sent = $this->send_message_with_ical($this->messagedata);
                 } else {
                     $sent = message_send($this->messagedata);
@@ -699,6 +707,7 @@ class message_controller {
             // Check if setting to send a cancel ical is enabled.
             if (get_config('booking', 'icalcancel')) {
                 $ical = new ical($this->bookingsettings, $this->optionsettings, $this->user, $this->bookingmanager, false);
+                $this->ical = $ical;
                 $attachments = $ical->get_attachments(true);
                 $attachname = $ical->get_name();
             }
@@ -706,6 +715,7 @@ class message_controller {
             // Generate ical attachments to go with the message. Check if ical attachments enabled.
             if (get_config('booking', 'attachical')) {
                 $ical = new ical($this->bookingsettings, $this->optionsettings, $this->user, $this->bookingmanager, $updated);
+                $this->ical = $ical;
                 $attachments = $ical->get_attachments($updated);
                 $attachname = $ical->get_name();
             }
