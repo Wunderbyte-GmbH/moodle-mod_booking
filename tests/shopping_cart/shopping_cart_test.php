@@ -800,6 +800,158 @@ final class shopping_cart_test extends advanced_testcase {
     }
 
     /**
+     * Test of purchase of few booking options with price and cancellation all by cashier with fixed consumption has been set.
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     * @covers \mod_booking\booking_option::cancelbookingoption
+     * @dataProvider booking_common_settings_provider
+     *
+     */
+    public function test_booking_option_cancelled_rule_execution(array $bdata): void {
+        global $DB, $CFG;
+
+        self::tearDown();
+        $this->preventResetByRollback();
+
+        // Set parems requred for cancellation.
+        $bdata['booking']['cancancelbook'] = 1;
+        set_config('cancelationfee', 4, 'local_shopping_cart');
+        set_config('calculateconsumation', 1, 'local_shopping_cart');
+        set_config('calculateconsumationfixedpercentage', 30, 'local_shopping_cart');
+        set_config('fixedpercentageafterserviceperiodstart', 1, 'local_shopping_cart');
+
+        // Setup test data.
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $course2 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        // Create user profile custom fields.
+        $this->getDataGenerator()->create_custom_profile_field([
+            'datatype' => 'text', 'shortname' => 'pricecat', 'name' => 'pricecat',
+        ]);
+        set_config('pricecategoryfield', 'pricecat', 'booking');
+
+        // Create users.
+        $students[0] = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'default']);
+        $students[1] = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'discount1']);
+        $students[2] = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'discount2']);
+        $teacher = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
+
+        $bdata['booking']['course'] = $course1->id;
+        $bdata['booking']['bookingmanager'] = $bookingmanager->username;
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata['booking']);
+
+        $this->setAdminUser();
+
+        foreach ($students as $student) {
+            $this->getDataGenerator()->enrol_user($student->id, $course1->id, 'student');
+        }
+        $this->getDataGenerator()->enrol_user($teacher->id, $course1->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course1->id, 'editingteacher');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $boevent2 = '"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_cancelled"';
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"optcancsubj","template":"optcancmsg","templateformat":"1"}';
+        $ruledata2 = [
+            'name' => 'notifyusers',
+            'conditionname' => 'select_student_in_bo',
+            'contextid' => 1,
+            'conditiondata' => '{"borole":"0"}',
+            'actionname' => 'send_mail',
+            'actiondata' => $actstr,
+            'rulename' => 'rule_react_on_event',
+            'ruledata' => '{' . $boevent2 . ',"aftercompletion":"","condition":"0"}',
+        ];
+        $rule2 = $plugingenerator->create_rule($ruledata2);
+
+        // Create set of price categories.
+        $plugingenerator->create_pricecategory($bdata['pricecategories'][0]);
+        $plugingenerator->create_pricecategory($bdata['pricecategories'][1]);
+        $plugingenerator->create_pricecategory($bdata['pricecategories'][2]);
+
+        // Create a booking option - setup only properties different form given in data provider.
+        $record = (object)$bdata['options'][1];
+        $record->bookingid = $booking1->id;
+        $record->chooseorcreatecourse = 1; // Reqiured.
+        $record->courseid = $course2->id;
+        $record->useprice = 1; // Use price from the default category.
+        $record->importing = 1;
+        $record->teachersforoption = $teacher->username;
+        $option1 = $plugingenerator->create_option($record);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid); // Require to avoid caching issues.
+        $boinfo = new bo_info($settings);
+
+        // Create users' purchases in background.
+        foreach ($students as $student) {
+            $userpurchase = ['optionid' => $option1->id, 'userid' => $student->id];
+            $plugingenerator->create_user_purchase($userpurchase);
+        }
+
+        // Validate that option already booked.
+        foreach ($students as $student) {
+            [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student->id);
+            $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+        }
+
+        // Test dynamic form (partial).
+        $formdata = [
+            'cancelationfee' => 0,
+            'componentname' => 'mod_booking',
+            'area' => 'option',
+            'itemid' => $settings->id,
+        ];
+        $form = new modal_cancel_all_addcredit(null, $formdata, 'post', '', [], true, $formdata, true);
+        $formdata1 = $form->mock_ajax_submit($formdata);
+
+        // Validate code of modal_cancel_all_addcredit/process_dynamic_submission.
+        $data = (object)$formdata1;
+        $bookedusers = shopping_cart_history::get_user_list_for_option($data->itemid, $data->componentname, $data->area);
+
+        $componentname = $data->componentname;
+        $area = $data->area;
+
+        foreach ($bookedusers as $buser) {
+            shopping_cart::cancel_purchase(
+                $buser->itemid,
+                $data->area,
+                $buser->userid,
+                $componentname,
+                $buser->id,
+                0,
+                0,
+                1,
+                1
+            );
+        }
+
+        $answers = $DB->get_records('booking_answers', ['optionid' => $option1->id]);
+
+        // Asserting that the key of openruleexecution was set.
+        foreach ($answers as $a) {
+            $this->assertNotEmpty($a->openruleexecution);
+        }
+        // For the booking component, we have a special treatment here.
+        if ($componentname === 'mod_booking' && $area === 'option') {
+            $pluginmanager = \core_plugin_manager::instance();
+            $plugins = $pluginmanager->get_plugins_of_type('mod');
+            if (isset($plugins['booking'])) {
+                booking_option::cancelbookingoption($data->itemid);
+            }
+        }
+
+        // 3 Users booked, expecting 3 messages triggered by rule.
+        $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $this->assertCount(3, $tasks);
+    }
+
+    /**
      * Test of purchase of few booking options with price and cancellation all by cashier with consumption has been enabled.
      *
      * @param array $bdata

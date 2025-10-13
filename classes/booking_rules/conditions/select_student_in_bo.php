@@ -194,7 +194,10 @@ class select_student_in_bo implements booking_rule_condition {
                 $borole = $this->borole;
         }
 
-        $sql->where .= " AND ba.waitinglist $operator :borole $anduserid ";
+        $sql->where .=
+            " AND (ba.waitinglist $operator :borole $anduserid
+            OR ba.openruleexecution IS NOT NULL AND ba.openruleexecution <> 0
+            ) ";
         // Add sorting in case we use this condition for interval notification.
         $sql->sort = " ba.timemodified ASC ";
         $params['borole'] = $borole;
