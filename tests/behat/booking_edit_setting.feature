@@ -198,6 +198,11 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     And I visit "/mod/booking/customfield.php"
     And I wait "1" seconds
     ## Recommended from G.M.
+    And I visit "/admin/roles/manage.php"
+    And I wait "1" seconds
+    ## Edit Teacher role to check missing strings on capabilities.
+    And I visit "/admin/roles/define.php?action=view&roleid=3"
+    And I wait "1" seconds
     And I visit "/admin/webservice/testclient.php"
     And I wait "1" seconds
     And I visit "/admin/webservice/documentation.php"
