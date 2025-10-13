@@ -573,7 +573,7 @@ class message_controller {
                 if (!empty($this->rulesettings->actiondata->sendical) && !empty($nonnativemailer)) {
                     // If message contains attachment (ics file), we need to mail it using PHPMailer
                     // as Moodle core can not send messages with mime type text/calendar.
-                    $sent = $this->send_message_with_ical_attachment($this->messagedata);
+                    $sent = $this->send_message_with_ical($this->messagedata);
                 } else {
                     $sent = message_send($this->messagedata);
                 }
@@ -766,54 +766,145 @@ class message_controller {
     }
 
     /**
-     * Send message via PHPMailer.
      * This method sends the invitation as inline calendar data (not as an attachment).
      * This ensures that the recipient will see Accept and Decline buttons in mail clients such as Outlook.
      * @param \core\message\message $eventdata
      * @return bool
      */
-    public function send_message_with_ical_attachment(\core\message\message $eventdata): bool {
-        global $CFG, $SITE;
+    private function send_message_with_ical(message $eventdata): bool {
+        global $DB, $CFG, $SITE;
         try {
+            require_once($CFG->libdir . '/phpmailer/moodle_phpmailer.php');
+
             $icscontent = $eventdata->attachment->get_content(); // ICS file content.
 
-            $userto = $this->messagedata->userto;
-            $userfrom = $this->messagedata->userfrom;
+            $recepientlist = [$this->messagedata->userto];
+            $ccemails = [];
 
-            // Generate from string.
-            $fromdetails = new stdClass();
-            $fromdetails->name = fullname($userfrom);
-            $fromdetails->url = preg_replace('#^https?://#', '', $CFG->wwwroot);
-            $fromdetails->siteshortname = format_string($SITE->shortname);
-            $fromstring = $fromdetails->name;
-            if ($CFG->emailfromvia == EMAIL_VIA_ALWAYS) {
-                $fromstring = get_string('emailvia', 'core', $fromdetails);
+            if (
+                $this->user_inrelevant_core_checks_for_mailsending() &&
+                $this->user_relevant_core_checks_for_mailsending($recepientlist, true) &&
+                $this->user_relevant_core_checks_for_mailsending($ccemails)
+            ) {
+                // Create mail instance.
+                $coremailer = get_mailer();
+                // From.
+                // Generate from string.
+                $fromdetails = new stdClass();
+                $fromdetails->name = fullname($userfrom);
+                $fromdetails->url = preg_replace('#^https?://#', '', $CFG->wwwroot);
+                $fromdetails->siteshortname = format_string($SITE->shortname);
+                $fromstring = $fromdetails->name;
+                if ($CFG->emailfromvia == EMAIL_VIA_ALWAYS) {
+                    $fromstring = get_string('emailvia', 'core', $fromdetails);
+                }
+                $coremailer->setFrom($this->messagedata->userfrom->email, $fromstring);
+
+                // To.
+                foreach ($recepientlist as $user) {
+                    if (is_string($user)) {
+                        $coremailer->addAddress($user, $user);
+                    } else {
+                        $coremailer->addAddress($user->email, fullname($user));
+                    }
+                }
+
+                foreach ($ccemails as $cc) {
+                    if (is_string($cc)) {
+                        $coremailer->addCC($cc);
+                    } else {
+                        $coremailer->addCC($cc->email);
+                    }
+                }
+
+                $coremailer->CharSet = 'UTF-8';
+
+                $coremailer->Subject = $this->messagedata->subject;
+                $coremailer->Body = $eventdata->fullmessagehtml;
+                $coremailer->AltBody = $eventdata->fullmessage;
+
+                $coremailer->isHTML(true);
+
+                // Add inline calendar data (not as attachment).
+                $coremailer->Ical = $icscontent;
+
+                // Optional: this header helps Outlook recognise it.
+                $coremailer->addCustomHeader('Content-Class', 'urn:content-classes:calendarmessage');
+
+                // Optional: ensures proper MIME order.
+                $coremailer->ContentType = 'multipart/alternative';
+
+                return $coremailer->send();
             }
-
-            // Craete mail instance.
-            $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
-            $mail->CharSet = 'UTF-8';
-            $mail->setFrom($userfrom->email, $fromstring);
-            $mail->addAddress($userto->email, fullname($userto));
-            $mail->Subject = $this->messagedata->subject;
-            $mail->isHTML(true);
-
-            // Normal body text.
-            $mail->Body = $eventdata->fullmessagehtml;
-            $mail->AltBody = $eventdata->fullmessage;
-
-            // Add inline calendar data (not as attachment).
-            $mail->Ical = $icscontent;
-
-            // Optional: this header helps Outlook recognise it.
-            $mail->addCustomHeader('Content-Class', 'urn:content-classes:calendarmessage');
-
-            // Optional: ensures proper MIME order.
-            $mail->ContentType = 'multipart/alternative';
-
-            return $mail->send();
+            return false;
         } catch (\Exception $e) {
             return false;
         }
+    }
+
+    /**
+     * Static checks for mail sending.
+     * @return bool
+     */
+    private function user_inrelevant_core_checks_for_mailsending(): bool {
+        if (
+            defined('BEHAT_SITE_RUNNING') &&
+            !defined('TEST_EMAILCATCHER_MAIL_SERVER') &&
+            !defined('TEST_EMAILCATCHER_API_SERVER')
+        ) {
+            return false;
+        }
+        if (!empty($CFG->noemailever)) {
+            debugging('Not sending email due to $CFG->noemailever config setting', DEBUG_DEVELOPER);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * User relevant checks for mail sending.
+     * @param array $userlist
+     * @param bool $mustnotbeempty
+     * @return bool
+     *
+     */
+    private function user_relevant_core_checks_for_mailsending(array &$userlist, bool $mustnotbeempty = false): bool {
+        global $CFG;
+        foreach ($userlist as $key => &$user) {
+            if (!is_string($user)) {
+                if (
+                    empty($user) ||
+                    empty($user->id) ||
+                    empty($user->email) ||
+                    !empty($user->deleted) ||
+                    (isset($user->auth) && $user->auth == 'nologin') ||
+                    (isset($user->suspended) && $user->suspended)
+                ) {
+                    unset($userlist[$key]);
+                    continue;
+                }
+
+                if (email_should_be_diverted($user->email)) {
+                    $subject = "[DIVERTED {$user->email}] $subject";
+                    $user->email = $CFG->divertallemailsto;
+                }
+
+                if (
+                    !validate_email($user->email) ||
+                    over_bounce_threshold($user) ||
+                    substr($user->email, -8) == '.invalid'
+                ) {
+                    unset($userlist[$key]);
+                    continue;
+                }
+            }
+        }
+        if (
+            $mustnotbeempty &&
+            empty($userlist)
+        ) {
+            return false;
+        }
+        return true;
     }
 }
