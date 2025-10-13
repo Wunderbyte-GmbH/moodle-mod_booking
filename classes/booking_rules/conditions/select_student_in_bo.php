@@ -204,8 +204,17 @@ class select_student_in_bo implements booking_rule_condition {
 
             if (!empty($useridstotreat)) {
                 [$sqlin, $inparams] = $DB->get_in_or_equal($useridstotreat, SQL_PARAMS_NAMED);
+                $statusdeleted = MOD_BOOKING_STATUSPARAM_DELETED;
 
-                $additionalusers = "OR ba.userid $sqlin";
+                // Subquery: select one row per user (e.g., the row with the smallest id).
+                $additionalusers = " OR ba.id IN (
+                    SELECT MAX(sub.id)
+                    FROM {booking_answers} sub
+                    WHERE sub.userid $sqlin
+                    AND sub.waitinglist = $statusdeleted
+                    GROUP BY sub.userid
+                )";
+
                 $params = array_merge($params, $inparams);
             }
         }

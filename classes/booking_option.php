@@ -3801,6 +3801,7 @@ class booking_option {
      * @param int $optionid
      * @param string $cancelreason
      * @param bool $undo
+     * @param array $userstocancel
      * @return void
      */
     public static function cancelbookingoption(
