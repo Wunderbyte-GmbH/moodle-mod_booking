@@ -3803,7 +3803,12 @@ class booking_option {
      * @param bool $undo
      * @return void
      */
-    public static function cancelbookingoption(int $optionid, string $cancelreason = '', bool $undo = false) {
+    public static function cancelbookingoption(
+        int $optionid,
+        string $cancelreason = '',
+        bool $undo = false,
+        array $userstocancel = [],
+    ) {
 
         global $DB, $USER;
 
@@ -3841,6 +3846,9 @@ class booking_option {
                                                                         'context' => $context,
                                                                         'objectid' => $optionid,
                                                                         'userid' => $USER->id,
+                                                                        'other' => [
+                                                                            'userstotreat' => $userstocancel ?? [],
+                                                                            ],
                                                                         ]);
             $event->trigger();
             // Deletion of booking answers and user events needs to happen in event observer.

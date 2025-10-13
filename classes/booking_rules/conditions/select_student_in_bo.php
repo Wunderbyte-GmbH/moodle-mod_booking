@@ -194,7 +194,23 @@ class select_student_in_bo implements booking_rule_condition {
                 $borole = $this->borole;
         }
 
-        $sql->where .= " AND ba.waitinglist $operator :borole $anduserid ";
+        $ruledata = json_decode($this->rulejson);
+        $useridstotreat = $ruledata->datafromevent->other->userstotreat ?? [];
+
+        $additionalusers = "";
+        if (!empty($useridstotreat)) {
+            // Remove any non-integer values.
+            $useridstotreat = array_filter($useridstotreat, 'intval');
+
+            if (!empty($useridstotreat)) {
+                [$sqlin, $inparams] = $DB->get_in_or_equal($useridstotreat, SQL_PARAMS_NAMED);
+
+                $additionalusers = "OR ba.userid $sqlin";
+                $params = array_merge($params, $inparams);
+            }
+        }
+
+        $sql->where .= " AND (ba.waitinglist $operator :borole $anduserid $additionalusers) ";
         // Add sorting in case we use this condition for interval notification.
         $sql->sort = " ba.timemodified ASC ";
         $params['borole'] = $borole;
