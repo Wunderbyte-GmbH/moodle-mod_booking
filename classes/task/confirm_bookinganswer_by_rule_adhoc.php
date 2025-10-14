@@ -158,7 +158,7 @@ class confirm_bookinganswer_by_rule_adhoc extends \core\task\adhoc_task {
                         null,
                         MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION,
                         "",
-                        historystatus: MOD_BOOKING_STATUSPARAM_WAITINGLIST_CONFIRMED
+                        MOD_BOOKING_STATUSPARAM_WAITINGLIST_CONFIRMED
                     );
 
                     // Set json to null for all other users on waiting list for this optuion
