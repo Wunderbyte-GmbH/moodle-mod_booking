@@ -28,6 +28,7 @@ $string['bookingextensionconfirmationtrainer:confirmationtrainerenabledinbooking
 $string['bookingextensionconfirmationtrainer:confirmationtrainerenabledinbookingoption_desc'] = 'In den Einstellungen der Buchungsoption anzeigen';
 $string['bookingextensionconfirmationtrainer:heading'] = "Bestätigung durch Trainer";
 $string['bookingextensionconfirmationtrainer:heading_desc'] = 'Bestätigung durch Trainer*innen der Buchungsoption zulassen. Wenn mehrere Bestätigungserweiterungen aktiviert sind, kann die Bestätigung von jeder aktiven Erweiterungen erfolgen.';
+$string['confirmationtrainer'] = 'Bestätigung durch Trainer:innen';
 $string['confirmationtrainerenabled'] = 'Erlaube Bestätigung durch Trainer:innen';
 $string['notallowedtoconfirm'] = "Keine Berechtigung zu buchen";
 $string['pluginname'] = 'Bestätigungsworkflow durch Trainer:in';
