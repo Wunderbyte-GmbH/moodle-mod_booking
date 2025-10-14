@@ -3808,7 +3808,7 @@ class booking_option {
         int $optionid,
         string $cancelreason = '',
         bool $undo = false,
-        array $userstocancel = [],
+        array $userstocancel = []
     ) {
 
         global $DB, $USER;
