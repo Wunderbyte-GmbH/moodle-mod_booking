@@ -105,10 +105,7 @@ class booking_potential_user_selector extends booking_user_selector_base {
         // To allow this, bookanyone has to be given.
         if (
             $bookanyone
-            && has_capability(
-                'mod/booking:bookanyone',
-                context_module::instance($this->cm->id)
-            )
+            && has_capability('mod/booking:bookanyone',context_module::instance($this->cm->id))
         ) {
             $enrolledsqlpart = '';
         } else {
