@@ -25,6 +25,7 @@
 namespace mod_booking\option\fields;
 
 use mod_booking\bo_availability\bo_info;
+use mod_booking\bo_availability\conditions\previouslybooked;
 use mod_booking\booking_option_settings;
 use mod_booking\option\field_base;
 use mod_booking\option\fields_info;
@@ -132,7 +133,14 @@ class easy_availability_previouslybooked extends field_base {
         bo_info::save_json_conditions_from_form($formdata);
         $newoption->availability = $formdata->availability;
 
-        return [];
+        $availabilityclass = new availability();
+        return $availabilityclass->check_for_changes(
+            $formdata,
+            $availabilityclass,
+            $mockdata,
+            $key,
+            $value
+        );
     }
 
     /**

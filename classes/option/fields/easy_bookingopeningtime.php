@@ -112,7 +112,14 @@ class easy_bookingopeningtime extends field_base {
             }
         }
 
-        return [];
+        $availabilityclass = new bookingopeningtime();
+        return $availabilityclass->check_for_changes(
+            $formdata,
+            $availabilityclass,
+            $mockdata,
+            $key,
+            $value
+        );
     }
 
     /**

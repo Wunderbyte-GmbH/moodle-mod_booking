@@ -112,7 +112,13 @@ class easy_bookingclosingtime extends field_base {
             }
         }
 
-        return [];
+        $availabilityclass = new bookingclosingtime();
+        return $availabilityclass->prepare_save_field(
+            $formdata,
+            $newoption,
+            $updateparam,
+            $returnvalue,
+        );
     }
 
     /**
