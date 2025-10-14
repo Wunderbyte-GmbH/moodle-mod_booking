@@ -1,3 +1,21 @@
+## Version 8.17.7 (2025101400)
+* Improvement: Handle ICS attachment errors with try-catch and trigger booking debug event
+* Improvement: Check the 'noemailever' global config when sending mails via PHPMailer for iCal emailing.
+* Improvement: Check number of option dates and prevent use ical as inline data when grater than one.
+* Bugfix: Don't block with waitinglist when waitinglist is unlimited
+* Bugfix: show "unlimited" waitinglist for downloads as well
+* Bugfix: select proper waitinglistplacesinfotext in case of unlimited waitinglist
+* Bugfix: Optiontemplatesettings should not be sortable
+* Bugfix: Reorganize order of execution in the completion chain
+* Bugfix: supsended users are now ignored for mailings
+* Bugfix: Correctly find context in user selector
+* Bugfix: Fixed ical to send messages via PHPMailer
+* Bugfix: Check if ICS file already exists and delete it before creation to prevent duplication errors.
+* Bugfix: Add missing strings of capabilities
+* Bugfix: Send mail to users from bookingoption_cancelled event
+* Linting: Apply Moodle Standard Updates
+* Tests: extend behat test for the .../admin/roles/define.php?action=edit&roleid=3 (teacher) to check missing strings in capabilities
+
 ## Version 8.17.6 (2025100700)
 * New feature: Condition for rules to select deputies of supervisor (nested profile field logic) #1149
 * Improvement: Display mail in sign-in sheet
