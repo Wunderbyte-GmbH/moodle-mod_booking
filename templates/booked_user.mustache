@@ -34,10 +34,14 @@
 }}
 
 <div>
-    <a href="{{userprofilelink}}" target="_blank">
-        <div class="mb-1 h6">
-            {{firstname}} {{lastname}}
-        </div>
-    </a>
-</div>
-<p class="mb-1">{{email}}</p>
+    {{#userprofilelink}}
+        <a href="{{userprofilelink}}" target="_blank">
+    {{/userprofilelink}}
+            <div class="mb-1 h6">
+                {{firstname}} {{lastname}}
+            </div>
+        </a>
+    </div>
+{{#email}}
+    <p class="mb-1">{{email}}</p>
+{{/email}}

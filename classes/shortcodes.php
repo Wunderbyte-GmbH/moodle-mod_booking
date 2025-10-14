@@ -35,6 +35,7 @@ use local_wunderbyte_table\filters\types\datepicker;
 use local_wunderbyte_table\filters\types\intrange;
 use local_wunderbyte_table\filters\types\standardfilter;
 use local_wunderbyte_table\wunderbyte_table;
+use mod_bigbluebuttonbn\event\recording_unprotected;
 use mod_booking\booking;
 use mod_booking\form\dynamicdeputyselect;
 use mod_booking\local\shortcode_filterfield;
@@ -1527,9 +1528,18 @@ class shortcodes {
     public static function listtoapprove($shortcode, $args, $content, $env, $next) {
 
         global $PAGE;
-
+        if (!empty($args['reduced'])) {
+            $scope = 'optionstoconfirmreduced';
+        } else {
+            $scope = 'optionstoconfirm';
+        }
+        if (empty($args['reduced'])) {
+            $showreducedbuttons = false;
+        } else {
+            $showreducedbuttons = true;
+        }
         $data = new booked_users(
-            'optionstoconfirm',
+            $scope,
             0,
             false, // Booked users.
             false, // Users on waiting list.
@@ -1537,7 +1547,10 @@ class shortcodes {
             false, // Users on notify list.
             false, // Deleted users.
             false, // Booking history.
-            true // Options to confirm.
+            true, // Options to confirm.
+            false,
+            0,
+            $showreducedbuttons
         );
 
         // Without values in the config setting deputyselect makes no sense.
@@ -1605,8 +1618,19 @@ class shortcodes {
 
         global $PAGE;
 
+        if (!empty($args['reduced'])) {
+            $scope = 'supervisorteamreduced';
+        } else {
+            $scope = 'supervisorteam';
+        }
+        if (!empty($args['reduced'])) {
+            $showreducedbuttons = false;
+        } else {
+            $showreducedbuttons = true;
+        }
+
         $data = new booked_users(
-            'supervisorteam',
+            $scope,
             0,
             true, // Booked users.
             true, // Users on waiting list.
@@ -1614,7 +1638,10 @@ class shortcodes {
             false, // Users on notify list.
             false, // Deleted users.
             false, // Booking history.
-            false // Options to confirm.
+            false, // Options to confirm.
+            false,
+            0,
+            $showreducedbuttons,
         );
 
         /** @var renderer $renderer */

@@ -98,6 +98,7 @@ class booked_users implements renderable, templatable {
      * @param bool $showoptionstoconfirm
      * @param bool $showpreviouslybooked
      * @param int $cmid optional course module id of booking instance
+     * @param bool $showreducedbuttons
      */
     public function __construct(
         string $scope = 'system',
@@ -110,7 +111,8 @@ class booked_users implements renderable, templatable {
         bool $showbookinghistory = false,
         bool $showoptionstoconfirm = false,
         bool $showpreviouslybooked = false,
-        int $cmid = 0
+        int $cmid = 0,
+        bool $showreducedbuttons = false,
     ) {
         $ba = new booking_answers();
         /** @var scope_base $class */
@@ -194,7 +196,8 @@ class booked_users implements renderable, templatable {
                 array_values($columns),
                 // Sorting of waiting list only possible if setting to show place is enabled.
                 (bool)get_config('booking', 'waitinglistshowplaceonwaitinglist'),
-                true
+                true,
+                $showreducedbuttons,
             ) : null;
 
             $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED);
@@ -224,6 +227,7 @@ class booked_users implements renderable, templatable {
      * @param array $headers
      * @param bool $sortable
      * @param bool $paginate
+     * @param bool $showreducedbuttons
      * @return ?string
      */
     private function render_users_table(
@@ -234,7 +238,8 @@ class booked_users implements renderable, templatable {
         array $columns,
         array $headers = [],
         bool $sortable = false,
-        bool $paginate = false
+        bool $paginate = false,
+        bool $showreducedbuttons = false
     ): ?string {
         $ba = new booking_answers();
         /** @var scope_base $class */
@@ -252,12 +257,19 @@ class booked_users implements renderable, templatable {
 
         // Activate sorting dropdown.
         $table->cardsort = true;
-
-        $table->showcountlabel = true;
-        $table->showdownloadbutton = true;
-        $table->showdownloadbuttonatbottom = true;
-        $table->showreloadbutton = true;
-        $table->showrowcountselect = true;
+        if (!$showreducedbuttons) {
+            $table->showcountlabel = true;
+            $table->showdownloadbutton = true;
+            $table->showdownloadbuttonatbottom = true;
+            $table->showreloadbutton = true;
+            $table->showrowcountselect = true;
+        } else {
+            $table->showcountlabel = false;
+            $table->showdownloadbutton = false;
+            $table->showdownloadbuttonatbottom = false;
+            $table->showreloadbutton = false;
+            $table->showrowcountselect = false;
+        }
 
         $html = $table->outhtml(10, false);
         return count($table->rawdata) > 0 ? $html : null;

@@ -1711,6 +1711,7 @@ $string['nobookingpossible'] = 'No booking possible.';
 $string['nobookingselected'] = 'No booking option selected';
 $string['nocancelreason'] = "You need to give a reason for canceling this booking option";
 $string['nocfnameselected'] = "Nothing selected. Either type new name or select one from the list.";
+$string['nodeputy'] = "No deputy selected";
 $string['nocomments'] = 'Commenting disabled';
 $string['noconfirmationworkflow'] = 'No confirmtion necessary';
 $string['nocourse'] = 'No course selected for this booking option';

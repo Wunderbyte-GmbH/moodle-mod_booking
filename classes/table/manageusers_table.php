@@ -160,7 +160,11 @@ class manageusers_table extends wunderbyte_table {
         }
 
         $helper = new bookingstracker_helper($values);
-        if ($values->scope === 'optionstoconfirm') {
+        if (
+            $values->scope === 'optionstoconfirm'
+            || $values->scope == 'optionstoconfirmreduced'
+            || $values->scope == 'supervisorteamreduced'
+        ) {
             // We don’t need to show the report page link, so we replace it with the option
             // view page in the approvers table where they confirm an answer.
             $helper->set_texticon('');
@@ -190,6 +194,9 @@ class manageusers_table extends wunderbyte_table {
             'userprofilelink' => $url->out(),
         ];
 
+        if ($values->scope == 'optionstoconfirmreduced' || $values->scope == 'supervisorteamreduced') {
+            unset($data['email'], $data['userprofilelink']);
+        }
         return $OUTPUT->render_from_template('mod_booking/booked_user', $data);
     }
 
