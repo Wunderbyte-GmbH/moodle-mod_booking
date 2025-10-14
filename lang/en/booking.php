@@ -877,6 +877,7 @@ $string['conditionsoverwritingbillboard_desc'] = 'A text can be entered in the s
 $string['conditiontextfield'] = 'Value';
 $string['configurefields'] = 'Configure fields and columns';
 $string['confirmactivtyfrom'] = 'Confirm users activity from';
+$string['confirmationdeleted'] = 'Confirmation deleted';
 $string['confirmationmessagesettings'] = 'Confirmation e-mail settings';
 $string['confirmationonnotification'] = 'Open booking for notified user?';
 $string['confirmationonnotificationnoopen'] = "Notifications have no effects on confirmations";

@@ -252,7 +252,6 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // Check for proper number of tasks.
-        // Tasks are tested in depth in other tests of this class.
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
         $this->assertCount(2, $tasks);
 

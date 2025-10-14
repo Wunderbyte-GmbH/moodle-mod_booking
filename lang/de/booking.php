@@ -861,6 +861,7 @@ $string['conditionsoverwritingbillboard'] = 'Überschreiben von Nachrichten zur 
 $string['conditionsoverwritingbillboard_desc'] = 'In den Einstellungen der Buchungsinstanz kann ein Text eingegeben werden, der anstelle von anderen Nachrichten zur (Nicht-)Buchbarkeit angezeigt wird.';
 $string['conditiontextfield'] = 'Wert';
 $string['configurefields'] = 'Spalten und Felder anpassen';
+$string['confirmationdeleted'] = 'Bestätigung gelöscht';
 $string['confirmationmessagesettings'] = 'Buchungsbestätigungseinstellungen';
 $string['confirmationonnotification'] = 'Buchungen für benachrichtigte Personen erlauben';
 $string['confirmationonnotificationnoopen'] = 'Benachrichtigungen haben keinen Einfluss auf Freigabebestätigung';

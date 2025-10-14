@@ -2033,6 +2033,7 @@ class booking {
             MOD_BOOKING_STATUSPARAM_BOOKINGOPTION_MOVED => get_string('optionmoved', 'mod_booking'),
             MOD_BOOKING_STATUSPARAM_NOTES_EDITED => get_string('notesedited', 'mod_booking'),
             MOD_BOOKING_STATUSPARAM_COMPLETION_CHANGED => get_string('completionchanged', 'mod_booking'),
+            MOD_BOOKING_STATUSPARAM_CONFIRMATION_DELETED => get_string('confirmationdeleted', 'mod_booking'),
         ];
     }
 
