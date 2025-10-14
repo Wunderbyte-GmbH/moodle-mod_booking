@@ -246,6 +246,10 @@ class availability extends field_base {
                 'changes' => [
                     'fieldname' => 'availability',
                     'formkey' => 'availability',
+                    'otherdata' => [
+                        'oldavailability' => $settings->availability,
+                        'newavailability' => $settings->availability,
+                    ],
                 ],
             ];
         }
