@@ -1689,13 +1689,13 @@ $string['nobookingpossible'] = 'Keine Buchung möglich.';
 $string['nobookingselected'] = 'Keine Buchungsoption ausgewählt';
 $string['nocancelreason'] = "Sie müssen eine Grund für die Stornierung angeben";
 $string['nocfnameselected'] = "Nichts ausgewählt. Tippen Sie einen neuen Namen oder wählen Sie einen aus der Liste.";
-$string['nodeputy'] = "Keinen Stellvertreter ausgewählt";
 $string['nocomments'] = 'Kommentare deaktiviert';
 $string['noconfirmationworkflow'] = 'Keine Bestätigung erforderlich';
 $string['nocourse'] = 'Kein Kurs für Buchungsoption ausgewählt';
 $string['nocourseselected'] = 'Kein Kurs ausgewählt';
 $string['nodatesstring'] = "Aktuell gibt es keine Daten zu dieser Buchungsoption";
 $string['nodatesstring_desc'] = "no dates";
+$string['nodeputy'] = "Keinen Stellvertreter ausgewählt";
 $string['nodescriptionmaxlength'] = 'Keine maximale Länge der Beschreibung';
 $string['nodirectbookingbecauseofprice'] = 'Das Buchen von anderen ist bei dieser Buchungsoption nur eingeschränkt möglich. Die Gründe dafür sind folgende:
 <ul>

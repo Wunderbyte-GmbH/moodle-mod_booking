@@ -1711,13 +1711,13 @@ $string['nobookingpossible'] = 'No booking possible.';
 $string['nobookingselected'] = 'No booking option selected';
 $string['nocancelreason'] = "You need to give a reason for canceling this booking option";
 $string['nocfnameselected'] = "Nothing selected. Either type new name or select one from the list.";
-$string['nodeputy'] = "No deputy selected";
 $string['nocomments'] = 'Commenting disabled';
 $string['noconfirmationworkflow'] = 'No confirmtion necessary';
 $string['nocourse'] = 'No course selected for this booking option';
 $string['nocourseselected'] = 'No course selected';
 $string['nodatesstring'] = "There are currently no dates associated with this booking option";
 $string['nodatesstring_desc'] = "no dates";
+$string['nodeputy'] = "No deputy selected";
 $string['nodescriptionmaxlength'] = 'No maximum length of description';
 $string['nodirectbookingbecauseofprice'] = 'Booking for others is only partially possible with this booking option. The reasons for this are as follows:
     <ul>
