@@ -222,6 +222,8 @@ class shoppingcart extends field_base {
                 $mockdata->id = $formdata->id;
                 $self::set_data($mockdata, $settings);
                 $oldvalue = $mockdata->$key;
+            } else {
+                $oldvalue = 0;
             }
 
             if (
