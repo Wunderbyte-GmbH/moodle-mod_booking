@@ -253,7 +253,7 @@ class message_controller {
 
         // For custom messages only.
         if ($this->messageparam == MOD_BOOKING_MSGPARAM_CUSTOM_MESSAGE) {
-            $this->customsubject = format_string($customsubject);
+            $this->customsubject = format_string($customsubject, true, ['escape' => false]);
             $this->custommessage = $custommessage;
         }
 
