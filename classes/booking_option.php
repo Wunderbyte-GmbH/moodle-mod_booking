@@ -1371,15 +1371,15 @@ class booking_option {
             // When admin confirms a user user in waiting list, this condition will be met.
             if (!is_null($currentanswerid)) {
                 $waitinglist = MOD_BOOKING_STATUSPARAM_BOOKED;
+            } else {
+                $event = bookinganswer_waitingforconfirmation::create([
+                    'objectid' => $this->optionid,
+                    'context' => context_module::instance($this->cmid),
+                    'userid' => $USER->id, // The user triggered the action.
+                    'relateduserid' => $user->id, // Affected user - the user who is waiting for confirmation.
+                ]);
+                $event->trigger(); // This will trigger the observer function.
             }
-
-            $event = bookinganswer_waitingforconfirmation::create([
-                'objectid' => $this->optionid,
-                'context' => context_module::instance($this->cmid),
-                'userid' => $USER->id, // The user triggered the action.
-                'relateduserid' => $user->id, // Affected user - the user who is waiting for confirmation.
-            ]);
-            $event->trigger(); // This will trigger the observer function.
         }
 
         // Use the waitinglist as status for booking history.
