@@ -187,6 +187,11 @@ class template extends field_base {
             // First, retrieve the template we want to use.
 
             $optionid = $data->optiontemplateid;
+            if (empty($optionid)) {
+                // In case we deselect a template that was previously selected.
+                // For the moment, don't remove data from fields.
+                return;
+            }
             // Now, we need to create the data for this option the same way we would create it otherwise...
             $templateoption = (object)[
                 'cmid' => $data->cmid,
