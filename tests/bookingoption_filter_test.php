@@ -44,7 +44,7 @@ final class bookingoption_filter_test extends advanced_testcase {
         $_POST = [];
 
         // We require version higher or equal to 2025101500 of wunderbyte_table.
-        $this->require_wunderbyte_table_version(2025101500);
+        // $this->require_wunderbyte_table_version(2025101500);
     }
     /**
      * Tests the application of custom field filters on booking options using the Wunderbyte table system.
@@ -64,6 +64,7 @@ final class bookingoption_filter_test extends advanced_testcase {
      * @param string $wbtfilter JSON string representing the filters (e.g. '{"customcat":["Text 2"]}').
      * @param int $counttotaloptions Expected total number of booking options before filters are applied.
      * @param int $countfilteredoptions Expected number of booking options after filters are applied.
+     * @param int $customsql
      *
      * @covers \local_wunderbyte_table\filters\types\customfieldfilter
      * @covers \local_wunderbyte_table\wunderbyte_table::apply_filter
@@ -73,9 +74,16 @@ final class bookingoption_filter_test extends advanced_testcase {
      *
      * @return void
      */
-    public function test_customfieldfilter_on_booking_options($wbtfilter, $counttotaloptions, $countfilteredoptions): void {
+    public function test_customfieldfilter_on_booking_options(
+        string $wbtfilter,
+        int $counttotaloptions,
+        int $countfilteredoptions,
+        bool $usecustomsql
+    ): void {
 
         $this->resetAfterTest();
+
+        $this->preventResetByRollback();
 
         $this->setAdminUser();
 
@@ -103,6 +111,8 @@ final class bookingoption_filter_test extends advanced_testcase {
         $fielddata->configdata = "";
         $bookingfield = $this->getDataGenerator()->create_custom_field((array) $fielddata);
         $bookingfield->save();
+        $fieldidcustomcat = $bookingfield->get('id');
+
         // Custom filed 2 (customlabel).
         $fielddata = new \stdClass();
         $fielddata->categoryid = $bookingcat->get('id');
@@ -112,6 +122,7 @@ final class bookingoption_filter_test extends advanced_testcase {
         $fielddata->configdata = "";
         $bookingfield = $this->getDataGenerator()->create_custom_field((array) $fielddata);
         $bookingfield->save();
+        $fieldidcustomlabel = $bookingfield->get('id');
 
         // Create a course.
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
@@ -150,22 +161,26 @@ final class bookingoption_filter_test extends advanced_testcase {
 
         // Create a filter on customcat.
         $customfieldfilter = new customfieldfilter('customcat', 'Custom category');
-        $customfieldfilter->set_sql("id IN (SELECT instanceid
+        if ($usecustomsql) {
+            $customfieldfilter->set_sql("id IN (SELECT instanceid
                 FROM {customfield_data} cfd
-                JOIN {customfield_field} cff ON cfd.fieldid = cff.id
-                WHERE cff.shortname = 'customcat'
-                AND :where)");
-        $customfieldfilter->set_subquery_column('cfd.value');
+                WHERE cfd.fieldid = {$fieldidcustomcat}
+                AND :where)", 'cfd.value');
+        } else {
+            $customfieldfilter->set_sql_for_fieldid($fieldidcustomcat);
+        }
         $table->add_filter($customfieldfilter);
 
         // Create a filter on customlabel.
         $customfieldfilter = new customfieldfilter('customlabel', 'Custom Label');
-        $customfieldfilter->set_sql("id IN (SELECT instanceid
+        if ($usecustomsql) {
+            $customfieldfilter->set_sql("id IN (SELECT instanceid
                 FROM {customfield_data} cfd
-                JOIN {customfield_field} cff ON cfd.fieldid = cff.id
-                WHERE cff.shortname = 'customlabel'
-                AND :where)");
-        $customfieldfilter->set_subquery_column('cfd.value');
+                WHERE cfd.fieldid = $fieldidcustomlabel
+                AND :where)", 'cfd.value');
+        } else {
+            $customfieldfilter->set_sql_for_fieldid($fieldidcustomlabel);
+        }
         $table->add_filter($customfieldfilter);
 
         // Execute table logic to fetch records.
@@ -280,15 +295,29 @@ final class bookingoption_filter_test extends advanced_testcase {
         }));
 
         return [
-            'filter on customcat' => [
+            'filter on customcat - default SQL' => [
                 'wbtfilter' => '{"customcat":["Text 2"]}',
                 'counttotaloptions' => $counttotaloptions,
                 'countfilteredoptions' => $countfilteredoptions1,
+                'usecustomsql' => false,
             ],
-            'filter on customcat & customlabel' => [
+            'filter on customcat - custom SQL' => [
+                'wbtfilter' => '{"customcat":["Text 2"]}',
+                'counttotaloptions' => $counttotaloptions,
+                'countfilteredoptions' => $countfilteredoptions1,
+                'usecustomsql' => true,
+            ],
+            'filter on customcat & customlabel - default SQL' => [
                 'wbtfilter' => '{"customcat":["Text 2"],"customlabel":["Label 2"]}',
                 'counttotaloptions' => $counttotaloptions,
                 'countfilteredoptions' => $countfilteredoptions2,
+                'usecustomsql' => false,
+            ],
+            'filter on customcat & customlabel - custom SQL' => [
+                'wbtfilter' => '{"customcat":["Text 2"],"customlabel":["Label 2"]}',
+                'counttotaloptions' => $counttotaloptions,
+                'countfilteredoptions' => $countfilteredoptions2,
+                'usecustomsql' => true,
             ],
         ];
     }
