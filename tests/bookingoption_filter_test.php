@@ -14,32 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Tests for booking option events.
- *
- * @package mod_booking
- * @category test
- * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
- * @author 2025 Magdalena Holczik
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace mod_booking;
 
 use advanced_testcase;
-use coding_exception;
 use context_system;
 use local_wunderbyte_table\filters\types\customfieldfilter;
 use mod_booking\table\bookingoptions_wbtable;
-use mod_booking\table\manageusers_table;
 use mod_booking_generator;
-use mod_booking\bo_availability\bo_info;
-use tool_mocktesttime\time_mock;
-
-defined('MOODLE_INTERNAL') || die();
-global $CFG;
-require_once($CFG->dirroot . '/mod/booking/lib.php');
-require_once($CFG->dirroot . '/mod/booking/classes/price.php');
 
 /**
  * Class handling tests for bookinghistory.
@@ -47,12 +28,59 @@ require_once($CFG->dirroot . '/mod/booking/classes/price.php');
  * @package mod_booking
  * @category test
  * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Mahdi Poustini
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
  *
  */
 final class bookingoption_filter_test extends advanced_testcase {
+    /**
+     * Seutp.
+     */
+    protected function setUp(): void {
+        parent::setUp();
+        // Clear before each test.
+        $_GET = [];
+        $_POST = [];
 
-    public function test_customfieldfilter_on_booking_options() {
+        // We require version higher or equal to 2025101500 of wunderbyte_table.
+        $this->require_wunderbyte_table_version(2025101500);
+    }
+    /**
+     * Tests the application of custom field filters on booking options using the Wunderbyte table system.
+     *
+     * This test verifies that the {@see customfieldfilter} filters correctly apply
+     * to booking options in the {@see bookingoptions_wbtable} based on the values
+     * provided in the `wbtfilter` URL parameter. It covers scenarios where:
+     *  - Only one custom field (e.g., "customcat") is filtered.
+     *  - Multiple custom fields (e.g., "customcat" and "customlabel") are filtered simultaneously.
+     *
+     * The test creates a booking activity with multiple booking options,
+     * each having custom field values. It then:
+     *  1. Validates the total number of booking options before filtering.
+     *  2. Applies the filter(s) using JSON passed in `$_GET['wbtfilter']`.
+     *  3. Asserts that the resulting filtered data count matches the expected count.
+     *
+     * @param string $wbtfilter JSON string representing the filters (e.g. '{"customcat":["Text 2"]}').
+     * @param int $counttotaloptions Expected total number of booking options before filters are applied.
+     * @param int $countfilteredoptions Expected number of booking options after filters are applied.
+     *
+     * @covers \local_wunderbyte_table\filters\types\customfieldfilter
+     * @covers \local_wunderbyte_table\wunderbyte_table::apply_filter
+     * @covers \local_wunderbyte_table\wunderbyte_table::apply_filter_and_search_from_url
+     *
+     * @dataProvider options_provider
+     *
+     * @return void
+     */
+    public function test_customfieldfilter_on_booking_options($wbtfilter, $counttotaloptions, $countfilteredoptions): void {
+
+        $this->resetAfterTest();
+
+        $this->setAdminUser();
+
+        // Get provided data.
+        $bdata = self::provide_bdata();
 
         // Create custom field category.
         $categorydata = new \stdClass();
@@ -62,13 +90,24 @@ final class bookingoption_filter_test extends advanced_testcase {
         $categorydata->itemid = 0;
         $categorydata->contextid = context_system::instance()->id;
 
-        // Create some custom fields.
         $bookingcat = $this->getDataGenerator()->create_custom_field_category((array) $categorydata);
         $bookingcat->save();
+
+        // Create custom field(s).
+        // Custom filed 1 (customcat).
         $fielddata = new \stdClass();
         $fielddata->categoryid = $bookingcat->get('id');
         $fielddata->name = 'Textfield';
         $fielddata->shortname = 'customcat';
+        $fielddata->type = 'text';
+        $fielddata->configdata = "";
+        $bookingfield = $this->getDataGenerator()->create_custom_field((array) $fielddata);
+        $bookingfield->save();
+        // Custom filed 2 (customlabel).
+        $fielddata = new \stdClass();
+        $fielddata->categoryid = $bookingcat->get('id');
+        $fielddata->name = 'Textfield';
+        $fielddata->shortname = 'customlabel';
         $fielddata->type = 'text';
         $fielddata->configdata = "";
         $bookingfield = $this->getDataGenerator()->create_custom_field((array) $fielddata);
@@ -81,45 +120,67 @@ final class bookingoption_filter_test extends advanced_testcase {
         $bookingmanager = $this->getDataGenerator()->create_user();
 
         // Create a booking module inside the course.
-        $bdata = self::provide_bdata();
         $bdata['course'] = $course->id;
         $bdata['bookingmanager'] = $bookingmanager->username;
         $booking = $this->getDataGenerator()->create_module('booking', $bdata);
 
+        /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $cmids = [];
         // Create some booking options with customfileds.
         foreach ($bdata['standardbookingoptions'] as $option) {
             $record = (object) $option;
             $record->bookingid = $booking->id;
-            /** @var mod_booking_generator $plugingenerator */
             $option1 = $plugingenerator->create_option($record);
             $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
-            $cmids[$settings->cmid] = $settings->cmid;
+            $cmid = $settings->cmid; // Cmid is same for all the options.
         }
 
-        // Then try to to filter them by custom field using customfiedlfilter.
         // Create the table.
         $table = new bookingoptions_wbtable("cmid_{$cmid}_showonetable");
 
-        $customfieldfilter = new customfieldfilter('customcat');
-        // $customfieldfilter->set_sql("id IN (SELECT userid
-        //         FROM {user_info_data} uid
-        //         JOIN {user_info_field} uif ON uid.fieldid = uif.id
-        //         WHERE uif.shortname = 'supervisor'
-        //         AND :where)");
-        $customfieldfilter->set_sql("id IN (SELECT userid
+        $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
+
+        // Get options of a single booking module.
+        $wherearray = [
+            'bookingid' => (int) $booking->id,
+        ];
+        [$fields, $from, $where, $params, $filter] =
+                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
+        $table->set_filter_sql($fields, $from, $where, $filter, $params);
+
+        // Create a filter on customcat.
+        $customfieldfilter = new customfieldfilter('customcat', 'Custom category');
+        $customfieldfilter->set_sql("id IN (SELECT instanceid
                 FROM {customfield_data} cfd
                 JOIN {customfield_field} cff ON cfd.fieldid = cff.id
                 WHERE cff.shortname = 'customcat'
                 AND :where)");
         $customfieldfilter->set_subquery_column('cfd.value');
-
-
         $table->add_filter($customfieldfilter);
 
-        // Make assertion to see the results.
-        $this->assertCount(200, $table->rawdata);
+        // Create a filter on customlabel.
+        $customfieldfilter = new customfieldfilter('customlabel', 'Custom Label');
+        $customfieldfilter->set_sql("id IN (SELECT instanceid
+                FROM {customfield_data} cfd
+                JOIN {customfield_field} cff ON cfd.fieldid = cff.id
+                WHERE cff.shortname = 'customlabel'
+                AND :where)");
+        $customfieldfilter->set_subquery_column('cfd.value');
+        $table->add_filter($customfieldfilter);
+
+        // Execute table logic to fetch records.
+        $table->printtable(10000, true);
+        // We have $counttotaloptions options totally.
+        // We expect to see all the booking options before applying any filter.
+        $this->assertCount($counttotaloptions, $table->rawdata);
+
+        // Now we filter booking options on custom fields.
+        $_GET['wbtfilter'] = $wbtfilter;
+
+        // Execute table logic to fetch records and apply filters.
+        $table->printtable(10000, true);
+        // We have $counttotaloptions options totally. $countfilteredoptions of them has $wntconditions.
+        $this->assertCount($countfilteredoptions, $table->rawdata);
     }
 
     /**
@@ -152,6 +213,7 @@ final class bookingoption_filter_test extends advanced_testcase {
                     'identifier' => 'noprice',
                     'maxanswers' => 1,
                     'customfield_customcat' => 'Text 1',
+                    'customfield_customlabel' => 'Label 1',
                 ],
                 [
                     'text' => 'Test Booking Option with price',
@@ -159,6 +221,7 @@ final class bookingoption_filter_test extends advanced_testcase {
                     'identifier' => 'withprice',
                     'maxanswers' => 1,
                     'customfield_customcat' => 'Text 1',
+                    'customfield_customlabel' => 'Label 1',
                 ],
                 [
                     'text' => 'Disalbed Test Booking Option',
@@ -167,6 +230,7 @@ final class bookingoption_filter_test extends advanced_testcase {
                     'maxanswers' => 1,
                     'disablebookingusers' => 1,
                     'customfield_customcat' => 'Text 1',
+                    'customfield_customlabel' => 'Label 1',
                 ],
                 [
                     'text' => 'Wait for confirmation Booking Option, no price',
@@ -175,8 +239,114 @@ final class bookingoption_filter_test extends advanced_testcase {
                     'maxanswers' => 1,
                     'waitforconfirmation' => 1,
                     'customfield_customcat' => 'Text 2',
+                    'customfield_customlabel' => 'Label 1',
+                ],
+                [
+                    'text' => 'Wait for confirmation Booking Option, no price',
+                    'description' => 'Test Booking Option',
+                    'identifier' => 'waitforconfirmationnoprice',
+                    'maxanswers' => 1,
+                    'waitforconfirmation' => 1,
+                    'customfield_customcat' => 'Text 2',
+                    'customfield_customlabel' => 'Label 2',
                 ],
             ],
         ];
+    }
+
+    /**
+     * Data proivider.
+     * @return array
+     */
+    public static function options_provider(): array {
+
+        // Get provided data.
+        $bdata = self::provide_bdata();
+
+        // Total number of options.
+        $counttotaloptions = count($bdata['standardbookingoptions']);
+
+        // Count options having customcat with value 'Text 2'.
+        $countfilteredoptions1 = count(array_filter($bdata['standardbookingoptions'], function ($item) {
+            return $item['customfield_customcat'] === 'Text 2';
+        }));
+
+        // Count options having both customcat with value 'Text 2' & customlabel with value 'Label 2'.
+        $countfilteredoptions2 = count(array_filter($bdata['standardbookingoptions'], function ($item) {
+            return (
+                $item['customfield_customcat'] === 'Text 2'
+                && $item['customfield_customlabel'] === 'Label 2'
+            );
+        }));
+
+        return [
+            'filter on customcat' => [
+                'wbtfilter' => '{"customcat":["Text 2"]}',
+                'counttotaloptions' => $counttotaloptions,
+                'countfilteredoptions' => $countfilteredoptions1,
+            ],
+            'filter on customcat & customlabel' => [
+                'wbtfilter' => '{"customcat":["Text 2"],"customlabel":["Label 2"]}',
+                'counttotaloptions' => $counttotaloptions,
+                'countfilteredoptions' => $countfilteredoptions2,
+            ],
+        ];
+    }
+
+    /**
+     * tearDown
+     * @return void
+     */
+    protected function tearDown(): void {
+        parent::tearDown();
+        // Clean up globals after each test.
+        $_GET = [];
+        $_POST = [];
+    }
+
+    /**
+     * Ensures that the local plugin "wunderbyte_table" is installed and meets the required version.
+     *
+     * If the plugin is not installed or its version is lower than the required one,
+     * the current test is skipped using {@see markTestSkipped()} to avoid false failures.
+     *
+     * This will skip the test if the plugin version is missing or lower than `2024100100`.
+     *
+     * @param int $requiredversion The minimum required plugin version (typically a Moodle-style timestamp version number).
+     *
+     * @return void
+     */
+    protected function require_wunderbyte_table_version(int $requiredversion): void {
+        // Try core_plugin_manager (preferred).
+        $foundversion = null;
+        if (class_exists('\core_plugin_manager')) {
+            try {
+                $pm = \core_plugin_manager::instance();
+                $plugin = $pm->get_plugin_info('local_wunderbyte_table');
+                if ($plugin !== null) {
+                    // Function get_version() returns integer version (e.g. 2024111500) for most plugins.
+                    $foundversion = (int) $plugin->versiondb;
+                }
+            } catch (\Exception $e) {
+                // Ignore and fallback.
+                $foundversion = null;
+            }
+        }
+
+        // Fallback: read from config_plugins.
+        if ($foundversion === null) {
+            $cfg = get_config('local_wunderbyte_table', 'version');
+            if ($cfg !== false && $cfg !== null) {
+                $foundversion = (int) $cfg;
+            }
+        }
+
+        // If not installed or version too low -> skip the test.
+        if ($foundversion === null || $foundversion < $requiredversion) {
+            $found = $foundversion === null ? 'not installed' : (string)$foundversion;
+            $this->markTestSkipped(
+                "Skipping test: local_wunderbyte_table required version >= {$requiredversion}. Found: {$found}."
+            );
+        }
     }
 }
