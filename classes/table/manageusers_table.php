@@ -351,7 +351,8 @@ class manageusers_table extends wunderbyte_table {
             MOD_BOOKING_STATUSPARAM_WAITINGLIST_CONFIRMED,
             $baid,
             $optionid,
-            $settings->bookingid
+            $settings->bookingid,
+            $userid
         );
 
         // If booking option is booked with a price, we don't book directly but just allow to book.
