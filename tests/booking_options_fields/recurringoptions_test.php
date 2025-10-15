@@ -110,7 +110,6 @@ final class recurringoptions_test extends advanced_testcase {
         $this->getDataGenerator()->enrol_user($teacher->id, $course->id);
         $this->getDataGenerator()->enrol_user($bookingmanager->id, $course->id);
 
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
         $pricecategorydata1 = (object) [
             'ordernum' => 1,
             'name' => 'default',
@@ -118,6 +117,8 @@ final class recurringoptions_test extends advanced_testcase {
             'defaultvalue' => 30,
             'pricecatsortorder' => 1,
         ];
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
         $plugingenerator->create_pricecategory($pricecategorydata1);
         $encodedkey = bin2hex($pricecategorydata1->identifier);
 
@@ -132,8 +133,6 @@ final class recurringoptions_test extends advanced_testcase {
         $record->useprice = 1;
         $record->default = 50;
 
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
         $option1 = $plugingenerator->create_option($record);
 
         $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
@@ -436,7 +435,6 @@ final class recurringoptions_test extends advanced_testcase {
         $this->getDataGenerator()->enrol_user($teacher->id, $course->id);
         $this->getDataGenerator()->enrol_user($bookingmanager->id, $course->id);
 
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
         $pricecategorydata1 = (object) [
             'ordernum' => 1,
             'name' => 'default',
@@ -444,6 +442,8 @@ final class recurringoptions_test extends advanced_testcase {
             'defaultvalue' => 30,
             'pricecatsortorder' => 1,
         ];
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
         $plugingenerator->create_pricecategory($pricecategorydata1);
 
         // Create an initial booking option.
@@ -456,9 +456,6 @@ final class recurringoptions_test extends advanced_testcase {
         $record->courseendtime = '2025-01-01 12:00:00';
         $record->useprice = 1;
         $record->default = 50;
-
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
         $option1 = $plugingenerator->create_option($record);
 
         // One bookingoption was created.
