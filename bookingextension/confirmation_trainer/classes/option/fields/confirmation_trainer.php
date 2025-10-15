@@ -113,7 +113,7 @@ class confirmation_trainer extends field_base {
         if (
             !empty($formdata->waitforconfirmation)
         ) {
-            booking_option::add_data_to_json($newoption, "confirmationtrainerenabled", $formdata->confirmationtrainerenabled);
+            booking_option::add_data_to_json($newoption, "confirmationtrainerenabled", $formdata->confirmationtrainerenabled ?? 0);
         }
         $instance = new confirmation_trainer();
         $mockdata = new stdClass();
