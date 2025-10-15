@@ -29,6 +29,7 @@ use coding_exception;
 use context_module;
 use context_system;
 use dml_exception;
+use local_wunderbyte_table\filters\types\customfieldfilter;
 use local_wunderbyte_table\filters\types\datepicker;
 use local_wunderbyte_table\filters\types\standardfilter;
 use local_wunderbyte_table\wunderbyte_table;
@@ -1088,10 +1089,23 @@ class view implements renderable, templatable {
                 $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
                 $jsonsettings = $bookingsettings->jsonobject ?? [];
                 if (!empty($jsonsettings->customfieldsforfilter)) {
+                    // Fetch customs fileds with their ID from database.
+                    $shortnames = array_keys(get_object_vars($jsonsettings->customfieldsforfilter));
+                    global $DB;
+                    [$insql, $params] = $DB->get_in_or_equal($shortnames, SQL_PARAMS_NAMED);
+                    $records = $DB->get_records_select('customfield_field', "shortname $insql", $params, '', 'id, shortname');
+                    $shortnamesid = [];
+                    foreach ($records as $record) {
+                        $shortnamesid[$record->shortname] = (int)$record->id;
+                    }
                     foreach ($jsonsettings->customfieldsforfilter as $shortname => $localizedname) {
                         $localizedname = format_string($localizedname);
-                        $standardfilter = new standardfilter($shortname, $localizedname);
-                        $wbtable->add_filter($standardfilter);
+                        // $standardfilter = new standardfilter($shortname, $localizedname);
+                        // $wbtable->add_filter($standardfilter);
+
+                        $customfieldfilter = new customfieldfilter($shortname, $localizedname);
+                        $customfieldfilter->set_sql_for_fieldid($shortnamesid[$shortname]);
+                        $wbtable->add_filter($customfieldfilter);
                     }
                 }
             }
