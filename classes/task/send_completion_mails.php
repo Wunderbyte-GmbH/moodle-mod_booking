@@ -66,9 +66,9 @@ class send_completion_mails extends \core\task\adhoc_task {
         }
 
         $taskdata = $this->get_custom_data();
-
-        mtrace('send_completion_mails task: sending completion mail to user with id: ' . $taskdata->userid);
-
+        if (!defined('PHPUNIT_TEST')) {
+            mtrace('send_completion_mails task: sending completion mail to user with id: ' . $taskdata->userid);
+        }
         if ($taskdata != null) {
             // Use message controller to send the completion message.
             $messagecontroller = new message_controller(
@@ -81,11 +81,15 @@ class send_completion_mails extends \core\task\adhoc_task {
             );
 
             if ($messagecontroller->send_or_queue()) {
-                mtrace('send_completion_mails task: mail successfully sent to user with userid: '
-                        . $taskdata->userid);
+                if (!defined('PHPUNIT_TEST')) {
+                    mtrace('send_completion_mails task: mail successfully sent to user with userid: '
+                            . $taskdata->userid);
+                }
             } else {
-                mtrace('send_completion_mails task: mail could not be sent to user with userid: '
-                        . $taskdata->userid);
+                if (!defined('PHPUNIT_TEST')) {
+                    mtrace('send_completion_mails task: mail could not be sent to user with userid: '
+                            . $taskdata->userid);
+                }
             }
         } else {
             throw new \coding_exception(

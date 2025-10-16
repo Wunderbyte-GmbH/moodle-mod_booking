@@ -67,8 +67,10 @@ class send_confirmation_mails extends \core\task\adhoc_task {
         }
 
         $taskdata = $this->get_custom_data();
+        if (!defined('PHPUNIT_TEST')) {
+            mtrace('send_confirmation_mails task started');
+        }
 
-        mtrace('send_confirmation_mails task started');
 
         if ($taskdata != null) {
             // If no messagetext has been defined, we do not send an e-mail.
@@ -129,16 +131,24 @@ class send_confirmation_mails extends \core\task\adhoc_task {
                         }
                     }
                 } else {
-                    mtrace('send_confirmation_mails: e-mail with subject "' . $taskdata->subject . '"' .
-                    ' was not sent because $taskdata->userto was missing.');
+                    if (!defined('PHPUNIT_TEST')) {
+                        mtrace('send_confirmation_mails: e-mail with subject "' . $taskdata->subject . '"' .
+                        ' was not sent because $taskdata->userto was missing.');
+                    }
                 }
             } else {
-                mtrace('send_confirmation_mails: e-mail with subject "' . $taskdata->subject . '"' .
-                    ' was not sent because message template is set to "0" (turned off).');
+                if (!defined('PHPUNIT_TEST')) {
+                    mtrace('send_confirmation_mails: e-mail with subject "' . $taskdata->subject . '"' .
+                        ' was not sent because message template is set to "0" (turned off).');
+                }
             }
         } else {
-            mtrace('Confirmation email was not sent due to lack of custom message data');
+            if (!defined('PHPUNIT_TEST')) {
+                mtrace('Confirmation email was not sent due to lack of custom message data');
+            }
         }
-        mtrace('send_confirmation_mails task finished');
+        if (!defined('PHPUNIT_TEST')) {
+            mtrace('send_confirmation_mails task finished');
+        }
     }
 }
