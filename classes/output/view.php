@@ -953,7 +953,7 @@ class view implements renderable, templatable {
         int $cmid = 0
     ) {
 
-        global $PAGE;
+        global $PAGE, $DB;
 
         if (!empty($cmid)) {
             $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
@@ -1091,7 +1091,7 @@ class view implements renderable, templatable {
                 if (!empty($jsonsettings->customfieldsforfilter)) {
                     // Fetch customs fileds with their ID from database.
                     $shortnames = array_keys(get_object_vars($jsonsettings->customfieldsforfilter));
-                    global $DB;
+
                     [$insql, $params] = $DB->get_in_or_equal($shortnames, SQL_PARAMS_NAMED);
                     $records = $DB->get_records_select('customfield_field', "shortname $insql", $params, '', 'id, shortname');
                     $shortnamesid = [];
@@ -1100,9 +1100,6 @@ class view implements renderable, templatable {
                     }
                     foreach ($jsonsettings->customfieldsforfilter as $shortname => $localizedname) {
                         $localizedname = format_string($localizedname);
-                        // $standardfilter = new standardfilter($shortname, $localizedname);
-                        // $wbtable->add_filter($standardfilter);
-
                         $customfieldfilter = new customfieldfilter($shortname, $localizedname);
                         $customfieldfilter->set_sql_for_fieldid($shortnamesid[$shortname]);
                         $wbtable->add_filter($customfieldfilter);
