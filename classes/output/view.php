@@ -366,7 +366,20 @@ class view implements renderable, templatable {
 
         $wherearray = ['bookingid' => (int)$booking->id];
         [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
+                booking::get_options_filter_sql(
+                    0,
+                    0,
+                    '',
+                    null,
+                    $booking->context,
+                    [],
+                    $wherearray,
+                    null,
+                    [MOD_BOOKING_STATUSPARAM_BOOKED],
+                    '',
+                    '',
+                    $allbookingoptionstable
+                );
         $allbookingoptionstable->set_filter_sql($fields, $from, $where, $filter, $params);
 
         // Initialize the default columnes, headers, settings and layout for the table.
@@ -396,7 +409,20 @@ class view implements renderable, templatable {
 
         $wherearray = ['bookingid' => (int)$booking->id];
         [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
+                booking::get_options_filter_sql(
+                    0,
+                    0,
+                    '',
+                    null,
+                    $booking->context,
+                    [],
+                    $wherearray,
+                    null,
+                    [MOD_BOOKING_STATUSPARAM_BOOKED],
+                    '',
+                    '',
+                    $allbookingoptionstable
+                );
         $allbookingoptionstable->set_filter_sql($fields, $from, $where, $filter, $params);
 
         // Initialize the default columnes, headers, settings and layout for the table.
@@ -443,8 +469,12 @@ class view implements renderable, templatable {
                 $wherearray,
                 null,
                 [MOD_BOOKING_STATUSPARAM_BOOKED],
-                $additionalwhere
+                $additionalwhere,
+                '',
+                $activebookingoptionstable
             );
+
+
 
         // Timenow is today at at 00.00.
         // The test is on courseendtime, if it has finished not already yesterday.
@@ -481,7 +511,21 @@ class view implements renderable, templatable {
 
         $wherearray = ['bookingid' => (int)$booking->id];
         [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray, $USER->id);
+                booking::get_options_filter_sql(
+                    0,
+                    0,
+                    '',
+                    null,
+                    $booking->context,
+                    [],
+                    $wherearray,
+                    $USER->id,
+                    [MOD_BOOKING_STATUSPARAM_BOOKED],
+                    '',
+                    '',
+                    $mybookingoptionstable
+                );
+
         $mybookingoptionstable->set_filter_sql($fields, $from, $where, $filter, $params);
 
         // Initialize the default columnes, headers, settings and layout for the table.
@@ -528,7 +572,21 @@ class view implements renderable, templatable {
             'teacherobjects' => '%"id":' . $teacherid . ',%',
         ];
         [$fields, $from, $where, $params, $filter] =
-            booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
+            booking::get_options_filter_sql(
+                0,
+                0,
+                '',
+                null,
+                $booking->context,
+                [],
+                $wherearray,
+                null,
+                [MOD_BOOKING_STATUSPARAM_BOOKED],
+                '',
+                '',
+                $teacheroptionstable
+            );
+
         $teacheroptionstable->set_filter_sql($fields, $from, $where, $filter, $params);
 
         // Initialize the default columns, headers, settings and layout for the table.
@@ -584,7 +642,9 @@ class view implements renderable, templatable {
                 $wherearray,
                 null,
                 [MOD_BOOKING_STATUSPARAM_BOOKED],
-                $additionalwhere
+                $additionalwhere,
+                '',
+                $responsiblecontacttable
             );
         $responsiblecontacttable->set_filter_sql($fields, $from, $where, $filter, $params);
 
@@ -631,7 +691,20 @@ class view implements renderable, templatable {
             'id' => $optionid,
         ];
         [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
+                booking::get_options_filter_sql(
+                    0,
+                    0,
+                    '',
+                    null,
+                    $booking->context,
+                    [],
+                    $wherearray,
+                    null,
+                    [MOD_BOOKING_STATUSPARAM_BOOKED],
+                    '',
+                    '',
+                    $showonlyonetable
+                );
         $showonlyonetable->set_filter_sql($fields, $from, $where, $filter, $params);
 
         // Initialize the default columnes, headers, settings and layout for the table.
