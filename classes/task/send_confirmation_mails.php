@@ -71,7 +71,6 @@ class send_confirmation_mails extends \core\task\adhoc_task {
             mtrace('send_confirmation_mails task started');
         }
 
-
         if ($taskdata != null) {
             // If no messagetext has been defined, we do not send an e-mail.
             $trimmedmessage = strip_tags($taskdata->messagehtml);
