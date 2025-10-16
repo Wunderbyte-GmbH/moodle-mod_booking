@@ -35,7 +35,6 @@ use local_wunderbyte_table\filters\types\datepicker;
 use local_wunderbyte_table\filters\types\intrange;
 use local_wunderbyte_table\filters\types\standardfilter;
 use local_wunderbyte_table\wunderbyte_table;
-use mod_bigbluebuttonbn\event\recording_unprotected;
 use mod_booking\booking;
 use mod_booking\form\dynamicdeputyselect;
 use mod_booking\local\shortcode_filterfield;
@@ -1528,15 +1527,21 @@ class shortcodes {
     public static function listtoapprove($shortcode, $args, $content, $env, $next) {
 
         global $PAGE;
-        if (!empty($args['reduced'])) {
+
+        $requiredargs = [];
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
+        if ($error['error'] === 1) {
+            return $error['message'];
+        }
+        if ($args['reduced']) {
             $scope = 'optionstoconfirmreduced';
         } else {
             $scope = 'optionstoconfirm';
         }
-        if (empty($args['reduced'])) {
-            $showreducedbuttons = false;
+        if (!empty($args['cfinclude'])) {
+            $customfields = explode(',', $args['cfinclude']);
         } else {
-            $showreducedbuttons = true;
+            $customfields = [];
         }
         $data = new booked_users(
             $scope,
@@ -1550,7 +1555,8 @@ class shortcodes {
             true, // Options to confirm.
             false,
             0,
-            $showreducedbuttons
+            true,
+            $customfields
         );
 
         // Without values in the config setting deputyselect makes no sense.
@@ -1564,11 +1570,16 @@ class shortcodes {
             }
             $data->deputydisplay = dynamicdeputyselect::get_display_deputies_data();
         }
+        if (!empty($args['reduced'])) {
+            $data->reduced = 1;
+        }
         /** @var renderer $renderer */
         $renderer = $PAGE->get_renderer('mod_booking');
 
         return $renderer->render_booked_users($data);
     }
+
+    // booked users mit arg scope fallback auf
 
     /**
      * By default, we do not show booking options that lie in the past.
@@ -1617,18 +1628,17 @@ class shortcodes {
     public static function supervisorteam($shortcode, $args, $content, $env, $next) {
 
         global $PAGE;
+        $requiredargs = [];
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
+        if ($error['error'] === 1) {
+            return $error['message'];
+        }
 
-        if (!empty($args['reduced'])) {
+        if ($args['reduced']) {
             $scope = 'supervisorteamreduced';
         } else {
             $scope = 'supervisorteam';
         }
-        if (!empty($args['reduced'])) {
-            $showreducedbuttons = false;
-        } else {
-            $showreducedbuttons = true;
-        }
-
         $data = new booked_users(
             $scope,
             0,
@@ -1638,10 +1648,7 @@ class shortcodes {
             false, // Users on notify list.
             false, // Deleted users.
             false, // Booking history.
-            false, // Options to confirm.
-            false,
-            0,
-            $showreducedbuttons,
+            false // Options to confirm.
         );
 
         /** @var renderer $renderer */

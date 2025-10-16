@@ -99,6 +99,7 @@ class booked_users implements renderable, templatable {
      * @param bool $showpreviouslybooked
      * @param int $cmid optional course module id of booking instance
      * @param bool $showreducedbuttons
+     * @param array $customfields
      */
     public function __construct(
         string $scope = 'system',
@@ -113,6 +114,7 @@ class booked_users implements renderable, templatable {
         bool $showpreviouslybooked = false,
         int $cmid = 0,
         bool $showreducedbuttons = false,
+        array $customfields = [],
     ) {
         $ba = new booking_answers();
         /** @var scope_base $class */
@@ -507,6 +509,7 @@ class booked_users implements renderable, templatable {
             'previouslybooked' => $this->previouslybooked ?? null,
             'deputyselect' => $this->deputyselect ?? null,
             'labels' => array_values($this->labels) ?? null,
+            'reduced' => $this->reduced ?? null,
         ]);
     }
 
