@@ -1269,14 +1269,15 @@ class booking_option_settings {
      * To be able to filter for the same param twice, we use this structure for searchparams [[$fieldnmae => $fieldvalue]]
      *
      * @param array $filterarray
+     * @param array $selectedshortnames
      * @return array
      */
-    public static function return_sql_for_customfield(array &$filterarray = []): array {
+    public static function return_sql_for_customfield(array &$filterarray = [], $selectedshortnames = []): array {
 
         global $DB;
 
          // Find out how many customfields are there for mod_booking.
-         $customfields = booking_handler::get_customfields();
+         $customfields = booking_handler::get_customfields($selectedshortnames);
 
          $select = '';
          $from = '';
