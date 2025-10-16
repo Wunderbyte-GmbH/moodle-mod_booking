@@ -1287,6 +1287,7 @@ class booking_option_settings {
         $counter = 1;
         foreach ($customfields as $customfield) {
             $name = $customfield->shortname;
+            $fieldid = $customfield->id; // Use the actual ID directly.
 
             // We need to throw an error when there is a space in the shortname.
 
@@ -1302,32 +1303,29 @@ class booking_option_settings {
 
             $select .= "cfd$counter.value as $name ";
 
-            // After the last instance, we don't add a comma.
-            $select .= $counter >= count($customfields) ? "" : ", ";
+            // Append comma if not the last element.
+            if ($counter < count($customfields)) {
+                $select .= ", ";
+            }
 
-            $from .= " LEFT JOIN
-            (
-                SELECT cfd.instanceid, cfd.value
-                FROM {customfield_data} cfd
-                JOIN {customfield_field} cff
-                ON cfd.fieldid=cff.id AND cff.shortname=:cf_$name
-                JOIN {customfield_category} cfc
-                ON cff.categoryid=cfc.id AND cfc.component=:" . $name . "_cn
-            ) cfd$counter
-            ON bo.id = cfd$counter.instanceid ";
+            // Add LEFT JOIN using the known field ID.
+            $from .= " LEFT JOIN {customfield_data} cfd$counter
+                    ON cfd$counter.instanceid = bo.id
+                    AND cfd$counter.fieldid = :cfid$counter ";
 
-            // Add the variables to the params array.
-            $params[$name . '_cn'] = 'mod_booking';
-            $params["cf_$name"] = $name;
+            // Add the ID to the params array.
+            $params["cfid$counter"] = $fieldid;
 
+            // Handle filtering.
             foreach ($filterarray as $key => $value) {
-                if ($key == $name) {
+                if ($key === $name) {
                     $where .= $DB->sql_like("s1.$name", ":$key", false);
 
-                    // Now we have to add the values to our params array.
+                    // Add value to params.
                     $params[$key] = $value;
                 }
             }
+
             $counter++;
         }
 
