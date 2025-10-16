@@ -1,3 +1,15 @@
+## Version 8.17.8 (2025101600)
+* Improvement: Test conditions of rule
+* Improvement: More precise message for freetobookagain description
+* Improvement: Better tracking of history status update un/confirmation via task
+* Improvement: track changes for easy fields
+* Improvement: Store changes in availability json in bookingoption_updated event
+* Bugfix: Background color for booking button under Moodle 5
+* Bugfix: Don't throw error on deselecting a template
+* Bugfix: Correctly resolve "&" in subject of message provider
+* Bugfix: Trigger waitingforconfirmation event correctly
+* Bugfix: Confirmation entry in booking history contains userid
+
 ## Version 8.17.7 (2025101400)
 * Improvement: Handle ICS attachment errors with try-catch and trigger booking debug event
 * Improvement: Check the 'noemailever' global config when sending mails via PHPMailer for iCal emailing.
