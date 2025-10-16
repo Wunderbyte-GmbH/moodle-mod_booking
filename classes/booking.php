@@ -34,7 +34,7 @@ use mod_booking\customfield\booking_handler;
 use mod_booking\local\modechecker;
 use mod_booking\teachers_handler;
 use mod_booking\utils\wb_payment;
-use moodle_exception;
+use local_wunderbyte_table\wunderbyte_table;
 use stdClass;
 use moodle_url;
 
@@ -1152,6 +1152,7 @@ class booking {
      * @param array $bookingparams
      * @param string $additionalwhere
      * @param string $innerfrom
+     * @param ?wunderbyte_table $tableinstance
      *
      * @return array
      */
@@ -1166,7 +1167,8 @@ class booking {
         $userid = null,
         $bookingparams = [MOD_BOOKING_STATUSPARAM_BOOKED],
         $additionalwhere = '',
-        $innerfrom = ''
+        $innerfrom = '',
+        $tableinstance = null
     ) {
 
         global $DB;
@@ -1228,8 +1230,22 @@ class booking {
             $params = array_merge($params, $inparams);
         }
 
+        // Check sortable columns if there is any custom fields.
+        // If yes, we create a join to select & put this custom field in the main query.
+        $sortablecolumns = empty($tableinstance) ? [] : array_keys($tableinstance->sortablecolumns);
+        $customfields = booking_handler::get_customfields(); // Booking custom fileds.
+        $sortablecustomfields = [];
+        foreach ($sortablecolumns as $column) {
+            if (in_array($column, $customfields)) {
+                $sortablecustomfields[] = $column;
+            }
+        }
+        if (empty($sortablecustomfields)) {
+            [$select1, $from1, $filter1, $params1] = ["", "", "", []];
+        } else {
+            [$select1, $from1, $filter1, $params1] = booking_option_settings::return_sql_for_customfield($sortablecustomfields);
+        }
         // Instead of "where" we return "filter". This is to support the filter functionality of wunderbyte table.
-        // [$select1, $from1, $filter1, $params1] = booking_option_settings::return_sql_for_customfield();
         [$select2, $from2, $filter2, $params2] = booking_option_settings::return_sql_for_teachers();
         [$select3, $from3, $filter3, $params3] = booking_option_settings::return_sql_for_imagefiles();
         [$select4, $from4, $filter4, $params4, $conditionsql] = bo_info::return_sql_from_conditions($userid ?? 0);
