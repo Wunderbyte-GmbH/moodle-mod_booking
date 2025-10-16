@@ -1229,25 +1229,25 @@ class booking {
         }
 
         // Instead of "where" we return "filter". This is to support the filter functionality of wunderbyte table.
-        [$select1, $from1, $filter1, $params1] = booking_option_settings::return_sql_for_customfield();
+        // [$select1, $from1, $filter1, $params1] = booking_option_settings::return_sql_for_customfield();
         [$select2, $from2, $filter2, $params2] = booking_option_settings::return_sql_for_teachers();
         [$select3, $from3, $filter3, $params3] = booking_option_settings::return_sql_for_imagefiles();
         [$select4, $from4, $filter4, $params4, $conditionsql] = bo_info::return_sql_from_conditions($userid ?? 0);
 
         // The $outerfrom takes all the select from the supplementary selects.
-        $outerfrom .= !empty($select1) ? ", $select1 " : '';
+        // $outerfrom .= !empty($select1) ? ", $select1 " : '';
         $outerfrom .= !empty($select2) ? ", $select2 " : '';
         $outerfrom .= !empty($select3) ? ", $select3 " : '';
 
         // The innerfrom takes all the froms from the supplementary froms.
-        $innerfrom .= " $from1 ";
+        // $innerfrom .= " $from1 ";
         $innerfrom .= " $from2 ";
         $innerfrom .= " $from3 ";
 
         $pattern = '/as.*?,/';
-        $addgroupby = preg_replace($pattern, ',', $select1 . ",");
+        // $addgroupby = preg_replace($pattern, ',', $select1 . ",");
 
-        $groupby .= !empty($addgroupby) ? ' , ' . $addgroupby : '';
+        $groupby .= '';
 
         $addgroupby = preg_replace($pattern, ',', $select3 . ",");
         $groupby .= !empty($addgroupby) ? ' , ' . $addgroupby : '';
@@ -1263,7 +1263,7 @@ class booking {
         $groupby = implode(" , ", $groupbyarray);
 
         // Now we merge all the params arrays.
-        $params = array_merge($params, $params1, $params2, $params3, $params4);
+        $params = array_merge($params, $params2, $params3, $params4);
 
         // We build everything together.
         $from = $outerfrom;
@@ -1276,7 +1276,7 @@ class booking {
         $from .= $groupby;
 
         // Add the where at the right place.
-        $filter .= " $filter1 ";
+        // $filter .= " $filter1 ";
         $filter .= " $filter2 ";
         $filter .= " $filter3 ";
 
