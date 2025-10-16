@@ -1176,7 +1176,7 @@ class booking {
         $offieldsarray = array_map(fn($a) => "bo.$a->name", $columns);
 
         if (empty($fields)) {
-            $fields = "DISTINCT s1.*";
+            $fields = " s1.*";
         }
 
         $where = '';
@@ -1188,7 +1188,7 @@ class booking {
         $groupby = " " . implode(", ", $offieldsarray) . " ";
 
         $outerfrom = "(
-                        SELECT DISTINCT $groupby ";
+                        SELECT $groupby ";
 
         $innerfrom = empty($innerfrom) ? "FROM {booking_options} bo" : $innerfrom;
 
