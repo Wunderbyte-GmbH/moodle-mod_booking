@@ -84,18 +84,6 @@ class shortcodes {
         $pageurl = $course->shortname . $PAGE->url->out();
         $table = self::init_table_for_courses(null, md5($pageurl));
 
-        $additionalwhere = " (recommendedin = '$course->shortname'
-                            OR recommendedin LIKE '$course->shortname,%'
-                            OR recommendedin LIKE '%,$course->shortname'
-                            OR recommendedin LIKE '%,$course->shortname,%') ";
-
-        [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(0, 0, '', null, null, [], [], null, [], $additionalwhere);
-
-        self::applyallarg($args, $where);
-
-        $table->set_filter_sql($fields, $from, $where, $filter, $params);
-
         // These are all possible options to be displayed in the bookingtable.
         $possibleoptions = [
             "description",
@@ -142,6 +130,31 @@ class shortcodes {
         if (!empty($exclude) && in_array('rightside', $exclude)) {
             unset($table->subcolumns['rightside']);
         }
+
+        $additionalwhere = " (recommendedin = '$course->shortname'
+                            OR recommendedin LIKE '$course->shortname,%'
+                            OR recommendedin LIKE '%,$course->shortname'
+                            OR recommendedin LIKE '%,$course->shortname,%') ";
+
+        [$fields, $from, $where, $params, $filter] =
+                booking::get_options_filter_sql(
+                    0,
+                    0,
+                    '',
+                    null,
+                    null,
+                    [],
+                    [],
+                    null,
+                    [],
+                    $additionalwhere,
+                    '',
+                    $table
+                );
+
+        self::applyallarg($args, $where);
+
+        $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
         try {
             $out = $table->outhtml($perpage, true);
@@ -200,24 +213,6 @@ class shortcodes {
         // Additional where condition for both card and list views.
         $foo = [];
         $additionalwhere = self::set_customfield_wherearray($args, $wherearray, $foo, $columnfilters) ?? '';
-
-        [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(
-                    0,
-                    0,
-                    '',
-                    null,
-                    null,
-                    [],
-                    $wherearray,
-                    null,
-                    [MOD_BOOKING_STATUSPARAM_BOOKED],
-                    $additionalwhere
-                );
-
-        self::applyallarg($args, $where);
-
-        $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
         // These are all possible options to be displayed in the bookingtable.
         $possibleoptions = [
@@ -289,6 +284,26 @@ class shortcodes {
         if (!empty($exclude) && in_array('rightside', $exclude)) {
             unset($table->subcolumns['rightside']);
         }
+
+        [$fields, $from, $where, $params, $filter] =
+                booking::get_options_filter_sql(
+                    0,
+                    0,
+                    '',
+                    null,
+                    null,
+                    [],
+                    $wherearray,
+                    null,
+                    [MOD_BOOKING_STATUSPARAM_BOOKED],
+                    $additionalwhere,
+                    "",
+                    $table
+                );
+
+        self::applyallarg($args, $where);
+
+        $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
         try {
             $out = $table->outhtml($perpage, true);
@@ -445,11 +460,6 @@ class shortcodes {
 
         $table = self::init_table_for_courses(null, "courses_" . implode("_", $courseids));
 
-        [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(0, 0, '', null, null, [], ['recommendedin' => $courseshortnames], null, [], '');
-
-        $table->set_filter_sql($fields, $from, $where, $filter, $params);
-
         // These are all possible options to be displayed in the bookingtable.
         $possibleoptions = [
             "description",
@@ -485,6 +495,11 @@ class shortcodes {
         if (!empty($exclude) && in_array('rightside', $exclude)) {
             unset($table->subcolumns['rightside']);
         }
+
+        [$fields, $from, $where, $params, $filter] =
+                booking::get_options_filter_sql(0, 0, '', null, null, [], ['recommendedin' => $courseshortnames], null, [], '');
+
+        $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
         $table->sort_default_column = 'coursestarttime';
         $table->sort_default_order = SORT_ASC;
@@ -636,31 +651,6 @@ class shortcodes {
             $additionalwhere = ''; // Or null, or '1=1', depending on how your SQL logic handles empty conditions.
         }
 
-        [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(
-                    0,
-                    0,
-                    '',
-                    null,
-                    null,
-                    [],
-                    $wherearray,
-                    null,
-                    [MOD_BOOKING_STATUSPARAM_BOOKED],
-                    $additionalwhere,
-                    ""
-                );
-
-                $params = array_merge($tempparams, $params);
-        self::applyallarg($args, $where);
-
-        if (!empty($additionalparams)) {
-            foreach ($additionalparams as $key => $value) {
-                $params[$key] = $value;
-            }
-        }
-        $table->set_filter_sql($fields, $from, $where, $filter, $params);
-
         // These are all possible options to be displayed in the bookingtable.
         $possibleoptions = [
             "description",
@@ -713,6 +703,36 @@ class shortcodes {
             self::apply_customfieldfilter($table, $customfieldfilter);
         }
 
+        // If "rightside" is in the "exclude" array, then we do not show the rightside area (containing the "Book now" button).
+        if (!empty($exclude) && in_array('rightside', $exclude)) {
+            unset($table->subcolumns['rightside']);
+        }
+
+        [$fields, $from, $where, $params, $filter] =
+                booking::get_options_filter_sql(
+                    0,
+                    0,
+                    '',
+                    null,
+                    null,
+                    [],
+                    $wherearray,
+                    null,
+                    [MOD_BOOKING_STATUSPARAM_BOOKED],
+                    $additionalwhere,
+                    ""
+                );
+
+        $params = array_merge($tempparams, $params);
+        self::applyallarg($args, $where);
+
+        if (!empty($additionalparams)) {
+            foreach ($additionalparams as $key => $value) {
+                $params[$key] = $value;
+            }
+        }
+        $table->set_filter_sql($fields, $from, $where, $filter, $params);
+
         $table->showcountlabel = $showfilter ? true : false;
 
         if (
@@ -725,11 +745,6 @@ class shortcodes {
             $table->showfilterontop = true;
         } else {
             $table->showfilterontop = false;
-        }
-
-        // If "rightside" is in the "exclude" array, then we do not show the rightside area (containing the "Book now" button).
-        if (!empty($exclude) && in_array('rightside', $exclude)) {
-            unset($table->subcolumns['rightside']);
         }
 
         try {
@@ -877,6 +892,22 @@ class shortcodes {
         // Set common table options requirelogin, sortorder, sortby.
         self::set_common_table_options_from_arguments($table, $args);
 
+        [$fields, $from, $where, $params, $filter] =
+                booking::get_options_filter_sql(
+                    0,
+                    0,
+                    '',
+                    null,
+                    null,
+                    [],
+                    $wherearray,
+                    $userid,
+                    $statusarray,
+                    $additionalwhere
+                );
+
+        $table->set_filter_sql($fields, $from, $where, $filter, $params);
+
         $table->define_cache('mod_booking', 'mybookingoptionstable');
 
         try {
@@ -967,23 +998,6 @@ class shortcodes {
 
         $innerfrom = booking::get_sql_for_fieldofstudy(get_class($DB), $courses);
 
-        [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(
-                    0,
-                    0,
-                    '',
-                    null,
-                    null,
-                    [],
-                    [],
-                    null,
-                    [MOD_BOOKING_STATUSPARAM_BOOKED],
-                    '',
-                    $innerfrom
-                );
-
-        $table->set_filter_sql($fields, $from, $where, $filter, $params);
-
         // These are all possible options to be displayed in the bookingtable.
         $possibleoptions = [
         "description",
@@ -1015,6 +1029,23 @@ class shortcodes {
         self::set_common_table_options_from_arguments($table, $args);
 
         unset($table->subcolumns['rightside']);
+
+        [$fields, $from, $where, $params, $filter] =
+                booking::get_options_filter_sql(
+                    0,
+                    0,
+                    '',
+                    null,
+                    null,
+                    [],
+                    [],
+                    null,
+                    [MOD_BOOKING_STATUSPARAM_BOOKED],
+                    '',
+                    $innerfrom
+                );
+
+        $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
         try {
             $out = $table->outhtml($perpage, true);
