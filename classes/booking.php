@@ -1230,20 +1230,25 @@ class booking {
             $params = array_merge($params, $inparams);
         }
 
-        // Check sortable columns if there is any custom fields.
-        // If yes, we create a join to select & put this custom field in the main query.
-        $sortablecolumns = empty($tableinstance) ? [] : array_keys($tableinstance->sortablecolumns);
-        $customfields = booking_handler::get_customfields(); // Booking custom fileds.
-        $sortablecustomfields = [];
-        foreach ($sortablecolumns as $column) {
-            if (in_array($column, $customfields)) {
-                $sortablecustomfields[] = $column;
-            }
-        }
-        if (empty($sortablecustomfields)) {
+        // Checks if we need to select custom fields.
+        $requiredcustomfields = self::check_required_custom_fields(
+            $searchtext,
+            $fields,
+            $context,
+            $filterarray,
+            $wherearray,
+            $userid,
+            $bookingparams,
+            $additionalwhere,
+            $innerfrom,
+            $tableinstance
+        );
+
+        if (empty($requiredcustomfields)) {
             [$select1, $from1, $filter1, $params1] = ["", "", "", []];
         } else {
-            [$select1, $from1, $filter1, $params1] = booking_option_settings::return_sql_for_customfield($sortablecustomfields);
+            [$select1, $from1, $filter1, $params1] =
+                booking_option_settings::return_sql_for_customfield($filterarray, $requiredcustomfields);
         }
         // Instead of "where" we return "filter". This is to support the filter functionality of wunderbyte table.
         [$select2, $from2, $filter2, $params2] = booking_option_settings::return_sql_for_teachers();
@@ -1251,17 +1256,18 @@ class booking {
         [$select4, $from4, $filter4, $params4, $conditionsql] = bo_info::return_sql_from_conditions($userid ?? 0);
 
         // The $outerfrom takes all the select from the supplementary selects.
-        // $outerfrom .= !empty($select1) ? ", $select1 " : '';
+        $outerfrom .= !empty($select1) ? ", $select1 " : '';
         $outerfrom .= !empty($select2) ? ", $select2 " : '';
         $outerfrom .= !empty($select3) ? ", $select3 " : '';
 
         // The innerfrom takes all the froms from the supplementary froms.
-        // $innerfrom .= " $from1 ";
+        $innerfrom .= " $from1 ";
         $innerfrom .= " $from2 ";
         $innerfrom .= " $from3 ";
 
         $pattern = '/as.*?,/';
-        // $addgroupby = preg_replace($pattern, ',', $select1 . ",");
+        $addgroupby = preg_replace($pattern, ',', $select1 . ",");
+        $groupby .= !empty($addgroupby) ? ' , ' . $addgroupby : '';
 
         $groupby .= '';
 
@@ -1279,7 +1285,7 @@ class booking {
         $groupby = implode(" , ", $groupbyarray);
 
         // Now we merge all the params arrays.
-        $params = array_merge($params, $params2, $params3, $params4);
+        $params = array_merge($params, $params1, $params2, $params3, $params4);
 
         // We build everything together.
         $from = $outerfrom;
@@ -1292,7 +1298,7 @@ class booking {
         $from .= $groupby;
 
         // Add the where at the right place.
-        // $filter .= " $filter1 ";
+        $filter .= " $filter1 ";
         $filter .= " $filter2 ";
         $filter .= " $filter3 ";
 
@@ -2155,5 +2161,88 @@ class booking {
                    AND cm.id=:cmid";
         $params = ['cmid' => $cmid];
         return !empty($DB->get_records_sql($sql, $params));
+    }
+
+    /**
+     * This function checks if we need to select custom fields.
+     *
+     * We need to select custom fields when any of the following conditions are met:
+     * - If a custom field is present in the $searchtext, $fields, $additionalwhere, or $innerfrom strings.
+     * - If a custom field is present in the $filterarray or $wherearray arrays.
+     * - If a custom field is selected as a sortable column.
+     *
+     * @param string $searchtext
+     * @param ?string $fields
+     * @param ?object $context
+     * @param array $filterarray
+     * @param array $wherearray
+     * @param ?int $userid
+     * @param array $bookingparams
+     * @param string $additionalwhere
+     * @param string $innerfrom
+     * @param ?wunderbyte_table $tableinstance
+     * @return array a list of custom field shortnames that are required.
+     */
+    protected static function check_required_custom_fields(
+        $searchtext = '',
+        $fields = null,
+        $context = null,
+        $filterarray = [],
+        $wherearray = [],
+        $userid = null,
+        $bookingparams = [MOD_BOOKING_STATUSPARAM_BOOKED],
+        $additionalwhere = '',
+        $innerfrom = '',
+        $tableinstance = null
+    ): array {
+        $requiredcustomfields = [];
+
+        // Get all booking custom fields.
+        $customfields = array_map(
+            fn($item) => $item->shortname,
+            booking_handler::get_customfields()
+        );
+
+        // Prepare string-like variables for easier checking.
+        $stringinputs = [];
+        foreach ([$searchtext, $fields, $additionalwhere, $innerfrom] as $value) {
+            // Normalize arrays or objects into strings for search purposes.
+            if (is_array($value)) {
+                $stringinputs[] = json_encode($value);
+            } else if (is_object($value)) {
+                $stringinputs[] = json_encode((array)$value);
+            } else if (is_string($value)) {
+                $stringinputs[] = $value;
+            }
+        }
+
+        // Prepare array-like inputs for easier checking.
+        $arrayinputs = array_merge($filterarray, $wherearray);
+
+        foreach ($customfields as $customfield) {
+            // 1. Check if any custom field name appears in string-like inputs.
+            foreach ($stringinputs as $stringinput) {
+                if (!empty($stringinput) && stripos($stringinput, $customfield) !== false) {
+                    $requiredcustomfields[] = $customfield;
+                    continue 2; // Move to next custom field once matched.
+                }
+            }
+
+            // 2. Check if any custom field is used in filter or where arrays.
+            foreach ($arrayinputs as $key => $value) {
+                if (is_string($key) && stripos($key, $customfield) !== false) {
+                    $requiredcustomfields[] = $customfield;
+                    continue 2;
+                }
+            }
+
+            // 3. Check sortable columns if there are any custom fields.
+            $sortablecolumns = empty($tableinstance) ? [] : array_keys($tableinstance->sortablecolumns);
+            if (in_array($customfield, $sortablecolumns, true)) {
+                $requiredcustomfields[] = $customfield;
+            }
+        }
+
+        return array_values(array_unique($requiredcustomfields));
     }
 }
