@@ -516,17 +516,31 @@ class mod_booking_generator extends testing_module_generator {
         // Create the table.
         $showonlyonetable = new bookingoptions_wbtable("cmid_{$settings->cmid}_optionid_{$optionid} showonlyonetable");
 
+        // Initialize the default columnes, headers, settings and layout for the table.
+        // In the future, we can parametrize this function so we can use it on many different places.
+        $view->wbtable_initialize_layout($showonlyonetable, false, false, false);
+
         $wherearray = [
             'bookingid' => (int) $booking->id,
             'id' => $optionid,
         ];
         [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
+                booking::get_options_filter_sql(
+                    0,
+                    0,
+                    '',
+                    null,
+                    $booking->context,
+                    [],
+                    $wherearray,
+                    null,
+                    [MOD_BOOKING_STATUSPARAM_BOOKED],
+                    '',
+                    '',
+                    $showonlyonetable
+                );
         $showonlyonetable->set_filter_sql($fields, $from, $where, $filter, $params);
 
-        // Initialize the default columnes, headers, settings and layout for the table.
-        // In the future, we can parametrize this function so we can use it on many different places.
-        $view->wbtable_initialize_layout($showonlyonetable, false, false, false);
         $showonlyonetable->printtable(10, true);
 
         return $showonlyonetable->rawdata ?? [];
