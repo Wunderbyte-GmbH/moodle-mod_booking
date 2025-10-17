@@ -44,7 +44,7 @@ final class bookingoption_filter_test extends advanced_testcase {
         $_POST = [];
 
         // We require version higher or equal to 2025101500 of wunderbyte_table.
-        // $this->require_wunderbyte_table_version(2025101500);
+        // Uncomment this line if you need to check the versin: $this->require_wunderbyte_table_version(2025101500);.
     }
     /**
      * Tests the application of custom field filters on booking options using the Wunderbyte table system.
@@ -64,7 +64,7 @@ final class bookingoption_filter_test extends advanced_testcase {
      * @param string $wbtfilter JSON string representing the filters (e.g. '{"customcat":["Text 2"]}').
      * @param int $counttotaloptions Expected total number of booking options before filters are applied.
      * @param int $countfilteredoptions Expected number of booking options after filters are applied.
-     * @param int $customsql
+     * @param bool $usecustomsql
      *
      * @covers \local_wunderbyte_table\filters\types\customfieldfilter
      * @covers \local_wunderbyte_table\wunderbyte_table::apply_filter
