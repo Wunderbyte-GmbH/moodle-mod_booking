@@ -1226,21 +1226,16 @@ class booking_option {
                 // False means, that it can't be booked.
                 // 0 means, that we can book right away
                 // 1 means, that there is only a place on the waiting list.
+                // With the second param, we check if overbooking is allowed.
                 $waitinglist = $this->check_if_limit(
                     $user->id,
                     $isavailable,
                     $status
                 );
         }
-        // With the second param, we check if overbooking is allowed.
 
-        // The $status == 2 means confirm. Under some circumstances, waitinglist can be false here.
+        // Under some circumstances, waitinglist can be false here.
         if ($waitinglist === false && $status != MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION) {
-            // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
-            // TODO: introduce an "allowoverbooking" param into the availability JSON.
-            // If the JSON contains it, we want to allow overbooking even without a waiting list.
-            // TOOD: It has to be added to the override conditions mform elements as a checkbox.
-
             // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
             /* echo "Couldn't subscribe user $user->id because of full waitinglist <br>";*/
             return false;
