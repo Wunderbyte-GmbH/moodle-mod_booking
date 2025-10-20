@@ -464,6 +464,12 @@ final class condition_all_test extends advanced_testcase {
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
+        // Verify that correct price category is stored in DB.
+        $student2answer = $DB->get_record('booking_answers', ['userid' => $student2->id, 'optionid' => $settings->id]);
+        $pricecat = singleton_service::get_pricecategory_for_user($student2);
+        $this->assertEquals($pricecat, $student2answer->pricecategory);
+        $this->assertEquals('zeroprice', $student2answer->pricecategory);
+
         // Mandatory clean-up.
         singleton_service::get_instance()->userpricecategory = [];
     }
