@@ -175,8 +175,22 @@ class booking_option {
         $this->booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
         if (empty($this->settings->id)) {
+            $message = "ERROR: Option $optionid, cmid $cmid could not be created. Most probably, the option was deleted from DB.";
+            if (get_config('booking', 'bookingdebugmode')) {
+                global $USER;
+                $event = booking_debug::create([
+                    'objectid' => $optionid,
+                    'context' => context_system::instance(),
+                    'relateduserid' => $USER->id,
+                    'other' => [
+                        'message' => $message,
+                    ],
+                ]);
+                $event->trigger();
+            }
+
             debugging(
-                'ERROR: Option settings could not be created. Most probably, the option was deleted from DB.',
+                $message,
                 DEBUG_DEVELOPER
             );
             return;
@@ -2667,15 +2681,18 @@ class booking_option {
                 return false;
             }
         } else {
-            // If we pass on a timebooked, we have to see if the user has an entry for that time.
-            if ($userdata = $DB->get_record('booking_answers', ['timebooked' => $timebooked, 'userid' => $userid, 'optionid' => $optionid])) {
-                $userdata->baid = $userdata->id;
-                $userdata->id = $userdata->userid;
-                if (!empty($userdata->completed)) {
-                    return false;
+            try {
+                // If we pass on a timebooked, we have to see if the user has an entry for that time.
+                if ($userdata = $DB->get_record('booking_answers', ['timebooked' => $timebooked, 'userid' => $userid, 'optionid' => $optionid])) {
+                    $userdata->baid = $userdata->id;
+                    $userdata->id = $userdata->userid;
+                    if (!empty($userdata->completed)) {
+                        return false;
+                    }
                 }
+            } catch (Throwable $e) {
+                throw new moodle_exception('errorloadinguserdata', 'booking', '', null, $e->getMessage() . "timebooked: $timebooked, userid: $userid, optionid: $optionid");
             }
-
         }
 
         $completionold = $userdata->completed;
