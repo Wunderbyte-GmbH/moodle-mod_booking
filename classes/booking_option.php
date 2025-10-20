@@ -2693,6 +2693,7 @@ class booking_option {
             } catch (Throwable $e) {
                 throw new moodle_exception('errorloadinguserdata', 'booking', '', null, $e->getMessage() . "timebooked: $timebooked, userid: $userid, optionid: $optionid");
             }
+
         }
 
         $completionold = $userdata->completed;
