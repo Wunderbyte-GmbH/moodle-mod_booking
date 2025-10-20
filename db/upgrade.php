@@ -5075,5 +5075,19 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2025100201, 'booking'); // Update to your new version number.
     }
 
+    if ($oldversion < 2025102000) {
+        // Define field pricecategory to be added to booking_answers.
+        $table = new xmldb_table('booking_answers');
+        $field = new xmldb_field('pricecategory', XMLDB_TYPE_TEXT, null, null, null, null, null, 'timebooked');
+
+        // Conditionally launch add field pricecategory.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2025102000, 'booking');
+    }
+
     return true;
 }
