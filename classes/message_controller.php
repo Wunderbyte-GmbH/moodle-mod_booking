@@ -603,7 +603,7 @@ class message_controller {
                 // In all other cases, use message_send.
                 if ($sent) {
                     if (!empty($this->rulesettings->actiondata) && !empty($this->rulesettings->actiondata->sendical)) {
-                        if (!PHPUNIT_TEST) {
+                        if (!PHPUNIT_TEST && isset($storedfile)) {
                             // Tidy up the now not needed file.
                             try {
                                 $storedfile->delete();
