@@ -84,18 +84,32 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
 
             // The first check needs to be if the rule has changed at all, eg. in any of the set values.
             if (
-                $ruleinstance->rulename === 'rule_daysbefore'
-                && ($taskdata->rulejson !== $ruleinstance->rulejson)
+                $taskdata->rulejson !== $ruleinstance->rulejson
             ) {
-                mtrace(
-                    'send_mail_by_rule_adhoc task: Rule has changed. Mail was NOT SENT for option.'
-                    . $taskdata->optionid
-                    . ' and user '
-                    . $taskdata->userid
-                    .  PHP_EOL
-                    . 'This message is expected and not signn of malfunction.'
-                );
-                return;
+                $abort = false;
+                if ($ruleinstance->rulename === 'rule_daysbefore') {
+                    $abort = true;
+                } else {
+                    $td = json_decode($taskdata->rulejson);
+                    $rd = json_decode($ruleinstance->rulejson);
+                    if (
+                        $td->actiondata != $rd->actiondata
+                        || $td->ruledata != $rd->ruledata
+                    ) {
+                        $abort = true;
+                    }
+                }
+                if ($abort) {
+                    mtrace(
+                        'send_mail_by_rule_adhoc task: Rule has changed. Mail was NOT SENT for option.'
+                        . $taskdata->optionid
+                        . ' and user '
+                        . $taskdata->userid
+                        .  PHP_EOL
+                        . 'This message is expected and not signn of malfunction.'
+                    );
+                    return;
+                }
             }
 
             // We replace the rulejson if it's already provided by the task.

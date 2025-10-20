@@ -1570,6 +1570,7 @@ $string['loopprevention'] = 'Den Platzhalter {$a} hier zu verwenden führt zu ei
 $string['lowerthan'] = 'ist kleiner als (Zahl)';
 $string['mail'] = 'Mail';
 $string['mailconfirmationsent'] = 'Sie erhalten in Kürze ein Bestätigungsmail an die in Ihrem Profil angegebene E-Mail Adresse';
+$string['mailintervalwarning'] = 'Achtung, wenn Sie diese Regel später ändern, werden bereits geplante Durchführungen (die vergangene Events ausgelöst wurden) nicht mehr ausgeführt.';
 $string['mailtemplatesadvanced'] = 'Erweiterte Einstelllungen für E-Mail-Vorlagen aktivieren';
 $string['mailtemplatesglobal'] = 'Globale E-Mail-Vorlagen aus den Plugin-Einstellungen verwenden';
 $string['mailtemplatesinstance'] = 'E-Mail-Vorlagen aus dieser Buchungsinstanz verwenden (Standard)';

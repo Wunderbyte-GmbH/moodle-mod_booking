@@ -1590,6 +1590,7 @@ $string['loopprevention'] = 'The placeholder {$a} causes a loop. Please replace 
 $string['lowerthan'] = 'is lower than (number)';
 $string['mail'] = 'Mail';
 $string['mailconfirmationsent'] = 'You will shortly receive a confirmation e-mail';
+$string['mailintervalwarning'] = 'Please note that if you change this rule later, previously scheduled executions (triggered by past events) will no longer be carried out.';
 $string['mailtemplatesadvanced'] = 'Activate advanced settings for e-mail templates';
 $string['mailtemplatesglobal'] = 'Use global mail templates from plugin settings';
 $string['mailtemplatesinstance'] = 'Use mail templates from this booking instance (default)';
