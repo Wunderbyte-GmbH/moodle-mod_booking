@@ -194,7 +194,7 @@ final class booking_answers_test extends advanced_testcase {
         $option1->delete_responses([$student1->id]);
         $bookinganswers1 = singleton_service::get_instance_of_booking_answers($settings1);
 
-        // Check multiple bookíngs if the opton is enabled.
+        // Check multiple bookings if the opton is enabled.
         if (!empty($optionsettings['multiplebookings'])) {
             // We advance the time and check bo_availabilty to see if expectation are met.
             $time = time_mock::get_mock_time();
@@ -243,6 +243,24 @@ final class booking_answers_test extends advanced_testcase {
         $this->assertCount($expected['count_usersonlist'], $bookinganswers1->get_usersonlist());
         $this->assertCount($expected['count_usersonwaitinglist'], $bookinganswers1->get_usersonwaitinglist());
         $this->assertCount($expected['count_previouslybooked'][0], $bookinganswers1->get_userspreviouslybooked());
+
+        // Very basic verification if pricecategory (default, no specific) is correctly added to tables.
+        // Verify the pricecategory directly in the table, as it is currently not needed in booking_answers objects.
+        $answers = $DB->get_records('booking_answers', ['optionid' => $option1->id]);
+        foreach ($answers as $a) {
+            $this->assertSame('default', $a->pricecategory);
+        }
+        $historyitems = $DB->get_records('booking_history');
+        foreach ($historyitems as $item) {
+            if (
+                $item->status === MOD_BOOKING_STATUSPARAM_BOOKED
+                || $item->status === MOD_BOOKING_STATUSPARAM_WAITINGLIST
+            ) {
+                $this->assertStringContainsString('default', $item->json);
+            } else if ($item->status === MOD_BOOKING_STATUSPARAM_DELETED) {
+                $this->assertEmpty($item->json);
+            }
+        }
     }
 
     /**

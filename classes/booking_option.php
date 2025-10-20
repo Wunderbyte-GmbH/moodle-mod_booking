@@ -1498,6 +1498,7 @@ class booking_option {
         $newanswer->timemodified = $now;
         $newanswer->timecreated = $timecreated ?? $now;
         $newanswer->waitinglist = $waitinglist;
+        $newanswer->pricecategory = singleton_service::get_pricecategory_for_user($USER) ?? '';
 
         // Store the real booking time in the bookinganswers table.
         // The real booking time is the moment when the user's booking process is finished.
@@ -1616,7 +1617,19 @@ class booking_option {
         }
 
         $status = empty($historystatus) ? $newanswer->waitinglist : $historystatus;
-        self::booking_history_insert($status, $newanswer->id, $newanswer->optionid, $newanswer->bookingid, $userid);
+        $addtionalinfos = [];
+        // We log pricecategory also in the history as it may be changed when answer is updated.
+        if (!empty($newanswer->pricecategory)) {
+            $addtionalinfos['pricecategory'] = $newanswer->pricecategory;
+        }
+        self::booking_history_insert(
+            $status,
+            $newanswer->id,
+            $newanswer->optionid,
+            $newanswer->bookingid,
+            $userid,
+            $addtionalinfos
+        );
 
         // After writing an answer, cache has to be invalidated.
         self::purge_cache_for_answers($optionid);
