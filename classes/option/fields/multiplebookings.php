@@ -94,7 +94,7 @@ class multiplebookings extends field_base {
             booking_option::add_data_to_json($newoption, "allowtobookagainafter", 0); // 0 means could not have multiple bookings.
         } else {
             booking_option::add_data_to_json($newoption, "multiplebookings", 1); // 1 means can have multiple bookings.
-            booking_option::add_data_to_json($newoption, "allowtobookagainafter", $formdata->allowtobookagainafter);
+            booking_option::add_data_to_json($newoption, "allowtobookagainafter", $formdata->allowtobookagainafter ?? 0);
         }
 
         parent::prepare_save_field($formdata, $newoption, $updateparam, '');
