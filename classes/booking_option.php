@@ -2667,7 +2667,8 @@ class booking_option {
                 return false;
             }
         } else {
-            $userdata = $DB->get_record('booking_answers', ['timebooked' => $timebooked, 'userid' => $userid]);
+            // If we pass on a timebooked, we have to see if the user has an entry for that time.
+            $userdata = $DB->get_record('booking_answers', ['timebooked' => $timebooked, 'userid' => $userid, 'optionid' => $optionid]);
             $userdata->baid = $userdata->id;
             $userdata->id = $userdata->userid;
             if (!empty($userdata->completed)) {
