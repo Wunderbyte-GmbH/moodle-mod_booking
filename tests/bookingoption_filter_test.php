@@ -155,8 +155,9 @@ final class bookingoption_filter_test extends advanced_testcase {
         $wherearray = [
             'bookingid' => (int) $booking->id,
         ];
+        $fileds = ($usecustomsql) ? 's1.*, customcat, customlabel' : '';
         [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(0, 0, '', null, $booking->context, [], $wherearray);
+                booking::get_options_filter_sql(0, 0, '', $fileds, $booking->context, [], $wherearray);
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
         // Create a filter on customcat.
