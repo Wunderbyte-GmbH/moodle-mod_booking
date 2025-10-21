@@ -68,6 +68,11 @@ final class date_series_in_semester_test extends advanced_testcase {
      * @throws \coding_exception
      * @throws \dml_exception
      *
+     * @param array $data
+     * @param array $expected
+     *
+     * @return void
+     *
      * @dataProvider provide_test_data
      */
     public function test_create_date_series($data, $expected): void {
