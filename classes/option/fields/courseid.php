@@ -295,7 +295,7 @@ class courseid extends field_base {
             if (
                 get_config('booking', 'duplicatemoodlecourses')
                 && !empty($data->oldcopyoptionid)
-                && !empty($data->settings->courseid)
+                && !empty($settings->courseid)
             ) {
                 $newcourseid = self::copy_moodle_course($data->oldcopyoptionid);
             }
