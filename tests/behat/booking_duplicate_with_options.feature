@@ -16,6 +16,7 @@ Feature: In a booking create booking option with multiple custom options
     And the following "courses" exist:
       | fullname | shortname | category | enablecompletion |
       | Course 1 | C1        | 0        | 1                |
+      | Course 2 | C2        | 0        | 1                |
     And the following "course enrolments" exist:
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
@@ -68,18 +69,18 @@ Feature: In a booking create booking option with multiple custom options
       | config                      | value | plugin  |
       | duplicatemoodlecourses      | 1     | booking |
     And the following "mod_booking > options" exist:
-      | booking    | text               | description | teachersforoption | chooseorcreatecourse | course |
-      | My booking | Duplication source | Source      | teacher1          | 1                    | C1     |
+      | booking    | text               | description | teachersforoption | chooseorcreatecourse | enrolmentstatus | course |
+      | My booking | Duplication source | Source      | teacher1          | 1                    | 2               | C2     |
     And I am on the "My booking" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     When I click on "Duplicate this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I set the following fields to these values:
       | Booking option name | Duplication - Copy1 |
     And I press "Save"
-    And I trigger cron
-    And I am on "Course 1 (copy)" course homepage
-    And I follow "My booking"
     Then I should see "Duplication - Copy1"
+    And I should see "Duplication source"
+    And I trigger cron
+    And I am on "Course 2 (copy)" course homepage
 
   @javascript
   Scenario: Duplicate booking option with multiple customized settings
