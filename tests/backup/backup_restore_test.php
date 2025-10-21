@@ -255,7 +255,7 @@ final class backup_restore_test extends advanced_testcase {
                 $this->assertEquals($historyitem->optionid, $option2->id);
                 $this->assertEquals($historyitem->bookingid, $booking21->instance);
                 $this->assertEquals($historyitem->status, 0);
-                $this->assertEquals($historyitem->json, "[]");
+                $this->assertEquals($historyitem->json, '{"pricecategory":"default"}');
                 $historyitem = array_shift($newhistory);
                 $this->assertEquals($historyitem->userid, $teacher->id);
                 $this->assertEquals($historyitem->optionid, $option2->id);
