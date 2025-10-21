@@ -47,6 +47,7 @@ export const init = () => {
 
         dynamicForm.load({
             id: response.id,
+            cmid: response.cmid,
             settingscallback: response.settingscallback,
         });
 

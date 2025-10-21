@@ -143,6 +143,7 @@ class csvimport extends dynamic_form {
         $callback = $data->settingscallback;
         $returndata = $callback($data, $content);
         $returndata['id'] = $data->id;
+        $returndata['cmid'] = $data->cmid;
         $returndata['settingscallback'] = $data->settingscallback;
 
         // Should return array with ['success'] == 1 in case of success.
