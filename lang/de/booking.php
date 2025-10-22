@@ -800,7 +800,7 @@ $string['checkedanswersdeleted'] = 'Die ausgewählten Buchungen wurden gelöscht
 $string['checklistdaten'] = 'Daten';
 $string['checklistdownload'] = 'Checkliste herunterladen';
 $string['checklistfirstcourseday'] = 'Erster Kurstag:';
-$string['checklisthtml'] = 'Checkliste template';
+$string['checklisthtml'] = 'HTML-Vorlage für Checkliste';
 $string['checklisthtmldescription'] = 'Sie können die folgenden Platzhalter in Ihrer Vorlage verwenden:<br>
 <b>Allgemeine Platzhalter:</b><br>
 [[booking_id]], [[booking_text]], [[max_answers]], [[institution]], [[location]], [[coursestarttime]], [[courseendtime]], [[description]], [[address]], [[teachers]], [[titleprefix]], [[dayofweektime]], [[annotation]], [[courseid]], [[course_url]], [[option_times]], [[contact]], [[dates]]<br>
@@ -1144,7 +1144,7 @@ Da das Duplizieren asynchron über einen Adhoc-Task gemacht wird, stellen Sie bi
 $string['duplicatename'] = 'Diese Bezeichnung für eine Buchungsoption existiert bereits. Bitte wählen Sie eine andere.';
 $string['duplication'] = 'Duplizierung';
 $string['duplicationrestore'] = 'Buchungsinstanzen: Duplizieren, Backup und Wiederherstellen';
-$string['duplicationrestorebookings'] = 'Buchungsoptionen inkludieren <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
+$string['duplicationrestorebookingoptions'] = 'Buchungsoptionen inkludieren <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['duplicationrestoredesc'] = 'Hier können Sie einstellen, welche Informationen beim Duplizieren bzw. beim Backup / Wiederherstellen von Buchungsinstanzen inkludiert werden sollen.';
 $string['duplicationrestoreentities'] = 'Entities inkludieren';
 $string['duplicationrestoreoption'] = 'Buchungsoptionen: Duplizieren <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';

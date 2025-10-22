@@ -816,7 +816,7 @@ $string['checkedanswersdeleted'] = 'The selected bookings were deleted successfu
 $string['checklistdaten'] = 'Dates';
 $string['checklistdownload'] = 'Download checklist';
 $string['checklistfirstcourseday'] = 'First Course Day:';
-$string['checklisthtml'] = 'Checkliste template';
+$string['checklisthtml'] = 'Checklist template';
 $string['checklisthtmldescription'] = 'You can use the following placeholders in your template:<br>
 <b>General placeholders:</b><br>
 [[booking_id]], [[booking_text]], [[max_answers]], [[institution]], [[location]], [[coursestarttime]], [[courseendtime]], [[description]], [[address]], [[teachers]], [[titleprefix]], [[dayofweektime]], [[annotation]], [[courseid]], [[course_url]], [[option_times]], [[contact]], [[dates]]<br>
