@@ -165,6 +165,28 @@ final class certificate_bo_completed_test extends advanced_testcase {
             $bookingoption->toggle_users_completion([$student1->id, $student2->id]);
         }
         $certificates = $DB->get_records('tool_certificate_issues');
+
+        // Check if file was created.
+        foreach ($certificates as $issue) {
+            $filestorage = get_file_storage();
+            $file = (object) [
+                'contextid' => \context_system::instance()->id,
+                'component' => 'tool_certificate',
+                'filearea'  => 'issues',
+                'itemid'    => $issue->id,
+                'filepath'  => '/',
+                'filename'  => $issue->code . '.pdf',
+            ];
+            $storedfile = $filestorage->get_file(
+                $file->contextid,
+                $file->component,
+                $file->filearea,
+                $file->itemid,
+                $file->filepath,
+                $file->filename
+            );
+            $this->assertNotEmpty($storedfile, 'No stored file found');
+        }
         $this->assertCount($expected['certcount'], $certificates);
         self::teardown();
     }

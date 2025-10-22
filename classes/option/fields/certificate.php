@@ -268,6 +268,7 @@ class certificate extends field_base {
      *
      */
     public static function issue_certificate(int $optionid, int $userid, int $timebooked = 0): int {
+        global $DB;
         $id = 0;
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
@@ -334,11 +335,15 @@ class certificate extends field_base {
                 $customfielddata
             );
             singleton_service::set_temp_values_for_certificates($settings->id, $userid);
+            // Issue the certificate.
             $id = $template->issue_certificate(
                 $userid,
                 $certificateexpirydate,
                 $data
             );
+            // Get the issue and create the PDF.
+            $issue = $DB->get_record('tool_certificate_issues', ['id' => $id]);
+            $pdf = $template->create_issue_file($issue, false);
             singleton_service::unset_temp_values_for_certificates();
         }
         return $id;
