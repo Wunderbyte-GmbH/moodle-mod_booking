@@ -84,6 +84,9 @@ class booked_users implements renderable, templatable {
     /** @var array $labels Labels of the tables */
     public $labels;
 
+    /** @var int $reduced Reduced status */
+    public $reduced;
+
     /**
      * Constructor
      *
