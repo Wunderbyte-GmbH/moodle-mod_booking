@@ -431,13 +431,16 @@ class competencies extends field_base {
      * @param string $competencies
      * @param booking_option|null $currentoption
      * @param bool $displayall
+     * @param int $userid
      * @return string
      */
     public static function get_list_of_similar_options(
         $competencies,
         $currentoption = null,
-        $displayall = true
+        $displayall = true,
+        $userid = 0
     ): string {
+        global $USER;
         if (
             !get_config('booking', 'usecompetencies')
             || empty($competencies)
@@ -452,6 +455,17 @@ class competencies extends field_base {
         ];
         if ($displayall) {
             $args['all'] = "true";
+        }
+
+        if (
+            !empty($userid)
+            && $USER->id != $userid
+        ) {
+            if (isset($args['exclude'])) {
+                $args['exclude'] .= ',booknow';
+            } else {
+                $args['exclude'] = 'booknow';
+            }
         }
 
         $env = new stdClass();
