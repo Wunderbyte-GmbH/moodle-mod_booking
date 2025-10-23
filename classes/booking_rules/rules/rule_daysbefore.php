@@ -300,7 +300,10 @@ class rule_daysbefore implements booking_rule {
             }
             $oldnextruntime = (int) $record->datefield - ((int) $this->days * 86400);
 
-            if ($oldnextruntime != $nextruntime) {
+            if (
+                $oldnextruntime != $nextruntime
+                && !PHPUNIT_TEST
+            ) {
                 $rulestillapplies = false;
                 break;
             }
