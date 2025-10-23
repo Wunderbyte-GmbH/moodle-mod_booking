@@ -184,7 +184,7 @@ class scope_base {
         if (empty($customfields)) {
             $customfields = booking_handler::get_customfields();
         }
-
+        $counter = 1;
         foreach ($customfields as $customfield) {
             $name = $customfield->shortname;
             $fieldid = $customfield->id;
