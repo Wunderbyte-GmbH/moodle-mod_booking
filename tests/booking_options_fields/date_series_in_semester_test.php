@@ -354,19 +354,19 @@ final class date_series_in_semester_test extends advanced_testcase {
                     'sessionscount' => 9,
                 ],
             ],
-            // 'send mail to admin new extra session' => [
-            //     'data' => [
-            //         'dayofweektime' =>
-            //                 "Monday, 10:00 - 12:00",
-            //         'extrasessionupdate' =>
-            //                 "Monday, 10:00 - 12:00
-            //                 Tuesday, 10 - 12",
-            //     ],
-            //     'expected' => [
-            //         'sessionscount' => 9,
-            //         'sessionscountafterupdate' => 18,
-            //     ],
-            // ],
+            'send mail to admin new extra session' => [
+                'data' => [
+                    'dayofweektime' =>
+                            "Monday, 10:00 - 12:00",
+                    'extrasessionupdate' =>
+                            "Monday, 10:00 - 12:00
+                            Tuesday, 10 - 12",
+                ],
+                'expected' => [
+                    'sessionscount' => 9,
+                    'sessionscountafterupdate' => 18,
+                ],
+            ],
         ];
     }
 
