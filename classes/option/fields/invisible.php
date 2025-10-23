@@ -100,7 +100,7 @@ class invisible extends field_base {
         $changes = $instance->check_for_changes($formdata, $instance);
 
         // Set the timemadevisible timestamp.
-        $change = reset($changes);
+        $change = reset($changes) ?? [];
         $optionid = $formdata->optionid ?? $formdata->id ?? 0;
         if (empty($optionid)) {
             // The option is new.
