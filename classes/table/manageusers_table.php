@@ -96,7 +96,7 @@ class manageusers_table extends wunderbyte_table {
         if (empty($values->timemodified)) {
             return '';
         }
-        return userdate($values->timemodified);
+        return date('d.m.Y', $values->timemodified);
     }
 
     /**
@@ -109,7 +109,7 @@ class manageusers_table extends wunderbyte_table {
         if (empty($values->timebooked)) {
             return '';
         }
-        return userdate($values->timebooked);
+        return date('d.m.Y', $values->timemodified);
     }
 
      /**
@@ -185,7 +185,6 @@ class manageusers_table extends wunderbyte_table {
             'id' => $values->id,
             'firstname' => $values->firstname,
             'lastname' => $values->lastname,
-            'email' => $values->email,
             'status' => get_string('waitinglist', 'mod_booking'),
             'userprofilelink' => $url->out(),
         ];
