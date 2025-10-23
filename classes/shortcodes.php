@@ -1530,10 +1530,13 @@ class shortcodes {
 
         $requiredargs = [];
         $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
-        if ($error['error'] === 1) {
+        if (
+            isset($error['error'])
+            && $error['error'] === 1
+        ) {
             return $error['message'];
         }
-        if ($args['reduced']) {
+        if (!empty($args['reduced'])) {
             $scope = 'optionstoconfirmreduced';
         } else {
             $scope = 'optionstoconfirm';
@@ -1628,14 +1631,16 @@ class shortcodes {
         global $PAGE;
         $requiredargs = [];
         $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
-        if ($error['error'] === 1) {
+        if (
+            isset($error['error'])
+            && $error['error'] === 1
+        ) {
             return $error['message'];
         }
-
-        if ($args['reduced']) {
-            $scope = 'supervisorteamreduced';
+        if (!empty($args['reduced'])) {
+            $scope = 'optionstoconfirmreduced';
         } else {
-            $scope = 'supervisorteam';
+            $scope = 'optionstoconfirm';
         }
         $data = new booked_users(
             $scope,
