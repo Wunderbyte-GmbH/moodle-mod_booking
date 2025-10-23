@@ -98,6 +98,8 @@ class booked_users implements renderable, templatable {
      * @param bool $showoptionstoconfirm
      * @param bool $showpreviouslybooked
      * @param int $cmid optional course module id of booking instance
+     * @param bool $showreducedbuttons
+     * @param array $customfields
      */
     public function __construct(
         string $scope = 'system',
@@ -110,7 +112,9 @@ class booked_users implements renderable, templatable {
         bool $showbookinghistory = false,
         bool $showoptionstoconfirm = false,
         bool $showpreviouslybooked = false,
-        int $cmid = 0
+        int $cmid = 0,
+        bool $showreducedbuttons = false,
+        array $customfields = [],
     ) {
         $ba = new booking_answers();
         /** @var scope_base $class */
@@ -194,7 +198,8 @@ class booked_users implements renderable, templatable {
                 array_values($columns),
                 // Sorting of waiting list only possible if setting to show place is enabled.
                 (bool)get_config('booking', 'waitinglistshowplaceonwaitinglist'),
-                true
+                true,
+                $customfields,
             ) : null;
 
             $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED);
@@ -234,7 +239,8 @@ class booked_users implements renderable, templatable {
         array $columns,
         array $headers = [],
         bool $sortable = false,
-        bool $paginate = false
+        bool $paginate = false,
+        array $customfields = []
     ): ?string {
         $ba = new booking_answers();
         /** @var scope_base $class */
@@ -247,7 +253,8 @@ class booked_users implements renderable, templatable {
             $columns,
             $headers,
             $sortable,
-            $paginate
+            $paginate,
+            $customfields
         );
 
         // Activate sorting dropdown.
@@ -495,6 +502,7 @@ class booked_users implements renderable, templatable {
             'previouslybooked' => $this->previouslybooked ?? null,
             'deputyselect' => $this->deputyselect ?? null,
             'labels' => array_values($this->labels) ?? null,
+            'reduced' => $this->reduced ?? null,
         ]);
     }
 

@@ -28,7 +28,7 @@ use local_wunderbyte_table\wunderbyte_table;
  * @author Mahdi Poustini
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later>
  */
-class supervisorteam extends optionstoconfirm {
+class supervisorteamreduced extends supervisorteam {
     /**
      * Render users table based on status param
      *
@@ -60,31 +60,17 @@ class supervisorteam extends optionstoconfirm {
         $table = new manageusers_table($tablename);
 
         $table->define_cache('mod_booking', "bookedusertable");
+        if(!empty($customfields)) {
+            $columns = array_merge($columns, $customfields);
+        }
         $table->define_columns($columns);
         $table->define_headers($headers);
-
-        if ($sortable) {
-            $table->sortablerows = true;
-        }
 
         if ($paginate) {
             $table->use_pages = true;
         }
 
         $table->set_sql($fields, $from, $where, $params);
-        $this->show_download_button($table, $scope, $scopeid, $statusparam);
-
-        $table->define_fulltextsearchcolumns(['firstname', 'lastname', 'email']);
-
-        // Sorting settings.
-        $sortablecolumns = [
-            'firstname' => get_string('firstname'),
-            'lastname' => get_string('lastname'),
-            'email' => get_string('email'),
-        ];
-        $table->sort_default_column = 'lastname';
-        $table->sort_default_order = SORT_ASC;
-        $table->define_sortablecolumns($sortablecolumns);
 
         return $table;
     }
@@ -120,34 +106,12 @@ class supervisorteam extends optionstoconfirm {
      *
      */
     public function return_cols_for_tables(int $statusparam): array {
-
         $columns = [
+            'name' => get_string('fullname', 'core'),
             'text' => get_string('bookingoptionname', 'mod_booking'),
-            'firstname' => get_string('firstname', 'core'),
-            'lastname'  => get_string('lastname', 'core'),
-            'email'     => get_string('email', 'core'),
-            'bookingstatus'     => get_string('booknow', 'mod_booking'),
+            'timemodified' => get_string('timecreated', 'core'),
+            'bookingstatus' => get_string('status', 'mod_booking'),
         ];
-
         return $columns;
-    }
-
-    /**
-     * Returns a new array of labels for the tables.
-     * You can set a custom name for each table.
-     * Possible keys are:
-     * - bookings
-     * - waitinglist
-     * - reservedusers
-     * - userstonotify
-     * - deletedbookings
-     * - bookinghistory
-     * @param array $defaultlables
-     * @return array
-     */
-    public function get_lables_of_tables(array $defaultlables): array {
-        $newlabels = $defaultlables;
-        $newlabels['waitinglist'] = get_string('tableheaderwaitforconfirmation', 'mod_booking');
-        return $newlabels;
     }
 }

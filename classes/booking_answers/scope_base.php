@@ -25,7 +25,10 @@
 namespace mod_booking\booking_answers;
 
 use context_system;
+use core\exception\moodle_exception;
 use local_wunderbyte_table\wunderbyte_table;
+use mod_booking\booking_option_settings;
+use mod_booking\customfield\booking_handler;
 use moodle_url;
 
 /**
@@ -105,6 +108,7 @@ class scope_base {
      * @param array $headers
      * @param bool $sortable
      * @param bool $paginate
+     * @param array $customfields
      * @return wunderbyte_table|null
      */
     public function return_users_table(
@@ -115,7 +119,8 @@ class scope_base {
         array $columns,
         array $headers = [],
         bool $sortable = false,
-        bool $paginate = false
+        bool $paginate = false,
+        array $customfields = []
     ) {
         return null; // Actual implementation in subclasses.
     }
@@ -161,5 +166,49 @@ class scope_base {
                 AND ba.waitinglist = :statusparam";
         }
         return $wherepart;
+    }
+    /**
+     * Joins Customfields.
+     *
+     * @param string $fields
+     * @param string $from
+     * @param string $where
+     * @param array $params
+     * @param array $customfields
+     *
+     * @return array
+     *
+     */
+    public function join_customfields(string $fields, string $from, string $where, array $params, array $customfields = []) {
+        global $DB;
+        if (empty($customfields)) {
+            $customfields = booking_handler::get_customfields();
+        }
+
+        foreach ($customfields as $customfield) {
+            $name = $customfield->shortname;
+            $fieldid = $customfield->id;
+
+            if (preg_match('/[^a-z0-9_]/', $name) > 0) {
+                      throw new moodle_exception(
+                          'nospacesinshortnames',
+                          'mod_booking',
+                          '',
+                          $name,
+                          "This shortname of a booking customfield contains forbidden characters"
+                      );
+            }
+
+            $fields .= ", cfd$counter.value AS $name";
+
+            $from .= " LEFT JOIN {customfield_data} cfd$counter
+               ON cfd$counter.instanceid = s1.optionid
+               AND cfd$counter.fieldid = :cfid$counter";
+            $params["cfid$counter"] = $fieldid;
+
+            $counter++;
+        }
+
+        return [$fields, $from, $where ?? '', $params];
     }
 }

@@ -54,6 +54,7 @@ class optionstoconfirm extends option {
      * @param array $headers
      * @param bool $sortable
      * @param bool $paginate
+     * @param array $customfields
      * @return wunderbyte_table|null
      */
     public function return_users_table(
@@ -64,13 +65,27 @@ class optionstoconfirm extends option {
         array $columns,
         array $headers = [],
         bool $sortable = false,
-        bool $paginate = false
+        bool $paginate = false,
+        array $customfields = []
     ) {
-        [$fields, $from, $where, $params] = $this->return_sql_for_booked_users($scope, $scopeid, $statusparam);
+        [$fields, $from, $where, $params] = $this->return_sql_for_booked_users($scope, $scopeid, $statusparam, $customfields);
 
         $tablename = "{$tablenameprefix}_{$scope}_{$scopeid}";
         $table = new manageusers_table($tablename);
+        if (!empty($customfields)) {
 
+            // We need the right readable values for each customfield.
+            // $cfheaders = [];
+            // $customfieldobjects = booking_handler::get_customfields();
+            // foreach ($customfields as $customfield) {
+            //     $key =
+            // }
+
+
+
+            $columns = array_merge($columns, $customfields);
+            $headers = array_merge($headers, ['x']);
+        }
         $table->define_cache('mod_booking', "bookedusertable");
         $table->define_columns($columns);
         $table->define_headers($headers);
@@ -98,7 +113,6 @@ class optionstoconfirm extends option {
                 $sortablecolumns = [
                     'firstname' => get_string('firstname'),
                     'lastname' => get_string('lastname'),
-                    'email' => get_string('email'),
                     'timemodified' => get_string('timemodified', 'mod_booking'),
                 ];
                 $table->sort_default_column = 'timemodified';
@@ -218,7 +232,7 @@ class optionstoconfirm extends option {
      * @param int $statusparam
      * @return array
      */
-    public function return_sql_for_booked_users(string $scope, int $scopeid, int $statusparam): array {
+    public function return_sql_for_booked_users(string $scope, int $scopeid, int $statusparam, array $customfields = []): array {
         global $USER, $DB;
 
         // The where restriction.
@@ -325,9 +339,12 @@ class optionstoconfirm extends option {
             ) s2
             $orderby
         ) s1";
-
+        if (!empty($customfields)) {
+            [$fields, $from, $where, $params] = $this->join_customfields($fields, $from, $where, $params);
+        }
         return [$fields, $from, $where, $params];
     }
+
 
     /**
      * This function calls the set booking extension and loads corresponding sql.

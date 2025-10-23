@@ -1528,8 +1528,23 @@ class shortcodes {
 
         global $PAGE;
 
+        $requiredargs = [];
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
+        if ($error['error'] === 1) {
+            return $error['message'];
+        }
+        if ($args['reduced']) {
+            $scope = 'optionstoconfirmreduced';
+        } else {
+            $scope = 'optionstoconfirm';
+        }
+        if (!empty($args['cfinclude'])) {
+            $customfields = explode(',', $args['cfinclude']);
+        } else {
+            $customfields = [];
+        }
         $data = new booked_users(
-            'optionstoconfirm',
+            $scope,
             0,
             false, // Booked users.
             false, // Users on waiting list.
@@ -1537,7 +1552,11 @@ class shortcodes {
             false, // Users on notify list.
             false, // Deleted users.
             false, // Booking history.
-            true // Options to confirm.
+            true, // Options to confirm.
+            false,
+            0,
+            true,
+            $customfields
         );
 
         // Without values in the config setting deputyselect makes no sense.
@@ -1550,6 +1569,9 @@ class shortcodes {
                 $data->deputyselect = 1;
             }
             $data->deputydisplay = dynamicdeputyselect::get_display_deputies_data();
+        }
+        if (!empty($args['reduced'])) {
+            $data->reduced = 1;
         }
         /** @var renderer $renderer */
         $renderer = $PAGE->get_renderer('mod_booking');
@@ -1604,9 +1626,19 @@ class shortcodes {
     public static function supervisorteam($shortcode, $args, $content, $env, $next) {
 
         global $PAGE;
+        $requiredargs = [];
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
+        if ($error['error'] === 1) {
+            return $error['message'];
+        }
 
+        if ($args['reduced']) {
+            $scope = 'supervisorteamreduced';
+        } else {
+            $scope = 'supervisorteam';
+        }
         $data = new booked_users(
-            'supervisorteam',
+            $scope,
             0,
             true, // Booked users.
             true, // Users on waiting list.

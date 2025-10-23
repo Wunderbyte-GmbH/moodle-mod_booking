@@ -48,7 +48,7 @@ class system extends scope_base_options {
      * @param int $statusparam
      * @return array
      */
-    public function return_sql_for_booked_users(string $scope, int $scopeid, int $statusparam): array {
+    public function return_sql_for_booked_users(string $scope, int $scopeid, int $statusparam, array $customfields = []): array {
         $fields = 's1.*';
         $where = ' 1 = 1 ';
         $wherepart = $this->get_wherepart($statusparam);
