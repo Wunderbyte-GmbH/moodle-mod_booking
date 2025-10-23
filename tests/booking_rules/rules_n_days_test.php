@@ -162,9 +162,7 @@ final class rules_n_days_test extends advanced_testcase {
         }
 
         $time = time_mock::get_mock_time();
-
         time_mock::set_mock_time(strtotime('+5 days', $time));
-
         $time = time_mock::get_mock_time();
 
         ob_start();
