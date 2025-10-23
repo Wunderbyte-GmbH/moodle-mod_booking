@@ -139,6 +139,124 @@ final class date_series_in_semester_test extends advanced_testcase {
     }
 
     /**
+     * Test creation and update of recurring options.
+     *
+     * @covers \mod_booking\option\fields\optiondates
+     * @covers \mod_booking\option\dates_handler
+     *
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @param array $data
+     * @param array $expected
+     *
+     * @return void
+     *
+     * @dataProvider provide_test_data_for_reminders
+     */
+    public function test_send_reminders_for_sessions($data, $expected): void {
+        global $DB;
+        $bdata = self::provide_bdata();
+
+        singleton_service::destroy_instance();
+
+        set_config('timezone', 'Europe/Kyiv');
+        set_config('forcetimezone', 'Europe/Kyiv');
+
+        // Course is needed for module generator.
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        // Create users.
+        $teacher1 = $this->getDataGenerator()->create_user();
+        $teacher2 = $this->getDataGenerator()->create_user();
+        $teacher3 = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        $semester = (object) [
+            'identifier' => 'monatsemester',
+            'name' => '2 Monate Semester',
+            'startdate' => strtotime('+2 days', time()),
+            'enddate' => strtotime('+63 days', time()),
+        ];
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $testsemester = $plugingenerator->create_semester($semester);
+
+                // Create booking rule - "ndays before".
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"1daybefore","template":"will start tomorrow","templateformat":"1"}';
+        $ruledata1 = [
+            'name' => '1daybefore',
+            'conditionname' => 'select_users',
+            'contextid' => 1,
+            'conditiondata' => '{"userids":["2"]}',
+            'actionname' => 'send_mail',
+            'actiondata' => $actstr,
+            'rulename' => 'rule_daysbefore',
+            'ruledata' => '{"days":"1","datefield":"optiondatestarttime"}',
+        ];
+        $rule1 = $plugingenerator->create_rule($ruledata1);
+        // Create an initial booking option.
+        // The option has 2 optiondates and 1 teacher.
+        $record = new stdClass();
+        $record->importing = 1;
+        $record->bookingid = $booking->id;
+        $record->text = 'Testoption';
+        $record->description = 'Test description';
+        $record->chooseorcreatecourse = 1; // Reqiured.
+        $record->courseid = $course->id;
+        $record->useprice = 0;
+        $record->default = 0;
+        $record->dayofweektime = $data['dayofweektime'];
+        $record->semesterid = $testsemester->id;
+
+        // Create the booking option.
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $plugingenerator->create_option($record);
+
+        // Now we change the teacher and add another optiondate.
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+
+        $this->assertNotEmpty($settings->sessions);
+        $this->assertCount($expected['sessionscount'], $settings->sessions);
+
+        // For each session there is a task.
+        $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $this->assertCount($expected['sessionscount'], $tasks);
+
+        // Update the sessions, create new entries.
+        if (isset($data['extrasessionupdate'])) {
+            $record->dayofweektime = $data['extrasessionupdate'];
+            $record->id = $option->id;
+            booking_option::update($record);
+
+            $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+            $this->assertCount($expected['sessionscountafterupdate'], $tasks);
+        }
+        ob_start();
+        $this->runAdhocTasks();
+        $res = ob_get_clean();
+
+        // Unfortunately in unit tests, nextruntime of task is ignored and all tasks are executed right away.
+        // So we expect a successful mail for each session / task.
+        $successfullmessages = substr_count($res, 'mail successfully sent');
+        $expectedmails = $expected['sessionscountafterupdate'] ?? $expected['sessionscount'];
+        $this->assertSame($expectedmails, $successfullmessages);
+
+        // To avoid retrieving the singleton with the wrong settings, we destroy it.
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
+
+        // TearDown at the very end.
+        self::tearDown();
+    }
+
+    /**
      * Provides the data that's constant for the test.
      *
      * @return array
@@ -216,6 +334,39 @@ final class date_series_in_semester_test extends advanced_testcase {
                     'nosessions' => true,
                 ],
             ],
+        ];
+    }
+
+    /**
+     * [Description for provide_test_data]
+     *
+     * @return array
+     *
+     */
+    public static function provide_test_data_for_reminders(): array {
+        return [
+            'send mail to admin standard' => [
+                'data' => [
+                    'dayofweektime' =>
+                            "Monday, 10:00 - 12:00",
+                ],
+                'expected' => [
+                    'sessionscount' => 9,
+                ],
+            ],
+            // 'send mail to admin new extra session' => [
+            //     'data' => [
+            //         'dayofweektime' =>
+            //                 "Monday, 10:00 - 12:00",
+            //         'extrasessionupdate' =>
+            //                 "Monday, 10:00 - 12:00
+            //                 Tuesday, 10 - 12",
+            //     ],
+            //     'expected' => [
+            //         'sessionscount' => 9,
+            //         'sessionscountafterupdate' => 18,
+            //     ],
+            // ],
         ];
     }
 
