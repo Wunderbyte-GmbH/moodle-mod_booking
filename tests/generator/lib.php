@@ -419,7 +419,12 @@ class mod_booking_generator extends testing_module_generator {
 
         $record->rulejson = json_encode($ruleobject);
 
-        $record->id = $DB->insert_record('booking_rules', $record);
+        // If we can update, we use id here.
+        if (!empty($record->id)) {
+            $DB->update_record('booking_rules', $record);
+        } else {
+            $record->id = $DB->insert_record('booking_rules', $record);
+        }
 
         return $record;
     }
