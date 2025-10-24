@@ -77,6 +77,140 @@ final class rules_n_days_test extends advanced_testcase {
      * @covers \mod_booking\booking_rules\conditions\select_users::execute
      * @covers \mod_booking\placeholders\placeholders\changes::return_value
      *
+     * @param array $bdata
+     * @throws \coding_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_rule_update(array $bdata): void {
+
+        singleton_service::destroy_instance();
+
+        set_config('timezone', 'Europe/Kyiv');
+        set_config('forcetimezone', 'Europe/Kyiv');
+
+        // Setup test data.
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $user1 = $this->getDataGenerator()->create_user();
+        $user2 = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $user2->username;
+
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($user2->id, $course->id, 'student');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        // Create booking rule - "ndays after".
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"1dayafter","template":"was ended yesterday","templateformat":"1"}';
+        $ruledata1 = [
+            'name' => '1dayafter',
+            'conditionname' => 'select_users',
+            'contextid' => 1,
+            'conditiondata' => '{"userids":["2"]}',
+            'actionname' => 'send_mail',
+            'actiondata' => $actstr,
+            'rulename' => 'rule_daysbefore',
+            'ruledata' => '{"days":"-1","datefield":"courseendtime","cancelrules":[]}',
+        ];
+        $rule1 = $plugingenerator->create_rule($ruledata1);
+
+        // Create booking option 1.
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Option-tomorrow';
+        $record->chooseorcreatecourse = 1; // Reqiured.
+        $record->courseid = $course->id;
+        $record->description = 'Will start tomorrow';
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('20 June 2050 15:00');
+        $record->courseendtime_0 = strtotime('20 July 2050 14:00');
+        $option1 = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option1->id);
+
+        $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+
+        // Validate scheduled adhoc tasks. Validate messages - order might be free.
+        foreach ($messages as $key => $message) {
+            $customdata = $message->get_custom_data();
+            if (strpos($customdata->customsubject, "1dayafter") !== false) {
+                $this->assertEquals(strtotime('21 July 2050 14:00'), $message->get_next_run_time());
+                $this->assertEquals("was ended yesterday", $customdata->custommessage);
+                $this->assertEquals("2", $customdata->userid);
+                $this->assertStringContainsString($ruledata1['ruledata'], $customdata->rulejson);
+                $this->assertStringContainsString($ruledata1['conditiondata'], $customdata->rulejson);
+                $this->assertStringContainsString($ruledata1['actiondata'], $customdata->rulejson);
+            } else {
+                continue;
+            }
+        }
+
+        // Update booking rule to "ndays before".
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"1daybefore","template":"will start tomorrow","templateformat":"1"}';
+        $ruledata1upd = [
+            'id' => $rule1->id, // Update existing rule.
+            'name' => '1daybefore',
+            'conditionname' => 'select_users',
+            'contextid' => 1,
+            'conditiondata' => '{"userids":["2"]}',
+            'actionname' => 'send_mail',
+            'actiondata' => $actstr,
+            'rulename' => 'rule_daysbefore',
+            'ruledata' => '{"days":"1","datefield":"coursestarttime","cancelrules":[]}',
+        ];
+        $rule1 = $plugingenerator->create_rule($ruledata1upd);
+
+        // Force option's update and execute booking rules to schedule new tasks.
+        // Old tasks expected to be deleted.
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $record->id = $option1->id;
+        $record->cmid = $settings1->cmid;
+        booking_option::update($record);
+        rules_info::execute_booking_rules();
+
+        $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+
+        // Validate scheduled adhoc tasks. Validate messages - order might be free.
+        foreach ($messages as $key => $message) {
+            // Old task expected to be deleted - error if found.
+            $customdata = $message->get_custom_data();
+                $this->assertStringNotContainsString(
+                    "1dayafter",
+                    $customdata->customsubject,
+                    "Error: Old task for '1dayafter' was not removed after rule update."
+                );
+            if (strpos($customdata->customsubject, "1daybefore") !== false) {
+                $this->assertEquals(strtotime('19 June 2050 15:00'), $message->get_next_run_time());
+                $this->assertEquals("will start tomorrow", $customdata->custommessage);
+                $this->assertEquals("2", $customdata->userid);
+                $this->assertStringContainsString($ruledata1upd['ruledata'], $customdata->rulejson);
+                $this->assertStringContainsString($ruledata1upd['conditiondata'], $customdata->rulejson);
+                $this->assertStringContainsString($ruledata1upd['actiondata'], $customdata->rulejson);
+            } else {
+                continue;
+            }
+        }
+    }
+
+    /**
+     * Test rule on before and after cursestart events.
+     *
+     * @covers \mod_booking\booking_option::update
+     * @covers \mod_booking\option\field_base::check_for_changes
+     * @covers \mod_booking\booking_rules\rules\rule_react_on_event::execute
+     * @covers \mod_booking\booking_rules\actions\send_mail::execute
+     * @covers \mod_booking\booking_rules\conditions\select_users::execute
+     * @covers \mod_booking\placeholders\placeholders\changes::return_value
+     *
      * @param array $data
      * @param array $expected
      * @throws \coding_exception
