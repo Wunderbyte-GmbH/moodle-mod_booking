@@ -1,0 +1,187 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/view
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * data-region
+
+   Example context (json):
+   {
+      "whatsnewtable" : null,
+      "alloptionstable" : "HTML alloptionstable",
+      "activeoptionstable" : "HTML activeoptionstable",
+      "myoptionstable" : "HTML myoptionstable",
+      "optionsiteachtable" : null,
+      "responsiblecontacttable": null,
+      "showonlyonetable" : null,
+      "myinstitutiontable" : null,
+      "showonlyone" : null,
+      "showactive" : null,
+      "showall" : true,
+      "mybooking" : null,
+      "myoptions" : null,
+      "myinstitution" : null,
+      "myinstitutionname" : null
+    }
+}}
+
+<ul class="nav nav-tabs" id="nav-tabs-booking-options-view" role="tablist">
+  {{^elective}}
+    {{#showonlyone}}
+      <li class="nav-item mr-1" role="presentation">
+        <button class="nav-link active" id="showonlyone-tab" data-bs-toggle="pill" data-bs-target="#showonlyone"
+          type="button" role="tab" aria-controls="showonlyone" aria-selected="true">
+          {{#str}} bookingoption, mod_booking {{/str}}
+        </button>
+      </li>
+    {{/showonlyone}}
+    {{#whatsnewtable}}
+      <li class="nav-item mr-1" role="presentation">
+        <button class="nav-link {{#showwhatsnew}}active{{/showwhatsnew}}" id="whatsnew-tab" data-bs-toggle="pill" data-bs-target="#whatsnew"
+          type="button" role="tab" aria-controls="whatsnew" aria-selected="true">
+          {{#whatsnewtabtitle}}{{.}}{{/whatsnewtabtitle}}
+        </button>
+      </li>
+    {{/whatsnewtable}}
+    {{#alloptionstable}}
+      <li class="nav-item mr-1" role="presentation">
+        <button class="nav-link {{#showall}}active{{/showall}}" id="all-options-tab" data-bs-toggle="pill" data-bs-target="#all-options"
+          type="button" role="tab" aria-controls="all-options" aria-selected="true">
+          {{#str}} showallbookingoptions, mod_booking {{/str}}
+        </button>
+      </li>
+    {{/alloptionstable}}
+    {{#activeoptionstable}}
+      <li class="nav-item mr-1" role="presentation">
+        <button class="nav-link {{#showactive}}active{{/showactive}}" id="active-options-tab" data-bs-toggle="pill" data-bs-target="#active-options"
+          type="button" role="tab" aria-controls="active-options" aria-selected="true">
+          {{#str}} activebookingoptions, mod_booking {{/str}}
+        </button>
+      </li>
+    {{/activeoptionstable}}
+    {{#myoptionstable}}
+      <li class="nav-item mr-1" role="presentation">
+        <button class="nav-link {{#mybooking}}active{{/mybooking}}" id="my-options-tab" data-bs-toggle="pill" data-bs-target="#my-options"
+          type="button" role="tab" aria-controls="my-options" aria-selected="true">
+          {{#str}} showmybookingsonly, mod_booking {{/str}}
+        </button>
+      </li>
+    {{/myoptionstable}}
+    {{#optionsiteachtable}}
+      <li class="nav-item mr-1" role="presentation">
+        <button class="nav-link {{#myoptions}}active{{/myoptions}}" id="options-i-teach-tab" data-bs-toggle="pill" data-bs-target="#options-i-teach"
+          type="button" role="tab" aria-controls="options-i-teach" aria-selected="true">
+          {{#str}} optionsiteach, mod_booking {{/str}}
+        </button>
+      </li>
+    {{/optionsiteachtable}}
+    {{#responsiblecontacttable}}
+      <li class="nav-item mr-1" role="presentation">
+        <button class="nav-link {{#optionsiamresponsiblefor}}active{{/optionsiamresponsiblefor}}" id="options-i-am-responsible-for-tab" data-bs-toggle="pill" data-bs-target="#options-i-am-responsible-for"
+          type="button" role="tab" aria-controls="options-i-am-responsible-for" aria-selected="true">
+          {{#str}} optionsiamresponsiblefor, mod_booking {{/str}}
+        </button>
+      </li>
+    {{/responsiblecontacttable}}
+    {{#myinstitutiontable}}
+      <li class="nav-item mr-1" role="presentation">
+        <button class="nav-link {{#myinstitution}}active{{/myinstitution}}" id="myinstitution-tab" data-bs-toggle="pill" data-bs-target="#myinstitution"
+          type="button" role="tab" aria-controls="myinstitution" aria-selected="true">
+          {{#str}} myinstitution, mod_booking {{/str}}{{#myinstitutionname}} ({{{.}}}){{/myinstitutionname}}
+        </button>
+      </li>
+    {{/myinstitutiontable}}
+    {{#visibleoptionstable}}
+      <li class="nav-item mr-1" role="presentation">
+        <button class="nav-link {{#visibleoptions}}active{{/visibleoptions}}" id="visibleoptions-tab" data-bs-toggle="pill" data-bs-target="#visibleoptions"
+          type="button" role="tab" aria-controls="visibleoptions" aria-selected="true">
+          {{#str}} visibleoptions, mod_booking {{/str}}
+        </button>
+      </li>
+    {{/visibleoptionstable}}
+    {{#invisibleoptionstable}}
+      <li class="nav-item mr-1" role="presentation">
+        <button class="nav-link {{#invisibleoptions}}active{{/invisibleoptions}}" id="invisibleoptions-tab" data-bs-toggle="pill" data-bs-target="#invisibleoptions"
+          type="button" role="tab" aria-controls="invisibleoptions" aria-selected="true">
+          {{#str}} invisibleoptions, mod_booking {{/str}}
+        </button>
+      </li>
+    {{/invisibleoptionstable}}
+    {{#fieldofstudytable}}
+      <li class="nav-item mr-1" role="presentation">
+        <button class="nav-link {{#showfieldofstudy}}active{{/showfieldofstudy}}" id="showfieldofstudy-tab" data-bs-toggle="pill" data-bs-target="#showfieldofstudy"
+          type="button" role="tab" aria-controls="showfieldofstudy" aria-selected="true">
+          {{#str}} showmyfieldofstudyonly, mod_booking {{/str}}
+        </button>
+      </li>
+    {{/fieldofstudytable}}
+  {{/elective}}
+  {{#elective}}
+    <li class="nav-item mr-1" role="presentation">
+      <button class="nav-link {{#elective}}active{{/elective}}" id="elective-tab" data-bs-toggle="pill" data-bs-target="#elective"
+        type="button" role="tab" aria-controls="elective" aria-selected="true">
+        {{#str}} elective, mod_booking {{/str}}
+      </button>
+    </li>
+  {{/elective}}
+</ul>
+
+<div class="tab-content" id="pills-tabContent">
+  {{#showonlyone}}
+    <div class="tab-pane fade show active" id="showonlyone" role="tabpanel" aria-labelledby="showonlyone-tab">{{{showonlyonetable}}}</div>
+  {{/showonlyone}}
+  {{#whatsnewtable}}
+    <div class="tab-pane fade {{#showwhatsnew}}show active{{/showwhatsnew}}" id="whatsnew" role="tabpanel" aria-labelledby="whatsnew-tab">{{{whatsnewtable}}}</div>
+  {{/whatsnewtable}}
+  {{#alloptionstable}}
+    <div class="tab-pane fade {{#showall}}show active{{/showall}}" id="all-options" role="tabpanel" aria-labelledby="all-options-tab">{{{alloptionstable}}}</div>
+  {{/alloptionstable}}
+  {{#activeoptionstable}}
+    <div class="tab-pane fade {{#showactive}}show active{{/showactive}}" id="active-options" role="tabpanel" aria-labelledby="active-options-tab">{{{activeoptionstable}}}</div>
+  {{/activeoptionstable}}
+  {{#myoptionstable}}
+    <div class="tab-pane fade {{#mybooking}}show active{{/mybooking}}" id="my-options" role="tabpanel" aria-labelledby="my-options-tab">{{{myoptionstable}}}</div>
+  {{/myoptionstable}}
+  {{#optionsiteachtable}}
+    <div class="tab-pane fade {{#myoptions}}show active{{/myoptions}}" id="options-i-teach" role="tabpanel" aria-labelledby="options-i-teach-tab">{{{optionsiteachtable}}}</div>
+  {{/optionsiteachtable}}
+  {{#responsiblecontacttable}}
+    <div class="tab-pane fade {{#optionsiamresponsiblefor}}show active{{/optionsiamresponsiblefor}}" id="options-i-am-responsible-for" role="tabpanel" aria-labelledby="options-i-am-responsible-for">{{{responsiblecontacttable}}}</div>
+  {{/responsiblecontacttable}}
+  {{#myinstitutiontable}}
+    <div class="tab-pane fade {{#myinstitution}}show active{{/myinstitution}}" id="myinstitution" role="tabpanel" aria-labelledby="myinstitution-tab">{{{myinstitutiontable}}}</div>
+  {{/myinstitutiontable}}
+  {{#visibleoptionstable}}
+    <div class="tab-pane fade {{#visibleoptions}}show active{{/visibleoptions}}" id="visibleoptions" role="tabpanel" aria-labelledby="visibleoptions-tab">{{{visibleoptionstable}}}</div>
+  {{/visibleoptionstable}}
+  {{#invisibleoptionstable}}
+    <div class="tab-pane fade {{#invisibleoptions}}show active{{/invisibleoptions}}" id="invisibleoptions" role="tabpanel" aria-labelledby="invisibleoptions-tab">{{{invisibleoptionstable}}}</div>
+  {{/invisibleoptionstable}}
+  {{#fieldofstudytable}}
+    <div class="tab-pane fade {{#showfieldofstudy}}show active{{/showfieldofstudy}}" id="showfieldofstudy" role="tabpanel" aria-labelledby="showfieldofstudy-tab">{{{fieldofstudytable}}}</div>
+  {{/fieldofstudytable}}
+  {{#elective}}
+    {{> mod_booking/elective/component_elective }}
+    <div class="tab-pane fade {{#elective}}show active{{/elective}}" id="elective" role="tabpanel" aria-labelledby="elective-tab">{{{electivetable}}}</div>
+    {{> mod_booking/elective/component_elective_modal }}
+  {{/elective}}
+</div>
+
