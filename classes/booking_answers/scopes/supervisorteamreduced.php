@@ -60,7 +60,7 @@ class supervisorteamreduced extends supervisorteam {
         $table = new manageusers_table($tablename);
 
         $table->define_cache('mod_booking', "bookedusertable");
-        if(!empty($customfields)) {
+        if (!empty($customfields)) {
             $columns = array_merge($columns, $customfields);
         }
         $table->define_columns($columns);

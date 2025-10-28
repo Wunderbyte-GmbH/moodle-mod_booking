@@ -229,6 +229,7 @@ class booked_users implements renderable, templatable {
      * @param array $headers
      * @param bool $sortable
      * @param bool $paginate
+     * @param array $customfields
      * @return ?string
      */
     private function render_users_table(

@@ -50,7 +50,7 @@ class alloptions extends option {
      * @param array $headers
      * @param bool $sortable
      * @param bool $paginate
-     *  array $customfields
+     * @param array $customfields
      * @return wunderbyte_table|null
      */
     public function return_users_table(

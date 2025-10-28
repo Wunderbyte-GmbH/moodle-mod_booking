@@ -73,16 +73,13 @@ class optionstoconfirm extends option {
         $tablename = "{$tablenameprefix}_{$scope}_{$scopeid}";
         $table = new manageusers_table($tablename);
         if (!empty($customfields)) {
-
-            // We need the right readable values for each customfield.
-            // $cfheaders = [];
-            // $customfieldobjects = booking_handler::get_customfields();
-            // foreach ($customfields as $customfield) {
-            //     $key =
-            // }
-
-
-
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /* We need the right readable values for each customfield.
+            $cfheaders = [];
+            $customfieldobjects = booking_handler::get_customfields();
+            foreach ($customfields as $customfield) {
+                $key =
+            } */
             $columns = array_merge($columns, $customfields);
             $headers = array_merge($headers, ['x']);
         }
@@ -230,6 +227,7 @@ class optionstoconfirm extends option {
      * @param string $scope option | instance | course | system
      * @param int $scopeid optionid | cmid | courseid | 0
      * @param int $statusparam
+     * @param array $customfields
      * @return array
      */
     public function return_sql_for_booked_users(string $scope, int $scopeid, int $statusparam, array $customfields = []): array {
