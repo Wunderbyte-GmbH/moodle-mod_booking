@@ -522,8 +522,13 @@ class booking_bookit {
      * @param bool $openruleexecution
      * @return array
      */
-    public static function answer_booking_option(string $area, int $itemid, int $status, int $userid = 0, bool $openruleexecution = false): array {
-
+    public static function answer_booking_option(
+        string $area,
+        int $itemid,
+        int $status,
+        int $userid = 0,
+        bool $openruleexecution = false
+    ): array {
         global $PAGE, $USER;
 
         $bookingoption = booking_option::create_option_from_optionid($itemid);
