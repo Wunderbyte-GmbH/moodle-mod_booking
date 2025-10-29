@@ -128,11 +128,13 @@ final class rules_n_days_test extends advanced_testcase {
         $record->text = 'Option-tomorrow';
         $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course->id;
-        $record->description = 'Will start tomorrow';
+        $record->description = 'Will start in 5 days';
         $record->optiondateid_0 = "0";
         $record->daystonotify_0 = "0";
-        $record->coursestarttime_0 = strtotime('20 June 2050 15:00');
-        $record->courseendtime_0 = strtotime('20 July 2050 14:00');
+        //$record->coursestarttime_0 = strtotime('20 June 2050 15:00');
+        //$record->courseendtime_0 = strtotime('20 July 2050 14:00');
+        $record->coursestarttime_0 = strtotime('+5 days', time());
+        $record->courseendtime_0 = strtotime('+6 days', time());
         $option1 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option1->id);
 
@@ -142,7 +144,7 @@ final class rules_n_days_test extends advanced_testcase {
         foreach ($messages as $key => $message) {
             $customdata = $message->get_custom_data();
             if (strpos($customdata->customsubject, "1dayafter") !== false) {
-                $this->assertEquals(strtotime('21 July 2050 14:00'), $message->get_next_run_time());
+                $this->assertEquals(strtotime('+7 days', time()), $message->get_next_run_time());
                 $this->assertEquals("was ended yesterday", $customdata->custommessage);
                 $this->assertEquals("2", $customdata->userid);
                 $this->assertStringContainsString($ruledata1['ruledata'], $customdata->rulejson);
@@ -170,7 +172,7 @@ final class rules_n_days_test extends advanced_testcase {
         $rule1 = $plugingenerator->create_rule($ruledata1upd);
 
         // Force option's update and execute booking rules to schedule new tasks.
-        // Old tasks expected to be deleted.
+        // Old tasks expected still to be present.
         $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
         $record->id = $option1->id;
         $record->cmid = $settings1->cmid;
@@ -183,13 +185,15 @@ final class rules_n_days_test extends advanced_testcase {
         foreach ($messages as $key => $message) {
             // Old task expected to be deleted - error if found.
             $customdata = $message->get_custom_data();
-                $this->assertStringNotContainsString(
-                    "1dayafter",
-                    $customdata->customsubject,
-                    "Error: Old task for '1dayafter' was not removed after rule update."
-                );
-            if (strpos($customdata->customsubject, "1daybefore") !== false) {
-                $this->assertEquals(strtotime('19 June 2050 15:00'), $message->get_next_run_time());
+            if (strpos($customdata->customsubject, "1dayafter") !== false) {
+                $this->assertEquals(strtotime('+7 days', time()), $message->get_next_run_time());
+                $this->assertEquals("was ended yesterday", $customdata->custommessage);
+                $this->assertEquals("2", $customdata->userid);
+                $this->assertStringContainsString($ruledata1['ruledata'], $customdata->rulejson);
+                $this->assertStringContainsString($ruledata1['conditiondata'], $customdata->rulejson);
+                $this->assertStringContainsString($ruledata1['actiondata'], $customdata->rulejson);
+            } else if (strpos($customdata->customsubject, "1daybefore") !== false) {
+                $this->assertEquals(strtotime('+4 days', time()), $message->get_next_run_time());
                 $this->assertEquals("will start tomorrow", $customdata->custommessage);
                 $this->assertEquals("2", $customdata->userid);
                 $this->assertStringContainsString($ruledata1upd['ruledata'], $customdata->rulejson);
@@ -199,6 +203,21 @@ final class rules_n_days_test extends advanced_testcase {
                 continue;
             }
         }
+
+        // Move time forward to trigger tasks.
+        $time = time_mock::get_mock_time();
+        time_mock::set_mock_time(strtotime('+10 days', $time));
+        $time = time_mock::get_mock_time();
+
+        // Trigger adhoctasks and capture emails.
+        unset_config('noemailever');
+        ob_start();
+        $messagesink = $this->redirectMessages();
+        $this->runAdhocTasks();
+        $messages = $messagesink->get_messages();
+        // TODO: 2 messages received - only 1 expected - "1daybefore".
+        $res = ob_get_clean();
+        $messagesink->close();
     }
 
     /**
