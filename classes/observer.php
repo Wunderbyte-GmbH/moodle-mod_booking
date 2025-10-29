@@ -179,6 +179,9 @@ class mod_booking_observer {
                 $DB->delete_records('booking_userevents', ['id' => $record->id]);
             }
         };
+
+        $optionid = $event->objectid;
+        cache_helper::invalidate_by_event('setbackoptionsanswers', [$optionid]);
     }
 
     /**
@@ -210,6 +213,8 @@ class mod_booking_observer {
                 calendar::delete_booking_userevents_for_option($optionid, $user->id);
             }
         };
+        $optionid = $event->objectid;
+        booking_option::purge_cache_for_option($optionid);
     }
 
     /**
