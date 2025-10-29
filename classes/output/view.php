@@ -413,30 +413,40 @@ class view implements renderable, templatable {
 
         $customfieldfilter = new customfieldfilter('availableplaces', 'Booking availability');
         $subsql = "id IN (
-            SELECT optionid FROM
-            (
                 SELECT
-                sba.optionid as optionid,
-                (
-                    sbo.maxanswers -
-                    (select COUNT(sba.id) FROM {booking_answers} sba WHERE sba.waitinglist=0 AND sba.optionid = sbo.id )
-                ) AS availableplaces
+                sba.optionid
                 FROM {booking_options} sbo
                 LEFT JOIN {booking_answers} sba ON sba.optionid = sbo.id
                 AND sba.waitinglist = 0
                 GROUP BY sbo.id, sbo.maxanswers, sba.optionid
                 HAVING :where
-            ) s3
         )";
 
-        $customfieldfilter->set_sql($subsql, '(sbo.maxanswers - COUNT(sba.id))');
+        $customfieldfilter->set_sql(
+            $subsql,
+            "CASE
+                            WHEN
+                                (sbo.maxanswers - COUNT(sba.id)) > 0
+                            THEN 'available to book'
+                            ELSE 'fully booked'
+                        END"
+        );
         $allbookingoptionstable->add_filter($customfieldfilter);
-        $innerfrom = " ,
-        (
-            bo.maxanswers -
-            (select COUNT(ba.id) FROM {booking_answers} ba WHERE ba.waitinglist=0 AND ba.optionid = bo.id )
-        ) AS availableplaces
-        FROM {booking_options} bo";
+        $innerfrom = "
+            ,
+            CASE
+                WHEN (
+                    bo.maxanswers - (
+                        SELECT COUNT(ba.id)
+                        FROM {booking_answers} ba
+                        WHERE ba.waitinglist = 0
+                        AND ba.optionid = bo.id
+                    )
+                ) > 0 THEN 'available to book'
+                ELSE 'fully booked'
+            END
+            AS availableplaces ";
+        $innerfrom .= "FROM {booking_options} bo ";
 
         $wherearray = ['bookingid' => (int)$booking->id];
         [$fields, $from, $where, $params, $filter] =
