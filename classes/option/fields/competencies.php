@@ -117,7 +117,12 @@ class competencies extends field_base {
         $changes = $instance->check_for_changes($formdata, $instance);
 
         if (!empty($value)) {
-            $stringvalue = implode(',', $value);
+            if (is_array($value)) {
+                $stringvalue = implode(',', $value);
+            } else {
+                // Assuming that this is a correct string (because of importing)
+                $stringvalue = $value;
+            }
             $newoption->$key = $stringvalue;
             $formdata->$key = $stringvalue;
         } else {
