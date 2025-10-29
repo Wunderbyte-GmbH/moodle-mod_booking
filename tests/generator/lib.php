@@ -387,7 +387,7 @@ class mod_booking_generator extends testing_module_generator {
         $ruleobject->actionname = $ruledraft->actionname;
         $ruleobject->actiondata = json_decode($ruledraft->actiondata);
         $ruleobject->rulename = $ruledraft->rulename;
-        // Compatibility for old tests on tules.
+        // Compatibility for old tests on rules.
         if (!empty($ruledraft->ruledata)) {
             $ruleobject->ruledata = json_decode($ruledraft->ruledata);
             if (empty($ruleobject->ruledata->cancelrules)) {

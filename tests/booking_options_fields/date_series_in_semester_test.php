@@ -28,6 +28,7 @@ namespace mod_booking;
 
 use advanced_testcase;
 use coding_exception;
+use mod_booking\booking_rules\rules\rule_daysbefore;
 use mod_booking\option\fields_info;
 use mod_booking_generator;
 use stdClass;
@@ -239,9 +240,32 @@ final class date_series_in_semester_test extends advanced_testcase {
             $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
             $this->assertCount($expected['sessionscountafterupdate'], $tasks);
         }
+
+        if (isset($data['ruleupdate'])) {
+            // This is actually not an update but we create a new rule and deactivate the old one.
+            $newactiondata = str_replace('1daybefore', 'newtitle', $ruledata1['actiondata']);
+            $ruledata1['actiondata'] = $newactiondata;
+            $ruledata1['name'] = 'newrule';
+            $rule2 = $plugingenerator->create_rule($ruledata1);
+            $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+            $this->assertCount($expected['sessionscount'] * 2, $tasks);
+            // Deactivate old rule.
+            //$DB->update_record('booking_rules', ['id' => $rule1->id, 'isactive' => 0]);
+            $rules = $DB->get_records('booking_rules');
+            $newruletasks = [];
+            foreach ($tasks as $task) {
+                $taskdata = $task->get_custom_data();
+                if (str_contains($taskdata->ruleid, '"ruleid":"' . $rule2->id . '")')) {
+                    $newruletasks[] = $task;
+                }
+            }
+        }
         ob_start();
+        $messagesink = $this->redirectMessages();
         $this->runAdhocTasks();
+        $sentmessages = $messagesink->get_messages();
         $res = ob_get_clean();
+        $this->assertNotEmpty($sentmessages);
 
         // Unfortunately in unit tests, nextruntime of task is ignored and all tasks are executed right away.
         // So we expect a successful mail for each session / task.
@@ -361,6 +385,20 @@ final class date_series_in_semester_test extends advanced_testcase {
                     'extrasessionupdate' =>
                             "Monday, 10:00 - 12:00
                             Tuesday, 10 - 12",
+                ],
+                'expected' => [
+                    'sessionscount' => 9,
+                    'sessionscountafterupdate' => 18,
+                ],
+            ],
+            'send mail to admin after update of rule' => [
+                'data' => [
+                    'dayofweektime' =>
+                            "Monday, 10:00 - 12:00",
+                    'extrasessionupdate' =>
+                            "Monday, 10:00 - 12:00
+                            Tuesday, 10 - 12",
+                    'ruleupdate' => true,
                 ],
                 'expected' => [
                     'sessionscount' => 9,
