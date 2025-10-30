@@ -2221,7 +2221,7 @@ if ($ADMIN->fulltree) {
             'booking/uselegacymailtemplates',
             get_string('uselegacymailtemplates', 'mod_booking'),
             get_string('uselegacymailtemplates_desc', 'mod_booking', $linktorules),
-            1
+            0
         )
     );
 
