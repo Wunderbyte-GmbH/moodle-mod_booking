@@ -2536,15 +2536,14 @@ $string['signinsheetdatetofillin'] = 'Date: ';
 $string['signinsheetdownload'] = 'Download sign-in sheet';
 $string['signinsheetfields'] = 'Sign-in sheet fields (PDF)';
 $string['signinsheethtml'] = 'HTML template for generating signature sheets';
-$string['signinsheethtmldescription'] = 'You can use the following placeholders:
-
+$string['signinsheethtmldescription'] = 'You can use the following placeholders:<br>
+<br>
 <b>Inside [[users]] ... [[/users]]:</b><br>
 [[fullname]], [[firstname]], [[lastname]], [[email]], [[signature]], [[institution]], [[description]], [[city]], [[country]], [[idnumber]], [[phone1]], [[department]], [[address]], [[places]], [[userpic]]<br>
-(possibly also custom profile fields, if configured)
-
+<br>
 <b>Outside of [[users]]:</b><br>
-[[location]], [[dayofweektime]], [[teachers]], [[dates]], [[logourl]], [[tablename]]
-
+[[location]], [[dayofweektime]], [[teachers]], [[dates]], [[logourl]], [[tablename]]<br>
+<br>
 Use only basic HTML that is supported by TCPDF / PhpWord. To insert signatures into a table, use the CSS class <code>"signaturetable"</code>.';
 $string['signinsheetlocation'] = 'Location: ';
 $string['signinsheetmode'] = 'Sign-in sheet mode';

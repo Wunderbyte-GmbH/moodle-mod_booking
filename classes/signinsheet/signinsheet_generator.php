@@ -549,8 +549,7 @@ class signinsheet_generator {
                 $this->signinsheetlogo->get_filepath(),
                 $this->signinsheetlogo->get_filename()
             );
-
-             $src = $url->out();
+            $src = $url->out();
             $htmloutput = str_replace('[[logourl]]', $src, $htmloutput);
         }
 
