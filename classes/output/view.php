@@ -414,10 +414,10 @@ class view implements renderable, templatable {
         $customfieldfilter = new customfieldfilter('availableplaces', 'Booking availability');
         $subsql = "id IN (
                 SELECT
-                sba.optionid
+                sbo.id
                 FROM {booking_options} sbo
                 LEFT JOIN {booking_answers} sba ON sba.optionid = sbo.id
-                AND sba.waitinglist = 0
+                WHERE sba.waitinglist = 0 OR sba.waitinglist IS NULL
                 GROUP BY sbo.id, sbo.maxanswers, sba.optionid
                 HAVING :where
         )";
@@ -425,8 +425,8 @@ class view implements renderable, templatable {
         $customfieldfilter->set_sql(
             $subsql,
             "CASE
-                            WHEN
-                                (sbo.maxanswers - COUNT(sba.id)) > 0
+                            WHEN sbo.maxanswers = 0
+                            OR (sbo.maxanswers - COUNT(sba.id)) > 0
                             THEN 'available to book'
                             ELSE 'fully booked'
                         END"
@@ -435,14 +435,16 @@ class view implements renderable, templatable {
         $innerfrom = "
             ,
             CASE
-                WHEN (
+                WHEN bo.maxanswers = 0
+                OR (
                     bo.maxanswers - (
                         SELECT COUNT(ba.id)
                         FROM {booking_answers} ba
                         WHERE ba.waitinglist = 0
                         AND ba.optionid = bo.id
                     )
-                ) > 0 THEN 'available to book'
+                ) > 0
+                THEN 'available to book'
                 ELSE 'fully booked'
             END
             AS availableplaces ";
