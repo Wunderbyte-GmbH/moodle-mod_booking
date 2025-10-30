@@ -61,7 +61,7 @@ define([], function() {
                             radio.checked = false;
                         }
                     });
-                    document.querySelector('button[name="downloadsigninsheet"]').click();
+                    document.querySelector('button[name^="downloadsigninsheet"]').click();
                 });
             }
         }
