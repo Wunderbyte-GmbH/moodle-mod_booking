@@ -166,7 +166,7 @@ class shortcodes_handler {
 
     /**
      * Helper function to remove quotation marks from a single argument.
-     * @param mixed &$arg reference to argument
+     * @param mixed $arg reference to argument
      * @return void
      */
     public static function fix_arg(&$arg): void {
