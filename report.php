@@ -1261,6 +1261,36 @@ if (!$tableallbookings->is_downloading()) {
         echo $OUTPUT->render_from_template('mod_booking/eventslist', (array) $eventslist);
     }
 
+    // We call the template render to display how many users are in previously booked list.
+    $data = new booked_users('option', $optionid, false, false, false, false, false, false, false, true);
+    $previouslybooked = $renderer->render_booked_users($data);
+
+    if (!empty($previouslybooked)) {
+        $contents = html_writer::tag(
+            'button',
+            '<i class="fa fa-users" aria-hidden="true"></i>' . get_string('bookingstatuspreviouslybooked', 'mod_booking'),
+            [
+                'data-toggle' => "collapse",
+                'data-target' => "#collapsePreviouslybookedlist",
+                'data-bs-toggle' => "collapse",
+                'data-bs-target' => "#collapsePreviouslybookedlist",
+                'role' => "button",
+                'aria-expanded' => "false",
+                'aria-controls' => "collapsePreviouslybookedlist",
+                'class' => "btn btn-link showrecentupdates-btn",
+            ]
+        );
+        echo html_writer::tag('div', $contents);
+        echo html_writer::tag(
+            'div',
+            $previouslybooked,
+            [
+                'class' => "collapse",
+                'id' => "collapsePreviouslybookedlist",
+            ]
+        );
+    }
+
     // We call the template render to display how many users are currently reserved.
     $data = new booked_users('option', $optionid, false, false, false, false, true);
     $deletedlist = $renderer->render_booked_users($data);
