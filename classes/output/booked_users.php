@@ -114,7 +114,7 @@ class booked_users implements renderable, templatable {
         bool $showpreviouslybooked = false,
         int $cmid = 0,
         bool $showreducedbuttons = false,
-        array $customfields = [],
+        array $customfields = []
     ) {
         $ba = new booking_answers();
         /** @var scope_base $class */
