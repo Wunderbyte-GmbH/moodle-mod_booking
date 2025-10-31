@@ -25,7 +25,6 @@
 namespace mod_booking;
 
 use advanced_testcase;
-use mod_booking\booking_answers\booking_answers;
 use stdClass;
 use mod_booking\booking_rules\booking_rules;
 use mod_booking\booking_rules\rules_info;
@@ -426,6 +425,9 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
         // Verify price.
         $price = price::get_price('option', $settings->id);
         $this->assertEquals($pricecategories['default']->defaultvalue, $price["price"]);
+
+        $studnetprice = price::get_price('option', $settings->id, $student[3]);
+        $this->assertEquals($pricecategories['student']->defaultvalue, $studnetprice["price"]);
 
         // Check the button for each student.
         for ($i = 1; $i <= 5; $i++) {
