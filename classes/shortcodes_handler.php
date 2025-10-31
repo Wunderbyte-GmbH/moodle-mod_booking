@@ -184,7 +184,7 @@ class shortcodes_handler {
      * @return bool true if the argument is "truthy"
      */
     public static function arg_is_true($arg): bool {
-        if (!isset($arg) || $arg == null || $arg == '0' || $arg == 'false') {
+        if (empty($arg) || $arg == "false" || $arg == "0") {
             return false;
         }
         self::fix_arg($arg);
