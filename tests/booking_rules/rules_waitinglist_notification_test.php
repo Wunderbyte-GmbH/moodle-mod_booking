@@ -313,7 +313,7 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
     public function test_auto_booking_of_priced_option_for_first_waitinglist_user_who_has_price_cateroy_free(): void {
         global $DB;
 
-        $this->preventResetByRollback();
+        $this->resetAfterTest();
 
         $bdata = self::booking_common_settings_provider();
         set_config('timezone', 'Europe/Kyiv');
