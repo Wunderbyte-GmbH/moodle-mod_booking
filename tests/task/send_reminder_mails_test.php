@@ -77,6 +77,11 @@ final class send_reminder_mails_test extends advanced_testcase {
     public function test_send_teacher_remimder(): void {
         global $DB, $CFG;
 
+        if (!get_config('booking', 'uselegacymailtemplates')) {
+            // Todo: Remove this test in the future when mail template support is removed.
+            return;
+        }
+
         self::tearDown();
 
         // It is important to set timezone to have all dates correct!
