@@ -227,8 +227,8 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
   @javascript
   Scenario: Booking settings: control deprecated email templates
     Given the following config values are set as admin:
-      | config                 | value | plugin      |
-      | uselegacymailtemplates | 1     | mod_booking |
+      | config                 | value | plugin  |
+      | uselegacymailtemplates | 1     | booking |
     And I am on the "My booking" Activity page logged in as admin
     And I follow "Settings"
     And I should see "E-mail settings" in the "#id_emailsettings" "css_element"

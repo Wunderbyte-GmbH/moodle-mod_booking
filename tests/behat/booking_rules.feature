@@ -162,7 +162,8 @@ Feature: Create global booking rules as admin and insure they are working.
     ## Send messages via cron and verify via events log
     And I trigger cron
     And I visit "/report/loglive/index.php"
-    And I should see "Option cancelled by teacher or system A message e-mail with subject \"Deleted booking: Option-football by Student 2\" has been sent to user: \"Teacher 1\" by the user \"Student 2\""
+    ## Legacy mail templates (uselegacymailtemplates=1) must be used to have next item in the events log
+    ## And I should see "Option cancelled by teacher or system A message e-mail with subject \"Deleted booking: Option-football by Student 2\" has been sent to user: \"Teacher 1\" by the user \"Student 2\""
     And I should see "Custom message A message e-mail with subject \"answer cancellation0\" has been sent to user: \"Teacher 1\" by the user \"Student 1\""
     And I should see "Custom message A message e-mail with subject \"answer cancellation5\" has been sent to user: \"Teacher 1\" by the user \"Student 2\""
     ## Logout is mandatory for admin pages to avoid error
@@ -198,7 +199,8 @@ Feature: Create global booking rules as admin and insure they are working.
     And I trigger cron
     And I visit "/report/loglive/index.php"
     And I should see "Booking option cancelled for/by user"
-    And I should see "Option cancelled by teacher or system A message e-mail with subject \"Deleted booking: Option-football by Student 1\" has been sent to user: \"Teacher 1\" by the user \"Student 1\""
+    ## Legacy mail templates (uselegacymailtemplates=1) must be used to have next item in the events log
+    ## And I should see "Option cancelled by teacher or system A message e-mail with subject \"Deleted booking: Option-football by Student 1\" has been sent to user: \"Teacher 1\" by the user \"Student 1\""
     And I should see "Custom message A message e-mail with subject \"answer cancellation\" has been sent to user: \"Teacher 1\" by the user \"Admin User\""
     ## Logout is mandatory for admin pages to avoid error
     And I log out
@@ -246,7 +248,7 @@ Feature: Create global booking rules as admin and insure they are working.
       | config                 | value  | plugin  |
       | uselegacymailtemplates | 1      | booking |
     And the following "mod_booking > options" exist:
-      | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
+      | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
     And the following booking rule exists:
       | conditionname   | select_user_from_event         |

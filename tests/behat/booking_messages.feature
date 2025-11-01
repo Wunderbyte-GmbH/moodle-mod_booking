@@ -86,7 +86,11 @@ Feature: Test messaging features in a booking
 
   @javascript
   Scenario: Admin book students into booking option and sends mails to them
-    Given I am on the "My booking" Activity page logged in as admin
+    ## Legacy mail templates must be used to have the expected items in the events log
+    Given the following config values are set as admin:
+      | config                 | value | plugin  |
+      | uselegacymailtemplates | 1     | booking |
+    And I am on the "My booking" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Student 1 (student1@example.com)" "text"
