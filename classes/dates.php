@@ -614,7 +614,7 @@ class dates {
         $datestosave = array_merge($datestosave, $datestoupdate);
         foreach ($datestosave as $date) {
             $optiondate = optiondate::save(
-                (int)$date['optiondateid'] ?? 0,
+                (int)($date['optiondateid'] ?? 0),
                 (int)$option->id,
                 (int)$date['coursestarttime'],
                 (int)$date['courseendtime'],
@@ -623,7 +623,7 @@ class dates {
                 0,
                 '',
                 0,
-                (int)$date['entityid'] ?? 0,
+                (int)($date['entityid'] ?? 0),
                 $date['customfields'] ?? []
             );
         }
