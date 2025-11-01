@@ -330,13 +330,17 @@ final class ical_test extends advanced_testcase {
      */
     public function test_update_calendar(): void {
         global $DB;
+
+        $this->resetAfterTest();
+
+        $this->setAdminUser();
+
         // Get environment.
         $env = $this->setup_environment(1);
         $option = $env['option'];
         $record = $env['record'];
         $student1 = $env['users']['student1'];
         $student2 = $env['users']['student2'];
-        $this->resetAfterTest();
 
         // Verify if all sessions were updated correctly.
         $optiondata = (object)[
@@ -372,6 +376,8 @@ final class ical_test extends advanced_testcase {
         ob_start();
         $this->runAdhocTasks();
         $res = ob_get_clean();
+
+        $this->setAdminUser();
 
         // Change title of the option.
         // Update booking.
