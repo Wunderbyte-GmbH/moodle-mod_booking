@@ -750,9 +750,12 @@ class recurringoptions extends field_base {
             $key = MOD_BOOKING_FORM_COURSEENDTIME . $newparentoptiondate["index"];
             $courseendtimekey = rtrim(MOD_BOOKING_FORM_COURSEENDTIME, "_");
             $childdatatoupdate->{$key} = strtotime($d, $newparentoptiondate[$courseendtimekey]);
-            $key = MOD_BOOKING_FORM_DAYSTONOTIFY . $newparentoptiondate["index"];
-            $dayskey = rtrim(MOD_BOOKING_FORM_DAYSTONOTIFY, "_");
-            $childdatatoupdate->{$key} = $newparentoptiondate[$dayskey];
+            if (get_config('booking', 'uselegacymailtemplates')) {
+                // Todo: Remove this in the future when mail template support is removed.
+                $key = MOD_BOOKING_FORM_DAYSTONOTIFY . $newparentoptiondate["index"];
+                $dayskey = rtrim(MOD_BOOKING_FORM_DAYSTONOTIFY, "_");
+                $childdatatoupdate->{$key} = $newparentoptiondate[$dayskey];
+            }
         }
     }
 

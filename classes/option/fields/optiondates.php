@@ -114,7 +114,10 @@ class optiondates extends field_base {
             $newoption->{'coursestarttime_' . $date['index']} = $date['coursestarttime'];
             $newoption->{'courseendtime_' . $date['index']} = $date['courseendtime'];
             $newoption->{'optiondateid_' . $date['index']} = $date['optiondateid'];
-            $newoption->{'daystonotify_' . $date['index']} = $date['daystonotify'];
+            if (get_config('booking', 'uselegacymailtemplates')) {
+                // Todo: Remove this in the future when mail template support is removed.
+                $newoption->{'daystonotify_' . $date['index']} = $date['daystonotify'];
+            }
 
             // We want to set the coursestarttime to the first coursestarttime.
             if (!isset($newoption->coursestarttime)) {
