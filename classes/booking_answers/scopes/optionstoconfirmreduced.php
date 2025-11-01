@@ -61,7 +61,7 @@ class optionstoconfirmreduced extends optionstoconfirm {
         array $headers = [],
         bool $sortable = false,
         bool $paginate = false,
-        array $customfields = [],
+        array $customfields = []
     ) {
         [$fields, $from, $where, $params] = $this->return_sql_for_booked_users($scope, $scopeid, $statusparam, $customfields);
 
