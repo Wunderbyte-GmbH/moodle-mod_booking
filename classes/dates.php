@@ -533,7 +533,7 @@ class dates {
                     'optiondateid' => $formvalues[MOD_BOOKING_FORM_OPTIONDATEID . $counter],
                     'coursestarttime' => $coursestarttime,
                     'courseendtime' => $courseendtime,
-                    'daystonotify' => $formvalues[MOD_BOOKING_FORM_DAYSTONOTIFY . $counter],
+                    'daystonotify' => $formvalues[MOD_BOOKING_FORM_DAYSTONOTIFY . $counter] ?? 0,
                     'entityid' => $entityid,
                     'entityarea' => $entityarea,
                     'customfields' => $cffields,
