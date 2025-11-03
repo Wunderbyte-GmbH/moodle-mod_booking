@@ -182,8 +182,9 @@ final class date_series_in_semester_test extends advanced_testcase {
         $semester = (object) [
             'identifier' => 'monatsemester',
             'name' => '2 Monate Semester',
-            'startdate' => strtotime('+2 days', time()),
-            'enddate' => strtotime('+63 days', time()),
+            // Take some fixed dates in the future to make sure, number of weeks and bank holidays remains the same.
+            'startdate' => 2529702000,
+            'enddate' => 2535228000,
         ];
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
         $testsemester = $plugingenerator->create_semester($semester);
@@ -246,16 +247,18 @@ final class date_series_in_semester_test extends advanced_testcase {
             $newactiondata = str_replace('1daybefore', 'newtitle', $ruledata1['actiondata']);
             $ruledata1['actiondata'] = $newactiondata;
             $ruledata1['name'] = 'newrule';
-            $rule2 = $plugingenerator->create_rule($ruledata1);
+            $ruledata1['id'] = $rule1->id;
+            $updatedrule = $plugingenerator->create_rule($ruledata1);
             $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
-            $this->assertCount($expected['sessionscount'] * 2, $tasks);
-            // Deactivate old rule.
-            //$DB->update_record('booking_rules', ['id' => $rule1->id, 'isactive' => 0]);
+            // Only one rule that was updated.
             $rules = $DB->get_records('booking_rules');
+            $this->assertCount(1, $rules);
+            // After the update of the rule, we expect to the tasks to be doubled.
+            $this->assertCount($expected['sessionscount'] * 2, $tasks);
             $newruletasks = [];
             foreach ($tasks as $task) {
                 $taskdata = $task->get_custom_data();
-                if (str_contains($taskdata->ruleid, '"ruleid":"' . $rule2->id . '")')) {
+                if (str_contains($taskdata->ruleid, '"ruleid":"' . $updatedrule->id . '")')) {
                     $newruletasks[] = $task;
                 }
             }
@@ -388,21 +391,18 @@ final class date_series_in_semester_test extends advanced_testcase {
                 ],
                 'expected' => [
                     'sessionscount' => 9,
-                    'sessionscountafterupdate' => 18,
+                    'sessionscountafterupdate' => 19,
                 ],
             ],
             'send mail to admin after update of rule' => [
                 'data' => [
                     'dayofweektime' =>
                             "Monday, 10:00 - 12:00",
-                    'extrasessionupdate' =>
-                            "Monday, 10:00 - 12:00
-                            Tuesday, 10 - 12",
                     'ruleupdate' => true,
                 ],
                 'expected' => [
                     'sessionscount' => 9,
-                    'sessionscountafterupdate' => 18,
+                    'sessionscountafterupdate' => 19,
                 ],
             ],
         ];
