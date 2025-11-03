@@ -489,6 +489,20 @@ class signinsheet_generator {
                 '[[places]]' => $user->places ?? '',
             ];
 
+            // Get all custom user profile fields and add them as placeholders
+            $customuserfields = $DB->get_records('user_info_field');
+            foreach ($customuserfields as $customuserfield) {
+                $fieldtype = $customuserfield->datatype;
+                $shortname = $customuserfield->shortname;
+                if ($fieldtype == 'datetime') {
+                    $cleanvalue = $user->$shortname ?? 0;
+                    $value = $cleanvalue != 0 ? userdate($user->$shortname, get_string('strftimedate', 'langconfig')) : '';
+                } else {
+                    $value = $user->$shortname ?? '';
+                }
+                $replacements['[[' . $shortname . ']]'] = $value ?? '';
+            }
+
             $userobj = singleton_service::get_instance_of_user($user->id);
             $userpic = new user_picture($userobj);
             if (empty($userpic)) {
