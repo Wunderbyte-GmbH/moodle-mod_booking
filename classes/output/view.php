@@ -412,12 +412,12 @@ class view implements renderable, templatable {
         $this->wbtable_initialize_layout($allbookingoptionstable, true, true, true);
 
         $customfieldfilter = new customfieldfilter('availableplaces', 'Booking availability');
+        $customfieldfilter->bypasscache = true;
         $subsql = "id IN (
                 SELECT
                 sbo.id
                 FROM {booking_options} sbo
                 LEFT JOIN {booking_answers} sba ON sba.optionid = sbo.id
-                WHERE sba.waitinglist = 0 OR sba.waitinglist IS NULL
                 GROUP BY sbo.id, sbo.maxanswers, sba.optionid
                 HAVING :where
         )";
@@ -426,7 +426,7 @@ class view implements renderable, templatable {
             $subsql,
             "CASE
                             WHEN sbo.maxanswers = 0
-                            OR (sbo.maxanswers - COUNT(sba.id)) > 0
+                            OR (sbo.maxanswers - COUNT(CASE WHEN sba.waitinglist = 0 THEN 1 END)) > 0
                             THEN 'available to book'
                             ELSE 'fully booked'
                         END"
