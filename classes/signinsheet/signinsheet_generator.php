@@ -489,7 +489,7 @@ class signinsheet_generator {
                 '[[places]]' => $user->places ?? '',
             ];
 
-            // Get all custom user profile fields and add them as placeholders
+            // Get all custom user profile fields and add them as placeholders.
             $customuserfields = $DB->get_records('user_info_field');
             foreach ($customuserfields as $customuserfield) {
                 $fieldtype = $customuserfield->datatype;
