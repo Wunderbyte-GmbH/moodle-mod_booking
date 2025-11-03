@@ -548,6 +548,11 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
             );
         }
 
+        // Chekc if 5th student see the fully booked.
+        $this->setUser($student[3]);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student[3]->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
         $this->assertCount(2, $bookedusers, 'Expected exactly 2 booked students.');
     }
 
