@@ -83,6 +83,7 @@ final class rules_n_days_test extends advanced_testcase {
      * @dataProvider booking_common_settings_provider
      */
     public function test_rule_update(array $bdata): void {
+        global $DB;
 
         singleton_service::destroy_instance();
 
@@ -131,8 +132,6 @@ final class rules_n_days_test extends advanced_testcase {
         $record->description = 'Will start in 5 days';
         $record->optiondateid_0 = "0";
         $record->daystonotify_0 = "0";
-        //$record->coursestarttime_0 = strtotime('20 June 2050 15:00');
-        //$record->courseendtime_0 = strtotime('20 July 2050 14:00');
         $record->coursestarttime_0 = strtotime('+5 days', time());
         $record->courseendtime_0 = strtotime('+6 days', time());
         $option1 = $plugingenerator->create_option($record);
@@ -154,6 +153,8 @@ final class rules_n_days_test extends advanced_testcase {
                 continue;
             }
         }
+        $rules = $DB->get_records('booking_rules');
+        $this->assertCount(1, $rules);
 
         // Update booking rule to "ndays before".
         $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
@@ -171,6 +172,9 @@ final class rules_n_days_test extends advanced_testcase {
         ];
         $rule1 = $plugingenerator->create_rule($ruledata1upd);
 
+        $rules = $DB->get_records('booking_rules');
+        $this->assertCount(1, $rules);
+
         // Force option's update and execute booking rules to schedule new tasks.
         // Old tasks expected still to be present.
         $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
@@ -179,10 +183,14 @@ final class rules_n_days_test extends advanced_testcase {
         booking_option::update($record);
         rules_info::execute_booking_rules();
 
-        $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
 
+        $this->assertCount(2, $tasks);
+
+        $oldtaskcount = 0;
+        $newtaskcount = 0;
         // Validate scheduled adhoc tasks. Validate messages - order might be free.
-        foreach ($messages as $key => $message) {
+        foreach ($tasks as $key => $message) {
             // Old task expected to be deleted - error if found.
             $customdata = $message->get_custom_data();
             if (strpos($customdata->customsubject, "1dayafter") !== false) {
@@ -192,6 +200,7 @@ final class rules_n_days_test extends advanced_testcase {
                 $this->assertStringContainsString($ruledata1['ruledata'], $customdata->rulejson);
                 $this->assertStringContainsString($ruledata1['conditiondata'], $customdata->rulejson);
                 $this->assertStringContainsString($ruledata1['actiondata'], $customdata->rulejson);
+                $oldtaskcount++;
             } else if (strpos($customdata->customsubject, "1daybefore") !== false) {
                 $this->assertEquals(strtotime('+4 days', time()), $message->get_next_run_time());
                 $this->assertEquals("will start tomorrow", $customdata->custommessage);
@@ -199,15 +208,13 @@ final class rules_n_days_test extends advanced_testcase {
                 $this->assertStringContainsString($ruledata1upd['ruledata'], $customdata->rulejson);
                 $this->assertStringContainsString($ruledata1upd['conditiondata'], $customdata->rulejson);
                 $this->assertStringContainsString($ruledata1upd['actiondata'], $customdata->rulejson);
+                $newtaskcount++;
             } else {
                 continue;
             }
         }
-
-        // Move time forward to trigger tasks.
-        $time = time_mock::get_mock_time();
-        time_mock::set_mock_time(strtotime('+10 days', $time));
-        $time = time_mock::get_mock_time();
+        $this->assertSame(1, $oldtaskcount);
+        $this->assertSame(1, $newtaskcount);
 
         // Trigger adhoctasks and capture emails.
         unset_config('noemailever');
@@ -215,7 +222,7 @@ final class rules_n_days_test extends advanced_testcase {
         $messagesink = $this->redirectMessages();
         $this->runAdhocTasks();
         $messages = $messagesink->get_messages();
-        // TODO: 2 messages received - only 1 expected - "1daybefore".
+        $this->assertCount(1, $messages);
         $res = ob_get_clean();
         $messagesink->close();
     }
