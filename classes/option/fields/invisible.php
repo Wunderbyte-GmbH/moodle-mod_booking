@@ -100,12 +100,16 @@ class invisible extends field_base {
         $changes = $instance->check_for_changes($formdata, $instance);
 
         // Set the timemadevisible timestamp.
-        $change = reset($changes);
-        if ($formdata->optionid == 0) {
+        $change = reset($changes) ?? [];
+        $optionid = $formdata->optionid ?? $formdata->id ?? 0;
+        if (empty($optionid)) {
             // The option is new.
             $newoption->timemadevisible = time();
         } else if (
-            $change['fieldname'] == 'invisible'
+            isset($change['fieldname'])
+            && isset($change['oldvalue'])
+            && isset($change['newvalue'])
+            && $change['fieldname'] == 'invisible'
             && in_array($change['oldvalue'], [1, 2]) // Was invisible.
             && $change['newvalue'] == 0 // Was set to visible.
         ) {
@@ -113,7 +117,7 @@ class invisible extends field_base {
             $newoption->timemadevisible = time();
         } else {
             // In all other cases, we use the timecreated value.
-            $settings = singleton_service::get_instance_of_booking_option_settings($formdata->optionid);
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
             if (empty($settings->timemadevisible)) {
                 if (!empty($settings->timecreated)) {
                     $newoption->timemadevisible = $settings->timecreated;

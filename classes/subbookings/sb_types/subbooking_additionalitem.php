@@ -399,12 +399,14 @@ class subbooking_additionalitem implements booking_subbooking {
         // We never show the subbooking when we are only in waitforconfirmation.
         if (!empty($settings->waitforconfirmation)) {
             $ba = singleton_service::get_instance_of_booking_answers($settings);
+            $usersreserved = $ba->get_usersreserved();
+            $usersonwaitinglist = $ba->get_usersonwaitinglist();
 
             // When the user is neither on waitinglist, nor on reserved, don't show subbookings.
             if (
                 !(
-                    ($ba->usersonwaitinglist[$userid] ?? false)
-                    || ($ba->usersreserved[$userid] ?? false)
+                    ($usersonwaitinglist[$userid] ?? false)
+                    || ($usersreserved[$userid] ?? false)
                 )
             ) {
                 return false;
@@ -445,6 +447,34 @@ class subbooking_additionalitem implements booking_subbooking {
      */
     public function after_booking_action(booking_option_settings $settings, int $userid = 0, int $recordid = 0): bool {
 
+        return true;
+    }
+
+    /**
+     * Reservation action.
+     *
+     * @param booking_option_settings $settings
+     * @param int $userid
+     * @param int $recordid
+     *
+     * @return bool
+     *
+     */
+    public function reservation_action(booking_option_settings $settings, int $userid = 0, int $recordid = 0): bool {
+        return true;
+    }
+
+    /**
+     * Subbooking was reserved but is deleted now.
+     *
+     * @param booking_option_settings $settings
+     * @param int $userid
+     * @param int $recordid
+     *
+     * @return bool
+     *
+     */
+    public function reservation_deletion_action(booking_option_settings $settings, int $userid = 0, int $recordid = 0): bool {
         return true;
     }
 }

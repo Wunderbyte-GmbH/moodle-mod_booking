@@ -33,7 +33,6 @@ namespace mod_booking\event;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class bookingoption_freetobookagain extends \core\event\base {
-
     /**
      * Init
      *
@@ -63,8 +62,8 @@ class bookingoption_freetobookagain extends \core\event\base {
      *
      */
     public function get_description() {
-        return "The user with id {$this->userid} has cancelled,
-            therefore the booking option with id {$this->objectid} can be booked again.";
+        return "The user with id {$this->userid} has caused that the option {$this->objectid} can be booked again.
+        Either the user cancelled their response or increased the number of places in the option.";
     }
 
     /**

@@ -31,8 +31,10 @@ $cid = optional_param('cid', '', PARAM_INT);
 $delete = optional_param('delete', '', PARAM_INT);
 
 if ($cid != '') {
-    $url = new moodle_url('/mod/booking/categoryadd.php',
-            ['courseid' => $courseid, 'cid' => $cid]);
+    $url = new moodle_url(
+        '/mod/booking/categoryadd.php',
+        ['courseid' => $courseid, 'cid' => $cid]
+    );
 } else {
     $url = new moodle_url('/mod/booking/categoryadd.php', ['courseid' => $courseid]);
 }

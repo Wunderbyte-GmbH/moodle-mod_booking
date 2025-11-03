@@ -514,4 +514,32 @@ class subbooking_timeslot implements booking_subbooking {
 
         return true;
     }
+
+    /**
+     * Reservation action.
+     *
+     * @param booking_option_settings $settings
+     * @param int $userid
+     * @param int $recordid
+     *
+     * @return bool
+     *
+     */
+    public function reservation_action(booking_option_settings $settings, int $userid = 0, int $recordid = 0): bool {
+        return true;
+    }
+
+    /**
+     * Subbooking was reserved but is deleted now.
+     *
+     * @param booking_option_settings $settings
+     * @param int $userid
+     * @param int $recordid
+     *
+     * @return bool
+     *
+     */
+    public function reservation_deletion_action(booking_option_settings $settings, int $userid = 0, int $recordid = 0): bool {
+        return true;
+    }
 }

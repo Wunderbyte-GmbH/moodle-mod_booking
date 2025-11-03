@@ -47,7 +47,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class bookitbutton implements bo_subcondition {
-
     /** @var int $id Standard Conditions have hardcoded ids. */
     public $id = MOD_BOOKING_BO_COND_BOOKITBUTTON;
 
@@ -113,8 +112,13 @@ class bookitbutton implements bo_subcondition {
      * @return array availability and Information string (for admin) about all restrictions on
      *   this item
      */
-    public function get_description(booking_option_settings $settings,
-        $subbookingid, $userid = null, $full = false, $not = false): array {
+    public function get_description(
+        booking_option_settings $settings,
+        $subbookingid,
+        $userid = null,
+        $full = false,
+        $not = false
+    ): array {
 
         $description = '';
 
@@ -151,8 +155,14 @@ class bookitbutton implements bo_subcondition {
      * @param bool $fullwidth
      * @return array
      */
-    public function render_button(booking_option_settings $settings,
-        int $subbookingid, int $userid=0, bool $full=false, bool $not=false, bool $fullwidth=true): array {
+    public function render_button(
+        booking_option_settings $settings,
+        int $subbookingid,
+        int $userid = 0,
+        bool $full = false,
+        bool $not = false,
+        bool $fullwidth = true
+    ): array {
 
         global $USER;
 

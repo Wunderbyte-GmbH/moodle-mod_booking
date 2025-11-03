@@ -41,7 +41,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class canceluntil extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -93,7 +92,8 @@ class canceluntil extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         // We store the information until when a booking option can be cancelled in the JSON.
         // So this has to happen BEFORE JSON is saved!
@@ -187,7 +187,8 @@ class canceluntil extends field_base {
         field_base $self,
         $mockdata = '',
         string $key = '',
-        $value = ''): array {
+        $value = ''
+    ): array {
 
         if (!isset($self)) {
             return [];

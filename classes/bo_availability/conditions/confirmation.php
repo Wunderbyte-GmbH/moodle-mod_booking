@@ -154,7 +154,7 @@ class confirmation implements bo_condition {
         // We don't need a description here.
         $description = '';
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* $description = $this->get_description_string($isavailable, $full, $settings); */
+        /* $description = !$isavailable ? $this->get_description_string($isavailable, $full, $settings) : ''; */
 
         return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_POSTBOOK, MOD_BOOKING_BO_BUTTON_INDIFFERENT];
     }

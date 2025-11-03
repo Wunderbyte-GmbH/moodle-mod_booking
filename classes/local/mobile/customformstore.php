@@ -42,7 +42,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class customformstore {
-
     /** @var int */
     protected $userid = 0;
 
@@ -103,13 +102,13 @@ class customformstore {
         foreach ($customform as $key => $formelement) {
             $identifier = 'customform_' . $formelement->formtype . "_" . $key;
             if (
-              $formelement->formtype == 'url' &&
-              !self::isvalidhttpurl($data[$identifier], FILTER_VALIDATE_EMAIL)
+                $formelement->formtype == 'url' &&
+                !self::isvalidhttpurl($data[$identifier])
             ) {
                 $errors[$identifier] = get_string('bocondcustomformurlerror', 'mod_booking');
             } else if (
-              $formelement->formtype == 'mail' &&
-              !filter_var($data[$identifier], FILTER_VALIDATE_EMAIL)
+                $formelement->formtype == 'mail' &&
+                !filter_var($data[$identifier], FILTER_VALIDATE_EMAIL)
             ) {
                 $errors[$identifier] = get_string('bocondcustomformmailerror', 'mod_booking');
             } else if (
@@ -122,9 +121,12 @@ class customformstore {
                         $settings = singleton_service::get_instance_of_booking_option_settings($data['id']);
                         $ba = singleton_service::get_instance_of_booking_answers($settings);
                         $expectedvalue = $linearray[0];
-                        $filteredba = array_filter($ba->usersonlist, function($userbookings) use ($identifier, $expectedvalue) {
-                            return isset($userbookings->$identifier) && $userbookings->$identifier === $expectedvalue;
-                        });
+                        $filteredba = array_filter(
+                            $ba->get_usersonlist(),
+                            function ($userbookings) use ($identifier, $expectedvalue) {
+                                return isset($userbookings->$identifier) && $userbookings->$identifier === $expectedvalue;
+                            }
+                        );
                         if (count($filteredba) >= $linearray[2] && !empty($linearray[2])) {
                             $errors[$identifier] = get_string(
                                 'bocondcustomformfullybooked',
@@ -214,16 +216,15 @@ class customformstore {
      * @param float $price
      * @param string $priceidentifier
      *
-     * @return string
-     *
+     * @return float
      */
-    public function modify_price(float $price, string $priceidentifier): string {
+    public function modify_price(float $price, string $priceidentifier): float {
         $settings = singleton_service::get_instance_of_booking_option_settings($this->itemid);
         $formdata = customform::return_formelements($settings);
         $data = (array) $this->get_customform_data(); // One of the values here indicates the right key for formdata.
-        $additionalprice = 0;
 
         foreach ($formdata as $formdatakey => $formelement) {
+            $additionalprice = 0;
             if (
                 !isset($formelement->formtype) ||
                 !isset($formelement->value)
@@ -236,7 +237,10 @@ class customformstore {
                     $lines = explode(PHP_EOL, $formelement->value);
                     foreach ($lines as $line) {
                         $linearray = explode(' => ', $line);
-                        if (isset($linearray[3]) && isset($data[$key]) && $data[$key] == $linearray[0]) {
+                        if (
+                            isset($linearray[3])
+                            && isset($data[$key]) && $data[$key] == $linearray[0]
+                        ) {
                             $additionalprice = $this->get_price_for_user($linearray[3]);
                         }
                     }
@@ -253,7 +257,7 @@ class customformstore {
                     break;
             }
         }
-        return number_format(round((float) $price, 2), 2, '.', '');
+        return round($price, 2);
     }
 
     /**
@@ -275,7 +279,7 @@ class customformstore {
             $price = $this->get_price_for_user($pricedata);
         }
 
-        return number_format($price, 2, '.', '') . ' ' . get_config('booking', 'globalcurrency');
+        return format_float((float)$price, 2) . ' ' . get_config('booking', 'globalcurrency');
     }
 
     /**
@@ -288,14 +292,17 @@ class customformstore {
      *
      */
     private function get_price_for_user(string $pricedata, string $priceidentifier = ""): float {
-
+        // If we have only one price (for all price categories), we can return it right away.
+        if (strpos($pricedata, ',') === false && is_numeric($pricedata)) {
+            return (float)$pricedata;
+        }
         $pairs = explode(',', $pricedata);
         $categoryprices = [];
         foreach ($pairs as $pair) {
             if (strpos($pair, ':') === false) {
                 continue;
             }
-            list($key, $value) = explode(':', $pair);
+            [$key, $value] = explode(':', $pair);
             $categoryprices[$key] = (float)$value;
         }
 

@@ -49,7 +49,9 @@
 {{/notbookablemessage}}
 
 {{^notbookablemessage}}
-  <button type="button" class="{{modalbuttonclass}}" id="electiveModalCenterTitle" data-toggle="modal" data-target="#electiveModalCenter">
+  <button type="button" class="{{modalbuttonclass}}" id="electiveModalCenterTitle"
+    data-toggle="modal" data-bs-toggle="modal"
+    data-target="#electiveModalCenter" data-bs-target="#electiveModalCenter">
     {{#str}} bookelectivesbtn, mod_booking {{/str}}
   </button>
 
@@ -58,7 +60,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="electiveModalLongTitle">{{#str}} confirmbookingtitle, mod_booking {{/str}}</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <button type="button" class="close btn-close" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
@@ -93,7 +95,7 @@
 
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal">Close</button>
           {{{confirmbutton}}}
         </div>
       </div>

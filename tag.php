@@ -32,7 +32,7 @@ $url = new moodle_url('/mod/booking/tag.php', ['id' => $id, 'tag' => $tagname]);
 
 $PAGE->set_url($url);
 
-list($course, $cm) = get_course_and_cm_from_cmid($id);
+[$course, $cm] = get_course_and_cm_from_cmid($id);
 
 require_course_login($course, false, $cm);
 $tag = core_tag_tag::get_by_name(0, $tagname);

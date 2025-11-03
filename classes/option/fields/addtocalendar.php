@@ -99,7 +99,7 @@ class addtocalendar extends field_base {
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
         // Delete calendar events if they are turned off in form.
-        if ($formdata->addtocalendar == 0) {
+        if (isset($formdata->addtocalendar) && $formdata->addtocalendar == 0) {
             if ($optiondates = $DB->get_records('booking_optiondates', ['optionid' => $optionid])) {
                 foreach ($optiondates as $optiondate) {
                     // Delete calendar course event for the optiondate.

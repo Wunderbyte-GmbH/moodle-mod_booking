@@ -394,9 +394,6 @@ class competencies extends field_base {
             $userevidence = new user_evidence(0, $record);
             $userevidence->create();
 
-            // Also create the event for the evidence.
-            competency_user_evidence_created::create_from_user_evidence($userevidence);
-
             $link = new stdClass();
             $link->userevidenceid = $userevidence->get('id');
             $link->competencyid = $competencyid;

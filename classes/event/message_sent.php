@@ -98,7 +98,7 @@ class message_sent extends \core\event\base {
 
         return '
             <a class=""
-                data-toggle="collapse"
+                data-toggle="collapse" data-bs-toggle="collapse"
                 href="#a' . $uniqueid . '"
                 role="button" aria-expanded="false"
                 aria-controls="collapseExample">

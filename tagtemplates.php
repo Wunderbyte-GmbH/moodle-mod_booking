@@ -35,7 +35,7 @@ $url = new moodle_url('/mod/booking/tagtemplates.php', ['id' => $id]);
 $urlredirect = new moodle_url('/mod/booking/view.php', ['id' => $id]);
 $PAGE->set_url($url);
 
-list($course, $cm) = get_course_and_cm_from_cmid($id);
+[$course, $cm] = get_course_and_cm_from_cmid($id);
 
 require_course_login($course, false, $cm);
 
@@ -71,7 +71,6 @@ $tags = new booking_tags($cm->course);
 $tagstable = [];
 
 foreach ($tags->get_all_tags() as $tag) {
-
     $edit = new moodle_url('/mod/booking/tagtemplatesadd.php', ['id' => $cm->id, 'tagid' => $tag->id]);
     $delete = new moodle_url('/mod/booking/tagtemplates.php', ['id' => $id, 'tagid' => $tag->id, 'action' => 'delete']);
     $button = $OUTPUT->single_button($edit, get_string('edittag', 'booking'), 'get') .

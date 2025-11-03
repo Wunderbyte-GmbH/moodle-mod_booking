@@ -35,7 +35,6 @@ use table_sql;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class bookinginstancetemplatessettings_table extends table_sql {
-
     /**
      * @var int
      */
@@ -84,8 +83,10 @@ class bookinginstancetemplatessettings_table extends table_sql {
         global $OUTPUT;
         $output = '';
         $delete = get_string('delete');
-        $url = new moodle_url('/mod/booking/bookinginstancetemplatessettings.php',
-            ['templateid' => $values->id, 'action' => 'delete', 'id' => $this->cmid]);
+        $url = new moodle_url(
+            '/mod/booking/bookinginstancetemplatessettings.php',
+            ['templateid' => $values->id, 'action' => 'delete', 'id' => $this->cmid]
+        );
         $output .= $OUTPUT->single_button($url, $delete, 'get');
         return $output;
     }

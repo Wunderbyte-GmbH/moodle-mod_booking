@@ -24,11 +24,15 @@
 
 namespace mod_booking\option\fields;
 
+use core_competency\competency;
+use core_user;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
+use mod_booking\customfield\booking_handler;
 use mod_booking\option\dates_handler;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
+use mod_booking\placeholders\placeholders\customfields;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
 use tool_certificate\certificate as toolCertificate;
@@ -258,11 +262,13 @@ class certificate extends field_base {
      *
      * @param int $optionid
      * @param int $userid
+     * @param int $timebooked
      *
      * @return int
      *
      */
-    public static function issue_certificate(int $optionid, int $userid) {
+    public static function issue_certificate(int $optionid, int $userid, int $timebooked = 0): int {
+        global $DB;
         $id = 0;
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
@@ -288,24 +294,83 @@ class certificate extends field_base {
         }
         // Create Certificate.
         if ($template->can_issue($userid)) {
+            $user = core_user::get_user($userid);
+            $customfielddata = [];
+            $customfields = booking_handler::get_customfields();
+            foreach ($customfields as $customfield) {
+                $placeholder = '{' . $customfield->shortname . '}';
+                $params = [];
+                $value = customfields::return_value(
+                    $settings->cmid,
+                    $settings->id,
+                    $userid,
+                    $placeholder,
+                    $params,
+                    $customfield->shortname
+                );
+                if (empty($value)) {
+                    $value = " ";
+                }
+                $customfielddata['cf' . $customfield->shortname] = $value;
+            }
+            $bookingoptionfields = [
+                'bookingoptionid' => $settings->id,
+                'bookingoptionname' => $settings->get_title_with_prefix(),
+                'bookingoptiondescription' => clean_text(
+                    $settings->description,
+                    $format = FORMAT_HTML,
+                    $options = ['strip_tags' => true]
+                ),
+                'location' => $settings->location,
+                'institution' => $settings->institution,
+                'teachers' => self::return_teachers_for_certificate($settings->teachers),
+                'sessions' => self::return_sessions_for_certificate($settings->sessions),
+                'duration' => self::return_duration_for_certificate($settings),
+                'timeawarded' => self::return_timeawarded_for_certificate($settings, $userid, $timebooked),
+                'competencies' => self::return_competencies_for_certificate($settings->competencies ?? ''),
+            ];
+
+            $data = array_merge(
+                $bookingoptionfields,
+                $customfielddata
+            );
+            singleton_service::set_temp_values_for_certificates($settings->id, $userid);
+            // Issue the certificate.
             $id = $template->issue_certificate(
                 $userid,
                 $certificateexpirydate,
-                [
-                    'bookingoptionid' => $settings->id,
-                    'bookingoptionname' => $settings->get_title_with_prefix(),
-                    'bookingoptiondescription' => strip_tags($settings->description),
-                    'location' => $settings->location,
-                    'institution' => $settings->institution,
-                    'teachers' => self::return_teachers_for_certificate($settings->teachers),
-                    'sessions' => self::return_sessions_for_certificate($settings->sessions),
-                    'duration' => self::return_duration_for_certificate($settings),
-                ]
+                $data
             );
+            // Get the issue and create the PDF.
+            $issue = $DB->get_record('tool_certificate_issues', ['id' => $id]);
+            $pdf = $template->create_issue_file($issue, false);
+            singleton_service::unset_temp_values_for_certificates();
         }
         return $id;
     }
+    /**
+     * [Description for return_competency_for_certificate]
+     *
+     * @param string $competencies
+     *
+     * @return string
+     *
+     */
+    private static function return_competencies_for_certificate(string $competencies) {
 
+        if (empty($competencies)) {
+            return '';
+        }
+
+        $competenciesarray = explode(',', $competencies);
+        $collected = [];
+        foreach ($competenciesarray as $competencid) {
+            $competency = competency::get_record(['id' => (int) $competencid]);
+            $collected[] = $competency->get('shortname');
+        }
+        $returnstring = implode(', ', $collected);
+        return $returnstring;
+    }
     /**
      * Helper function to return Teachers for certificate.
      *
@@ -372,6 +437,33 @@ class certificate extends field_base {
             ) . "<br />";
         }
         return $dates;
+    }
+
+    /**
+     * Helper function to return the time the certificate was awarded
+     * @param booking_option_settings $settings
+     * @param int $userid
+     * @param int $timebooked
+     *
+     * @return string
+     *
+     */
+    private static function return_timeawarded_for_certificate(
+        booking_option_settings $settings,
+        int $userid,
+        int $timebooked
+    ) {
+        if (empty($timebooked)) {
+            $ba = singleton_service::get_instance_of_booking_answers($settings);
+            $users = $ba->get_usersonlist();
+            if (!$answer = $users[$userid] ?? false) {
+                return '';
+            }
+            $timebooked = $answer->timebooked ?? $answer->timemodified ?? time();
+        }
+
+        // The time awarded is currently the time modified. We might change that at one point.
+        return userdate($timebooked, get_string('strftimedaydate'));
     }
 
     /**

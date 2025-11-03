@@ -184,6 +184,7 @@ class override_user_field {
                 && ( // For the moment, we only support conditions using positive string comparison: equals, contains.
                     $a->operator == "="
                     || $a->operator == "~"
+                    || $a->operator == "[~]"
                 )
                 && isset($a->value)
                 && isset($a->profilefield)

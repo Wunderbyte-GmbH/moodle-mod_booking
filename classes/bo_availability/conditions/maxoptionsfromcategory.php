@@ -417,7 +417,6 @@ class maxoptionsfromcategory implements bo_condition {
         $conditionobject = new stdClass();
 
         if (!empty($fromform->bo_cond_maxoptionsfromcategory_restrict)) {
-
             $classname = __CLASS__;
             $classnameparts = explode('\\', $classname);
             $shortclassname = end($classnameparts);

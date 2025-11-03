@@ -133,7 +133,14 @@ class easy_availability_selectusers extends field_base {
         bo_info::save_json_conditions_from_form($formdata);
         $newoption->availability = $formdata->availability;
 
-        return [];
+        $availabilityclass = new availability();
+        return $availabilityclass->check_for_changes(
+            $formdata,
+            $availabilityclass,
+            $mockdata,
+            $key,
+            $value
+        );
     }
 
     /**

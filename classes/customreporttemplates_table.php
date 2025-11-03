@@ -35,7 +35,6 @@ use table_sql;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class customreporttemplates_table extends table_sql {
-
     /**
      * @var int
      */
@@ -73,8 +72,10 @@ class customreporttemplates_table extends table_sql {
         global $OUTPUT;
         $output = '';
         $delete = get_string('delete');
-        $url = new moodle_url('/mod/booking/customreporttemplates.php',
-            ['templateid' => $values->id, 'action' => 'delete', 'id' => $this->cmid]);
+        $url = new moodle_url(
+            '/mod/booking/customreporttemplates.php',
+            ['templateid' => $values->id, 'action' => 'delete', 'id' => $this->cmid]
+        );
         $output .= $OUTPUT->single_button($url, $delete, 'get');
         return $output;
     }
@@ -89,15 +90,22 @@ class customreporttemplates_table extends table_sql {
      */
     public function col_file($values) {
         $fs = get_file_storage();
-        list($course, $cm) = get_course_and_cm_from_cmid($this->cmid);
+        [$course, $cm] = get_course_and_cm_from_cmid($this->cmid);
         $coursecontext = \context_course::instance($course->id);
 
         $files = $fs->get_area_files($coursecontext->id, 'mod_booking', 'templatefile', $values->id);
 
         $file = array_pop($files);
         if (!is_null($file)) {
-            $url = moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(),
-                $file->get_itemid(), $file->get_filepath(), $file->get_filename(), false);
+            $url = moodle_url::make_pluginfile_url(
+                $file->get_contextid(),
+                $file->get_component(),
+                $file->get_filearea(),
+                $file->get_itemid(),
+                $file->get_filepath(),
+                $file->get_filename(),
+                false
+            );
 
             return \html_writer::link($url, $file->get_filename());
         }

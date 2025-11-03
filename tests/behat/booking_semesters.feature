@@ -58,7 +58,7 @@ Feature: As a teacher - configure and use booking's semesters feature.
     And I press "Create date series"
     And I wait "1" seconds
     And I should see "## + 1 year ##%Y##" in the "#booking_optiondate_1" "css_element"
-    And I should see "1:00 PM - 2:00 PM" in the "#booking_optiondate_1" "css_element"
+    And I should see "1:00 PM - 2:00 PM" in the "#booking_optiondate_1" "css_element"
     And I should see "Friday" in the "#booking_optiondate_1" "css_element"
     And I should see "June" in the "#booking_optiondate_1" "css_element"
     And I should see "July" in the "#booking_optiondate_6" "css_element"
@@ -68,6 +68,6 @@ Feature: As a teacher - configure and use booking's semesters feature.
     And I click on "Show dates" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I wait "1" seconds
     And I should see "## + 1 year ##%Y##" in the ".allbookingoptionstable_r1 .showdates" "css_element"
-    And I should see "1:00 PM - 2:00 PM" in the ".allbookingoptionstable_r1 .showdates" "css_element"
+    And I should see "1:00 PM - 2:00 PM" in the ".allbookingoptionstable_r1 .showdates" "css_element"
     And I should see "June" in the ".allbookingoptionstable_r1 .showdates" "css_element"
     And I should see "July" in the ".allbookingoptionstable_r1 .showdates" "css_element"

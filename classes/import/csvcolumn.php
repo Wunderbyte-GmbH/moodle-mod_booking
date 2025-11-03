@@ -32,7 +32,6 @@ namespace mod_booking\import;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class csvcolumn {
-
     /**
      * @var string
      */
@@ -92,15 +91,16 @@ class csvcolumn {
      * @param string $importinstruction
      */
     public function __construct(
-            $columnname = '',
-            $localizedname = '',
-            $mandatory = true,
-            $unique = false,
-            $type = 'default',
-            $format = PARAM_TEXT,
-            $defaultvalue = null,
-            $transform = null,
-            $importinstruction = '') {
+        $columnname = '',
+        $localizedname = '',
+        $mandatory = true,
+        $unique = false,
+        $type = 'default',
+        $format = PARAM_TEXT,
+        $defaultvalue = null,
+        $transform = null,
+        $importinstruction = ''
+    ) {
 
         $this->columnname = $columnname;
         $this->localizedname = $localizedname;

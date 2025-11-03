@@ -127,28 +127,28 @@ final class condition_allowupdatetimestamp_test extends advanced_testcase {
 
         // With these options, cancelling should be possible.
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMBOOKIT, $id);
 
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMCANCEL, $id);
 
         // With these options, cancelling should not be possible.
         $result = booking_bookit::bookit('option', $settings2->id, $student1->id);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings2->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings2->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMBOOKIT, $id);
 
         $result = booking_bookit::bookit('option', $settings2->id, $student1->id);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings2->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings2->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         $result = booking_bookit::bookit('option', $settings2->id, $student1->id);
-        list($id, $isavailable, $description) = $boinfo->is_available($settings2->id, $student1->id, true);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings2->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
     }
 

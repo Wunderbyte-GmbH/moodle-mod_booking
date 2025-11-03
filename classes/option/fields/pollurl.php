@@ -38,7 +38,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class pollurl extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -90,7 +89,8 @@ class pollurl extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
         $instance = new pollurl();
         $changes = [];
         $key = fields_info::get_class_name(static::class);
@@ -151,11 +151,14 @@ class pollurl extends field_base {
         $mform->setType('pollurl', PARAM_TEXT);
         $mform->addHelpButton('pollurl', 'feedbackurl', 'mod_booking');
 
-        $mform->addElement('text', 'pollurlteachers',
-                get_string('bookingpollurlteachers', 'mod_booking'), ['size' => '64']);
+        $mform->addElement(
+            'text',
+            'pollurlteachers',
+            get_string('bookingpollurlteachers', 'mod_booking'),
+            ['size' => '64']
+        );
         $mform->setType('pollurlteachers', PARAM_TEXT);
         $mform->addHelpButton('pollurlteachers', 'feedbackurlteachers', 'mod_booking');
-
     }
 
     /**

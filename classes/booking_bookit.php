@@ -78,7 +78,6 @@ class booking_bookit {
 
         foreach ($templates as $template) {
             $data = array_shift($datas);
-
             if ($template == 'mod_booking/bookingpage/prepagemodal') {
                 $html .= $output->render_prepagemodal($data);
             } else if ($template == 'mod_booking/bookingpage/prepageinline') {
@@ -305,28 +304,28 @@ class booking_bookit {
                 $cache = cache::make('mod_booking', 'confirmbooking');
                 $cachekey = $userid . "_" . $settings->id . "_bookit";
                 $now = time();
-                $cache->set($cachekey, $now);
+                $cache->set($userid, [$cachekey => $now]);
 
                 $isavailable = false;
             } else if ($id === MOD_BOOKING_BO_COND_BOOKWITHCREDITS) {
                 $cache = cache::make('mod_booking', 'confirmbooking');
                 $cachekey = $userid . "_" . $settings->id . "_bookwithcredits";
                 $now = time();
-                $cache->set($cachekey, $now);
+                $cache->set($userid, [$cachekey => $now]);
 
                 $isavailable = false;
             } else if ($id === MOD_BOOKING_BO_COND_BOOKWITHSUBSCRIPTION) {
                 $cache = cache::make('mod_booking', 'confirmbooking');
                 $cachekey = $userid . "_" . $settings->id . "_bookwithsubscription";
                 $now = time();
-                $cache->set($cachekey, $now);
+                $cache->set($userid, [$cachekey => $now]);
 
                 $isavailable = false;
             } else if ($id === MOD_BOOKING_BO_COND_CONFIRMBOOKIT) {
                 // Make sure cache is not blocking anymore.
                 $cache = cache::make('mod_booking', 'confirmbooking');
                 $cachekey = $userid . "_" . $settings->id . '_bookit';
-                $cache->delete($cachekey);
+                $cache->delete($userid);
 
                 // This means we can actuall book.
                 $isavailable = true;
@@ -338,7 +337,7 @@ class booking_bookit {
                 // Now, before actually booking, we also need to subtract the credit from the concerned user.
                 // Get the used custom profile field.
                 if (!$profilefield = get_config('booking', 'bookwithcreditsprofilefield')) {
-                    $cache->delete($cachekey);
+                    $cache->delete($userid);
                     throw new moodle_exception('nocreditsfielddefined', 'mod_booking');
                 }
 
@@ -375,7 +374,7 @@ class booking_bookit {
                     $cache = cache::make('mod_booking', 'confirmbooking');
                     $cachekey = $userid . "_" . $settings->id . "_cancel";
                     $now = time();
-                    $cache->set($cachekey, $now);
+                    $cache->set($userid, [$cachekey => $now]);
                 }
             } else if ($id === MOD_BOOKING_BO_COND_CONFIRMCANCEL) {
                 // Here we are already one step further and only confirm the cancelation.
@@ -384,7 +383,7 @@ class booking_bookit {
                 // Make sure cache is not blocking anymore.
                 $cache = cache::make('mod_booking', 'confirmbooking');
                 $cachekey = $userid . "_" . $settings->id . '_cancel';
-                $cache->delete($cachekey);
+                $cache->delete($userid);
 
                 return [
                     'status' => 1,
@@ -520,10 +519,16 @@ class booking_bookit {
      * @param int $itemid
      * @param int $status
      * @param int $userid
+     * @param bool $openruleexecution
      * @return array
      */
-    public static function answer_booking_option(string $area, int $itemid, int $status, int $userid = 0): array {
-
+    public static function answer_booking_option(
+        string $area,
+        int $itemid,
+        int $status,
+        int $userid = 0,
+        bool $openruleexecution = false
+    ): array {
         global $PAGE, $USER;
 
         $bookingoption = booking_option::create_option_from_optionid($itemid);
@@ -561,7 +566,7 @@ class booking_bookit {
                 }
                 break;
             case MOD_BOOKING_STATUSPARAM_DELETED:
-                if (!$bookingoption->user_delete_response($user->id)) {
+                if (!$bookingoption->user_delete_response($user->id, false, false, true, false, $openruleexecution)) {
                     return [];
                 }
                 break;

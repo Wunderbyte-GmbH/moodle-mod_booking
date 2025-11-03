@@ -39,7 +39,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class addastemplate extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -91,7 +90,8 @@ class addastemplate extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         // When the addastemplate is not null, we set bookingid to 0.
         if (!empty($formdata->addastemplate)) {
@@ -121,13 +121,17 @@ class addastemplate extends field_base {
         global $DB;
 
         // Templates - only visible when adding new.
-        if (has_capability('mod/booking:manageoptiontemplates', $formdata['context'])
+        if (
+            has_capability('mod/booking:manageoptiontemplates', $formdata['context'])
             && ($formdata['id'] < 1
-                || ($formdata['addastemplate'] ?? 0) > 0)) {
-
-            $mform->addElement('header', 'templateheader',
+                || ($formdata['addastemplate'] ?? 0) > 0)
+        ) {
+            $mform->addElement(
+                'header',
+                'templateheader',
                 '<i class="fa fa-fw fa-clone" aria-hidden="true"></i>&nbsp;' .
-                get_string('addastemplate', 'mod_booking'));
+                get_string('addastemplate', 'mod_booking')
+            );
 
             $numberoftemplates = $DB->count_records('booking_options', ['bookingid' => 0]);
 
@@ -136,12 +140,20 @@ class addastemplate extends field_base {
                         0 => get_string('notemplate', 'mod_booking'),
                         1 => get_string('asglobaltemplate', 'mod_booking'),
                 ];
-                $mform->addElement('select', 'addastemplate', get_string('addastemplate', 'mod_booking'),
-                        $addastemplate);
+                $mform->addElement(
+                    'select',
+                    'addastemplate',
+                    get_string('addastemplate', 'mod_booking'),
+                    $addastemplate
+                );
                 $mform->setType('addastemplate', PARAM_INT);
             } else {
-                $mform->addElement('static', 'nolicense', get_string('licensekeycfg', 'mod_booking'),
-                    get_string('licensekeycfgdesc', 'mod_booking'));
+                $mform->addElement(
+                    'static',
+                    'nolicense',
+                    get_string('licensekeycfg', 'mod_booking'),
+                    get_string('licensekeycfgdesc', 'mod_booking')
+                );
             }
         }
     }

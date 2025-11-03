@@ -176,7 +176,7 @@ class priceisset implements bo_condition {
 
         $isavailable = $this->is_available($settings, $userid, $not);
 
-        $description = $this->get_description_string($isavailable, $full, $settings);
+        $description = !$isavailable ? $this->get_description_string($isavailable, $full, $settings) : '';
 
         // If shopping cart is not installed, we still want to allow admins to book for others.
         $context = context_module::instance($settings->cmid);
@@ -251,7 +251,7 @@ class priceisset implements bo_condition {
 
         $user = singleton_service::get_instance_of_user($userid);
 
-        $data = $settings->return_booking_option_information($user);
+        $data = $settings->return_booking_option_information($user, false);
 
         $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
         $bookinginformation = $bookinganswer->return_all_booking_information($userid);

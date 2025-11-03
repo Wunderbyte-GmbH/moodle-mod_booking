@@ -175,7 +175,6 @@ final class rules_n_days_test extends advanced_testcase {
         $this->assertTrue(substr_count($res, $expected['contains']) >= 2);
     }
 
-
     /**
      * Data provider for test_rule_on_beforeafter_coursestart
      *

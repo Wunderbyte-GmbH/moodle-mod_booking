@@ -104,7 +104,6 @@ class optionformconfig_info {
         }
 
         $returnarray = [];
-
         foreach (self::CAPABILITIES as $capability) {
             $returnarray[] = self::return_configured_fields_for_capability($context->id, $capability);
         }
@@ -219,6 +218,7 @@ class optionformconfig_info {
                     'id' => $a::$id,
                     'classname' => $a::return_classname_name(),
                     'fullclassname' => $a::return_full_classname(),
+                    'name' => self::get_classname($a::return_full_classname()),
                     'checked' => in_array(MOD_BOOKING_OPTION_FIELD_STANDARD, $a::$fieldcategories) ?
                         1 : 0,
                     'necessary' => in_array(MOD_BOOKING_OPTION_FIELD_NECESSARY, $a::$fieldcategories) ?
@@ -237,7 +237,6 @@ class optionformconfig_info {
                 $storedfields = json_decode($record->json);
 
                 $newfields = [];
-
                 foreach ($fields as $value) {
                     $filteredarray = array_filter($storedfields, fn($a) => $a->id == $value->id);
                     if (!empty($filteredarray)) {
@@ -260,6 +259,16 @@ class optionformconfig_info {
             'capability' => $capability,
             'json' => $json,
         ];
+    }
+
+    /**
+     * Returns the unchecked customfields for a given context and for the capability of the given user.
+     * @param string $context
+     * @return string
+     */
+    public static function get_classname(string $context) {
+        $stringidentification = explode('\\', $context);
+        return get_string(str_replace('_', '', array_pop($stringidentification)), array_shift($stringidentification));
     }
 
     /**

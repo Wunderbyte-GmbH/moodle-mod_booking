@@ -33,7 +33,6 @@ use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
 use tool_mocktesttime\time_mock;
 
-
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
@@ -146,7 +145,7 @@ final class condition_otheroptionsavailable_test extends advanced_testcase {
             $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
             $answers = singleton_service::get_instance_of_booking_answers($settings);
-            $this->assertCount(1, $answers->users);
+            $this->assertCount(1, $answers->get_users());
         }
         $relatedidstring = implode(',', array_keys($relatedoptions));
 
@@ -209,7 +208,7 @@ final class condition_otheroptionsavailable_test extends advanced_testcase {
                 $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
             } else {
                 $answers = singleton_service::get_instance_of_booking_answers($settings);
-                $this->assertCount(1, $answers->users);
+                $this->assertCount(1, $answers->get_users());
             }
         }
 
@@ -334,7 +333,6 @@ final class condition_otheroptionsavailable_test extends advanced_testcase {
             ],
         ];
     }
-
 
     /**
      * Provides the data that's constant for the test.

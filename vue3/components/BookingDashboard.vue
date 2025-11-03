@@ -34,19 +34,28 @@
       <div v-if="content" class="content-container">
         <ul v-cloak id="myTab" class="nav nav-tabs justify-content-center bottomtabs mt-4" role="tablist">
           <li class="nav-item" role="presentation">
-            <button id="home-tab" class="nav-link active" data-toggle="tab" data-target="#home" type="button" role="tab"
+            <button id="home-tab" class="nav-link active"
+              data-toggle="tab" data-bs-toggle="tab"
+              data-target="#home"  data-bs-target="#home"
+              type="button" role="tab"
               aria-controls="home" aria-selected="true">
               {{ store.state.strings.dashboardoverview }}
             </button>
           </li>
           <li class="nav-item" role="presentation">
-            <button id="profile-tab" class="nav-link" data-toggle="tab" data-target="#profile" type="button" role="tab"
+            <button id="profile-tab" class="nav-link"
+              data-toggle="tab" data-bs-toggle="tab"
+              data-target="#profile" data-bs-target="#profile"
+              type="button" role="tab"
               aria-controls="profile" aria-selected="false">
               {{ store.state.strings.dashboardbookingfields }}
             </button>
           </li>
           <li class="nav-item" role="presentation">
-            <button id="contact-tab" class="nav-link" data-toggle="tab" data-target="#contact" type="button" role="tab"
+            <button id="contact-tab" class="nav-link"
+              data-toggle="tab" data-bs-toggle="tab"
+              data-target="#contact" data-bs-target="#contact"
+              type="button" role="tab"
               aria-controls="contact" aria-selected="false">
               {{ store.state.strings.dashboardstats }}
             </button>
@@ -207,7 +216,7 @@ function findElementById(jsonData, idToFind) {
 </script>
 
 <style lang="scss" scoped>
-@import './scss/custom.scss';
+@import '../scss/custom.scss';
 
 .fade-enter-active,
 .fade-leave-active {

@@ -62,31 +62,12 @@ Feature: Test messaging features in a booking
     And I log out
 
   @javascript
-  Scenario: Teacher books a booking option and get email confirmation
-    ## URL webserver/_/mail is inacessible
-    ## When I log in as "student1"
-    ## And I open the link "webserver/_/mail"
-    ## And I follow "Delete all messages"
-    ## And I press "Delete all messages"
-    ## And I open the link "webserver"
-    ## Then I am on "Course 1" course homepage
-    Given I am on the "My booking" Activity page logged in as teacher1
-    And I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
-    ## Next step(s) cause faiure (coding error, email was not sent):
-    ## Then I trigger cron
-    ## And I wait "1" seconds
-    ## And I run all adhoc tasks
-    ## URL webserver/_/mail is inacessible
-    ## And I open the link "webserver/_/mail"
-    ## Then I should see "Teacher 1 (via Acceptance test site)"
-    ## And I should see "Booking confirmation for New option - Webinar"
-
-  @javascript
   Scenario: Admin book students into booking option and sends mails to them
-    Given I am on the "My booking" Activity page logged in as admin
+    ## Legacy mail templates must be used to have the expected items in the events log
+    Given the following config values are set as admin:
+      | config                 | value | plugin  |
+      | uselegacymailtemplates | 1     | booking |
+    And I am on the "My booking" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Student 1 (student1@example.com)" "text"

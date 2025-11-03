@@ -27,6 +27,7 @@ namespace mod_booking\bo_availability;
 use context_module;
 use html_writer;
 use mod_booking\bo_availability\conditions\subbooking;
+use mod_booking\booking;
 use mod_booking\booking_option_settings;
 use mod_booking\output\button_notifyme;
 use mod_booking\output\col_price;
@@ -45,7 +46,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class bo_subinfo {
-
     /** @var bool Visibility flag (eye icon) */
     protected $visible;
 
@@ -73,7 +73,6 @@ class bo_subinfo {
         $this->optionid = $settings->id;
         $this->subbookingid = $subbookingid;
         $this->userid = $USER->id;
-
     }
 
     /**
@@ -122,7 +121,6 @@ class bo_subinfo {
         }
 
         return [$id, $isavailable, $description];
-
     }
 
     /**
@@ -155,10 +153,9 @@ class bo_subinfo {
 
         // Run through all the individual conditions to make sure they are fullfilled.
         foreach ($conditions as $condition) {
-
             $classname = get_class($condition);
 
-            list($isavailable, $description, $insertpage, $button)
+            [$isavailable, $description, $insertpage, $button]
                     = $condition->get_description($settings, $subbookingid, $userid, $full);
             $resultsarray[$condition->id] = [
                 'id' => $condition->id,
@@ -180,7 +177,6 @@ class bo_subinfo {
         ksort(($results));
 
         return $results;
-
     }
 
     /**
@@ -203,6 +199,7 @@ class bo_subinfo {
         if (is_null($this->availability)) {
             return '';
         }
+        return '';
     }
 
     /**
@@ -230,10 +227,13 @@ class bo_subinfo {
     public static function add_conditions_to_mform(MoodleQuickForm &$mform, int $optionid) {
         global $DB;
 
-        $mform->addElement('header', 'availabilityconditions',
-            get_string('availabilityconditions', 'mod_booking'));
+        $mform->addElement(
+            'header',
+            'availabilityconditions',
+            get_string('availabilityconditions', 'mod_booking')
+        );
 
-        $conditions = self::get_subconditions(MOD_BOOKING_CONDPARAM_MFORM_ONLY);
+        $conditions = self::get_subconditions();
 
         foreach ($conditions as $condition) {
             // For each condition, add the appropriate form fields.
@@ -364,18 +364,20 @@ class bo_subinfo {
      * @param bool $modalfordescription
      */
     public static function render_conditionmessage(
-            string $description,
-            string $style = 'warning',
-            int $optionid = 0,
-            bool $showprice = false,
-            ?stdClass $optionvalues = null,
-            bool $shownotificationlist = false,
-            ?stdClass $usertobuyfor = null,
-            bool $modalfordescription = false) {
+        string $description,
+        string $style = 'warning',
+        int $optionid = 0,
+        bool $showprice = false,
+        ?stdClass $optionvalues = null,
+        bool $shownotificationlist = false,
+        ?stdClass $usertobuyfor = null,
+        bool $modalfordescription = false
+    ) {
 
         global $PAGE;
 
         $renderedstring = '';
+        /** @var \mod_booking\output\renderer $output */
         $output = $PAGE->get_renderer('mod_booking');
         if (!empty($optionid)) {
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
@@ -396,6 +398,7 @@ class bo_subinfo {
         // Show price and add to cart button.
         if ($showprice && !empty($optionvalues) && $optionid && !empty($usertobuyfor)) {
             $data = new col_price($optionvalues, $settings, $usertobuyfor, $context);
+            booking::convert_prices_to_number_format($data);
             $renderedstring .= $output->render_col_price($data);
         }
 
@@ -403,8 +406,11 @@ class bo_subinfo {
         if ($shownotificationlist && $optionid && $usertobuyfor->id) {
             $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
             $bookinginformation = $bookinganswer->return_all_booking_information($usertobuyfor->id);
-            $data = new button_notifyme($usertobuyfor->id, $optionid,
-                $bookinginformation['notbooked']['onnotifylist']);
+            $data = new button_notifyme(
+                $usertobuyfor->id,
+                $optionid,
+                $bookinginformation['notbooked']['onnotifylist']
+            );
 
             $renderedstring .= $output->render_notifyme_button($data);
         }
@@ -449,7 +455,6 @@ class bo_subinfo {
         // First, sort all the pages according to this system:
         // Depending on the MOD_BOOKING_BO_PREPAGE_x constant, we order them pre or post the real booking button.
         foreach ($results as $result) {
-
             // One no button condition tetermines this for all.
             if ($result['button'] === MOD_BOOKING_BO_BUTTON_NOBUTTON) {
                 $showbutton = false;

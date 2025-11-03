@@ -47,7 +47,6 @@ require_once($CFG->libdir . '/externallib.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class get_option_field_config extends external_api {
-
     /**
      * Describes the parameters for unenrol user.
      *
@@ -55,10 +54,13 @@ class get_option_field_config extends external_api {
      */
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
-            'contextid' => new external_value(PARAM_INT,
-                'Id of context', VALUE_DEFAULT, 0),
-            ]
-        );
+            'contextid' => new external_value(
+                PARAM_INT,
+                'Id of context',
+                VALUE_DEFAULT,
+                0
+            ),
+            ]);
     }
 
     /**
@@ -68,10 +70,9 @@ class get_option_field_config extends external_api {
      * @return array
      * @throws dml_exception
      */
-    public static function execute(
-                        int $contextid = 0): array {
-
-        $params = external_api::validate_parameters(self::execute_parameters(),
+    public static function execute(int $contextid = 0): array {
+        $params = external_api::validate_parameters(
+            self::execute_parameters(),
             [
                 'contextid' => $contextid,
             ]

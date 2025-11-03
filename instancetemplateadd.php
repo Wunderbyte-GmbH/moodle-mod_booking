@@ -37,7 +37,7 @@ $url = new moodle_url('/mod/booking/instancetemplateadd.php', ['id' => $id]);
 $urlredirect = new moodle_url('/mod/booking/view.php', ['id' => $id]);
 $PAGE->set_url($url);
 
-list($course, $cm) = get_course_and_cm_from_cmid($id);
+[$course, $cm] = get_course_and_cm_from_cmid($id);
 
 require_course_login($course, false, $cm);
 
@@ -82,7 +82,6 @@ if ($mform->is_cancelled()) {
         // ... with the corresponding message.
         redirect($urlredirect, get_string('instancenotsavednovalidlicense', 'booking'), 1, notification::NOTIFY_ERROR);
     }
-
 } else {
     echo $OUTPUT->header();
 

@@ -410,6 +410,7 @@ class recurringoptions extends field_base {
             for ($i = 1; $i <= $data->howmanytimestorepeat; $i++) {
                 // Handle dates.
                 unset($templateoption->id, $templateoption->identifier, $templateoption->optionid);
+                $templateoption->id = 0; // Forcing a new option.
                 foreach ($newoptiondates as $newoptiondate) {
                     $key = MOD_BOOKING_FORM_OPTIONDATEID . $newoptiondate["index"];
                     $templateoption->{$key} = 0;
@@ -749,9 +750,12 @@ class recurringoptions extends field_base {
             $key = MOD_BOOKING_FORM_COURSEENDTIME . $newparentoptiondate["index"];
             $courseendtimekey = rtrim(MOD_BOOKING_FORM_COURSEENDTIME, "_");
             $childdatatoupdate->{$key} = strtotime($d, $newparentoptiondate[$courseendtimekey]);
-            $key = MOD_BOOKING_FORM_DAYSTONOTIFY . $newparentoptiondate["index"];
-            $dayskey = rtrim(MOD_BOOKING_FORM_DAYSTONOTIFY, "_");
-            $childdatatoupdate->{$key} = $newparentoptiondate[$dayskey];
+            if (get_config('booking', 'uselegacymailtemplates')) {
+                // Todo: Remove this in the future when mail template support is removed.
+                $key = MOD_BOOKING_FORM_DAYSTONOTIFY . $newparentoptiondate["index"];
+                $dayskey = rtrim(MOD_BOOKING_FORM_DAYSTONOTIFY, "_");
+                $childdatatoupdate->{$key} = $newparentoptiondate[$dayskey];
+            }
         }
     }
 

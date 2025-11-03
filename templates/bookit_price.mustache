@@ -52,8 +52,9 @@
         </div>
     {{/top}}
     <div class="pricecontainer mb-2 {{#fullwidth}}w-100{{/fullwidth}}">
-        <span class="pricecurrency h5">
-            {{price}} {{currency}}
+        <span class="pricecurrency h5 text-nowrap">
+            {{#priceformatted}}{{priceformatted}} {{currency}}{{/priceformatted}}
+            {{^priceformatted}}{{price}} {{currency}}{{/priceformatted}}
         </span>
         {{#shoppingcartisavailable}}
             {{#link}}<a href="{{link}}" target="_blank" data-action='bookondetails'>{{/link}}
@@ -75,7 +76,11 @@
 {{/price}}
 {{^price}}
     {{#priceitems}}
-        <div class="pricecurrency mb-2"> {{price}} {{currency}} <i>{{pricecategoryname}}</i></div>
+        <div class="pricecurrency mb-2">
+            {{#priceformatted}}{{priceformatted}} {{currency}}{{/priceformatted}}
+            {{^priceformatted}}{{price}} {{currency}}{{/priceformatted}}
+        <i>{{pricecategoryname}}</i>
+        </div>
     {{/priceitems}}
 {{/price}}
 {{^price}}

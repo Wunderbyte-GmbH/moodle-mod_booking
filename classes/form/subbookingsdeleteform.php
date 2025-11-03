@@ -34,7 +34,6 @@ use moodle_url;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class subbookingsdeleteform extends dynamic_form {
-
     /**
      * {@inheritdoc}
      * @see moodleform::definition()
@@ -47,11 +46,17 @@ class subbookingsdeleteform extends dynamic_form {
         // If we open an existing rule, we need to save the id right away.
         if (!empty($ajaxformdata['id'])) {
             $mform->addElement('hidden', 'id', $ajaxformdata['id']);
+            $mform->setType('id', PARAM_INT);
         }
 
         $mform->addElement('hidden', 'cmid', $ajaxformdata['cmid']);
+        $mform->setType('cmid', PARAM_INT);
+
         $mform->addElement('hidden', 'name', $ajaxformdata['name']);
+        $mform->setType('name', PARAM_TEXT);
+
         $mform->addElement('hidden', 'optionid', $ajaxformdata['optionid']);
+        $mform->setType('optionid', PARAM_INT);
 
         $mform->addElement('html', '<div><p>'
             . get_string('deletebookingruleconfirmtext', 'mod_booking')
@@ -81,7 +86,6 @@ class subbookingsdeleteform extends dynamic_form {
 
         $data = (object) $this->_ajaxformdata;
         $this->set_data($data);
-
     }
 
     /**

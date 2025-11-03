@@ -27,7 +27,7 @@ namespace mod_booking\form;
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->libdir.'/formslib.php');
+require_once($CFG->libdir . '/formslib.php');
 
 use context_system;
 use moodleform;
@@ -41,7 +41,6 @@ use moodleform;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class subscribe_cohort_or_group_form extends moodleform {
-
     /**
      * Defines the form fields.
      */
@@ -88,8 +87,13 @@ class subscribe_cohort_or_group_form extends moodleform {
             'multiple' => true,
         ];
 
-        $mform->addElement('autocomplete', 'groupids', get_string('scgfselectgroups', 'booking'),
-            $groupsacvalues, $options);
+        $mform->addElement(
+            'autocomplete',
+            'groupids',
+            get_string('scgfselectgroups', 'booking'),
+            $groupsacvalues,
+            $options
+        );
         $mform->addRule('groupids', null, 'required');
         $mform->setDefault('groupids', null);
 

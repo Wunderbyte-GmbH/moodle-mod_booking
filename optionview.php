@@ -69,9 +69,10 @@ $PAGE->set_url($url);
 $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 $ba = singleton_service::get_instance_of_booking_answers($settings);
+$bausersonlist = $ba->get_usersonlist();
 $courseid = $settings->courseid;
 
-if ($redirecttocourse === 1 && isset($ba->usersonlist[$USER->id])) {
+if ($redirecttocourse === 1 && isset($bausersonlist[$USER->id])) {
     $url = new moodle_url('/course/view.php', ['id' => $courseid]);
     redirect($url->out());
 }

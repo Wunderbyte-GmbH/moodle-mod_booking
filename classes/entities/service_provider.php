@@ -27,7 +27,6 @@ use mod_booking\booking;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class service_provider implements CallbackService_provider {
-
     /**
      * Callback function that returns an array of dates.
      *

@@ -156,11 +156,12 @@ class modal_change_notes extends dynamic_form {
                 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
                 $cmid = $settings->cmid;
                 $answers = singleton_service::get_instance_of_booking_answers($settings);
+                $bookinganswers = $answers->get_answers();
                 $notes = $data->notes;
                 // Note: In option scope, we have normal booking answer IDs.
                 $selectedusers = [];
                 foreach ($checkedids as $answerid) {
-                    $answer = $answers->answers[$answerid] ?? null;
+                    $answer = $bookinganswers[$answerid] ?? null;
                     if (empty($answer) || empty($answer->userid)) {
                         continue;
                     }

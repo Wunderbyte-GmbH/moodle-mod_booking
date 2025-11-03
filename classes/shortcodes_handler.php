@@ -163,4 +163,33 @@ class shortcodes_handler {
         }
         return $answerarray;
     }
+
+    /**
+     * Helper function to remove quotation marks from a single argument.
+     * @param mixed $arg reference to argument
+     * @return void
+     */
+    public static function fix_arg(&$arg): void {
+        if (empty($arg) || !is_string($arg)) {
+            return;
+        }
+        // Get rid of quotation marks.
+        $arg = str_replace('"', '', $arg);
+        $arg = str_replace("'", "", $arg);
+    }
+
+    /**
+     * Helper function to correctly check if a shortcode argument is set to true.
+     *
+     * @param mixed $arg the argument value to check
+     * @return bool true if the argument is "truthy"
+     */
+    public static function arg_is_true($arg): bool {
+        if (empty($arg) || $arg == "false" || $arg == "0") {
+            return false;
+        }
+        self::fix_arg($arg);
+        $truthyvalues = ['1', 'true', 'yes', 'on', 'active'];
+        return in_array(strtolower(trim((string)$arg)), $truthyvalues, true);
+    }
 }

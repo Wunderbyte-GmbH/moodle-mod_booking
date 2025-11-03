@@ -47,8 +47,6 @@ global $CFG;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class webservice_import {
-
-
     /** @var stdClass the course module for this assign instance */
     public $cm = null;
 
@@ -57,7 +55,6 @@ class webservice_import {
      * We have to interpret the data first.
      */
     public function __construct() {
-
     }
 
     /**
@@ -77,14 +74,24 @@ class webservice_import {
 
         // PRO feature: A license key is needed to use the Import controller web service.
         if (!wb_payment::pro_version_is_activated()) {
-            throw new \moodle_exception('missinglicensekey', 'mod_booking', null, null,
-                'You need an activated PRO version in order to use the import controller web service.');
+            throw new \moodle_exception(
+                'missinglicensekey',
+                'mod_booking',
+                null,
+                null,
+                'You need an activated PRO version in order to use the import controller web service.'
+            );
         }
 
         // Now we get the booking instance.
         if (!$bookingid = $this->return_booking_id($data)) {
-            throw new \moodle_exception('nobookingid', 'mod_booking', null, null,
-                    'We need a booking instance for webservice upload.');
+            throw new \moodle_exception(
+                'nobookingid',
+                'mod_booking',
+                null,
+                null,
+                'We need a booking instance for webservice upload.'
+            );
         }
 
         $data->bookingid = $bookingid;
@@ -113,7 +120,6 @@ class webservice_import {
      * @param mixed $bookingoption
      */
     public function update_option(&$data, $bookingoption) {
-
     }
 
     /**
@@ -130,7 +136,6 @@ class webservice_import {
 
         // If we have an actual and valid moodle bookingoptionid, we can return the corresponding booking option right away.
         if ($data->bookingoptionid) {
-
             $sql = "SELECT cm.id
                     FROM {booking_options} bo
                     INNER JOIN {course_modules} cm
@@ -144,13 +149,15 @@ class webservice_import {
             return singleton_service::get_instance_of_booking_option($bookingcmid, $data->bookingoptionid);
         } else {
             // We have to check if the identifier is really unique.
-            if ($DB->get_record_sql("SELECT *
+            if (
+                $DB->get_record_sql(
+                    "SELECT *
                 FROM {booking_options}
                 WHERE identifier = :identifier
                 AND bookingid <> :bookingid",
-                ['bookingid' => $data->bookingid, 'identifier' => $data->identifier])
-                ) {
-
+                    ['bookingid' => $data->bookingid, 'identifier' => $data->identifier]
+                )
+            ) {
                 throw new moodle_exception("Option with identifier $data->identifier could not be imported because the " .
                     "identifier is already used in another booking instance.", 'mod_booking');
             }
@@ -164,9 +171,12 @@ class webservice_import {
                     WHERE cm.instance=:bookingid
                     AND m.name=:modulename
                     AND bo.identifier=:identifier";
-            if ($result = $DB->get_record_sql($sql,
-                                ['bookingid' => $data->bookingid, 'modulename' => 'booking', 'identifier' => $data->identifier])
-                ) {
+            if (
+                $result = $DB->get_record_sql(
+                    $sql,
+                    ['bookingid' => $data->bookingid, 'modulename' => 'booking', 'identifier' => $data->identifier]
+                )
+            ) {
                 return singleton_service::get_instance_of_booking_option($result->cmid, $result->boid);
             }
         }
@@ -193,7 +203,6 @@ class webservice_import {
                 $bookingid = 0;
             }
         } else if (isset($data->bookingidnumber)) {
-
             $sql = "SELECT cm.instance
                     FROM {booking} b
                     INNER JOIN {course_modules} cm
@@ -211,13 +220,18 @@ class webservice_import {
             // There can only be one visible booking instance in every course.
             $bookinginstances = get_coursemodules_in_course('booking', $data->targetcourseid);
 
-            $bookinginstances = array_filter($bookinginstances, function($x) {
+            $bookinginstances = array_filter($bookinginstances, function ($x) {
                 return ($x->visible) == 1 && ($x->deletioninprogress == 0);
             });
 
             if (count($bookinginstances) != 1) {
-                throw new \moodle_exception('wrongnumberofinstances', 'mod_booking', null, null,
-                        'There should be only one visible booking activity in the course.');
+                throw new \moodle_exception(
+                    'wrongnumberofinstances',
+                    'mod_booking',
+                    null,
+                    null,
+                    'There should be only one visible booking activity in the course.'
+                );
             }
 
             $bookinginstance = reset($bookinginstances);
@@ -252,30 +266,52 @@ class webservice_import {
 
         // Throw an error if coursestarttime is provided without courseendtime.
         if (!empty($data->coursestarttime) && empty($data->courseendtime)) {
-            throw new \moodle_exception('startendtimeerror', 'mod_booking', null, null,
-                'You provided coursestarttime but courseendtime is missing.');
+            throw new \moodle_exception(
+                'startendtimeerror',
+                'mod_booking',
+                null,
+                null,
+                'You provided coursestarttime but courseendtime is missing.'
+            );
         }
 
         // Throw an error if courseendtime is provided without coursestarttime.
         if (!empty($data->courseendtime) && empty($data->coursestarttime)) {
-            throw new \moodle_exception('startendtimeerror', 'mod_booking', null, null,
-                'You provided courseendtime but coursestarttime is missing.');
+            throw new \moodle_exception(
+                'startendtimeerror',
+                'mod_booking',
+                null,
+                null,
+                'You provided courseendtime but coursestarttime is missing.'
+            );
         }
 
         // For mergeparams 1 and 2 both start time and end time need to be provided.
-        if (($data->mergeparam == 1 || $data->mergeparam == 2)
+        if (
+            ($data->mergeparam == 1 || $data->mergeparam == 2)
             && empty($data->coursestarttime)
-            && empty($data->courseendtime)) {
-            throw new \moodle_exception('startendtimeerror', 'mod_booking', null, null,
-                'For mergeparams 1 and 2 you need to provide start and end time.');
+            && empty($data->courseendtime)
+        ) {
+            throw new \moodle_exception(
+                'startendtimeerror',
+                'mod_booking',
+                null,
+                null,
+                'For mergeparams 1 and 2 you need to provide start and end time.'
+            );
         }
 
         // TODO: Check if this still makes sense with the new option form logic.
         if (!empty($data->coursestarttime) && !empty($data->courseendtime)) {
             // Throw an error if courseendtime is not after course start time.
             if ($data->courseendtime <= $data->coursestarttime) {
-                throw new \moodle_exception('startendtimeerror', 'mod_booking', null, null,
-                    'Course end time needs to be AFTER course start time (not before or equal).');
+                throw new \moodle_exception(
+                    'startendtimeerror',
+                    'mod_booking',
+                    null,
+                    null,
+                    'Course end time needs to be AFTER course start time (not before or equal).'
+                );
             }
         }
     }
@@ -304,7 +340,6 @@ class webservice_import {
      */
     private function add_customfields_to_bookingoption($optionid, $data) {
         if (!empty($data->recommendedin)) {
-
             $handler = booking_handler::create();
             $handler->field_save($optionid, 'recommendedin', $data->recommendedin);
         }
@@ -328,23 +363,38 @@ class webservice_import {
 
         // If a teacher e-mail is provided, but the teacher can't be found in the DB, we throw an error.
         if (!$userids = $DB->get_fieldset_select('user', 'id', 'email=:email', ['email' => $data->teacheremail])) {
-            throw new \moodle_exception('teachernotsubscribed', 'mod_booking', null, null,
+            throw new \moodle_exception(
+                'teachernotsubscribed',
+                'mod_booking',
+                null,
+                null,
                 'The teacher with email ' . $data->teacheremail .
-                ' does not exist in the target database.');
+                ' does not exist in the target database.'
+            );
         }
 
         if (count($userids) != 1) {
-            throw new \moodle_exception('nomatchingteacheremail', 'mod_booking', null, null,
-                    'Teacher email is not there or not unique');
+            throw new \moodle_exception(
+                'nomatchingteacheremail',
+                'mod_booking',
+                null,
+                null,
+                'Teacher email is not there or not unique'
+            );
         }
         $userid = reset($userids);
 
         // Try to subscribe teacher to booking option and throw an error if not successful.
         $teacherhandler = new teachers_handler($optionid);
         if (!$teacherhandler->subscribe_teacher_to_booking_option($userid, $optionid, $this->cm->id)) {
-            throw new \moodle_exception('teachernotsubscribed', 'mod_booking', null, null,
+            throw new \moodle_exception(
+                'teachernotsubscribed',
+                'mod_booking',
+                null,
+                null,
                 'The teacher with e-mail ' . $data->teacheremail .
-                ' could not be subscribed to the option with optionid ' . $optionid);
+                ' could not be subscribed to the option with optionid ' . $optionid
+            );
         }
     }
 }

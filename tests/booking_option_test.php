@@ -28,16 +28,15 @@ namespace mod_booking;
 
 use advanced_testcase;
 use coding_exception;
+use mod_booking\booking_answers\booking_answers;
 use mod_booking_generator;
 use mod_booking\local\connectedcourse;
-use mod_booking\option\dates_handler;
 use local_entities\entitiesrelation_handler;
 use context_system;
 use context_module;
 use core_course_category;
 use stdClass;
 use tool_mocktesttime\time_mock;
-
 
 /**
  * Class handling tests for booking options.
@@ -371,7 +370,7 @@ final class booking_option_test extends advanced_testcase {
         // In this test, we set completion to the user directly.
         $this->setAdminUser();
         $sink = $this->redirectEvents();
-        booking_activitycompletion([$user1->id], $booking1, $bookingsettings1->cmid, $bookingoption1->id);
+        $bookingoption1->toggle_user_completion($user1->id);
         $events = $sink->get_events();
 
         // Mandatory to get updates on completion.

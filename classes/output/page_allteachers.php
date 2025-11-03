@@ -25,7 +25,7 @@
 namespace mod_booking\output;
 
 use context_system;
-use mod_booking\booking_answers;
+use mod_booking\booking_answers\booking_answers;
 use moodle_url;
 use renderer_base;
 use renderable;

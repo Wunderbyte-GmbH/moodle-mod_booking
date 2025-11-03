@@ -27,18 +27,15 @@
 
 namespace mod_booking\output;
 
-use context_module;
-use context_course;
-use context_system;
 use local_wunderbyte_table\filters\types\datepicker;
 use local_wunderbyte_table\filters\types\standardfilter;
+use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
-use mod_booking\booking_answers;
+use mod_booking\booking_answers\booking_answers;
+use mod_booking\booking_answers\scope_base;
 use mod_booking\singleton_service;
 use mod_booking\table\booking_history_table;
-use mod_booking\table\manageusers_table;
 use moodle_exception;
-use moodle_url;
 use renderer_base;
 use renderable;
 use templatable;
@@ -72,6 +69,21 @@ class booked_users implements renderable, templatable {
     /** @var string $bookinghistory rendered table of bookinghistory */
     public $bookinghistory;
 
+    /** @var string $previouslybooked rendered table of previouslybooked */
+    public $previouslybooked;
+
+    /** @var string $optionstoconfirm rendered table of options to confirm */
+    public $optionstoconfirm;
+
+    /** @var array $deputydisplay rendered additional texts for the table of options to confirm */
+    public $deputydisplay;
+
+    /** @var string $deputyselect rendered additional texts for the table of options to confirm */
+    public $deputyselect;
+
+    /** @var array $labels Labels of the tables */
+    public $labels;
+
     /**
      * Constructor
      *
@@ -83,7 +95,11 @@ class booked_users implements renderable, templatable {
      * @param bool $showtonotify
      * @param bool $showdeleted
      * @param bool $showbookinghistory
+     * @param bool $showoptionstoconfirm
+     * @param bool $showpreviouslybooked
      * @param int $cmid optional course module id of booking instance
+     * @param bool $showreducedbuttons
+     * @param array $customfields
      */
     public function __construct(
         string $scope = 'system',
@@ -94,152 +110,23 @@ class booked_users implements renderable, templatable {
         bool $showtonotify = false,
         bool $showdeleted = false,
         bool $showbookinghistory = false,
-        int $cmid = 0
+        bool $showoptionstoconfirm = false,
+        bool $showpreviouslybooked = false,
+        int $cmid = 0,
+        bool $showreducedbuttons = false,
+        array $customfields = []
     ) {
-        switch ($scope) {
-            case 'optiondate':
-                $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+        $ba = new booking_answers();
+        /** @var scope_base $class */
+        $class = $ba->return_class_for_scope($scope);
+        $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_BOOKED);
 
-                // For optiondates we only show booked users.
-                // Also, we have no delete action but presence tracking.
-                $bookeduserscols[] = 'firstname';
-                $bookedusersheaders[] = get_string('firstname', 'core');
-                $bookeduserscols[] = 'lastname';
-                $bookedusersheaders[] = get_string('lastname', 'core');
-                $bookeduserscols[] = 'email';
-                $bookedusersheaders[] = get_string('email', 'core');
-                $bookeduserscols[] = 'status';
-                $bookedusersheaders[] = get_string('presence', 'mod_booking');
-                $bookeduserscols[] = 'notes';
-                $bookedusersheaders[] = get_string('notes', 'mod_booking');
-
-                // It's redundant because we also have bulk actions.
-                // So for now, we do not show the action column.
-                // But we still kept the code in col_action case we need it in the future.
-                // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-                /* $bookeduserscols[] = 'actions';
-                $bookedusersheaders[] = get_string('actions', 'mod_booking'); */
-                break;
-            case 'option':
-                // Define columns and headers for the tables.
-                $bookeduserscols[] = 'firstname';
-                $bookedusersheaders[] = get_string('firstname', 'core');
-                $bookeduserscols[] = 'lastname';
-                $bookedusersheaders[] = get_string('lastname', 'core');
-                $bookeduserscols[] = 'email';
-                $bookedusersheaders[] = get_string('email', 'core');
-                $bookeduserscols[] = 'status';
-                $bookedusersheaders[] = get_string('presence', 'mod_booking');
-                $bookeduserscols[] = 'notes';
-                $bookedusersheaders[] = get_string('notes', 'mod_booking');
-
-                if (get_config('booking', 'bookingstrackerpresencecounter')) {
-                    $bookeduserscols[] = 'presencecount';
-                }
-                $bookeduserscols[] = 'action_delete';
-
-                $waitinglistcols = ['firstname', 'lastname', 'email', 'action_confirm_delete'];
-                $reserveduserscols = ['firstname', 'lastname', 'email', 'action_delete'];
-                $userstonotifycols = ['firstname', 'lastname', 'email', 'action_delete'];
-                $deleteduserscols = ['firstname', 'lastname', 'email', 'timemodified'];
-
-                if (get_config('booking', 'bookingstrackerpresencecounter')) {
-                    $bookedusersheaders[] = get_string('presencecount', 'mod_booking');
-                }
-                $bookedusersheaders[] = get_string('bookingstrackerdelete', 'mod_booking');
-
-                $waitinglistheaders = [
-                    get_string('firstname', 'core'),
-                    get_string('lastname', 'core'),
-                    get_string('email', 'core'),
-                    get_string('bookingstrackerdelete', 'mod_booking'),
-                ];
-                $reservedusersheaders = [
-                    get_string('firstname', 'core'),
-                    get_string('lastname', 'core'),
-                    get_string('email', 'core'),
-                    get_string('bookingstrackerdelete', 'mod_booking'),
-                ];
-                $userstonotifyheaders = [
-                    get_string('firstname', 'core'),
-                    get_string('lastname', 'core'),
-                    get_string('email', 'core'),
-                    get_string('bookingstrackerdelete', 'mod_booking'),
-                ];
-                $deletedusersheaders = [
-                    get_string('firstname', 'core'),
-                    get_string('lastname', 'core'),
-                    get_string('email', 'core'),
-                    get_string('timemodified', 'mod_booking'),
-                ];
-
-                if (get_config('booking', 'waitinglistshowplaceonwaitinglist')) {
-                    array_unshift($waitinglistcols, 'userrank');
-                    array_unshift($waitinglistheaders, get_string('userrank', 'mod_booking'));
-                }
-                break;
-            case 'system':
-            case 'course':
-            case 'instance':
-            default:
-                // Define columns and headers for the tables.
-                $bookeduserscols = [];
-                $waitinglistcols = [];
-                $reserveduserscols = [];
-                $userstonotifycols = [];
-                $deleteduserscols = [];
-                $bookedusersheaders = [];
-                $waitinglistheaders = [];
-                $reservedusersheaders = [];
-                $userstonotifyheaders = [];
-                $deletedusersheaders = [];
-
-                $bookeduserscols[] = 'titleprefix';
-                $bookeduserscols[] = 'text';
-                $bookeduserscols[] = 'answerscount';
-                if (get_config('booking', 'bookingstrackerpresencecounter')) {
-                    $bookeduserscols[] = 'presencecount';
-                }
-
-                $waitinglistcols[] = 'titleprefix';
-                $waitinglistcols[] = 'text';
-                $waitinglistcols[] = 'answerscount';
-
-                $reserveduserscols[] = 'titleprefix';
-                $reserveduserscols[] = 'text';
-                $reserveduserscols[] = 'answerscount';
-
-                $userstonotifycols[] = 'titleprefix';
-                $userstonotifycols[] = 'text';
-                $userstonotifycols[] = 'answerscount';
-
-                $deleteduserscols[] = 'titleprefix';
-                $deleteduserscols[] = 'text';
-                $deleteduserscols[] = 'answerscount';
-
-                $bookedusersheaders[] = get_string('titleprefix', 'mod_booking');
-                $bookedusersheaders[] = get_string('bookingoption', 'mod_booking');
-                $bookedusersheaders[] = get_string('answerscount', 'mod_booking');
-                if (get_config('booking', 'bookingstrackerpresencecounter')) {
-                    $bookedusersheaders[] = get_string('presencecount', 'mod_booking');
-                }
-
-                $waitinglistheaders[] = get_string('titleprefix', 'mod_booking');
-                $waitinglistheaders[] = get_string('bookingoption', 'mod_booking');
-                $waitinglistheaders[] = get_string('answerscount', 'mod_booking');
-
-                $reservedusersheaders[] = get_string('titleprefix', 'mod_booking');
-                $reservedusersheaders[] = get_string('bookingoption', 'mod_booking');
-                $reservedusersheaders[] = get_string('answerscount', 'mod_booking');
-
-                $userstonotifyheaders[] = get_string('titleprefix', 'mod_booking');
-                $userstonotifyheaders[] = get_string('bookingoption', 'mod_booking');
-                $userstonotifyheaders[] = get_string('answerscount', 'mod_booking');
-
-                $deletedusersheaders[] = get_string('titleprefix', 'mod_booking');
-                $deletedusersheaders[] = get_string('bookingoption', 'mod_booking');
-                $deletedusersheaders[] = get_string('answerscount', 'mod_booking');
-                break;
+        $defalutlabels = self::default_tables_labels();
+        // Get the custom labels of the tables from the scope class.
+        if (method_exists($class, 'get_lables_of_tables')) {
+            $this->labels = $class->get_lables_of_tables($defalutlabels);
+        } else {
+            $this->labels = $defalutlabels;
         }
 
         $this->bookedusers = $showbooked ?
@@ -248,52 +135,82 @@ class booked_users implements renderable, templatable {
                 $scopeid,
                 MOD_BOOKING_STATUSPARAM_BOOKED,
                 'booked',
-                $bookeduserscols,
-                $bookedusersheaders,
+                array_keys($columns),
+                array_values($columns),
                 false,
                 true
             ) : null;
 
         // For optiondate scope, we only show booked users.
         if ($scope != 'optiondate') {
+            $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_WAITINGLIST);
             $this->waitinglist = $showwaiting ? $this->render_users_table(
                 $scope,
                 $scopeid,
                 MOD_BOOKING_STATUSPARAM_WAITINGLIST,
                 'waitinglist',
-                $waitinglistcols,
-                $waitinglistheaders,
+                array_keys($columns),
+                array_values($columns),
                 // Sorting of waiting list only possible if setting to show place is enabled.
-                (bool)get_config('booking', 'waitinglistshowplaceonwaitinglist')
+                (bool)get_config('booking', 'waitinglistshowplaceonwaitinglist'),
+                true
             ) : null;
 
+            $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_RESERVED);
             $this->reservedusers = $showreserved ? $this->render_users_table(
                 $scope,
                 $scopeid,
                 MOD_BOOKING_STATUSPARAM_RESERVED,
                 'reserved',
-                $reserveduserscols,
-                $reservedusersheaders
+                array_keys($columns),
+                array_values($columns),
             ) : null;
 
+            $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_NOTIFYMELIST);
             $this->userstonotify = $showtonotify ? $this->render_users_table(
                 $scope,
                 $scopeid,
                 MOD_BOOKING_STATUSPARAM_NOTIFYMELIST,
                 'notifymelist',
-                $userstonotifycols,
-                $userstonotifyheaders
+                array_keys($columns),
+                array_values($columns),
             ) : null;
 
+            $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_DELETED);
             $this->deletedusers = $showdeleted ? $this->render_users_table(
                 $scope,
                 $scopeid,
                 MOD_BOOKING_STATUSPARAM_DELETED,
                 'deleted',
-                $deleteduserscols,
-                $deletedusersheaders,
+                array_keys($columns),
+                array_values($columns),
                 false,
                 true
+            ) : null;
+
+            $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_WAITINGLIST);
+            $this->optionstoconfirm = $showoptionstoconfirm ? $this->render_users_table(
+                $scope,
+                $scopeid,
+                MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+                'optionstoconfirm',
+                array_keys($columns),
+                array_values($columns),
+                // Sorting of waiting list only possible if setting to show place is enabled.
+                (bool)get_config('booking', 'waitinglistshowplaceonwaitinglist'),
+                true,
+                $customfields,
+            ) : null;
+
+            $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED);
+            $this->previouslybooked = $showpreviouslybooked ? $this->render_users_table(
+                $scope,
+                $scopeid,
+                MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED,
+                'previouslybooked',
+                array_keys($columns),
+                array_values($columns),
+                false
             ) : null;
 
             // Booking history table.
@@ -312,6 +229,7 @@ class booked_users implements renderable, templatable {
      * @param array $headers
      * @param bool $sortable
      * @param bool $paginate
+     * @param array $customfields
      * @return ?string
      */
     private function render_users_table(
@@ -322,266 +240,23 @@ class booked_users implements renderable, templatable {
         array $columns,
         array $headers = [],
         bool $sortable = false,
-        bool $paginate = false
+        bool $paginate = false,
+        array $customfields = []
     ): ?string {
-        [$fields, $from, $where, $params] = booking_answers::return_sql_for_booked_users($scope, $scopeid, $statusparam);
-
-        $tablename = "{$tablenameprefix}_{$scope}_{$scopeid}";
-        $table = new manageusers_table($tablename);
-
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        // Todo: $table->define_baseurl() ...
-        $table->define_cache('mod_booking', "bookedusertable");
-        $table->define_columns($columns);
-        $table->define_headers($headers);
-
-        if ($sortable) {
-            $table->sortablerows = true;
-        }
-
-        if ($paginate) {
-            $table->use_pages = true;
-        }
-
-        $table->set_sql($fields, $from, $where, $params);
-
-        // Table configurations for different scopes.
-        if (self::has_capability_in_scope($scope, $scopeid, 'mod/booking:updatebooking')) {
-            $baseurl = new moodle_url(
-                '/mod/booking/download_report2.php',
-                [
-                    'scope' => $scope,
-                    'statusparam' => $statusparam,
-                ]
-            );
-            $table->define_baseurl($baseurl);
-
-            // We currently support download for booked users only.
-            if ($statusparam == 0) {
-                $table->showdownloadbutton = true;
-                if (in_array($scope, ['option', 'optiondate'])) {
-                    $table->showdownloadbuttonatbottom = true;
-                }
-            }
-        }
-
-        // Checkboxes are currently only supported in option scope.
-        if ($scope === 'option') {
-            $optionid = $scopeid;
-            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-            $cmid = $settings->cmid;
-
-            // Add fulltext search.
-            $table->define_fulltextsearchcolumns(['firstname', 'lastname', 'email']);
-
-            switch ($statusparam) {
-                case MOD_BOOKING_STATUSPARAM_DELETED:
-                    $sortablecolumns = [
-                        'firstname' => get_string('firstname'),
-                        'lastname' => get_string('lastname'),
-                        'email' => get_string('email'),
-                        'timemodified' => get_string('timemodified', 'mod_booking'),
-                    ];
-                    $table->sort_default_column = 'timemodified';
-                    $table->sort_default_order = SORT_DESC;
-                    break;
-                case MOD_BOOKING_STATUSPARAM_BOOKED:
-                    $sortablecolumns = [
-                        'firstname' => get_string('firstname'),
-                        'lastname' => get_string('lastname'),
-                        'email' => get_string('email'),
-                        'status' => get_string('presence', 'mod_booking'),
-                        'presencecount' => get_string('presencecount', 'mod_booking'),
-                    ];
-                    $table->sort_default_column = 'lastname';
-                    $table->sort_default_order = SORT_ASC;
-                    break;
-                case MOD_BOOKING_STATUSPARAM_WAITINGLIST:
-                    if (get_config('booking', 'waitinglistshowplaceonwaitinglist')) {
-                        // No sorting allowed as it would destroy rank order.
-                        $sortablecolumns = [];
-                        $table->sort_default_column = 'userrank';
-                        $table->sort_default_order = SORT_ASC;
-                    } else {
-                        $sortablecolumns = [
-                            'firstname' => get_string('firstname'),
-                            'lastname' => get_string('lastname'),
-                            'email' => get_string('email'),
-                        ];
-                        $table->sort_default_column = 'lastname';
-                        $table->sort_default_order = SORT_ASC;
-                    }
-                    break;
-                default:
-                    $sortablecolumns = [
-                        'firstname' => get_string('firstname'),
-                        'lastname' => get_string('lastname'),
-                        'email' => get_string('email'),
-                    ];
-                    $table->sort_default_column = 'lastname';
-                    $table->sort_default_order = SORT_ASC;
-                    break;
-            }
-
-            // Add sorting.
-            $table->define_sortablecolumns($sortablecolumns);
-
-            if ($statusparam == MOD_BOOKING_STATUSPARAM_BOOKED) {
-                // Action button to change presence status of booking answer (option scope).
-                $table->actionbuttons[] = [
-                    'label' => get_string('presence', 'mod_booking'), // Name of your action button.
-                    'class' => 'btn btn-primary btn-sm ml-2',
-                    'href' => '#', // You can either use the link, or JS, or both.
-                    'iclass' => 'fa fa-user-o', // Add an icon before the label.
-                    'formname' => 'mod_booking\\form\\optiondates\\modal_change_status',
-                    'nomodal' => false,
-                    'id' => -1,
-                    'selectionmandatory' => true,
-                    'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
-                        'scope' => 'option',
-                        'titlestring' => 'changepresencestatus',
-                        'submitbuttonstring' => 'save',
-                        'component' => 'mod_booking',
-                        'cmid' => $cmid,
-                        'optionid' => $optionid ?? 0,
-                    ],
-                ];
-                // Action button to add notes for booking answer (option scope).
-                $table->actionbuttons[] = [
-                    'label' => get_string('notes', 'mod_booking'), // Name of your action button.
-                    'class' => 'btn btn-primary btn-sm ml-1',
-                    'href' => '#', // You can either use the link, or JS, or both.
-                    'iclass' => 'fa fa-pencil', // Add an icon before the label.
-                    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-                    /* 'methodname' => 'mymethod', // The method needs to be added to your child of wunderbyte_table class. */
-                    'formname' => 'mod_booking\\form\\optiondates\\modal_change_notes',
-                    'nomodal' => false,
-                    'id' => -1,
-                    'selectionmandatory' => true,
-                    'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
-                        'scope' => 'option',
-                        'titlestring' => 'notes',
-                        'submitbuttonstring' => 'save',
-                        'component' => 'mod_booking',
-                        'cmid' => $cmid,
-                        'optionid' => $optionid ?? 0,
-                    ],
-                ];
-            }
-
-            if ($statusparam != MOD_BOOKING_STATUSPARAM_DELETED) {
-                $table->addcheckboxes = true;
-
-                // Show modal, single call, use selected items.
-                $table->actionbuttons[] = [
-                    'iclass' => 'fa fa-trash mr-1', // Add an icon before the label.
-                    'label' => get_string('bookingstrackerdelete', 'mod_booking'),
-                    'class' => 'btn btn-danger btn-sm ml-1',
-                    'href' => '#',
-                    'methodname' => 'delete_checked_booking_answers',
-                    // To include a dynamic form to open and edit entry in modal.
-                    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-                    /* 'formname' => 'local_myplugin\\form\\edit_mytableentry', */
-                    'nomodal' => false,
-                    'selectionmandatory' => true,
-                    'id' => -1,
-                    'data' => [
-                        'id' => 'id',
-                        'titlestring' => 'delete',
-                        'bodystring' => 'deletecheckedanswersbody',
-                        // Localized title to be displayed as title in dynamic form (formname).
-                        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-                        'submitbuttonstring' => 'delete',
-                        'component' => 'mod_booking',
-                        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-                        /* 'labelcolumn' => 'name', */
-                    ],
-                ];
-            }
-        } else if ($scope == 'optiondate') {
-            global $DB;
-            // We are in optiondate scope, so scopeid is optiondateid.
-            $optionid = $DB->get_field('booking_optiondates', 'optionid', ['id' => $scopeid]);
-            $cmid = singleton_service::get_instance_of_booking_option_settings($optionid)->cmid;
-            if (!empty($cmid)) {
-                // Add checkboxes, so we can perform actions for more than one selected user.
-                $table->addcheckboxes = true;
-
-                // Add fulltext search.
-                $table->define_fulltextsearchcolumns(['firstname', 'lastname', 'email', 'notes']);
-
-                // Add sorting.
-                $sortablecolumns = [
-                    'firstname' => get_string('firstname'),
-                    'lastname' => get_string('lastname'),
-                    'email' => get_string('email'),
-                    'status' => get_string('presence', 'mod_booking'),
-                ];
-                $table->define_sortablecolumns($sortablecolumns);
-
-                // Add filter for presence status.
-                $presencestatusfilter = new standardfilter('status', get_string('presence', 'mod_booking'));
-                $presencestatusfilter->add_options(booking::get_array_of_possible_presence_statuses());
-                $table->add_filter($presencestatusfilter);
-
-                $table->filteronloadinactive = true;
-                $table->showfilterontop = true;
-
-                $table->actionbuttons[] = [
-                    'label' => get_string('presence', 'mod_booking'), // Name of your action button.
-                    'class' => 'btn btn-primary btn-sm ml-2',
-                    'href' => '#', // You can either use the link, or JS, or both.
-                    'iclass' => 'fa fa-user-o', // Add an icon before the label.
-                    'formname' => 'mod_booking\\form\\optiondates\\modal_change_status',
-                    'nomodal' => false,
-                    'id' => -1,
-                    'selectionmandatory' => true,
-                    'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
-                        'scope' => 'optiondate',
-                        'titlestring' => 'changepresencestatus',
-                        'submitbuttonstring' => 'save',
-                        'component' => 'mod_booking',
-                        'cmid' => $cmid,
-                        'optionid' => $optionid ?? 0,
-                        'optiondateid' => $scopeid ?? 0,
-                    ],
-                ];
-
-                $table->actionbuttons[] = [
-                    'label' => get_string('notes', 'mod_booking'), // Name of your action button.
-                    'class' => 'btn btn-primary btn-sm ml-1',
-                    'href' => '#', // You can either use the link, or JS, or both.
-                    'iclass' => 'fa fa-pencil', // Add an icon before the label.
-                    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-                    /* 'methodname' => 'mymethod', // The method needs to be added to your child of wunderbyte_table class. */
-                    'formname' => 'mod_booking\\form\\optiondates\\modal_change_notes',
-                    'nomodal' => false,
-                    'id' => -1,
-                    'selectionmandatory' => true,
-                    'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
-                        'scope' => 'optiondate',
-                        'titlestring' => 'notes',
-                        'submitbuttonstring' => 'save',
-                        'component' => 'mod_booking',
-                        'cmid' => $cmid,
-                        'optionid' => $optionid ?? 0,
-                        'optiondateid' => $scopeid ?? 0,
-                    ],
-                ];
-            }
-        } else {
-            // All other scopes: system, course, instance.
-            // Add fulltext search.
-            $table->define_fulltextsearchcolumns(['titleprefix', 'text', 'coursename', 'instancename']);
-            // Add sorting.
-            $sortablecolumns = [
-                'titleprefix' => get_string('titleprefix', 'mod_booking'),
-                'text' => get_string('bookingoption', 'mod_booking'),
-                'answerscount' => get_string('answerscount', 'mod_booking'),
-                'presencecount' => get_string('presencecount', 'mod_booking'),
-            ];
-            $table->define_sortablecolumns($sortablecolumns);
-        }
+        $ba = new booking_answers();
+        /** @var scope_base $class */
+        $class = $ba->return_class_for_scope($scope);
+        $table = $class->return_users_table(
+            $scope,
+            $scopeid,
+            $statusparam,
+            $tablenameprefix,
+            $columns,
+            $headers,
+            $sortable,
+            $paginate,
+            $customfields
+        );
 
         // Activate sorting dropdown.
         $table->cardsort = true;
@@ -592,8 +267,46 @@ class booked_users implements renderable, templatable {
         $table->showreloadbutton = true;
         $table->showrowcountselect = true;
 
-        $html = $table->outhtml(20, false);
+        $html = $table->outhtml(10, false);
         return count($table->rawdata) > 0 ? $html : null;
+    }
+
+    /**
+     * Returns an instance of wunderbyte table for testing purposes.
+     * This function is only accessible from PHPunit tests.
+     * @param string $scope
+     * @param int $scopeid
+     * @param int $statusparam
+     * @return ?wunderbyte_table
+     */
+    public function return_raw_table(
+        string $scope,
+        int $scopeid,
+        int $statusparam
+    ): ?wunderbyte_table {
+
+        if (!defined('PHPUNIT_TEST') || !PHPUNIT_TEST) {
+            return null;
+        }
+
+        $ba = new booking_answers();
+        /** @var scope_base $class */
+        $class = $ba->return_class_for_scope($scope);
+        $columns = $class->return_cols_for_tables($statusparam);
+        $table = $class->return_users_table(
+            $scope,
+            $scopeid,
+            $statusparam,
+            $scope,
+            array_keys($columns),
+            array_values($columns),
+            false,
+            false
+        );
+
+        $table->outhtml(20000, false);
+
+        return $table;
     }
 
     /**
@@ -608,6 +321,7 @@ class booked_users implements renderable, templatable {
 
         switch ($scope) {
             case 'system':
+            case 'systemanswers':
                 $wherepart = '';
                 $params = [];
                 break;
@@ -617,6 +331,7 @@ class booked_users implements renderable, templatable {
                 $params = ['optionid' => $optionid];
                 break;
             case 'instance':
+            case 'instanceanswers':
                 $cmid = $scopeid; // Cmid - not bookingid!
                 $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
                 $bookingid = $bookingsettings->id;
@@ -624,6 +339,7 @@ class booked_users implements renderable, templatable {
                 $params = ['bookingid' => $bookingid];
                 break;
             case 'course':
+            case 'courseanswers':
                 $courseid = $scopeid;
                 $wherepart = "WHERE c.id = :courseid";
                 $params = ['courseid' => $courseid];
@@ -782,33 +498,84 @@ class booked_users implements renderable, templatable {
             'userstonotify' => $this->userstonotify ?? null,
             'deletedusers' => $this->deletedusers ?? null,
             'bookinghistory' => $this->bookinghistory ?? null,
+            'optionstoconfirm' => $this->optionstoconfirm ?? null,
+            'deputydisplay' => $this->deputydisplay ?? null,
+            'previouslybooked' => $this->previouslybooked ?? null,
+            'deputyselect' => $this->deputyselect ?? null,
+            'labels' => array_values($this->labels) ?? null,
+            'reduced' => $this->reduced ?? null,
         ]);
     }
 
     /**
-     * Helper function to check capability for logged-in user in provided scope.
-     * @param string $scope
-     * @param int $scopeid
-     * @param string $capability
+     * Description for create_delete_button
+     * @param string $labelkey
+     * @param string $icon
+     * @param string $formname
+     * @param array $data
+     * @param string $css
+     * @return array
      */
-    public static function has_capability_in_scope($scope, $scopeid, $capability) {
-        switch ($scope) {
-            case 'optiondate':
-                global $DB;
-                $optionid = $DB->get_field('booking_optiondates', 'optionid', ['id' => $scopeid]);
-                $cmid = singleton_service::get_instance_of_booking_option_settings($optionid)->cmid;
-                return has_capability($capability, context_module::instance($cmid));
-            case 'option':
-                $cmid = singleton_service::get_instance_of_booking_option_settings($scopeid)->cmid;
-                return has_capability($capability, context_module::instance($cmid));
-            case 'instance':
-                return has_capability($capability, context_module::instance($scopeid));
-            case 'course':
-                return has_capability($capability, context_course::instance($scopeid));
-            case 'system':
-                return has_capability($capability, context_system::instance());
-            default:
-                throw new moodle_exception('Invalid scope for booked users table.');
-        }
+    public static function create_action_button(
+        string $labelkey,
+        string $icon,
+        string $formname,
+        array $data,
+        string $css = 'btn btn-primary btn-sm ml-1'
+    ): array {
+        return [
+            'label' => get_string($labelkey, 'mod_booking'),
+            'class' => $css,
+            'href' => '#',
+            'iclass' => $icon,
+            'formname' => $formname,
+            'nomodal' => false,
+            'id' => -1,
+            'selectionmandatory' => true,
+            'data' => $data,
+        ];
+    }
+
+    /**
+     * Function to create delete button.
+     *
+     * @return array
+     *
+     */
+    public static function create_delete_button(): array {
+        return [
+            'iclass' => 'fa fa-trash mr-1',
+            'label' => get_string('bookingstrackerdelete', 'mod_booking'),
+            'class' => 'btn btn-danger btn-sm ml-1',
+            'href' => '#',
+            'methodname' => 'delete_checked_booking_answers',
+            'nomodal' => false,
+            'selectionmandatory' => true,
+            'id' => -1,
+            'data' => [
+                'id' => 'id',
+                'titlestring' => 'delete',
+                'bodystring' => 'deletecheckedanswersbody',
+                'submitbuttonstring' => 'delete',
+                'component' => 'mod_booking',
+            ],
+        ];
+    }
+
+    /**
+     * Return an array of the default labels of the tables.
+     * @return array
+     */
+    public static function default_tables_labels(): array {
+        return [
+            'bookings' => get_string('bookings', 'mod_booking'),
+            'waitinglist' => get_string('waitinglist', 'mod_booking'),
+            'reservedusers' => get_string('reservedusers', 'mod_booking'),
+            'userstonotify' => get_string('userstonotify', 'mod_booking'),
+            'deletedbookings' => get_string('deletedbookings', 'mod_booking'),
+            'bookinghistory' => get_string('bookinghistory', 'mod_booking'),
+            'optionstoconfirm' => get_string('optionstoconfirm', 'mod_booking'),
+            'previouselybooked' => get_string('previouselybooked', 'mod_booking'),
+        ];
     }
 }

@@ -54,7 +54,7 @@ $usesections = course_format_uses_sections($course->format);
 $modinfo = get_fast_modinfo($course);
 
 if ($usesections) {
-    $strsectionname = get_string('sectionname', 'format_'.$course->format);
+    $strsectionname = get_string('sectionname', 'format_' . $course->format);
     $sections = $modinfo->get_section_info_all();
 }
 

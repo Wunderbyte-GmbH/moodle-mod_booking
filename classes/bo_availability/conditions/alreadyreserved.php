@@ -163,7 +163,7 @@ class alreadyreserved implements bo_condition {
 
         $isavailable = $this->is_available($settings, $userid, $not);
 
-        $description = $this->get_description_string($isavailable, $full, $settings);
+        $description = !$isavailable ? $this->get_description_string($isavailable, $full, $settings) : '';
 
         return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_JUSTMYALERT];
     }
@@ -239,7 +239,7 @@ class alreadyreserved implements bo_condition {
                 }
             }
 
-            $data = $settings->return_booking_option_information($user);
+            $data = $settings->return_booking_option_information($user, false);
 
             if ($fullwidth) {
                 $data['fullwidth'] = $fullwidth;

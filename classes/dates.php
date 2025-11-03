@@ -533,7 +533,7 @@ class dates {
                     'optiondateid' => $formvalues[MOD_BOOKING_FORM_OPTIONDATEID . $counter],
                     'coursestarttime' => $coursestarttime,
                     'courseendtime' => $courseendtime,
-                    'daystonotify' => $formvalues[MOD_BOOKING_FORM_DAYSTONOTIFY . $counter],
+                    'daystonotify' => $formvalues[MOD_BOOKING_FORM_DAYSTONOTIFY . $counter] ?? 0,
                     'entityid' => $entityid,
                     'entityarea' => $entityarea,
                     'customfields' => $cffields,
@@ -614,7 +614,7 @@ class dates {
         $datestosave = array_merge($datestosave, $datestoupdate);
         foreach ($datestosave as $date) {
             $optiondate = optiondate::save(
-                (int)$date['optiondateid'] ?? 0,
+                (int)($date['optiondateid'] ?? 0),
                 (int)$option->id,
                 (int)$date['coursestarttime'],
                 (int)$date['courseendtime'],
@@ -623,7 +623,7 @@ class dates {
                 0,
                 '',
                 0,
-                (int)$date['entityid'] ?? 0,
+                (int)($date['entityid'] ?? 0),
                 $date['customfields'] ?? []
             );
         }

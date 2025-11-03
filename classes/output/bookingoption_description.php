@@ -30,7 +30,7 @@ use core_plugin_manager;
 use html_writer;
 use local_wunderbyte_table\local\customfield\wbt_field_controller_info;
 use mod_booking\booking;
-use mod_booking\booking_answers;
+use mod_booking\booking_answers\booking_answers;
 use mod_booking\booking_bookit;
 use mod_booking\booking_context_helper;
 use mod_booking\booking_option;
@@ -194,6 +194,9 @@ class bookingoption_description implements renderable, templatable {
     /** @var array $subpluginstemplatedata */
     private $subpluginstemplatedata = [];
 
+    /** @var bool $showdownloadcheckbox */
+    private $showdownloadcheckbox = false;
+
     /**
      * Constructor.
      *
@@ -293,9 +296,10 @@ class bookingoption_description implements renderable, templatable {
                 $this->duration = format_time($settings->duration);
 
                 $ba = singleton_service::get_instance_of_booking_answers($settings);
+                $usersonlist = $ba->get_usersonlist();
                 $buyforuser = price::return_user_to_buy_for();
-                if (isset($ba->usersonlist[$buyforuser->id])) {
-                    $timebooked = $ba->usersonlist[$buyforuser->id]->timecreated;
+                if (isset($usersonlist[$buyforuser->id])) {
+                    $timebooked = $usersonlist[$buyforuser->id]->timecreated;
                     $timeremainingsec = $timebooked + $settings->duration - time();
 
                     if ($timeremainingsec <= 0) {
@@ -372,6 +376,15 @@ class bookingoption_description implements renderable, templatable {
             }
         }
 
+        if (has_capability('mod/booking:downloadchecklist', $modcontext)) {
+            $checkboxurl = $link = new moodle_url($CFG->wwwroot . '/mod/booking/report.php', [
+                'id' => $cmid,
+                'optionid' => $optionid,
+                'action' => 'downloadchecklist',
+            ]);
+            $this->showdownloadcheckbox = $checkboxurl;
+        }
+
         // We need this to render a link to manage bookings in the template.
         if (!empty($this->showmanageresponses) && $this->showmanageresponses == true) {
             if (is_array($this->bookinginformation)) {
@@ -384,8 +397,12 @@ class bookingoption_description implements renderable, templatable {
         booking_context_helper::fix_booking_page_context($PAGE, $cmid);
 
         // Description from booking option settings formatted as HTML.
-        $this->description = $settings->description;
-
+        if (empty(get_config('booking', 'changedescriptionfield'))) {
+            $this->description = $settings->description;
+        } else {
+            $customfieldshortname = get_config('booking', 'changedescriptionfield');
+            $this->description = $settings->customfields[$customfieldshortname] ?? "";
+        }
         // Do the same for internal annotation.
         $this->annotation = $settings->annotation;
 
@@ -414,16 +431,35 @@ class bookingoption_description implements renderable, templatable {
         $this->teachers = $colteacher->teachers;
 
         // Array User object of the responsible contact.
-        $responsibles = $settings->responsiblecontactuser;
+        // Mustache does not like associative arrays, so we make sure, we have array values only.
+        $responsibles = array_values($settings->responsiblecontactuser);
 
         // If no responsible contact is set, we take the first teacher.
-        if (empty($responsibles) && !empty($settings->teachers)) {
+        if (
+            get_config('booking', 'responsiblecontactshowfirstteacher')
+            && empty($responsibles)
+            && !empty($settings->teachers)
+        ) {
             $teacher = reset($settings->teachers);
             $responsible = new stdClass();
             $responsible->id = $teacher->userid;
             $responsible->firstname = $teacher->firstname ?? '';
             $responsible->lastname = $teacher->lastname ?? '';
-            $responsible->email = $teacher->email ?? '';
+            $teacheruser = singleton_service::get_instance_of_user($teacher->userid);
+            if (
+                !empty($teacher->email)
+                && (
+                    $teacheruser->maildisplay == 1
+                    || has_capability('mod/booking:updatebooking', $syscontext)
+                    || get_config('booking', 'teachersshowemails')
+                    || (
+                        get_config('booking', 'bookedteachersshowemails')
+                        && (booking_answers::number_actively_booked($USER->id, $teacher->userid) > 0)
+                    )
+                )
+            ) {
+                $responsible->email = $teacher->email;
+            }
 
             $responsible->link = (new moodle_url(
                 '/mod/booking/teacher.php',
@@ -431,15 +467,17 @@ class bookingoption_description implements renderable, templatable {
             ));
             $responsibles = [$responsible];
         }
+
+        // Add link to profile page of responsible contact.
         if (!empty($responsibles)) {
             foreach ($responsibles as &$responsiblecontact) {
                 if (empty($responsiblecontact)) {
                     continue;
                 }
-                $responsiblecontact->link = (new moodle_url(
+                $responsiblecontact->link = new moodle_url(
                     '/user/profile.php',
                     ['id' => $responsiblecontact->id]
-                ));
+                );
             }
         } else {
             $responsibles = [];
@@ -653,6 +691,7 @@ class bookingoption_description implements renderable, templatable {
             'competencies' => $this->competencies,
             'competencyheader' => $this->competencyheader,
             'subpluginstemplatedata' => $this->subpluginstemplatedata,
+            'showdownloadcheckbox' => $this->showdownloadcheckbox,
         ];
 
         if (!empty($this->timeremaining)) {
@@ -702,7 +741,6 @@ class bookingoption_description implements renderable, templatable {
                 }
             }
         }
-
         return $returnarray;
     }
 

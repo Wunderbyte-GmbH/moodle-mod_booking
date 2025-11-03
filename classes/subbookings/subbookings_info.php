@@ -200,7 +200,7 @@ class subbookings_info {
         int $subbookingid,
         int $cmid,
         int $optionid
-        ) {
+    ) {
         global $DB, $USER;
         $DB->delete_records('booking_subbooking_options', ['id' => (int)$subbookingid]);
 
@@ -318,7 +318,6 @@ class subbookings_info {
     public static function has_soft_subbookings(booking_option_settings $settings, $userid) {
 
         foreach ($settings->subbookings as $subbooking) {
-
             if ($subbooking->block != 0) {
                 continue;
             }
@@ -453,6 +452,7 @@ class subbookings_info {
                     MOD_BOOKING_STATUSPARAM_RESERVED,
                     [MOD_BOOKING_STATUSPARAM_WAITINGLIST, MOD_BOOKING_STATUSPARAM_RESERVED]
                 );
+                $subbooking->reservation_action($settings, $userid, $id);
                 break;
             case MOD_BOOKING_STATUSPARAM_NOTBOOKED: // We only want to delete the shortterm reservation.
                 // Check if there was a reserved entry before.
@@ -463,6 +463,7 @@ class subbookings_info {
                     MOD_BOOKING_STATUSPARAM_NOTBOOKED,
                     [MOD_BOOKING_STATUSPARAM_RESERVED]
                 );
+                $subbooking->reservation_deletion_action($settings, $userid, $id);
                 break;
             case MOD_BOOKING_STATUSPARAM_DELETED: // We delete the existing subscription.
                 // Check if there was a booked entry before.
@@ -507,6 +508,7 @@ class subbookings_info {
         if ($records = self::return_subbooking_answers($subbooking->id, $itemid, $subbooking->optionid, $userid, $oldstatus)) {
             while (count($records) > 0) {
                 $record = array_pop($records);
+                $json = json_decode($record->json);
                 // We already popped one record, so count has to be 0.
                 if (count($records) == 0 && $newstatus !== MOD_BOOKING_STATUSPARAM_NOTBOOKED) {
                     $record->timemodified = $now;
@@ -515,7 +517,7 @@ class subbookings_info {
 
                     $id = $record->id;
                 } else {
-                    // This is just for cleaning, should never happen.
+                    // In case subbooking was only reserved and then get's deleted.
                     $DB->delete_records('booking_subbooking_answers', ['id' => $record->id]);
                 }
             }

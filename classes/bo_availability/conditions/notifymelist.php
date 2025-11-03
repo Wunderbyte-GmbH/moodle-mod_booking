@@ -121,18 +121,22 @@ class notifymelist implements bo_condition {
             // Get the booking answers for this instance.
             $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
             $bookinginformation = $bookinganswer->return_all_booking_information($userid);
+            $usersonwaitinglist = $bookinganswer->get_usersonwaitinglist();
+            $waitinglistoff = get_config('booking', 'turnoffwaitinglist');
             // If the user is not yet booked, and option is not fully booked, we return true.
             $freeonwaitinglist = $bookinginformation['notbooked']['freeonwaitinglist'] ?? 0;
             if (isset($bookinginformation['notbooked'])) {
                 if ($bookinginformation['notbooked']['fullybooked'] === false) {
                     $isavailable = true;
                 } else if (
-                    ($freeonwaitinglist > 0)
-                    || $freeonwaitinglist == -1
+                    (($freeonwaitinglist > 0)
+                    || $freeonwaitinglist == -1)
+                    && empty($waitinglistoff)
                 ) {
+                    // Not blocking, if waitinglist is active and there are spots on the waitinglist.
                     $isavailable = true;
                 }
-            } else if (isset($bookinganswer->usersonwaitinglist[$userid])) {
+            } else if (isset($usersonwaitinglist[$userid])) {
                 // If the user is already booked on waitinglist, this is also true.
                 $isavailable = true;
             }
@@ -198,7 +202,7 @@ class notifymelist implements bo_condition {
 
         $isavailable = $this->is_available($settings, $userid, $not);
 
-        $description = $this->get_description_string($isavailable, $full, $settings);
+        $description = !$isavailable ? $this->get_description_string($isavailable, $full, $settings) : '';
 
         return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_JUSTMYALERT];
     }

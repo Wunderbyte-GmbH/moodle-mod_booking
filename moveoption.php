@@ -37,7 +37,7 @@ $url = new moodle_url('/mod/booking/moveoption.php', ['id' => $id, 'optionid' =>
 $returnurl = new moodle_url('/mod/booking/view.php', ['id' => $id]);
 $PAGE->set_url($url);
 
-list($course, $cm) = get_course_and_cm_from_cmid($id, 'booking');
+[$course, $cm] = get_course_and_cm_from_cmid($id, 'booking');
 
 require_course_login($course, false, $cm);
 
@@ -88,13 +88,13 @@ if ($targetcmid > 0) {
             $url->param('movetocmid', $cm->id);
             $url->param('sesskey', sesskey());
             $button = new single_button($url, get_string('move'), 'get');
-            $button->class = 'float-right';
+            $button->class = 'float-right float-end';
             $renderer = $PAGE->get_renderer('core');
             $content[] = $bookinginstance->name . $renderer->render($button);
         }
-        $output = html_writer::start_tag('ul',  ['class' => 'list-group'])."\n";
+        $output = html_writer::start_tag('ul', ['class' => 'list-group']) . "\n";
         foreach ($content as $item) {
-            $output .= html_writer::tag('li', $item, ['class' => 'list-group-item'])."\n";
+            $output .= html_writer::tag('li', $item, ['class' => 'list-group-item']) . "\n";
         }
         $output .= html_writer::end_tag('ul');
         echo $output;

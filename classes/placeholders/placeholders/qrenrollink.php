@@ -39,7 +39,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qrenrollink {
-
     /**
      * Function which takes a text, replaces the placeholders...
      * ... and returns the text with the correct values.
@@ -66,7 +65,7 @@ class qrenrollink {
         array &$params = [],
         int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE,
         string $rulejson = ''
-        ) {
+    ) {
 
         $value = "";
         $classname = substr(strrchr(get_called_class(), '\\'), 1);

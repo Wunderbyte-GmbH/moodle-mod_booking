@@ -18,6 +18,7 @@ namespace mod_booking\booking_rules\actions;
 
 use mod_booking\booking_rules\booking_rule_action;
 use mod_booking\placeholders\placeholders_info;
+use mod_booking\singleton_service;
 use mod_booking\task\send_mail_by_rule_adhoc;
 use MoodleQuickForm;
 use stdClass;
@@ -194,6 +195,10 @@ class send_mail implements booking_rule_action {
     public function execute(stdClass $record) {
         global $DB;
 
+        if (!isset($record->userid)) {
+            return;
+        }
+
         $task = new send_mail_by_rule_adhoc();
 
         $taskdata = [
@@ -219,7 +224,10 @@ class send_mail implements booking_rule_action {
         if (!empty($record->optiondateid)) {
             $taskdata['optiondateid'] = $record->optiondateid;
         }
-
+        $user = singleton_service::get_instance_of_user($record->userid);
+        if (!empty($user->suspended)) {
+            return;
+        }
         $task->set_custom_data($taskdata);
         $task->set_userid($record->userid);
 

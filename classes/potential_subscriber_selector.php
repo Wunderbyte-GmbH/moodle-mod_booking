@@ -27,7 +27,6 @@ use mod_booking\subscriber_selector_base;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class potential_subscriber_selector extends subscriber_selector_base {
-
     /**
      * If set to true EVERYONE in this course is force subscribed to this booking
      *
@@ -79,7 +78,7 @@ class potential_subscriber_selector extends subscriber_selector_base {
 
         $whereconditions = [];
 
-        list($wherecondition, $params) = $this->search_sql($search, 'u');
+        [$wherecondition, $params] = $this->search_sql($search, 'u');
         if ($wherecondition) {
             $whereconditions[] = $wherecondition;
         }
@@ -94,8 +93,12 @@ class potential_subscriber_selector extends subscriber_selector_base {
                 }
             }
             if ($existingids) {
-                list($usertest, $userparams) = $DB->get_in_or_equal(array_keys($existingids),
-                        SQL_PARAMS_NAMED, 'existing', false);
+                [$usertest, $userparams] = $DB->get_in_or_equal(
+                    array_keys($existingids),
+                    SQL_PARAMS_NAMED,
+                    'existing',
+                    false
+                );
                 $whereconditions[] = 'u.id ' . $usertest;
                 $params = array_merge($params, $userparams);
             }
@@ -111,7 +114,7 @@ class potential_subscriber_selector extends subscriber_selector_base {
         $sql = " FROM {user} u
         $wherecondition";
 
-        list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
+        [$sort, $sortparams] = users_order_by_sql('u', $search, $this->accesscontext);
         $order = ' ORDER BY ' . $sort;
 
         // Check to see if there are too many to show sensibly.
@@ -123,8 +126,10 @@ class potential_subscriber_selector extends subscriber_selector_base {
         }
 
         // If not, show them.
-        $availableusers = $DB->get_records_sql($fields . $sql . $order,
-                array_merge($params, $sortparams));
+        $availableusers = $DB->get_records_sql(
+            $fields . $sql . $order,
+            array_merge($params, $sortparams)
+        );
 
         if (empty($availableusers)) {
             return [];

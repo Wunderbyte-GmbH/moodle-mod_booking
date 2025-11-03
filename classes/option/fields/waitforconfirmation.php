@@ -58,7 +58,7 @@ class waitforconfirmation extends field_base {
      * This identifies the header under which this particular field should be displayed.
      * @var string
      */
-    public static $header = MOD_BOOKING_HEADER_ADVANCEDOPTIONS;
+    public static $header = MOD_BOOKING_HEADER_ASKFORCONFIRMATION;
 
     /**
      * An int value to define if this field is standard or used in a different context.
@@ -97,13 +97,6 @@ class waitforconfirmation extends field_base {
             booking_option::add_data_to_json($newoption, "waitforconfirmation", $formdata->waitforconfirmation);
             if (isset($formdata->confirmationonnotification)) {
                 booking_option::add_data_to_json($newoption, "confirmationonnotification", $formdata->confirmationonnotification);
-                if (isset($formdata->confirmationonnotificationoneatatime)) {
-                    booking_option::add_data_to_json(
-                        $newoption,
-                        "confirmationonnotificationoneatatime",
-                        $formdata->confirmationonnotification
-                    );
-                }
             }
         }
 
@@ -135,7 +128,9 @@ class waitforconfirmation extends field_base {
 
         // Standardfunctionality to add a header to the mform (only if its not yet there).
         if ($applyheader) {
-            fields_info::add_header_to_mform($mform, self::$header);
+            $header = !get_config('booking', 'useconfirmationworkflowheader')
+                ? MOD_BOOKING_HEADER_ADVANCEDOPTIONS : self::$header;
+            fields_info::add_header_to_mform($mform, $header);
         }
 
         $waitforconfirmationoptions = [
@@ -147,7 +142,7 @@ class waitforconfirmation extends field_base {
         $mform->addElement(
             'select',
             'waitforconfirmation',
-            get_string('waitforconfirmation', 'mod_booking'),
+            get_string('waitforconfirmationselect', 'mod_booking'),
             $waitforconfirmationoptions
         );
 
@@ -174,14 +169,6 @@ class waitforconfirmation extends field_base {
             );
             $mform->hideIf('confirmationonnotificationwarning', 'confirmationonnotification', 'eq', 0);
         }
-
-        $mform->addElement(
-            'advcheckbox',
-            'confirmationonnotificationoneatatime',
-            get_string('confirmationonnotificationoneatatime', 'mod_booking')
-        );
-        $mform->hideIf('confirmationonnotificationoneatatime', 'confirmationonnotification', 'unchecked');
-        $mform->hideIf('confirmationonnotificationoneatatime', 'waitforconfirmation', 'neq', 2);
     }
 
     /**
@@ -197,20 +184,14 @@ class waitforconfirmation extends field_base {
             $data->waitforconfirmation = $data->waitforconfirmation
                 ?? booking_option::get_value_of_json_by_key($data->id, "waitforconfirmation") ?? 0;
         } else {
-            $waitforconfirmation = booking_option::get_value_of_json_by_key($data->id, "waitforconfirmation");
-            if (!empty($waitforconfirmation)) {
-                $data->waitforconfirmation = $waitforconfirmation;
-
-                $confirmationonnotification = booking_option::get_value_of_json_by_key($data->id, "confirmationonnotification");
+            $data->waitforconfirmation = booking_option::get_value_of_json_by_key($data->id, "waitforconfirmation") ?? 0;
+            if (!empty($data->waitforconfirmation)) {
+                $confirmationonnotification = booking_option::get_value_of_json_by_key(
+                    $data->id,
+                    "confirmationonnotification"
+                ) ?? 0;
                 if (!empty($confirmationonnotification)) {
                     $data->confirmationonnotification = $confirmationonnotification;
-                }
-                $confirmationonnotificationoneatatime = booking_option::get_value_of_json_by_key(
-                    $data->id,
-                    "confirmationonnotificationoneatatime"
-                );
-                if (!empty($confirmationonnotificationoneatatime)) {
-                    $data->confirmationonnotificationoneatatime = $confirmationonnotificationoneatatime;
                 }
             }
         }

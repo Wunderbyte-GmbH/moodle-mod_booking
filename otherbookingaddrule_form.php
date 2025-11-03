@@ -34,7 +34,6 @@ require_once("$CFG->libdir/formslib.php");
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class otherbookingaddrule_form extends moodleform {
-
     /**
      *
      * {@inheritDoc}
@@ -44,14 +43,15 @@ class otherbookingaddrule_form extends moodleform {
         global $DB;
 
         $bookingoptions = $DB->get_records_sql(
-                "SELECT id, text
+            "SELECT id, text
                     FROM {booking_options}
                     WHERE bookingid = (SELECT b.conectedbooking
                                         FROM {booking_options} bo
                                         LEFT JOIN {booking} b ON bo.bookingid = b.id
                                         WHERE bo.id = ?)
                     ORDER BY text ASC",
-                [$this->_customdata['optionid']]);
+            [$this->_customdata['optionid']]
+        );
 
         $bookingoptionsarray = [];
 
@@ -61,13 +61,22 @@ class otherbookingaddrule_form extends moodleform {
 
         $mform = $this->_form;
 
-        $mform->addElement('select', 'otheroptionid',
-                get_string('selectoptioninotherbooking', 'booking'), $bookingoptionsarray);
+        $mform->addElement(
+            'select',
+            'otheroptionid',
+            get_string('selectoptioninotherbooking', 'booking'),
+            $bookingoptionsarray
+        );
         $mform->setType('otheroptionid', PARAM_INT);
         $mform->addRule('otheroptionid', null, 'required', null, 'client');
 
-        $mform->addElement('text', 'userslimit', get_string('otherbookinglimit', 'booking'), null,
-                null);
+        $mform->addElement(
+            'text',
+            'userslimit',
+            get_string('otherbookinglimit', 'booking'),
+            null,
+            null
+        );
         $mform->setType('userslimit', PARAM_INT);
         $mform->addRule('userslimit', null, 'numeric', null, 'client');
         $mform->addHelpButton('userslimit', 'otherbookinglimit', 'mod_booking');

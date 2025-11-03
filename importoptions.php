@@ -43,7 +43,7 @@ $url = new moodle_url('/mod/booking/importoptions.php', ['id' => $id]);
 $urlredirect = new moodle_url('/mod/booking/view.php', ['id' => $id]);
 $PAGE->set_url($url);
 
-list($course, $cm) = get_course_and_cm_from_cmid($id);
+[$course, $cm] = get_course_and_cm_from_cmid($id);
 
 require_course_login($course, false, $cm);
 
@@ -53,7 +53,7 @@ $PAGE->activityheader->disable();
 $groupmode = groups_get_activity_groupmode($cm);
 $context = context_module::instance($cm->id);
 
-require_capability('mod/booking:updatebooking', $context);
+require_capability('mod/booking:importoptions', $context);
 
 $PAGE->navbar->add(get_string("importcsvtitle", "booking"));
 $booking = singleton_service::get_instance_of_booking_by_cmid((int)$cm->id);

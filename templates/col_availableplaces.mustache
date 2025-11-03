@@ -65,6 +65,18 @@
         {{/showwaitinglistplacesinfotext}}
     </span>
 {{/maxoverbooking}}
+{{^maxoverbooking}}
+    {{#freeonwaitinglist}}
+        <span class="col-ap-waitingplacesavailable {{#waitinglistplacesclass}}{{.}}{{/waitinglistplacesclass}}">
+        {{^showwaitinglistplacesinfotext}}
+                ({{#str}} waitinglist, mod_booking {{/str}}: {{waiting}}/{{#str}} unlimitedplaces, mod_booking {{/str}})
+        {{/showwaitinglistplacesinfotext}}
+        {{#showwaitinglistplacesinfotext}}
+            {{waitinglistplacesinfotext}}
+        {{/showwaitinglistplacesinfotext}}
+        </span>
+    {{/freeonwaitinglist}}
+{{/maxoverbooking}}
 
 {{#showmanageresponses}}
 </a>

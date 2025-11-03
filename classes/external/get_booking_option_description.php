@@ -48,7 +48,6 @@ require_once($CFG->libdir . '/externallib.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class get_booking_option_description extends external_api {
-
     /**
      * Describes the parameters for get_booking_option_description.
      *
@@ -58,8 +57,7 @@ class get_booking_option_description extends external_api {
         return new external_function_parameters([
             'optionid' => new external_value(PARAM_INT, 'Option id'),
             'userid' => new external_value(PARAM_INT, 'userid'),
-            ]
-        );
+            ]);
     }
 
     /**
@@ -72,8 +70,10 @@ class get_booking_option_description extends external_api {
      */
     public static function execute(int $optionid, int $userid): array {
 
-        $params = self::validate_parameters(self::execute_parameters(),
-                ['optionid' => $optionid, 'userid' => $userid]);
+        $params = self::validate_parameters(
+            self::execute_parameters(),
+            ['optionid' => $optionid, 'userid' => $userid]
+        );
 
         $booking = singleton_service::get_instance_of_booking_by_optionid($optionid);
 
@@ -114,7 +114,6 @@ class get_booking_option_description extends external_api {
         return new external_single_structure([
             'content' => new external_value(PARAM_RAW, 'json object as string'),
             'template' => new external_value(PARAM_TEXT, 'the template to render the content'),
-            ]
-        );
+            ]);
     }
 }

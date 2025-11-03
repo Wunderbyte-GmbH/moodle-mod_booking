@@ -30,7 +30,7 @@ use moodle_url;
 use stdClass;
 
 require_once('../../config.php');
-require_once($CFG->libdir.'/adminlib.php');
+require_once($CFG->libdir . '/adminlib.php');
 
 global $OUTPUT, $USER;
 
@@ -39,7 +39,7 @@ $context = context_system::instance();
 $cmid = required_param('id', PARAM_INT);
 $submit = optional_param('submit', false, PARAM_BOOL);
 
-list($course, $cm) = get_course_and_cm_from_cmid($cmid);
+[$course, $cm] = get_course_and_cm_from_cmid($cmid);
 
 require_course_login($course, false, $cm);
 
@@ -60,6 +60,7 @@ $data->back = $url->out(false);
 $url = new \moodle_url('/mod/booking/recalculateprices.php', ['id' => $cmid, 'submit' => true]);
 $data->continue = $url->out(false);
 $data->alertmsg = get_string('alertrecalculate', 'mod_booking');
+$data->hascap = has_capability('mod/booking:calculateprices', $context);
 
 if ($submit) {
     $price = new price('option');
@@ -75,7 +76,6 @@ if ($submit) {
         $data->alertmsg = get_string('nopriceformulaset', 'mod_booking', $a);
         $data->alert = 1;
     } else {
-
         if (!$DB->record_exists('task_adhoc', ['classname' => '\mod_booking\task\recalculate_prices'])) {
             $task = new recalculate_prices();
             $taskdata = [

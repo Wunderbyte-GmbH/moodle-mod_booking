@@ -32,15 +32,20 @@
         "alertmsg" : "Caution! All prices will be recalculated and all old prices will be overwritten."
     }
 }}
-<div class="alert alert-danger alert-dismissible fade show" role="alert">
-  {{{alertmsg}}}
-  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-    <span aria-hidden="true">&times;</span>
-  </button>
-</div>
-<a href="{{back}}" id="btn-booking-recalculateprices" class="btn btn-danger">  {{#str}} cancel, core {{/str}}
-</a>
-{{^alert}}
-<a href="{{continue}}" id="btn-booking-recalculateprices-success" class="btn btn-success">  {{#str}} recalculateall, mod_booking {{/str}}
-</a>
-{{/alert}}
+{{#hascap}}
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{{alertmsg}}}
+    <button type="button" class="close" data-dismiss="alert" data-bs-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+    <a href="{{back}}" id="btn-booking-recalculateprices" class="btn btn-danger">  {{#str}} cancel, core {{/str}}
+    </a>
+    {{^alert}}
+      <a href="{{continue}}" id="btn-booking-recalculateprices-success" class="btn btn-success">  {{#str}} recalculateall, mod_booking {{/str}}
+      </a>
+    {{/alert}}
+{{/hascap}}
+{{^hascap}}
+  <div>{{#str}} nopermissiontoexecuteaction, mod_booking {{/str}}</div>
+{{/hascap}}

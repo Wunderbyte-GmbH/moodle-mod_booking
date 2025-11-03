@@ -48,7 +48,6 @@ require_once($CFG->libdir . '/externallib.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class get_parent_categories extends external_api {
-
     /**
      * Describes the paramters for add_item_to_cart.
      *
@@ -131,7 +130,9 @@ class get_parent_categories extends external_api {
                                 'id' => new external_value(PARAM_INT, 'Course ID'),
                                 'fullname' => new external_value(PARAM_TEXT, 'Full course name'),
                             ]
-                        ), 'List of courses', VALUE_OPTIONAL
+                        ),
+                        'List of courses',
+                        VALUE_OPTIONAL
                     ),
                     'json' => new external_value(PARAM_RAW, 'json', VALUE_DEFAULT, '{}'),
                 ]

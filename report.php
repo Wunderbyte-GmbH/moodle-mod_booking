@@ -24,7 +24,7 @@
  */
 
 use mod_booking\bo_availability\conditions\customform;
-use mod_booking\booking_answers;
+use mod_booking\booking_answers\booking_answers;
 use mod_booking\booking_option;
 use mod_booking\option\fields\sharedplaces;
 use mod_booking\output\booked_users;
@@ -225,6 +225,12 @@ if ($action == 'downloadsigninsheet') {
     die();
 }
 
+if ($action == 'downloadchecklist') {
+    $pdf = new mod_booking\checklist\checklist_generator($bookingoption);
+    $pdf->generate_pdf();
+    die();
+}
+
 if (
     $action == 'copytotemplate' && has_capability('mod/booking:manageoptiontemplates', $context) &&
          confirm_sesskey()
@@ -252,7 +258,7 @@ if (
     $continue->params($confirmarray);
     $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
     $ba = singleton_service::get_instance_of_booking_answers($settings);
-    $booked = booking_answers::count_places($ba->usersonlist);
+    $booked = booking_answers::count_places($ba->get_usersonlist());
     $title = $settings->get_title_with_prefix();
     if ($booked > 0) {
         $title .= ' (' . get_string('xusersarebooked', 'booking', $booked) . ')';
@@ -447,7 +453,9 @@ if (!$tableallbookings->is_downloading()) {
                 $bookingoption->option
             ) || has_capability('mod/booking:readresponses', $context))
         ) {
-            booking_activitycompletion($allselectedusers, $bookingoption->booking->settings, $cm->id, $optionid);
+            $bookingoption->toggle_users_completion($allselectedusers);
+            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            /* booking_activitycompletion($allselectedusers, $bookingoption->booking->settings, $cm->id, $optionid); */
             redirect(
                 $url,
                 (empty($bookingoption->option->notificationtext) ? get_string(
@@ -992,7 +1000,8 @@ if (!$tableallbookings->is_downloading()) {
 
     // Button to download signin sheet.
     $actionbuttonstop .=
-        '<button class="btn btn-primary btn-sm mr-2" id="downloadsigninsheet-top-btn">
+        '<button class="btn btn-primary btn-sm mr-2" id="downloadsigninsheet-top-btn" buttonaction='
+        . $bookingoption->booking->settings->toporientation . '
             <i class="fa fa-download fa-fw" aria-hidden="true"></i>&nbsp;' .
             get_string('signinsheetdownload', 'mod_booking') .
         '</button>';
@@ -1277,7 +1286,9 @@ if (!$tableallbookings->is_downloading()) {
             '<i class="fa fa-users" aria-hidden="true"></i>' . get_string('deletedusers', 'mod_booking'),
             [
                 'data-toggle' => "collapse",
-                'href' => "#collapseDeletedlist",
+                'data-target' => "#collapseDeletedlist",
+                'data-bs-toggle' => "collapse",
+                'data-bs-target' => "#collapseDeletedlist",
                 'role' => "button",
                 'aria-expanded' => "false",
                 'aria-controls' => "collapseDeletedlist",

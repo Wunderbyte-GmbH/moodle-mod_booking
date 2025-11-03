@@ -287,9 +287,6 @@ class booking_option_settings {
     /** @var int $confirmationonnotification Only books to waitinglist and manually confirm every booking. */
     public $confirmationonnotification = 0;
 
-    /** @var int $confirmationonnotificationoneatatime Only books to waitinglist and manually confirm every booking. */
-    public $confirmationonnotificationoneatatime = 0;
-
     /** @var int $useprice flag that indicates if we use price or not */
     public $useprice = 0;
 
@@ -596,7 +593,7 @@ class booking_option_settings {
 
             // If the key "teacherids" is not yet set, we need to load from DB.
             if (!isset($dbrecord->teacherids)) {
-                $this->load_teacherids_from_db();
+                $this->teacherids = array_keys($this->teachers);
                 $dbrecord->teacherids = $this->teacherids;
             } else {
                 $this->teacherids = $dbrecord->teacherids;
@@ -805,7 +802,7 @@ class booking_option_settings {
             return null;
         }
         foreach ($this->responsiblecontact as $contact) {
-            $this->responsiblecontactuser[] = singleton_service::get_instance_of_user((int) $contact);
+            $this->responsiblecontactuser[$contact] = singleton_service::get_instance_of_user((int) $contact);
         }
     }
 
@@ -946,8 +943,16 @@ class booking_option_settings {
                                  AND source is not null", ['optionid' => $optionid], IGNORE_MULTIPLE)
         ) {
             // If an image has been uploaded for the option, let's create the according URL.
-            $this->imageurl = $CFG->wwwroot . "/pluginfile.php/" . $imgfile->contextid .
-                "/mod_booking/bookingoptionimage/" . $optionid . $imgfile->filepath . $imgfile->filename;
+
+            $url = moodle_url::make_pluginfile_url(
+                $imgfile->contextid,
+                'mod_booking',
+                'bookingoptionimage',
+                $optionid,
+                $imgfile->filepath,
+                $imgfile->filename
+            );
+            $this->imageurl = $url->out(false);
 
             return;
         } else {
@@ -959,7 +964,7 @@ class booking_option_settings {
             // Image fallback (general images to match with custom fields).
             // First, check if there's a customfield to match images with.
             $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($bookingid);
-            $customfieldid = $bookingsettings->bookingimagescustomfield;
+            $customfieldid = $bookingsettings->bookingimagescustomfield ?? null;
 
             if (!empty($customfieldid)) {
                 $customfieldvalue = $DB->get_field(
@@ -991,9 +996,17 @@ class booking_option_settings {
 
                     if (!empty($imgfile)) {
                         // If a fallback image has been found for the customfield value, then use this one.
-                        $this->imageurl = $CFG->wwwroot . "/pluginfile.php/" . $imgfile->contextid .
-                            "/mod_booking/bookingimages/" . $bookingid . $imgfile->filepath . $imgfile->filename;
 
+                        $url = moodle_url::make_pluginfile_url(
+                            $imgfile->contextid,
+                            'mod_booking',
+                            'bookingimages',
+                            $bookingid,
+                            $imgfile->filepath,
+                            $imgfile->filename
+                        );
+
+                        $this->imageurl = $url->out(false);
                         return;
                     }
                 }
@@ -1010,9 +1023,16 @@ class booking_option_settings {
             AND source is not null", ['bookingid' => $bookingid]);
 
             if (!empty($imgfile)) {
+                $url = moodle_url::make_pluginfile_url(
+                    $imgfile->contextid,
+                    'mod_booking',
+                    'bookingimages',
+                    $bookingid,
+                    $imgfile->filepath,
+                    $imgfile->filename
+                );
                 // If a fallback image has been found for the customfield value, then use this one.
-                $this->imageurl = $CFG->wwwroot . "/pluginfile.php/" . $imgfile->contextid .
-                    "/mod_booking/bookingimages/" . $bookingid . $imgfile->filepath . $imgfile->filename;
+                $this->imageurl = $url->out(false);
 
                 return;
             }
@@ -1157,12 +1177,6 @@ class booking_option_settings {
                 $dbrecord->confirmationonnotification = $this->confirmationonnotification;
             }
 
-            if (!empty($this->jsonobject->confirmationonnotificationoneatatime)) {
-                $this->confirmationonnotificationoneatatime = (int)$this->jsonobject->confirmationonnotificationoneatatime;
-                $this->jsonobject->confirmationonnotificationoneatatime = $this->confirmationonnotificationoneatatime;
-                $dbrecord->confirmationonnotificationoneatatime = $this->confirmationonnotificationoneatatime;
-            }
-
             // Selflearningcourse flag for course with duration but no optiondates.
             if (!empty($this->jsonobject->selflearningcourse)) {
                 $this->selflearningcourse = (int)$this->jsonobject->selflearningcourse;
@@ -1176,7 +1190,6 @@ class booking_option_settings {
             $this->selflearningcourse = $dbrecord->selflearningcourse ?? 0;
             $this->waitforconfirmation = $dbrecord->waitforconfirmation ?? 0;
             $this->confirmationonnotification = $dbrecord->confirmationonnotification ?? 0;
-            $this->confirmationonnotificationoneatatime = $dbrecord->confirmationonnotificationoneatatime ?? 0;
             $this->jsonobject = $dbrecord->jsonobject ?? null;
         }
     }
@@ -1274,6 +1287,7 @@ class booking_option_settings {
         $counter = 1;
         foreach ($customfields as $customfield) {
             $name = $customfield->shortname;
+            $fieldid = $customfield->id; // Use the actual ID directly.
 
             // We need to throw an error when there is a space in the shortname.
 
@@ -1289,32 +1303,29 @@ class booking_option_settings {
 
             $select .= "cfd$counter.value as $name ";
 
-            // After the last instance, we don't add a comma.
-            $select .= $counter >= count($customfields) ? "" : ", ";
+            // Append comma if not the last element.
+            if ($counter < count($customfields)) {
+                $select .= ", ";
+            }
 
-            $from .= " LEFT JOIN
-            (
-                SELECT cfd.instanceid, cfd.value
-                FROM {customfield_data} cfd
-                JOIN {customfield_field} cff
-                ON cfd.fieldid=cff.id AND cff.shortname=:cf_$name
-                JOIN {customfield_category} cfc
-                ON cff.categoryid=cfc.id AND cfc.component=:" . $name . "_cn
-            ) cfd$counter
-            ON bo.id = cfd$counter.instanceid ";
+            // Add LEFT JOIN using the known field ID.
+            $from .= " LEFT JOIN {customfield_data} cfd$counter
+                    ON cfd$counter.instanceid = bo.id
+                    AND cfd$counter.fieldid = :cfid$counter ";
 
-            // Add the variables to the params array.
-            $params[$name . '_cn'] = 'mod_booking';
-            $params["cf_$name"] = $name;
+            // Add the ID to the params array.
+            $params["cfid$counter"] = $fieldid;
 
+            // Handle filtering.
             foreach ($filterarray as $key => $value) {
-                if ($key == $name) {
+                if ($key === $name) {
                     $where .= $DB->sql_like("s1.$name", ":$key", false);
 
-                    // Now we have to add the values to our params array.
+                    // Add value to params.
                     $params[$key] = $value;
                 }
             }
+
             $counter++;
         }
 
@@ -1525,9 +1536,13 @@ class booking_option_settings {
      * ... we want one central function where we always get all the necessary keys.
      *
      * @param object|null $user
+     * @param bool $includesessions
      * @return array
      */
-    public function return_booking_option_information(?object $user = null): array {
+    public function return_booking_option_information(
+        ?object $user = null,
+        bool $includesessions = true
+    ): array {
 
         global $USER;
 
@@ -1542,6 +1557,19 @@ class booking_option_settings {
 
         $canceluntil = booking_option::return_cancel_until_date($this->id);
 
+        if ($includesessions) {
+            $sessions = array_values(array_map(fn($a) => [
+                'coursestarttime' => userdate($a->coursestarttime),
+                'courseendtime' => userdate($a->courseendtime),
+                'concatinatedstartendtime' => dates_handler::prettify_optiondates_start_end(
+                    $a->coursestarttime,
+                    $a->courseendtime,
+                    current_language(),
+                ),
+            ], $this->sessions));
+        } else {
+            $sessions = [];
+        }
         $returnarray = [
             'itemid' => $this->id,
             'title' => $this->get_title_with_prefix(),
@@ -1556,15 +1584,7 @@ class booking_option_settings {
             'coursestarttime' => $this->coursestarttime ?? 0,
             'courseendtime' => $this->courseendtime ?? 0,
             'costcenter' => $this->costcenter ?? '',
-            'sessions' => array_values(array_map(fn($a) => [
-                'coursestarttime' => userdate($a->coursestarttime),
-                'courseendtime' => userdate($a->courseendtime),
-                'concatinatedstartendtime' => dates_handler::prettify_optiondates_start_end(
-                    $a->coursestarttime,
-                    $a->courseendtime,
-                    current_language(),
-                ),
-            ], $this->sessions)),
+            'sessions' => $sessions,
             'teachers' => array_values(array_map(fn($a) => [
                 'firstname' => $a->firstname,
                 'lastname' => $a->lastname,

@@ -15,6 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace mod_booking;
+
+use mod_booking\event\booking_debug;
+use Throwable;
 defined('MOODLE_INTERNAL') || die();
 
 use cache_helper;
@@ -122,6 +125,9 @@ class message_controller {
 
     /** @var array $ruleid the id of the running rule. */
     private $ruleid;
+
+    /** @var ical $ical */
+    private ical $ical;
 
     /**
      * Constructor
@@ -247,7 +253,7 @@ class message_controller {
 
         // For custom messages only.
         if ($this->messageparam == MOD_BOOKING_MSGPARAM_CUSTOM_MESSAGE) {
-            $this->customsubject = format_string($customsubject);
+            $this->customsubject = format_string($customsubject, true, ['escape' => false]);
             $this->custommessage = $custommessage;
         }
 
@@ -504,50 +510,108 @@ class message_controller {
                         $update = true;
                     }
 
-                    // Pass the update param - false will create a remove calendar invite.
-                    /* Todo: The system still fires an unsubscribe message.
-                    I believe this is a hangover of the old non rules booking system. (danbuntu) */
-                    [$attachments, $attachname] = $this->get_attachments($update);
+                    // Attempt to attach the file.
+                    try {
+                        // Pass the update param - false will create a remove calendar invite.
+                        /* Todo: The system still fires an unsubscribe message.
+                        I believe this is a hangover of the old non rules booking system. (danbuntu) */
+                        [$attachments, $attachname] = $this->get_attachments($update);
 
-                    if (!empty($attachments)) {
-                        // Todo: this should probably be a method in the ical class.
-                        // Left here to limit to number of changed files.
-                        // Store the file correctly in order to be able to attach it.
-                        $fs = get_file_storage();
-                        $context = context_system::instance(); // Use a suitable context, such as course or module context.
-                        $tempfilepath = $attachments['booking.ics'];
+                        if (!empty($attachments)) {
+                            // Todo: this should probably be a method in the ical class.
+                            // Left here to limit to number of changed files.
+                            // Store the file correctly in order to be able to attach it.
+                            $fs = get_file_storage();
+                            $context = context_system::instance(); // Use a suitable context, such as course or module context.
+                            $tempfilepath = $attachments['booking.ics'];
 
-                        // Check if the file exists in the temp path.
-                        if (file_exists($tempfilepath)) {
-                            // Prepare file record in Moodle storage.
-                            $filerecord = [
+                            // Moodle’s file API enforces uniqueness
+                            // on (contextid, component, filearea, itemid, filepath, filename).
+                            // If you try to create a second file with the same tuple, you get the duplicate key violation you
+                            // saw in phpunit test as we dont delete the file.
+                            $itemid = $this->messagedata->userto->id ?? 0;
+
+                            // Check if the file exists in the temp path.
+                            if (file_exists($tempfilepath)) {
+                                // To prevent any duplication we delete the stored ics file if it is already stored.
+                                $existing = $fs->get_file(
+                                    $context->id,
+                                    'mod_booking',
+                                    'message_attachments',
+                                    $itemid,
+                                    '/',
+                                    $attachname
+                                );
+                                if ($existing) {
+                                    $existing->delete();
+                                }
+
+                                // Prepare file record in Moodle storage.
+                                $filerecord = [
                                     'contextid' => $context->id,
                                     'component' => 'mod_booking', // Change to your component.
                                     'filearea' => 'message_attachments', // A custom file area for attachments.
-                                    'itemid' => 0, // Item ID (0 for general use or unique identifier for the message).
+                                    'itemid' => $itemid, // Item ID (0 for general use or unique identifier for the message).
                                     'filepath' => '/', // Always use '/' as the root directory.
                                     'filename' => $attachname,
                                     'userid' => $this->messagedata->userto->id,
-                            ];
+                                ];
 
-                            // Create or retrieve the file in Moodle's file storage.
-                            $storedfile = $fs->create_file_from_pathname($filerecord, $tempfilepath);
+                                // Create or retrieve the file in Moodle's file storage.
+                                $storedfile = $fs->create_file_from_pathname($filerecord, $tempfilepath);
 
-                            // Set the file as an attachment.
-                            $this->messagedata->attachment = $storedfile;
-                            $this->messagedata->attachname = $attachname;
-                        } else {
-                            // Todo: There is possibly a better way to handle this error nicely - or remove the check entirely.
-                            throw new \moodle_exception('Attachment file not found.');
+                                // Set the file as an attachment.
+                                $this->messagedata->attachment = $storedfile;
+                                $this->messagedata->attachname = $attachname;
+                            } else {
+                                // Todo: There is possibly a better way to handle this error nicely - or remove the check entirely.
+                                throw new moodle_exception('Attachment file not found.');
+                            }
+                        }
+                    } catch (Throwable $e) {
+                        if (get_config('booking', 'bookingdebugmode')) {
+                            $event = booking_debug::create([
+                                'objectid' => $this->optionid,
+                                'context' => context_system::instance(),
+                                'relateduserid' => $this->messagedata->userto->id,
+                                'other' => [
+                                    'systemmessage' => get_string('icsattachementerror', 'mod_booking'),
+                                    'exceptionerrormessage' => $e->getMessage(),
+                                ],
+                            ]);
+                            $event->trigger();
                         }
                     }
                 }
 
+                // Check if checked: Use a non-native mailer instead of Moodle’s built-in one.
+                $nonnativemailer = get_config('booking', 'usenonnativemailer');
+                if (
+                    !empty($this->rulesettings->actiondata->sendical)
+                    && !empty($nonnativemailer)
+                    && !empty($this->ical)
+                    && count($this->ical->get_times()) === 1 // Check number of dates in the option.
+                ) {
+                    // If message contains attachment (ics file), we need to mail it using PHPMailer
+                    // as Moodle core can not send messages with mime type text/calendar. This logic works
+                    // only when there is 1 date, so in the case we have more than one date, we don't use this logic.
+                    $sent = $this->send_message_with_ical($this->messagedata);
+                } else {
+                    $sent = message_send($this->messagedata);
+                }
+
                 // In all other cases, use message_send.
-                if (message_send($this->messagedata)) {
+                if ($sent) {
                     if (!empty($this->rulesettings->actiondata) && !empty($this->rulesettings->actiondata->sendical)) {
-                        // Tidy up the now not needed file.
-                        $storedfile->delete();
+                        if (!PHPUNIT_TEST && isset($storedfile)) {
+                            // Tidy up the now not needed file.
+                            try {
+                                $storedfile->delete();
+                            // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+                            } catch (Throwable $e) {
+                                // Do nothing.
+                            }
+                        }
                     }
 
                     // Use an event to log that a message has been sent.
@@ -644,6 +708,7 @@ class message_controller {
             // Check if setting to send a cancel ical is enabled.
             if (get_config('booking', 'icalcancel')) {
                 $ical = new ical($this->bookingsettings, $this->optionsettings, $this->user, $this->bookingmanager, false);
+                $this->ical = $ical;
                 $attachments = $ical->get_attachments(true);
                 $attachname = $ical->get_name();
             }
@@ -651,6 +716,7 @@ class message_controller {
             // Generate ical attachments to go with the message. Check if ical attachments enabled.
             if (get_config('booking', 'attachical')) {
                 $ical = new ical($this->bookingsettings, $this->optionsettings, $this->user, $this->bookingmanager, $updated);
+                $this->ical = $ical;
                 $attachments = $ical->get_attachments($updated);
                 $attachname = $ical->get_name();
             }
@@ -721,5 +787,148 @@ class message_controller {
                 throw new moodle_exception('ERROR: Unknown message parameter!');
         }
         return $fieldname;
+    }
+
+    /**
+     * This method sends the invitation as inline calendar data (not as an attachment).
+     * This ensures that the recipient will see Accept and Decline buttons in mail clients such as Outlook.
+     * @param \core\message\message $eventdata
+     * @return bool
+     */
+    private function send_message_with_ical(message $eventdata): bool {
+        global $DB, $CFG, $SITE;
+        try {
+            require_once($CFG->libdir . '/phpmailer/moodle_phpmailer.php');
+
+            $icscontent = $eventdata->attachment->get_content(); // ICS file content.
+
+            $recepientlist = [$this->messagedata->userto];
+            $ccemails = [];
+
+            if (
+                $this->user_inrelevant_core_checks_for_mailsending() &&
+                $this->user_relevant_core_checks_for_mailsending($recepientlist, true) &&
+                $this->user_relevant_core_checks_for_mailsending($ccemails)
+            ) {
+                // Create mail instance.
+                $coremailer = get_mailer();
+                // From.
+                // Generate from string.
+                $fromdetails = new stdClass();
+                $fromdetails->name = fullname($this->messagedata->userfrom);
+                $fromdetails->url = preg_replace('#^https?://#', '', $CFG->wwwroot);
+                $fromdetails->siteshortname = format_string($SITE->shortname);
+                $fromstring = $fromdetails->name;
+                if ($CFG->emailfromvia == EMAIL_VIA_ALWAYS) {
+                    $fromstring = get_string('emailvia', 'core', $fromdetails);
+                }
+                $coremailer->setFrom($this->messagedata->userfrom->email, $fromstring);
+
+                // To.
+                foreach ($recepientlist as $user) {
+                    if (is_string($user)) {
+                        $coremailer->addAddress($user, $user);
+                    } else {
+                        $coremailer->addAddress($user->email, fullname($user));
+                    }
+                }
+
+                foreach ($ccemails as $cc) {
+                    if (is_string($cc)) {
+                        $coremailer->addCC($cc);
+                    } else {
+                        $coremailer->addCC($cc->email);
+                    }
+                }
+
+                $coremailer->CharSet = 'UTF-8';
+
+                $coremailer->Subject = $this->messagedata->subject;
+                $coremailer->Body = $eventdata->fullmessagehtml;
+                $coremailer->AltBody = $eventdata->fullmessage;
+
+                $coremailer->isHTML(true);
+
+                // Add inline calendar data (not as attachment).
+                $coremailer->Ical = $icscontent;
+
+                // Optional: this header helps Outlook recognise it.
+                $coremailer->addCustomHeader('Content-Class', 'urn:content-classes:calendarmessage');
+
+                // Optional: ensures proper MIME order.
+                $coremailer->ContentType = 'multipart/alternative';
+
+                return $coremailer->send();
+            }
+            return false;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Static checks for mail sending.
+     * @return bool
+     */
+    private function user_inrelevant_core_checks_for_mailsending(): bool {
+        if (
+            defined('BEHAT_SITE_RUNNING') &&
+            !defined('TEST_EMAILCATCHER_MAIL_SERVER') &&
+            !defined('TEST_EMAILCATCHER_API_SERVER')
+        ) {
+            return false;
+        }
+        if (!empty($CFG->noemailever)) {
+            debugging('Not sending email due to $CFG->noemailever config setting', DEBUG_DEVELOPER);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * User relevant checks for mail sending.
+     * @param array $userlist
+     * @param bool $mustnotbeempty
+     * @return bool
+     *
+     */
+    private function user_relevant_core_checks_for_mailsending(array &$userlist, bool $mustnotbeempty = false): bool {
+        global $CFG;
+        foreach ($userlist as $key => &$user) {
+            if (!is_string($user)) {
+                if (
+                    empty($user) ||
+                    empty($user->id) ||
+                    empty($user->email) ||
+                    !empty($user->deleted) ||
+                    (isset($user->auth) && $user->auth == 'nologin') ||
+                    (isset($user->suspended) && $user->suspended)
+                ) {
+                    unset($userlist[$key]);
+                    continue;
+                }
+
+                if (email_should_be_diverted($user->email)) {
+                    $subject = "[DIVERTED {$user->email}] $subject";
+                    $user->email = $CFG->divertallemailsto;
+                }
+
+                if (
+                    !validate_email($user->email) ||
+                    over_bounce_threshold($user) ||
+                    substr($user->email, -8) == '.invalid'
+                ) {
+                    unset($userlist[$key]);
+                    continue;
+                }
+            }
+        }
+        if (
+            $mustnotbeempty &&
+            empty($userlist)
+        ) {
+            return false;
+        }
+        return true;
     }
 }

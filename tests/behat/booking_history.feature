@@ -31,7 +31,7 @@ Feature: In a booking instance create booking options anf view history
     And I change viewport size to "1366x10000"
 
   @javascript
-  Scenario: Bookinh history: create basic option than edit it and view history
+  Scenario: Booking history: create basic option than edit it and view history
     Given the following "mod_booking > options" exist:
       | booking   | text           | course | description   | limitanswers | maxanswers | teachersforoption | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | MyBooking | Option-created | C1     | Deskr-created | 0            | 0          | teacher1          | 0              | 0              | 2346937200        | 2347110000      |
@@ -58,9 +58,11 @@ Feature: In a booking instance create booking options anf view history
     ## Validate general access to the booking history
     And I click on "Acceptance test site" "text" in the ".report2-nav" "css_element"
     And I should see "Manage bookings for Site: \"Acceptance test site\""
+    ##And I wait "111" seconds
     And I should see "Option-hist_updated" in the "#booked_system_0_r1" "css_element"
     And I should see "2/6" in the "#booked_system_0_r1" "css_element"
     And I click on "Booking history" "text" in the "#accordion-heading-bookinghistory" "css_element"
+    And I wait until the page is ready
     ## TODO: different default order of records in mysql vs pgsql
     And I should see "student2@example.com" in the "#bookinghistorytable_system_0" "css_element"
     And I should see "student1@example.com" in the "#bookinghistorytable_system_0" "css_element"

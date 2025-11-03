@@ -53,7 +53,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class electivebookitbutton implements bo_condition {
-
     /** @var int $id Standard Conditions have hardcoded ids. */
     public $id = MOD_BOOKING_BO_COND_ELECTIVEBOOKITBUTTON;
 
@@ -159,7 +158,7 @@ class electivebookitbutton implements bo_condition {
 
         $isavailable = $this->is_available($settings, $userid, $not);
 
-        $description = $this->get_description_string($isavailable, $full, $settings);
+        $description = !$isavailable ? $this->get_description_string($isavailable, $full, $settings) : '';
 
         return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_BOOK, MOD_BOOKING_BO_BUTTON_MYBUTTON];
     }
@@ -198,7 +197,7 @@ class electivebookitbutton implements bo_condition {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        list($template, $data2) = booking_bookit::render_bookit_template_data($settings, 0, false);
+        [$template, $data2] = booking_bookit::render_bookit_template_data($settings, 0, false);
         $data2 = reset($data2);
         $template = reset($template);
 
@@ -261,8 +260,18 @@ class electivebookitbutton implements bo_condition {
 
         $label = get_string('selectelective', 'mod_booking', $settings->credits);
 
-        return bo_info::render_button($settings, $userid, $label, 'btn btn-secondary mt-1 mb-1', false, $fullwidth,
-            'button', 'option', false, 'noforward');
+        return bo_info::render_button(
+            $settings,
+            $userid,
+            $label,
+            'btn btn-secondary mt-1 mb-1',
+            false,
+            $fullwidth,
+            'button',
+            'option',
+            false,
+            'noforward'
+        );
     }
 
     /**

@@ -41,7 +41,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 interface booking_rule_action {
-
     /**
      * Adds the form elements for this rule action to the provided mform.
      * @param MoodleQuickForm $mform the mform where the rule action should be added
@@ -95,5 +94,4 @@ interface booking_rule_action {
      * @param stdClass $record
      */
     public function execute(stdClass $record);
-
 }

@@ -44,11 +44,11 @@ Feature: Edit booking's settings for the view swithing as a teacher and use it a
     ## Validate List view with image on the left
     And I set the field "wbtabletemplateswitcher" to "List view with image on the left"
     And I wait "1" seconds
-    And ".allbookingoptionstable .allbookingoptionstable_r1 .mod-booking-view-list-image.rounded-left" "css_element" should exist
+    And ".allbookingoptionstable .allbookingoptionstable_r1 .mod-booking-view-list-image.rounded-start" "css_element" should exist
     ## Validate List view with image on the right
     And I set the field "wbtabletemplateswitcher" to "List view with image on the right"
     And I wait "1" seconds
-    And ".allbookingoptionstable .allbookingoptionstable_r1 .mod-booking-view-list-image.rounded-right" "css_element" should exist
+    And ".allbookingoptionstable .allbookingoptionstable_r1 .mod-booking-view-list-image.rounded-end" "css_element" should exist
     ## Validate List view with image on the left over half the width
     And I set the field "wbtabletemplateswitcher" to "List view with image on the left over half the width"
     And I wait "1" seconds
@@ -64,7 +64,7 @@ Feature: Edit booking's settings for the view swithing as a teacher and use it a
     And I am on the "My booking" Activity page logged in as student2
     And I set the field "wbtabletemplateswitcher" to "List view with image on the right"
     And I wait "1" seconds
-    And ".allbookingoptionstable .allbookingoptionstable_r1 .mod-booking-view-list-image.rounded-right" "css_element" should exist
+    And ".allbookingoptionstable .allbookingoptionstable_r1 .mod-booking-view-list-image.rounded-end" "css_element" should exist
     ## Validate if view settings were preserved for teacher1
     And I log out
     And I am on the "My booking" Activity page logged in as teacher1

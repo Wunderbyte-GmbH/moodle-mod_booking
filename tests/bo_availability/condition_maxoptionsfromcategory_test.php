@@ -37,7 +37,6 @@ use mod_booking\bo_availability\bo_info;
 use stdClass;
 use tool_mocktesttime\time_mock;
 
-
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
@@ -370,7 +369,7 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
         // Test 1: Standard booking instance.
         // Booking should be possible, no price.
         $returnarray[] = [
-            'courses' => $courses,
+            'coursedata' => $courses,
             'expected' => [
                 'maxoneoptionblock' =>
                     [   'bookingconfig' => $bookingconfig['on'],

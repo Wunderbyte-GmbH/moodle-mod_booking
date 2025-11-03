@@ -39,7 +39,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class annotation extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -91,7 +90,8 @@ class annotation extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         $key = fields_info::get_class_name(static::class);
         $value = $formdata->{$key} ?? null;
@@ -136,8 +136,12 @@ class annotation extends field_base {
             fields_info::add_header_to_mform($mform, self::$header);
         }
 
-        $mform->addElement('editor', 'annotation', get_string('optionannotation', 'mod_booking'),
-            ['rows' => 5]);
+        $mform->addElement(
+            'editor',
+            'annotation',
+            get_string('optionannotation', 'mod_booking'),
+            ['rows' => 5]
+        );
         $mform->setType('annotation', PARAM_CLEANHTML);
         $mform->addHelpButton('annotation', 'optionannotation', 'mod_booking');
     }

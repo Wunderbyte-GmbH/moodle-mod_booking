@@ -31,12 +31,8 @@ use mod_booking\booking;
 use mod_booking\booking_bookit;
 use mod_booking\booking_context_helper;
 use mod_booking\booking_option_settings;
-use mod_booking\local\modechecker;
-use mod_booking\output\bookingoption_description;
 use mod_booking\output\button_notifyme;
 use mod_booking\output\col_price;
-use mod_booking\output\prepagemodal;
-use mod_booking\output\simple_modal;
 use mod_booking\price;
 use mod_booking\singleton_service;
 use moodle_exception;
@@ -716,14 +712,14 @@ class bo_info {
                 if (class_exists('local_shopping_cart\shopping_cart')) {
                     shopping_cart::add_item_to_cart('mod_booking', 'option', $optionid, $userid);
                 } else {
-                    throw new moodle_exception('tousepriceinstallshoppingcart', 'mod_booking');
+                    throw new moodle_exception('error:tousepriceinstallshoppingcart', 'mod_booking');
                 }
             }
         }
 
         // We throw an exception if we didn't get a valid pagenumber.
         if (empty($condition)) {
-            throw new moodle_exception('wrongpagenumberforprebookingpage', 'mod_booking');
+            throw new moodle_exception('error:wrongpagenumberforprebookingpage', 'mod_booking');
         }
 
         $data = self::return_data_for_steps($conditions, $pagenumber);
@@ -792,6 +788,7 @@ class bo_info {
         global $PAGE;
 
         $renderedstring = '';
+        /** @var \mod_booking\output\renderer $output */
         $output = $PAGE->get_renderer('mod_booking');
         if (!empty($optionid)) {
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
@@ -813,6 +810,7 @@ class bo_info {
         // Show price and add to cart button.
         if ($showprice && !empty($optionvalues) && $optionid && !empty($usertobuyfor)) {
             $data = new col_price($optionvalues, $settings, $usertobuyfor, $context);
+            booking::convert_prices_to_number_format($data);
             $renderedstring .= $output->render_col_price($data);
         }
 
@@ -858,7 +856,7 @@ class bo_info {
         string $classes = 'alert alert-danger',
         bool $includeprice = false,
         bool $fullwidth = true,
-        string $role = 'alert',
+        string $role = '',
         string $area = 'option',
         bool $nojs = true,
         string $dataaction = '', // Use 'noforward' to disable automatic forwarding.
@@ -925,7 +923,7 @@ class bo_info {
                     if (!empty($label)) {
                         $label .= " / ";
                     }
-                    $label .= $priceitem['price'];
+                    $label .= format_float((float)$priceitem['price'] ?? 0.0, 2);
                 }
                 $currstring = isset($priceitem["currency"]) ? " " .  $priceitem["currency"] : '';
                 $label .= $currstring;
@@ -937,7 +935,7 @@ class bo_info {
                     || (isset($priceitem["price"]) && !empty((float)$priceitem["price"]))
                 ) {
                     $currstring = isset($priceitem["currency"]) ? " " .  $priceitem["currency"] : '';
-                    $label = $priceitem["price"] ?? '0';
+                    $label = format_float((float)$priceitem['price'] ?? 0.0, 2);
                     $label .= $currstring;
                 }
             }
@@ -960,7 +958,7 @@ class bo_info {
         if ($includeprice && $settings->useprice) {
             if ($price = price::get_price('option', $settings->id, $user)) {
                 $data['price'] = [
-                    'price' => $price['price'],
+                    'price' => format_float($price['price'], 2),
                     'currency' => $price['currency'] ?? '',
                 ];
             }

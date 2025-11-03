@@ -127,19 +127,6 @@ $ADMIN->add(
     )
 );
 
-// Load all settings from booking extensions.
-foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
-    $fullclassname = "\\bookingextension_{$plugin->name}\\{$plugin->name}";
-    if (!class_exists($fullclassname)) {
-        continue; // Skip if the class does not exist.
-    }
-    $plugin = new $fullclassname();
-    if (!$plugin instanceof bookingextension_interface) {
-        continue; // Skip if the plugin does not implement the interface.
-    }
-    $plugin->load_settings($ADMIN, 'modbookingfolder', $hassiteconfig);
-}
-
 $ADMIN->add('modbookingfolder', $settings);
 
 if ($ADMIN->fulltree) {
@@ -188,6 +175,12 @@ if ($ADMIN->fulltree) {
         foreach ($userprofilefields as $userprofilefield) {
             $userprofilefieldsarray[$userprofilefield->shortname] = "$userprofilefield->name ($userprofilefield->shortname)";
         }
+    }
+    // This will be used multiple times.
+    $records = booking_handler::get_customfields();
+    $customfieldsarray["-1"] = get_string('choose...', 'mod_booking');
+    foreach ($records as $record) {
+        $customfieldsarray[$record->shortname] = format_string("$record->name ($record->shortname)");
     }
 
     $settings->add(
@@ -287,6 +280,23 @@ if ($ADMIN->fulltree) {
             )
         );
 
+        $customfields = booking_handler::get_customfields();
+        if (!empty($customfields)) {
+            $customfieldshortnames = [0 => get_string('showdescriptionnormally', 'mod_booking')];
+            foreach ($customfields as $cf) {
+                $customfieldshortnames[$cf->shortname] = "$cf->name ($cf->shortname)";
+            }
+            $settings->add(
+                new admin_setting_configselect(
+                    'booking/changedescriptionfield',
+                    get_string('changedescriptionfield', 'mod_booking'),
+                    get_string('changedescriptionfield_desc', 'mod_booking'),
+                    0,
+                    $customfieldshortnames
+                )
+            );
+        }
+
         $options = [
             1 => "1",
             2 => "2",
@@ -299,7 +309,6 @@ if ($ADMIN->fulltree) {
             9 => "9",
             10 => "10",
         ];
-
         $settings->add(
             new admin_setting_configselect(
                 'booking/collapseshowsettings',
@@ -398,12 +407,7 @@ if ($ADMIN->fulltree) {
     );
 
     // Custom fields to be shown on detail page (optionview.php).
-    $customfields = booking_handler::get_customfields();
     if (!empty($customfields)) {
-        $customfieldshortnames = [];
-        foreach ($customfields as $cf) {
-            $customfieldshortnames[$cf->shortname] = "$cf->name ($cf->shortname)";
-        }
         $settings->add(
             new admin_setting_configmultiselect(
                 'booking/optionviewcustomfields',
@@ -414,7 +418,6 @@ if ($ADMIN->fulltree) {
             )
         );
     }
-
     $settings->add(
         new admin_setting_configcheckbox(
             'booking/alloptionsinreport',
@@ -451,6 +454,15 @@ if ($ADMIN->fulltree) {
             'booking/responsiblecontactcanedit',
             get_string('responsiblecontactcanedit', 'mod_booking'),
             get_string('responsiblecontactcanedit_desc', 'mod_booking'),
+            0
+        )
+    );
+
+    $settings->add(
+        new admin_setting_configcheckbox(
+            'booking/responsiblecontactshowfirstteacher',
+            get_string('responsiblecontactshowfirstteacher', 'mod_booking'),
+            '',
             0
         )
     );
@@ -702,6 +714,16 @@ if ($ADMIN->fulltree) {
                 0
             )
         );
+
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/alwaysbookanyone',
+                get_string('alwaysbookanyone', 'mod_booking'),
+                get_string('alwaysbookanyone_desc', 'mod_booking'),
+                0
+            )
+        );
+
         // PRO feature: "What's new" tab.
         $settings->add(
             new admin_setting_heading(
@@ -909,6 +931,60 @@ if ($ADMIN->fulltree) {
         );
     }
 
+    // PRO feature: Workflow confirmation settings.
+    if ($proversion) {
+        $settings->add(
+            new admin_setting_heading(
+                'approvalsettingsheader',
+                get_string('approvalsettings', 'mod_booking'),
+                get_string('approvalsettings_desc', 'mod_booking'),
+            )
+        );
+
+        // Checkbox: Use confirmation workflow header.
+        $settings->add(new admin_setting_configcheckbox(
+            'booking/useconfirmationworkflowheader',
+            get_string('useconfirmationworkflowheader', 'mod_booking'),
+            get_string('useconfirmationworkflowheader_desc', 'mod_booking'),
+            0 // Default: off.
+        ));
+
+        // Load all settings from booking extensions.
+        foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
+            $fullclassname = "\\bookingextension_{$plugin->name}\\{$plugin->name}";
+            if (!class_exists($fullclassname)) {
+                continue; // Skip if the class does not exist.
+            }
+            $plugin = new $fullclassname();
+            if (!$plugin instanceof bookingextension_interface) {
+                continue; // Skip if the plugin does not implement the interface.
+            }
+            // TODO: This is not very stable. Maybe alter $settings object.
+            $plugin->load_settings($ADMIN, 'modbookingfolder', $hassiteconfig);
+        }
+    } else {
+        $settings->add(
+            new admin_setting_heading(
+                'tabwhatsnew',
+                get_string('tabwhatsnew', 'mod_booking') . " " . get_string('badge:pro', 'mod_booking'),
+                get_string('prolicensefeatures', 'mod_booking') .
+                get_string('profeatures:tabwhatsnew', 'mod_booking') .
+                get_string('infotext:prolicensenecessary', 'mod_booking')
+            )
+        );
+
+         $settings->add(
+             new admin_setting_heading(
+                 'approvalsettings',
+                 get_string('approvalsettings', 'mod_booking') . " " . get_string('badge:pro', 'mod_booking'),
+                 get_string('prolicensefeatures', 'mod_booking') .
+                 get_string('profeatures:approval', 'mod_booking') .
+                 get_string('infotext:prolicensenecessary', 'mod_booking')
+             )
+         );
+    }
+
+
     // PRO feature: Cancellation settings.
     if ($proversion) {
         $settings->add(
@@ -944,6 +1020,21 @@ if ($ADMIN->fulltree) {
                 PARAM_INT
             )
         );
+
+        $canceloptions = [
+            MOD_BOOKING_CANCANCELBOOK_ABSOLUTE => get_string('cancancelbookabsolute', 'mod_booking'),
+            MOD_BOOKING_CANCANCELBOOK_RELATIVE => get_string('cancancelbookrelativedesc', 'mod_booking'),
+            MOD_BOOKING_CANCANCELBOOK_UNLIMITED => get_string('cancancelbookunlimited', 'mod_booking'),
+        ];
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/defaultcanceldate',
+                get_string('defaultcanceldate', 'mod_booking'),
+                get_string('defaultcanceldate_desc', 'mod_booking'),
+                0,
+                $canceloptions
+            )
+        );
     } else {
         $settings->add(
             new admin_setting_heading(
@@ -955,9 +1046,6 @@ if ($ADMIN->fulltree) {
             )
         );
     }
-
-    // Will be needed more than once. So initialize here.
-    $customfieldsarray["-1"] = get_string('choose...', 'mod_booking');
 
     // Pro feature: Overbooking of booking options.
     if ($proversion) {
@@ -1055,10 +1143,6 @@ if ($ADMIN->fulltree) {
                 ''
             )
         );
-        $records = booking_handler::get_customfields();
-        foreach ($records as $record) {
-            $customfieldsarray[$record->shortname] = format_string("$record->name ($record->shortname)");
-        }
         $settings->add(
             new admin_setting_configselect(
                 'booking/newcoursecategorycfield',
@@ -1220,7 +1304,7 @@ if ($ADMIN->fulltree) {
             'booking/keepusersbookedonreducingmaxanswers',
             get_string('keepusersbookedonreducingmaxanswers', 'mod_booking'),
             get_string('keepusersbookedonreducingmaxanswers_desc', 'mod_booking'),
-            0
+            1
         )
     );
 
@@ -1576,40 +1660,28 @@ if ($ADMIN->fulltree) {
         $settings->add(
             new admin_setting_configcheckbox(
                 'booking/duplicationrestorebookings',
-                get_string('duplicationrestorebookings', 'mod_booking'),
+                get_string('duplicationrestorebookingoptions', 'mod_booking'),
                 '',
                 1
             )
         );
     }
 
-    if ($proversion) {
-        $settings->add(
-            new admin_setting_heading(
-                'duplicationrestoreoption',
-                get_string('duplicationrestoreoption', 'mod_booking'),
-                get_string('duplicationrestoreoption_desc', 'mod_booking')
-            )
-        );
-        $settings->add(
-            new admin_setting_configcheckbox(
-                'booking/duplicatemoodlecourses',
-                get_string('duplicatemoodlecourses', 'mod_booking'),
-                get_string('duplicatemoodlecourses_desc', 'mod_booking'),
-                0
-            )
-        );
-    } else {
-        $settings->add(
-            new admin_setting_heading(
-                'duplicationrestoreoption',
-                get_string('duplicationrestoreoption', 'mod_booking'),
-                get_string('prolicensefeatures', 'mod_booking') .
-                get_string('profeatures:duplicationrestoreoption', 'mod_booking') .
-                get_string('infotext:prolicensenecessary', 'mod_booking')
-            )
-        );
-    }
+    $settings->add(
+        new admin_setting_heading(
+            'duplicationrestoreoption',
+            get_string('duplicationrestoreoption', 'mod_booking'),
+            get_string('duplicationrestoreoption_desc', 'mod_booking')
+        )
+    );
+    $settings->add(
+        new admin_setting_configcheckbox(
+            'booking/duplicatemoodlecourses',
+            get_string('duplicatemoodlecourses', 'mod_booking'),
+            get_string('duplicatemoodlecourses_desc', 'mod_booking'),
+            0
+        )
+    );
 
     if ($proversion) {
         $settings->add(
@@ -1909,6 +1981,14 @@ if ($ADMIN->fulltree) {
         )
     );
     $settings->add(
+        new admin_setting_configcheckbox(
+            'booking/usenonnativemailer',
+            get_string('usenonnativemailer', 'mod_booking'),
+            get_string('usenonnativemailer_desc', 'mod_booking'),
+            0
+        )
+    );
+    $settings->add(
         new admin_setting_heading(
             'mod_booking_signinsheet',
             get_string('cfgsignin', 'mod_booking'),
@@ -1940,6 +2020,15 @@ if ($ADMIN->fulltree) {
         )
     );
     $settings->add(
+        new admin_setting_configtextarea(
+            'booking/checklisthtml',
+            get_string('checklisthtml', 'mod_booking'),
+            get_string('checklisthtmldescription', 'mod_booking'),
+            '', /* $defaultsigninsheethtml */
+            PARAM_RAW
+        )
+    );
+    $settings->add(
         new admin_setting_configcheckbox(
             'booking/numberrows',
             get_string('numberrows', 'mod_booking'),
@@ -1948,7 +2037,7 @@ if ($ADMIN->fulltree) {
         )
     );
 
-    $name = 'mod_booking/signinlogo';
+    $name = 'booking/signinlogo';
     $title = get_string('signinlogoheader', 'mod_booking');
     $description = $title;
     $fileoptions = ['maxfiles' => 1, 'accepted_types' => ['image']];
@@ -2132,7 +2221,7 @@ if ($ADMIN->fulltree) {
             'booking/uselegacymailtemplates',
             get_string('uselegacymailtemplates', 'mod_booking'),
             get_string('uselegacymailtemplates_desc', 'mod_booking', $linktorules),
-            1
+            0
         )
     );
 

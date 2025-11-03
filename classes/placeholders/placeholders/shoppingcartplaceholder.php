@@ -39,7 +39,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class shoppingcartplaceholder {
-
     /**
      * Function which takes a text, replaces the placeholders...
      * ... and returns the text with the correct values.
@@ -103,6 +102,7 @@ class shoppingcartplaceholder {
      *
      */
     public static function is_applicable(): bool {
-        return core_plugin_manager::instance()->get_plugin_info('local_shopping_cart') ? true : false;;
+        return core_plugin_manager::instance()->get_plugin_info('local_shopping_cart') ? true : false;
+        ;
     }
 }

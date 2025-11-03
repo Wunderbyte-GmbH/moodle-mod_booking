@@ -26,9 +26,18 @@ defined('MOODLE_INTERNAL') || die();
 
 $messageproviders = [
     // Ordinary single booking messages.
-    'bookingconfirmation' => [],
+    'bookingconfirmation' => [
+        'defaults' => [
+            'pop-up' => MESSAGE_PERMITTED,
+            'email' => MESSAGE_PERMITTED,
+        ],
+    ],
 
     'sendmessages' => [
+        'defaults' => [
+            'pop-up' => MESSAGE_PERMITTED,
+            'email' => MESSAGE_PERMITTED,
+        ],
         'capability' => 'mod/booking:cansendmessages',
     ],
 ];

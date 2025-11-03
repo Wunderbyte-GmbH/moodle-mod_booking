@@ -41,7 +41,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class prepare_import extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -95,7 +94,8 @@ class prepare_import extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         return [];
     }
@@ -142,22 +142,20 @@ class prepare_import extends field_base {
         if (!isset($data->id) && !empty($data->identifier)) {
             $data->importing = true;
             if ($record = $DB->get_record('booking_options', ['identifier' => $data->identifier])) {
-
                 $data->id = $record->id;
-
             } else if (empty($data->text) && empty($data->name)) {
                 throw new moodle_exception(
                     'identifiernotfoundnotenoughdata',
                     'mod_booking',
                     '',
                     $data->identifier,
-                    "The record with the identifier $data->identifier was not found in db");
+                    "The record with the identifier $data->identifier was not found in db"
+                );
             }
         }
 
         // If there is no bookingid but there is the cmid, we can work with that.
         if (empty($data->bookingid) && !empty($data->cmid)) {
-
             $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($data->cmid);
             $data->bookingid = $bookingsettings->id;
         }

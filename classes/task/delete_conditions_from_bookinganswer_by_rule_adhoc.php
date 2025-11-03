@@ -46,7 +46,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class delete_conditions_from_bookinganswer_by_rule_adhoc extends \core\task\adhoc_task {
-
     /**
      * Get task name.
      *
@@ -73,7 +72,7 @@ class delete_conditions_from_bookinganswer_by_rule_adhoc extends \core\task\adho
         $nextruntime = $this->get_next_run_time();
         mtrace('delete_conditions_from_bookinganswer_by_rule_adhoc task:
         checking if data should be deleted from option from bookinganswer '
-        . $taskdata->baid );
+        . $taskdata->baid);
 
         if ($taskdata != null) {
             if (!$ruleinstance = $DB->get_record('booking_rules', ['id' => $taskdata->ruleid])) {
@@ -96,8 +95,7 @@ class delete_conditions_from_bookinganswer_by_rule_adhoc extends \core\task\adho
                    Action was NOT EXECUTED for bookinganswer ' .
                     $taskdata->baid
                     .  PHP_EOL
-                    . 'This message is expected and not signn of malfunction.'
-                );
+                    . 'This message is expected and not signn of malfunction.');
                 return;
             }
 
@@ -113,8 +111,7 @@ class delete_conditions_from_bookinganswer_by_rule_adhoc extends \core\task\adho
             if (!$rule->check_if_rule_still_applies($taskdata->optionid, $taskdata->userid, $nextruntime)) {
                 mtrace('delete_conditions_from_bookinganswer_by_rule_adhoc task: Rule does not apply anymore.
                 Action was NOT EXECUTED for bookinganswer ' .
-                $taskdata->baid
-                );
+                $taskdata->baid);
                 return;
             }
 
@@ -124,17 +121,20 @@ class delete_conditions_from_bookinganswer_by_rule_adhoc extends \core\task\adho
                 // We should read answers from cache!
                 $settings = singleton_service::get_instance_of_booking_option_settings($taskdata->optionid);
                 $answers = singleton_service::get_instance_of_booking_answers($settings);
-                $ba = $answers->answers[$taskdata->baid];
+                $bookinganswers = $answers->get_answers();
+                $ba = $bookinganswers[$taskdata->baid];
                 // Decode the JSON to an associative array.
                 $data = json_decode($ba->json, true);
                 $change = false;
                 // Check if 'condition_customform' key is set.
                 if (isset($data['condition_customform'])) {
                     // Can be defined from user or from admin (teacher).
-                    if ((isset($data['condition_customform']['customform_deleteinfoscheckboxuser'])
-                    && !empty($data['condition_customform']['customform_deleteinfoscheckboxuser']))
-                    || (isset($data['condition_customform']['deleteinfoscheckboxadmin'])
-                    && !empty($data['condition_customform']['deleteinfoscheckboxadmin']))) {
+                    if (
+                        (isset($data['condition_customform']['customform_deleteinfoscheckboxuser'])
+                        && !empty($data['condition_customform']['customform_deleteinfoscheckboxuser']))
+                        || (isset($data['condition_customform']['deleteinfoscheckboxadmin'])
+                        && !empty($data['condition_customform']['deleteinfoscheckboxadmin']))
+                    ) {
                         // Remove 'condition_customform' key and its value.
                         unset($data['condition_customform']);
                         $change = true;
@@ -161,7 +161,6 @@ class delete_conditions_from_bookinganswer_by_rule_adhoc extends \core\task\adho
                     ]);
                     $event->trigger();
                 }
-
             } catch (Exception $e) {
                 if (get_config('booking', 'bookingdebugmode')) {
                     // If debug mode is enabled, we create a debug message.
@@ -183,7 +182,8 @@ class delete_conditions_from_bookinganswer_by_rule_adhoc extends \core\task\adho
             }
         } else {
             throw new \coding_exception(
-                    'delete_conditions_from_bookinganswer_by_rule_adhoc task: ERROR - missing taskdata.');
+                'delete_conditions_from_bookinganswer_by_rule_adhoc task: ERROR - missing taskdata.'
+            );
         }
     }
 }

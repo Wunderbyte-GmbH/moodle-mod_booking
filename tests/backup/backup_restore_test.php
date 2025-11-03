@@ -245,7 +245,8 @@ final class backup_restore_test extends advanced_testcase {
                 $this->assertEquals($options[0]->courseendtime_1, $session2->courseendtime);
                 // Verify answers for the restored option.
                 $option20answers = singleton_service::get_instance_of_booking_answers($optionsettings);
-                $this->assertCount(1, $option20answers->answers);
+                $option20bookinganswers = $option20answers->get_answers();
+                $this->assertCount(1, $option20bookinganswers);
                 // Verify history items for the restored option.
                 $newhistory = $DB->get_records('booking_history', ['bookingid' => $booking21->instance]);
                 $this->assertCount(2, $newhistory);
@@ -254,7 +255,7 @@ final class backup_restore_test extends advanced_testcase {
                 $this->assertEquals($historyitem->optionid, $option2->id);
                 $this->assertEquals($historyitem->bookingid, $booking21->instance);
                 $this->assertEquals($historyitem->status, 0);
-                $this->assertEquals($historyitem->json, "[]");
+                $this->assertEquals($historyitem->json, '{"pricecategory":"default"}');
                 $historyitem = array_shift($newhistory);
                 $this->assertEquals($historyitem->userid, $teacher->id);
                 $this->assertEquals($historyitem->optionid, $option2->id);

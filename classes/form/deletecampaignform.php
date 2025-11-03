@@ -42,7 +42,6 @@ use moodle_url;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class deletecampaignform extends dynamic_form {
-
     /**
      * {@inheritdoc}
      * @see moodleform::definition()
@@ -82,10 +81,8 @@ class deletecampaignform extends dynamic_form {
      * @return void
      */
     public function set_data_for_dynamic_submission(): void {
-
         $data = (object) $this->_ajaxformdata;
         $this->set_data($data);
-
     }
 
     /**

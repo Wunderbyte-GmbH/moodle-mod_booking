@@ -95,7 +95,7 @@ switch ($action) {
                 "</div>";
 
             // Do not forget to purge cache afterwards.
-            booking_option::purge_cache_for_option($optionid);
+            booking_option::purge_cache_for_answers($optionid);
         } else {
             $messagetoshow = "<div class='alert alert-info'>" . get_string('unsubscribe:alreadyunsubscribed', 'mod_booking') .
                 "</div>";

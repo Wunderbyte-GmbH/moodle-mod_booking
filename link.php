@@ -39,7 +39,7 @@ $sessionid = optional_param('sessionid', '', PARAM_INT);
 $fieldid = optional_param('fieldid', '', PARAM_INT);
 $meetingtype = optional_param('meetingtype', '', PARAM_ALPHA);
 
-list($course, $cm) = get_course_and_cm_from_cmid($id, 'booking');
+[$course, $cm] = get_course_and_cm_from_cmid($id, 'booking');
 
 if ($action !== 'join') {
     die();
@@ -58,14 +58,15 @@ $explanationstring = null;
 
 // Only if there was a valid link and session is open, we redirect.
 if ($link = $bookingoption->show_conference_link($sessionid)) {
-
     // We can find the actual link.
     if (!empty($fieldid)) {
         $link = $DB->get_field('booking_customfields', 'value', ['id' => $fieldid]);
     } else {
         // If fieldid is not present, we'll use optionid, optiondateid and meetingtype to find the correct link.
-        $customfields = $DB->get_records('booking_customfields',
-            ['optionid' => $optionid, 'optiondateid' => $sessionid, 'cfgname' => $meetingtype]);
+        $customfields = $DB->get_records(
+            'booking_customfields',
+            ['optionid' => $optionid, 'optiondateid' => $sessionid, 'cfgname' => $meetingtype]
+        );
         $customfield = array_pop($customfields);
         $link = $customfield->value;
     }
@@ -111,8 +112,11 @@ $options = [
     'optionid' => $optionid,
     'whichview' => 'showonlyone',
 ];
-$contents .= $OUTPUT->single_button(new moodle_url('/mod/booking/view.php', $options),
-        get_string('continue'), 'get');
+$contents .= $OUTPUT->single_button(
+    new moodle_url('/mod/booking/view.php', $options),
+    get_string('continue'),
+    'get'
+);
 echo $OUTPUT->box($contents, 'box generalbox', 'notice');
 echo $OUTPUT->footer();
 die();

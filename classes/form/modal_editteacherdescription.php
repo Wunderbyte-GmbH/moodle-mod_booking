@@ -47,7 +47,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class modal_editteacherdescription extends dynamic_form {
-
     /**
      * Get context for dynamic submission.
      * @return context

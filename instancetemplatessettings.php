@@ -24,15 +24,19 @@
  */
 
 require_once('../../config.php');
-require_once($CFG->libdir.'/adminlib.php');
+require_once($CFG->libdir . '/adminlib.php');
 
 // No guest autologin.
 require_login(0, false);
 
 use mod_booking\table\instancetemplatessettings_table;
 
-admin_externalpage_setup('modbookinginstancetemplatessettings', '', [],
-    new moodle_url('/mod/booking/instancetemplatessettings.php'));
+admin_externalpage_setup(
+    'modbookinginstancetemplatessettings',
+    '',
+    [],
+    new moodle_url('/mod/booking/instancetemplatessettings.php')
+);
 
 $instancetodelete = optional_param('delete', 0, PARAM_INT);
 
@@ -61,7 +65,7 @@ $table->define_baseurl($pageurl);
 
 $PAGE->set_url($pageurl);
 $PAGE->set_title(
-        format_string($SITE->shortname) . ': ' . get_string('bookinginstancetemplatessettings', 'mod_booking')
+    format_string($SITE->shortname) . ': ' . get_string('bookinginstancetemplatessettings', 'mod_booking')
 );
 $PAGE->navbar->add(get_string('bookinginstancetemplatessettings', 'mod_booking'), $pageurl);
 

@@ -84,7 +84,10 @@ export async function init(shoppingcartisinstalled) {
 
         dynamicForm.addEventListener('change', e => {
 
-            if (e.target.classList.contains('custom-select')) {
+            if (
+                e.target.classList.contains('custom-select')
+                || e.target.classList.contains('form-select')
+            ) {
                 const button = document.querySelector('.subbooking-additionalperson-form [data-no-submit="1"]');
                 dynamicForm.processNoSubmitButton(button);
             }

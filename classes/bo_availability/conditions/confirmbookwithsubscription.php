@@ -99,11 +99,22 @@ class confirmbookwithsubscription implements bo_condition {
         $cache = cache::make('mod_booking', 'confirmbooking');
         $cachekey = $userid . "_" . $settings->id . '_bookwithsubscription';
 
-        if (!$blocktime = $cache->get($cachekey)) {
+        // For performance reasons, we get only the cache of a given user.
+        // Via the static acceleration, the check for a lot of options is faster.
+        $cachedata = $cache->get($userid);
+
+        if ($cachedata === false) {
+            $cache->set($userid, []);
+        }
+
+        if (
+            $cachedata === false
+            || !isset($cachedata[$cachekey])
+        ) {
             $isavailable = true;
         } else {
             $limittime = strtotime('- ' . MOD_BOOKING_TIME_TO_CONFIRM . ' seconds', time());
-            if ($limittime > $blocktime) {
+            if ($limittime > $cachedata[$cachekey]) {
                 $isavailable = true;
             }
         }
@@ -168,7 +179,7 @@ class confirmbookwithsubscription implements bo_condition {
 
         $isavailable = $this->is_available($settings, $userid, $not);
 
-        $description = $this->get_description_string($isavailable, $full, $settings);
+        $description = !$isavailable ? $this->get_description_string($isavailable, $full, $settings) : '';
 
         return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_MYBUTTON];
     }

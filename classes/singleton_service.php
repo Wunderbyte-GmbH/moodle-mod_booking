@@ -20,7 +20,7 @@ use core_user;
 use Exception;
 use local_entities\entitiesrelation_handler;
 use mod_booking\booking;
-use mod_booking\booking_answers;
+use mod_booking\booking_answers\booking_answers;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\booking_settings;
@@ -111,6 +111,9 @@ class singleton_service {
 
     /** @var array $sanitzedstringkey */
     public array $sanitzedstringkey;
+
+    /** @var array $tempdataforcertificate */
+    public array $tempdataforcertificate;
 
 
     /**
@@ -494,6 +497,19 @@ class singleton_service {
         }
     }
 
+    /**
+     * Service to create and return singleton instance of Moodle user.
+     *
+     * @param int $userid
+     *
+     * @return bool
+     */
+    public static function unset_instance_of_user(int $userid) {
+        $instance = self::get_instance();
+        unset($instance->users[$userid]);
+        return true;
+    }
+
 
     /**
      * When invalidating the cache, we need to also destroy the booking_users_object.
@@ -869,5 +885,42 @@ class singleton_service {
     public static function destroy_instance() {
         self::$instance = null;
         return true;
+    }
+
+    /**
+     * Set temp values for certificates
+     *
+     * @param int $optionid
+     * @param int $userid
+     *
+     * @return void
+     *
+     */
+    public static function set_temp_values_for_certificates(int $optionid, int $userid) {
+        $instance = self::get_instance();
+        $instance->tempdataforcertificate[] = $userid;
+        $instance->tempdataforcertificate[] = $optionid;
+    }
+
+    /**
+     * Get temp values for certificates
+     *
+     * @return array
+     *
+     */
+    public static function get_temp_values_for_certificates(): array {
+        $instance = self::get_instance();
+        return $instance->tempdataforcertificate ?? [];
+    }
+
+    /**
+     * Unset temp values for certificates
+     *
+     * @return void
+     *
+     */
+    public static function unset_temp_values_for_certificates() {
+        $instance = self::get_instance();
+        unset($instance->kswuserid, $instance->kswoptionid);
     }
 }

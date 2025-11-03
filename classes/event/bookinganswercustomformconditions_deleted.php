@@ -36,7 +36,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class bookinganswercustomformconditions_deleted extends \core\event\base {
-
     /**
      * Init
      *
@@ -83,7 +82,6 @@ class bookinganswercustomformconditions_deleted extends \core\event\base {
         $a->bookinganswerid = $bookinganswerid;
 
         return get_string('eventdesc:bookinganswercustomformconditionsdeleted', 'mod_booking', $a);
-
     }
 
     /**
@@ -93,7 +91,9 @@ class bookinganswercustomformconditions_deleted extends \core\event\base {
      *
      */
     public function get_url() {
-        return new \moodle_url('/mod/booking/subscribeusers.php',
-                ['id' => $this->contextinstanceid, 'optionid' => $this->objectid]);
+        return new \moodle_url(
+            '/mod/booking/subscribeusers.php',
+            ['id' => $this->contextinstanceid, 'optionid' => $this->objectid]
+        );
     }
 }

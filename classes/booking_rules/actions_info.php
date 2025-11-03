@@ -36,7 +36,6 @@ use mod_booking\booking_rules\booking_rule_action;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class actions_info {
-
     /**
      * Add form fields to mform.
      *
@@ -45,9 +44,11 @@ class actions_info {
      * @param array|null $ajaxformdata
      * @return void
      */
-    public static function add_actions_to_mform(MoodleQuickForm &$mform,
+    public static function add_actions_to_mform(
+        MoodleQuickForm &$mform,
         array &$repeateloptions,
-        ?array &$ajaxformdata = null) {
+        ?array &$ajaxformdata = null
+    ) {
 
         $actions = self::get_actions();
 
@@ -65,22 +66,30 @@ class actions_info {
         $actionsforselect = array_reverse($actionsforselect);
         $mform->registerNoSubmitButton('btn_bookingruleactiontype');
         $buttonargs = ['style' => 'visibility:hidden;'];
-        $mform->addElement('select', 'bookingruleactiontype',
-            get_string('bookingruleaction', 'mod_booking'), $actionsforselect);
+        $mform->addElement(
+            'select',
+            'bookingruleactiontype',
+            get_string('bookingruleaction', 'mod_booking'),
+            $actionsforselect
+        );
         if (isset($ajaxformdata['bookingruleactiontype'])) {
             $mform->setDefault('bookingruleactiontype', $ajaxformdata['bookingruleactiontype']);
         }
-        $mform->addElement('submit', 'btn_bookingruleactiontype',
-            get_string('bookingruleaction', 'mod_booking'), $buttonargs);
+        $mform->addElement(
+            'submit',
+            'btn_bookingruleactiontype',
+            get_string('bookingruleaction', 'mod_booking'),
+            $buttonargs
+        );
         $mform->setType('btn_bookingruleactiontype', PARAM_NOTAGS);
 
         foreach ($actions as $action) {
-
             if ($ajaxformdata && isset($ajaxformdata['bookingruleactiontype'])) {
-
                 $actionname = $action->get_name_of_action();
-                if ($ajaxformdata['bookingruleactiontype']
-                    && $actionname == get_string(str_replace("_", "", $ajaxformdata['bookingruleactiontype']), 'mod_booking')) {
+                if (
+                    $ajaxformdata['bookingruleactiontype']
+                    && $actionname == get_string(str_replace("_", "", $ajaxformdata['bookingruleactiontype']), 'mod_booking')
+                ) {
                     // For each rule, add the appropriate form fields.
                     $action->add_action_to_mform($mform, $repeateloptions);
                 }

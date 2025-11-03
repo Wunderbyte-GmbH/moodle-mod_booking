@@ -35,7 +35,7 @@ $url = new moodle_url('/mod/booking/importexcel.php', ['id' => $id]);
 $urlredirect = new moodle_url('/mod/booking/view.php', ['id' => $id]);
 $PAGE->set_url($url);
 
-list($course, $cm) = get_course_and_cm_from_cmid($id);
+[$course, $cm] = get_course_and_cm_from_cmid($id);
 
 require_course_login($course, false, $cm);
 
@@ -105,16 +105,20 @@ if ($mform->is_cancelled()) {
 
         foreach ($csvarr as $line) {
             if (count($line) >= 3) {
-                $user = $DB->get_record('booking_answers',
-                        ['bookingid' => $cm->instance, 'userid' => $line[$useridpos], 'optionid' => $line[$optionidpos]]);
+                $user = $DB->get_record(
+                    'booking_answers',
+                    ['bookingid' => $cm->instance, 'userid' => $line[$useridpos], 'optionid' => $line[$optionidpos]]
+                );
 
                 if ($user !== false) {
                     $user->completed = $line[$completedpos];
                     $user->timemodified = time();
                     $DB->update_record('booking_answers', $user, false);
 
-                    $countcompleted = $DB->count_records('booking_answers',
-                        ['bookingid' => $cm->instance, 'userid' => $line[$useridpos], 'completed' => '1']);
+                    $countcompleted = $DB->count_records(
+                        'booking_answers',
+                        ['bookingid' => $cm->instance, 'userid' => $line[$useridpos], 'completed' => '1']
+                    );
 
                     if ($completion->is_enabled($cm) && $booking->settings->enablecompletion > $countcompleted) {
                         $completion->update_state($cm, COMPLETION_INCOMPLETE, $user->userid);

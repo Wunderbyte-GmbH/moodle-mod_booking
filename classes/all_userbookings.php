@@ -384,10 +384,11 @@ class all_userbookings extends \table_sql {
         } else if (substr($colname, 0, 10) === "formfield_") {
             $settings = singleton_service::get_instance_of_booking_option_settings((int)$value->optionid);
             $ba = singleton_service::get_instance_of_booking_answers($settings);
-
+            $usersonlist = $ba->get_usersonlist();
+            $usersonwaitinglist = $ba->get_usersonwaitinglist();
             if (
-                $answer = $ba->usersonlist[(int)$value->userid]
-                ?? $ba->usersonwaitinglist[(int)$value->userid]
+                $answer = $usersonlist[(int)$value->userid]
+                ?? $usersonwaitinglist[(int)$value->userid]
                 ?? false
             ) {
                 [$prefix, $counter] = explode('_', $colname);

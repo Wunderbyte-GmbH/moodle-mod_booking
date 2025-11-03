@@ -51,7 +51,6 @@ require_once($CFG->dirroot . '/user/profile/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class userprofilefield_2_custom implements bo_condition {
-
     /** @var int $id Id is set via json during construction */
     public $id = MOD_BOOKING_BO_COND_JSON_CUSTOMUSERPROFILEFIELD;
 
@@ -324,7 +323,7 @@ class userprofilefield_2_custom implements bo_condition {
             $operator,
             $value,
             $formvalue
-            );
+        );
         if (!$available) {
             $cvsetting = booking::get_value_of_json_by_key($bookingid, 'circumventcond');
             if (
@@ -415,7 +414,6 @@ class userprofilefield_2_custom implements bo_condition {
 
         // Check if PRO version is activated.
         if (wb_payment::pro_version_is_activated()) {
-
             $customuserprofilefields = $DB->get_records('user_info_field', null, '', 'id, name, shortname');
             if (!empty($customuserprofilefields)) {
                 $customuserprofilefieldsarray = [];
@@ -493,7 +491,8 @@ class userprofilefield_2_custom implements bo_condition {
                     'bo_cond_customuserprofilefield_connectsecondfield',
                     'bo_cond_customuserprofilefield_field',
                     'eq',
-                    0);
+                    0
+                );
                 $mform->hideIf(
                     'bo_cond_customuserprofilefield_connectsecondfield',
                     'bo_cond_userprofilefield_2_custom_restrict',
@@ -740,8 +739,13 @@ class userprofilefield_2_custom implements bo_condition {
      * @param bool $fullwidth
      * @return array
      */
-    public function render_button(booking_option_settings $settings,
-        $userid = 0, $full = false, $not = false, bool $fullwidth = true): array {
+    public function render_button(
+        booking_option_settings $settings,
+        $userid = 0,
+        $full = false,
+        $not = false,
+        bool $fullwidth = true
+    ): array {
 
         $label = $this->get_description_string(false, $full, $settings);
 
@@ -769,7 +773,6 @@ class userprofilefield_2_custom implements bo_condition {
             $description = $full ? get_string('bocondcustomuserprofilefieldfullavailable', 'mod_booking') :
                 get_string('bocondcustomuserprofilefieldavailable', 'mod_booking');
         } else {
-
             // We need to make sure we have the custom settings ready.
             if (!$this->customsettings) {
                 // This description can only works with the right custom settings.
@@ -777,14 +780,15 @@ class userprofilefield_2_custom implements bo_condition {
 
                 foreach ($availabilityarray as $availability) {
                     if (strpos($availability->class, 'userprofilefield_2_custom') > 0) {
-
                         $this->customsettings = (object)$availability;
                     }
                 }
             }
-            $description = $full ? get_string('bocondcustomuserprofilefieldfullnotavailable',
+            $description = $full ? get_string(
+                'bocondcustomuserprofilefieldfullnotavailable',
                 'mod_booking',
-                $this->customsettings) :
+                $this->customsettings
+            ) :
                 get_string('bocondcustomuserprofilefieldnotavailable', 'mod_booking');
         }
         return $description;
@@ -798,9 +802,11 @@ class userprofilefield_2_custom implements bo_condition {
      * @return array
      */
     public static function validation(array $data, array $files, array &$errors) {
-        if (isset($data['bo_cond_customuserprofilefield_field'])
+        if (
+            isset($data['bo_cond_customuserprofilefield_field'])
             && isset($data['bo_cond_customuserprofilefield_field2'])
-            && ($data['bo_cond_customuserprofilefield_field'] == $data['bo_cond_customuserprofilefield_field2'])) {
+            && ($data['bo_cond_customuserprofilefield_field'] == $data['bo_cond_customuserprofilefield_field2'])
+        ) {
                 $errors['bo_cond_customuserprofilefield_field2'] = get_string('choosedifferentvalue', 'mod_booking');
         }
         return $errors;

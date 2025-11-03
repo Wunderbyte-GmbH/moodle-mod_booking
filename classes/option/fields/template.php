@@ -42,7 +42,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class template extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -94,7 +93,8 @@ class template extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         return parent::prepare_save_field($formdata, $newoption, $updateparam, '');
     }
@@ -137,25 +137,37 @@ class template extends field_base {
 
         // Button to attach JavaScript to reload the form.
         $mform->registerNoSubmitButton('btn_changetemplate');
-        $mform->addElement('submit', 'btn_changetemplate', 'xxx',
+        $mform->addElement(
+            'submit',
+            'btn_changetemplate',
+            'xxx',
             [
             'class' => 'd-none',
             'data-action' => 'btn_changetemplate',
-        ]);
+            ]
+        );
 
         // If there is no license key and there is more than one template, we only use the first one.
         if (count($alloptiontemplates) > 1 && !wb_payment::pro_version_is_activated()) {
             $alloptiontemplates = [reset($alloptiontemplates)];
-            $mform->addElement('static', 'nolicense', get_string('licensekeycfg', 'mod_booking'),
-                get_string('licensekeycfgdesc', 'mod_booking'));
+            $mform->addElement(
+                'static',
+                'nolicense',
+                get_string('licensekeycfg', 'mod_booking'),
+                get_string('licensekeycfgdesc', 'mod_booking')
+            );
         }
 
         foreach ($alloptiontemplates as $key => $value) {
             $optiontemplates[$value->id] = $value->text;
         }
 
-        $mform->addElement('select', 'optiontemplateid', get_string('populatefromtemplate', 'mod_booking'),
-            $optiontemplates);
+        $mform->addElement(
+            'select',
+            'optiontemplateid',
+            get_string('populatefromtemplate', 'mod_booking'),
+            $optiontemplates
+        );
     }
 
     /**
@@ -175,6 +187,11 @@ class template extends field_base {
             // First, retrieve the template we want to use.
 
             $optionid = $data->optiontemplateid;
+            if (empty($optionid)) {
+                // In case we deselect a template that was previously selected.
+                // For the moment, don't remove data from fields.
+                return;
+            }
             // Now, we need to create the data for this option the same way we would create it otherwise...
             $templateoption = (object)[
                 'cmid' => $data->cmid,
@@ -201,11 +218,8 @@ class template extends field_base {
             ];
 
             foreach ($templateoption as $key => $value) {
-
                 if (strpos($key, MOD_BOOKING_FORM_OPTIONDATEID) !== false) {
-
                     $data->{$key} = 0;
-
                 } else if (!in_array($key, $excluded)) {
                     $data->{$key} = $value;
                 }
@@ -233,9 +247,7 @@ class template extends field_base {
         // If we have applied the change template value, we override all the values we have submitted.
         if (!empty($formdata['btn_changetemplate'])) {
             foreach ($values as $k => $v) {
-
                 if ($mform->elementExists($k) && $v !== null) {
-
                     if ($mform->elementExists($k)) {
                         $element = $mform->getElement($k);
                         $element->setValue($v);

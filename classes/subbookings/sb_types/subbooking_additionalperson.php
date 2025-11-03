@@ -19,6 +19,7 @@ namespace mod_booking\subbookings\sb_types;
 use context_module;
 use context_system;
 use html_writer;
+use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\form\subbooking\additionalperson_form;
 use mod_booking\output\subbooking_additionalperson_output;
@@ -411,12 +412,14 @@ class subbooking_additionalperson implements booking_subbooking {
         // We never show the subbooking when we are only in waitforconfirmation.
         if (!empty($settings->waitforconfirmation)) {
             $ba = singleton_service::get_instance_of_booking_answers($settings);
+            $usersreserved = $ba->get_usersreserved();
+            $usersonwaitinglist = $ba->get_usersonwaitinglist();
 
             // When the user is neither on waitinglist, nor on reserved, don't show subbookings.
             if (
                 !(
-                    ($ba->usersonwaitinglist[$userid] ?? false)
-                    || ($ba->usersreserved[$userid] ?? false)
+                    ($usersonwaitinglist[$userid] ?? false)
+                    || ($usersreserved[$userid] ?? false)
                 )
             ) {
                 return false;
@@ -437,7 +440,20 @@ class subbooking_additionalperson implements booking_subbooking {
      *
      */
     public function after_booking_action(booking_option_settings $settings, int $userid = 0, int $recordid = 0): bool {
+        return true;
+    }
 
+    /**
+     * Reservation action.
+     *
+     * @param booking_option_settings $settings
+     * @param int $userid
+     * @param int $recordid
+     *
+     * @return bool
+     *
+     */
+    public function reservation_action(booking_option_settings $settings, int $userid = 0, int $recordid = 0): bool {
         global $DB;
 
         // Get number of places.
@@ -456,7 +472,8 @@ class subbooking_additionalperson implements booking_subbooking {
             'id',
             [
                 'optionid' => $settings->id,
-                'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
+                'waitinglist' => MOD_BOOKING_STATUSPARAM_RESERVED,
+                'userid' => $userid,
             ]
         );
 
@@ -465,6 +482,44 @@ class subbooking_additionalperson implements booking_subbooking {
         $data = [
             'id' => $id,
             'places' => $numberofpersons + 1,
+        ];
+
+        $DB->update_record('booking_answers', $data);
+        booking_option::purge_cache_for_answers($settings->id);
+        return true;
+    }
+
+    /**
+     * Subbooking was reserved but is deleted now.
+     *
+     * @param booking_option_settings $settings
+     * @param int $userid
+     * @param int $recordid
+     *
+     * @return bool
+     *
+     */
+    public function reservation_deletion_action(booking_option_settings $settings, int $userid = 0, int $recordid = 0): bool {
+        global $DB;
+
+        // Get number of places.
+        // Get answer object of option.
+        // Update places to the right number..
+        $id = $DB->get_field(
+            'booking_answers',
+            'id',
+            [
+                'optionid' => $settings->id,
+                'waitinglist' => MOD_BOOKING_STATUSPARAM_RESERVED,
+                'userid' => $userid,
+            ]
+        );
+
+        // For now, it's enough to set the number of persons here.
+        // If ever there will be a second way to increase this number, we first need to fetch.
+        $data = [
+            'id' => $id,
+            'places' => 1,
         ];
 
         $DB->update_record('booking_answers', $data);

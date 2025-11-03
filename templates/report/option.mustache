@@ -37,14 +37,14 @@
 	<div>
 		<div class="h6 mb-1">
 			<a href="{{report2option}}" title="Report for {{text}}" target="_blank">
-				<i class="fa fa-ticket" aria-hidden="true"></i>&nbsp;
+				{{{texticon}}}
 				{{#text}}{{text}}{{/text}}
 			</a>&nbsp;
 			<a href="{{optionlink}}" title="{{text}}" target="_blank">
 				<i class="fa fa-external-link" aria-hidden="true"></i>
 			</a>
 			<span class="ml-1">
-				<a class="btn btn-link btn-sm" data-toggle="collapse" href="#collapseoptionshortinfo-{{id}}"
+				<a class="btn btn-link btn-sm" data-toggle="collapse" data-bs-toggle="collapse" href="#collapseoptionshortinfo-{{id}}"
 				role="button" aria-expanded="false" aria-controls="collapseoptionshortinfo-{{id}}">
 				<i class="fa fa-chevron-down" aria-hidden="true"></i>
 				</a>

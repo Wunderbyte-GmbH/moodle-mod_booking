@@ -34,7 +34,6 @@ namespace mod_booking\event;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class reminder_teacher_sent extends \core\event\base {
-
     /**
      * Init
      *

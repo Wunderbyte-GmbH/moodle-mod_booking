@@ -37,7 +37,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class removeafterminutes extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -89,7 +88,8 @@ class removeafterminutes extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         parent::prepare_save_field($formdata, $newoption, $updateparam, '');
 
@@ -120,8 +120,12 @@ class removeafterminutes extends field_base {
             fields_info::add_header_to_mform($mform, self::$header);
         }
 
-        $mform->addElement('text', 'removeafterminutes', get_string('removeafterminutes', 'mod_booking'),
-                0);
+        $mform->addElement(
+            'text',
+            'removeafterminutes',
+            get_string('removeafterminutes', 'mod_booking'),
+            0
+        );
         $mform->addRule('removeafterminutes', get_string('err_numeric', 'form'), 'numeric', null, 'client');
         $mform->setType('removeafterminutes', PARAM_INT);
     }

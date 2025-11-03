@@ -88,6 +88,7 @@ $PAGE->set_pagelayout('incourse');
 $PAGE->add_body_class('mod_booking-view');
 
 // Get the renderer.
+/** @var \mod_booking\output\renderer $output */
 $output = $PAGE->get_renderer('mod_booking');
 
 echo $OUTPUT->header();

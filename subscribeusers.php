@@ -35,6 +35,8 @@ use mod_booking\form\subscribe_cohort_or_group_form;
 use mod_booking\output\booked_users;
 use mod_booking\output\renderer;
 use mod_booking\singleton_service;
+use mod_booking\booking_existing_user_selector;
+use mod_booking\booking_potential_user_selector;
 
 global $CFG, $DB, $COURSE, $PAGE, $OUTPUT;
 
@@ -44,6 +46,10 @@ $subscribe = optional_param('subscribe', false, PARAM_BOOL);
 $unsubscribe = optional_param('unsubscribe', false, PARAM_BOOL);
 $agree = optional_param('agree', false, PARAM_BOOL);
 $bookanyone = optional_param('bookanyone', false, PARAM_BOOL);
+
+if (get_config('booking', 'alwaysbookanyone')) {
+    $bookanyone = true;
+}
 
 // If we have already submitted the form, we don't want to fall into the agree policy.
 $formsubmitted = optional_param('submitbutton', '', PARAM_TEXT);
@@ -334,6 +340,9 @@ $data = new booked_users(
     true,
     true,
     true,
+    true,
+    false,
+    false,
     true
 );
 /** @var renderer $renderer */

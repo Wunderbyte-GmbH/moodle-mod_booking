@@ -35,7 +35,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 interface fields {
-
     /**
      * This function interprets the value from the form and, if useful...
      * ... relays it to the new option class for saving or updating.
@@ -50,7 +49,8 @@ interface fields {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array;
+        $returnvalue = null
+    ): array;
 
     /**
      * Add field to the option form.

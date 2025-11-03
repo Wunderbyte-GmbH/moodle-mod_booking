@@ -816,6 +816,10 @@ class view implements renderable, templatable {
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($this->cmid);
         $optionsfields = explode(',', $bookingsettings->optionsfields);
 
+        if (!in_array('booknow', $optionsfields)) {
+            $optionsfields[] = 'booknow'; // We always need the booknow field for the buttons.
+        }
+
         $sortorder = $bookingsettings->defaultsortorder === "desc" ? SORT_DESC : SORT_ASC;
 
         // Set default sort order.
@@ -1158,7 +1162,7 @@ class view implements renderable, templatable {
         $wbtable->add_subcolumns('cardbody', $cardbody);
         $wbtable->add_classes_to_subcolumns('cardbody', ['columnkeyclass' => 'd-none']);
         $wbtable->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'd-none'], ['coursestarttime', 'courseendtime']);
-        $wbtable->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'float-right'], ['action']);
+        $wbtable->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'float-right float-end'], ['action']);
         $wbtable->add_classes_to_subcolumns(
             'cardbody',
             ['columnvalueclass' => 'text-center booking-option-info-invisible'],
@@ -1306,9 +1310,18 @@ class view implements renderable, templatable {
         }
 
         // 3. Cardfooter.
-        $wbtable->add_subcolumns('cardfooter', ['booknow', 'course', 'progressbar', 'ratings']);
+
+        if (in_array('booknow', $optionsfields)) {
+            $wbtable->add_subcolumns('cardfooter', ['booknow', 'course', 'progressbar', 'ratings']);
+        } else {
+            $wbtable->add_subcolumns('cardfooter', ['course', 'progressbar', 'ratings']);
+        }
+
         $wbtable->add_classes_to_subcolumns('cardfooter', ['columnkeyclass' => 'd-none']);
-        $wbtable->add_classes_to_subcolumns('cardfooter', ['columnclass' => 'text-right'], ['booknow']);
+        if (in_array('booknow', $optionsfields)) {
+            $wbtable->add_classes_to_subcolumns('cardfooter', ['columnclass' => 'text-right'], ['booknow']);
+        }
+
         $wbtable->add_classes_to_subcolumns(
             'cardfooter',
             ['columnclass' => 'text-left mt-1 text-gray'],
@@ -1416,7 +1429,12 @@ class view implements renderable, templatable {
         $columnsfooter[] = 'comments';
 
         $wbtable->add_subcolumns('footer', $columnsfooter);
-        $wbtable->add_subcolumns('rightside', ['booknow', 'course', 'progressbar', 'ratings']);
+
+        if (in_array('booknow', $optionsfields)) {
+            $wbtable->add_subcolumns('rightside', ['booknow', 'course', 'progressbar', 'ratings']);
+        } else {
+            $wbtable->add_subcolumns('rightside', ['course', 'progressbar', 'ratings']);
+        }
 
         // Add header image.
         $wbtable->add_subcolumns('headerimage', ['image']);
@@ -1531,7 +1549,10 @@ class view implements renderable, templatable {
                 ['minanswers']
             );
         }
-        $wbtable->add_classes_to_subcolumns('rightside', ['columnclass' => 'text-right'], ['booknow']);
+
+        if (in_array('booknow', $optionsfields)) {
+            $wbtable->add_classes_to_subcolumns('rightside', ['columnclass' => 'text-right'], ['booknow']);
+        }
         $wbtable->add_classes_to_subcolumns(
             'rightside',
             ['columnclass' => 'text-left mt-1 text-gray font-size-sm'],

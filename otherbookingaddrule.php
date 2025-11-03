@@ -31,13 +31,17 @@ $optionid = required_param('optionid', PARAM_INT);
 $bookingotherid = optional_param('bookingotherid', 0, PARAM_INT);
 $delete = optional_param('delete', 0, PARAM_INT);
 
-$url = new moodle_url('/mod/booking/otherbookingaddrule.php',
-        ['id' => $id, 'optionid' => $optionid, 'bookingotherid' => $bookingotherid]);
-$urlredirect = new moodle_url('/mod/booking/otherbooking.php',
-        ['id' => $id, 'optionid' => $optionid]);
+$url = new moodle_url(
+    '/mod/booking/otherbookingaddrule.php',
+    ['id' => $id, 'optionid' => $optionid, 'bookingotherid' => $bookingotherid]
+);
+$urlredirect = new moodle_url(
+    '/mod/booking/otherbooking.php',
+    ['id' => $id, 'optionid' => $optionid]
+);
 $PAGE->set_url($url);
 
-list($course, $cm) = get_course_and_cm_from_cmid($id);
+[$course, $cm] = get_course_and_cm_from_cmid($id);
 
 require_course_login($course, false, $cm);
 $groupmode = groups_get_activity_groupmode($cm);
@@ -58,15 +62,16 @@ $PAGE->set_title(format_string(get_string("otherbookingaddrule", "booking")));
 $PAGE->set_heading(get_string("otherbookingaddrule", "booking"));
 $PAGE->set_pagelayout('standard');
 
-$mform = new otherbookingaddrule_form($url->out(false),
-        ['bookingotherid' => $bookingotherid, 'optionid' => $optionid]);
+$mform = new otherbookingaddrule_form(
+    $url->out(false),
+    ['bookingotherid' => $bookingotherid, 'optionid' => $optionid]
+);
 
 if ($mform->is_cancelled()) {
     // Handle form cancel operation, if cancel button is present on form.
     redirect($urlredirect, '', 0);
     die();
 } else if ($data = $mform->get_data()) {
-
     // Add new record.
     $bookingother = new stdClass();
     $bookingother->id = $data->bookingotherid;
@@ -90,7 +95,7 @@ if ($mform->is_cancelled()) {
         $defaultvalues = $DB->get_record('booking_other', ['id' => $bookingotherid]);
         // Must not use course module id here but id of booking_other table.
         $defaultvalues->bookingotherid = $bookingotherid;
-        unset ($defaultvalues->id);
+        unset($defaultvalues->id);
     }
 
     // Processed if form submitted data not validated and form should be redisplayed or first form-display.

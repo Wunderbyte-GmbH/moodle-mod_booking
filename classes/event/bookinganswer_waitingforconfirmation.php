@@ -33,7 +33,6 @@ namespace mod_booking\event;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class bookinganswer_waitingforconfirmation extends \core\event\base {
-
     /**
      * Init
      *
@@ -69,7 +68,6 @@ class bookinganswer_waitingforconfirmation extends \core\event\base {
             'objectid' => $this->objectid,
         ];
         return get_string('bookinganswerwaitingforconfirmationdesc', 'mod_booking', $data);
-
     }
 
     /**

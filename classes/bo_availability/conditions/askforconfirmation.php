@@ -29,7 +29,7 @@
 use context_system;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
-use mod_booking\booking_answers;
+use mod_booking\booking_answers\booking_answers;
 use mod_booking\booking_bookit;
 use mod_booking\booking_option_settings;
 use mod_booking\output\bookingoption_description;
@@ -113,12 +113,22 @@ class askforconfirmation implements bo_condition {
             !isset($bookinginformation['onwaitinglist'])
             && (
                     (
-                    $settings->waitforconfirmation == 1
-                    || (!empty($settings->jsonobject->useprice))
-                        && (
-                            isset($bookinginformation['notbooked']['fullybooked'])
+                        (
+                            ($bookinginformation['notbooked']['freeonwaitinglist'] ?? 0) == -1
+                        ||
+                            ($bookinginformation['notbooked']['freeonwaitinglist'] ?? 0) > 0
+                        )
+                        && isset($bookinginformation['notbooked']['fullybooked'])
+                        && $bookinginformation['notbooked']['fullybooked'] === true
+                    )
+                ||
+                    (
+                        $settings->waitforconfirmation == 1
+                        || (
+                            !empty($settings->jsonobject->useprice)
+                            && isset($bookinginformation['notbooked']['fullybooked'])
                             && $bookinginformation['notbooked']['fullybooked'] === true
-                            && ($settings->maxoverbooking > booking_answers::count_places($bookinganswer->usersonwaitinglist))
+                            && ($settings->maxoverbooking > $bookinginformation['notbooked']['waiting'])
                         )
                     )
                 ||
@@ -198,7 +208,7 @@ class askforconfirmation implements bo_condition {
 
         $isavailable = $this->is_available($settings, $userid, $not);
 
-        $description = $this->get_description_string($isavailable, $full, $settings);
+        $description = !$isavailable ? $this->get_description_string($isavailable, $full, $settings) : '';
 
         return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_BOOK, MOD_BOOKING_BO_BUTTON_MYBUTTON];
     }

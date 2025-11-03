@@ -36,7 +36,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class campaignsform extends dynamic_form {
-
     /**
      * {@inheritdoc}
      * @see moodleform::definition()
@@ -84,11 +83,10 @@ class campaignsform extends dynamic_form {
         }
 
         $this->set_data($data);
-
     }
 
     /**
-     * Campaings validation.
+     * campaigns validation.
      *
      * @param array $data
      * @param array $files

@@ -47,7 +47,7 @@
 }
 }}
 {{#canedit}}
-<a class="text-primary" data-toggle="collapse" href="#collapsiblelistofteachers" role="button" aria-expanded="false" aria-controls="collapsiblelistofteachers">
+<a class="text-primary" data-toggle="collapse" data-bs-toggle="collapse" href="#collapsiblelistofteachers" role="button" aria-expanded="false" aria-controls="collapsiblelistofteachers">
     <i class="fa fa-envelope" aria-hidden="true"></i> {{#str}} showteachersmailinglist, mod_booking {{/str}}
 </a>
 <div class="collapse card bg-light rounded p-2 page-allteachers-teachersmailinglist" id="collapsiblelistofteachers">
@@ -78,7 +78,9 @@
                         {{#descriptionlong}}
                             <div class="mb-3">
                                 <!-- Trigger button -->
-                                <button type="button" class="btn btn-link" data-toggle="modal" data-target="#descriptionlong-modal-{{teacherid}}">
+                                <button type="button" class="btn btn-link"
+                                    data-toggle="modal" data-target="#descriptionlong-modal-{{teacherid}}"
+                                    data-bs-toggle="modal" data-bs-target="#descriptionlong-modal-{{teacherid}}">
                                     {{#str}} more, core {{/str}}
                                 </button>
 
@@ -90,7 +92,7 @@
                                                 <h5 class="modal-title" id="descriptionlong-modal-title-{{teacherid}}">
                                                     {{#str}} description, mod_booking {{/str}}
                                                 </h5>
-                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <button type="button" class="close btn-close" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Close">
                                                     <span aria-hidden="true">&times;</span>
                                                 </button>
                                             </div>
@@ -99,7 +101,7 @@
                                                 <p>{{{.}}}</p>
                                             </div>
                                             <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal">
                                                     {{#str}} close, mod_booking {{/str}}
                                                 </button>
                                             </div>
@@ -132,7 +134,7 @@
                         </a>
                         {{/messagingispossible}}
                         {{^messagingispossible}}
-                        <div data-toggle="tooltip" data-placement="top" title="{{#str}} messagingteacherimpossible, mod_booking {{/str}}">
+                        <div data-toggle="tooltip" data-bs-toggle="tooltip" data-placement="top" title="{{#str}} messagingteacherimpossible, mod_booking {{/str}}">
                             <a id="message-user-button" role="button" class="btn btn-light disabled">
                                 <div>
                                     <i class="icon fa fa-comment-o fa-fw iconsmall" title="{{#str}} messagebutton, mod_booking {{/str}}"

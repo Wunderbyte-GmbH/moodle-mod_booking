@@ -35,7 +35,6 @@ use mod_booking\singleton_service;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class bookinginstance_updated extends \core\event\base {
-
     /**
      * Init
      *

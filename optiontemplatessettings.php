@@ -30,7 +30,7 @@ require_once($CFG->libdir . '/adminlib.php');
 $id = required_param('id', PARAM_INT); // Course module id.
 $optionid = optional_param('optionid', 0, PARAM_INT);
 $action = optional_param('action', 0, PARAM_ALPHANUM);
-list($course, $cm) = get_course_and_cm_from_cmid($id);
+[$course, $cm] = get_course_and_cm_from_cmid($id);
 
 // No guest autologin.
 require_course_login($course, false, $cm);
@@ -38,7 +38,7 @@ require_course_login($course, false, $cm);
 // In Moodle 4.0+ we want to turn the instance description off on every page except view.php.
 $PAGE->activityheader->disable();
 
-$pageurl = new moodle_url('/mod/booking/optiontemplatessettings.php',  ['id' => $id, 'optionid' => $optionid]);
+$pageurl = new moodle_url('/mod/booking/optiontemplatessettings.php', ['id' => $id, 'optionid' => $optionid]);
 
 if (($action === 'delete') && ($optionid > 0)) {
     $DB->delete_records('booking_options', ['id' => $optionid]);
@@ -48,14 +48,20 @@ if (($action === 'delete') && ($optionid > 0)) {
 
 $table = new optiontemplatessettings_table('optiontemplatessettings', $id);
 $fields = 'bo.id AS optionid, bo.text AS name, bo.bookingid AS bookingid';
-$table->set_sql($fields,
-    "{booking_options} bo", 'bo.bookingid = 0');
+$table->set_sql(
+    $fields,
+    "{booking_options} bo",
+    'bo.bookingid = 0'
+);
+
+$table->is_sortable = false;
 
 $table->define_baseurl($pageurl);
 
 $PAGE->set_url($pageurl);
 $PAGE->set_title(
-        format_string($SITE->shortname) . ': ' . get_string('optiontemplatessettings', 'booking'));
+    format_string($SITE->shortname) . ': ' . get_string('optiontemplatessettings', 'booking')
+);
 $PAGE->navbar->add(get_string('optiontemplatessettings', 'booking'), $pageurl);
 
 echo $OUTPUT->header();

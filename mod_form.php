@@ -88,32 +88,34 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform = & $this->_form;
 
         $group = [];
+
         $group[] = & $mform->createElement(
-            'checkbox',
-            'enablecompletionenabled',
+            'advcheckbox',
+            'completionenabled_booking',
             '',
-            get_string('completionoptioncompletedform', 'mod_booking')
+            get_string('enablecompletionminnumber', 'mod_booking')
         );
+
         $group[] = $mform->createElement(
             'text',
-            'enablecompletion',
-            get_string('completionoptioncompletedform', 'mod_booking'),
+            'enablecompletion_booking',
+            '',
             ['size' => '1']
         );
+        $mform->disabledIf('enablecompletion_booking', 'completionenabled_booking', 'notchecked');
+        $mform->setDefault('enablecompletion_booking', 1);
+        $mform->setType('enablecompletion_booking', PARAM_INT);
 
         $mform->addGroup(
             $group,
-            'enablecompletiongroup',
-            get_string('enablecompletiongroup', 'mod_booking'),
+            'enablecompletiongroup_booking',
+            get_string('enablecompletionmincompleted', 'mod_booking'),
             [' '],
             false
         );
-        $mform->disabledIf('enablecompletion', 'enablecompletionenabled', 'notchecked');
-        $mform->setDefault('enablecompletion', 1);
-        $mform->setType('enablecompletion', PARAM_INT);
-        $mform->addHelpButton('enablecompletiongroup', 'enablecompletion', 'mod_booking');
+        $mform->addHelpButton('enablecompletiongroup_booking', 'enablecompletionmincompleted', 'mod_booking');
 
-        return ['enablecompletiongroup'];
+        return ['enablecompletiongroup_booking'];
     }
 
     /**
@@ -125,7 +127,10 @@ class mod_booking_mod_form extends moodleform_mod {
      *
      */
     public function completion_rule_enabled($data) {
-        return !empty($data['enablecompletion'] != 0);
+        return (
+            !empty($data['completionenabled_booking'])
+            && ((int)$data['enablecompletion_booking'] > 0)
+        );
     }
 
     /**
@@ -1064,9 +1069,16 @@ class mod_booking_mod_form extends moodleform_mod {
 
         $mform->hideIf('cancelrelativedate', 'cancancelbook', 'eq', 0);
         $mform->hideIf('cancelrelativedate', 'disablecancel', 'neq', 0);
+
+        $previoussetting = booking::get_value_of_json_by_key($bookingid, 'cancelrelativedate');
+        if (!$previoussetting) {
+            $canceldefault = (int) get_config('booking', 'defaultcanceldate') ?? MOD_BOOKING_CANCANCELBOOK_RELATIVE;
+        } else {
+            $canceldefault = (int) $previoussetting;
+        }
         $mform->setDefault(
             'cancelrelativedate',
-            (int)booking::get_value_of_json_by_key($bookingid, 'cancelrelativedate') ?? MOD_BOOKING_CANCANCELBOOK_RELATIVE
+            $canceldefault
         );
 
         $mform->addElement('date_time_selector', 'allowupdatetimestamp', get_string('canceldateabsolute', 'mod_booking'));
@@ -1407,6 +1419,22 @@ class mod_booking_mod_form extends moodleform_mod {
             ['subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 1, 'accepted_types' => ['image']]
         );
 
+        // Add the new settings dropdown for the sign-in sheet top orientation.
+        $orientationoptions = [
+            'L' => get_string('pdflandscape', 'mod_booking'),
+            'P' => get_string('pdfportrait', 'mod_booking'),
+        ];
+
+        $mform->addElement(
+            'select',
+            'toporientation',
+            get_string('signinsheettoporientation', 'mod_booking'),
+            $orientationoptions
+        );
+        $mform->addHelpButton('toporientation', 'signinsheettoporientationdesc', 'mod_booking');
+        $mform->setDefault('toporientation', 'P');
+        $mform->setType('toporientation', PARAM_ALPHA);
+
         // Teachers.
         $mform->addElement(
             'header',
@@ -1584,10 +1612,13 @@ class mod_booking_mod_form extends moodleform_mod {
         parent::data_preprocessing($defaultvalues);
         $options = ['subdirs' => false, 'maxfiles' => 50, 'accepted_types' => ['*'], 'maxbytes' => 0];
 
-        $defaultvalues['enablecompletionenabled'] = !empty($defaultvalues['enablecompletion']) ? 1 : 0;
-        if (empty($defaultvalues['enablecompletion'])) {
-            $defaultvalues['enablecompletion'] = 1;
-        }
+        // In DB, we only store the number of booking options a user has to book ...
+        // ... in order to complete the booking activity (booking instance activity completion).
+        // So we need to set the checkbox accordingly.
+        // IMPORTANT: In the mod_form we need to use the "_booking" suffix!
+        $defaultvalues['completionenabled_booking'] = !empty($defaultvalues['enablecompletion']) ? 1 : 0;
+        $defaultvalues['enablecompletion_booking'] = !empty($defaultvalues['enablecompletion']) ?
+            $defaultvalues['enablecompletion'] : 0;
 
         if ($this->current->instance) {
             $draftitemid = file_get_submitted_draft_itemid('myfilemanager');
@@ -1815,15 +1846,20 @@ class mod_booking_mod_form extends moodleform_mod {
         parent::data_postprocessing($data);
         if (!empty($data->completionunlocked)) {
             $autocompletion = !empty($data->completion) && $data->completion == COMPLETION_TRACKING_AUTOMATIC;
-            if (empty($data->enablecompletionenabled) || !$autocompletion) {
+            if (
+                empty($data->completionenabled_booking)
+                || empty($data->enablecompletion_booking)
+                || $data->enablecompletion_booking < 1
+                || !$autocompletion
+            ) {
                 $data->enablecompletion = 0;
+            } else {
+                // In the mod_form (and only there), we use the suffix!
+                $data->enablecompletion = $data->enablecompletion_booking;
             }
+        } else {
+            $data->enablecompletion = 0;
         }
-
-        // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
-        // TODO: Check if it's possible to overwrite instance specific mail templates with global mail templates...
-        // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
-        // TODO: ... if mailtemplatessource is set to 1 on saving.
     }
 
     /**

@@ -34,7 +34,6 @@ require_once($CFG->libdir . '/externallib.php');
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class search_templates extends external_api {
-
     /**
      * Describes the external function parameters.
      *

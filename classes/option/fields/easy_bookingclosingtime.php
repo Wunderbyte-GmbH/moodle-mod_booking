@@ -42,7 +42,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class easy_bookingclosingtime extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -97,7 +96,8 @@ class easy_bookingclosingtime extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         $key = 'bookingclosingtime';
         $value = $formdata->{$key} ?? null;
@@ -112,7 +112,13 @@ class easy_bookingclosingtime extends field_base {
             }
         }
 
-        return [];
+        $availabilityclass = new bookingclosingtime();
+        return $availabilityclass->prepare_save_field(
+            $formdata,
+            $newoption,
+            $updateparam,
+            $returnvalue,
+        );
     }
 
     /**
@@ -144,13 +150,19 @@ class easy_bookingclosingtime extends field_base {
         $applyheader = true
     ) {
 
-        $mform->addElement('advcheckbox', 'restrictanswerperiodclosing',
-                get_string('restrictanswerperiodopening', 'mod_booking'));
+        $mform->addElement(
+            'advcheckbox',
+            'restrictanswerperiodclosing',
+            get_string('restrictanswerperiodopening', 'mod_booking')
+        );
         $mform->setType('restrictanswerperiodclosing', PARAM_INT);
         $mform->disabledIf('bookingclosingtime', 'restrictanswerperiodclosing', 'neq', "1");
 
-        $mform->addElement('date_time_selector', 'bookingclosingtime',
-            get_string('easyavailability:closingtime', 'local_musi'));
+        $mform->addElement(
+            'date_time_selector',
+            'bookingclosingtime',
+            get_string('easyavailability:closingtime', 'local_musi')
+        );
         $mform->setType('bookingclosingtime', PARAM_INT);
     }
 
@@ -163,9 +175,10 @@ class easy_bookingclosingtime extends field_base {
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
-        if (!isset($data->bookingclosingtime)
-            && !empty($settings->bookingclosingtime)) {
-
+        if (
+            !isset($data->bookingclosingtime)
+            && !empty($settings->bookingclosingtime)
+        ) {
             $data->bookingclosingtime = $settings->bookingclosingtime;
             $data->restrictanswerperiodclosing = 1;
         }

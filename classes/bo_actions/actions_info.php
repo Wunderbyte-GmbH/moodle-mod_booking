@@ -45,7 +45,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class actions_info {
-
     /**
      * Add a list of actions and a modal to edit actions to an mform.
      *
@@ -53,23 +52,30 @@ class actions_info {
      * @param array $formdata
      * @return void
      */
-    public static function add_actions_to_mform(MoodleQuickForm &$mform,
-        array &$formdata = []) {
+    public static function add_actions_to_mform(
+        MoodleQuickForm &$mform,
+        array &$formdata = []
+    ) {
 
         if (get_config('booking', 'showboactions') && wb_payment::pro_version_is_activated()) {
             // Add header to Element.
-            $mform->addElement('header', 'bookingactionsheader',
-            '<i class="fa fa-fw fa-bolt" aria-hidden="true"></i>&nbsp;' . get_string('bookingactionsheader', 'mod_booking'));
+            $mform->addElement(
+                'header',
+                'bookingactionsheader',
+                '<i class="fa fa-fw fa-bolt" aria-hidden="true"></i>&nbsp;' . get_string('bookingactionsheader', 'mod_booking')
+            );
 
             $mform->addElement('hidden', 'boactionsjson');
             $mform->setType('boactionsjson', PARAM_RAW);
             if (!empty($formdata['id'])) {
                 // Add a list of existing actions, including an edit and a delete button.
                 self::add_list_of_existing_actions_for_this_option($mform, $formdata);
-
             } else {
-                $mform->addElement('static', 'onlyaddactionsonsavedoption',
-                    get_string('onlyaddactionsonsavedoption', 'mod_booking'));
+                $mform->addElement(
+                    'static',
+                    'onlyaddactionsonsavedoption',
+                    get_string('onlyaddactionsonsavedoption', 'mod_booking')
+                );
             }
         }
     }
@@ -81,11 +87,12 @@ class actions_info {
      * @param array $formdata
      * @return void
      */
-    public static function add_actionsform_to_mform(MoodleQuickForm &$mform,
-        array &$formdata = []) {
+    public static function add_actionsform_to_mform(
+        MoodleQuickForm &$mform,
+        array &$formdata = []
+    ) {
 
         self::add_action($mform, $formdata);
-
     }
 
     /**
@@ -100,7 +107,6 @@ class actions_info {
 
         // We just want filenames, as they are also the classnames.
         foreach ($actionstypes as $key => $value) {
-
             // We instantiate all the classes, because we need some information.
             if (class_exists($key)) {
                 $actions[] = new $key();
@@ -147,7 +153,6 @@ class actions_info {
         $settings = singleton_service::get_instance_of_booking_option_settings($data->optionid);
 
         if (!empty($settings->boactions[$data->id])) {
-
             $action = self::get_action($settings->boactions[$data->id]->action_type);
         }
 
@@ -155,7 +160,6 @@ class actions_info {
         $action->set_defaults($data, $settings->boactions[$data->id]);
 
         return (object)$data;
-
     }
 
     /**
@@ -186,7 +190,6 @@ class actions_info {
 
         // We would certainly expect that we find this booking action with the given id.
         if (isset($settings->boactions[$data->id])) {
-
             $optionvalues = $settings->return_settings_as_stdclass();
             $optionvalues->optionid = $optionvalues->id;
 
@@ -201,7 +204,6 @@ class actions_info {
 
             booking_option::trigger_updated_event($context, $optionvalues->optionid, $USER->id, $USER->id, 'actions');
         }
-
     }
 
     /**
@@ -253,12 +255,18 @@ class actions_info {
         $mform->registerNoSubmitButton('btn_actiontype');
         $buttonargs = ['style' => 'visibility:hidden;'];
         $categoryselect = [
-            $mform->createElement('select', 'action_type',
-            get_string('bookingaction', 'mod_booking'), $actionsforselect),
-            $mform->createElement('submit',
+            $mform->createElement(
+                'select',
+                'action_type',
+                get_string('bookingaction', 'mod_booking'),
+                $actionsforselect
+            ),
+            $mform->createElement(
+                'submit',
                 'btn_actiontype',
                 get_string('bookingaction', 'mod_booking'),
-                $buttonargs),
+                $buttonargs
+            ),
         ];
         $mform->addGroup($categoryselect, 'action_type', get_string('bookingaction', 'mod_booking'), [' '], false);
         $mform->setType('btn_actiontype', PARAM_NOTAGS);
@@ -266,7 +274,7 @@ class actions_info {
         if (!empty($formdata['action_type'])) {
             $action = self::get_action($formdata['action_type']);
         } else {
-            list($action) = $actiontypes;
+            [$action] = $actiontypes;
         }
 
         // Finally, after having chosen the right type of action, we add the corresponding elements.
@@ -291,7 +299,6 @@ class actions_info {
 
         $returnstatus = 0;
         foreach ($settings->boactions as $actiondata) {
-
             // Use ID & cmid from current bookingoption.
             $actiondata->cmid = $settings->cmid;
             $actiondata->optionid = $settings->id;

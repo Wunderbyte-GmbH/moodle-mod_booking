@@ -27,7 +27,7 @@ namespace mod_booking\output;
 
 use context;
 use local_shopping_cart\local\entities\cartitem;
-use mod_booking\booking_answers;
+use mod_booking\booking_answers\booking_answers;
 use mod_booking\booking_option_settings;
 use mod_booking\price;
 use mod_booking\singleton_service;
@@ -159,7 +159,7 @@ class col_price implements renderable, templatable {
         return [
             'itemid' => $this->cartitem['itemid'],
             'itemname' => $this->cartitem['itemname'],
-            'price' => number_format($this->cartitem['price'], 2),
+            'price' => format_float((float)$this->cartitem['price'], 2),
             'currency' => $this->cartitem['currency'],
             'componentname' => $this->cartitem['componentname'],
             'area' => 'option',

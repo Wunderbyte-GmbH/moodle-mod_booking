@@ -29,7 +29,7 @@ use table_sql;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir.'/tablelib.php');
+require_once($CFG->libdir . '/tablelib.php');
 
 /**
  * Class to hahdle mybookings_table
@@ -39,7 +39,6 @@ require_once($CFG->libdir.'/tablelib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mybookings_table extends table_sql {
-
     /**
      * mybookings_table constructor.
      *

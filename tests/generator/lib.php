@@ -144,13 +144,13 @@ class mod_booking_generator extends testing_module_generator {
 
         if (!isset($record['bookingid'])) {
             throw new coding_exception(
-                'bookingid must be present in phpunit_util::create_option() $record'
+                'bookingid must be present in mod_booking_generator::create_option() $record'
             );
         }
 
         if (!isset($record['text'])) {
             throw new coding_exception(
-                'text must be present in phpunit_util::create_option() $record'
+                'text must be present in mod_booking_generator::create_option() $record'
             );
         }
 
@@ -162,7 +162,8 @@ class mod_booking_generator extends testing_module_generator {
         $record = (object) $record;
 
         // Finalizing object with required properties.
-        $record->id = 0;
+        $record->id = $record->id ?? 0;
+        $record->optionid = $record->optionid ?? 0;
         $record->cmid = $booking->cmid;
         $record->identifier = $record->identifier ?? booking_option::create_truly_unique_option_identifier();
 
@@ -386,34 +387,44 @@ class mod_booking_generator extends testing_module_generator {
         $ruleobject->actionname = $ruledraft->actionname;
         $ruleobject->actiondata = json_decode($ruledraft->actiondata);
         $ruleobject->rulename = $ruledraft->rulename;
-        $ruleobject->ruledata = json_decode($ruledraft->ruledata);
+        // Compatibility for old tests on tules.
+        if (!empty($ruledraft->ruledata)) {
+            $ruleobject->ruledata = json_decode($ruledraft->ruledata);
+            if (empty($ruleobject->ruledata->cancelrules)) {
+                $ruleobject->ruledata->cancelrules = [];
+            }
+        }
         if (empty($ruleobject->ruledata)) {
             $ruleobject->ruledata = new stdClass();
+            $ruleobject->ruledata->boevent = $ruledraft->eventname ?? $ruledraft->boevent ?? '';
+            $ruleobject->ruledata->aftercompletion = $ruledraft->aftercompletion ?? '';
+            $ruleobject->ruledata->condition = $ruledraft->condition ?? '';
+            $ruleobject->ruledata->cancelrules = explode(',', $ruledraft->cancelrules) ?? [];
         }
-
-        // Setup event name if provided explicitly or from ruledata if provided.
-        if (!empty($ruledraft->eventname)) {
-            $record->eventname = $ruledraft->eventname;
-        } else if (!empty($ruleobject->ruledata->boevent)) {
-            $record->eventname = $ruleobject->ruledata->boevent;
+        // It is critical of having eventname.
+        $record->eventname = $ruledraft->eventname ?? $ruleobject->ruledata->boevent ?? '';
+        if (empty($record->eventname) && $record->rulename == 'rule_react_on_event') {
+            throw new coding_exception(
+                'rule_react_on_event: eventname (boevent) must be present in mod_booking_generator::create_option() $record'
+            );
         }
-
-        // Setup rule overriding.
-        if (empty($ruleobject->ruledata->cancelrules)) {
-            $ruleobject->ruledata->cancelrules = []; // Should be defined explicitly.
-        }
-        if (!empty($ruledraft->cancelrules)) {
-            $cancelrules = explode(',', $ruledraft->cancelrules);
-            foreach ($cancelrules as $cancelrule) {
+        // Fix rule overriding - convert all rulenames to IDs.
+        foreach ($ruleobject->ruledata->cancelrules as $key => $cancelrule) {
+            if (!empty($cancelrule) && !is_numeric($cancelrule)) {
                 if ($ruleid = $this->get_rule($cancelrule)) {
-                    $ruleobject->ruledata->cancelrules[] = $ruleid;
+                    $ruleobject->ruledata->cancelrules[$key] = $ruleid;
                 }
             }
         }
 
         $record->rulejson = json_encode($ruleobject);
 
-        $record->id = $DB->insert_record('booking_rules', $record);
+        // If we can update, we use id here.
+        if (!empty($record->id)) {
+            $DB->update_record('booking_rules', $record);
+        } else {
+            $record->id = $DB->insert_record('booking_rules', $record);
+        }
 
         return $record;
     }

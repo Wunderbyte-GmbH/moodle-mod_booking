@@ -67,11 +67,11 @@ Feature: In a course add a booking option and manage its waiting list
     And I click on "Student 3 (student3@example.com)" "text"
     When I click on "Add" "button"
     ## Book 2 students
-    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
+    And I click on "[data-bs-target='#accordion-item-waitinglist']" "css_element"
     And I click on ".confirmbooking-username-student1 i" "css_element"
     And I wait "1" seconds
     And I click on "Book" "button" in the ".modal-footer" "css_element"
-    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
+    And I click on "[data-bs-target='#accordion-item-waitinglist']" "css_element"
     And I click on ".confirmbooking-username-student2 i" "css_element"
     And I wait "1" seconds
     And I click on "Book" "button" in the ".modal-footer" "css_element"
@@ -82,7 +82,7 @@ Feature: In a course add a booking option and manage its waiting list
     And I click on "Student 5 (student5@example.com)" "text"
     When I click on "Add" "button"
     ## Verify location
-    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
+    And I click on "[data-bs-target='#accordion-item-waitinglist']" "css_element"
     And I should see "student3@example.com" in the "//tr[contains(@id, 'waitinglist') and contains(@id, '_r1')]" "xpath_element"
     And I should see "student4@example.com" in the "//tr[contains(@id, 'waitinglist') and contains(@id, '_r2')]" "xpath_element"
     ## Resort rows
@@ -93,7 +93,7 @@ Feature: In a course add a booking option and manage its waiting list
     ## Force cache clean-up because of change settings "on the fly"
     And I clean booking cache
     And I reload the page
-    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
+    And I click on "[data-bs-target='#accordion-item-waitinglist']" "css_element"
     And I drag "tr[id^='waitinglist'][id$='r2'] span[data-drag-type='move']" "css_element" and I drop it in "tr[id^='waitinglist'][id$='r1'] span[data-drag-type='move']" "css_element"
     And I wait "1" seconds
     And I should see "student4@example.com" in the "tr[id^='waitinglist'][id$='r1'] td.columnclass.email" "css_element"
@@ -114,18 +114,18 @@ Feature: In a course add a booking option and manage its waiting list
     And I am on the "My booking" Activity page logged in as student3
     And I should see "44.00 EUR" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book it - on waitinglist" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "You are on the waiting list" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Wait for confirmation" in the ".allbookingoptionstable_r1" "css_element"
     And I log out
     And I am on the "My booking" Activity page logged in as student4
     And I should see "55.00 EUR" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book it - on waitinglist" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "You are on the waiting list" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Wait for confirmation" in the ".allbookingoptionstable_r1" "css_element"
     And I log out
     When I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
     ## Confirm all 4 students' bookings
-    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
+    And I click on "[data-bs-target='#accordion-item-waitinglist']" "css_element"
     ## All listed below delays are critical for the test to pass at GitHub!
     ## Order of confirmation 1->4 is important - so "confirmbooking" element is always "1"!
     And I wait until the page is ready
@@ -133,21 +133,21 @@ Feature: In a course add a booking option and manage its waiting list
     And I wait until the page is ready
     And I click on "Book" "button" in the ".modal-footer" "css_element"
     And I wait until the page is ready
-    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
+    And I click on "[data-bs-target='#accordion-item-waitinglist']" "css_element"
     And I wait until the page is ready
-    And I click on the element with the number "1" with the dynamic identifier "waitinglist" and action "confirmbooking"
-    And I wait until the page is ready
-    And I click on "Book" "button" in the ".modal-footer" "css_element"
-    And I wait until the page is ready
-    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
-    And I wait until the page is ready
-    And I click on the element with the number "1" with the dynamic identifier "waitinglist" and action "confirmbooking"
+    And I click on the element with the number "2" with the dynamic identifier "waitinglist" and action "confirmbooking"
     And I wait until the page is ready
     And I click on "Book" "button" in the ".modal-footer" "css_element"
     And I wait until the page is ready
-    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
+    And I click on "[data-bs-target='#accordion-item-waitinglist']" "css_element"
     And I wait until the page is ready
-    And I click on the element with the number "1" with the dynamic identifier "waitinglist" and action "confirmbooking"
+    And I click on the element with the number "3" with the dynamic identifier "waitinglist" and action "confirmbooking"
+    And I wait until the page is ready
+    And I click on "Book" "button" in the ".modal-footer" "css_element"
+    And I wait until the page is ready
+    And I click on "[data-bs-target='#accordion-item-waitinglist']" "css_element"
+    And I wait until the page is ready
+    And I click on the element with the number "4" with the dynamic identifier "waitinglist" and action "confirmbooking"
     And I wait until the page is ready
     ## All listed above delays are critical for the test to pass at GitHub!
     And I click on "Book" "button" in the ".modal-footer" "css_element"
@@ -186,7 +186,7 @@ Feature: In a course add a booking option and manage its waiting list
     And I click on "Student 2 (student2@example.com)" "text"
     And I click on "Remove" "button"
     ## Cancel waiting list for student 4
-    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
+    And I click on "[data-bs-target='#accordion-item-waitinglist']" "css_element"
     And I should see "student3@example.com" in the "tr[id^='waitinglist'][id$='r1'] td.columnclass.email" "css_element"
     And I should see "student4@example.com" in the "tr[id^='waitinglist'][id$='r2'] td.columnclass.email" "css_element"
     And I click on "tr[id^='waitinglist'][id$='r2'] [data-methodname='unconfirmbooking']" "css_element"
@@ -211,7 +211,7 @@ Feature: In a course add a booking option and manage its waiting list
     And I log out
     ## Validate that student 4 still on waiting list with only cancellation possible
     And I am on the "My booking" Activity page logged in as student4
-    And I should see "You are on the waiting list" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Wait for confirmation" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Undo my booking" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "(Waiting list: 1/3)" in the ".allbookingoptionstable_r1" "css_element"
 
@@ -229,7 +229,7 @@ Feature: In a course add a booking option and manage its waiting list
     And I click on "Student 4 (student4@example.com)" "text"
     When I click on "Add" "button"
     ## 2 students are on waitinglist
-    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
+    And I click on "[data-bs-target='#accordion-item-waitinglist']" "css_element"
     And I should see "student3@example.com" in the "#accordion-item-waitinglist" "css_element"
     And I should see "student4@example.com" in the "#accordion-item-waitinglist" "css_element"
     ## Adjust option settings
@@ -239,6 +239,25 @@ Feature: In a course add a booking option and manage its waiting list
     And I click on "Save" "button"
     And I should see "4" in the ".allbookingoptionstable_r1 .col-ap-availableplaces" "css_element"
     And I should see "Waiting list: 0/2" in the ".allbookingoptionstable_r1 .col-ap-waitingplacesavailable" "css_element"
+    And I log out
+    ## Validate that student5 could book on waiting list
+    And I am on the "My booking" Activity page logged in as student5
+    And I should see "Book it - on waitinglist" in the ".allbookingoptionstable_r1" "css_element"
+    And I log out
+    ## Unlimited waitinglist with free place available now
+    ## Check for https://github.com/Wunderbyte-GmbH/moodle-mod_booking/commit/ce9b9fc96bb094a4ff248437bd3914da31499e1e
+    And I am on the "My booking" Activity page logged in as teacher1
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I set the field "Max. number of participants" to "5"
+    And I set the field "Max. number of places on waiting list" to "-1"
+    And I click on "Save" "button"
+    And I should see "5" in the ".allbookingoptionstable_r1 .col-ap-availableplaces" "css_element"
+    And I should see "(Waiting list: 0/Unlimited)" in the ".allbookingoptionstable_r1" "css_element"
+    ## Validate that student5 could book now
+    And I am on the "My booking" Activity page logged in as student5
+    And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "(Waiting list: 0/Unlimited)" in the ".allbookingoptionstable_r1" "css_element"
+    And I log out
 
   @javascript
   Scenario: Booking option: reconfiguration of forced waiting list
@@ -254,7 +273,7 @@ Feature: In a course add a booking option and manage its waiting list
     And I click on "Student 4 (student4@example.com)" "text"
     When I click on "Add" "button"
     ## 2 students are on waitinglist
-    And I click on "[data-target='#accordion-item-waitinglist']" "css_element"
+    And I click on "[data-bs-target='#accordion-item-waitinglist']" "css_element"
     And I should see "student1@example.com" in the "#accordion-item-waitinglist" "css_element"
     And I should see "student4@example.com" in the "#accordion-item-waitinglist" "css_element"
     ## Adjust option settings
@@ -265,3 +284,45 @@ Feature: In a course add a booking option and manage its waiting list
     And I click on "Save" "button"
     And I should see "0" in the ".allbookingoptionstable_r1 .col-ap-availableplaces" "css_element"
     And I should see "Waiting list: 4/4" in the ".allbookingoptionstable_r1 .col-ap-waitingplacesavailable" "css_element"
+
+  @javascript
+  Scenario: Booking option: validate waiting list labels
+    Given the following config values are set as admin:
+      | config                            | value | plugin  |
+      | bookingplacesinfotexts            | 2     | booking |
+      | waitinglistinfotexts              | 2     | booking |
+      | waitinglistshowplaceonwaitinglist |       | booking |
+    And the following "mod_booking > options" exist:
+      | booking    | text                   | course | description  | importing | teachersforoption | maxanswers | maxoverbooking | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
+      | My booking | Unlimited WL, full     | C1     | Waiting list | 1         | teacher1          | 2          | -1             | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+      | My booking | Unlimited WL, not full | C1     | Waiting list | 1         | teacher1          | 2          | -1             | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+      | My booking | Limited WL, full       | C1     | Waiting list | 1         | teacher1          | 2          | 4              | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+      | My booking | Limited WL, not full   | C1     | Waiting list | 1         | teacher1          | 2          | 4              | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+    And the following "mod_booking > answers" exist:
+      | booking    | option                 | user     |
+      | My booking | Unlimited WL, full     | student1 |
+      | My booking | Unlimited WL, full     | student2 |
+      | My booking | Unlimited WL, full     | student3 |
+      | My booking | Unlimited WL, not full | student1 |
+      | My booking | Limited WL, full       | student1 |
+      | My booking | Limited WL, full       | student2 |
+      | My booking | Limited WL, full       | student3 |
+      | My booking | Limited WL, not full   | student1 |
+    And I am on the "My booking" Activity page logged in as student4
+    And I should see "Limited WL, full" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Fully booked" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "(3 places left on the waiting list)" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Book it - on waitinglist" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Limited WL, not full" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "1 place left" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "(4 places left on the waiting list)" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "Unlimited WL, full" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Fully booked" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "(Unlimited places left on the waiting list)" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Book it - on waitinglist" in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Unlimited WL, not full" in the ".allbookingoptionstable_r4" "css_element"
+    And I should see "1 place left" in the ".allbookingoptionstable_r4" "css_element"
+    And I should see "(Unlimited places left on the waiting list)" in the ".allbookingoptionstable_r4" "css_element"
+    And I should see "Book now" in the ".allbookingoptionstable_r4" "css_element"
+    And I log out

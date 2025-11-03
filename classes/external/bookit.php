@@ -26,6 +26,7 @@ declare(strict_types=1);
 
 namespace mod_booking\external;
 
+use cache;
 use external_api;
 use external_function_parameters;
 use external_value;
@@ -48,7 +49,6 @@ require_once($CFG->libdir . '/externallib.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class bookit extends external_api {
-
     /**
      * Describes the parameters for bookit.
      *
@@ -60,8 +60,7 @@ class bookit extends external_api {
             'itemid' => new external_value(PARAM_INT, 'itemid'),
             'userid' => new external_value(PARAM_INT, 'userid'),
             'data' => new external_value(PARAM_RAW, 'data'),
-            ]
-        );
+            ]);
     }
 
     /**
@@ -106,6 +105,19 @@ class bookit extends external_api {
 
         [$templates, $data] = booking_bookit::render_bookit_template_data($settings, $userid, false);
 
+        // On booking, we clear the user-specific cache of the booking option answers.
+        $cache = cache::make('mod_booking', 'bookingoptionsanswers');
+        $cachekey = "$settings->id";
+        $bacache = $cache->get($cachekey);
+        $user = price::return_user_to_buy_for();
+
+        if (
+            !empty($bacache)
+            && isset($bacache->usercache[$user->id])
+        ) {
+            unset($bacache->usercache[$user->id]);
+        }
+
         return [
             'status' => $status,
             'message' => $message,
@@ -125,7 +137,6 @@ class bookit extends external_api {
             'message' => new external_value(PARAM_RAW, 'Message if any', VALUE_DEFAULT, ''),
             'template' => new external_value(PARAM_TEXT, 'Button template', VALUE_DEFAULT, ''),
             'json' => new external_value(PARAM_RAW, 'Data as json', VALUE_DEFAULT, ''),
-            ]
-        );
+            ]);
     }
 }

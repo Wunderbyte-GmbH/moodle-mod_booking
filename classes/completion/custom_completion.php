@@ -41,7 +41,6 @@ use mod_booking\singleton_service;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class custom_completion extends activity_custom_completion {
-
     /**
      * Fetches the completion state for a given completion rule.
      *
@@ -58,8 +57,10 @@ class custom_completion extends activity_custom_completion {
         }
 
         // Feedback only supports completionsubmit as a custom rule.
-        $status = $DB->count_records('booking_answers',
-            ['bookingid' => $booking->id, 'userid' => $this->userid, 'completed' => '1']);
+        $status = $DB->count_records(
+            'booking_answers',
+            ['bookingid' => $booking->id, 'userid' => $this->userid, 'completed' => '1']
+        );
 
         return $booking->settings->enablecompletion <= $status ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE;
     }

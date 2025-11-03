@@ -24,10 +24,13 @@
  */
 
 namespace mod_booking\table;
-use core\exception\moodle_exception;
+use moodle_exception;
+use core_plugin_manager;
 use mod_booking\enrollink;
 use mod_booking\event\bookinganswer_confirmed;
+use mod_booking\event\bookinganswer_denied;
 use mod_booking\local\bookingstracker\bookingstracker_helper;
+use mod_booking\local\confirmationworkflow\confirmation;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -62,13 +65,12 @@ class manageusers_table extends wunderbyte_table {
      * @return string
      */
     public function col_checkbox(stdClass $values) {
-        if (!$this->is_downloading()) {
-            return '<input id="manageuserstable-check-' . $values->id .
-                     '" type="checkbox" class="usercheckbox" name="user[][' . $values->userid .
-                     ']" value="' . $values->userid . '" />';
-        } else {
+        if ($this->is_downloading()) {
             return '';
         }
+        return '<input id="manageuserstable-check-' . $values->id .
+            '" type="checkbox" class="usercheckbox" name="user[][' . $values->userid .
+            ']" value="' . $values->userid . '" />';
     }
 
     /**
@@ -90,9 +92,60 @@ class manageusers_table extends wunderbyte_table {
      * @param stdClass $values
      * @return string
      */
-    public function col_timemodified(stdClass $values) {
-
+    public function col_timemodified(stdClass $values): string {
+        if (empty($values->timemodified)) {
+            return '';
+        }
         return userdate($values->timemodified);
+    }
+
+    /**
+     * Return column timebooked.
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_timebooked(stdClass $values): string {
+        if (empty($values->timebooked)) {
+            return '';
+        }
+        return userdate($values->timebooked);
+    }
+
+     /**
+      * Returns lable of the booking status.
+      * @param \stdClass $values
+      * @return string
+      */
+    public function col_bookingstatus(stdClass $values): string {
+        switch ($values->waitinglist) {
+            case MOD_BOOKING_STATUSPARAM_BOOKED:
+                return get_string('bookingstatusbooked', 'mod_booking');
+            case MOD_BOOKING_STATUSPARAM_WAITINGLIST:
+                return get_string('bookingstatusonwaitinglist', 'mod_booking');
+            case MOD_BOOKING_STATUSPARAM_RESERVED:
+                return get_string('bookingstatusreserved', 'mod_booking');
+            case MOD_BOOKING_STATUSPARAM_NOTIFYMELIST:
+                return get_string('bookingstatusonnotificationlist', 'mod_booking');
+            case MOD_BOOKING_STATUSPARAM_NOTBOOKED:
+                return get_string('notbooked', 'mod_booking');
+            case MOD_BOOKING_STATUSPARAM_DELETED:
+                return get_string('bookingstatusdeleted', 'mod_booking');
+            case MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED:
+                return get_string('bookingstatuspreviouslybooked', 'mod_booking');
+            default:
+                return get_string('notbooked', 'booking');
+        }
+    }
+
+    /**
+     * Return titleprefix.
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_titleprefix(stdClass $values) {
+        return $values->titleprefix ?? '';
     }
 
     /**
@@ -105,7 +158,15 @@ class manageusers_table extends wunderbyte_table {
         if ($this->is_downloading()) {
             return $values->text ?? '';
         }
-        return bookingstracker_helper::render_col_text($values);
+
+        $helper = new bookingstracker_helper($values);
+        if ($values->scope === 'optionstoconfirm') {
+            // We don’t need to show the report page link, so we replace it with the option
+            // view page in the approvers table where they confirm an answer.
+            $helper->set_texticon('');
+            $helper->set_reportoptionlink($helper->get_optionviewlink());
+        }
+        return $helper->render_col_text();
     }
 
     /**
@@ -139,6 +200,9 @@ class manageusers_table extends wunderbyte_table {
      * @return string
      */
     public function col_status(stdClass $values) {
+        if (!isset($values->status) || $values->status === null) {
+            $values->status = MOD_BOOKING_PRESENCE_STATUS_UNKNOWN;
+        }
         $possiblepresences = booking::get_array_of_possible_presence_statuses();
         if (isset($possiblepresences[$values->status])) {
             return $possiblepresences[$values->status];
@@ -166,7 +230,7 @@ class manageusers_table extends wunderbyte_table {
             return "<b>" . ($values->presencecount ?? '0') . "</b>/" . $numberofoptiondates;
         } else {
             $answers = singleton_service::get_instance_of_booking_answers($settings);
-            $numberofbookedusers = count($answers->usersonlist);
+            $numberofbookedusers = count($answers->get_usersonlist());
             $numberofpossiblepresences = $numberofbookedusers * $numberofoptiondates;
             return "<b>" . ($values->presencecount ?? 0) . "</b>/" . $numberofpossiblepresences;
         }
@@ -262,66 +326,95 @@ class manageusers_table extends wunderbyte_table {
         $userid = $record->userid;
         $optionid = $record->optionid;
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        // Check all bookingextension subplugins for confirm capability.
+        [$allowedtoconfirm, $returnmessage, $reload] =
+            confirmation::check_confirm_capability($optionid, $USER->id, $userid);
 
-        $context = context_module::instance($settings->cmid);
-
-        if (has_capability('mod/booking:bookforothers', $context)) {
-            // Inserting into History Table.
-            booking_option::booking_history_insert(MOD_BOOKING_STATUSPARAM_WAITINGLIST_CONFIRMED, $baid, $optionid, $userid);
-
-            $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
-            $user = singleton_service::get_instance_of_user($userid);
-
-            // If booking option is booked with a price, we don't book directly but just allow to book.
-            // Exeption: The booking is autoenrol and needs to be booked directly...
-            // In this case price can be given for bookingoption, but was already payed before.
-            if (
-                !empty($settings->jsonobject->useprice)
-                && empty(get_config('booking', 'turnoffwaitinglist'))
-                && (
-                    $erwaitinglist = enrollink::enrolmentstatus_waitinglist($settings) === false
-                    || enrollink::is_initial_answer($record) === true
-                ) // Only the initial answer of enrollink needs to be bought.
-            ) {
-                $option->user_submit_response(
-                    $user,
-                    0,
-                    0,
-                    MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION,
-                    MOD_BOOKING_VERIFIED
-                );
-            } else {
-                // Check if it's an autoenrollment. If so, we need to change the status.
-                if (!empty($erwaitinglist)) {
-                    $status = MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL;
-                } else {
-                    $status = MOD_BOOKING_BO_SUBMIT_STATUS_DEFAULT;
-                }
-                $option->user_submit_response($user, 0, 0, $status, MOD_BOOKING_VERIFIED);
-            }
-
-            // Event is triggered no matter if a bookinganswer with or without price was confirmed.
-            $event = bookinganswer_confirmed::create(
-                [
-                    'objectid' => $option->id,
-                    'context' => \context_system::instance(),
-                    'userid' => $USER->id,
-                    'relateduserid' => $user->id,
-                ]
-            );
-            $event->trigger();
-            return [
-                'success' => 1,
-                'message' => get_string('successfullybooked', 'mod_booking'),
-                'reload' => 1,
-            ];
-        } else {
+        if (!$allowedtoconfirm) {
             return [
                 'success' => 0,
-                'message' => get_string('norighttobook', 'mod_booking'),
+                'message' => $returnmessage ?? get_string('notallowedtoconfirm', 'mod_booking'),
+                'reload' => ($reload ?? false) ? 1 : 0,
             ];
         }
+
+        // Check number of required confirmation.
+        $requiredconfirmationscount = confirmation::get_required_confirmation_count($optionid);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
+        $user = singleton_service::get_instance_of_user($userid);
+
+        // Inserting into History Table.
+        booking_option::booking_history_insert(
+            MOD_BOOKING_STATUSPARAM_WAITINGLIST_CONFIRMED,
+            $baid,
+            $optionid,
+            $settings->bookingid,
+            $userid
+        );
+
+        // If booking option is booked with a price, we don't book directly but just allow to book.
+        // Exeption: The booking is autoenrol and needs to be booked directly...
+        // In this case price can be given for bookingoption, but was already payed before.
+        if (
+            !empty($settings->jsonobject->useprice)
+            && empty(get_config('booking', 'turnoffwaitinglist'))
+            && (
+                $erwaitinglist = enrollink::enrolmentstatus_waitinglist($settings) === false
+                || enrollink::is_initial_answer($record) === true
+            ) // Only the initial answer of enrollink needs to be bought.
+        ) {
+            $option->user_submit_response(
+                $user,
+                0,
+                0,
+                MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION,
+                MOD_BOOKING_VERIFIED
+            );
+        } else {
+            // Check if it's an autoenrollment. If so, we need to change the status.
+            if (!empty($erwaitinglist)) {
+                $status = MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL;
+            } else if ($requiredconfirmationscount >= 2) {
+                // If needs more confirmations shoudl still wait on waiting list. otherwise it can be booked.
+                // We need the current confirmation with the required confirmation.
+                $currentconfirmationcount = 0;
+                $answerjson = !empty($record->json) ? json_decode($record->json) : new stdClass();
+                if (property_exists($answerjson, 'confirmationcount')) {
+                    $currentconfirmationcount = (int) $answerjson->confirmationcount;
+                }
+
+                if (($requiredconfirmationscount - 1) === $currentconfirmationcount) {
+                    // So it's the last confirm. No more confirmation is required.
+                    $status = MOD_BOOKING_BO_SUBMIT_STATUS_DEFAULT;
+                } else {
+                    // Need more confirms.
+                    $status = MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION;
+                }
+            } else {
+                $status = MOD_BOOKING_BO_SUBMIT_STATUS_DEFAULT;
+            }
+            $option->user_submit_response($user, 0, 0, $status, MOD_BOOKING_VERIFIED);
+        }
+
+        // Event is triggered no matter if a bookinganswer with or without price was confirmed.
+        $event = bookinganswer_confirmed::create(
+            [
+                'objectid' => $option->id,
+                'context' => context_system::instance(),
+                'userid' => $USER->id,
+                'relateduserid' => $user->id,
+            ]
+        );
+        $event->trigger();
+
+        return [
+            'success' => 1,
+            'message' => get_string('successfullybooked', 'mod_booking'),
+            'reload' => 1,
+        ];
     }
 
     /**
@@ -332,7 +425,7 @@ class manageusers_table extends wunderbyte_table {
      */
     public function action_unconfirmbooking(int $id, string $data): array {
 
-        global $DB;
+        global $DB, $USER;
 
         $jsonobject = json_decode($data);
         $baid = $jsonobject->id;
@@ -341,28 +434,42 @@ class manageusers_table extends wunderbyte_table {
 
         $userid = $record->userid;
         $optionid = $record->optionid;
+        $allowedtoconfirm = false;
+
+        // Booking extions can break this execution to check if the current user has actually the right.
+        foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
+            $class = "\\bookingextension_{$plugin->name}\\local\\confirmbooking";
+
+            if (class_exists($class)) {
+                [$allowed, $message, $reload] = $class::has_capability_to_confirm_booking($optionid, $USER->id, $userid);
+                if ($allowed) {
+                    // If only one subplugin allows it, we can continue.
+                    $allowedtoconfirm = true;
+                    continue;
+                } else {
+                    $returnmessage = $message;
+                }
+            }
+        }
+        if (!$allowedtoconfirm) {
+            return [
+                'success' => 0,
+                'message' => $returnmessage,
+            ];
+        }
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        $context = context_module::instance($settings->cmid);
+        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
+        $user = singleton_service::get_instance_of_user($userid);
 
-        if (has_capability('mod/booking:bookforothers', $context)) {
-            $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
-            $user = singleton_service::get_instance_of_user($userid);
+        $option->user_submit_response($user, 0, 0, 3, MOD_BOOKING_VERIFIED);
 
-            $option->user_submit_response($user, 0, 0, 3, MOD_BOOKING_VERIFIED);
-
-            return [
-                'success' => 1,
-                'message' => get_string('successfullybooked', 'mod_booking'),
-                'reload' => 1,
-            ];
-        } else {
-            return [
-                'success' => 0,
-                'message' => get_string('norighttobook', 'mod_booking'),
-            ];
-        }
+        return [
+            'success' => 1,
+            'message' => get_string('successfullybooked', 'mod_booking'),
+            'reload' => 1,
+        ];
     }
 
     /**
@@ -373,42 +480,127 @@ class manageusers_table extends wunderbyte_table {
      */
     public function action_deletebooking(int $id, string $data): array {
 
-        global $DB;
+        global $DB, $USER;
 
         $jsonobject = json_decode($data);
 
         $userid = $jsonobject->userid;
         $optionid = $jsonobject->optionid;
+        $allowedtoconfirm = false;
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        // Booking extions can break this execution to check if the current user has actually the right.
+        foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
+            $class = "\\bookingextension_{$plugin->name}\\local\\confirmbooking";
 
-        $context = context_module::instance($settings->cmid);
-
-        if (has_capability('mod/booking:bookforothers', $context)) {
-            $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
-
-            if (
-                $DB->record_exists(
-                    'booking_answers',
-                    ['userid' => $userid, 'optionid' => $optionid, 'waitinglist' => MOD_BOOKING_STATUSPARAM_RESERVED]
-                )
-            ) {
-                $option->user_delete_response($userid, true, false, false);
-            } else {
-                $option->user_delete_response($userid, false, false, false);
+            if (class_exists($class)) {
+                [$allowed, $message, $reload] = $class::has_capability_to_confirm_booking($optionid, $USER->id, $userid);
+                if ($allowed) {
+                    // If only one subplugin allows it, we can continue.
+                    $allowedtoconfirm = true;
+                    continue;
+                } else {
+                    $returnmessage = $message;
+                }
             }
-
-            return [
-                'success' => 1,
-                'message' => get_string('successfullybooked', 'mod_booking'),
-                'reload' => 1,
-            ];
-        } else {
+        }
+        if (!$allowedtoconfirm) {
             return [
                 'success' => 0,
-                'message' => get_string('norighttobook', 'mod_booking'),
+                'message' => $returnmessage,
             ];
         }
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
+
+        if (
+            $DB->record_exists(
+                'booking_answers',
+                ['userid' => $userid, 'optionid' => $optionid, 'waitinglist' => MOD_BOOKING_STATUSPARAM_RESERVED]
+            )
+        ) {
+            $option->user_delete_response($userid, true, false, false);
+        } else {
+            $option->user_delete_response($userid, false, false, false);
+        }
+
+        return [
+            'success' => 1,
+            'message' => get_string('successfullybooked', 'mod_booking'),
+            'reload' => 1,
+        ];
+    }
+
+    /**
+     *
+     * @param int $id
+     * @param string $data
+     * @return array
+     */
+    public function action_denybooking(int $id, string $data): array {
+
+        global $DB, $USER;
+
+        $jsonobject = json_decode($data);
+
+        $userid = $jsonobject->userid;
+        $optionid = $jsonobject->optionid;
+        $allowedtoconfirm = false;
+
+        // Booking extions can break this execution to check if the current user has actually the right.
+        foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
+            $class = "\\bookingextension_{$plugin->name}\\local\\confirmbooking";
+
+            if (class_exists($class)) {
+                [$allowed, $message, $reload] = $class::has_capability_to_confirm_booking($optionid, $USER->id, $userid);
+                if ($allowed) {
+                    // If only one subplugin allows it, we can continue.
+                    $allowedtoconfirm = true;
+                    continue;
+                } else {
+                    $returnmessage = $message;
+                }
+            }
+        }
+        if (!$allowedtoconfirm) {
+            return [
+                'success' => 0,
+                'message' => $returnmessage,
+            ];
+        }
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
+
+        if (
+            $DB->record_exists(
+                'booking_answers',
+                ['userid' => $userid, 'optionid' => $optionid, 'waitinglist' => MOD_BOOKING_STATUSPARAM_RESERVED]
+            )
+        ) {
+            $option->user_delete_response($userid, true, false, false);
+        } else {
+            $option->user_delete_response($userid, false, false, false);
+        }
+
+        $user = singleton_service::get_instance_of_user($userid);
+
+        // Trigger event.
+        $event = bookinganswer_denied::create(
+            [
+                'objectid' => $option->id,
+                'context' => context_system::instance(),
+                'userid' => $USER->id,
+                'relateduserid' => $user->id,
+            ]
+        );
+        $event->trigger();
+
+        return [
+            'success' => 1,
+            'message' => get_string('successfullybooked', 'mod_booking'),
+            'reload' => 1,
+        ];
     }
 
     /**
@@ -466,11 +658,11 @@ class manageusers_table extends wunderbyte_table {
      * This handles the action column with buttons, icons, checkboxes.
      *
      * @param stdClass $values
-     * @return void
+     * @return bool|string
      */
     public function col_action_confirm_delete($values) {
 
-        global $OUTPUT;
+        global $OUTPUT, $USER;
 
         $optionid = $values->optionid;
 
@@ -503,9 +695,24 @@ class manageusers_table extends wunderbyte_table {
             }
         }
 
+        [$allowedtoconfirm, $returnmessage, $reload] =
+            confirmation::check_confirm_capability($optionid, $USER->id, $values->userid);
+
+        if (!$allowedtoconfirm) {
+            $data[] = [
+                'label' => $returnmessage ?? '', // Name of your action button.
+                'class' => "badge bg-secondary p-2",
+                'href' => '#', // You can either use the link, or JS, or both.
+                'iclass' => '', // Add an icon before the label.
+                'id' => $values->id,
+                'name' => $values->id,
+                'methodname' => '', // The method needs to be added to your child of wunderbyte_table class.
+                'data' => [], // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+            ];
+        }
+
         if (
-            (!$ba->is_fully_booked() || !empty($settings->jsonobject->useprice))
-            && empty($data)
+                $allowedtoconfirm
         ) {
             $data[] = [
                 'label' => '', // Name of your action button.
@@ -526,8 +733,30 @@ class manageusers_table extends wunderbyte_table {
                     'userid' => $values->userid,
                 ],
             ];
+
+            // Deny booking Button.
+            $data[] = [
+                'label' => '', // Name of your action button.
+                'class' => '',
+                'href' => '#', // You can either use the link, or JS, or both.
+                'iclass' => 'fa fa-thumbs-down', // Add an icon before the label.
+                'id' => $values->id,
+                'name' => $values->id,
+                'methodname' => 'denybooking', // The method needs to be added to your child of wunderbyte_table class.
+                'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+                    'id' => $values->id,
+                    'labelcolumn' => 'username',
+                    'titlestring' => 'deny',
+                    'bodystring' => 'denybookinglong',
+                    'submitbuttonstring' => 'deny',
+                    'component' => 'mod_booking',
+                    'optionid' => $values->optionid,
+                    'userid' => $values->userid,
+                ],
+            ];
         }
 
+        // Trash booking button.
         $data[] = [
             'label' => '', // Name of your action button.
             'class' => '',
@@ -561,7 +790,7 @@ class manageusers_table extends wunderbyte_table {
      * This handles the delete action column.
      *
      * @param stdClass $values
-     * @return void
+     * @return bool|string
      */
     public function col_action_delete($values) {
 
@@ -590,14 +819,17 @@ class manageusers_table extends wunderbyte_table {
         // This transforms the array to make it easier to use in mustache template.
         table::transform_actionbuttons_array($data);
 
-        return $OUTPUT->render_from_template('local_wunderbyte_table/component_actionbutton', ['showactionbuttons' => $data]);
+        return $OUTPUT->render_from_template(
+            'local_wunderbyte_table/component_actionbutton',
+            ['showactionbuttons' => $data]
+        );
     }
 
     /**
      * This handles the presence status action column.
      *
      * @param stdClass $values
-     * @return void
+     * @return bool|string
      */
     public function col_actions($values) {
 
@@ -659,6 +891,9 @@ class manageusers_table extends wunderbyte_table {
         // This transforms the array to make it easier to use in mustache template.
         table::transform_actionbuttons_array($data);
 
-        return $OUTPUT->render_from_template('local_wunderbyte_table/component_actionbutton', ['showactionbuttons' => $data]);
+        return $OUTPUT->render_from_template(
+            'local_wunderbyte_table/component_actionbutton',
+            ['showactionbuttons' => $data]
+        );
     }
 }

@@ -595,6 +595,7 @@ class renderer extends plugin_renderer_base {
     public function render_col_price($data) {
         $o = '';
         $data = $data->export_for_template($this);
+        booking::convert_prices_to_number_format($data);
         $o .= $this->render_from_template('mod_booking/col_price', $data);
         return $o;
     }
@@ -761,6 +762,7 @@ class renderer extends plugin_renderer_base {
     public function render_bookit_price($data) {
         $o = '';
         $data = $data->export_for_template($this);
+        booking::convert_prices_to_number_format($data);
         $o .= $this->render_from_template('mod_booking/bookit_price', $data);
         return $o;
     }

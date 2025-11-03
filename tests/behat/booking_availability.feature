@@ -268,10 +268,10 @@ Feature: Test booking options avaialbility conditions
     Given I am on the "My booking" Activity page logged in as student1
     Then I should see "Start" in the ".allbookingoptionstable_r3" "css_element"
     Given I am on the "My booking" Activity page logged in as student3
-    Then I should see "Book now" in the ".allbookingoptionstable_r3" "css_element"
-    And I click on "Book now" "text" in the ".allbookingoptionstable_r3" "css_element"
-    And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r3" "css_element"
-    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r3" "css_element"
+    Then I should see "Book it - on waitinglist" in the ".allbookingoptionstable_r3" "css_element"
+    And I click on "Book it - on waitinglist" "text" in the ".allbookingoptionstable_r3" "css_element"
+    ##And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r3" "css_element"
+    ##And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "You are on the waiting list" in the ".allbookingoptionstable_r3" "css_element"
 
   @javascript

@@ -172,7 +172,7 @@ class mobile {
                 break;
             case MOD_BOOKING_BO_COND_PRICEISSET:
                 $price = price::get_price('option', $settings->id);
-                $data['nosubmit']['label'] = $price['price'] . " " . $price['currency'];
+                $data['nosubmit']['label'] = format_float($price['price'], 2) . " " . $price['currency'];
                 break;
             case MOD_BOOKING_BO_COND_BOOKINGPOLICY:
                 $data['nosubmit']['label'] = get_string('notbookable', 'mod_booking');
@@ -380,7 +380,6 @@ class mobile {
         $settings = singleton_service::get_instance_of_booking_option_settings($recordid);
         $tmpoutputdata = $settings->return_booking_option_information();
         $tmpoutputdata['maxsessions'] = $maxdatabeforecollapsable;
-        $tmpoutputdata = $settings->return_booking_option_information();
         if (
             strlen(strip_tags($tmpoutputdata['description'])) >
             (int) get_config('booking', 'collapsedescriptionmaxlength')

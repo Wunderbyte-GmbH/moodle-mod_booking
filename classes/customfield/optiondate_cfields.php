@@ -36,7 +36,6 @@ use stdClass;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class optiondate_cfields {
-
     /**
      * Helper function to create form elements for adding custom fields.
      *
@@ -64,7 +63,8 @@ class optiondate_cfields {
         $element = $mform->addElement(
             'checkbox',
             'addcustomfield_' . $identifier,
-            get_string('addcustomfieldorcomment', 'mod_booking'));
+            get_string('addcustomfieldorcomment', 'mod_booking')
+        );
         if (empty($customfields)) {
             $element->setValue(0);
         }
@@ -84,7 +84,6 @@ class optiondate_cfields {
         ];
 
         while ($counter <= MOD_BOOKING_MAX_CUSTOM_FIELDS) {
-
             if (!empty($customfields)) {
                 $customfield = array_shift($customfields);
             } else {
@@ -99,8 +98,13 @@ class optiondate_cfields {
             $element->setValue($customfield['id'] ?? 0);
             $elements[] = $element;
 
-            $element = $mform->addElement('autocomplete', 'customfieldname_' . $identifier,
-                get_string('customfieldname', 'mod_booking'), $cfnames, $options);
+            $element = $mform->addElement(
+                'autocomplete',
+                'customfieldname_' . $identifier,
+                get_string('customfieldname', 'mod_booking'),
+                $cfnames,
+                $options
+            );
             if (!empty($CFG->formatstringstriptags)) {
                 $mform->setType('customfieldname_' . $identifier, PARAM_TEXT);
             } else {
@@ -111,8 +115,12 @@ class optiondate_cfields {
             $element->setValue($customfield['cfgname'] ?? '');
             $elements[] = $element;
 
-            $element = $mform->addElement('textarea', 'customfieldvalue_' . $identifier,
-                get_string('customfieldvalue', 'mod_booking'), 'wrap="virtual" rows="1" cols="65"');
+            $element = $mform->addElement(
+                'textarea',
+                'customfieldvalue_' . $identifier,
+                get_string('customfieldvalue', 'mod_booking'),
+                'wrap="virtual" rows="1" cols="65"'
+            );
             $mform->setType('customfieldvalue_' . $identifier, PARAM_RAW);
             $mform->addHelpButton('customfieldvalue_' . $identifier, 'customfieldvalue', 'booking');
             $mform->hideIf('customfieldvalue_' . $identifier, 'addcustomfield_' . $identifier, 'notchecked');
@@ -125,13 +133,13 @@ class optiondate_cfields {
 
             // Show checkbox to add a custom field.
             if ($counter < MOD_BOOKING_MAX_CUSTOM_FIELDS) {
-
                 $nextidentifier = $index . '_' . ($counter + 1);
 
                 $element = $mform->addElement(
                     'checkbox',
                     'addcustomfield_' . $nextidentifier,
-                    get_string('addcustomfieldorcomment', 'mod_booking'));
+                    get_string('addcustomfieldorcomment', 'mod_booking')
+                );
                 $mform->hideIf('addcustomfield_' . $nextidentifier, 'addcustomfield_' . $identifier, 'notchecked');
 
                 if (empty($customfields)) {
@@ -162,7 +170,7 @@ class optiondate_cfields {
 
         $returncfields = [];
         foreach ($cfnames as $cfname) {
-            list($name, $index, $counter) = explode('_', $cfname);
+            [$name, $index, $counter] = explode('_', $cfname);
 
             $cfname = $formdata[$cfname] ?? null;
             $cfvalue = $formdata['customfieldvalue_' . $index . '_' . $counter] ?? null;
@@ -208,9 +216,7 @@ class optiondate_cfields {
         $oldcustomfields = self::return_customfields_for_optiondate($optiondateid);
 
         foreach ($customfields as $customfield) {
-
             if (isset($customfield->id) && isset($oldcustomfields[$customfield->id])) {
-
                 if (empty($customfield["cfgname"]) && empty($customfield["value"])) {
                     $DB->delete_records('booking_customfields', ['id' => $customfield->id]);
                 } else {
@@ -239,7 +245,6 @@ class optiondate_cfields {
         global $DB;
 
         return $DB->get_records('booking_customfields', ['optiondateid' => $optiondateid]);
-
     }
 
     /**
@@ -255,7 +260,6 @@ class optiondate_cfields {
 
         $i = 1;
         foreach ($cfields as $cfield) {
-
             $key = 'addcustomfield_' . $idx . '_' . $i;
             $defaultvalues->{$key} = 1;
 
@@ -299,14 +303,12 @@ class optiondate_cfields {
         }
 
         foreach ($newitem["customfields"] as $cfield) {
-
             if (empty($cfield['optiondateid'])) {
                 // We have a new field, so it's obviously changed.
                 return false;
             }
 
             if (isset($olditem['customfields'][$cfield['id']])) {
-
                 $oldcfield = $olditem['customfields'][$cfield['id']];
 
                 // If we find the item, we iterate over all the values.

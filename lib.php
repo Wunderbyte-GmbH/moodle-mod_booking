@@ -95,6 +95,7 @@ define('MOD_BOOKING_STATUSPARAM_RESERVED', 2);
 define('MOD_BOOKING_STATUSPARAM_NOTIFYMELIST', 3); // Get message when place is open.
 define('MOD_BOOKING_STATUSPARAM_NOTBOOKED', 4);
 define('MOD_BOOKING_STATUSPARAM_DELETED', 5);
+define('MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED', 6);
 
 // Values for Booking history.
 define('MOD_BOOKING_STATUSPARAM_BOOKED_DELETED', 10);
@@ -107,6 +108,7 @@ define('MOD_BOOKING_STATUSPARAM_BOOKINGOPTION_MOVED', 16);
 define('MOD_BOOKING_STATUSPARAM_BOOKOTHEROPTIONS', 17);
 define('MOD_BOOKING_STATUSPARAM_COMPLETION_CHANGED', 18);
 define('MOD_BOOKING_STATUSPARAM_NOTES_EDITED', 19);
+define('MOD_BOOKING_STATUSPARAM_CONFIRMATION_DELETED', 20);
 
 // Define booking presence status parameters.
 define('MOD_BOOKING_PRESENCE_STATUS_NOTSET', 0);
@@ -169,6 +171,7 @@ define('MOD_BOOKING_BO_COND_JSON_SELECTUSERS', 14);
 define('MOD_BOOKING_BO_COND_JSON_PREVIOUSLYBOOKED', 13);
 define('MOD_BOOKING_BO_COND_JSON_CUSTOMUSERPROFILEFIELD', 12);
 define('MOD_BOOKING_BO_COND_JSON_USERPROFILEFIELD', 11);
+define('MOD_BOOKING_BO_COND_JSON_HASCOMPETENCY', 10);
 
 define('MOD_BOOKING_BO_COND_INSTANCEAVAILABILITY', 5);
 define('MOD_BOOKING_BO_COND_CAPBOOKINGCHOOSE', 4);
@@ -244,6 +247,7 @@ define('MOD_BOOKING_OPTION_FIELD_OPTIONIMAGES', 130);
 define('MOD_BOOKING_OPTION_FIELD_MAXANSWERS', 140);
 define('MOD_BOOKING_OPTION_FIELD_MAXOVERBOOKING', 150);
 define('MOD_BOOKING_OPTION_FIELD_MINANSWERS', 160);
+define('MOD_BOOKING_OPTION_FIELD_MULTIPLEBOOKINGS', 165);
 define('MOD_BOOKING_OPTION_FIELD_POLLURL', 170);
 define('MOD_BOOKING_OPTION_FIELD_COURSEID', 180); // Course to enrol to.
 define('MOD_BOOKING_OPTION_FIELD_ENROLMENTSTATUS', 185);
@@ -273,10 +277,10 @@ define('MOD_BOOKING_OPTION_FIELD_BOOKINGCLOSINGTIME', 360);
 define('MOD_BOOKING_OPTION_FIELD_SUBBOOKINGS', 370);
 define('MOD_BOOKING_OPTION_FIELD_ACTIONS', 380);
 define('MOD_BOOKING_OPTION_FIELD_ADVANCED', 390);
+define('MOD_BOOKING_OPTION_FIELD_WAITFORCONFIRMATION', 391);
 define('MOD_BOOKING_OPTION_FIELD_DISABLEBOOKINGUSERS', 400);
 define('MOD_BOOKING_OPTION_FIELD_DISABLECANCEL', 410);
 define('MOD_BOOKING_OPTION_FIELD_CANCELUNTIL', 420);
-define('MOD_BOOKING_OPTION_FIELD_WAITFORCONFIRMATION', 425);
 define('MOD_BOOKING_OPTION_FIELD_ATTACHMENT', 430);
 define('MOD_BOOKING_OPTION_FIELD_NOTIFICATIONTEXT', 440);
 define('MOD_BOOKING_OPTION_FIELD_REMOVEAFTERMINUTES', 450);
@@ -320,6 +324,7 @@ define('MOD_BOOKING_HEADER_COURSES', 'coursesheader');
 define('MOD_BOOKING_HEADER_RULES', 'rulesheader');
 define('MOD_BOOKING_HEADER_CERTIFICATE', 'certificateheader');
 define('MOD_BOOKING_HEADER_COMPETENCIES', 'competenciesheader');
+define('MOD_BOOKING_HEADER_ASKFORCONFIRMATION', 'askforconfirmationheader');
 define('MOD_BOOKING_HEADER_SHAREDPLACES', 'sharedplaces');
 
 define('MOD_BOOKING_MAX_CUSTOM_FIELDS', 3);
@@ -1462,6 +1467,39 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                 $bookingrulesnode->add_class('disabled-profeature');  // Add a custom class for non-pro users.
             }
         }
+
+        // Bookings Tracker.
+        if (has_capability('mod/booking:managebookedusers', $context)) {
+            $bookingstrackernode = $navref->add(
+                get_string('bookingstracker', 'mod_booking') . " ($bookingsettings->name)",
+                new moodle_url(
+                    '/mod/booking/report2.php',
+                    ['cmid' => $cm->id]
+                ),
+                navigation_node::TYPE_CUSTOM,
+                null,
+                'nav_bookingstracker'
+            );
+
+            if (!$proversion) {
+                $bookingstrackernode->add_class('disabled-profeature');  // Add a custom class for non-pro users.
+            }
+        }
+        if (has_capability('mod/booking:managebookedusers', context_system::instance())) {
+            $bookingstrackernodesystem = $navref->add(
+                get_string('bookingstracker', 'mod_booking') . " (" . get_string('report2labelsystem', 'mod_booking') . ")",
+                new moodle_url(
+                    '/mod/booking/report2.php'
+                ),
+                navigation_node::TYPE_CUSTOM,
+                null,
+                'nav_bookingstrackersystem'
+            );
+
+            if (!$proversion) {
+                $bookingstrackernodesystem->add_class('disabled-profeature');  // Add a custom class for non-pro users.
+            }
+        }
     }
 
     // We currently never show these entries as we are not sure if they work correctly.
@@ -1871,77 +1909,16 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
             ['optionid' => $optionid, 'selecteduser' => $selecteduser]
         );
 
-        if ($userdata->completed == '1') {
-            $completionold = $userdata->completed;
-            $userdata->completed = '0';
-            $userdata->timemodified = time();
-            $DB->update_record('booking_answers', $userdata);
-            $countcomplete = $DB->count_records(
-                'booking_answers',
-                ['bookingid' => $booking->id, 'userid' => $selecteduser, 'completed' => '1']
-            );
-            $status = MOD_BOOKING_STATUSPARAM_COMPLETION_CHANGED;
-            $answerid = $userdata->id;
-            $optionid = $userdata->optionid;
-            $bookingid = $userdata->bookingid;
-            $userid = $userdata->userid;
-            $completionchange = [
-                'completion' => [
-                    'completionold' => $completionold,
-                    'completionnew' => $userdata->completed,
-                ],
-            ];
-            booking_option::booking_history_insert($status, $answerid, $optionid, $bookingid, $userid, $completionchange);
+        $countcomplete = $DB->count_records(
+            'booking_answers',
+            ['bookingid' => $booking->id, 'userid' => $selecteduser, 'completed' => '1']
+        );
 
+        if ($userdata->completed == '1') {
             if ($completion->is_enabled($cm) && $booking->enablecompletion > $countcomplete) {
                 $completion->update_state($cm, COMPLETION_INCOMPLETE, $selecteduser);
             }
         } else {
-            if (get_config('booking', 'certificateon') && !get_config('booking', 'presencestatustoissuecertificate')) {
-                $certid = certificate::issue_certificate($optionid, $selecteduser);
-            }
-            $other = [
-                'cmid' => $cmid,
-            ];
-            if (
-                isset($certid)
-                && !empty($certid)
-            ) {
-                $other['certid'] = $certid;
-            }
-            $completionold = $userdata->completed;
-            $userdata->completed = '1';
-            $userdata->timemodified = time();
-
-            if (get_config('booking', 'usecompetencies')) {
-                $usercompetecies = competencies::assign_competencies($cmid, $optionid, $selecteduser);
-            }
-
-            $status = MOD_BOOKING_STATUSPARAM_COMPLETION_CHANGED;
-            $answerid = $userdata->id;
-            $optionid = $userdata->optionid;
-            $bookingid = $userdata->bookingid;
-            $userid = $userdata->userid;
-            $completionchange = [
-                'completion' => [
-                    'completionold' => $completionold,
-                    'completionnew' => $userdata->completed,
-                ],
-            ];
-            booking_option::booking_history_insert($status, $answerid, $optionid, $bookingid, $userid, $completionchange);
-
-            // Trigger the completion event, in order to send the notification mail.
-            $event = \mod_booking\event\bookingoption_completed::create([
-                'context' => context_module::instance($cmid),
-                'objectid' => $optionid,
-                'userid' => $USER->id,
-                'relateduserid' => $selecteduser,
-                'other' => $other,
-            ]);
-            $event->trigger();
-
-            // Important: userid is the user who triggered, relateduserid is the affected user who completed.
-            $DB->update_record('booking_answers', $userdata);
             $countcomplete = $DB->count_records(
                 'booking_answers',
                 ['bookingid' => $booking->id, 'userid' => $selecteduser, 'completed' => '1']
@@ -1952,9 +1929,6 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
             }
         }
     }
-
-    // After activity completion, we need to purge caches for the option.
-    booking_option::purge_cache_for_answers($optionid);
 }
 
 // GRADING AND RATING.
@@ -2343,18 +2317,25 @@ function booking_delete_instance($id) {
     global $DB;
 
     if (!$booking = $DB->get_record("booking", ["id" => "$id"])) {
-        return false;
+        $msg = "booking_delete_instance - Error: No booking record exists for bookingid {$id}.";
+        mtrace($msg);
+        debugging($msg, DEBUG_DEVELOPER);
+        return true;
     }
 
     if (!$cm = get_coursemodule_from_instance('booking', $id)) {
-        return false;
+        $msg = "booking_delete_instance - Error: No course module record exists for corresponding bookingid {$id} (not cmid!)";
+        mtrace($msg);
+        debugging($msg, DEBUG_DEVELOPER);
+        return true;
     }
 
     if (!$context = context_module::instance($cm->id, IGNORE_MISSING)) {
-        return false;
+        $msg = "booking_delete_instance - Error: Module context for cmid {$cm->id} could not be created.";
+        mtrace($msg);
+        debugging($msg, DEBUG_DEVELOPER);
+        return true;
     }
-
-    $result = true;
 
     $alloptionids = booking::get_all_optionids($id);
     foreach ($alloptionids as $optionid) {
@@ -2412,11 +2393,15 @@ function booking_delete_instance($id) {
     }
 
     if (!$DB->delete_records("booking_answers", ["bookingid" => "$booking->id"])) {
-        $result = false;
+        $msg = "booking_delete_instance - Error: Booking answers for bookingid {$booking->id} could not be deleted.";
+        debugging($msg, DEBUG_DEVELOPER);
+        mtrace($msg);
     }
 
     if (!$DB->delete_records('booking_optiondates', ["bookingid" => "$booking->id"])) {
-        $result = false;
+        $msg = "booking_delete_instance - Error: Booking optionsdates for bookingid {$booking->id} could not be deleted.";
+        debugging($msg, DEBUG_DEVELOPER);
+        mtrace($msg);
     } else {
         // If optiondates are deleted we also have to delete the associated entries in booking_optiondates_teachers.
         // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
@@ -2426,7 +2411,9 @@ function booking_delete_instance($id) {
 
     // We also need to delete the booking teachers in the booking_teachers table!
     if (!$DB->delete_records('booking_teachers', ["bookingid" => "$booking->id"])) {
-        $result = false;
+        $msg = "booking_delete_instance - Error: Booking teachers for bookingid {$booking->id} could not be deleted.";
+        debugging($msg, DEBUG_DEVELOPER);
+        mtrace($msg);
     }
 
     // Delete any entity relations for the booking instance.
@@ -2434,16 +2421,22 @@ function booking_delete_instance($id) {
     // TODO: this should be moved into delete_booking_option.
     if (class_exists('local_entities\entitiesrelation_handler')) {
         if (!entitiesrelation_handler::delete_entities_relations_by_bookingid($booking->id)) {
-            $result = false;
+            $msg = "booking_delete_instance - Error: Entities relations for bookingid {$booking->id} could not be deleted.";
+            debugging($msg, DEBUG_DEVELOPER);
+            mtrace($msg);
         }
     }
 
     if (!$DB->delete_records("event", ["instance" => "$booking->id"])) {
-        $result = false;
+        $msg = "booking_delete_instance - Error: Events for bookingid {$booking->id} could not be deleted.";
+        debugging($msg, DEBUG_DEVELOPER);
+        mtrace($msg);
     }
 
     if (!$DB->delete_records("booking", ["id" => "$booking->id"])) {
-        $result = false;
+        $msg = "booking_delete_instance - Error: Record in table booking for bookingid {$booking->id} could not be deleted.";
+        debugging($msg, DEBUG_DEVELOPER);
+        mtrace($msg);
     }
 
     // When deleting an instance, we need to invalidate the cache for booking instances.
@@ -2452,7 +2445,7 @@ function booking_delete_instance($id) {
     // Delete rules of this instance.
     booking_rules::delete_rules_by_context($context->id);
 
-    return $result;
+    return true;
 }
 
 /**
@@ -2585,6 +2578,7 @@ function mod_booking_cm_info_view(cm_info $cm) {
 
         // Show course name, a short info text and a button redirecting to available booking options.
         $data = new coursepage_shortinfo_and_button($cm);
+        /** @var  \mod_booking\output\renderer $output */
         $output = $PAGE->get_renderer('mod_booking');
         $html .= $output->render_coursepage_shortinfo_and_button($data);
     }
@@ -2722,6 +2716,29 @@ function mod_booking_tool_certificate_fields() {
         true,
         get_string('institution', 'mod_booking'),
     );
+    $handler->ensure_field_exists(
+        'timeawarded',
+        'text',
+        get_string('timeawarded', 'mod_booking'),
+        true,
+        get_string('timeawarded', 'mod_booking'),
+    );
+    $handler->ensure_field_exists(
+        'competencies',
+        'text',
+        get_string('competencies', 'mod_booking'),
+        true,
+        get_string('competencies', 'mod_booking'),
+    );
+    $customfields = booking_handler::get_customfields();
+    foreach ($customfields as $customfield) {
+               $handler->ensure_field_exists(
+                   'cf' . $customfield->shortname,
+                   'text',
+                   $customfield->shortname,
+                   $customfield->name,
+               );
+    }
 }
 
 /**
@@ -2761,7 +2778,7 @@ register_shutdown_function(function () {
         return;
     }
 
-    // To avoid loops, we need a counter.
+    // To avoid infinite loops, we need a counter.
     $counter = 0;
     $rules = rules_info::$rulestoexecute;
     while (

@@ -43,7 +43,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class bookusers extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -74,7 +73,12 @@ class bookusers extends field_base {
      * Additionally to the classname, there might be others keys which should instantiate this class.
      * @var array
      */
-    public static $alternativeimportidentifiers = ['useremail', 'username'];
+    public static $alternativeimportidentifiers = [
+        'useremail',
+        'username',
+        'timebooked',
+        'completed',
+    ];
 
     /**
      * This is an array of incompatible field ids.
@@ -95,7 +99,8 @@ class bookusers extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         return [];
     }
@@ -116,7 +121,6 @@ class bookusers extends field_base {
         $fieldstoinstanciate = [],
         $applyheader = true
     ) {
-
     }
 
     /**
@@ -139,9 +143,18 @@ class bookusers extends field_base {
         if (!empty($usersids)) {
             $bookingoption = singleton_service::get_instance_of_booking_option($formdata->cmid, $formdata->id);
             foreach ($usersids as $userid) {
-
                 $user = singleton_service::get_instance_of_user($userid);
-                $bookingoption->user_submit_response($user, 0, 0, 0, MOD_BOOKING_VERIFIED);
+                if (!empty($formdata->timebooked)) {
+                    $parsed = strtotime($formdata->timebooked);
+                    $timebooked = $parsed !== false ? $parsed : null;
+                } else {
+                    $timebooked = 0;
+                }
+                $bookingoption->user_submit_response($user, 0, 0, 0, MOD_BOOKING_VERIFIED, '', $timebooked);
+
+                if (!empty($formdata->completed)) {
+                    $bookingoption->toggle_user_completion($userid, $timebooked);
+                }
             }
         }
     }

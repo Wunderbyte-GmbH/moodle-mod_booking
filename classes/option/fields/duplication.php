@@ -42,7 +42,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class duplication extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -94,7 +93,8 @@ class duplication extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         return parent::prepare_save_field($formdata, $newoption, $updateparam, '');
     }
@@ -162,11 +162,8 @@ class duplication extends field_base {
             ];
 
             foreach ($templateoption as $key => $value) {
-
                 if (strpos($key, MOD_BOOKING_FORM_OPTIONDATEID) !== false) {
-
                     $data->{$key} = 0;
-
                 } else if (!in_array($key, $excluded)) {
                     $data->{$key} = $value;
                 }

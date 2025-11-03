@@ -46,11 +46,22 @@ define([], function() {
                 });
             }
 
+            const form = document.querySelector('form[data-region="booking-download-signinsheet-form"]');
+
             const downloadbtntop = document.getElementById("downloadsigninsheet-top-btn");
-            if (downloadbtntop) {
+            if (downloadbtntop && form) {
                 downloadbtntop.addEventListener('click', (e) => {
                     e.preventDefault();
-                    document.querySelector('button[name="downloadsigninsheet"]').click();
+                    const orientationvalue = downloadbtntop.getAttribute('buttonaction');
+                    const orientationradios = form.querySelectorAll('input[name="orientation"]');
+                    orientationradios.forEach(radio => {
+                        if (radio.value === orientationvalue) {
+                            radio.checked = true;
+                        } else {
+                            radio.checked = false;
+                        }
+                    });
+                    document.querySelector('button[name^="downloadsigninsheet"]').click();
                 });
             }
         }

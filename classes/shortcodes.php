@@ -36,7 +36,9 @@ use local_wunderbyte_table\filters\types\intrange;
 use local_wunderbyte_table\filters\types\standardfilter;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
+use mod_booking\form\dynamicdeputyselect;
 use mod_booking\local\shortcode_filterfield;
+use mod_booking\output\booked_users;
 use mod_booking\shortcodes_handler;
 use mod_booking\customfield\booking_handler;
 use mod_booking\local\modechecker;
@@ -46,6 +48,7 @@ use mod_booking\table\bookingoptions_wbtable;
 use mod_booking\table\bulkoperations_table;
 use moodle_url;
 use Throwable;
+use mod_booking\output\renderer;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -107,6 +110,8 @@ class shortcodes {
             "minanswers",
             "bookingopeningtime",
             "bookingclosingtime",
+            "coursestarttime",
+            "booknow",
         ];
         // When calling recommendedin in the frontend we can define exclude params to set options, we don't want to display.
 
@@ -229,6 +234,8 @@ class shortcodes {
             "bookingopeningtime",
             "bookingclosingtime",
             "competencies",
+            "coursestarttime",
+            "booknow",
         ];
         // When calling recommendedin in the frontend we can define exclude params to set options, we don't want to display.
 
@@ -245,6 +252,7 @@ class shortcodes {
         $showfilter = !empty($args['filter']) ? true : false;
         $showsort = !empty($args['sort']) ? true : false;
         $showsearch = !empty($args['search']) ? true : false;
+        $inactivefilter = empty($args['filteronloadactive']) ? true : false;
 
         view::apply_standard_params_for_bookingtable(
             $table,
@@ -253,7 +261,7 @@ class shortcodes {
             $showsearch,
             $showsort,
             false,
-            true,
+            $inactivefilter,
             $viewparam
         );
 
@@ -456,6 +464,8 @@ class shortcodes {
             "minanswers",
             "bookingopeningtime",
             "bookingclosingtime",
+            "coursestarttime",
+            "booknow",
         ];
         // When calling recommendedin in the frontend we can define exclude params to set options, we don't want to display.
 
@@ -665,6 +675,8 @@ class shortcodes {
             "minanswers",
             "bookingopeningtime",
             "bookingclosingtime",
+            "coursestarttime",
+            "booknow",
         ];
         // When calling recommendedin in the frontend we can define exclude params to set options, we don't want to display.
 
@@ -682,6 +694,8 @@ class shortcodes {
         $showsort = !empty($args['sort']) ? true : false;
         $showsearch = !empty($args['search']) ? true : false;
 
+        $inactivefilter = empty($args['filteronloadactive']) ? true : false;
+
         view::apply_standard_params_for_bookingtable(
             $table,
             $optionsfields,
@@ -689,7 +703,7 @@ class shortcodes {
             $showsearch,
             $showsort,
             false,
-            true,
+            $inactivefilter,
             $viewparam
         );
 
@@ -750,7 +764,11 @@ class shortcodes {
             return $error['message'];
         }
 
-        $userid = $USER->id;
+        if (isset($args['userid']) && !empty($args['userid'])) {
+            $userid = $args['userid'];
+        } else {
+            $userid = $USER->id;
+        }
         self::fix_args($args);
         $wherearray = [];
         $course = $PAGE->course;
@@ -769,6 +787,15 @@ class shortcodes {
         // Additional where condition for both card and list views.
         $additionalwhere = self::set_customfield_wherearray($args, $wherearray) ?? '';
 
+        if (!empty($args['completed'])) {
+            $wherearray['completed'] = 1;
+        }
+
+        $statusarray = [MOD_BOOKING_STATUSPARAM_BOOKED];
+        if (!empty($args['statuswaitinglist'])) {
+            $statusarray[] = MOD_BOOKING_STATUSPARAM_WAITINGLIST;
+        }
+
         [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(
                     0,
@@ -779,7 +806,7 @@ class shortcodes {
                     [],
                     $wherearray,
                     $userid,
-                    [MOD_BOOKING_STATUSPARAM_BOOKED],
+                    $statusarray,
                     $additionalwhere
                 );
 
@@ -799,6 +826,8 @@ class shortcodes {
             "minanswers",
             "bookingopeningtime",
             "bookingclosingtime",
+            "coursestarttime",
+            "booknow",
         ];
         // When calling recommendedin in the frontend we can define exclude params to set options, we don't want to display.
 
@@ -833,11 +862,11 @@ class shortcodes {
                 $table->showcountlabel = $showfilter ? true : false;
 
         if (
-                    isset($args['filterontop'])
-                    && (
-                        $args['filterontop'] == '1'
-                        || $args['filterontop'] == 'true'
-                    )
+            isset($args['filterontop'])
+            && (
+                $args['filterontop'] == '1'
+                || $args['filterontop'] == 'true'
+            )
         ) {
             $table->showfilterontop = true;
         } else {
@@ -968,6 +997,7 @@ class shortcodes {
         "minanswers",
         "bookingopeningtime",
         "bookingclosingtime",
+        "booknow",
         ];
         // When calling recommendedin in the frontend we can define exclude params to set options, we don't want to display.
 
@@ -1344,9 +1374,16 @@ class shortcodes {
                             }
 
                             foreach ($values as $vkey => $vvalue) {
-                                $additionalwhere .= $vkey > 0 ? ' OR ' : '';
-                                $vvalue = "'%$vvalue%'";
-                                $additionalwhere .= " $customfield->shortname LIKE $vvalue ";
+                                $vvalue = trim($vvalue);
+                                if ($vkey > 0) {
+                                    $additionalwhere .= ' OR ';
+                                }
+                                $additionalwhere .= "(
+                                    {$customfield->shortname} = '$vvalue'
+                                    OR {$customfield->shortname} LIKE '$vvalue,%'
+                                    OR {$customfield->shortname} LIKE '%,$vvalue'
+                                    OR {$customfield->shortname} LIKE '%,$vvalue,%'
+                                )";
                             }
 
                             if (!empty($values)) {
@@ -1417,12 +1454,12 @@ class shortcodes {
                     $bookings[] = $booking->id;
                 }
             }
-                [$inorequal, $tempparams] = $DB->get_in_or_equal($bookings, SQL_PARAMS_NAMED);
-                $additionalwhere = " (bookingid $inorequal) ";
-                $params = array_merge($tempparams, $params ?? []);
+            [$inorequal, $tempparams] = $DB->get_in_or_equal($bookings, SQL_PARAMS_NAMED);
+            $additionalwhere = " (bookingid $inorequal) ";
+            $params = array_merge($tempparams, $params ?? []);
         }
         if (empty($additionalwhere)) {
-            $additionalwhere = " ( 1=1 ) ";
+            $additionalwhere = " ( bookingid > 0 ) ";
         }
         return $additionalwhere;
     }
@@ -1476,6 +1513,73 @@ class shortcodes {
     }
 
     /**
+     * List to approve shortcode.
+     *
+     * @param mixed $shortcode
+     * @param mixed $args
+     * @param mixed $content
+     * @param mixed $env
+     * @param mixed $next
+     *
+     * @return string
+     *
+     */
+    public static function listtoapprove($shortcode, $args, $content, $env, $next) {
+
+        global $PAGE;
+
+        $requiredargs = [];
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
+        if ($error['error'] === 1) {
+            return $error['message'];
+        }
+        if ($args['reduced']) {
+            $scope = 'optionstoconfirmreduced';
+        } else {
+            $scope = 'optionstoconfirm';
+        }
+        if (!empty($args['cfinclude'])) {
+            $customfields = explode(',', $args['cfinclude']);
+        } else {
+            $customfields = [];
+        }
+        $data = new booked_users(
+            $scope,
+            0,
+            false, // Booked users.
+            false, // Users on waiting list.
+            false, // Reserved answers (e.g. in shopping cart).
+            false, // Users on notify list.
+            false, // Deleted users.
+            false, // Booking history.
+            true, // Options to confirm.
+            false,
+            0,
+            true,
+            $customfields
+        );
+
+        // Without values in the config setting deputyselect makes no sense.
+        if (
+            isset($args['deputyselect'])
+            && !empty($args['deputyselect'])
+            && !empty(get_config('bookingextension_confirmation_supervisor', 'deputy'))
+        ) {
+            if (has_capability('mod/booking:assigndeputies', context_system::instance())) {
+                $data->deputyselect = 1;
+            }
+            $data->deputydisplay = dynamicdeputyselect::get_display_deputies_data();
+        }
+        if (!empty($args['reduced'])) {
+            $data->reduced = 1;
+        }
+        /** @var renderer $renderer */
+        $renderer = $PAGE->get_renderer('mod_booking');
+
+        return $renderer->render_booked_users($data);
+    }
+
+    /**
      * By default, we do not show booking options that lie in the past.
      * Shortcode arg values get transmitted as string, so also check for "false" and "0".
      * And apply setting for selflearningcourse.
@@ -1504,5 +1608,50 @@ class shortcodes {
             }
         }
         return;
+    }
+
+    /**
+     * Shortcode: Supervisor's team.
+     * Table of the answers with status booked, reserver & on waiting list.
+     *
+     * @param mixed $shortcode
+     * @param mixed $args
+     * @param mixed $content
+     * @param mixed $env
+     * @param mixed $next
+     *
+     * @return string
+     *
+     */
+    public static function supervisorteam($shortcode, $args, $content, $env, $next) {
+
+        global $PAGE;
+        $requiredargs = [];
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
+        if ($error['error'] === 1) {
+            return $error['message'];
+        }
+
+        if ($args['reduced']) {
+            $scope = 'supervisorteamreduced';
+        } else {
+            $scope = 'supervisorteam';
+        }
+        $data = new booked_users(
+            $scope,
+            0,
+            true, // Booked users.
+            true, // Users on waiting list.
+            true, // Reserved answers (e.g. in shopping cart).
+            false, // Users on notify list.
+            false, // Deleted users.
+            false, // Booking history.
+            false // Options to confirm.
+        );
+
+        /** @var renderer $renderer */
+        $renderer = $PAGE->get_renderer('mod_booking');
+
+        return $renderer->render_booked_users($data);
     }
 }

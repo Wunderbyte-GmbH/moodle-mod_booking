@@ -105,7 +105,7 @@ class courseid extends field_base {
 
         global $DB;
 
-        if (is_array($formdata->courseid)) {
+        if (isset($formdata->courseid) && is_array($formdata->courseid)) {
             $formdata->courseid = reset($formdata->courseid);
         }
 
@@ -222,8 +222,6 @@ class courseid extends field_base {
         $mform->addHelpButton('courseid', 'connectedmoodlecourse', 'mod_booking');
         $mform->hideIf('courseid', 'chooseorcreatecourse', 'neq', 1);
 
-        $templatetags = get_config('booking', 'templatetags');
-
         $options = [
             'tags' => false,
             'multiple' => false,
@@ -294,7 +292,11 @@ class courseid extends field_base {
 
             // If the setting to duplicate the Moodle course is turned on...
             // ... we duplicate it and use the ID of the new course copy.
-            if (get_config('booking', 'duplicatemoodlecourses') && !empty($data->oldcopyoptionid)) {
+            if (
+                get_config('booking', 'duplicatemoodlecourses')
+                && !empty($data->oldcopyoptionid)
+                && !empty($settings->courseid)
+            ) {
                 $newcourseid = self::copy_moodle_course($data->oldcopyoptionid);
             }
 

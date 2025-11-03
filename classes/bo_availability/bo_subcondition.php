@@ -45,7 +45,6 @@ require_once($CFG->dirroot . '/mod/booking/classes/bo_availability/bo_info.php')
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 interface bo_subcondition {
-
     /**
      * True, if it's a customizable / JSON-compatible condition.
      * False, if it's a hardcoded condition (not stored with JSON).
@@ -127,6 +126,12 @@ interface bo_subcondition {
      * @param bool $fullwidth
      * @return array
      */
-    public function render_button(booking_option_settings $settings,
-        int $subbookingid, int $userid=0, bool $full=false, bool $not=false, bool $fullwidth=true): array;
+    public function render_button(
+        booking_option_settings $settings,
+        int $subbookingid,
+        int $userid = 0,
+        bool $full = false,
+        bool $not = false,
+        bool $fullwidth = true
+    ): array;
 }

@@ -15,14 +15,13 @@
 
 /**
  * @module     mod_booking/bookingpage/prepageFooter
- * @copyright  Wunderbyte GmbH <info@wunderbyte.at>
+ * @copyright  Wunderbyte GmbH
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-import jQuery from 'jquery';
 import {continueToNextPage, backToPreviousPage, setBackModalVariables} from 'mod_booking/bookit';
 import {reloadAllTables} from 'local_wunderbyte_table/reload';
 
-var SELECTORS = {
+const SELECTORS = {
     MODALID: 'sbPrePageModal_',
     INLINEID: 'sbPrePageInline_',
     INMODALDIV: ' div.modalMainContent',
@@ -31,8 +30,6 @@ var SELECTORS = {
     BOOKITBUTTON: 'div.booking-button-area',
     STATICBACKDROP: 'div.modal-backdrop',
 };
-
-/* Const WAITTIME = 1500;*/
 
 /**
  * Add the click listener to a prepage modal button.
@@ -45,186 +42,196 @@ export function initFooterButtons(optionid, userid, shoppingcartisinstalled) {
     // eslint-disable-next-line no-console
     console.log('initFooterButtons', optionid);
 
-    // We need to find out if we are in modal or inline mode.
-     // First, get all link elements in the footer.
-     let elements = document.querySelectorAll('[id^="' + SELECTORS.INLINEID + optionid + '_"] ' + SELECTORS.INMODALFOOTER + " a");
+    // Find inline footer anchors first (inline mode).
+    let selectorInline = '[id^="' + SELECTORS.INLINEID + optionid + '_"]' + SELECTORS.INMODALFOOTER + ' a';
+    let elements = Array.from(document.querySelectorAll(selectorInline));
 
-     if (elements.length === 0) {
-         elements = document.querySelectorAll('[id^="' + SELECTORS.MODALID + optionid + '_"] ' + SELECTORS.INMODALFOOTER + " a");
+    if (elements.length === 0) {
+        // Fallback: try modal-based.
+        let selectorModal = '[id^="' + SELECTORS.MODALID + optionid + '_"]' + SELECTORS.INMODALFOOTER + ' a';
+        elements = Array.from(document.querySelectorAll(selectorModal));
 
-         // Everytime we close the modal, we want to reset to the first prepage.
-        jQuery.each(jQuery('[id^="' + SELECTORS.MODALID + optionid + '_"]'), function() {
-            jQuery(this).on("hide.bs.modal", function() {
+        // Every time we close the modal, reset to the first prepage.
+        const modalSelectorAll = '[id^="' + SELECTORS.MODALID + optionid + '_"]';
+        const modalEls = Array.from(document.querySelectorAll(modalSelectorAll));
+        modalEls.forEach(modalEl => {
+            // Listen to hide.bs.modal.
+            modalEl.addEventListener('hide.bs.modal', () => {
                 setBackModalVariables(optionid);
             });
         });
-     }
-
-    // This would be linked to automatic forwarding, which we don't use at the moment.
-    // initBookingButton(optionid);
+    }
 
     // eslint-disable-next-line no-console
     console.log('buttons found', elements);
 
-    elements.forEach(async element => {
-        if (element && !element.dataset.initialized) {
+    elements.forEach(element => {
+        if (!element || element.dataset.initialized) {
+            return;
+        }
+        // Mark initialized
+        element.dataset.initialized = '1';
 
-            // Make sure we dont initialize this twice.
-            element.dataset.initialized = true;
+        const action = element.dataset.action;
 
-            const action = element.dataset.action;
+        // eslint-disable-next-line no-console
+        console.log(element, action);
 
-            // eslint-disable-next-line no-console
-            console.log(element, action);
-
-            // We might to execute some actions right away.
-
-            switch (action) {
-                // If we find the checkout button, we reload shopping cart.
-                case 'closeinline':
-                case 'continuepost':
-                case 'checkout':
-                    // eslint-disable-next-line no-console
-                    console.log('closeinline', action);
-                    if (shoppingcartisinstalled) {
-                        import('local_shopping_cart/cart')
-                        .then(cart => {
+        // Pre-actions executed immediately for some actions (shopping cart reinit).
+        switch (action) {
+            case 'closeinline':
+            case 'continuepost':
+            case 'checkout':
+                // eslint-disable-next-line no-console
+                console.log('closeinline/checkout/continuepost', action);
+                if (shoppingcartisinstalled) {
+                    // Dynamic import of cart module — adapt to module export shape.
+                    import('local_shopping_cart/cart')
+                        .then(module => {
+                            // Module may export default or named exports; support both.
+                            const cart = module.default ?? module;
                             // eslint-disable-next-line no-console
-                            console.log(cart);
-
-                            const oncashier = window.location.href.indexOf("cashier.php");
-                            // If we are not on cashier, we can just redirect.
-                            if (oncashier > 0) {
-                                cart.reinit(-1);
-                            } else {
-                                cart.reinit();
+                            console.log('cart module loaded', cart);
+                            const oncashier = window.location.href.indexOf('cashier.php');
+                            // eslint-disable-next-line promise/always-return
+                            if (typeof cart.reinit === 'function') {
+                                if (oncashier > 0) {
+                                    cart.reinit(-1);
+                                } else {
+                                    cart.reinit();
+                                }
                             }
-                            return;
                         })
                         .catch(() => {
                             // eslint-disable-next-line no-console
                             console.log('local_shopping_cart/cart could not be loaded');
                         });
-                    }
-                    listenToCloseInline();
+                }
+                // Ensure collapse hide handler will reload tables
+                listenToCloseInline(optionid);
                 break;
+            default:
+                // Nothing immediate
+                break;
+        }
+
+        // Attach click listener
+        element.addEventListener('click', function (evt) {
+            // If hidden or blocked, ignore as before.
+            if (this.classList.contains('hidden')) {
+                return;
+            }
+            if (this.dataset.blocked === 'true') {
+                return;
             }
 
-            // Depending on the action button, we add the right listener.
-            element.addEventListener('click', () => {
+            // IMPORTANT: stop Bootstrap / other handlers from running on this click,
+            // and prevent the default anchor navigation.
+            evt.preventDefault();
+            // Stop propagation and stop other listeners on the same element from running (Bootstrap's listener is later).
+            evt.stopImmediatePropagation();
 
-                if (element.classList.contains('hidden')) {
-                    return;
-                }
+            const action = this.dataset.action;
 
-                // The logic might be blocked because eg a form is there to prevent it.
-                if (element.dataset.blocked == 'true') {
-                    return;
-                }
+            switch (action) {
+                case 'back':
+                    backToPreviousPage(optionid, userid);
+                    break;
+                case 'continue':
+                case 'continuepost':
+                    continueToNextPage(optionid, userid);
+                    break;
+                case 'checkout':
+                    closeModal(optionid);
+                    if (this.dataset.href) {
+                        window.location.href = this.dataset.href;
+                    }
+                    break;
+                case 'closemodal':
+                    reloadOnBookingView();
+                    closeModal(optionid);
+                    break;
+                case 'closeinline':
+                    reloadOnBookingView();
+                    closeInline(optionid);
+                    break;
+            }
+        });
 
-                switch (action) {
-                    case 'back':
-                        backToPreviousPage(optionid, userid);
-                    break;
-                    case 'continue':
-                    case 'continuepost':
-                        continueToNextPage(optionid, userid);
-                    break;
-                    case 'checkout':
-                        closeModal(optionid);
-                        window.location.href = element.dataset.href;
-                    break;
-                    case 'closemodal':
-                        reloadOnBookingView();
-                        closeModal(optionid);
-                    break;
-                    case 'closeinline':
-                        reloadOnBookingView();
-                        closeInline(optionid);
-
-                }
-            });
-        }
     });
 }
 
-// /**
-//  *
-//  * @param {int} optionid
-//  */
-// async function initBookingButton(optionid) {
-
-//     // First, we get the right modal.
-//     let modal = document.querySelector('div.modal.show[id^="' + SELECTORS.MODALID + optionid + '_"]');
-
-//     if (!modal) {
-
-//         // First, we get the right modal.
-//         const modals = document.querySelectorAll('div.inlineprepagearea [id^="' + SELECTORS.INLINEID + optionid + '_"]');
-
-//         modals.forEach(el => {
-//             if (!isHidden(el)) {
-//                 modal = el;
-//             }
-//         });
-//         if (!modal) {
-//             return;
-//         }
-//     }
-
-//     modal.addEventListener('click', (e) => {
-
-//         let button = e.target;
-
-//         if (button) {
-
-//             const bookingButtonArea = e.target.closest(SELECTORS.BOOKITBUTTON);
-
-//             button = e.target.closest('.btn');
-
-//             if (bookingButtonArea && button) {
-
-//                 if ((bookingButtonArea.dataset.action == 'noforward')) {
-//                     return;
-//                 }
-
-//                 // There are several bugs caused by automatic forwarding, so we comment it out for now.
-//                 // We don't continue right away but wait for a second.
-//                 /* setTimeout(() => {
-//                     continueToNextPage(optionid);
-//                 }, WAITTIME);*/
-//             }
-//         }
-//     });
-// }
-
 /**
+ * Close bootstrap modal(s) whose id starts with SELECTORS.MODALID + optionid + '_'
  *
  * @param {int} optionid
  * @param {bool} reloadTables
  */
 export function closeModal(optionid, reloadTables = true) {
-    jQuery.each(jQuery('[id^="' + SELECTORS.MODALID + optionid + '_"]'), async function() {
+    const modalSelectorAll = '[id^="' + SELECTORS.MODALID + optionid + '_"]';
+    const modalEls = Array.from(document.querySelectorAll(modalSelectorAll));
 
-        // We don't have a good way to check if the modal is ready to execute hide.
-        // So first we attach a listener to this modal to close it after show.
-
-        // It might be that the modal in question is not shown yet.
-        jQuery(this).on('shown.bs.modal', e => {
-
-            jQuery(e.currentTarget).off('shown.bs.modal');
+    modalEls.forEach(modalEl => {
+        // Attach a one-time shown.bs.modal listener to hide after shown (like original).
+        const onShown = (e) => {
+            modalEl.removeEventListener('shown.bs.modal', onShown);
             // eslint-disable-next-line no-console
             console.log('modal hide after shown', e);
 
-            jQuery(this).modal('hide');
+            try {
+                let modalInstance = window.bootstrap?.Modal.getInstance(modalEl) ?? null;
+                // eslint-disable-next-line no-console
+                console.log('modal instance', modalInstance);
+                if (!modalInstance && typeof window.bootstrap !== 'undefined') {
+                    // Create without showing (do not toggle)
+                    modalInstance = new window.bootstrap.Modal(modalEl);
+                }
+                if (modalInstance) {
+                    // eslint-disable-next-line no-console
+                    console.log('modal instance - to be hidden', modalInstance);
+                    modalInstance.hide();
+                } else {
+                    // eslint-disable-next-line no-console
+                    console.log('modalEl instance - DOM fallback', modalEl);
+                    // Fallback: remove 'show' class and backdrop if present
+                    hideModalFallback(modalEl);
+                }
+            } catch (err) {
+                // eslint-disable-next-line no-console
+                console.warn('Error hiding bootstrap modal instance', err);
+                hideModalFallback(modalEl);
+            }
 
             if (reloadTables) {
                 reloadAllTables();
             }
-        });
+        };
 
-        // Now we run hide anyways, just to be sure.
-        jQuery(this).modal('hide');
+        modalEl.addEventListener('shown.bs.modal', onShown);
+
+        // Now try to hide it immediately as well.
+        try {
+            let modalInstance = window.bootstrap?.Modal.getInstance(modalEl) ?? null;
+            // eslint-disable-next-line no-console
+            console.log('modal instance (immediate)', modalInstance);
+            if (!modalInstance && typeof window.bootstrap !== 'undefined') {
+                // Create without showing (do not toggle)
+                modalInstance = new window.bootstrap.Modal(modalEl);
+            }
+            if (modalInstance) {
+                // eslint-disable-next-line no-console
+                console.log('modal instance - to be hidden (immediate)', modalInstance);
+                modalInstance.hide();
+            } else {
+                // eslint-disable-next-line no-console
+                console.log('modalEl instance - DON fallback (immediate)', modalEl);
+                hideModalFallback(modalEl);
+            }
+        } catch (err) {
+            // eslint-disable-next-line no-console
+            console.warn('Error hiding bootstrap modal instance (immediate)', err);
+            hideModalFallback(modalEl);
+        }
 
         if (reloadTables) {
             reloadAllTables();
@@ -233,32 +240,99 @@ export function closeModal(optionid, reloadTables = true) {
 }
 
 /**
+ * DOM fallback to hide a modal element and remove backdrop/body state.
+ * Also dispatches bootstrap-like events so other listeners get notified.
+ *
+ *  @param {HTMLElement} modalEl
+ */
+export function hideModalFallback(modalEl) {
+    if (!modalEl) {
+        return;
+    }
+
+    // Remove modal "visible" styling.
+    modalEl.classList.remove('show');
+    modalEl.style.display = 'none';
+    modalEl.setAttribute('aria-hidden', 'true');
+    modalEl.removeAttribute('aria-modal');
+    modalEl.removeAttribute('role');
+
+    // Remove modal-open class from body (undo scroll lock).
+    document.body.classList.remove('modal-open');
+
+    // Remove any modal-backdrop elements left behind.
+    const backdrops = Array.from(document.querySelectorAll('.modal-backdrop'));
+    backdrops.forEach(backdrop => {
+        if (backdrop.parentNode) {
+            backdrop.parentNode.removeChild(backdrop);
+        }
+    });
+
+    // Dispatch events similar to Bootstrap so other code will react.
+    // Bootstrap uses CustomEvent with namespaced names; we emulate them.
+    try {
+        const shownEvent = new CustomEvent('hidden.bs.modal', { bubbles: true, cancelable: true });
+        modalEl.dispatchEvent(shownEvent);
+    } catch (e) {
+        // If CustomEvent is not supported (ancient browsers), ignore.
+    }
+}
+
+/**
+ * Close inline collapse area(s) whose id starts with SELECTORS.INLINEID + optionid + '_'
  *
  * @param {int} optionid
  * @param {bool} reloadTables
  */
 export function closeInline(optionid, reloadTables = true) {
-    jQuery.each(jQuery('[id^="' + SELECTORS.INLINEID + optionid + '_"]'), function() {
+    const inlineSelectorAll = '[id^="' + SELECTORS.INLINEID + optionid + '_"]';
+    const inlineEls = Array.from(document.querySelectorAll(inlineSelectorAll));
 
-        // We don't have a good way to check if the modal is ready to execute hide.
-        // So first we attach a listener to this modal to close it after show.
-
-        // It might be that the modal in question is not shown yet.
-        jQuery(this).on('shown.bs.collapse', e => {
-
-            jQuery(e.currentTarget).off('shown.bs.collapse');
+    inlineEls.forEach(inlineEl => {
+        const onShown = (e) => {
+            inlineEl.removeEventListener('shown.bs.collapse', onShown);
             // eslint-disable-next-line no-console
             console.log('collapse hide after shown', e);
 
-            jQuery(this).collapse('toggle');
+            try {
+                let collapseInstance = window.bootstrap?.Collapse.getInstance(inlineEl) ?? null;
+                if (!collapseInstance && typeof window.bootstrap !== 'undefined') {
+                    collapseInstance = new window.bootstrap.Collapse(inlineEl, { toggle: false });
+                }
+                if (collapseInstance) {
+                    // toggle will hide it if shown
+                    collapseInstance.toggle();
+                } else {
+                    // fallback toggle: toggle class 'show'
+                    inlineEl.classList.toggle('show');
+                }
+            } catch (err) {
+                // eslint-disable-next-line no-console
+                console.warn('Error toggling bootstrap collapse instance', err);
+            }
 
             if (reloadTables) {
                 reloadAllTables();
             }
-        });
+        };
 
-        // Now we run hide anyways, just to be sure.
-        jQuery(this).collapse('toggle');
+        inlineEl.addEventListener('shown.bs.collapse', onShown);
+
+        // Now trigger hide/toggle immediately as well.
+        try {
+            let collapseInstance = window.bootstrap?.Collapse.getInstance(inlineEl) ?? null;
+            if (!collapseInstance && typeof window.bootstrap !== 'undefined') {
+                collapseInstance = new window.bootstrap.Collapse(inlineEl, { toggle: false });
+            }
+            if (collapseInstance) {
+                collapseInstance.toggle();
+            } else {
+                inlineEl.classList.toggle('show');
+            }
+        } catch (err) {
+            // eslint-disable-next-line no-console
+            console.warn('Error toggling bootstrap collapse instance (immediate)', err);
+        }
 
         if (reloadTables) {
             reloadAllTables();
@@ -267,15 +341,16 @@ export function closeInline(optionid, reloadTables = true) {
 }
 
 /**
+ * Attach listeners so that hiding inline collapse triggers a table reload.
  *
  * @param {int} optionid
  */
 function listenToCloseInline(optionid) {
+    const inlineSelectorAll = '[id^="' + SELECTORS.INLINEID + optionid + '_"]';
+    const inlineEls = Array.from(document.querySelectorAll(inlineSelectorAll));
 
-    jQuery.each(jQuery('[id^="' + SELECTORS.INLINEID + optionid + '_"]'), function() {
-
-        jQuery(this).on('hide.bs.collapse', function() {
-
+    inlineEls.forEach(inlineEl => {
+        inlineEl.addEventListener('hide.bs.collapse', () => {
             reloadAllTables();
         });
     });
@@ -286,19 +361,9 @@ function listenToCloseInline(optionid) {
  *
  */
 function reloadOnBookingView() {
-    const onbookondetail = window.location.href.indexOf("optionview.php");
+    const onbookondetail = window.location.href.indexOf('optionview.php');
 
     if (onbookondetail >= 0) {
         window.location.reload();
     }
 }
-
-// /**
-//  * Function to check visibility of element.
-//  * @param {*} el
-//  * @returns {boolean}
-//  */
-// function isHidden(el) {
-//     var style = window.getComputedStyle(el);
-//     return ((style.display === 'none') || (style.visibility === 'hidden'));
-// }

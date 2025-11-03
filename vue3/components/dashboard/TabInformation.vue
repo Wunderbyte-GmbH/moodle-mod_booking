@@ -115,7 +115,7 @@
         </div>
       </div>
       <div v-if="content.courses && content.courses.length > 0" class="courses mt-3">
-        <h5 class="mb-4">{{ strings.courses }} <a role="button" data-toggle="collapse" href="#collapseCourses"
+        <h5 class="mb-4">{{ strings.courses }} <a role="button" data-toggle="collapse" data-bs-toggle="collapse" href="#collapseCourses"
             aria-expanded="false" aria-controls="collapseCourses"><i class="fa-solid fa-square-caret-down"></i></a></h5>
         <div class="collapse" id="collapseCourses">
           <div class="list-group d-flex flex-row flex-wrap">
@@ -169,7 +169,7 @@ GetAccStats()
 </script>
 
 <style lang="scss" scoped>
-@import './scss/custom.scss';
+@import '../../scss/custom.scss';
 
 .pre {
   width: 100%;

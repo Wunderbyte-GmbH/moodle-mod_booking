@@ -85,13 +85,10 @@ class capbookingchoose implements bo_condition {
      * @return bool True if available
      */
     public function is_available(booking_option_settings $settings, int $userid, bool $not = false): bool {
-
         global $DB;
-
         // This check can be overridden by a json condition.
         // Therefore, we use it's logic.
-
-        $allowedtobookininstance = allowedtobookininstance::instance();
+        $allowedtobookininstance = allowedtobookininstance::instance($settings->id);
         $allowedtobookininstance->apply_customdata($settings);
         return $allowedtobookininstance->is_available($settings, $userid, $not);
     }
@@ -148,7 +145,7 @@ class capbookingchoose implements bo_condition {
 
         $isavailable = $this->is_available($settings, $userid, $not);
 
-        $description = $this->get_description_string($isavailable, $full, $settings);
+        $description = !$isavailable ? $this->get_description_string($isavailable, $full, $settings) : '';
 
         return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_JUSTMYALERT];
     }

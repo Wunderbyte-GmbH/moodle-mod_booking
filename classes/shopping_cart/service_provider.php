@@ -31,6 +31,7 @@ use mod_booking\bo_availability\bo_info;
 use mod_booking\booking;
 use mod_booking\booking_bookit;
 use mod_booking\booking_option;
+use mod_booking\enrollink;
 use mod_booking\event\booking_failed;
 use mod_booking\semester;
 use mod_booking\singleton_service;
@@ -54,7 +55,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
      */
     public static function load_cartitem(string $area, int $itemid, int $userid = 0): array {
 
-        global $CFG;
+        global $CFG, $USER;
         require_once($CFG->dirroot . '/mod/booking/lib.php');
 
         if ($area === 'option') {
@@ -78,6 +79,9 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
 
             $item = booking_bookit::answer_booking_option($area, $itemid, MOD_BOOKING_STATUSPARAM_RESERVED, $userid);
 
+            if (empty($item)) {
+                return ['error' => 'novalidarea'];
+            }
             // Initialize.
             $serviceperiodstart = $item['coursestarttime'];
             $serviceperiodend = $item['courseendtime'];
@@ -129,6 +133,14 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                 $description = $item['description'];
             }
 
+            $ba = singleton_service::get_instance_of_booking_answers($settings);
+            $users = $ba->get_usersreserved();
+            $userid = empty($userid) ? $userid : $USER->id;
+            $answer = $users[$userid] ?? [];
+            $nritems = enrollink::return_number_of_booked_licenses_from_booking_answer((object)$answer);
+
+            $numberofitems = empty($nritems) ? 1 : $nritems;
+            $multipliable = empty($nritems) ? 0 : 1;
             $cartitem = new cartitem(
                 $item['itemid'],
                 $item['title'],
@@ -143,14 +155,18 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                 $serviceperiodend,
                 'A',
                 0,
-                $costcenter
+                $costcenter,
+                null,
+                null,
+                $numberofitems,
+                $multipliable
             );
 
             return ['cartitem' => $cartitem];
         } else if (strpos($area, 'subbooking') === 0) {
             // As a subbooking can have different slots, we use the area to provide the subbooking id.
             // The syntax is "subbooking-1" for the subbooking id 1.
-            $item = booking_bookit::answer_subbooking_option($area, $itemid, $userid);
+            $item = booking_bookit::answer_subbooking_option($area, $itemid, MOD_BOOKING_STATUSPARAM_RESERVED, $userid);
 
             // Initialize.
             $serviceperiodstart = $item['coursestarttime'];
@@ -316,7 +332,13 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
         require_once($CFG->dirroot . '/mod/booking/lib.php');
 
         if ($area === 'option') {
-            booking_bookit::answer_booking_option($area, $itemid, MOD_BOOKING_STATUSPARAM_DELETED, $userid);
+            booking_bookit::answer_booking_option(
+                $area,
+                $itemid,
+                MOD_BOOKING_STATUSPARAM_DELETED,
+                $userid,
+                true
+            );
             return true;
         } else if (strpos($area, 'subbooking') === 0) {
             // As a subbooking can have different slots, we use the area to provide the subbooking id.
@@ -485,7 +507,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                 )
             ) {
                 $user = singleton_service::get_instance_of_user($userid);
-                $item = $settings->return_booking_option_information($user);
+                $item = $settings->return_booking_option_information($user, false);
                 $cartitem = new cartitem(
                     $itemid,
                     $item['title'],
@@ -510,5 +532,37 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             'info' => 'notabookingoption',
             'itemname' => '',
         ];
+    }
+
+    /**
+     * Callback to adjust the number of items currently bought.
+     *
+     * @param string $area
+     * @param int $itemid
+     * @param int $nritems
+     * @param int $userid
+     * @return bool
+     */
+    public static function adjust_number_of_items(string $area, int $itemid, int $nritems, int $userid = 0): bool {
+        // Currently, only one option of booking can have multiple items.
+        if ($area === 'option') {
+            $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
+            $ba = singleton_service::get_instance_of_booking_answers($settings);
+
+            $users = $ba->get_usersreserved();
+            if ($answer = $users[$userid]) {
+                $currentlybooked = enrollink::return_number_of_booked_licenses_from_booking_answer((object)$answer);
+                $bookinginformation = $ba->return_all_booking_information($userid);
+                if (
+                    !isset($bookinginformation['freeonlist'])
+                    || $nritems < $bookinginformation['freeonlist']
+                ) {
+                    // Adjust the number of items in the booking answer.
+                    enrollink::update_number_of_booked_licenses_for_booking_answer($answer, $nritems);
+                }
+            }
+        }
+
+        return true;
     }
 }

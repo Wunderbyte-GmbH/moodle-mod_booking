@@ -36,7 +36,7 @@ $url = new moodle_url('/mod/booking/edit_optiontemplate.php', ['optionid' => $op
 $redirecturl = new moodle_url('/mod/booking/optiontemplatessettings.php', ['optionid' => $optionid, 'id' => $id]);
 $PAGE->set_url($url);
 $PAGE->requires->jquery_plugin('ui-css');
-list($course, $cm) = get_course_and_cm_from_cmid($id);
+[$course, $cm] = get_course_and_cm_from_cmid($id);
 
 require_course_login($course, false, $cm);
 
@@ -71,9 +71,11 @@ if ($mform->is_cancelled()) {
     redirect($redirecturl, '', 0);
 } else if ($fromform = $mform->get_data()) {
     // Validated data.
-    if (confirm_sesskey() &&
+    if (
+        confirm_sesskey() &&
             (has_capability('mod/booking:updatebooking', $context) ||
-            has_capability('mod/booking:addeditownoption', $context))) {
+            has_capability('mod/booking:addeditownoption', $context))
+    ) {
         if (!isset($fromform->limitanswers)) {
             $fromform->limitanswers = 0;
         }
@@ -81,13 +83,25 @@ if ($mform->is_cancelled()) {
         $nbooking = booking_option::update($fromform, $context);
 
         if ($draftitemid = file_get_submitted_draft_itemid('myfilemanageroption')) {
-            file_save_draft_area_files($draftitemid, $context->id, 'mod_booking', 'myfilemanageroption',
-                    $nbooking, ['subdirs' => false, 'maxfiles' => 50]);
+            file_save_draft_area_files(
+                $draftitemid,
+                $context->id,
+                'mod_booking',
+                'myfilemanageroption',
+                $nbooking,
+                ['subdirs' => false, 'maxfiles' => 50]
+            );
         }
 
         if ($draftimageid = file_get_submitted_draft_itemid('bookingoptionimage')) {
-            file_save_draft_area_files($draftimageid, $context->id, 'mod_booking', 'bookingoptionimage',
-                    $nbooking, ['subdirs' => false, 'maxfiles' => 1]);
+            file_save_draft_area_files(
+                $draftimageid,
+                $context->id,
+                'mod_booking',
+                'bookingoptionimage',
+                $nbooking,
+                ['subdirs' => false, 'maxfiles' => 1]
+            );
         }
 
         if (isset($fromform->addastemplate) && in_array($fromform->addastemplate, [1, 2])) {

@@ -17,7 +17,7 @@
           </h5>
           <button
             type="button"
-            class="close"
+            class="close btn-close"
             @click="cancelBack"
           >
             <span aria-hidden="true">&times;</span>

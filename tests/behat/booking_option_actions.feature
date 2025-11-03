@@ -107,6 +107,7 @@ Feature: Create booking action as admin and ensure they are working as student a
     And I should see "B2-Option2" in the "#booked_system_0_r4" "css_element"
     And I should see "0/2" in the "#booked_system_0_r4" "css_element"
     And I click on "Booking history" "text" in the "#accordion-heading-bookinghistory" "css_element"
+    And I wait until the page is ready
     And I should see "student1@example.com" in the "#bookinghistorytable_system_0_r1" "css_element"
     And I should see "student1@example.com" in the "#bookinghistorytable_system_0_r2" "css_element"
     And I should see "student1@example.com" in the "#bookinghistorytable_system_0_r3" "css_element"

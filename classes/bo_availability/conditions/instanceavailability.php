@@ -176,7 +176,7 @@ class instanceavailability implements bo_condition {
     public function get_description(booking_option_settings $settings, $userid = null, $full = false, $not = false): array {
         $description = '';
         $isavailable = $this->is_available($settings, $userid, $not);
-        $description = $this->get_description_string($isavailable, $full, $settings);
+        $description = !$isavailable ? $this->get_description_string($isavailable, $full, $settings) : '';
         return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_MYALERT];
     }
 

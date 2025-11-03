@@ -27,10 +27,12 @@ require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
 
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Mink\Exception\DriverException;
+use mod_booking\booking;
 use mod_booking\singleton_service;
 use mod_booking\booking_rules\booking_rules;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\bo_availability\conditions\maxoptionsfromcategory;
+use Behat\Gherkin\Node\TableNode;
 
 /**
  * To create booking specific behat scearios.
@@ -164,5 +166,26 @@ class behat_mod_booking extends behat_base {
             $DB->update_record('booking_options', $data);
             $i++;
         };
+    }
+
+    /**
+     * Create single booking rule form "vertical" description
+     *
+     * @Given the following booking rule exists:
+     * @param TableNode $table
+     * @return void
+     */
+    public function the_following_booking_rule_exists(TableNode $table) {
+        $pairs = $table->getRows();
+        $data = [];
+        foreach ($pairs as $row) {
+            if (count($row) >= 2) {
+                $data[trim($row[0])] = $row[1];
+            }
+        }
+        // Create via your plugin generator.
+        /** @var \mod_booking_generator $gen */
+        $gen = \testing_util::get_data_generator()->get_plugin_generator('mod_booking');
+        $gen->create_rule($data);
     }
 }

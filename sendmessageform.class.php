@@ -34,7 +34,6 @@ require_once($CFG->libdir . '/formslib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_booking_sendmessage_form extends moodleform {
-
     /**
      *
      * {@inheritDoc}
@@ -46,21 +45,29 @@ class mod_booking_sendmessage_form extends moodleform {
 
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
-        $mform->addElement('text', 'subject', get_string('messagesubject', 'booking'),
-                ['size' => '64']);
+        $mform->addElement(
+            'text',
+            'subject',
+            get_string('messagesubject', 'booking'),
+            ['size' => '64']
+        );
         $mform->addRule('subject', null, 'required', null, 'client');
         $mform->setType('subject', PARAM_TEXT);
 
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         /* $mform->addElement('textarea', 'message', get_string('messagetext', 'booking'),
                 'wrap="virtual" rows="20" cols="50"'); */
-        $mform->addElement('editor', 'message',
-        get_string('message'), ['rows' => 20, 'cols' => 50],
-        [
+        $mform->addElement(
+            'editor',
+            'message',
+            get_string('message'),
+            ['rows' => 20, 'cols' => 50],
+            [
             'subdirs' => 0,
             'maxfiles' => 0,
             'context' => context_system::instance(),
-        ]);
+            ]
+        );
         $mform->addRule('message', null, 'required', null, 'client');
         $mform->setType('message', PARAM_RAW);
 

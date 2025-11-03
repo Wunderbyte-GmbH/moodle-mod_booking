@@ -41,7 +41,6 @@ require_once($CFG->libdir . '/formslib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class customfield extends \moodleform {
-
     /**
      * Definitiion.
      * @return void
@@ -65,20 +64,34 @@ class customfield extends \moodleform {
         }
 
         $repeatarray = [];
-        $repeatarray[] = $mform->createElement('text', 'customfield',
-                get_string('customfielddef', 'mod_booking'));
+        $repeatarray[] = $mform->createElement(
+            'text',
+            'customfield',
+            get_string('customfielddef', 'mod_booking')
+        );
         $repeatarray[] = $mform->createElement('hidden', 'customfieldname', '');
         $optionstype = [
                         'textfield' => get_string('textfield', 'mod_booking'),
                         'select' => get_string('selectfield', 'mod_booking'),
                         'multiselect' => get_string('multiselect', 'mod_booking'),
                     ];
-        $repeatarray[] = $mform->createElement('select', 'type',
-                get_string('customfieldtype', 'mod_booking'), $optionstype);
-        $repeatarray[] = $mform->createElement('textarea', 'options',
-                get_string('customfieldoptions', 'mod_booking'), 'rows="5" cols="50"');
-        $repeatarray[] = $mform->createElement('checkbox', 'deletefield',
-                \get_string('delcustfield', 'mod_booking'));
+        $repeatarray[] = $mform->createElement(
+            'select',
+            'type',
+            get_string('customfieldtype', 'mod_booking'),
+            $optionstype
+        );
+        $repeatarray[] = $mform->createElement(
+            'textarea',
+            'options',
+            get_string('customfieldoptions', 'mod_booking'),
+            'rows="5" cols="50"'
+        );
+        $repeatarray[] = $mform->createElement(
+            'checkbox',
+            'deletefield',
+            \get_string('delcustfield', 'mod_booking')
+        );
 
         $repeateloptions = [];
         $repeateloptions['customfieldname']['type'] = PARAM_ALPHANUMEXT;
@@ -88,8 +101,16 @@ class customfield extends \moodleform {
         $repeateloptions['options']['disabledif'] = ['type', 'eq', 'textfield'];
         $repeateloptions['customfield']['type'] = PARAM_NOTAGS;
 
-        $this->repeat_elements($repeatarray, $repeatno, $repeateloptions, 'option_repeats',
-                'option_add_fields', 1, null, true);
+        $this->repeat_elements(
+            $repeatarray,
+            $repeatno,
+            $repeateloptions,
+            'option_repeats',
+            'option_add_fields',
+            1,
+            null,
+            true
+        );
         if ($repeatno) {
             for ($i = 0; $i <= $repeatno; $i++) {
                 if ($mform->elementExists("customfieldname[$i]")) {
@@ -108,8 +129,11 @@ class customfield extends \moodleform {
 
         // Buttons.
         $buttonarray = [];
-        $buttonarray[] = &$mform->createElement('submit', 'submitbutton',
-                get_string('savechangesanddisplay'));
+        $buttonarray[] = &$mform->createElement(
+            'submit',
+            'submitbutton',
+            get_string('savechangesanddisplay')
+        );
         $buttonarray[] = &$mform->createElement('cancel');
         $mform->addGroup($buttonarray, 'buttonar', '', [' '], false);
         $mform->closeHeaderBefore('buttonar');
@@ -176,8 +200,10 @@ class customfield extends \moodleform {
                         }
                     }
                 }
-                if ((isset($cfgbkg->$cfgname) && $cfgbkg->$cfgname !== $value) ||
-                         !isset($cfgbkg->$cfgname)) {
+                if (
+                    (isset($cfgbkg->$cfgname) && $cfgbkg->$cfgname !== $value) ||
+                         !isset($cfgbkg->$cfgname)
+                ) {
                     \set_config($cfgname, $value, 'booking');
                     if (isset($data->type[$key])) {
                         \set_config($cfgname . "type", $data->type[$key], 'booking');

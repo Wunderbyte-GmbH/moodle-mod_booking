@@ -34,7 +34,7 @@ $sesskey = optional_param('sesskey', '', PARAM_INT);
 $PAGE->set_context(\context_system::instance());
 $url = new moodle_url('/mod/booking/option_date_template.php');
 $PAGE->set_url($url);
-list($course, $cm) = get_course_and_cm_from_cmid($id);
+[$course, $cm] = get_course_and_cm_from_cmid($id);
 
 require_course_login($course, false);
 

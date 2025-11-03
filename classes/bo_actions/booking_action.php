@@ -32,7 +32,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class booking_action {
-
     /**
      * Returns description
      * @return string
@@ -113,7 +112,6 @@ abstract class booking_action {
         foreach ($record as $key => $value) {
             $data->{$key} = $value;
         }
-
     }
 
     /**

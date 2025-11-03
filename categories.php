@@ -50,8 +50,10 @@ $categories = $DB->get_records('booking_category', ['course' => $courseid, 'cid'
 echo $OUTPUT->header();
 
 echo $OUTPUT->heading(
-        get_string('categories', 'booking') . ' ' . get_string('forcourse', 'booking') . ' ' .
-                 $COURSE->fullname, 2);
+    get_string('categories', 'booking') . ' ' . get_string('forcourse', 'booking') . ' ' .
+    $COURSE->fullname,
+    2
+);
 
 $message = "<a href=\"categoryadd.php?courseid=$courseid\">" .
          get_string('addnewcategory', 'booking') . "</a>";
@@ -67,8 +69,10 @@ foreach ($categories as $category) {
     $deletelink = "<a href=\"categoryadd.php?courseid=$courseid&cid=$category->id&delete=1\">" .
              get_string('deletecategory', 'booking') . '</a>';
     echo "<li>$category->name - $editlink - $deletelink</li>";
-    $subcategories = $DB->get_records('booking_category',
-            ['course' => $courseid, 'cid' => $category->id]);
+    $subcategories = $DB->get_records(
+        'booking_category',
+        ['course' => $courseid, 'cid' => $category->id]
+    );
     if (count($subcategories) > 0) {
         echo "<ul>";
         foreach ($subcategories as $subcat) {

@@ -120,6 +120,7 @@ class confirm_bookinganswer implements booking_rule_action {
      * @param stdClass $record
      */
     public function execute(stdClass $record) {
+        global $USER;
         $task = new confirm_bookinganswer_by_rule_adhoc();
 
         $taskdata = [
@@ -135,7 +136,8 @@ class confirm_bookinganswer implements booking_rule_action {
             $taskdata['optiondateid'] = $record->optiondateid;
         }
         $task->set_custom_data($taskdata);
-        $task->set_userid($record->userid);
+        $currentuserid = $USER->id ?? 2;
+        $task->set_userid($currentuserid);
 
         if ($this->adhocnextruntime !== 0) {
             $task->set_next_run_time($this->adhocnextruntime);

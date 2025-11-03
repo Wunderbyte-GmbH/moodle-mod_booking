@@ -337,7 +337,7 @@ class signinsheet_generator {
      * @return void
      */
     public function prepare_html() {
-        global $DB;
+        global $DB, $PAGE;
         $addsqlwhere = '';
         $groupparams = [];
         $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
@@ -426,6 +426,9 @@ class signinsheet_generator {
 
         // Retrieve the configuration HTML.
         $confightml = get_config('booking', 'signinsheethtml');
+        if (empty(trim(strip_tags($confightml)))) {
+            $confightml = $this->get_default_signinsheet_html();
+        }
 
         // Extract user template from the configuration HTML.
         preg_match('/\[\[users\]\](.*?)\[\[\/users\]\]/s', $confightml, $matches);
@@ -487,18 +490,27 @@ class signinsheet_generator {
             ];
 
             // Get all custom user profile fields and add them as placeholders
-            $custom_userfields = $DB->get_records('user_info_field');
-            foreach ($custom_userfields as $custom_userfield) {
-                $fieldtype = $custom_userfield->datatype;
-                $shortname = $custom_userfield->shortname;
+            $customuserfields = $DB->get_records('user_info_field');
+            foreach ($customuserfields as $customuserfield) {
+                $fieldtype = $customuserfield->datatype;
+                $shortname = $customuserfield->shortname;
                 if ($fieldtype == 'datetime') {
-                    $clean_value = $user->$shortname ?? 0;
-                    $value = $clean_value != 0 ? userdate($user->$shortname, get_string('strftimedate', 'langconfig')) : '';
+                    $cleanvalue = $user->$shortname ?? 0;
+                    $value = $cleanvalue != 0 ? userdate($user->$shortname, get_string('strftimedate', 'langconfig')) : '';
                 } else {
                     $value = $user->$shortname ?? '';
                 }
-                $placeholder = '[[' . $shortname . ']]';
-                $replacements[$placeholder] = $value ?? '';
+                $replacements['[[' . $shortname . ']]'] = $value ?? '';
+            }
+
+            $userobj = singleton_service::get_instance_of_user($user->id);
+            $userpic = new user_picture($userobj);
+            if (empty($userpic)) {
+                $replacements['[[userpic]]'] = '';
+            } else {
+                $userpictureurl = $userpic->get_url($PAGE);
+                $out = $userpictureurl->out();
+                $replacements['[[userpic]]'] = '<img src="' . $out . '"/>';
             }
 
             $sessioncols = str_repeat('<td></td>', count($extrasessioncols));
@@ -551,8 +563,7 @@ class signinsheet_generator {
                 $this->signinsheetlogo->get_filepath(),
                 $this->signinsheetlogo->get_filename()
             );
-
-             $src = $url->out();
+            $src = $url->out();
             $htmloutput = str_replace('[[logourl]]', $src, $htmloutput);
         }
 
@@ -698,7 +709,6 @@ class signinsheet_generator {
             'fullname',
             'firstname',
             'lastname',
-            'email',
             'signature',
             'rownumber',
             'role',
@@ -1553,5 +1563,52 @@ class signinsheet_generator {
                 $this->pdf->Cell($w, 15, $name, 1, (count($this->allfields) == $c ? 1 : 0), '', 0, '', 1);
             }
         }
+    }
+
+    /**
+     * Get the default HTML for the sign-in sheet.
+     * @return string
+     */
+    protected function get_default_signinsheet_html(): string {
+        return
+            '<table width="100%" style="border: none" >
+                <tr>
+                    <td>
+                        <h1 style="font-size: 20px">[[tablename]]</h1>
+                    </td>
+                    <td style="text-align: right;">
+                        <img src="[[logourl]]" width="100" />
+                    </td>
+                </tr>
+            </table>
+
+            <h4 style="font-weight: bold">' . get_string('teachers', 'mod_booking') . ':</h4>
+            <p>[[teachers]]</p>
+
+            <h4 style="font-weight: bold">' . get_string('location', 'mod_booking') . ':</h4>
+            <p>[[location]]</p>
+
+            <h4 style="font-weight: bold">' . get_string('dayofweektime', 'mod_booking') . ':</h4>
+            <p>[[dayofweektime]]</p>
+
+            <h4 style="font-weight: bold">' . get_string('dates', 'mod_booking') . ':</h4>
+            <p>[[dates]]</p>
+
+            <table class="signaturetable" cellpadding="5" border="1" width="100%" style="border-collapse: collapse;">
+                <tr>
+                    <th style="text-align: center; vertical-align: middle;">' . get_string('fullname', 'mod_booking') . '</th>
+                    <th style="text-align: center; vertical-align: middle;">' . get_string('email', 'mod_booking') . '</th>
+                    <th style="text-align: center; vertical-align: middle;">' . get_string('signature', 'mod_booking') . '</th>
+                    <th style="text-align: center; vertical-align: middle;"></th>
+                </tr>
+                [[users]]
+                <tr>
+                    <td style="text-align: center; vertical-align: middle;">[[fullname]]</td>
+                    <td style="text-align: center; vertical-align: middle;">[[email]]</td>
+                    <td style="text-align: center; vertical-align: middle;">[[signature]]</td>
+                    <td></td>
+                </tr>
+                [[/users]]
+            </table>';
     }
 }

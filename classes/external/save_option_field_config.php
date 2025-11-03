@@ -46,7 +46,6 @@ require_once($CFG->libdir . '/externallib.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class save_option_field_config extends external_api {
-
     /**
      * Describes the parameters for unenrol user.
      *
@@ -75,9 +74,10 @@ class save_option_field_config extends external_api {
         string $capability,
         int $id,
         string $json
-        ): array {
+    ): array {
 
-        $params = external_api::validate_parameters(self::execute_parameters(),
+        $params = external_api::validate_parameters(
+            self::execute_parameters(),
             [
                 'id' => $id,
                 'capability' => $capability,

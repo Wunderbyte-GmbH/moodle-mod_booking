@@ -34,7 +34,7 @@ $url = new moodle_url('/mod/booking/customreporttemplatesadd.php', ['id' => $id,
 $urlredirect = new moodle_url('/mod/booking/customreporttemplates.php', ['id' => $id]);
 $PAGE->set_url($url);
 
-list($course, $cm) = get_course_and_cm_from_cmid($id);
+[$course, $cm] = get_course_and_cm_from_cmid($id);
 
 require_course_login($course, false, $cm);
 
@@ -63,7 +63,6 @@ if ($mform->is_cancelled()) {
     redirect($urlredirect, '', 0);
     die();
 } else if ($data = $mform->get_data()) {
-
     // Add new record.
     $template = new stdClass();
     $template->course = $cm->course;
@@ -71,8 +70,14 @@ if ($mform->is_cancelled()) {
 
     $entryid = $DB->insert_record("booking_customreport", $template);
 
-    file_save_draft_area_files($data->templatefile, $coursecontext->id, 'mod_booking', 'templatefile',
-        $entryid, ['subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 1]);
+    file_save_draft_area_files(
+        $data->templatefile,
+        $coursecontext->id,
+        'mod_booking',
+        'templatefile',
+        $entryid,
+        ['subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 1]
+    );
 
     redirect($urlredirect, get_string('templatesuccessfullysaved', 'booking'), 5);
 } else {

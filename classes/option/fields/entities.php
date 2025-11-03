@@ -40,7 +40,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class entities extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -92,10 +91,10 @@ class entities extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         if (class_exists('local_entities\entitiesrelation_handler')) {
-
             // We only run this line to make sure we have the constants.
             $erhandler = new entitiesrelation_handler('mod_booking', 'option');
 
@@ -215,9 +214,10 @@ class entities extends field_base {
         $changes = [];
         // This is to save entity relation data.
         // The id key has to be set to option id.
-        if (class_exists('local_entities\entitiesrelation_handler')
-            && isset($formdata->{LOCAL_ENTITIES_FORM_ENTITYID . 0})) {
-
+        if (
+            class_exists('local_entities\entitiesrelation_handler')
+            && isset($formdata->{LOCAL_ENTITIES_FORM_ENTITYID . 0})
+        ) {
             $erhandler = new entitiesrelation_handler('mod_booking', 'option');
             $erhandler->instance_form_save($formdata, $option->id, $index);
 
@@ -231,10 +231,11 @@ class entities extends field_base {
             $oldentity = $settings->entity;
             $newentityid = $formdata->$key;
 
-            if (isset($oldentity['id']) && $oldentity['id'] != $newentityid
+            if (
+                isset($oldentity['id']) && $oldentity['id'] != $newentityid
                 || (!empty($newentityid) && !isset($oldentity['id']))
-                || (!isset($newentityid) && isset($oldentity['id']))) {
-
+                || (!isset($newentityid) && isset($oldentity['id']))
+            ) {
                 if (!empty($newentityid)) {
                     $newentity = singleton_service::get_entity_by_id($newentityid)[$newentityid];
                 } else {
@@ -267,7 +268,6 @@ class entities extends field_base {
         $entities = [];
 
         if (class_exists('local_entities\entitiesrelation_handler')) {
-
             $erhandler = new entitiesrelation_handler('mod_booking', 'option');
 
             $location = $data->entity ?? $data->location ?? "";

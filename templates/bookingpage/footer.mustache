@@ -34,7 +34,7 @@
 }}
 
 <div class="prepage-booking-footer d-flex w-100 justify-content-between">
-    <span class="back-container mt-2 ml-3">
+    <span class="back-container mt-2 ml-3 ms-3">
         {{#backbutton}}
             <a class="btn btn-primary back-button"
                 data-action="{{backaction}}">
@@ -43,12 +43,11 @@
         {{/backbutton}}
     </span>
 
-    <span class="continue-container mt-2 mr-3">
+    <span class="continue-container mt-2 mr-3 me-3">
         {{#continuebutton}}
             <a class="btn btn-primary continue-button" href="#"
                 data-action="{{continueaction}}"
-                data-href="{{continuelink}}"
-                data-toggle="tab">
+                data-href="{{continuelink}}">
                 {{{continuelabel}}}
             </a>
         {{/continuebutton}}

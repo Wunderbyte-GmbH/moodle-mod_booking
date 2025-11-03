@@ -86,6 +86,13 @@ class send_mail_interval implements booking_rule_action {
      */
     public function add_action_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {
 
+        $mform->addElement(
+            'static',
+            'mailintervalwarning',
+            '',
+            get_string('mailintervalwarning', 'mod_booking'),
+        );
+
         // Here we can set the interval in which the mails will be released.
         $mform->addElement(
             'text',

@@ -34,7 +34,6 @@ require_once("$CFG->libdir/formslib.php");
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class importexcel_form extends moodleform {
-
     /**
      *
      * {@inheritDoc}
@@ -45,8 +44,13 @@ class importexcel_form extends moodleform {
 
         $mform = $this->_form;
 
-        $mform->addElement('filepicker', 'excelfile', get_string('excelfile', 'booking'), null,
-                ['maxbytes' => $CFG->maxbytes, 'accepted_types' => '*']);
+        $mform->addElement(
+            'filepicker',
+            'excelfile',
+            get_string('excelfile', 'booking'),
+            null,
+            ['maxbytes' => $CFG->maxbytes, 'accepted_types' => '*']
+        );
         $mform->addRule('excelfile', null, 'required', null, 'client');
 
         $this->add_action_buttons(true, get_string('importexceltitle', 'booking'));

@@ -26,7 +26,6 @@ use mod_booking\subscriber_selector_base;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class existing_subscriber_selector extends subscriber_selector_base {
-
     /**
      * Finds all subscribed users
      *
@@ -35,19 +34,21 @@ class existing_subscriber_selector extends subscriber_selector_base {
      */
     public function find_users($search) {
         global $DB;
-        list($wherecondition, $params) = $this->search_sql($search, 'u');
+        [$wherecondition, $params] = $this->search_sql($search, 'u');
         $params['optionid'] = $this->optionid;
 
         $fields = $this->required_fields_sql('u');
-        list($sort, $sortparams) = users_order_by_sql('u', $search, $this->accesscontext);
+        [$sort, $sortparams] = users_order_by_sql('u', $search, $this->accesscontext);
         $params = array_merge($params, $sortparams);
 
         $subscribers = $DB->get_records_sql(
-                "SELECT $fields
+            "SELECT $fields
                 FROM {user} u
                 JOIN {booking_teachers} s ON s.userid = u.id
                 WHERE $wherecondition AND s.optionid = :optionid
-                ORDER BY $sort", $params);
+                ORDER BY $sort",
+            $params
+        );
 
         return [get_string("existingsubscribers", 'booking') => $subscribers];
     }

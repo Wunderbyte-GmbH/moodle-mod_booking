@@ -192,3 +192,34 @@ function booking_options_initialize_timecreated() {
     // Execute the query.
     $DB->execute($sql);
 }
+
+/**
+ * Updates booking_form_config JSON fields, changing id 425 to 391.
+ */
+function booking_upgrade_change_id_425_to_391() {
+    global $DB;
+
+    $records = $DB->get_records('booking_form_config');
+
+    foreach ($records as $record) {
+        $jsondata = json_decode($record->json, true);
+
+        if (!is_array($jsondata)) {
+            continue;
+        }
+
+        $updated = false;
+
+        foreach ($jsondata as &$element) {
+            if (isset($element['id']) && $element['id'] == 425) {
+                $element['id'] = 391;
+                $updated = true;
+            }
+        }
+
+        if ($updated) {
+            $record->json = json_encode($jsondata, JSON_UNESCAPED_SLASHES);
+            $DB->update_record('booking_form_config', $record);
+        }
+    }
+}

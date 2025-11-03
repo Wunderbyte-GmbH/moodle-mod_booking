@@ -38,7 +38,6 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class aftercompletedtext extends field_base {
-
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -90,7 +89,8 @@ class aftercompletedtext extends field_base {
         stdClass &$formdata,
         stdClass &$newoption,
         int $updateparam,
-        $returnvalue = null): array {
+        $returnvalue = null
+    ): array {
 
         $key = fields_info::get_class_name(static::class);
         $value = $formdata->{$key} ?? null;
@@ -135,8 +135,13 @@ class aftercompletedtext extends field_base {
             fields_info::add_header_to_mform($mform, self::$header);
         }
 
-        $mform->addElement('editor', 'aftercompletedtext',
-                    get_string("aftercompletedtext", "booking"), null, null);
+        $mform->addElement(
+            'editor',
+            'aftercompletedtext',
+            get_string("aftercompletedtext", "booking"),
+            null,
+            null
+        );
         $mform->setType('aftercompletedtext', PARAM_CLEANHTML);
         $mform->addHelpButton('aftercompletedtext', 'aftercompletedtext', 'mod_booking');
     }
