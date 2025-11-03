@@ -375,6 +375,7 @@ class mod_booking_generator extends testing_module_generator {
         $ruledraft = (object) $ruledraft;
 
         $record = new stdClass();
+        $record->bookingid =
         $record->bookingid = isset($ruledraft->bookingid) ? $ruledraft->bookingid : 0;
         $record->contextid = isset($ruledraft->contextid) ? $ruledraft->contextid : 1;
         $record->rulename = $ruledraft->rulename;
@@ -420,7 +421,8 @@ class mod_booking_generator extends testing_module_generator {
         $record->rulejson = json_encode($ruleobject);
 
         // If we can update, we use id here.
-        if (!empty($record->id)) {
+        if (!empty($ruledraft->id)) {
+            $record->id = $ruledraft->id;
             $DB->update_record('booking_rules', $record);
         } else {
             $record->id = $DB->insert_record('booking_rules', $record);
