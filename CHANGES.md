@@ -1,3 +1,22 @@
+## Version 8.18.0 (2025110300)
+* Improvement: New helper function in shortcodes handler to check if arguments are really true.
+* Improvement: Default for uselegacymailtemplates setting should be turned off.
+* Improvement: Correct strings for signinsheethtml description.
+* Improvement: Purge or invalidate affected caches when booking answers or options are cancelled.
+* Improvement: Reduced versions of optiontoconfirm and supervisorteam with the possibility to include customfields.
+* Improvement: Store pricecategory in bookinganswer field and add tests.
+* Improvement: New column pricecategory in booking_answers table.
+* Improvement: Add test for creation of date series.
+* Bugfix: Fix selector for download signinsheet shortcut button.
+* Bugfix: Execute booking rule on cancel purchase shoppingcart.
+* Bugfix: Signature in wrong function.
+* Bugfix: Fallback for invisible change tracking.
+* Bugfix: Certificate files are now created as files when issued.
+* Bugfix: CSV import loses cmid when done twice in a row.
+* Bugfix: Duplicate option without course correctly.
+* Bugfix: Stop sending scheduled mails on rule change based on event.
+* Bugfix: Only delete files if they exist.
+
 ## Version 8.17.8 (2025101600)
 * Improvement: Test conditions of rule
 * Improvement: More precise message for freetobookagain description
