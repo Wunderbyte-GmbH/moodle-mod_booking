@@ -485,6 +485,22 @@ class signinsheet_generator {
                 '[[address]]' => $user->address ?? '',
                 '[[places]]' => $user->places ?? '',
             ];
+
+            // Get all custom user profile fields and add them as placeholders
+            $custom_userfields = $DB->get_records('user_info_field');
+            foreach ($custom_userfields as $custom_userfield) {
+                $fieldtype = $custom_userfield->datatype;
+                $shortname = $custom_userfield->shortname;
+                if ($fieldtype == 'datetime') {
+                    $clean_value = $user->$shortname ?? 0;
+                    $value = $clean_value != 0 ? userdate($user->$shortname, get_string('strftimedate', 'langconfig')) : '';
+                } else {
+                    $value = $user->$shortname ?? '';
+                }
+                $placeholder = '[[' . $shortname . ']]';
+                $replacements[$placeholder] = $value ?? '';
+            }
+
             $sessioncols = str_repeat('<td></td>', count($extrasessioncols));
             foreach ($replacements as $placeholder => $realvalue) {
                 $row = str_replace($placeholder, $realvalue, $row);
