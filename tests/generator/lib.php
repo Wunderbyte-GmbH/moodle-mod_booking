@@ -375,7 +375,6 @@ class mod_booking_generator extends testing_module_generator {
         $ruledraft = (object) $ruledraft;
 
         $record = new stdClass();
-        $record->bookingid =
         $record->bookingid = isset($ruledraft->bookingid) ? $ruledraft->bookingid : 0;
         $record->contextid = isset($ruledraft->contextid) ? $ruledraft->contextid : 1;
         $record->rulename = $ruledraft->rulename;

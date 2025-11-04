@@ -77,13 +77,16 @@ final class rules_n_days_test extends advanced_testcase {
      * @covers \mod_booking\booking_rules\conditions\select_users::execute
      * @covers \mod_booking\placeholders\placeholders\changes::return_value
      *
-     * @param array $bdata
+     * @param array $data
+     * @param array $expected
      * @throws \coding_exception
      *
-     * @dataProvider booking_common_settings_provider
+     * @dataProvider rule_update_provider
      */
-    public function test_rule_update(array $bdata): void {
+    public function test_rule_update(array $data, array $expected): void {
         global $DB;
+
+        $bdata = self::booking_common_settings_provider();
 
         singleton_service::destroy_instance();
 
@@ -110,16 +113,19 @@ final class rules_n_days_test extends advanced_testcase {
 
         // Create booking rule - "ndays after".
         $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
-        $actstr .= '"subject":"1dayafter","template":"was ended yesterday","templateformat":"1"}';
+        $standardtext = '"subject":"1dayafter","template":"was ended yesterday","templateformat":"1"}';
+        $actstr .= $standardtext;
+        $standardruledata = '{"days":"-1","datefield":"courseendtime","cancelrules":[]}';
+        $standardconditiondata = '{"userids":["2"]}';
         $ruledata1 = [
-            'name' => '1dayafter',
             'conditionname' => 'select_users',
+            'name' => 'oldrule',
             'contextid' => 1,
-            'conditiondata' => '{"userids":["2"]}',
+            'conditiondata' => $standardconditiondata,
             'actionname' => 'send_mail',
             'actiondata' => $actstr,
-            'rulename' => 'rule_daysbefore',
-            'ruledata' => '{"days":"-1","datefield":"courseendtime","cancelrules":[]}',
+            'rulename' => 'oldrule',
+            'ruledata' => $standardruledata,
         ];
         $rule1 = $plugingenerator->create_rule($ruledata1);
 
@@ -138,7 +144,7 @@ final class rules_n_days_test extends advanced_testcase {
         singleton_service::destroy_booking_option_singleton($option1->id);
 
         $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
-
+        $this->assertCount(1, $messages);
         // Validate scheduled adhoc tasks. Validate messages - order might be free.
         foreach ($messages as $key => $message) {
             $customdata = $message->get_custom_data();
@@ -155,34 +161,29 @@ final class rules_n_days_test extends advanced_testcase {
         }
         $rules = $DB->get_records('booking_rules');
         $this->assertCount(1, $rules);
+        rules_info::execute_booking_rules();
 
         // Update booking rule to "ndays before".
         $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
-        $actstr .= '"subject":"1daybefore","template":"will start tomorrow","templateformat":"1"}';
+        $actstr .= $data['text'] ?? $standardtext;
         $ruledata1upd = [
             'id' => $rule1->id, // Update existing rule.
-            'name' => '1daybefore',
+            'name' => 'updatedrule',
             'conditionname' => 'select_users',
             'contextid' => 1,
-            'conditiondata' => '{"userids":["2"]}',
+            'conditiondata' => $data['conditiondata'] ?? $standardconditiondata,
             'actionname' => 'send_mail',
             'actiondata' => $actstr,
-            'rulename' => 'rule_daysbefore',
-            'ruledata' => '{"days":"1","datefield":"coursestarttime","cancelrules":[]}',
+            'rulename' => 'updatedrule',
+            'ruledata' => $data['ruledata'] ?? $standardruledata,
         ];
         $rule1 = $plugingenerator->create_rule($ruledata1upd);
 
         $rules = $DB->get_records('booking_rules');
         $this->assertCount(1, $rules);
 
-        // Force option's update and execute booking rules to schedule new tasks.
-        // Old tasks expected still to be present.
-        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
-        $record->id = $option1->id;
-        $record->cmid = $settings1->cmid;
-        booking_option::update($record);
+        // New tasks should be created on booking rule update - without update of option.
         rules_info::execute_booking_rules();
-
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
 
         $this->assertCount(2, $tasks);
@@ -193,7 +194,7 @@ final class rules_n_days_test extends advanced_testcase {
         foreach ($tasks as $key => $message) {
             // Old task expected to be deleted - error if found.
             $customdata = $message->get_custom_data();
-            if (strpos($customdata->customsubject, "1dayafter") !== false) {
+            if (strpos($customdata->rulename, "oldrule") !== false) {
                 $this->assertEquals(strtotime('+7 days', time()), $message->get_next_run_time());
                 $this->assertEquals("was ended yesterday", $customdata->custommessage);
                 $this->assertEquals("2", $customdata->userid);
@@ -201,13 +202,10 @@ final class rules_n_days_test extends advanced_testcase {
                 $this->assertStringContainsString($ruledata1['conditiondata'], $customdata->rulejson);
                 $this->assertStringContainsString($ruledata1['actiondata'], $customdata->rulejson);
                 $oldtaskcount++;
-            } else if (strpos($customdata->customsubject, "1daybefore") !== false) {
-                $this->assertEquals(strtotime('+4 days', time()), $message->get_next_run_time());
-                $this->assertEquals("will start tomorrow", $customdata->custommessage);
-                $this->assertEquals("2", $customdata->userid);
-                $this->assertStringContainsString($ruledata1upd['ruledata'], $customdata->rulejson);
-                $this->assertStringContainsString($ruledata1upd['conditiondata'], $customdata->rulejson);
-                $this->assertStringContainsString($ruledata1upd['actiondata'], $customdata->rulejson);
+            } else if (strpos($customdata->rulename, "updatedrule") !== false) {
+                $this->assertEquals($expected['newdate'] ?? strtotime('+7 days', time()), $message->get_next_run_time());
+                $this->assertEquals($expected['textpart'] ?? "was ended yesterday", $customdata->custommessage);
+                $this->assertEquals($expected['destination'] ?? "2", $customdata->userid);
                 $newtaskcount++;
             } else {
                 continue;
@@ -355,6 +353,41 @@ final class rules_n_days_test extends advanced_testcase {
                 ],
                 [
                     'contains' => 'send_mail_by_rule_adhoc task: mail successfully sent',
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Data provider for test_rule_update
+     *
+     * @return array
+     * @throws \UnexpectedValueException
+     */
+    public static function rule_update_provider(): array {
+        return [
+            'change mailtext' => [
+                [
+                    'text' => '"subject":"new subject","template":"new text","templateformat":"1"}',
+                ],
+                [
+                    'textpart' => 'new text',
+                ],
+            ],
+            'change date' => [
+                [
+                    'ruledata' => '{"days":"1","datefield":"coursestarttime","cancelrules":[]}',
+                ],
+                [
+                    'newdate' => strtotime('+4 days', time()),
+                ],
+            ],
+            'change destination' => [
+                [
+                    'conditiondata' => '{"userids":["5"]}',
+                ],
+                [
+                    'destination' => "5",
                 ],
             ],
         ];
