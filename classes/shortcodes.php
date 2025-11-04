@@ -1638,9 +1638,9 @@ class shortcodes {
             return $error['message'];
         }
         if (!empty($args['reduced'])) {
-            $scope = 'optionstoconfirmreduced';
+            $scope = 'supervisorteamreduced';
         } else {
-            $scope = 'optionstoconfirm';
+            $scope = 'supervisorteam';
         }
         $data = new booked_users(
             $scope,
