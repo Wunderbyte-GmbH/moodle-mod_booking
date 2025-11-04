@@ -1349,8 +1349,11 @@ $string['fieldofstudyoptions'] = "Shortcode um alle Buchungsoptionen eines Studi
  Außerdem muss in der angezeigten Buchungsoption in der Buchungsvoraussetzung einer der betroffenen
  Kurse ausgewählt sein.";
 $string['fillinatleastoneoption'] = 'Geben Sie mindestens 2 mögliche Buchungen an.';
+$string['filteravailalbetobook'] = 'Verfügbar zur Buchung';
+$string['filterbookingavailability'] = 'Buchungsverfügbarkeit';
 $string['filterbtn'] = 'Filtern';
 $string['filterenddate'] = 'Bis';
+$string['filterfullybooked'] = 'Ausgebucht';
 $string['filterstartdate'] = 'Von';
 $string['firstname'] = "Vorname";
 $string['firstnamerelated'] = "Vorname betroffene Person";
