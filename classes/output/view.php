@@ -411,44 +411,37 @@ class view implements renderable, templatable {
         // In the future, we can parametrize this function so we can use it on many different places.
         $this->wbtable_initialize_layout($allbookingoptionstable, true, true, true);
 
-        $customfieldfilter = new customfieldfilter('availableplaces', 'Booking availability');
-        $customfieldfilter->bypasscache = true;
+        $customfieldfilter = new customfieldfilter(
+            'availableplaces',
+            get_string('filterbookingavailability', 'mod_booking')
+        );
+        $customfieldfilter->bypass_cache();
+        $customfieldfilter->dont_count_keys();
+        $customfieldfilter->use_operator_equal();
+        // In the following query, we calculate available places (alias: availableplaces)
+        // and export the booking option ID and available places for each option as availableplacestbl.
+        // Then, we select the booking option IDs to pass them to the IN operator.
         $subsql = "id IN (
-                SELECT
-                sbo.id
-                FROM {booking_options} sbo
-                LEFT JOIN {booking_answers} sba ON sba.optionid = sbo.id
-                GROUP BY sbo.id, sbo.maxanswers, sba.optionid
-                HAVING :where
+                SELECT id FROM (
+                    SELECT sbo.id,
+                    CASE WHEN
+                        sbo.maxanswers=0
+                        OR (sbo.maxanswers - COUNT(CASE WHEN sba.waitinglist = 0 THEN 1 END)) > 0
+                    THEN '1'
+                    ELSE '0' END AS availableplaces
+                    FROM {booking_options} sbo
+                    LEFT JOIN {booking_answers} sba ON sba.optionid = sbo.id
+                    GROUP BY sbo.id, sbo.maxanswers, sba.optionid
+                ) availableplacestbl
+                WHERE :where
         )";
 
-        $customfieldfilter->set_sql(
-            $subsql,
-            "CASE
-                            WHEN sbo.maxanswers = 0
-                            OR (sbo.maxanswers - COUNT(CASE WHEN sba.waitinglist = 0 THEN 1 END)) > 0
-                            THEN 'available to book'
-                            ELSE 'fully booked'
-                        END"
-        );
+        $customfieldfilter->set_sql($subsql, "availableplaces");
+        $customfieldfilter->add_options([
+            '0' => get_string('filterfullybooked', 'mod_booking'),
+            '1' => get_string('filteravailalbetobook', 'mod_booking'),
+        ]);
         $allbookingoptionstable->add_filter($customfieldfilter);
-        $innerfrom = "
-            ,
-            CASE
-                WHEN bo.maxanswers = 0
-                OR (
-                    bo.maxanswers - (
-                        SELECT COUNT(ba.id)
-                        FROM {booking_answers} ba
-                        WHERE ba.waitinglist = 0
-                        AND ba.optionid = bo.id
-                    )
-                ) > 0
-                THEN 'available to book'
-                ELSE 'fully booked'
-            END
-            AS availableplaces ";
-        $innerfrom .= "FROM {booking_options} bo ";
 
         $wherearray = ['bookingid' => (int)$booking->id];
         [$fields, $from, $where, $params, $filter] =
@@ -463,7 +456,7 @@ class view implements renderable, templatable {
                     null,
                     [MOD_BOOKING_STATUSPARAM_BOOKED],
                     '',
-                    $innerfrom,
+                    '',
                     $allbookingoptionstable
                 );
         $allbookingoptionstable->set_filter_sql($fields, $from, $where, $filter, $params);
