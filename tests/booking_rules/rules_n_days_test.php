@@ -88,8 +88,6 @@ final class rules_n_days_test extends advanced_testcase {
 
         $bdata = self::booking_common_settings_provider();
 
-        singleton_service::destroy_instance();
-
         set_config('timezone', 'Europe/Kyiv');
         set_config('forcetimezone', 'Europe/Kyiv');
 
@@ -124,7 +122,7 @@ final class rules_n_days_test extends advanced_testcase {
             'conditiondata' => $standardconditiondata,
             'actionname' => 'send_mail',
             'actiondata' => $actstr,
-            'rulename' => 'oldrule',
+            'rulename' => 'rule_daysbefore',
             'ruledata' => $standardruledata,
         ];
         $rule1 = $plugingenerator->create_rule($ruledata1);
@@ -163,6 +161,18 @@ final class rules_n_days_test extends advanced_testcase {
         $this->assertCount(1, $rules);
         rules_info::execute_booking_rules();
 
+        // Update conditiondata if necessary.
+        if (isset($data['conditiondata']) && str_contains($data['conditiondata'], 'REPLACE_WITH_USERID')) {
+            $data['conditiondata'] = str_replace(
+                'REPLACE_WITH_USERID',
+                $user1->id,
+                $data['conditiondata']
+            );
+            // Just for safety.
+            if (isset($expected['destination']) && str_contains($expected['destination'], 'REPLACE_WITH_USERID')) {
+                $expected['destination'] = $user1->id;
+            }
+        }
         // Update booking rule to "ndays before".
         $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
         $actstr .= $data['text'] ?? $standardtext;
@@ -174,18 +184,17 @@ final class rules_n_days_test extends advanced_testcase {
             'conditiondata' => $data['conditiondata'] ?? $standardconditiondata,
             'actionname' => 'send_mail',
             'actiondata' => $actstr,
-            'rulename' => 'updatedrule',
+            'rulename' => 'rule_daysbefore',
             'ruledata' => $data['ruledata'] ?? $standardruledata,
         ];
         $rule1 = $plugingenerator->create_rule($ruledata1upd);
 
         $rules = $DB->get_records('booking_rules');
         $this->assertCount(1, $rules);
-
         // New tasks should be created on booking rule update - without update of option.
         rules_info::execute_booking_rules();
-        $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
 
+        $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
         $this->assertCount(2, $tasks);
 
         $oldtaskcount = 0;
@@ -194,7 +203,7 @@ final class rules_n_days_test extends advanced_testcase {
         foreach ($tasks as $key => $message) {
             // Old task expected to be deleted - error if found.
             $customdata = $message->get_custom_data();
-            if (strpos($customdata->rulename, "oldrule") !== false) {
+            if (strpos($customdata->rulejson, "oldrule") !== false) {
                 $this->assertEquals(strtotime('+7 days', time()), $message->get_next_run_time());
                 $this->assertEquals("was ended yesterday", $customdata->custommessage);
                 $this->assertEquals("2", $customdata->userid);
@@ -202,8 +211,8 @@ final class rules_n_days_test extends advanced_testcase {
                 $this->assertStringContainsString($ruledata1['conditiondata'], $customdata->rulejson);
                 $this->assertStringContainsString($ruledata1['actiondata'], $customdata->rulejson);
                 $oldtaskcount++;
-            } else if (strpos($customdata->rulename, "updatedrule") !== false) {
-                $this->assertEquals($expected['newdate'] ?? strtotime('+7 days', time()), $message->get_next_run_time());
+            } else if (strpos($customdata->rulejson, "updatedrule") !== false) {
+                $this->assertEquals(strtotime($expected['newdate'] ?? '+7 days', time()), $message->get_next_run_time());
                 $this->assertEquals($expected['textpart'] ?? "was ended yesterday", $customdata->custommessage);
                 $this->assertEquals($expected['destination'] ?? "2", $customdata->userid);
                 $newtaskcount++;
@@ -379,15 +388,15 @@ final class rules_n_days_test extends advanced_testcase {
                     'ruledata' => '{"days":"1","datefield":"coursestarttime","cancelrules":[]}',
                 ],
                 [
-                    'newdate' => strtotime('+4 days', time()),
+                    'newdate' => '+4 days',
                 ],
             ],
             'change destination' => [
                 [
-                    'conditiondata' => '{"userids":["5"]}',
+                    'conditiondata' => '{"userids":["REPLACE_WITH_USERID"]}',
                 ],
                 [
-                    'destination' => "5",
+                    'destination' => 'REPLACE_WITH_USERID',
                 ],
             ],
         ];
