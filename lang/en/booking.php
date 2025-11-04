@@ -1376,8 +1376,11 @@ $string['fieldofstudyoptions'] = "Shortcode to show all booking options of a fie
  They are defined by a common cohort sync enrolement & the booking availabilty condition of
  having to be inscribed in one of these courses.";
 $string['fillinatleastoneoption'] = 'You need to provide at least two possible answers.';
+$string['filteravailalbetobook'] = 'Available to book';
+$string['filterbookingavailability'] = 'Booking availability';
 $string['filterbtn'] = 'Filter';
 $string['filterenddate'] = 'Until';
+$string['filterfullybooked'] = 'Fully booked';
 $string['filterstartdate'] = 'From';
 $string['firstname'] = "Firstname";
 $string['firstnamerelated'] = "Firstname of the related person (like i.e. the user the booking was made for)";
