@@ -2716,6 +2716,21 @@ class booking_option {
 
         // Trigger the completion event, in order to send the notification mail.
         if (!empty($userdata->completed)) {
+            // Create certificate.
+            if (
+                get_config('booking', 'certificateon')
+                && !get_config('booking', 'presencestatustoissuecertificate')
+                && !empty($userdata->completed)
+            ) {
+                $certid = certificate::issue_certificate($this->id, $userdata->id, $timebooked);
+            }
+
+            if (
+                isset($certid)
+                && !empty($certid)
+            ) {
+                $other['certid'] = $certid;
+            }
             $event = \mod_booking\event\bookingoption_completed::create(
                 [
                     'context' => context_module::instance($cmid),
@@ -2769,20 +2784,6 @@ class booking_option {
                 ],
             ]);
             $event->trigger();
-        }
-        if (
-            get_config('booking', 'certificateon')
-            && !get_config('booking', 'presencestatustoissuecertificate')
-            && !empty($userdata->completed)
-        ) {
-            $certid = certificate::issue_certificate($this->id, $userdata->id, $timebooked);
-        }
-
-        if (
-            isset($certid)
-            && !empty($certid)
-        ) {
-            $other['certid'] = $certid;
         }
 
         if (
