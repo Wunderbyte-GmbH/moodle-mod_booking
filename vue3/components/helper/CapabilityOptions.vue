@@ -42,7 +42,7 @@
           >
           <label :for="'checkbox_' + key">
             <strong>
-              <div v-html="store.state.strings[value.classname.replace(/_/g, '')]" />
+              <div v-html="value.name" />
             </strong>
 
           </label>
@@ -194,7 +194,7 @@ const getBlockMessage = (item) => {
     let incompatibleNames = configurationList.value
       .filter(configurationItem => item.incompatible.includes(configurationItem.id) &&
         configurationItem.checked)
-      .map(configurationItem => store.state.strings[configurationItem.classname])
+      .map(configurationItem => configurationItem.name)
     if (incompatibleNames.length > 0){
       return ` Blocked by: ${incompatibleNames.join(', ')}`;
     }
