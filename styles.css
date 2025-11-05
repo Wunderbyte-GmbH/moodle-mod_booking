@@ -596,3 +596,14 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
 #page-admin-setting-modsettingbooking #admin-selectteacherswithprofilefieldonlyvalue {
     margin-left: 75px;
 }
+
+.row .condition-customform,
+.row .condition-confirmation,
+.row .condition-bookingpolicy-form,
+.row .bookingoption-description-prepagemodal-bookit {
+    flex-shrink: 1;
+}
+
+.condition-bookingpolicy-form .checkbox {
+    display: flex;
+}
