@@ -120,7 +120,7 @@ class competencies extends field_base {
             if (is_array($value)) {
                 $stringvalue = implode(',', $value);
             } else {
-                // Assuming that this is a correct string (because of importing)
+                // Assuming that this is a correct string (because of importing).
                 $stringvalue = $value;
             }
             $newoption->$key = $stringvalue;
