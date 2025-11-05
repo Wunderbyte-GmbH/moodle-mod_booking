@@ -61,7 +61,11 @@ define([], function() {
                             radio.checked = false;
                         }
                     });
-                    document.querySelector('button[name^="downloadsigninsheet"]').click();
+                    if (document.querySelector('button[name="downloadsigninsheet"]')) {
+                        document.querySelector('button[name="downloadsigninsheet"]').click();
+                    } else {
+                        document.querySelector('button[name="downloadsigninsheethtml"]').click();
+                    }
                 });
             }
         }
