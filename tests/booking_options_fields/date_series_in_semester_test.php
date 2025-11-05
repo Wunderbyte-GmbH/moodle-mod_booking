@@ -29,6 +29,7 @@ namespace mod_booking;
 use advanced_testcase;
 use coding_exception;
 use mod_booking\booking_rules\rules\rule_daysbefore;
+use mod_booking\booking_rules\rules_info;
 use mod_booking\option\fields_info;
 use mod_booking_generator;
 use stdClass;
@@ -249,6 +250,7 @@ final class date_series_in_semester_test extends advanced_testcase {
             $ruledata1['name'] = 'newrule';
             $ruledata1['id'] = $rule1->id;
             $updatedrule = $plugingenerator->create_rule($ruledata1);
+            rules_info::execute_booking_rules();
             $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
             // Only one rule that was updated.
             $rules = $DB->get_records('booking_rules');
@@ -258,10 +260,11 @@ final class date_series_in_semester_test extends advanced_testcase {
             $newruletasks = [];
             foreach ($tasks as $task) {
                 $taskdata = $task->get_custom_data();
-                if (str_contains($taskdata->ruleid, '"ruleid":"' . $updatedrule->id . '")')) {
+                if (str_contains($taskdata->rulejson, '"name":"newrule"')) {
                     $newruletasks[] = $task;
                 }
             }
+            $this->assertSame($expected['mailssent'], count($newruletasks));
         }
         ob_start();
         $messagesink = $this->redirectMessages();
@@ -272,9 +275,12 @@ final class date_series_in_semester_test extends advanced_testcase {
 
         // Unfortunately in unit tests, nextruntime of task is ignored and all tasks are executed right away.
         // So we expect a successful mail for each session / task.
-        $successfullmessages = substr_count($res, 'mail successfully sent');
-        $expectedmails = $expected['sessionscountafterupdate'] ?? $expected['sessionscount'];
-        $this->assertSame($expectedmails, $successfullmessages);
+        $expectedmails = $expected['mailssent'];
+        $this->assertSame($expectedmails, count($sentmessages));
+        if (isset($expected['abortmessages'])) {
+            $abortmessages = substr_count($res, 'Mail was NOT SENT');
+            $this->assertSame($expected['abortmessages'], $abortmessages);
+        }
 
         // To avoid retrieving the singleton with the wrong settings, we destroy it.
         singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
@@ -379,6 +385,7 @@ final class date_series_in_semester_test extends advanced_testcase {
                 ],
                 'expected' => [
                     'sessionscount' => 9,
+                    'mailssent' => 9,
                 ],
             ],
             'send mail to admin new extra session' => [
@@ -392,6 +399,8 @@ final class date_series_in_semester_test extends advanced_testcase {
                 'expected' => [
                     'sessionscount' => 9,
                     'sessionscountafterupdate' => 19,
+                    'abortmessages' => 0,
+                    'mailssent' => 19,
                 ],
             ],
             'send mail to admin after update of rule' => [
@@ -403,6 +412,8 @@ final class date_series_in_semester_test extends advanced_testcase {
                 'expected' => [
                     'sessionscount' => 9,
                     'sessionscountafterupdate' => 19,
+                    'abortmessages' => 9,
+                    'mailssent' => 9,
                 ],
             ],
         ];
