@@ -229,9 +229,20 @@ final class rules_n_days_test extends advanced_testcase {
         $messagesink = $this->redirectMessages();
         $this->runAdhocTasks();
         $messages = $messagesink->get_messages();
-        $this->assertCount(1, $messages);
         $res = ob_get_clean();
         $messagesink->close();
+
+        // Validate message.
+        $this->assertCount(1, $messages);
+        if (isset($expected['contains_prevent'])) {
+            $this->assertTrue(substr_count($res, $expected['contains_prevent']) == 1);
+        }
+        if (isset($expected['contains_success'])) {
+            $this->assertTrue(substr_count($res, $expected['contains_success']) == 1);
+        }
+        if (isset($expected['textpart'])) {
+            $this->assertTrue(substr_count($messages[0]->fullmessage, $expected['textpart']) == 1);
+        }
     }
 
     /**
@@ -381,14 +392,19 @@ final class rules_n_days_test extends advanced_testcase {
                 ],
                 [
                     'textpart' => 'new text',
+                    'contains_success' => 'send_mail_by_rule_adhoc task: mail successfully sent',
                 ],
             ],
             'change date' => [
                 [
+                    'text' => '"subject":"1daybefore","template":"will start tomorrow","templateformat":"1"}',
                     'ruledata' => '{"days":"1","datefield":"coursestarttime","cancelrules":[]}',
                 ],
                 [
                     'newdate' => '+4 days',
+                    'textpart' => 'will start tomorrow',
+                    'contains_prevent' => "send_mail_by_rule_adhoc task: Rule has changed. Mail was NOT SENT",
+                    'contains_success' => 'send_mail_by_rule_adhoc task: mail successfully sent',
                 ],
             ],
             'change destination' => [
@@ -397,6 +413,7 @@ final class rules_n_days_test extends advanced_testcase {
                 ],
                 [
                     'destination' => 'REPLACE_WITH_USERID',
+                    'contains_success' => 'send_mail_by_rule_adhoc task: mail successfully sent',
                 ],
             ],
         ];
