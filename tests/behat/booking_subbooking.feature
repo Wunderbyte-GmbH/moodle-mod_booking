@@ -22,7 +22,7 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     And the following "activities" exist:
       | activity | course | name       | intro                  | bookingmanager | eventtype | Default view for booking options | Send confirmation e-mail |
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | All bookings                     | Yes                      |
-        And the following "mod_booking > options" exist:
+    And the following "mod_booking > options" exist:
       | booking    | text          | course | description | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | My booking | Test option 1 | C1     | Subitem     | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
     ## Default - enable subbookings by admin.
