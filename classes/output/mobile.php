@@ -336,7 +336,7 @@ class mobile {
         global $DB, $OUTPUT, $USER;
 
         $cmid = $args['cmid'];
-        $availablenavtabs = self::get_available_nav_tabs($cmid);
+        $availablenavtabs = self::get_available_nav_tabs($cmid, $args['whichview'] ?? null);
         $whichview = self::set_active_nav_tabs($availablenavtabs, $args['whichview'] ?? null);
 
         if (empty($cmid)) {
@@ -414,11 +414,6 @@ class mobile {
             case 'myoptions':
                 $params = self::get_rendered_table_for_teacher($booking);
                 break;
-            // Todo: When we need it, we can uncomment this.
-            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-            /* case 'optionsiamresponsiblefor':
-                $params = self::get_rendered_table_for_responsible_contact($booking);
-                break; */
             case 'myinstitution':
                 $params = self::get_rendered_myinstitution_table($booking);
                 break;
@@ -581,9 +576,10 @@ class mobile {
     /**
      * Get all selected nav tabs from the config$activetab
      * @param string $cmid
+     * @param string $activetab
      * @return array
      */
-    public static function get_available_nav_tabs($cmid) {
+    public static function get_available_nav_tabs($cmid, $activetab) {
         $selectednavlabelnames = [];
         $navlabelnames = self::match_view_label_and_names();
         $configmobileviewoptions = get_config('booking', 'mobileviewoptions');
@@ -631,9 +627,6 @@ class mobile {
             'showall' => get_string('showallbookingoptions', 'mod_booking'),
             'mybooking' => get_string('showmybookingsonly', 'mod_booking'),
             'myoptions' => get_string('optionsiteach', 'mod_booking'),
-            // Todo: When we need it, we can uncomment this.
-            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-            /* 'optionsiamresponsiblefor' => get_string('optionsiamresponsiblefor', 'mod_booking'), */
             'showactive' => get_string('activebookingoptions', 'mod_booking'),
             'myinstitution' => get_string('myinstitution', 'mod_booking'),
             'showvisible' => get_string('visibleoptions', 'mod_booking'),
