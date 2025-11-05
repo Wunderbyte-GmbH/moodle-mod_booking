@@ -16,6 +16,8 @@
 
 namespace mod_booking\booking_rules\actions;
 
+use core_user;
+use dml_missing_record_exception;
 use mod_booking\booking_rules\booking_rule_action;
 use mod_booking\placeholders\placeholders_info;
 use mod_booking\singleton_service;
@@ -196,6 +198,15 @@ class send_mail implements booking_rule_action {
         global $DB;
 
         if (!isset($record->userid)) {
+            return;
+        }
+        // Only execute for active users.
+        try {
+            $user = core_user::get_user($record->userid, '*', MUST_EXIST);
+        } catch (dml_missing_record_exception $e) {
+            return;
+        }
+        if ($user->deleted || $user->suspended) {
             return;
         }
 
