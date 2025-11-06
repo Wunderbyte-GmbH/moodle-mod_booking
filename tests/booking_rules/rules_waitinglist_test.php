@@ -1092,6 +1092,7 @@ final class rules_waitinglist_test extends advanced_testcase {
      * @param array $expected
      * @throws \coding_exception
      * @throws \dml_exception
+     * @return void
      *
      * @dataProvider different_rule_conditions_provider
      */
