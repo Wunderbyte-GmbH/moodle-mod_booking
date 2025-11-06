@@ -288,10 +288,16 @@ final class waitinglist_test extends advanced_testcase {
 
         $this->assertCount(2, $bookedusers, 'Expected exactly 2 booked students.');
 
-        // Check if student 3 is answer is confirmed.
+        // Check if the answer of student 3 is confirmed.
         $this->setUser($student[3]);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student[3]->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // Check the answer json. It must contain confirmation info.
+        $answer = $DB->get_record('booking_answers', ['userid' => $student[3]->id]);
+        $answerjson = json_decode($answer->json);
+        $this->assertNotEmpty($answerjson);
+        $this->assertTrue(property_exists($answerjson, 'confirmwaitinglist'));
     }
 
     /**
