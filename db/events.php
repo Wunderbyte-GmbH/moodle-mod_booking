@@ -135,3 +135,10 @@ $observers = [
         'callback' => 'mod_booking_observer::competency_user_competency_rated_in_course',
     ],
 ];
+
+if (class_exists('\local_shopping_cart\event\checkout_completed')) {
+    $observers[] = [
+        'eventname' => '\local_shopping_cart\event\checkout_completed',
+        'callback' => 'mod_booking_observer::checkout_completed',
+    ];
+}

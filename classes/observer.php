@@ -185,6 +185,22 @@ class mod_booking_observer {
     }
 
     /**
+     * Checkout completed event.
+     *
+     * @param \local_shopping_cart\event\checkout_completed $event
+     * @throws dml_exception
+     */
+    public static function checkout_completed(\local_shopping_cart\event\checkout_completed $event) {
+        // We need this to correctly update receipts for installment payments.
+        if (
+            $event->other['componentname'] == 'mod_booking'
+            && $event->other['area'] == 'option'
+        ) {
+            cache_helper::invalidate_by_event('setbackoptionsanswers', [$event->other['itemid']]);
+        }
+    }
+
+    /**
      * Booking option cancelled.
      *
      * @param \mod_booking\event\bookingoption_cancelled $event
@@ -328,6 +344,15 @@ class mod_booking_observer {
                 1
             );
         }
+    }
+
+    /**
+     * Booking option date deleted.
+     *
+     * @param \mod_booking\event\bookingoptiondate_deleted $event
+     */
+    public static function bookingoptiondate_deleted(\mod_booking\event\bookingoptiondate_deleted $event) {
+        // Implement if necessary.
     }
 
     /**
