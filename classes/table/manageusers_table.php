@@ -354,11 +354,17 @@ class manageusers_table extends wunderbyte_table {
             $userid
         );
 
+        // Get the price for the user.
+        // Sometimes the option is free for the user even when the option has a price (userprice = 1).
+        // In this case, the option should be booked immediately for the user.
+        $userprice = \mod_booking\price::get_price('option', $option->id, $user);
+
         // If booking option is booked with a price, we don't book directly but just allow to book.
         // Exeption: The booking is autoenrol and needs to be booked directly...
         // In this case price can be given for bookingoption, but was already payed before.
         if (
             !empty($settings->jsonobject->useprice)
+            && $userprice['price'] != 0
             && empty(get_config('booking', 'turnoffwaitinglist'))
             && (
                 $erwaitinglist = enrollink::enrolmentstatus_waitinglist($settings) === false
