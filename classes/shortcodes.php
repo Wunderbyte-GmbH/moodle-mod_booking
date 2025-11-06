@@ -811,8 +811,10 @@ class shortcodes {
                 );
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
-
-        // These are all possible options to be displayed in the bookingtable.
+        if (!empty($args['futureonly'])) {
+            $startoftoday = time();
+            $where .= " AND courseendtime > $startoftoday ";
+        }
         $possibleoptions = [
             "description",
             "statusdescription",
