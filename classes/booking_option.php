@@ -2703,7 +2703,6 @@ class booking_option {
                     $e->getMessage() . "timebooked: $timebooked, userid: $userid, optionid: $optionid"
                 );
             }
-
         }
 
         $completionold = $userdata->completed;
