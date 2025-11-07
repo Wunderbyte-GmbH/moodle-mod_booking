@@ -94,9 +94,7 @@ final class waitinglist_test extends advanced_testcase {
      */
     public function test_confirmation_for_option_with_price_but_students_for_free(): void {
         global $DB;
-
         $this->resetAfterTest();
-
 
         $bdata = self::booking_common_settings_provider();
         set_config('timezone', 'Europe/Kyiv');
