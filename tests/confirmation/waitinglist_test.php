@@ -34,6 +34,7 @@ use local_shopping_cart\shopping_cart_history;
 use local_shopping_cart\local\cartstore;
 use local_shopping_cart\output\shoppingcart_history_list;
 use mod_booking_generator;
+use tool_mocktesttime\time_mock;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -49,6 +50,26 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class waitinglist_test extends advanced_testcase {
+    /**
+     * Tests set up.
+     */
+    public function setUp(): void {
+        parent::setUp();
+        $this->resetAfterTest();
+        time_mock::init();
+        time_mock::set_mock_time(strtotime('now'));
+        singleton_service::destroy_instance();
+    }
+
+    /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        parent::tearDown();
+        // Mandatory clean-up.
+        singleton_service::destroy_instance();
+    }
+
     /**
      * This test verifies that an answer is immediately booked for the first user on the waiting list.
      *
@@ -75,7 +96,7 @@ final class waitinglist_test extends advanced_testcase {
         global $DB;
 
         $this->resetAfterTest();
-        $this->preventResetByRollback();
+
 
         $bdata = self::booking_common_settings_provider();
         set_config('timezone', 'Europe/Kyiv');
