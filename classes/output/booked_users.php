@@ -145,7 +145,10 @@ class booked_users implements renderable, templatable {
             ) : null;
 
         // For optiondate scope, we only show booked users.
-        if ($scope != 'optiondate') {
+        if (
+            $scope != 'optiondate'
+            || $scope != 'supervisorteamreduced'
+        ) {
             $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_WAITINGLIST);
             $this->waitinglist = $showwaiting ? $this->render_users_table(
                 $scope,
