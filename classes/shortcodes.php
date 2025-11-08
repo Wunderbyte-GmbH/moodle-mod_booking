@@ -809,12 +809,11 @@ class shortcodes {
                     $statusarray,
                     $additionalwhere
                 );
-
-        $table->set_filter_sql($fields, $from, $where, $filter, $params);
         if (!empty($args['futureonly'])) {
             $startoftoday = time();
             $where .= " AND courseendtime > $startoftoday ";
         }
+        $table->set_filter_sql($fields, $from, $where, $filter, $params);
         $possibleoptions = [
             "description",
             "statusdescription",
