@@ -28,17 +28,13 @@ namespace mod_booking;
 
 use advanced_testcase;
 use coding_exception;
+use stdClass;
 use mod_booking\price;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
 use local_shopping_cart\shopping_cart;
-use local_shopping_cart\shopping_cart_history;
-use mod_booking\local\mobile\customformstore;
 use local_shopping_cart\local\cartstore;
-use local_shopping_cart\form\modal_cancel_all_addcredit;
-use local_shopping_cart\shopping_cart_credits;
 use local_shopping_cart_generator;
-use stdClass;
 use tool_mocktesttime\time_mock;
 use mod_booking\booking_rules\booking_rules;
 use mod_booking\booking_rules\rules_info;
@@ -57,6 +53,9 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  *
  */
 final class shopping_cart_installment_test extends advanced_testcase {
+    /** @var \core_payment\account account */
+    protected $account;
+
     /**
      * Tests set up.
      */
@@ -66,6 +65,26 @@ final class shopping_cart_installment_test extends advanced_testcase {
         time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
+        set_config('country', 'AT');
+        $generator = $this->getDataGenerator()->get_plugin_generator('core_payment');
+        $this->account = $generator->create_payment_account(['name' => 'PayPal1']);
+        $record = new stdClass();
+        $record->accountid = $this->account->get('id');
+        $record->gateway = 'paypal';
+        $record->enabled = 1;
+        $record->timecreated = time();
+        $record->timemodified = time();
+
+        $config = new stdClass();
+        $config->environment = 'sandbox';
+        // Load the credentials from Github.
+        $config->brandname = getenv('BRANDNAME') ?: 'Test paypal';
+        $config->clientid = getenv('CLIENTID') ?: 'Test';
+        $config->secret = getenv('SECRET') ?: 'Test';
+
+        $record->config = json_encode($config);
+
+        $accountgateway1 = \core_payment\helper::save_payment_gateway($record);
     }
 
     /**
@@ -75,6 +94,7 @@ final class shopping_cart_installment_test extends advanced_testcase {
         parent::tearDown();
         // Mandatory clean-up.
         singleton_service::destroy_instance();
+        time_mock::reset_mock_time();
         // Mandatory to deal with static variable in the booking_rules.
         rules_info::destroy_singletons();
         booking_rules::$rules = [];
@@ -92,17 +112,29 @@ final class shopping_cart_installment_test extends advanced_testcase {
      *
      */
     public function test_booking_bookit_with_price_and_installment(array $bdata): void {
-        global $DB, $CFG;
-
-        self::tearDown();
+        global $DB, $OUTPUT;
 
         // Skip this test if shopping_cart not installed.
         if (!class_exists('local_shopping_cart\shopping_cart')) {
             return;
         }
+
+        time_mock::set_mock_time(strtotime('-4 days', time()));
+        $time = time_mock::get_mock_time();
+        $now = time();
+        $this->assertEquals($time, $now);
+
+        // Validate payment account if it has a config.
+        $record1 = $DB->get_record('payment_accounts', ['id' => $this->account->get('id')]);
+        $this->assertEquals('PayPal1', $record1->name);
+        $this->assertCount(1, $DB->get_records('payment_gateways', ['accountid' => $this->account->get('id')]));
+
+        // Set local_shopping_cart to use the payment account.
+        set_config('accountid', $this->account->get('id'), 'local_shopping_cart');
+
         // Set params requred for installment.
         set_config('enableinstallments', 1, 'local_shopping_cart');
-        set_config('timebetweenpayments', 2, 'local_shopping_cart');
+        set_config('timebetweenpayments', 3, 'local_shopping_cart');
         set_config('reminderdaysbefore', 1, 'local_shopping_cart');
 
         // Setup test data.
@@ -139,32 +171,22 @@ final class shopping_cart_installment_test extends advanced_testcase {
         ];
         $ucredit = $plugingenerator->create_user_credit($usercreditdata);
 
-        $record = new stdClass();
+        $record = (object)$bdata['options'][1];
         $record->bookingid = $booking1->id;
-        $record->text = 'Test option1';
         $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course2->id;
-        $record->maxanswers = 2;
         $record->useprice = 1; // Use price from the default category.
         $record->importing = 1;
         // Allow and configure installemnts for option.
         $record->sch_allowinstallment = 1;
         $record->sch_downpayment = 44;
         $record->sch_numberofpayments = 2;
-        $record->sch_duedatevariable = 2;
+        $record->sch_duedatevariable = 4;
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
 
-        $pricecategorydata = (object)[
-            'ordernum' => 1,
-            'name' => 'default',
-            'identifier' => 'default',
-            'defaultvalue' => 100,
-            'pricecatsortorder' => 1,
-        ];
-
-        $plugingenerator->create_pricecategory($pricecategorydata);
+        $pricecategorydata = $plugingenerator->create_pricecategory($bdata['pricecategories'][0]);
 
         $option1 = $plugingenerator->create_option($record);
 
@@ -223,12 +245,12 @@ final class shopping_cart_installment_test extends advanced_testcase {
         $this->assertIsArray($installment['payments']);
         $this->assertCount(2, $installment['payments']);
         $this->assertEquals(0, $installment['payments'][0]['paid']);
-        $this->assertEquals(28, $installment['payments'][0]['price']);
-        $exppadate = userdate(strtotime('now + 1 days'), get_string('strftimedate', 'langconfig'));
+        $this->assertEquals(27.5, $installment['payments'][0]['price']);
+        $exppadate = userdate(strtotime('now + 2 days', $time), get_string('strftimedate', 'langconfig'));
         $this->assertEquals($exppadate, $installment['payments'][0]['date']);
         $this->assertEquals(0, $installment['payments'][1]['paid']);
-        $this->assertEquals(28, $installment['payments'][1]['price']);
-        $exppadate = userdate(strtotime('now + 2 days'), get_string('strftimedate', 'langconfig'));
+        $this->assertEquals(27.5, $installment['payments'][1]['price']);
+        $exppadate = userdate(strtotime('now + 4 days', $time), get_string('strftimedate', 'langconfig'));
         $this->assertEquals($exppadate, $installment['payments'][1]['date']);
 
         // Confirm cash payment.
@@ -245,6 +267,95 @@ final class shopping_cart_installment_test extends advanced_testcase {
         // User 1 should be booked now.
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        $this->setUser($student1);
+        singleton_service::destroy_user($student1->id);
+
+        // Reset cart and move +2 day forward - we should pay 1st installment.
+        cartstore::reset();
+        time_mock::set_mock_time(strtotime('+2 days', $time));
+        $time = time_mock::get_mock_time();
+        $debugdate = userdate($time, get_string('strftimedate', 'langconfig'));
+
+        // Run adhock tasks.
+        $sink = $this->redirectMessages();
+        //$tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        ob_start();
+        $this->runAdhocTasks();
+        $messages = $sink->get_messages();
+        $res = ob_get_clean();
+        $sink->close();
+        $messages = message_get_messages($student1->id);
+
+        // Re-init shoppng cart.
+        $cartstore = cartstore::instance($student1->id);
+        $data = $cartstore->get_localized_data();
+
+        // Get infor about installments.
+        $open = $cartstore->get_open_installments();
+        $this->assertCount(3, $open);
+        $due = $cartstore->get_due_installments();
+        $this->assertCount(1, $due);
+        // Validatee reminder message as per https://github.com/Wunderbyte-GmbH/moodle-mod_booking/issues/505.
+        $html = local_shopping_cart_render_navbar_output($OUTPUT);
+        $notess = \core\notification::fetch();
+        $this->assertStringContainsString('Don\'t forget: Test Option 2, 27.5 EUR.', $notess[0]->get_message());
+        // Required: add installment to the cart.
+        foreach ($due as $dueitem) {
+            shopping_cart::add_item_to_cart(
+                $dueitem['componentname'],
+                $dueitem['area'],
+                $dueitem['itemid'],
+                $student1->id
+            );
+        }
+        // Prepere checkout, confirm payment.
+        $data = $cartstore->get_localized_data();
+        $cartstore->get_expanded_checkout_data($data);
+        $pay = shopping_cart::confirm_payment($student1->id, LOCAL_SHOPPING_CART_PAYMENT_METHOD_CREDITS, $data);
+
+        // Reset cart and move +2 day forward - we should pay 2nd installment.
+        cartstore::reset();
+        time_mock::set_mock_time(strtotime('+2 days', $time));
+        $time = time_mock::get_mock_time();
+        $debugdate = userdate($time, get_string('strftimedate', 'langconfig'));
+
+        // Run adhock tasks.
+        $sink = $this->redirectMessages();
+        //$tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        ob_start();
+        $this->runAdhocTasks();
+        $messages = $sink->get_messages();
+        $res = ob_get_clean();
+        $sink->close();
+        $messages = message_get_messages($student1->id);
+
+        // Re-init shoppng cart.
+        $cartstore = cartstore::instance($student1->id);
+        $data = $cartstore->get_localized_data();
+
+        // Get infor about installments.
+        $open = $cartstore->get_open_installments();
+        $this->assertCount(2, $open);
+        $due = $cartstore->get_due_installments();
+        $this->assertCount(1, $due);
+        // Validatee reminder message as per https://github.com/Wunderbyte-GmbH/moodle-mod_booking/issues/505.
+        //$html = local_shopping_cart_render_navbar_output($OUTPUT);
+        //$notess = \core\notification::fetch();
+        //$this->assertStringContainsString('Don\'t forget: Test Option 2, 27.5 EUR.', $notess[0]->get_message());
+        // Required: add installment to the cart.
+        foreach ($due as $dueitem) {
+            shopping_cart::add_item_to_cart(
+                $dueitem['componentname'],
+                $dueitem['area'],
+                $dueitem['itemid'],
+                $student1->id
+            );
+        }
+        // Prepere checkout, confirm payment.
+        $data = $cartstore->get_localized_data();
+        $cartstore->get_expanded_checkout_data($data);
+        $pay = shopping_cart::confirm_payment($student1->id, LOCAL_SHOPPING_CART_PAYMENT_METHOD_CREDITS, $data);
     }
 
     /**
