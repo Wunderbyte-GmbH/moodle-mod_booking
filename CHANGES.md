@@ -1,3 +1,22 @@
+## Version 8.18.1 (2025111001)
+* Improvement: Create test for session reminders via rules.
+* Improvement: Delete booking answers cache for option after successful checkout.
+* Improvement: Supervisorteamreduced only shows booked users.
+* Improvement: Mycourseslist now supports "futureonly" param.
+* Improvement: Enable import of competencies (value in string format).
+* Improvement: Add debug event when option can't be created.
+* Bugfix: For updated sessions send mail only once.
+* Bugfix: Removed extra AND from the query.
+* Bugfix: Limit get_record in booking_answers table to make sure it's unique.
+* Bugfix: Book the option with a price for a student whose price category is 0.
+* Bugfix: Futureonly triggered on the right point.
+* Bugfix: Only schedule mail task for active users.
+* Bugfix: Append certificate to bookingoption_booked event to enable correct placeholder.
+* Bugfix: Wrong scope in supervisorteam shortcode.
+* Bugfix: Add reduced property.
+* Bugfix: Add missing variable counter.
+* Bugfix: Fix reduced region in booking_answers table to make sure it's unique.
+
 ## Version 8.18.0 (2025110300)
 * Improvement: New helper function in shortcodes handler to check if arguments are really true.
 * Improvement: Default for uselegacymailtemplates setting should be turned off.
