@@ -28,6 +28,7 @@ namespace mod_booking;
 
 use advanced_testcase;
 use coding_exception;
+use context_system;
 use stdClass;
 use mod_booking\price;
 use mod_booking_generator;
@@ -97,6 +98,7 @@ final class shopping_cart_installment_test extends advanced_testcase {
         time_mock::reset_mock_time();
         // Mandatory to deal with static variable in the booking_rules.
         rules_info::destroy_singletons();
+        rules_info::$rulestoexecute = [];
         booking_rules::$rules = [];
         cartstore::reset();
     }
@@ -112,7 +114,7 @@ final class shopping_cart_installment_test extends advanced_testcase {
      *
      */
     public function test_booking_bookit_with_price_and_installment(array $bdata): void {
-        global $DB, $OUTPUT;
+        global $DB, $OUTPUT, $PAGE;
 
         // Skip this test if shopping_cart not installed.
         if (!class_exists('local_shopping_cart\shopping_cart')) {
@@ -194,6 +196,23 @@ final class shopping_cart_installment_test extends advanced_testcase {
         // To avoid retrieving the singleton with the wrong settings, we destroy it.
         singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
 
+        // Create booking rule - "ndays before".
+        $ruledata = [
+            'name' => 'installment',
+            'conditionname' => 'select_user_shopping_cart',
+            'contextid' => 1,
+            'conditiondata' => '{}',
+            'actionname' => 'send_mail',
+            'actiondata' => '{"subject":"installment_custom_subj","template":"installment_custom_msg","templateformat":"1"}',
+            'rulename' => 'rule_daysbefore',
+            'ruledata' => '{"days":"0","datefield":"installmentpayment"}',
+        ];
+        $rule1 = $plugingenerator->create_rule($ruledata);
+        $rules = $DB->get_records('booking_rules');
+        $this->assertCount(1, $rules);
+        rules_info::execute_booking_rules();
+        $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+
         // Book the first user without any problem.
         $boinfo = new bo_info($settings);
 
@@ -259,6 +278,8 @@ final class shopping_cart_installment_test extends advanced_testcase {
         $this->assertIsArray($res);
         $this->assertEmpty($res['error']);
         $this->assertEquals(56, $res['credit']);
+        rules_info::execute_booking_rules();
+        $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
 
         // In this test, we book the user directly (we don't test the payment process).
         $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
@@ -279,13 +300,14 @@ final class shopping_cart_installment_test extends advanced_testcase {
 
         // Run adhock tasks.
         $sink = $this->redirectMessages();
-        //$tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
         ob_start();
         $this->runAdhocTasks();
         $messages = $sink->get_messages();
         $res = ob_get_clean();
         $sink->close();
         $messages = message_get_messages($student1->id);
+        $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
 
         // Re-init shoppng cart.
         $cartstore = cartstore::instance($student1->id);
@@ -297,6 +319,9 @@ final class shopping_cart_installment_test extends advanced_testcase {
         $due = $cartstore->get_due_installments();
         $this->assertCount(1, $due);
         // Validatee reminder message as per https://github.com/Wunderbyte-GmbH/moodle-mod_booking/issues/505.
+        $context = context_system::instance();
+        $PAGE->set_context($context);
+        $PAGE->set_url(new \moodle_url('/local/shopping_cart/checkout.php'));
         $html = local_shopping_cart_render_navbar_output($OUTPUT);
         $notess = \core\notification::fetch();
         $this->assertStringContainsString('Don\'t forget: Test Option 2, 27.5 EUR.', $notess[0]->get_message());
@@ -340,9 +365,11 @@ final class shopping_cart_installment_test extends advanced_testcase {
         $due = $cartstore->get_due_installments();
         $this->assertCount(1, $due);
         // Validatee reminder message as per https://github.com/Wunderbyte-GmbH/moodle-mod_booking/issues/505.
-        //$html = local_shopping_cart_render_navbar_output($OUTPUT);
-        //$notess = \core\notification::fetch();
-        //$this->assertStringContainsString('Don\'t forget: Test Option 2, 27.5 EUR.', $notess[0]->get_message());
+        $PAGE->set_context($context);
+        $PAGE->set_url(new \moodle_url('/local/shopping_cart/checkout.php'));
+        $html = local_shopping_cart_render_navbar_output($OUTPUT);
+        $notess = \core\notification::fetch();
+        $this->assertStringContainsString('Don\'t forget: Test Option 2, 27.5 EUR.', $notess[0]->get_message());
         // Required: add installment to the cart.
         foreach ($due as $dueitem) {
             shopping_cart::add_item_to_cart(
