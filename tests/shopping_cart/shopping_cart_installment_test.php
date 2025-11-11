@@ -67,6 +67,7 @@ final class shopping_cart_installment_test extends advanced_testcase {
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
         set_config('country', 'AT');
+        /** @var \core_payment_generator $generator */
         $generator = $this->getDataGenerator()->get_plugin_generator('core_payment');
         $this->account = $generator->create_payment_account(['name' => 'PayPal1']);
         $record = new stdClass();
@@ -347,7 +348,8 @@ final class shopping_cart_installment_test extends advanced_testcase {
 
         // Run adhock tasks.
         $sink = $this->redirectMessages();
-        //$tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /* $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc'); */
         ob_start();
         $this->runAdhocTasks();
         $messages = $sink->get_messages();

@@ -2703,7 +2703,6 @@ class booking_option {
                     $e->getMessage() . "timebooked: $timebooked, userid: $userid, optionid: $optionid"
                 );
             }
-
         }
 
         $completionold = $userdata->completed;
@@ -4542,7 +4541,7 @@ class booking_option {
         if (!empty($newoption->id)) {
             // Save the changes to DB.
             if (!$DB->update_record("booking_options", $newoption)) {
-                throw new moodle_exception('updateofoptionwentwrong', 'mod_booking');
+                throw new moodle_exception('errorupdateofoptionwentwrong', 'mod_booking');
             }
         } else {
             // Save the changes to DB.
@@ -4550,7 +4549,7 @@ class booking_option {
                 $newoption->identifier = self::create_truly_unique_option_identifier();
             }
             if (!$optionid = $DB->insert_record("booking_options", $newoption)) {
-                throw new moodle_exception('creationofoptionwentwrong', 'mod_booking');
+                throw new moodle_exception('errorcreationofoptionwentwrong', 'mod_booking');
             }
             // Some legacy weight still left.
             $newoption->id = $optionid;
