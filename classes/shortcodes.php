@@ -1305,13 +1305,21 @@ class shortcodes {
      *
      * @param ?booking $booking
      * @param ?string $uniquetablename
+     * @param int $userid
      * @return bookingoptions_wbtable
      */
-    private static function init_table_for_courses(?booking $booking = null, ?string $uniquetablename = null) {
+    private static function init_table_for_courses(
+        ?booking $booking = null,
+        ?string $uniquetablename = null,
+        int $userid = 0
+    ) {
 
         $tablename = $uniquetablename ?? bin2hex(random_bytes(12));
 
         $table = new bookingoptions_wbtable($tablename);
+        // Check if rendering is for another user id.
+        $userid = clean_param($userid, PARAM_INT);
+        $table->foruserid = $userid > 0 ? $userid : optional_param('userid', 0, PARAM_INT);
 
         // Without defining sorting won't work!
         // phpcs:ignore
