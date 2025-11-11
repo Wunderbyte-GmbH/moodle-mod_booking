@@ -248,9 +248,12 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
 
-        $buyforuser = price::return_user_to_buy_for();
+        // We get the user ID from the table instance.
+        // It is 0 by default but can be set, for example,
+        // when rendering booking options for a specific user via the cashier page.
+        $buyforuser = $this->foruserid;
 
-        return booking_bookit::render_bookit_button($settings, $buyforuser->id);
+        return booking_bookit::render_bookit_button($settings, $buyforuser);
     }
 
     /**
