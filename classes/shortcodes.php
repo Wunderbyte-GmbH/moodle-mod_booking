@@ -606,8 +606,9 @@ class shortcodes {
         $pageurl = $course->shortname . $pageurl;
         $viewparam = self::get_viewparam($args);
         $wherearray = [];
+        $userid = self::get_user($args);
 
-        $table = self::init_table_for_courses(null, md5($pageurl));
+        $table = self::init_table_for_courses(null, md5($pageurl), $userid);
         $additionalparams = [];
 
         // Additional where condition for both card and list views.
@@ -1395,6 +1396,19 @@ class shortcodes {
             return $perpage = 100;
         }
         return $perpage = (int)$args['perpage'];
+    }
+
+    /**
+     * Retuens userid if it is set.
+     *
+     * @param array $args
+     * @return int
+     */
+    public static function get_user($args): int {
+        if (isset($args['userid']) && is_int((int)$args['userid'])) {
+            return (int)$args['userid'];
+        }
+        return 0;
     }
 
     /**
