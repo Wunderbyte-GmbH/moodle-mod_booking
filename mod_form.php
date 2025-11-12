@@ -1432,7 +1432,7 @@ class mod_booking_mod_form extends moodleform_mod {
             $orientationoptions
         );
         $mform->addHelpButton('toporientation', 'signinsheettoporientationdesc', 'mod_booking');
-        $mform->setDefault('toporientation', 'P');
+        $mform->setDefault('toporientation', 'L');
         $mform->setType('toporientation', PARAM_ALPHA);
 
         // Teachers.

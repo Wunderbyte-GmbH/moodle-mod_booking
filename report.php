@@ -1001,7 +1001,7 @@ if (!$tableallbookings->is_downloading()) {
     // Button to download signin sheet.
     $actionbuttonstop .=
         '<button class="btn btn-primary btn-sm mr-2" id="downloadsigninsheet-top-btn" buttonaction='
-        . $bookingoption->booking->settings->toporientation . '
+        . $bookingoption->booking->settings->toporientation . '>
             <i class="fa fa-download fa-fw" aria-hidden="true"></i>&nbsp;' .
             get_string('signinsheetdownload', 'mod_booking') .
         '</button>';

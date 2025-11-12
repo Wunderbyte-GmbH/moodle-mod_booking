@@ -65,15 +65,15 @@ class send_reminder_mails extends \core\task\scheduled_task {
      */
     public function execute() {
         global $DB;
-        $now = time();
 
         mtrace("run send_reminder_mails task");
 
-        if (empty(get_config('booking', 'uselegacymailtemplates'))) {
-            mtrace("Legacy mails are turned off, this task should be deactivated.");
+        if (!get_config('booking', 'uselegacymailtemplates')) {
+            mtrace("Legacy mails are turned off, so the task send_reminder_mails is skipped.");
             return;
         }
 
+        $now = time();
         $toprocess = $DB->get_records_sql(
             'SELECT bo.id optionid, bo.bookingid, bo.coursestarttime, b.daystonotify, b.daystonotify2, bo.sent, bo.sent2
             FROM {booking_options} bo

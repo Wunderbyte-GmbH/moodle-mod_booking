@@ -144,7 +144,7 @@ function send_custom_message(int $optionid, string $subject, string $message, ar
     if (!empty($selecteduserids) && !empty($bookedusers)) {
         $countselected = count($selecteduserids);
         $countbooked = count($bookedusers);
-        // It's been considered as a bulk message, if it goes to at least 75% of booked users (and more than 3 users).
+        // It's been considered as a bulk message, if it goes to at least 75% of booked users (and at least 3 users).
         if ($countselected >= 3 && ($countselected / $countbooked) >= 0.75) {
             $event = custom_bulk_message_sent::create([
                 'context' => context_system::instance(),

@@ -61,8 +61,8 @@ class send_confirmation_mails extends \core\task\adhoc_task {
     public function execute() {
         global $CFG, $DB;
 
-        if (empty(get_config('booking', 'uselegacymailtemplates'))) {
-            mtrace("Legacy mails are turned off, this task should be deactivated.");
+        if (!get_config('booking', 'uselegacymailtemplates')) {
+            mtrace("Legacy mails are turned off, task send_confirmation_mails is skipped.");
             return;
         }
 
