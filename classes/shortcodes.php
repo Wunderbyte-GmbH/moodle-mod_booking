@@ -83,7 +83,7 @@ class shortcodes {
         $course = $PAGE->course;
         $perpage = self::check_perpage($args);
         $pageurl = $course->shortname . $PAGE->url->out();
-        $table = self::init_table_for_courses(null, md5($pageurl));
+        $table = self::init_table_for_courses(null, md5($pageurl), $args);
 
         // These are all possible options to be displayed in the bookingtable.
         $possibleoptions = [
@@ -206,7 +206,7 @@ class shortcodes {
             return get_string('definecmidforshortcode', 'mod_booking');
         }
 
-        $table = self::init_table_for_courses(null, md5($pageurl));
+        $table = self::init_table_for_courses(null, md5($pageurl), $args);
 
         $wherearray['bookingid'] = (int)$booking->id;
 
@@ -459,7 +459,7 @@ class shortcodes {
         // Second: Get the courses that are affected.
         // Third: Create the json to obtain the booking options.
 
-        $table = self::init_table_for_courses(null, "courses_" . implode("_", $courseids));
+        $table = self::init_table_for_courses(null, "courses_" . implode("_", $courseids), $args);
 
         // These are all possible options to be displayed in the bookingtable.
         $possibleoptions = [
@@ -606,9 +606,8 @@ class shortcodes {
         $pageurl = $course->shortname . $pageurl;
         $viewparam = self::get_viewparam($args);
         $wherearray = [];
-        $userid = self::get_user($args);
 
-        $table = self::init_table_for_courses(null, md5($pageurl), $userid);
+        $table = self::init_table_for_courses(null, md5($pageurl), $args);
         $additionalparams = [];
 
         // Additional where condition for both card and list views.
@@ -799,7 +798,7 @@ class shortcodes {
         }
 
         $viewparam = self::get_viewparam($args);
-        $table = self::init_table_for_courses(null, md5($pageurl));
+        $table = self::init_table_for_courses(null, md5($pageurl), $args);
 
         // Additional where condition for both card and list views.
         $additionalwhere = self::set_customfield_wherearray($args, $wherearray) ?? '';
@@ -996,7 +995,7 @@ class shortcodes {
         // Second: Get the courses that are affected.
         // Third: Create the json to obtain the booking options.
 
-        $table = self::init_table_for_courses(null, "courses_" . implode("_", $courses));
+        $table = self::init_table_for_courses(null, "courses_" . implode("_", $courses), $args);
 
         $innerfrom = booking::get_sql_for_fieldofstudy(get_class($DB), $courses);
 
