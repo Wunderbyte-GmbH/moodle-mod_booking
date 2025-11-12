@@ -1306,21 +1306,23 @@ class shortcodes {
      *
      * @param ?booking $booking
      * @param ?string $uniquetablename
-     * @param int $userid
+     * @param array $args
      * @return bookingoptions_wbtable
      */
     private static function init_table_for_courses(
         ?booking $booking = null,
         ?string $uniquetablename = null,
-        int $userid = 0
+        array $args = []
     ) {
 
         $tablename = $uniquetablename ?? bin2hex(random_bytes(12));
 
         $table = new bookingoptions_wbtable($tablename);
         // Check if rendering is for another user id.
-        $userid = clean_param($userid, PARAM_INT);
-        $table->foruserid = $userid > 0 ? $userid : optional_param('userid', 0, PARAM_INT);
+        if ($urlparamforuserid = self::get_urlparamforuserid($args)) {
+            $userid = optional_param($urlparamforuserid, 0, PARAM_INT);
+            $table->foruserid = $userid > 0 ? $userid : 0;
+        }
 
         // Without defining sorting won't work!
         // phpcs:ignore
@@ -1399,14 +1401,23 @@ class shortcodes {
     }
 
     /**
-     * Retuens userid if it is set.
+     * Returns the value of 'urlparamforuserid' if it is set.
      *
-     * @param array $args
-     * @return int
+     * The 'urlparamforuserid' argument can be used to specify which optional parameter
+     * in the URL provides the user ID. This prevents relying on a fixed parameter name
+     * for the property that holds the user ID.
+     *
+     * Example usage:
+     *  [allbookingoptions urlparamforuserid=userid] → expects a URL containing a query parameter like: ?userid=123456
+     *  [allbookingoptions urlparamforuserid=foruserid] → expects a URL containing a query parameter like: ?foruserid=123456
+     *  [allbookingoptions urlparamforuserid=id] → expects a URL containing a query parameter like: ?id=123456
+     *
+     * @param array $args Arguments passed to the shortcode.
+     * @return string The name of the URL parameter for the user ID.
      */
-    public static function get_user($args): int {
-        if (isset($args['userid']) && is_int((int)$args['userid'])) {
-            return (int)$args['userid'];
+    public static function get_urlparamforuserid(array $args): string {
+        if (isset($args['urlparamforuserid']) && is_string($args['urlparamforuserid'])) {
+            return $args['urlparamforuserid'];
         }
         return 0;
     }
