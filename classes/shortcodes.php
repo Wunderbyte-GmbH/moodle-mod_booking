@@ -1314,14 +1314,16 @@ class shortcodes {
         array $args = []
     ) {
 
-        $tablename = $uniquetablename ?? bin2hex(random_bytes(12));
-
-        $table = new bookingoptions_wbtable($tablename);
         // Check if rendering is for another user id.
         if ($urlparamforuserid = self::get_urlparamforuserid($args)) {
             $userid = optional_param($urlparamforuserid, 0, PARAM_INT);
-            $table->foruserid = $userid > 0 ? $userid : 0;
+            $userid = $userid > 0 ? $userid : 0;
         }
+
+        $tablename = $uniquetablename ?? bin2hex(random_bytes(12));
+        $tablename .= $userid;
+
+        $table = new bookingoptions_wbtable($tablename, $userid);
 
         // Without defining sorting won't work!
         // phpcs:ignore
