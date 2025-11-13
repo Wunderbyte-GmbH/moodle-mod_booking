@@ -28,6 +28,7 @@ namespace mod_booking;
 use advanced_testcase;
 use local_shopping_cart\local\cartstore;
 use local_shopping_cart\shopping_cart;
+use mod_booking\option\optiondate;
 use stdClass;
 use mod_booking\teachers_handler;
 use mod_booking\booking_rules\booking_rules;
@@ -712,6 +713,11 @@ final class rules_test extends advanced_testcase {
         $option1 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option1->id);
 
+        // Check the daystonotify values for the sessions.
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $this->assertEquals(reset($settings->sessions)->daystonotify, "0");
+        $this->assertEquals(end($settings->sessions)->daystonotify, "7");
+
         $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
 
         // Validate scheduled adhoc tasks. Validate messages - order might be free.
@@ -740,6 +746,21 @@ final class rules_test extends advanced_testcase {
                 continue;
             }
         }
+
+        // Now, check, if updating the daystonotify field works.
+        $record->id = $option1->id;
+        $record->cmid = $option1->cmid;
+        $record->daystonotify_0 = 3;
+        $record->daystonotify_1 = 4;
+        $record->import = 1;
+        booking_option::update($record);
+
+        // Check if updating the daystonotify field for the second session worked.
+        singleton_service::destroy_booking_option_singleton($option1->id);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $this->assertEquals(reset($settings->sessions)->daystonotify, "3");
+        $this->assertEquals(end($settings->sessions)->daystonotify, "4");
+        singleton_service::destroy_booking_option_singleton($option1->id);
     }
 
     /**
@@ -1925,6 +1946,58 @@ final class rules_test extends advanced_testcase {
         // If this causes failures because of the order, make less strict comparison. Maybe first message is send to first deputy...
         $this->assertEquals($deputy2->id, $messages[0]->useridto);
         $this->assertEquals($deputy->id, $messages[1]->useridto);
+    }
+
+    /**
+     * Test that compare_optiondates() returns false
+     * when the "daystonotify" field differs.
+     * @covers \mod_booking\option\optiondate::compare_optiondates
+     *
+     * @return void
+     */
+    public function test_different_daystonotify_returns_false(): void {
+        $oldoptiondate = [
+            'optiondateid' => 1,
+            'coursestarttime' => 1700000000,
+            'courseendtime' => 1700003600,
+            'daystonotify' => 5,
+        ];
+
+        $newoptiondate = [
+            'optiondateid' => 1,
+            'coursestarttime' => 1700000000,
+            'courseendtime' => 1700003600,
+            'daystonotify' => 10,
+        ];
+
+        $result = optiondate::compare_optiondates($oldoptiondate, $newoptiondate);
+        $this->assertFalse($result);
+    }
+
+    /**
+     * Test that compare_optiondates() returns true
+     * when all fields including "daystonotify" are identical.
+     * @covers \mod_booking\option\optiondate::compare_optiondates
+     *
+     * @return void
+     */
+    public function test_same_daystonotify_returns_true(): void {
+        $oldoptiondate = [
+            'optiondateid' => 1,
+            'coursestarttime' => 1700000000,
+            'courseendtime' => 1700003600,
+            'daystonotify' => 5,
+        ];
+
+        $newoptiondate = [
+            'optiondateid' => 1,
+            'coursestarttime' => 1700000000,
+            'courseendtime' => 1700003600,
+            'daystonotify' => 5,
+        ];
+
+        $result = optiondate::compare_optiondates($oldoptiondate, $newoptiondate);
+        $this->assertTrue($result);
     }
 
     /**
