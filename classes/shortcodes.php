@@ -1318,9 +1318,14 @@ class shortcodes {
         if ($urlparamforuserid = self::get_urlparamforuserid($args)) {
             $userid = optional_param($urlparamforuserid, 0, PARAM_INT);
             $userid = $userid > 0 ? $userid : 0;
+        } else {
+            $userid = 0;
         }
 
         $tablename = $uniquetablename ?? bin2hex(random_bytes(12));
+        // This is required to differentiate between instances when the table is rendered for a specific user.
+        // The cashier page is an example where the cashier may render the table from another user's perspective.
+        // If no user is specified, $userid will be 0.
         $tablename .= $userid;
 
         $table = new bookingoptions_wbtable($tablename, $userid);
