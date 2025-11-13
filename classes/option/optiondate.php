@@ -287,6 +287,7 @@ class optiondate {
                 ($oldoptiondate['optiondateid'] != $newoptiondate['optiondateid'])
                 || ($oldoptiondate['coursestarttime'] != $newoptiondate['coursestarttime'])
                 || $oldoptiondate['courseendtime'] != $newoptiondate['courseendtime']
+                || $oldoptiondate['daystonotify'] != $newoptiondate['daystonotify'] // Also check daystonotify!
             ) {
                 // If one of the dates is not exactly the same, we need to delete the current option and add a new one.
                 return false;
