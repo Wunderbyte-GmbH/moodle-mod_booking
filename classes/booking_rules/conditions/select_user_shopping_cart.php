@@ -258,11 +258,12 @@ class select_user_shopping_cart implements booking_rule_condition {
                 break;
             case 'mysql':
                 $sql->select = "
-                    CONCAT('', bo.id, '-', "
-                    // If select contains optiondateid, we need to include it in uniqueid.
-                    . strpos($sql->select, 'optiondateid') !== false ? "bod.id, '-', " : ""
-                    . "JSON_UNQUOTE(JSON_EXTRACT(payments_info.payment_data, '$.id')),
-                    '-', JSON_UNQUOTE(JSON_EXTRACT(payments_info.payment_data, '$.timestamp'))) AS uniquid,
+                    CONCAT(
+                        bo.id, '-',
+                        " . (strpos($sql->select, 'optiondateid') !== false ? "bod.id, '-'," : "") . "
+                        JSON_UNQUOTE(JSON_EXTRACT(payments_info.payment_data, '$.id')), '-',
+                        JSON_UNQUOTE(JSON_EXTRACT(payments_info.payment_data, '$.timestamp'))
+                    ) AS uniquid,
                     bo.id optionid,
                     cm.id cmid,
                     sch.userid,
