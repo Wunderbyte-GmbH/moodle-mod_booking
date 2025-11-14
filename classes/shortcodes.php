@@ -35,6 +35,7 @@ use local_wunderbyte_table\filters\types\customfieldfilter;
 use local_wunderbyte_table\filters\types\datepicker;
 use local_wunderbyte_table\filters\types\intrange;
 use local_wunderbyte_table\filters\types\standardfilter;
+use local_wunderbyte_table\local\helper\actforuser;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
 use mod_booking\form\dynamicdeputyselect;
@@ -1315,7 +1316,7 @@ class shortcodes {
     ) {
 
         // Check if rendering is for another user id.
-        if ($urlparamforuserid = self::get_urlparamforuserid($args)) {
+        if ($urlparamforuserid = actforuser::get_urlparamforuserid($args)) {
             $userid = optional_param($urlparamforuserid, 0, PARAM_INT);
             $userid = $userid > 0 ? $userid : 0;
         } else {
@@ -1404,28 +1405,6 @@ class shortcodes {
             return $perpage = 100;
         }
         return $perpage = (int)$args['perpage'];
-    }
-
-    /**
-     * Returns the value of 'urlparamforuserid' if it is set.
-     *
-     * The 'urlparamforuserid' argument can be used to specify which optional parameter
-     * in the URL provides the user ID. This prevents relying on a fixed parameter name
-     * for the property that holds the user ID.
-     *
-     * Example usage:
-     *  [allbookingoptions urlparamforuserid=userid] → expects a URL containing a query parameter like: ?userid=123456
-     *  [allbookingoptions urlparamforuserid=foruserid] → expects a URL containing a query parameter like: ?foruserid=123456
-     *  [allbookingoptions urlparamforuserid=id] → expects a URL containing a query parameter like: ?id=123456
-     *
-     * @param array $args Arguments passed to the shortcode.
-     * @return string The name of the URL parameter for the user ID.
-     */
-    public static function get_urlparamforuserid(array $args): string {
-        if (isset($args['urlparamforuserid']) && is_string($args['urlparamforuserid'])) {
-            return $args['urlparamforuserid'];
-        }
-        return 0;
     }
 
     /**
