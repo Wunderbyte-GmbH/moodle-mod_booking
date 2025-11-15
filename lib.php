@@ -761,23 +761,36 @@ function booking_add_instance($booking) {
     $booking->beforecompletedtext = $booking->beforecompletedtext['text'] ?? null;
     $booking->aftercompletedtext = $booking->aftercompletedtext['text'] ?? null;
 
-    if (isset($booking->cancelrelativedate)) {
-        booking::add_data_to_json($booking, 'cancelrelativedate', $booking->cancelrelativedate);
+    if (!empty($booking->disablecancel)) {
+        booking::add_data_to_json($booking, "disablecancel", 1);
     }
-    if (isset($booking->allowupdatetimestamp)) {
-        booking::add_data_to_json($booking, 'allowupdatetimestamp', $booking->allowupdatetimestamp);
+    if (!empty($booking->cancancelbook)) {
+        if (isset($booking->cancelrelativedate)) {
+            // We need to store the chosen value (absolute, relative, unlimited) in the JSON.
+            booking::add_data_to_json($booking, "cancelrelativedate", $booking->cancelrelativedate);
+            if ($booking->cancelrelativedate == MOD_BOOKING_CANCANCELBOOK_ABSOLUTE && isset($booking->allowupdatetimestamp)) {
+                // Add relative cancelling days to JSON.
+                booking::add_data_to_json($booking, "allowupdatetimestamp", $booking->allowupdatetimestamp);
+            }
+        }
     }
+
     if (isset($booking->viewparam)) {
         // Save list view as default value.
         booking::add_data_to_json($booking, "viewparam", MOD_BOOKING_VIEW_PARAM_LIST);
     }
-    if (isset($booking->switchtemplates)) {
+    if (empty($booking->switchtemplates)) {
         // By default, template switcher is turned off.
         booking::add_data_to_json($booking, 'switchtemplates', 0);
-    }
-    if (isset($booking->switchtemplatesselection)) {
-        // By default, all booking view templates are selected.
-        booking::add_data_to_json($booking, 'switchtemplatesselection', array_keys(booking::get_array_of_possible_views()));
+    } else {
+        booking::add_data_to_json($booking, 'switchtemplates', $booking->switchtemplates);
+        // Only if template switcher is active, we store values for selected templates.
+        if (empty($booking->switchtemplatesselection)) {
+            // By default, use all possible templates.
+            booking::add_data_to_json($booking, 'switchtemplatesselection', array_keys(booking::get_array_of_possible_views()));
+        } else {
+                booking::add_data_to_json($booking, 'switchtemplatesselection', $booking->switchtemplatesselection);
+        }
     }
     if (isset($booking->disablebooking)) {
         // This will store the correct JSON to $optionvalues->json.
@@ -988,8 +1001,9 @@ function booking_update_instance($booking) {
         $booking->assesstimefinish = 0;
     }
 
-    $arr = [];
-    core_tag_tag::set_item_tags('mod_booking', 'booking', $booking->id, $context, $booking->tags);
+    if (isset($booking->tags)) {
+        core_tag_tag::set_item_tags('mod_booking', 'booking', $booking->id, $context, $booking->tags);
+    }
 
     if (!empty($booking->signinlogoheader)) {
         file_save_draft_area_files(
@@ -1040,17 +1054,6 @@ function booking_update_instance($booking) {
         $booking->timeclose = 0;
     }
 
-    // Copy the text fields out.
-    if (isset($booking->beforebookedtext['text'])) {
-        $booking->beforebookedtext = $booking->beforebookedtext['text'];
-    }
-    if (isset($booking->beforecompletedtext['text'])) {
-        $booking->beforecompletedtext = $booking->beforecompletedtext['text'];
-    }
-    if (isset($booking->aftercompletedtext['text'])) {
-        $booking->aftercompletedtext = $booking->aftercompletedtext['text'];
-    }
-
     // If no policy was entered, we still have to check for HTML tags.
     // NOTE: $booking->bookingpolicy is a string! So we never use ['text'] here!
     if (!isset($booking->bookingpolicy) || empty(strip_tags($booking->bookingpolicy))) {
@@ -1068,6 +1071,9 @@ function booking_update_instance($booking) {
     $booking->pollurlteacherstext = $booking->pollurlteacherstext['text'] ?? $booking->pollurlteacherstext ?? null;
     $booking->activitycompletiontext = $booking->activitycompletiontext['text'] ?? $booking->activitycompletiontext ?? null;
     $booking->userleave = $booking->userleave['text'] ?? $booking->userleave ?? null;
+    $booking->beforebookedtext = $booking->beforebookedtext['text'] ?? null;
+    $booking->beforecompletedtext = $booking->beforecompletedtext['text'] ?? null;
+    $booking->aftercompletedtext = $booking->aftercompletedtext['text'] ?? null;
 
     // Get JSON from bookingsettings.
     $booking->json = $bookingsettings->json;
@@ -1161,7 +1167,6 @@ function booking_update_instance($booking) {
                         'localizedstring' => $localizedstring,
                 ];
         }
-
         booking::add_data_to_json($booking, "maxoptionsfromcategory", json_encode($submitdata));
         booking::add_data_to_json($booking, "maxoptionsfrominstance", $booking->maxoptionsfrominstance);
     }
