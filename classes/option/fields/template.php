@@ -25,11 +25,11 @@
 namespace mod_booking\option\fields;
 
 use mod_booking\booking_option_settings;
-use mod_booking\option\fields;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
-use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
+use coding_exception;
+use dml_exception;
 use moodle_exception;
 use MoodleQuickForm;
 use stdClass;
@@ -224,7 +224,7 @@ class template extends field_base {
                     $data->{$key} = $value;
                 }
             }
-            throw new moodle_exception('loadtemplate', 'mod_booking');
+            throw new moodle_exception('errorloadingtemplate', 'mod_booking');
         }
     }
 

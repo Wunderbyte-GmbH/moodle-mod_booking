@@ -32,7 +32,9 @@ use mod_booking\option\field_base;
 use mod_booking\utils\wb_payment;
 use moodle_url;
 use MoodleQuickForm;
+use MoodleQuickForm_duration;
 use stdClass;
+use dml_exception;
 
 /**
  * Class for field 'duration'.
@@ -231,7 +233,16 @@ class duration extends field_base {
         if (isset($data->duration)) {
             return;
         }
-        $data->duration = $settings->duration ?? 0;
+        $durationinseconds = $settings->duration ?? 0;
+
+        // Instantiate a dummy duration element (required to call the method).
+        $durationelement = new MoodleQuickForm_duration('duration', 'Duration');
+        // Convert the seconds to number and unit using the dummy element.
+        [$number, $timeunit] = $durationelement->seconds_to_unit($durationinseconds);
+        $data->duration = [
+            'number'   => $number,
+            'timeunit' => $timeunit,
+        ];
     }
 
     /**

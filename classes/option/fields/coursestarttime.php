@@ -127,6 +127,17 @@ class coursestarttime extends field_base {
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
         if (!empty($settings->selflearningcourse)) {
             parent::set_data($data, $settings);
+            // Make sure, it's an integer.
+            if (!empty($data->coursestarttime) && is_number($data->coursestarttime)) {
+                $coursestarttime = (int)$data->coursestarttime;
+                $data->coursestarttime = [
+                    "day"    => date("d", $coursestarttime),
+                    "month"  => date("m", $coursestarttime),
+                    "year"   => date("Y", $coursestarttime),
+                    "hour"   => date("H", $coursestarttime),
+                    "minute" => date("i", $coursestarttime),
+                ];
+            }
         } else {
             return;
         }

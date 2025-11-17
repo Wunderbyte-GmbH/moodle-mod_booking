@@ -1323,6 +1323,7 @@ $string['erroremptysemesteridentifier'] = 'Semester identifier is needed!';
 $string['erroremptysemestername'] = 'Semester name is not allowed to be empty';
 $string['errorholidayend'] = 'Holiday is not allowed to end before the start date.';
 $string['errorholidaystart'] = 'Holiday is not allowed to start after the end date.';
+$string['errorloadingtemplate'] = 'Error loading template.';
 $string['errorloadinguserdata'] = 'Error loading user data.';
 $string['errormultibooking'] = 'There was an ERROR when booking the electives.';
 $string['erroronsetdata'] = 'Error on set_data.';
