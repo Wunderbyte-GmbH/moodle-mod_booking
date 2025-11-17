@@ -61,7 +61,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
                 'beforebookedtext', 'beforecompletedtext', 'aftercompletedtext',
                 'signinsheetfields', 'comments', 'ratings', 'removeuseronunenrol', 'teacherroleid', 'allowupdatedays',
                 'templateid', 'showlistoncoursepage', 'coursepageshortinfo', 'bookingimagescustomfield',
-                'defaultoptionsort', 'defaultsortorder', 'showviews', 'customtemplateid', 'autcractive', 'autcrprofile',
+                'defaultoptionsort', 'defaultsortorder', 'showviews', 'autcractive', 'autcrprofile',
                 'autcrvalue', 'autcrtemplate', 'semesterid', 'iselective', 'maxcredits', 'consumeatonce', 'enforceorder',
             ]
         );

@@ -1786,7 +1786,6 @@ class booking {
 
         $keystoexclude = [
             'introformat',
-            'customtemplateid',
             'timemodified',
             'json', // Changes in JSON are currently not supported.
         ];

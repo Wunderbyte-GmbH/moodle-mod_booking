@@ -5089,9 +5089,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2025102000, 'booking');
     }
 
-    // Todo: Discuss if we should really drop these old fields and table.
-    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-    /* if ($oldversion < 2025111700) {
+    if ($oldversion < 2025111700) {
         // Define table booking_customreport to be dropped.
         $tablecustomreport = new xmldb_table('booking_customreport');
 
@@ -5118,7 +5116,7 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2025111700, 'booking');
-    } */
+    }
 
     return true;
 }

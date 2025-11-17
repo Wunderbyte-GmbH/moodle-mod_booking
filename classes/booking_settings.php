@@ -294,9 +294,6 @@ class booking_settings {
     /** @var string $showviews */
     public $showviews = null;
 
-    /** @var int $customtemplateid */
-    public $customtemplateid = null;
-
     /** @var int $autcractive */
     public $autcractive = null;
 
@@ -521,7 +518,6 @@ class booking_settings {
             $this->toporientation = $dbrecord->toporientation;
             $this->defaultsortorder = $dbrecord->defaultsortorder;
             $this->showviews = $dbrecord->showviews;
-            $this->customtemplateid = $dbrecord->customtemplateid;
             $this->autcractive = $dbrecord->autcractive;
             $this->autcrprofile = $dbrecord->autcrprofile;
             $this->autcrvalue = $dbrecord->autcrvalue;
