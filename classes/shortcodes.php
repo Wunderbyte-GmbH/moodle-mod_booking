@@ -1595,9 +1595,9 @@ class shortcodes {
      *
      */
     private static function applyallarg($args, &$where) {
+        $startoftoday = strtotime('today'); // Will be 00:00:00 of the current day.
+        $selflearncoursesetting = get_config('booking', 'selflearningcoursedisplayinshortcode');
         if (empty($args['all']) || $args['all'] == "false" || $args['all'] == "0") {
-            $startoftoday = strtotime('today'); // Will be 00:00:00 of the current day.
-            $selflearncoursesetting = get_config('booking', 'selflearningcoursedisplayinshortcode');
             switch ($selflearncoursesetting) {
                 case "0":
                     $where .= " AND (courseendtime > $startoftoday AND courseendtime <> coursestarttime) ";
@@ -1608,6 +1608,19 @@ class shortcodes {
                     break;
                 case "2":
                     $where .= " AND (courseendtime > $startoftoday OR courseendtime = coursestarttime)";
+                    break;
+            }
+        } else if (isset($args['all']) && $args['all'] == 'past') {
+            switch ($selflearncoursesetting) {
+                case "0":
+                    $where .= " AND (courseendtime < $startoftoday AND courseendtime <> coursestarttime) ";
+                    break;
+                case false:
+                case "1":
+                    $where .= " AND courseendtime < $startoftoday ";
+                    break;
+                case "2":
+                    $where .= " AND (courseendtime < $startoftoday OR courseendtime = coursestarttime)";
                     break;
             }
         }
