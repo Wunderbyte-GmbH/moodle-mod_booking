@@ -31,6 +31,7 @@ use context_module;
 use context_system;
 use Exception;
 use html_writer;
+use local_wunderbyte_table\filters\types\customfieldfilter;
 use local_wunderbyte_table\filters\types\datepicker;
 use local_wunderbyte_table\filters\types\intrange;
 use local_wunderbyte_table\filters\types\standardfilter;
@@ -1140,7 +1141,20 @@ class shortcodes {
         $context = context_system::instance();
         // Templates are excluded here.
         [$fields, $from, $where, $params, $filter] =
-            booking::get_options_filter_sql(0, 0, '', null, $context, [], [], null, [], ' bookingid > 0');
+            booking::get_options_filter_sql(
+                0,
+                0,
+                '',
+                null,
+                $context,
+                [],
+                [],
+                null,
+                [],
+                ' bookingid > 0',
+                '',
+                $table
+            );
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
@@ -1251,16 +1265,31 @@ class shortcodes {
                 }
             }
         }
+
+        $dcfshortnamesarray = [];
+        $definedcustomfields = booking_handler::get_customfields();
+        foreach ($definedcustomfields as $dcf) {
+            $dcfshortnamesarray[$dcf->shortname] = $dcf->id;
+        }
+        $dcfshortnames = array_column($definedcustomfields, 'shortname');
+        // Defined custom fields shortnames.
         foreach ($filtercolumns as $colname => $localized) {
-            $standardfilter = new standardfilter($colname, $localized);
-            if ($colname === 'invisible') {
-                $standardfilter->add_options([
-                "0" => get_string('optionvisible', 'mod_booking'),
-                "1" => get_string('optioninvisible', 'mod_booking'),
-                "2" => get_string('optionvisibledirectlink', 'mod_booking'),
-                ]);
+            // If the $colname is a customfiled, we need to use customfiledfilter.
+            if (in_array($colname, $dcfshortnames)) {
+                $customfieldfilter = new customfieldfilter($colname, $localized);
+                $customfieldfilter->set_sql_for_fieldid($dcfshortnamesarray[$colname]);
+                $table->add_filter($customfieldfilter);
+            } else {
+                $standardfilter = new standardfilter($colname, $localized);
+                if ($colname === 'invisible') {
+                    $standardfilter->add_options([
+                    "0" => get_string('optionvisible', 'mod_booking'),
+                    "1" => get_string('optioninvisible', 'mod_booking'),
+                    "2" => get_string('optionvisibledirectlink', 'mod_booking'),
+                    ]);
+                }
+                $table->add_filter($standardfilter);
             }
-            $table->add_filter($standardfilter);
         }
 
         self::apply_bookinginstance_filter($table);
