@@ -5089,7 +5089,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2025102000, 'booking');
     }
 
-    if ($oldversion < 2025111700) {
+    if ($oldversion < 2025111701) {
         // Define table booking_customreport to be dropped.
         $tablecustomreport = new xmldb_table('booking_customreport');
 
@@ -5115,7 +5115,7 @@ function xmldb_booking_upgrade($oldversion) {
         }
 
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2025111700, 'booking');
+        upgrade_mod_savepoint(true, 2025111701, 'booking');
     }
 
     return true;
