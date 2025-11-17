@@ -944,6 +944,7 @@ $string['credits'] = 'Credits';
 $string['credits_help'] = 'Wie viele credits werden bei der Buchung dieser Option verbraucht';
 $string['creditsmessage'] = 'Noch {$a->creditsleft} von insgesamt {$a->maxcredits} Credits verfügbar.';
 $string['csvfile'] = 'CSV Datei';
+$string['currentcategory'] = 'Kurskategorie der Buchungsoption';
 $string['custombulkmessagesent'] = 'Persönl. Nachricht als Rundmail gesendet (> 75% der TN, mind. 3 TN)';
 $string['customdatesbtn'] = '<i class="fa fa-plus-square"></i> Benutzerdefinierte Termine...';
 $string['customfield'] = 'Benutzerdefiniertes Feld, dessen Wert in den Buchungsoptionseinstellungen angegeben wird und in der Buchungsoptionsübersicht angezeigt wird';

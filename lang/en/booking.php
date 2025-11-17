@@ -967,6 +967,7 @@ $string['credits'] = 'Credits';
 $string['credits_help'] = 'The number of credits which will be used by booking this option.';
 $string['creditsmessage'] = 'You have {$a->creditsleft} of {$a->maxcredits} credits left.';
 $string['csvfile'] = 'CSV file';
+$string['currentcategory'] = 'Category of booking option';
 $string['custombulkmessagesent'] = 'Custom bulk message sent (> 75% of booked users, min. 3)';
 $string['customdatesbtn'] = '<i class="fa fa-plus-square"></i> Custom dates...';
 $string['customfield'] = 'Custom field to be set in the booking option settings. It will then be shown in the booking option overview.';

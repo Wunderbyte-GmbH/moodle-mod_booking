@@ -150,10 +150,14 @@ class connectedcourse {
      */
     private static function retrieve_categoryid(stdClass &$newoption, stdClass &$formdata) {
 
-        global $DB;
+        global $DB, $COURSE;
 
         $config = get_config('booking', 'newcoursecategorycfield');
-        if (!empty($config) && $config !== "-1") {
+        if (
+            !empty($config)
+            && $config !== "-1"
+            && $config !== "currentcategory"
+        ) {
             // FEATURE add more settingfields add customfield_ to ...
             // ... settingsvalue from customfields allwo only Textfields or Selects.
             $cfforcategory = 'customfield_' . get_config('booking', 'newcoursecategorycfield');
@@ -189,6 +193,8 @@ class connectedcourse {
                     $categoryid = $categories[0]['id'];
                 }
             }
+        } else if ($config == "currentcategory") {
+            $categoryid = $COURSE->category;
         }
 
         if (!isset($categoryid)) {

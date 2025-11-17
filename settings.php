@@ -1143,13 +1143,15 @@ if ($ADMIN->fulltree) {
                 ''
             )
         );
+        $coursecategoryarray = $customfieldsarray;
+        $coursecategoryarray['currentcategory'] = get_string('currentcategory', 'mod_booking');
         $settings->add(
             new admin_setting_configselect(
                 'booking/newcoursecategorycfield',
                 get_string('newcoursecategorycfield', 'mod_booking'),
                 get_string('newcoursecategorycfielddesc', 'mod_booking'),
                 "-1",
-                $customfieldsarray
+                $coursecategoryarray
             )
         );
 
