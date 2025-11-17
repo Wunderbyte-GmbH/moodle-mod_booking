@@ -330,10 +330,6 @@ $tableallbookings->no_sorting('certificate');
 $tableallbookings->no_sorting('allusercertificates');
 
 if (!$tableallbookings->is_downloading()) {
-    if ($action == 'postcustomreport') {
-        $bookingoption->printcustomreport();
-    }
-
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && confirm_sesskey()) {
         $allselectedusers = [];
 
@@ -1243,17 +1239,6 @@ if (!$tableallbookings->is_downloading()) {
         get_string('signinsheetconfigure', 'mod_booking'),
         ['id' => 'sign_in_sheet_download']
     );
-
-    if (!empty($bookingoption->booking->settings->customtemplateid)) {
-        echo ' | ' . html_writer::link(
-            new moodle_url(
-                '/mod/booking/report.php',
-                ['id' => $cm->id, 'optionid' => $optionid, 'action' => 'postcustomreport']
-            ),
-            get_string('customdownloadreport', 'mod_booking'),
-            ['target' => '_blank']
-        );
-    }
 
     echo "</div>";
 

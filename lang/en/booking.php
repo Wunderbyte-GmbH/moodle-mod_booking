@@ -969,7 +969,6 @@ $string['creditsmessage'] = 'You have {$a->creditsleft} of {$a->maxcredits} cred
 $string['csvfile'] = 'CSV file';
 $string['custombulkmessagesent'] = 'Custom bulk message sent (> 75% of booked users, min. 3)';
 $string['customdatesbtn'] = '<i class="fa fa-plus-square"></i> Custom dates...';
-$string['customdownloadreport'] = 'Download report';
 $string['customfield'] = 'Custom field to be set in the booking option settings. It will then be shown in the booking option overview.';
 $string['customfieldchanged'] = 'Custom field changed';
 $string['customfieldconfigure'] = 'Booking: Custom booking option fields';
@@ -1020,8 +1019,6 @@ $string['customlabelsdeprecated'] = '[DEPRECATED] Custom labels';
 $string['custommessagesent'] = 'Custom message sent';
 $string['customprofilefield'] = 'Custom profile field to check';
 $string['customprofilefieldvalue'] = 'Custom profile field value to check';
-$string['customreporttemplate'] = 'Custom report template';
-$string['customreporttemplates'] = 'Custom report templates';
 $string['customuserprofilefield'] = "Custom user profile field";
 $string['customuserprofilefield_help'] = "If you choose a value here, the price part of the camapaign will only be valid for users with the defined value in the defined custom field.";
 $string['dashboardsummary'] = 'General';
@@ -1605,7 +1602,6 @@ Please make sure that there are existing e-mail templates in the booking setting
 $string['managebookedusers_heading'] = 'Manage bookings for <b>{$a->scopestring}</b>: "{$a->title}"';
 $string['managebooking'] = 'Manage';
 $string['managebookinginstancetemplates'] = 'Manage booking instance templates';
-$string['managecustomreporttemplates'] = 'Manage custom report templates';
 $string['manageoptiontemplates'] = 'Manage booking option templates';
 $string['manageresponses'] = 'Manage bookings';
 $string['manageresponsesdownloadfields'] = 'Manage responses - Download (CSV, XLSX...)';

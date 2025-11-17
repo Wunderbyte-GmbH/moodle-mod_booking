@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <libraries>
-    <library>
+    <!-- OpenTBS and TinyButStrong removed since Booking 8.18.2 -->
+    <!--<library>
         <location>TinyButStrong</location>
         <name>TinyButStrong</name>
         <version>3.11.0</version>
@@ -13,5 +14,5 @@
         <version>1.10.0</version>
         <license>LGPL</license>
         <licenseversion>3.0</licenseversion>
-    </library>
+    </library>-->
 </libraries>

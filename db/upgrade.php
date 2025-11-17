@@ -2831,11 +2831,11 @@ function xmldb_booking_upgrade($oldversion) {
     }
 
     if ($oldversion < 2020071300) {
-        // Define field autcractive to be added to booking.
+        // Define field customtemplateid to be added to booking.
         $table = new xmldb_table('booking');
         $field = new xmldb_field('customtemplateid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'showviews');
 
-        // Conditionally launch add field autcractive.
+        // Conditionally launch add field customtemplateid.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
@@ -5088,6 +5088,37 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2025102000, 'booking');
     }
+
+    // Todo: Discuss if we should really drop these old fields and table.
+    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+    /* if ($oldversion < 2025111700) {
+        // Define table booking_customreport to be dropped.
+        $tablecustomreport = new xmldb_table('booking_customreport');
+
+        // Conditionally launch drop table for booking_customreport.
+        if ($dbman->table_exists($tablecustomreport)) {
+            $dbman->drop_table($tablecustomreport);
+        }
+
+        // Define field customtemplateid to be dropped from booking.
+        $tablebooking = new xmldb_table('booking');
+
+        $customtemplateid = new xmldb_field('customtemplateid', XMLDB_TYPE_INTEGER, '10');
+        // Conditionally drop field customtemplateid.
+        if ($dbman->field_exists($tablebooking, $customtemplateid)) {
+            $dbman->drop_field($tablebooking, $customtemplateid);
+        }
+
+        // If the old field containing the typo is still there, we drop it too.
+        $customteplateid = new xmldb_field('customteplateid', XMLDB_TYPE_INTEGER, '10');
+        // Conditionally drop field customteplateid.
+        if ($dbman->field_exists($tablebooking, $customteplateid)) {
+            $dbman->drop_field($tablebooking, $customteplateid);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2025111700, 'booking');
+    } */
 
     return true;
 }

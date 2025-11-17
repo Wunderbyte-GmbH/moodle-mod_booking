@@ -946,7 +946,6 @@ $string['creditsmessage'] = 'Noch {$a->creditsleft} von insgesamt {$a->maxcredit
 $string['csvfile'] = 'CSV Datei';
 $string['custombulkmessagesent'] = 'Persönl. Nachricht als Rundmail gesendet (> 75% der TN, mind. 3 TN)';
 $string['customdatesbtn'] = '<i class="fa fa-plus-square"></i> Benutzerdefinierte Termine...';
-$string['customdownloadreport'] = 'Bericht herunterladen';
 $string['customfield'] = 'Benutzerdefiniertes Feld, dessen Wert in den Buchungsoptionseinstellungen angegeben wird und in der Buchungsoptionsübersicht angezeigt wird';
 $string['customfieldchanged'] = 'Benutzerdefiniertes Feld geändert';
 $string['customfieldconfigure'] = 'Buchung: Benutzerdefinierte Buchungsoptionsfelder';
@@ -997,8 +996,6 @@ $string['customlabelsdeprecated'] = '[VERALTET] Benutzerdefinierte Bezeichnungen
 $string['custommessagesent'] = 'Persönliche Nachricht gesendet';
 $string['customprofilefield'] = 'Custom profile field to check';
 $string['customprofilefieldvalue'] = 'Custom profile field value to check';
-$string['customreporttemplate'] = 'Vorlage für benutzerdefinierten Bericht';
-$string['customreporttemplates'] = 'Vorlagen für benutzerdefinierte Berichte';
 $string['customuserprofilefield'] = "Benutzerdefiniertes User Profilfeld";
 $string['customuserprofilefield_help'] = "Wenn Sie ein Benutzerdefiniertes User Profilfeld auswählen, ist der Preis-Teil der Kampagne nur für NutzerInnen wirksam, die auch einen bestimmten Wert in einem bestimmten Profilfeld haben.";
 $string['dashboardsummary'] = 'Allgemein';
@@ -1581,7 +1578,6 @@ wurden. <br><br>Bitte stellen Sie sicher, dass zu allen E-Mail-Typen eine Vorlag
 $string['managebookedusers_heading'] = 'Buchungen verwalten für <b>{$a->scopestring}</b>: "{$a->title}"';
 $string['managebooking'] = 'Verwalten';
 $string['managebookinginstancetemplates'] = 'Buchungsinstanz-Vorlagen verwalten';
-$string['managecustomreporttemplates'] = 'Vorlagen für benutzerdefinierte Berichte verwalten';
 $string['manageoptiontemplates'] = 'Buchungsoptionsvorlagen verwalten';
 $string['manageresponses'] = 'Buchungen verwalten';
 $string['manageresponsesdownloadfields'] = 'Buchungen verwalten - Download (CSV, XLSX...)';

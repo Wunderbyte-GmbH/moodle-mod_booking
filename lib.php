@@ -1363,17 +1363,6 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                     null,
                     'nav_saveinstanceastemplate'
                 );
-
-                $navref->add(
-                    get_string("managecustomreporttemplates", "mod_booking"),
-                    new moodle_url(
-                        '/mod/booking/customreporttemplates.php',
-                        ['id' => $cm->id]
-                    ),
-                    navigation_node::TYPE_CUSTOM,
-                    null,
-                    'nav_managecustomreporttemplates'
-                );
             }
         }
     }
