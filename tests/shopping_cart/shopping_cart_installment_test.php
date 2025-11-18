@@ -206,8 +206,10 @@ final class shopping_cart_installment_test extends advanced_testcase {
         $rule1 = $plugingenerator->create_rule($ruledata);
         $rules = $DB->get_records('booking_rules');
         $this->assertCount(1, $rules);
+        // Ensyre no rules hasve been executed yet.
         rules_info::execute_booking_rules();
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $this->assertCount(0, $tasks);
 
         // Book the first user without any problem.
         $boinfo = new bo_info($settings);
@@ -274,8 +276,12 @@ final class shopping_cart_installment_test extends advanced_testcase {
         $this->assertIsArray($res);
         $this->assertEmpty($res['error']);
         $this->assertEquals(56, $res['credit']);
+        // Validate that rules are scheduled.
+        $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $this->assertCount(2, $tasks);
         rules_info::execute_booking_rules();
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $this->assertCount(2, $tasks);
 
         // In this test, we book the user directly (we don't test the payment process).
         $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
