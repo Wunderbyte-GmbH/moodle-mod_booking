@@ -302,7 +302,7 @@ class rule_daysbefore implements booking_rule {
 
             if (
                 $oldnextruntime != $nextruntime
-                && !PHPUNIT_TEST
+                //&& !PHPUNIT_TEST // Normally this should be obsolete by now.
             ) {
                 $rulestillapplies = false;
                 break;
