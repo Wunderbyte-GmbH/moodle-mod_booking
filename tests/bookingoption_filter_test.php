@@ -35,6 +35,30 @@ use mod_booking_generator;
  */
 final class bookingoption_filter_test extends advanced_testcase {
     /**
+     * text1
+     * @var string
+     */
+    protected static $text1 = 'Text 1';
+
+    /**
+     * label1
+     * @var string
+     */
+    protected static $label1 = 'Label 1';
+
+    /**
+     * text2
+     * @var string
+     */
+    protected static $text2 = 'Text 2';
+
+    /**
+     * label2
+     * @var string
+     */
+    protected static $label2 = 'Label 2';
+
+    /**
      * Seutp.
      */
     protected function setUp(): void {
@@ -227,16 +251,16 @@ final class bookingoption_filter_test extends advanced_testcase {
                     'description' => 'option 1 description',
                     'identifier' => 'noprice',
                     'maxanswers' => 1,
-                    'customfield_customcat' => 'Text 1',
-                    'customfield_customlabel' => 'Label 1',
+                    'customfield_customcat' => self::$text1,
+                    'customfield_customlabel' => self::$label1,
                 ],
                 [
                     'text' => 'Test Booking Option with price',
                     'description' => 'option 2 description',
                     'identifier' => 'withprice',
                     'maxanswers' => 1,
-                    'customfield_customcat' => 'Text 1',
-                    'customfield_customlabel' => 'Label 1',
+                    'customfield_customcat' => self::$text1,
+                    'customfield_customlabel' => self::$label1,
                 ],
                 [
                     'text' => 'Disalbed Test Booking Option',
@@ -244,8 +268,8 @@ final class bookingoption_filter_test extends advanced_testcase {
                     'identifier' => 'disabledoption',
                     'maxanswers' => 1,
                     'disablebookingusers' => 1,
-                    'customfield_customcat' => 'Text 1',
-                    'customfield_customlabel' => 'Label 1',
+                    'customfield_customcat' => self::$text1,
+                    'customfield_customlabel' => self::$label1,
                 ],
                 [
                     'text' => 'Wait for confirmation Booking Option, no price',
@@ -253,8 +277,8 @@ final class bookingoption_filter_test extends advanced_testcase {
                     'identifier' => 'waitforconfirmationnoprice',
                     'maxanswers' => 1,
                     'waitforconfirmation' => 1,
-                    'customfield_customcat' => 'Text 2',
-                    'customfield_customlabel' => 'Label 1',
+                    'customfield_customcat' => self::$text2,
+                    'customfield_customlabel' => self::$label1,
                 ],
                 [
                     'text' => 'Wait for confirmation Booking Option, no price',
@@ -262,8 +286,8 @@ final class bookingoption_filter_test extends advanced_testcase {
                     'identifier' => 'waitforconfirmationnoprice',
                     'maxanswers' => 1,
                     'waitforconfirmation' => 1,
-                    'customfield_customcat' => 'Text 2',
-                    'customfield_customlabel' => 'Label 2',
+                    'customfield_customcat' => self::$text2,
+                    'customfield_customlabel' => self::$label2,
                 ],
             ],
         ];
@@ -283,14 +307,14 @@ final class bookingoption_filter_test extends advanced_testcase {
 
         // Count options having customcat with value 'Text 2'.
         $countfilteredoptions1 = count(array_filter($bdata['standardbookingoptions'], function ($item) {
-            return $item['customfield_customcat'] === 'Text 2';
+            return $item['customfield_customcat'] === self::$text2;
         }));
 
         // Count options having both customcat with value 'Text 2' & customlabel with value 'Label 2'.
         $countfilteredoptions2 = count(array_filter($bdata['standardbookingoptions'], function ($item) {
             return (
-                $item['customfield_customcat'] === 'Text 2'
-                && $item['customfield_customlabel'] === 'Label 2'
+                $item['customfield_customcat'] === self::$text2
+                && $item['customfield_customlabel'] === self::$label2
             );
         }));
 
