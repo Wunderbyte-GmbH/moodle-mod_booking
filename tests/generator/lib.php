@@ -23,6 +23,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core\lock\lock;
 use mod_booking\booking;
 use mod_booking\booking_rules\booking_rules;
 use mod_booking\booking_rules\rules_info;
@@ -602,5 +603,52 @@ class mod_booking_generator extends testing_module_generator {
             throw new Exception('The specified rule with name "' . $rulename . '" does not exist');
         }
         return $id;
+    }
+
+    /**
+     * Helper to run tasks within time.
+     *
+     *
+     * @param mixed $mocktime
+     *
+     * @return void
+     *
+     */
+    public function runtaskswithintime($mocktime) {
+        global $DB;
+
+        $params = [];
+        $lockfactory = \core\lock\lock_config::get_lock_factory('cron');
+        $lock = $lockfactory->get_lock('test_lock', 10);
+        $lock->release();
+        $cronlock = $lockfactory->get_lock('cron_lock', 10);
+        $cronlock->release();
+
+        $tasks = $DB->get_recordset('task_adhoc', $params);
+        foreach ($tasks as $record) {
+            if ($record->nextruntime <= $mocktime) {
+                $task = \core\task\manager::adhoc_task_from_record($record);
+                $user = null;
+                if ($userid = $task->get_userid()) {
+                    // This task has a userid specified.
+                    $user = \core_user::get_user($userid);
+
+                    // User found. Check that they are suitable.
+                    \core_user::require_active_user($user, true, true);
+                }
+
+                $task->set_lock($lock);
+                $cronlock->release();
+
+                \core\cron::prepare_core_renderer();
+                \core\cron::setup_user($user);
+
+                $task->execute();
+                \core\task\manager::adhoc_task_complete($task);
+
+                unset($task);
+            }
+        }
+        $tasks->close();
     }
 }
