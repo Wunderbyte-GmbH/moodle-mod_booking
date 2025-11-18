@@ -88,7 +88,7 @@ final class bookingoption_filter_test extends advanced_testcase {
         $this->setAdminUser();
 
         // Get provided data.
-        $bdata = self::provide_bdata();
+        $bdata = self::provide_bookingdata();
 
         // Create custom field category.
         $categorydata = new \stdClass();
@@ -205,9 +205,9 @@ final class bookingoption_filter_test extends advanced_testcase {
      * @return array
      *
      */
-    private static function provide_bdata(): array {
+    private static function provide_bookingdata(): array {
         return [
-            'name' => 'Test Booking Policy 1',
+            'name' => 'My booking module 1',
             'eventtype' => 'Test event',
             'enablecompletion' => 1,
             'bookedtext' => ['text' => 'text'],
@@ -219,13 +219,12 @@ final class bookingoption_filter_test extends advanced_testcase {
             'pollurlteacherstext' => ['text' => 'text'],
             'notificationtext' => ['text' => 'text'],
             'userleave' => ['text' => 'text'],
-            'tags' => '',
             'completion' => 2,
             'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
             'standardbookingoptions' => [
                 [
                     'text' => 'Test Booking Option without price',
-                    'description' => 'Test Booking Option',
+                    'description' => 'option 1 description',
                     'identifier' => 'noprice',
                     'maxanswers' => 1,
                     'customfield_customcat' => 'Text 1',
@@ -233,7 +232,7 @@ final class bookingoption_filter_test extends advanced_testcase {
                 ],
                 [
                     'text' => 'Test Booking Option with price',
-                    'description' => 'Test Booking Option',
+                    'description' => 'option 2 description',
                     'identifier' => 'withprice',
                     'maxanswers' => 1,
                     'customfield_customcat' => 'Text 1',
@@ -241,7 +240,7 @@ final class bookingoption_filter_test extends advanced_testcase {
                 ],
                 [
                     'text' => 'Disalbed Test Booking Option',
-                    'description' => 'Test Booking Option',
+                    'description' => 'option 3 description',
                     'identifier' => 'disabledoption',
                     'maxanswers' => 1,
                     'disablebookingusers' => 1,
@@ -250,7 +249,7 @@ final class bookingoption_filter_test extends advanced_testcase {
                 ],
                 [
                     'text' => 'Wait for confirmation Booking Option, no price',
-                    'description' => 'Test Booking Option',
+                    'description' => 'option 4 description',
                     'identifier' => 'waitforconfirmationnoprice',
                     'maxanswers' => 1,
                     'waitforconfirmation' => 1,
@@ -259,7 +258,7 @@ final class bookingoption_filter_test extends advanced_testcase {
                 ],
                 [
                     'text' => 'Wait for confirmation Booking Option, no price',
-                    'description' => 'Test Booking Option',
+                    'description' => 'option 5 description',
                     'identifier' => 'waitforconfirmationnoprice',
                     'maxanswers' => 1,
                     'waitforconfirmation' => 1,
@@ -277,7 +276,7 @@ final class bookingoption_filter_test extends advanced_testcase {
     public static function options_provider(): array {
 
         // Get provided data.
-        $bdata = self::provide_bdata();
+        $bdata = self::provide_bookingdata();
 
         // Total number of options.
         $counttotaloptions = count($bdata['standardbookingoptions']);
