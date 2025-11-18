@@ -423,7 +423,6 @@ final class rules_n_days_test extends advanced_testcase {
         $option = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option->id);
 
-
         // Initially two tasks are scheduled.
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
         $this->assertCount(2, $tasks);
@@ -435,6 +434,13 @@ final class rules_n_days_test extends advanced_testcase {
                 $record->daystonotify_2 = 0;
                 $record->coursestarttime_2 = strtotime('6 June 2050 15:00', time());
                 $record->courseendtime_2 = strtotime('6 June 2050 16:00', time());
+                $record->import = 1;
+                break;
+            case 'add_first_date':
+                $record->optiondateid_2 = 0;
+                $record->daystonotify_2 = 0;
+                $record->coursestarttime_2 = strtotime('1 June 2050 15:00', time());
+                $record->courseendtime_2 = strtotime('1 June 2050 16:00', time());
                 $record->import = 1;
                 break;
             case 'remove_date':
@@ -495,6 +501,16 @@ final class rules_n_days_test extends advanced_testcase {
         return [
             'add_new_date' => [
                 ['type' => 'add_date'],
+                [
+                    'messages_sent' => 3,
+                    'messages_prevented' => 0,
+                    'contains_success' => 'send_mail_by_rule_adhoc task: mail successfully sent',
+                    'numberofdatesafterupdate' => 3,
+                    'numberoftasks' => 3,
+                ],
+            ],
+            'add_first_date_coursestart' => [
+                ['type' => 'add_first_date'],
                 [
                     'messages_sent' => 3,
                     'messages_prevented' => 0,
