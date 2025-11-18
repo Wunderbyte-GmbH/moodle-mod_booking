@@ -1,3 +1,14 @@
+## Version 8.18.2 (2025111800)
+* Improvement: Make past options available via shortcode (all=past)
+* Improvement: Possibility to create new linked course in current category
+* Bugfix: Limit get_record in booking_answers table to make sure it's unique
+* Bugfix: Book the option immediately after confirming an answer when the option has a price but the user’s price is zero.
+* Bugfix: Fix signinsheet top download button and default orientation (in instance settings).
+* Bugfix: daystonotify can now be changed on update
+* Bugfix: Fix SQL error of condition select user in shopping cart.
+* Bugfix: Get rid of OpenTBS, TinyButStrong and legacy custom report templates
+* Bugfix: Drop legacy table booking_customreport and field customtemplateid.
+
 ## Version 8.18.1 (2025111001)
 * Improvement: Create test for session reminders via rules.
 * Improvement: Delete booking answers cache for option after successful checkout.
