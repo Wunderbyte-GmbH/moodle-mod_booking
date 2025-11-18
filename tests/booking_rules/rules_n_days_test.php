@@ -432,15 +432,15 @@ final class rules_n_days_test extends advanced_testcase {
             case 'add_date':
                 $record->optiondateid_2 = 0;
                 $record->daystonotify_2 = 0;
-                $record->coursestarttime_2 = strtotime('6 June 2050 15:00', time());
-                $record->courseendtime_2 = strtotime('6 June 2050 16:00', time());
+                $record->coursestarttime_2 = strtotime('6 June 2050 15:00');
+                $record->courseendtime_2 = strtotime('6 June 2050 16:00');
                 $record->import = 1;
                 break;
             case 'add_first_date':
                 $record->optiondateid_2 = 0;
                 $record->daystonotify_2 = 0;
-                $record->coursestarttime_2 = strtotime('1 June 2050 15:00', time());
-                $record->courseendtime_2 = strtotime('1 June 2050 16:00', time());
+                $record->coursestarttime_2 = strtotime('1 June 2050 15:00');
+                $record->courseendtime_2 = strtotime('1 June 2050 16:00');
                 $record->import = 1;
                 break;
             case 'remove_date':
@@ -456,10 +456,11 @@ final class rules_n_days_test extends advanced_testcase {
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
         $record->id = $option->id;
         $record->cmid = $settings->cmid;
-
-        // Update the option (simulates editing the existing one).
-        booking_option::update($record);
-        singleton_service::destroy_booking_option_singleton($option->id);
+        if ($updateaction['type'] !== 'no_change') {
+            // Update the option (simulates editing the existing one).
+            booking_option::update($record);
+            singleton_service::destroy_booking_option_singleton($option->id);
+        }
 
         $dates = $DB->get_records('booking_optiondates', ['optionid' => $option->id]);
         $this->assertCount($expected['numberofdatesafterupdate'], $dates);
@@ -470,26 +471,28 @@ final class rules_n_days_test extends advanced_testcase {
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
         $this->assertCount($expected['numberoftasks'], $tasks, 'wrong number of tasks');
 
+        $time = time_mock::get_mock_time();
+        time_mock::set_mock_time(strtotime('30 June 2050 16:00', $time));
+        $newtime = time_mock::get_mock_time();
+
         unset_config('noemailever');
         ob_start();
         $messagesink = $this->redirectMessages();
-        $this->runAdhocTasks();
+        $plugingenerator->runtaskswithintime(time_mock::get_mock_time());
         $messages = $messagesink->get_messages();
         $trace = ob_get_clean();
         $messagesink->close();
 
         // Assertions:
-        // This part is hard, as the validation takes the current time and in tests,
-        // execution of adhoc tasks is not done according to next run time.
-        // $this->assertCount($expected['messages_sent'], $messages);
+        $this->assertCount($expected['messages_sent'], $messages);
 
-        // // Check the log contains "mail successfully sent" or "Rule does not apply anymore".
-        // if (isset($expected['contains_success'])) {
-        //     $this->assertTrue(substr_count($trace, $expected['contains_success']) >= $expected['messages_sent']);
-        // }
-        // if (isset($expected['contains_prevent'])) {
-        //     $this->assertTrue(substr_count($trace, $expected['contains_prevent']) >= $expected['messages_prevented']);
-        // }
+        // Check the log contains "mail successfully sent" or "Rule does not apply anymore".
+        if (isset($expected['contains_success'])) {
+            $this->assertTrue(substr_count($trace, $expected['contains_success']) >= $expected['messages_sent']);
+        }
+        if (isset($expected['contains_prevent'])) {
+            $this->assertTrue(substr_count($trace, $expected['contains_prevent']) >= $expected['messages_prevented']);
+        }
     }
 
     /**
@@ -499,6 +502,16 @@ final class rules_n_days_test extends advanced_testcase {
      */
     public static function rule_multiple_dates_provider(): array {
         return [
+            'no_change' => [
+                ['type' => 'no_change'],
+                [
+                    'messages_sent' => 2,
+                    'messages_prevented' => 0,
+                    'contains_success' => 'send_mail_by_rule_adhoc task: mail successfully sent',
+                    'numberofdatesafterupdate' => 2,
+                    'numberoftasks' => 2,
+                ],
+            ],
             'add_new_date' => [
                 ['type' => 'add_date'],
                 [
