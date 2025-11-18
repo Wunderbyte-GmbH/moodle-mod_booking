@@ -2240,6 +2240,12 @@ class booking {
             if (in_array($customfield, $sortablecolumns, true)) {
                 $requiredcustomfields[] = $customfield;
             }
+
+            // 4. Check columns if there are any custom fields.
+            $columns = empty($tableinstance) ? [] : array_keys($tableinstance->columns);
+            if (in_array($customfield, $columns, true)) {
+                $requiredcustomfields[] = $customfield;
+            }
         }
 
         return array_values(array_unique($requiredcustomfields));
