@@ -236,7 +236,10 @@ class duration extends field_base {
         $durationinseconds = $settings->duration ?? 0;
 
         // Instantiate a dummy duration element (required to call the method).
-        $durationelement = new MoodleQuickForm_duration('duration', 'Duration');
+        global $CFG;
+        require_once($CFG->libdir . '/form/duration.php'); // Needed for PHPUnit tests.
+        $durationelement = new MoodleQuickForm_duration('duration', '');
+
         // Convert the seconds to number and unit using the dummy element.
         [$number, $timeunit] = $durationelement->seconds_to_unit($durationinseconds);
         $data->duration = [
