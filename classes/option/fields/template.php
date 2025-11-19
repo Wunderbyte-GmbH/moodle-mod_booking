@@ -194,6 +194,7 @@ class template extends field_base {
             }
             // Now, we need to create the data for this option the same way we would create it otherwise...
             $templateoption = (object)[
+                'fromtemplate' => true, // Flag, so we know it's set from template.
                 'cmid' => $data->cmid,
                 'id' => $optionid, // In the context of option_form class, id always refers to optionid.
                 'optionid' => $optionid, // Just kept on for legacy reasons.

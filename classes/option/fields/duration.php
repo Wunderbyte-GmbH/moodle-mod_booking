@@ -229,23 +229,29 @@ class duration extends field_base {
             }
         }
 
+        // If it's from a template, we need to convert the seconds to number and unit.
+        if (!empty($data->fromtemplate)) {
+            $durationinseconds = $settings->duration ?? 0;
+            // Instantiate a dummy duration element (required to call the method).
+            $durationelement = new MoodleQuickForm_duration('duration', 'Duration');
+            // Convert the seconds to number and unit using the dummy element.
+            [$number, $timeunit] = $durationelement->seconds_to_unit($durationinseconds);
+            $data->duration = [
+                'number'   => $number,
+                'timeunit' => $timeunit,
+            ];
+            return;
+        }
+
         // Normally, we don't call set data after the first time loading.
         if (isset($data->duration)) {
             return;
         }
-        $durationinseconds = $settings->duration ?? 0;
 
-        // Instantiate a dummy duration element (required to call the method).
-        global $CFG;
-        require_once($CFG->libdir . '/form/duration.php'); // Needed for PHPUnit tests.
-        $durationelement = new MoodleQuickForm_duration('duration', '');
-
-        // Convert the seconds to number and unit using the dummy element.
-        [$number, $timeunit] = $durationelement->seconds_to_unit($durationinseconds);
-        $data->duration = [
-            'number'   => $number,
-            'timeunit' => $timeunit,
-        ];
+        // If duration was not yet set and it's not from a template...
+        // ...then set it normally via unix timestamp from settings.
+        $data->duration = (int)($settings->duration ?? 0);
+        return;
     }
 
     /**
