@@ -250,6 +250,10 @@ final class waitinglist_test extends advanced_testcase {
             $this->setUser($student[$i]);
             [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student[$i]->id, true);
             $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id);
+            $result = booking_bookit::bookit('option', $settings->id, $student[$i]->id);
+            [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student[$i]->id, false);
+            // This time it is coming from MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION.
+            $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
             // They book it. So they should see 'wait for confirmation' button.
             $result = booking_bookit::bookit('option', $settings->id, $student[$i]->id);
             [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student[$i]->id, true);
