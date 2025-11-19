@@ -193,7 +193,7 @@ class mod_booking_observer {
     public static function checkout_completed(\local_shopping_cart\event\checkout_completed $event) {
         // We need this to correctly update receipts for installment payments.
         if (
-            $event->other['componentname'] == 'mod_booking'
+            ($event->other['componentname'] ?? '') == 'mod_booking'
             && $event->other['area'] == 'option'
         ) {
             cache_helper::invalidate_by_event('setbackoptionsanswers', [$event->other['itemid']]);
