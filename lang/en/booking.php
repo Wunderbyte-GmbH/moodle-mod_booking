@@ -132,6 +132,7 @@ $string['approvalsettings_desc'] = "Booking supports various confirmation proces
 $string['approvalworkflows'] = 'Approval workflows';
 $string['approvalworkflows_desc'] = 'Select one or more approval workflows. Depending on the selection, specific behaviors can be configured in the booking options.';
 $string['areyousure:book'] = 'Click again to confirm booking';
+$string['areyousure:bookconfirmation'] = 'Click again to confirm booking on waitinglist';
 $string['areyousure:cancel'] = 'Click again to confirm cancellation';
 $string['asglobaltemplate'] = 'Use as global template';
 $string['askforconfirmationheader'] = '<i class="fa fa-fw fa-lock" aria-hidden="true"></i>&nbsp;Demand confirmation';
