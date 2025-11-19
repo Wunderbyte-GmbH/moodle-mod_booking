@@ -398,6 +398,10 @@ final class condition_bookingpolicy_test extends advanced_testcase {
 
         // Book option 1 on waitinglist.
         $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, false);
+        // This time it is coming from MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION.
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
+        $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
         [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
