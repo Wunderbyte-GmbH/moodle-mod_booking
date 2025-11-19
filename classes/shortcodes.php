@@ -1316,12 +1316,7 @@ class shortcodes {
     ) {
 
         // Check if rendering is for another user id.
-        if ($urlparamforuserid = actforuser::get_urlparamforuserid($args)) {
-            $userid = optional_param($urlparamforuserid, 0, PARAM_INT);
-            $userid = $userid > 0 ? $userid : 0;
-        } else {
-            $userid = 0;
-        }
+        $userid = actforuser::get_foruserid($args, 0);
 
         $tablename = $uniquetablename ?? bin2hex(random_bytes(12));
         // This is required to differentiate between instances when the table is rendered for a specific user.
