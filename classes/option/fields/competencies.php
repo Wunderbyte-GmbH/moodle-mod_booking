@@ -462,15 +462,9 @@ class competencies extends field_base {
             $args['all'] = "true";
         }
 
-        if (
-            !empty($userid)
-            && $USER->id != $userid
-        ) {
-            if (isset($args['exclude'])) {
-                $args['exclude'] .= ',booknow';
-            } else {
-                $args['exclude'] = 'booknow';
-            }
+        // If it's not the same user.
+        if (!empty($userid) && $USER->id != $userid) {
+            $args['foruserid'] = $userid;
         }
 
         $env = new stdClass();
