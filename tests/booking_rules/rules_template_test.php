@@ -521,7 +521,7 @@ final class rules_template_test extends advanced_testcase {
         $record->courseid = $course1->id;
         $record->maxanswers = 1;
         $record->maxoverbooking = 2; // Enable waitinglist.
-        $record->waitforconfirmation = 1; // Do not force waitinglist.
+        $record->waitforconfirmation = 1; // Force waitinglist.
         $record->description = 'Will start in 2050';
         $record->optiondateid_0 = "0";
         $record->daystonotify_0 = "0";
@@ -540,6 +540,9 @@ final class rules_template_test extends advanced_testcase {
 
         $result = booking_bookit::bookit('option', $settings->id, $student2->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
+        $result = booking_bookit::bookit('option', $settings->id, $student2->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // Confirm booking as admin.
@@ -551,6 +554,9 @@ final class rules_template_test extends advanced_testcase {
         // Book the student1 via waitinglist.
         $this->setUser($student1);
 
+        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
