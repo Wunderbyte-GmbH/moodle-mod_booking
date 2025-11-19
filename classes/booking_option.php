@@ -4035,6 +4035,7 @@ class booking_option {
                     MOD_BOOKING_BO_COND_CONFIRMATION,
                     MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
                     MOD_BOOKING_BO_COND_ASKFORCONFIRMATION,
+                    MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION,
                 ]
             )
             // Note, if it's fully booked then usually the MOD_BOOKING_BO_COND_FULLYBOOKED will block.

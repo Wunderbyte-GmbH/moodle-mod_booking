@@ -362,6 +362,19 @@ class booking_bookit {
                 // This means we can actually book.
                 $isavailable = true;
             } else if ($id === MOD_BOOKING_BO_COND_ASKFORCONFIRMATION) {
+                $cache = cache::make('mod_booking', 'confirmbooking');
+                $cachekey = $userid . "_" . $settings->id . "_confirmation";
+                $now = time();
+                $cache->set($userid, [$cachekey => $now]);
+
+                $isavailable = false;
+            } else if ($id === MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION) {
+                // Make sure cache is not blocking anymore.
+                $cache = cache::make('mod_booking', 'confirmbooking');
+                $cachekey = $userid . "_" . $settings->id . '_confirmation';
+                $cache->delete($userid);
+
+                // This means we can actuall book on waitinglist.
                 $isavailable = true;
             } else if ($id === MOD_BOOKING_BO_COND_ALREADYBOOKED || $id === MOD_BOOKING_BO_COND_ONWAITINGLIST) {
                 $cancelmyself = new cancelmyself();

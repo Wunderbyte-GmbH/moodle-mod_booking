@@ -129,6 +129,7 @@ $string['approvalsettings_desc'] = "Booking unterstützt verschiedene Bestätigu
 $string['approvalworkflows'] = 'Bestätigungsworkflows';
 $string['approvalworkflows_desc'] = 'Wählen Sie einen oder mehrere Bestätigungsworkflows aus. In den Buchungsoptionen können je nach Auswahl die genauen Verhalten eingestellt werden.';
 $string['areyousure:book'] = 'Nochmal klicken, um die Buchung zu bestätigen';
+$string['areyousure:bookconfirmation'] = 'Nochmal klicken, um die Buchung auf Warteliste zu bestätigen';
 $string['areyousure:cancel'] = 'Nochmal klicken, um die Buchung zu stornieren';
 $string['asglobaltemplate'] = 'Als globale Vorlage hinzufügen';
 $string['askforconfirmationheader'] = '<i class="fa fa-fw fa-lock" aria-hidden="true"></i>&nbsp;Buchen nur nach Bestätigung';
