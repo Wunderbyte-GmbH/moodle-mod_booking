@@ -483,7 +483,7 @@ final class rules_n_days_test extends advanced_testcase {
         $trace = ob_get_clean();
         $messagesink->close();
 
-        // Assertions:
+        // Assertions.
         $this->assertCount($expected['messages_sent'], $messages);
 
         // Check the log contains "mail successfully sent" or "Rule does not apply anymore".
@@ -546,10 +546,10 @@ final class rules_n_days_test extends advanced_testcase {
             'modify_existing_date' => [
                 ['type' => 'modify_date'],
                 [
-                    'messages_sent' => 1,
+                    'messages_sent' => 2,
                     'messages_prevented' => 1,
                     'contains_success' => 'send_mail_by_rule_adhoc task: mail successfully sent',
-                    'contains_prevent' => 'Rule has changed. Mail was NOT SENT',
+                    'contains_prevent' => 'Rule does not apply anymore. Mail was NOT SENT for option',
                     'numberofdatesafterupdate' => 2,
                     'numberoftasks' => 3,
                 ],
