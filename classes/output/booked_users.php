@@ -33,6 +33,7 @@ use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
 use mod_booking\booking_answers\booking_answers;
 use mod_booking\booking_answers\scope_base;
+use mod_booking\customfield\booking_handler;
 use mod_booking\singleton_service;
 use mod_booking\table\booking_history_table;
 use moodle_exception;
@@ -131,6 +132,11 @@ class booked_users implements renderable, templatable {
         } else {
             $this->labels = $defalutlabels;
         }
+
+        // Verify that all customfields are actually there.
+        $existingcustomfields = booking_handler::get_customfields($customfields);
+        $customfields = array_values(array_map(fn($a) => $a->shortname, $existingcustomfields));
+
 
         $this->bookedusers = $showbooked ?
             $this->render_users_table(
