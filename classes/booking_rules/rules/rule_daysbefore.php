@@ -291,7 +291,8 @@ class rule_daysbefore implements booking_rule {
         if (empty($records)) {
             $rulestillapplies = false;
         }
-
+        // If there are multiple records (like for reminders for optiondates)...
+        // ...we need to make sure that at least one runtime matches.
         foreach ($records as $record) {
             // The override happens within the SQL of get_records_for_execution.
             // So $record->daystonotify will have the correct value.
@@ -301,12 +302,12 @@ class rule_daysbefore implements booking_rule {
             $oldnextruntime = (int) $record->datefield - ((int) $this->days * 86400);
 
             if (
-                $oldnextruntime != $nextruntime
-                //&& !PHPUNIT_TEST // Normally this should be obsolete by now.
+                $oldnextruntime == $nextruntime
             ) {
-                $rulestillapplies = false;
+                $rulestillapplies = true;
                 break;
             }
+            $rulestillapplies = false;
         }
 
         return $rulestillapplies;
