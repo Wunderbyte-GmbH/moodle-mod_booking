@@ -194,6 +194,10 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->setUser($student2);
         singleton_service::destroy_user($student2->id);
         $result = booking_bookit::bookit('option', $settings->id, $student2->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, false);
+        // This time it is coming from MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION.
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
+        $result = booking_bookit::bookit('option', $settings->id, $student2->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
@@ -209,6 +213,10 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->setUser($student1);
         singleton_service::destroy_user($student1->id);
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, false);
+        // This time it is coming from MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION.
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
+        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
@@ -218,6 +226,10 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->setUser($student3);
         singleton_service::destroy_user($student3->id);
         $result = booking_bookit::bookit('option', $settings->id, $student3->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student3->id, false);
+        // This time it is coming from MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION.
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
+        $result = booking_bookit::bookit('option', $settings->id, $student3->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student3->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
@@ -226,6 +238,10 @@ final class rules_waitinglist_test extends advanced_testcase {
         $time = time_mock::get_mock_time();
         $this->setUser($student4);
         singleton_service::destroy_user($student4->id);
+        $result = booking_bookit::bookit('option', $settings->id, $student4->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student4->id, false);
+        // This time it is coming from MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION.
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
         $result = booking_bookit::bookit('option', $settings->id, $student4->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student4->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
@@ -417,6 +433,10 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->setUser($student1);
         singleton_service::destroy_user($student1->id);
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, false);
+        // This time it is coming from MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION.
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
+        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
@@ -432,6 +452,10 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->setUser($student2);
         singleton_service::destroy_user($student2->id);
         $result = booking_bookit::bookit('option', $settings->id, $student2->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, false);
+        // This time it is coming from MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION.
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
+        $result = booking_bookit::bookit('option', $settings->id, $student2->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
@@ -441,6 +465,10 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->setUser($student3);
         singleton_service::destroy_user($student3->id);
         $result = booking_bookit::bookit('option', $settings->id, $student3->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student3->id, false);
+        // This time it is coming from MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION.
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
+        $result = booking_bookit::bookit('option', $settings->id, $student3->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student3->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
@@ -449,6 +477,10 @@ final class rules_waitinglist_test extends advanced_testcase {
         $time = time_mock::get_mock_time();
         $this->setUser($student4);
         singleton_service::destroy_user($student4->id);
+        $result = booking_bookit::bookit('option', $settings->id, $student4->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student4->id, false);
+        // This time it is coming from MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION.
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
         $result = booking_bookit::bookit('option', $settings->id, $student4->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student4->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
@@ -667,7 +699,10 @@ final class rules_waitinglist_test extends advanced_testcase {
         $time = time_mock::get_mock_time();
         $this->setUser($student2);
         singleton_service::destroy_user($student2->id);
-        // Bookitbutton should NOT block if there are places on waitinglist.
+        $result = booking_bookit::bookit('option', $settings->id, $student2->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, false);
+        // This time it is coming from MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION.
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
         $result = booking_bookit::bookit('option', $settings->id, $student2->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
@@ -677,7 +712,10 @@ final class rules_waitinglist_test extends advanced_testcase {
         $time = time_mock::get_mock_time();
         $this->setUser($student3);
         singleton_service::destroy_user($student3->id);
-        // Bookitbutton should NOT block if there are places on waitinglist.
+        $result = booking_bookit::bookit('option', $settings->id, $student3->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student3->id, false);
+        // This time it is coming from MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION.
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
         $result = booking_bookit::bookit('option', $settings->id, $student3->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student3->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
@@ -687,7 +725,10 @@ final class rules_waitinglist_test extends advanced_testcase {
         $time = time_mock::get_mock_time();
         $this->setUser($student4);
         singleton_service::destroy_user($student4->id);
-        // Bookitbutton should NOT block if there are places on waitinglist.
+        $result = booking_bookit::bookit('option', $settings->id, $student4->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student4->id, false);
+        // This time it is coming from MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION.
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
         $result = booking_bookit::bookit('option', $settings->id, $student4->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student4->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
@@ -758,7 +799,10 @@ final class rules_waitinglist_test extends advanced_testcase {
         // Since the waitinglist was reordered, student4 should be on list.
         $this->setUser($student1);
         singleton_service::destroy_user($student1->id);
-        // Bookitbutton should NOT block if there are places on waitinglist.
+        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, false);
+        // This time it is coming from MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION.
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
@@ -884,6 +928,10 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->setUser($student1);
         singleton_service::destroy_user($student1->id);
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, false);
+        // This time it is coming from MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION.
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
+        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
@@ -899,6 +947,10 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->setUser($student2);
         singleton_service::destroy_user($student2->id);
         $result = booking_bookit::bookit('option', $settings->id, $student2->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, false);
+        // This time it is coming from MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION.
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
+        $result = booking_bookit::bookit('option', $settings->id, $student2->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
@@ -907,6 +959,10 @@ final class rules_waitinglist_test extends advanced_testcase {
         $time = time_mock::get_mock_time();
         $this->setUser($student3);
         singleton_service::destroy_user($student3->id);
+        $result = booking_bookit::bookit('option', $settings->id, $student3->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student3->id, false);
+        // This time it is coming from MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION.
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
         $result = booking_bookit::bookit('option', $settings->id, $student3->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student3->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
@@ -917,6 +973,10 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->setUser($student4);
         singleton_service::destroy_user($student4->id);
         $result = booking_bookit::bookit('option', $settings->id, $student4->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student4->id, false);
+        // This time it is coming from MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION.
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
+        $result = booking_bookit::bookit('option', $settings->id, $student4->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student4->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
@@ -925,6 +985,10 @@ final class rules_waitinglist_test extends advanced_testcase {
         $time = time_mock::get_mock_time();
         $this->setUser($student5);
         singleton_service::destroy_user($student5->id);
+        $result = booking_bookit::bookit('option', $settings->id, $student5->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student5->id, false);
+        // This time it is coming from MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION.
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
         $result = booking_bookit::bookit('option', $settings->id, $student5->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student5->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
@@ -995,6 +1059,10 @@ final class rules_waitinglist_test extends advanced_testcase {
         // And see if the second task created a new reminder mail task for the right user.
         $this->setUser($student6);
         singleton_service::destroy_user($student5->id);
+        $result = booking_bookit::bookit('option', $settings->id, $student6->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student6->id, false);
+        // This time it is coming from MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION.
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
         $result = booking_bookit::bookit('option', $settings->id, $student6->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student6->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
@@ -1222,6 +1290,10 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->setUser($student2);
         singleton_service::destroy_user($student2->id);
         $result = booking_bookit::bookit('option', $settings1->id, $student2->id);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student2->id, false);
+        // This time it is coming from MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION.
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
+        $result = booking_bookit::bookit('option', $settings1->id, $student2->id);
         [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
@@ -1230,6 +1302,10 @@ final class rules_waitinglist_test extends advanced_testcase {
         $time = time_mock::get_mock_time();
         $this->setUser($student3);
         singleton_service::destroy_user($student3->id);
+        $result = booking_bookit::bookit('option', $settings1->id, $student3->id);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student3->id, false);
+        // This time it is coming from MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION.
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
         $result = booking_bookit::bookit('option', $settings1->id, $student3->id);
         [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student3->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
@@ -1240,6 +1316,10 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->setUser($student4);
         singleton_service::destroy_user($student4->id);
         $result = booking_bookit::bookit('option', $settings1->id, $student4->id);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student4->id, false);
+        // This time it is coming from MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION.
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
+        $result = booking_bookit::bookit('option', $settings1->id, $student4->id);
         [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student4->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
@@ -1248,6 +1328,10 @@ final class rules_waitinglist_test extends advanced_testcase {
         $time = time_mock::get_mock_time();
         $this->setUser($student5);
         singleton_service::destroy_user($student5->id);
+        $result = booking_bookit::bookit('option', $settings1->id, $student5->id);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student5->id, false);
+        // This time it is coming from MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION.
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
         $result = booking_bookit::bookit('option', $settings1->id, $student5->id);
         [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student5->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
@@ -1553,6 +1637,10 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->setUser($student2);
         singleton_service::destroy_user($student2->id);
         $result = booking_bookit::bookit('option', $settings1->id, $student2->id);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student2->id, false);
+        // This time it is coming from MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION.
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
+        $result = booking_bookit::bookit('option', $settings1->id, $student2->id);
         [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
@@ -1562,6 +1650,10 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->setUser($student3);
         singleton_service::destroy_user($student3->id);
         $result = booking_bookit::bookit('option', $settings1->id, $student3->id);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student3->id, false);
+        // This time it is coming from MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION.
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
+        $result = booking_bookit::bookit('option', $settings1->id, $student3->id);
         [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student3->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
@@ -1570,6 +1662,10 @@ final class rules_waitinglist_test extends advanced_testcase {
         $time = time_mock::get_mock_time();
         $this->setUser($student4);
         singleton_service::destroy_user($student4->id);
+        $result = booking_bookit::bookit('option', $settings1->id, $student4->id);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student4->id, false);
+        // This time it is coming from MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION.
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
         $result = booking_bookit::bookit('option', $settings1->id, $student4->id);
         [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student4->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
@@ -1601,6 +1697,11 @@ final class rules_waitinglist_test extends advanced_testcase {
         // Result depends on waitforconfirmation setting.
         $this->setUser($student5);
         singleton_service::destroy_user($student5->id);
+        if (!empty($expected['newuserconfirmation'])) {
+            $result = booking_bookit::bookit('option', $settings1->id, $student5->id);
+            [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student5->id, false);
+            $this->assertEquals($expected['newuserconfirmation'], $id);
+        }
         $result = booking_bookit::bookit('option', $settings1->id, $student5->id);
         [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student5->id, true);
         $this->assertEquals($expected['newuserresponse'], $id);
@@ -1735,6 +1836,8 @@ final class rules_waitinglist_test extends advanced_testcase {
                     'usersonwaitinglist1' => 3,
                     // So no tasks expected.
                     'taskcount1' => 0,
+                    // Such as waitinglist now reqire confirmation.
+                    'newuserconfirmation' => MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION,
                     // Therefore (student2 already took the place), the external user can only book on the list.
                     'newuserresponse' => MOD_BOOKING_BO_COND_ONWAITINGLIST,
                     // So no tasks expected.
@@ -1763,6 +1866,8 @@ final class rules_waitinglist_test extends advanced_testcase {
                     'usersonlist1' => 0,
                     'usersonwaitinglist1' => 3,
                     'taskcount1' => 2, // Tasks expected.
+                    // No waitinglist in this case.
+                    'newuserconfirmation' => '',
                     // Therefore new user can book with price.
                     'newuserresponse' => MOD_BOOKING_BO_COND_PRICEISSET,
                     // Tasks expected.
@@ -1792,6 +1897,8 @@ final class rules_waitinglist_test extends advanced_testcase {
                     'usersonwaitinglist1' => 4,
                     // Tasks expected.
                     'taskcount1' => 2,
+                    // Such as waitinglist now reqire confirmation.
+                    'newuserconfirmation' => MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION,
                     // With confirmation only on waitinglist, new user is blocked from booking and put on waitinglist.
                     'newuserresponse' => MOD_BOOKING_BO_COND_ONWAITINGLIST,
                     // Tasks expected.
@@ -1823,6 +1930,8 @@ final class rules_waitinglist_test extends advanced_testcase {
                     'usersonwaitinglist1' => 4,
                     // Tasks expected.
                     'taskcount1' => 2,
+                    // Such as waitinglist now reqire confirmation.
+                    'newuserconfirmation' => MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION,
                     // With confirmation only on waitinglist, new user is blocked from booking and put on waitinglist.
                     'newuserresponse' => MOD_BOOKING_BO_COND_ONWAITINGLIST,
                     // Tasks expected.
@@ -1854,6 +1963,8 @@ final class rules_waitinglist_test extends advanced_testcase {
                     'usersonwaitinglist1' => 4,
                     // Tasks expected.
                     'taskcount1' => 2,
+                    // Such as waitinglist now reqire confirmation.
+                    'newuserconfirmation' => MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION,
                     // With confirmation only on waitinglist, new user is blocked from booking and put on waitinglist.
                     'newuserresponse' => MOD_BOOKING_BO_COND_ONWAITINGLIST,
                     // Tasks expected.
