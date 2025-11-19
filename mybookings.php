@@ -34,7 +34,6 @@ use mod_booking\singleton_service;
 $url = new moodle_url('/mod/booking/mybookings.php');
 $userid = optional_param('userid', 0, PARAM_INT);
 $completed = optional_param('completed', 0, PARAM_INT);
-$PAGE->set_url($url);
 
 if (!empty($userid)) {
     $user = singleton_service::get_instance_of_user($userid);
@@ -45,20 +44,29 @@ if (!empty($userid)) {
 
 $PAGE->set_context(context_user::instance($user->id));
 $PAGE->navigation->extend_for_user($user);
-$mybookingsurl = new moodle_url('/mod/booking/mybookings.php');
-$PAGE->navbar->add(get_string('mybookingoptions', 'mod_booking'), $mybookingsurl);
+$mybookingsurl = new moodle_url('/mod/booking/mybookings.php', ['userid' => $userid]);
+$PAGE->set_url($mybookingsurl);
 
 $PAGE->set_pagelayout('base');
 
-echo $OUTPUT->header();
-
-echo $OUTPUT->heading(get_string('mybookingoptions', 'mod_booking'));
-
 if ($userid != $USER->id) {
-    $arguments = ['userid' => $userid, 'completed' => $completed, 'exclude' => 'booknow'];
+    $arguments = ['userid' => $userid, 'completed' => $completed];
+    $heading = get_string('bookings', 'mod_booking');
 } else {
     $arguments = ['userid' => $userid, 'completed' => $completed];
+    $heading = get_string('mybookingoptions', 'mod_booking');
 }
+$PAGE->navbar->add($heading);
+
+echo $OUTPUT->header();
+echo $OUTPUT->heading($heading);
+
+
+$arguments['sort'] = 1;
+$arguments['sortby'] = 'coursestarttime';
+$arguments['sortorder'] = 'desc';
+$arguments['foruserid'] = $userid;
+
 echo shortcodes::mycourselist('', $arguments, '', (object)[], fn($a) => $a);
 
 if (class_exists('local_shopping_cart\shopping_cart') && get_config('booking', 'displayshoppingcarthistory')) {
