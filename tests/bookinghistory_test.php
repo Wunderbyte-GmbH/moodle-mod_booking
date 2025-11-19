@@ -167,19 +167,25 @@ final class bookinghistory_test extends advanced_testcase {
         $this->assertCount(0, $historyrecords);
 
         // User Books Course or Waitinglist depending on the settings.
+        if ($settings->waitforconfirmation == 1) {
+            $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+            [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, false);
+            // This time it is coming from MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION.
+            $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
+        }
         $result = booking_bookit::bookit('option', $settings->id, $student1->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals($expected['bookitresults'][0], $id);
 
-            // Needed for Booking without a Waitinglist.
+        // Needed for Booking without a Waitinglist.
         if ($settings->waitforconfirmation == 0) {
             $result = booking_bookit::bookit('option', $settings->id, $student1->id);
         }
 
-            $historyrecords = $DB->get_records('booking_history');
-            $this->assertCount(1, $historyrecords);
-            $status = reset($historyrecords)->status;
-            $this->assertEquals($expected['historystatus'][0], $status);
+        $historyrecords = $DB->get_records('booking_history');
+        $this->assertCount(1, $historyrecords);
+        $status = reset($historyrecords)->status;
+        $this->assertEquals($expected['historystatus'][0], $status);
 
         // Condition for Teacher cancelling.
         if (isset($data['additionalactions']['teachercancels'])) {
