@@ -393,7 +393,7 @@ final class rules_n_days_test extends advanced_testcase {
             'actionname' => 'send_mail',
             'actiondata' => '{"sendical":0,"sendicalcreateorcancel":"",
                 "subject":"A new session of {Title} will start soon",
-                "template":"<p>Good day {firstname} {lastname},<br>the next session of \\"{title}\\" will start soon:<br><br>{bookingdetails}</p>",
+                "template":"<p>Hi {firstname},<br>the next session of \\"{title}\\" will start soon:<br><br>{bookingdetails}</p>",
                 "templateformat":"1"}',
             'rulename' => 'rule_daysbefore',
             'ruledata' => '{"days":"1","datefield":"optiondatestarttime"}',
