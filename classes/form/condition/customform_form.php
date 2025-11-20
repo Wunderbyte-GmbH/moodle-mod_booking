@@ -90,7 +90,7 @@ class customform_form extends dynamic_form {
 
         foreach ((array)$cachedata as $key => $value) {
             if (strpos($key, 'customform_') !== false) {
-                $data->{$key} = $value;
+                $data->{$key} = format_string($value);
             }
         }
 
@@ -163,7 +163,7 @@ class customform_form extends dynamic_form {
                             'static',
                             $identifier,
                             format_string($formelementvalue->label),
-                            $formelementvalue->value
+                            format_string($formelementvalue->value)
                         );
                         break;
                     case 'advcheckbox':
@@ -182,13 +182,13 @@ class customform_form extends dynamic_form {
                             $identifier,
                             format_string($formelementvalue->label) ?? "Label " . $counter
                         );
-                        $mform->setDefault('customform_shorttext_' . $counter, $formelementvalue->value);
+                        $mform->setDefault('customform_shorttext_' . $counter, format_string($formelementvalue->value));
                         $mform->setType('customform_shorttext_' . $counter, PARAM_TEXT);
                         break;
                     case 'select':
                         // Create the array.
                         $identifier = 'customform_' . $formelementvalue->formtype . '_' . $counter;
-                        $lines = explode(PHP_EOL, $formelementvalue->value);
+                        $lines = explode(PHP_EOL, format_string($formelementvalue->value));
                         $options = [];
                         foreach ($lines as $line) {
                             $linearray = explode(' => ', $line);
