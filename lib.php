@@ -2727,7 +2727,7 @@ function mod_booking_tool_certificate_fields() {
 
         $handler->ensure_field_exists(
             'cf' . $customfield->shortname,
-            'text',
+            $customfield->type,
             $customfield->shortname,
             $customfield->name,
         );

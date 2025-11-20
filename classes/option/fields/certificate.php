@@ -298,6 +298,10 @@ class certificate extends field_base {
             $customfielddata = [];
             $customfields = booking_handler::get_customfields();
             foreach ($customfields as $customfield) {
+
+                if (!in_array($customfield->type, ['text', 'textarea'])) {
+                    continue;
+                }
                 $placeholder = '{' . $customfield->shortname . '}';
                 $params = [];
                 $value = customfields::return_value(
