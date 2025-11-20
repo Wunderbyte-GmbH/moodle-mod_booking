@@ -1,3 +1,7 @@
+## Version 8.18.4 (2025111802)
+* Improvement: Add format_string to titleprefix, title (text) and institution.
+* Improvement: Also apply format_string (needed for multi-lang filters) to customform condition.
+
 ## Version 8.18.3 (2025111801)
 * Bugfix: Fallback for missing componentname key in event observer.
 * Bugfix: Correctly check for similar tasks.
