@@ -1,3 +1,7 @@
+## Version 8.18.3 (2025111801)
+* Bugfix: Fallback for missing componentname key in event observer.
+* Bugfix: Correctly check for similar tasks.
+
 ## Version 8.18.2 (2025111800)
 * Improvement: Make past options available via shortcode (all=past)
 * Improvement: Possibility to create new linked course in current category
