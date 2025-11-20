@@ -320,7 +320,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
             return '';
         }
 
-        $title = $values->text;
+        $title = format_string($values->text);
 
         // If we download, we return the raw title without link or prefix.
         if ($this->is_downloading()) {
@@ -365,10 +365,9 @@ class bookingoptions_wbtable extends wunderbyte_table {
         }
 
         if (!empty($values->titleprefix)) {
-            $title = $values->titleprefix . ' - ' . $values->text;
+            $titleprefix = format_string($values->titleprefix);
+            $title = $titleprefix . ' - ' . $title;
         }
-
-        $title = format_string($title);
 
         if (!get_config('booking', 'openbookingdetailinsametab')) {
             $title = "<div class='bookingoptions-wbtable-option-title'><a href='$url' target='_blank'>$title</a></div>";
@@ -685,7 +684,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
         }
 
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
-        return $settings->institution;
+        return format_string($settings->institution);
     }
 
     /**
