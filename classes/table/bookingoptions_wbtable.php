@@ -236,7 +236,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @throws dml_exception
      */
     public function col_booknow($values) {
-
+        global $USER;
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
             $debugmessage = "bookingoptions_wbtable function col_booknow: ";
@@ -252,6 +252,13 @@ class bookingoptions_wbtable extends wunderbyte_table {
         // It is 0 by default but can be set, for example,
         // when rendering booking options for a specific user via the cashier page.
         $buyforuser = $this->foruserid;
+
+        // We need to make sure that a user is set for the rendering of the button. When it is equal to 0,
+        // we use the logged-in user. Leaving it as 0 may cause problems in the booking process,
+        // for example when a pre-form is involved.
+        if ($buyforuser == 0) {
+            $buyforuser = $USER->id;
+        }
 
         return booking_bookit::render_bookit_button($settings, $buyforuser);
     }
