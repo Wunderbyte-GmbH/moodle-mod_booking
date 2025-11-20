@@ -688,8 +688,9 @@ class manageusers_table extends wunderbyte_table {
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $ba = singleton_service::get_instance_of_booking_answers($settings);
 
-        if (!empty($values->json)) {
-            $jsonobject = json_decode($values->json);
+        $jsonobject = (!empty($values->json)) ? json_decode($values->json) : null;
+
+        if (!empty($jsonobject)) {
             if (!empty($jsonobject->confirmwaitinglist)) {
                 $data[] = [
                     'label' => get_string('unconfirm', 'mod_booking'), // Name of your action button.
@@ -730,8 +731,26 @@ class manageusers_table extends wunderbyte_table {
             ];
         }
 
+        // We rely on the number of required confirmations to decide whether to show the confirmation,
+        // because if we only check whether the user has already confirmed, we may run into problems.
+        // For example, when more than one confirmation is required and the user is both the first confirmer
+        // and the second confirmer’s deputy, checking only the previous confirmation could fail.
+        // By relying on the number of confirmations instead, we avoid this issue.
+        // You might worry about the case where more than one confirmation is required
+        // and the first confirmer has already confirmed. In that situation,
+        // the logic inside check_confirm_capability ensures the correct turn is checked.
+
+        // Get number of required confirmations.
+        $requiredconfirmations = confirmation::get_required_confirmation_count($optionid);
+        if (!empty($jsonobject) && !empty($jsonobject->confirmationcount)) {
+            $currentconfirmations = (int) $jsonobject->confirmationcount;
+        } else {
+            $currentconfirmations = 0;
+        }
+
         if (
                 $allowedtoconfirm
+                && $requiredconfirmations > $currentconfirmations
         ) {
             $data[] = [
                 'label' => '', // Name of your action button.
