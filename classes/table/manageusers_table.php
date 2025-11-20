@@ -101,6 +101,19 @@ class manageusers_table extends wunderbyte_table {
     }
 
     /**
+     * Return column coursestarttime.
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_coursestarttime(stdClass $values): string {
+        if (empty($values->coursestarttime)) {
+            return '';
+        }
+        return date('d.m.Y', $values->coursestarttime);
+    }
+
+    /**
      * Return column timebooked.
      *
      * @param stdClass $values
