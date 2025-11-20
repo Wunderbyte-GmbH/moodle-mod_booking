@@ -2721,12 +2721,16 @@ function mod_booking_tool_certificate_fields() {
     );
     $customfields = booking_handler::get_customfields();
     foreach ($customfields as $customfield) {
-               $handler->ensure_field_exists(
-                   'cf' . $customfield->shortname,
-                   'text',
-                   $customfield->shortname,
-                   $customfield->name,
-               );
+        if (!in_array($customfield->type, ['text', 'textarea'])) {
+            continue;
+        }
+
+        $handler->ensure_field_exists(
+            'cf' . $customfield->shortname,
+            'text',
+            $customfield->shortname,
+            $customfield->name,
+        );
     }
 }
 

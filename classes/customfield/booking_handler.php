@@ -96,7 +96,7 @@ class booking_handler extends \core_customfield\handler {
         global $DB;
 
         if (empty($selectedshortnames)) {
-            $sql = "SELECT cff.id, cff.name, cff.shortname, cff.configdata
+            $sql = "SELECT cff.id, cff.name, cff.shortname, cff.configdata, cff.type
                     FROM {customfield_field} cff
                     LEFT JOIN {customfield_category} cfc
                     ON cff.categoryid = cfc.id
@@ -105,7 +105,7 @@ class booking_handler extends \core_customfield\handler {
             $params = [];
         } else {
             [$insql, $params] = $DB->get_in_or_equal($selectedshortnames, SQL_PARAMS_NAMED, 'param', true);
-            $sql = "SELECT cff.id, cff.name, cff.shortname, cff.configdata
+            $sql = "SELECT cff.id, cff.name, cff.shortname, cff.configdata, cff.type
                     FROM {customfield_field} cff
                     LEFT JOIN {customfield_category} cfc
                     ON cff.categoryid = cfc.id
