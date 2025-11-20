@@ -137,7 +137,6 @@ class booked_users implements renderable, templatable {
         $existingcustomfields = booking_handler::get_customfields($customfields);
         $customfields = array_values(array_map(fn($a) => $a->shortname, $existingcustomfields));
 
-
         $this->bookedusers = $showbooked ?
             $this->render_users_table(
                 $scope,
