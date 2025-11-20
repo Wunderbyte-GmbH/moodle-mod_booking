@@ -71,6 +71,9 @@ class supervisorteamreduced extends supervisorteam {
         }
 
         $table->set_sql($fields, $from, $where, $params);
+        $table->sortablecolumns = $columns;
+        $table->fulltextsearchcolumns = ['name', 'text'];
+
 
         return $table;
     }
@@ -109,8 +112,7 @@ class supervisorteamreduced extends supervisorteam {
         $columns = [
             'name' => get_string('fullname', 'core'),
             'text' => get_string('bookingoptionname', 'mod_booking'),
-            'timemodified' => get_string('timecreated', 'core'),
-            'bookingstatus' => get_string('status', 'mod_booking'),
+            'coursestarttime' => get_string('coursestart', 'core'),
         ];
         return $columns;
     }
