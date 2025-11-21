@@ -74,7 +74,6 @@ class supervisorteamreduced extends supervisorteam {
         $table->sortablecolumns = $columns;
         $table->fulltextsearchcolumns = ['name', 'text'];
 
-
         return $table;
     }
 
