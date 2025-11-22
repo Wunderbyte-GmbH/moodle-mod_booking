@@ -66,6 +66,16 @@ final class recurringoptions_test extends advanced_testcase {
     }
 
     /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        parent::tearDown();
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $plugingenerator->teardown();
+    }
+
+    /**
      * Test creation and update of recurring options.
      *
      * @covers \mod_booking\bo_availability\conditions\bookitbutton::is_available
@@ -613,14 +623,5 @@ final class recurringoptions_test extends advanced_testcase {
             'completion' => 2,
             'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
         ];
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        // Mandatory clean-up.
-        singleton_service::destroy_instance();
     }
 }

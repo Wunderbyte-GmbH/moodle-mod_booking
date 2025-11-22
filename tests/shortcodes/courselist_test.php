@@ -27,7 +27,6 @@
 namespace mod_booking;
 
 use advanced_testcase;
-use Closure;
 use coding_exception;
 use context_system;
 use local_wunderbyte_table\wunderbyte_table;
@@ -59,6 +58,16 @@ final class courselist_test extends advanced_testcase {
         time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
+    }
+
+    /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        parent::tearDown();
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $plugingenerator->teardown();
     }
 
     /**
@@ -400,14 +409,5 @@ final class courselist_test extends advanced_testcase {
                 ],
             ],
         ];
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        // Mandatory clean-up.
-        singleton_service::destroy_instance();
     }
 }

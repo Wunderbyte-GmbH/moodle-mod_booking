@@ -65,13 +65,9 @@ final class rules_enrollink_test extends advanced_testcase {
      */
     public function tearDown(): void {
         parent::tearDown();
-        // Mandatory clean-up.
-        singleton_service::destroy_instance();
-        enrollink::destroy_instances();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::destroy_singletons();
-        booking_rules::$rules = [];
-        cartstore::reset();
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $plugingenerator->teardown();
     }
 
     /**

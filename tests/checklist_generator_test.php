@@ -20,6 +20,7 @@ use mod_booking\checklist\checklist_generator;
 use mod_booking\booking_option;
 use advanced_testcase;
 use ReflectionClass;
+use tool_mocktesttime\time_mock;
 
 /**
  * Class handling tests for checklist.
@@ -30,6 +31,24 @@ use ReflectionClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class checklist_generator_test extends advanced_testcase {
+    protected function setUp(): void {
+        parent::setUp();
+        $this->resetAfterTest(true);
+        time_mock::init();
+        time_mock::set_mock_time(strtotime('now'));
+        singleton_service::destroy_instance();
+    }
+
+    /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        parent::tearDown();
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $plugingenerator->teardown();
+    }
+
     /**
      * Test HTML generation with placeholder replacement for PDF.
      * @covers \mod_booking\classes\checklist\

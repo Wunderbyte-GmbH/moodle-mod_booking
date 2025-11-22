@@ -61,6 +61,16 @@ final class sharedplaces_test extends advanced_testcase {
     }
 
     /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        parent::tearDown();
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $plugingenerator->teardown();
+    }
+
+    /**
      * Test shared places functionalitiy
      *
      * @covers \mod_booking\option\fields\sharedplaces
@@ -289,14 +299,5 @@ final class sharedplaces_test extends advanced_testcase {
             'tags' => '',
             'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
         ];
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        // Mandatory clean-up.
-        singleton_service::destroy_instance();
     }
 }

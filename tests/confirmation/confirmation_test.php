@@ -24,6 +24,7 @@ use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_answers\booking_answers;
 use mod_booking\table\manageusers_table;
 use local_wunderbyte_table\wunderbyte_table;
+use tool_mocktesttime\time_mock;
 use mod_booking_generator;
 use context_module;
 
@@ -37,6 +38,27 @@ use context_module;
  *
  */
 final class confirmation_test extends advanced_testcase {
+    /**
+     * Tests set up.
+     */
+    public function setUp(): void {
+        parent::setUp();
+        $this->resetAfterTest();
+        time_mock::init();
+        time_mock::set_mock_time(strtotime('now'));
+        singleton_service::destroy_instance();
+    }
+
+    /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        parent::tearDown();
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $plugingenerator->teardown();
+    }
+
     /**
      * Creates booking course, users, and booking option with given settings.
      * @param int $confirmationtrainerenabled
