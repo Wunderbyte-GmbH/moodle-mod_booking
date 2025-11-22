@@ -188,7 +188,7 @@ class customform_form extends dynamic_form {
                     case 'select':
                         // Create the array.
                         $identifier = 'customform_' . $formelementvalue->formtype . '_' . $counter;
-                        $lines = explode(PHP_EOL, format_string($formelementvalue->value));
+                        $lines = explode(PHP_EOL, $formelementvalue->value);
                         $options = [];
                         foreach ($lines as $line) {
                             $linearray = explode(' => ', $line);
