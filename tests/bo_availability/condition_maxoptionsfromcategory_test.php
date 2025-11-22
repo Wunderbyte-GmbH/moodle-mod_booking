@@ -63,6 +63,16 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
     }
 
     /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        parent::tearDown();
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $plugingenerator->teardown();
+    }
+
+    /**
      * Test of booking options with max options from category.
      *
      * @covers \mod_booking\booking_bookit
@@ -472,16 +482,5 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
         ];
 
         return $returnarray;
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        cache_helper::purge_all();
-        maxoptionsfromcategory::reset_instance();
-        // Mandatory clean-up.
-        singleton_service::destroy_instance();
     }
 }

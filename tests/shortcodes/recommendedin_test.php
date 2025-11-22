@@ -62,6 +62,16 @@ final class recommendedin_test extends advanced_testcase {
     }
 
     /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        parent::tearDown();
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $plugingenerator->teardown();
+    }
+
+    /**
      * Test creation and display of shortcode recommendedin.
      *
      * @covers \mod_booking\shortcodes::recommendedin
@@ -291,14 +301,5 @@ final class recommendedin_test extends advanced_testcase {
                 ],
             ],
         ];
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        // Mandatory clean-up.
-        singleton_service::destroy_instance();
     }
 }

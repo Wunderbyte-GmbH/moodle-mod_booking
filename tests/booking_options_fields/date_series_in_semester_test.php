@@ -62,6 +62,16 @@ final class date_series_in_semester_test extends advanced_testcase {
     }
 
     /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        parent::tearDown();
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $plugingenerator->teardown();
+    }
+
+    /**
      * Test creation and update of recurring options.
      *
      * @covers \mod_booking\option\fields\optiondates
@@ -417,14 +427,5 @@ final class date_series_in_semester_test extends advanced_testcase {
                 ],
             ],
         ];
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        // Mandatory clean-up.
-        singleton_service::destroy_instance();
     }
 }

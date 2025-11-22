@@ -22,8 +22,7 @@ use stdClass;
 use mod_booking_generator;
 use mod_booking\option\fields_info;
 use mod_booking\bo_availability\bo_info;
-use mod_booking\booking_rules\booking_rules;
-use mod_booking\booking_rules\rules_info;
+use tool_mocktesttime\time_mock;
 
 /**
  * Tests for ical.
@@ -40,6 +39,8 @@ final class ical_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
+        time_mock::init();
+        time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
     }
 
@@ -47,14 +48,10 @@ final class ical_test extends advanced_testcase {
      * Mandatory clean-up after each test.
      */
     public function tearDown(): void {
-        global $DB;
-
         parent::tearDown();
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_instance();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::destroy_singletons();
-        booking_rules::$rules = [];
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $plugingenerator->teardown();
     }
 
     /**

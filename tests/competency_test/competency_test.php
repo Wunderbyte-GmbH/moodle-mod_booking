@@ -25,26 +25,11 @@
 namespace mod_booking;
 
 use advanced_testcase;
-use context_course;
 use context_system;
 use core_competency\api;
 use core_competency\competency;
 use core_competency\user_competency;
-use local_shopping_cart\local\cartstore;
-use local_shopping_cart\shopping_cart;
-use mod_booking\booking_rules\rules\templates\ruletemplate_bookingoption_booked;
-use mod_booking\booking_rules\rules\templates\ruletemplate_bookingoptioncompleted;
-use mod_booking\booking_rules\rules\templates\ruletemplate_confirmwaitinglist;
-use mod_booking\booking_rules\rules\templates\ruletemplate_courseupdate;
-use mod_booking\booking_rules\rules\templates\ruletemplate_daysbeforestart;
-use mod_booking\booking_rules\rules\templates\ruletemplate_paymentconfirmation;
-use mod_booking\booking_rules\rules\templates\ruletemplate_trainerpoll;
-use mod_booking\booking_rules\rules\templates\ruletemplate_userpoll;
-use mod_booking\option\fields\competencies;
 use stdClass;
-use mod_booking\booking_rules\booking_rules;
-use mod_booking\booking_rules\rules_info;
-use mod_booking\bo_availability\bo_info;
 use mod_booking_generator;
 use tool_mocktesttime\time_mock;
 
@@ -72,11 +57,10 @@ final class competency_test extends advanced_testcase {
      * Mandatory clean-up after each test.
      */
     public function tearDown(): void {
-        global $DB;
-
         parent::tearDown();
-        // Mandatory clean-up.
-        singleton_service::destroy_instance();
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $plugingenerator->teardown();
     }
 
     /**

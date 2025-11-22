@@ -37,6 +37,9 @@ use mod_booking\price as Mod_bookingPrice;
 use local_shopping_cart\shopping_cart;
 use local_shopping_cart\local\cartstore;
 use mod_booking\bo_actions\actions_info;
+use mod_booking\bo_availability\conditions\maxoptionsfromcategory;
+use mod_booking\enrollink;
+use tool_mocktesttime\time_mock;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -67,6 +70,31 @@ class mod_booking_generator extends testing_module_generator {
         $this->bookingoptions = 0;
 
         parent::reset();
+    }
+
+    /**
+     * Teardown function to make sure no singletons are left.
+     *
+     * @return void
+     *
+     */
+    public function teardown() {
+        // Booking.
+        cache_helper::purge_all();
+        singleton_service::destroy_instance();
+        singleton_service::reset_campaigns();
+        maxoptionsfromcategory::reset_instance();
+        enrollink::destroy_instances();
+        rules_info::destroy_singletons();
+        rules_info::$rulestoexecute = [];
+        booking_rules::$rules = [];
+        // Shopping cart.
+        cartstore::reset();
+        // Time mock.
+        time_mock::reset_mock_time();
+        // Clean up globals after each test.
+        $_GET = [];
+        $_POST = [];
     }
 
     /**

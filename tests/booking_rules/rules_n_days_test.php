@@ -55,16 +55,10 @@ final class rules_n_days_test extends advanced_testcase {
      * Mandatory clean-up after each test.
      */
     public function tearDown(): void {
-        global $DB;
-
         parent::tearDown();
-        // Mandatory clean-up.
-        singleton_service::destroy_instance();
-        time_mock::reset_mock_time();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::destroy_singletons();
-        rules_info::$rulestoexecute = [];
-        booking_rules::$rules = [];
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $plugingenerator->teardown();
     }
 
     /**

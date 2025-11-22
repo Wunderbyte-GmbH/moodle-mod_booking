@@ -28,17 +28,13 @@ namespace mod_booking;
 
 use advanced_testcase;
 use coding_exception;
-use mod_booking\price;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
 use local_shopping_cart\shopping_cart;
 use local_shopping_cart\shopping_cart_history;
-use mod_booking\local\mobile\customformstore;
 use local_shopping_cart\local\cartstore;
 use local_shopping_cart\form\modal_cancel_all_addcredit;
 use local_shopping_cart\shopping_cart_credits;
-use local_shopping_cart_generator;
-use stdClass;
 use tool_mocktesttime\time_mock;
 use mod_booking\booking_rules\booking_rules;
 use mod_booking\booking_rules\rules_info;
@@ -73,12 +69,9 @@ final class shopping_cart_cancellation_with_price_test extends advanced_testcase
      */
     public function tearDown(): void {
         parent::tearDown();
-        // Mandatory clean-up.
-        singleton_service::destroy_instance();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::destroy_singletons();
-        booking_rules::$rules = [];
-        cartstore::reset();
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $plugingenerator->teardown();
     }
 
     /**

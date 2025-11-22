@@ -66,6 +66,16 @@ final class rules_selflearningcourse_test extends advanced_testcase {
     }
 
     /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        parent::tearDown();
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $plugingenerator->teardown();
+    }
+
+    /**
      * Test of booking option with price as well as cancellation by user.
      *
      * @param array $coursedata
@@ -629,18 +639,5 @@ final class rules_selflearningcourse_test extends advanced_testcase {
         // Price should be shown.
 
         return $returnarray;
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        global $DB;
-
-        parent::tearDown();
-        // Mandatory clean-up.
-        singleton_service::destroy_instance();
-        rules_info::destroy_singletons();
-        booking_rules::$rules = [];
     }
 }

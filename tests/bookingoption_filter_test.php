@@ -21,6 +21,7 @@ use context_system;
 use local_wunderbyte_table\filters\types\customfieldfilter;
 use mod_booking\table\bookingoptions_wbtable;
 use mod_booking_generator;
+use tool_mocktesttime\time_mock;
 
 /**
  * Class handling tests for bookinghistory.
@@ -63,13 +64,27 @@ final class bookingoption_filter_test extends advanced_testcase {
      */
     protected function setUp(): void {
         parent::setUp();
+        $this->resetAfterTest(true);
+        time_mock::init();
+        time_mock::set_mock_time(strtotime('now'));
+        singleton_service::destroy_instance();
         // Clear before each test.
         $_GET = [];
         $_POST = [];
-
         // We require version higher or equal to 2025101500 of wunderbyte_table.
         // Uncomment this line if you need to check the versin: $this->require_wunderbyte_table_version(2025101500);.
     }
+
+    /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        parent::tearDown();
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $plugingenerator->teardown();
+    }
+
     /**
      * Tests the application of custom field filters on booking options using the Wunderbyte table system.
      *
@@ -344,17 +359,6 @@ final class bookingoption_filter_test extends advanced_testcase {
                 'usecustomsql' => true,
             ],
         ];
-    }
-
-    /**
-     * tearDown
-     * @return void
-     */
-    protected function tearDown(): void {
-        parent::tearDown();
-        // Clean up globals after each test.
-        $_GET = [];
-        $_POST = [];
     }
 
     /**

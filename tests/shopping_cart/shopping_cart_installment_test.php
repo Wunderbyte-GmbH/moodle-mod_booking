@@ -94,14 +94,9 @@ final class shopping_cart_installment_test extends advanced_testcase {
      */
     public function tearDown(): void {
         parent::tearDown();
-        // Mandatory clean-up.
-        singleton_service::destroy_instance();
-        time_mock::reset_mock_time();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::destroy_singletons();
-        rules_info::$rulestoexecute = [];
-        booking_rules::$rules = [];
-        cartstore::reset();
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $plugingenerator->teardown();
     }
 
     /**

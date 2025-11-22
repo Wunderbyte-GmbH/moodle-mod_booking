@@ -60,6 +60,16 @@ final class condition_otheroptionsavailable_test extends advanced_testcase {
     }
 
     /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        parent::tearDown();
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $plugingenerator->teardown();
+    }
+
+    /**
      * Test booking, cancelation, option has started etc.
      *
      * @covers \mod_booking\bo_availability\conditions\bookitbutton::is_available
@@ -414,14 +424,5 @@ final class condition_otheroptionsavailable_test extends advanced_testcase {
                 ],
             ],
         ];
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        // Mandatory clean-up.
-        singleton_service::destroy_instance();
     }
 }
