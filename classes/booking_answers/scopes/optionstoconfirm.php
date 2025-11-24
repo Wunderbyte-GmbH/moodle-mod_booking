@@ -304,7 +304,7 @@ class optionstoconfirm extends option {
                                     JOIN {modules} m ON m.id = cm.module AND m.name = 'booking'";
 
         // We need to set a limit for the query in mysqlfamily.
-        $fields = '*';
+        $fields = 's1.*';
         $from = "
         (
             SELECT s2.* $ranksqlpart
