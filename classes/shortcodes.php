@@ -345,8 +345,9 @@ class shortcodes {
                 continue;
             }
             // Check for multi fields, explode values as settings for standardfilter.
-            $standardfilter = new standardfilter($customfield->shortname, format_string($customfield->name));
-            $table->add_filter($standardfilter);
+            $customfieldfilter = new customfieldfilter($customfield->shortname, format_string($customfield->name));
+            $customfieldfilter->set_sql_for_fieldid($customfield->id);
+            $table->add_filter($customfieldfilter);
         }
     }
 
