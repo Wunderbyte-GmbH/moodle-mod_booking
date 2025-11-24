@@ -15,24 +15,25 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The bookingoption_completed event.
+ * The bookingoption_uncompleted event.
  *
- * @package mod_booking
- * @copyright 2014 David Bogner, http://www.edulabs.org
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     mod_booking
+ * @copyright   2025 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author      Bernhard Fischer
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_booking\event;
 
 /**
- * The bookingoption_completed event class.
+ * The bookingoption_uncompleted event.
  *
- * @property-read array $other { Extra information about event. Acesss an instance of the booking module }
- * @since Moodle 2.7
- * @copyright 2014 David Bogner
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     mod_booking
+ * @copyright   2025 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author      Bernhard Fischer
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class bookingoption_completed extends \core\event\base {
+class bookingoption_uncompleted extends \core\event\base {
     /**
      * Init
      *
@@ -52,7 +53,7 @@ class bookingoption_completed extends \core\event\base {
      *
      */
     public static function get_name() {
-        return get_string('bookingoptioncompleted', 'mod_booking');
+        return get_string('bookingoptionuncompleted', 'mod_booking');
     }
 
     /**
@@ -63,10 +64,11 @@ class bookingoption_completed extends \core\event\base {
      */
     public function get_description() {
         if ($this->userid != $this->data['relateduserid']) {
-            return "The user with id {$this->userid} marked the option with id  {$this->objectid} for the "
-                . "user with id {$this->data['relateduserid']} as completed.";
+            return "Completion undone: The user with id {$this->userid} marked the option with id  {$this->objectid} for the "
+                . "user with id {$this->data['relateduserid']} as not completed.";
         } else {
-            return "The user with id {$this->userid} marked the booking option with id {$this->objectid} as completed.";
+            return "Completion undone: The user with id {$this->userid} marked the booking option with id {$this->objectid} "
+                . "as not completed.";
         }
     }
 

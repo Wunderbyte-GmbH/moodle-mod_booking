@@ -81,7 +81,7 @@ class ruletemplate_trainerpoll {
             'id' => self::$templateid,
             'rulename' => self::$eventtype,
             'rulejson' => json_encode($rulejson),
-            'eventname' => "\\mod_booking\\event\bookingoption_completed",
+            'eventname' => "\\mod_booking\\event\\bookingoption_completed",
             'contextid' => 1,
             'useastemplate' => 0,
         ];

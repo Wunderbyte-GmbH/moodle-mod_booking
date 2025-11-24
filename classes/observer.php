@@ -397,6 +397,31 @@ class mod_booking_observer {
     }
 
     /**
+     * When a booking option is uncompleted, we also call booking_activitycompletion.
+     *
+     * @param \mod_booking\event\bookingoption_uncompleted $event
+     */
+    public static function bookingoption_uncompleted(\mod_booking\event\bookingoption_uncompleted $event) {
+
+        global $CFG;
+        require_once($CFG->dirroot . '/mod/booking/lib.php');
+
+        $optionid = $event->objectid;
+        $cmid = $event->other['cmid'];
+
+        $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
+        $selecteduserid = $event->relateduserid;
+
+        // Here, we check if the activity has to be uncompleted for the concerned users.
+        booking_activitycompletion(
+            [$selecteduserid],
+            $bookingoption->booking->settings,
+            $cmid,
+            $optionid
+        );
+    }
+
+    /**
      * Change calendar entry when custom field is changed.
      *
      * @param \mod_booking\event\custom_field_changed $event

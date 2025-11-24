@@ -2724,7 +2724,7 @@ class booking_option {
         // After activity completion, we need to purge caches for the option.
         self::purge_cache_for_answers($optionid);
 
-        // Trigger the completion event, in order to send the notification mail.
+        // Booking answer has been set to completed.
         if (!empty($userdata->completed)) {
             // Create certificate.
             if (
@@ -2741,7 +2741,21 @@ class booking_option {
             ) {
                 $other['certid'] = $certid;
             }
+
+            // Trigger the completion event, in order to send the notification mail.
             $event = \mod_booking\event\bookingoption_completed::create(
+                [
+                    'context' => context_module::instance($cmid),
+                    'objectid' => $optionid,
+                    'userid' => $USER->id,
+                    'relateduserid' => $userid,
+                    'other' => $other,
+                ]
+            );
+            $event->trigger();
+        } else {
+            // Trigger the uncompletion event if completion is undone.
+            $event = \mod_booking\event\bookingoption_uncompleted::create(
                 [
                     'context' => context_module::instance($cmid),
                     'objectid' => $optionid,

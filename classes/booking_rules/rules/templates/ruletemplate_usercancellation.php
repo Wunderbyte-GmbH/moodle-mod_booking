@@ -74,7 +74,7 @@ class ruletemplate_usercancellation {
             ],
             "rulename" => "rule_react_on_event",
             "ruledata" => [
-                "boevent" => "\\mod_booking\\event\bookingoption_cancelled",
+                "boevent" => "\\mod_booking\\event\\bookingoption_cancelled",
                 "condition" => "0",
                 "aftercompletion" => 1,
                 "cancelrules" => [],
@@ -85,7 +85,7 @@ class ruletemplate_usercancellation {
             'id' => self::$templateid,
             'rulename' => self::$eventtype,
             'rulejson' => json_encode($rulejson),
-            'eventname' => "\\mod_booking\\event\bookinganswer_cancelled",
+            'eventname' => "\\mod_booking\\event\\bookinganswer_cancelled",
             'contextid' => 1,
             'useastemplate' => 0,
         ];

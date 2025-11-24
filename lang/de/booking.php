@@ -552,6 +552,7 @@ $string['bookingoptionsall'] = 'Shortcode um alle Buchungsoptionen anzuzeigen.';
 $string['bookingoptionsfromtemplatemenu'] = 'Neue Buchungsoption aus Vorlage erstellen';
 $string['bookingoptionsmenu'] = 'Buchungsoptionen';
 $string['bookingoptiontitle'] = 'Bezeichnung der Buchungsoption';
+$string['bookingoptionuncompleted'] = 'Abschluss der Buchungsoption rückgängig gemacht';
 $string['bookingoptionupdated'] = 'Buchungsoption aktualisiert';
 $string['bookingoptionupdateddesc'] = 'NutzerIn mit ID "{$a->userid}" hat Buchungsoption "{$a->objectid}" aktualisiert.';
 $string['bookingoptionwaitinglistbooked'] = 'Auf Warteliste gebucht';
@@ -2221,6 +2222,9 @@ $string['rulessettingsdesc'] = 'Einstellungen, die für die <a href="{$a}">Funkt
 $string['ruletemplatebookingoptioncompleted'] = "Template - Buchungsoption abgeschlossen mit Umfrage";
 $string['ruletemplatebookingoptioncompletedbody'] = "Sie haben die folgende Buchungsoption abgeschlossen:<br>{bookingdetails}<br> Bitte nehmen Sie an der Umfrage teil:<br><br>Link zur Umfrage: {pollurl} <br> Zum Kurs: {courselink}<br>Alle Buchungsoptionen ansehen: {bookinglink}";
 $string['ruletemplatebookingoptioncompletedsubject'] = "Buchungsoption abgeschlossen";
+$string['ruletemplatebookingoptionuncompleted'] = "Template - Buchungsoption abgeschlossen rückgängig gemacht";
+$string['ruletemplatebookingoptionuncompletedbody'] = "Der Abschluss für die folgende Buchungsoption wurde rückgängig gemacht:<br>{bookingdetails}";
+$string['ruletemplatebookingoptionuncompletedsubject'] = "Buchungsoption abgeschlossen rückgängig gemacht";
 $string['ruletemplateconfirmbooking'] = "Template - Bestätige Buchung";
 $string['ruletemplateconfirmbookingbody'] = "Sehr geehrte/r {firstname} {lastname},<br>Vielen Dank für Ihre Buchung<br>{bookingdetails}<br>Alles Gute!";
 $string['ruletemplateconfirmbookingsubject'] = "Sie haben erfolgreich gebucht";

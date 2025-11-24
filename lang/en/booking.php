@@ -564,6 +564,7 @@ $string['bookingoptionsall'] = 'Shortcode to show all bookingoptions.';
 $string['bookingoptionsfromtemplatemenu'] = 'New booking option from template';
 $string['bookingoptionsmenu'] = 'Booking options';
 $string['bookingoptiontitle'] = 'Booking option title';
+$string['bookingoptionuncompleted'] = 'Completion of booking option undone';
 $string['bookingoptionupdated'] = 'Booking option updated';
 $string['bookingoptionupdateddesc'] = 'User with id "{$a->userid}" updated bookingoption with id "{$a->objectid}".';
 $string['bookingoptionwaitinglistbooked'] = 'Booked on waitinglist';
@@ -2302,6 +2303,9 @@ $string['rulessettingsdesc'] = 'Settings that apply to the <a href="{$a}">Bookin
 $string['ruletemplatebookingoptioncompleted'] = "Template - Bookingoption completed with poll";
 $string['ruletemplatebookingoptioncompletedbody'] = "You have completed the following booking option:<br>{bookingdetails}<br> Please participate in the Poll. Poll link: {pollurl} <br>To the course: {courselink}<br>View all booking options: {bookinglink}";
 $string['ruletemplatebookingoptioncompletedsubject'] = "Bookingoption completed";
+$string['ruletemplatebookingoptionuncompleted'] = "Template - Bookingoption completion undone";
+$string['ruletemplatebookingoptionuncompletedbody'] = "The completion of the following booking option has been undone:<br>{bookingdetails}";
+$string['ruletemplatebookingoptionuncompletedsubject'] = "Completion undone";
 $string['ruletemplateconfirmbooking'] = "Template - Confirm booking";
 $string['ruletemplateconfirmbookingbody'] = "Dear {firstname} {lastname},<br>Thank you very much for your booking<br>{bookingdetails}<br>All the best!";
 $string['ruletemplateconfirmbookingsubject'] = "You have successfully booked";

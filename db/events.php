@@ -79,6 +79,10 @@ $observers = [
         'callback' => 'mod_booking_observer::bookingoption_completed',
     ],
     [
+        'eventname' => '\mod_booking\event\bookingoption_uncompleted',
+        'callback' => 'mod_booking_observer::bookingoption_uncompleted',
+    ],
+    [
         'eventname' => '\mod_booking\event\pricecategory_changed',
         'callback' => 'mod_booking_observer::pricecategory_changed',
     ],

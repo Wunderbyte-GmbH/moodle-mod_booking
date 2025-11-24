@@ -21,19 +21,19 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * Rule do something a specified number of days before a chosen date.
+ * Rule for event bookingoption_uncompleted.
  *
  * @package mod_booking
  * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
- * @author Bernhard Fischer-Sengseis
+ * @author Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class ruletemplate_sessionreminders {
+class ruletemplate_bookingoptionuncompleted {
     /** @var int $templateid */
-    public static $templateid = 11;
+    public static $templateid = 14;
 
     /** @var int $eventtype */
-    public static $eventtype = 'rule_daysbefore';
+    public static $eventtype = 'rule_react_on_event';
 
     /**
      * Returns the localized name of this template
@@ -42,7 +42,7 @@ class ruletemplate_sessionreminders {
      *
      */
     public static function get_name() {
-        return get_string('ruletemplatesessionreminders', 'booking');
+        return get_string('ruletemplatebookingoptionuncompleted', 'booking');
     }
 
     /**
@@ -54,21 +54,23 @@ class ruletemplate_sessionreminders {
     public static function return_template() {
 
         $rulejson = (object)[
-            "conditionname" => "select_student_in_bo",
+            "conditionname" => "select_user_from_event",
             "conditiondata" => [
-                "borole" => "0",
+                "userfromeventtype" => "relateduserid",
             ],
             "name" => self::get_name(),
             "actionname" => "send_mail",
             "actiondata" => [
-                "subject" => get_string('ruletemplatesessionreminderssubject', 'booking'),
-                "template" => get_string('ruletemplatesessionremindersbody', 'booking'),
+                "subject" => get_string('ruletemplatebookingoptionuncompletedsubject', 'booking'),
+                "template" => get_string('ruletemplatebookingoptionuncompletedbody', 'booking'),
                 "templateformat" => "1",
             ],
-            "rulename" => "rule_daysbefore",
+            "rulename" => "rule_react_on_event",
             "ruledata" => [
-                "days" => "1",
-                "datefield" => "optiondatestarttime",
+                "boevent" => "\\mod_booking\\event\\bookingoption_uncompleted",
+                "condition" => "0",
+                "aftercompletion" => 1,
+                "cancelrules" => [],
             ],
         ];
 
@@ -76,6 +78,7 @@ class ruletemplate_sessionreminders {
             'id' => self::$templateid,
             'rulename' => self::$eventtype,
             'rulejson' => json_encode($rulejson),
+            'eventname' => "\\mod_booking\\event\\bookingoption_uncompleted",
             'contextid' => 1,
             'useastemplate' => 0,
         ];
