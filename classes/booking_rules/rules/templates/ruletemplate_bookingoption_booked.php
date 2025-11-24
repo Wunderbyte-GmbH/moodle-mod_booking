@@ -74,7 +74,7 @@ class ruletemplate_bookingoption_booked {
             ],
             "rulename" => "rule_react_on_event",
             "ruledata" => [
-                "boevent" => "\\mod_booking\\event\bookingoption_booked",
+                "boevent" => "\\mod_booking\\event\\bookingoption_booked",
                 "condition" => "0",
                 "aftercompletion" => 1,
                 "cancelrules" => [],
@@ -85,7 +85,7 @@ class ruletemplate_bookingoption_booked {
             'id' => self::$templateid,
             'rulename' => self::$eventtype,
             'rulejson' => json_encode($rulejson),
-            'eventname' => "\\mod_booking\\event\bookingoption_booked",
+            'eventname' => "\\mod_booking\\event\\bookingoption_booked",
             'contextid' => 1,
             'useastemplate' => 0,
         ];
