@@ -14,16 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Tests for the recommendedin shortcode.
- *
- * @package mod_booking
- * @category test
- * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
- * @author 2025 Magdalena Holczik
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace mod_booking;
 
 use advanced_testcase;
@@ -38,14 +28,28 @@ use tool_mocktesttime\time_mock;
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
-require_once($CFG->dirroot . '/mod/booking/classes/price.php');
 
 /**
- * Class handling tests for booking options.
+ * Class cfincludeandcustomfield_test
+ *
+ * This test checks whether the combined usage of `cfinclude` and a `customfieldfilter`
+ * breaks any functionality.
+ *
+ * The `allbookingoptions` shortcode supports both the `cfinclude` argument and
+ * the `customfieldfilter` argument, which makes it possible to use both features
+ * at the same time. This test class contains three tests:
+ *
+ * 1. The first test checks only the `cfinclude` functionality.
+ * 2. The second test adds a custom field filter for the custom field "sport",
+ *    but does not apply any filter value.
+ * 3. The third test filters the results by the "sport" column while `cfinclude`
+ *    is active and while the custom field "sport" is selected for the `cfinclude`
+ *    functionality.
  *
  * @package mod_booking
  * @category test
  * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author 2025 Mahdi Poustini
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
@@ -64,7 +68,7 @@ final class cfincludeandcustomfield_test extends advanced_testcase {
     /**
      * Summary of test_recommendedin_shortcode_cfinclude_and_customfilter
      *
-     * @covers \mod_booking\shortcodes::recommendedin
+     * @covers \mod_booking\shortcodes::allbookingoptions
      *
      * @param array $data
      * @param array $expected
@@ -78,9 +82,7 @@ final class cfincludeandcustomfield_test extends advanced_testcase {
         $bdata = self::provide_bdata();
 
         // Setup test data.
-        $courses = [];
-        $courses[] = $this->getDataGenerator()->create_course(['enablecompletion' => 1, 'shortname' => 'course1']);
-        $courses[] = $this->getDataGenerator()->create_course(['enablecompletion' => 1, 'shortname' => 'course2']);
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1, 'shortname' => 'course1']);
 
         // Create users.
         $admin = $this->getDataGenerator()->create_user();
@@ -123,31 +125,35 @@ final class cfincludeandcustomfield_test extends advanced_testcase {
         $bookingfield = $this->getDataGenerator()->create_custom_field((array) $fielddata);
         $bookingfield->save();
 
-        foreach ($courses as $course) {
-            $bdata['course'] = $course->id;
-            $bdata['bookingmanager'] = $bookingmanager->username;
-            $bookings = [];
-            $bookings[] = $this->getDataGenerator()->create_module('booking', $bdata);
-            $bookings[] = $this->getDataGenerator()->create_module('booking', $bdata);
+        // Create custom field Language.
+        $fielddata = new stdClass();
+        $fielddata->categoryid = $bookingcat->get('id');
+        $fielddata->name = 'Language';
+        $fielddata->shortname = 'language';
+        $fielddata->type = 'text';
+        $fielddata->configdata = "";
+        $bookingfield = $this->getDataGenerator()->create_custom_field((array) $fielddata);
+        $bookingfield->save();
 
-            $this->setAdminUser();
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
 
-            $this->getDataGenerator()->enrol_user($student1->id, $course->id);
-            $this->getDataGenerator()->enrol_user($teacher->id, $course->id);
-            $this->getDataGenerator()->enrol_user($bookingmanager->id, $course->id);
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($student1->id, $course->id);
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id);
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course->id);
 
             // Create an initial booking option.
-            foreach ($bdata['standardbookingoptions'] as $option) {
-                foreach ($bookings as $booking) {
-                    $record = (object) $option;
-                    $record->bookingid = $booking->id;
-                    /** @var mod_booking_generator $plugingenerator */
-                    $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-                    $option1 = $plugingenerator->create_option($record);
-                    $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
-                    $cmids[$settings->cmid] = $settings->cmid;
-                }
-            }
+        foreach ($bdata['standardbookingoptions'] as $option) {
+            $record = (object) $option;
+            $record->bookingid = $booking->id;
+            /** @var mod_booking_generator $plugingenerator */
+            $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+            $option1 = $plugingenerator->create_option($record);
+            $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+            $cmids[$settings->cmid] = $settings->cmid;
         }
 
         // Apply given settings.
@@ -159,7 +165,7 @@ final class cfincludeandcustomfield_test extends advanced_testcase {
 
         // Now we have multiple options in multiple bookings and multiple courses.
         $records = $DB->get_records('booking_options');
-        $this->assertCount(24, $records, 'Booking options were not created correctly');
+        $this->assertCount(6, $records, 'Booking options were not created correctly');
 
         // Prepare the args.
         $args = $data['args'];
@@ -170,12 +176,19 @@ final class cfincludeandcustomfield_test extends advanced_testcase {
         };
         $args['all'] = 1;
         global $PAGE;
-        $context = context_course::instance($courses[0]->id);
+        $context = context_course::instance($course->id);
 
         $PAGE->set_context($context);
-        $PAGE->set_course($courses[0]);
-        $PAGE->set_url(new \moodle_url('/mod/booking/tests/recommendedin_test.php'));
-        $shortcode = shortcodes::recommendedin('recommendedin', $args, null, $env, $next);
+        $PAGE->set_course($course);
+        if (!empty($data['wbtfilter'])) {
+            $PAGE->set_url(
+                new \moodle_url('/mod/booking/tests/recommendedin_test.php')
+            );
+            $_GET['wbtfilter'] = $data['wbtfilter'];
+        } else {
+            $PAGE->set_url(new \moodle_url('/mod/booking/tests/recommendedin_test.php'));
+        }
+        $shortcode = shortcodes::allbookingoptions('allbookingoptions', $args, null, $env, $next);
         $this->assertNotEmpty($shortcode);
         $this->assertStringContainsString($expected['tablestringcontains'], $shortcode);
         $pregmatch = preg_match('/<div[^>]*\sdata-encodedtable=["\']?([^"\'>\s]+)["\']?/i', $shortcode, $matches);
@@ -205,7 +218,7 @@ final class cfincludeandcustomfield_test extends advanced_testcase {
                 ],
                 [
                     'tablestringcontains' => "wunderbyte_table_container",
-                    'numberofrecords' => 8,
+                    'numberofrecords' => 6,
                     'displaytable' => true,
                 ],
             ],
@@ -216,12 +229,30 @@ final class cfincludeandcustomfield_test extends advanced_testcase {
                         'cfinclude' => true,
                         'sport' => 'soccer',
                         'filter' => 1,
+                        'customfieldfilter' => 'sport,language',
                     ],
                 ],
                 [
                     'tablestringcontains' => "wunderbyte_table_container",
-                    'numberofrecords' => 4,
+                    'numberofrecords' => 6,
                     'displaytable' => true,
+                ],
+            ],
+            'settingson - cfinclude & search with custom filters' => [
+                [
+                    'args' => [
+                        'all' => 1, // Set this to avoid filtering on coursestarttime.
+                        'cfinclude' => true,
+                        'sport' => 'soccer',
+                        'filter' => 1,
+                        'customfieldfilter' => 'sport,language',
+                    ],
+                    'wbtfilter' => '{"sport":["soccer"]}',
+                ],
+                [
+                'tablestringcontains' => "wunderbyte_table_container",
+                'numberofrecords' => 1,
+                'displaytable' => true,
                 ],
             ],
         ];
@@ -259,6 +290,7 @@ final class cfincludeandcustomfield_test extends advanced_testcase {
                     'customfield_customcat' => 'Text 1',
                     'customfield_recommendedin' => 'course1',
                     'customfield_sport' => 'ski',
+                    'customfield_language' => 'en',
                 ],
                 [
                     'text' => 'Test Booking Option with price',
@@ -268,6 +300,7 @@ final class cfincludeandcustomfield_test extends advanced_testcase {
                     'customfield_customcat' => 'Text 1',
                     'customfield_recommendedin' => 'course1',
                     'customfield_sport' => 'soccer',
+                    'customfield_language' => 'en',
                 ],
                 [
                     'text' => 'Disalbed Test Booking Option',
