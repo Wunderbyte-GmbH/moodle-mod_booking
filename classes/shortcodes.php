@@ -1473,6 +1473,12 @@ class shortcodes {
         } else {
             $table->showcountlabel = true;
         }
+
+        if (!isset($args['pageable']) || $args['pageable'] == 0 || $args['pageable'] == "false" || $args['pageable'] == false) {
+            $infinitescrollpage = is_numeric($args['infinitescrollpage'] ?? '') ? (int)$args['infinitescrollpage'] : 30;
+            // This allows us to use infinite scrolling, No pages will be used.
+            $table->infinitescroll = $infinitescrollpage;
+        }
     }
     /**
      * Checking Perpage Argument from Shortcode for all children of wunderbyte_table .
