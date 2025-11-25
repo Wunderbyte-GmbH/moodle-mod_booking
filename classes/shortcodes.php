@@ -1388,6 +1388,14 @@ class shortcodes {
         if (isset($args['requirelogin']) && $args['requirelogin'] == "false") {
             $table->requirelogin = false;
         }
+        // Show count label by default. Only hide it when it is turned off explicitly.
+        if (!isset($args['countlabel'])) {
+            $table->showcountlabel = true;
+        } else if ($args['countlabel'] === 'false' || $args['countlabel'] === '0') {
+            $table->showcountlabel = false;
+        } else {
+            $table->showcountlabel = true;
+        }
     }
     /**
      * Checking Perpage Argument from Shortcode for all children of wunderbyte_table .
