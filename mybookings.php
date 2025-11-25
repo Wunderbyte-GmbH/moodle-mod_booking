@@ -70,7 +70,7 @@ $arguments['foruserid'] = $userid;
 echo shortcodes::mycourselist('', $arguments, '', (object)[], fn($a) => $a);
 
 if (class_exists('local_shopping_cart\shopping_cart') && get_config('booking', 'displayshoppingcarthistory')) {
-    echo local_shopping_cart\shortcodes::shoppingcarthistory('', [], '', (object)[], fn($a) => $a);
+    echo local_shopping_cart\shortcodes::shoppingcarthistory('', ['foruserid' => $userid], '', (object)[], fn($a) => $a);
 }
 
 echo $OUTPUT->footer();
