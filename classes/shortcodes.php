@@ -1315,8 +1315,14 @@ class shortcodes {
         array $args = []
     ) {
 
-        // Check if rendering is for another user id.
-        $userid = actforuser::get_foruserid($args, 0);
+        // Important security check.
+        // The user must have the cashier capability to fetch data of other users.
+        if (has_capability('local/shopping_cart:cashier', context_system::instance())) {
+            // Check if rendering is for another user id.
+            $userid = actforuser::get_foruserid($args, 0);
+        } else {
+            $userid = 0;
+        }
 
         $tablename = $uniquetablename ?? bin2hex(random_bytes(12));
         // This is required to differentiate between instances when the table is rendered for a specific user.
