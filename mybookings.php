@@ -35,7 +35,7 @@ $url = new moodle_url('/mod/booking/mybookings.php');
 $userid = optional_param('userid', 0, PARAM_INT);
 $completed = optional_param('completed', 0, PARAM_INT);
 
-if (!empty($userid)) {
+if (!empty($userid) && has_capability('local/shopping_cart:cashier', context_system::instance())) {
     $user = singleton_service::get_instance_of_user($userid);
 } else {
     $user = $USER;
