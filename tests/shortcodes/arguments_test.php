@@ -29,10 +29,13 @@ namespace mod_booking;
 use advanced_testcase;
 use coding_exception;
 use context_course;
+use context_system;
 use local_wunderbyte_table\external\load_data;
 use mod_booking_generator;
 use stdClass;
 use tool_mocktesttime\time_mock;
+use local_musi\shortcodes as local_musi_shortcodes;
+use mod_booking\shortcodes as mod_booking_shortcodes;
 
 /**
  * This test tests the functionality of some arguments.
@@ -78,10 +81,17 @@ final class arguments_test extends advanced_testcase {
      * @covers \mod_booking\shortcodes::allbookingoptions
      * @covers \local_wunderbyte_table\external\load_data::execute
      *
+     * @dataProvider shortcode_provider
+     *
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public function test_infinitescrollpage(): void {
+    public function test_infinitescrollpage(
+        $shortcodename,
+        $shortcode,
+        $args,
+        $config
+    ): void {
         global $DB, $PAGE;
         $bdata = self::provide_bdata();
 
@@ -99,10 +109,39 @@ final class arguments_test extends advanced_testcase {
         $this->setAdminUser();
         $this->getDataGenerator()->enrol_user($bookingmanager->id, $course->id);
 
+        if ($config['hascustomfields']) {
+            // Create custom booking field.
+            $categorydata = new stdClass();
+            $categorydata->name = 'BookCustomCat1';
+            $categorydata->component = 'mod_booking';
+            $categorydata->area = 'booking';
+            $categorydata->itemid = 0;
+            $categorydata->contextid = context_system::instance()->id;
+            $bookingcat = $this->getDataGenerator()->create_custom_field_category((array) $categorydata);
+            $bookingcat->save();
+            foreach ($config['customfields'] as $cfkey => $cfvalues) {
+                $fielddata = new stdClass();
+                $fielddata->categoryid = $bookingcat->get('id');
+                $fielddata->name = $cfkey;
+                $fielddata->shortname = $cfkey;
+                $fielddata->type = 'text';
+                $fielddata->configdata = "";
+                $bookingfield = $this->getDataGenerator()->create_custom_field((array) $fielddata);
+                $bookingfield->save();
+            }
+        }
+
         // Create booking options.
         foreach ($bdata['standardbookingoptions'] as $option) {
             $record = (object) $option;
             $record->bookingid = $booking->id;
+            // Adding custom fields dynamically.
+            if ($config['hascustomfields']) {
+                foreach ($config['customfields'] as $cfkey => $cfvalue) {
+                    $customfieldname = "customfield_{$cfkey}";
+                    $record->{$customfieldname} = $cfvalue;
+                }
+            }
             /** @var mod_booking_generator $plugingenerator */
             $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
             $option1 = $plugingenerator->create_option($record);
@@ -120,26 +159,21 @@ final class arguments_test extends advanced_testcase {
         $env = new stdClass();
         $next = function () {
         };
-        // Prepare the args.
-        $args = [
-            'all' => 1,
-            'cmid' => $cmid,
-            'infinitescrollpage' => 10,
-            'sort' => 1,
-            'pageable' => 0,
-        ];
 
         $context = context_course::instance($course->id);
         $PAGE->set_context($context);
         $PAGE->set_course($course);
-        $PAGE->set_url(new \moodle_url('/mod/booking/tests/recommendedin_test.php'));
+        $PAGE->set_url(new \moodle_url('/mod/booking/tests/arguments_test.php'));
 
         // Use the courselist shortcode for this test.
         // We create a table instance and then get the encodedtable string.
         // We use encodedtable to fetch pages in an AJAX-like way.
-        $shortcode = shortcodes::courselist('courselist', $args, null, $env, $next);
+        // $shortcode = shortcodes::courselist('courselist', $args, null, $env, $next);
+        $args[$config['paramforcmid']] = $cmid; // Add the param which is used to inject the cmid to the $args.
+        $shortcode = call_user_func($shortcode, $shortcodename, $args, null, $env, $next);
         $this->assertNotEmpty($shortcode);
         preg_match('/<div[^>]*\sdata-encodedtable=["\']?([^"\'>\s]+)["\']?/i', $shortcode, $matches);
+        $this->assertNotEmpty($matches, 'Unsuccessful to extract encodedtable string from table rendering. The table is probably not instantiated.');
         $encodedtable = $matches[1];
 
         // Get the option names sorted via PHP.
@@ -199,6 +233,47 @@ final class arguments_test extends advanced_testcase {
         });
 
         return $options;
+    }
+
+    /**
+     * short code provider.
+     * @return array
+     */
+    public static function shortcode_provider(): array {
+        return [
+            // 'allbookingoptions' => [
+            //     'shortcodename' => 'allbookingoptions',
+            //     'shortcode' => '\mod_booking\shortcodes::allbookingoptions',
+            //     'args' => [
+            //         'all' => 1,
+            //         'infinitescrollpage' => 10,
+            //         'sort' => 1,
+            //         'pageable' => 0,
+            //     ],
+            //     'config' => [
+            //         'paramforcmid' => 'cmid',
+            //         'hascustomfields' => false,
+            //     ],
+            // ],
+            'allcourseslist' => [
+                'shortcodename' => 'allcourseslist',
+                'shortcode' => '\local_musi\shortcodes::allcourseslist',
+                'args' => [
+                    'all' => 1,
+                    'infinitescrollpage' => 10,
+                    'sort' => 1,
+                    'pageable' => 0,
+                    'sport' => 'wintersport',
+                ],
+                'config' => [
+                    'paramforcmid' => 'id',
+                    'hascustomfields' => true,
+                    'customfields' => [
+                        'sport' => 'wintersport', //'customfieldname' => 'customfieldvalue'
+                    ],
+                ], // Config.
+            ],
+        ];
     }
 
     /**
