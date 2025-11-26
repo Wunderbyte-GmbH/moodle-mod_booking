@@ -203,10 +203,8 @@ class send_mail implements booking_rule_action {
         // Only execute for active users.
         try {
             $user = core_user::get_user($record->userid, '*', MUST_EXIST);
+            core_user::require_active_user(core_user::get_user($record->userid, '*', MUST_EXIST), true, true);
         } catch (dml_missing_record_exception $e) {
-            return;
-        }
-        if ($user->deleted || $user->suspended) {
             return;
         }
 
