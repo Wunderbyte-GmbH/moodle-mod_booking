@@ -29,16 +29,10 @@ namespace mod_booking;
 use advanced_testcase;
 use coding_exception;
 use context_course;
-use context_system;
-use local_wunderbyte_table\wunderbyte_table;
+use local_wunderbyte_table\external\load_data;
 use mod_booking_generator;
 use stdClass;
 use tool_mocktesttime\time_mock;
-
-defined('MOODLE_INTERNAL') || die();
-global $CFG;
-require_once($CFG->dirroot . '/mod/booking/lib.php');
-require_once($CFG->dirroot . '/mod/booking/classes/price.php');
 
 /**
  * This test tests the functionality of some arguments.
@@ -76,24 +70,25 @@ final class arguments_test extends advanced_testcase {
     /**
      * Test creation and display of shortcode recommendedin.
      *
-     * @covers \mod_booking\shortcodes::recommendedin
+     * This test creates around 200 booking options, then instantiates a bookingoptions_wbtable
+     * that returns the booking options sorted by option name. It also sorts the option names
+     * using PHP. The test then compares the options from the booking table with
+     * the PHP-sorted options. They must match at the same positions in the array.
+     *
+     * @covers \mod_booking\shortcodes::allbookingoptions
+     * @covers \local_wunderbyte_table\external\load_data::execute
      *
      * @throws \coding_exception
      * @throws \dml_exception
-     *
      */
     public function test_infinitescrollpage(): void {
-        global $DB, $CFG;
+        global $DB, $PAGE;
         $bdata = self::provide_bdata();
 
         // Setup test data.
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1, 'shortname' => 'course1']);
 
         // Create users.
-        $admin = $this->getDataGenerator()->create_user();
-        $student1 = $this->getDataGenerator()->create_user();
-        $student2 = $this->getDataGenerator()->create_user();
-        $teacher = $this->getDataGenerator()->create_user();
         $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
 
         // Crerate booking module.
@@ -102,12 +97,9 @@ final class arguments_test extends advanced_testcase {
         $booking = $this->getDataGenerator()->create_module('booking', $bdata);
 
         $this->setAdminUser();
-
-        $this->getDataGenerator()->enrol_user($student1->id, $course->id);
-        $this->getDataGenerator()->enrol_user($teacher->id, $course->id);
         $this->getDataGenerator()->enrol_user($bookingmanager->id, $course->id);
 
-        // Create an initial booking option.
+        // Create booking options.
         foreach ($bdata['standardbookingoptions'] as $option) {
             $record = (object) $option;
             $record->bookingid = $booking->id;
@@ -137,28 +129,76 @@ final class arguments_test extends advanced_testcase {
             'pageable' => 0,
         ];
 
-        global $PAGE;
         $context = context_course::instance($course->id);
         $PAGE->set_context($context);
         $PAGE->set_course($course);
         $PAGE->set_url(new \moodle_url('/mod/booking/tests/recommendedin_test.php'));
 
-        // Use courselist shortcode for this test.
+        // Use the courselist shortcode for this test.
+        // We create a table instance and then get the encodedtable string.
+        // We use encodedtable to fetch pages in an AJAX-like way.
         $shortcode = shortcodes::courselist('courselist', $args, null, $env, $next);
         $this->assertNotEmpty($shortcode);
         preg_match('/<div[^>]*\sdata-encodedtable=["\']?([^"\'>\s]+)["\']?/i', $shortcode, $matches);
         $encodedtable = $matches[1];
 
-        // Call external api to check the result.
-        $result = \local_wunderbyte_table\external\load_data::execute($encodedtable);
-        $template = $result['template'];
-        $content = $result['content'];
-        $filterjson = $result['filterjson'];
+        // Get the option names sorted via PHP.
+        $sortedoptionnames = self::get_sorted_option_names();
 
+        // Since we have around 200 records, we request 10 items per page and check the option names.
+        for ($page = 0; $page < 20; $page++) {
+            // Call external api to check the result.
+            $result = load_data::execute($encodedtable, $page);
+            // The $content variable now contains the rows in rendered HTML.
+            // We need to make sure that the returned data contains the expected content for page 1.
+            $content = json_decode($result['content']);
+            // Now we extract the option names from each row of the returned data
+            // and compare them with the option names sorted by PHP.
+            // We repeat this comparison for each page.
+            for ($i = 0; $i < count($content->table->rows); $i++) {
+                $row = $content->table->rows[$i];
+                // The content is in one of items in leftside property.
+                $columns = array_filter($row->leftside, fn($i): bool => $i->key === 'text');
+                $coursename = empty($columns) ? '' : $this->extract_link_text((reset($columns))->value);
+                $itemnumber = ($args['infinitescrollpage'] * $page) + $i;
+                $expectedoptionname = $sortedoptionnames[$itemnumber]['text'];
+                // The sorted items in bookingoption_wbtable should match the items in the array sorted by PHP.
+                $this->assertSame($expectedoptionname, $coursename);
+            }
+        }
+    }
 
-        // $table = wunderbyte_table::instantiate_from_tablecache_hash($matches[1]);
-        // $tableobject = $table->printtable($table->pagesize, $table->useinitialsbar, $table->downloadhelpbutton);
-        // $this->assertEquals(0, $table->totalrows);
+    /**
+     * Extract the link text from an HTML <a> tag.
+     *
+     * Example:
+     *   Given:  $html = "<div><a href='https://www.example.com/'>American Football</a></div>"
+     *   Return: "American Football"
+     *
+     * @param string $html An HTML string containing an <a> tag.
+     * @return string The link text.
+     */
+    public static function extract_link_text($html): string {
+        $dom = new \DOMDocument();
+        libxml_use_internal_errors(true);  // Quites warnings for fragments.
+        $dom->loadHTML($html);
+        $link = $dom->getElementsByTagName('a')->item(0);
+        return $link->textContent;
+    }
+
+    /**
+     * Returns a sorted array of option names.
+     *
+     * @return array{text: string[]}
+     */
+    public static function get_sorted_option_names(): array {
+        $options = self::option_names_provider();
+
+        usort($options, function ($a, $b) {
+            return strcasecmp($a['text'], $b['text']);
+        });
+
+        return $options;
     }
 
     /**
@@ -168,7 +208,32 @@ final class arguments_test extends advanced_testcase {
      *
      */
     private static function provide_bdata(): array {
-        $standardbookingoptions = [
+        return [
+            'name' => 'Test Booking Policy 1',
+            'eventtype' => 'Test event',
+            'enablecompletion' => 1,
+            'bookedtext' => ['text' => 'text'],
+            'waitingtext' => ['text' => 'text'],
+            'notifyemail' => ['text' => 'text'],
+            'statuschangetext' => ['text' => 'text'],
+            'deletedtext' => ['text' => 'text'],
+            'pollurltext' => ['text' => 'text'],
+            'pollurlteacherstext' => ['text' => 'text'],
+            'notificationtext' => ['text' => 'text'],
+            'userleave' => ['text' => 'text'],
+            'tags' => '',
+            'completion' => 2,
+            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
+            'standardbookingoptions' => self::option_names_provider(),
+        ];
+    }
+
+    /**
+     * Sample options names.
+     * @return array{text: string[]}
+     */
+    public static function option_names_provider(): array {
+        return [
             ['text' => 'Badminton'],
             ['text' => 'Badminton Beginner'],
             ['text' => 'Badminton Advanced'],
@@ -374,26 +439,7 @@ final class arguments_test extends advanced_testcase {
             ['text' => 'Ultimate Frisbee Conditioning'],
             ['text' => 'Ultimate Frisbee Endurance'],
             ['text' => 'Ultimate Frisbee Intro Course'],
-            ['text' => 'Ultimate Frisbee Workshop']
-        ];
-
-        return [
-            'name' => 'Test Booking Policy 1',
-            'eventtype' => 'Test event',
-            'enablecompletion' => 1,
-            'bookedtext' => ['text' => 'text'],
-            'waitingtext' => ['text' => 'text'],
-            'notifyemail' => ['text' => 'text'],
-            'statuschangetext' => ['text' => 'text'],
-            'deletedtext' => ['text' => 'text'],
-            'pollurltext' => ['text' => 'text'],
-            'pollurlteacherstext' => ['text' => 'text'],
-            'notificationtext' => ['text' => 'text'],
-            'userleave' => ['text' => 'text'],
-            'tags' => '',
-            'completion' => 2,
-            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
-            'standardbookingoptions' => $standardbookingoptions,
+            ['text' => 'Ultimate Frisbee Workshop'],
         ];
     }
 }
