@@ -2999,6 +2999,7 @@ class booking_option {
 
         unset($option->id);
         $option->bookingid = 0;
+        $option->identifier = self::create_truly_unique_option_identifier();
 
         $DB->insert_record("booking_options", $option);
     }
