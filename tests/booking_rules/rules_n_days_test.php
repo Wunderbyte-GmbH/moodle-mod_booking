@@ -27,7 +27,6 @@ namespace mod_booking;
 
 use advanced_testcase;
 use stdClass;
-use mod_booking\booking_rules\booking_rules;
 use mod_booking\booking_rules\rules_info;
 use tool_mocktesttime\time_mock;
 use mod_booking_generator;
@@ -41,6 +40,13 @@ use mod_booking_generator;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class rules_n_days_test extends advanced_testcase {
+
+    /**
+     * String that is displayed in the mtask log when mail was send successfully.
+     *
+     * @var string
+     */
+    public const MAIL_SUCCES_TRACE = 'send_mail_by_rule_adhoc task: mail successfully sent';
     /**
      * Tests set up.
      */
@@ -452,6 +458,8 @@ final class rules_n_days_test extends advanced_testcase {
                 $record->coursestarttime_1 = strtotime('+10 days', time());
                 $record->courseendtime_1 = strtotime('+10 days 2 hours', time());
                 break;
+            default:
+                break;
         }
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
         $record->id = $option->id;
@@ -473,7 +481,6 @@ final class rules_n_days_test extends advanced_testcase {
 
         $time = time_mock::get_mock_time();
         time_mock::set_mock_time(strtotime('30 June 2050 16:00', $time));
-        $newtime = time_mock::get_mock_time();
 
         unset_config('noemailever');
         ob_start();
@@ -507,7 +514,7 @@ final class rules_n_days_test extends advanced_testcase {
                 [
                     'messages_sent' => 2,
                     'messages_prevented' => 0,
-                    'contains_success' => 'send_mail_by_rule_adhoc task: mail successfully sent',
+                    'contains_success' => self::MAIL_SUCCES_TRACE,
                     'numberofdatesafterupdate' => 2,
                     'numberoftasks' => 2,
                 ],
@@ -517,7 +524,7 @@ final class rules_n_days_test extends advanced_testcase {
                 [
                     'messages_sent' => 3,
                     'messages_prevented' => 0,
-                    'contains_success' => 'send_mail_by_rule_adhoc task: mail successfully sent',
+                    'contains_success' => self::MAIL_SUCCES_TRACE,
                     'numberofdatesafterupdate' => 3,
                     'numberoftasks' => 3,
                 ],
@@ -527,7 +534,7 @@ final class rules_n_days_test extends advanced_testcase {
                 [
                     'messages_sent' => 3,
                     'messages_prevented' => 0,
-                    'contains_success' => 'send_mail_by_rule_adhoc task: mail successfully sent',
+                    'contains_success' => self::MAIL_SUCCES_TRACE,
                     'numberofdatesafterupdate' => 3,
                     'numberoftasks' => 3,
                 ],
@@ -537,7 +544,7 @@ final class rules_n_days_test extends advanced_testcase {
                 [
                     'messages_sent' => 1,
                     'messages_prevented' => 1,
-                    'contains_success' => 'send_mail_by_rule_adhoc task: mail successfully sent',
+                    'contains_success' => self::MAIL_SUCCES_TRACE,
                     'contains_prevent' => 'Rule does not apply anymore. Mail was NOT SENT',
                     'numberofdatesafterupdate' => 1,
                     'numberoftasks' => 2,
@@ -548,7 +555,7 @@ final class rules_n_days_test extends advanced_testcase {
                 [
                     'messages_sent' => 2,
                     'messages_prevented' => 1,
-                    'contains_success' => 'send_mail_by_rule_adhoc task: mail successfully sent',
+                    'contains_success' => self::MAIL_SUCCES_TRACE,
                     'contains_prevent' => 'Rule does not apply anymore. Mail was NOT SENT for option',
                     'numberofdatesafterupdate' => 2,
                     'numberoftasks' => 3,
@@ -579,7 +586,7 @@ final class rules_n_days_test extends advanced_testcase {
                     'canceloption' => false,
                 ],
                 [
-                    'contains' => 'send_mail_by_rule_adhoc task: mail successfully sent',
+                    'contains' => self::MAIL_SUCCES_TRACE,
                 ],
             ],
         ];
@@ -599,7 +606,7 @@ final class rules_n_days_test extends advanced_testcase {
                 ],
                 [
                     'textpart' => 'new text',
-                    'contains_success' => 'send_mail_by_rule_adhoc task: mail successfully sent',
+                    'contains_success' => self::MAIL_SUCCES_TRACE,
                 ],
             ],
             'change date' => [
@@ -611,7 +618,7 @@ final class rules_n_days_test extends advanced_testcase {
                     'newdate' => '+4 days',
                     'textpart' => 'will start tomorrow',
                     'contains_prevent' => "send_mail_by_rule_adhoc task: Rule has changed. Mail was NOT SENT",
-                    'contains_success' => 'send_mail_by_rule_adhoc task: mail successfully sent',
+                    'contains_success' => self::MAIL_SUCCES_TRACE,
                 ],
             ],
             'change destination' => [
@@ -620,7 +627,7 @@ final class rules_n_days_test extends advanced_testcase {
                 ],
                 [
                     'destination' => 'REPLACE_WITH_USERID',
-                    'contains_success' => 'send_mail_by_rule_adhoc task: mail successfully sent',
+                    'contains_success' => self::MAIL_SUCCES_TRACE,
                 ],
             ],
         ];
