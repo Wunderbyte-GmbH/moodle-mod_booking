@@ -66,7 +66,7 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
             || has_capability('mod/booking:viewreports', $context)
             || has_capability('mod/booking:limitededitownoption', $context)) == false
         ) {
-                throw new moodle_exception('youdonthavetherighttoaccessthisform', 'mod_booking');
+                throw new moodle_exception('errornorighttoaccessthisform', 'mod_booking');
         }
     }
 
@@ -139,6 +139,7 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
                         'relateduserid' => $existingteacherid,
                         'other' => [
                             'cmid' => $data->cmid,
+                            'optiondateid' => $data->optiondateid,
                         ],
                     ]);
                     $event->trigger();
@@ -164,6 +165,7 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
                         'relateduserid' => $teacherforoptiondate,
                         'other' => [
                             'cmid' => $data->cmid,
+                            'optiondateid' => $data->optiondateid,
                         ],
                     ]);
                     $event->trigger();

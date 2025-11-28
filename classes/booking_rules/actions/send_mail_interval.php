@@ -103,6 +103,10 @@ class send_mail_interval implements booking_rule_action {
         $mform->setType('action_send_mail_interval_interval', PARAM_INT);
         $mform->setDefault('action_send_mail_interval_interval', 60);
 
+        // Placeholders info text.
+        $placeholders = placeholders_info::return_list_of_placeholders();
+        $mform->addElement('html', get_string('helptext:placeholders', 'mod_booking', $placeholders));
+
         // Mail subject.
         $mform->addElement(
             'text',
@@ -120,9 +124,6 @@ class send_mail_interval implements booking_rule_action {
             ['rows' => 15],
             ['subdirs' => 0, 'maxfiles' => 0, 'context' => null]
         );
-
-        $placeholders = placeholders_info::return_list_of_placeholders();
-        $mform->addElement('html', get_string('helptext:placeholders', 'mod_booking', $placeholders));
     }
 
     /**

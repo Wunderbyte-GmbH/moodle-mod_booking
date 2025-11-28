@@ -1328,6 +1328,7 @@ $string['errorholidaystart'] = 'Holiday is not allowed to start after the end da
 $string['errorloadingtemplate'] = 'Error loading template.';
 $string['errorloadinguserdata'] = 'Error loading user data.';
 $string['errormultibooking'] = 'There was an ERROR when booking the electives.';
+$string['errornorighttoaccessthisform'] = 'You are not allowed to access this form.';
 $string['erroronsetdata'] = 'Error on set_data.';
 $string['erroroptiondateend'] = 'Date end needs to be after date start.';
 $string['erroroptiondatestart'] = 'Date start needs to be before date end.';
@@ -1435,11 +1436,11 @@ $string['helptext:emailsettings'] = '<div class="alert alert-warning style="marg
 </div>';
 $string['helptext:placeholders'] = '<div class="alert alert-info" style="margin-left: 200px;">
 <a data-toggle="collapse" data-bs-toggle="collapse" href="#collapsePlaceholdersHelptext" role="button" aria-expanded="false" aria-controls="collapsePlaceholdersHelptext">
-  <i class="fa fa-question-circle" aria-hidden="true"></i><span>&nbsp;Placeholders you can use in your emails.</span>
+  <i class="fa fa-question-circle" aria-hidden="true"></i><span>&nbsp;Show {placeholders} you can use in your emails.</span>
 </a>
 </div>
 <div class="collapse" id="collapsePlaceholdersHelptext">
-  <div class="card card-body">
+  <div class="card card-body mb-3">
     {$a}
   </div>
 </div>';
@@ -1847,14 +1848,15 @@ $string['optionbookablebody'] = '{$a->title} is now available again. <a href="{$
 $string['optionbookabletitle'] = '{$a->title} is available again';
 $string['optiondate'] = 'Date';
 $string['optiondateend'] = 'End';
+$string['optiondatefromevent'] = 'If the event is related to a specific date, you can use this placeholder to show it.';
 $string['optiondates'] = 'Dates';
 $string['optiondatesmanager'] = 'Manage option dates';
 $string['optiondatesmessage'] = 'Session {$a->number}: {$a->date} <br> From: {$a->starttime} <br> To: {$a->endtime}';
 $string['optiondatessuccessfullydelete'] = "Session time was deleted.";
 $string['optiondatessuccessfullysaved'] = "Session time was saved.";
 $string['optiondatestart'] = 'Start';
-$string['optiondatesteacheradded'] = 'Substitution teacher was added';
-$string['optiondatesteacherdeleted'] = 'Teacher deleted from teaching journal';
+$string['optiondatesteacheradded'] = 'Teacher was added to specific option date';
+$string['optiondatesteacherdeleted'] = 'Teacher was deleted from specific option date';
 $string['optiondatesteachersreport'] = 'Substitutions / Cancelled dates';
 $string['optiondatesteachersreport_desc'] = 'This report gives an overview of which teacher was present at which specific date.<br>
 By default, every date will be filled in with the option\'s teacher. You can overwrite specific dates with replacement teachers.';
@@ -2720,7 +2722,7 @@ an educational unit in the plugin settings (e.g. 45 instead of 60 minutes).<br/>
 &gt;&gt; Go to plugin settings...
 </a>';
 $string['teamsmeeting'] = 'Teams meeting';
-$string['template'] = 'Templates';
+$string['template'] = 'Template';
 $string['templatecategoryname'] = 'Short name of the course category where the template courses are located.';
 $string['templatecategoryname_desc'] = 'Booking options can be linked to Moodle courses. This feature allows the courses to be created upon the first saving of the booking option.';
 $string['templatedeleted'] = 'Template was deleted!';

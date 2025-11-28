@@ -90,6 +90,10 @@ class send_mail implements booking_rule_action {
      */
     public function add_action_to_mform(MoodleQuickForm &$mform, array &$repeateloptions) {
 
+        // Placeholders info text.
+        $placeholders = placeholders_info::return_list_of_placeholders();
+        $mform->addElement('html', get_string('helptext:placeholders', 'mod_booking', $placeholders));
+
         // Mail subject.
         $mform->addElement(
             'text',
@@ -121,10 +125,6 @@ class send_mail implements booking_rule_action {
         );
         $mform->hideIf('action_send_mail_sendicalcreateorcancel', 'action_send_mail_sendical', 'eq', 0);
         $mform->setType('action_send_mail_sendicalcreateorcancel', PARAM_RAW);
-
-        // Placeholders info text.
-        $placeholders = placeholders_info::return_list_of_placeholders();
-        $mform->addElement('html', get_string('helptext:placeholders', 'mod_booking', $placeholders));
     }
 
     /**

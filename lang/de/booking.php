@@ -1299,6 +1299,7 @@ $string['erroremptysemestername'] = 'Name des Semesters wurde nicht angegeben.';
 $string['errorholidayend'] = 'Ferienende darf nicht vor dem Ferienbeginn liegen.';
 $string['errorholidaystart'] = 'Ferienbeginn darf nicht nach dem Ferienende liegen.';
 $string['errormultibooking'] = 'Beim Buchen der Wahlfächer ist ein Fehler aufgetreten.';
+$string['errornorighttoaccessthisform'] = 'Sie sind nicht berechtigt, auf dieses Formular zuzugreifen.';
 $string['erroroptiondateend'] = 'Terminende muss nach dem Terminbeginn liegen.';
 $string['erroroptiondatestart'] = 'Terminbeginn muss vor dem Terminende liegen.';
 $string['errorpagination'] = 'Geben Sie ein Zahl ein, die größer als 0 ist';
@@ -1406,11 +1407,11 @@ $string['helptext:emailsettings'] = '<div class="alert alert-warning style="marg
 </div>';
 $string['helptext:placeholders'] = '<div class="alert alert-info" style="margin-left: 200px;">
 <a data-toggle="collapse" data-bs-toggle="collapse" href="#collapsePlaceholdersHelptext" role="button" aria-expanded="false" aria-controls="collapsePlaceholdersHelptext">
-  <i class="fa fa-question-circle" aria-hidden="true"></i><span>&nbsp;Platzhalter, die Sie in Ihren E-Mails verwenden können.</span>
+  <i class="fa fa-question-circle" aria-hidden="true"></i><span>&nbsp;{Platzhalter} anzeigen, die Sie in Ihren E-Mails verwenden können.</span>
 </a>
 </div>
 <div class="collapse" id="collapsePlaceholdersHelptext">
-  <div class="card card-body">
+  <div class="card card-body mb-3">
     {$a}
   </div>
 </div>';
@@ -1820,14 +1821,15 @@ $string['optionbookablebody'] = 'Sie können {$a->title} ab sofort wieder buchen
 $string['optionbookabletitle'] = '{$a->title} wieder buchbar';
 $string['optiondate'] = 'Termin';
 $string['optiondateend'] = 'Ende';
+$string['optiondatefromevent'] = 'Wenn das sich das Ereignis auf einen bestimmten Termin bezieht, können Sie diesen Platzhalter verwenden, um ihn anzuzeigen.';
 $string['optiondates'] = 'Termine';
 $string['optiondatesmanager'] = 'Termine verwalten';
 $string['optiondatesmessage'] = 'Termin {$a->number}: {$a->date} <br> Von: {$a->starttime} <br> Bis: {$a->endtime}';
 $string['optiondatessuccessfullydelete'] = "Termin wurde gelöscht";
 $string['optiondatessuccessfullysaved'] = "Termin wurde bearbeitet";
 $string['optiondatestart'] = 'Beginn';
-$string['optiondatesteacheradded'] = 'Vertretung wurde eingetragen';
-$string['optiondatesteacherdeleted'] = 'Trainer:in wurde aus Trainingsjournal entfernt';
+$string['optiondatesteacheradded'] = 'Trainer:in wurde zu Einzeltermin hinzugefügt';
+$string['optiondatesteacherdeleted'] = 'Trainer:in wurde von Einzeltermin entfernt';
 $string['optiondatesteachersreport'] = 'Vertretungen & Absagen';
 $string['optiondatesteachersreport_desc'] = 'In diesem Report erhalten Sie eine Übersicht, welche:r Trainer:in an welchem Termin geleitet hat.<br>
 Standardmäßig werden alle Termine mit dem/den eingestellten Trainer:innen der Buchungsoption befüllt. Sie können einzelne Termine mit Vertretungen überschreiben.';
@@ -2630,7 +2632,7 @@ in den Einstellungen anpassen. (Z.B. 45 statt 60 Minuten).<br/>
 &gt;&gt; Zu den Einstellungen...
 </a>';
 $string['teamsmeeting'] = 'Teams-Meeting';
-$string['template'] = 'Vorlagen';
+$string['template'] = 'Template';
 $string['templatecategoryname'] = 'Kurzname der Kurskategorie, in der sich die Vorlagenkurse befinden.';
 $string['templatecategoryname_desc'] = 'Buchungsoptionen können mit Moodle-Kursen verknüpft werden. Dieses Feature erlaubt es, die Kurse beim ersten Speichern der Buchungsoption zu erstellen.';
 $string['templatedeleted'] = 'Vorlage wurde gelöscht!';
