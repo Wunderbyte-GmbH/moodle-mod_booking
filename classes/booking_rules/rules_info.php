@@ -299,19 +299,22 @@ class rules_info {
         $action->save_action($data);
 
         // Rule has to be saved last, because it actually writes to DB.
-        $rule->save_rule($data);
+        $ruleid = $rule->save_rule($data);
 
-        self::execute_booking_rules();
+        self::execute_booking_rules($ruleid);
 
         return;
     }
 
     /**
      * Execute all booking rules.
+     *
+     * @param int $ruleid
      */
-    public static function execute_booking_rules() {
+    public static function execute_booking_rules(int $ruleid = 0) {
         global $DB;
-        if ($records = $DB->get_records('booking_rules')) {
+        $where = empty($ruleid) ? [] : ['id' => $ruleid];
+        if ($records = $DB->get_records('booking_rules', $where)) {
             foreach ($records as $record) {
                 if (!$rule = self::get_rule($record->rulename)) {
                     continue;
