@@ -2246,6 +2246,12 @@ class booking {
             if (in_array($customfield, $columns, true)) {
                 $requiredcustomfields[] = $customfield;
             }
+
+            // 5. Check full text search columns if there are any custom fields.
+            $columns = empty($tableinstance) ? [] : array_keys($tableinstance->fulltextsearchcolumns);
+            if (in_array($customfield, $columns, true)) {
+                $requiredcustomfields[] = $customfield;
+            }
         }
 
         return array_values(array_unique($requiredcustomfields));
