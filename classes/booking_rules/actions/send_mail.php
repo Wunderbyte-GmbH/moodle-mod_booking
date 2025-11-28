@@ -17,10 +17,9 @@
 namespace mod_booking\booking_rules\actions;
 
 use core_user;
-use dml_missing_record_exception;
+use Exception;
 use mod_booking\booking_rules\booking_rule_action;
 use mod_booking\placeholders\placeholders_info;
-use mod_booking\singleton_service;
 use mod_booking\task\send_mail_by_rule_adhoc;
 use MoodleQuickForm;
 use stdClass;
@@ -202,11 +201,8 @@ class send_mail implements booking_rule_action {
         }
         // Only execute for active users.
         try {
-            $user = core_user::get_user($record->userid, '*', MUST_EXIST);
-        } catch (dml_missing_record_exception $e) {
-            return;
-        }
-        if ($user->deleted || $user->suspended) {
+            core_user::require_active_user(core_user::get_user($record->userid, '*', MUST_EXIST), true, true);
+        } catch (Exception $e) {
             return;
         }
 
@@ -235,15 +231,13 @@ class send_mail implements booking_rule_action {
         if (!empty($record->optiondateid)) {
             $taskdata['optiondateid'] = $record->optiondateid;
         }
-        $user = singleton_service::get_instance_of_user($record->userid);
-        if (!empty($user->suspended)) {
-            return;
-        }
+
         $task->set_custom_data($taskdata);
         $task->set_userid($record->userid);
 
         $task->set_next_run_time($record->nextruntime);
 
+        // If the same task already exists, don't queue it again.
         $similartasks = $DB->get_records('task_adhoc', [
             'nextruntime' => $record->nextruntime,
             'userid' => $record->userid,
@@ -264,7 +258,7 @@ class send_mail implements booking_rule_action {
             }
         }
 
-        // Now queue the task or reschedule it if it already exists (with matching data).
+        // Now queue the task or reschedule it.
         \core\task\manager::reschedule_or_queue_adhoc_task($task);
     }
 }
