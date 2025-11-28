@@ -18,6 +18,7 @@ namespace mod_booking\booking_rules\actions;
 
 use core_user;
 use dml_missing_record_exception;
+use Exception;
 use mod_booking\booking_rules\booking_rule_action;
 use mod_booking\placeholders\placeholders_info;
 use mod_booking\singleton_service;
@@ -203,7 +204,7 @@ class send_mail implements booking_rule_action {
         // Only execute for active users.
         try {
             core_user::require_active_user(core_user::get_user($record->userid, '*', MUST_EXIST), true, true);
-        } catch (dml_missing_record_exception $e) {
+        } catch (Exception $e) {
             return;
         }
 
