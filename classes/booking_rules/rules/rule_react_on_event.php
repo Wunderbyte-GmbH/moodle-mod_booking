@@ -287,7 +287,7 @@ class rule_react_on_event implements booking_rule {
      * The role has to determine the handler for condtion and action and get the right json object.
      * @param stdClass $data form data reference
      */
-    public function save_rule(stdClass &$data) {
+    public function save_rule(stdClass &$data): int {
         global $DB;
 
         $record = new stdClass();
@@ -320,10 +320,12 @@ class rule_react_on_event implements booking_rule {
         if (!empty($data->id)) {
             $record->id = $data->id;
             $DB->update_record('booking_rules', $record);
+            $ruleid = $data->id;
         } else {
             $ruleid = $DB->insert_record('booking_rules', $record);
             $this->ruleid = $ruleid;
         }
+        return $ruleid;
     }
 
     /**
