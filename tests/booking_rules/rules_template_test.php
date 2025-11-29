@@ -36,6 +36,7 @@ use mod_booking\booking_rules\rules\templates\ruletemplate_paymentconfirmation;
 use mod_booking\booking_rules\rules\templates\ruletemplate_trainerpoll;
 use mod_booking\booking_rules\rules\templates\ruletemplate_userpoll;
 use mod_booking\booking_rules\rules\templates\ruletemplate_optiondatesteacheradded;
+use mod_booking\booking_rules\rules\templates\ruletemplate_optiondatesteacherdeleted;
 use mod_booking\form\editteachersforoptiondate_form;
 use mod_booking\local\templaterule;
 use stdClass;
@@ -746,7 +747,7 @@ final class rules_template_test extends advanced_testcase {
      *
      * @dataProvider booking_common_settings_provider
      */
-    public function test_rules_template_on_optiondates_teacher_added(array $bdata): void {
+    public function test_rules_template_on_optiondates_teacher_add(array $bdata): void {
 
         singleton_service::destroy_instance();
 
@@ -781,8 +782,12 @@ final class rules_template_test extends advanced_testcase {
         $record->description = 'Test description';
         $record->optiondateid_0 = "0";
         $record->daystonotify_0 = "0";
-        $record->coursestarttime_0 = strtotime('20 June 2050');
-        $record->courseendtime_0 = strtotime('20 July 2050');
+        $record->coursestarttime_0 = strtotime('10 June 2050');
+        $record->courseendtime_0 = strtotime('11 June 2050');
+        $record->optiondateid_1 = "0";
+        $record->daystonotify_1 = "0";
+        $record->coursestarttime_1 = strtotime('11 July 2050');
+        $record->courseendtime_1 = strtotime('12 July 2050');
         $option = $plugingenerator->create_option($record);
 
         // Create booking rule.
@@ -801,9 +806,8 @@ final class rules_template_test extends advanced_testcase {
 
         $messagesink = $this->redirectMessages();
 
-        // Update booking optiondate - add teacher for option.
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
-        // Prepare form data.
+        // Optiondate teachers ADD: prepare form data.
         $ajaxargs = [
             'cmid' => $settings->cmid,
             'optionid' => $option->id,
@@ -829,17 +833,137 @@ final class rules_template_test extends advanced_testcase {
         // Validate emails. Might be more than one dependitg to Moodle's version.
         $this->assertTrue(count($messages) >= 2, 'No email messages found.');
         foreach ($messages as $key => $message) {
-            if (strpos($message->subject, "Teacher was added to specific option date")) {
+            if (strpos($message->subject, "Teacher was added to specific option date") !== false) {
                 // Validate email on option change.
                 $this->assertSame("Teacher was added to specific option date", $message->subject);
                 $this->assertStringContainsString("Teacher was added to specific option date:", $message->fullmessage);
-                $this->assertStringContainsString("Monday, 20 June 2050, 12:00 AM", $message->fullmessage);
-                $this->assertStringContainsString("Wednesday, 20 July 2050, 12:00 AM", $message->fullmessage);
+                $this->assertStringContainsString("Friday, 10 June 2050, 12:00 AM", $message->fullmessage);
+                $this->assertStringContainsString("Saturday, 11 June 2050, 12:00 AM", $message->fullmessage);
                 $this->assertTrue(in_array($message->useridto, [$user1->id, $user2->id]));
             }
         }
     }
 
+    /**
+     * Test rulestemplate on ruletemplate_optiondatesteacherdeleted event.
+     *
+     * @covers \mod_booking\booking_rules\rules\templates\ruletemplate_optiondatesteacherdeleted::return_template
+     * @covers \mod_booking\booking_rules\rules\rule_react_on_event::execute
+     * @covers \mod_booking\booking_rules\actions\send_mail::execute
+     * @covers \mod_booking\booking_rules\conditions\select_teacher_in_bo::execute
+     * @covers \mod_booking\placeholders\placeholders\optiondatefromevent::return_value
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_rules_template_on_optiondates_teacher_delete(array $bdata): void {
+        global $DB;
+
+        singleton_service::destroy_instance();
+
+        // Setup test data.
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $users = [
+            ['username' => 'teacher1', 'firstname' => 'Teacher', 'lastname' => '1', 'email' => 'teacher1@example.com'],
+            ['username' => 'teacher2', 'firstname' => 'Teacher', 'lastname' => '2', 'email' => 'teacher2@example.com'],
+            ['username' => 'student1', 'firstname' => 'Student', 'lastname' => '1', 'email' => 'student1@sample.com'],
+        ];
+        $user1 = $this->getDataGenerator()->create_user($users[0]);
+        $user2 = $this->getDataGenerator()->create_user($users[1]);
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $user2->username;
+
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($user2->id, $course->id, 'student');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Test option';
+        $record->chooseorcreatecourse = 1; // Reqiured.
+        $record->courseid = $course->id;
+        $record->description = 'Test description';
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('10 June 2050');
+        $record->courseendtime_0 = strtotime('11 June 2050');
+        $record->optiondateid_1 = "0";
+        $record->daystonotify_1 = "0";
+        $record->coursestarttime_1 = strtotime('11 July 2050');
+        $record->courseendtime_1 = strtotime('12 July 2050');
+        $option = $plugingenerator->create_option($record);
+
+        // Create booking rule.
+        $template = ruletemplate_optiondatesteacherdeleted::return_template();
+        $ruledatanew = json_decode($template->rulejson, true);
+        $ruledatanew["conditiondata"] = json_encode($ruledatanew["conditiondata"]);
+        $ruledatanew["actiondata"] = json_encode($ruledatanew["actiondata"]);
+        $ruledatanew["ruledata"] = json_encode($ruledatanew["ruledata"]);
+        $ruledatanew["contextid"] = $template->contextid;
+
+        $rule1 = $plugingenerator->create_rule($ruledatanew);
+
+        // Trigger and capture emails.
+        unset_config('noemailever');
+        ob_start();
+
+        $messagesink = $this->redirectMessages();
+
+        // Create optiondate teachers' records.
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $newteacherrecord = new stdClass();
+        $newteacherrecord->optiondateid = array_key_first($settings->sessions);
+        $newteacherrecord->userid = $user1->id;
+        $DB->insert_record('booking_optiondates_teachers', $newteacherrecord);
+        $newteacherrecord->userid = $user2->id;
+        $DB->insert_record('booking_optiondates_teachers', $newteacherrecord);
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid); // Require to avoid caching issues.
+        // Optiondate teachers DELETE: prepare form data.
+        $ajaxargs = [
+            'cmid' => $settings->cmid,
+            'optionid' => $option->id,
+            'optiondateid' => array_key_first($settings->sessions),
+            'teachers' => $user1->id . ',' . $user2->id,
+            'teachersforoptiondate' => [$user2->id],
+            'reason' => 'Delete teacher from optiondate',
+        ];
+        // Simulate ajax submission to obtain correct defaults and session key.
+        $submitdata = editteachersforoptiondate_form::mock_ajax_submit($ajaxargs);
+        // Actuall creation and processing form.
+        $mform = new editteachersforoptiondate_form(null, null, 'post', '', [], true, $submitdata, true);
+        $mform->set_data_for_dynamic_submission();
+        $this->assertTrue($mform->is_validated());
+        $res = $mform->process_dynamic_submission();
+
+        // Ecevute tasks and get messages (emails).
+        $this->runAdhocTasks();
+        $messages = $messagesink->get_messages();
+        $res = ob_get_clean();
+        $messagesink->close();
+
+        // Validate emails. Might be more than one dependitg to Moodle's version.
+        $this->assertTrue(count($messages) >= 1, 'No email messages found.');
+        foreach ($messages as $key => $message) {
+            if (strpos($message->subject, "Teacher was deleted from specific option date") !== false) {
+                // Validate email on option change.
+                $this->assertSame("Teacher was deleted from specific option date", $message->subject);
+                $this->assertStringContainsString("Teacher was deleted from specific option date:", $message->fullmessage);
+                $this->assertStringContainsString("Friday, 10 June 2050, 12:00 AM", $message->fullmessage);
+                $this->assertStringContainsString("Saturday, 11 June 2050, 12:00 AM", $message->fullmessage);
+                $this->assertSame($user1->id, $message->useridto);
+                $this->assertSame($user2->id, $message->useridfrom);
+            }
+        }
+    }
     /**
      * Data provider for condition_bookingpolicy_test
      *
