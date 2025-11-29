@@ -40,7 +40,6 @@ use mod_booking_generator;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class rules_n_days_test extends advanced_testcase {
-
     /**
      * String that is displayed in the mtask log when mail was send successfully.
      *

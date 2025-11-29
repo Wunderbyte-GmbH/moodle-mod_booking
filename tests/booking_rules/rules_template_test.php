@@ -38,14 +38,8 @@ use mod_booking\booking_rules\rules\templates\ruletemplate_userpoll;
 use mod_booking\booking_rules\rules\templates\ruletemplate_optiondatesteacheradded;
 use mod_booking\booking_rules\rules\templates\ruletemplate_optiondatesteacherdeleted;
 use mod_booking\form\editteachersforoptiondate_form;
-use mod_booking\local\templaterule;
 use stdClass;
-use mod_booking\teachers_handler;
-use mod_booking\booking_rules\booking_rules;
-use mod_booking\booking_rules\rules_info;
 use mod_booking\bo_availability\bo_info;
-use mod_booking\bo_availability\conditions\customform;
-use mod_booking\local\mobile\customformstore;
 use mod_booking_generator;
 use tool_mocktesttime\time_mock;
 
@@ -198,11 +192,6 @@ final class rules_template_test extends advanced_testcase {
                 $this->assertStringContainsString($ruledatanew['conditiondata'], $customdata->rulejson);
                 $this->assertStringContainsString($ruledatanew['actiondata'], $customdata->rulejson);
         }
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_instance();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::$rulestoexecute = [];
-        booking_rules::$rules = [];
     }
     /**
      * Test rulestemplate on before and after coursestart events.
@@ -321,12 +310,6 @@ final class rules_template_test extends advanced_testcase {
                 continue;
             }
         }
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_instance();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::$rulestoexecute = [];
-        booking_rules::$rules = [];
     }
 
     /**
@@ -418,7 +401,7 @@ final class rules_template_test extends advanced_testcase {
 
         // Validate emails. Might be more than one dependitg to Moodle's version.
         foreach ($messages as $key => $message) {
-            if (strpos($message->subject, "OptionChanged")) {
+            if (strpos($message->subject, "OptionChanged") !== false) {
                 // Validate email on option change.
                 $this->assertEquals("OptionChanged", $message->subject);
                 $this->assertStringContainsString("Dates has changed", $message->fullmessage);
@@ -433,12 +416,6 @@ final class rules_template_test extends advanced_testcase {
                 $this->assertStringContainsString("Description updated", $message->fullmessage);
             }
         }
-
-        // Mandatory to solve potential cache issues.
-        singleton_service::destroy_instance();
-        // Mandatory to deal with static variable in the booking_rules.
-        rules_info::$rulestoexecute = [];
-        booking_rules::$rules = [];
     }
     /**
      * Test rulestemplate for "booking on waitinglist booked".
