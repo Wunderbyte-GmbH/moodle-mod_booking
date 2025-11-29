@@ -41,7 +41,7 @@ Feature: Create global booking rules as admin and insure they are working.
       | Custom name for the rule | notifyadmin    |
       | Rule                     | React on event |
     And I wait "2" seconds
-    And I set the field "Event" to "Substitution teacher was added (optiondates_teacher_added)"
+    And I set the field "Event" to "Teacher was added to specific option date (optiondates_teacher_added)"
     And I wait "2" seconds
     And I set the field "Condition of the rule" to "Directly select users without connection to the booking option"
     ##And I set the following fields to these values:
@@ -116,7 +116,7 @@ Feature: Create global booking rules as admin and insure they are working.
     ## Send messages via cron and verify via events log
     And I trigger cron
     And I visit "/report/loglive/index.php"
-    And I should see "Substitution teacher was added"
+    And I should see "Teacher was added to specific option date"
     And I should see "Custom message A message e-mail with subject \"teacher subst\" has been sent to user: \"Teacher 1\" by the user \"Admin User\""
     ## Logout is mandatory for admin pages to avoid error
     And I log out
@@ -235,7 +235,7 @@ Feature: Create global booking rules as admin and insure they are working.
     ## Send messages via cron and verify via events log
     And I trigger cron
     And I visit "/report/loglive/index.php"
-    Then I should see "Teacher deleted from teaching journal"
+    Then I should see "Teacher was deleted from specific option date"
     And I should see "Custom message A message e-mail with subject \"teacher removed\" has been sent to user: \"Teacher 1\" by the user \"Teacher 2\""
     And I should see "Custom message A message e-mail with subject \"teacher removed\" has been sent to user: \"Teacher 1\" by the user \"Teacher 1\""
     And I should see "Custom message A message e-mail with subject \"teacher removed\" has been sent to user: \"Teacher 1\" by the user \"Admin User\""
