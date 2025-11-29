@@ -232,6 +232,28 @@ class mod_booking_generator extends testing_module_generator {
         // Create / save booking option(s).
         $record->id = booking_option::update($record, $context);
 
+        // Add teachers for option dates if given.
+        if ($teachersforoptiondates = preg_grep('/^teachersforoptiondate_/', array_keys((array)$record))) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($record->id);
+            $newteacherrecord = new stdClass();
+            foreach ($teachersforoptiondates as $teachersforoptiondate) {
+                [$a, $counter] = explode('_', $teachersforoptiondate);
+                // Only is corresponded optiondate exists.
+                if (isset($settings->sessions[array_keys($settings->sessions)[$counter]])) {
+                    // Get teachers IDs.
+                    $teacherarr = explode(',', $record->{$teachersforoptiondate});
+                    foreach ($teacherarr as $teacher) {
+                        if ($userid = $this->get_user(trim($teacher))) {
+                            // Only if corresponded user exists.
+                            $newteacherrecord->optiondateid = array_keys($settings->sessions)[$counter];
+                            $newteacherrecord->userid = $userid;
+                            $DB->insert_record('booking_optiondates_teachers', $newteacherrecord);
+                        }
+                    }
+                }
+            }
+        }
+
         // Override to force given timemadevisible.
         if (!empty($record->timemadevisible)) {
             $DB->set_field('booking_options', 'timemadevisible', $record->timemadevisible, ['id' => $record->id]);
