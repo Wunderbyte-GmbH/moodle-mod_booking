@@ -858,6 +858,7 @@ final class rules_template_test extends advanced_testcase {
         $this->setAdminUser();
 
         $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($user2->id, $course->id, 'editingteacher');
         $this->getDataGenerator()->enrol_user($user2->id, $course->id, 'student');
 
         /** @var mod_booking_generator $plugingenerator */
@@ -873,6 +874,7 @@ final class rules_template_test extends advanced_testcase {
         $record->daystonotify_0 = "0";
         $record->coursestarttime_0 = strtotime('10 June 2050');
         $record->courseendtime_0 = strtotime('11 June 2050');
+        $record->teachersforoptiondate_0 = $user1->username . ',' . $user2->username;
         $record->optiondateid_1 = "0";
         $record->daystonotify_1 = "0";
         $record->coursestarttime_1 = strtotime('11 July 2050');
@@ -897,13 +899,6 @@ final class rules_template_test extends advanced_testcase {
 
         // Create optiondate teachers' records.
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
-        $newteacherrecord = new stdClass();
-        $newteacherrecord->optiondateid = array_key_first($settings->sessions);
-        $newteacherrecord->userid = $user1->id;
-        $DB->insert_record('booking_optiondates_teachers', $newteacherrecord);
-        $newteacherrecord->userid = $user2->id;
-        $DB->insert_record('booking_optiondates_teachers', $newteacherrecord);
-        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid); // Require to avoid caching issues.
         // Optiondate teachers DELETE: prepare form data.
         $ajaxargs = [
             'cmid' => $settings->cmid,
@@ -913,6 +908,11 @@ final class rules_template_test extends advanced_testcase {
             'teachersforoptiondate' => [$user2->id],
             'reason' => 'Delete teacher from optiondate',
         ];
+        $existingteacherrecords = $DB->get_records(
+            'booking_optiondates_teachers',
+            ['optiondateid' => array_key_first($settings->sessions)]
+        );
+        $this->assertEquals(2, count($existingteacherrecords));
         // Simulate ajax submission to obtain correct defaults and session key.
         $submitdata = editteachersforoptiondate_form::mock_ajax_submit($ajaxargs);
         // Actuall creation and processing form.
