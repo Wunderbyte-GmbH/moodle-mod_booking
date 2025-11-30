@@ -615,7 +615,7 @@ class mod_booking_generator extends testing_module_generator {
      *
      */
     public function runtaskswithintime($mocktime) {
-        global $DB;
+        global $CFG, $DB;
 
         $params = [];
         $lockfactory = \core\lock\lock_config::get_lock_factory('cron');
@@ -640,8 +640,15 @@ class mod_booking_generator extends testing_module_generator {
                 $task->set_lock($lock);
                 $cronlock->release();
 
-                \core\cron::prepare_core_renderer();
-                \core\cron::setup_user($user);
+                if ($CFG->version >= 2023042400) {
+                    // Moodle 4.2 and newer.
+                    \core\cron::prepare_core_renderer();
+                    \core\cron::setup_user($user);
+                } else {
+                    // Moodle 4.1 and older.
+                    cron_prepare_core_renderer();
+                    cron_setup_user($user);
+                }
 
                 $task->execute();
                 \core\task\manager::adhoc_task_complete($task);
