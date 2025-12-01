@@ -1,3 +1,6 @@
+## Version 9.0.0 (2025120101)
+* Improvement: Now supporting Moodle 4.5+ (skipped support for Moodle 4.1 - 4.4).
+
 ## Version 8.19.0 (2025120100)
 * New feature: Introduce new rule template for adding/removing teachers for option dates.
 * New feature: Add support for selecting custom fields as sortable/filterable fields in wunderbyte_table.
