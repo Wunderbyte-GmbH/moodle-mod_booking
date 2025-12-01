@@ -1,3 +1,51 @@
+## Version 8.19.0 (2025120100)
+* New feature: Introduce new rule template for adding/removing teachers for option dates.
+* New feature: Add support for selecting custom fields as sortable/filterable fields in wunderbyte_table.
+* New feature: Booking confirmation requirement for waitinglist bookings.
+* New feature: Use book for user functionality in assignments in taskflow.
+* New feature: Add capability to check user-defined optional parameters in booking/cart flow.
+* Improvement: Execute new rules only on save to avoid unnecessary rule runs.
+* Improvement: Add helper functions to execute rules at the correct runtime.
+* Improvement: Add new rule update session reminders.
+* Improvement: Add condition tests and improvements for waitinglist confirmation logic.
+* Improvement: Add "previously booked" indicator to report pages.
+* Improvement: Use customfieldfilter class when adding custom field filters in shortcodes.
+* Improvement: Optimize booking options SQL (remove DISTINCT, improve filter logic).
+* Improvement: Better handling of user ID injection in shortcodes and booking tables.
+* Improvement: Ensure correct booking answer ID is selected in option confirmation.
+* Improvement: Improve booking pages (better display, course start time formatting, etc.).
+* Improvement: Add support for restoring duration and course restraints in option templates.
+* Improvement: Improve behavior of get_options_filter_sql in wunderbyte_table.
+* Improvement: Ensure sortable fields are selected only when required.
+* Improvement: Show count label in reports only when explicitly enabled.
+* Improvement: Improve shopping cart history retrieval.
+* Improvement: Multiple refinements to customfieldfilter logic for booking options.
+* Improvement: Filter added to get_render_all_options_table (implementations 1 & 2).
+* Improvement: Support teachersforoptiondate_xx in generator functions.
+* Bugfix: Fix missing pagination for cards view.
+* Bugfix: Prevent using the same instance name during pagination on cashier page.
+* Bugfix: Fix duplicate code errors in multiple test cases.
+* Bugfix: Restore deleting course restraints and duration in booking option templates.
+* Bugfix: Correct field type conversion in templates.
+* Bugfix: Ensure fallback to $USER when table->forceruserid is missing.
+* Bugfix: Fix restoring selected filters and sortable fields in wunderbyte_table.
+* Bugfix: Fix wrong confirmation count needed to book.
+* Bugfix: Prevent too many confirmation checks for waitinglist scenarios.
+* Bugfix: Fix multiple Behat tests failing due to waitinglist or confirmation logic changes.
+* Bugfix: Ensure correct bookingoptions_wbtable instance references inside shortcodes.
+* Bugfix: Fix missing user ID retrieval in URL shortcodes.
+* Bugfix: Fix ordering/sorting of custom fields.
+* Bugfix: Correct behaviour when user is deleted—preserve previously booked entries.
+* Bugfix: Fix import/export for duration and custom field values.
+* Tests: New PHPUnit test for rules_template_on_optiondates_teacher_delete and teacher_added.
+* Tests: Add Behat tests for booking confirmation and waitinglist logic.
+* Tests: Add tests for restored custom fields in backup/restore process.
+* Tests: Test user-injected options for available places filter.
+* Tests: Test booking options using customfields in multiple scenarios.
+* Tests: Add test scenarios for max answers and maxperuser waitinglist conditions.
+* Tests: Fix failing tests for customfield existence checks.
+* Tests: Add tests for session reminders rule.
+
 ## Version 8.18.4 (2025111802)
 * Improvement: Add format_string to titleprefix, title (text) and institution.
 * Improvement: Also apply format_string (needed for multi-lang filters) to customform condition.
