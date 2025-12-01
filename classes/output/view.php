@@ -36,6 +36,7 @@ use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
 use mod_booking\customfield\booking_handler;
 use mod_booking\elective;
+use mod_booking\filters\available_places;
 use mod_booking\option\fields\competencies;
 use mod_booking\singleton_service;
 use mod_booking\table\bookingoptions_wbtable;
@@ -1146,37 +1147,7 @@ class view implements renderable, templatable {
 
         if ($filter) {
             // Booking availability filter.
-            $customfieldfilter = new customfieldfilter(
-                'availableplaces',
-                get_string('filterbookingavailability', 'mod_booking')
-            );
-            $customfieldfilter->bypass_cache();
-            $customfieldfilter->dont_count_keys();
-            $customfieldfilter->use_operator_equal();
-            // In the following query, we calculate available places (alias: availableplaces)
-            // and export the booking option ID and available places for each option as availableplacestbl.
-            // Then, we select the booking option IDs to pass them to the IN operator.
-            $subsql = "id IN (
-                    SELECT id FROM (
-                        SELECT sbo.id,
-                        CASE WHEN
-                            sbo.maxanswers=0
-                            OR (sbo.maxanswers - COUNT(CASE WHEN sba.waitinglist = 0 THEN 1 END)) > 0
-                        THEN '1'
-                        ELSE '0' END AS availableplaces
-                        FROM {booking_options} sbo
-                        LEFT JOIN {booking_answers} sba ON sba.optionid = sbo.id
-                        GROUP BY sbo.id, sbo.maxanswers, sba.optionid
-                    ) availableplacestbl
-                    WHERE :where
-            )";
-
-            $customfieldfilter->set_sql($subsql, "availableplaces");
-            $customfieldfilter->add_options([
-                '0' => get_string('filterfullybooked', 'mod_booking'),
-                '1' => get_string('filteravailalbetobook', 'mod_booking'),
-            ]);
-            $wbtable->add_filter($customfieldfilter);
+            $wbtable->add_filter(available_places::get());
 
             if (in_array('teacher', $optionsfields)) {
                 $standardfilter = new standardfilter('teacherobjects', get_string('teachers', 'mod_booking'));
