@@ -431,6 +431,12 @@ final class rules_n_days_test extends advanced_testcase {
         // Initially two tasks are scheduled.
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
         $this->assertCount(2, $tasks);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+
+        // As we don't run through the set_data functions of the form submissions,...
+        // ... the id of the exisiting option date needs to be set manually.
+        $record->optiondateid_0 = array_keys($settings->sessions)[0];
+        $record->optiondateid_1 = array_keys($settings->sessions)[1];
 
         // Modify booking option based on scenario.
         switch ($updateaction['type']) {
@@ -460,7 +466,6 @@ final class rules_n_days_test extends advanced_testcase {
             default:
                 break;
         }
-        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
         $record->id = $option->id;
         $record->cmid = $settings->cmid;
         if ($updateaction['type'] !== 'no_change') {
