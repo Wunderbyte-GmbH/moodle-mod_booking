@@ -1086,7 +1086,6 @@ class view implements renderable, templatable {
 
         // Check if there are additional customfields included.
         if (!empty($customfieldsinfoarray = shortcodes_handler::get_includecustomfields_info_array($args))) {
-            // $wbtable->define_columns(array_keys($customfieldsinfoarray));
             $wbtable->set_customfields_info_array($customfieldsinfoarray);
         }
 
@@ -1553,7 +1552,6 @@ class view implements renderable, templatable {
         }
         foreach ($customfieldsinfoarray as $cfshortname => $cfinfoarray) {
             if (!empty($cfinfoarray['region'])) {
-                $wbtable->add_classes_to_subcolumns($cfinfoarray['region'], ['columnkeyclass' => 'd-none']);
                 $wbtable->add_subcolumns($cfinfoarray['region'], [$cfshortname]);
                 if (!empty($cfinfoarray['class'])) {
                     $wbtable->add_classes_to_subcolumns(
@@ -1569,6 +1567,7 @@ class view implements renderable, templatable {
                         [$cfshortname]
                     );
                 }
+                $wbtable->add_classes_to_subcolumns($cfinfoarray['region'], ['columnkeyclass' => 'd-none']);
             }
         }
     }
