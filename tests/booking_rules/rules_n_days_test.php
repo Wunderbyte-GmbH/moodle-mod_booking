@@ -26,6 +26,7 @@
 namespace mod_booking;
 
 use advanced_testcase;
+use local_entities_generator;
 use stdClass;
 use mod_booking\booking_rules\rules_info;
 use tool_mocktesttime\time_mock;
@@ -405,6 +406,23 @@ final class rules_n_days_test extends advanced_testcase {
         ];
         $plugingenerator->create_rule($ruledata);
 
+        // Create entities.
+        $entitydata1 = [
+            'name' => 'Entity1',
+            'shortname' => 'entity1',
+            'description' => 'Ent1desc',
+        ];
+        $entitydata2 = [
+            'name' => 'Entity2',
+            'shortname' => 'entity2',
+            'description' => 'Ent2desc',
+        ];
+
+        /** @var local_entities_generator *  $egenerator */
+        $egenerator = self::getDataGenerator()->get_plugin_generator('local_entities');
+        $entityid1 = $egenerator->create_entities($entitydata1);
+        $entityid2 = $egenerator->create_entities($entitydata2);
+
         // Create booking option with two session dates.
         $record = new stdClass();
         $record->bookingid = $booking->id;
@@ -462,6 +480,10 @@ final class rules_n_days_test extends advanced_testcase {
             case 'modify_date':
                 $record->coursestarttime_1 = strtotime('+10 days', time());
                 $record->courseendtime_1 = strtotime('+10 days 2 hours', time());
+                break;
+            case 'modify_location_of_date':
+                $record->local_entities_entityarea_1 = "optiondate";
+                $record->local_entities_entityid_1 = $entityid2; // Option date entity.
                 break;
             default:
                 break;
@@ -563,6 +585,17 @@ final class rules_n_days_test extends advanced_testcase {
                     'contains_prevent' => 'Rule does not apply anymore. Mail was NOT SENT for option',
                     'numberofdatesafterupdate' => 2,
                     'numberoftasks' => 3,
+                ],
+            ],
+            'modify_location_of_date' => [
+                ['type' => 'modify_location_of_date'],
+                [
+                    'messages_sent' => 2,
+                    'messages_prevented' => 0,
+                    'contains_success' => self::MAIL_SUCCES_TRACE,
+                    'contains_prevent' => 'Rule does not apply anymore. Mail was NOT SENT for option',
+                    'numberofdatesafterupdate' => 2,
+                    'numberoftasks' => 2,
                 ],
             ],
         ];
