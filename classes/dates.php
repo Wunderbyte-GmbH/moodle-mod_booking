@@ -242,8 +242,10 @@ class dates {
             }
         }
 
-        // If we have clicked on the create option date series, we recreate all option dates.
+        // If we have clicked on the create option date series, we match with existing option dates and recreate the new dates.
         if (isset($defaultvalues->addoptiondateseries)) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($defaultvalues->id);
+
             // When creating new date series, we unset defaults for all customfields.
             $regexkey = '/^' . MOD_BOOKING_FORM_OPTIONDATEID . '/';
             $optiondates = preg_grep($regexkey, array_keys((array)$defaultvalues));
@@ -256,13 +258,25 @@ class dates {
             }
 
             if (!empty($newoptiondates)) {
-                $sessions = array_map(fn($a) =>
-                (object)[
-                    'optiondateid' => 0,
-                    'coursestarttime' => $a->starttimestamp,
-                    'courseendtime' => $a->endtimestamp,
-                    'daystonotify' => $a->daystonotify ?? 0,
-                ], $newoptiondates['dates']);
+                // Check here if the date already exists in the old settings object.
+                $sessions = array_map(function ($a) use ($settings) {
+                    // Try to find existing session with matching start/end times.
+                    $existing = array_filter(
+                        $settings->sessions ?? [],
+                        fn($s) => $s->coursestarttime == $a->starttimestamp
+                            && $s->courseendtime == $a->endtimestamp
+                    );
+
+                    // Return existing session (with id/optiondateid) or create new one.
+                    return $existing
+                        ? reset($existing)  // Get first matching session.
+                        : (object)[
+                            'optiondateid' => 0,
+                            'coursestarttime' => $a->starttimestamp,
+                            'courseendtime' => $a->endtimestamp,
+                            'daystonotify' => $a->daystonotify ?? 0,
+                        ];
+                }, $newoptiondates['dates']);
             }
 
             $defaultvalues->datescounter = count($sessions);
@@ -487,7 +501,7 @@ class dates {
                 if (is_array($formvalues[MOD_BOOKING_FORM_COURSESTARTTIME . $counter])) {
                     $coursestarttimearr = $formvalues[MOD_BOOKING_FORM_COURSESTARTTIME . $counter];
                     $courseendtimearr = $formvalues[MOD_BOOKING_FORM_COURSEENDTIME . $counter];
-                    // Splat opreaton does not work with associative arrays in php < 8.
+                    // Splat operation does not work with associative arrays in php < 8.
                     if (PHP_MAJOR_VERSION < 8) {
                         $coursestarttime = make_timestamp(
                             $coursestarttimearr['year'],
