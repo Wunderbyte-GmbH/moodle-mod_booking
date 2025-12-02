@@ -1315,10 +1315,20 @@ class shortcodes {
         ?string $uniquetablename = null,
         array $args = []
     ) {
-
+        if ($booking && !empty($booking->cmid)) {
+            $context = context_module::instance($booking->cmid);
+        } else {
+            $context = context_system::instance();
+        }
         // Important security check.
         // The user must have the cashier capability to fetch data of other users.
-        if (has_capability('local/shopping_cart:cashier', context_system::instance())) {
+        if (
+            class_exists('local_shopping_cart\shopping_cart')
+            && has_capability('local/shopping_cart:cashier', context_system::instance())
+            // This check actually corresponds to the check in booking_bookit currently line 126.
+            // It allows overriding a blocking condition under some circumstances.
+            || has_capability('mod/booking:bookforothers', $context)
+        ) {
             // Check if rendering is for another user id.
             $userid = actforuser::get_foruserid($args, 0);
         } else {
