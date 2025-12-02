@@ -121,7 +121,14 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
             $rule->set_ruledata($ruleinstance);
 
             // We run the call again to see if something has changed (field in bo, in user profile etc.).
-            if (!$rule->check_if_rule_still_applies($taskdata->optionid, $taskdata->userid, $nextruntime)) {
+            if (
+                !$rule->check_if_rule_still_applies(
+                    $taskdata->optionid,
+                    $taskdata->userid,
+                    $nextruntime,
+                    $taskdata->optiondateid ?? 0
+                )
+            ) {
                 mtrace('send_mail_by_rule_adhoc task: Rule does not apply anymore. Mail was NOT SENT for option ' .
                     $taskdata->optionid . ' and user ' . $taskdata->userid);
                 return;
