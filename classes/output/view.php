@@ -37,6 +37,7 @@ use mod_booking\booking;
 use mod_booking\customfield\booking_handler;
 use mod_booking\elective;
 use mod_booking\option\fields\competencies;
+use mod_booking\shortcodes_handler;
 use mod_booking\singleton_service;
 use mod_booking\table\bookingoptions_wbtable;
 use mod_booking\utils\wb_payment;
@@ -1023,6 +1024,8 @@ class view implements renderable, templatable {
             }
         }
 
+        // Todo: Implement possibility to include custom fields in the table.
+        // This is already implemented in shortcodes.
         self::apply_standard_params_for_bookingtable(
             $wbtable,
             $optionsfields,
@@ -1033,6 +1036,7 @@ class view implements renderable, templatable {
             true,
             $viewparam,
             $this->cmid
+            // Todo: $args with includecustomfields.
         );
     }
 
@@ -1049,21 +1053,23 @@ class view implements renderable, templatable {
      * @param bool $filterinactive
      * @param int $viewparam list view or card view
      * @param int $cmid optional cmid of booking instance
+     * @param array $args optional passing of shortcode args
      * @return void
      * @throws moodle_exception
      * @throws coding_exception
      */
     public static function apply_standard_params_for_bookingtable(
         wunderbyte_table &$wbtable,
-        $optionsfields = [],
+        array $optionsfields = [],
         bool $filter = true,
         bool $search = true,
         bool $sort = true,
         bool $reload = true,
         bool $filterinactive = true,
         int $viewparam = MOD_BOOKING_VIEW_PARAM_LIST,
-        int $cmid = 0
-    ) {
+        int $cmid = 0,
+        array $args = []
+    ): void {
 
         global $PAGE, $DB;
 
@@ -1077,6 +1083,12 @@ class view implements renderable, templatable {
 
         // Without defining sorting won't work!
         $wbtable->define_columns(['titleprefix', 'coursestarttime', 'courseendtime']);
+
+        // Check if there are additional customfields included.
+        if (!empty($customfieldsinfoarray = shortcodes_handler::get_includecustomfields_info_array($args))) {
+            // $wbtable->define_columns(array_keys($customfieldsinfoarray));
+            $wbtable->set_customfields_info_array($customfieldsinfoarray);
+        }
 
         // If template switcher is active, we need to use the table's viewparam.
         $chosenviewparam = get_user_preferences('wbtable_chosen_template_viewparam_' . $wbtable->uniqueid);
@@ -1290,7 +1302,6 @@ class view implements renderable, templatable {
      * @return void
      */
     public static function generate_table_for_cards(wunderbyte_table &$wbtable, array $optionsfields) {
-
         // We define it here so we can pass it with the mustache template.
         $wbtable->add_subcolumns('optionid', ['id']);
         $wbtable->add_subcolumns('cardimage', ['image']);
@@ -1520,11 +1531,46 @@ class view implements renderable, templatable {
             ['image']
         );
 
+        // Prepare possible custom fields.
+        self::prepare_customfields($wbtable);
+
         // At last, we set the correct template!
         $wbtable->tabletemplate = 'mod_booking/table_cards';
 
         // We also need to set the user preference for the template.
         set_user_preference('wbtable_chosen_template_' . $wbtable->uniqueid, 'mod_booking/table_cards');
+    }
+
+    /**
+     * Helper function to generate cards table.
+     * @param wunderbyte_table $wbtable reference to table instance
+     * @return void
+     */
+    public static function prepare_customfields(wunderbyte_table &$wbtable) {
+        $customfieldsinfoarray = $wbtable->get_customfields_info_array();
+        if (empty($customfieldsinfoarray)) {
+            return;
+        }
+        foreach ($customfieldsinfoarray as $cfshortname => $cfinfoarray) {
+            if (!empty($cfinfoarray['region'])) {
+                $wbtable->add_classes_to_subcolumns($cfinfoarray['region'], ['columnkeyclass' => 'd-none']);
+                $wbtable->add_subcolumns($cfinfoarray['region'], [$cfshortname]);
+                if (!empty($cfinfoarray['class'])) {
+                    $wbtable->add_classes_to_subcolumns(
+                        $cfinfoarray['region'],
+                        ['columnvalueclass' => $cfinfoarray['class']],
+                        [$cfshortname]
+                    );
+                }
+                if (!empty($cfinfoarray['iconclass'])) {
+                    $wbtable->add_classes_to_subcolumns(
+                        $cfinfoarray['region'],
+                        ['columniclassbefore' => $cfinfoarray['iconclass']],
+                        [$cfshortname]
+                    );
+                }
+            }
+        }
     }
 
     /**
@@ -1727,6 +1773,9 @@ class view implements renderable, templatable {
             ['keystring' => get_string('tableheaderteacher', 'booking')],
             ['teacher']
         );
+
+        // Now we prepare possible custom fields.
+        self::prepare_customfields($wbtable);
 
         // At last, we set the correct template!
         $wbtable->tabletemplate = 'mod_booking/table_list';
