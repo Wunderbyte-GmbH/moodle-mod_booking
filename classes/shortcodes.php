@@ -282,17 +282,6 @@ class shortcodes {
             self::apply_customfieldfilter($table, $customfieldfilter);
         }
 
-        //         // Temp Info for development purpose.
-        // $table->add_subcolumns('carddurata', ['durata']);
-        // $table->add_subcolumns('cardcompletion', ['completamento']);
-        // $table->add_subcolumns('cardformat', ['formato']);
-        // $table->add_classes_to_subcolumns(
-        //         'carddurata',
-        //         ['columniclassbefore' => 'fa-regular fa-clock'],
-        //         ['durata']
-        //     );
-        // $table->add_subcolumns('cardcompetenze', ['competenze']);
-
         $table->showcountlabel = $showfilter ? true : false;
 
         if (
@@ -773,7 +762,8 @@ class shortcodes {
                     null,
                     [MOD_BOOKING_STATUSPARAM_BOOKED],
                     $additionalwhere,
-                    ""
+                    "",
+                    $table
                 );
 
         $params = array_merge($tempparams, $params);
