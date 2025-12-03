@@ -152,8 +152,21 @@ class select_responsible_contact_in_bo implements booking_rule_condition {
         $sql->select = " $concat uniqueid, " . $sql->select;
         $sql->select .= ", u.id userid ";
 
-        $sql->from .= " JOIN {user} u
-                            ON POSITION(',' || u.id || ',' IN ',' || bo.responsiblecontact || ',') > 0 ";
+        $databasetype = $DB->get_dbfamily();
+        switch ($databasetype) {
+            case 'postgres':
+                // We use concatenation opertor in PostGress.
+                $sql->from .= " JOIN {user} u
+                        ON POSITION(',' || u.id || ',' IN ',' || bo.responsiblecontact || ',') > 0 ";
+                break;
+            case 'mysql':
+                // We must use concatenation function in MySQL.
+                $sql->from .= " JOIN {user} u
+                        ON POSITION(CONCAT(',', u.id, ',') IN CONCAT(',', COALESCE(bo.responsiblecontact, ''), ',')) > 0 ";
+                break;
+            default:
+                throw new \moodle_exception('Unsupported database type for concatenation.');
+        }
 
         $sql->where .= " $anduserid ";
     }
