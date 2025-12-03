@@ -762,7 +762,8 @@ class shortcodes {
                     null,
                     [MOD_BOOKING_STATUSPARAM_BOOKED],
                     $additionalwhere,
-                    ""
+                    "",
+                    $table
                 );
 
         $params = array_merge($tempparams, $params);
