@@ -1272,7 +1272,7 @@ class booking_option_settings {
      * @param array $selectedshortnames
      * @return array
      */
-    public static function return_sql_for_customfield(array &$filterarray = [], $selectedshortnames = []): array {
+    public static function return_sql_for_customfield(array &$filterarray = [], array $selectedshortnames = [], string $optionidcolumn = 'bo.id'): array {
 
         global $DB;
 
@@ -1311,7 +1311,7 @@ class booking_option_settings {
 
             // Add LEFT JOIN using the known field ID.
             $from .= " LEFT JOIN {customfield_data} cfd$counter
-                    ON cfd$counter.instanceid = bo.id
+                    ON cfd$counter.instanceid = $optionidcolumn
                     AND cfd$counter.fieldid = :cfid$counter ";
 
             // Add the ID to the params array.
