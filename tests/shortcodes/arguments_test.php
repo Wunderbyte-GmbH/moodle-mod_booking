@@ -34,8 +34,6 @@ use local_wunderbyte_table\external\load_data;
 use mod_booking_generator;
 use stdClass;
 use tool_mocktesttime\time_mock;
-use local_musi\shortcodes as local_musi_shortcodes;
-use mod_booking\shortcodes as mod_booking_shortcodes;
 
 /**
  * This test tests the functionality of some arguments.
@@ -168,12 +166,12 @@ final class arguments_test extends advanced_testcase {
         // Use the courselist shortcode for this test.
         // We create a table instance and then get the encodedtable string.
         // We use encodedtable to fetch pages in an AJAX-like way.
-        // $shortcode = shortcodes::courselist('courselist', $args, null, $env, $next);
         $args[$config['paramforcmid']] = $cmid; // Add the param which is used to inject the cmid to the $args.
-        $shortcode = call_user_func($shortcode, $shortcodename, $args, null, $env, $next);
-        $this->assertNotEmpty($shortcode);
-        preg_match('/<div[^>]*\sdata-encodedtable=["\']?([^"\'>\s]+)["\']?/i', $shortcode, $matches);
-        $this->assertNotEmpty($matches, 'Unsuccessful to extract encodedtable string from table rendering. The table is probably not instantiated.');
+        $shortcoderenderedtable = call_user_func($shortcode, $shortcodename, $args, null, $env, $next);
+        $this->assertNotEmpty($shortcoderenderedtable);
+        preg_match('/<div[^>]*\sdata-encodedtable=["\']?([^"\'>\s]+)["\']?/i', $shortcoderenderedtable, $matches);
+        $errormessage = 'Unsuccessful to extract encodedtable string from table rendering. The table is probably not instantiated.';
+        $this->assertNotEmpty($matches, $errormessage);
         $encodedtable = $matches[1];
 
         // Get the option names sorted via PHP.
@@ -241,37 +239,19 @@ final class arguments_test extends advanced_testcase {
      */
     public static function shortcode_provider(): array {
         return [
-            // 'allbookingoptions' => [
-            //     'shortcodename' => 'allbookingoptions',
-            //     'shortcode' => '\mod_booking\shortcodes::allbookingoptions',
-            //     'args' => [
-            //         'all' => 1,
-            //         'infinitescrollpage' => 10,
-            //         'sort' => 1,
-            //         'pageable' => 0,
-            //     ],
-            //     'config' => [
-            //         'paramforcmid' => 'cmid',
-            //         'hascustomfields' => false,
-            //     ],
-            // ],
-            'allcourseslist' => [
-                'shortcodename' => 'allcourseslist',
-                'shortcode' => '\local_musi\shortcodes::allcourseslist',
+            'allbookingoptions' => [
+                'shortcodename' => 'allbookingoptions',
+                'shortcode' => '\mod_booking\shortcodes::allbookingoptions',
                 'args' => [
                     'all' => 1,
                     'infinitescrollpage' => 10,
                     'sort' => 1,
                     'pageable' => 0,
-                    'sport' => 'wintersport',
                 ],
                 'config' => [
-                    'paramforcmid' => 'id',
-                    'hascustomfields' => true,
-                    'customfields' => [
-                        'sport' => 'wintersport', //'customfieldname' => 'customfieldvalue'
-                    ],
-                ], // Config.
+                    'paramforcmid' => 'cmid',
+                    'hascustomfields' => false,
+                ],
             ],
         ];
     }
