@@ -343,7 +343,7 @@ class shortcodes {
      * @return void
      *
      */
-    private static function apply_customfieldfilter(&$table, $args) {
+    public static function apply_customfieldfilter(&$table, $args) {
         if (empty($args)) {
             return;
         }
@@ -376,7 +376,7 @@ class shortcodes {
      * @return array
      *
      */
-    private static function get_columnfilters($args, $verify = true): array {
+    public static function get_columnfilters($args, $verify = true): array {
         if (empty($args)) {
             return [];
         }
@@ -950,7 +950,9 @@ class shortcodes {
                     $wherearray,
                     $userid,
                     $statusarray,
-                    $additionalwhere
+                    $additionalwhere,
+                    '',
+                    $table
                 );
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
@@ -1278,7 +1280,7 @@ class shortcodes {
      * @return array
      *
      */
-    private static function apply_bulkoperations_filter(wunderbyte_table &$table, array $columns, array $args) {
+    public static function apply_bulkoperations_filter(wunderbyte_table &$table, array $columns, array $args) {
 
         // Add defined intrange filter. You might need to purge your caches to make this work.
         if (isset($args['intrangefilter'])) {
@@ -1374,7 +1376,7 @@ class shortcodes {
      * @param array $args
      * @return bookingoptions_wbtable
      */
-    private static function init_table_for_courses(
+    public static function init_table_for_courses(
         ?booking $booking = null,
         ?string $uniquetablename = null,
         array $args = []
@@ -1411,7 +1413,7 @@ class shortcodes {
      * @return void
      *
      */
-    private static function apply_bookinginstance_filter(&$table) {
+    public static function apply_bookinginstance_filter(&$table) {
         $bookinginstances = singleton_service::get_all_booking_instances();
 
         $filterarray = [];
@@ -1489,7 +1491,7 @@ class shortcodes {
      * @param array $columnfilters
      * @return string
      */
-    private static function set_customfield_wherearray(
+    public static function set_customfield_wherearray(
         array &$args,
         array &$wherearray,
         array &$tempparamsarray = [],
@@ -1577,7 +1579,7 @@ class shortcodes {
      * @return string
      *
      */
-    private static function set_cmid_wherearray(
+    public static function set_cmid_wherearray(
         array &$args,
         array &$wherearray,
         array &$params = [],
@@ -1623,7 +1625,7 @@ class shortcodes {
      *
      * @return void
      */
-    private static function fix_args(array &$args): void {
+    public static function fix_args(array &$args): void {
         foreach ($args as $key => &$value) {
             // Get rid of quotation marks.
             $value = str_replace('"', '', $value);
@@ -1639,7 +1641,7 @@ class shortcodes {
      * @return int $viewparam if no viewparam is found, the default is MOD_BOOKING_VIEW_PARAM_LIST
      *
      */
-    private static function get_viewparam($args) {
+    public static function get_viewparam($args) {
         // Default is list.
         $viewparam = MOD_BOOKING_VIEW_PARAM_LIST;
         if (!isset($args['type'])) {
@@ -1749,7 +1751,7 @@ class shortcodes {
      * @return void
      *
      */
-    private static function applyallarg($args, &$where) {
+    public static function applyallarg($args, &$where) {
         $startoftoday = strtotime('today'); // Will be 00:00:00 of the current day.
         $selflearncoursesetting = get_config('booking', 'selflearningcoursedisplayinshortcode');
         if (empty($args['all']) || $args['all'] == "false" || $args['all'] == "0") {
