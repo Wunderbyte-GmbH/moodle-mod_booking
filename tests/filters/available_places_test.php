@@ -16,6 +16,7 @@
 
 namespace mod_booking\filters;
 
+use local_wunderbyte_table\external\load_data;
 use local_wunderbyte_table\filters\types\customfieldfilter;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
@@ -33,6 +34,9 @@ use tool_mocktesttime\time_mock;
  * @category   test
  * @copyright  2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
+ * @runInSeparateProcess
+ * @runTestsInSeparateProcesses
  */
 final class available_places_test extends \advanced_testcase {
     /**
@@ -76,7 +80,8 @@ final class available_places_test extends \advanced_testcase {
      * There should now be one more item (a total of 5) in the table when filtering by
      * the "fully booked" option.
      *
-     * We intantiate 2 tables in order to test both general functionality and table fubctionality with ajax & pagination.
+     * We instantiate two tables in order to test both the general functionality
+     * and the table functionality with AJAX and pagination.
      *
      * @covers \local_wunderbyte_table\filters\types\customfieldfilter::available_places
      *
@@ -157,7 +162,7 @@ final class available_places_test extends \advanced_testcase {
         $this->assertCount(10, $bookinganswers);
 
         // Create the table.
-        $table = new bookingoptions_wbtable("cmid_{$cmid}_showonetable");
+        $table1 = new bookingoptions_wbtable("cmid_{$cmid}_showonetable");
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
         // Get options of a single booking module.
         $wherearray = [
@@ -168,15 +173,15 @@ final class available_places_test extends \advanced_testcase {
         $this->assertInstanceOf(customfieldfilter::class, $availableplacesfilter);
 
         // Add available_places filter.
-        $table->add_filter($availableplacesfilter);
+        $table1->add_filter($availableplacesfilter);
 
         [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(0, 0, '', '', $booking->context, [], $wherearray);
-        $table->set_filter_sql($fields, $from, $where, $filter, $params);
+        $table1->set_filter_sql($fields, $from, $where, $filter, $params);
 
         // Execute table logic to fetch records.
         // We have 10 options totally. We expect to see all the booking options before applying any filter.
-        $renderedtable = $table->outhtml(10, true);
+        $renderedtable = $table1->outhtml(10, true);
         $this->assertNotEmpty($renderedtable);
         preg_match('/<div[^>]*\sdata-encodedtable=["\']?([^"\'>\s]+)["\']?/i', $renderedtable, $matches);
         $encodedtablestring = $matches[1];
@@ -272,6 +277,46 @@ final class available_places_test extends \advanced_testcase {
         $table = wunderbyte_table::instantiate_from_tablecache_hash($encodedtablestring);
         $table->printtable($table->pagesize, $table->useinitialsbar, $table->downloadhelpbutton);
         $this->assertEquals(6, $table->totalrows);
+
+        // Now we want to check the pagination and AJAX rendering when the available places filter is applied..
+        unset($_POST['wbtfilter']);
+        unset($_GET['wbtfilter']);
+        // Instantiate a table with a pagesize of 2.
+        $table2 = new bookingoptions_wbtable("cmid_{$cmid}_ajaxtest");
+        $table2->add_filter($availableplacesfilter);
+        [$fields, $from, $where, $params, $filter] =
+                booking::get_options_filter_sql(0, 0, '', '', $booking->context, [], $wherearray, null, [MOD_BOOKING_STATUSPARAM_BOOKED], '1=1');
+        $table2->set_filter_sql($fields, $from, $where, $filter, $params);
+        $table2->pageable(true);
+        $table2->outhtml(2, true);
+        $encodedtable = $table2->return_encoded_table();
+
+        $maxanswerscolumns = [];
+
+        $_POST['wbtfilter'] = '{"availableplaces":["0"]}';
+        $_GET['wbtfilter'] = '{"availableplaces":["0"]}';
+        // We fetch 3 pages because we know there are only 5 fully booked records and the page size is 2.
+        // Therefore, we expect to retrieve a total of 5 records by calling the external API (load_data) 3 times.
+        for ($page = 0; $page < 3; $page++) {
+            $result = load_data::execute($encodedtable, $page);
+            $content = json_decode($result['content']);
+
+            for ($i = 0; $i < count($content->table->rows); $i++) {
+                $row = $content->table->rows[$i];
+                // We get the maxanswers column and then check whether the pages contain only fully booked records.
+                $filteredcolumns = array_filter($row->cardbody, fn($item): bool => $item->key === 'maxanswers');
+                // We are sure that $filteredcolumns has only one record, and that this record is the maxanswers column.
+                $maxanswerscolumns[] = reset($filteredcolumns);
+            }
+        }
+
+        // Since we have 5 fully booked records, we expect to retrieve only 5 records from the external API.
+        $this->assertCount(5, $maxanswerscolumns);
+
+        // Here we check the maxanswers values — those 5 records should have maxanswers equal to 1 or 2.
+        foreach ($maxanswerscolumns as $column) {
+            $this->assertContains($column->value, ["1", "2"]);
+        }
     }
 
     /**
