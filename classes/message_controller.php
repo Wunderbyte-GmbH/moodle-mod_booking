@@ -625,7 +625,7 @@ class message_controller {
                             'subject' => $this->messagedata->subject,
                             'objectid' => $this->optionid ?? 0,
                             'message' => $this->messagedata->fullmessage ?? '',
-                            // Store the full html message as this is useful if the message every needs to be replayed or audited.
+                            // Store the full html message as this is useful if the message ever needs to be replayed or audited.
                             'messagehtml' => $this->messagedata->fullmessagehtml ?? '',
                             'bookingruleid' => $this->ruleid ?? null,
                         ],
