@@ -1962,6 +1962,7 @@ Survey URL: <a href="{pollurl}" target="_blank">{pollurl}</a>
 ';
 $string['pollurltextsubject'] = 'Please take the survey';
 $string['populatefromtemplate'] = 'Populate from template';
+$string['postprogressstring'] = '% completed';
 $string['potentialsubscribers'] = 'Potential subscribers';
 $string['prepareimport'] = "Prepare Import";
 $string['presence'] = "Presence";

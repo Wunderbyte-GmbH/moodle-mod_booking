@@ -1938,6 +1938,7 @@ Link zur Umfrage: <a href="{pollurl}" target="_blank">{pollurl}</a>
 ';
 $string['pollurltextsubject'] = 'Bitte nehmen Sie an der Umfrage teil';
 $string['populatefromtemplate'] = 'Mit Vorlage ausfüllen';
+$string['postprogressstring'] = '% erreicht';
 $string['potentialsubscribers'] = 'Mögliche Nutzer:innen';
 $string['prepareimport'] = "Bereite den Import vor";
 $string['presence'] = "Anwesenheitsstatus";
