@@ -125,49 +125,71 @@ class select_responsible_contact_in_bo implements booking_rule_condition {
     /**
      * Execute the condition.
      * We receive an array of stdclasses with the keys optinid & cmid.
+     * SQL is a bit complex because responsible contact field can be empty, contain 1 userid or mulitple userids comma separated.
      * @param stdClass $sql
      * @param array $params
      */
     public function execute(stdClass &$sql, array &$params): void {
-
         global $DB;
 
-        // We pass the restriction to the userid in the params.
-        // If its not 0, we add the restriction.
-        $anduserid = '';
+        $useridfilter = '';
         if (!empty($params['userid'])) {
-            // We cannot use params twice, so we need to use userid2.
             $params['userid2'] = $params['userid'];
-            $anduserid = "AND u.id = :userid2";
+            $useridfilter = " AND rc.userid = :userid2";
         }
 
-        // If the select contains optiondate, we also need to include it in uniqueid.
-        if (strpos($sql->select, 'optiondate') !== false) {
-            $concat = $DB->sql_concat("bo.id", "'-'", "bod.id", "'-'", "u.id");
-        } else {
-            $concat = $DB->sql_concat("bo.id", "'-'", "u.id");
-        }
+        $usesoptiondate = (strpos($sql->select, 'optiondate') !== false);
+        $dbfamily = $DB->get_dbfamily();
 
-        // We need the hack with uniqueid so we do not lose entries ...as the first column needs to be unique.
-        $sql->select = " $concat uniqueid, " . $sql->select;
-        $sql->select .= ", u.id userid ";
-
-        $databasetype = $DB->get_dbfamily();
-        switch ($databasetype) {
+        switch ($dbfamily) {
             case 'postgres':
-                // We use concatenation opertor in PostGress.
-                $sql->from .= " JOIN {user} u
-                        ON POSITION(',' || u.id || ',' IN ',' || bo.responsiblecontact || ',') > 0 ";
+                $splitfrom = " JOIN LATERAL (
+                    SELECT trim(x) AS userid
+                    FROM regexp_split_to_table(bo.responsiblecontact, E',') AS x
+                ) rc ON rc.userid <> ''";
+                $unique = $usesoptiondate
+                    ? $DB->sql_concat("bo.id", "'-'", "bod.id", "'-'", "rc.userid")
+                    : $DB->sql_concat("bo.id", "'-'", "rc.userid");
                 break;
+
             case 'mysql':
-                // We must use concatenation function in MySQL.
-                $sql->from .= " JOIN {user} u
-                        ON POSITION(CONCAT(',', u.id, ',') IN CONCAT(',', COALESCE(bo.responsiblecontact, ''), ',')) > 0 ";
+            case 'mariadb':
+                $maxsplit = 20;
+                $numbers = [];
+                for ($i = 1; $i <= $maxsplit; $i++) {
+                    $numbers[] = "SELECT $i AS n";
+                }
+                $numbersunion = implode(" UNION ALL ", $numbers);
+
+                $splitfrom = " JOIN (
+                    SELECT TRIM(
+                        SUBSTRING_INDEX(
+                            SUBSTRING_INDEX(bo.responsiblecontact, ',', n.n),
+                            ',', -1
+                        )
+                    ) AS userid
+                    FROM ( $numbersunion ) AS n
+                    WHERE bo.responsiblecontact IS NOT NULL
+                    AND bo.responsiblecontact <> ''
+                    AND n.n <= 1 + (LENGTH(bo.responsiblecontact) - LENGTH(REPLACE(bo.responsiblecontact, ',', '')))
+                ) rc ON rc.userid <> ''";
+                $unique = $usesoptiondate
+                    ? $DB->sql_concat("bo.id", "'-'", "bod.id", "'-'", "rc.userid")
+                    : $DB->sql_concat("bo.id", "'-'", "rc.userid");
                 break;
+
             default:
-                throw new \moodle_exception('Unsupported database type for concatenation.');
+                throw new \moodle_exception('Unsupported database type for splitting responsiblecontact.');
         }
 
-        $sql->where .= " $anduserid ";
+        // Prepend uniqueid and append userid.
+        $sql->select = "$unique AS uniqueid, " . $sql->select;
+        $sql->select .= ", rc.userid AS userid";
+
+        // Append the split join.
+        $sql->from .= " " . $splitfrom;
+
+        // Apply optional filter.
+        $sql->where .= $useridfilter;
     }
 }
