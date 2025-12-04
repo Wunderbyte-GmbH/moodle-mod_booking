@@ -161,7 +161,7 @@ class select_responsible_contact_in_bo implements booking_rule_condition {
                 }
                 $numbersunion = implode(" UNION ALL ", $numbers);
 
-                $splitfrom = " JOIN (
+                $splitfrom = " JOIN LATERAL (
                     SELECT TRIM(
                         SUBSTRING_INDEX(
                             SUBSTRING_INDEX(bo.responsiblecontact, ',', n.n),
