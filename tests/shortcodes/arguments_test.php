@@ -86,9 +86,16 @@ final class arguments_test extends advanced_testcase {
      * @return void
      *
      * @dataProvider shortcode_provider
+     * @param mixed $shortcodename
+     * @param mixed $shortcode
+     * @param mixed $args
+     * @param mixed $config
      *
      * @throws \coding_exception
      * @throws \dml_exception
+     *
+     * @return void
+     *
      */
     public function test_infinitescrollpage(
         string $shortcodename,
