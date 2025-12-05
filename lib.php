@@ -71,7 +71,7 @@ define('MOD_BOOKING_DESCRIPTION_ICAL', 3); // Shows link with text "go to bookin
 define('MOD_BOOKING_DESCRIPTION_MAIL', 4); // Shows link with text "go to bookingoption" and meeting links via link.php...
                             // ...for mail placeholder {bookingdetails}.
 define('MOD_BOOKING_DESCRIPTION_OPTIONVIEW', 5); // Description for booking option preview page.
-define('MOD_BOOKING_DESCRIPTION_CARTITEM', 5); // Description for a reduced description we use in bookingbookit.
+define('MOD_BOOKING_DESCRIPTION_CARTITEM', 6); // Description for a reduced description we use in bookingbookit.
 
 // Define message parameters.
 define('MOD_BOOKING_MSGPARAM_CONFIRMATION', 1);
