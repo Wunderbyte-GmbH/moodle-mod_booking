@@ -540,8 +540,8 @@ final class rules_n_days_test extends advanced_testcase {
      *
      * @dataProvider move_option_provider
      *
-     * @param array $updateaction describes the type of change to the option dates
-     * @param array $expected expected traces for messages sent vs prevented
+     * @param array $type type of the scenario, only for debugging
+     * @param array $testdata specific data of the scenario
      * @throws \coding_exception
      */
     public function test_rule_on_bookingoption_move_to_other_cmid($type, $testdata): void {
