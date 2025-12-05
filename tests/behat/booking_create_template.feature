@@ -33,8 +33,8 @@ Feature: In a booking create a template
     Given I am on the "My booking" Activity page logged in as teacher1
     ## Prepare option
     And I follow "New booking option"
-    And I set the following fields to these values:
-      | Booking option name | Option template |
+    And I set the field "Booking option name" to "Option template"
+    And I follow "Dates"
     And I set the field "Add to course calendar" to "Add to calendar (visible only to participants of moodle course)"
     And I press "Add date"
     And I wait "1" seconds
@@ -63,15 +63,16 @@ Feature: In a booking create a template
     And I follow "Manage booking option templates"
     And I should see "Option template"
     And I press "Edit"
-    And I set the following fields to these values:
-      | useprice | 1 |
+    And I follow "Price"
+    And I set the field "Only book with price" to "checked"
+    ##And I set the following fields to these values:
+    ##  | useprice | 1 |
     And I press "Save"
     ## Use template
     And I follow "New booking option"
     And I set the field "optiontemplateid" to "Option template"
     And I wait "1" seconds
-    And I set the following fields to these values:
-      | Booking option name | New option - by template |
+    And I set the field "Booking option name" to "New option - by template"
     And I press "Save"
     And I wait "1" seconds
     ## Verify template
