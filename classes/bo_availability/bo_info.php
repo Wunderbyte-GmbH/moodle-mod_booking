@@ -27,6 +27,7 @@ namespace mod_booking\bo_availability;
 use context_module;
 use context_system;
 use local_shopping_cart\shopping_cart;
+use local_wunderbyte_table\local\helper\actforuser;
 use mod_booking\booking;
 use mod_booking\booking_bookit;
 use mod_booking\booking_context_helper;
@@ -865,7 +866,7 @@ class bo_info {
         array $showdetaildots = []
     ) {
 
-        global $PAGE;
+        global $USER;
 
         $user = singleton_service::get_instance_of_user($userid);
 
@@ -892,6 +893,7 @@ class bo_info {
                 'label' => $label,
                 'class' => "$classes $extraclasses text-center",
                 'role' => $role,
+                'foruser' => self::get_for_user_button_string($userid),
             ],
             'showdetaildots' => empty($showdetaildots) ? false : $showdetaildots,
         ];
@@ -1434,5 +1436,27 @@ class bo_info {
         }
 
         return $errors;
+    }
+
+    /**
+     * This function creates a string containing the user's full name,
+     * which is used to add a label to the button.
+     *
+     * It returns an empty string when the given user is the same as the logged-in user.
+     *
+     * @param int|string $userid
+     * @return void
+     */
+    public static function get_for_user_button_string(int|string $userid): string {
+        global $USER;
+        // Dispaly name of the user if buying is for another user.
+        $foruser = '';
+        $user = singleton_service::get_instance_of_user($userid);
+        if ($userid != $USER->id && !empty($user)) {
+            $fullname = fullname($user);
+            $foruser = "{$fullname} (ID:$user->id)";
+        }
+
+        return $foruser;
     }
 }

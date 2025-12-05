@@ -1360,6 +1360,7 @@ $string['filterfullybooked'] = 'Ausgebucht';
 $string['filterstartdate'] = 'Von';
 $string['firstname'] = "Vorname";
 $string['firstnamerelated'] = "Vorname betroffene Person";
+$string['for'] = 'für';
 $string['forcourse'] = 'für Kurs';
 $string['format'] = 'Format';
 $string['formconfig'] = 'Anzeige, welches Formular verwendet wird';

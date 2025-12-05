@@ -1389,6 +1389,7 @@ $string['filterfullybooked'] = 'Fully booked';
 $string['filterstartdate'] = 'From';
 $string['firstname'] = "Firstname";
 $string['firstnamerelated'] = "Firstname of the related person (like i.e. the user the booking was made for)";
+$string['for'] = 'for';
 $string['forcourse'] = 'for course';
 $string['format'] = 'format';
 $string['formconfig'] = 'Show which form is used.';

@@ -39,7 +39,7 @@ use templatable;
  */
 class col_action implements renderable, templatable {
     /** @var string $label label for button */
-    public $label = 'Add to cart';
+    public $label = 'Add to cart 66666';
 
     /** @var string $class class for button */
     public $class = 'btn btn-primary';

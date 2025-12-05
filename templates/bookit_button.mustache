@@ -74,12 +74,12 @@
         {{#main}}
             {{#link}}
                 <a class="booking-button-mainarea mb-1 mt-1 p-1 {{class}}" href="{{link}}" data-action="bookondetail">
-                    {{{label}}}
+                    {{{label}}} {{#foruser}}<br><span>{{{foruser}}}</span>{{/foruser}}
                 </a>
             {{/link}}
             {{^link}}
                 <div class="booking-button-mainarea mb-1 mt-1 p-1 {{class}}" >
-                    {{{label}}}
+                    {{{label}}} {{#foruser}}<br><span>{{{foruser}}}</span>{{/foruser}}
                 </div>
             {{/link}}
         {{/main}}
