@@ -191,8 +191,12 @@ class behat_mod_booking extends behat_base {
 
     /**
      * Create page activity with given shortcode text (must contains cmid=<booking name>) which refers given booking instance
-     *
+     * // phpcs:ignore
      * @Given /^I create a page "(?P<pageid>[^"]*)" in course "(?P<coursename>[^"]*)" that refers booking "(?P<bookingname>[^"]*)" with shortcode "(?P<shortcode>(?:[^"]|\\")*)"$/
+     * @param string $pageid
+     * @param string $coursename
+     * @param string $bookingname
+     * @param string $shortcode
      * @return void
      */
     public function i_create_page_ref_booking(string $pageid, string $coursename, string $bookingname, string $shortcode) {

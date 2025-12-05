@@ -58,7 +58,6 @@ Feature: As admin - apply a shortcode for processing a column in wb_table.
     Given I am logged in as admin
     And I create a page "wb_column_shortcode1" in course "C1" that refers booking "BookingCMP" with shortcode "[courselist cmid=BookingCMP includecustomfields=\"cfspt1|leftside|fas|fa-running,cffrm1|leftside|far|fa-futbol fa-fw text-gray\"]"
     And I am on the "wb_column_shortcode1" Activity page
-    
     ## Verify options visibility along with customfields
     And I should see "0001 - Option01-t" in the "//div[contains(@class, 'mod-booking-row') and contains(@class, '_r1')]" "xpath_element"
     And I should see "tenis" in the "//div[contains(@class, 'mod-booking-row') and contains(@class, '_r1')]" "xpath_element"
