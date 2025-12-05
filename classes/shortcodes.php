@@ -1474,10 +1474,13 @@ class shortcodes {
             $table->showcountlabel = true;
         }
 
-        if (!isset($args['pageable']) || $args['pageable'] == 0 || $args['pageable'] == "false" || $args['pageable'] == false) {
+        if (!isset($args['perpage']) || $args['perpage'] == 0 || $args['perpage'] == "false" || $args['perpage'] == false) {
             $infinitescrollpage = is_numeric($args['infinitescrollpage'] ?? '') ? (int)$args['infinitescrollpage'] : 30;
             // This allows us to use infinite scrolling, No pages will be used.
             $table->infinitescroll = $infinitescrollpage;
+            $table->pageable(false);
+        } else {
+            $table->pageable(true);
         }
     }
     /**
