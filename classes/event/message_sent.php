@@ -104,8 +104,8 @@ class message_sent extends \core\event\base {
                 aria-controls="collapseExample">
 
                 ' . $messagetype . ' A message e-mail with subject "' . $subject .
-                '" has been sent to user: "' . $username .
-                '" by the user "' . $relatedusername  . '"
+                '" has been sent to user: "' . $relatedusername .
+                '" by the user "' . $username  . '"
             </a>
             <div class="collapse" id="a' . $uniqueid . '">
                 <div class="card card-body">
