@@ -35,7 +35,7 @@ Feature: In a booking create a template
     And I follow "New booking option"
     And I set the following fields to these values:
       | Booking option name | Option template |
-    And I set the field "Add to course calendar" to "Add to calendar (visible only to course participants)"
+    And I set the field "Add to course calendar" to "Add to calendar (visible only to participants of moodle course)"
     And I press "Add date"
     And I wait "1" seconds
     And I set the following fields to these values:
