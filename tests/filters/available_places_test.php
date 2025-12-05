@@ -285,7 +285,18 @@ final class available_places_test extends \advanced_testcase {
         $table2 = new bookingoptions_wbtable("cmid_{$cmid}_ajaxtest");
         $table2->add_filter($availableplacesfilter);
         [$fields, $from, $where, $params, $filter] =
-                booking::get_options_filter_sql(0, 0, '', '', $booking->context, [], $wherearray, null, [MOD_BOOKING_STATUSPARAM_BOOKED], '1=1');
+                booking::get_options_filter_sql(
+                    0,
+                    0,
+                    '',
+                    '',
+                    $booking->context,
+                    [],
+                    $wherearray,
+                    null,
+                    [MOD_BOOKING_STATUSPARAM_BOOKED],
+                    '1=1'
+                );
         $table2->set_filter_sql($fields, $from, $where, $filter, $params);
         $table2->pageable(true);
         $table2->outhtml(2, true);
