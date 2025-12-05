@@ -161,17 +161,21 @@ class select_responsible_contact_in_bo implements booking_rule_condition {
                 }
                 $numbersunion = implode(" UNION ALL ", $numbers);
 
-                $splitfrom = " JOIN LATERAL (
-                    SELECT TRIM(
-                        SUBSTRING_INDEX(
-                            SUBSTRING_INDEX(bo.responsiblecontact, ',', n.n),
-                            ',', -1
-                        )
-                    ) AS userid
-                    FROM ( $numbersunion ) AS n
-                    WHERE bo.responsiblecontact IS NOT NULL
-                    AND bo.responsiblecontact <> ''
-                    AND n.n <= 1 + (LENGTH(bo.responsiblecontact) - LENGTH(REPLACE(bo.responsiblecontact, ',', '')))
+                // Moodle 4.5 minimal DB liitaions: MySQL suuports JOIN LATERAL since 8.0
+                // But MariaDB does not support it in 10.6 - so it is necessary to load t_booking_options again.
+                $splitfrom = " JOIN (
+                    SELECT bo2.id AS optionid,
+                        TRIM(
+                            SUBSTRING_INDEX(
+                                SUBSTRING_INDEX(bo2.responsiblecontact, ',', n.n),
+                                ',', -1
+                            )
+                        ) AS userid
+                    FROM {booking_options} bo2
+                    JOIN ( $numbersunion ) AS n
+                    WHERE bo2.responsiblecontact IS NOT NULL
+                    AND bo2.responsiblecontact <> ''
+                    AND n.n <= 1 + (LENGTH(bo2.responsiblecontact) - LENGTH(REPLACE(bo2.responsiblecontact, ',', '')))
                 ) rc ON rc.userid <> ''";
                 $unique = $usesoptiondate
                     ? $DB->sql_concat("bo.id", "'-'", "bod.id", "'-'", "rc.userid")
