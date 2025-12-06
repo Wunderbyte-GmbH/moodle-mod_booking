@@ -188,4 +188,59 @@ class behat_mod_booking extends behat_base {
         $gen = \testing_util::get_data_generator()->get_plugin_generator('mod_booking');
         $gen->create_rule($data);
     }
+
+    /**
+     * Create page activity with given shortcode text (must contains cmid=<booking name>) which refers given booking instance
+     * // phpcs:ignore
+     * @Given /^I create a page "(?P<pageid>[^"]*)" in course "(?P<coursename>[^"]*)" that refers booking "(?P<bookingname>[^"]*)" with shortcode "(?P<shortcode>(?:[^"]|\\")*)"$/
+     * @param string $pageid
+     * @param string $coursename
+     * @param string $bookingname
+     * @param string $shortcode
+     * @return void
+     */
+    public function i_create_page_ref_booking(string $pageid, string $coursename, string $bookingname, string $shortcode) {
+        global $DB, $CFG;
+        require_once($CFG->libdir . '/testing/generator/lib.php');
+
+        // 1) Validate page is unique.
+        $modid = $DB->get_field('modules', 'id', ['name' => 'page'], MUST_EXIST);
+        if ($DB->record_exists('course_modules', ['module' => $modid, 'idnumber' => $pageid])) {
+            throw new \moodle_exception('Page with idnumber ' . $pageid . ' already exists.');
+        }
+        // 2) Get course.
+        $course = $DB->get_record('course', ['shortname' => $coursename], '*', MUST_EXIST);
+
+        // 3) Find cmid of booking by name (краще використовувати idnumber, якщо є).
+        $modid = $DB->get_field('modules', 'id', ['name' => 'booking'], MUST_EXIST);
+        $cm = $DB->get_record_sql(
+            "SELECT cm.id
+               FROM {course_modules} cm
+               JOIN {booking} b ON b.id = cm.instance
+              WHERE cm.course = ? AND cm.module = ? AND b.name = ?",
+            [$course->id, $modid, $bookingname],
+            MUST_EXIST
+        );
+
+        // 4) Build content with resolved cmid.
+        $content = str_replace($bookingname, $cm->id, $shortcode);
+
+        // 5) Create mod_page via data generator.
+        /** @var testing_data_generator $dg */
+        $dg = testing_util::get_data_generator();
+        /** @var mod_page_generator $pg */
+        $pg = $dg->get_plugin_generator('mod_page');
+
+        $page = (object)[
+            'course'        => $course->id,
+            'name'          => ucfirst($pageid),
+            'intro'         => 'Booking Options Shortcode Page',
+            'introformat'   => FORMAT_HTML,
+            'content'       => $content,
+            'contentformat' => FORMAT_HTML,
+            'idnumber'      => $pageid,
+            'visible'       => 1,
+        ];
+        $pg->create_instance($page);
+    }
 }
