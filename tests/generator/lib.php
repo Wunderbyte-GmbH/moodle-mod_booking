@@ -206,7 +206,17 @@ class mod_booking_generator extends testing_module_generator {
             $teacherarr = explode(',', $record->teachersforoption);
             $record->teachersforoption = [];
             foreach ($teacherarr as $teacher) {
-                $record->teachersforoption[] = $this->get_user(trim($teacher));
+                $userid = $this->get_user(trim($teacher));
+                if (!empty($record->importing)) {
+                    $record->teachersforoption[] = core_user::get_user($userid, 'email', MUST_EXIST)->email;
+                } else {
+                    $record->teachersforoption[] = $userid;
+                }
+            }
+            // Special treatment for importing: represent teachers as emails.
+            if (!empty($record->importing)) {
+                $record->teacheremail = implode(',', $record->teachersforoption);
+                $record->teachersforoption = [];
             }
         } else {
             $record->teachersforoption = [];
