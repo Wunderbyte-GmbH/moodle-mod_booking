@@ -30,10 +30,12 @@ use mod_booking\booking_rules\rules_info;
 use mod_booking\output\view;
 use mod_booking\table\bookingoptions_wbtable;
 use mod_booking\booking_option;
+use mod_booking\booking_option_settings;
 use mod_booking\booking_campaigns\campaigns_info;
 use mod_booking\singleton_service;
 use mod_booking\semester;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\option\fields\price as Mod_bookingPriceField;
 use mod_booking\price as Mod_bookingPrice;
 use local_shopping_cart\shopping_cart;
 use local_shopping_cart\local\cartstore;
@@ -200,6 +202,11 @@ class mod_booking_generator extends testing_module_generator {
 
         $record->addtocalendar = !empty($record->addtocalendar) ? $record->addtocalendar : 0;
         $record->maxanswers = !empty($record->maxanswers) ? $record->maxanswers : 0;
+
+        if (!empty($record->useprice)) {
+            // We must force importing to get price defaults being set properly.
+            $record->importing = 1;
+        }
 
         // Process option teachers.
         if (!empty($record->teachersforoption)) {
