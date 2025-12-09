@@ -1591,7 +1591,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
     public function col_progress($values) {
         global $USER;
         if ($values->courseid) {
-            $completion = \core_completion\progress::get_course_progress_percentage(get_course($values->courseid), $USER->id);
+            $completion = round(\core_completion\progress::get_course_progress_percentage(get_course($values->courseid), $USER->id), 2);
             return ($completion === null) ? '' : '| ' . $completion . get_string('postprogressstring', 'mod_booking');
         }
         return '';
