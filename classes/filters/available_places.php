@@ -51,7 +51,7 @@ class available_places {
                     SELECT sbo.id,
                     CASE WHEN
                         sbo.maxanswers=0
-                        OR (sbo.maxanswers - COUNT(CASE WHEN sba.waitinglist = 0 THEN 1 END)) > 0
+                        OR (sbo.maxanswers - COUNT(CASE WHEN sba.waitinglist IN (0, 2) THEN 1 END)) > 0
                     THEN '1'
                     ELSE '0' END AS availableplaces
                     FROM {booking_options} sbo
