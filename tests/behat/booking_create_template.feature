@@ -97,15 +97,14 @@ Feature: In a booking create a template
       | linktomoodlecourseonbookedbutton | 1     | booking |
       | selflearningcourseactive         | 1     | booking |
     And the following "mod_booking > options" exist:
-      | booking    | text         | description  | importing | useprice | course | chooseorcreatecourse | selflearningcourse | duration | coursestarttime | maxanswers | teachersforoption | responsiblecontact |
-      | My booking | SelfLearning | SelfLearning | 1         | 1        | C2     | 1                    | 1                  | 10       | ## +2 days ##   |5           | teacher1, admin   | teacher2, teacher3 |
+      | booking    | text         | description  | useprice | course | chooseorcreatecourse | selflearningcourse | duration | coursestarttime | maxanswers | teachersforoption | responsiblecontact |
+      | My booking | SelfLearning | SelfLearning | 1        | C2     | 1                    | 1                  | 10       | ## +2 days ##   | 5          | teacher1, admin   | teacher2, teacher3 |
+    And the following "mod_booking > prices" exist:
+      | itemname     | area   | pricecategoryidentifier | price | currency |
+      | SelfLearning | option | default                 | 75    | EUR      |
+      | SelfLearning | option | specialprice            | 65    | EUR      |
     ## Customize option and add it as template
     And I am on the "My booking" Activity page logged in as teacher1
-    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I follow "Price"
-    ## And I set the field "Base Price" to "65"
-    And I set the field with xpath "//div[contains(@id, 'id_bookingoptionprice_')]//input[@aria-label='Base Price']" to "65"
-    And I press "Save"
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "More" "text" in the ".secondary-navigation .moremenu.navigation" "css_element"
     And I follow "Save booking option as template"
