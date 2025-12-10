@@ -82,6 +82,7 @@ export function initFooterButtons(optionid, userid, shoppingcartisinstalled) {
             case 'closeinline':
             case 'continuepost':
             case 'checkout':
+            case 'closemodal':
                 // eslint-disable-next-line no-console
                 console.log('closeinline/checkout/continuepost', action);
                 if (shoppingcartisinstalled) {
