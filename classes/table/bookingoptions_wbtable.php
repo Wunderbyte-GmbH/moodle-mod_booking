@@ -1580,4 +1580,20 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
             <div> Competencies: ' . $values->competencies . '</div>';
     }
+
+    /**
+     * Shows course progress if courseid is set.
+     * 
+     * @param object $values Contains object with all the values of record.
+     * @return string $invisible Returns visibility of the booking option as string.
+     * @throws coding_exception
+     */
+    public function col_progress($values) {
+        global $USER;
+        if ($values->courseid) {
+            $completion = round(\core_completion\progress::get_course_progress_percentage(get_course($values->courseid), $USER->id), 2);
+            return ($completion === null) ? '' : '| ' . $completion . get_string('postprogressstring', 'mod_booking');
+        }
+        return '';
+    }
 }

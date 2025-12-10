@@ -1473,6 +1473,9 @@ class shortcodes {
         } else {
             $table->showcountlabel = true;
         }
+        if (isset($args['progress'])) {
+            $table->add_subcolumns('progress', ['progress']);
+        } 
 
         if (!isset($args['perpage']) || $args['perpage'] == 0 || $args['perpage'] == "false" || $args['perpage'] == false) {
             $infinitescrollpage = is_numeric($args['infinitescrollpage'] ?? '') ? (int)$args['infinitescrollpage'] : 30;
