@@ -163,7 +163,7 @@ class customform_form extends dynamic_form {
                             'static',
                             $identifier,
                             format_string($formelementvalue->label),
-                            format_string($formelementvalue->value)
+                            format_text($formelementvalue->value)
                         );
                         break;
                     case 'advcheckbox':
