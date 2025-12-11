@@ -1583,7 +1583,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
     /**
      * Shows course progress if courseid is set.
-     * 
+     *
      * @param object $values Contains object with all the values of record.
      * @return string $invisible Returns visibility of the booking option as string.
      * @throws coding_exception
