@@ -1,3 +1,6 @@
+## Version 9.0.2 (2025121100)
+* Bugfix: Fix bugs in Bookings tracker.
+
 ## Version 9.0.1 (2025121000)
 * New feature: Create shortcode for altering a wb_table column.
 * New feature: Add new 'includecustomfields' argument for shortcodes.
