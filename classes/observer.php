@@ -746,4 +746,18 @@ class mod_booking_observer {
         $userid = (int)$event->relateduserid;
         cache_helper::invalidate_by_event('setbackusercompetenciescache', [$userid]);
     }
+
+    /**
+     * Observer for the following events:
+     *
+     * - core_customfield\event\field_created
+     * - core_customfield\event\field_updated
+     * - core_customfield\event\field_deleted
+     *
+     * @param core\event\base $event
+     * @return void
+     */
+    public static function customfield_created_updated_deleted(base $event): void {
+        cache_helper::invalidate_by_event('setbackcustomfields', []);
+    }
 }

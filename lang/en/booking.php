@@ -693,6 +693,7 @@ $string['cachedef_cachedteachersjournal'] = 'Teaches journal (Cache)';
 $string['cachedef_competenciesshortnamescache'] = 'Competencies shortnames (Cache)';
 $string['cachedef_conditionforms'] = 'Condition Forms (Cache)';
 $string['cachedef_confirmbooking'] = 'Booking confirmed (Cache)';
+$string['cachedef_customfields'] = 'Custom fields (Cache)';
 $string['cachedef_customformuserdata'] = 'Custom form user data (Cache)';
 $string['cachedef_electivebookingorder'] = 'Elective booking order (Cache)';
 $string['cachedef_eventlogtable'] = 'Event log table (Cache)';
