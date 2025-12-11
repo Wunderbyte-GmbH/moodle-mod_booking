@@ -23,6 +23,7 @@
  */
 
 namespace mod_booking\table;
+use core_completion\progress;
 use mod_booking\booking_answers\booking_answers;
 use core_plugin_manager;
 use mod_booking\local\modechecker;
@@ -1591,7 +1592,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
     public function col_progress($values) {
         global $USER;
         if ($values->courseid) {
-            $completion = round(\core_completion\progress::get_course_progress_percentage(get_course($values->courseid), $USER->id), 2);
+            $completion = round(progress::get_course_progress_percentage(get_course($values->courseid), $USER->id), 2);
             return ($completion === null) ? '' : '| ' . $completion . get_string('postprogressstring', 'mod_booking');
         }
         return '';
