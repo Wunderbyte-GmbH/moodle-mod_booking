@@ -821,6 +821,164 @@ final class shopping_cart_cancellation_with_price_test extends advanced_testcase
         $this->assertCount(3, $tasks);
     }
 
+    /**
+     * Test of purchase of few booking options with price and cancellation all by cashier with fixed consumption has been set.
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     * @covers \mod_booking\booking_option::cancelbookingoption
+     * @dataProvider configuration_provider
+     *
+     */
+
+    public function test_returning_price_on_cancellation(array $config): void {
+        global $DB, $CFG;
+
+        $bdata = self::booking_common_settings_provider()['bdata'][0];
+
+        // Skip this test if shopping_cart not installed.
+        if (!class_exists('local_shopping_cart\shopping_cart')) {
+            return;
+        }
+
+        // Set parems requred for cancellation.
+        $bdata['booking']['cancancelbook'] = 1;
+        set_config('cancelationfee', $config['cancellationfee'], 'local_shopping_cart');
+
+        // Setup test data.
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        // Create user profile custom fields.
+        $this->getDataGenerator()->create_custom_profile_field([
+            'datatype' => 'text', 'shortname' => 'pricecat', 'name' => 'pricecat',
+        ]);
+        set_config('pricecategoryfield', 'pricecat', 'booking');
+
+        // Create users.
+        $students[0] = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'p6050']);
+        $students[1] = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'p6025']);
+        $students[2] = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'p6075']);
+        $teacher = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
+
+        $bdata['booking']['course'] = $course1->id;
+        $bdata['booking']['bookingmanager'] = $bookingmanager->username;
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata['booking']);
+
+        $this->setAdminUser();
+
+        foreach ($students as $student) {
+            $this->getDataGenerator()->enrol_user($student->id, $course1->id, 'student');
+        }
+        $this->getDataGenerator()->enrol_user($teacher->id, $course1->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course1->id, 'editingteacher');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        // Create set of price categories.
+        $plugingenerator->create_pricecategory($bdata['pricecategories'][3]);
+        $plugingenerator->create_pricecategory($bdata['pricecategories'][4]);
+        $plugingenerator->create_pricecategory($bdata['pricecategories'][5]);
+
+        // Create a booking option - setup only properties different form given in data provider.
+        $record = (object)$bdata['options'][1];
+        $record->bookingid = $booking1->id;
+        $record->chooseorcreatecourse = 1; // Reqiured.
+        $record->courseid = $course1->id;
+        $record->useprice = 1; // Use price from the default category.
+        $record->importing = 1;
+        $record->teachersforoption = $teacher->username;
+        $option1 = $plugingenerator->create_option($record);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid); // Require to avoid caching issues.
+        $boinfo = new bo_info($settings);
+
+        // Create users' purchases in background.
+        foreach ($students as $student) {
+            $userpurchase = ['optionid' => $option1->id, 'userid' => $student->id];
+            $plugingenerator->create_user_purchase($userpurchase);
+        }
+
+        // Validate that option already booked.
+        foreach ($students as $student) {
+            [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student->id);
+            $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+        }
+
+        // Test dynamic form (partial).
+        $formdata = [
+            'cancelationfee' => 0,
+            'componentname' => 'mod_booking',
+            'area' => 'option',
+            'itemid' => $settings->id,
+        ];
+
+        $form = new modal_cancel_all_addcredit(null, $formdata, 'post', '', [], true, $formdata, true);
+        $formdata1 = $form->mock_ajax_submit($formdata);
+
+        // Validate code of modal_cancel_all_addcredit/process_dynamic_submission.
+        $data = (object)$formdata1;
+        $bookedusers = shopping_cart_history::get_user_list_for_option($data->itemid, $data->componentname, $data->area);
+
+        $this->assertCount(3, $bookedusers);
+
+        $componentname = $data->componentname;
+        $area = $data->area;
+
+        $userstocancel = [];
+        foreach ($bookedusers as $buser) {
+            $itemprice = $bookedusers[$buser->id]->price;
+            shopping_cart::cancel_purchase(
+                $buser->itemid,
+                $data->area,
+                $buser->userid,
+                $componentname,
+                $buser->id,
+                $itemprice - $config['cancellationfee'],
+                $config['cancellationfee'],
+                1,
+                1
+            );
+            $userstocancel[] = $buser->userid;
+        }
+
+        $answers = $DB->get_records('booking_answers', ['optionid' => $option1->id]);
+        $this->assertCount(3, $answers);
+
+        // For the booking component, we have a special treatment here.
+        if ($componentname === 'mod_booking' && $area === 'option') {
+            $pluginmanager = \core_plugin_manager::instance();
+            $plugins = $pluginmanager->get_plugins_of_type('mod');
+            if (isset($plugins['booking'])) {
+                booking_option::cancelbookingoption(
+                    $data->itemid,
+                    'cancel reason is testcase',
+                    false,
+                    $userstocancel
+                );
+            }
+        }
+
+        foreach ($students as $student) {
+            // The the paid value by user for the option.
+            $purchasingprice = $DB->get_field('local_shopping_cart_history', 'price', ['userid' => $student->id], IGNORE_MISSING);
+            $purchasingprice = (float) $purchasingprice;
+            // Get the refund value.
+            $userlastcredit = $DB->get_field('local_shopping_cart_credits', 'credits', ['userid' => $student->id], IGNORE_MISSING);
+            $userlastcredit = (float) $userlastcredit;
+
+            // Check if refuncded value is ssame is same as item price at the purchase time.
+            // To check that we compare the user's last credit records to see how much credits they received after cancellation.
+            // The value of the price column in history table should be exactly
+            // same as value of the credit column in the credits table when there is no cancellation fee.
+            $expectedamounttoreturn = $purchasingprice - $config['cancellationfee'];
+            $this->assertSame($expectedamounttoreturn, $userlastcredit);
+        }
+    }
+
 
     /**
      * Data provider for shopping_cart_test
@@ -919,8 +1077,53 @@ final class shopping_cart_cancellation_with_price_test extends advanced_testcase
                     'defaultvalue' => 79,
                     'pricecatsortorder' => 3,
                 ],
+                3 => (object)[
+                    'ordernum' => 4,
+                    'name' => 'p6050',
+                    'identifier' => 'p6050',
+                    'defaultvalue' => 60.5,
+                    'pricecatsortorder' => 4,
+                ],
+                4 => (object)[
+                    'ordernum' => 5,
+                    'name' => 'p6025',
+                    'identifier' => 'p6025',
+                    'defaultvalue' => 60.25,
+                    'pricecatsortorder' => 5,
+                ],
+                5 => (object)[
+                    'ordernum' => 6,
+                    'name' => 'p6075',
+                    'identifier' => 'p6075',
+                    'defaultvalue' => 60.75,
+                    'pricecatsortorder' => 6,
+                ],
             ],
         ];
         return ['bdata' => [$bdata]];
+    }
+
+    /**
+     * Configuration provider.
+     * @return array
+     */
+    public static function configuration_provider(): array {
+        return [
+            'Cancellation fee 0.00 EURO' => [
+                [
+                    'cancellationfee' => 0.00,
+                ],
+            ],
+            'Cancellation fee 1,5 EURO' => [
+                [
+                    'cancellationfee' => 1.50,
+                ],
+            ],
+            'Cancellation fee 1.00 EURO' => [
+                [
+                    'cancellationfee' => 1.00,
+                ],
+            ],
+        ];
     }
 }
