@@ -268,10 +268,11 @@ class booked_users implements renderable, templatable {
             $paginate,
             $customfields
         );
-
-        // Activate sorting dropdown.
-        $table->cardsort = true;
-
+        // Important: If there is no table, we return null right away.
+        if (empty($table)) {
+            return null;
+        }
+        $table->cardsort = true; // Activate sorting dropdown.
         $table->showcountlabel = true;
         $table->showdownloadbutton = true;
         $table->showdownloadbuttonatbottom = true;
@@ -338,6 +339,13 @@ class booked_users implements renderable, templatable {
                 break;
             case 'option':
                 $optionid = $scopeid;
+                $wherepart = "WHERE bh.optionid = :optionid";
+                $params = ['optionid' => $optionid];
+                break;
+            case 'optiondate':
+                global $DB;
+                $optiondateid = $scopeid;
+                $optionid = $DB->get_field('booking_optiondates', 'optionid', ['id' => $optiondateid]);
                 $wherepart = "WHERE bh.optionid = :optionid";
                 $params = ['optionid' => $optionid];
                 break;
