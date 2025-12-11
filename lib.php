@@ -1421,7 +1421,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
             'nav_recalculateprices'
         );
         $navref->add(
-            get_string('teachersinstancereport', 'mod_booking') . " ($bookingsettings->name)",
+            get_string('teachersinstancereport', 'mod_booking') . " (" . format_string($bookingsettings->name) . ")",
             new moodle_url('/mod/booking/teachers_instance_report.php', ['cmid' => $cm->id]),
             navigation_node::TYPE_CUSTOM,
             null,
@@ -1432,7 +1432,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
 
         // Option Form Config.
         $optionformconfignode = $navref->add(
-            get_string('optionformconfig', 'mod_booking') . " ($bookingsettings->name)",
+            get_string('optionformconfig', 'mod_booking') . " (" . format_string($bookingsettings->name) . ")",
             new moodle_url(
                 '/mod/booking/optionformconfig.php',
                 ['cmid' => $cm->id]
@@ -1449,7 +1449,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         // Booking Rules.
         if (has_capability('mod/booking:editbookingrules', $context)) {
             $bookingrulesnode = $navref->add(
-                get_string('bookingrules', 'mod_booking') . " ($bookingsettings->name)",
+                get_string('bookingrules', 'mod_booking') . " (" . format_string($bookingsettings->name) . ")",
                 new moodle_url(
                     '/mod/booking/edit_rules.php',
                     ['cmid' => $cm->id]
@@ -1467,7 +1467,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         // Bookings Tracker.
         if (has_capability('mod/booking:managebookedusers', $context)) {
             $bookingstrackernode = $navref->add(
-                get_string('bookingstracker', 'mod_booking') . " ($bookingsettings->name)",
+                get_string('bookingstracker', 'mod_booking') . " (" . format_string($bookingsettings->name) . ")",
                 new moodle_url(
                     '/mod/booking/report2.php',
                     ['cmid' => $cm->id]
