@@ -1226,6 +1226,7 @@ class price {
                     $price->price = round((float)$price->price, 2);
                     // Campaign price factor has been applied.
                 }
+                unset($price); // Important: Break the reference after the loop!
             }
         }
     }

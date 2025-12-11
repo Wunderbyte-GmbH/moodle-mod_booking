@@ -1654,6 +1654,7 @@ class shortcodes {
             $value = str_replace('"', '', $value);
             $value = str_replace("'", "", $value);
         }
+        unset($value); // Important: Break the reference after the loop!
     }
 
     /**

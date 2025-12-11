@@ -479,6 +479,7 @@ class bookingoption_description implements renderable, templatable {
                     ['id' => $responsiblecontact->id]
                 );
             }
+            unset($responsiblecontact); // Important: Break the reference after the loop!
         } else {
             $responsibles = [];
         }

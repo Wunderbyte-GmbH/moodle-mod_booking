@@ -142,6 +142,7 @@ if (!empty($optiondateid)) {
     $optiondates = $optionsettings->sessions;
     if (!empty($optiondates) && count($optiondates) > 0) {
         $data['optiondatesexist'] = true;
+
         foreach ($optiondates as &$optiondate) {
             $optiondate = (array) $optiondate;
             $optiondate['prettydate'] = dates_handler::prettify_optiondates_start_end(
@@ -156,6 +157,8 @@ if (!empty($optiondateid)) {
             ]);
             $optiondate['dateurl'] = $dateurl->out(false);
         }
+        unset($optiondate); // Important: Break the reference after the loop!
+
         $firstentry['prettydate'] = get_string('choosesession', 'mod_booking');
         $firstentry['dateurl'] = $PAGE->url; // The current page.
         array_unshift($optiondates, $firstentry);
@@ -241,6 +244,7 @@ if (!empty($optiondateid)) {
     $optiondates = $optionsettings->sessions;
     if (!empty($optiondates) && count($optiondates) > 0) {
         $data['optiondatesexist'] = true;
+
         foreach ($optiondates as &$optiondate) {
             $optiondate = (array) $optiondate;
             $optiondate['prettydate'] = dates_handler::prettify_optiondates_start_end(
@@ -255,6 +259,8 @@ if (!empty($optiondateid)) {
             ]);
             $optiondate['dateurl'] = $dateurl->out(false);
         }
+        unset($optiondate); // Important: Break the reference after the loop!
+
         $firstentry['prettydate'] = get_string('choosesession', 'mod_booking');
         $firstentry['dateurl'] = $PAGE->url; // The current page.
         array_unshift($optiondates, $firstentry);

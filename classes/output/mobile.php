@@ -619,6 +619,7 @@ class mobile {
                 break;
             }
         }
+        unset($tab); // Important: Break the reference after the loop!
         return $whichview;
     }
 
