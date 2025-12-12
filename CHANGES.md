@@ -1,3 +1,8 @@
+## Version 9.0.3 (2025121200)
+* Bugfix: Don't send mails when CMID of option has changed.
+* Bugfix: Missing format_strings for booking rules.
+* Bugfix: Fix reliability bugs reported by Sonarqube with high severity.
+
 ## Version 9.0.2 (2025121100)
 * Bugfix: Fix bugs in Bookings tracker.
 
