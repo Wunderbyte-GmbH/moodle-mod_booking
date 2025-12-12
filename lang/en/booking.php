@@ -1546,7 +1546,11 @@ $string['lblsputtname'] = 'Name of label: Send poll url to teachers';
 $string['lblsurname'] = 'Name of label: Surname';
 $string['lblteachname'] = 'Name of label: Teachers';
 $string['leftandrightdate'] = '{$a->leftdate} to {$a->righttdate}';
-$string['licenseactivated'] = 'PRO version activated successfully.<br>(Expires: ';
+$string['licenseactivated'] = 'PRO version activated successfully.<br>(Expires: {$a})';
+$string['licenseexpired'] = 'PRO version has expired ({$a}).
+<a href="https://showroom.wunderbyte.at/course/view.php?id=62" target="_blank">
+Renew your license
+</a> to continue using all features.';
 $string['licenseinvalid'] = 'Invalid license key';
 $string['licensekey'] = 'PRO license key';
 $string['licensekeycfg'] = 'Activate PRO version';

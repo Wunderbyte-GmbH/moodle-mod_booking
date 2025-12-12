@@ -1520,7 +1520,11 @@ $string['lblsputtname'] = 'Alternative Bezeichnung für "Umfragelink an Trainer:
 $string['lblsurname'] = 'Bezeichnung für: Nachname';
 $string['lblteachname'] = 'Alternative Bezeichnung für "Trainer:in" verwenden';
 $string['leftandrightdate'] = '{$a->leftdate} bis {$a->righttdate}';
-$string['licenseactivated'] = 'PRO-Version wurde erfolgreich aktiviert.<br>(Läuft ab am: ';
+$string['licenseactivated'] = 'PRO-Version wurde erfolgreich aktiviert.<br>(Läuft ab am: {$a})';
+$string['licenseexpired'] = 'PRO-Version ist abgelaufen ({$a}).
+<a href="https://showroom.wunderbyte.at/course/view.php?id=62" target="_blank">
+Erneuern Sie Ihre Lizenz
+</a>, um weiterhin alle Funktionen nutzen zu können.';
 $string['licenseinvalid'] = 'Ungültiger Lizenz-Schlüssel.';
 $string['licensekey'] = 'PRO-Lizenz-Schlüssel';
 $string['licensekeycfg'] = 'PRO-Version aktivieren';
