@@ -78,24 +78,14 @@ final class arguments_test extends advanced_testcase {
      *
      * @covers \mod_booking\shortcodes::allbookingoptions
      * @covers \local_wunderbyte_table\external\load_data::execute
-     *
+     * @dataProvider shortcode_provider
      * @param string $shortcodename
      * @param string $shortcode
      * @param array $args
      * @param array $config
-     * @return void
-     *
-     * @dataProvider shortcode_provider
-     * @param mixed $shortcodename
-     * @param mixed $shortcode
-     * @param mixed $args
-     * @param mixed $config
-     *
      * @throws \coding_exception
      * @throws \dml_exception
-     *
      * @return void
-     *
      */
     public function test_infinitescrollpage(
         string $shortcodename,
