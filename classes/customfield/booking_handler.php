@@ -97,7 +97,12 @@ class booking_handler extends \core_customfield\handler {
         global $DB;
 
         $cache = cache::make('mod_booking', 'customfields');
-        $cachekey = empty($selectedshortnames) ? 'ALL' : implode(',', $selectedshortnames);
+        if (!empty($selectedshortnames)) {
+            sort($selectedshortnames); // Ensure deterministic cache key regardless of argument order.
+            $cachekey = 'subset_' . sha1(implode('|', $selectedshortnames));
+        } else {
+            $cachekey = 'ALL';
+        }
 
         $data = $cache->get($cachekey);
         if ($data !== false) {
