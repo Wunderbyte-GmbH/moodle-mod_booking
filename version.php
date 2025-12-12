@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2025111801;
+$plugin->version = 2025111803; // Temp URISE delivery.
 $plugin->requires = 2022112800; // Requires this Moodle version. Current: Moodle 4.1.
 $plugin->release = '8.18.3';
 $plugin->maturity = MATURITY_STABLE;
