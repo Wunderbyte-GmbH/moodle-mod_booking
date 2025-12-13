@@ -41,6 +41,7 @@ use local_shopping_cart\shopping_cart;
 use local_shopping_cart\local\cartstore;
 use mod_booking\bo_actions\actions_info;
 use mod_booking\bo_availability\conditions\maxoptionsfromcategory;
+use mod_booking\bo_availability\conditions\allowedtobookininstance;
 use mod_booking\enrollink;
 use tool_mocktesttime\time_mock;
 
@@ -87,6 +88,7 @@ class mod_booking_generator extends testing_module_generator {
         singleton_service::destroy_instance();
         singleton_service::reset_campaigns();
         maxoptionsfromcategory::reset_instance();
+        allowedtobookininstance::reset_instance();
         enrollink::destroy_instances();
         rules_info::destroy_singletons();
         rules_info::$rulestoexecute = [];
