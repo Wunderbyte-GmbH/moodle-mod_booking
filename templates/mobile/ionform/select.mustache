@@ -9,12 +9,15 @@
 <div>
   <%#myform%>
     <ion-item>
-      <ion-select 
-        aria-label="true" 
+      <ion-select
+        aria-label="true"
         placeholder="<% label %>"
         name="<% name %>"
         value="<% selectedvalue %>"
         [(ngModel)]='CONTENT_OTHERDATA.data["<% name %>"]'
+        [interfaceOptions]="{ header: '<% headertext %>' }"
+        cancelText="<% canceltext %>"
+        okText="<% submissiontext %>"
       >
         <%# values %>
           <ion-select-option value="<% key_select %>"><% value_select %></ion-select-option>

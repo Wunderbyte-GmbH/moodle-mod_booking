@@ -1402,6 +1402,7 @@ $string['groupexists'] = 'Die Gruppe existiert bereits im Zielkurs. Bitte verwen
 $string['groupname'] = 'Gruppenname';
 $string['h'] = ' Uhr';
 $string['hascapability'] = 'Außer mit dieser Fähikgeit';
+$string['headerform'] = 'Bitte auswählen';
 $string['helptext:emailsettings'] = '<div class="alert alert-warning style="margin-left: 200px;">
 <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
 <span>&nbsp;Veraltete Funktion, bitte migrieren Sie ihre Vorlagen und Einstellungen zu <a href="{$a}">Buchungs Regeln</a></span>!
@@ -2541,6 +2542,7 @@ $string['subbookingsheader'] = 'Zusatzbuchungen <span class="badge bg-success te
 $string['subbookingtimeslot'] = "Zeitfenster Buchung";
 $string['subbookingtimeslot_desc'] = "Mit dieser Funktion kann die Dauer von buchbaren Zeitfenstern für jedes Datum der Buchungsoption festgelegt werden.";
 $string['subject'] = 'Betreff';
+$string['submit'] = 'Bestätigen';
 $string['submitandadd'] = 'Neue Buchungsoption anlegen';
 $string['submitandgoback'] = 'Formular schließen';
 $string['submitandstay'] = 'Formular weiterbearbeiten';
