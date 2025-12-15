@@ -202,11 +202,27 @@ if ($ADMIN->fulltree) {
 
         $expirationdate = wb_payment::decryptlicensekey($licensekey);
         if (!empty($expirationdate)) {
-            $licensekeydesc = "<p style='color: green; font-weight: bold'>"
-                . get_string('licenseactivated', 'mod_booking')
-                . $expirationdate
-                . ")</p>";
+            $expirationdatetimestamp = strtotime($expirationdate);
+            $now = time();
+            if ($expirationdatetimestamp < $now) {
+                // License has expired.
+                $licensekeydesc = "<p style='color: red; font-weight: bold'>"
+                    . get_string(
+                        'licenseexpired',
+                        'mod_booking',
+                        $expirationdate
+                    ) . "</p>";
+            } else {
+                // License is valid.
+                $licensekeydesc = "<p style='color: green; font-weight: bold'>"
+                    . get_string(
+                        'licenseactivated',
+                        'mod_booking',
+                        $expirationdate
+                    ) . "</p>";
+            }
         } else {
+            // License key is invalid.
             $licensekeydesc = "<p style='color: red; font-weight: bold'>"
                 . get_string('licenseinvalid', 'mod_booking')
                 . "</p>";
@@ -959,7 +975,7 @@ if ($ADMIN->fulltree) {
             if (!$plugin instanceof bookingextension_interface) {
                 continue; // Skip if the plugin does not implement the interface.
             }
-            // TODO: This is not very stable. Maybe alter $settings object.
+            // Todo: This is not very stable. Maybe alter $settings object.
             $plugin->load_settings($ADMIN, 'modbookingfolder', $hassiteconfig);
         }
     } else {

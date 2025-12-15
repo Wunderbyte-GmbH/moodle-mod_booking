@@ -479,6 +479,7 @@ class bookingoption_description implements renderable, templatable {
                     ['id' => $responsiblecontact->id]
                 );
             }
+            unset($responsiblecontact); // Important: Break the reference after the loop!
         } else {
             $responsibles = [];
         }
@@ -574,6 +575,17 @@ class bookingoption_description implements renderable, templatable {
                     $bookingoption->settings->competencies ?? "",
                     $bookingoption
                 );
+                break;
+
+            case MOD_BOOKING_DESCRIPTION_CARTITEM:
+                if ($forbookeduser) {
+                    // If it is for booked user, we show a short info text that the option is already booked.
+                    $this->booknowbutton = get_string('infoalreadybooked', 'booking');
+                } else if ($bookinganswers->user_status($user->id) == MOD_BOOKING_STATUSPARAM_WAITINGLIST) {
+                    // If onwaitinglist is 1, we show a short info text that the user is on the waiting list.
+                    // Currently this is only working for the current USER.
+                    $this->booknowbutton = get_string('infowaitinglist', 'booking');
+                }
                 break;
 
             case MOD_BOOKING_DESCRIPTION_CALENDAR:

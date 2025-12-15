@@ -71,6 +71,7 @@ define('MOD_BOOKING_DESCRIPTION_ICAL', 3); // Shows link with text "go to bookin
 define('MOD_BOOKING_DESCRIPTION_MAIL', 4); // Shows link with text "go to bookingoption" and meeting links via link.php...
                             // ...for mail placeholder {bookingdetails}.
 define('MOD_BOOKING_DESCRIPTION_OPTIONVIEW', 5); // Description for booking option preview page.
+define('MOD_BOOKING_DESCRIPTION_CARTITEM', 6); // Description for a reduced description we use in bookingbookit.
 
 // Define message parameters.
 define('MOD_BOOKING_MSGPARAM_CONFIRMATION', 1);
@@ -1420,7 +1421,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
             'nav_recalculateprices'
         );
         $navref->add(
-            get_string('teachersinstancereport', 'mod_booking') . " ($bookingsettings->name)",
+            get_string('teachersinstancereport', 'mod_booking') . " (" . format_string($bookingsettings->name) . ")",
             new moodle_url('/mod/booking/teachers_instance_report.php', ['cmid' => $cm->id]),
             navigation_node::TYPE_CUSTOM,
             null,
@@ -1431,7 +1432,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
 
         // Option Form Config.
         $optionformconfignode = $navref->add(
-            get_string('optionformconfig', 'mod_booking') . " ($bookingsettings->name)",
+            get_string('optionformconfig', 'mod_booking') . " (" . format_string($bookingsettings->name) . ")",
             new moodle_url(
                 '/mod/booking/optionformconfig.php',
                 ['cmid' => $cm->id]
@@ -1448,7 +1449,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         // Booking Rules.
         if (has_capability('mod/booking:editbookingrules', $context)) {
             $bookingrulesnode = $navref->add(
-                get_string('bookingrules', 'mod_booking') . " ($bookingsettings->name)",
+                get_string('bookingrules', 'mod_booking') . " (" . format_string($bookingsettings->name) . ")",
                 new moodle_url(
                     '/mod/booking/edit_rules.php',
                     ['cmid' => $cm->id]
@@ -1466,7 +1467,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         // Bookings Tracker.
         if (has_capability('mod/booking:managebookedusers', $context)) {
             $bookingstrackernode = $navref->add(
-                get_string('bookingstracker', 'mod_booking') . " ($bookingsettings->name)",
+                get_string('bookingstracker', 'mod_booking') . " (" . format_string($bookingsettings->name) . ")",
                 new moodle_url(
                     '/mod/booking/report2.php',
                     ['cmid' => $cm->id]
@@ -2614,35 +2615,6 @@ function get_list_of_booking_events() {
         }
     }
     return $eventinformation;
-}
-
-/**
- * Helper function to replace special characters within a string.
- * @param string $text a text string
- * @return string|string[]|null
- */
-function clean_string(string $text) {
-    $utf8 = [
-        '/[áàâãªä]/u'   => 'a',
-        '/[ÁÀÂÃÄ]/u'    => 'A',
-        '/[ÍÌÎÏ]/u'     => 'I',
-        '/[íìîï]/u'     => 'i',
-        '/[éèêë]/u'     => 'e',
-        '/[ÉÈÊË]/u'     => 'E',
-        '/[óòôõºö]/u'   => 'o',
-        '/[ÓÒÔÕÖ]/u'    => 'O',
-        '/[úùûü]/u'     => 'u',
-        '/[ÚÙÛÜ]/u'     => 'U',
-        '/[çćč]/'       => 'c',
-        '/ÇĆČ/'         => 'C',
-        '/ñń/'          => 'n',
-        '/ÑŃ/'          => 'N',
-        '/–/'           => '-', // UTF-8 hyphen to "normal" hyphen.
-        '/[\'’‘‹›‚]/u'  => ' ', // Single quote.
-        '/[\"“”«»„]/u'  => ' ', // Double quote.
-        '/ /'           => ' ', // Nonbreaking space (equiv. to 0x160).
-    ];
-    return preg_replace(array_keys($utf8), array_values($utf8), $text);
 }
 
 /**

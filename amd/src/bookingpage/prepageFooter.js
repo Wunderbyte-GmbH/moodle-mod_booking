@@ -82,6 +82,7 @@ export function initFooterButtons(optionid, userid, shoppingcartisinstalled) {
             case 'closeinline':
             case 'continuepost':
             case 'checkout':
+            case 'closemodal':
                 // eslint-disable-next-line no-console
                 console.log('closeinline/checkout/continuepost', action);
                 if (shoppingcartisinstalled) {
@@ -96,7 +97,9 @@ export function initFooterButtons(optionid, userid, shoppingcartisinstalled) {
                             // eslint-disable-next-line promise/always-return
                             if (typeof cart.reinit === 'function') {
                                 if (oncashier > 0) {
-                                    cart.reinit(-1);
+                                    const params = new URLSearchParams(window.location.search);
+                                    let userid = params.get("userid") || -1;
+                                    cart.reinit(userid);
                                 } else {
                                     cart.reinit();
                                 }

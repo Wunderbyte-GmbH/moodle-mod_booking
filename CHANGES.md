@@ -1,3 +1,52 @@
+## Version 9.0.3 (2025121200)
+* Bugfix: Don't send mails when CMID of option has changed.
+* Bugfix: Missing format_strings for booking rules.
+* Bugfix: Fix reliability bugs reported by Sonarqube with high severity.
+
+## Version 9.0.2 (2025121100)
+* Bugfix: Fix bugs in Bookings tracker.
+
+## Version 9.0.1 (2025121000)
+* New feature: Create shortcode for altering a wb_table column.
+* New feature: Add new 'includecustomfields' argument for shortcodes.
+* New feature: Allow selecting the responsible contact as receiver of mails from rules.
+* Improvement: Available places as a new class under filters directory.
+* Improvement: Use available places filter.
+* Improvement: Display the target user's name on the booking button.
+* Improvement: Use format_text in customform condition to support HTML.
+* Improvement: Better strings for course calendar.
+* Improvement: Make functions accessible.
+* Improvement: Add infinite scrolling to shortcodes in mod_booking.
+* Improvement: Improve SQL performance.
+* Improvement: Possibility to select responsible contact as mail receiver in rules.
+* Bugfix: Avoid change of sorting order on booking a booking option.
+* Bugfix: Check if class exists before checking for cashier capability.
+* Bugfix: Bugfix: Preserve id of exisisting optiondate in addoptiondateseries.
+* Bugfix: Bugfix: Compare optiondateids to check if rule still applies.
+* Bugfix: Correctly set new booking description param.
+* Bugfix: Correctly set progress via shortcodeparam progress.
+* Bugfix: Call get_cart_items after modal close to load cashier items correctly.
+* Bugfix: Ensure MySQL LATERAL queries work on MariaDB <10.6.
+* Bugfix: Fix 'bo.responsiblecontact' unknown column issue.
+* Bugfix: Fix concatenation operator issue in MySQL.
+* Bugfix: Remove unused clean_string() to avoid redeclaration fatal error.
+* Bugfix: Revert incorrect userid and relateduser handling in message event table.
+* Bugfix: Get correct user's answer in alreadybooked.
+* Bugfix: Send real buyforuserid in initFooterButtons payload.
+* Bugfix: Fix calendar string in Behat tests.
+* Bugfix: Fix linting issues.
+* Tests: Set optiondateid to trigger correct behaviour.
+* Tests: Make sure changing entity of an options doesn't trigger new task.
+* Tests: Add PHPUnit test for sorting in infinite scrolling.
+* Tests: Add PHPUnit test to cover available places filter.
+* Tests: Extend tests to accept multiple shortcodes.
+* Tests: Count booked and reserved answers to calculate available places.
+* Tests: Add PHPUnit test test_rule_on_email_responsiblecontact_on_booking().
+* Tests: Add scenario to verify correct items returned on second page with available places filter applied.
+
+## Version 9.0.0 (2025120101)
+* Improvement: Now supporting Moodle 4.5+ (skipped support for Moodle 4.1 - 4.4).
+
 ## Version 8.19.0 (2025120100)
 * New feature: Introduce new rule template for adding/removing teachers for option dates.
 * New feature: Add support for selecting custom fields as sortable/filterable fields in wunderbyte_table.

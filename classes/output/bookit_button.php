@@ -25,6 +25,7 @@
 
 namespace mod_booking\output;
 
+use mod_booking\bo_availability\bo_info;
 use mod_booking\singleton_service;
 use renderer_base;
 use renderable;
@@ -65,6 +66,10 @@ class bookit_button implements renderable, templatable {
 
         if (empty($data['main']['class'])) {
             $data['main']['class'] = 'btn btn-primary';
+        }
+
+        if (empty($data['main']['foruser'])) {
+            $data['main']['foruser'] = bo_info::get_for_user_button_string($data['userid']);
         }
 
         if (empty($data['area'])) {

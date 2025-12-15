@@ -216,6 +216,7 @@ function booking_upgrade_change_id_425_to_391() {
                 $updated = true;
             }
         }
+        unset($element); // Important: Break the reference after the loop!
 
         if ($updated) {
             $record->json = json_encode($jsondata, JSON_UNESCAPED_SLASHES);

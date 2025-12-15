@@ -88,8 +88,8 @@ Feature: In a booking create booking option with multiple custom options
       | timezone      | Europe/London |
       | forcetimezone | Europe/London |
     And the following "mod_booking > options" exist:
-      | booking    | titleprefix | text              | annotation            | description         | teachersforoption | chooseorcreatecourse | course | maxanswers | maxoverbooking | minanswers | pollurl        | pollurlteachers | optiondateid_1 | coursestarttime_1 | courseendtime_1 | addtocalendar | institution | useprice | customfield_spt1 | notificationtext              | beforebookedtext      | beforecompletedtext  |
-      | My booking | MIB         | Topic: Statistics | Statistics for medics | Class om Statistics | teacher1          | 1                    | C1     | 10         | 5              | 3          | https://pu.com | https://tpu.com | 0              | 2529738000        | 2529856800      | 1             | TNMU        | 1        | tenis            | Advanced notification message | Before booked message | After booked message |
+      | booking    | titleprefix | text              | annotation            | description         | teachersforoption | chooseorcreatecourse | course | maxanswers | maxoverbooking | minanswers | pollurl        | pollurlteachers | optiondateid_1 | coursestarttime_1 | courseendtime_1 | addtocalendar | institution | useprice | spt1  | notificationtext              | beforebookedtext      | beforecompletedtext  |
+      | My booking | MIB         | Topic: Statistics | Statistics for medics | Class om Statistics | teacher1          | 1                    | C1     | 10         | 5              | 3          | https://pu.com | https://tpu.com | 0              | 2529738000        | 2529856800      | 1             | TNMU        | 1        | tenis | Advanced notification message | Before booked message | After booked message |
     ## March 1, 2050, 9:00 AM - March 2, 2050, 6:00 PM
     And the following "mod_booking > prices" exist:
       | itemname          | area   | pricecategoryidentifier | price | currency |

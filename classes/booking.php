@@ -2127,6 +2127,7 @@ class booking {
                     $item['price_gross'] = format_float(round((float) $item['price_gross'], 2), 2);
                 }
             }
+            unset($item); // Important: Break the reference after the loop!
             $data['items'] = array_values($data['items']);
         }
         // Also convert prices for each history item.
@@ -2140,6 +2141,7 @@ class booking {
                     $hitem['price_gross'] = format_float(round((float) $hitem['price_gross'], 2), 2);
                 }
             }
+            unset($hitem); // Important: Break the reference after the loop!
             $data['historyitems'] = array_values($data['historyitems']);
         }
     }

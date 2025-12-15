@@ -47,7 +47,7 @@ $string['addcategory'] = 'Kategorien bearbeiten';
 $string['addcomment'] = 'Kommentar hinzufügen...';
 $string['addcustomfieldorcomment'] = 'Kommentar oder benutzerdefiniertes Feld hinzufügen';
 $string['adddatebutton'] = "Füge Datum hinzu";
-$string['adddeputies'] = "Stellvertrer/innen anpassen";
+$string['adddeputies'] = "Stellvertreter/innen anpassen";
 $string['addedrecords'] = '{$a} Eintrag/Einträge hinzugefügt.';
 $string['addholiday'] = 'Ferien(tag) hinzufügen';
 $string['additionalpricecategories'] = 'Preiskategorien hinzufügen oder bearbeiten';
@@ -692,9 +692,9 @@ $string['cacheturnoffforbookinganswers'] = 'Caching der Antworten (der Buchungen
 $string['cacheturnoffforbookinganswers_desc'] = 'Die Last auf die Datenbank wird durch diese Einstellung massiv erhöht. Bei schweren Problemen mit der Cache Kofiguration kann diese Einstellung dennoch vorteilhaft sein.';
 $string['cacheturnoffforbookingsettings'] = 'Caching der Einstellungen der Buchungsoptionen abschalten';
 $string['cacheturnoffforbookingsettings_desc'] = 'Die Last auf die Datenbank wird durch diese Einstellung massiv erhöht. Bei schweren Problemen mit der Cache Kofiguration kann diese Einstellung dennoch vorteilhaft sein.';
-$string['caladdascourseevent'] = 'Zum Kalender hinzufügen (nur für Kursteilnehmer:innen sichtbar)';
+$string['caladdascourseevent'] = 'Zum Kalender hinzufügen (nur für Teilnehmer:innen des Moodle-Kurses sichtbar)';
 $string['caladdassiteevent'] = 'Zum Kalender hinzufügen (für alle Nutzer:innen sichtbar)';
-$string['caldonotadd'] = 'Nicht zum Kurs-Kalender hinzufügen';
+$string['caldonotadd'] = 'Nicht zum Kalender des Moodle-Kurses hinzufügen';
 $string['caleventtype'] = 'Kalenderereignis ist sichtbar für';
 $string['callbackfunctionnotapplied'] = 'Callback Funktion konnte nicht angewandt werden.';
 $string['callbackfunctionnotdefined'] = 'Callback Funktion nicht definiert.';
@@ -852,6 +852,7 @@ $string['completionchangedhistory'] = 'Der Abschluss wurde von "{$a->completiono
 $string['completionmodule'] = 'Aktiviere Massenlöschung von getätigten Buchungen basierend auf den Aktivitätsabschluss einer Kursaktivität';
 $string['completionmodule_help'] = 'Button zum Löschen aller Buchungen anzeigen, wenn eine andere Kursaktivität abgeschlossen wurde. Die Buchungen von Nutzer:innen werden mit einem Klick auf einen Button auf der Berichtsseite gelöscht! Nur Aktivitäten mit aktiviertem Abschluss können aus der Liste ausgewählt werden.';
 $string['completionoptioncompletedcminfo'] = 'In mind. {$a} Buchungsoptionen auf "Abgeschlossen" gesetzt werden (von Trainer:in, Kursersteller:in oder Manager:in).';
+$string['conditionselectresponsiblecontactinbo_desc'] = 'Kontaktperson(en) der von der Regel betroffenen Buchungsoption wählen.';
 $string['conditionselectstudentinbo_desc'] = 'Nutzer:innen der von der Regel betroffenen Buchungsoption wählen.';
 $string['conditionselectstudentinboroles'] = 'Rolle wählen';
 $string['conditionselectteacherinbo_desc'] = 'Trainer:innen der von der Regel betroffenen Buchungsoption wählen.';
@@ -1401,6 +1402,7 @@ $string['groupexists'] = 'Die Gruppe existiert bereits im Zielkurs. Bitte verwen
 $string['groupname'] = 'Gruppenname';
 $string['h'] = ' Uhr';
 $string['hascapability'] = 'Außer mit dieser Fähikgeit';
+$string['headerform'] = 'Bitte auswählen';
 $string['helptext:emailsettings'] = '<div class="alert alert-warning style="margin-left: 200px;">
 <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
 <span>&nbsp;Veraltete Funktion, bitte migrieren Sie ihre Vorlagen und Einstellungen zu <a href="{$a}">Buchungs Regeln</a></span>!
@@ -1519,7 +1521,11 @@ $string['lblsputtname'] = 'Alternative Bezeichnung für "Umfragelink an Trainer:
 $string['lblsurname'] = 'Bezeichnung für: Nachname';
 $string['lblteachname'] = 'Alternative Bezeichnung für "Trainer:in" verwenden';
 $string['leftandrightdate'] = '{$a->leftdate} bis {$a->righttdate}';
-$string['licenseactivated'] = 'PRO-Version wurde erfolgreich aktiviert.<br>(Läuft ab am: ';
+$string['licenseactivated'] = 'PRO-Version wurde erfolgreich aktiviert.<br>(Läuft ab am: {$a})';
+$string['licenseexpired'] = 'PRO-Version ist abgelaufen ({$a}).
+<a href="https://showroom.wunderbyte.at/course/view.php?id=62" target="_blank">
+Erneuern Sie Ihre Lizenz
+</a>, um weiterhin alle Funktionen nutzen zu können.';
 $string['licenseinvalid'] = 'Ungültiger Lizenz-Schlüssel.';
 $string['licensekey'] = 'PRO-Lizenz-Schlüssel';
 $string['licensekeycfg'] = 'PRO-Version aktivieren';
@@ -1938,6 +1944,7 @@ Link zur Umfrage: <a href="{pollurl}" target="_blank">{pollurl}</a>
 ';
 $string['pollurltextsubject'] = 'Bitte nehmen Sie an der Umfrage teil';
 $string['populatefromtemplate'] = 'Mit Vorlage ausfüllen';
+$string['postprogressstring'] = '% erreicht';
 $string['potentialsubscribers'] = 'Mögliche Nutzer:innen';
 $string['prepareimport'] = "Bereite den Import vor";
 $string['presence'] = "Anwesenheitsstatus";
@@ -2300,6 +2307,7 @@ $string['selectfieldofbookingoption'] = 'Bereich der Buchungsoption auswählen';
 $string['selectoptionid'] = 'Eine Auswahl treffen';
 $string['selectoptioninotherbooking'] = "Auswahl";
 $string['selectoptionsfirst'] = "Bitte zuerst die Buchungsoptionen auswählen.";
+$string['selectresponsiblecontactinbo'] = "Wähle Kontaktperson einer Buchungsoption";
 $string['selectstudentinbo'] = "Wähle Nutzer:innen einer Buchungsoption";
 $string['selectteacherinbo'] = "Wähle Trainer:innen einer Buchungsoption";
 $string['selectteacherswithprofilefieldonly'] = 'Trainer:innen-Auswahl einschränken';
@@ -2534,6 +2542,7 @@ $string['subbookingsheader'] = 'Zusatzbuchungen <span class="badge bg-success te
 $string['subbookingtimeslot'] = "Zeitfenster Buchung";
 $string['subbookingtimeslot_desc'] = "Mit dieser Funktion kann die Dauer von buchbaren Zeitfenstern für jedes Datum der Buchungsoption festgelegt werden.";
 $string['subject'] = 'Betreff';
+$string['submit'] = 'Bestätigen';
 $string['submitandadd'] = 'Neue Buchungsoption anlegen';
 $string['submitandgoback'] = 'Formular schließen';
 $string['submitandstay'] = 'Formular weiterbearbeiten';

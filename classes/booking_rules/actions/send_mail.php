@@ -237,27 +237,6 @@ class send_mail implements booking_rule_action {
 
         $task->set_next_run_time($record->nextruntime);
 
-        // If the same task already exists, don't queue it again.
-        $similartasks = $DB->get_records('task_adhoc', [
-            'nextruntime' => $record->nextruntime,
-            'userid' => $record->userid,
-            ]);
-
-        if (!empty($similartasks)) {
-            foreach ($similartasks as $similartask) {
-                if (!isset($similartask->customdata)) {
-                    continue;
-                }
-                $oldtaskdata = json_decode($similartask->customdata);
-                unset($oldtaskdata->optiondateid);
-                unset($taskdata['optiondateid']);
-                if ($oldtaskdata == (object)$taskdata) {
-                    // A similar task has already been created before, we therefore don't queue the task again.
-                    return;
-                }
-            }
-        }
-
         // Now queue the task or reschedule it.
         \core\task\manager::reschedule_or_queue_adhoc_task($task);
     }

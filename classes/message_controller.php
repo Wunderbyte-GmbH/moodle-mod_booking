@@ -871,6 +871,7 @@ class message_controller {
      * @return bool
      */
     private function user_inrelevant_core_checks_for_mailsending(): bool {
+        global $CFG;
         if (
             defined('BEHAT_SITE_RUNNING') &&
             !defined('TEST_EMAILCATCHER_MAIL_SERVER') &&
@@ -923,6 +924,8 @@ class message_controller {
                 }
             }
         }
+        unset($user); // Important: Break the reference after the loop!
+
         if (
             $mustnotbeempty &&
             empty($userlist)

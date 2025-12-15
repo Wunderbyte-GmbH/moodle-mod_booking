@@ -3,17 +3,18 @@ name: Moodle Plugin CI
 on: [push, pull_request]
 
 jobs:
-  moodle500:
+  moodle500to501:
     uses: Wunderbyte-GmbH/catalyst-moodle-workflows/.github/workflows/ci.yml@main
     with:
       # Change these based on your plugin's requirements
       disable_release: true  # Use true if using the tag-based release workflow
-      moodle_branches: "MOODLE_500_STABLE"  # Optional: Only test specific Moodle versions
+      moodle_branches: "MOODLE_500_STABLE MOODLE_501_STABLE"  # Optional: Only test specific Moodle versions
+      min_php: '8.2'  # Optional: Set minimum PHP version
 
       # Command to install more dependencies
       extra_plugin_runners: |
-        moodle-plugin-ci add-plugin --branch MOODLE_401_DEV Wunderbyte-GmbH/moodle-local_wunderbyte_table
-        moodle-plugin-ci add-plugin --branch MOODLE_401_DEV Wunderbyte-GmbH/moodle-local_shopping_cart
+        moodle-plugin-ci add-plugin --branch MOODLE_405_DEV Wunderbyte-GmbH/moodle-local_wunderbyte_table
+        moodle-plugin-ci add-plugin --branch MOODLE_405_DEV Wunderbyte-GmbH/moodle-local_shopping_cart
         moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-local_entities
         moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-customfield_dynamicformat
         moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-tool_mocktesttime
@@ -80,18 +81,18 @@ jobs:
         # Go Back to main directory
         cd ..
         # END OF WORKAROUND
-  moodle401to405:
+  moodle405:
     uses: Wunderbyte-GmbH/catalyst-moodle-workflows/.github/workflows/ci.yml@main
     with:
       # Change these based on your plugin's requirements
       disable_release: true  # Use true if using the tag-based release workflow
-      moodle_branches: "MOODLE_401_STABLE MOODLE_404_STABLE MOODLE_405_STABLE"  # Optional: Only test specific Moodle versions
-      min_php: '7.4'  # Optional: Set minimum PHP version
+      moodle_branches: "MOODLE_405_STABLE"  # Optional: Only test specific Moodle versions
+      min_php: '8.1'  # Optional: Set minimum PHP version
 
       # Command to install more dependencies
       extra_plugin_runners: |
-        moodle-plugin-ci add-plugin --branch MOODLE_401_DEV Wunderbyte-GmbH/moodle-local_wunderbyte_table
-        moodle-plugin-ci add-plugin --branch MOODLE_401_DEV Wunderbyte-GmbH/moodle-local_shopping_cart
+        moodle-plugin-ci add-plugin --branch MOODLE_405_DEV Wunderbyte-GmbH/moodle-local_wunderbyte_table
+        moodle-plugin-ci add-plugin --branch MOODLE_405_DEV Wunderbyte-GmbH/moodle-local_shopping_cart
         moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-local_entities
         moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-customfield_dynamicformat
         moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-tool_mocktesttime

@@ -705,9 +705,9 @@ $string['cacheturnoffforbookinganswers'] = 'Turn off caching of responses (user 
 $string['cacheturnoffforbookinganswers_desc'] = 'This setting significantly increases the load on the database. However, if there are massive problems with the cache configuration, this setting can still be advantageous.';
 $string['cacheturnoffforbookingsettings'] = 'Turn off caching of booking option settings';
 $string['cacheturnoffforbookingsettings_desc'] = 'This setting significantly increases the load on the database. However, if there are massive problems with the cache configuration, this setting can still be advantageous.';
-$string['caladdascourseevent'] = 'Add to calendar (visible only to course participants)';
+$string['caladdascourseevent'] = 'Add to calendar (visible only to participants of moodle course)';
 $string['caladdassiteevent'] = 'Add to calendar (visible to all users)';
-$string['caldonotadd'] = 'Do not add to course calendar';
+$string['caldonotadd'] = 'Do not add to calendar of moodle course';
 $string['caleventtype'] = 'Calendar event visibility';
 $string['callbackfunctionnotapplied'] = 'Callback function could not be applied.';
 $string['callbackfunctionnotdefined'] = 'Callback function is not defined.';
@@ -867,6 +867,7 @@ $string['completionchangedhistory'] = 'The completion status was changed from "{
 $string['completionmodule'] = 'Upon completion of the selected course activity, enable bulk deletion of user bookings';
 $string['completionmodule_help'] = 'Display bulk deletion button for booking answers, if another course module has been completed. The bookings of users will be deleted with a click of a button on the report page! Only activities with completion enabled can be selected from the list.';
 $string['completionoptioncompletedcminfo'] = 'Get marked as completed in at least {$a} booking options (by teacher, manager or admin).';
+$string['conditionselectresponsiblecontactinbo_desc'] = 'Select responsible contact(s) of the booking option.';
 $string['conditionselectstudentinbo_desc'] = 'Select all students of the booking option (affected by the rule) having a certain role.';
 $string['conditionselectstudentinboroles'] = 'Choose role';
 $string['conditionselectteacherinbo_desc'] = 'Select the teachers of the booking option (affected by the rule).';
@@ -1430,6 +1431,7 @@ $string['groupexists'] = 'The group already exists in the target course, please 
 $string['groupname'] = 'Group name';
 $string['h'] = '';
 $string['hascapability'] = 'Except has capability';
+$string['headerform'] = 'Please choose';
 $string['helptext:emailsettings'] = '<div class="alert alert-warning style="margin-left: 200px;">
 <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
 <span>&nbsp;Deprecated function, please migrate your templates & settings to <a href="{$a}">Booking Rules</a></span>!
@@ -1545,7 +1547,11 @@ $string['lblsputtname'] = 'Name of label: Send poll url to teachers';
 $string['lblsurname'] = 'Name of label: Surname';
 $string['lblteachname'] = 'Name of label: Teachers';
 $string['leftandrightdate'] = '{$a->leftdate} to {$a->righttdate}';
-$string['licenseactivated'] = 'PRO version activated successfully.<br>(Expires: ';
+$string['licenseactivated'] = 'PRO version activated successfully.<br>(Expires: {$a})';
+$string['licenseexpired'] = 'PRO version has expired ({$a}).
+<a href="https://showroom.wunderbyte.at/course/view.php?id=62" target="_blank">
+Renew your license
+</a> to continue using all features.';
 $string['licenseinvalid'] = 'Invalid license key';
 $string['licensekey'] = 'PRO license key';
 $string['licensekeycfg'] = 'Activate PRO version';
@@ -1962,6 +1968,7 @@ Survey URL: <a href="{pollurl}" target="_blank">{pollurl}</a>
 ';
 $string['pollurltextsubject'] = 'Please take the survey';
 $string['populatefromtemplate'] = 'Populate from template';
+$string['postprogressstring'] = '% completed';
 $string['potentialsubscribers'] = 'Potential subscribers';
 $string['prepareimport'] = "Prepare Import";
 $string['presence'] = "Presence";
@@ -2385,6 +2392,7 @@ $string['selectoptionid'] = 'Please, select option!';
 $string['selectoptioninotherbooking'] = "Option";
 $string['selectoptionsfirst'] = "Please select booking options first.";
 $string['selectpresencestatus'] = "Choose presence status";
+$string['selectresponsiblecontactinbo'] = "Select contact(s) of a booking option";
 $string['selectstudentinbo'] = "Select users of a booking option";
 $string['selectteacherinbo'] = "Select teachers of a booking option";
 $string['selectteacherswithprofilefieldonly'] = 'Restrict trainer selection';
@@ -2623,6 +2631,7 @@ $string['subbookingsheader'] = 'Subbookings <span class="badge bg-success text-l
 $string['subbookingtimeslot'] = "Timeslot booking";
 $string['subbookingtimeslot_desc'] = "This opens timeslots for every booking date with a set duration.";
 $string['subject'] = 'Subject';
+$string['submit'] = 'Submit';
 $string['submitandadd'] = 'Add a new booking option';
 $string['submitandgoback'] = 'Close this form';
 $string['submitandstay'] = 'Stay here';

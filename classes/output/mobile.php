@@ -336,7 +336,7 @@ class mobile {
         global $DB, $OUTPUT, $USER;
 
         $cmid = $args['cmid'];
-        $availablenavtabs = self::get_available_nav_tabs($cmid);
+        $availablenavtabs = self::get_available_nav_tabs($cmid, $args['whichview'] ?? null);
         $whichview = self::set_active_nav_tabs($availablenavtabs, $args['whichview'] ?? null);
 
         if (empty($cmid)) {
@@ -583,7 +583,7 @@ class mobile {
      * @param string $cmid
      * @return array
      */
-    public static function get_available_nav_tabs($cmid) {
+    public static function get_available_nav_tabs($cmid, $activetab) {
         $selectednavlabelnames = [];
         $navlabelnames = self::match_view_label_and_names();
         $configmobileviewoptions = get_config('booking', 'mobileviewoptions');
@@ -619,6 +619,7 @@ class mobile {
                 break;
             }
         }
+        unset($tab); // Important: Break the reference after the loop!
         return $whichview;
     }
 

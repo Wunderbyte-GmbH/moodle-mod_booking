@@ -104,7 +104,7 @@ class alreadybooked implements bo_condition {
         }
 
         $allanswers = $bookinganswer->get_users();
-        $currentanswer = $allanswers[$USER->id] ?? null;
+        $currentanswer = $allanswers[$userid] ?? null;
 
         // Get the real booking time.
         $timebooked = (int) (empty($currentanswer) ) ? 0 : $currentanswer->timebooked;

@@ -80,8 +80,8 @@ $PAGE->set_pagetype('mod-booking-edit-rules');
 $PAGE->set_title(
     format_string($SITE->shortname) . ': ' . get_string('bookingrules', 'mod_booking')
 );
-
-$output = $PAGE->get_renderer('booking');
+/** @var \mod_booking\output\renderer $output */
+$output = $PAGE->get_renderer('mod_booking');
 
 echo $output->header();
 echo $output->heading(get_string('bookingrules', 'mod_booking'));

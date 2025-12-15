@@ -75,6 +75,10 @@ class shortcodes {
     public static function recommendedin($shortcode, $args, $content, $env, $next) {
 
         global $PAGE, $CFG;
+
+        // Get rid of quotation marks.
+        self::fix_args($args);
+
         $requiredargs = [];
         $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
         if ($error['error'] === 1) {
@@ -126,6 +130,10 @@ class shortcodes {
             $showsearch,
             $showsort,
             false,
+            true,
+            MOD_BOOKING_VIEW_PARAM_LIST,
+            0,
+            $args
         );
 
         // If "rightside" is in the "exclude" array, then we do not show the rightside area (containing the "Book now" button).
@@ -186,6 +194,10 @@ class shortcodes {
     public static function courselist($shortcode, $args, $content, $env, $next) {
 
         global $PAGE, $CFG;
+
+        // Get rid of quotation marks.
+        self::fix_args($args);
+
         $requiredargs = ['cmid'];
         $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
         if ($error['error'] === 1) {
@@ -259,7 +271,9 @@ class shortcodes {
             $showsort,
             false,
             $inactivefilter,
-            $viewparam
+            $viewparam,
+            0,
+            $args
         );
 
         // Possibility to add customfieldfilter.
@@ -329,7 +343,7 @@ class shortcodes {
      * @return void
      *
      */
-    private static function apply_customfieldfilter(&$table, $args) {
+    public static function apply_customfieldfilter(&$table, $args) {
         if (empty($args)) {
             return;
         }
@@ -362,7 +376,7 @@ class shortcodes {
      * @return array
      *
      */
-    private static function get_columnfilters($args, $verify = true): array {
+    public static function get_columnfilters($args, $verify = true): array {
         if (empty($args)) {
             return [];
         }
@@ -416,6 +430,10 @@ class shortcodes {
     public static function fieldofstudyoptions($shortcode, $args, $content, $env, $next) {
 
         global $COURSE, $USER, $DB, $CFG;
+
+        // Get rid of quotation marks.
+        self::fix_args($args);
+
         $requiredargs = [];
         $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
         if (($error['error'] === 1)) {
@@ -489,7 +507,18 @@ class shortcodes {
             $optionsfields = $possibleoptions;
         }
 
-        view::apply_standard_params_for_bookingtable($table, $optionsfields, true, true, true);
+        view::apply_standard_params_for_bookingtable(
+            $table,
+            $optionsfields,
+            true,
+            true,
+            true,
+            true,
+            true,
+            MOD_BOOKING_VIEW_PARAM_LIST,
+            0,
+            $args
+        );
 
         // Set common table options requirelogin, sortorder, sortby.
         self::set_common_table_options_from_arguments($table, $args);
@@ -532,7 +561,11 @@ class shortcodes {
      */
     public static function linkbacktocourse($shortcode, $args, $content, $env, $next) {
 
-        global $COURSE, $USER, $DB, $CFG, $PAGE;
+        global $COURSE, $USER, $DB, $PAGE;
+
+        // Get rid of quotation marks.
+        self::fix_args($args);
+
         $requiredargs = [];
         $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
         if ($error['error'] === 1) {
@@ -595,6 +628,10 @@ class shortcodes {
      */
     public static function allbookingoptions($shortcode, $args, $content, $env, $next) {
         global $PAGE, $DB, $CFG;
+
+        // Get rid of quotation marks.
+        self::fix_args($args);
+
         $requiredargs = [];
         $operator = 'AND';
         $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
@@ -697,7 +734,9 @@ class shortcodes {
             $showsort,
             false,
             $inactivefilter,
-            $viewparam
+            $viewparam,
+            0,
+            $args
         );
 
         // Possibility to add customfieldfilter.
@@ -723,7 +762,8 @@ class shortcodes {
                     null,
                     [MOD_BOOKING_STATUSPARAM_BOOKED],
                     $additionalwhere,
-                    ""
+                    "",
+                    $table
                 );
 
         $params = array_merge($tempparams, $params);
@@ -776,6 +816,10 @@ class shortcodes {
      */
     public static function mycourselist($shortcode, $args, $content, $env, $next) {
         global $USER, $PAGE, $CFG;
+
+        // Get rid of quotation marks.
+        self::fix_args($args);
+
         $requiredargs = [];
         $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
         if ($error['error'] === 1) {
@@ -787,7 +831,6 @@ class shortcodes {
         } else {
             $userid = $USER->id;
         }
-        self::fix_args($args);
         $wherearray = [];
         $course = $PAGE->course;
         $perpage = self::check_perpage($args);
@@ -870,6 +913,8 @@ class shortcodes {
             false,
             true,
             $viewparam,
+            0,
+            $args
         );
 
         // Possibility to add customfieldfilter.
@@ -878,7 +923,7 @@ class shortcodes {
             self::apply_customfieldfilter($table, $customfieldfilter);
         }
 
-                $table->showcountlabel = $showfilter ? true : false;
+        $table->showcountlabel = $showfilter ? true : false;
 
         if (
             isset($args['filterontop'])
@@ -906,7 +951,9 @@ class shortcodes {
                     $wherearray,
                     $userid,
                     $statusarray,
-                    $additionalwhere
+                    $additionalwhere,
+                    '',
+                    $table
                 );
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
@@ -947,6 +994,10 @@ class shortcodes {
     public static function fieldofstudycohortoptions($shortcode, $args, $content, $env, $next) {
 
         global $PAGE, $USER, $DB, $CFG;
+
+        // Get rid of quotation marks.
+        self::fix_args($args);
+
         $requiredargs = [];
         $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
         if ($error['error'] === 1) {
@@ -1026,7 +1077,18 @@ class shortcodes {
             $optionsfields = $possibleoptions;
         }
 
-        view::apply_standard_params_for_bookingtable($table, $optionsfields, true, true, true);
+        view::apply_standard_params_for_bookingtable(
+            $table,
+            $optionsfields,
+            true,
+            true,
+            true,
+            true,
+            true,
+            MOD_BOOKING_VIEW_PARAM_LIST,
+            0,
+            $args
+        );
 
         // Set common table options requirelogin, sortorder, sortby.
         self::set_common_table_options_from_arguments($table, $args);
@@ -1075,7 +1137,11 @@ class shortcodes {
      */
     public static function bulkoperations($shortcode, $args, $content, $env, $next): string {
 
-        global $PAGE, $CFG;
+        global $CFG;
+
+        // Get rid of quotation marks.
+        self::fix_args($args);
+
         $requiredargs = [];
         $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
         if ($error['error'] === 1) {
@@ -1215,7 +1281,7 @@ class shortcodes {
      * @return array
      *
      */
-    private static function apply_bulkoperations_filter(wunderbyte_table &$table, array $columns, array $args) {
+    public static function apply_bulkoperations_filter(wunderbyte_table &$table, array $columns, array $args) {
 
         // Add defined intrange filter. You might need to purge your caches to make this work.
         if (isset($args['intrangefilter'])) {
@@ -1300,6 +1366,7 @@ class shortcodes {
         if (!empty($customfieldfilter)) {
             self::apply_customfieldfilter($table, $customfieldfilter);
         }
+
         return $filtercolumns;
     }
     /**
@@ -1310,15 +1377,25 @@ class shortcodes {
      * @param array $args
      * @return bookingoptions_wbtable
      */
-    private static function init_table_for_courses(
+    public static function init_table_for_courses(
         ?booking $booking = null,
         ?string $uniquetablename = null,
         array $args = []
     ) {
-
+        if ($booking && !empty($booking->cmid)) {
+            $context = context_module::instance($booking->cmid);
+        } else {
+            $context = context_system::instance();
+        }
         // Important security check.
         // The user must have the cashier capability to fetch data of other users.
-        if (has_capability('local/shopping_cart:cashier', context_system::instance())) {
+        if (
+            class_exists('local_shopping_cart\shopping_cart')
+            && has_capability('local/shopping_cart:cashier', context_system::instance())
+            // This check actually corresponds to the check in booking_bookit currently line 126.
+            // It allows overriding a blocking condition under some circumstances.
+            || has_capability('mod/booking:bookforothers', $context)
+        ) {
             // Check if rendering is for another user id.
             $userid = actforuser::get_foruserid($args, 0);
         } else {
@@ -1347,7 +1424,7 @@ class shortcodes {
      * @return void
      *
      */
-    private static function apply_bookinginstance_filter(&$table) {
+    public static function apply_bookinginstance_filter(&$table) {
         $bookinginstances = singleton_service::get_all_booking_instances();
 
         $filterarray = [];
@@ -1367,7 +1444,6 @@ class shortcodes {
      * @param array $args
      *
      * @return void
-     *
      */
     public static function set_common_table_options_from_arguments(&$table, $args): void {
         $defaultorder = SORT_ASC; // Default.
@@ -1396,6 +1472,18 @@ class shortcodes {
             $table->showcountlabel = false;
         } else {
             $table->showcountlabel = true;
+        }
+        if (isset($args['progress'])) {
+            $table->add_subcolumns('progress', ['progress']);
+        }
+
+        if (!isset($args['perpage']) || $args['perpage'] == 0 || $args['perpage'] == "false" || $args['perpage'] == false) {
+            $infinitescrollpage = is_numeric($args['infinitescrollpage'] ?? '') ? (int)$args['infinitescrollpage'] : 30;
+            // This allows us to use infinite scrolling, No pages will be used.
+            $table->infinitescroll = $infinitescrollpage;
+            $table->pageable(false);
+        } else {
+            $table->pageable(true);
         }
     }
     /**
@@ -1426,7 +1514,7 @@ class shortcodes {
      * @param array $columnfilters
      * @return string
      */
-    private static function set_customfield_wherearray(
+    public static function set_customfield_wherearray(
         array &$args,
         array &$wherearray,
         array &$tempparamsarray = [],
@@ -1514,7 +1602,7 @@ class shortcodes {
      * @return string
      *
      */
-    private static function set_cmid_wherearray(
+    public static function set_cmid_wherearray(
         array &$args,
         array &$wherearray,
         array &$params = [],
@@ -1560,12 +1648,13 @@ class shortcodes {
      *
      * @return void
      */
-    private static function fix_args(array &$args): void {
+    public static function fix_args(array &$args): void {
         foreach ($args as $key => &$value) {
             // Get rid of quotation marks.
             $value = str_replace('"', '', $value);
             $value = str_replace("'", "", $value);
         }
+        unset($value); // Important: Break the reference after the loop!
     }
 
     /**
@@ -1576,7 +1665,7 @@ class shortcodes {
      * @return int $viewparam if no viewparam is found, the default is MOD_BOOKING_VIEW_PARAM_LIST
      *
      */
-    private static function get_viewparam($args) {
+    public static function get_viewparam($args) {
         // Default is list.
         $viewparam = MOD_BOOKING_VIEW_PARAM_LIST;
         if (!isset($args['type'])) {
@@ -1618,6 +1707,10 @@ class shortcodes {
         global $PAGE;
 
         $requiredargs = [];
+
+        // Get rid of quotation marks.
+        self::fix_args($args);
+
         $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
         if (
             isset($error['error'])
@@ -1682,7 +1775,7 @@ class shortcodes {
      * @return void
      *
      */
-    private static function applyallarg($args, &$where) {
+    public static function applyallarg($args, &$where) {
         $startoftoday = strtotime('today'); // Will be 00:00:00 of the current day.
         $selflearncoursesetting = get_config('booking', 'selflearningcoursedisplayinshortcode');
         if (empty($args['all']) || $args['all'] == "false" || $args['all'] == "0") {
@@ -1729,8 +1822,11 @@ class shortcodes {
      *
      */
     public static function supervisorteam($shortcode, $args, $content, $env, $next) {
-
         global $PAGE;
+
+        // Get rid of quotation marks.
+        self::fix_args($args);
+
         $requiredargs = [];
         $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
         if (
