@@ -1431,6 +1431,7 @@ $string['groupexists'] = 'The group already exists in the target course, please 
 $string['groupname'] = 'Group name';
 $string['h'] = '';
 $string['hascapability'] = 'Except has capability';
+$string['headerform'] = 'Please choose';
 $string['helptext:emailsettings'] = '<div class="alert alert-warning style="margin-left: 200px;">
 <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
 <span>&nbsp;Deprecated function, please migrate your templates & settings to <a href="{$a}">Booking Rules</a></span>!
@@ -2630,6 +2631,7 @@ $string['subbookingsheader'] = 'Subbookings <span class="badge bg-success text-l
 $string['subbookingtimeslot'] = "Timeslot booking";
 $string['subbookingtimeslot_desc'] = "This opens timeslots for every booking date with a set duration.";
 $string['subject'] = 'Subject';
+$string['submit'] = 'Submit';
 $string['submitandadd'] = 'Add a new booking option';
 $string['submitandgoback'] = 'Close this form';
 $string['submitandstay'] = 'Stay here';
