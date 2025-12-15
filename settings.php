@@ -1747,7 +1747,7 @@ if ($ADMIN->fulltree) {
             'booking/defaulttemplate',
             get_string('defaulttemplate', 'mod_booking'),
             get_string('defaulttemplatedesc', 'mod_booking'),
-            1,
+            0,
             $alltemplates
         )
     );
