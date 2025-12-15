@@ -22,9 +22,9 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use mod_booking\booking_rules\booking_rules;
-use mod_booking\local\htmlcomponents;
+use local_wunderbyte_table\filters\types\standardfilter;
 use mod_booking\output\scheduledmails;
+use mod_booking\table\scheduledmails_table;
 use mod_booking\utils\wb_payment;
 
 require_once(__DIR__ . '/../../config.php');
@@ -57,7 +57,7 @@ if (empty($urlparams)) {
 
 $context = context::instance_by_id($contextid);
 
-require_capability('mod/booking:editbookingrules', $context);
+require_capability('mod/booking:viewscheduledmails', $context);
 
 $PAGE->set_context($context);
 
@@ -68,22 +68,19 @@ $PAGE->set_url($url);
 $PAGE->activityheader->disable();
 
 if ($contextid == 1) {
-    if (is_siteadmin()) {
-        admin_externalpage_setup('modbookingeditrules');
-    }
     $PAGE->set_pagelayout('standard');
 } else {
     $PAGE->set_pagelayout('standard');
 }
 
-$PAGE->add_body_class('limitedwidth');
+// $PAGE->add_body_class('limitedwidth');
 $PAGE->set_pagetype('mod-booking-edit-rules');
 
 $PAGE->set_title(
     format_string($SITE->shortname) . ': ' . get_string('bookingrules', 'mod_booking')
 );
-/** @var \mod_booking\output\renderer $output */
-$output = $PAGE->get_renderer('mod_booking');
+
+$output = $PAGE->get_renderer('booking');
 
 echo $output->header();
 echo $output->heading(get_string('bookingrules', 'mod_booking'));
@@ -93,32 +90,13 @@ echo get_string('linktoshowroom:bookingrules', 'mod_booking');
 // Check if PRO version is active. In free version, up to three rules can be edited for whole plugin, but none for coursemodule.
 if (wb_payment::pro_version_is_activated()) {
     $data = new scheduledmails($contextid);
-    $tabs = [
-        [
-            'title' => get_string('bookingrules', 'mod_booking'),
-            'body'  => booking_rules::get_rendered_list_of_saved_rules($contextid),
-        ],
-        [
-            'title' => get_string('scheduledmails', 'mod_booking'),
-            'body'  => $output->render_scheduledmails_list($data),
-        ],
-    ];
-    echo htmlcomponents::render_bootstrap_tabs($tabs);
+    echo $output->render_scheduledmails_list($data);
 } else if (!empty($cmid)) {
     echo html_writer::div(get_string('infotext:prolicensenecessary', 'mod_booking'), 'alert alert-warning');
 } else {
-    $rules = booking_rules::get_list_of_saved_rules($contextid);
-    if (isset($rules) && count($rules) < 3) {
-        echo booking_rules::get_rendered_list_of_saved_rules($contextid);
-    } else if (isset($rules) && count($rules) >= 3) {
-        echo booking_rules::get_rendered_list_of_saved_rules($contextid, false);
-    }
+
 }
 
-$PAGE->requires->js_call_amd(
-    'mod_booking/dynamicrulesform',
-    'init',
-    ['.booking-rules-container']
-);
-
 echo $output->footer();
+
+
