@@ -1270,9 +1270,14 @@ class booking_option_settings {
      *
      * @param array $filterarray
      * @param array $selectedshortnames
+     * @param string $optionidcolumn
      * @return array
      */
-    public static function return_sql_for_customfield(array &$filterarray = [], array $selectedshortnames = [], string $optionidcolumn = 'bo.id'): array {
+    public static function return_sql_for_customfield(
+        array &$filterarray = [],
+        array $selectedshortnames = [],
+        string $optionidcolumn = 'bo.id'
+    ): array {
 
         global $DB;
 
