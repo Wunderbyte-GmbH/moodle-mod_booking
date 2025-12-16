@@ -26,6 +26,9 @@ $string['aboutmodaloptiondateform'] = 'Hier können Sie benutzerdefinierte Termi
 (z.B. bei Block-Veranstaltungen oder wenn einzelne Termine von der Terminserie abweichen).';
 $string['accept'] = 'Akzeptieren';
 $string['accessdenied'] = 'Zugriff verweigert';
+$string['actionbuttonconfirm'] = 'bestätigen';
+$string['actionbuttondelete'] = 'löschen';
+$string['actionbuttondeny'] = 'verweigern';
 $string['actionoperator'] = 'Aktion';
 $string['actionoperator:adddate'] = 'Füge Zeitraum hinzu';
 $string['actionoperator:set'] = 'Ersetzen';

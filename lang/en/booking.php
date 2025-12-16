@@ -26,6 +26,9 @@ $string['aboutmodaloptiondateform'] = 'Create custom dates
 (e.g. for blocked events or for single dates that differ from the date series).';
 $string['accept'] = 'Accept';
 $string['accessdenied'] = 'Access denied';
+$string['actionbuttonconfirm'] = 'Confirm';
+$string['actionbuttondelete'] = 'Delete';
+$string['actionbuttondeny'] = 'Deny';
 $string['actionoperator'] = 'Action';
 $string['actionoperator:adddate'] = 'Add date';
 $string['actionoperator:set'] = 'Replace';
