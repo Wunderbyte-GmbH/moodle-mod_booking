@@ -1,0 +1,57 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/performance/performance_input
+
+    TODO describe template performance
+
+    Example context (json):
+    {
+    }
+}}
+<div class="top-section mb-4">
+    <h3>{{title}}</h3>
+
+    <div class="form-group position-relative">
+        <label for="performance-input" class="form-label">Select item:</label>
+        <input
+            id="performance-input"
+            type="text"
+            class="form-control"
+            name="performance_input"
+            placeholder="Start typing..."
+            list="performance-autocomplete"
+        />
+        <datalist id="performance-autocomplete">
+            {{#autocompleteitems}}
+                <option value="{{.}}"></option>
+            {{/autocompleteitems}}
+        </datalist>
+    </div>
+
+    <button
+        type="button"
+        class="btn btn-primary mt-3"
+        id="performance-submit">
+        Submit
+    </button>
+</div>
+{{#js}}
+require(['mod_booking/performance_submit'], function(module) {
+    module.init();
+});
+{{/js}}
