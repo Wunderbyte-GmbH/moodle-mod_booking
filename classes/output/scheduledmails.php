@@ -27,17 +27,8 @@
 
 namespace mod_booking\output;
 
-use local_wunderbyte_table\filters\types\datepicker;
 use local_wunderbyte_table\filters\types\standardfilter;
-use local_wunderbyte_table\wunderbyte_table;
-use mod_booking\booking;
-use mod_booking\booking_answers\booking_answers;
-use mod_booking\booking_answers\scope_base;
-use mod_booking\customfield\booking_handler;
-use mod_booking\singleton_service;
-use mod_booking\table\booking_history_table;
 use mod_booking\table\scheduledmails_table;
-use moodle_exception;
 use renderer_base;
 use renderable;
 use templatable;
@@ -92,8 +83,6 @@ class scheduledmails implements renderable, templatable {
         $standardfilter = new standardfilter('cmid', get_string('booking', 'mod_booking'));
         $table->add_filter($standardfilter);
 
-        // $standardfilter = new standardfilter('subject', get_string('subject', 'mod_booking'));
-        // $table->add_filter($standardfilter);
         $table->pageable(true);
         $table->showrowcountselect = true;
         $table->showcountlabel = true;
@@ -109,7 +98,6 @@ class scheduledmails implements renderable, templatable {
             'class' => 'btn btn-danger',
             'href' => '#',
             'methodname' => 'deleteitem', // The method needs to be added to your child of wunderbyte_table class.
-            // 'formname' => 'local_myplugin\\form\\edit_mytableentry', // To include a dynamic form to open and edit entry in modal.
             'nomodal' => false,
             'selectionmandatory' => true,
             'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
@@ -118,8 +106,8 @@ class scheduledmails implements renderable, templatable {
                 'bodystring' => 'deletedatabody',
                 'submitbuttonstring' => 'deletedatasubmit',
                 'component' => 'local_wunderbyte_table',
-                'labelcolumn' => 'firstname', // The Labelcolumn is important because it will be picked for human verification in the modal.
-            ]
+                'labelcolumn' => 'firstname',
+            ],
         ];
 
         $this->renderedtable = $table->outhtml(5, true);

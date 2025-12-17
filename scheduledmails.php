@@ -31,6 +31,10 @@ require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 require_once($CFG->libdir . '/adminlib.php');
 
+if (!debugging('', DEBUG_DEVELOPER)) {
+    echo html_writer::div(get_string('infotext:onlyfordebugging', 'mod_booking'), 'alert alert-warning');
+}
+
 $cmid = optional_param('cmid', 0, PARAM_INT);
 $contextid = optional_param('contextid', 0, PARAM_INT);
 
@@ -93,8 +97,6 @@ if (wb_payment::pro_version_is_activated()) {
     echo $output->render_scheduledmails_list($data);
 } else if (!empty($cmid)) {
     echo html_writer::div(get_string('infotext:prolicensenecessary', 'mod_booking'), 'alert alert-warning');
-} else {
-
 }
 
 echo $output->footer();

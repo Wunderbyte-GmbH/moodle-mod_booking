@@ -92,18 +92,23 @@ echo get_string('linktoshowroom:bookingrules', 'mod_booking');
 
 // Check if PRO version is active. In free version, up to three rules can be edited for whole plugin, but none for coursemodule.
 if (wb_payment::pro_version_is_activated()) {
-    $data = new scheduledmails($contextid);
-    $tabs = [
-        [
-            'title' => get_string('bookingrules', 'mod_booking'),
-            'body'  => booking_rules::get_rendered_list_of_saved_rules($contextid),
-        ],
-        [
-            'title' => get_string('scheduledmails', 'mod_booking'),
-            'body'  => $output->render_scheduledmails_list($data),
-        ],
-    ];
-    echo htmlcomponents::render_bootstrap_tabs($tabs);
+    $renderedrules = booking_rules::get_rendered_list_of_saved_rules($contextid);
+    if (debugging('', DEBUG_DEVELOPER)) {
+        $data = new scheduledmails($contextid);
+        $tabs = [
+            [
+                'title' => get_string('bookingrules', 'mod_booking'),
+                'body'  => $renderedrules,
+            ],
+            [
+                'title' => get_string('scheduledmails', 'mod_booking'),
+                'body'  => $output->render_scheduledmails_list($data),
+            ],
+        ];
+        echo htmlcomponents::render_bootstrap_tabs($tabs);
+    } else {
+        echo $renderedrules;
+    }
 } else if (!empty($cmid)) {
     echo html_writer::div(get_string('infotext:prolicensenecessary', 'mod_booking'), 'alert alert-warning');
 } else {

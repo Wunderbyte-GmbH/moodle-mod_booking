@@ -1478,8 +1478,10 @@ $string['info:teachersforoptiondates'] = 'Wechseln Sie zum <a href="{$a}" target
 $string['infoalreadybooked'] = '<div class="infoalreadybooked"><i>Sie haben diese Option bereits gebucht.</i></div>';
 $string['infonobookingoption'] = 'Um eine Buchungsoption zu erstellen, nutzen Sie den Block Einstellungen oder das Einstellungs-Icon';
 $string['infotext:installmoodlebugfix'] = 'Wunderbyte hat einen Bugfix zum Core von Moodle beigefügt. Dieser Bugfix ist in Ihrer Moodle Version noch nicht eingefügt. Sie erhalten daher an manchen Stellen Javascript Fehlermeldungen. Ab Moodle 4.1 genügt es, die laufenden Sicherheitsupdates einzuspielen.';
+$string['infotext:onlyfordebugging'] = 'Diese Seite ist nur im Debug Modus verfügbar.';
 $string['infotext:prolicensenecessary'] = '<a href="https://showroom.wunderbyte.at/course/view.php?id=62" target="_blank">Jetzt auf Booking PRO upgraden...</a>';
 $string['infotext:prolicensenecessarytextandlink'] = 'Sie benötigen Booking PRO, um dieses Feature nutzen zu können. <a href="https://showroom.wunderbyte.at/course/view.php?id=62" target="_blank">Get your PRO license here...</a>';
+$string['infotext:scheduledmailswarning'] = 'Leeren Sie die Caches und laden Sie die Seite um den aktuellen Stand anzuzeigen. <br> Bitte beachten Sie, dass nicht alle geplanten Nachrichten tatsächlich auch gesendet werden, da hier vor dem Versand noch auf die Gültigkeit überprüft wird.';
 $string['infowaitinglist'] = '<div class="infowaitinglist"><i>Sie sind auf der Warteliste für diese Option.</i></div>';
 $string['installmentprice'] = 'Ratenzahlungspreis';
 $string['installmoodlebugfix'] = 'Moodle update notwendig <span class="badge bg-danger text-light"><i class="fa fa-cogs" aria-hidden="true"></i> Wichtig</span>';
