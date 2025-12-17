@@ -540,10 +540,12 @@ class booking_option {
                 $text = $bookingsettings->beforebookedtext;
             }
         }
-
-        $text = placeholders_info::render_text($text, $this->settings->cmid, $this->settings->id, $userid);
-
-        return format_text($text);
+        try {
+            $text = placeholders_info::render_text($text, $this->settings->cmid, $this->settings->id, $userid);
+        } catch (moodle_exception $e) {
+            $text = $e->getMessage();
+        }
+            return format_text($text);
     }
 
     /**

@@ -1946,6 +1946,7 @@ $string['pdfportrait'] = 'Portrait';
 $string['percentageavailableplaces'] = 'Percentage of available places';
 $string['percentageavailableplaces_help'] = 'You need to enter a valid percentage beween 0 and 100 (without %-sign!).';
 $string['personnr'] = 'Person n° {$a}';
+$string['placeholdernotresolved'] = 'Placeholder {$a->classname} that must be resolved could not be resolved.';
 $string['placeholders'] = 'Placeholders';
 $string['placeholders_help'] = 'Leave this blank to use the site default text.';
 $string['places'] = 'Places';

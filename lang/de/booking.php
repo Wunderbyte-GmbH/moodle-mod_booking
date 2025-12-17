@@ -1922,6 +1922,7 @@ $string['pdfportrait'] = 'Hochformat';
 $string['percentageavailableplaces'] = 'Prozent der verfügbaren Plätze';
 $string['percentageavailableplaces_help'] = 'Geben Sie einen gültigen Prozentsatz zwischen 0 und 100 an (ohne %-Zeichen!).';
 $string['personnr'] = 'Person Nr. {$a}';
+$string['placeholdernotresolved'] = 'Platzhalter {$a->classname} der aufgelöst werden muss konnte nicht aufgelöst werden.';
 $string['placeholders'] = 'Platzhalter';
 $string['placeholders_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden.';
 $string['places'] = 'Plätze';
