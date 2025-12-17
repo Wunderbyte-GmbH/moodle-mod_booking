@@ -313,6 +313,8 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
      *
      * @dataProvider interval_confirmation_provider
      *
+     * @param array $data
+     *
      * @return void
      */
     public function test_auto_booking_of_priced_option_for_first_waitinglist_user_who_has_price_cateroy_free($data): void {
