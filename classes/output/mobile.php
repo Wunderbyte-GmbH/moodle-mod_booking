@@ -579,11 +579,13 @@ class mobile {
     }
 
     /**
-     * Get all selected nav tabs from the config$activetab
-     * @param string $cmid
-     * @return array
+     * Get all selected nav tabs from the config$activetab.
+     *
+     * @param mixed $cmid       Booking instance course module id (cmid).
+     * @param mixed $activetab  The active tab.
+     * @return array            Array of available nav tabs.
      */
-    public static function get_available_nav_tabs($cmid, $activetab) {
+    public static function get_available_nav_tabs($cmid, $activetab): array {
         $selectednavlabelnames = [];
         $navlabelnames = self::match_view_label_and_names();
         $configmobileviewoptions = get_config('booking', 'mobileviewoptions');
