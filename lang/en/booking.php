@@ -2319,6 +2319,13 @@ $string['rulesheader'] = '<i class="fa fa-fw fa-pencil-square" aria-hidden="true
 $string['rulesincontextglobalheader'] = '<a href="{$a}" target="_blank">Global rules</a>';
 $string['rulesincontextheader'] = '<a href="{$a->rulesincontexturl}" target="_blank">Rules in bookinginstance "{$a->bookingname}"</a>';
 $string['rulesnotfound'] = 'No rules found for this bookingoption';
+$string['rulespecifictime'] = 'Trigger at certain time in relation to a certain date';
+$string['rulespecifictime_desc'] = 'Choose a date field of booking options and a certain timespan before or after that date.';
+$string['rulespecifictimeafter'] = 'After';
+$string['rulespecifictimebefore'] = 'Before';
+$string['rulespecifictimebeforeafter'] = 'Before or after?';
+$string['rulespecifictimebeforeafter_help'] = 'If your timespan is 0 then it does not matter if you choose before or after.';
+$string['rulespecifictimeduration'] = 'Timespan before/after the chosen date';
 $string['rulessettings'] = "Settings for Booking Rules";
 $string['rulessettingsdesc'] = 'Settings that apply to the <a href="{$a}">Booking Rules Feature</a>.';
 $string['ruletemplatebookingoptioncompleted'] = "Template - Bookingoption completed with poll";

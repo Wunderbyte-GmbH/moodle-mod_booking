@@ -137,6 +137,22 @@ class rulesform extends dynamic_form {
                         get_string('error:deactivatelegacymailtemplates', 'mod_booking', $linktosetting);
                 }
                 break;
+            case 'rule_specifictime':
+                if ($data['rulespecifictimedatefield'] == '0') {
+                    $errors['rulespecifictimedatefield'] = get_string('error:choosevalue', 'mod_booking');
+                } else if (
+                    get_config('booking', 'uselegacymailtemplates')
+                    && $data['rulespecifictimedatefield'] == 'optiondatestarttime'
+                ) {
+                    $linktosetting = new moodle_url(
+                        '/admin/settings.php',
+                        ['section' => 'modsettingbooking'],
+                        'admin-uselegacymailtemplates'
+                    );
+                    $errors['rulespecifictimedatefield'] =
+                        get_string('error:deactivatelegacymailtemplates', 'mod_booking', $linktosetting);
+                }
+                break;
             case 'rule_react_on_event':
                 if ($data['rule_react_on_event_event'] == '0') {
                     $errors['rule_react_on_event_event'] = get_string('error:choosevalue', 'mod_booking');

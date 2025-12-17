@@ -2206,7 +2206,7 @@ $string['rulecustomprofilefieldofdeputy'] = 'Benutzerdefiniertes User-Profilfeld
 $string['rulecustomprofilefieldsupervisor'] = 'Benutzerdefiniertes User-Profilfeld Vorgesetze(r)';
 $string['ruledatefield'] = 'Datumsfeld';
 $string['ruledays'] = 'Anzahl Tage';
-$string['ruledaysbefore'] = 'Reagiere n Tage vor/nach einem bestimmtem Datum';
+$string['ruledaysbefore'] = 'Reagiere n Tage vor/nach einem bestimmten Datum';
 $string['ruledaysbefore_desc'] = 'Wählen Sie die Anzahl der Tage in Bezug zu einem gewissen Datum einer Buchungsoption aus.';
 $string['ruleevent'] = 'Event';
 $string['ruleeventcondition'] = 'Führe aus wenn...';
@@ -2238,6 +2238,13 @@ $string['rulesheader'] = '<i class="fa fa-fw fa-pencil-square" aria-hidden="true
 $string['rulesincontextglobalheader'] = '<a href="{$a}" target="_blank">Globale Regeln</a>';
 $string['rulesincontextheader'] = '<a href="{$a->rulesincontexturl}" target="_blank">Regeln in Buchungsinstanz "{$a->bookingname}"</a>';
 $string['rulesnotfound'] = 'Keine Regeln für diese Buchungsoption gefunden';
+$string['rulespecifictime'] = 'Reagiere zu definiertem Zeitpunkt vor/nach einem bestimmten Datum';
+$string['rulespecifictime_desc'] = 'Wählen Sie den Zeitraum vor/nach einem gewissen Datum einer Buchungsoption aus.';
+$string['rulespecifictimeafter'] = 'Nach';
+$string['rulespecifictimebefore'] = 'Vor';
+$string['rulespecifictimebeforeafter'] = 'Vor oder nach dem gewählten Datum?';
+$string['rulespecifictimebeforeafter_help'] = 'Wenn die gewählte Zeitspanne 0 ist, macht es keinen Unterschied, was sie hier auswählen.';
+$string['rulespecifictimeduration'] = 'Zeitraum vor/nach dem gewählten Datumsfeld';
 $string['rulessettings'] = "Einstellungen für Regeln";
 $string['rulessettingsdesc'] = 'Einstellungen, die für die <a href="{$a}">Funktion Buchungs Regeln</a> gelten.';
 $string['ruletemplatebookingoptioncompleted'] = "Template - Buchungsoption abgeschlossen mit Umfrage";

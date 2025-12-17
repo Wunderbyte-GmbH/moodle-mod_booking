@@ -89,7 +89,7 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
                 || $option->cmid !== $taskdata->cmid
             ) {
                 $abort = false;
-                if ($ruleinstance->rulename === 'rule_daysbefore') {
+                if (in_array($ruleinstance->rulename, ['rule_daysbefore', 'rule_specifictime'])) {
                     $abort = true;
                 } else {
                     $td = json_decode($taskdata->rulejson);

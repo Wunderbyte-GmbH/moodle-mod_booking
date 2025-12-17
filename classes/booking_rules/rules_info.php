@@ -380,7 +380,7 @@ class rules_info {
         global $DB;
         // Only fetch rules which need to be reapplied. At the moment, it's just one.
         // Eventbased rules don't have to be reapplied.
-        if ($records = $DB->get_records('booking_rules', ['rulename' => 'rule_daysbefore'])) {
+        if ($records = $DB->get_records_list('booking_rules', 'rulename', ['rule_daysbefore', 'rule_specifictime'])) {
             foreach ($records as $record) {
                 if (!$rule = self::get_rule($record->rulename)) {
                     continue;

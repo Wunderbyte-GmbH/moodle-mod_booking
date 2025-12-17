@@ -63,12 +63,12 @@ class select_user_from_event implements booking_rule_condition {
 
     /**
      * Function to tell if a condition can be combined with a certain booking rule type.
-     * @param string $bookingruletype e.g. "rule_daysbefore" or "rule_react_on_event"
+     * @param string $bookingruletype e.g. "rule_specifictime" or "rule_react_on_event"
      * @return bool true if it can be combined
      */
     public function can_be_combined_with_bookingruletype(string $bookingruletype): bool {
         // This rule cannot be combined with the "days before" rule as it has no event.
-        if ($bookingruletype == 'rule_daysbefore') {
+        if (in_array($bookingruletype, ['rule_daysbefore', 'rule_specifictime'])) {
             return false;
         } else {
             return true;
