@@ -184,6 +184,19 @@ $functions = [
         'capabilities'  => 'mod/booking:readresponses',
         'ajax'          => 1,
     ],
+    'mod_booking_submit_performance' => [
+        'classname'     => 'mod_booking\external\performance',
+        'description' => 'Handle performance submit',
+        'type'        => 'write',
+        'ajax'        => 1,
+    ],
+    'mod_booking_get_performance_chart' => [
+        'classname'   => 'mod_booking\external\get_performance_chart',
+        'methodname'  => 'execute',
+        'description' => 'Get performance chart data by hash',
+        'type'        => 'read',
+        'ajax'        => 1,
+    ],
 ];
 
 $services = [
