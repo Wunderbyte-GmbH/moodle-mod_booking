@@ -63,7 +63,7 @@ class allowedtobookininstance implements bo_condition {
      *
      * @var object
      */
-    private static $instances = null;
+    private static $instance = null;
 
     /**
      * Singleton instance.
@@ -73,10 +73,10 @@ class allowedtobookininstance implements bo_condition {
      *
      */
     public static function instance(?int $id = null): object {
-        if (!isset(self::$instances[$id])) {
-            self::$instances[$id] = new self($id);
+        if (!isset(self::$instance[$id])) {
+            self::$instance[$id] = new self($id);
         }
-        return self::$instances[$id];
+        return self::$instance[$id];
     }
 
     /**
@@ -86,7 +86,7 @@ class allowedtobookininstance implements bo_condition {
      *
      */
     public static function reset_instance(): void {
-        self::$instances = null;
+        self::$instance = null;
     }
 
     /**
