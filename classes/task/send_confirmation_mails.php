@@ -124,6 +124,7 @@ class send_confirmation_mails extends \core\task\adhoc_task {
                                     ],
                                 ]);
                                 $event->trigger();
+                                cache_helper::purge_by_event('setbackeventlogtable');
                             }
                         } catch (Exception $e) {
                             mtrace('Confirmation could not be sent because of the following exception: ' . $e->getMessage());
