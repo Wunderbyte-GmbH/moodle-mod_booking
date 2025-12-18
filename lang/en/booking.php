@@ -34,6 +34,7 @@ $string['actionoperator:adddate'] = 'Add date';
 $string['actionoperator:set'] = 'Replace';
 $string['actionoperator:subtract'] = 'Subtract';
 $string['actions'] = 'Actions';
+$string['actionsonbookinganswer'] = 'Actions';
 $string['activatemails'] = 'Activate e-mails (confirmations, notifications and more)';
 $string['active'] = "Active";
 $string['activebookingoptions'] = 'Active booking options';

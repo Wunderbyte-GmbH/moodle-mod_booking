@@ -34,6 +34,7 @@ $string['actionoperator:adddate'] = 'Füge Zeitraum hinzu';
 $string['actionoperator:set'] = 'Ersetzen';
 $string['actionoperator:subtract'] = 'Minus';
 $string['actions'] = 'Aktionen';
+$string['actionsonbookinganswer'] = 'Aktionen';
 $string['activatemails'] = 'E-Mails aktivieren (Bestätigungen, Erinnerungen etc.)';
 $string['activebookingoptions'] = 'Aktuelle Buchungsoptionen';
 $string['activitycompletionsuccess'] = 'Alle Nutzer:innen wurden für den Aktivitätsabschluss ausgewählt';
