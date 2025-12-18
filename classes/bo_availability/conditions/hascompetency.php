@@ -87,6 +87,16 @@ class hascompetency implements bo_condition {
     }
 
     /**
+     * Reset method to clear the singleton state.
+     *
+     * @return void
+     *
+     */
+    public static function reset_instance(): void {
+        self::$instance = null;
+    }
+
+    /**
      * Constructor.
      *
      * @param ?int $id
