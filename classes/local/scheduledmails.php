@@ -46,7 +46,7 @@ class scheduledmails {
             $name = "u.firstname || ' ' || u.lastname";
             $optionid = "ta.customdata::jsonb ->> 'optionid'";
             $cmid = "ta.customdata::jsonb ->> 'cmid'";
-        } else { // MySQL
+        } else { // MySQL.
             $ruleidextract = "JSON_UNQUOTE(JSON_EXTRACT(ta.customdata, '$.ruleid'))";
             $ruleid = "CAST(JSON_UNQUOTE(JSON_EXTRACT(ta.customdata, '$.ruleid')) AS UNSIGNED)";
             $bookingrulename = "JSON_UNQUOTE(JSON_EXTRACT(br.rulejson, '$.name'))";

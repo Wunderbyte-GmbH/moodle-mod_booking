@@ -182,34 +182,43 @@ class scheduledmails_table extends wunderbyte_table {
                 'class' => 'btn btn-link p-0 align-baseline',
                 'data-bs-toggle' => 'modal',
                 'data-bs-target' => '#' . $modalid,
-                'onclick' => "document.getElementById('{$modalid}').style.display='block'; document.getElementById('{$modalid}').classList.add('show');"
+                'onclick' => "document.getElementById('{$modalid}').style.display='block';
+                document.getElementById('{$modalid}').classList.add('show');",
             ]
         );
 
         // Complete modal structure.
         $modalheader = html_writer::div(
             html_writer::tag('h5', get_string('message'), ['class' => 'modal-title']) .
-            html_writer::tag('button', '&times;', [
+            html_writer::tag(
+                'button',
+                '&times;',
+                [
                 'type' => 'button',
                 'class' => 'btn-close',
                 'data-bs-dismiss' => 'modal',
                 'aria-label' => 'Close',
                 'onclick' => "document.getElementById('{$modalid}').style.display='none';
-                document.getElementById('{$modalid}').classList.remove('show');"
-            ]),
+                document.getElementById('{$modalid}').classList.remove('show');",
+                ]
+            ),
             'modal-header'
         );
 
         $modalbody = html_writer::div($fulltext, 'modal-body');
 
         $modalfooter = html_writer::div(
-            html_writer::tag('button', get_string('close'), [
+            html_writer::tag(
+                'button',
+                get_string('close'),
+                [
                 'type' => 'button',
                 'class' => 'btn btn-secondary',
                 'data-bs-dismiss' => 'modal',
                 'onclick' => "document.getElementById('{$modalid}').style.display='none';
-                document.getElementById('{$modalid}').classList.remove('show');"
-            ]),
+                document.getElementById('{$modalid}').classList.remove('show');",
+                ]
+            ),
             'modal-footer'
         );
 

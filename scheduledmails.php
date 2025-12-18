@@ -99,6 +99,3 @@ if (wb_payment::pro_version_is_activated()) {
 }
 
 echo $output->footer();
-
-
-
