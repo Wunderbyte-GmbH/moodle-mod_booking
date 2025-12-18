@@ -47,7 +47,6 @@ global $CFG;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class scheduledmails_table extends wunderbyte_table {
-
     /**
      * Return dragable column.
      *
@@ -163,7 +162,7 @@ class scheduledmails_table extends wunderbyte_table {
 
         $modalid = 'messagemodal_' . $values->id;
 
-        // Add JavaScript to ensure modal works
+        // Add JavaScript to ensure modal works.
         $PAGE->requires->js_amd_inline("
             require(['jquery'], function($) {
                 $(document).ready(function() {
@@ -174,7 +173,7 @@ class scheduledmails_table extends wunderbyte_table {
             });
         ");
 
-        // Trigger button with onclick fallback
+        // Trigger button with onclick fallback.
         $button = html_writer::tag(
             'button',
             s($preview),
@@ -187,7 +186,7 @@ class scheduledmails_table extends wunderbyte_table {
             ]
         );
 
-        // Complete modal structure
+        // Complete modal structure.
         $modalheader = html_writer::div(
             html_writer::tag('h5', get_string('message'), ['class' => 'modal-title']) .
             html_writer::tag('button', '&times;', [
@@ -195,7 +194,8 @@ class scheduledmails_table extends wunderbyte_table {
                 'class' => 'btn-close',
                 'data-bs-dismiss' => 'modal',
                 'aria-label' => 'Close',
-                'onclick' => "document.getElementById('{$modalid}').style.display='none'; document.getElementById('{$modalid}').classList.remove('show');"
+                'onclick' => "document.getElementById('{$modalid}').style.display='none';
+                document.getElementById('{$modalid}').classList.remove('show');"
             ]),
             'modal-header'
         );
@@ -207,7 +207,8 @@ class scheduledmails_table extends wunderbyte_table {
                 'type' => 'button',
                 'class' => 'btn btn-secondary',
                 'data-bs-dismiss' => 'modal',
-                'onclick' => "document.getElementById('{$modalid}').style.display='none'; document.getElementById('{$modalid}').classList.remove('show');"
+                'onclick' => "document.getElementById('{$modalid}').style.display='none';
+                document.getElementById('{$modalid}').classList.remove('show');"
             ]),
             'modal-footer'
         );
@@ -224,7 +225,7 @@ class scheduledmails_table extends wunderbyte_table {
             'tabindex' => '-1',
             'aria-labelledby' => $modalid . 'Label',
             'aria-hidden' => 'true',
-            'role' => 'dialog'
+            'role' => 'dialog',
         ]);
 
         return $button . $modal;

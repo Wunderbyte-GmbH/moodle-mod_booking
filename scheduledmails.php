@@ -77,7 +77,6 @@ if ($contextid == 1) {
     $PAGE->set_pagelayout('standard');
 }
 
-// $PAGE->add_body_class('limitedwidth');
 $PAGE->set_pagetype('mod-booking-edit-rules');
 
 $PAGE->set_title(
@@ -100,5 +99,6 @@ if (wb_payment::pro_version_is_activated()) {
 }
 
 echo $output->footer();
+
 
 

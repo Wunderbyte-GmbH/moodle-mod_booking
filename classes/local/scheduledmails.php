@@ -26,13 +26,14 @@ namespace mod_booking\local;
 class scheduledmails {
     /**
      * Returns SQL components ($fields, $from, $where) with DB-family aware JSON parsing.
+     * @param int $contextid
      *
      * @return array [$fields, $from, $where, $params]
      */
     public static function get_sql($contextid = 1) {
         global $DB;
 
-        $dbfamily = $DB->get_dbfamily(); // "postgres" or "mysql"
+        $dbfamily = $DB->get_dbfamily();
 
         // DB-specific JSON extraction.
         if ($dbfamily === 'postgres') {
@@ -45,7 +46,7 @@ class scheduledmails {
             $name = "u.firstname || ' ' || u.lastname";
             $optionid = "ta.customdata::jsonb ->> 'optionid'";
             $cmid = "ta.customdata::jsonb ->> 'cmid'";
-        } else {
+        } else { // MySQL
             $ruleidextract = "JSON_UNQUOTE(JSON_EXTRACT(ta.customdata, '$.ruleid'))";
             $ruleid = "CAST(JSON_UNQUOTE(JSON_EXTRACT(ta.customdata, '$.ruleid')) AS UNSIGNED)";
             $bookingrulename = "JSON_UNQUOTE(JSON_EXTRACT(br.rulejson, '$.name'))";
