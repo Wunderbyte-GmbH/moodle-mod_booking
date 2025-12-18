@@ -800,7 +800,6 @@ class manageusers_table extends wunderbyte_table {
 
         // Trash booking button.
         $data[] = [
-            // 'label' => '', // Name of your action button.
             'title' => get_string('actionbuttondelete', 'mod_booking'), // Name of your action button.
             'arialabel' => get_string('actionbuttondelete', 'mod_booking'), // Name of your action button.
             'class' => 'btn btn-nolabel',
