@@ -342,7 +342,9 @@ class certificate extends field_base {
             $id = $template->issue_certificate(
                 $userid,
                 $certificateexpirydate,
-                $data
+                $data,
+                'tool_certificate',
+                empty($settings->courseid) ? null : $settings->courseid
             );
             // Get the issue and create the PDF.
             $issue = $DB->get_record('tool_certificate_issues', ['id' => $id]);
