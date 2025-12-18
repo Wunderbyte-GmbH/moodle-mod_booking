@@ -66,6 +66,16 @@ class price {
     private static $bookforuserid;
 
     /**
+     * Reset method to clear the singleton state.
+     *
+     * @return void
+     *
+     */
+    public static function destroy_singletons(): void {
+        self::$bookforuserid = null;
+    }
+
+    /**
      * Constructor.
      * @param string $area
      * @param int $itemid
