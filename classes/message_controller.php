@@ -631,7 +631,7 @@ class message_controller {
                         ],
                     ]);
                     $event->trigger();
-
+                    cache_helper::purge_by_event('setbackeventlogtable');
                     return true;
                 } else {
                     return false;
