@@ -50,6 +50,7 @@ use mod_booking\bo_availability\conditions\previouslybooked;
 use mod_booking\bo_availability\conditions\selectusers;
 use mod_booking\bo_availability\conditions\userprofilefield_1_default;
 use mod_booking\bo_availability\conditions\userprofilefield_2_custom;
+use mod_booking\settings\optionformconfig\optionformconfig_info;
 use mod_booking\enrollink;
 use tool_mocktesttime\time_mock;
 
@@ -108,8 +109,9 @@ class mod_booking_generator extends testing_module_generator {
         userprofilefield_1_default::reset_instance();
         userprofilefield_2_custom::reset_instance();
         enrollink::destroy_instances();
+        optionformconfig_info::destroy_singletons();
+        Mod_bookingPrice::destroy_singletons();
         rules_info::destroy_singletons();
-        rules_info::$rulestoexecute = [];
         booking_rules::$rules = [];
         // Shopping cart.
         cartstore::reset();

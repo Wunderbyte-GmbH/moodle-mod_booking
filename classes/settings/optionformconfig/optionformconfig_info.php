@@ -87,6 +87,16 @@ class optionformconfig_info {
     ];
 
     /**
+     * Reset method to clear the singleton state.
+     *
+     * @return void
+     *
+     */
+    public static function destroy_singletons(): void {
+        self::$arrayoffieldsets = [];
+    }
+
+    /**
      * Function to be called from webservice to return the available field ids & settings from db.
      * @param int $contextid
      * @return array
