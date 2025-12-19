@@ -460,6 +460,7 @@ $string['booking:reducedoptionform2'] = "2. Reduziertes Buchungsoptionsformular 
 $string['booking:reducedoptionform3'] = "3. Reduziertes Buchungsoptionsformular für Kursbereich.";
 $string['booking:reducedoptionform4'] = "4. Reduziertes Buchungsoptionsformular für Kursbereich.";
 $string['booking:reducedoptionform5'] = "5. Reduziertes Buchungsoptionsformular für Kursbereich.";
+$string['booking:seealllisttoapprove'] = 'Alle „listtoapprove“-Einträge anzeigen';
 $string['booking:seepersonalteacherinformation'] = 'Detailinfos über Lehrende anzeigen';
 $string['booking:semesters'] = 'Booking: Semester';
 $string['booking:sendpollurl'] = 'Umfragelink senden';

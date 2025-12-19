@@ -471,6 +471,7 @@ $string['booking:reducedoptionform2'] = "2. Reduced option form for course categ
 $string['booking:reducedoptionform3'] = "3. Reduced option form for course category";
 $string['booking:reducedoptionform4'] = "4. Reduced option form for course category";
 $string['booking:reducedoptionform5'] = "5. Reduced option form for course category";
+$string['booking:seealllisttoapprove'] = 'See all listtoapprove records';
 $string['booking:seepersonalteacherinformation'] = 'See personal teacher information';
 $string['booking:semesters'] = 'Booking: Semesters';
 $string['booking:sendpollurl'] = 'Send poll url';
