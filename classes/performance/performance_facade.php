@@ -24,6 +24,10 @@
 
 namespace mod_booking\performance;
 
+use mod_booking\performance\actions\action_executor;
+use mod_booking\performance\actions\execution_point;
+use mod_booking\performance\actions\execution_times;
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/mod/booking/lib.php');
@@ -41,17 +45,30 @@ class performance_facade {
      * @param string $shortcodehash
      * @return array
      */
-    public static function execute($shortcode) {
+    public static function execute($shortcode, $actions) {
         $status = false;
-        $measurement = new performance_measurer($shortcode);
-        $measurement->start('Entire time');
+        performance_measurer::begin($shortcode, $actions);
+        $actions = json_decode($actions);
+        $executor = new action_executor();
+
+        $executiontimes = $actions->execution_times->times;
         try {
-            $status = self::run_shortcode($shortcode);
-        } catch (\Throwable $e) {
-            // Optional: Log or debug the error.
-            debugging("Shortcode execution error: " . $e->getMessage(), DEBUG_DEVELOPER);
+            // Actions before all cyrcles.
+            $executor->execute(execution_point::BEFORE_ALL);
+            for ($i = 1; $i <= $executiontimes; $i++) {
+                $executor->execute(execution_point::BEFORE_EACH);
+
+                performance_facade::start_measurement('Cycle time ' . $i);
+                try {
+                    $status = self::run_shortcode($shortcode);
+                } catch (\Throwable $e) {
+                    debugging("Shortcode execution error: " . $e->getMessage(), DEBUG_DEVELOPER);
+                } finally {
+                    performance_facade::end_measurement('Cycle time ' . $i);
+                }
+            }
         } finally {
-            $measurement->end('Entire time');
+            performance_measurer::finish();
         }
         return [
             'status' => $status,
@@ -82,33 +99,28 @@ class performance_facade {
 
     /**
      * Constructs performance class,
-     * @param string $shortcodehash
+     * @param string $name
      * @return void
      */
-    public static function start_measurement($shortcode, $args, $name) {
-        $parts = [];
-        foreach ($args as $key => $value) {
-            $parts[] = $key . '=' . $value;
+    public static function start_measurement($name) {
+        $measurer = performance_measurer::instance();
+        if (!$measurer) {
+            return;
         }
-        $shortcodename = '[' . $shortcode . (!empty($parts) ? ' ' . implode(' ', $parts) : '') . ']';
-
-        $measurer = new performance_measurer($shortcodename);
         $measurer->start($name);
     }
 
     /**
      * Constructs performance class,
-     * @param string $shortcodehash
+     * @param string $name
      * @return void
      */
-    public static function end_measurement($shortcode, $args, $name) {
-        $parts = [];
-        foreach ($args as $key => $value) {
-            $parts[] = $key . '=' . $value;
+    public static function end_measurement($name) {
+        $measurer = performance_measurer::instance();
+        if (!$measurer) {
+            return;
         }
-        $shortcodename = '[' . $shortcode . (!empty($parts) ? ' ' . implode(' ', $parts) : '') . ']';
 
-        $measurer = new performance_measurer($shortcodename);
         $measurer->end($name);
     }
 }
