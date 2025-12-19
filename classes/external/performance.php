@@ -53,6 +53,7 @@ class performance extends external_api {
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
             'value' => new external_value(PARAM_TEXT, 'Selected value'),
+            'actions' => new external_value(PARAM_TEXT, 'Selected value'),
         ]);
     }
 
@@ -64,10 +65,13 @@ class performance extends external_api {
      *
      * @return array
      */
-    public static function execute(string $value): array {
+    public static function execute(string $value, string $actions): array {
         global $DB;
-        $params = external_api::validate_parameters(self::execute_parameters(), ['value' => $value]);
-        return performance_facade::execute($params['value']);
+        $params = external_api::validate_parameters(self::execute_parameters(), [
+            'value' => $value,
+            'actions' => $actions
+        ]);
+        return performance_facade::execute($params['value'], $params['actions']);
     }
 
     /**
