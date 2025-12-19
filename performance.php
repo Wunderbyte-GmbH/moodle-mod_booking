@@ -1,4 +1,6 @@
 <?php
+
+use mod_booking\performance\actions\action_registry;
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -57,6 +59,7 @@ $templatecontext = [
     'message' => 'This is content rendered using a Mustache template.',
     'sidebar' => $sidebarconstruct['sidebar'] ?? [],
     'autocompleteitems' => $sidebarconstruct['autocompleteitems'] ?? [],
+    'actions' => action_registry::export_all_for_template($output),
 ];
 
 $templatecontext['chart'] = [
