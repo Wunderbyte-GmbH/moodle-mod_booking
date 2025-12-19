@@ -79,7 +79,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
                 'beforebookedtext', 'beforecompletedtext', 'aftercompletedtext', 'shorturl', 'duration',
                 'parentid', 'semesterid', 'dayofweektime', 'invisible', 'timemadevisible', 'annotation',
                 'identifier', 'titleprefix', 'priceformulaadd', 'priceformulamultiply', 'priceformulaoff',
-                'dayofweek', 'availability', 'status', 'responsiblecontact', 'credits', 'sortorder', 'json', 'sqlfilter',
+                'dayofweek', 'availability', 'status', 'type', 'responsiblecontact', 'credits', 'sortorder', 'json', 'sqlfilter',
             ]
         );
 

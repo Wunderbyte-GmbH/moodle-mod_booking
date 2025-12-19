@@ -38,6 +38,7 @@ use mod_booking\customfield\booking_handler;
 use mod_booking\elective;
 use mod_booking\filters\available_places;
 use mod_booking\option\fields\competencies;
+use mod_booking\shortcodes;
 use mod_booking\shortcodes_handler;
 use mod_booking\singleton_service;
 use mod_booking\table\bookingoptions_wbtable;
@@ -1238,6 +1239,10 @@ class view implements renderable, templatable {
                 $comptencyoptions = competencies::get_filter_options();
                 $standardfilter->add_options($comptencyoptions);
                 $wbtable->add_filter($standardfilter);
+            }
+            // Add the option type filter if 'typefilter' arg is true.
+            if (shortcodes_handler::arg_is_true($args['typefilter'] ?? false)) {
+                shortcodes::apply_bookingoptiontype_filter($wbtable, $cmid);
             }
         }
 
