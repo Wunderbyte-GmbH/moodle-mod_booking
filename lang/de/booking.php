@@ -691,6 +691,7 @@ $string['cachedef_customformuserdata'] = 'Benutzerdefiniertes Formular - Nutzerd
 $string['cachedef_electivebookingorder'] = 'Elective booking order (Cache)';
 $string['cachedef_eventlogtable'] = 'Eventlog-Tabelle (Cache)';
 $string['cachedef_mybookingoptionstable'] = 'Meine Buchungsoptionen (Cache)';
+$string['cachedef_scheduledmailscache'] = 'Geplante E-Mails (Cache)';
 $string['cachedef_subbookingforms'] = 'Subbooking Forms (Cache)';
 $string['cachedef_usercompetenciescache'] = 'Kompetenzen von Nutzer:innen (Cache)';
 $string['cachesettings'] = 'Cache Einstellungen';

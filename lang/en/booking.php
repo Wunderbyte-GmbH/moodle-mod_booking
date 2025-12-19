@@ -704,6 +704,7 @@ $string['cachedef_customformuserdata'] = 'Custom form user data (Cache)';
 $string['cachedef_electivebookingorder'] = 'Elective booking order (Cache)';
 $string['cachedef_eventlogtable'] = 'Event log table (Cache)';
 $string['cachedef_mybookingoptionstable'] = 'My bookingoptions table (Cache)';
+$string['cachedef_scheduledmailscache'] = 'Scheduled e-mails (cache)';
 $string['cachedef_subbookingforms'] = 'Subbooking Forms (Cache)';
 $string['cachedef_usercompetenciescache'] = 'User competencies (Cache)';
 $string['cachesettings'] = 'Cache Settings';
