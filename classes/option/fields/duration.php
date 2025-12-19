@@ -35,6 +35,7 @@ use MoodleQuickForm;
 use MoodleQuickForm_duration;
 use stdClass;
 use dml_exception;
+use mod_booking\booking;
 
 /**
  * Class for field 'duration'.
@@ -107,9 +108,16 @@ class duration extends field_base {
             $newoption->duration = 0;
         }
 
-        if (isset($formdata->selflearningcourse)) {
-            booking_option::add_data_to_json($newoption, "selflearningcourse", $formdata->selflearningcourse);
+        // We currently only support 2 option types.
+        if (isset($formdata->selflearningcourse) && ($formdata->selflearningcourse == 1)) {
+            $newoption->type = 1; // MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE.
+        } else {
+            // Important note: We have to adjust this when we introduce new option types!
+            $newoption->type ??= 0; // MOD_BOOKING_OPTIONTYPE_DEFAULT.
         }
+        // Get rid of legacy json key.
+        booking::remove_key_from_json($newoption, 'selflearningcourse');
+
         $instance = new duration();
         $mockdata = new stdClass();
         $mockdata->id = $formdata->id;

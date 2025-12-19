@@ -239,6 +239,9 @@ class booking_option_settings {
     /** @var int $status like 1 for cancelled */
     public $status = null;
 
+    /** @var int $type booking option type (0 = default, 1 = selflearningcourse) */
+    public $type = null;
+
     /** @var string $imageurl url */
     public $imageurl = '';
 
@@ -460,6 +463,13 @@ class booking_option_settings {
             $this->sqlfilter = $dbrecord->sqlfilter;
             $this->competencies = $dbrecord->competencies;
 
+            // Legacy: Previously selflearningcourse was stored as JSON property.
+            if (!isset($dbrecord->type)) {
+                $dbrecord->type = (int) (json_decode($dbrecord->json ?? '')?->selflearningcourse ?? 0);
+            }
+            $this->type = (int) $dbrecord->type;
+            $this->selflearningcourse = $dbrecord->type == 1 ? 1 : 0;
+
             // If we have a responsible contact id, we load the corresponding user object.
             if (!isset($dbrecord->responsiblecontactuser)) {
                 $this->load_responsiblecontactuser();
@@ -502,7 +512,6 @@ class booking_option_settings {
                 $this->boactions = [];
                 $this->canceluntil = 0;
                 $this->useprice = null; // Important: Use null as default so it will also work with old DB records.
-                $this->selflearningcourse = 0;
             }
 
             // If the course module id (cmid) is not yet set, we load it. //TODO: bookingid 0 bei option templates berücksichtigen!!
@@ -1176,18 +1185,10 @@ class booking_option_settings {
                 $this->jsonobject->confirmationonnotification = $this->confirmationonnotification;
                 $dbrecord->confirmationonnotification = $this->confirmationonnotification;
             }
-
-            // Selflearningcourse flag for course with duration but no optiondates.
-            if (!empty($this->jsonobject->selflearningcourse)) {
-                $this->selflearningcourse = (int)$this->jsonobject->selflearningcourse;
-                $this->jsonobject->selflearningcourse = $this->selflearningcourse;
-                $dbrecord->selflearningcourse = $this->selflearningcourse;
-            }
         } else {
             $this->boactions = $dbrecord->boactions ?? null;
             $this->canceluntil = $dbrecord->canceluntil ?? 0;
             $this->useprice = $dbrecord->useprice ?? null;
-            $this->selflearningcourse = $dbrecord->selflearningcourse ?? 0;
             $this->waitforconfirmation = $dbrecord->waitforconfirmation ?? 0;
             $this->confirmationonnotification = $dbrecord->confirmationonnotification ?? 0;
             $this->jsonobject = $dbrecord->jsonobject ?? null;

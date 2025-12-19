@@ -170,8 +170,9 @@ class shortcodes {
             $out = $table->outhtml($perpage, true);
         } catch (Throwable $e) {
             $out = get_string('shortcode:error', 'mod_booking');
-
-            if ($CFG->debug > 0 && has_capability('moodle/site:config', context_system::instance())) {
+            /** @var \context $syscontext */
+            $syscontext = context_system::instance();
+            if ($CFG->debug > 0 && has_capability('moodle/site:config', $syscontext)) {
                 $out .= $e->getMessage();
             }
         }
@@ -325,8 +326,9 @@ class shortcodes {
             $out = $table->outhtml($perpage, true);
         } catch (Throwable $e) {
             $out = get_string('shortcode:error', 'mod_booking');
-
-            if ($CFG->debug > 0 && has_capability('moodle/site:config', context_system::instance())) {
+            /** @var \context $syscontext */
+            $syscontext = context_system::instance();
+            if ($CFG->debug > 0 && has_capability('moodle/site:config', $syscontext)) {
                 $out .= $e->getMessage();
             }
         }
@@ -337,7 +339,7 @@ class shortcodes {
     /**
      * Add customfield filter as defined shortnames in args to table.
      *
-     * @param mixed $table
+     * @param wunderbyte_table $table
      * @param array $args
      *
      * @return void
@@ -540,8 +542,9 @@ class shortcodes {
             $out = $table->outhtml($perpage, true);
         } catch (Throwable $e) {
             $out = get_string('shortcode:error', 'mod_booking');
-
-            if ($CFG->debug > 0 && has_capability('moodle/site:config', context_system::instance())) {
+            /** @var \context $syscontext */
+            $syscontext = context_system::instance();
+            if ($CFG->debug > 0 && has_capability('moodle/site:config', $syscontext)) {
                 $out .= $e->getMessage();
             }
         }
@@ -582,6 +585,7 @@ class shortcodes {
             $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
 
             if ($option->invisible == 1) {
+                /** @var \context $context */
                 $context = context_module::instance($settings->cmid);
                 if (!has_capability('mod/booking:view', $context)) {
                     continue;
@@ -794,8 +798,9 @@ class shortcodes {
             $out = $table->outhtml($perpage, true);
         } catch (Throwable $e) {
             $out = get_string('shortcode:error', 'mod_booking');
-
-            if ($CFG->debug > 0 && has_capability('moodle/site:config', context_system::instance())) {
+            /** @var \context $syscontext */
+            $syscontext = context_system::instance();
+            if ($CFG->debug > 0 && has_capability('moodle/site:config', $syscontext)) {
                 $out .= $e->getMessage();
                 $out .= $e->getTraceAsString();
             }
@@ -964,8 +969,9 @@ class shortcodes {
             $out = $table->outhtml($perpage, true);
         } catch (Throwable $e) {
             $out = get_string('shortcode:error', 'mod_booking');
-
-            if ($CFG->debug > 0 && has_capability('moodle/site:config', context_system::instance())) {
+            /** @var \context $syscontext */
+            $syscontext = context_system::instance();
+            if ($CFG->debug > 0 && has_capability('moodle/site:config', $syscontext)) {
                 $out .= $e->getMessage();
             }
         }
@@ -1116,8 +1122,9 @@ class shortcodes {
             $out = $table->outhtml($perpage, true);
         } catch (Throwable $e) {
             $out = get_string('shortcode:error', 'mod_booking');
-
-            if ($CFG->debug > 0 && has_capability('moodle/site:config', context_system::instance())) {
+            /** @var \context $syscontext */
+            $syscontext = context_system::instance();
+            if ($CFG->debug > 0 && has_capability('moodle/site:config', $syscontext)) {
                 $out .= $e->getMessage();
             }
         }
@@ -1147,8 +1154,9 @@ class shortcodes {
         if ($error['error'] === 1) {
             return $error['message'];
         }
-
-        if (!is_siteadmin() && !has_capability('mod/booking:executebulkoperations', context_system::instance())) {
+        /** @var \context $syscontext */
+        $syscontext = context_system::instance();
+        if (!is_siteadmin() && !has_capability('mod/booking:executebulkoperations', $syscontext)) {
             return get_string('nopermissiontoaccesscontent', 'mod_booking');
         }
 
@@ -1262,8 +1270,9 @@ class shortcodes {
             $out = $table->outhtml($perpage, true);
         } catch (Throwable $e) {
             $out = get_string('shortcode:error', 'mod_booking');
-
-            if ($CFG->debug > 0 && has_capability('moodle/site:config', context_system::instance())) {
+            /** @var \context $syscontext */
+            $syscontext = context_system::instance();
+            if ($CFG->debug > 0 && has_capability('moodle/site:config', $syscontext)) {
                 $out .= $e->getMessage();
             }
         }
@@ -1382,16 +1391,21 @@ class shortcodes {
         ?string $uniquetablename = null,
         array $args = []
     ) {
+        /** @var \context $syscontext */
+        $syscontext = context_system::instance();
+
         if ($booking && !empty($booking->cmid)) {
+            /** @var \context $context */
             $context = context_module::instance($booking->cmid);
         } else {
+            /** @var \context $context */
             $context = context_system::instance();
         }
         // Important security check.
         // The user must have the cashier capability to fetch data of other users.
         if (
             class_exists('local_shopping_cart\shopping_cart')
-            && has_capability('local/shopping_cart:cashier', context_system::instance())
+            && has_capability('local/shopping_cart:cashier', $syscontext)
             // This check actually corresponds to the check in booking_bookit currently line 126.
             // It allows overriding a blocking condition under some circumstances.
             || has_capability('mod/booking:bookforothers', $context)
@@ -1419,7 +1433,7 @@ class shortcodes {
     /**
      * Add filter displaying the possible instances of mod booking.
      *
-     * @param mixed $table reference to table
+     * @param wunderbyte_table $table reference to table
      *
      * @return void
      *
@@ -1435,6 +1449,30 @@ class shortcodes {
         $instancefilter = new standardfilter('bookingid', get_string('bookingidfilter', 'mod_booking'));
         $instancefilter->add_options($filterarray);
         $table->add_filter($instancefilter);
+    }
+
+    /**
+     * Add filter for booking option types.
+     *
+     * @param wunderbyte_table $table reference to table
+     * @param int $cmid cmid of the booking instance
+     *
+     * @return void
+     *
+     */
+    public static function apply_bookingoptiontype_filter(&$table, $cmid): void {
+        $optiontypefilter = new standardfilter('type', get_string('type', 'mod_booking'));
+        $selflearningcourselabel = get_config('booking', 'selflearningcourselabel');
+        if (empty(trim($selflearningcourselabel))) {
+            $selflearningcourselabel = get_string('selflearningcourse', 'mod_booking');
+        }
+        $optiontypefilter->add_options(
+            [
+                0 => get_string('optiontypefilternormal', 'mod_booking'),
+                1 => $selflearningcourselabel,
+            ]
+        );
+        $table->add_filter($optiontypefilter);
     }
 
     /**
@@ -1750,7 +1788,9 @@ class shortcodes {
             && !empty($args['deputyselect'])
             && !empty(get_config('bookingextension_confirmation_supervisor', 'deputy'))
         ) {
-            if (has_capability('mod/booking:assigndeputies', context_system::instance())) {
+            /** @var \context $syscontext */
+            $syscontext = context_system::instance();
+            if (has_capability('mod/booking:assigndeputies', $syscontext)) {
                 $data->deputyselect = 1;
             }
             $data->deputydisplay = dynamicdeputyselect::get_display_deputies_data();
