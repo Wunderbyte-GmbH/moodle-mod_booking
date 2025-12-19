@@ -52,13 +52,29 @@ class performance_measurer {
     private string $shortcodename = '';
 
     /**
+     * @var string $actions
+     */
+    private string $actions = '';
+
+    /**
+     * @var self $instance
+     */
+    private static ?self $instance = null;
+
+    /**
+     * @var bool $active
+     */
+    private static bool $active = false;
+
+    /**
      * Constructs performance class,
      * @param string $shortcodehash
      * @return void
      */
-    public function __construct($shortcodehash) {
+    private function __construct($shortcodehash, $actions) {
         $this->shortcodename = $shortcodehash;
         $this->shortcodehash = hash('sha256', $shortcodehash);
+        $this->actions = $actions;
         return;
     }
 
@@ -68,15 +84,20 @@ class performance_measurer {
      * @return void
      */
     public function start($name) {
+        if (!self::$active) {
+            return;
+        }
         $openmeasurements = $this->has_open_measurement_with_name($name);
         if ($openmeasurements) {
             $this->delete_measurements($openmeasurements);
         }
         $record = [
-            'starttime' => time(),
+            'starttime' => (int) (microtime(true) * 1_000_000),
+            'endtime' => 0,
             'measurementname' => $name,
             'shortcodehash' => $this->shortcodehash,
             'shortcodename' => $this->shortcodename,
+            'actions' => $this->actions,
         ];
         $this->open_measurement($record);
         return;
@@ -84,13 +105,13 @@ class performance_measurer {
 
     /**
      * Constructs performance class,
-     * @param string $hash
+     * @param string $name
      * @return array|bool
      */
     private function has_open_measurement_with_name($name) {
         global $DB;
         $conditions = [
-            'endtime' => null,
+            'endtime' => 0,
             'measurementname' => $name,
             'shortcodehash' => $this->shortcodehash,
         ];
@@ -141,6 +162,9 @@ class performance_measurer {
      * @return void
      */
     public function end($name) {
+        if (!self::$active) {
+            return;
+        }
         global $DB;
 
         $conditions = [
@@ -152,7 +176,7 @@ class performance_measurer {
         $DB->set_field(
             self::TABLE,
             'endtime',
-            time(),
+            (int) (microtime(true) * 1_000_000),
             $conditions
         );
         return;
@@ -165,10 +189,57 @@ class performance_measurer {
     public function delete_all_open_measurement() {
         global $DB;
         $conditions = [
-            'endtime' => null,
-            'shortcodehash' => $this->hash,
+            'endtime' => 0,
+            'shortcodehash' => $this->shortcodehash,
         ];
         $DB->delete_records(self::TABLE, $conditions);
         return;
+    }
+
+    /**
+     * Start root measurement and activate measurer
+     * @param string $shortcode
+     * @param string $actions
+     * @return void
+     */
+    public static function begin(string $shortcode, string $actions): void {
+        if (self::$active) {
+            return;
+        }
+
+        self::$instance = new self($shortcode, $actions);
+        self::$active = true;
+
+        self::$instance->start('Entire time');
+    }
+
+    /**
+     * End root measurement and deactivate
+     * @return void
+     */
+    public static function finish(): void {
+        if (!self::$active || !self::$instance) {
+            return;
+        }
+
+        self::$instance->end('Entire time');
+        self::$instance = null;
+        self::$active = false;
+    }
+
+    /**
+     * Check if measurement is active
+     * @return bool
+     */
+    public static function is_active(): bool {
+        return self::$active && self::$instance !== null;
+    }
+
+    /**
+     * Safe accessor
+     * @return self
+     */
+    public static function instance(): ?self {
+        return self::$instance;
     }
 }

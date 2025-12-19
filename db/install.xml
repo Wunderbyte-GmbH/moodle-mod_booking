@@ -617,22 +617,5 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="booking_performance_measurements" COMMENT="Logging the measurement points to track performance">
-      <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="starttime" TYPE="int" LENGTH="10" NOTNULL="false"/>
-        <FIELD NAME="endtime" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
-        <FIELD NAME="shortcodename" TYPE="char" LENGTH="100" NOTNULL="true" COMMENT="Name of shortcode."/>
-        <FIELD NAME="shortcodenamehash" TYPE="char" LENGTH="64" NOTNULL="true" COMMENT="Hashed shortcode."/>
-        <FIELD NAME="measurementname" TYPE="char" LENGTH="100" NOTNULL="true" COMMENT="Name of measurement."/>
-     </FIELDS>
-      <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-      </KEYS>
-     <INDEXES>
-        <INDEX NAME="hashx" UNIQUE="false" FIELDS="hash"/>
-        <INDEX NAME="hashnameendx" UNIQUE="false" FIELDS="hash, name, endtime"/>
-     </INDEXES>
-    </TABLE>
   </TABLES>
 </XMLDB>
