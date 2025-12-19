@@ -15,22 +15,30 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Module Booking.
+ * Handle fields for booking option.
  *
  * @package mod_booking
- * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>,
- * @author David Bogner, Georg Maißer, Bernhard Fischer, Magdalena Holczik, Andraž Prinčič
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace mod_booking\performance\actions;
+
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2025122500;
-$plugin->requires = 2024100700; // Requires this Moodle version. Current: Moodle 4.5.
-$plugin->release = '9.0.3';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->component = 'mod_booking';
-$plugin->supported = [405, 501];
-$plugin->dependencies = [
-    'local_wunderbyte_table' => 2025121000,
-];
+require_once($CFG->dirroot . '/mod/booking/lib.php');
+
+/**
+ * Regestry for all available actions.
+ *
+ * @copyright Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Georg Maißer
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class action_executor {
+    public function execute(execution_point $point): void {
+        foreach (action_registry::for_execution_point($point) as $actionclass) {
+            (new $actionclass())->execute();
+        }
+    }
+}
