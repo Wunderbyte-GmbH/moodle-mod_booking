@@ -31,6 +31,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 use mod_booking\message_controller;
 use context_system;
+use cache_helper;
 use Exception;
 
 global $CFG;
