@@ -226,7 +226,7 @@ class option extends scope_base {
                 $columns['notes'] = get_string('notes', 'mod_booking');
                 break;
             case MOD_BOOKING_STATUSPARAM_WAITINGLIST:
-                $columns['action_confirm_delete'] = get_string('bookingstrackerdelete', 'mod_booking');
+                $columns['action_confirm_delete'] = get_string('actionsonbookinganswer', 'mod_booking');
                 if (get_config('booking', 'waitinglistshowplaceonwaitinglist')) {
                     // Use array_merge to add the user rank at the first place.
                     $columns = array_merge(
