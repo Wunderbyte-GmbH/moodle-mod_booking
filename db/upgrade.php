@@ -5132,18 +5132,18 @@ function xmldb_booking_upgrade($oldversion) {
 
             // Fields.
             $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE);
-            $table->add_field('starttime', XMLDB_TYPE_INTEGER, '10', null, null, null);
-            $table->add_field('endtime', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('starttime', XMLDB_TYPE_INTEGER, '20', null, null, null);
+            $table->add_field('endtime', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, '0');
             $table->add_field('shortcodename', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL);
-            $table->add_field('hash', XMLDB_TYPE_CHAR, '64', null, XMLDB_NOTNULL);
+            $table->add_field('shortcodenamehash', XMLDB_TYPE_CHAR, '64', null, XMLDB_NOTNULL);
             $table->add_field('measurementname', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL);
-
+            $table->add_field('json', XMLDB_TYPE_CHAR, '1000', null, null, null, null);
             // Keys.
             $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
             // Indexes.
-            $table->add_index('hashx', XMLDB_INDEX_NOTUNIQUE, ['hash']);
-            $table->add_index('hashnameendx', XMLDB_INDEX_NOTUNIQUE, ['hash', 'name', 'endtime']);
+            $table->add_index('hashx', XMLDB_INDEX_NOTUNIQUE, ['shortcodenamehash']);
+            $table->add_index('hashnameendx', XMLDB_INDEX_NOTUNIQUE, ['shortcodenamehash', 'measurementname', 'endtime']);
 
             // Create the table.
             $dbman->create_table($table);

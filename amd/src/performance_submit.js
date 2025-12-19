@@ -51,10 +51,33 @@ define(['core/ajax', 'core/notification', 'mod_booking/performance_chart'], func
                 return;
             }
 
+            const actions = {};
+            const actionInputs = document.querySelectorAll('[name^="actions["]');
+
+            actionInputs.forEach(el => {
+                const match = el.name.match(/^actions\[([^\]]+)\]\[([^\]]+)\]$/);
+                if (!match) {
+                    return;
+                }
+
+                const actionId = match[1];
+                const field = match[2];
+
+                if (!actions[actionId]) {
+                    actions[actionId] = {};
+                }
+
+                if (el.type === 'checkbox') {
+                    actions[actionId][field] = el.checked ? 1 : 0;
+                } else {
+                    actions[actionId][field] = el.value;
+                }
+            });
             Ajax.call([{
                 methodname: 'mod_booking_submit_performance',
                 args: {
-                    value: value
+                    value: value,
+                    actions: JSON.stringify(actions)
                 }
             }])[0]
                 .then(response => {
