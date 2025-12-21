@@ -530,11 +530,9 @@ final class rules_n_days_test extends advanced_testcase {
         // Setup course, users, booking instance.
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $teacher1 = $this->getDataGenerator()->create_user();
-        $teacher2 = $this->getDataGenerator()->create_user();
-        $teacher3 = $this->getDataGenerator()->create_user();
-        $teacher4 = $this->getDataGenerator()->create_user();
         $student1 = $this->getDataGenerator()->create_user();
         $student2 = $this->getDataGenerator()->create_user();
+        $student3 = $this->getDataGenerator()->create_user();
 
         $bdata['booking']['course'] = $course->id;
         $bdata['booking']['bookingmanager'] = $teacher1->username;
@@ -542,11 +540,9 @@ final class rules_n_days_test extends advanced_testcase {
 
         $this->setAdminUser();
         $this->getDataGenerator()->enrol_user($teacher1->id, $course->id, 'editingteacher');
-        $this->getDataGenerator()->enrol_user($teacher2->id, $course->id, 'editingteacher');
-        $this->getDataGenerator()->enrol_user($teacher3->id, $course->id, 'editingteacher');
-        $this->getDataGenerator()->enrol_user($teacher4->id, $course->id, 'editingteacher');
         $this->getDataGenerator()->enrol_user($student1->id, $course->id, 'student');
         $this->getDataGenerator()->enrol_user($student2->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($student3->id, $course->id, 'student');
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
@@ -572,7 +568,9 @@ final class rules_n_days_test extends advanced_testcase {
         $record['bookingid'] = $booking->id;
         $record['courseid'] = $course->id;
         $record['importing'] = 1;
-        $record['teachersforoption'] = $teacher4->username;
+        $record['teachersforoption'] = $teacher1->username;
+        $record['maxanswers'] = 2;
+        $record['maxoverbooking'] = 1; // Enable waitinglist.
         // Override settings for option from dataprovider.
         if (isset($data['optionsettings'])) {
             foreach ($data['optionsettings'] as $setting) {
@@ -581,9 +579,6 @@ final class rules_n_days_test extends advanced_testcase {
                 }
             }
         }
-        //$record['teachersforoptiondate_0'] = $teacher1->username;
-        //$record['teachersforoptiondate_1'] = $teacher2->username;
-        //$record['teachersforoptiondate_2'] = $teacher3->username;
         $option = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option->id);
 
@@ -592,6 +587,8 @@ final class rules_n_days_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $result);
         $result = $plugingenerator->create_answer(['optionid' => $option->id, 'userid' => $student2->id]);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $result);
+        $result = $plugingenerator->create_answer(['optionid' => $option->id, 'userid' => $student3->id]);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $result);
         singleton_service::destroy_booking_answers($option->id);
 
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
@@ -922,30 +919,30 @@ final class rules_n_days_test extends advanced_testcase {
                     'initialnumberoftasks' => 6,
                     'tasksperoptiondates' => [
                         [
-                            'mock_time' => '1 June 2050 10:00',
-                            'messages_sent' => 0,
+                            'mock_time' => '1 June 2050 14:00',
+                            'messages_sent' => 0, // More than 1 days before.
                         ],
                         [
-                            'mock_time' => '2 June 2050 10:00',
-                            'messages_sent' => 2,
+                            'mock_time' => '1 June 2050 15:30',
+                            'messages_sent' => 2, // Less than 1 days before.
                             'contains_success' => self::MAIL_SUCCES_TRACE,
                         ],
                         [
-                            'mock_time' => '7 June 2050 10:00',
-                            'messages_sent' => 0,
+                            'mock_time' => '7 June 2050 14:00',
+                            'messages_sent' => 0, // More than 1 days before.
                         ],
                         [
-                            'mock_time' => '8 June 2050 10:00',
-                            'messages_sent' => 2,
+                            'mock_time' => '7 June 2050 15:30',
+                            'messages_sent' => 2, // Less than 1 days before.
                             'contains_success' => self::MAIL_SUCCES_TRACE,
                         ],
                         [
-                            'mock_time' => '14 June 2050 10:00',
-                            'messages_sent' => 0,
+                            'mock_time' => '14 June 2050 14:00',
+                            'messages_sent' => 0, // More than 1 days before.
                         ],
                         [
-                            'mock_time' => '15 June 2050 10:00',
-                            'messages_sent' => 2,
+                            'mock_time' => '14 June 2050 15:30',
+                            'messages_sent' => 2, // Less than 1 days before.
                             'contains_success' => self::MAIL_SUCCES_TRACE,
                         ],
                     ],
@@ -965,43 +962,43 @@ final class rules_n_days_test extends advanced_testcase {
                     'initialnumberoftasks' => 6,
                     'tasksperoptiondates' => [
                         [
-                            'mock_time' => '30 May 2050 10:00',
-                            'messages_sent' => 0,
+                            'mock_time' => '31 May 2050 14:00',
+                            'messages_sent' => 0, // More than 2 days before.
                         ],
                         [
-                            'mock_time' => '1 June 2050 10:00',
-                            'messages_sent' => 2,
+                            'mock_time' => '31 May 2050 15:30',
+                            'messages_sent' => 2, // Override 1st sessiodate - less than 2 days before.
                             'contains_success' => self::MAIL_SUCCES_TRACE,
                         ],
                         [
-                            'mock_time' => '2 June 2050 10:00',
-                            'messages_sent' => 0,
+                            'mock_time' => '1 June 2050 15:30',
+                            'messages_sent' => 0, // Override 1st sessiodate - confirm no messages on less than 1 days before.
                         ],
                         [
-                            'mock_time' => '6 June 2050 10:00',
-                            'messages_sent' => 0,
+                            'mock_time' => '6 June 2050 14:00',
+                            'messages_sent' => 0, // More than 2 days before.
                         ],
                         [
-                            'mock_time' => '7 June 2050 10:00',
-                            'messages_sent' => 2,
+                            'mock_time' => '6 June 2050 15:30',
+                            'messages_sent' => 2, // Override 2nd sessiodate - less than 2 days before.
                             'contains_success' => self::MAIL_SUCCES_TRACE,
                         ],
                         [
-                            'mock_time' => '8 June 2050 10:00',
-                            'messages_sent' => 0,
+                            'mock_time' => '7 June 2050 15:30',
+                            'messages_sent' => 0, // Override 2nd sessiodate - confirm no messages on less than 1 days before.
                         ],
                         [
-                            'mock_time' => '13 June 2050 10:00',
-                            'messages_sent' => 0,
+                            'mock_time' => '13 June 2050 14:00',
+                            'messages_sent' => 0, // More than 2 days before.
                         ],
                         [
-                            'mock_time' => '14 June 2050 10:00',
-                            'messages_sent' => 2,
+                            'mock_time' => '13 June 2050 15:30',
+                            'messages_sent' => 2, // Override 3rd sessiodate - less than 2 days before.
                             'contains_success' => self::MAIL_SUCCES_TRACE,
                         ],
                         [
                             'mock_time' => '15 June 2050 10:00',
-                            'messages_sent' => 0,
+                            'messages_sent' => 0, // Override 3rd sessiodate - confirm no messages on less than 1 days before.
                         ],
                     ],
                 ],
@@ -1018,6 +1015,47 @@ final class rules_n_days_test extends advanced_testcase {
                 ],
                 [
                     'initialnumberoftasks' => 6,
+                    'tasksperoptiondates' => [
+                        [
+                            'mock_time' => '30 May 2050 14:00',
+                            'messages_sent' => 0, // More than 3 days before.
+                        ],
+                        [
+                            'mock_time' => '30 May 2050 15:30',
+                            'messages_sent' => 2, // Override 1st sessiodate - less than 3 days before.
+                            'contains_success' => self::MAIL_SUCCES_TRACE,
+                        ],
+                        [
+                            'mock_time' => '1 June 2050 15:30',
+                            'messages_sent' => 0, // Override 1st sessiodate - confirm no messages on less than 1 days before.
+                        ],
+                        [
+                            'mock_time' => '4 June 2050 14:00',
+                            'messages_sent' => 0, // More than 4 days before.
+                        ],
+                        [
+                            'mock_time' => '4 June 2050 15:30',
+                            'messages_sent' => 2, // Override 2nd sessiodate - less than 4 days before.
+                            'contains_success' => self::MAIL_SUCCES_TRACE,
+                        ],
+                        [
+                            'mock_time' => '7 June 2050 15:30',
+                            'messages_sent' => 0, // Override 2nd sessiodate - confirm no messages on less than 1 days before.
+                        ],
+                        [
+                            'mock_time' => '10 June 2050 14:00',
+                            'messages_sent' => 0, // More than 5 days before.
+                        ],
+                        [
+                            'mock_time' => '10 June 2050 15:30',
+                            'messages_sent' => 2, // Override 3rd sessiodate - less than 5 days before.
+                            'contains_success' => self::MAIL_SUCCES_TRACE,
+                        ],
+                        [
+                            'mock_time' => '14 June 2050 15:30',
+                            'messages_sent' => 0, // Override 3rd sessiodate - confirm no messages on less than 1 days before.
+                        ],
+                    ],
                 ],
             ],
         ];
