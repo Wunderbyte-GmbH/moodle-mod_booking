@@ -175,7 +175,7 @@ class option extends scope_base {
                     'cmid' => $cmid,
                     'optionid' => $optionid ?? 0,
                 ],
-                'btn btn-primary btn-sm ml-2'
+                'btn btn-primary btn-sm ms-2'
             );
 
             $table->actionbuttons[] = booked_users::create_action_button(

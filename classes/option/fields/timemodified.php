@@ -129,7 +129,7 @@ class timemodified extends field_base {
             $readabletimemodified = userdate($lasttimemodified, get_string('strftimedaydatetime', 'langconfig'));
             $mform->addElement(
                 'html',
-                '<div class="bookingoption-form-timemodified text-muted small ml-4 mb-3">'
+                '<div class="bookingoption-form-timemodified text-muted small ms-4 mb-3">'
                 . get_string('timemodified', 'mod_booking') . ": "
                 . $readabletimemodified . '</div>'
             );

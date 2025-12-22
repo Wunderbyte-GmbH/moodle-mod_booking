@@ -1475,7 +1475,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
                         get_string('showdescription', 'mod_booking') . '...</a>
                         </div>
                         <div class="collapse" id="collapseDescription' . $values->id . '">
-                            <div class="card card-body border-1 mt-1 mb-1 mr-3">' . $ret . '</div>
+                            <div class="card card-body border-1 mt-1 mb-1 me-3">' . $ret . '</div>
                         </div>';
                 }
 

@@ -174,7 +174,7 @@ class invisible extends field_base {
                     $readabletimemadevisible = userdate($timemadevisible, get_string('strftimedaydatetime', 'langconfig'));
                     $mform->addElement(
                         'html',
-                        '<div class="bookingoption-form-timemadevisible text-muted small ml-4 mb-3">'
+                        '<div class="bookingoption-form-timemadevisible text-muted small ms-4 mb-3">'
                         . get_string('timemadevisible', 'mod_booking') . ": "
                         . $readabletimemadevisible . '</div>'
                     );
