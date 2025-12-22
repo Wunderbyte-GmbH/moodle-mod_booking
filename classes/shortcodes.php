@@ -1885,6 +1885,11 @@ class shortcodes {
         } else {
             $scope = 'supervisorteam';
         }
+        if (!empty($args['cfinclude'])) {
+            $customfields = explode(',', $args['cfinclude']);
+        } else {
+            $customfields = [];
+        }
         $data = new booked_users(
             $scope,
             0,
@@ -1894,7 +1899,11 @@ class shortcodes {
             false, // Users on notify list.
             false, // Deleted users.
             false, // Booking history.
-            false // Options to confirm.
+            false, // Options to confirm.
+            false,
+            0,
+            false,
+            $customfields,
         );
 
         /** @var renderer $renderer */

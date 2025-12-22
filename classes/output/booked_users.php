@@ -146,7 +146,8 @@ class booked_users implements renderable, templatable {
                 array_keys($columns),
                 array_values($columns),
                 false,
-                true
+                true,
+                $customfields
             ) : null;
 
         // For optiondate scope, we only show booked users.
@@ -164,7 +165,8 @@ class booked_users implements renderable, templatable {
                 array_values($columns),
                 // Sorting of waiting list only possible if setting to show place is enabled.
                 (bool)get_config('booking', 'waitinglistshowplaceonwaitinglist'),
-                true
+                true,
+                $customfields
             ) : null;
 
             $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_RESERVED);
