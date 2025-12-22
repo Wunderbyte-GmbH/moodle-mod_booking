@@ -17,6 +17,7 @@
 namespace mod_booking\booking_answers\scopes;
 
 use Exception;
+use mod_booking\customfield\booking_handler;
 use mod_booking\table\manageusers_table;
 use local_wunderbyte_table\wunderbyte_table;
 
@@ -61,6 +62,13 @@ class supervisorteamreduced extends supervisorteam {
 
         $table->define_cache('mod_booking', "bookedusertable");
         if (!empty($customfields)) {
+            $customfieldheadings = [];
+            $customfieldsarray = booking_handler::get_customfields([array_values($customfields)]);
+            foreach ($customfieldsarray as $customfield) {
+                // Customfield helper class on rendering.
+                $customfieldheadings[] = $customfield->name;
+            }
+            $headers = array_merge($headers, $customfieldheadings);
             $columns = array_merge($columns, $customfields);
         }
         $table->define_columns($columns);
