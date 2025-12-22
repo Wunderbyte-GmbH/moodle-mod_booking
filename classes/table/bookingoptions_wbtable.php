@@ -1013,7 +1013,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
             booking_check_if_teacher($values));
 
         $ddoptions = [];
-        $ret = '<div class="menubar pr-2" id="action-menu-' . $optionid . '-menubar" role="menubar">';
+        $ret = '<div class="menubar pe-2" id="action-menu-' . $optionid . '-menubar" role="menubar">';
 
         if ($status == MOD_BOOKING_STATUSPARAM_BOOKED) {
             $ret .= html_writer::link(
@@ -1024,7 +1024,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
                 $OUTPUT->pix_icon('t/print', get_string('bookedtext', 'mod_booking')),
                 [
                     'target' => '_blank',
-                    'class' => 'text-primary pr-3',
+                    'class' => 'text-primary pe-3',
                     'aria-label' => get_string('bookedtext', 'mod_booking'),
                 ]
             );
