@@ -1022,7 +1022,7 @@ if ($ADMIN->fulltree) {
             new admin_setting_configtext(
                 'booking/pollurltemplate',
                 get_string('pollurltemplate', 'mod_booking'),
-                trim($description), // HTML will render correctly
+                trim($description),
                 '',
                 PARAM_URL
             )
@@ -1032,7 +1032,7 @@ if ($ADMIN->fulltree) {
             new admin_setting_configtext(
                 'booking/pollurlteacherstemplate',
                 get_string('pollurlteacherstemplate', 'mod_booking'),
-                trim($description), // HTML will render correctly
+                trim($description),
                 '',
                 PARAM_URL
             )

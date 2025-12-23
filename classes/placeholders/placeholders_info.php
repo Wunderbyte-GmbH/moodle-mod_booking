@@ -123,14 +123,12 @@ class placeholders_info {
                 }
             }
             if (class_exists($class)) {
-
                 if (
                     $pollurl
                     && !$class::for_pollurl()
                 ) {
                     continue;
                 }
-
 
                 $value = $class::return_value(
                     $cmid,
