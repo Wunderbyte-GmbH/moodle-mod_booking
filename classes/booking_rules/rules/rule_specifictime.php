@@ -60,9 +60,6 @@ class rule_specifictime implements booking_rule {
     /** @var int $seconds has been changed from days to seconds for more flexibility */
     public $seconds = null;
 
-    /** @var int $beforeafter 1 = before, -1 = after */
-    public $beforeafter = null;
-
     /** @var string $datefield */
     public $datefield = null;
 
@@ -92,12 +89,10 @@ class rule_specifictime implements booking_rule {
         if (
             isset($ruleobj->ruledata->seconds)
             && is_number($ruleobj->ruledata->seconds)
-            && isset($ruleobj->ruledata->beforeafter)
-            && in_array($ruleobj->ruledata->beforeafter, [-1, 1])
         ) {
             // Before: Positive seconds (multiplied with 1).
             // After: Negative seconds (multiplied with -1).
-            $this->seconds = (int) $ruleobj->ruledata->seconds * (int) $ruleobj->ruledata->seconds;
+            $this->seconds = (int) $ruleobj->ruledata->seconds;
         } else {
             // Should never happen, but just in case.
             $this->seconds = 0;
