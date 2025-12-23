@@ -65,6 +65,7 @@ class placeholders_info {
      * @param float $price
      * @param int $descriptionparam
      * @param ?string $rulejson
+     * @param bool $pollurl // Render only pollurl params.
      * @return string
      */
     public static function render_text(
@@ -76,7 +77,8 @@ class placeholders_info {
         int $duedate = 0,
         float $price = 0,
         int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE,
-        ?string $rulejson = null
+        ?string $rulejson = null,
+        $pollurl = false
     ) {
 
         global $USER;
@@ -121,6 +123,15 @@ class placeholders_info {
                 }
             }
             if (class_exists($class)) {
+
+                if (
+                    $pollurl
+                    && !$class::for_pollurl()
+                ) {
+                    continue;
+                }
+
+
                 $value = $class::return_value(
                     $cmid,
                     $optionid,
@@ -218,14 +229,16 @@ class placeholders_info {
     /**
      * This builds an returns a list of localized placeholders.
      * They are stored statically and thus available throughout the ttl.
-     * @return string
+     * @param bool $pollurl
      * @throws coding_exception
+     * @return string
+     *
      */
-    public static function return_list_of_placeholders(): string {
+    public static function return_list_of_placeholders($pollurl = false): string {
 
         // If it's already build, we can skip this.
         if (empty(self::$localizedplaceholders)) {
-            self::create_list_of_localized_placeholders();
+            self::create_list_of_localized_placeholders($pollurl);
         }
 
         $placeholders = [];
@@ -242,10 +255,12 @@ class placeholders_info {
 
     /**
      * Create list of localized placeholders.
+     * @param bool $pollurl
      * @return array|void
      * @throws coding_exception
+     *
      */
-    private static function create_list_of_localized_placeholders() {
+    private static function create_list_of_localized_placeholders($pollurl = false) {
 
         // If it's already build, we can skip this.
         if (!empty(self::$localizedplaceholders)) {
@@ -270,6 +285,13 @@ class placeholders_info {
         ];
         foreach ($placeholders as $key => $value) {
             if (!$key::is_applicable()) {
+                continue;
+            }
+
+            if (
+                $pollurl
+                && !$key::for_pollurl()
+            ) {
                 continue;
             }
             $component = core_component::get_component_from_classname($key);

@@ -112,4 +112,44 @@ class htmlcomponents {
 
         return $output;
     }
+
+    /**
+     * Render Bootstrap collapsible component.
+     *
+     * @param string $headertext
+     * @param string $bodytext
+     *
+     * @return string
+     *
+     */
+    public static function render_bootstrap_collapsible(string $headertext, string $bodytext) {
+        // Example function body.
+        $returnstring = html_writer::tag(
+            'p',
+            html_writer::link(
+                '#pollurlplaceholders',
+                $headertext,
+                [
+                    'class' => 'btn btn-link p-0',
+                    'data-toggle' => 'collapse',
+                    'role' => 'button',
+                    'aria-expanded' => 'false',
+                    'aria-controls' => 'pollurlplaceholders',
+                ]
+            )
+        ) .
+        html_writer::div(
+            html_writer::div(
+                $bodytext,
+                'card card-body'
+            ),
+            '',
+            [
+                'class' => 'collapse',
+                'id' => 'pollurlplaceholders',
+            ]
+        );
+
+        return $returnstring;
+    }
 }

@@ -924,6 +924,7 @@ $string['courseendtime'] = 'Kursende';
 $string['courseid'] = 'Kurs, in den eingeschrieben wird';
 $string['courselink'] = "Link zum Kurs in Beziehung mit Buchungsoption";
 $string['courselist'] = 'Zeige alle Buchungsoptionen einer Buchungsinstanz';
+$string['coursename'] = "Name des verknüpften Kurses";
 $string['coursepageshortinfo'] = 'Wenn Sie diesen Kurs buchen wollen, klicken Sie auf "Verfügbare Optionen anzeigen", treffen Sie eine Auswahl und klicken Sie auf "Jetzt buchen".';
 $string['coursepageshortinfolbl'] = 'Kurzinfo';
 $string['coursepageshortinfolbl_help'] = 'Geben Sie den Kurzinfo-Text ein, der auf der Kursseite angezeigt werden soll.';
@@ -1944,12 +1945,17 @@ $string['pluginname'] = 'Booking';
 $string['pollstartdate'] = "Start Datum der Umfrage";
 $string['pollstrftimedate'] = '%Y-%m-%d';
 $string['pollurl'] = 'Link zur Umfrage';
+$string['pollurlplaceholdersexplanation'] = 'Use placeholders like this: /mod/surveypro/view.php?myname={firstname} <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['pollurlteachers'] = 'Trainer:innen Umfragelink';
+$string['pollurlteacherstemplate'] = 'Vorlage für Trainer:innen Umfragelink';
 $string['pollurlteacherstext'] = 'Umfragetext für Trainer:innen';
 $string['pollurlteacherstextmessage'] = 'Bitte nehmen Sie an der Umfrage teil:
 Link zur Umfrage: <a href="{pollurlteachers}" target="_blank">{pollurlteachers}</a>
 ';
 $string['pollurlteacherstextsubject'] = 'Bitte nehmen Sie an der Umfrage teil';
+$string['pollurltemplate'] = 'Vorlage für Umfragelink';
+$string['pollurltemplate_desc'] = 'Hier können Sie eine Vorlage für den Umfragelink definieren. Diese wird dann immer bei neuen Buchungsoptionen verwendet.';
+$string['pollurltemplateheading'] = 'Umfragelink-Vorlage';
 $string['pollurltext'] = 'Umfragelink senden';
 $string['pollurltextmessage'] = 'Bitte nehmen Sie an der Umfrage teil:
 Link zur Umfrage: <a href="{pollurl}" target="_blank">{pollurl}</a>
@@ -2065,6 +2071,9 @@ $string['profeatures:duplicationrestoreoption'] = '<ul>
 </ul>';
 $string['profeatures:overbooking'] = '<ul>
 <li><b>Überbuchen erlauben</b></li>
+</ul>';
+$string['profeatures:pollurltemplateheading'] = '<ul>
+<li><b>Vorlage für Umfragelink definieren</b></li>
 </ul>';
 $string['profeatures:priceformula'] = '<ul>
 <li><b>Eine Preisformel verwenden, um Preise automatisch berechnen zu können</b></li>

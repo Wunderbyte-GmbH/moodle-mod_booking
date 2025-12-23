@@ -27,6 +27,7 @@ namespace mod_booking\placeholders\placeholders;
 use html_writer;
 use mod_booking\placeholders\placeholders_info;
 use mod_booking\singleton_service;
+use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -34,12 +35,13 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
  * Control and manage placeholders for booking instances, options and mails.
+ * Returns a link to a course the bookingoption is related to.
  *
  * @copyright Wunderbyte GmbH <info@wunderbyte.at>
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class journal extends \mod_booking\placeholders\placeholder_base {
+class courseid extends \mod_booking\placeholders\placeholder_base {
     /**
      * Function which takes a text, replaces the placeholders...
      * ... and returns the text with the correct values.
@@ -69,11 +71,6 @@ class journal extends \mod_booking\placeholders\placeholder_base {
         $classname = substr(strrchr(get_called_class(), '\\'), 1);
 
         if (!empty($optionid)) {
-            if (empty($cmid)) {
-                $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-                $cmid = $settings->cmid;
-            }
-
             // The cachekey depends on the kind of placeholder and it's ttl.
             // If it's the same for all users, we don't use userid.
             // If it's the same for all options of a cmid, we don't use optionid.
@@ -82,12 +79,14 @@ class journal extends \mod_booking\placeholders\placeholder_base {
                 return placeholders_info::$placeholders[$cachekey];
             }
 
-            // Add a param to the option's teachers report (training journal).
-            $teachersreportlink = new \moodle_url('/mod/booking/optiondates_teachers_report.php', [
-                'cmid' => $cmid,
-                'optionid' => $optionid,
-            ]);
-            $value = html_writer::link($teachersreportlink, $teachersreportlink->out());
+            $timeformat = get_string('strftimedate', 'langconfig');
+
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+            $value = '';
+            if ($settings->courseid) {
+                $value = $settings->courseid;
+            }
 
             // Save the value to profit from singleton.
             placeholders_info::$placeholders[$cachekey] = $value;
@@ -105,6 +104,16 @@ class journal extends \mod_booking\placeholders\placeholder_base {
      *
      */
     public static function is_applicable(): bool {
+        return true;
+    }
+
+    /**
+     * Function determine if placeholder class works for pollurl.
+     *
+     * @return bool
+     *
+     */
+    public static function for_pollurl(): bool {
         return true;
     }
 }

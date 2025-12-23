@@ -946,6 +946,7 @@ $string['courseendtime'] = 'End time of the course';
 $string['courseid'] = 'Course to subscribe to';
 $string['courselink'] = "Link to course related to bookingoption";
 $string['courselist'] = 'Show all the booking options of a booking instance';
+$string['coursename'] = "Name of the linked course";
 $string['coursepageshortinfo'] = 'If you want to book yourself for this course, click on "View available options", choose a booking option and then click on "Book now".';
 $string['coursepageshortinfolbl'] = 'Short info';
 $string['coursepageshortinfolbl_help'] = 'Choose a short info text to show on the course page.';
@@ -1968,12 +1969,17 @@ $string['pluginname'] = 'Booking';
 $string['pollstartdate'] = "Startdate of poll";
 $string['pollstrftimedate'] = '%Y-%m-%d';
 $string['pollurl'] = 'Poll url';
+$string['pollurlplaceholdersexplanation'] = 'Use placeholders like this: /mod/surveypro/view.php?myname={firstname} <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['pollurlteachers'] = 'Teachers poll url';
+$string['pollurlteacherstemplate'] = 'Template for teachers poll url';
 $string['pollurlteacherstext'] = 'Message for the poll url sent to teachers';
 $string['pollurlteacherstextmessage'] = 'Please take the survey:
 Survey URL: <a href="{pollurlteachers}" target="_blank">{pollurlteachers}</a>
 ';
 $string['pollurlteacherstextsubject'] = 'Please take the survey';
+$string['pollurltemplate'] = 'Template for poll url';
+$string['pollurltemplate_desc'] = 'Here you can define a template for the poll url. This will be used for all new booking options.';
+$string['pollurltemplateheading'] = 'Template for poll url';
 $string['pollurltext'] = 'Message for sending poll url to booked users';
 $string['pollurltextmessage'] = 'Please take the survey:
 Survey URL: <a href="{pollurl}" target="_blank">{pollurl}</a>
@@ -2142,6 +2148,9 @@ $string['profeatures:duplicationrestoreoption'] = '<ul>
 </ul>';
 $string['profeatures:overbooking'] = '<ul>
 <li><b>allow overbooking</b></li>
+</ul>';
+$string['profeatures:pollurltemplateheading'] = '<ul>
+<li><b>Template for poll url</b></li>
 </ul>';
 $string['profeatures:priceformula'] = '<ul>
 <li><b>use price formula to automatically calculate prices</b></li>

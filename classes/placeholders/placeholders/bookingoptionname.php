@@ -24,7 +24,6 @@
 
 namespace mod_booking\placeholders\placeholders;
 
-use html_writer;
 use mod_booking\placeholders\placeholders_info;
 use mod_booking\singleton_service;
 
@@ -39,7 +38,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class journal extends \mod_booking\placeholders\placeholder_base {
+class bookingoptionname extends \mod_booking\placeholders\placeholder_base {
     /**
      * Function which takes a text, replaces the placeholders...
      * ... and returns the text with the correct values.
@@ -68,7 +67,7 @@ class journal extends \mod_booking\placeholders\placeholder_base {
 
         $classname = substr(strrchr(get_called_class(), '\\'), 1);
 
-        if (!empty($optionid)) {
+        if (!empty($userid)) {
             if (empty($cmid)) {
                 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
                 $cmid = $settings->cmid;
@@ -77,20 +76,30 @@ class journal extends \mod_booking\placeholders\placeholder_base {
             // The cachekey depends on the kind of placeholder and it's ttl.
             // If it's the same for all users, we don't use userid.
             // If it's the same for all options of a cmid, we don't use optionid.
-            $cachekey = "$classname-$optionid";
-            if (isset(placeholders_info::$placeholders[$cachekey])) {
+            $cachekey = "$classname-$optionid-$userid";
+            if (
+                isset(placeholders_info::$placeholders[$cachekey])
+                // The idea here is loop prevention. We set the timestamp to get out of the loop if necessary.
+                && !is_numeric(placeholders_info::$placeholders[$cachekey])
+            ) {
                 return placeholders_info::$placeholders[$cachekey];
+            } else {
+                // There is a possibility of a loop here. We need to avoid this.
+                // We only set the now value if no value is set yet.
+                placeholders_info::$placeholders[$cachekey] =
+                    placeholders_info::$placeholders[$cachekey] ?? 1;
             }
 
-            // Add a param to the option's teachers report (training journal).
-            $teachersreportlink = new \moodle_url('/mod/booking/optiondates_teachers_report.php', [
-                'cmid' => $cmid,
-                'optionid' => $optionid,
-            ]);
-            $value = html_writer::link($teachersreportlink, $teachersreportlink->out());
+            // Loop prevention.
+            if (placeholders_info::$placeholders[$cachekey] === 1) {
+                placeholders_info::$placeholders[$cachekey]++;
+                $value = format_string($settings->get_title_with_prefix());
 
-            // Save the value to profit from singleton.
-            placeholders_info::$placeholders[$cachekey] = $value;
+                // Save the value to profit from singleton.
+                placeholders_info::$placeholders[$cachekey] = $value;
+            } else {
+                $value = get_string('loopprevention', 'mod_booking', $classname);
+            }
         } else {
             $value = get_string('sthwentwrongwithplaceholder', 'mod_booking', $classname);
         }
@@ -105,6 +114,16 @@ class journal extends \mod_booking\placeholders\placeholder_base {
      *
      */
     public static function is_applicable(): bool {
+        return true;
+    }
+
+    /**
+     * Function determine if placeholder class works for pollurl.
+     *
+     * @return bool
+     *
+     */
+    public static function for_pollurl(): bool {
         return true;
     }
 }
