@@ -89,7 +89,6 @@ final class rule_specifictime_test extends advanced_testcase {
         global $DB;
 
         $this->resetAfterTest(true);
-        //$this->preventResetByRollback();
 
         $this->setAdminUser();
         $bdata = self::booking_common_settings_provider();
@@ -98,23 +97,26 @@ final class rule_specifictime_test extends advanced_testcase {
         time_mock::set_mock_time(strtotime('now'));
 
         // Setup course, users, booking instance.
-        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $courses = [];
+        for ($i = 0; $i <= 1; $i++) {
+            $courses[$i] = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        }
         $teacher1 = $this->getDataGenerator()->create_user();
         $teacher2 = $this->getDataGenerator()->create_user();
         $student1 = $this->getDataGenerator()->create_user();
         $student2 = $this->getDataGenerator()->create_user();
         $student3 = $this->getDataGenerator()->create_user();
 
-        $bdata['booking']['course'] = $course->id;
+        $bdata['booking']['course'] = $courses[0]->id;
         $bdata['booking']['bookingmanager'] = $teacher1->username;
         $booking = $this->getDataGenerator()->create_module('booking', $bdata['booking']);
 
         $this->setAdminUser();
-        $this->getDataGenerator()->enrol_user($teacher1->id, $course->id, 'editingteacher');
-        $this->getDataGenerator()->enrol_user($teacher2->id, $course->id, 'editingteacher');
-        $this->getDataGenerator()->enrol_user($student1->id, $course->id, 'student');
-        $this->getDataGenerator()->enrol_user($student2->id, $course->id, 'student');
-        $this->getDataGenerator()->enrol_user($student3->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($teacher1->id, $courses[0]->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($teacher2->id, $courses[0]->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($student1->id, $courses[0]->id, 'student');
+        $this->getDataGenerator()->enrol_user($student2->id, $courses[0]->id, 'student');
+        $this->getDataGenerator()->enrol_user($student3->id, $courses[0]->id, 'student');
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
@@ -129,9 +131,9 @@ final class rule_specifictime_test extends advanced_testcase {
         }
 
         // Create booking option with 3 session dates in the remote future.
-        $record = $bdata['options'][2];
+        $record = $bdata['options'][$data['useoption']];
         $record['bookingid'] = $booking->id;
-        $record['courseid'] = $course->id;
+        $record['courseid'] = $courses[$data['usecourse']]->id;
         $record['importing'] = 1;
         $record['teachersforoption'] = $teacher1->username . ',' . $teacher2->username;
         $record['maxanswers'] = 2;
@@ -158,7 +160,7 @@ final class rule_specifictime_test extends advanced_testcase {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
 
-        // Initially 6 tasks are scheduled.
+        // Initial number of scheduled tasks.
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
         $this->assertCount($expected['initialnumberoftasks'], $tasks, 'wrong number of tasks');
 
@@ -166,7 +168,11 @@ final class rule_specifictime_test extends advanced_testcase {
             $time = time_mock::get_mock_time();
             unset_config('noemailever');
             foreach ($expected['tasksperoptiondates'] as $tasksperoptiondates) {
-                time_mock::set_mock_time(strtotime($tasksperoptiondates['mock_time'], $time));
+                if (!empty($data['mock_timestamp'])) {
+                    time_mock::set_mock_time($tasksperoptiondates['mock_time']);
+                } else {
+                    time_mock::set_mock_time(strtotime($tasksperoptiondates['mock_time'], $time));
+                }
                 ob_start();
                 $messagesink = $this->redirectMessages();
                 $plugingenerator->runtaskswithintime(time_mock::get_mock_time());
@@ -194,6 +200,48 @@ final class rule_specifictime_test extends advanced_testcase {
      */
     public static function rule_multiple_dates_override_provider(): array {
         return [
+            'Reminder 2 days after a selflearning course has ended (selflearningcourseenddate)' => [
+                [
+                    'rulessettings' => [
+                        0 => [
+                            'name' => 'Reminder 2 days after a selflearning course has ended (selflearningcourseenddate)',
+                            'useastemplate' => 0,
+                            'conditionname' => 'select_student_in_bo',
+                            'conditiondata' => '{"borole":"0"}',
+                            'actionname' => 'send_mail',
+                            'actiondata' => '{"sendical":0,"sendicalcreateorcancel":"",
+                                "subject":"A session {Title} was 2 days ago",
+                                "template":"Hi {firstname}. The session of \\"{title}\\" was 2 days ago:<br>{bookingdetails}",
+                                "templateformat":"1"}',
+                            'rulename' => 'rule_specifictime',
+                            'ruledata' => '{"seconds":-168800,"datefield":"selflearningcourseenddate"}', // 2 days after.
+                        ],
+                    ],
+                    'useoption' => 0,
+                    'usecourse' => 1,
+                    'mock_timestamp' => 1,
+                    'optionsettings' => [
+                        [
+                            'selflearningcourse' => 1,
+                            'duration' => 84400 * 4, // 4 days.
+                        ],
+                    ],
+                ],
+                [
+                    'initialnumberoftasks' => 2,
+                    'tasksperoptiondates' => [
+                        [
+                            'mock_time' => strtotime('+5 days', time()),
+                            'messages_sent' => 0, // Less than 2 days after selflearningcourseenddate.
+                        ],
+                        [
+                            'mock_time' => strtotime('+7 days', time()),
+                            'messages_sent' => 2, // More than 2 days after selflearningcourseenddate.
+                            'contains_success' => self::MAIL_SUCCES_TRACE,
+                        ],
+                    ],
+                ],
+            ],
             'Reminder one year after a booking option has ended (courseendtime)' => [
                 [
                     'rulessettings' => [
@@ -211,6 +259,8 @@ final class rule_specifictime_test extends advanced_testcase {
                             'ruledata' => '{"seconds":-31536000,"datefield":"courseendtime"}',
                         ],
                     ],
+                    'useoption' => 2,
+                    'usecourse' => 0,
                     'optionsettings' => [
                     ],
                 ],
@@ -246,6 +296,8 @@ final class rule_specifictime_test extends advanced_testcase {
                             'ruledata' => '{"seconds":604800,"datefield":"coursestarttime"}',
                         ],
                     ],
+                    'useoption' => 2,
+                    'usecourse' => 0,
                     'optionsettings' => [
                     ],
                 ],
@@ -285,6 +337,8 @@ final class rule_specifictime_test extends advanced_testcase {
                             'ruledata' => '{"seconds":600,"datefield":"optiondatestarttime"}',
                         ],
                     ],
+                    'useoption' => 2,
+                    'usecourse' => 0,
                     'optionsettings' => [
                         [
                             'daystonotify_0' => "2", // Override 1st sessiodate - 2 days before.
@@ -357,15 +411,15 @@ final class rule_specifictime_test extends advanced_testcase {
                 'showviews' => ['mybooking,myoptions,optionsiamresponsiblefor,showall,showactive,myinstitution'],
             ],
             'options' => [
-                // Option 1 with 1 session in 5 days.
+                // Option 1 with 1 session in 3 days.
                 0 => [
-                    'text' => 'Option: in 2 days',
-                    'description' => 'Will start in 2 days',
+                    'text' => 'Option: in 3 days',
+                    'description' => 'Will start in 3 days',
                     'chooseorcreatecourse' => 1, // Required.
                     'optiondateid_0' => "0",
                     'daystonotify_0' => "0",
-                    'coursestarttime_0' => strtotime('+5 days', time()),
-                    'courseendtime_0' => strtotime('+6 days', time()),
+                    'coursestarttime_0' => strtotime('+3 days', time()),
+                    'courseendtime_0' => strtotime('+4 days', time()),
                 ],
                 // Option 2 with 2 session started in the remote future.
                 1 => [
