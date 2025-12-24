@@ -27,6 +27,7 @@ namespace mod_booking\placeholders\placeholders;
 use mod_booking\placeholders\placeholders_info;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
+use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -115,6 +116,9 @@ class pollurlteachers extends \mod_booking\placeholders\placeholder_base {
                 } else {
                     $value = $settings->pollurlteachers;
                 }
+
+                $url = new moodle_url($value);
+                $value = $url->out(false);
 
                 // Save the value to profit from singleton.
                 placeholders_info::$placeholders[$cachekey] = $value;

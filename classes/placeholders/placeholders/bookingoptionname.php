@@ -68,8 +68,8 @@ class bookingoptionname extends \mod_booking\placeholders\placeholder_base {
         $classname = substr(strrchr(get_called_class(), '\\'), 1);
 
         if (!empty($userid)) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
             if (empty($cmid)) {
-                $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
                 $cmid = $settings->cmid;
             }
 
