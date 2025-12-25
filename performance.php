@@ -25,8 +25,8 @@
 require_once(__DIR__ . '/../../config.php');
 global $DB;
 
-use mod_booking\performance\actions\action_registry;
-use mod_booking\performance\performance_renderer;
+use mod_booking\local\performance\actions\action_registry;
+use mod_booking\local\performance\performance_renderer;
 
 // No guest autologin.
 require_login(0, false);
