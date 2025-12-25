@@ -22,7 +22,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_booking\performance\actions;
+namespace mod_booking\local\performance\actions;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -36,6 +36,14 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class action_executor {
+    /**
+     * Action executor.
+     *
+     * @param execution_point $point
+     *
+     * @return void
+     *
+     */
     public function execute(execution_point $point): void {
         foreach (action_registry::for_execution_point($point) as $actionclass) {
             (new $actionclass())->execute();

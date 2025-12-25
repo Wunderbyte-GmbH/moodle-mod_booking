@@ -22,7 +22,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_booking\performance\actions;
+namespace mod_booking\local\performance\actions;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -35,25 +35,34 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class purge_cache_action_before implements performance_action_interface {
+class execution_times implements performance_action_interface {
+
+    private int $times = 1;
     public static function id(): string {
-        return 'purge_cache_action_before';
+        return 'execution_times';
     }
 
     public static function label(): string {
-        return 'purge_cache_action_before';
+        return 'execution_times';
     }
 
     public static function execution_point(): execution_point {
-        return execution_point::BEFORE_ALL;
+        return execution_point::EXECUTION_TIMES;
     }
 
     public function configure(array $config): void {
-        $this->config = $config;
+        if (isset($config['counter']) && is_numeric($config['counter'])) {
+            $this->times = max(1, (int)$config['counter']);
+        }
     }
 
+    /** No-op: this action does not execute */
     public function execute(): void {
-        purge_all_caches();
+        // intentionally empty
+    }
+
+    public function get_times(): int {
+        return $this->times;
     }
 
     public function export_for_template(\core\output\renderer_base $renderer): array {
@@ -61,10 +70,10 @@ class purge_cache_action_before implements performance_action_interface {
             'id' => self::id(),
             'label' => self::label(),
             'html'  => $renderer->render_from_template(
-            'mod_booking/performance/actions/purge_cache',
+            'mod_booking/performance/actions/execution_times',
                 [
                     'id' => self::id(),
-                    'value' => 1,
+                    'value' => $this->times,
                 ]
             ),
         ];
