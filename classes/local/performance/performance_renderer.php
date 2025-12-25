@@ -22,7 +22,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_booking\performance;
+namespace mod_booking\local\performance;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -107,7 +107,7 @@ class performance_renderer {
 
             if (!isset($history[$starttime])) {
                 $history[$starttime] = [
-                    'timecreated' => $starttime,
+                    'timecreated' => (int)($starttime / 1000000), // Transform to normal unixtimestamp.
                     'measurements' => [],
                 ];
             }

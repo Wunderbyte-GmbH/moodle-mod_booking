@@ -30,7 +30,7 @@ use external_api;
 use external_function_parameters;
 use external_single_structure;
 use external_value;
-use mod_booking\performance\performance_facade;
+use mod_booking\local\performance\performance_facade;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -69,7 +69,7 @@ class performance extends external_api {
         global $DB;
         $params = external_api::validate_parameters(self::execute_parameters(), [
             'value' => $value,
-            'actions' => $actions
+            'actions' => $actions,
         ]);
         return performance_facade::execute($params['value'], $params['actions']);
     }

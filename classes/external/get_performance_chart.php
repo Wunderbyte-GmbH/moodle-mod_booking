@@ -30,7 +30,7 @@ use external_api;
 use external_function_parameters;
 use external_single_structure;
 use external_value;
-use mod_booking\performance\performance_renderer;
+use mod_booking\local\performance\performance_renderer;
 
 defined('MOODLE_INTERNAL') || die();
 
