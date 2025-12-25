@@ -39,7 +39,7 @@ class performance_renderer {
     /**
      * @var string $hash
      */
-    CONST TABLE = 'booking_performance_measurements';
+    const TABLE = 'booking_performance_measurements';
 
     /**
      * Returns sidebar.
@@ -49,7 +49,7 @@ class performance_renderer {
         global $DB;
 
         $sql = "
-            SELECT DISTINCT shortcodehash, shortcodename
+            SELECT shortcodehash, shortcodename
               FROM {" . self::TABLE . "}
              ORDER BY shortcodename
         ";
@@ -65,14 +65,14 @@ class performance_renderer {
             ];
         }
 
-        $autocompleteitems = array_map(function($entry) {
+        $autocompleteitems = array_map(function ($entry) {
             return $entry['name'];
         }, $sidebar);
 
 
         return [
             'sidebar' => $sidebar,
-            'autocompleteitems' => $autocompleteitems
+            'autocompleteitems' => $autocompleteitems,
         ];
     }
 
@@ -152,7 +152,7 @@ class performance_renderer {
         }
 
         foreach ($history as $entry) {
-            foreach ($legend as $key => $_) {
+            foreach ($legend as $key => $a) {
                 $datasets[$key]['data'][] =
                     $entry['measurements'][$key] ?? null;
             }
