@@ -210,7 +210,7 @@ class scheduledmails_table extends wunderbyte_table {
         $modalfooter = html_writer::div(
             html_writer::tag(
                 'button',
-                get_string('close'),
+                get_string('close', 'mod_booking'),
                 [
                 'type' => 'button',
                 'class' => 'btn btn-secondary',
