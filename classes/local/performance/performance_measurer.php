@@ -22,7 +22,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_booking\performance;
+namespace mod_booking\local\performance;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -39,7 +39,7 @@ class performance_measurer {
     /**
      * @var string
      */
-    CONST TABLE = 'booking_performance_measurements';
+    const TABLE = 'booking_performance_measurements';
 
     /**
      * @var string $shortcodehash

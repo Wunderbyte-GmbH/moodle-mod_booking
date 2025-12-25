@@ -22,21 +22,51 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_booking\performance\actions;
+namespace mod_booking\local\performance\actions;
 
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * Measures time performance for better tracking.
+ * Regestry for all available actions.
  *
  * @copyright Wunderbyte GmbH <info@wunderbyte.at>
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-enum execution_point: string {
-    case EXECUTION_TIMES  = 'executiontimes';
-    case BEFORE_ALL  = 'before_all';
-    case BEFORE_EACH = 'before_each';
+class purge_cache_action_inbetween implements performance_action_interface {
+    public static function id(): string {
+        return 'purge_cache_action_inbetween';
+    }
+
+    public static function label(): string {
+        return 'purge_cache_action_inbetween';
+    }
+
+    public static function execution_point(): execution_point {
+        return execution_point::BEFORE_EACH;
+    }
+
+    public function configure(array $config): void {
+        $this->config = $config;
+    }
+
+    public function execute(): void {
+        purge_all_caches();
+    }
+
+    public function export_for_template(\core\output\renderer_base $renderer): array {
+        return [
+            'id' => self::id(),
+            'label' => self::label(),
+            'html'  => $renderer->render_from_template(
+            'mod_booking/performance/actions/purge_cache',
+                [
+                    'id' => self::id(),
+                    'value' => 1,
+                ]
+            ),
+        ];
+    }
 }
