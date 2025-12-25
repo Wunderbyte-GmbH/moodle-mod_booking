@@ -22,7 +22,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_booking\performance\actions;
+namespace mod_booking\local\performance\actions;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -35,34 +35,25 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class execution_times implements performance_action_interface {
-
-    private int $times = 1;
+class purge_cache_action_before implements performance_action_interface {
     public static function id(): string {
-        return 'execution_times';
+        return 'purge_cache_action_before';
     }
 
     public static function label(): string {
-        return 'execution_times';
+        return 'purge_cache_action_before';
     }
 
     public static function execution_point(): execution_point {
-        return execution_point::EXECUTION_TIMES;
+        return execution_point::BEFORE_ALL;
     }
 
     public function configure(array $config): void {
-        if (isset($config['counter']) && is_numeric($config['counter'])) {
-            $this->times = max(1, (int)$config['counter']);
-        }
+        $this->config = $config;
     }
 
-    /** No-op: this action does not execute */
     public function execute(): void {
-        // intentionally empty
-    }
-
-    public function get_times(): int {
-        return $this->times;
+        purge_all_caches();
     }
 
     public function export_for_template(\core\output\renderer_base $renderer): array {
@@ -70,10 +61,10 @@ class execution_times implements performance_action_interface {
             'id' => self::id(),
             'label' => self::label(),
             'html'  => $renderer->render_from_template(
-            'mod_booking/performance/actions/execution_times',
+            'mod_booking/performance/actions/purge_cache',
                 [
                     'id' => self::id(),
-                    'value' => $this->times,
+                    'value' => 1,
                 ]
             ),
         ];

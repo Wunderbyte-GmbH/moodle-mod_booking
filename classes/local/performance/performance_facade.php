@@ -22,11 +22,11 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_booking\performance;
+namespace mod_booking\local\performance;
 
-use mod_booking\performance\actions\action_executor;
-use mod_booking\performance\actions\execution_point;
-use mod_booking\performance\actions\execution_times;
+use mod_booking\local\performance\actions\action_executor;
+use mod_booking\local\performance\actions\execution_point;
+use mod_booking\local\performance\actions\execution_times;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -58,13 +58,13 @@ class performance_facade {
             for ($i = 1; $i <= $executiontimes; $i++) {
                 $executor->execute(execution_point::BEFORE_EACH);
 
-                performance_facade::start_measurement('Cycle time ' . $i);
+                self::start_measurement('Cycle time ' . $i);
                 try {
                     $status = self::run_shortcode($shortcode);
                 } catch (\Throwable $e) {
                     debugging("Shortcode execution error: " . $e->getMessage(), DEBUG_DEVELOPER);
                 } finally {
-                    performance_facade::end_measurement('Cycle time ' . $i);
+                    self::end_measurement('Cycle time ' . $i);
                 }
             }
         } finally {
