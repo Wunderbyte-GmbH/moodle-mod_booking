@@ -37,6 +37,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  */
 class action_registry {
     /**
+     * All class.
      * @return class-string<performance_action_interface>[]
      */
     public static function all(): array {
@@ -60,6 +61,7 @@ class action_registry {
     }
 
     /**
+     * For execution point class.
      * @param execution_point $point
      * @return class-string<performance_action_interface>[]
      */
@@ -71,6 +73,7 @@ class action_registry {
     }
 
     /**
+     * Export all for template.
      * @param mixed $renderer
      *
      * @return array[]
