@@ -24,9 +24,11 @@
 
 namespace mod_booking\local\performance;
 
+use cache;
 use mod_booking\local\performance\actions\action_executor;
 use mod_booking\local\performance\actions\execution_point;
 use mod_booking\local\performance\actions\execution_times;
+use mod_booking\singleton_service;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -57,15 +59,21 @@ class performance_facade {
             $executor->execute(execution_point::BEFORE_ALL);
             for ($i = 1; $i <= $executiontimes; $i++) {
                 $executor->execute(execution_point::BEFORE_EACH);
-
-                self::start_measurement('Cycle time ' . $i);
+                self::set_cycle($i);
+                self::start_measurement('Cycle');
                 try {
                     $status = self::run_shortcode($shortcode);
                 } catch (\Throwable $e) {
                     debugging("Shortcode execution error: " . $e->getMessage(), DEBUG_DEVELOPER);
                 } finally {
-                    self::end_measurement('Cycle time ' . $i);
+                    self::end_measurement('Cycle');
                 }
+
+                // For a realistic measurement, we need to destroy the singletons.
+                singleton_service::destroy_instance();
+                // Becasue of static acceleration, we also need to destroy instances.
+                // This does not purge the caches, only the instances in the memory.
+                \core_cache\factory::reset();
             }
         } finally {
             performance_measurer::finish();
@@ -98,7 +106,7 @@ class performance_facade {
     }
 
     /**
-     * Constructs performance class,
+     * Starts a measurement.
      * @param string $name
      * @return void
      */
@@ -111,7 +119,7 @@ class performance_facade {
     }
 
     /**
-     * Constructs performance class,
+     * Ends a measurement.
      * @param string $name
      * @return void
      */
@@ -122,5 +130,18 @@ class performance_facade {
         }
 
         $measurer->end($name);
+    }
+
+    /**
+     * Sets the current cycle
+     *
+     * @param int $number
+     *
+     * @return void
+     *
+     */
+    public static function set_cycle(int $number) {
+        $measurer = performance_measurer::instance();
+        $measurer->set_cycle($number);
     }
 }
