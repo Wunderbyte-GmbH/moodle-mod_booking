@@ -14,18 +14,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * AJAX helper for the inline editing a value.
- *
- * This script is automatically included from template core/inplace_editable
- * It registers a click-listener on [data-inplaceeditablelink] link (the "inplace edit" icon),
- * then replaces the displayed value with an input field. On "Enter" it sends a request
- * to web service core_update_inplace_editable, which invokes the specified callback.
- * Any exception thrown by the web service (or callback) is displayed as an error popup.
- *
  * @module     mod_booking/performance_chart
- * @copyright  2018 David Bogner
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @since      3.3
  */
 
 /* eslint-disable */
@@ -33,11 +22,6 @@ define(['core/chartjs', 'core/ajax', 'jquery'], function(Chart, Ajax, $) {
 
     let chartInstance = null;
 
-    /**
-     * Initialize the chart from the DOM.
-     * @param {string} canvasId The canvas element ID.
-     * @param {string} dataScriptId The script tag with JSON data.
-     */
     const init = (canvasId, dataScriptId) => {
         const canvas = document.getElementById(canvasId);
         const dataNode = document.getElementById(dataScriptId);
@@ -59,41 +43,64 @@ define(['core/chartjs', 'core/ajax', 'jquery'], function(Chart, Ajax, $) {
     };
 
     /**
-     * Create a chart.js chart instance.
-     * @param {HTMLCanvasElement} canvas The canvas to draw on.
-     * @param {Object} data JSON data with labels and datasets.
-     * @returns {Chart} The chart instance.
+     * Create a line chart with numeric X axis (timestamps).
+     *
+     * Dataset format:
+     * [
+     *   {
+     *     label: 'Series A',
+     *     data: [
+     *       { x: 1704067200, y: 120 },
+     *       { x: 1704067200, y: 140 },
+     *       { x: 1704153600, y: 130 }
+     *     ]
+     *   }
+     * ]
      */
     const createChart = (canvas, data) => {
-        const labels = data.labels || [];
         const datasets = (data.datasets || []).map(ds => ({
             label: ds.label,
             data: ds.data,
-            backgroundColor: ds.backgroundColor,
+            borderColor: ds.borderColor || ds.backgroundColor,
+            backgroundColor: 'transparent',
+            fill: false,
+            tension: 0.2,
+            pointRadius: 3,
+            pointHoverRadius: 5
         }));
 
         return new Chart(canvas.getContext('2d'), {
-            type: 'bar',
+            type: 'line',
             data: {
-                labels,
                 datasets
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                parsing: false,
                 plugins: {
                     legend: {
                         position: 'right',
-                        align: 'start',
-                        labels: {
-                            boxWidth: 16,
-                            padding: 12
-                        }
+                        align: 'start'
                     },
-                    tooltip: { enabled: true }
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) {
+                                return ctx.dataset.label + ': ' + ctx.parsed.y;
+                            }
+                        }
+                    }
                 },
                 scales: {
-                    x: { title: { display: false } },
+                    x: {
+                        type: 'linear',
+                        ticks: {
+                            callback: function(value) {
+                                const date = new Date(value * 1000);
+                                return date.toISOString().slice(0, 10);
+                            }
+                        }
+                    },
                     y: {
                         beginAtZero: true,
                         title: {
@@ -106,37 +113,55 @@ define(['core/chartjs', 'core/ajax', 'jquery'], function(Chart, Ajax, $) {
         });
     };
 
-    /**
-     * Update the chart with new data (from AJAX).
-     * @param {Object} data JSON object with new labels and datasets.
-     */
     const updateChart = (data) => {
         if (!chartInstance) {
-            console.warn('Chart not initialized yet');
             return;
         }
 
         try {
-            const labels = JSON.parse(data.labelsjson);
-            const datasets = JSON.parse(data.datasetsjson);
+            let datasets = JSON.parse(data.datasetsjson);
 
-            chartInstance.data.labels = labels;
+            // Normalize datasets to {x, y}
+            datasets = datasets.map(ds => {
+                if (!Array.isArray(ds.data)) {
+                    return ds;
+                }
+
+                // If already {x, y}, keep as-is
+                if (ds.data.length && typeof ds.data[0] === 'object' && ds.data[0] !== null) {
+                    return ds;
+                }
+
+                // Otherwise, convert from indexed format
+                const normalizedData = ds.data
+                    .map((y, index) => {
+                        const x = chartInstance.data.datasets[0]?.data[index]?.x;
+                        if (x == null || y == null) {
+                            return null;
+                        }
+                        return { x, y };
+                    })
+                    .filter(p => p !== null);
+
+                return Object.assign({}, ds, { data: normalizedData });
+            });
+
             chartInstance.data.datasets = datasets;
             chartInstance.update();
+
         } catch (e) {
-            console.error('Failed to parse new chart data:', e);
+            console.error('Failed to update chart data:', e);
         }
     };
 
-    /**
-     * Hook up sidebar clicks to AJAX chart updates.
-     */
     const registerSidebarClicks = () => {
         $('.booking-sidebar-item a').on('click', function(e) {
             e.preventDefault();
 
             const hash = $(this).data('hash');
-            if (!hash) return;
+            if (!hash) {
+                return;
+            }
 
             Ajax.call([{
                 methodname: 'mod_booking_get_performance_chart',
@@ -145,12 +170,11 @@ define(['core/chartjs', 'core/ajax', 'jquery'], function(Chart, Ajax, $) {
                     updateChart(response);
                 },
                 fail: function(error) {
-                    console.error('Error loading chart data via AJAX', error);
+                    console.error('Error loading chart data', error);
                 }
             }]);
         });
     };
-
 
     return {
         init,

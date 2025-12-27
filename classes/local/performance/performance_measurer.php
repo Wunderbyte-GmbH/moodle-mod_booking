@@ -57,6 +57,11 @@ class performance_measurer {
     private string $actions = '';
 
     /**
+     * @var int $cycle
+     */
+    private int $cycle = 0;
+
+    /**
      * @var self $instance
      */
     private static ?self $instance = null;
@@ -81,12 +86,19 @@ class performance_measurer {
     /**
      * Constructs performance class,
      * @param string $hash
+     * @param bool $nocycle
      * @return void
      */
-    public function start($name) {
+    public function start($name, $nocycle = false) {
         if (!self::$active) {
             return;
         }
+        $cycle = $this->get_cycle();
+
+        if (!$nocycle) {
+            $name = "$name - $cycle";
+        }
+
         $openmeasurements = $this->has_open_measurement_with_name($name);
         if ($openmeasurements) {
             $this->delete_measurements($openmeasurements);
@@ -159,13 +171,21 @@ class performance_measurer {
     /**
      * Constructs performance class,
      * @param string $hash
+     * @param bool $nocycle
      * @return void
      */
-    public function end($name) {
+    public function end($name, $nocycle = false) {
         if (!self::$active) {
             return;
         }
         global $DB;
+
+        $cycle = $this->get_cycle();
+
+        if (!$nocycle) {
+            $name = "$name - $cycle";
+        }
+
 
         $conditions = [
             'shortcodehash' => $this->shortcodehash,
@@ -210,7 +230,7 @@ class performance_measurer {
         self::$instance = new self($shortcode, $actions);
         self::$active = true;
 
-        self::$instance->start('Entire time');
+        self::$instance->start('Entire time', true);
     }
 
     /**
@@ -222,7 +242,7 @@ class performance_measurer {
             return;
         }
 
-        self::$instance->end('Entire time');
+        self::$instance->end('Entire time', true);
         self::$instance = null;
         self::$active = false;
     }
@@ -241,5 +261,27 @@ class performance_measurer {
      */
     public static function instance(): ?self {
         return self::$instance;
+    }
+
+    /**
+     * Sets the current cycle counter.
+     *
+     * @param int $number
+     *
+     * @return void
+     *
+     */
+    public function set_cycle(int $number) {
+        $this->cycle = $number;
+    }
+
+    /**
+     * Gets the current cycle counter.
+     *
+     * @return int
+     *
+     */
+    public function get_cycle() {
+        return $this->cycle;
     }
 }
