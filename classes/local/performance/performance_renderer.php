@@ -49,7 +49,7 @@ class performance_renderer {
         global $DB;
 
         $sql = "
-            SELECT shortcodehash, shortcodename
+            SELECT DISTINCT shortcodehash, shortcodename
               FROM {" . self::TABLE . "}
              ORDER BY shortcodename
         ";
@@ -99,15 +99,15 @@ class performance_renderer {
         $legend = [];
         $history = [];
 
-        /*
-        * 1. Build history grouped by starttime
-        */
+        // Build history grouped by starttime.
         foreach ($records as $record) {
             $starttime = (int)$record->starttime;
 
-            if (!isset($history[$starttime])) {
-                $history[$starttime] = [
-                    'timecreated' => (int)($starttime / 1000000), // Transform to normal unixtimestamp.
+            $timecreated = (int) floor($starttime / 60000000) * 60;
+
+            if (!isset($history[$timecreated])) {
+                $history[$timecreated] = [
+                    'timecreated' => $timecreated, // Transform to normal unixtimestamp.
                     'measurements' => [],
                 ];
             }
@@ -116,50 +116,59 @@ class performance_renderer {
                 $legend[$record->measurementname] = $record->measurementname;
 
                 if (!empty($record->endtime) && $record->endtime > 0) {
-                    $history[$starttime]['measurements'][$record->measurementname] =
+                    $history[$timecreated]['measurements'][$record->measurementname] =
                         (int)$record->endtime + 1 - (int)$record->starttime;
                 } else {
-                    $history[$starttime]['measurements'][$record->measurementname] = null;
+                    $history[$timecreated]['measurements'][$record->measurementname] = null;
                 }
             }
         }
 
         /*
-        * 2. Normalize history order
+        * Normalize history order.
         */
         ksort($history);
         $history = array_values($history);
 
-        /*
-        * 3. Build labels
-        */
-        $labels = array_map(
-            fn($entry) => date('Y-m-d H:i', $entry['timecreated']),
-            $history
-        );
-
-        /*
-        * 4. Build datasets (one per measurementname)
-        */
+        // Build datasets (one per measurement name).
+        // We will now emit {x, y} points instead of index-based arrays.
         $datasets = [];
 
         foreach ($legend as $key => $label) {
             $datasets[$key] = [
                 'label' => $label,
                 'data' => [],
-                'backgroundColor' => '#' . substr(md5($key), 0, 6),
+                'borderColor' => '#' . substr(md5($key), 0, 6),
+                'backgroundColor' => 'transparent',
             ];
         }
 
+        // Fill datasets with {x, y} points.
+        // Timecreated MUST be a unix timestamp in SECONDS (minute-bucketed).
         foreach ($history as $entry) {
-            foreach ($legend as $key => $a) {
-                $datasets[$key]['data'][] =
-                    $entry['measurements'][$key] ?? null;
+            $x = (int) $entry['timecreated']; // already minute-aligned
+
+            foreach ($legend as $key => $unused) {
+                if (!array_key_exists($key, $entry['measurements'])) {
+                    continue;
+                }
+
+                $y = $entry['measurements'][$key];
+
+                if ($y === null) {
+                    continue; // important for line charts.
+                }
+
+                $datasets[$key]['data'][] = [
+                    'x' => $x,
+                    'y' => $y,
+                ];
             }
         }
 
+        // Return ONLY datasetsjson.
         return [
-            'labelsjson' => json_encode($labels),
+            'labelsjson'   => json_encode([]), // required by external API
             'datasetsjson' => json_encode(array_values($datasets)),
         ];
     }
