@@ -617,5 +617,25 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
+
+    <TABLE NAME="booking_performance_measurements" COMMENT="Save performance measurements">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="starttime" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="endtime" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="shortcodename" TYPE="char" LENGTH="1333" NOTNULL="true" SEQUENCE="false" COMMENT="The measured shortcode string."/>
+        <FIELD NAME="shortcodehash" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Hash value of a shortcode."/>
+        <FIELD NAME="measurementname" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Name of the measurement."/>
+        <FIELD NAME="actions" TYPE="char" LENGTH="1333" NOTNULL="false" SEQUENCE="false" COMMENT="Comma separated ids of actions"/>
+        <FIELD NAME="note" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Added note for explanation or context"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="hashx" UNIQUE="false" FIELDS="shortcodehash" COMMENT="Hashed value index"/>
+        <INDEX NAME="hashnameendx" UNIQUE="false" FIELDS="shortcodehash, endtime"/>
+      </INDEXES>
+    </TABLE>
   </TABLES>
 </XMLDB>
