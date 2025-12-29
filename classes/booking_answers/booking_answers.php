@@ -1322,7 +1322,7 @@ class booking_answers {
             JOIN {booking_options} bo ON ba.optionid = bo.id
             JOIN {user} u ON ba.userid = u.id AND u.deleted = 0
             WHERE $where
-            ORDER BY ba.timemodified ASC";
+            ORDER BY ba.timemodified ASC, ba.id ASC";
 
         return [$sql, $params];
     }
