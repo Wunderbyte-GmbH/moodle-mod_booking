@@ -42,6 +42,7 @@ use mod_booking\bo_availability\conditions\customform;
 use mod_booking\bo_availability\conditions\optionhasstarted;
 use mod_booking\event\booking_debug;
 use mod_booking\event\booking_rulesexecutionfailed;
+use mod_booking\event\bookinganswer_movedupfromwaitinglist;
 use mod_booking\event\bookinganswer_presencechanged;
 use mod_booking\event\bookinganswer_notesedited;
 use mod_booking\event\bookinganswer_waitingforconfirmation;
@@ -1403,6 +1404,26 @@ class booking_option {
         ) {
             $historystatus = MOD_BOOKING_STATUSPARAM_BOOKOTHEROPTIONS;
         }
+
+        // Check the current waiting list status of the answer.
+        // If it is currently on the waiting list and the new status is booked,
+        // trigger the moveupfromwaitinglist event.
+        $answersonwaitinglist = $bookinganswers->get_usersonwaitinglist();
+        if (!empty($answersonwaitinglist[$user->id]) && $waitinglist == MOD_BOOKING_STATUSPARAM_BOOKED) {
+            $other = [];
+            $other['baid'] = $answersonwaitinglist[$user->id]->baid ?? 0;
+            $other['json'] = $answersonwaitinglist[$user->id]->json ?? '';
+            $event = bookinganswer_movedupfromwaitinglist::create(
+                ['objectid' => $this->optionid,
+                    'context' => context_module::instance($this->cmid),
+                    'userid' => $USER->id,
+                    'relateduserid' => $user->id,
+                    'other' => $other,
+                ]
+            );
+            $event->trigger();
+        }
+
         $baid = self::write_user_answer_to_db(
             $this->booking->id,
             $frombookingid,
