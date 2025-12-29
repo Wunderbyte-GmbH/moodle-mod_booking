@@ -577,7 +577,7 @@ class booking_option {
                    AND u.deleted = 0
                    AND ba.optionid = :optionid
                    AND ba.waitinglist = 0
-              ORDER BY ba.timemodified ASC";
+              ORDER BY ba.timemodified ASC, ba.id ASC";
 
         $params = ["optionid" => $this->optionid];
 
@@ -617,7 +617,7 @@ class booking_option {
                        AND u.id = gm.userid
                        AND gm.groupid $insql
                   GROUP BY u.id
-                  ORDER BY ba.timemodified ASC";
+                  ORDER BY ba.timemodified ASC, ba.id ASC";
             $groupmembers = $DB->get_records_sql($sql, array_merge($params, $inparams));
             $this->bookedusers = array_intersect_key($groupmembers, $this->booking->canbookusers);
             $this->bookedvisibleusers = $this->bookedusers;
