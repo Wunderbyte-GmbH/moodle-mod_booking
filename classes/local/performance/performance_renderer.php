@@ -24,9 +24,8 @@
 
 namespace mod_booking\local\performance;
 
-defined('MOODLE_INTERNAL') || die();
-
-require_once($CFG->dirroot . '/mod/booking/lib.php');
+use mod_booking\local\performance\table\peformance_table;
+use mod_booking\local\performance\table\performance_table;
 
 /**
  * Control and manage placeholders for booking instances, options and mails.
@@ -48,31 +47,23 @@ class performance_renderer {
     public function get_sidebar(): array {
         global $DB;
 
-        $sql = "
-            SELECT DISTINCT shortcodehash, shortcodename
+        $from = " (SELECT DISTINCT shortcodehash, shortcodename
               FROM {" . self::TABLE . "}
-             ORDER BY shortcodename
+             ORDER BY shortcodename) as s1
         ";
 
-        $records = $DB->get_records_sql($sql);
+        $table = new performance_table('performancetable');
 
-        $sidebar = [];
+        $table->define_columns(['shortcodename', 'actions']);
+        $table->sortablecolumns = ['shortcodename'];
+        $table->sort_default_column = 'shortcodename';
 
-        foreach ($records as $record) {
-            $sidebar[] = [
-                'hash' => $record->shortcodehash,
-                'name' => $record->shortcodename,
-            ];
-        }
+        $table->set_filter_sql('*', $from, ' 1 = 1 ', '', []);
 
-        $autocompleteitems = array_map(function ($entry) {
-            return $entry['name'];
-        }, $sidebar);
-
-
+        $html = $table->outhtml(10, true);
         return [
-            'sidebar' => $sidebar,
-            'autocompleteitems' => $autocompleteitems,
+            'sidebar' => $html,
+            'autocompleteitems' => [],
         ];
     }
 
