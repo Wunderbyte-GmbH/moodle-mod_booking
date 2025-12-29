@@ -27,11 +27,7 @@
     <h4>Sidebar</h4>
     <ul class="booking-sidebar-list">
         {{#sidebar}}
-            <li class="booking-sidebar-item">
-                <a href="#{{hash}}" data-hash="{{hash}}">
-                    {{name}}
-                </a>
-            </li>
+            {{{.}}}
         {{/sidebar}}
 
         {{^sidebar}}
