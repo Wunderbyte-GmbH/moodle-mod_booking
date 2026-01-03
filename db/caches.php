@@ -193,7 +193,7 @@ $definitions = [
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,
         'staticacceleration' => true,
-        'staticaccelerationsize' => 10,
+        'staticaccelerationsize' => 1000,
         'invalidationevents' => ['setbackcustomfields'],
     ],
 ];
