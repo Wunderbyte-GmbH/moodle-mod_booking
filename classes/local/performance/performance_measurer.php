@@ -72,6 +72,11 @@ class performance_measurer {
     private static bool $active = false;
 
     /**
+     * @var array $measurements
+     */
+    private static array $measurements = [];
+
+    /**
      * Constructs performance class,
      * @param string $shortcodehash
      * @return void
@@ -99,18 +104,32 @@ class performance_measurer {
             $name = "$name - $cycle";
         }
 
+        $starttime = (int) (microtime(true) * 1_000_000);
+
+        // If we have opened this measurepoint, we add the time.
+        if (isset(self::$measurements[$name])) {
+            self::$measurements[$name]['relstarttime'] = $starttime;
+            return;
+        }
+
         $openmeasurements = $this->has_open_measurement_with_name($name);
         if ($openmeasurements) {
             $this->delete_measurements($openmeasurements);
         }
+
         $record = [
-            'starttime' => (int) (microtime(true) * 1_000_000),
+            'starttime' => $starttime,
             'endtime' => 0,
             'measurementname' => $name,
             'shortcodehash' => $this->shortcodehash,
             'shortcodename' => $this->shortcodename,
             'actions' => $this->actions,
         ];
+
+        self::$measurements[$name]['starttime'] = $starttime;
+        self::$measurements[$name]['relstarttime'] = $starttime;
+        self::$measurements[$name]['delta'] = 0;
+        self::$measurements[$name]['shortcodehash'] = $this->shortcodehash;
         $this->open_measurement($record);
         return;
     }
@@ -147,7 +166,7 @@ class performance_measurer {
             $openmeasurements
         );
 
-        list($insql, $params) = $DB->get_in_or_equal($ids, SQL_PARAMS_NAMED);
+        [$insql, $params] = $DB->get_in_or_equal($ids, SQL_PARAMS_NAMED);
 
         $DB->delete_records_select(
             self::TABLE,
@@ -186,19 +205,10 @@ class performance_measurer {
             $name = "$name - $cycle";
         }
 
+        $endtime = (int) (microtime(true) * 1_000_000);
+        $delta = $endtime - self::$measurements[$name]['relstarttime'];
+        self::$measurements[$name]['delta'] += $delta;
 
-        $conditions = [
-            'shortcodehash' => $this->shortcodehash,
-            'measurementname' => $name,
-            'endtime'  => 0,
-        ];
-
-        $DB->set_field(
-            self::TABLE,
-            'endtime',
-            (int) (microtime(true) * 1_000_000),
-            $conditions
-        );
         return;
     }
 
@@ -238,11 +248,32 @@ class performance_measurer {
      * @return void
      */
     public static function finish(): void {
+        global $DB;
+
         if (!self::$active || !self::$instance) {
             return;
         }
 
         self::$instance->end('Entire time', true);
+
+        foreach (self::$measurements as $name => $measurement) {
+            $conditions = [
+                'shortcodehash' => $measurement['shortcodehash'],
+                'measurementname' => $name,
+                'endtime'  => 0,
+            ];
+
+            $endtime = $measurement['starttime'] + $measurement['delta'];
+
+            $DB->set_field(
+                self::TABLE,
+                'endtime',
+                $endtime,
+                $conditions
+            );
+        }
+
+        self::$measurements = [];
         self::$instance = null;
         self::$active = false;
     }
