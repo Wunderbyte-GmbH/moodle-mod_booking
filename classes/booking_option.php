@@ -3307,7 +3307,6 @@ class booking_option {
             $returnsession = [
                 'datestring' => $date->datestring,
             ];
-
             // 0 in a date id means it comes form normal course start & endtime.
             // Therefore, there can't be these customfields.
             if ($withcustomfields && $date->id !== 0) {
@@ -3322,11 +3321,13 @@ class booking_option {
                     $removeonlinesessionlinks
                 );
             }
-
-            if (class_exists('local_entities\entitiesrelation_handler')) {
+            if (
+                class_exists('local_entities\entitiesrelation_handler')
+                && $withcustomfields
+            ) {
                 $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate', $date->id);
                 $entity = $erhandler->get_instance_data($date->id);
-                $entityid = $erhandler->get_entityid_by_instanceid($date->id);
+                $entityid = $entity->id ?? 0;
                 $entityurl = null; // Important: initialize!
                 if (!empty($entityid)) {
                     $entityurl = new moodle_url('/local/entities/view.php', ['id' => $entityid]);
