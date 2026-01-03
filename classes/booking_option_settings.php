@@ -563,6 +563,15 @@ class booking_option_settings {
             } else {
                 $this->optiondatesteachersurl = $dbrecord->optiondatesteachersurl;
             }
+            // If the key "customfields" is not yet set, we need to load them via handler first.
+            if (!isset($dbrecord->customfields)) {
+                $this->load_customfields($optionid);
+                $dbrecord->customfields = $this->customfields;
+                $dbrecord->customfieldsfortemplates = $this->customfieldsfortemplates ?? [];
+            } else {
+                $this->customfields = $dbrecord->customfields;
+                $this->customfieldsfortemplates = $dbrecord->customfieldsfortemplates ?? [];
+            }
 
             // If the key "imageurl" is not yet set, we need to load from DB.
             if (!isset($dbrecord->imageurl)) {
@@ -606,16 +615,6 @@ class booking_option_settings {
                 $dbrecord->teacherids = $this->teacherids;
             } else {
                 $this->teacherids = $dbrecord->teacherids;
-            }
-
-            // If the key "customfields" is not yet set, we need to load them via handler first.
-            if (!isset($dbrecord->customfields)) {
-                $this->load_customfields($optionid);
-                $dbrecord->customfields = $this->customfields;
-                $dbrecord->customfieldsfortemplates = $this->customfieldsfortemplates ?? [];
-            } else {
-                $this->customfields = $dbrecord->customfields;
-                $this->customfieldsfortemplates = $dbrecord->customfieldsfortemplates ?? [];
             }
 
             // If a cost center is defined in plugin settings, we load it directly into the booking option settings.
@@ -976,62 +975,75 @@ class booking_option_settings {
             $customfieldid = $bookingsettings->bookingimagescustomfield ?? null;
 
             if (!empty($customfieldid)) {
-                $customfieldvalue = $DB->get_field(
-                    'customfield_data',
-                    'value',
-                    ['fieldid' => $customfieldid, 'instanceid' => $optionid]
-                );
+                foreach ($this->customfieldsfortemplates as $field) {
+                    if ($field['fieldid'] == $customfieldid) {
+                        $customfieldvalue = $field['value'];
+                        break;
+                    }
+                }
 
                 if (!empty($customfieldvalue)) {
                     $customfieldvalue = strtolower($customfieldvalue);
-
-                    if (
-                        !$imgfiles = $DB->get_records_sql("SELECT id, contextid, filepath, filename
-                                 FROM {files}
-                                 WHERE component = 'mod_booking'
-                                 AND itemid = :bookingid
-                                 AND filearea = 'bookingimages'
-                                 AND LOWER(filename) LIKE :customfieldvaluewithextension
-                                 AND filesize > 0
-                                 AND source is not null", ['bookingid' => $bookingid,
-                                    'customfieldvaluewithextension' => "$customfieldvalue.%",
-                                    ])
-                    ) {
-                        return;
-                    }
-
-                    // There might be more than one image, so we only use the first one.
-                    $imgfile = reset($imgfiles);
-
-                    if (!empty($imgfile)) {
-                        // If a fallback image has been found for the customfield value, then use this one.
-
-                        $url = moodle_url::make_pluginfile_url(
-                            $imgfile->contextid,
-                            'mod_booking',
-                            'bookingimages',
-                            $bookingid,
-                            $imgfile->filepath,
-                            $imgfile->filename
-                        );
-
-                        $this->imageurl = $url->out(false);
-                        return;
-                    }
                 }
             }
 
-            // If still no image could be found, we check if there is a default image.
-            $imgfile = $DB->get_record_sql("SELECT id, contextid, filepath, filename
-            FROM {files}
-            WHERE component = 'mod_booking'
-            AND itemid = :bookingid
-            AND filearea = 'bookingimages'
-            AND LOWER(filename) LIKE 'default.%'
-            AND filesize > 0
-            AND source is not null", ['bookingid' => $bookingid]);
+            $imagefiles = singleton_service::load_booking_image($bookingid);
+
+            // If we have not yet any images in the singleton, we fetch them from db.
+            if (reset($imagefiles) == false) {
+                // We have found nothing and need to load it.
+                $imagefiles = $DB->get_records_sql(
+                    "SELECT id, contextid, filepath, filename
+                            FROM {files}
+                            WHERE component = 'mod_booking'
+                            AND itemid = :bookingid
+                            AND filearea = 'bookingimages'
+                            AND filesize > 0
+                            AND source is not null",
+                    ['bookingid' => $bookingid]
+                );
+                if (empty($imagefiles)) {
+                    $imagefiles = [(object)[]];
+                }
+                singleton_service::set_booking_image($bookingid, $imagefiles);
+            }
+
+            foreach ($imagefiles as $imgfile) {
+                if (empty($imgfile->filename)) {
+                    continue;
+                }
+                // We look for default right away.
+                if (strpos(strtolower($imgfile->filename), 'default.') === 0) {
+                    // If we found it, we keep the current $imgfile.
+                    $defaultimage = $imgfile;
+                }
+
+                if (
+                    !empty($customfieldvalue)
+                    && strpos(strtolower($imgfile->filename), $customfieldvalue) === 0
+                ) {
+                    // If we found it, we keep the current $imgfile.
+                    break;
+                }
+            }
 
             if (!empty($imgfile)) {
+                // If a fallback image has been found for the customfield value, then use this one.
+
+                $url = moodle_url::make_pluginfile_url(
+                    $imgfile->contextid,
+                    'mod_booking',
+                    'bookingimages',
+                    $bookingid,
+                    $imgfile->filepath,
+                    $imgfile->filename
+                );
+
+                $this->imageurl = $url->out(false);
+                return;
+            }
+
+            if (!empty($defaultimage)) {
                 $url = moodle_url::make_pluginfile_url(
                     $imgfile->contextid,
                     'mod_booking',
@@ -1062,34 +1074,42 @@ class booking_option_settings {
     private function load_customfields(int $optionid) {
         global $DB;
 
-        $handler = booking_handler::create();
 
-        $datas = $handler->get_instance_data($optionid, true);
+        $sql = "SELECT
+            f.id        AS fieldid,
+            f.shortname,
+            f.name      AS label,
+            f.type,
+            d.value
+        FROM {customfield_data} d
+        JOIN {customfield_field} f
+            ON f.id = d.fieldid
+        JOIN {customfield_category} c
+            ON c.id = f.categoryid
+        WHERE d.instanceid = :optionid
+        AND d.value IS NOT NULL
+        AND d.value <> ''
+        AND c.component = 'mod_booking'
+        AND c.area = 'booking'
+        ORDER BY f.sortorder";
 
-        foreach ($datas as $data) {
-            $field = $data->get_field();
-            $shortname = $field->get('shortname');
-            $label = $field->get('name');
-            $type = $field->get('type');
-            $fieldid = $field->get('id');
-            $value = $data->get_value();
+        $records = $DB->get_records_sql($sql, ['optionid' => $optionid]);
 
-            if (!empty($value)) {
-                $this->customfields[$shortname] = $value;
+        foreach ($records as $r) {
+            $this->customfields[$r->shortname] = $r->value;
 
-                if ($type === 'select') {
-                    $options = singleton_service::get_customfields_select_options($fieldid);
-                    $value = $options[$value];
-                }
-
-                // We also return the customfieldsfortemplates where we get the real values of the selects.
-                $this->customfieldsfortemplates[$shortname] = [
-                    'label' => $label,
-                    'key' => $shortname,
-                    'value' => $value,
-                    'type' => $type,
-                ];
+            if ($r->type === 'select') {
+                $options = singleton_service::get_customfields_select_options($r->fieldid);
+                $r->value = $options[$r->value];
             }
+
+            $this->customfieldsfortemplates[$r->shortname] = [
+                'fieldid' => $r->fieldid,
+                'label' => $r->label,
+                'key'   => $r->shortname,
+                'value' => $r->value,
+                'type'  => $r->type,
+            ];
         }
     }
 
