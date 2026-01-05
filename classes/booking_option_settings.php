@@ -1008,6 +1008,7 @@ class booking_option_settings {
                 singleton_service::set_booking_image($bookingid, $imagefiles);
             }
 
+
             foreach ($imagefiles as $imgfile) {
                 if (empty($imgfile->filename)) {
                     continue;
@@ -1023,20 +1024,21 @@ class booking_option_settings {
                     && strpos(strtolower($imgfile->filename), $customfieldvalue) === 0
                 ) {
                     // If we found it, we keep the current $imgfile.
+                    $imagefile = $imgfile;
                     break;
                 }
             }
 
-            if (!empty($imgfile)) {
+            if (!empty($imagefile)) {
                 // If a fallback image has been found for the customfield value, then use this one.
 
                 $url = moodle_url::make_pluginfile_url(
-                    $imgfile->contextid,
+                    $imagefile->contextid,
                     'mod_booking',
                     'bookingimages',
                     $bookingid,
-                    $imgfile->filepath,
-                    $imgfile->filename
+                    $imagefile->filepath,
+                    $imagefile->filename
                 );
 
                 $this->imageurl = $url->out(false);
