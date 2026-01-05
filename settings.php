@@ -1022,7 +1022,7 @@ if ($ADMIN->fulltree) {
             new admin_setting_configtext(
                 'booking/pollurltemplate',
                 get_string('pollurltemplate', 'mod_booking'),
-                trim($description), // HTML will render correctly
+                trim($description), // HTML will render correctly.
                 '',
                 PARAM_URL
             )
@@ -1032,7 +1032,7 @@ if ($ADMIN->fulltree) {
             new admin_setting_configtext(
                 'booking/pollurlteacherstemplate',
                 get_string('pollurlteacherstemplate', 'mod_booking'),
-                trim($description), // HTML will render correctly
+                trim($description), // HTML will render correctly.
                 '',
                 PARAM_URL
             )
@@ -1560,12 +1560,10 @@ if ($ADMIN->fulltree) {
     );
 
     // Currency dropdown.
-    $currenciesobjects = price::get_possible_currencies();
-
     $currencies['EUR'] = 'Euro (EUR)';
-    foreach ($currenciesobjects as $currenciesobject) {
-        $currencyidentifier = $currenciesobject->get_identifier();
-        $currencies[$currencyidentifier] = $currenciesobject->out(current_language()) . ' (' . $currencyidentifier . ')';
+    $currencieslangstrings = price::get_possible_currencies();
+    foreach ($currencieslangstrings as $key => $currencieslangstring) {
+        $currencies[$key] = $currencieslangstring->out(current_language()) . ' (' . $key . ')';
     }
 
     $settings->add(
