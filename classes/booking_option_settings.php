@@ -1008,7 +1008,6 @@ class booking_option_settings {
                 singleton_service::set_booking_image($bookingid, $imagefiles);
             }
 
-
             foreach ($imagefiles as $imgfile) {
                 if (empty($imgfile->filename)) {
                     continue;
@@ -1075,7 +1074,6 @@ class booking_option_settings {
      */
     private function load_customfields(int $optionid) {
         global $DB;
-
 
         $sql = "SELECT
             f.id        AS fieldid,
