@@ -28,26 +28,27 @@ Feature: Upload booking images for booking options as admin and view it.
       | 1        | default    | Price | 88           | 0        | 1                 |
       | 2        | discount1  | Disc1 | 77           | 0        | 2                 |
       | 3        | discount2  | Disc2 | 66           | 0        | 3                 |
+    And the following "activities" exist:
+      | activity | course | name     | intro               | bookingmanager | eventtype | bookingimagescustomfield | Default view for booking options  | json                                                                                                                       |
+      | booking  | C1     | Booking2 | default image exist | teacher1       | Webinar   | spt1                     | All bookings                      | {"switchtemplates":1,"viewparam":"2","switchtemplatesselection":["0","1","2","3","4"],"unenrolfromgroupofcurrentcourse":1} |
+    ## "viewparam":"2" enforces "List view with image on the left"
+    And the following "mod_booking > options" exist:
+      | booking   | text            | course | description    | importing | spt1     | useprice | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
+      | Booking2  | Option-tenis    | C1     | Price-tenis    | 1         | tenis    | 1        | 1          | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+      | Booking2  | Option-football | C1     | Price-football | 1         | fussball | 1        | 2          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
+      | Booking2  | Option-yoga     | C1     | Yoga-noprice   | 1         | yoga     | 0        | 3          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
+      | Booking2  | Option-swim     | C1     | Swim-noprice   | 1         |          | 0        | 4          | 1           | 0              | 0              | ## +3 days ##     | ## +4 days ##   |
     And I change viewport size to "1366x10000"
 
   ## @javascript - JS no need for this test
   Scenario: Booking options: create options with images by customfields via DB and view as admin
-    Given the following "activities" exist:
-      | activity | course | name     | intro               | bookingmanager | eventtype | bookingimagescustomfield | Default view for booking options  | json                                                                                                                       |
-      | booking  | C1     | Booking1 | default image exist | teacher1       | Webinar   | spt1                     | All bookings                      | {"switchtemplates":1,"viewparam":"2","switchtemplatesselection":["0","1","2","3","4"],"unenrolfromgroupofcurrentcourse":1} |
-    ## "viewparam":"2" enforces "List view with image on the left"
-    And the following "mod_booking > bookingimages" exist:
+    Given the following "mod_booking > bookingimages" exist:
       | filepath                                  | filename       | booking  |
-      | mod/booking/tests/fixtures/fussball.png   | fussball.png   | Booking1 |
-      | mod/booking/tests/fixtures/volleyball.png | volleyball.png | Booking1 |
-      | mod/booking/tests/fixtures/yoga.png       | yoga.png       | Booking1 |
-    And the following "mod_booking > options" exist:
-      | booking   | text            | course | description    | importing | spt1     | useprice | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
-      | Booking1  | Option-tenis    | C1     | Price-tenis    | 1         | tenis    | 1        | 1          | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
-      | Booking1  | Option-football | C1     | Price-football | 1         | fussball | 1        | 2          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
-      | Booking1  | Option-yoga     | C1     | Yoga-noprice   | 1         | yoga     | 0        | 3          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
-      | Booking1  | Option-swim     | C1     | Swim-noprice   | 1         |          | 0        | 4          | 1           | 0              | 0              | ## +3 days ##     | ## +4 days ##   |
-    And I am on the "Booking1" Activity page logged in as admin
+      | mod/booking/tests/fixtures/fussball.png   | fussball.png   | Booking2 |
+      | mod/booking/tests/fixtures/volleyball.png | volleyball.png | Booking2 |
+      | mod/booking/tests/fixtures/yoga.png       | yoga.png       | Booking2 |
+    And I clean booking cache
+    And I am on the "Booking2" Activity page logged in as admin
     ## Validate option with image by customfield and with price
     And I should see "Option-football" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "88.00 EUR" in the ".allbookingoptionstable_r1 .pricecurrency" "css_element"
@@ -68,24 +69,14 @@ Feature: Upload booking images for booking options as admin and view it.
     And "//img[contains(@src, '/yoga.png')]" "xpath_element" should exist in the ".allbookingoptionstable_r4" "css_element"
 
   ## @javascript - JS no need for this test
-  @javascript
   Scenario: Booking options: create options with images by customfields and default via DB and view as admin
-    Given the following "activities" exist:
-      | activity | course | name     | intro               | bookingmanager | eventtype | bookingimagescustomfield | Default view for booking options  | json                                                                                                                       |
-      | booking  | C1     | Booking2 | default image exist | teacher1       | Webinar   | spt1                     | All bookings                      | {"switchtemplates":1,"viewparam":"2","switchtemplatesselection":["0","1","2","3","4"],"unenrolfromgroupofcurrentcourse":1} |
-    ## "viewparam":"2" enforces "List view with image on the left"
-    And the following "mod_booking > bookingimages" exist:
+    Given the following "mod_booking > bookingimages" exist:
       | filepath                                  | filename       | booking  |
       | mod/booking/tests/fixtures/default.png    | default.png    | Booking2 |
       | mod/booking/tests/fixtures/fussball.png   | fussball.png   | Booking2 |
       | mod/booking/tests/fixtures/volleyball.png | volleyball.png | Booking2 |
       | mod/booking/tests/fixtures/yoga.png       | yoga.png       | Booking2 |
-    And the following "mod_booking > options" exist:
-      | booking   | text            | course | description    | importing | spt1     | useprice | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
-      | Booking2  | Option-tenis    | C1     | Price-tenis    | 1         | tenis    | 1        | 1          | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
-      | Booking2  | Option-football | C1     | Price-football | 1         | fussball | 1        | 2          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
-      | Booking2  | Option-yoga     | C1     | Yoga-noprice   | 1         | yoga     | 0        | 3          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
-      | Booking2  | Option-swim     | C1     | Swim-noprice   | 1         |          | 0        | 4          | 1           | 0              | 0              | ## +3 days ##     | ## +4 days ##   |
+    And I clean booking cache
     And I am on the "Booking2" Activity page logged in as admin
     ## Validate option with image by customfield and with price
     And I should see "Option-football" in the ".allbookingoptionstable_r1" "css_element"
