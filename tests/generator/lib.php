@@ -185,6 +185,42 @@ class mod_booking_generator extends testing_module_generator {
     }
 
     /**
+     * Returns the mapping between human friendly names and data generator methods.
+     *
+     * @param array $data
+     * @return void
+     */
+    public function create_bookingimage(array $data): void {
+        global $CFG;
+
+        $bookingid = $data['bookingid'];
+        $filepath = $data['filepath'];
+        $filename = $data['filename'];
+
+        $fullfilepath = rtrim("{$CFG->dirroot}/" . ltrim($filepath, '/'), '/');
+        if (!file_exists($fullfilepath)) {
+            throw new coding_exception("File '{$fullfilepath}' does not exist");
+        }
+
+        $cm = get_coursemodule_from_instance('booking', $bookingid, 0, false, MUST_EXIST);
+        $context = context_module::instance($cm->id);
+        $fs = get_file_storage();
+        $storedfilepath = trim($filepath, '/');
+        $storedfilepath = $storedfilepath === '' ? '/' : "/{$storedfilepath}/";
+
+        $filerecord = [
+            'contextid' => $context->id,
+            'component' => 'mod_booking',
+            'filearea' => 'bookingimages',
+            'itemid' => $bookingid,
+            'filepath' => '/',
+            'filename' => basename($fullfilepath),
+        ];
+
+        $fs->create_file_from_pathname($filerecord, $fullfilepath);
+    }
+
+    /**
      * Function to create a dummy option.
      *
      * @param ?array|stdClass $record
