@@ -1060,12 +1060,12 @@ class booking_option_settings {
 
             if (!empty($defaultimage)) {
                 $url = moodle_url::make_pluginfile_url(
-                    $imgfile->contextid,
+                    $defaultimage->contextid,
                     'mod_booking',
                     'bookingimages',
                     $bookingid,
-                    $imgfile->filepath,
-                    $imgfile->filename
+                    $defaultimage->filepath,
+                    $defaultimage->filename
                 );
                 // If a fallback image has been found for the customfield value, then use this one.
                 $this->imageurl = $url->out(false);
