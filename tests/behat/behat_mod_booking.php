@@ -131,16 +131,10 @@ class behat_mod_booking extends behat_base {
      * @return void
      */
     public function i_clean_booking_cache() {
-            // Mandatory clean-up.
-            cache_helper::purge_all();
-            singleton_service::reset_campaigns();
-            singleton_service::get_instance()->users = [];
-            singleton_service::get_instance()->bookinganswers = [];
-            singleton_service::get_instance()->userpricecategory = [];
-            rules_info::$rulestoexecute = [];
-            booking_rules::$rules = [];
-            maxoptionsfromcategory::reset_instance();
-            singleton_service::destroy_instance();
+        $datagenerator = \testing_util::get_data_generator();
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = $datagenerator->get_plugin_generator('mod_booking');
+        $plugingenerator->teardown();
     }
 
     /**
