@@ -181,6 +181,13 @@ class mod_booking_generator extends testing_module_generator {
         }
         $record->semesterid = $semesterid;
 
+        // Process instance's bookingimagescustomfield.
+        if (!empty($record->bookingimagescustomfield)) {
+            if (!is_numeric($record->bookingimagescustomfield)) {
+                $record->bookingimagescustomfield = $this->get_customfield_id($record->bookingimagescustomfield);
+            }
+        }
+
         return parent::create_instance($record, $options);
     }
 
@@ -215,6 +222,7 @@ class mod_booking_generator extends testing_module_generator {
             'itemid' => $bookingid,
             'filepath' => '/',
             'filename' => basename($fullfilepath),
+            'source' => basename($fullfilepath),
         ];
 
         $fs->create_file_from_pathname($filerecord, $fullfilepath);
@@ -698,6 +706,21 @@ class mod_booking_generator extends testing_module_generator {
         $sql = 'SELECT id FROM {booking_rules} WHERE rulejson LIKE \'%' . $param . '%\'';
         if (!$id = $DB->get_field_sql($sql)) {
             throw new Exception('The specified rule with name "' . $rulename . '" does not exist');
+        }
+        return $id;
+    }
+
+    /**
+     * Get the customfieldID using an identifier.
+     *
+     * @param string $identifier
+     * @return int The customfield id
+     */
+    private function get_customfield_id(string $identifier): int {
+        global $DB;
+
+        if (!$id = $DB->get_field('customfield_field', 'id', ['shortname' => $identifier])) {
+            throw new Exception('The specified booking customfield with shortname "' . $identifier . '" does not exist');
         }
         return $id;
     }
