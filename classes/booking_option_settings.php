@@ -983,12 +983,13 @@ class booking_option_settings {
                     }
                 }
 
+                // We match with lowercased filenames, so make sure the value(s) is/are lowercased too.
                 if (!empty($customfieldvalue)) {
                     if (is_array($customfieldvalue)) {
-                        // There can only be one image!
-                        $customfieldvalue = (string) reset($customfieldvalue);
+                        $customfieldvalue = array_map('strtolower', $customfieldvalue);
+                    } else if (is_string($customfieldvalue)) {
+                        $customfieldvalue = strtolower($customfieldvalue);
                     }
-                    $customfieldvalue = strtolower($customfieldvalue);
                 }
             }
 
@@ -1025,17 +1026,26 @@ class booking_option_settings {
 
                 if (
                     !empty($customfieldvalue)
-                    && strpos(strtolower($imgfile->filename), $customfieldvalue) === 0
                 ) {
-                    // If we found it, we keep the current $imgfile.
-                    $imagefile = $imgfile;
-                    break;
+                    if (is_string($customfieldvalue) && strpos(strtolower($imgfile->filename), $customfieldvalue) === 0) {
+                        // We found the image, so we can stop searching.
+                        $imagefile = $imgfile;
+                        break;
+                    } else if (is_array($customfieldvalue)) {
+                        foreach ($customfieldvalue as $cfvalue) {
+                            if (strpos(strtolower($imgfile->filename), $cfvalue) === 0) {
+                                /* If we have more than one value, we take the first image
+                                that matches one of the customfield values. */
+                                $imagefile = $imgfile;
+                                break 2;
+                            }
+                        }
+                    }
                 }
             }
 
             if (!empty($imagefile)) {
                 // If a fallback image has been found for the customfield value, then use this one.
-
                 $url = moodle_url::make_pluginfile_url(
                     $imagefile->contextid,
                     'mod_booking',
@@ -1044,7 +1054,6 @@ class booking_option_settings {
                     $imagefile->filepath,
                     $imagefile->filename
                 );
-
                 $this->imageurl = $url->out(false);
                 return;
             }
