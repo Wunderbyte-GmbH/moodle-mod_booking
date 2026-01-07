@@ -90,8 +90,6 @@ class rule_specifictime implements booking_rule {
             isset($ruleobj->ruledata->seconds)
             && is_number($ruleobj->ruledata->seconds)
         ) {
-            // Before: Positive seconds (multiplied with 1).
-            // After: Negative seconds (multiplied with -1).
             $this->seconds = (int) $ruleobj->ruledata->seconds;
         } else {
             // Should never happen, but just in case.

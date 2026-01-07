@@ -975,6 +975,7 @@ class booking_option_settings {
             $customfieldid = $bookingsettings->bookingimagescustomfield ?? null;
 
             if (!empty($customfieldid)) {
+                $customfieldvalue = '';
                 foreach ($this->customfieldsfortemplates as $field) {
                     if ($field['fieldid'] == $customfieldid) {
                         $customfieldvalue = $field['value'];
@@ -983,6 +984,10 @@ class booking_option_settings {
                 }
 
                 if (!empty($customfieldvalue)) {
+                    if (is_array($customfieldvalue)) {
+                        // There can only be one image!
+                        $customfieldvalue = (string) reset($customfieldvalue);
+                    }
                     $customfieldvalue = strtolower($customfieldvalue);
                 }
             }
@@ -1072,44 +1077,36 @@ class booking_option_settings {
      *
      * @param int $optionid
      */
-    private function load_customfields(int $optionid) {
-        global $DB;
+    private function load_customfields(int $optionid): void {
 
-        $sql = "SELECT
-            f.id        AS fieldid,
-            f.shortname,
-            f.name      AS label,
-            f.type,
-            d.value
-        FROM {customfield_data} d
-        JOIN {customfield_field} f
-            ON f.id = d.fieldid
-        JOIN {customfield_category} c
-            ON c.id = f.categoryid
-        WHERE d.instanceid = :optionid
-        AND d.value IS NOT NULL
-        AND d.value <> ''
-        AND c.component = 'mod_booking'
-        AND c.area = 'booking'
-        ORDER BY f.sortorder";
+        $handler = booking_handler::create();
+        $datas = $handler->get_instance_data($optionid, true);
 
-        $records = $DB->get_records_sql($sql, ['optionid' => $optionid]);
+        foreach ($datas as $data) {
+            $field = $data->get_field();
+            $shortname = $field->get('shortname');
+            $label = $field->get('name');
+            $type = $field->get('type');
+            $fieldid = $field->get('id');
+            $value = $data->get_value();
 
-        foreach ($records as $r) {
-            $this->customfields[$r->shortname] = $r->value;
+            if (!empty($value)) {
+                $this->customfields[$shortname] = $value;
 
-            if ($r->type === 'select') {
-                $options = singleton_service::get_customfields_select_options($r->fieldid);
-                $r->value = $options[$r->value];
+                if ($type === 'select') {
+                    $options = singleton_service::get_customfields_select_options($fieldid);
+                    $value = $options[$value];
+                }
+
+                // We also return the customfieldsfortemplates where we get the real values of the selects.
+                $this->customfieldsfortemplates[$shortname] = [
+                    'fieldid' => $fieldid,
+                    'label' => $label,
+                    'key' => $shortname,
+                    'value' => $value,
+                    'type' => $type,
+                ];
             }
-
-            $this->customfieldsfortemplates[$r->shortname] = [
-                'fieldid' => $r->fieldid,
-                'label' => $r->label,
-                'key'   => $r->shortname,
-                'value' => $r->value,
-                'type'  => $r->type,
-            ];
         }
     }
 
