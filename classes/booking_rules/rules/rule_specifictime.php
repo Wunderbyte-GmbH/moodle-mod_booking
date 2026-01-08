@@ -108,8 +108,6 @@ class rule_specifictime implements booking_rule {
      * @return void
      */
     public function add_rule_to_mform(MoodleQuickForm &$mform, array &$repeateloptions, array $ajaxformdata = []) {
-        global $DB;
-
         // Get a list of allowed option fields (only date fields allowed).
         $datefields = [
             '0' => get_string('choose...', 'mod_booking'),
@@ -264,14 +262,18 @@ class rule_specifictime implements booking_rule {
             return;
         }
 
-        // Self-learning courses use coursestarttime only for sorting #684.
-        // So if a rule is dependent on coursestarttime or courseendtime, we just skip the execution.
+        // Self-learning courses use coursestarttime only for sorting.
+        // So if a rule is dependent on date(s) of the option, we just skip the execution.
         if (!empty($settings->selflearningcourse)) {
             if (
                 !empty($jsonobject->ruledata->datefield)
-                && (
-                    ($jsonobject->ruledata->datefield == 'coursestarttime')
-                    || ($jsonobject->ruledata->datefield == 'courseendtime')
+                && in_array(
+                    $jsonobject->ruledata->datefield,
+                    [
+                        'coursestarttime',
+                        'courseendtime',
+                        'optiondatestarttime',
+                    ]
                 )
             ) {
                 return;

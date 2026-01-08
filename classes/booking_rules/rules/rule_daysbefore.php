@@ -229,13 +229,17 @@ class rule_daysbefore implements booking_rule {
         }
 
         // Self-learning courses use coursestarttime only for sorting #684.
-        // So if a rule is dependent on coursestarttime or courseendtime, we just skip the execution.
+        // So if a rule is dependent on date(s) of the option, we just skip the execution.
         if (!empty($settings->selflearningcourse)) {
             if (
                 !empty($jsonobject->ruledata->datefield)
-                && (
-                    ($jsonobject->ruledata->datefield == 'coursestarttime')
-                    || ($jsonobject->ruledata->datefield == 'courseendtime')
+                && in_array(
+                    $jsonobject->ruledata->datefield,
+                    [
+                        'coursestarttime',
+                        'courseendtime',
+                        'optiondatestarttime',
+                    ]
                 )
             ) {
                 return;
