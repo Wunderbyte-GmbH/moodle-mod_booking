@@ -44,7 +44,8 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $booking = new backup_nested_element(
             'booking',
             ['id'],
-            ['course', 'name', 'intro', 'introformat', 'bookingmanager', 'mailtemplatessource', 'sendmail',
+            [
+                'course', 'name', 'intro', 'introformat', 'bookingmanager', 'mailtemplatessource', 'sendmail',
                 'copymail', 'allowupdate', 'bookingpolicy', 'bookingpolicyformat', 'timeopen', 'timeclose', 'timemodified',
                 'autoenrol', 'bookedtext', 'waitingtext', 'statuschangetext', 'deletedtext', 'bookingchangedtext',
                 'maxperuser', 'sendmailtobooker', 'duration', 'points', 'organizatorname',
@@ -62,7 +63,8 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
                 'signinsheetfields', 'comments', 'ratings', 'removeuseronunenrol', 'teacherroleid', 'allowupdatedays',
                 'templateid', 'showlistoncoursepage', 'coursepageshortinfo', 'bookingimagescustomfield',
                 'defaultoptionsort', 'defaultsortorder', 'showviews', 'autcractive', 'autcrprofile',
-                'autcrvalue', 'autcrtemplate', 'semesterid', 'iselective', 'maxcredits', 'consumeatonce', 'enforceorder',
+                'autcrvalue', 'autcrtemplate', 'semesterid', 'iselective', 'consumeatonce', 'maxcredits',
+                'enforceorder', 'enforceteacherorder', 'json', 'toporientation',
             ]
         );
 
@@ -70,7 +72,8 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $option = new backup_nested_element(
             'option',
             ['id'],
-            ['text', 'maxanswers', 'maxoverbooking', 'minanswers', 'bookingopeningtime', 'bookingclosingtime', 'courseid',
+            [
+                'text', 'maxanswers', 'maxoverbooking', 'minanswers', 'bookingopeningtime', 'bookingclosingtime', 'courseid',
                 'coursestarttime', 'courseendtime', 'enrolmentstatus', 'description', 'descriptionformat',
                 'limitanswers', 'timecreated', 'timemodified', 'addtocalendar', 'calendarid', 'pollurl',
                 'groupid', 'sent', 'sent2', 'sentteachers', 'location', 'institution', 'address',
