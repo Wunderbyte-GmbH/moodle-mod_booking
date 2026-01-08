@@ -483,6 +483,7 @@ class message_controller {
      * @return bool true if successful
      */
     public function send_or_queue(): bool {
+        $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
 
         // If user entered "0" as template, then mails are turned off for this type of messages.
         if (
@@ -504,7 +505,12 @@ class message_controller {
             } else {
                 // If the rule has sendical set then we get the ical attachment.
                 // Create it in file storage and put it in the message object.
-                if (!empty($this->rulesettings->actiondata) && !empty($this->rulesettings->actiondata->sendical)) {
+                // Do not send icals for self-learning courses as they have no dates.
+                if (
+                    !empty($this->rulesettings->actiondata)
+                    && !empty($this->rulesettings->actiondata->sendical)
+                    && empty($settings->selflearningcourse) // No icals for selflearningcourses!
+                ) {
                     $update = false;
                     if ($this->rulesettings->actiondata->sendicalcreateorcancel == 'cancel') {
                         $update = true;
@@ -591,6 +597,7 @@ class message_controller {
                     && !empty($nonnativemailer)
                     && !empty($this->ical)
                     && count($this->ical->get_times()) === 1 // Check number of dates in the option.
+                    && empty($settings->selflearningcourse) // No icals for selflearningcourses!
                 ) {
                     // If message contains attachment (ics file), we need to mail it using PHPMailer
                     // as Moodle core can not send messages with mime type text/calendar. This logic works
@@ -602,7 +609,11 @@ class message_controller {
 
                 // In all other cases, use message_send.
                 if ($sent) {
-                    if (!empty($this->rulesettings->actiondata) && !empty($this->rulesettings->actiondata->sendical)) {
+                    if (
+                        !empty($this->rulesettings->actiondata)
+                        && !empty($this->rulesettings->actiondata->sendical)
+                        && empty($settings->selflearningcourse) // No icals for selflearningcourses!
+                    ) {
                         if (!PHPUNIT_TEST && isset($storedfile)) {
                             // Tidy up the now not needed file.
                             try {
