@@ -604,24 +604,20 @@ class message_controller {
                     // only when there is 1 date, so in the case we have more than one date, we don't use this logic.
                     $sent = $this->send_message_with_ical($this->messagedata);
                 } else {
+                    // In all other cases, use message_send.
                     $sent = message_send($this->messagedata);
                 }
 
-                // In all other cases, use message_send.
+                // After sending, delete the file (if one was created).
+                // Also trigger the message_sent event.
                 if ($sent) {
-                    if (
-                        !empty($this->rulesettings->actiondata)
-                        && !empty($this->rulesettings->actiondata->sendical)
-                        && empty($settings->selflearningcourse) // No icals for selflearningcourses!
-                    ) {
-                        if (!PHPUNIT_TEST && isset($storedfile)) {
-                            // Tidy up the now not needed file.
-                            try {
-                                $storedfile->delete();
-                            // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-                            } catch (Throwable $e) {
-                                // Do nothing.
-                            }
+                    if (!PHPUNIT_TEST && isset($storedfile)) {
+                        // Tidy up the now not needed file.
+                        try {
+                            $storedfile->delete();
+                        // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+                        } catch (Throwable $e) {
+                            // Do nothing.
                         }
                     }
 
