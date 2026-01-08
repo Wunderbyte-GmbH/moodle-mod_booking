@@ -1312,7 +1312,7 @@ class booking_answers {
                 ba.places,
                 bo.coursestarttime,
                 bo.courseendtime,
-                bo.type botype,
+                bo.type botype
                 $withcoursestarttimesselect
             FROM {booking_answers} ba
             JOIN {booking_options} bo ON ba.optionid = bo.id
