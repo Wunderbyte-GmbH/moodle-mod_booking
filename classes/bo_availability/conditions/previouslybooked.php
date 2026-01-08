@@ -160,8 +160,8 @@ class previouslybooked implements bo_condition {
                     $isavailable = true;
                 }
             } else {
-                // If not, it's always available.
-                $isavailable = true;
+                // If not, it's not available.
+                $isavailable = false;
             }
         }
 
