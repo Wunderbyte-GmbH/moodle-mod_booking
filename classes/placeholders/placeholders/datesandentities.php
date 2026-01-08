@@ -115,7 +115,6 @@ class datesandentities extends \mod_booking\placeholders\placeholder_base {
 
                         $durationstring = format_time($timeremainingsec);
                         $value .= " " . get_string('selflearningcourseplaceholderduration', 'mod_booking', $durationstring);
-                        $value = html_writer::tag('p', $value);
                     }
                 }
             } else if (class_exists('local_entities\entitiesrelation_handler')) {
