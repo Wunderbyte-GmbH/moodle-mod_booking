@@ -1212,20 +1212,15 @@ class booking_answers {
             }
         }
 
+        // Check if the course is a selflearningcourse and if so, remove it from the answers.
         if ($excludeselflearningcourses) {
             foreach ($answers as $key => $answer) {
                 if (
                     !empty($answer->nooverlappinghandling)
-                    && isset($answer->json) && !empty($answer->json)
+                    && isset($answer->botype) && $answer->botype == MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE
                 ) {
-                    $jsondata = json_decode($answer->json);
-                    if (
-                        isset($jsondata->selflearningcourse)
-                        && $jsondata->selflearningcourse != 1
-                    ) {
-                        unset($answers[$key]);
-                        continue;
-                    }
+                    unset($answers[$key]);
+                    continue;
                 }
             }
         }
@@ -1316,7 +1311,8 @@ class booking_answers {
                 ba.json,
                 ba.places,
                 bo.coursestarttime,
-                bo.courseendtime
+                bo.courseendtime,
+                bo.type botype,
                 $withcoursestarttimesselect
             FROM {booking_answers} ba
             JOIN {booking_options} bo ON ba.optionid = bo.id
