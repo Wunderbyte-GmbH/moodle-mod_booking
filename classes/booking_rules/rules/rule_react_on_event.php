@@ -453,7 +453,11 @@ class rule_react_on_event implements booking_rule {
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $ba = singleton_service::get_instance_of_booking_answers($settings);
 
-        if (!$this->rule_still_in_time($jsonobject, $settings)) {
+        if (
+            // Self-learning courses only use sorting date, so we cannot do this check.
+            empty($settings->selflearningcourse)
+            && !$this->rule_still_in_time($jsonobject, $settings)
+        ) {
             return false;
         }
 
