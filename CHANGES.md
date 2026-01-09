@@ -1,3 +1,14 @@
+## Version 9.0.5 (2026010900)
+* Improvement: Don't wrap selflearningcourse information in placeholder in paragraph.
+* Improvement: For better usability, we hide the message button on teacher page if messaging is impossible.
+* Improvement: Backup shopping cart iteminfo if it exists.
+* Bugfix: Fixed default booking image fallback to use the captured default image record instead of the last iterated image.
+* Bugfix: Make sure rules are not executed for self-learning courses if the rule depends on option date(s).
+* Bugfix: Make sure no icals are sent for selflearningcourses.
+* Bugfix: Fix e-mails for self-learning courses.
+* Bugfix: Fix layout for teacher page (should be full width in boost).
+* Bugfix: Fix missing fields in backup stepslib for booking instance.
+
 ## Version 9.0.4 (2026010700)
 * New feature: Introduce new booking option type and replace selflearningcourse flag from JSON.
 * New feature: New booking rule for a specific time before or after a chosen date field.
