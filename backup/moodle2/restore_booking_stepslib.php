@@ -120,7 +120,6 @@ class restore_booking_activity_structure_step extends restore_activity_structure
                     '/activity/booking/options/option/shoppingcartiteminfoforoptions/shoppingcartiteminfoforoption'
                 );
             }
-
         }
 
         if ($userinfo) {
