@@ -2835,25 +2835,20 @@ class booking_option {
             get_config('booking', 'usecompetencies')
             && !empty($userdata->completed)
         ) {
+            // Only if we have the competency in the right context AND there is no error, we do it directly.
+            $assigned = false;
             try {
-                $context = context_module::instance($settings->cmid);
-                if (!has_capability('moodle/competency:competencygrade', $context)) {
-                    $task = new assign_competency();
-                    // We need to execute the task as admin user.
-                    $task->set_userid(get_admin()->id);
-                    $task->set_custom_data([
-                        'cmid' => $cmid,
-                        'optionid' => $optionid,
-                        'userid' => $userid,
-                    ]);
-                    manager::queue_adhoc_task($task);
-                } else {
+                $cm = get_coursemodule_from_id(null, $settings->cmid, 0, false, MUST_EXIST);
+                $coursecontext = context_course::instance($cm->course);
+
+                if (has_capability('moodle/competency:competencygrade', $coursecontext)) {
                     // Call your static function in mod_booking.
                     competencies::assign_competencies(
                         $settings->cmid,
                         $optionid,
                         $userid
                     );
+                    $assigned = true;
                 }
             } catch (Throwable $e) {
                 $message = $e->getMessage();
@@ -2868,6 +2863,18 @@ class booking_option {
                     ]);
                     $event->trigger();
                 }
+                $assigned = false;
+            }
+            if (!$assigned) {
+                $task = new assign_competency();
+                // We need to execute the task as admin user.
+                $task->set_userid(get_admin()->id);
+                $task->set_custom_data([
+                    'cmid' => $cmid,
+                    'optionid' => $optionid,
+                    'userid' => $userid,
+                ]);
+                manager::queue_adhoc_task($task);
             }
         }
 
