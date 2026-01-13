@@ -779,12 +779,31 @@ class mod_booking_generator extends testing_module_generator {
         $tasks->close();
     }
 
-    public function objdiff($obj1, $obj2): array {
+
+    /**
+     * Compare two stdClass objects and return the differences as an array.
+     *
+     * @param stdClass $obj1
+     * @param stdClass $obj2
+     *
+     * @return array
+     *
+     */
+    public function objdiff(stdClass $obj1, stdClass $obj2): array {
         $a1 = (array)$obj1;
         $a2 = (array)$obj2;
         return $this->arrdiff($a1, $a2);
     }
 
+    /**
+     * Compare two arrays recursively and return the differences as an array.
+     *
+     * @param array $a1
+     * @param array $a2
+     *
+     * @return array
+     *
+     */
     public function arrdiff(array $a1, array $a2): array {
         $r = [];
         foreach ($a1 as $k => $v) {
@@ -799,8 +818,8 @@ class mod_booking_generator extends testing_module_generator {
                     if (count($rad)) {
                         $r[$k] = $rad;
                     }
-                // Required to avoid rounding errors due to the conversion from string representation to double.
                 } else if (is_double($v)) {
+                    // Required to avoid rounding errors due to the conversion from string representation to double.
                     if (abs($v - $a2[$k]) > 0.000000000001) {
                         $r[$k] = [$v, $a2[$k]];
                     }
