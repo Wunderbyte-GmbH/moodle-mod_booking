@@ -128,6 +128,19 @@ final class backup_restore_test extends advanced_testcase {
         // Create options for bookings.
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        // Create price categories if exists.
+        if (!empty($bdata['pricecategories'])) {
+            // Create user profile custom fields.
+            $this->getDataGenerator()->create_custom_profile_field([
+                'datatype' => 'text',
+                'shortname' => 'pricecat',
+                'name' => 'pricecat',
+            ]);
+            set_config('pricecategoryfield', 'pricecat', 'booking');
+            foreach ($bdata['pricecategories'] as $pricecategory) {
+                $plugingenerator->create_pricecategory($pricecategory);
+            }
+        }
 
         // Create options for the 1st booking.
         $record = (object)$bdata['options'][0];
@@ -142,6 +155,12 @@ final class backup_restore_test extends advanced_testcase {
         $record->customfield_spt1 = 'football';
         $options[1] = $plugingenerator->create_option($record);
 
+        $record = (object)$bdata['options'][2];
+        $record->bookingid = $bookings[0]->id;
+        $record->text = 'Test Option 13';
+        $record->customfield_spt1 = 'polo';
+        $options[2] = $plugingenerator->create_option($record);
+
         // Create options for the 2nd booking.
         $record = (object)$bdata['options'][0];
         $record->bookingid = $bookings[1]->id;
@@ -154,6 +173,12 @@ final class backup_restore_test extends advanced_testcase {
         $record->text = 'Test Option 22';
         $record->customfield_spt1 = 'tennis';
         $options[3] = $plugingenerator->create_option($record);
+
+        $record = (object)$bdata['options'][2];
+        $record->bookingid = $bookings[1]->id;
+        $record->text = 'Test Option 23';
+        $record->customfield_spt1 = 'chess';
+        $options[4] = $plugingenerator->create_option($record);
 
         // History item1: book student1 directly into the option.
         $settings = singleton_service::get_instance_of_booking_option_settings($options[0]->id);
@@ -243,7 +268,7 @@ final class backup_restore_test extends advanced_testcase {
             // Validate bookings' options.
             $options1 = $bookingobj11->get_all_options(0, 0, '', '*, spt1');
             $options2 = $bookingobj21->get_all_options(0, 0, '', '*, spt1');
-            $this->assertCount(2, $options2);
+            $this->assertCount(count($options1), $options2);
             $options1 = array_values($options1);
             $options2 = array_values($options2);
             $arrdiff = $plugingenerator->arrdiff($options1, $options2);
@@ -276,6 +301,29 @@ final class backup_restore_test extends advanced_testcase {
      */
     public static function booking_backup_restore_settings_provider(): array {
         $bdata = [
+            'pricecategories' => [
+                [
+                    'ordernum' => 1,
+                    'name' => 'default',
+                    'identifier' => 'default',
+                    'defaultvalue' => 111,
+                    'pricecatsortorder' => 1,
+                ],
+                [
+                    'ordernum' => 2,
+                    'name' => 'student',
+                    'identifier' => 'student',
+                    'defaultvalue' => 222,
+                    'pricecatsortorder' => 2,
+                ],
+                [
+                    'ordernum' => 3,
+                    'name' => 'staff',
+                    'identifier' => 'staff',
+                    'defaultvalue' => 333,
+                    'pricecatsortorder' => 3,
+                ],
+            ],
             'booking' => [
                 'name' => 'Test Booking',
                 'eventtype' => 'Test event',
@@ -317,6 +365,19 @@ final class backup_restore_test extends advanced_testcase {
                     'daystonotify_0' => "0",
                     'coursestarttime_0' => strtotime('20 July 2050 15:00'),
                     'courseendtime_0' => strtotime('20 August 2050 14:00'),
+                ],
+                // Option 3 with "wait for confirmation" and price.
+                2 => [
+                    'text' => 'Wait for confirmation Booking Option, price',
+                    'description' => 'Test Booking Option',
+                    'identifier' => 'waitforconfirmationwithprice',
+                    'maxanswers' => 1,
+                    'useprice' => 1,
+                    'default' => 20,
+                    'student' => 10,
+                    'staff' => 0,
+                    'importing' => 1,
+                    'waitforconfirmation' => 1,
                 ],
             ],
         ];
