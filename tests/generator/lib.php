@@ -778,4 +778,41 @@ class mod_booking_generator extends testing_module_generator {
         }
         $tasks->close();
     }
+
+    public function objdiff($obj1, $obj2): array {
+        $a1 = (array)$obj1;
+        $a2 = (array)$obj2;
+        return $this->arrdiff($a1, $a2);
+    }
+
+    public function arrdiff(array $a1, array $a2): array {
+        $r = [];
+        foreach ($a1 as $k => $v) {
+            if (array_key_exists($k, $a2)) {
+                if ($v instanceof stdClass) {
+                    $rad = $this->objdiff($v, $a2[$k]);
+                    if (count($rad)) {
+                        $r[$k] = $rad;
+                    }
+                } else if (is_array($v)) {
+                    $rad = $this->arrdiff($v, $a2[$k]);
+                    if (count($rad)) {
+                        $r[$k] = $rad;
+                    }
+                // Required to avoid rounding errors due to the conversion from string representation to double.
+                } else if (is_double($v)) {
+                    if (abs($v - $a2[$k]) > 0.000000000001) {
+                        $r[$k] = [$v, $a2[$k]];
+                    }
+                } else {
+                    if ($v != $a2[$k]) {
+                        $r[$k] = [$v, $a2[$k]];
+                    }
+                }
+            } else {
+                $r[$k] = [$v, null];
+            }
+        }
+        return $r;
+    }
 }
