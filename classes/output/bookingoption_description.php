@@ -761,7 +761,7 @@ class bookingoption_description implements renderable, templatable {
      * @return bool true if invisible, else false
      */
     public function is_invisible(): bool {
-        if (isset($this->invisible) && $this->invisible == 1) {
+        if (isset($this->invisible) && $this->invisible == MOD_BOOKING_OPTION_INVISIBLE) {
             $ret = true;
         } else {
             $ret = false;

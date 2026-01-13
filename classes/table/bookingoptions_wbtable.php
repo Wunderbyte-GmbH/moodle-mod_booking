@@ -297,13 +297,13 @@ class bookingoptions_wbtable extends wunderbyte_table {
             return '';
         }
         switch ($values->invisible) {
-            case '0':
+            case MOD_BOOKING_OPTION_VISIBLE:
                 $status = get_string('optionvisible', 'mod_booking');
                 break;
-            case '1':
+            case MOD_BOOKING_OPTION_INVISIBLE:
                 $status = get_string('optioninvisible', 'mod_booking');
                 break;
-            case '2':
+            case MOD_BOOKING_OPTION_VISIBLEWITHLINK:
                 $status = get_string('optionvisibledirectlink', 'mod_booking');
                 break;
         }

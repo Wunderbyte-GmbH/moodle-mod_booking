@@ -396,6 +396,11 @@ define('MOD_BOOKING_RECURRING_OVERWRITE_CHILDREN', 2);
 define('MOD_BOOKING_RECURRING_APPLY_TO_SIBLINGS', 3);
 define('MOD_BOOKING_RECURRING_OVERWRITE_SIBLINGS', 4);
 
+// Define booking option visibility status.
+define('MOD_BOOKING_OPTION_VISIBLE', 0);
+define('MOD_BOOKING_OPTION_INVISIBLE', 1);
+define('MOD_BOOKING_OPTION_VISIBLEWITHLINK', 2);
+
 /**
  * Booking get coursemodule info.
  *
