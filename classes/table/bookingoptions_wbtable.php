@@ -30,6 +30,7 @@ use mod_booking\local\modechecker;
 use mod_booking\local\override_user_field;
 use mod_booking\output\col_responsiblecontacts;
 use mod_booking\output\renderer;
+use mod_booking\placeholders\placeholders_info;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -1423,6 +1424,10 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @throws coding_exception
      */
     public function col_description($values) {
+        $optionid = $values->id;
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $cmid = $settings->cmid;
+        $values->description = placeholders_info::render_text($values->description, $cmid, $optionid);
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -1436,8 +1441,6 @@ class bookingoptions_wbtable extends wunderbyte_table {
             $description = $values->description;
         } else {
             $customfieldshortname = get_config("booking", "changedescriptionfield");
-            $optionid = $values->id;
-            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
             $description = $settings->customfields[$customfieldshortname] ?? "";
         }
         // If we download, we want to show text only without HTML tags.
