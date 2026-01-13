@@ -217,93 +217,55 @@ final class backup_restore_test extends advanced_testcase {
         $rc->destroy();
 
         // Verify bookings and options.
-        $bookings2 = get_fast_modinfo($course2->id)->get_instances_of('booking');
-        $this->assertCount(2, $bookings2);
+        $originbookins = get_fast_modinfo($course1->id)->get_instances_of('booking');
+        $restoredbookings = get_fast_modinfo($course2->id)->get_instances_of('booking');
+        $originbookins = array_values($originbookins);
+        $restoredbookings = array_values($restoredbookings);
+        $this->assertCount(count($originbookins), $restoredbookings);
 
-        // Validabe 1st booking and its options.
-        $booking21 = array_shift($bookings2);
-        $this->assertEquals($bookings[0]->name, $booking21->get_name());
-        $bookingobj = singleton_service::get_instance_of_booking_by_bookingid((int)$booking21->instance);
-        $options2 = $bookingobj->get_all_options(0, 0, '', '*, spt1');
-        $this->assertCount(2, $options2);
-        foreach ($options2 as $option2) {
-            // In rare cases - order of options could be inverted.
-            if ($options[0]->text == $option2->text) {
-                $this->assertEquals($options[0]->text, $option2->text);
-                $this->assertEquals($options[0]->coursestarttime_0, $option2->coursestarttime);
-                $this->assertEquals($options[0]->courseendtime_1, $option2->courseendtime);
-                $this->assertEquals($options[0]->customfield_spt1, $option2->spt1);
-                $optionsettings = singleton_service::get_instance_of_booking_option_settings($option2->id);
-                $sessions = $optionsettings->sessions;
-                $this->assertCount(2, $sessions);
-                $session1 = array_shift($sessions);
-                $this->assertEquals($options[0]->coursestarttime_0, $session1->coursestarttime);
-                $this->assertEquals($options[0]->courseendtime_0, $session1->courseendtime);
-                $session2 = array_shift($sessions);
-                $this->assertEquals($options[0]->coursestarttime_1, $session2->coursestarttime);
-                $this->assertEquals($options[0]->courseendtime_1, $session2->courseendtime);
-                // Verify answers for the restored option.
-                $option20answers = singleton_service::get_instance_of_booking_answers($optionsettings);
-                $option20bookinganswers = $option20answers->get_answers();
-                $this->assertCount(1, $option20bookinganswers);
-                // Verify history items for the restored option.
-                $newhistory = $DB->get_records('booking_history', ['bookingid' => $booking21->instance]);
-                $this->assertCount(2, $newhistory);
-                $historyitem = array_shift($newhistory);
-                $this->assertEquals($historyitem->userid, $student1->id);
-                $this->assertEquals($historyitem->optionid, $option2->id);
-                $this->assertEquals($historyitem->bookingid, $booking21->instance);
-                $this->assertEquals($historyitem->status, 0);
-                $this->assertEquals($historyitem->json, '{"pricecategory":"default"}');
-                $historyitem = array_shift($newhistory);
-                $this->assertEquals($historyitem->userid, $teacher->id);
-                $this->assertEquals($historyitem->optionid, $option2->id);
-                $this->assertEquals($historyitem->bookingid, $booking21->instance);
-                $this->assertEquals($historyitem->status, 0);
-                $this->assertEquals($historyitem->answerid, 0);
-                $this->assertEquals($historyitem->json, $originalhistory->json);
-            } else {
-                $this->assertEquals($options[1]->text, $option2->text);
-                $this->assertEquals($options[1]->coursestarttime_0, $option2->coursestarttime);
-                $this->assertEquals($options[1]->courseendtime_0, $option2->courseendtime);
-                $this->assertEquals($options[1]->customfield_spt1, $option2->spt1);
-                $optionsettings = singleton_service::get_instance_of_booking_option_settings($option2->id);
-                $this->assertCount(1, $optionsettings->sessions);
+        for ($i = 0; $i < count($restoredbookings); $i++) {
+            // Validate booking settngs.
+            $bookingobj11 = singleton_service::get_instance_of_booking_by_bookingid((int)($originbookins[$i]->instance));
+            $bookingobj21 = singleton_service::get_instance_of_booking_by_bookingid((int)($restoredbookings[$i]->instance));
+            $bookingdiff = $plugingenerator->objdiff($bookingobj11->settings, $bookingobj21->settings);
+            // Remove booking setting fields that are expected to be different.
+            unset(
+                $bookingdiff['id'],
+                $bookingdiff['course'],
+                $bookingdiff['cmid'],
+                $bookingdiff['timecreated'],
+                $bookingdiff['timemodified']
+            );
+            $this->assertEmpty(
+                $bookingdiff,
+                'Restored booking do not match the original ones: ' . json_encode($bookingdiff)
+            );
+            // Validate bookings' options.
+            $options1 = $bookingobj11->get_all_options(0, 0, '', '*, spt1');
+            $options2 = $bookingobj21->get_all_options(0, 0, '', '*, spt1');
+            $this->assertCount(2, $options2);
+            $options1 = array_values($options1);
+            $options2 = array_values($options2);
+            $arrdiff = $plugingenerator->arrdiff($options1, $options2);
+            $cleanarrdiff = [];
+            foreach ($arrdiff as $diff) {
+                // Remove option fields that are expected to be different.
+                unset(
+                    $diff['id'],
+                    $diff['bookingid'],
+                    $diff['identifier'],
+                    $diff['timecreated'],
+                    $diff['timemodified']
+                );
+                if (!empty($diff)) {
+                    $cleanarrdiff[] = $diff;
+                }
             }
+            $this->assertEmpty(
+                $cleanarrdiff,
+                'Restored booking options do not match the original ones: ' . json_encode($cleanarrdiff)
+            );
         }
-
-        // Validabe 2nd booking and its options.
-        $booking22 = array_shift($bookings2);
-        $this->assertEquals($bookings[1]->name, $booking22->get_name());
-        $bookingobj = singleton_service::get_instance_of_booking_by_bookingid((int)$booking22->instance);
-        $options2 = $bookingobj->get_all_options(0, 0, '', '*, spt1');
-        $this->assertCount(2, $options2);
-        foreach ($options2 as $option2) {
-            // In rare cases - order of options could be inverted.
-            if ($options[2]->text == $option2->text) {
-                $this->assertEquals($options[2]->coursestarttime_0, $option2->coursestarttime);
-                $this->assertEquals($options[2]->courseendtime_1, $option2->courseendtime);
-                $this->assertEquals($options[2]->customfield_spt1, $option2->spt1);
-                $optionsettings = singleton_service::get_instance_of_booking_option_settings($option2->id);
-                $sessions = $optionsettings->sessions;
-                $this->assertCount(2, $sessions);
-                $session1 = array_shift($sessions);
-                $this->assertEquals($options[2]->coursestarttime_0, $session1->coursestarttime);
-                $this->assertEquals($options[2]->courseendtime_0, $session1->courseendtime);
-                $session2 = array_shift($sessions);
-                $this->assertEquals($options[2]->coursestarttime_1, $session2->coursestarttime);
-                $this->assertEquals($options[2]->courseendtime_1, $session2->courseendtime);
-            } else {
-                $this->assertEquals($options[3]->text, $option2->text);
-                $this->assertEquals($options[3]->coursestarttime_0, $option2->coursestarttime);
-                $this->assertEquals($options[3]->courseendtime_0, $option2->courseendtime);
-                $this->assertEquals($options[3]->customfield_spt1, $option2->spt1);
-                $optionsettings = singleton_service::get_instance_of_booking_option_settings($option2->id);
-                $this->assertCount(1, $optionsettings->sessions);
-            }
-        }
-
-        singleton_service::destroy_instance();
     }
 
     /**
