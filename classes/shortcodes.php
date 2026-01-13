@@ -584,7 +584,7 @@ class shortcodes {
             // Only if the user has the right to see the link back, we show it.
             $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
 
-            if ($option->invisible == 1) {
+            if ($option->invisible == MOD_BOOKING_OPTION_INVISIBLE) {
                 /** @var \context $context */
                 $context = context_module::instance($settings->cmid);
                 if (!has_capability('mod/booking:view', $context)) {
