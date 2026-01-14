@@ -26,7 +26,6 @@
 
 namespace mod_booking\booking_rules;
 
-use mod_booking\booking_option_settings;
 use MoodleQuickForm;
 use stdClass;
 
