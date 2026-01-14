@@ -36,32 +36,57 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class purge_cache_action_inbetween implements performance_action_interface {
+    /**
+     * Retrun id string.
+     * @return string
+     */
     public static function id(): string {
         return 'purge_cache_action_inbetween';
     }
 
+    /**
+     * Retrun label string.
+     * @return string
+     */
     public static function label(): string {
-        return 'purge_cache_action_inbetween';
+        return get_string('purgecacheactioninbetween', 'mod_booking');
     }
 
+    /**
+     * Retrun execution_point string.
+     * @return string
+     */
     public static function execution_point(): execution_point {
         return execution_point::BEFORE_EACH;
     }
 
+    /**
+     * Set configuration.
+     * @param array $config
+     */
     public function configure(array $config): void {
         $this->config = $config;
     }
 
+    /**
+     * Peform execution.
+     * @return void
+     */
     public function execute(): void {
         purge_all_caches();
     }
 
+    /**
+     * Return execution html for dashboard.
+     * @param \core\output\renderer_base $renderer
+     * @return array
+     */
     public function export_for_template(\core\output\renderer_base $renderer): array {
         return [
             'id' => self::id(),
             'label' => self::label(),
             'html'  => $renderer->render_from_template(
-            'mod_booking/performance/actions/purge_cache',
+                'mod_booking/performance/actions/purge_cache',
                 [
                     'id' => self::id(),
                     'value' => 1,

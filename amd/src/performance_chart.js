@@ -58,55 +58,51 @@ define(['core/chartjs', 'core/ajax', 'jquery'], function(Chart, Ajax, $) {
      * ]
      */
     const createChart = (canvas, data) => {
-        const datasets = (data.datasets || []).map(ds => ({
+        // Support both formats:
+        // 1) { labels: [], datasets: [] }
+        // 2) { labelsjson: "[]", datasetsjson: "[]" }
+        const labels = Array.isArray(data.labels)
+            ? data.labels
+            : JSON.parse(data.labelsjson || '[]');
+
+        const rawdatasets = Array.isArray(data.datasets)
+            ? data.datasets
+            : JSON.parse(data.datasetsjson || '[]');
+
+        const datasets = rawdatasets.map(ds => ({
             label: ds.label,
-            data: ds.data,
+            data: ds.data, // y-array aligned to labels
             borderColor: ds.borderColor || ds.backgroundColor,
             backgroundColor: 'transparent',
             fill: false,
             tension: 0.2,
             pointRadius: 3,
-            pointHoverRadius: 5
+            pointHoverRadius: 5,
+            spanGaps: false
         }));
 
         return new Chart(canvas.getContext('2d'), {
             type: 'line',
-            data: {
-                datasets
-            },
+            data: { labels, datasets },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                parsing: false,
+                // IMPORTANT: remove parsing:false (it can interfere depending on Chart.js wrapper/settings)
                 plugins: {
-                    legend: {
-                        position: 'right',
-                        align: 'start'
-                    },
+                    legend: { position: 'right', align: 'start' },
                     tooltip: {
                         callbacks: {
                             label: function(ctx) {
-                                return ctx.dataset.label + ': ' + ctx.parsed.y;
+                                return ctx.dataset.label + ': ' + ctx.parsed.y + ' (' + ctx.label + ')';
                             }
                         }
                     }
                 },
                 scales: {
-                    x: {
-                        type: 'linear',
-                        ticks: {
-                            callback: function(value) {
-                                const date = new Date(value * 1000);
-                                return date.toISOString().slice(0, 10);
-                            }
-                        }
-                    },
+                    x: { type: 'category' }, // equal spacing
                     y: {
                         beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Time (ms)'
-                        }
+                        title: { display: true, text: 'Time (ms)' }
                     }
                 }
             }
@@ -119,36 +115,24 @@ define(['core/chartjs', 'core/ajax', 'jquery'], function(Chart, Ajax, $) {
         }
 
         try {
-            let datasets = JSON.parse(data.datasetsjson);
+            const labels = JSON.parse(data.labelsjson || '[]');
+            const datasets = JSON.parse(data.datasetsjson);
 
             // Normalize datasets to {x, y}
-            datasets = datasets.map(ds => {
-                if (!Array.isArray(ds.data)) {
-                    return ds;
-                }
+            chartInstance.data.labels = labels;
+            chartInstance.data.datasets = datasets.map(ds => ({
+                label: ds.label,
+                data: ds.data,
+                borderColor: ds.borderColor || ds.backgroundColor,
+                backgroundColor: 'transparent',
+                fill: false,
+                tension: 0.2,
+                pointRadius: 3,
+                pointHoverRadius: 5,
+                spanGaps: false
+            }));
 
-                // If already {x, y}, keep as-is
-                if (ds.data.length && typeof ds.data[0] === 'object' && ds.data[0] !== null) {
-                    return ds;
-                }
-
-                // Otherwise, convert from indexed format
-                const normalizedData = ds.data
-                    .map((y, index) => {
-                        const x = chartInstance.data.datasets[0]?.data[index]?.x;
-                        if (x == null || y == null) {
-                            return null;
-                        }
-                        return { x, y };
-                    })
-                    .filter(p => p !== null);
-
-                return Object.assign({}, ds, { data: normalizedData });
-            });
-
-            chartInstance.data.datasets = datasets;
             chartInstance.update();
-
         } catch (e) {
             console.error('Failed to update chart data:', e);
         }

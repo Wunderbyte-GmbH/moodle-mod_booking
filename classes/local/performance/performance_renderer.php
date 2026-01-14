@@ -88,79 +88,145 @@ class performance_renderer {
         }
 
         $legend = [];
+        $runs = [];
         $history = [];
 
         // Build history grouped by starttime.
-        foreach ($records as $record) {
-            $starttime = (int)$record->starttime;
+        $runs = $this->build_measurement_runs($records, $legend);
 
-            $timecreated = (int) floor($starttime / 60000000) * 60;
-
-            if (!isset($history[$timecreated])) {
-                $history[$timecreated] = [
-                    'timecreated' => $timecreated, // Transform to normal unixtimestamp.
-                    'measurements' => [],
-                ];
-            }
-
-            if (!empty($record->measurementname)) {
-                $legend[$record->measurementname] = $record->measurementname;
-
-                if (!empty($record->endtime) && $record->endtime > 0) {
-                    $history[$timecreated]['measurements'][$record->measurementname] =
-                        (int)$record->endtime + 1 - (int)$record->starttime;
-                } else {
-                    $history[$timecreated]['measurements'][$record->measurementname] = null;
-                }
-            }
+        if (empty($runs)) {
+            return [
+                'labelsjson' => json_encode([]),
+                'datasetsjson' => json_encode([]),
+            ];
         }
 
-        /*
-        * Normalize history order.
-        */
-        ksort($history);
-        $history = array_values($history);
+        // Assign all sub-measurements.
+        $this->assign_measurements_to_runs($records, $legend, $runs);
 
-        // Build datasets (one per measurement name).
-        // We will now emit {x, y} points instead of index-based arrays.
+        // 3) Convert runs to history (ordered already).
+        $history = array_map(function ($run) {
+            return [
+                'timecreated' => $run['timecreated'],
+                'measurements' => $run['measurements'],
+            ];
+        }, $runs);
+
+        // Create labels (one per run).
+        $labels = array_map(function ($entry) {
+            return userdate((int)$entry['timecreated'], '%Y-%m-%d %H:%M:%S');
+        }, $history);
+
+        // Build datasets aligned to run index.
+        $datasets = $this->build_datasets($legend, $history);
+
+        return [
+            'labelsjson'   => json_encode($labels),
+            'datasetsjson' => json_encode(array_values($datasets)),
+        ];
+    }
+
+    /**
+     * Builds the run-time skeletton.
+     * @param array $records
+     * @param array $legend
+     * @return array
+     */
+    private function build_measurement_runs($records, &$legend): array {
+        foreach ($records as $record) {
+            $name = trim((string)$record->measurementname);
+            if ($name !== 'Entire time') {
+                continue;
+            }
+
+            $startus = (int)$record->starttime;
+            $endus   = (int)$record->endtime;
+
+            // If endtime is missing, we can't build a reliable interval -> skip.
+            if ($endus <= 0 || $endus < $startus) {
+                continue;
+            }
+
+            $legend[$name] = $name;
+
+            $runs[] = [
+                'start' => $startus,
+                'end' => $endus,
+                'timecreated' => (int)floor($startus / 1000000),
+                'measurements' => [
+                    $name => $endus + 1 - $startus,
+                ],
+            ];
+        }
+        return $runs;
+    }
+
+    /**
+     * Assign all other measurements to the run interval that contains them.
+     * @param array $records
+     * @param array $legend
+     * @param array $runs
+     * @return void
+     */
+    private function assign_measurements_to_runs($records, &$legend, &$runs): void {
+        $runindex = 0;
+
+        foreach ($records as $record) {
+            $name = trim((string)$record->measurementname);
+            if ($name === '' || $name === 'Entire time') {
+                continue;
+            }
+
+            $startus = (int)$record->starttime;
+            $endus   = (int)$record->endtime;
+
+            // If the sub measurement has no end, we can't place it reliably -> skip (or set null).
+            if ($endus <= 0 || $endus < $startus) {
+                continue;
+            }
+
+            $legend[$name] = $name;
+
+            // Move run pointer forward until the current run could contain this measurement.
+            while ($runindex < count($runs) && $startus > $runs[$runindex]['end']) {
+                $runindex++;
+            }
+            if ($runindex >= count($runs)) {
+                break; // No more runs can contain anything.
+            }
+
+            // Check containment in current run.
+            if ($startus >= $runs[$runindex]['start'] && $endus <= $runs[$runindex]['end']) {
+                $runs[$runindex]['measurements'][$name] = $endus + 1 - $startus;
+            }
+        }
+        return;
+    }
+
+    /**
+     * Builds dataset for chart representation.
+     * @param array $legend
+     * @param array $runs
+     * @return array
+     */
+    private function build_datasets($legend, $history): array {
         $datasets = [];
-
         foreach ($legend as $key => $label) {
             $datasets[$key] = [
                 'label' => $label,
-                'data' => [],
+                'data' => array_fill(0, count($history), null),
                 'borderColor' => '#' . substr(md5($key), 0, 6),
                 'backgroundColor' => 'transparent',
             ];
         }
 
-        // Fill datasets with {x, y} points.
-        // Timecreated MUST be a unix timestamp in SECONDS (minute-bucketed).
-        foreach ($history as $entry) {
-            $x = (int) $entry['timecreated']; // already minute-aligned
-
+        foreach ($history as $i => $entry) {
             foreach ($legend as $key => $unused) {
-                if (!array_key_exists($key, $entry['measurements'])) {
-                    continue;
+                if (array_key_exists($key, $entry['measurements'])) {
+                    $datasets[$key]['data'][$i] = $entry['measurements'][$key];
                 }
-
-                $y = $entry['measurements'][$key];
-
-                if ($y === null) {
-                    continue; // important for line charts.
-                }
-
-                $datasets[$key]['data'][] = [
-                    'x' => $x,
-                    'y' => $y,
-                ];
             }
         }
-
-        // Return ONLY datasetsjson.
-        return [
-            'labelsjson'   => json_encode([]), // required by external API
-            'datasetsjson' => json_encode(array_values($datasets)),
-        ];
+        return $datasets;
     }
 }
