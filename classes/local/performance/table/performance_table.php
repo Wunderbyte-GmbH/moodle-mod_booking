@@ -49,6 +49,21 @@ class performance_table extends wunderbyte_table {
         global $OUTPUT;
 
         $data[] = [
+            'label' => get_string('edit'), // Name of your action button.
+            'class' => 'btn btn-success',
+            'href' => '#', // You can either use the link, or JS, or both.
+            'iclass' => 'fa fa-edit', // Add an icon before the label.
+            'id' => $values->shortcodehash,
+            'name' => $values->shortcodename,
+            'methodname' => 'edititem', // The method needs to be added to your child of wunderbyte_table class.
+            'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+                'id' => $values->shortcodehash,
+                'action' => 'username',
+                'values' => 'values',
+            ],
+        ];
+
+        $data[] = [
             'label' => get_string('delete'), // Name of your action button.
             'class' => 'btn btn-danger',
             'href' => '#', // You can either use the link, or JS, or both.
@@ -58,6 +73,7 @@ class performance_table extends wunderbyte_table {
             'methodname' => 'deleterow', // The method needs to be added to your child of wunderbyte_table class.
             'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
                 'id' => $values->shortcodehash,
+                'labelcolumn' => 'shortcodehash',
             ],
         ];
 
@@ -88,6 +104,25 @@ class performance_table extends wunderbyte_table {
             ]
         );
 
+        return [
+           'success' => 1,
+           'message' => get_string('success'),
+        ];
+    }
+
+    /**
+     * Implement delete row function.
+     *
+     * @param mixed $id
+     * @param mixed $data
+     *
+     * @return array
+     *
+     */
+    public function action_edititem($id, string $data) {
+        global $DB;
+
+        $dataobject = json_decode($data);
         return [
            'success' => 1,
            'message' => get_string('success'),

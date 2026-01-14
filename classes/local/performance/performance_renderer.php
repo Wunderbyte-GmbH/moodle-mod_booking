@@ -24,7 +24,6 @@
 
 namespace mod_booking\local\performance;
 
-use mod_booking\local\performance\table\peformance_table;
 use mod_booking\local\performance\table\performance_table;
 
 /**
@@ -60,10 +59,16 @@ class performance_renderer {
 
         $table->set_filter_sql('*', $from, ' 1 = 1 ', '', []);
 
+        $autocompleteitems = $DB->get_fieldset_sql(
+            "SELECT DISTINCT shortcodename
+            FROM {" . self::TABLE . "}
+        ORDER BY shortcodename ASC"
+        );
+
         $html = $table->outhtml(10, true);
         return [
             'sidebar' => $html,
-            'autocompleteitems' => [],
+            'autocompleteitems' => $autocompleteitems ?? [],
         ];
     }
 
@@ -88,8 +93,6 @@ class performance_renderer {
         }
 
         $legend = [];
-        $runs = [];
-        $history = [];
 
         // Build history grouped by starttime.
         $runs = $this->build_measurement_runs($records, $legend);
@@ -124,6 +127,23 @@ class performance_renderer {
             'labelsjson'   => json_encode($labels),
             'datasetsjson' => json_encode(array_values($datasets)),
         ];
+    }
+
+    /**
+     * Returns first hash for rendering.
+     * @return string
+     */
+    public function get_default_hash(): string {
+        global $DB;
+
+        $defaulthash = $DB->get_field_sql(
+            "SELECT shortcodehash
+            FROM {booking_performance_measurements}
+        ORDER BY starttime ASC",
+            [],
+            IGNORE_MULTIPLE // We want the first row only.
+        );
+        return $defaulthash;
     }
 
     /**

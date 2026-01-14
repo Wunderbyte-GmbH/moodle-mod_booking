@@ -46,10 +46,14 @@ class performance_facade {
      * @param string $shortcodehash
      * @return array
      */
-    public static function execute($shortcode, $actions) {
+    public static function execute($parameter) {
         $status = false;
-        performance_measurer::begin($shortcode, $actions);
-        $actions = json_decode($actions);
+        performance_measurer::begin(
+            $parameter['value'],
+            $parameter['actions'],
+            $parameter['note']
+        );
+        $actions = json_decode($parameter['actions']);
         $executor = new action_executor();
 
         $executiontimes = $actions->execution_times->times;
@@ -61,7 +65,7 @@ class performance_facade {
                 self::set_cycle($i);
                 self::start_measurement('Cycle');
                 try {
-                    $status = self::run_shortcode($shortcode);
+                    $status = self::run_shortcode($parameter['value']);
                 } catch (\Throwable $e) {
                     debugging("Shortcode execution error: " . $e->getMessage(), DEBUG_DEVELOPER);
                 } finally {
@@ -79,8 +83,8 @@ class performance_facade {
         }
         return [
             'status' => $status,
-            'received' => $shortcode,
-            'hashedreceived' => hash('sha256', $shortcode),
+            'received' => $parameter['value'],
+            'hashedreceived' => hash('sha256', $parameter['value']),
         ];
     }
 

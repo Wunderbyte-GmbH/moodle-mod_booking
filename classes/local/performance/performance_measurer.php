@@ -47,6 +47,11 @@ class performance_measurer {
     private string $shortcodehash = '';
 
     /**
+     * @var string $note
+     */
+    private string $note = '';
+
+    /**
      * @var string $shortcodename
      */
     private string $shortcodename = '';
@@ -81,9 +86,10 @@ class performance_measurer {
      * @param string $shortcodehash
      * @return void
      */
-    private function __construct($shortcodehash, $actions) {
+    private function __construct($shortcodehash, $actions, $note) {
         $this->shortcodename = $shortcodehash;
         $this->shortcodehash = hash('sha256', $shortcodehash);
+        $this->note = $note;
         $this->actions = $actions;
         return;
     }
@@ -124,6 +130,7 @@ class performance_measurer {
             'shortcodehash' => $this->shortcodehash,
             'shortcodename' => $this->shortcodename,
             'actions' => $this->actions,
+            'note' => $this->note,
         ];
 
         self::$measurements[$name]['starttime'] = $starttime;
@@ -230,14 +237,15 @@ class performance_measurer {
      * Start root measurement and activate measurer
      * @param string $shortcode
      * @param string $actions
+     * @param string $note
      * @return void
      */
-    public static function begin(string $shortcode, string $actions): void {
+    public static function begin(string $shortcode, string $actions, string $note): void {
         if (self::$active) {
             return;
         }
 
-        self::$instance = new self($shortcode, $actions);
+        self::$instance = new self($shortcode, $actions, $note);
         self::$active = true;
 
         self::$instance->start('Entire time', true);

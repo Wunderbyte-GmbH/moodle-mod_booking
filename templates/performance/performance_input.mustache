@@ -42,6 +42,17 @@
             {{/autocompleteitems}}
         </datalist>
     </div>
+
+    <div class="form-group position-relative">
+        <label for="performance-note" class="form-label">Add any notes to mark run:</label>
+        <input
+            id="performance-note"
+            type="text"
+            class="form-control"
+            name="performance_note"
+            placeholder="Add any note..."
+        />
+    </div>
     <div class="performance-actions d-flex flex-wrap gap-3">
         {{#actions}}
             <div class="performance-action border rounded p-3">
