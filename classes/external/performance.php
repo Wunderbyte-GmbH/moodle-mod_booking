@@ -53,6 +53,7 @@ class performance extends external_api {
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
             'value' => new external_value(PARAM_TEXT, 'Selected value'),
+            'note' => new external_value(PARAM_TEXT, 'Provided note'),
             'actions' => new external_value(PARAM_TEXT, 'Selected value'),
         ]);
     }
@@ -60,18 +61,20 @@ class performance extends external_api {
     /**
      * Webservice for update the notes in booking_answers table.
      *
-     * @param int $baid
+     * @param string $value
      * @param string $note
+     * @param string $actions
      *
      * @return array
      */
-    public static function execute(string $value, string $actions): array {
+    public static function execute(string $value, string $note, string $actions): array {
         global $DB;
         $params = external_api::validate_parameters(self::execute_parameters(), [
             'value' => $value,
+            'note' => $note,
             'actions' => $actions,
         ]);
-        return performance_facade::execute($params['value'], $params['actions']);
+        return performance_facade::execute($params);
     }
 
     /**

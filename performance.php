@@ -51,7 +51,7 @@ echo $output->header();
 $performancerendere = new performance_renderer();
 $sidebarconstruct = $performancerendere->get_sidebar();
 
-$hash = "";
+$hash = $performancerendere->get_default_hash();
 $chartconstruct = $performancerendere->get_chart($hash);
 
 $templatecontext = [
