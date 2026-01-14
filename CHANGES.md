@@ -1,3 +1,8 @@
+## Version 9.0.6 (2026011600)
+* Bugfix: Make double sure that we could actually assign competency on completion
+* Bugfix: Correctly check for selflearningcourse in answers
+* Bugfix: With previouslybooked condition, if option isn't found block
+
 ## Version 9.0.5 (2026010900)
 * Improvement: Don't wrap selflearningcourse information in placeholder in paragraph.
 * Improvement: For better usability, we hide the message button on teacher page if messaging is impossible.
