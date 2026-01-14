@@ -129,7 +129,10 @@ final class backup_restore_test extends advanced_testcase {
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
         // Create price categories if exists.
-        if (!empty($bdata['pricecategories'])) {
+        if (
+            class_exists('local_shopping_cart\shopping_cart') &&
+            !empty($bdata['pricecategories'])
+        ) {
             // Create user profile custom fields.
             $this->getDataGenerator()->create_custom_profile_field([
                 'datatype' => 'text',
@@ -271,25 +274,64 @@ final class backup_restore_test extends advanced_testcase {
             $this->assertCount(count($options1), $options2);
             $options1 = array_values($options1);
             $options2 = array_values($options2);
-            $arrdiff = $plugingenerator->arrdiff($options1, $options2);
-            $cleanarrdiff = [];
-            foreach ($arrdiff as $diff) {
-                // Remove option fields that are expected to be different.
+            foreach ($options1 as $key => $option) {
+                $settings1 = singleton_service::get_instance_of_booking_option_settings($option->id);
+                $settings2 = singleton_service::get_instance_of_booking_option_settings($options2[$key]->id);
+                $optionobj1 = singleton_service::get_instance_of_booking_option($settings1->cmid, $settings1->id);
+                $sessions1 = array_values($settings1->sessions);
+                $sessions2 = array_values($settings2->sessions);
+                $settings1 = (object)(array)$settings1;
+                $settings2 = (object)(array)$settings2;
+                unset($settings1->sessions);
+                unset($settings2->sessions);
+                // Compare option settings in general.
+                $optiondiff = $plugingenerator->objdiff($settings1, $settings2);
+                // Remove booking option setting fields that are expected to be different.
                 unset(
-                    $diff['id'],
-                    $diff['bookingid'],
-                    $diff['identifier'],
-                    $diff['timecreated'],
-                    $diff['timemodified']
+                    $optiondiff['id'],
+                    $optiondiff['cmid'],
+                    $optiondiff['bookingid'],
+                    $optiondiff['identifier'],
+                    $optiondiff['timecreated'],
+                    $optiondiff['timemodified'],
+                    $optiondiff['editoptionurl'],
+                    $optiondiff['manageresponsesurl'],
+                    $optiondiff['optiondatesteachersurl']
                 );
-                if (!empty($diff)) {
-                    $cleanarrdiff[] = $diff;
+                $this->assertEmpty(
+                    $optiondiff,
+                    'Restored booking option settings do not match the original ones: ' . json_encode($optiondiff)
+                );
+                // Compare sessions.
+                $sessiondiff = $plugingenerator->arrdiff($sessions1, $sessions2);
+                $cleanarrdiff = [];
+                foreach ($sessiondiff as $diff) {
+                    // Remove option fields that are expected to be different.
+                    unset(
+                        $diff['id'],
+                        $diff['bookingid'],
+                        $diff['optionid'],
+                        $diff['optiondateid']
+                    );
+                    if (!empty($diff)) {
+                        $cleanarrdiff[] = $diff;
+                    }
+                }
+                $this->assertEmpty(
+                    $cleanarrdiff,
+                    'Restored booking option sessions do not match the original ones: ' . json_encode($cleanarrdiff)
+                );
+                // Compare prices if exists.
+                if (class_exists('local_shopping_cart\shopping_cart')) {
+                    $price1 = price::get_price('option', $settings1->id);
+                    $price2 = price::get_price('option', $settings2->id);
+                    $pricediff = $plugingenerator->arrdiff($price1, $price2);
+                    $this->assertEmpty(
+                        $pricediff,
+                        'Restored booking option prices do not match the original ones: ' . json_encode($pricediff)
+                    );
                 }
             }
-            $this->assertEmpty(
-                $cleanarrdiff,
-                'Restored booking options do not match the original ones: ' . json_encode($cleanarrdiff)
-            );
         }
     }
 
