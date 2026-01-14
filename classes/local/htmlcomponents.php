@@ -126,12 +126,15 @@ class htmlcomponents {
         // Example function body.
         $returnstring = html_writer::tag(
             'p',
+            '<i class="fa fa-lightbulb-o" aria-hidden="true"></i>&nbsp;' .
             html_writer::link(
                 '#pollurlplaceholders',
                 $headertext,
                 [
-                    'class' => 'btn btn-link p-0',
+                    'class' => 'p-0',
                     'data-toggle' => 'collapse',
+                    'data-bs-toggle' => 'collapse',
+                    'data-bs-target' => '#pollurlplaceholders',
                     'role' => 'button',
                     'aria-expanded' => 'false',
                     'aria-controls' => 'pollurlplaceholders',

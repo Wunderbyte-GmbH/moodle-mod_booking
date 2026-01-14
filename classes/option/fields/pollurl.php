@@ -179,9 +179,14 @@ class pollurl extends field_base {
         } else {
             $mform->addElement(
                 'static',
-                'pollurlplaceholdersexplanation',
+                'pollurlplaceholdersnoproversion',
                 '',
-                get_string('pollurlplaceholdersexplanation', 'mod_booking')
+                '<i class="fa fa-lightbulb-o" aria-hidden="true"></i>&nbsp;' .
+                get_string(
+                    'pollurlplaceholdersnoproversion',
+                    'mod_booking',
+                    'https://showroom.wunderbyte.at/course/view.php?id=62'
+                )
             );
         }
     }

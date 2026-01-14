@@ -1947,6 +1947,7 @@ $string['pollstartdate'] = "Start Datum der Umfrage";
 $string['pollstrftimedate'] = '%Y-%m-%d';
 $string['pollurl'] = 'Link zur Umfrage';
 $string['pollurlplaceholdersexplanation'] = 'Use placeholders like this: /mod/surveypro/view.php?myname={firstname} <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
+$string['pollurlplaceholdersnoproversion'] = 'Mit <a href="{$a}" target="_blank">Booking PRO</a> können Sie Platzhalter innerhalb des Umfragelinks verwenden.';
 $string['pollurlteachers'] = 'Trainer:innen Umfragelink';
 $string['pollurlteacherstemplate'] = 'Vorlage für Trainer:innen Umfragelink';
 $string['pollurlteacherstext'] = 'Umfragetext für Trainer:innen';

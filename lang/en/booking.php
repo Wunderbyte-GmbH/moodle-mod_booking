@@ -1971,6 +1971,7 @@ $string['pollstartdate'] = "Startdate of poll";
 $string['pollstrftimedate'] = '%Y-%m-%d';
 $string['pollurl'] = 'Poll url';
 $string['pollurlplaceholdersexplanation'] = 'Use placeholders like this: /mod/surveypro/view.php?myname={firstname} <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
+$string['pollurlplaceholdersnoproversion'] = 'With <a href="{$a}" target="_blank">Booking PRO</a> you can use placeholders within the poll URL.';
 $string['pollurlteachers'] = 'Teachers poll url';
 $string['pollurlteacherstemplate'] = 'Template for teachers poll url';
 $string['pollurlteacherstext'] = 'Message for the poll url sent to teachers';
