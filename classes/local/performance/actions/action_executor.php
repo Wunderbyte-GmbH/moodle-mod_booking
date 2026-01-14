@@ -24,6 +24,8 @@
 
 namespace mod_booking\local\performance\actions;
 
+use stdClass;
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/mod/booking/lib.php');
@@ -40,13 +42,45 @@ class action_executor {
      * Action executor.
      *
      * @param execution_point $point
+     * @param stdClass $actions
      *
      * @return void
      *
      */
-    public function execute(execution_point $point): void {
+    public function execute(execution_point $point, $actions): void {
         foreach (action_registry::for_execution_point($point) as $actionclass) {
-            (new $actionclass())->execute();
+            // Static id defined by the action class (e.g. purge_cache_action_before).
+            $id = $actionclass::id();
+            // Only execute if enabled.
+            if (!$this->is_enabled($actions, $id)) {
+                continue;
+            }
+
+            $action = new $actionclass();
+            $action->execute();
         }
+    }
+
+    /**
+     * Check if action should be executed.
+     *
+     * @param stdClass $actions
+     * @param string $id
+     *
+     * @return void
+     *
+     */
+    private function is_enabled($actions, string $id): bool {
+        if (!is_object($actions) || !property_exists($actions, $id)) {
+            return false;
+        }
+
+        $cfg = $actions->{$id};
+        // Your structure: $actions->purge_cache_action_before->enabled = 0|1.
+        if (is_object($cfg) && property_exists($cfg, 'enabled')) {
+            return !empty($cfg->enabled);
+        }
+
+        return false;
     }
 }
