@@ -89,6 +89,7 @@ class performance_renderer {
             return [
                 'labelsjson' => json_encode([]),
                 'datasetsjson' => json_encode([]),
+                'notesjson' => json_encode([]),
             ];
         }
 
@@ -101,6 +102,7 @@ class performance_renderer {
             return [
                 'labelsjson' => json_encode([]),
                 'datasetsjson' => json_encode([]),
+                'notesjson' => json_encode([]),
             ];
         }
 
@@ -123,9 +125,14 @@ class performance_renderer {
         // Build datasets aligned to run index.
         $datasets = $this->build_datasets($legend, $history);
 
+        $notes = array_map(function ($run) {
+            return $run['note'] ?? '';
+        }, $runs);
+
         return [
             'labelsjson'   => json_encode($labels),
             'datasetsjson' => json_encode(array_values($datasets)),
+            'notesjson'    => json_encode($notes),
         ];
     }
 
@@ -153,6 +160,7 @@ class performance_renderer {
      * @return array
      */
     private function build_measurement_runs($records, &$legend): array {
+        $runs = [];
         foreach ($records as $record) {
             $name = trim((string)$record->measurementname);
             if ($name !== 'Entire time') {
@@ -173,6 +181,7 @@ class performance_renderer {
                 'start' => $startus,
                 'end' => $endus,
                 'timecreated' => (int)floor($startus / 1000000),
+                'note' => trim((string)($record->note ?? '')),
                 'measurements' => [
                     $name => $endus + 1 - $startus,
                 ],
