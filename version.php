@@ -32,5 +32,5 @@ $plugin->maturity = MATURITY_STABLE;
 $plugin->component = 'mod_booking';
 $plugin->supported = [405, 501];
 $plugin->dependencies = [
-    'local_wunderbyte_table' => 2025121700,
+    'local_wunderbyte_table' => 2026010803,
 ];

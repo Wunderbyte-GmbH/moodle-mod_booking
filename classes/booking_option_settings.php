@@ -1109,6 +1109,8 @@ class booking_option_settings {
 
                 // We also return the customfieldsfortemplates where we get the real values of the selects.
                 $this->customfieldsfortemplates[$shortname] = [
+                    // Store the whole field object too so we can use it instead of DB calls.
+                    'field' => $field->to_record(),
                     'fieldid' => $fieldid,
                     'label' => $label,
                     'key' => $shortname,
