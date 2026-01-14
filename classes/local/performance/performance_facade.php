@@ -27,7 +27,6 @@ namespace mod_booking\local\performance;
 use cache;
 use mod_booking\local\performance\actions\action_executor;
 use mod_booking\local\performance\actions\execution_point;
-use mod_booking\local\performance\actions\execution_times;
 use mod_booking\singleton_service;
 
 defined('MOODLE_INTERNAL') || die();
@@ -56,9 +55,9 @@ class performance_facade {
         $executiontimes = $actions->execution_times->times;
         try {
             // Actions before all cyrcles.
-            $executor->execute(execution_point::BEFORE_ALL);
+            $executor->execute(execution_point::BEFORE_ALL, $actions);
             for ($i = 1; $i <= $executiontimes; $i++) {
-                $executor->execute(execution_point::BEFORE_EACH);
+                $executor->execute(execution_point::BEFORE_EACH, $actions);
                 self::set_cycle($i);
                 self::start_measurement('Cycle');
                 try {

@@ -1383,6 +1383,7 @@ $string['eventtype_help'] = 'You can either enter the event type manually or cho
 $string['eventuserprofilefieldsupdated'] = 'Userprofile updated';
 $string['excelfile'] = 'CSV file with activity completion';
 $string['executerestscript'] = 'Execute REST script';
+$string['executiontimes'] = 'How often should the shortcode being executed';
 $string['existingsubscribers'] = 'Existing subscribers';
 $string['expired'] = 'Sorry, this activity closed on {$a} and is no longer available';
 $string['extendlimitforoverbooked'] = 'Add overbooked seats to applied factor';
@@ -2242,6 +2243,8 @@ $string['prolicensefeatures'] = '<p>You need a Booking PRO license if you want t
 Purchasing a Pro license will allow you to use the following features:</p>';
 $string['proversion:extraviews'] = 'With Booking PRO you can use additional views like cards view or list view with images.';
 $string['proversiononly'] = 'Upgrade to Booking PRO to use this feature.';
+$string['purgecacheactionbefore'] = 'Purges the cache after each shortcode execution';
+$string['purgecacheactioninbetween'] = 'Purges the cache before the first shortcode execution';
 $string['qrenrollink'] = "QR code for enrolment link";
 $string['qrid'] = "qr_id";
 $string['qrusername'] = "qr_username";

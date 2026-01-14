@@ -36,41 +36,71 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class execution_times implements performance_action_interface {
-
+    /** @var int */
     private int $times = 1;
+
+    /**
+     * Returns id.
+     * @return string
+     */
     public static function id(): string {
         return 'execution_times';
     }
 
+    /**
+     * Returns label.
+     * @return string
+     */
     public static function label(): string {
-        return 'execution_times';
+        return get_string('executiontimes', 'mod_booking');
     }
 
+    /**
+     * When does this action is being used.
+     * @param execution_point
+     */
     public static function execution_point(): execution_point {
         return execution_point::EXECUTION_TIMES;
     }
 
+    /**
+     * Configure the run times.
+     * @param array
+     */
     public function configure(array $config): void {
         if (isset($config['counter']) && is_numeric($config['counter'])) {
             $this->times = max(1, (int)$config['counter']);
         }
     }
 
-    /** No-op: this action does not execute */
+    /**
+     * No-op: this action does not execute.
+     * @return void
+     */
     public function execute(): void {
-        // intentionally empty
+        // Intentionally empty.
+        return;
     }
 
+    /**
+     * Returns sidebar.
+     * @return int
+     */
     public function get_times(): int {
         return $this->times;
     }
 
+    /**
+     * Returns mustache template.
+     * @param \core\output\renderer_base $renderer
+     * @return array
+     */
     public function export_for_template(\core\output\renderer_base $renderer): array {
         return [
             'id' => self::id(),
             'label' => self::label(),
             'html'  => $renderer->render_from_template(
-            'mod_booking/performance/actions/execution_times',
+                'mod_booking/performance/actions/execution_times',
                 [
                     'id' => self::id(),
                     'value' => $this->times,
