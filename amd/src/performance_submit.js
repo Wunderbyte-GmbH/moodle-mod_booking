@@ -34,6 +34,7 @@ define(['core/ajax', 'core/notification', 'mod_booking/performance_chart'], func
     const init = () => {
         const button = document.getElementById('performance-submit');
         const input = document.getElementById('performance-input');
+        const noteinput = document.getElementById('performance-note');
 
         if (!button || !input) {
             return;
@@ -41,6 +42,7 @@ define(['core/ajax', 'core/notification', 'mod_booking/performance_chart'], func
 
         button.addEventListener('click', () => {
             const value = input.value.trim();
+            const note = noteinput.value.trim();
 
             if (!value) {
                 Notification.alert(
@@ -77,6 +79,7 @@ define(['core/ajax', 'core/notification', 'mod_booking/performance_chart'], func
                 methodname: 'mod_booking_submit_performance',
                 args: {
                     value: value,
+                    note: note,
                     actions: JSON.stringify(actions)
                 }
             }])[0]
