@@ -58,16 +58,11 @@ define(['core/chartjs', 'core/ajax', 'jquery'], function(Chart, Ajax, $) {
      * ]
      */
     const createChart = (canvas, data) => {
-        // Support both formats:
-        // 1) { labels: [], datasets: [] }
-        // 2) { labelsjson: "[]", datasetsjson: "[]" }
-        const labels = Array.isArray(data.labels)
-            ? data.labels
-            : JSON.parse(data.labelsjson || '[]');
+        const labels = data.labelsjson || '[]';
 
-        const rawdatasets = Array.isArray(data.datasets)
-            ? data.datasets
-            : JSON.parse(data.datasetsjson || '[]');
+        const notes = data.notesjson || '[]';
+
+        const rawdatasets = data.datasetsjson || '[]';
 
         const datasets = rawdatasets.map(ds => ({
             label: ds.label,
@@ -94,6 +89,16 @@ define(['core/chartjs', 'core/ajax', 'jquery'], function(Chart, Ajax, $) {
                         callbacks: {
                             label: function(ctx) {
                                 return ctx.dataset.label + ': ' + ctx.parsed.y + ' (' + ctx.label + ')';
+                            },
+                            afterBody: function(items) {
+                                // Show note for the hovered x-index (run index).
+                                const idx = items && items.length ? items[0].dataIndex : undefined;
+                                if (idx === undefined) {
+                                    return [];
+                                }
+
+                                const note = (notes[idx] || '').toString().trim();
+                                return note ? ['Note: ' + note] : [];
                             }
                         }
                     }

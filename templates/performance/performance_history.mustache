@@ -30,8 +30,9 @@
 {{! Put the chart data into the DOM as JSON (safe for JS to read) }}
 <script type="application/json" id="booking-performance-chart-data">
     {
-        "labels": {{{chart.labelsjson}}},
-        "datasets": {{{chart.datasetsjson}}}
+        "labelsjson": {{{chart.labelsjson}}},
+        "datasetsjson": {{{chart.datasetsjson}}},
+        "notesjson": {{{chart.notesjson}}}
     }
 </script>
 
