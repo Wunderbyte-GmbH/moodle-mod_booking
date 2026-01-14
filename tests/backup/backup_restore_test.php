@@ -42,6 +42,8 @@ require_once($CFG->dirroot . '/course/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers \backup_booking_activity_structure_step
  * @covers \restore_booking_activity_structure_step
+ *
+ * @runTestsInSeparateProcesses
  */
 final class backup_restore_test extends advanced_testcase {
     /**
@@ -92,6 +94,38 @@ final class backup_restore_test extends advanced_testcase {
         $generator->enrol_user($teacher->id, $course2->id, 'editingteacher');
         $this->getDataGenerator()->enrol_user($student1->id, $course1->id, 'student');
         $this->getDataGenerator()->enrol_user($student2->id, $course1->id, 'student');
+
+        if (
+            class_exists('local_entities\entities') &&
+            !empty($bdata['entities'])
+        ) {
+            // Create custom entity field.
+            $categorydata = new stdClass();
+            $categorydata->name = 'CustomCat';
+            $categorydata->component = 'local_entities';
+            $categorydata->area = 'entities';
+            $categorydata->itemid = 0;
+            $categorydata->contextid = context_system::instance()->id;
+
+            $entitycat = $this->getDataGenerator()->create_custom_field_category((array) $categorydata);
+            $entitycat->save();
+
+            $fielddata = new stdClass();
+            $fielddata->categoryid = $entitycat->get('id');
+            $fielddata->name = 'EntField1';
+            $fielddata->shortname = 'entfield1';
+            $fielddata->type = 'text';
+            $fielddata->configdata = "";
+            $bookingfield = $this->getDataGenerator()->create_custom_field((array) $fielddata);
+            $bookingfield->save();
+
+            // Create entities.
+            /** @var local_entities_generator $plugingenerator */
+            $plugingenerator = self::getDataGenerator()->get_plugin_generator('local_entities');
+            foreach ($bdata['entities'] as $entity) {
+                $entities[] = $plugingenerator->create_entities($entity);
+            }
+        }
 
         // Create custom booking field.
         $categorydata = new stdClass();
@@ -150,6 +184,7 @@ final class backup_restore_test extends advanced_testcase {
         $record->bookingid = $bookings[0]->id;
         $record->text = 'Test Option 11';
         $record->customfield_spt1 = 'chess';
+        $record->local_entities_entityid_0 = $entities[0];
         $options[0] = $plugingenerator->create_option($record);
 
         $record = (object)$bdata['options'][1];
@@ -162,6 +197,7 @@ final class backup_restore_test extends advanced_testcase {
         $record->bookingid = $bookings[0]->id;
         $record->text = 'Test Option 13';
         $record->customfield_spt1 = 'polo';
+        $record->local_entities_entityid_0 = $entities[1];
         $options[2] = $plugingenerator->create_option($record);
 
         // Create options for the 2nd booking.
@@ -277,7 +313,6 @@ final class backup_restore_test extends advanced_testcase {
             foreach ($options1 as $key => $option) {
                 $settings1 = singleton_service::get_instance_of_booking_option_settings($option->id);
                 $settings2 = singleton_service::get_instance_of_booking_option_settings($options2[$key]->id);
-                $optionobj1 = singleton_service::get_instance_of_booking_option($settings1->cmid, $settings1->id);
                 $sessions1 = array_values($settings1->sessions);
                 $sessions2 = array_values($settings2->sessions);
                 $settings1 = (object)(array)$settings1;
@@ -343,6 +378,20 @@ final class backup_restore_test extends advanced_testcase {
      */
     public static function booking_backup_restore_settings_provider(): array {
         $bdata = [
+            'entities' => [
+                [
+                    'name' => 'Entity1',
+                    'shortname' => 'ent1',
+                    'pricefactor' => '1',
+                    'maxallocation' => '15',
+                ],
+                [
+                    'name' => 'Entity2',
+                    'shortname' => 'ent2',
+                    'pricefactor' => '2',
+                    'maxallocation' => '25',
+                ],
+            ],
             'pricecategories' => [
                 [
                     'ordernum' => 1,
@@ -389,6 +438,7 @@ final class backup_restore_test extends advanced_testcase {
                     'text' => 'Test Option 1',
                     'courseid' => 0,
                     'maxanswers' => 2,
+                    'location' => 'ent1',
                     'optiondateid_0' => "0",
                     'daystonotify_0' => "0",
                     'coursestarttime_0' => strtotime('20 May 2050 15:00'),
@@ -414,6 +464,7 @@ final class backup_restore_test extends advanced_testcase {
                     'description' => 'Test Booking Option',
                     'identifier' => 'waitforconfirmationwithprice',
                     'maxanswers' => 1,
+                    'location' => 'ent2',
                     'useprice' => 1,
                     'default' => 20,
                     'student' => 10,
