@@ -65,6 +65,7 @@ $templatecontext = [
 $templatecontext['chart'] = [
     'labelsjson' => $chartconstruct['labelsjson'],
     'datasetsjson' => $chartconstruct['datasetsjson'],
+    'notesjson' => $chartconstruct['notesjson'],
 ];
 
 echo $output->render_from_template('mod_booking/performance/performance', $templatecontext);
