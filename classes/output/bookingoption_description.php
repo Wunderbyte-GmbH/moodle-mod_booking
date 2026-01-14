@@ -194,8 +194,8 @@ class bookingoption_description implements renderable, templatable {
     /** @var array $subpluginstemplatedata */
     private $subpluginstemplatedata = [];
 
-    /** @var bool $showdownloadcheckbox */
-    private $showdownloadcheckbox = false;
+    /** @var bool $showchecklistdownloadbutton */
+    private $showchecklistdownloadbutton = false;
 
     /**
      * Constructor.
@@ -376,13 +376,13 @@ class bookingoption_description implements renderable, templatable {
             }
         }
 
-        if (has_capability('mod/booking:downloadchecklist', $modcontext)) {
+        if (has_capability('mod/booking:downloadchecklist', $modcontext) && get_config('booking', 'showchecklistdownloadbutton')) {
             $checkboxurl = $link = new moodle_url($CFG->wwwroot . '/mod/booking/report.php', [
                 'id' => $cmid,
                 'optionid' => $optionid,
                 'action' => 'downloadchecklist',
             ]);
-            $this->showdownloadcheckbox = $checkboxurl;
+            $this->showchecklistdownloadbutton = $checkboxurl;
         }
 
         // We need this to render a link to manage bookings in the template.
@@ -703,7 +703,7 @@ class bookingoption_description implements renderable, templatable {
             'competencies' => $this->competencies,
             'competencyheader' => $this->competencyheader,
             'subpluginstemplatedata' => $this->subpluginstemplatedata,
-            'showdownloadcheckbox' => $this->showdownloadcheckbox,
+            'showchecklistdownloadbutton' => $this->showchecklistdownloadbutton,
         ];
 
         if (!empty($this->timeremaining)) {

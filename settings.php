@@ -446,6 +446,15 @@ if ($ADMIN->fulltree) {
         )
     );
 
+    $settings->add(
+        new admin_setting_configcheckbox(
+            'booking/showchecklistdownloadbutton',
+            get_string('showchecklistdownloadbutton', 'mod_booking'),
+            get_string('showchecklistdownloadbutton_desc', 'mod_booking'),
+            0
+        )
+    );
+
     // If the user has the pro version, add a normal checkbox.
     // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
     /* if ($proversion) {
