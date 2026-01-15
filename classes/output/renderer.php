@@ -398,6 +398,18 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Function to render the scheduledmailstable.
+     * @param scheduledmails $data
+     * @return string
+     */
+    public function render_scheduledmails_list(scheduledmails $data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/scheduledmails_list', $data);
+        return $o;
+    }
+
+    /**
      * Function to print booking option description for mail placeholder {bookingdetails}.
      * @param bookingoption_description $data
      * @return string

@@ -30,6 +30,7 @@ use mod_booking\local\modechecker;
 use mod_booking\local\override_user_field;
 use mod_booking\output\col_responsiblecontacts;
 use mod_booking\output\renderer;
+use mod_booking\placeholders\placeholders_info;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -297,13 +298,13 @@ class bookingoptions_wbtable extends wunderbyte_table {
             return '';
         }
         switch ($values->invisible) {
-            case '0':
+            case MOD_BOOKING_OPTION_VISIBLE:
                 $status = get_string('optionvisible', 'mod_booking');
                 break;
-            case '1':
+            case MOD_BOOKING_OPTION_INVISIBLE:
                 $status = get_string('optioninvisible', 'mod_booking');
                 break;
-            case '2':
+            case MOD_BOOKING_OPTION_VISIBLEWITHLINK:
                 $status = get_string('optionvisibledirectlink', 'mod_booking');
                 break;
         }
@@ -1012,7 +1013,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
             booking_check_if_teacher($values));
 
         $ddoptions = [];
-        $ret = '<div class="menubar pr-2" id="action-menu-' . $optionid . '-menubar" role="menubar">';
+        $ret = '<div class="menubar pe-2" id="action-menu-' . $optionid . '-menubar" role="menubar">';
 
         if ($status == MOD_BOOKING_STATUSPARAM_BOOKED) {
             $ret .= html_writer::link(
@@ -1023,7 +1024,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
                 $OUTPUT->pix_icon('t/print', get_string('bookedtext', 'mod_booking')),
                 [
                     'target' => '_blank',
-                    'class' => 'text-primary pr-3',
+                    'class' => 'text-primary pe-3',
                     'aria-label' => get_string('bookedtext', 'mod_booking'),
                 ]
             );
@@ -1423,6 +1424,10 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @throws coding_exception
      */
     public function col_description($values) {
+        $optionid = $values->id;
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $cmid = $settings->cmid;
+        $values->description = placeholders_info::render_text($values->description, $cmid, $optionid);
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -1436,8 +1441,6 @@ class bookingoptions_wbtable extends wunderbyte_table {
             $description = $values->description;
         } else {
             $customfieldshortname = get_config("booking", "changedescriptionfield");
-            $optionid = $values->id;
-            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
             $description = $settings->customfields[$customfieldshortname] ?? "";
         }
         // If we download, we want to show text only without HTML tags.
@@ -1475,7 +1478,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
                         get_string('showdescription', 'mod_booking') . '...</a>
                         </div>
                         <div class="collapse" id="collapseDescription' . $values->id . '">
-                            <div class="card card-body border-1 mt-1 mb-1 mr-3">' . $ret . '</div>
+                            <div class="card card-body border-1 mt-1 mb-1 me-3">' . $ret . '</div>
                         </div>';
                 }
 

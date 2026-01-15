@@ -540,7 +540,7 @@ class booked_users implements renderable, templatable {
         string $icon,
         string $formname,
         array $data,
-        string $css = 'btn btn-primary btn-sm ml-1'
+        string $css = 'btn btn-primary btn-sm ms-1'
     ): array {
         return [
             'label' => get_string($labelkey, 'mod_booking'),
@@ -563,9 +563,9 @@ class booked_users implements renderable, templatable {
      */
     public static function create_delete_button(): array {
         return [
-            'iclass' => 'fa fa-trash mr-1',
+            'iclass' => 'fa fa-trash me-1',
             'label' => get_string('bookingstrackerdelete', 'mod_booking'),
-            'class' => 'btn btn-danger btn-sm ml-1',
+            'class' => 'btn btn-danger btn-sm ms-1',
             'href' => '#',
             'methodname' => 'delete_checked_booking_answers',
             'nomodal' => false,

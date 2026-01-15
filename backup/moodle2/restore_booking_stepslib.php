@@ -113,6 +113,13 @@ class restore_booking_activity_structure_step extends restore_activity_structure
                     '/activity/booking/options/option/subbookingoptions/subbookingoption'
                 );
             }
+
+            if (class_exists('local_shopping_cart\shopping_cart')) {
+                $paths[] = new restore_path_element(
+                    'booking_option_shoppingcartiteminfo',
+                    '/activity/booking/options/option/shoppingcartiteminfoforoptions/shoppingcartiteminfoforoption'
+                );
+            }
         }
 
         if ($userinfo) {
@@ -589,6 +596,29 @@ class restore_booking_activity_structure_step extends restore_activity_structure
             // No need to save this mapping as far as nothing depends on it.
         }
         // NOTE: In the future we might want to support additional price areas!
+    }
+
+    /**
+     * Processes shopping cart iteminfo data for booking options.
+     *
+     * @param array $data The instance data from the backup file.
+     * @throws dml_exception
+     */
+    protected function process_booking_option_shoppingcartiteminfo($data) {
+        global $DB;
+
+        // Make sure, we have shopping cart installed.
+        if (class_exists('local_shopping_cart\shopping_cart')) {
+            $data = (object) $data;
+            if ($data->area != 'option') {
+                return;
+            }
+            $data->itemid = $this->get_mappingid('booking_option', $data->itemid);
+            $data->timecreated = time();
+            $data->timemodified = time();
+            $DB->insert_record('local_shopping_cart_iteminfo', $data);
+            // No need to save this mapping as far as nothing depends on it.
+        }
     }
 
     /**

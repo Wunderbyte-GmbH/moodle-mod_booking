@@ -501,12 +501,13 @@ class message_controller {
      * @return bool true if successful
      */
     public function send_or_queue(): bool {
+        $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
 
         // If user entered "0" as template, then mails are turned off for this type of messages.
         if (
             $this->messagebody === "0"
             // Make sure, we don't send anything, if booking option is hidden.
-            || $this->optionsettings->invisible == 1
+            || $this->optionsettings->invisible == MOD_BOOKING_OPTION_INVISIBLE
         ) {
             $this->msgcontrparam = MOD_BOOKING_MSGCONTRPARAM_DO_NOT_SEND;
         }
@@ -522,7 +523,12 @@ class message_controller {
             } else {
                 // If the rule has sendical set then we get the ical attachment.
                 // Create it in file storage and put it in the message object.
-                if (!empty($this->rulesettings->actiondata) && !empty($this->rulesettings->actiondata->sendical)) {
+                // Do not send icals for self-learning courses as they have no dates.
+                if (
+                    !empty($this->rulesettings->actiondata)
+                    && !empty($this->rulesettings->actiondata->sendical)
+                    && empty($settings->selflearningcourse) // No icals for selflearningcourses!
+                ) {
                     $update = false;
                     if ($this->rulesettings->actiondata->sendicalcreateorcancel == 'cancel') {
                         $update = true;
@@ -609,26 +615,27 @@ class message_controller {
                     && !empty($nonnativemailer)
                     && !empty($this->ical)
                     && count($this->ical->get_times()) === 1 // Check number of dates in the option.
+                    && empty($settings->selflearningcourse) // No icals for selflearningcourses!
                 ) {
                     // If message contains attachment (ics file), we need to mail it using PHPMailer
                     // as Moodle core can not send messages with mime type text/calendar. This logic works
                     // only when there is 1 date, so in the case we have more than one date, we don't use this logic.
                     $sent = $this->send_message_with_ical($this->messagedata);
                 } else {
+                    // In all other cases, use message_send.
                     $sent = message_send($this->messagedata);
                 }
 
-                // In all other cases, use message_send.
+                // After sending, delete the file (if one was created).
+                // Also trigger the message_sent event.
                 if ($sent) {
-                    if (!empty($this->rulesettings->actiondata) && !empty($this->rulesettings->actiondata->sendical)) {
-                        if (!PHPUNIT_TEST && isset($storedfile)) {
-                            // Tidy up the now not needed file.
-                            try {
-                                $storedfile->delete();
-                            // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-                            } catch (Throwable $e) {
-                                // Do nothing.
-                            }
+                    if (!PHPUNIT_TEST && isset($storedfile)) {
+                        // Tidy up the now not needed file.
+                        try {
+                            $storedfile->delete();
+                        // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+                        } catch (Throwable $e) {
+                            // Do nothing.
                         }
                     }
 
@@ -649,7 +656,7 @@ class message_controller {
                         ],
                     ]);
                     $event->trigger();
-
+                    cache_helper::purge_by_event('setbackeventlogtable');
                     return true;
                 } else {
                     return false;

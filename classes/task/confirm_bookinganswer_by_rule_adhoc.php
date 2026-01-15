@@ -82,7 +82,7 @@ class confirm_bookinganswer_by_rule_adhoc extends \core\task\adhoc_task {
 
             // The first check needs to be if the rule has changed at all, eg. in any of the set values.
             if (
-                $ruleinstance->rulename === 'rule_daysbefore'
+                in_array($ruleinstance->rulename, ['rule_daysbefore', 'rule_specifictime'])
                 && ($taskdata->rulejson !== $ruleinstance->rulejson)
             ) {
                 mtrace(

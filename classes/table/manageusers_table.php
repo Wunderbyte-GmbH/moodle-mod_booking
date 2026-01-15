@@ -694,7 +694,9 @@ class manageusers_table extends wunderbyte_table {
             if (!empty($jsonobject->confirmwaitinglist)) {
                 $data[] = [
                     'label' => get_string('unconfirm', 'mod_booking'), // Name of your action button.
-                    'class' => "btn btn-nolabel unconfirmbooking-username-{$values->username} ",
+                    'title' => get_string('unconfirm', 'mod_booking'), // Name of your action button.
+                    'arialabel' => get_string('unconfirm', 'mod_booking'), // Name of your action button.
+                    'class' => "btn btn-nolabel unconfirmbooking-username-{$values->username}",
                     'href' => '#', // You can either use the link, or JS, or both.
                     'iclass' => 'fa fa-ban', // Add an icon before the label.
                     'id' => $values->id,
@@ -753,10 +755,11 @@ class manageusers_table extends wunderbyte_table {
                 && $requiredconfirmations > $currentconfirmations
         ) {
             $data[] = [
-                'label' => '', // Name of your action button.
+                'arialabel' => get_string('actionbuttonconfirm', 'mod_booking'), // Name of your action button.
+                'title' => get_string('actionbuttonconfirm', 'mod_booking'), // Name of your action button.
                 'class' => "btn btn-nolabel confirmbooking-username-{$values->username} ",
                 'href' => '#', // You can either use the link, or JS, or both.
-                'iclass' => 'fa fa-check', // Add an icon before the label.
+                'iclass' => 'fa fa-thumbs-up', // Add an icon before the label.
                 'id' => $values->id,
                 'name' => $values->id,
                 'methodname' => 'confirmbooking', // The method needs to be added to your child of wunderbyte_table class.
@@ -774,8 +777,9 @@ class manageusers_table extends wunderbyte_table {
 
             // Deny booking Button.
             $data[] = [
-                'label' => '', // Name of your action button.
-                'class' => '',
+                'title' => get_string('actionbuttondeny', 'mod_booking'), // Name of your action button.
+                'arialabel' => get_string('actionbuttondeny', 'mod_booking'), // Name of your action button.
+                'class' => 'btn btn-nolabel',
                 'href' => '#', // You can either use the link, or JS, or both.
                 'iclass' => 'fa fa-thumbs-down', // Add an icon before the label.
                 'id' => $values->id,
@@ -796,8 +800,9 @@ class manageusers_table extends wunderbyte_table {
 
         // Trash booking button.
         $data[] = [
-            'label' => '', // Name of your action button.
-            'class' => '',
+            'title' => get_string('actionbuttondelete', 'mod_booking'), // Name of your action button.
+            'arialabel' => get_string('actionbuttondelete', 'mod_booking'), // Name of your action button.
+            'class' => 'btn btn-nolabel',
             'href' => '#', // You can either use the link, or JS, or both.
             'iclass' => 'fa fa-trash', // Add an icon before the label.
             'id' => $values->id,
@@ -835,7 +840,7 @@ class manageusers_table extends wunderbyte_table {
         global $OUTPUT;
 
         $data[] = [
-            'label' => '', // Name of your action button.
+            'label' => get_string('actionbuttondelete', 'mod_booking'), // Name of your action button.
             'class' => '',
             'href' => '#', // You can either use the link, or JS, or both.
             'iclass' => 'fa fa-trash', // Add an icon before the label.

@@ -43,7 +43,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class datesandentities {
+class datesandentities extends \mod_booking\placeholders\placeholder_base {
     /**
      * Function which takes a text, replaces the placeholders...
      * ... and returns the text with the correct values.
@@ -115,7 +115,6 @@ class datesandentities {
 
                         $durationstring = format_time($timeremainingsec);
                         $value .= " " . get_string('selflearningcourseplaceholderduration', 'mod_booking', $durationstring);
-                        $value = html_writer::tag('p', $value);
                     }
                 }
             } else if (class_exists('local_entities\entitiesrelation_handler')) {

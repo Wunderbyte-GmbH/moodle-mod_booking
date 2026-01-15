@@ -293,62 +293,62 @@ class certificate extends field_base {
             return $id;
         }
         // Create Certificate.
-        if ($template->can_issue($userid)) {
-            $user = core_user::get_user($userid);
-            $customfielddata = [];
-            $customfields = booking_handler::get_customfields();
-            foreach ($customfields as $customfield) {
-                if (!in_array($customfield->type, ['text', 'textarea'])) {
-                    continue;
-                }
-                $placeholder = '{' . $customfield->shortname . '}';
-                $params = [];
-                $value = customfields::return_value(
-                    $settings->cmid,
-                    $settings->id,
-                    $userid,
-                    $placeholder,
-                    $params,
-                    $customfield->shortname
-                );
-                if (empty($value)) {
-                    $value = " ";
-                }
-                $customfielddata['cf' . $customfield->shortname] = $value;
+        $customfielddata = [];
+        $customfields = booking_handler::get_customfields();
+        foreach ($customfields as $customfield) {
+            if (!in_array($customfield->type, ['text', 'textarea', 'textformat'])) {
+                continue;
             }
-            $bookingoptionfields = [
-                'bookingoptionid' => $settings->id,
-                'bookingoptionname' => $settings->get_title_with_prefix(),
-                'bookingoptiondescription' => clean_text(
-                    $settings->description,
-                    $format = FORMAT_HTML,
-                    $options = ['strip_tags' => true]
-                ),
-                'location' => $settings->location,
-                'institution' => $settings->institution,
-                'teachers' => self::return_teachers_for_certificate($settings->teachers),
-                'sessions' => self::return_sessions_for_certificate($settings->sessions),
-                'duration' => self::return_duration_for_certificate($settings),
-                'timeawarded' => self::return_timeawarded_for_certificate($settings, $userid, $timebooked),
-                'competencies' => self::return_competencies_for_certificate($settings->competencies ?? ''),
-            ];
-
-            $data = array_merge(
-                $bookingoptionfields,
-                $customfielddata
-            );
-            singleton_service::set_temp_values_for_certificates($settings->id, $userid);
-            // Issue the certificate.
-            $id = $template->issue_certificate(
+            $placeholder = '{' . $customfield->shortname . '}';
+            $params = [];
+            $value = customfields::return_value(
+                $settings->cmid,
+                $settings->id,
                 $userid,
-                $certificateexpirydate,
-                $data
+                $placeholder,
+                $params,
+                $customfield->shortname
             );
-            // Get the issue and create the PDF.
-            $issue = $DB->get_record('tool_certificate_issues', ['id' => $id]);
-            $pdf = $template->create_issue_file($issue, false);
-            singleton_service::unset_temp_values_for_certificates();
+            if (empty($value)) {
+                $value = " ";
+            }
+            $customfielddata['cf' . $customfield->shortname] = $value;
         }
+        $bookingoptionfields = [
+            'bookingoptionid' => $settings->id,
+            'bookingoptionname' => $settings->get_title_with_prefix(),
+            'bookingoptiondescription' => clean_text(
+                $settings->description,
+                $format = FORMAT_HTML,
+                $options = ['strip_tags' => true]
+            ),
+            'location' => $settings->location,
+            'institution' => $settings->institution,
+            'teachers' => self::return_teachers_for_certificate($settings->teachers),
+            'sessions' => self::return_sessions_for_certificate($settings->sessions),
+            'duration' => self::return_duration_for_certificate($settings),
+            'timeawarded' => self::return_timeawarded_for_certificate($settings, $userid, $timebooked),
+            'competencies' => self::return_competencies_for_certificate($settings->competencies ?? ''),
+        ];
+
+        $data = array_merge(
+            $bookingoptionfields,
+            $customfielddata
+        );
+        singleton_service::set_temp_values_for_certificates($settings->id, $userid);
+        // Issue the certificate.
+        $id = $template->issue_certificate(
+            $userid,
+            $certificateexpirydate,
+            $data,
+            'tool_certificate',
+            empty($settings->courseid) ? null : $settings->courseid
+        );
+        // Get the issue and create the PDF.
+        $issue = $DB->get_record('tool_certificate_issues', ['id' => $id]);
+        $pdf = $template->create_issue_file($issue, false);
+        singleton_service::unset_temp_values_for_certificates();
+
         return $id;
     }
     /**

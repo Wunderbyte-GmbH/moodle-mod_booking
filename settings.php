@@ -23,6 +23,9 @@
  */
 
 use mod_booking\customfield\booking_handler;
+use mod_booking\local\htmlcomponents;
+use mod_booking\placeholders\placeholders_info;
+use theme_boost_union\admin_setting_configtext_url;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -439,6 +442,15 @@ if ($ADMIN->fulltree) {
             'booking/alloptionsinreport',
             get_string('alloptionsinreport', 'mod_booking'),
             get_string('alloptionsinreportdesc', 'mod_booking'),
+            0
+        )
+    );
+
+    $settings->add(
+        new admin_setting_configcheckbox(
+            'booking/showchecklistdownloadbutton',
+            get_string('showchecklistdownloadbutton', 'mod_booking'),
+            get_string('showchecklistdownloadbutton_desc', 'mod_booking'),
             0
         )
     );
@@ -1000,6 +1012,51 @@ if ($ADMIN->fulltree) {
          );
     }
 
+    // PRO feature: Cancellation settings.
+    if ($proversion) {
+        $settings->add(
+            new admin_setting_heading(
+                'pollurltemplateheading',
+                get_string('pollurltemplateheading', 'mod_booking'),
+                ''
+            )
+        );
+
+        $description = htmlcomponents::render_bootstrap_collapsible(
+            get_string('pollurltemplate_desc', 'mod_booking'),
+            trim(placeholders_info::return_list_of_placeholders(true))
+        );
+
+        $settings->add(
+            new admin_setting_configtext(
+                'booking/pollurltemplate',
+                get_string('pollurltemplate', 'mod_booking'),
+                trim($description), // HTML will render correctly.
+                '',
+                PARAM_URL
+            )
+        );
+
+        $settings->add(
+            new admin_setting_configtext(
+                'booking/pollurlteacherstemplate',
+                get_string('pollurlteacherstemplate', 'mod_booking'),
+                trim($description), // HTML will render correctly.
+                '',
+                PARAM_URL
+            )
+        );
+    } else {
+        $settings->add(
+            new admin_setting_heading(
+                'pollurltemplateheading',
+                get_string('pollurltemplateheading', 'mod_booking'),
+                get_string('prolicensefeatures', 'mod_booking') .
+                get_string('profeatures:pollurltemplateheading', 'mod_booking') .
+                get_string('infotext:prolicensenecessary', 'mod_booking')
+            )
+        );
+    }
 
     // PRO feature: Cancellation settings.
     if ($proversion) {
@@ -1512,12 +1569,10 @@ if ($ADMIN->fulltree) {
     );
 
     // Currency dropdown.
-    $currenciesobjects = price::get_possible_currencies();
-
     $currencies['EUR'] = 'Euro (EUR)';
-    foreach ($currenciesobjects as $currenciesobject) {
-        $currencyidentifier = $currenciesobject->get_identifier();
-        $currencies[$currencyidentifier] = $currenciesobject->out(current_language()) . ' (' . $currencyidentifier . ')';
+    $currencieslangstrings = price::get_possible_currencies();
+    foreach ($currencieslangstrings as $key => $currencieslangstring) {
+        $currencies[$key] = $currencieslangstring->out(current_language()) . ' (' . $key . ')';
     }
 
     $settings->add(

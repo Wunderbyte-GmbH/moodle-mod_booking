@@ -962,7 +962,7 @@ class dates {
                    FROM {booking_rules} br
                    JOIN {context} ctx
                      ON ctx.id = br.contextid
-                  WHERE br.rulename = 'rule_daysbefore'
+                  WHERE br.rulename IN ('rule_daysbefore', 'rule_specifictime')
                     AND {$DB->sql_like('br.rulejson', ':optiondatestarttime', true)}
                     AND (
                         (ctx.contextlevel = :systemcontext AND ctx.instanceid = 0)

@@ -1,3 +1,61 @@
+## Version 9.0.6 (2026011600)
+* Bugfix: Make double sure that we could actually assign competency on completion
+* Bugfix: Correctly check for selflearningcourse in answers
+* Bugfix: With previouslybooked condition, if option isn't found block
+
+## Version 9.0.5 (2026010900)
+* Improvement: Don't wrap selflearningcourse information in placeholder in paragraph.
+* Improvement: For better usability, we hide the message button on teacher page if messaging is impossible.
+* Improvement: Backup shopping cart iteminfo if it exists.
+* Bugfix: Fixed default booking image fallback to use the captured default image record instead of the last iterated image.
+* Bugfix: Make sure rules are not executed for self-learning courses if the rule depends on option date(s).
+* Bugfix: Make sure no icals are sent for selflearningcourses.
+* Bugfix: Fix e-mails for self-learning courses.
+* Bugfix: Fix layout for teacher page (should be full width in boost).
+* Bugfix: Fix missing fields in backup stepslib for booking instance.
+
+## Version 9.0.4 (2026010700)
+* New feature: Introduce new booking option type and replace selflearningcourse flag from JSON.
+* New feature: New booking rule for a specific time before or after a chosen date field.
+* New feature: Scheduled emails page for debugging mode.
+* Improvement: Separate booking event for moving up from the waiting list.
+* Improvement: Get entity ID more efficiently.
+* Improvement: Load image URL more efficiently.
+* Improvement: Add placeholders to pollurl and pollurlteachers.
+* Improvement: Use capital letters for labels of German words.
+* Improvement: Define new identifier for actions on booking answer.
+* Improvement: Set title and aria-label for action buttons.
+* Improvement: Update actions column by adding text to buttons and increasing spacing.
+* Improvement: Change column title of actions button.
+* Improvement: Add search and filter functionality on my bookings page.
+* Improvement: My certificates page now shows linked course.
+* Improvement: Make mobile list more robust.
+* Improvement: Cache custom fields.
+* Improvement: Refactor options-to-confirm scope.
+* Improvement: Set localized language strings.
+* Bugfix: Fix image matching for arrays.
+* Bugfix: Fix broken Behat by reverting SQL and using booking_handler for get_value.
+* Bugfix: Remove unnecessary variable.
+* Bugfix: Fix non-deterministic ordering for tied timemodified values causing waiting-list selection to vary.
+* Bugfix: Do not assume that the last element in an array is the one needed.
+* Bugfix: Missing string error.
+* Bugfix: Custom fields of type textformat are supported for certificate creation.
+* Bugfix: Invalidate event log table cache after message was sent.
+* Bugfix: Fix error where cache definition requires simple keys.
+* Bugfix: Unset mobile active tab.
+* Bugfix: Fix wrong display of PRO license status.
+* Bugfix: Adhoc task failed due to missing cache_helper class.
+* Bugfix: Set correct string values for cached scheduled mails cache.
+* Tests: Verify booking rules on specific time for self-learning course.
+* Tests: Verify booking rules on specific time.
+* Tests: Test booking answer moved up from waiting list event with rules.
+* Tests: Modify expected values in Behat test due to refund value changes.
+* Tests: Manually confirm users after confirm_bookinganswer_by_rule adhoc task.
+* Tests: Modify expected values for user credits.
+* Tests: New PHPUnit test for refund value with different cancellation fees.
+* Tests: Reset static variables in PHPUnit tests.
+* Tests: Create methods to reset instances of static variables.
+
 ## Version 9.0.3 (2025121200)
 * Bugfix: Don't send mails when CMID of option has changed.
 * Bugfix: Missing format_strings for booking rules.

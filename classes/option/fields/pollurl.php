@@ -25,8 +25,11 @@
 namespace mod_booking\option\fields;
 
 use mod_booking\booking_option_settings;
+use mod_booking\local\htmlcomponents;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
+use mod_booking\placeholders\placeholders_info;
+use mod_booking\utils\wb_payment;
 use MoodleQuickForm;
 use stdClass;
 
@@ -149,6 +152,7 @@ class pollurl extends field_base {
 
         $mform->addElement('text', 'pollurl', get_string('bookingpollurl', 'mod_booking'), ['size' => '64']);
         $mform->setType('pollurl', PARAM_TEXT);
+        $mform->setDefault('pollurl', get_config('booking', 'pollurltemplate'));
         $mform->addHelpButton('pollurl', 'feedbackurl', 'mod_booking');
 
         $mform->addElement(
@@ -159,6 +163,32 @@ class pollurl extends field_base {
         );
         $mform->setType('pollurlteachers', PARAM_TEXT);
         $mform->addHelpButton('pollurlteachers', 'feedbackurlteachers', 'mod_booking');
+        $mform->setDefault('pollurlteachers', get_config('booking', 'pollurlteacherstemplate'));
+
+        if (wb_payment::pro_version_is_activated()) {
+            $availableplaceholders = placeholders_info::return_list_of_placeholders(true);
+            $mform->addElement(
+                'static',
+                'pollurlplaceholdersexplanation',
+                '',
+                htmlcomponents::render_bootstrap_collapsible(
+                    get_string('pollurlplaceholdersexplanation', 'mod_booking'),
+                    $availableplaceholders
+                )
+            );
+        } else {
+            $mform->addElement(
+                'static',
+                'pollurlplaceholdersnoproversion',
+                '',
+                '<i class="fa fa-lightbulb-o" aria-hidden="true"></i>&nbsp;' .
+                get_string(
+                    'pollurlplaceholdersnoproversion',
+                    'mod_booking',
+                    'https://showroom.wunderbyte.at/course/view.php?id=62'
+                )
+            );
+        }
     }
 
     /**

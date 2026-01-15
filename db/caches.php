@@ -182,11 +182,18 @@ $definitions = [
         'staticaccelerationsize' => 10,
         'invalidationevents' => ['setbackcompetenciesshortnamescache'],
     ],
-    'customfields' => [
+    'scheduledmailscache' => [
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,
         'staticacceleration' => true,
         'staticaccelerationsize' => 10,
+        'invalidationevents' => ['setbackscheduledmailscache'],
+    ],
+    'customfields' => [
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'staticacceleration' => true,
+        'staticaccelerationsize' => 1000,
         'invalidationevents' => ['setbackcustomfields'],
     ],
 ];

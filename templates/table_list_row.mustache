@@ -64,37 +64,37 @@
       "footer": {
         "bookings": {
           "columnkeyclass": "d-none",
-          "columnclass": "text-left text-gray pr-2 font-size-sm",
+          "columnclass": "text-left text-gray pe-2 font-size-sm",
           "columniclassbefore": "fa fa-ticket fa-fw text-gray font-size-sm"
         },
         "minanswers": {
           "columnkeyclass": "d-none",
-          "columnclass": "text-left text-gray pr-2 font-size-sm",
+          "columnclass": "text-left text-gray pe-2 font-size-sm",
           "columniclassbefore": "fa fa-arrow-up fa-fw text-gray font-size-sm"
         },
         "dayofweektime": {
           "columnkeyclass": "d-none",
-          "columnclass": "text-left text-gray pr-2 font-size-sm",
+          "columnclass": "text-left text-gray pe-2 font-size-sm",
           "columniclassbefore": "fa fa-clock-o fa-fw text-gray font-size-sm"
         },
         "location": {
           "columnkeyclass": "d-none",
-          "columnclass": "text-left text-gray  pr-2 font-size-sm",
+          "columnclass": "text-left text-gray  pe-2 font-size-sm",
           "columniclassbefore": "fa fa-map-marker fa-fw text-gray font-size-sm"
         },
         "institution": {
           "columnkeyclass": "d-none",
-          "columnclass": "text-left text-gray  pr-2 font-size-sm",
+          "columnclass": "text-left text-gray  pe-2 font-size-sm",
           "columniclassbefore": "fa fa-building-o fa-fw text-gray font-size-sm"
         },
         "responsiblecontact": {
           "columnkeyclass": "d-none",
-          "columnclass": "text-left text-gray  pr-2 font-size-sm",
+          "columnclass": "text-left text-gray  pe-2 font-size-sm",
           "columniclassbefore": "fa fa-user fa-fw text-gray font-size-sm"
         },
         "showdates": {
           "columnkeyclass": "d-none",
-          "columnclass": "text-left pr-2 text-gray font-size-sm"
+          "columnclass": "text-left pe-2 text-gray font-size-sm"
         },
         "comments": {
           "columnkeyclass": "d-none"
@@ -118,15 +118,15 @@
 
 {{#showheaderimagelefthalf}}
 <div class="imagelefthalfcard card rounded-0
-  pl-0 pr-3 pt-0 pb-0
-  sk-fade ml-0 mr-0 mb-3
+  ps-0 pe-3 pt-0 pb-0
+  sk-fade ms-0 me-0 mb-3
   flex-md-row align-items-center row gx-0" {{#datafields}} data-{{key}}="{{value}}" {{/datafields}}>
 {{/showheaderimagelefthalf}}
 {{^showheaderimagelefthalf}}
 <div class="card border
   rounded
-  pl-0 pr-3 pt-0 pb-0
-  sk-fade ml-0 mr-0 mb-3
+  ps-0 pe-3 pt-0 pb-0
+  sk-fade ms-0 me-0 mb-3
   flex-md-row align-items-center row gx-0" {{#datafields}} data-{{key}}="{{value}}" {{/datafields}}>
 {{/showheaderimagelefthalf}}
   <div class="content w-100">
@@ -166,12 +166,12 @@
           {{/value}}
         </div>
         <div class="col-md-6">
-          <div class="row ml-1 mr-1 mt-5 mb-3 d-flex">
+          <div class="row ms-1 me-1 mt-5 mb-3 d-flex">
         {{/headerimage}}
       {{/showheaderimagelefthalf}}
       {{#showheaderimageright}}
         {{#headerimage}}
-        <div class="col-md-9 pt-3 pl-5">
+        <div class="col-md-9 pt-3 ps-5">
           <div class="row">
         {{/headerimage}}
       {{/showheaderimageright}}
@@ -241,7 +241,7 @@
           </div>
         </div>
         {{^showheaderimagelefthalf}}<div class="col-md-3">{{/showheaderimagelefthalf}}
-        {{#showheaderimagelefthalf}}<div class="showheaderimagelefthalf-buttoncontent ml-auto">{{/showheaderimagelefthalf}}
+        {{#showheaderimagelefthalf}}<div class="showheaderimagelefthalf-buttoncontent ms-auto">{{/showheaderimagelefthalf}}
           <div class="h-100 d-flex" style=" justify-content: flex-end;
           flex-direction: column;">
           {{#rightside}}
@@ -268,7 +268,7 @@
         {{#showheaderimageright}}
           {{#headerimage}}
             </div></div></div>
-            <div class="mod-booking-view-list-image-container col-md-3 pr-0 pl-5">
+            <div class="mod-booking-view-list-image-container col-md-3 pe-0 ps-5">
               {{#value}}
                 <img class="mod-booking-view-list-image rounded-right rounded-end" src="{{{value}}}" {{#headerimagealt}}alt="{{.}}" title="{{.}}"{{/headerimagealt}}>
               {{/value}}

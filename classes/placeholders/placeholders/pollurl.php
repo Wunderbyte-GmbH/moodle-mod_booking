@@ -26,6 +26,8 @@ namespace mod_booking\placeholders\placeholders;
 
 use mod_booking\placeholders\placeholders_info;
 use mod_booking\singleton_service;
+use mod_booking\utils\wb_payment;
+use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -38,7 +40,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class pollurl {
+class pollurl extends \mod_booking\placeholders\placeholder_base {
     /**
      * Function which takes a text, replaces the placeholders...
      * ... and returns the text with the correct values.
@@ -67,21 +69,62 @@ class pollurl {
 
         $classname = substr(strrchr(get_called_class(), '\\'), 1);
 
-        if (!empty($optionid)) {
+        if (!empty($userid)) {
+            if (empty($cmid)) {
+                $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+                $cmid = $settings->cmid;
+            }
+
             // The cachekey depends on the kind of placeholder and it's ttl.
             // If it's the same for all users, we don't use userid.
             // If it's the same for all options of a cmid, we don't use optionid.
-            $cachekey = "$classname-$optionid";
-            if (isset(placeholders_info::$placeholders[$cachekey])) {
+            $cachekey = "$classname-$optionid-$userid";
+            if (
+                isset(placeholders_info::$placeholders[$cachekey])
+                // The idea here is loop prevention. We set the timestamp to get out of the loop if necessary.
+                && !is_numeric(placeholders_info::$placeholders[$cachekey])
+            ) {
                 return placeholders_info::$placeholders[$cachekey];
+            } else {
+                // There is a possibility of a loop here. We need to avoid this.
+                // We only set the now value if no value is set yet.
+                placeholders_info::$placeholders[$cachekey] =
+                    placeholders_info::$placeholders[$cachekey] ?? 1;
             }
 
-            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+            // Loop prevention.
+            if (placeholders_info::$placeholders[$cachekey] === 1) {
+                placeholders_info::$placeholders[$cachekey]++;
 
-            $value = $settings->pollurl ?? '';
+                $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-            // Save the value to profit from singleton.
-            placeholders_info::$placeholders[$cachekey] = $value;
+                $pollurl = $settings->pollurl ?? '';
+
+                if (wb_payment::pro_version_is_activated()) {
+                    $value = placeholders_info::render_text(
+                        $pollurl,
+                        $settings->cmid,
+                        $settings->id,
+                        $userid,
+                        0,
+                        0,
+                        0,
+                        MOD_BOOKING_DESCRIPTION_WEBSITE,
+                        null,
+                        true
+                    );
+                } else {
+                    $value = $settings->pollurl;
+                }
+
+                $url = new moodle_url($value);
+                $value = $url->out(false);
+
+                // Save the value to profit from singleton.
+                placeholders_info::$placeholders[$cachekey] = $value;
+            } else {
+                $value = get_string('loopprevention', 'mod_booking', $classname);
+            }
         } else {
             $value = get_string('sthwentwrongwithplaceholder', 'mod_booking', $classname);
         }

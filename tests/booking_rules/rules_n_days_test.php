@@ -86,6 +86,7 @@ final class rules_n_days_test extends advanced_testcase {
     public function test_rule_update(array $data, array $expected): void {
         global $DB;
 
+        $this->setAdminUser();
         $bdata = self::booking_common_settings_provider();
 
         set_config('timezone', 'Europe/Kyiv');
@@ -96,12 +97,10 @@ final class rules_n_days_test extends advanced_testcase {
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
 
-        $bdata['course'] = $course->id;
-        $bdata['bookingmanager'] = $user2->username;
+        $bdata['booking']['course'] = $course->id;
+        $bdata['booking']['bookingmanager'] = $user2->username;
 
-        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
-
-        $this->setAdminUser();
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata['booking']);
 
         $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'editingteacher');
         $this->getDataGenerator()->enrol_user($user2->id, $course->id, 'student');
@@ -127,17 +126,10 @@ final class rules_n_days_test extends advanced_testcase {
         ];
         $rule1 = $plugingenerator->create_rule($ruledata1);
 
-        // Create booking option 1.
-        $record = new stdClass();
+        // Create booking option 1 (will start in 5 days).
+        $record = (object)$bdata['options'][0];
         $record->bookingid = $booking->id;
-        $record->text = 'Option-tomorrow';
-        $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course->id;
-        $record->description = 'Will start in 5 days';
-        $record->optiondateid_0 = "0";
-        $record->daystonotify_0 = "0";
-        $record->coursestarttime_0 = strtotime('+5 days', time());
-        $record->courseendtime_0 = strtotime('+6 days', time());
         $option1 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option1->id);
 
@@ -263,7 +255,9 @@ final class rules_n_days_test extends advanced_testcase {
      */
     public function test_rule_on_beforeafter_option_cancelled(array $data, array $expected): void {
         global $DB;
-        $bdata = $this->booking_common_settings_provider();
+
+        $this->setAdminUser();
+        $bdata = self::booking_common_settings_provider();
         singleton_service::destroy_instance();
 
         set_config('timezone', 'Europe/Kyiv');
@@ -274,12 +268,10 @@ final class rules_n_days_test extends advanced_testcase {
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
 
-        $bdata['course'] = $course->id;
-        $bdata['bookingmanager'] = $user2->username;
+        $bdata['booking']['course'] = $course->id;
+        $bdata['booking']['bookingmanager'] = $user2->username;
 
-        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
-
-        $this->setAdminUser();
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata['booking']);
 
         $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'editingteacher');
         $this->getDataGenerator()->enrol_user($user2->id, $course->id, 'student');
@@ -317,17 +309,10 @@ final class rules_n_days_test extends advanced_testcase {
         ];
         $rule2 = $plugingenerator->create_rule($ruledata2);
 
-        // Create booking option 1.
-        $record = new stdClass();
+        // Create booking option 1 (will start in 2 days).
+        $record = (object)$bdata['options'][1];
         $record->bookingid = $booking->id;
-        $record->text = 'Option-tomorrow';
-        $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course->id;
-        $record->description = 'Will start tomorrow';
-        $record->optiondateid_0 = "0";
-        $record->daystonotify_0 = "0";
-        $record->coursestarttime_0 = strtotime('+2 days', time());
-        $record->courseendtime_0 = strtotime('+3 days', time());
         $option1 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option1->id);
 
@@ -371,6 +356,10 @@ final class rules_n_days_test extends advanced_testcase {
         global $DB;
 
         $this->resetAfterTest(true);
+
+        $this->setAdminUser();
+        $bdata = self::booking_common_settings_provider();
+
         time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
 
@@ -379,10 +368,9 @@ final class rules_n_days_test extends advanced_testcase {
         $teacher = $this->getDataGenerator()->create_user();
         $student = $this->getDataGenerator()->create_user();
 
-        $bdata = self::booking_common_settings_provider()['bdata'][0];
-        $bdata['course'] = $course->id;
-        $bdata['bookingmanager'] = $teacher->username;
-        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+        $bdata['booking']['course'] = $course->id;
+        $bdata['booking']['bookingmanager'] = $teacher->username;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata['booking']);
 
         $this->setAdminUser();
         $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
@@ -423,26 +411,10 @@ final class rules_n_days_test extends advanced_testcase {
         $entityid1 = $egenerator->create_entities($entitydata1);
         $entityid2 = $egenerator->create_entities($entitydata2);
 
-        // Create booking option with two session dates.
-        $record = new stdClass();
+        // Create booking option with two session dates in the remote future.
+        $record = (object)$bdata['options'][2];
         $record->bookingid = $booking->id;
-        $record->text = 'Option-with-two-sessions';
-        $record->chooseorcreatecourse = 1; // Required.
         $record->courseid = $course->id;
-        $record->description = 'This option has two optiondates';
-
-        // First date (tomorrow).
-        $record->optiondateid_0 = 0;
-        $record->daystonotify_0 = 0;
-        $record->coursestarttime_0 = strtotime('2 June 2050 15:00');
-        $record->courseendtime_0 = strtotime('2 June 2050 16:00');
-
-        // Second date (next week).
-        $record->optiondateid_1 = 0;
-        $record->daystonotify_1 = 0;
-        $record->coursestarttime_1 = strtotime('8 June 2050 15:00');
-        $record->courseendtime_1 = strtotime('8 June 2050 16:00');
-
         $option = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option->id);
 
@@ -531,6 +503,127 @@ final class rules_n_days_test extends advanced_testcase {
     /**
      * Test rule with multiple session dates and n days before reminders.
      * Checks whether messages are sent or skipped correctly
+     * when option dates contains rule overrides settings.
+     *
+     * @covers \mod_booking\booking_option::update
+     * @covers \mod_booking\booking_rules\rules\rule_daysbefore::execute
+     * @covers \mod_booking\booking_rules\actions\send_mail::execute
+     * @covers \mod_booking\booking_rules\conditions\select_student_in_bo::execute
+     *
+     * @dataProvider rule_multiple_dates_override_provider
+     *
+     * @param array $data describes the type of change to the option
+     * @param array $expected expected traces for messages sent vs prevented
+     * @throws \coding_exception
+     */
+    public function test_rule_on_multiple_optiondates_override(array $data, array $expected): void {
+        global $DB;
+
+        $this->resetAfterTest(true);
+
+        $this->setAdminUser();
+        $bdata = self::booking_common_settings_provider();
+
+        time_mock::init();
+        time_mock::set_mock_time(strtotime('now'));
+
+        // Setup course, users, booking instance.
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $teacher1 = $this->getDataGenerator()->create_user();
+        $student1 = $this->getDataGenerator()->create_user();
+        $student2 = $this->getDataGenerator()->create_user();
+        $student3 = $this->getDataGenerator()->create_user();
+
+        $bdata['booking']['course'] = $course->id;
+        $bdata['booking']['bookingmanager'] = $teacher1->username;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata['booking']);
+
+        $this->setAdminUser();
+        $this->getDataGenerator()->enrol_user($teacher1->id, $course->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($student1->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($student2->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($student3->id, $course->id, 'student');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        // Create rule: 1 day before optiondatestarttime.
+        $ruledata = [
+            'name' => 'Session reminder',
+            'useastemplate' => 0,
+            'conditionname' => 'select_student_in_bo',
+            'conditiondata' => '{"borole":"0"}',
+            'actionname' => 'send_mail',
+            'actiondata' => '{"sendical":0,"sendicalcreateorcancel":"",
+                "subject":"A new session of {Title} will start soon",
+                "template":"<p>Hi {firstname},<br>the next session of \\"{title}\\" will start soon:<br><br>{bookingdetails}</p>",
+                "templateformat":"1"}',
+            'rulename' => 'rule_daysbefore',
+            'ruledata' => '{"days":"1","datefield":"optiondatestarttime"}',
+        ];
+        $plugingenerator->create_rule($ruledata);
+
+        // Create booking option with 3 session dates in the remote future.
+        $record = $bdata['options'][3];
+        $record['bookingid'] = $booking->id;
+        $record['courseid'] = $course->id;
+        $record['importing'] = 1;
+        $record['teachersforoption'] = $teacher1->username;
+        $record['maxanswers'] = 2;
+        $record['maxoverbooking'] = 1; // Enable waitinglist.
+        // Override settings for option from dataprovider.
+        if (isset($data['optionsettings'])) {
+            foreach ($data['optionsettings'] as $setting) {
+                foreach ($setting as $key => $value) {
+                    $record[$key] = $value;
+                }
+            }
+        }
+        $option = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option->id);
+
+        // Create a booking option answer.
+        $result = $plugingenerator->create_answer(['optionid' => $option->id, 'userid' => $student1->id]);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $result);
+        $result = $plugingenerator->create_answer(['optionid' => $option->id, 'userid' => $student2->id]);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $result);
+        $result = $plugingenerator->create_answer(['optionid' => $option->id, 'userid' => $student3->id]);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $result);
+        singleton_service::destroy_booking_answers($option->id);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+
+        // Initially 6 tasks are scheduled.
+        $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $this->assertCount($expected['initialnumberoftasks'], $tasks, 'wrong number of tasks');
+
+        if (isset($expected['tasksperoptiondates'])) {
+            $time = time_mock::get_mock_time();
+            unset_config('noemailever');
+            foreach ($expected['tasksperoptiondates'] as $tasksperoptiondates) {
+                time_mock::set_mock_time(strtotime($tasksperoptiondates['mock_time'], $time));
+                ob_start();
+                $messagesink = $this->redirectMessages();
+                $plugingenerator->runtaskswithintime(time_mock::get_mock_time());
+                $messages = $messagesink->get_messages();
+                $trace = ob_get_clean();
+                $messagesink->close();
+
+                // Assertions.
+                $this->assertCount($tasksperoptiondates['messages_sent'], $messages);
+                // Check the log contains "mail successfully sent".
+                if (isset($tasksperoptiondates['contains_success'])) {
+                    $this->assertTrue(
+                        substr_count($trace, $tasksperoptiondates['contains_success']) >= $tasksperoptiondates['messages_sent']
+                    );
+                }
+            }
+        }
+    }
+
+    /**
+     * Test rule with multiple session dates and n days before reminders.
+     * Checks whether messages are sent or skipped correctly
      * when option dates are added, removed or modified.
      *
      * @covers \mod_booking\booking_option::update
@@ -548,6 +641,10 @@ final class rules_n_days_test extends advanced_testcase {
         global $DB;
 
         $this->resetAfterTest(true);
+
+        $this->setAdminUser();
+        $bdata = self::booking_common_settings_provider();
+
         time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
 
@@ -556,15 +653,14 @@ final class rules_n_days_test extends advanced_testcase {
         $teacher = $this->getDataGenerator()->create_user();
         $student = $this->getDataGenerator()->create_user();
 
+        // Create two booking instances.
         $bookings = [];
-        foreach (self::booking_common_settings_provider()['bdata'] as $bdata) {
-            $bdata = self::booking_common_settings_provider()['bdata'][0];
-            $bdata['course'] = $course->id;
-            $bdata['bookingmanager'] = $teacher->username;
-            $bookings[] = $this->getDataGenerator()->create_module('booking', $bdata);
+        for ($i = 0; $i <= 1; $i++) {
+            $bdata['booking']['course'] = $course->id;
+            $bdata['booking']['bookingmanager'] = $teacher->username;
+            $bookings[] = $this->getDataGenerator()->create_module('booking', $bdata['booking']);
         }
 
-        $this->setAdminUser();
         $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
 
         /** @var mod_booking_generator $plugingenerator */
@@ -587,24 +683,9 @@ final class rules_n_days_test extends advanced_testcase {
         $plugingenerator->create_rule($ruledata);
 
         // Create booking option with two session dates.
-        $record = new stdClass();
+        $record = (object)$bdata['options'][2];
         $record->bookingid = $bookings[0]->id;
-        $record->text = 'Option-with-two-sessions';
-        $record->chooseorcreatecourse = 1; // Required.
         $record->courseid = $course->id;
-        $record->description = 'This option has two optiondates';
-
-        // First date (tomorrow).
-        $record->optiondateid_0 = 0;
-        $record->daystonotify_0 = 0;
-        $record->coursestarttime_0 = strtotime('2 June 2050 15:00');
-        $record->courseendtime_0 = strtotime('2 June 2050 16:00');
-
-        // Second date (next week).
-        $record->optiondateid_1 = 0;
-        $record->daystonotify_1 = 0;
-        $record->coursestarttime_1 = strtotime('8 June 2050 15:00');
-        $record->courseendtime_1 = strtotime('8 June 2050 16:00');
 
         $option = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option->id);
@@ -754,7 +835,6 @@ final class rules_n_days_test extends advanced_testcase {
         ];
     }
 
-
     /**
      * Data provider for test_rule_on_beforeafter_coursestart
      *
@@ -822,6 +902,165 @@ final class rules_n_days_test extends advanced_testcase {
             ],
         ];
     }
+
+    /**
+     * Data provider for test_rule_on_multiple_optiondates_override.
+     *
+     * @return array
+     */
+    public static function rule_multiple_dates_override_provider(): array {
+        return [
+            'no_override' => [
+                [
+                    'optionsettings' => [
+                    ],
+                ],
+                [
+                    'initialnumberoftasks' => 6,
+                    'tasksperoptiondates' => [
+                        [
+                            'mock_time' => '1 June 2050 14:00',
+                            'messages_sent' => 0, // More than 1 days before.
+                        ],
+                        [
+                            'mock_time' => '1 June 2050 15:30',
+                            'messages_sent' => 2, // Less than 1 days before.
+                            'contains_success' => self::MAIL_SUCCES_TRACE,
+                        ],
+                        [
+                            'mock_time' => '7 June 2050 14:00',
+                            'messages_sent' => 0, // More than 1 days before.
+                        ],
+                        [
+                            'mock_time' => '7 June 2050 15:30',
+                            'messages_sent' => 2, // Less than 1 days before.
+                            'contains_success' => self::MAIL_SUCCES_TRACE,
+                        ],
+                        [
+                            'mock_time' => '14 June 2050 14:00',
+                            'messages_sent' => 0, // More than 1 days before.
+                        ],
+                        [
+                            'mock_time' => '14 June 2050 15:30',
+                            'messages_sent' => 2, // Less than 1 days before.
+                            'contains_success' => self::MAIL_SUCCES_TRACE,
+                        ],
+                    ],
+                ],
+            ],
+            'same_override_days' => [
+                [
+                    'optionsettings' => [
+                        [
+                            'daystonotify_0' => "2",
+                            'daystonotify_1' => "2",
+                            'daystonotify_2' => "2",
+                        ],
+                    ],
+                ],
+                [
+                    'initialnumberoftasks' => 6,
+                    'tasksperoptiondates' => [
+                        [
+                            'mock_time' => '31 May 2050 14:00',
+                            'messages_sent' => 0, // More than 2 days before.
+                        ],
+                        [
+                            'mock_time' => '31 May 2050 15:30',
+                            'messages_sent' => 2, // Override 1st sessiodate - less than 2 days before.
+                            'contains_success' => self::MAIL_SUCCES_TRACE,
+                        ],
+                        [
+                            'mock_time' => '1 June 2050 15:30',
+                            'messages_sent' => 0, // Override 1st sessiodate - confirm no messages on less than 1 days before.
+                        ],
+                        [
+                            'mock_time' => '6 June 2050 14:00',
+                            'messages_sent' => 0, // More than 2 days before.
+                        ],
+                        [
+                            'mock_time' => '6 June 2050 15:30',
+                            'messages_sent' => 2, // Override 2nd sessiodate - less than 2 days before.
+                            'contains_success' => self::MAIL_SUCCES_TRACE,
+                        ],
+                        [
+                            'mock_time' => '7 June 2050 15:30',
+                            'messages_sent' => 0, // Override 2nd sessiodate - confirm no messages on less than 1 days before.
+                        ],
+                        [
+                            'mock_time' => '13 June 2050 14:00',
+                            'messages_sent' => 0, // More than 2 days before.
+                        ],
+                        [
+                            'mock_time' => '13 June 2050 15:30',
+                            'messages_sent' => 2, // Override 3rd sessiodate - less than 2 days before.
+                            'contains_success' => self::MAIL_SUCCES_TRACE,
+                        ],
+                        [
+                            'mock_time' => '15 June 2050 10:00',
+                            'messages_sent' => 0, // Override 3rd sessiodate - confirm no messages on less than 1 days before.
+                        ],
+                    ],
+                ],
+            ],
+            'different_override_days' => [
+                [
+                    'optionsettings' => [
+                        [
+                            'daystonotify_0' => "3",
+                            'daystonotify_1' => "4",
+                            'daystonotify_2' => "5",
+                        ],
+                    ],
+                ],
+                [
+                    'initialnumberoftasks' => 6,
+                    'tasksperoptiondates' => [
+                        [
+                            'mock_time' => '30 May 2050 14:00',
+                            'messages_sent' => 0, // More than 3 days before.
+                        ],
+                        [
+                            'mock_time' => '30 May 2050 15:30',
+                            'messages_sent' => 2, // Override 1st sessiodate - less than 3 days before.
+                            'contains_success' => self::MAIL_SUCCES_TRACE,
+                        ],
+                        [
+                            'mock_time' => '1 June 2050 15:30',
+                            'messages_sent' => 0, // Override 1st sessiodate - confirm no messages on less than 1 days before.
+                        ],
+                        [
+                            'mock_time' => '4 June 2050 14:00',
+                            'messages_sent' => 0, // More than 4 days before.
+                        ],
+                        [
+                            'mock_time' => '4 June 2050 15:30',
+                            'messages_sent' => 2, // Override 2nd sessiodate - less than 4 days before.
+                            'contains_success' => self::MAIL_SUCCES_TRACE,
+                        ],
+                        [
+                            'mock_time' => '7 June 2050 15:30',
+                            'messages_sent' => 0, // Override 2nd sessiodate - confirm no messages on less than 1 days before.
+                        ],
+                        [
+                            'mock_time' => '10 June 2050 14:00',
+                            'messages_sent' => 0, // More than 5 days before.
+                        ],
+                        [
+                            'mock_time' => '10 June 2050 15:30',
+                            'messages_sent' => 2, // Override 3rd sessiodate - less than 5 days before.
+                            'contains_success' => self::MAIL_SUCCES_TRACE,
+                        ],
+                        [
+                            'mock_time' => '14 June 2050 15:30',
+                            'messages_sent' => 0, // Override 3rd sessiodate - confirm no messages on less than 1 days before.
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
     /**
      * Data provider for condition_bookingpolicy_test
      *
@@ -829,23 +1068,78 @@ final class rules_n_days_test extends advanced_testcase {
      * @throws \UnexpectedValueException
      */
     public static function booking_common_settings_provider(): array {
-        $bdata = [
-            'name' => 'Rule Booking Test',
-            'eventtype' => 'Test rules',
-            'enablecompletion' => 1,
-            'bookedtext' => ['text' => 'text'],
-            'waitingtext' => ['text' => 'text'],
-            'notifyemail' => ['text' => 'text'],
-            'statuschangetext' => ['text' => 'text'],
-            'deletedtext' => ['text' => 'text'],
-            'pollurltext' => ['text' => 'text'],
-            'pollurlteacherstext' => ['text' => 'text'],
-            'notificationtext' => ['text' => 'text'],
-            'userleave' => ['text' => 'text'],
-            'tags' => '',
-            'completion' => 2,
-            'showviews' => ['mybooking,myoptions,optionsiamresponsiblefor,showall,showactive,myinstitution'],
+        return [
+            'booking' => [
+                'name' => 'Rule Booking Test',
+                'eventtype' => 'Test rules',
+                'enablecompletion' => 1,
+                'bookedtext' => ['text' => 'text'],
+                'waitingtext' => ['text' => 'text'],
+                'notifyemail' => ['text' => 'text'],
+                'statuschangetext' => ['text' => 'text'],
+                'deletedtext' => ['text' => 'text'],
+                'pollurltext' => ['text' => 'text'],
+                'pollurlteacherstext' => ['text' => 'text'],
+                'notificationtext' => ['text' => 'text'],
+                'userleave' => ['text' => 'text'],
+                'tags' => '',
+                'completion' => 2,
+                'showviews' => ['mybooking,myoptions,optionsiamresponsiblefor,showall,showactive,myinstitution'],
+            ],
+            'options' => [
+                // Option 1 with 1 session in 5 days.
+                0 => [
+                    'text' => 'Option: in 2 days',
+                    'description' => 'Will start in 2 days',
+                    'chooseorcreatecourse' => 1, // Required.
+                    'optiondateid_0' => "0",
+                    'daystonotify_0' => "0",
+                    'coursestarttime_0' => strtotime('+5 days', time()),
+                    'courseendtime_0' => strtotime('+6 days', time()),
+                ],
+                // Option 2 with 1 session in 2 days.
+                1 => [
+                    'text' => 'Option: in 2 days',
+                    'description' => 'Will start in 2 days',
+                    'chooseorcreatecourse' => 1, // Required.
+                    'optiondateid_0' => "0",
+                    'daystonotify_0' => "0",
+                    'coursestarttime_0' => strtotime('+2 days', time()),
+                    'courseendtime_0' => strtotime('+3 days', time()),
+                ],
+                // Option 3 with 2 session started in the remote future.
+                2 => [
+                    'text' => 'Option-with-two-sessions',
+                    'description' => 'This option has two optiondates',
+                    'chooseorcreatecourse' => 1, // Required.
+                    'optiondateid_0' => "0",
+                    'daystonotify_0' => "0",
+                    'coursestarttime_0' => strtotime('2 June 2050 15:00'),
+                    'courseendtime_0' => strtotime('2 June 2050 16:00'),
+                    'optiondateid_1' => "0",
+                    'daystonotify_1' => "0",
+                    'coursestarttime_1' => strtotime('8 June 2050 15:00'),
+                    'courseendtime_1' => strtotime('8 June 2050 16:00'),
+                ],
+                // Option 4 with 3 session started in the remote future.
+                3 => [
+                    'text' => 'Option-with-three-sessions',
+                    'description' => 'This option has three optiondates',
+                    'chooseorcreatecourse' => 1, // Required.
+                    'optiondateid_0' => "0",
+                    'daystonotify_0' => "0",
+                    'coursestarttime_0' => strtotime('2 June 2050 15:00'),
+                    'courseendtime_0' => strtotime('2 June 2050 16:00'),
+                    'optiondateid_1' => "0",
+                    'daystonotify_1' => "0",
+                    'coursestarttime_1' => strtotime('8 June 2050 15:00'),
+                    'courseendtime_1' => strtotime('8 June 2050 16:00'),
+                    'optiondateid_2' => "0",
+                    'daystonotify_2' => "0",
+                    'coursestarttime_2' => strtotime('15 June 2050 15:00'),
+                    'courseendtime_2' => strtotime('15 June 2050 16:00'),
+                ],
+            ],
         ];
-        return ['bdata' => [$bdata, $bdata]];
     }
 }

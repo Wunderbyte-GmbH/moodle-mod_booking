@@ -1964,6 +1964,130 @@ final class rules_test extends advanced_testcase {
     }
 
     /**
+     * Test rules for "Moved up from waitinglist" event.
+     *
+     * @covers \mod_booking\event\bookinganswer_movedupfromwaitinglist
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_rule_on_movedupfromwaitinglist(array $bdata): void {
+        global $DB;
+
+        singleton_service::destroy_instance();
+
+        $bdata['cancancelbook'] = 1;
+
+        // Create course.
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        // Create users.
+        $student1 = $this->getDataGenerator()->create_user();
+        $student2 = $this->getDataGenerator()->create_user();
+        $student3 = $this->getDataGenerator()->create_user();
+        $teacher1 = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course1->id;
+        $bdata['bookingmanager'] = $teacher1->username;
+
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($student1->id, $course1->id, 'student');
+        $this->getDataGenerator()->enrol_user($student2->id, $course1->id, 'student');
+        $this->getDataGenerator()->enrol_user($student3->id, $course1->id, 'student');
+        $this->getDataGenerator()->enrol_user($teacher1->id, $course1->id, 'editingteacher');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        // Create booking rule.
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"subject1","template":"Hello","templateformat":"1"}';
+        $boevent = '"boevent":"\\\\mod_booking\\\\event\\\\bookinganswer_movedupfromwaitinglist"';
+        $ruledata = [
+            'name' => 'notifystudent',
+            'conditionname' => 'select_user_from_event',
+            'contextid' => 1,
+            'conditiondata' => '{"userfromeventtype":"relateduserid"}',
+            'actionname' => 'send_mail',
+            'actiondata' => $actstr,
+            'rulename' => 'rule_react_on_event',
+            'ruledata' => '{' . $boevent . ',"aftercompletion":"","condition":"0"}',
+        ];
+        $rule = $plugingenerator->create_rule($ruledata);
+
+        // Create booking option 1.
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'football';
+        $record->chooseorcreatecourse = 1; // Connected existing course.
+        $record->courseid = $course1->id;
+        $record->maxanswers = 1;
+        $record->maxoverbooking = 1; // Enable waitinglist.
+        $record->description = 'Will start in 2050';
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('20 June 2050 15:00');
+        $record->courseendtime_0 = strtotime('20 July 2050 14:00');
+        $record->teachersforoption = $teacher1->username;
+        $option1 = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option1->id);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $boinfo = new bo_info($settings);
+        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+
+        // Book for student1.
+        $this->setUser($student1);
+        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, false);
+        // This time it is coming from MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION.
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // Book for student2.
+        $this->setUser($student2);
+        $result = booking_bookit::bookit('option', $settings->id, $student2->id);
+        $result = booking_bookit::bookit('option', $settings->id, $student2->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
+
+        // Confirm booking as admin.
+        $this->setAdminUser();
+
+        // Now take student 2 from the list, for a place to free up.
+        $this->setUser($student1);
+        $option->user_delete_response($student1->id);
+        singleton_service::destroy_booking_option_singleton($option1->id);
+        singleton_service::destroy_booking_answers($option1->id);
+
+        // Execute tasks, get messages and validate it.
+        $this->setAdminUser();
+
+        // Get messages.
+        $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+
+        $this->assertNotEmpty($messages);
+        // Validate messages. Might be free order.
+        foreach ($messages as $key => $message) {
+            $customdata = $message->get_custom_data();
+            // Validate message on the bookingoption_freetobookagain event.
+            $this->assertEquals("subject1", $customdata->customsubject);
+            $this->assertEquals("Hello", $customdata->custommessage);
+            $this->assertEquals($student2->id, $customdata->userid);
+            $this->assertStringContainsString($boevent, $customdata->rulejson);
+            $this->assertStringContainsString($ruledata['conditiondata'], $customdata->rulejson);
+            $this->assertStringContainsString($ruledata['actiondata'], $customdata->rulejson);
+            $this->assertEquals($student2->id, $message->get_userid());
+        }
+    }
+
+    /**
      * Test that compare_optiondates() returns false
      * when the "daystonotify" field differs.
      * @covers \mod_booking\option\optiondate::compare_optiondates

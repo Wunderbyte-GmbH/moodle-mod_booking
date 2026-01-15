@@ -30,18 +30,27 @@ use mod_booking\booking_rules\rules_info;
 use mod_booking\output\view;
 use mod_booking\table\bookingoptions_wbtable;
 use mod_booking\booking_option;
-use mod_booking\booking_option_settings;
 use mod_booking\booking_campaigns\campaigns_info;
 use mod_booking\singleton_service;
 use mod_booking\semester;
 use mod_booking\bo_availability\bo_info;
-use mod_booking\option\fields\price as Mod_bookingPriceField;
 use mod_booking\price as Mod_bookingPrice;
 use local_shopping_cart\shopping_cart;
 use local_shopping_cart\local\cartstore;
 use mod_booking\bo_actions\actions_info;
-use mod_booking\bo_availability\conditions\maxoptionsfromcategory;
 use mod_booking\bo_availability\conditions\allowedtobookininstance;
+use mod_booking\bo_availability\conditions\customform;
+use mod_booking\bo_availability\conditions\enrolledincohorts;
+use mod_booking\bo_availability\conditions\enrolledincourse;
+use mod_booking\bo_availability\conditions\hascompetency;
+use mod_booking\bo_availability\conditions\maxoptionsfromcategory;
+use mod_booking\bo_availability\conditions\nooverlapping;
+use mod_booking\bo_availability\conditions\nooverlappingproxy;
+use mod_booking\bo_availability\conditions\previouslybooked;
+use mod_booking\bo_availability\conditions\selectusers;
+use mod_booking\bo_availability\conditions\userprofilefield_1_default;
+use mod_booking\bo_availability\conditions\userprofilefield_2_custom;
+use mod_booking\settings\optionformconfig\optionformconfig_info;
 use mod_booking\enrollink;
 use tool_mocktesttime\time_mock;
 
@@ -87,11 +96,22 @@ class mod_booking_generator extends testing_module_generator {
         cache_helper::purge_all();
         singleton_service::destroy_instance();
         singleton_service::reset_campaigns();
-        maxoptionsfromcategory::reset_instance();
         allowedtobookininstance::reset_instance();
+        customform::reset_instance();
+        enrolledincohorts::reset_instance();
+        enrolledincourse::reset_instance();
+        hascompetency::reset_instance();
+        maxoptionsfromcategory::reset_instance();
+        nooverlapping::reset_instance();
+        nooverlappingproxy::reset_instance();
+        previouslybooked::reset_instance();
+        selectusers::reset_instance();
+        userprofilefield_1_default::reset_instance();
+        userprofilefield_2_custom::reset_instance();
         enrollink::destroy_instances();
+        optionformconfig_info::destroy_singletons();
+        Mod_bookingPrice::destroy_singletons();
         rules_info::destroy_singletons();
-        rules_info::$rulestoexecute = [];
         booking_rules::$rules = [];
         // Shopping cart.
         cartstore::reset();
@@ -161,7 +181,51 @@ class mod_booking_generator extends testing_module_generator {
         }
         $record->semesterid = $semesterid;
 
+        // Process instance's bookingimagescustomfield.
+        if (!empty($record->bookingimagescustomfield)) {
+            if (!is_numeric($record->bookingimagescustomfield)) {
+                $record->bookingimagescustomfield = $this->get_customfield_id($record->bookingimagescustomfield);
+            }
+        }
+
         return parent::create_instance($record, $options);
+    }
+
+    /**
+     * Returns the mapping between human friendly names and data generator methods.
+     *
+     * @param array $data
+     * @return void
+     */
+    public function create_bookingimage(array $data): void {
+        global $CFG;
+
+        $bookingid = $data['bookingid'];
+        $filepath = $data['filepath'];
+        $filename = $data['filename'];
+
+        $fullfilepath = rtrim("{$CFG->dirroot}/" . ltrim($filepath, '/'), '/');
+        if (!file_exists($fullfilepath)) {
+            throw new coding_exception("File '{$fullfilepath}' does not exist");
+        }
+
+        $cm = get_coursemodule_from_instance('booking', $bookingid, 0, false, MUST_EXIST);
+        $context = context_module::instance($cm->id);
+        $fs = get_file_storage();
+        $storedfilepath = trim($filepath, '/');
+        $storedfilepath = $storedfilepath === '' ? '/' : "/{$storedfilepath}/";
+
+        $filerecord = [
+            'contextid' => $context->id,
+            'component' => 'mod_booking',
+            'filearea' => 'bookingimages',
+            'itemid' => $bookingid,
+            'filepath' => '/',
+            'filename' => basename($fullfilepath),
+            'source' => basename($fullfilepath),
+        ];
+
+        $fs->create_file_from_pathname($filerecord, $fullfilepath);
     }
 
     /**
@@ -647,6 +711,21 @@ class mod_booking_generator extends testing_module_generator {
     }
 
     /**
+     * Get the customfieldID using an identifier.
+     *
+     * @param string $identifier
+     * @return int The customfield id
+     */
+    private function get_customfield_id(string $identifier): int {
+        global $DB;
+
+        if (!$id = $DB->get_field('customfield_field', 'id', ['shortname' => $identifier])) {
+            throw new Exception('The specified booking customfield with shortname "' . $identifier . '" does not exist');
+        }
+        return $id;
+    }
+
+    /**
      * Helper to run tasks within time.
      *
      *
@@ -698,5 +777,61 @@ class mod_booking_generator extends testing_module_generator {
             }
         }
         $tasks->close();
+    }
+
+
+    /**
+     * Compare two stdClass objects and return the differences as an array.
+     *
+     * @param stdClass $obj1
+     * @param stdClass $obj2
+     *
+     * @return array
+     *
+     */
+    public function objdiff(stdClass $obj1, stdClass $obj2): array {
+        $a1 = (array)$obj1;
+        $a2 = (array)$obj2;
+        return $this->arrdiff($a1, $a2);
+    }
+
+    /**
+     * Compare two arrays recursively and return the differences as an array.
+     *
+     * @param array $a1
+     * @param array $a2
+     *
+     * @return array
+     *
+     */
+    public function arrdiff(array $a1, array $a2): array {
+        $r = [];
+        foreach ($a1 as $k => $v) {
+            if (array_key_exists($k, $a2)) {
+                if ($v instanceof stdClass) {
+                    $rad = $this->objdiff($v, $a2[$k]);
+                    if (count($rad)) {
+                        $r[$k] = $rad;
+                    }
+                } else if (is_array($v)) {
+                    $rad = $this->arrdiff($v, $a2[$k]);
+                    if (count($rad)) {
+                        $r[$k] = $rad;
+                    }
+                } else if (is_double($v)) {
+                    // Required to avoid rounding errors due to the conversion from string representation to double.
+                    if (abs($v - $a2[$k]) > 0.000000000001) {
+                        $r[$k] = [$v, $a2[$k]];
+                    }
+                } else {
+                    if ($v != $a2[$k]) {
+                        $r[$k] = [$v, $a2[$k]];
+                    }
+                }
+            } else {
+                $r[$k] = [$v, null];
+            }
+        }
+        return $r;
     }
 }
