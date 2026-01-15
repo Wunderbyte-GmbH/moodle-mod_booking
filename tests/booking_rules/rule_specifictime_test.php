@@ -148,6 +148,7 @@ final class rule_specifictime_test extends advanced_testcase {
         }
         $option = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option->id);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
 
         // Create a booking option answer.
         $result = $plugingenerator->create_answer(['optionid' => $option->id, 'userid' => $student1->id]);
@@ -200,6 +201,51 @@ final class rule_specifictime_test extends advanced_testcase {
      */
     public static function rule_multiple_dates_override_provider(): array {
         return [
+            'Reminder to manager two hours before booking opening time (bookingopeningtime)' => [
+                [
+                    'rulessettings' => [
+                        0 => [
+                            'name' => 'Reminder to manager two hours before booking opening time (bookingopeningtime)',
+                            'useastemplate' => 0,
+                            'conditionname' => 'select_booking_manager',
+                            'conditiondata' => '',
+                            'actionname' => 'send_mail',
+                            'actiondata' => '{"sendical":0,"sendicalcreateorcancel":"",
+                                "subject":"A new session of {Title} will start in 2 hours",
+                                "template":"Hi {firstname}. Booking will be allowed in 2 hours:<br>{bookingdetails}",
+                                "templateformat":"1"}',
+                            'rulename' => 'rule_specifictime',
+                            'ruledata' => '{"seconds":7200,"datefield":"bookingopeningtime"}',
+                        ],
+                    ],
+                    'useoption' => 3,
+                    'usecourse' => 0,
+                    'optionsettings' => [
+                        [
+                            'restrictanswerperiodopening' => 1,
+                            'bookingopeningtime' => '4 June 2050 18:00', // Required in case of importing!
+                        ],
+                    ],
+                ],
+                [
+                    'initialnumberoftasks' => 1,
+                    'tasksperoptiondates' => [
+                        [
+                            'mock_time' => '4 June 2050 15:00',
+                            'messages_sent' => 0, // More than 2 hours before bookingopeningtime.
+                        ],
+                        [
+                            'mock_time' => '4 June 2050 16:30',
+                            'messages_sent' => 1, // Less than 2 hours before bookingopeningtime.
+                            'contains_success' => self::MAIL_SUCCES_TRACE,
+                        ],
+                        [
+                            'mock_time' => '5 June 2050 18:00',
+                            'messages_sent' => 0, // Confirm no other messages on days before actual booking.
+                        ],
+                    ],
+                ],
+            ],
             'Reminder 2 days after a selflearning course has ended (selflearningcourseenddate)' => [
                 [
                     'rulessettings' => [
@@ -452,6 +498,16 @@ final class rule_specifictime_test extends advanced_testcase {
                     'daystonotify_2' => "0",
                     'coursestarttime_2' => strtotime('15 June 2050 15:00'),
                     'courseendtime_2' => strtotime('15 June 2050 16:00'),
+                ],
+                // Option 1 with 1 session in 2050 with booking oprning time being set.
+                3 => [
+                    'text' => 'Option: in 2050',
+                    'description' => 'Will start in 2050',
+                    'chooseorcreatecourse' => 1, // Required.
+                    'optiondateid_0' => "0",
+                    'daystonotify_0' => "0",
+                    'coursestarttime_0' => strtotime('6 June 2050 15:00'),
+                    'courseendtime_0' => strtotime('6 June 2050 16:00'),
                 ],
             ],
         ];
