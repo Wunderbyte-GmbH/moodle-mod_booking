@@ -875,10 +875,6 @@ class shortcodes {
                     $statusarray,
                     $additionalwhere
                 );
-        if (!empty($args['futureonly'])) {
-            $startoftoday = time();
-            $where .= " AND courseendtime > $startoftoday ";
-        }
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
         $possibleoptions = [
             "description",
@@ -944,7 +940,6 @@ class shortcodes {
 
         // Set common table options requirelogin, sortorder, sortby.
         self::set_common_table_options_from_arguments($table, $args);
-
         [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(
                     0,
@@ -960,7 +955,10 @@ class shortcodes {
                     '',
                     $table
                 );
-
+        if (!empty($args['futureonly'])) {
+            $startoftoday = time();
+            $where .= " AND courseendtime > $startoftoday ";
+        }
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
         $table->define_cache('mod_booking', 'mybookingoptionstable');
