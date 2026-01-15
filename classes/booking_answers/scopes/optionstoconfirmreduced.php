@@ -100,7 +100,7 @@ class optionstoconfirmreduced extends optionstoconfirm {
             'name' => get_string('fullname', 'core'),
             'text' => get_string('bookingoptionname', 'mod_booking'),
             'action_confirm_delete' => get_string('confirmbooking', 'mod_booking'),
-            'timemodified' => get_string('timecreated', 'core'),
+            'coursestarttime' => get_string('coursestarttime', 'mod_booking'),
         ];
         return $columns;
     }
