@@ -2040,22 +2040,6 @@ if ($ADMIN->fulltree) {
             0
         )
     );
-    $settings->add(
-        new admin_setting_configcheckbox(
-            'booking/attachical',
-            get_string('attachicalfile', 'mod_booking'),
-            get_string('attachicalfile_desc', 'mod_booking'),
-            1
-        )
-    );
-    $settings->add(
-        new admin_setting_configcheckbox(
-            'booking/icalcancel',
-            get_string('icalcancel', 'mod_booking'),
-            get_string('icalcanceldesc', 'mod_booking'),
-            1
-        )
-    );
 
     $options = [
         1 => get_string('courseurl', 'mod_booking'),

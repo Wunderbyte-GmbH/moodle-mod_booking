@@ -730,21 +730,17 @@ class message_controller {
             $this->messageparam == MOD_BOOKING_MSGPARAM_CANCELLED_BY_PARTICIPANT
             || $this->messageparam == MOD_BOOKING_MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM
         ) {
-            // Check if setting to send a cancel ical is enabled.
-            if (get_config('booking', 'icalcancel')) {
-                $ical = new ical($this->bookingsettings, $this->optionsettings, $this->user, $this->bookingmanager, false);
-                $this->ical = $ical;
-                $attachments = $ical->get_attachments(true);
-                $attachname = $ical->get_name();
-            }
+            // Generate ical attachment cancelling the event.
+            $ical = new ical($this->bookingsettings, $this->optionsettings, $this->user, $this->bookingmanager, false);
+            $this->ical = $ical;
+            $attachments = $ical->get_attachments(true); // True means it's an ical that cancels the event!
+            $attachname = $ical->get_name();
         } else {
             // Generate ical attachments to go with the message. Check if ical attachments enabled.
-            if (get_config('booking', 'attachical')) {
-                $ical = new ical($this->bookingsettings, $this->optionsettings, $this->user, $this->bookingmanager, $updated);
-                $this->ical = $ical;
-                $attachments = $ical->get_attachments($updated);
-                $attachname = $ical->get_name();
-            }
+            $ical = new ical($this->bookingsettings, $this->optionsettings, $this->user, $this->bookingmanager, $updated);
+            $this->ical = $ical;
+            $attachments = $ical->get_attachments(false); // False means normal creation of ical.
+            $attachname = $ical->get_name();
         }
 
         return [$attachments, $attachname];

@@ -168,13 +168,6 @@ class ical {
     protected $userfullname = '';
 
     /**
-     * $attachical
-     *
-     * @var bool
-     */
-    protected $attachical = false;
-
-    /**
      * $individualvevents
      *
      * @var array
@@ -231,44 +224,32 @@ class ical {
             $urlbits = parse_url($CFG->wwwroot);
             $this->host = $urlbits['host'];
             $this->userfullname = \fullname($this->user);
-            $this->attachical = \get_config('booking', 'attachical');
         }
     }
 
     /**
-     * Create attachments to add to the notification email
+     * Create attachments to add to the notification email.
      *
      * @param bool $cancel optional - true to generate a 'cancel' ical event
-     * @return array with filename as key and fielpath as value empty array if no dates are set
+     * @return array with filename as key and field path as value empty array if no dates are set
      */
-    public function get_attachments($cancel = false) {
-        global $CFG;
+    public function get_attachments($cancel = false): array {
         if (!$this->datesareset) {
             return [];
         }
-
-        // UIDs should be globally unique. @$this->host: Hostname for this moodle installation.
-        $uid = md5($CFG->siteidentifier . $this->option->id . 'mod_booking_option') . '@' . $this->host;
-        $dtstart = $this->generate_timestamp($this->option->coursestarttime);
-        $dtend = $this->generate_timestamp($this->option->courseendtime);
 
         if ($cancel) {
             $this->role = 'NON-PARTICIPANT';
             $this->partstat = 'DECLINED';
             $this->status = "\nSTATUS:CANCELLED";
-        }
-
-        // Determine the correct iCal method.
-        if ($cancel) {
+            // Determine the correct iCal method.
             $icalmethod = 'CANCEL';
-        } else if ($this->updated) {
-            $icalmethod = 'REQUEST';
         } else {
             $icalmethod = 'REQUEST';
         }
 
         // This is where we attach the iCal.
-        if (!empty($this->times) && $this->attachical) {
+        if (!empty($this->times)) {
             $this->get_vevents_from_optiondates();
         }
 
