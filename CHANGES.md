@@ -1,4 +1,18 @@
-## Version 9.0.6 (2026011600)
+## Version 9.0.7 (2026011600)
+* Improvement: Implement field controllers for customfield placeholders to support more field types (e.g. multiselect dynamic dropdown).
+* Improvement: Optionstoconfirm reduced now show coursestarttime
+* Improvement: Add checklist setting
+* Improvement: Properly url encode everything
+* Bugfix: Remove can_issue check as it fails when called from observer.
+* Bugfix: Make sure optionstoconfirmreduced still work
+* Bugfix: fureonly not working
+* Bugfix: Correctly check for invisible options
+* Bugfix: Fix pollurl collapsible for Bootstrap 5 and improve usability.
+* Bugfix: With previouslybooked condition, if option isn't found block Wunderbyte-GmbH/Wunderbyte-GmbH
+* Bugfix: Correctly check for selflearningcourse in answers Wunderbyte-GmbH/Wunderbyte-GmbH
+* Bugfix: Make double sure that we could actually assign competency on completion
+
+## Version 9.0.6 (2026011400)
 * Bugfix: Make double sure that we could actually assign competency on completion
 * Bugfix: Correctly check for selflearningcourse in answers
 * Bugfix: With previouslybooked condition, if option isn't found block
