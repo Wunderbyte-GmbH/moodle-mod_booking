@@ -246,8 +246,12 @@ class mod_booking_observer {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        // If there are associated optiondates (sessions) then update their calendar events.
-        if ($optiondates = $DB->get_records('booking_optiondates', ['optionid' => $optionid])) {
+        // If the bookingoption was set to invisible, we remove all associated calendar events.
+        if ($settings->invisible == MOD_BOOKING_OPTION_INVISIBLE) {
+            // TODO: DO NOT DELETE, just HIDE the events!
+            option_delete_all_events($optionid);
+        } else if ($optiondates = $DB->get_records('booking_optiondates', ['optionid' => $optionid])) {
+            // If there are associated optiondates (sessions) then update their calendar events.
             // Delete course event if we have optiondates (multisession!).
             if ($settings->calendarid) {
                 $DB->delete_records('event', ['id' => $settings->calendarid]);

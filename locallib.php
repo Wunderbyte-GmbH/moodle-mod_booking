@@ -180,7 +180,8 @@ function optiondate_duplicatecustomfields($oldoptiondateid, $newoptiondateid) {
 }
 
 /**
- * Helper function to update user calendar events after an option or optiondate (a session of a booking option) has been changed.
+ * Helper function to update user calendar events
+ * after an option or optiondate (a session of a booking option) has been changed.
  *
  * @param int $optionid
  * @param int $cmid
@@ -278,6 +279,34 @@ function option_optiondate_update_event(int $optionid, int $cmid, ?stdClass $opt
             return false;
         }
     }
+}
+
+/**
+ * Helper function to delete all calendar events
+ * for a specific option.
+ *
+ * @param int $optionid
+ */
+function option_delete_all_events(int $optionid): void {
+    global $DB;
+    // First, delete the course event(s).
+    $courseeventsql = "SELECT * FROM {event} WHERE uuid LIKE " .
+        $DB->sql_concat((string)$optionid, "'-%'");
+    $courseevents = $DB->get_records_sql($courseeventsql);
+    foreach ($courseevents as $courseevent) {
+        $DB->delete_records('event', ['id' => $courseevent->id]);
+    }
+    // Now, delete all user events.
+    $usereventsql = "SELECT *
+                       FROM {booking_userevents}
+                      WHERE optionid = :optionid;";
+    $params['optionid'] = $optionid;
+    $userevents = $DB->get_records_sql($usereventsql, $params);
+    foreach ($userevents as $userevent) {
+        $DB->delete_records('event', ['id' => $userevent->eventid]);
+    }
+    $DB->delete_records('booking_userevents', ['optionid' => $optionid]);
+    return;
 }
 
 /**
