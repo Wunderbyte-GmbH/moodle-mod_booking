@@ -43,7 +43,6 @@
         [args]="{cmid: <% cmid %>, whichview: '<% label %>', timestamp: <% timestamp %>}"
         class="<% class %>"
     >
-        <% isactive %>
         <% name %>
     </ion-button>
   <%/availablenavtabs%>
@@ -58,11 +57,14 @@
         </ion-card-header>
         <ion-card-content>
             <br>
-            <%# sessions %>
-                <div><% concatinatedstartendtime %></div>
-            <%/ sessions %>
+            <%# hassessions %>
+                <%# sessions %>
+                    <div><% concatinatedstartendtime %></div>
+                <%/ sessions %>
+            <br>
+            <%/ hassessions %>
 
-            <%# collapsedsessions.0 %>
+            <%# hascollapsedsessions %>
             <ion-accordion-group
               style="padding-bottom: 3px !important;"
             >
@@ -84,21 +86,21 @@
                 <%/ collapsedsessions %>
               </ion-accordion>
             </ion-accordion-group>
-            <%/ collapsedsessions.0 %>
+            <%/ hascollapsedsessions %>
 
-            <%# sessions.0 %>
+            <%# hassessions %>
             <br>
-            <%/ sessions.0 %>
+            <%/ hassessions %>
 
-            <%# price %>
+            <%# hasprice %>
             <ion-text>
                 <b>
                   {{ 'plugin.mod_booking.mobileappprice' | translate }}
                 </b>
-                <h4><% price %> <% currency %></h4>
+                <h4><% price.amount %> <% price.currency %></h4>
                 <br>
             </ion-text>
-            <%/ price %>
+            <%/ hasprice %>
 
             <ion-button core-site-plugins-new-content
                 title="<% text %>" component="mod_booking"

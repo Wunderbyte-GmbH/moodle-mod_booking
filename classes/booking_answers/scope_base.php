@@ -181,33 +181,34 @@ class scope_base {
      */
     public function join_customfields(string $fields, string $from, string $where, array $params, array $customfields = []) {
         global $DB;
-        if (empty($customfields)) {
-            $customfields = booking_handler::get_customfields();
-        }
-        $counter = 1;
-        foreach ($customfields as $customfield) {
-            $name = $customfield->shortname;
-            $fieldid = $customfield->id;
+        $filterarray = [];
+        [$select1, $from1, $filter1, $params1] =
+        booking_option_settings::return_sql_for_customfield(
+            $filterarray,
+            $customfields,
+            's1.optionid'
+        );
+        $fields .= !empty($select1) ? ", $select1 " : '';
+        $from   .= " $from1 ";
+        $where  .= " $filter1 ";
 
-            if (preg_match('/[^a-z0-9_]/', $name) > 0) {
-                      throw new moodle_exception(
-                          'nospacesinshortnames',
-                          'mod_booking',
-                          '',
-                          $name,
-                          "This shortname of a booking customfield contains forbidden characters"
-                      );
+        foreach ($filterarray as $key => $value) {
+            // Ensure the key is lowercased.
+            $paramsvaluekey = "param";
+            while (isset($params[$paramsvaluekey])) {
+                $paramsvaluekey .= $counter;
+                $counter++;
             }
 
-            $fields .= ", cfd$counter.value AS $name";
-
-            $from .= " LEFT JOIN {customfield_data} cfd$counter
-               ON cfd$counter.instanceid = s1.optionid
-               AND cfd$counter.fieldid = :cfid$counter";
-            $params["cfid$counter"] = $fieldid;
-
-            $counter++;
+            if (gettype($value) == 'integer') {
+                $filter .= " AND $key = $value";
+            } else {
+                $filter .= " AND " . $DB->sql_like("$key", ":$paramsvaluekey", false);
+                $params[$paramsvaluekey] = $value;
+            }
         }
+
+        $params = array_merge($params, $params1);
 
         return [$fields, $from, $where ?? '', $params];
     }

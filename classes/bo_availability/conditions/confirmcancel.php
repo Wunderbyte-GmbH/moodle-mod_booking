@@ -265,7 +265,7 @@ class confirmcancel implements bo_condition {
             $settings,
             $userid,
             $label,
-            'btn btn-danger ml-1',
+            'btn btn-danger ms-1',
             false,
             $fullwidth,
             'button',

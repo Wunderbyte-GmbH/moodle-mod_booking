@@ -111,6 +111,10 @@ define('MOD_BOOKING_STATUSPARAM_COMPLETION_CHANGED', 18);
 define('MOD_BOOKING_STATUSPARAM_NOTES_EDITED', 19);
 define('MOD_BOOKING_STATUSPARAM_CONFIRMATION_DELETED', 20);
 
+// Values for Booking Option Types.
+define('MOD_BOOKING_OPTIONTYPE_DEFAULT', 0);
+define('MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE', 1);
+
 // Define booking presence status parameters.
 define('MOD_BOOKING_PRESENCE_STATUS_NOTSET', 0);
 define('MOD_BOOKING_PRESENCE_STATUS_COMPLETE', 1);
@@ -391,6 +395,11 @@ define('MOD_BOOKING_RECURRING_APPLY_TO_CHILDREN', 1);
 define('MOD_BOOKING_RECURRING_OVERWRITE_CHILDREN', 2);
 define('MOD_BOOKING_RECURRING_APPLY_TO_SIBLINGS', 3);
 define('MOD_BOOKING_RECURRING_OVERWRITE_SIBLINGS', 4);
+
+// Define booking option visibility status.
+define('MOD_BOOKING_OPTION_VISIBLE', 0);
+define('MOD_BOOKING_OPTION_INVISIBLE', 1);
+define('MOD_BOOKING_OPTION_VISIBLEWITHLINK', 2);
 
 /**
  * Booking get coursemodule info.
@@ -1421,7 +1430,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
             'nav_recalculateprices'
         );
         $navref->add(
-            get_string('teachersinstancereport', 'mod_booking') . " ($bookingsettings->name)",
+            get_string('teachersinstancereport', 'mod_booking') . " (" . format_string($bookingsettings->name) . ")",
             new moodle_url('/mod/booking/teachers_instance_report.php', ['cmid' => $cm->id]),
             navigation_node::TYPE_CUSTOM,
             null,
@@ -1432,7 +1441,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
 
         // Option Form Config.
         $optionformconfignode = $navref->add(
-            get_string('optionformconfig', 'mod_booking') . " ($bookingsettings->name)",
+            get_string('optionformconfig', 'mod_booking') . " (" . format_string($bookingsettings->name) . ")",
             new moodle_url(
                 '/mod/booking/optionformconfig.php',
                 ['cmid' => $cm->id]
@@ -1449,7 +1458,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         // Booking Rules.
         if (has_capability('mod/booking:editbookingrules', $context)) {
             $bookingrulesnode = $navref->add(
-                get_string('bookingrules', 'mod_booking') . " ($bookingsettings->name)",
+                get_string('bookingrules', 'mod_booking') . " (" . format_string($bookingsettings->name) . ")",
                 new moodle_url(
                     '/mod/booking/edit_rules.php',
                     ['cmid' => $cm->id]
@@ -1467,7 +1476,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         // Bookings Tracker.
         if (has_capability('mod/booking:managebookedusers', $context)) {
             $bookingstrackernode = $navref->add(
-                get_string('bookingstracker', 'mod_booking') . " ($bookingsettings->name)",
+                get_string('bookingstracker', 'mod_booking') . " (" . format_string($bookingsettings->name) . ")",
                 new moodle_url(
                     '/mod/booking/report2.php',
                     ['cmid' => $cm->id]

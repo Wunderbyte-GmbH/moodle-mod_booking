@@ -23,6 +23,9 @@
  */
 
 use mod_booking\customfield\booking_handler;
+use mod_booking\local\htmlcomponents;
+use mod_booking\placeholders\placeholders_info;
+use theme_boost_union\admin_setting_configtext_url;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -202,11 +205,27 @@ if ($ADMIN->fulltree) {
 
         $expirationdate = wb_payment::decryptlicensekey($licensekey);
         if (!empty($expirationdate)) {
-            $licensekeydesc = "<p style='color: green; font-weight: bold'>"
-                . get_string('licenseactivated', 'mod_booking')
-                . $expirationdate
-                . ")</p>";
+            $expirationdatetimestamp = strtotime($expirationdate);
+            $now = time();
+            if ($expirationdatetimestamp < $now) {
+                // License has expired.
+                $licensekeydesc = "<p style='color: red; font-weight: bold'>"
+                    . get_string(
+                        'licenseexpired',
+                        'mod_booking',
+                        $expirationdate
+                    ) . "</p>";
+            } else {
+                // License is valid.
+                $licensekeydesc = "<p style='color: green; font-weight: bold'>"
+                    . get_string(
+                        'licenseactivated',
+                        'mod_booking',
+                        $expirationdate
+                    ) . "</p>";
+            }
         } else {
+            // License key is invalid.
             $licensekeydesc = "<p style='color: red; font-weight: bold'>"
                 . get_string('licenseinvalid', 'mod_booking')
                 . "</p>";
@@ -423,6 +442,15 @@ if ($ADMIN->fulltree) {
             'booking/alloptionsinreport',
             get_string('alloptionsinreport', 'mod_booking'),
             get_string('alloptionsinreportdesc', 'mod_booking'),
+            0
+        )
+    );
+
+    $settings->add(
+        new admin_setting_configcheckbox(
+            'booking/showchecklistdownloadbutton',
+            get_string('showchecklistdownloadbutton', 'mod_booking'),
+            get_string('showchecklistdownloadbutton_desc', 'mod_booking'),
             0
         )
     );
@@ -959,7 +987,7 @@ if ($ADMIN->fulltree) {
             if (!$plugin instanceof bookingextension_interface) {
                 continue; // Skip if the plugin does not implement the interface.
             }
-            // TODO: This is not very stable. Maybe alter $settings object.
+            // Todo: This is not very stable. Maybe alter $settings object.
             $plugin->load_settings($ADMIN, 'modbookingfolder', $hassiteconfig);
         }
     } else {
@@ -984,6 +1012,51 @@ if ($ADMIN->fulltree) {
          );
     }
 
+    // PRO feature: Cancellation settings.
+    if ($proversion) {
+        $settings->add(
+            new admin_setting_heading(
+                'pollurltemplateheading',
+                get_string('pollurltemplateheading', 'mod_booking'),
+                ''
+            )
+        );
+
+        $description = htmlcomponents::render_bootstrap_collapsible(
+            get_string('pollurltemplate_desc', 'mod_booking'),
+            trim(placeholders_info::return_list_of_placeholders(true))
+        );
+
+        $settings->add(
+            new admin_setting_configtext(
+                'booking/pollurltemplate',
+                get_string('pollurltemplate', 'mod_booking'),
+                trim($description), // HTML will render correctly.
+                '',
+                PARAM_URL
+            )
+        );
+
+        $settings->add(
+            new admin_setting_configtext(
+                'booking/pollurlteacherstemplate',
+                get_string('pollurlteacherstemplate', 'mod_booking'),
+                trim($description), // HTML will render correctly.
+                '',
+                PARAM_URL
+            )
+        );
+    } else {
+        $settings->add(
+            new admin_setting_heading(
+                'pollurltemplateheading',
+                get_string('pollurltemplateheading', 'mod_booking'),
+                get_string('prolicensefeatures', 'mod_booking') .
+                get_string('profeatures:pollurltemplateheading', 'mod_booking') .
+                get_string('infotext:prolicensenecessary', 'mod_booking')
+            )
+        );
+    }
 
     // PRO feature: Cancellation settings.
     if ($proversion) {
@@ -1496,12 +1569,10 @@ if ($ADMIN->fulltree) {
     );
 
     // Currency dropdown.
-    $currenciesobjects = price::get_possible_currencies();
-
     $currencies['EUR'] = 'Euro (EUR)';
-    foreach ($currenciesobjects as $currenciesobject) {
-        $currencyidentifier = $currenciesobject->get_identifier();
-        $currencies[$currencyidentifier] = $currenciesobject->out(current_language()) . ' (' . $currencyidentifier . ')';
+    $currencieslangstrings = price::get_possible_currencies();
+    foreach ($currencieslangstrings as $key => $currencieslangstring) {
+        $currencies[$key] = $currencieslangstring->out(current_language()) . ' (' . $key . ')';
     }
 
     $settings->add(
@@ -1731,7 +1802,7 @@ if ($ADMIN->fulltree) {
             'booking/defaulttemplate',
             get_string('defaulttemplate', 'mod_booking'),
             get_string('defaulttemplatedesc', 'mod_booking'),
-            1,
+            0,
             $alltemplates
         )
     );

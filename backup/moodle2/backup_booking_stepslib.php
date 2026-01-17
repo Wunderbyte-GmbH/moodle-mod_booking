@@ -44,7 +44,8 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $booking = new backup_nested_element(
             'booking',
             ['id'],
-            ['course', 'name', 'intro', 'introformat', 'bookingmanager', 'mailtemplatessource', 'sendmail',
+            [
+                'course', 'name', 'intro', 'introformat', 'bookingmanager', 'mailtemplatessource', 'sendmail',
                 'copymail', 'allowupdate', 'bookingpolicy', 'bookingpolicyformat', 'timeopen', 'timeclose', 'timemodified',
                 'autoenrol', 'bookedtext', 'waitingtext', 'statuschangetext', 'deletedtext', 'bookingchangedtext',
                 'maxperuser', 'sendmailtobooker', 'duration', 'points', 'organizatorname',
@@ -62,7 +63,8 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
                 'signinsheetfields', 'comments', 'ratings', 'removeuseronunenrol', 'teacherroleid', 'allowupdatedays',
                 'templateid', 'showlistoncoursepage', 'coursepageshortinfo', 'bookingimagescustomfield',
                 'defaultoptionsort', 'defaultsortorder', 'showviews', 'autcractive', 'autcrprofile',
-                'autcrvalue', 'autcrtemplate', 'semesterid', 'iselective', 'maxcredits', 'consumeatonce', 'enforceorder',
+                'autcrvalue', 'autcrtemplate', 'semesterid', 'iselective', 'consumeatonce', 'maxcredits',
+                'enforceorder', 'enforceteacherorder', 'json', 'toporientation',
             ]
         );
 
@@ -70,7 +72,8 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $option = new backup_nested_element(
             'option',
             ['id'],
-            ['text', 'maxanswers', 'maxoverbooking', 'minanswers', 'bookingopeningtime', 'bookingclosingtime', 'courseid',
+            [
+                'text', 'maxanswers', 'maxoverbooking', 'minanswers', 'bookingopeningtime', 'bookingclosingtime', 'courseid',
                 'coursestarttime', 'courseendtime', 'enrolmentstatus', 'description', 'descriptionformat',
                 'limitanswers', 'timecreated', 'timemodified', 'addtocalendar', 'calendarid', 'pollurl',
                 'groupid', 'sent', 'sent2', 'sentteachers', 'location', 'institution', 'address',
@@ -79,7 +82,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
                 'beforebookedtext', 'beforecompletedtext', 'aftercompletedtext', 'shorturl', 'duration',
                 'parentid', 'semesterid', 'dayofweektime', 'invisible', 'timemadevisible', 'annotation',
                 'identifier', 'titleprefix', 'priceformulaadd', 'priceformulamultiply', 'priceformulaoff',
-                'dayofweek', 'availability', 'status', 'responsiblecontact', 'credits', 'sortorder', 'json', 'sqlfilter',
+                'dayofweek', 'availability', 'status', 'type', 'responsiblecontact', 'credits', 'sortorder', 'json', 'sqlfilter',
             ]
         );
 
@@ -159,6 +162,15 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         );
         $entitiesrelationsforoptiondates->add_child($entitiesrelationforoptiondate);
 
+        // If shopping cart is installed, we also want to backup shopping cart iteminfo.
+        $shoppingcartiteminfoforoptions = new backup_nested_element('shoppingcartiteminfoforoptions');
+        $shoppingcartiteminfoforoption = new backup_nested_element(
+            'shoppingcartiteminfoforoption',
+            ['id'],
+            ['itemid', 'componentname', 'area', 'allowinstallment', 'json', 'usermodified', 'timecreated', 'timemodified']
+        );
+        $shoppingcartiteminfoforoptions->add_child($shoppingcartiteminfoforoption);
+
         $customfields = new backup_nested_element('customfields');
         $customfield = new backup_nested_element(
             'customfield',
@@ -218,6 +230,8 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         $option->add_child($subbookingoptions);
         $subbookingoptions->add_child($subbookingoption);
 
+        $option->add_child($shoppingcartiteminfoforoptions);
+
         $booking->add_child($history);
         $history->add_child($historyitem);
 
@@ -242,20 +256,35 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
 
         // Only backup (or duplicate) prices, if config setting is set.
         if (get_config('booking', 'duplicationrestoreprices')) {
-            /* IMPORTANT: Once we support subbookings, we might have different areas than 'option'
-            and this means 'itemid' might be something else than an optionid.
-            So we have to find out, if we still can set the params like this. */
-            $price->set_source_table('booking_prices', ['itemid' => backup::VAR_PARENTID]);
+            $price->set_source_sql(
+                "SELECT * FROM {booking_prices}
+                WHERE itemid = :itemid
+                AND area = 'option'", // Currently, we only support the 'option' area.
+                ['itemid' => backup::VAR_PARENTID]
+            );
+        }
+
+        // If shopping cart is installed, we also want to backup shopping cart iteminfo.
+        if (class_exists('local_shopping_cart\shopping_cart')) {
+            $shoppingcartiteminfoforoption->set_source_sql(
+                "SELECT * FROM {local_shopping_cart_iteminfo}
+                WHERE itemid = :itemid
+                AND area = 'option'
+                AND componentname = 'mod_booking'", // Currently, we only support the 'option' area.
+                ['itemid' => backup::VAR_PARENTID]
+            );
         }
 
         // Only backup (or duplicate) entities, if config setting is set AND if entities are available.
         if (get_config('booking', 'duplicationrestoreentities') && class_exists('local_entities\entitiesrelation_handler')) {
-            $entitiesrelationforoption->set_source_table(
-                'local_entities_relations',
+            $entitiesrelationforoption->set_source_sql(
+                "SELECT * FROM {local_entities_relations}
+                 WHERE instanceid = :instanceid AND area = 'option'",
                 ['instanceid' => backup::VAR_PARENTID]
             );
-            $entitiesrelationforoptiondate->set_source_table(
-                'local_entities_relations',
+            $entitiesrelationforoptiondate->set_source_sql(
+                "SELECT * FROM {local_entities_relations}
+                 WHERE instanceid = :instanceid AND area = 'optiondate'",
                 ['instanceid' => backup::VAR_PARENTID]
             );
         }

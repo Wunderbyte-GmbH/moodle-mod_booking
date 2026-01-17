@@ -674,7 +674,7 @@ class all_userbookings extends \table_sql {
                 ['class' => 'mt-3']
             );
 
-            echo '<div class="singlebutton ml-2">' .
+            echo '<div class="singlebutton ms-2">' .
                 '<input type="submit" class="btn btn-success btn-sm mt-3" name="changepresencestatus" value="' .
                 get_string('confirmpresence', 'booking') . '" /></div>';
         }

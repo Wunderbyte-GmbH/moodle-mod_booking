@@ -90,14 +90,13 @@ class mobile {
             $settings = singleton_service::get_instance_of_booking_option_settings($record->id);
             $tmpoutputdata = $settings->return_booking_option_information();
             $tmpoutputdata['maxsessions'] = $maxdatabeforecollapsable;
-            $data = $settings->return_booking_option_information();
+            $rawdata = $settings->return_booking_option_information();
             if (count($settings->sessions) > $maxdatabeforecollapsable) {
-                $data['collapsedsessions'] = $data['sessions'];
-                unset($data['sessions']);
+                $rawdata['collapsedsessions'] = $rawdata['sessions'];
+                unset($rawdata['sessions']);
             }
-            $outputdata[] = $data;
+            $outputdata[] = self::sanitize_list_data($rawdata);
         }
-
         $data = [
           'mybookings' => $outputdata,
         ];
@@ -269,49 +268,20 @@ class mobile {
      * @return array HTML, javascript and otherdata
      */
     public static function mobile_mybookings_list($args) {
-        global $OUTPUT, $USER, $DB;
+        global $OUTPUT;
 
-        $mybookings = $DB->get_records_sql(
-            "SELECT ba.id id, c.id courseid, c.fullname fullname, b.id bookingid, b.name, bo.text, bo.id optionid,
-            bo.coursestarttime coursestarttime, bo.courseendtime courseendtime, cm.id cmid
-            FROM
-            {booking_answers} ba
-            LEFT JOIN
-        {booking_options} bo ON ba.optionid = bo.id
-            LEFT JOIN
-        {booking} b ON b.id = bo.bookingid
-            LEFT JOIN
-        {course} c ON c.id = b.course
-            LEFT JOIN
-            {course_modules} cm ON cm.module = (SELECT
-                    id
-                FROM
-                    {modules}
-                WHERE
-                    name = 'booking')
-                WHERE instance = b.id AND ba.userid = {$USER->id} AND cm.visible = 1"
-        );
-
+        $cmid = $args['cmid'];
+        $whichview = 'mybooking';
+        $records = self::get_available_booking_options($whichview, $cmid);
         $outputdata = [];
-
-        foreach ($mybookings as $key => $value) {
-            $status = '';
-            $coursestarttime = '';
-
-            if ($value->coursestarttime > 0) {
-                $coursestarttime = userdate($value->coursestarttime);
-            }
-            $status = booking_getoptionstatus($value->coursestarttime, $value->courseendtime);
-
-            $outputdata[] = [
-                'fullname' => $value->fullname,
-                'name' => $value->name,
-                'text' => $value->text,
-                'status' => $status,
-                'coursestarttime' => $coursestarttime,
-            ];
+        $maxdatabeforecollapsable = get_config('booking', 'collapseshowsettings');
+        if ($maxdatabeforecollapsable === false) {
+            $maxdatabeforecollapsable = '2';
         }
-
+        foreach ($records as $record) {
+            $rawdata = self::get_course_view_output_dat($record->id, $maxdatabeforecollapsable);
+            $outputdata[] = self::sanitize_list_data($rawdata);
+        }
         $data = ['mybookings' => $outputdata];
 
         return [
@@ -336,7 +306,7 @@ class mobile {
         global $DB, $OUTPUT, $USER;
 
         $cmid = $args['cmid'];
-        $availablenavtabs = self::get_available_nav_tabs($cmid);
+        $availablenavtabs = self::get_available_nav_tabs($cmid, $args['whichview'] ?? null);
         $whichview = self::set_active_nav_tabs($availablenavtabs, $args['whichview'] ?? null);
 
         if (empty($cmid)) {
@@ -350,7 +320,8 @@ class mobile {
             $maxdatabeforecollapsable = '2';
         }
         foreach ($records as $record) {
-            $outputdata[] = self::get_course_view_output_dat($record->id, $maxdatabeforecollapsable);
+            $rawdata = self::get_course_view_output_dat($record->id, $maxdatabeforecollapsable);
+            $outputdata[] = self::sanitize_list_data($rawdata);
         }
         $data = [];
         $data['availablenavtabs'] = $availablenavtabs;
@@ -368,6 +339,33 @@ class mobile {
             'javascript' => '',
             'otherdata' => ['data' => '{}'],
         ];
+    }
+
+    /**
+     * Get all selected nav tabs from the config
+     * @param array $data
+     * @return array
+     */
+    private static function sanitize_list_data($data) {
+        $data['title'] ??= '';
+        $data['text'] ??= '';
+
+        $data['sessions'] ??= [];
+        $data['collapsedsessions'] ??= [];
+
+        $data['hassessions'] = !empty($data['sessions']);
+        $data['hascollapsedsessions'] = !empty($data['collapsedsessions']);
+
+        $data['hasprice'] = !empty($data['price']);
+
+        $data['price'] = $data['price'] ? [
+            'amount' => $data['price'],
+            'currency' => $data['currency'] ?? '',
+        ] : null;
+
+        $data['itemid'] ??= 0;
+        $data['userid'] ??= 0;
+        return $data;
     }
 
     /**
@@ -414,11 +412,6 @@ class mobile {
             case 'myoptions':
                 $params = self::get_rendered_table_for_teacher($booking);
                 break;
-            // Todo: When we need it, we can uncomment this.
-            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-            /* case 'optionsiamresponsiblefor':
-                $params = self::get_rendered_table_for_responsible_contact($booking);
-                break; */
             case 'myinstitution':
                 $params = self::get_rendered_myinstitution_table($booking);
                 break;
@@ -579,11 +572,13 @@ class mobile {
     }
 
     /**
-     * Get all selected nav tabs from the config$activetab
-     * @param string $cmid
-     * @return array
+     * Get all selected nav tabs from the config$activetab.
+     *
+     * @param mixed $cmid       Booking instance course module id (cmid).
+     * @param mixed $activetab  The active tab.
+     * @return array            Array of available nav tabs.
      */
-    public static function get_available_nav_tabs($cmid) {
+    public static function get_available_nav_tabs($cmid, $activetab): array {
         $selectednavlabelnames = [];
         $navlabelnames = self::match_view_label_and_names();
         $configmobileviewoptions = get_config('booking', 'mobileviewoptions');
@@ -619,6 +614,7 @@ class mobile {
                 break;
             }
         }
+        unset($tab); // Important: Break the reference after the loop!
         return $whichview;
     }
 

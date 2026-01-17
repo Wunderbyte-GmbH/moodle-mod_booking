@@ -115,7 +115,7 @@ $files = $fs->get_area_files(
 if (count($files) > 1) {
     echo html_writer::start_tag('div');
     echo html_writer::tag('label', '<i class="fa fa-paperclip" aria-hidden="true"></i> ' .
-        get_string('attachedfiles', 'mod_booking') . ': ', ['class' => 'ml-3 mt-1 mb-3 bold']);
+        get_string('attachedfiles', 'mod_booking') . ': ', ['class' => 'ms-3 mt-1 mb-3 bold']);
 
     foreach ($files as $file) {
         if ($file->get_filesize() > 0) {
@@ -132,14 +132,14 @@ if (count($files) > 1) {
             $out[] = html_writer::link($url, $filename);
         }
     }
-    echo html_writer::tag('span', implode(', ', $out), ['class' => 'ml-2']);
+    echo html_writer::tag('span', implode(', ', $out), ['class' => 'ms-2']);
     echo html_writer::end_tag('div');
 }
 
 // Booking instance tags (default Moodle tags).
 if (!empty($CFG->usetags)) {
     $tags = core_tag_tag::get_item_tags('mod_booking', 'booking', $bookingsettings->id);
-    echo $OUTPUT->tag_list($tags, null, 'booking-tags ml-3 mb-3');
+    echo $OUTPUT->tag_list($tags, null, 'booking-tags ms-3 mb-3');
 }
 
 // As of Moodle 4.0 activity description will be shown automatically in module header.

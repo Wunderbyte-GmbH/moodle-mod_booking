@@ -38,6 +38,7 @@ use mod_booking\customfield\booking_handler;
 use mod_booking\elective;
 use mod_booking\filters\available_places;
 use mod_booking\option\fields\competencies;
+use mod_booking\shortcodes;
 use mod_booking\shortcodes_handler;
 use mod_booking\singleton_service;
 use mod_booking\table\bookingoptions_wbtable;
@@ -1239,6 +1240,10 @@ class view implements renderable, templatable {
                 $standardfilter->add_options($comptencyoptions);
                 $wbtable->add_filter($standardfilter);
             }
+            // Add the option type filter if 'typefilter' arg is true.
+            if (shortcodes_handler::arg_is_true($args['typefilter'] ?? false)) {
+                shortcodes::apply_bookingoptiontype_filter($wbtable, $cmid);
+            }
         }
 
         if ($sort) {
@@ -1299,7 +1304,7 @@ class view implements renderable, templatable {
         $wbtable->add_subcolumns('cardbody', $cardbody);
         $wbtable->add_classes_to_subcolumns('cardbody', ['columnkeyclass' => 'd-none']);
         $wbtable->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'd-none'], ['coursestarttime', 'courseendtime']);
-        $wbtable->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'float-right float-end'], ['action']);
+        $wbtable->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'float-end'], ['action']);
         $wbtable->add_classes_to_subcolumns(
             'cardbody',
             ['columnvalueclass' => 'text-center booking-option-info-invisible'],
@@ -1352,7 +1357,7 @@ class view implements renderable, templatable {
         if (in_array('dayofweektime', $optionsfields)) {
             $wbtable->add_classes_to_subcolumns(
                 'cardlist',
-                ['columnclass' => 'text-left text-gray pr-2'],
+                ['columnclass' => 'text-left text-gray pe-2'],
                 ['dayofweektime']
             );
             $wbtable->add_classes_to_subcolumns(
@@ -1364,14 +1369,14 @@ class view implements renderable, templatable {
         if (in_array('responsiblecontact', $optionsfields)) {
             $wbtable->add_classes_to_subcolumns(
                 'cardlist',
-                ['columnclass' => 'text-left pr-2 text-gray d-block'],
+                ['columnclass' => 'text-left pe-2 text-gray d-block'],
                 ['responsiblecontact']
             );
         }
         if (in_array('bookingopeningtime', $optionsfields)) {
             $wbtable->add_classes_to_subcolumns(
                 'cardlist',
-                ['columnclass' => 'text-left pr-2 text-gray d-block'],
+                ['columnclass' => 'text-left pe-2 text-gray d-block'],
                 ['bookingopeningtime']
             );
             $wbtable->add_classes_to_subcolumns(
@@ -1383,7 +1388,7 @@ class view implements renderable, templatable {
         if (in_array('bookingclosingtime', $optionsfields)) {
             $wbtable->add_classes_to_subcolumns(
                 'cardlist',
-                ['columnclass' => 'text-left pr-2 text-gray d-block'],
+                ['columnclass' => 'text-left pe-2 text-gray d-block'],
                 ['bookingclosingtime']
             );
             $wbtable->add_classes_to_subcolumns(
@@ -1395,14 +1400,14 @@ class view implements renderable, templatable {
         if (in_array('showdates', $optionsfields)) {
             $wbtable->add_classes_to_subcolumns(
                 'cardlist',
-                ['columnclass' => 'text-left pr-2 text-gray'],
+                ['columnclass' => 'text-left pe-2 text-gray'],
                 ['showdates']
             );
         }
         if (in_array('location', $optionsfields)) {
             $wbtable->add_classes_to_subcolumns(
                 'cardlist',
-                ['columnclass' => 'text-left text-gray  pr-2'],
+                ['columnclass' => 'text-left text-gray  pe-2'],
                 ['location']
             );
             $wbtable->add_classes_to_subcolumns(
@@ -1414,7 +1419,7 @@ class view implements renderable, templatable {
         if (in_array('institution', $optionsfields)) {
             $wbtable->add_classes_to_subcolumns(
                 'cardlist',
-                ['columnclass' => 'text-left text-gray  pr-2'],
+                ['columnclass' => 'text-left text-gray  pe-2'],
                 ['institution']
             );
             $wbtable->add_classes_to_subcolumns(
@@ -1425,7 +1430,7 @@ class view implements renderable, templatable {
         }
         $wbtable->add_classes_to_subcolumns(
             'cardlist',
-            ['columnclass' => 'text-left text-gray pr-2'],
+            ['columnclass' => 'text-left text-gray pe-2'],
             ['bookings']
         );
         $wbtable->add_classes_to_subcolumns(
@@ -1436,7 +1441,7 @@ class view implements renderable, templatable {
         if (in_array('minanswers', $optionsfields)) {
             $wbtable->add_classes_to_subcolumns(
                 'cardlist',
-                ['columnclass' => 'text-left text-gray pr-2'],
+                ['columnclass' => 'text-left text-gray pe-2'],
                 ['minanswers']
             );
             $wbtable->add_classes_to_subcolumns(
@@ -1632,7 +1637,7 @@ class view implements renderable, templatable {
         if (in_array('dayofweektime', $optionsfields)) {
             $wbtable->add_classes_to_subcolumns(
                 'footer',
-                ['columnclass' => 'text-left text-gray pr-2 font-size-sm'],
+                ['columnclass' => 'text-left text-gray pe-2 font-size-sm'],
                 ['dayofweektime']
             );
             $wbtable->add_classes_to_subcolumns(
@@ -1647,7 +1652,7 @@ class view implements renderable, templatable {
         if (in_array('bookingopeningtime', $optionsfields)) {
             $wbtable->add_classes_to_subcolumns(
                 'footer',
-                ['columnclass' => 'text-left pr-2 text-gray font-size-sm d-block'],
+                ['columnclass' => 'text-left pe-2 text-gray font-size-sm d-block'],
                 ['bookingopeningtime']
             );
             $wbtable->add_classes_to_subcolumns(
@@ -1659,7 +1664,7 @@ class view implements renderable, templatable {
         if (in_array('bookingclosingtime', $optionsfields)) {
             $wbtable->add_classes_to_subcolumns(
                 'footer',
-                ['columnclass' => 'text-left pr-2 text-gray font-size-sm d-block'],
+                ['columnclass' => 'text-left pe-2 text-gray font-size-sm d-block'],
                 ['bookingclosingtime']
             );
             $wbtable->add_classes_to_subcolumns(
@@ -1671,14 +1676,14 @@ class view implements renderable, templatable {
         if (in_array('showdates', $optionsfields)) {
             $wbtable->add_classes_to_subcolumns(
                 'footer',
-                ['columnclass' => 'text-left pr-2 text-gray font-size-sm'],
+                ['columnclass' => 'text-left pe-2 text-gray font-size-sm'],
                 ['showdates']
             );
         }
         if (in_array('location', $optionsfields)) {
             $wbtable->add_classes_to_subcolumns(
                 'footer',
-                ['columnclass' => 'text-left text-gray  pr-2 font-size-sm'],
+                ['columnclass' => 'text-left text-gray  pe-2 font-size-sm'],
                 ['location']
             );
             $wbtable->add_classes_to_subcolumns(
@@ -1690,7 +1695,7 @@ class view implements renderable, templatable {
         if (in_array('institution', $optionsfields)) {
             $wbtable->add_classes_to_subcolumns(
                 'footer',
-                ['columnclass' => 'text-left text-gray  pr-2 font-size-sm'],
+                ['columnclass' => 'text-left text-gray  pe-2 font-size-sm'],
                 ['institution']
             );
             $wbtable->add_classes_to_subcolumns(
@@ -1701,7 +1706,7 @@ class view implements renderable, templatable {
         }
         $wbtable->add_classes_to_subcolumns(
             'footer',
-            ['columnclass' => 'text-left text-gray pr-2 font-size-sm'],
+            ['columnclass' => 'text-left text-gray pe-2 font-size-sm'],
             ['bookings']
         );
         $wbtable->add_classes_to_subcolumns(
@@ -1712,7 +1717,7 @@ class view implements renderable, templatable {
         if (in_array('minanswers', $optionsfields)) {
             $wbtable->add_classes_to_subcolumns(
                 'footer',
-                ['columnclass' => 'text-left text-gray pr-2 font-size-sm'],
+                ['columnclass' => 'text-left text-gray pe-2 font-size-sm'],
                 ['minanswers']
             );
             $wbtable->add_classes_to_subcolumns(

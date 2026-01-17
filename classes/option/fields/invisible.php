@@ -170,11 +170,11 @@ class invisible extends field_base {
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
             $timemadevisible = $settings->timemadevisible ?? 0;
             if (!empty($timemadevisible)) {
-                if ($settings->invisible == 0) {
+                if ($settings->invisible == MOD_BOOKING_OPTION_VISIBLE) {
                     $readabletimemadevisible = userdate($timemadevisible, get_string('strftimedaydatetime', 'langconfig'));
                     $mform->addElement(
                         'html',
-                        '<div class="bookingoption-form-timemadevisible text-muted small ml-4 mb-3">'
+                        '<div class="bookingoption-form-timemadevisible text-muted small ms-4 mb-3">'
                         . get_string('timemadevisible', 'mod_booking') . ": "
                         . $readabletimemadevisible . '</div>'
                     );

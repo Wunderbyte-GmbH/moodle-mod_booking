@@ -134,7 +134,7 @@ export const datelistinit = () => {
             let targetElement = e.target.closest('li');
             let date = document.querySelector("#meeting-time");
             let element = '<li><span class="badge bg-primary">' + date.value +
-                '</span> <i class="fa fa-trash ml-2 icon-red" data-action="delete"></i></li>';
+                '</span> <i class="fa fa-trash ms-2 icon-red" data-action="delete"></i></li>';
             targetElement.insertAdjacentHTML('afterend', element);
         }
     });

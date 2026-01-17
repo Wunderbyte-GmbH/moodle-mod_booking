@@ -26,6 +26,7 @@ namespace mod_booking;
 
 use cache;
 use cache_helper;
+use context;
 use context_module;
 use context_system;
 use dml_exception;
@@ -64,6 +65,16 @@ class price {
 
     /** @var int $bookforuserid A static value which can be set in one request. */
     private static $bookforuserid;
+
+    /**
+     * Reset method to clear the singleton state.
+     *
+     * @return void
+     *
+     */
+    public static function destroy_singletons(): void {
+        self::$bookforuserid = null;
+    }
 
     /**
      * Constructor.
@@ -760,8 +771,10 @@ class price {
             // Get option settings and trigger event.
             $bosettings = singleton_service::get_instance_of_booking_option_settings($optionid);
             if (empty($bosettings->cmid)) {
+                /** @var context $context */
                 $context = context_system::instance();
             } else {
+                /** @var context $context */
                 $context = context_module::instance($bosettings->cmid);
             }
             booking_option::trigger_updated_event($context, $optionid, $USER->id, $USER->id, 'price');
@@ -896,6 +909,7 @@ class price {
             $userid === 0
         ) {
             if (class_exists('local_shopping_cart\shopping_cart')) {
+                /** @var context $context */
                 $context = context_system::instance();
                 if (has_capability('local/shopping_cart:cashier', $context)) {
                     $userid = shopping_cart::return_buy_for_userid();
@@ -1118,7 +1132,7 @@ class price {
     /**
      * Returns the list of currencies that the payment subsystem supports and therefore we can work with.
      *
-     * @return array[currencycode => currencyname]
+     * @return array [currencycode => currencylangstringobject]
      */
     public static function get_possible_currencies(): array {
         // Fix bug with Moodle versions older than 3.11.
@@ -1130,12 +1144,12 @@ class price {
                 $currencies[$c] = new lang_string($c, 'core_currencies');
             }
 
-            uasort($currencies, function ($a, $b) {
-                return strcmp($a, $b);
+            uasort($currencies, function (lang_string $a, lang_string $b): int {
+                return strcmp($a->get_identifier(), $b->get_identifier());
             });
         } else {
-            $currencies['EUR'] = 'Euro';
-            $currencies['USD'] = 'US Dollar';
+            $currencies['EUR'] = new lang_string('EUR', 'core_currencies');
+            $currencies['USD'] = new lang_string('USD', 'core_currencies');
         }
 
         return $currencies;
@@ -1150,7 +1164,7 @@ class price {
     public static function is_in_time_scope(array $dayinfo, object $rangeinfo) {
 
         // Get the localized day name.
-        $dayname = new lang_string($dayinfo['day'], 'mod_booking', null, current_language());
+        $dayname = get_string($dayinfo['day'], 'mod_booking');
 
         // For German, we have two letter abbreviations (Mo, Di, Mi...).
         // For English, we have three letter abbrevitions (Mon, Tue, Wed,...).
@@ -1226,6 +1240,7 @@ class price {
                     $price->price = round((float)$price->price, 2);
                     // Campaign price factor has been applied.
                 }
+                unset($price); // Important: Break the reference after the loop!
             }
         }
     }

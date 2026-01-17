@@ -180,6 +180,7 @@ class customformstore {
                 $customitem->error = false;
             }
         }
+        unset($customitem); // Important: Break the reference after the loop!
         return $customform;
     }
 

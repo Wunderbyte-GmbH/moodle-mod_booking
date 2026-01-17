@@ -667,6 +667,7 @@ final class rules_template_test extends advanced_testcase {
         $record->coursestarttime_0 = strtotime('20 June 2050 15:00');
         $record->courseendtime_0 = strtotime('20 July 2050 14:00');
         $record->teachersforoption = $user1->username;
+        $record->pollurl = 'https://wunderbyte.at?courseid={courseid}';
         $option1 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option1->id);
 
@@ -708,6 +709,13 @@ final class rules_template_test extends advanced_testcase {
         $rulejson = json_decode($customdata->rulejson);
         $this->assertEquals($user2->id, $rulejson->datafromevent->relateduserid);
         $this->assertEquals($user2->id, $message->get_userid());
+
+        ob_start();
+        $messagesink = $this->redirectMessages();
+        $this->runAdhocTasks();
+        $sentmessages = $messagesink->get_messages();
+        $res = ob_get_clean();
+        $this->assertStringContainsString('courseid=' . $course->id, $sentmessages[1]->fullmessagehtml);
     }
 
     /**

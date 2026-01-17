@@ -26,11 +26,15 @@ $string['aboutmodaloptiondateform'] = 'Hier können Sie benutzerdefinierte Termi
 (z.B. bei Block-Veranstaltungen oder wenn einzelne Termine von der Terminserie abweichen).';
 $string['accept'] = 'Akzeptieren';
 $string['accessdenied'] = 'Zugriff verweigert';
+$string['actionbuttonconfirm'] = 'Bestätigen';
+$string['actionbuttondelete'] = 'Löschen';
+$string['actionbuttondeny'] = 'Verweigern';
 $string['actionoperator'] = 'Aktion';
 $string['actionoperator:adddate'] = 'Füge Zeitraum hinzu';
 $string['actionoperator:set'] = 'Ersetzen';
 $string['actionoperator:subtract'] = 'Minus';
 $string['actions'] = 'Aktionen';
+$string['actionsonbookinganswer'] = 'Aktionen';
 $string['activatemails'] = 'E-Mails aktivieren (Bestätigungen, Erinnerungen etc.)';
 $string['activebookingoptions'] = 'Aktuelle Buchungsoptionen';
 $string['activitycompletionsuccess'] = 'Alle Nutzer:innen wurden für den Aktivitätsabschluss ausgewählt';
@@ -438,6 +442,7 @@ $string['booking:downloadchecklist'] = 'Checkliste herunterladen.';
 $string['booking:downloadresponses'] = 'Buchungen herunterladen';
 $string['booking:editbookingrules'] = "Regeln bearbeiten (Pro)";
 $string['booking:editoptionformconfig'] = 'Buchungsoptionsfelder bearbeiten';
+$string['booking:editscheduledmails'] = 'Geplante Mails bearbeiten';
 $string['booking:editteacherdescription'] = 'Beschreibung der Lehrenden bearbeiten';
 $string['booking:executebulkoperations'] = "Darf Bulk-Operationen durchführen";
 $string['booking:expertoptionform'] = "Expert Buchungsoptions Formular";
@@ -465,6 +470,7 @@ $string['booking:viewallratings'] = 'Alle Bewertungen sehen';
 $string['booking:viewanyrating'] = 'Alle Bewertungen sehen';
 $string['booking:viewrating'] = 'Gesamtbewertung sehen';
 $string['booking:viewreports'] = 'Zugang um gewisse Buchungsberichte zu sehen';
+$string['booking:viewscheduledmails'] = 'Geplante Mails ansehen';
 $string['bookingaction'] = "Aktion";
 $string['bookingactionadd'] = "Füge Aktion hinzu";
 $string['bookingafteractionsfailed'] = 'Actions nach der Buchung gescheitert';
@@ -546,6 +552,8 @@ $string['bookingoptiondescription'] = 'Beschreibung der Buchungsoption';
 $string['bookingoptiondetaillink'] = 'Buchungsoptiondetaillink';
 $string['bookingoptionfreetobookagain'] = 'Wieder freie Plätze';
 $string['bookingoptionimage'] = 'Header-Bild';
+$string['bookingoptionmovedupfromwaitinglist'] = 'Von der Warteliste nachgerückt';
+$string['bookingoptionmovedupfromwaitinglistdesc'] = 'Der Nutzer mit der ID {$a->relateduserid} ist von der Warteliste in die Buchungsliste nachgerückt.';
 $string['bookingoptionname'] = 'Bezeichnung der Buchungsoption';
 $string['bookingoptionnamewithoutprefix'] = 'Name (ohne Präfix)';
 $string['bookingoptionprice'] = 'Preis';
@@ -680,10 +688,12 @@ $string['cachedef_cachedteachersjournal'] = 'Vertretungen & Absagen (Cache)';
 $string['cachedef_competenciesshortnamescache'] = 'Kurznamen von Kompetenzen (Cache)';
 $string['cachedef_conditionforms'] = 'Condition Forms (Cache)';
 $string['cachedef_confirmbooking'] = 'Buchung bestätigt (Cache)';
+$string['cachedef_customfields'] = 'Benutzerdefinierte Felder (Cache)';
 $string['cachedef_customformuserdata'] = 'Benutzerdefiniertes Formular - Nutzerdaten (Cache)';
 $string['cachedef_electivebookingorder'] = 'Elective booking order (Cache)';
 $string['cachedef_eventlogtable'] = 'Eventlog-Tabelle (Cache)';
 $string['cachedef_mybookingoptionstable'] = 'Meine Buchungsoptionen (Cache)';
+$string['cachedef_scheduledmailscache'] = 'Geplante E-Mails (Cache)';
 $string['cachedef_subbookingforms'] = 'Subbooking Forms (Cache)';
 $string['cachedef_usercompetenciescache'] = 'Kompetenzen von Nutzer:innen (Cache)';
 $string['cachesettings'] = 'Cache Einstellungen';
@@ -916,6 +926,7 @@ $string['courseendtime'] = 'Kursende';
 $string['courseid'] = 'Kurs, in den eingeschrieben wird';
 $string['courselink'] = "Link zum Kurs in Beziehung mit Buchungsoption";
 $string['courselist'] = 'Zeige alle Buchungsoptionen einer Buchungsinstanz';
+$string['coursename'] = "Name des verknüpften Kurses";
 $string['coursepageshortinfo'] = 'Wenn Sie diesen Kurs buchen wollen, klicken Sie auf "Verfügbare Optionen anzeigen", treffen Sie eine Auswahl und klicken Sie auf "Jetzt buchen".';
 $string['coursepageshortinfolbl'] = 'Kurzinfo';
 $string['coursepageshortinfolbl_help'] = 'Geben Sie den Kurzinfo-Text ein, der auf der Kursseite angezeigt werden soll.';
@@ -1402,6 +1413,7 @@ $string['groupexists'] = 'Die Gruppe existiert bereits im Zielkurs. Bitte verwen
 $string['groupname'] = 'Gruppenname';
 $string['h'] = ' Uhr';
 $string['hascapability'] = 'Außer mit dieser Fähikgeit';
+$string['headerform'] = 'Bitte auswählen';
 $string['helptext:emailsettings'] = '<div class="alert alert-warning style="margin-left: 200px;">
 <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
 <span>&nbsp;Veraltete Funktion, bitte migrieren Sie ihre Vorlagen und Einstellungen zu <a href="{$a}">Buchungs Regeln</a></span>!
@@ -1474,8 +1486,10 @@ $string['info:teachersforoptiondates'] = 'Wechseln Sie zum <a href="{$a}" target
 $string['infoalreadybooked'] = '<div class="infoalreadybooked"><i>Sie haben diese Option bereits gebucht.</i></div>';
 $string['infonobookingoption'] = 'Um eine Buchungsoption zu erstellen, nutzen Sie den Block Einstellungen oder das Einstellungs-Icon';
 $string['infotext:installmoodlebugfix'] = 'Wunderbyte hat einen Bugfix zum Core von Moodle beigefügt. Dieser Bugfix ist in Ihrer Moodle Version noch nicht eingefügt. Sie erhalten daher an manchen Stellen Javascript Fehlermeldungen. Ab Moodle 4.1 genügt es, die laufenden Sicherheitsupdates einzuspielen.';
+$string['infotext:onlyfordebugging'] = 'Diese Seite ist nur im Debug Modus verfügbar.';
 $string['infotext:prolicensenecessary'] = '<a href="https://showroom.wunderbyte.at/course/view.php?id=62" target="_blank">Jetzt auf Booking PRO upgraden...</a>';
 $string['infotext:prolicensenecessarytextandlink'] = 'Sie benötigen Booking PRO, um dieses Feature nutzen zu können. <a href="https://showroom.wunderbyte.at/course/view.php?id=62" target="_blank">Get your PRO license here...</a>';
+$string['infotext:scheduledmailswarning'] = 'Leeren Sie die Caches und laden Sie die Seite um den aktuellen Stand anzuzeigen. <br> Bitte beachten Sie, dass nicht alle geplanten Nachrichten tatsächlich auch gesendet werden, da hier vor dem Versand noch auf die Gültigkeit überprüft wird.';
 $string['infowaitinglist'] = '<div class="infowaitinglist"><i>Sie sind auf der Warteliste für diese Option.</i></div>';
 $string['installmentprice'] = 'Ratenzahlungspreis';
 $string['installmoodlebugfix'] = 'Moodle update notwendig <span class="badge bg-danger text-light"><i class="fa fa-cogs" aria-hidden="true"></i> Wichtig</span>';
@@ -1520,7 +1534,11 @@ $string['lblsputtname'] = 'Alternative Bezeichnung für "Umfragelink an Trainer:
 $string['lblsurname'] = 'Bezeichnung für: Nachname';
 $string['lblteachname'] = 'Alternative Bezeichnung für "Trainer:in" verwenden';
 $string['leftandrightdate'] = '{$a->leftdate} bis {$a->righttdate}';
-$string['licenseactivated'] = 'PRO-Version wurde erfolgreich aktiviert.<br>(Läuft ab am: ';
+$string['licenseactivated'] = 'PRO-Version wurde erfolgreich aktiviert.<br>(Läuft ab am: {$a})';
+$string['licenseexpired'] = 'PRO-Version ist abgelaufen ({$a}).
+<a href="https://showroom.wunderbyte.at/course/view.php?id=62" target="_blank">
+Erneuern Sie Ihre Lizenz
+</a>, um weiterhin alle Funktionen nutzen zu können.';
 $string['licenseinvalid'] = 'Ungültiger Lizenz-Schlüssel.';
 $string['licensekey'] = 'PRO-Lizenz-Schlüssel';
 $string['licensekeycfg'] = 'PRO-Version aktivieren';
@@ -1629,8 +1647,6 @@ $string['messagesend'] = 'Die Nachricht wurde erfolgreich versandt.';
 $string['messagesent'] = 'Nachricht gesendet';
 $string['messagesubject'] = 'Betreff';
 $string['messagetext'] = 'Nachricht';
-$string['messagingteacherimpossible'] = 'Sie können dieser Trainerin / diesem Trainer keine Nachrichten senden,
- weil Sie in keinen Kurs von ihr/ihm eingeschrieben sind.';
 $string['minanswers'] = 'Mindestteilnehmer/innenzahl';
 $string['minanswers_help'] = '"0" bedeutet keine Mindestteilnehmer/innenzahl';
 $string['minutes'] = '{$a} Minuten';
@@ -1688,6 +1704,7 @@ $string['newcoursecategorycfielddesc'] = 'Wählen Sie ein benutzerdefiniertes Bu
 $string['newoptiondate'] = 'Neuen Termin anlegen...';
 $string['newtemplatesaved'] = 'Neue Buchungsoptionsvorlage wurde gespeichert.';
 $string['next'] = 'Nächste';
+$string['nextruntime'] = 'Geplant am';
 $string['no'] = 'Nein';
 $string['nobookinginstancesexist'] = 'Keine Buchungsinstanz vorhanden';
 $string['nobookingpossible'] = 'Keine Buchung möglich.';
@@ -1878,6 +1895,7 @@ $string['optiontemplatenotsavednovalidlicense'] = 'Buchungsoption konnte nicht a
                                                   Holen Sie sich die PRO-Version, um beliebig viele Vorlagen erstellen
                                                   zu können.';
 $string['optiontemplatessettings'] = 'Buchungsoptionsvorlagen';
+$string['optiontypefilternormal'] = 'Normal';
 $string['optionviewcustomfields'] = 'Benutzerdefinierte Felder auf Detailseite anzeigen';
 $string['optionviewcustomfieldsdesc'] = 'Wählen Sie die benutzerdefinierten Buchungsoptionsfelder aus, die auf der Detailseite von Buchungsoptionen angezeigt werden sollen. Um die Reihenfolge der benutzerdefinierten Felder auf der Detailseite zu ändern, können Sie einfach die Reihenfolge der benutzerdefinierten Felder <a href="/mod/booking/customfield.php" target="_blank">hier</a> ändern.';
 $string['optionvisibility'] = 'Sichtbarkeit';
@@ -1916,6 +1934,7 @@ $string['pdfportrait'] = 'Hochformat';
 $string['percentageavailableplaces'] = 'Prozent der verfügbaren Plätze';
 $string['percentageavailableplaces_help'] = 'Geben Sie einen gültigen Prozentsatz zwischen 0 und 100 an (ohne %-Zeichen!).';
 $string['personnr'] = 'Person Nr. {$a}';
+$string['placeholdernotresolved'] = 'Platzhalter konnte nicht aufgelöst werden: {$a}';
 $string['placeholders'] = 'Platzhalter';
 $string['placeholders_help'] = 'Lassen Sie dieses Feld leer, um den Standardtext der Website zu verwenden.';
 $string['places'] = 'Plätze';
@@ -1927,12 +1946,18 @@ $string['pluginname'] = 'Booking';
 $string['pollstartdate'] = "Start Datum der Umfrage";
 $string['pollstrftimedate'] = '%Y-%m-%d';
 $string['pollurl'] = 'Link zur Umfrage';
+$string['pollurlplaceholdersexplanation'] = 'Use placeholders like this: /mod/surveypro/view.php?myname={firstname} <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
+$string['pollurlplaceholdersnoproversion'] = 'Mit <a href="{$a}" target="_blank">Booking PRO</a> können Sie Platzhalter innerhalb des Umfragelinks verwenden.';
 $string['pollurlteachers'] = 'Trainer:innen Umfragelink';
+$string['pollurlteacherstemplate'] = 'Vorlage für Trainer:innen Umfragelink';
 $string['pollurlteacherstext'] = 'Umfragetext für Trainer:innen';
 $string['pollurlteacherstextmessage'] = 'Bitte nehmen Sie an der Umfrage teil:
 Link zur Umfrage: <a href="{pollurlteachers}" target="_blank">{pollurlteachers}</a>
 ';
 $string['pollurlteacherstextsubject'] = 'Bitte nehmen Sie an der Umfrage teil';
+$string['pollurltemplate'] = 'Vorlage für Umfragelink';
+$string['pollurltemplate_desc'] = 'Hier können Sie eine Vorlage für den Umfragelink definieren. Diese wird dann immer bei neuen Buchungsoptionen verwendet.';
+$string['pollurltemplateheading'] = 'Umfragelink-Vorlage';
 $string['pollurltext'] = 'Umfragelink senden';
 $string['pollurltextmessage'] = 'Bitte nehmen Sie an der Umfrage teil:
 Link zur Umfrage: <a href="{pollurl}" target="_blank">{pollurl}</a>
@@ -2048,6 +2073,9 @@ $string['profeatures:duplicationrestoreoption'] = '<ul>
 </ul>';
 $string['profeatures:overbooking'] = '<ul>
 <li><b>Überbuchen erlauben</b></li>
+</ul>';
+$string['profeatures:pollurltemplateheading'] = '<ul>
+<li><b>Vorlage für Umfragelink definieren</b></li>
 </ul>';
 $string['profeatures:priceformula'] = '<ul>
 <li><b>Eine Preisformel verwenden, um Preise automatisch berechnen zu können</b></li>
@@ -2190,7 +2218,7 @@ $string['rulecustomprofilefieldofdeputy'] = 'Benutzerdefiniertes User-Profilfeld
 $string['rulecustomprofilefieldsupervisor'] = 'Benutzerdefiniertes User-Profilfeld Vorgesetze(r)';
 $string['ruledatefield'] = 'Datumsfeld';
 $string['ruledays'] = 'Anzahl Tage';
-$string['ruledaysbefore'] = 'Reagiere n Tage vor/nach einem bestimmtem Datum';
+$string['ruledaysbefore'] = 'Reagiere n Tage vor/nach einem bestimmten Datum';
 $string['ruledaysbefore_desc'] = 'Wählen Sie die Anzahl der Tage in Bezug zu einem gewissen Datum einer Buchungsoption aus.';
 $string['ruleevent'] = 'Event';
 $string['ruleeventcondition'] = 'Führe aus wenn...';
@@ -2222,6 +2250,13 @@ $string['rulesheader'] = '<i class="fa fa-fw fa-pencil-square" aria-hidden="true
 $string['rulesincontextglobalheader'] = '<a href="{$a}" target="_blank">Globale Regeln</a>';
 $string['rulesincontextheader'] = '<a href="{$a->rulesincontexturl}" target="_blank">Regeln in Buchungsinstanz "{$a->bookingname}"</a>';
 $string['rulesnotfound'] = 'Keine Regeln für diese Buchungsoption gefunden';
+$string['rulespecifictime'] = 'Reagiere zu definiertem Zeitpunkt vor/nach einem bestimmten Datum';
+$string['rulespecifictime_desc'] = 'Wählen Sie den Zeitraum vor/nach einem gewissen Datum einer Buchungsoption aus.';
+$string['rulespecifictimeafter'] = 'Nach';
+$string['rulespecifictimebefore'] = 'Vor';
+$string['rulespecifictimebeforeafter'] = 'Vor oder nach dem gewählten Datum?';
+$string['rulespecifictimebeforeafter_help'] = 'Wenn die gewählte Zeitspanne 0 ist, macht es keinen Unterschied, was sie hier auswählen.';
+$string['rulespecifictimeduration'] = 'Zeitraum vor/nach dem gewählten Datumsfeld';
 $string['rulessettings'] = "Einstellungen für Regeln";
 $string['rulessettingsdesc'] = 'Einstellungen, die für die <a href="{$a}">Funktion Buchungs Regeln</a> gelten.';
 $string['ruletemplatebookingoptioncompleted'] = "Template - Buchungsoption abgeschlossen mit Umfrage";
@@ -2281,6 +2316,7 @@ $string['scgfselectcohorts'] = 'Globale Gruppe(n) wählen';
 $string['scgfselectgroups'] = 'Gruppe(n) auswählen';
 $string['sch_allowinstallment'] = 'Ratenzahlung erlauben';
 $string['sch_allowrebooking'] = 'Umbuchen erlauben';
+$string['scheduledmails'] = 'Geplante E-Mails';
 $string['screstoreitemfromreserved'] = 'Reservierte Items automatisch in den Warenkorb legen';
 $string['screstoreitemfromreserved_desc'] = 'Dadurch werden Artikel nach dem Löschen des Caches wieder automatisch in den Warenkorb der Nutzer:innen gelegt';
 $string['search'] = 'Suche...';
@@ -2411,6 +2447,8 @@ $string['showboactions'] = "Aktiviere Aktionen nach der Buchung";
 $string['showbookingdetailstoall'] = 'Buchungsdetails für alle anzeigen';
 $string['showbookingdetailstoall_desc'] = 'Auch Gäste und ausgeloggte Nutzer:innen können Buchungsdetails sehen.';
 $string['showcertificates'] = 'Zertifikate anzeigen';
+$string['showchecklistdownloadbutton'] = 'Checklisten-Download-Button anzeigen';
+$string['showchecklistdownloadbutton_desc'] = 'Wenn aktiviert, sehen Benutzer mit der Berechtigung "Checkliste herunterladen" einen Kontrollkästchen-Button zum Herunterladen einer Checkliste in der Buchungsoptionsbeschreibung.';
 $string['showcoursenameandbutton'] = 'Kursnamen, Kurzinfo und einen Button, der die verfügbaren Buchungsoptionen öffnet, anzeigen';
 $string['showcoursesofteacher'] = 'Kurse';
 $string['showcustomfields'] = 'Anzuzeigende benutzerdefnierte Buchungsoptionsfelder';
@@ -2537,6 +2575,7 @@ $string['subbookingsheader'] = 'Zusatzbuchungen <span class="badge bg-success te
 $string['subbookingtimeslot'] = "Zeitfenster Buchung";
 $string['subbookingtimeslot_desc'] = "Mit dieser Funktion kann die Dauer von buchbaren Zeitfenstern für jedes Datum der Buchungsoption festgelegt werden.";
 $string['subject'] = 'Betreff';
+$string['submit'] = 'Bestätigen';
 $string['submitandadd'] = 'Neue Buchungsoption anlegen';
 $string['submitandgoback'] = 'Formular schließen';
 $string['submitandstay'] = 'Formular weiterbearbeiten';
@@ -2605,8 +2644,6 @@ $string['teachersallowmailtobookedusers_desc'] = 'Wenn Sie diese Einstellung akt
 mit ihrem eigenen Mail-Programm an gebuchte Nutzer:innen senden - die E-Mail-Adressen der gebuchten Nutzer:innen werden dadurch sichtbar.
 <span class="text-danger"><b>Achtung:</b> Dies könnte ein Datenschutz-Problem darstellen. Aktivieren Sie dies nur,
 wenn es die Datenschutzbestimmungen Ihrer Organisation erlauben.</span>';
-$string['teachersalwaysenablemessaging'] = 'Nutzer:innen erlauben, allen Trainer:innen Nachrichten zu senden.';
-$string['teachersalwaysenablemessaging_desc'] = 'Wenn Sie diese Einstellung aktivieren, können Nutzer:innen Nachrichten an Trainer:innen senden, auch wenn sie in keinem ihrer Kurse eingeschrieben sind.';
 $string['teachersettings'] = 'Trainer:innen <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['teachersettings_desc'] = 'Trainer:innen-spezifische Einstellungen.';
 $string['teachersforoption'] = 'Trainer:innen';
@@ -2690,6 +2727,7 @@ $string['turnoffwunderbytelogo'] = 'Wunderbyte Logo und Link nicht anzeigen';
 $string['turnoffwunderbytelogo_desc'] = 'Wenn diese Einstellung aktiviert ist, werden das Wunderbyte Logo und der Link zur Wunderbyte-Website nicht angezeigt.';
 $string['turnthisoninsettings'] = 'Aktivierung in globalen Einstellungen nötig';
 $string['turnthisoninsettings_help'] = 'Noch nicht aktiviert. <a href="{$a}" target="_blank">Hier klicken, um diese Funktionalität in den globalen Einstellungen zu aktivieren</a>.';
+$string['type'] = 'Typ';
 $string['unconfirm'] = 'Lösche Bestätigung';
 $string['unconfirmbooking'] = 'Lösche Bestätigung dieser Buchung';
 $string['unconfirmbookinglong'] = 'Wollen Sie die Bestätigung dieser Buchung wirklich aufheben?';

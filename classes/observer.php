@@ -36,10 +36,8 @@ use mod_booking\elective;
 use mod_booking\event\booking_debug;
 use mod_booking\event\bookinganswer_presencechanged;
 use mod_booking\event\bookinganswer_notesedited;
-use mod_booking\event\bookingoption_booked;
 use mod_booking\local\checkanswers\checkanswers;
 use mod_booking\local\mobile\customformstore;
-use mod_booking\local\respondapi\handlers\respondapi_handler;
 use mod_booking\option\fields\certificate;
 use mod_booking\output\view;
 use mod_booking\singleton_service;
@@ -745,5 +743,19 @@ class mod_booking_observer {
     ): void {
         $userid = (int)$event->relateduserid;
         cache_helper::invalidate_by_event('setbackusercompetenciescache', [$userid]);
+    }
+
+    /**
+     * Observer for the following events:
+     *
+     * - core_customfield\event\field_created
+     * - core_customfield\event\field_updated
+     * - core_customfield\event\field_deleted
+     *
+     * @param core\event\base $event
+     * @return void
+     */
+    public static function customfield_created_updated_deleted(base $event): void {
+        cache_helper::invalidate_by_event('setbackcustomfields', []);
     }
 }

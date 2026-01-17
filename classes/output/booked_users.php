@@ -268,10 +268,11 @@ class booked_users implements renderable, templatable {
             $paginate,
             $customfields
         );
-
-        // Activate sorting dropdown.
-        $table->cardsort = true;
-
+        // Important: If there is no table, we return null right away.
+        if (empty($table)) {
+            return null;
+        }
+        $table->cardsort = true; // Activate sorting dropdown.
         $table->showcountlabel = true;
         $table->showdownloadbutton = true;
         $table->showdownloadbuttonatbottom = true;
@@ -338,6 +339,13 @@ class booked_users implements renderable, templatable {
                 break;
             case 'option':
                 $optionid = $scopeid;
+                $wherepart = "WHERE bh.optionid = :optionid";
+                $params = ['optionid' => $optionid];
+                break;
+            case 'optiondate':
+                global $DB;
+                $optiondateid = $scopeid;
+                $optionid = $DB->get_field('booking_optiondates', 'optionid', ['id' => $optiondateid]);
                 $wherepart = "WHERE bh.optionid = :optionid";
                 $params = ['optionid' => $optionid];
                 break;
@@ -532,7 +540,7 @@ class booked_users implements renderable, templatable {
         string $icon,
         string $formname,
         array $data,
-        string $css = 'btn btn-primary btn-sm ml-1'
+        string $css = 'btn btn-primary btn-sm ms-1'
     ): array {
         return [
             'label' => get_string($labelkey, 'mod_booking'),
@@ -555,9 +563,9 @@ class booked_users implements renderable, templatable {
      */
     public static function create_delete_button(): array {
         return [
-            'iclass' => 'fa fa-trash mr-1',
+            'iclass' => 'fa fa-trash me-1',
             'label' => get_string('bookingstrackerdelete', 'mod_booking'),
-            'class' => 'btn btn-danger btn-sm ml-1',
+            'class' => 'btn btn-danger btn-sm ms-1',
             'href' => '#',
             'methodname' => 'delete_checked_booking_answers',
             'nomodal' => false,

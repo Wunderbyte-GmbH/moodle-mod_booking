@@ -24,6 +24,7 @@
 
 namespace mod_booking\customfield;
 
+use cache;
 use core_customfield\api;
 use core_customfield\field_controller;
 use mod_booking\settings\optionformconfig\optionformconfig_info;
@@ -95,6 +96,19 @@ class booking_handler extends \core_customfield\handler {
     public static function get_customfields(array $selectedshortnames = []): array {
         global $DB;
 
+        $cache = cache::make('mod_booking', 'customfields');
+        if (!empty($selectedshortnames)) {
+            sort($selectedshortnames); // Ensure deterministic cache key regardless of argument order.
+            $cachekey = 'subset_' . sha1(implode('|', $selectedshortnames));
+        } else {
+            $cachekey = 'ALL';
+        }
+
+        $data = $cache->get($cachekey);
+        if ($data !== false) {
+            return $data;
+        }
+
         if (empty($selectedshortnames)) {
             $sql = "SELECT cff.id, cff.name, cff.shortname, cff.configdata, cff.type
                     FROM {customfield_field} cff
@@ -115,6 +129,8 @@ class booking_handler extends \core_customfield\handler {
         }
 
         $records = $DB->get_records_sql($sql, $params);
+
+        $cache->set($cachekey, $records);
 
         return $records;
     }

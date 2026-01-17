@@ -42,6 +42,7 @@ use mod_booking\bo_availability\conditions\customform;
 use mod_booking\bo_availability\conditions\optionhasstarted;
 use mod_booking\event\booking_debug;
 use mod_booking\event\booking_rulesexecutionfailed;
+use mod_booking\event\bookinganswer_movedupfromwaitinglist;
 use mod_booking\event\bookinganswer_presencechanged;
 use mod_booking\event\bookinganswer_notesedited;
 use mod_booking\event\bookinganswer_waitingforconfirmation;
@@ -576,7 +577,7 @@ class booking_option {
                    AND u.deleted = 0
                    AND ba.optionid = :optionid
                    AND ba.waitinglist = 0
-              ORDER BY ba.timemodified ASC";
+              ORDER BY ba.timemodified ASC, ba.id ASC";
 
         $params = ["optionid" => $this->optionid];
 
@@ -616,7 +617,7 @@ class booking_option {
                        AND u.id = gm.userid
                        AND gm.groupid $insql
                   GROUP BY u.id
-                  ORDER BY ba.timemodified ASC";
+                  ORDER BY ba.timemodified ASC, ba.id ASC";
             $groupmembers = $DB->get_records_sql($sql, array_merge($params, $inparams));
             $this->bookedusers = array_intersect_key($groupmembers, $this->booking->canbookusers);
             $this->bookedvisibleusers = $this->bookedusers;
@@ -1403,6 +1404,26 @@ class booking_option {
         ) {
             $historystatus = MOD_BOOKING_STATUSPARAM_BOOKOTHEROPTIONS;
         }
+
+        // Check the current waiting list status of the answer.
+        // If it is currently on the waiting list and the new status is booked,
+        // trigger the moveupfromwaitinglist event.
+        $answersonwaitinglist = $bookinganswers->get_usersonwaitinglist();
+        if (!empty($answersonwaitinglist[$user->id]) && $waitinglist == MOD_BOOKING_STATUSPARAM_BOOKED) {
+            $other = [];
+            $other['baid'] = $answersonwaitinglist[$user->id]->baid ?? 0;
+            $other['json'] = $answersonwaitinglist[$user->id]->json ?? '';
+            $event = bookinganswer_movedupfromwaitinglist::create(
+                ['objectid' => $this->optionid,
+                    'context' => context_module::instance($this->cmid),
+                    'userid' => $USER->id,
+                    'relateduserid' => $user->id,
+                    'other' => $other,
+                ]
+            );
+            $event->trigger();
+        }
+
         $baid = self::write_user_answer_to_db(
             $this->booking->id,
             $frombookingid,
@@ -3314,7 +3335,6 @@ class booking_option {
             $returnsession = [
                 'datestring' => $date->datestring,
             ];
-
             // 0 in a date id means it comes form normal course start & endtime.
             // Therefore, there can't be these customfields.
             if ($withcustomfields && $date->id !== 0) {
@@ -3329,11 +3349,13 @@ class booking_option {
                     $removeonlinesessionlinks
                 );
             }
-
-            if (class_exists('local_entities\entitiesrelation_handler')) {
+            if (
+                class_exists('local_entities\entitiesrelation_handler')
+                && $withcustomfields
+            ) {
                 $erhandler = new entitiesrelation_handler('mod_booking', 'optiondate', $date->id);
                 $entity = $erhandler->get_instance_data($date->id);
-                $entityid = $erhandler->get_entityid_by_instanceid($date->id);
+                $entityid = $entity->id ?? 0;
                 $entityurl = null; // Important: initialize!
                 if (!empty($entityid)) {
                     $entityurl = new moodle_url('/local/entities/view.php', ['id' => $entityid]);

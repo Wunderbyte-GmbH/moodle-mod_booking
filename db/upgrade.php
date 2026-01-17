@@ -5123,5 +5123,27 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2025112500, 'booking'); // Update to your new version number.
     }
 
+    if ($oldversion < 2025121900) {
+        // Define field type to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('type', XMLDB_TYPE_INTEGER, '2', null, null, null, null, 'status');
+
+        // Conditionally launch add field type.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2025121900, 'booking');
+    }
+
+    if ($oldversion < 2025122201) {
+        // Migrate old selflearningcourse json flag to new type field.
+        migrate_selflearningcourse_json_to_type_2025122201();
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2025122201, 'booking');
+    }
+
     return true;
 }

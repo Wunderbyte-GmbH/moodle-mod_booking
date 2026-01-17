@@ -42,6 +42,8 @@ require_once($CFG->dirroot . '/course/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers \backup_booking_activity_structure_step
  * @covers \restore_booking_activity_structure_step
+ *
+ * @runTestsInSeparateProcesses
  */
 final class backup_restore_test extends advanced_testcase {
     /**
@@ -93,6 +95,38 @@ final class backup_restore_test extends advanced_testcase {
         $this->getDataGenerator()->enrol_user($student1->id, $course1->id, 'student');
         $this->getDataGenerator()->enrol_user($student2->id, $course1->id, 'student');
 
+        if (
+            class_exists('local_entities\entities') &&
+            !empty($bdata['entities'])
+        ) {
+            // Create custom entity field.
+            $categorydata = new stdClass();
+            $categorydata->name = 'CustomCat';
+            $categorydata->component = 'local_entities';
+            $categorydata->area = 'entities';
+            $categorydata->itemid = 0;
+            $categorydata->contextid = context_system::instance()->id;
+
+            $entitycat = $this->getDataGenerator()->create_custom_field_category((array) $categorydata);
+            $entitycat->save();
+
+            $fielddata = new stdClass();
+            $fielddata->categoryid = $entitycat->get('id');
+            $fielddata->name = 'EntField1';
+            $fielddata->shortname = 'entfield1';
+            $fielddata->type = 'text';
+            $fielddata->configdata = "";
+            $bookingfield = $this->getDataGenerator()->create_custom_field((array) $fielddata);
+            $bookingfield->save();
+
+            // Create entities.
+            /** @var local_entities_generator $plugingenerator */
+            $plugingenerator = self::getDataGenerator()->get_plugin_generator('local_entities');
+            foreach ($bdata['entities'] as $entity) {
+                $entities[] = $plugingenerator->create_entities($entity);
+            }
+        }
+
         // Create custom booking field.
         $categorydata = new stdClass();
         $categorydata->name = 'BookCustomCat1';
@@ -128,12 +162,29 @@ final class backup_restore_test extends advanced_testcase {
         // Create options for bookings.
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        // Create price categories if exists.
+        if (
+            class_exists('local_shopping_cart\shopping_cart') &&
+            !empty($bdata['pricecategories'])
+        ) {
+            // Create user profile custom fields.
+            $this->getDataGenerator()->create_custom_profile_field([
+                'datatype' => 'text',
+                'shortname' => 'pricecat',
+                'name' => 'pricecat',
+            ]);
+            set_config('pricecategoryfield', 'pricecat', 'booking');
+            foreach ($bdata['pricecategories'] as $pricecategory) {
+                $plugingenerator->create_pricecategory($pricecategory);
+            }
+        }
 
         // Create options for the 1st booking.
         $record = (object)$bdata['options'][0];
         $record->bookingid = $bookings[0]->id;
         $record->text = 'Test Option 11';
         $record->customfield_spt1 = 'chess';
+        $record->local_entities_entityid_0 = $entities[0];
         $options[0] = $plugingenerator->create_option($record);
 
         $record = (object)$bdata['options'][1];
@@ -141,6 +192,13 @@ final class backup_restore_test extends advanced_testcase {
         $record->text = 'Test Option 12';
         $record->customfield_spt1 = 'football';
         $options[1] = $plugingenerator->create_option($record);
+
+        $record = (object)$bdata['options'][2];
+        $record->bookingid = $bookings[0]->id;
+        $record->text = 'Test Option 13';
+        $record->customfield_spt1 = 'polo';
+        $record->local_entities_entityid_0 = $entities[1];
+        $options[2] = $plugingenerator->create_option($record);
 
         // Create options for the 2nd booking.
         $record = (object)$bdata['options'][0];
@@ -154,6 +212,12 @@ final class backup_restore_test extends advanced_testcase {
         $record->text = 'Test Option 22';
         $record->customfield_spt1 = 'tennis';
         $options[3] = $plugingenerator->create_option($record);
+
+        $record = (object)$bdata['options'][2];
+        $record->bookingid = $bookings[1]->id;
+        $record->text = 'Test Option 23';
+        $record->customfield_spt1 = 'chess';
+        $options[4] = $plugingenerator->create_option($record);
 
         // History item1: book student1 directly into the option.
         $settings = singleton_service::get_instance_of_booking_option_settings($options[0]->id);
@@ -217,93 +281,93 @@ final class backup_restore_test extends advanced_testcase {
         $rc->destroy();
 
         // Verify bookings and options.
-        $bookings2 = get_fast_modinfo($course2->id)->get_instances_of('booking');
-        $this->assertCount(2, $bookings2);
+        $originbookins = get_fast_modinfo($course1->id)->get_instances_of('booking');
+        $restoredbookings = get_fast_modinfo($course2->id)->get_instances_of('booking');
+        $originbookins = array_values($originbookins);
+        $restoredbookings = array_values($restoredbookings);
+        $this->assertCount(count($originbookins), $restoredbookings);
 
-        // Validabe 1st booking and its options.
-        $booking21 = array_shift($bookings2);
-        $this->assertEquals($bookings[0]->name, $booking21->get_name());
-        $bookingobj = singleton_service::get_instance_of_booking_by_bookingid((int)$booking21->instance);
-        $options2 = $bookingobj->get_all_options(0, 0, '', '*, spt1');
-        $this->assertCount(2, $options2);
-        foreach ($options2 as $option2) {
-            // In rare cases - order of options could be inverted.
-            if ($options[0]->text == $option2->text) {
-                $this->assertEquals($options[0]->text, $option2->text);
-                $this->assertEquals($options[0]->coursestarttime_0, $option2->coursestarttime);
-                $this->assertEquals($options[0]->courseendtime_1, $option2->courseendtime);
-                $this->assertEquals($options[0]->customfield_spt1, $option2->spt1);
-                $optionsettings = singleton_service::get_instance_of_booking_option_settings($option2->id);
-                $sessions = $optionsettings->sessions;
-                $this->assertCount(2, $sessions);
-                $session1 = array_shift($sessions);
-                $this->assertEquals($options[0]->coursestarttime_0, $session1->coursestarttime);
-                $this->assertEquals($options[0]->courseendtime_0, $session1->courseendtime);
-                $session2 = array_shift($sessions);
-                $this->assertEquals($options[0]->coursestarttime_1, $session2->coursestarttime);
-                $this->assertEquals($options[0]->courseendtime_1, $session2->courseendtime);
-                // Verify answers for the restored option.
-                $option20answers = singleton_service::get_instance_of_booking_answers($optionsettings);
-                $option20bookinganswers = $option20answers->get_answers();
-                $this->assertCount(1, $option20bookinganswers);
-                // Verify history items for the restored option.
-                $newhistory = $DB->get_records('booking_history', ['bookingid' => $booking21->instance]);
-                $this->assertCount(2, $newhistory);
-                $historyitem = array_shift($newhistory);
-                $this->assertEquals($historyitem->userid, $student1->id);
-                $this->assertEquals($historyitem->optionid, $option2->id);
-                $this->assertEquals($historyitem->bookingid, $booking21->instance);
-                $this->assertEquals($historyitem->status, 0);
-                $this->assertEquals($historyitem->json, '{"pricecategory":"default"}');
-                $historyitem = array_shift($newhistory);
-                $this->assertEquals($historyitem->userid, $teacher->id);
-                $this->assertEquals($historyitem->optionid, $option2->id);
-                $this->assertEquals($historyitem->bookingid, $booking21->instance);
-                $this->assertEquals($historyitem->status, 0);
-                $this->assertEquals($historyitem->answerid, 0);
-                $this->assertEquals($historyitem->json, $originalhistory->json);
-            } else {
-                $this->assertEquals($options[1]->text, $option2->text);
-                $this->assertEquals($options[1]->coursestarttime_0, $option2->coursestarttime);
-                $this->assertEquals($options[1]->courseendtime_0, $option2->courseendtime);
-                $this->assertEquals($options[1]->customfield_spt1, $option2->spt1);
-                $optionsettings = singleton_service::get_instance_of_booking_option_settings($option2->id);
-                $this->assertCount(1, $optionsettings->sessions);
+        for ($i = 0; $i < count($restoredbookings); $i++) {
+            // Validate booking settngs.
+            $bookingobj11 = singleton_service::get_instance_of_booking_by_bookingid((int)($originbookins[$i]->instance));
+            $bookingobj21 = singleton_service::get_instance_of_booking_by_bookingid((int)($restoredbookings[$i]->instance));
+            $bookingdiff = $plugingenerator->objdiff($bookingobj11->settings, $bookingobj21->settings);
+            // Remove booking setting fields that are expected to be different.
+            unset(
+                $bookingdiff['id'],
+                $bookingdiff['course'],
+                $bookingdiff['cmid'],
+                $bookingdiff['timecreated'],
+                $bookingdiff['timemodified']
+            );
+            $this->assertEmpty(
+                $bookingdiff,
+                'Restored booking do not match the original ones: ' . json_encode($bookingdiff)
+            );
+            // Validate bookings' options.
+            $options1 = $bookingobj11->get_all_options(0, 0, '', '*, spt1');
+            $options2 = $bookingobj21->get_all_options(0, 0, '', '*, spt1');
+            $this->assertCount(count($options1), $options2);
+            $options1 = array_values($options1);
+            $options2 = array_values($options2);
+            foreach ($options1 as $key => $option) {
+                $settings1 = singleton_service::get_instance_of_booking_option_settings($option->id);
+                $settings2 = singleton_service::get_instance_of_booking_option_settings($options2[$key]->id);
+                $sessions1 = array_values($settings1->sessions);
+                $sessions2 = array_values($settings2->sessions);
+                $settings1 = (object)(array)$settings1;
+                $settings2 = (object)(array)$settings2;
+                unset($settings1->sessions);
+                unset($settings2->sessions);
+                // Compare option settings in general.
+                $optiondiff = $plugingenerator->objdiff($settings1, $settings2);
+                // Remove booking option setting fields that are expected to be different.
+                unset(
+                    $optiondiff['id'],
+                    $optiondiff['cmid'],
+                    $optiondiff['bookingid'],
+                    $optiondiff['identifier'],
+                    $optiondiff['timecreated'],
+                    $optiondiff['timemodified'],
+                    $optiondiff['editoptionurl'],
+                    $optiondiff['manageresponsesurl'],
+                    $optiondiff['optiondatesteachersurl']
+                );
+                $this->assertEmpty(
+                    $optiondiff,
+                    'Restored booking option settings do not match the original ones: ' . json_encode($optiondiff)
+                );
+                // Compare sessions.
+                $sessiondiff = $plugingenerator->arrdiff($sessions1, $sessions2);
+                $cleanarrdiff = [];
+                foreach ($sessiondiff as $diff) {
+                    // Remove option fields that are expected to be different.
+                    unset(
+                        $diff['id'],
+                        $diff['bookingid'],
+                        $diff['optionid'],
+                        $diff['optiondateid']
+                    );
+                    if (!empty($diff)) {
+                        $cleanarrdiff[] = $diff;
+                    }
+                }
+                $this->assertEmpty(
+                    $cleanarrdiff,
+                    'Restored booking option sessions do not match the original ones: ' . json_encode($cleanarrdiff)
+                );
+                // Compare prices if exists.
+                if (class_exists('local_shopping_cart\shopping_cart')) {
+                    $price1 = price::get_price('option', $settings1->id);
+                    $price2 = price::get_price('option', $settings2->id);
+                    $pricediff = $plugingenerator->arrdiff($price1, $price2);
+                    $this->assertEmpty(
+                        $pricediff,
+                        'Restored booking option prices do not match the original ones: ' . json_encode($pricediff)
+                    );
+                }
             }
         }
-
-        // Validabe 2nd booking and its options.
-        $booking22 = array_shift($bookings2);
-        $this->assertEquals($bookings[1]->name, $booking22->get_name());
-        $bookingobj = singleton_service::get_instance_of_booking_by_bookingid((int)$booking22->instance);
-        $options2 = $bookingobj->get_all_options(0, 0, '', '*, spt1');
-        $this->assertCount(2, $options2);
-        foreach ($options2 as $option2) {
-            // In rare cases - order of options could be inverted.
-            if ($options[2]->text == $option2->text) {
-                $this->assertEquals($options[2]->coursestarttime_0, $option2->coursestarttime);
-                $this->assertEquals($options[2]->courseendtime_1, $option2->courseendtime);
-                $this->assertEquals($options[2]->customfield_spt1, $option2->spt1);
-                $optionsettings = singleton_service::get_instance_of_booking_option_settings($option2->id);
-                $sessions = $optionsettings->sessions;
-                $this->assertCount(2, $sessions);
-                $session1 = array_shift($sessions);
-                $this->assertEquals($options[2]->coursestarttime_0, $session1->coursestarttime);
-                $this->assertEquals($options[2]->courseendtime_0, $session1->courseendtime);
-                $session2 = array_shift($sessions);
-                $this->assertEquals($options[2]->coursestarttime_1, $session2->coursestarttime);
-                $this->assertEquals($options[2]->courseendtime_1, $session2->courseendtime);
-            } else {
-                $this->assertEquals($options[3]->text, $option2->text);
-                $this->assertEquals($options[3]->coursestarttime_0, $option2->coursestarttime);
-                $this->assertEquals($options[3]->courseendtime_0, $option2->courseendtime);
-                $this->assertEquals($options[3]->customfield_spt1, $option2->spt1);
-                $optionsettings = singleton_service::get_instance_of_booking_option_settings($option2->id);
-                $this->assertCount(1, $optionsettings->sessions);
-            }
-        }
-
-        singleton_service::destroy_instance();
     }
 
     /**
@@ -314,6 +378,43 @@ final class backup_restore_test extends advanced_testcase {
      */
     public static function booking_backup_restore_settings_provider(): array {
         $bdata = [
+            'entities' => [
+                [
+                    'name' => 'Entity1',
+                    'shortname' => 'ent1',
+                    'pricefactor' => '1',
+                    'maxallocation' => '15',
+                ],
+                [
+                    'name' => 'Entity2',
+                    'shortname' => 'ent2',
+                    'pricefactor' => '2',
+                    'maxallocation' => '25',
+                ],
+            ],
+            'pricecategories' => [
+                [
+                    'ordernum' => 1,
+                    'name' => 'default',
+                    'identifier' => 'default',
+                    'defaultvalue' => 111,
+                    'pricecatsortorder' => 1,
+                ],
+                [
+                    'ordernum' => 2,
+                    'name' => 'student',
+                    'identifier' => 'student',
+                    'defaultvalue' => 222,
+                    'pricecatsortorder' => 2,
+                ],
+                [
+                    'ordernum' => 3,
+                    'name' => 'staff',
+                    'identifier' => 'staff',
+                    'defaultvalue' => 333,
+                    'pricecatsortorder' => 3,
+                ],
+            ],
             'booking' => [
                 'name' => 'Test Booking',
                 'eventtype' => 'Test event',
@@ -337,6 +438,7 @@ final class backup_restore_test extends advanced_testcase {
                     'text' => 'Test Option 1',
                     'courseid' => 0,
                     'maxanswers' => 2,
+                    'location' => 'ent1',
                     'optiondateid_0' => "0",
                     'daystonotify_0' => "0",
                     'coursestarttime_0' => strtotime('20 May 2050 15:00'),
@@ -355,6 +457,20 @@ final class backup_restore_test extends advanced_testcase {
                     'daystonotify_0' => "0",
                     'coursestarttime_0' => strtotime('20 July 2050 15:00'),
                     'courseendtime_0' => strtotime('20 August 2050 14:00'),
+                ],
+                // Option 3 with "wait for confirmation" and price.
+                2 => [
+                    'text' => 'Wait for confirmation Booking Option, price',
+                    'description' => 'Test Booking Option',
+                    'identifier' => 'waitforconfirmationwithprice',
+                    'maxanswers' => 1,
+                    'location' => 'ent2',
+                    'useprice' => 1,
+                    'default' => 20,
+                    'student' => 10,
+                    'staff' => 0,
+                    'importing' => 1,
+                    'waitforconfirmation' => 1,
                 ],
             ],
         ];
