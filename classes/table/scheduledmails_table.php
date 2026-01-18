@@ -129,6 +129,10 @@ class scheduledmails_table extends wunderbyte_table {
      * @return string
      */
     public function col_cmid(stdClass $values): string {
+
+        if (empty($values->cmid)) {
+            return '';
+        }
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($values->cmid);
 
         $url = new \moodle_url(
