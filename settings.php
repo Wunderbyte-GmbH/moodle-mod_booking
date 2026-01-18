@@ -1033,7 +1033,7 @@ if ($ADMIN->fulltree) {
                 get_string('pollurltemplate', 'mod_booking'),
                 trim($description), // HTML will render correctly.
                 '',
-                PARAM_URL
+                PARAM_RAW
             )
         );
 
@@ -1043,7 +1043,7 @@ if ($ADMIN->fulltree) {
                 get_string('pollurlteacherstemplate', 'mod_booking'),
                 trim($description), // HTML will render correctly.
                 '',
-                PARAM_URL
+                PARAM_RAW
             )
         );
     } else {
