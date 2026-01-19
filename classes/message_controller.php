@@ -507,7 +507,7 @@ class message_controller {
             $this->messagebody === "0"
             // Make sure, we don't send anything, if booking option is hidden.
             || ($this->optionsettings->invisible == MOD_BOOKING_OPTION_INVISIBLE
-                && (get_config('booking', 'sendmessagesforinvisibleoptions')))
+                && !get_config('booking', 'sendmessagesforinvisibleoptions'))
         ) {
             $this->msgcontrparam = MOD_BOOKING_MSGCONTRPARAM_DO_NOT_SEND;
         }
