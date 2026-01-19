@@ -129,6 +129,9 @@ class message_controller {
     /** @var ical $ical */
     private ical $ical;
 
+    /** @var bool $preventsendingmessage certain unresolved placeholders prevent the sending of messages.*/
+    private $preventsendingmessage = false;
+
     /**
      * Constructor
      *
@@ -237,19 +240,23 @@ class message_controller {
         $this->price = $price;
         $this->rulejson = $rulejson;
         $this->params = new stdClass();
-
-        // Apply placeholder to subject.
-        $customsubject = placeholders_info::render_text(
-            $customsubject,
-            $this->optionsettings->cmid,
-            $this->optionid,
-            $this->userid,
-            $this->installmentnr,
-            $this->duedate,
-            $this->price,
-            $this->descriptionparam ?? MOD_BOOKING_DESCRIPTION_WEBSITE,
-            $this->rulejson
-        );
+        try {
+            // Apply placeholder to subject.
+            $customsubject = placeholders_info::render_text(
+                $customsubject,
+                $this->optionsettings->cmid,
+                $this->optionid,
+                $this->userid,
+                $this->installmentnr,
+                $this->duedate,
+                $this->price,
+                $this->descriptionparam ?? MOD_BOOKING_DESCRIPTION_WEBSITE,
+                $this->rulejson
+            );
+        } catch (moodle_exception $e) {
+            $this->preventsendingmessage = true;
+            $debugmessage = $e->getMessage();
+        }
 
         // For custom messages only.
         if ($this->messageparam == MOD_BOOKING_MSGPARAM_CUSTOM_MESSAGE) {
@@ -306,10 +313,17 @@ class message_controller {
         }
 
         // Generate the email body.
-        $this->messagebody = $this->get_email_body();
-
-        $this->messagebody = format_text($this->messagebody);
-
+        try {
+            $this->messagebody = $this->get_email_body();
+            $this->messagebody = format_text($this->messagebody);
+        } catch (moodle_exception $e) {
+            $this->preventsendingmessage = true;
+            $debugmessage = $e->getMessage();
+        }
+        if ($this->preventsendingmessage) {
+            mtrace($debugmessage);
+            return;
+        }
         // For adhoc task mails, we need to prepare data differently.
         if ($this->msgcontrparam == MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC) {
             $this->messagedata = $this->get_message_data_queue_adhoc();
@@ -369,18 +383,21 @@ class message_controller {
         }
 
         // We apply the default placeholders.
-        $text = placeholders_info::render_text(
-            $text,
-            $this->optionsettings->cmid,
-            $this->optionid,
-            $this->userid,
-            $this->installmentnr,
-            $this->duedate,
-            $this->price,
-            $this->descriptionparam ?? MOD_BOOKING_DESCRIPTION_WEBSITE,
-            $this->rulejson
-        );
-
+        try {
+            $text = placeholders_info::render_text(
+                $text,
+                $this->optionsettings->cmid,
+                $this->optionid,
+                $this->userid,
+                $this->installmentnr,
+                $this->duedate,
+                $this->price,
+                $this->descriptionparam ?? MOD_BOOKING_DESCRIPTION_WEBSITE,
+                $this->rulejson
+            );
+        } catch (moodle_exception $e) {
+            throw new moodle_exception($e->getMessage(), 'mod_booking');
+        }
         return $text;
     }
 
