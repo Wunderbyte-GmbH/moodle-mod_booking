@@ -36,6 +36,7 @@ $userid = optional_param('userid', 0, PARAM_INT);
 $completed = optional_param('completed', 0, PARAM_INT);
 $search = optional_param('search', 0, PARAM_INT);
 $filter = optional_param('filter', 0, PARAM_INT);
+$typefilter = optional_param('typefilter', 0, PARAM_INT);
 
 if (!empty($userid) && has_capability('local/shopping_cart:cashier', context_system::instance())) {
     $user = singleton_service::get_instance_of_user($userid);
@@ -70,6 +71,7 @@ $arguments['sortorder'] = 'desc';
 $arguments['foruserid'] = $userid;
 $arguments['search'] = $search;
 $arguments['filter'] = $filter;
+$arguments['typefilter'] = $typefilter;
 
 echo shortcodes::mycourselist('', $arguments, '', (object)[], fn($a) => $a);
 
