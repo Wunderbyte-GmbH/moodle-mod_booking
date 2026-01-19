@@ -28,7 +28,6 @@ use core\message\message;
 use mod_booking\booking_option;
 use mod_booking\booking_settings;
 use mod_booking\booking_option_settings;
-use mod_booking\output\optiondates_only;
 use mod_booking\output\bookingoption_changes;
 use mod_booking\output\renderer;
 use mod_booking\placeholders\placeholders_info;

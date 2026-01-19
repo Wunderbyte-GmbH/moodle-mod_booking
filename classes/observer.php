@@ -36,6 +36,7 @@ use mod_booking\elective;
 use mod_booking\event\booking_debug;
 use mod_booking\event\bookinganswer_presencechanged;
 use mod_booking\event\bookinganswer_notesedited;
+use mod_booking\local\calendar\calendar_helper;
 use mod_booking\local\certificateclass;
 use mod_booking\local\checkanswers\checkanswers;
 use mod_booking\local\mobile\customformstore;
@@ -246,24 +247,20 @@ class mod_booking_observer {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        // If the bookingoption was set to invisible, we remove all associated calendar events.
-        if ($settings->invisible == MOD_BOOKING_OPTION_INVISIBLE) {
-            // TODO: DO NOT DELETE, just HIDE the events!
-            option_delete_all_events($optionid);
-        } else if ($optiondates = $DB->get_records('booking_optiondates', ['optionid' => $optionid])) {
+        if ($optiondates = $DB->get_records('booking_optiondates', ['optionid' => $optionid])) {
+            calendar_helper::option_delete_course_calendar_events($optionid);
             // If there are associated optiondates (sessions) then update their calendar events.
             // Delete course event if we have optiondates (multisession!).
-            if ($settings->calendarid) {
+            /*if ($settings->calendarid) {
                 $DB->delete_records('event', ['id' => $settings->calendarid]);
                 $data = new stdClass();
                 $data->id = $optionid;
                 $data->calendarid = 0;
-                $DB->update_record('booking_options', $data);
+                $DB->update_record('booking_options', $data);*/
 
                 // Also, delete all associated user events.
-
                 // Get all the user events.
-                $sql = "SELECT e.*
+                /*$sql = "SELECT e.*
                         FROM {booking_userevents} ue
                         JOIN {event} e
                         ON ue.eventid = e.id
@@ -277,11 +274,11 @@ class mod_booking_observer {
                     $DB->delete_records('event', ['id' => $eventrecord->id]);
                     $DB->delete_records('booking_userevents', ['id' => $eventrecord->id]);
                 }
-            }
+            }*/
 
             foreach ($optiondates as $optiondate) {
                 // Create or update the sessions.
-                option_optiondate_update_event($optionid, $cmid, $optiondate);
+                calendar_helper::option_optiondate_update_event($optionid, $cmid, $optiondate);
             }
         }
 
@@ -293,6 +290,13 @@ class mod_booking_observer {
         );
         foreach ($allteachers as $key => $value) {
             new calendar($event->contextinstanceid, $event->objectid, $value, calendar::MOD_BOOKING_TYPETEACHERUPDATE);
+        }
+
+        // If the bookingoption was set to invisible, we hide all associated calendar events.
+        if ($settings->invisible == MOD_BOOKING_OPTION_INVISIBLE) {
+            calendar_helper::option_set_visibility_for_all_events($optionid, 0); // 0 = hide.
+        } else {
+            calendar_helper::option_set_visibility_for_all_events($optionid, 1); // 1 = show.
         }
 
         // At the very last moment, when everything is done, we invalidate the table cache.

@@ -26,7 +26,6 @@ defined('MOODLE_INTERNAL') || die();
 
 use mod_booking\booking_rules\rules_info;
 use mod_booking\booking_utils;
-use mod_booking\event\bookingoptiondate_created;
 use mod_booking\output\bookingoption_description;
 use mod_booking\singleton_service;
 
@@ -122,7 +121,8 @@ function get_rendered_customfields($optiondateid) {
 }
 
 /**
- * Helper function to render the full description (including custom fields) of option events or optiondate events.
+ * Helper function to render the full description
+ * (including custom fields) of option events or optiondate events.
  * @param int $optionid
  * @param int $cmid the course module id
  * @param int $descriptionparam
@@ -177,136 +177,6 @@ function optiondate_duplicatecustomfields($oldoptiondateid, $newoptiondateid) {
         $customfield->optiondateid = $newoptiondateid;
         $DB->insert_record("booking_customfields", $customfield);
     }
-}
-
-/**
- * Helper function to update user calendar events
- * after an option or optiondate (a session of a booking option) has been changed.
- *
- * @param int $optionid
- * @param int $cmid
- * @param ?stdClass $optiondate
- *
- */
-function option_optiondate_update_event(int $optionid, int $cmid, ?stdClass $optiondate = null) {
-    global $DB, $USER;
-
-    $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-
-    // We either do this for option or optiondate
-    // different way to retrieve the right events.
-    if ($optiondate && !empty($settings->id)) {
-        // Check if we have already associated userevents.
-        if (!isset($optiondate->eventid) || (!$event = $DB->get_record('event', ['id' => $optiondate->eventid]))) {
-            // If we don't find the event here, we might still be just switching to multisession.
-            // Let's create the event anew.
-            $bocreatedevent = bookingoptiondate_created::create(['context' => context_module::instance($cmid),
-                                                                'objectid' => $optiondate->id,
-                                                                'userid' => $USER->id,
-                                                                'other' => ['optionid' => $settings->id],
-                                                            ]);
-            $bocreatedevent->trigger();
-
-            // We have to return false if we have switched from multisession to create the right events.
-            return false;
-        } else {
-            // Get all the userevents.
-            $sql = "SELECT e.* FROM {booking_userevents} ue
-              JOIN {event} e
-              ON ue.eventid = e.id
-              WHERE ue.optiondateid = :optiondateid";
-
-            $allevents = $DB->get_records_sql($sql, ['optiondateid' => $optiondate->id]);
-
-            // Use the optiondate as data object.
-            $data = $optiondate;
-
-            if ($event = $DB->get_record('event', ['id' => $optiondate->eventid])) {
-                if ($allevents && count($allevents) > 0) {
-                    if ($event && isset($event->description)) {
-                        $allevents[] = $event;
-                    }
-                } else {
-                    $allevents = [$event];
-                }
-            }
-        }
-    } else {
-        // Get all the userevents.
-        $sql = "SELECT e.* FROM {booking_userevents} ue
-                    JOIN {event} e
-                    ON ue.eventid = e.id
-                    WHERE ue.optionid = :optionid";
-
-        $allevents = $DB->get_records_sql($sql, ['optionid' => $settings->id]);
-
-        // Use the option as data object.
-        $data = $settings;
-
-        if ($event = $DB->get_record('event', ['id' => $settings->calendarid])) {
-            if ($allevents && count($allevents) > 0) {
-                if ($event && isset($event->description)) {
-                    $allevents[] = $event;
-                }
-            } else {
-                $allevents = [$event];
-            }
-        }
-    }
-
-    // We use $data here for $option and $optiondate, the necessary keys are the same.
-    foreach ($allevents as $eventrecord) {
-        if ($eventrecord->eventtype == 'user') {
-            $eventrecord->description = get_rendered_eventdescription(
-                $settings->id,
-                $cmid,
-                MOD_BOOKING_DESCRIPTION_CALENDAR,
-                true
-            );
-        } else {
-            $eventrecord->description = get_rendered_eventdescription(
-                $settings->id,
-                $cmid,
-                MOD_BOOKING_DESCRIPTION_CALENDAR,
-                false
-            );
-        }
-        $eventrecord->name = $settings->get_title_with_prefix();
-        $eventrecord->timestart = $data->coursestarttime;
-        $eventrecord->timeduration = $data->courseendtime - $data->coursestarttime;
-        $eventrecord->timesort = $data->coursestarttime;
-        if (!$DB->update_record('event', $eventrecord)) {
-            return false;
-        }
-    }
-}
-
-/**
- * Helper function to delete all calendar events
- * for a specific option.
- *
- * @param int $optionid
- */
-function option_delete_all_events(int $optionid): void {
-    global $DB;
-    // First, delete the course event(s).
-    $courseeventsql = "SELECT * FROM {event} WHERE uuid LIKE " .
-        $DB->sql_concat((string)$optionid, "'-%'");
-    $courseevents = $DB->get_records_sql($courseeventsql);
-    foreach ($courseevents as $courseevent) {
-        $DB->delete_records('event', ['id' => $courseevent->id]);
-    }
-    // Now, delete all user events.
-    $usereventsql = "SELECT *
-                       FROM {booking_userevents}
-                      WHERE optionid = :optionid;";
-    $params['optionid'] = $optionid;
-    $userevents = $DB->get_records_sql($usereventsql, $params);
-    foreach ($userevents as $userevent) {
-        $DB->delete_records('event', ['id' => $userevent->eventid]);
-    }
-    $DB->delete_records('booking_userevents', ['optionid' => $optionid]);
-    return;
 }
 
 /**
