@@ -53,6 +53,7 @@ $observers = [
     [
         'eventname' => '\mod_booking\event\bookingoption_updated',
         'callback' => 'mod_booking_observer::bookingoption_updated',
+        'internal' => false,
     ],
     [
         'eventname' => '\mod_booking\event\bookingoption_cancelled',

@@ -245,37 +245,8 @@ class mod_booking_observer {
         $optionid = $event->objectid;
         $cmid = $event->contextinstanceid;
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-
-        if ($optiondates = $DB->get_records('booking_optiondates', ['optionid' => $optionid])) {
-            calendar_helper::option_delete_course_calendar_events($optionid);
-            // If there are associated optiondates (sessions) then update their calendar events.
-            // Delete course event if we have optiondates (multisession!).
-            /*if ($settings->calendarid) {
-                $DB->delete_records('event', ['id' => $settings->calendarid]);
-                $data = new stdClass();
-                $data->id = $optionid;
-                $data->calendarid = 0;
-                $DB->update_record('booking_options', $data);*/
-
-                // Also, delete all associated user events.
-                // Get all the user events.
-                /*$sql = "SELECT e.*
-                        FROM {booking_userevents} ue
-                        JOIN {event} e
-                        ON ue.eventid = e.id
-                        WHERE ue.optionid = :optionid
-                        AND ue.optiondateid IS NULL";
-
-                $allevents = $DB->get_records_sql($sql, ['optionid' => $optionid]);
-
-                // We delete all userevents and return false.
-                foreach ($allevents as $eventrecord) {
-                    $DB->delete_records('event', ['id' => $eventrecord->id]);
-                    $DB->delete_records('booking_userevents', ['id' => $eventrecord->id]);
-                }
-            }*/
-
+        $optiondates = $DB->get_records('booking_optiondates', ['optionid' => $optionid]);
+        if (!empty($optiondates)) {
             foreach ($optiondates as $optiondate) {
                 // Create or update the sessions.
                 calendar_helper::option_optiondate_update_event($optionid, $cmid, $optiondate);
@@ -292,15 +263,24 @@ class mod_booking_observer {
             new calendar($event->contextinstanceid, $event->objectid, $value, calendar::MOD_BOOKING_TYPETEACHERUPDATE);
         }
 
-        // If the bookingoption was set to invisible, we hide all associated calendar events.
-        if ($settings->invisible == MOD_BOOKING_OPTION_INVISIBLE) {
-            calendar_helper::option_set_visibility_for_all_events($optionid, 0); // 0 = hide.
-        } else {
-            calendar_helper::option_set_visibility_for_all_events($optionid, 1); // 1 = show.
-        }
+        // Delay the update until the script is completely finishing.
+        core_shutdown_manager::register_function(function ($optionid): void {
+            try {
+                $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+                // If the bookingoption was set to invisible, we hide all associated calendar events.
+                if ($settings->invisible == MOD_BOOKING_OPTION_INVISIBLE) {
+                    calendar_helper::option_set_visibility_for_all_calendar_events($optionid, 0); // 0 = hide.
+                } else {
+                    calendar_helper::option_set_visibility_for_all_calendar_events($optionid, 1); // 1 = show.
+                }
 
-        // At the very last moment, when everything is done, we invalidate the table cache.
-        booking_option::purge_cache_for_option($optionid);
+                // At the very last moment, when everything is done, we invalidate the table cache.
+                booking_option::purge_cache_for_option($optionid);
+            } catch (Throwable $e) {
+                debugging('Could not update calendar events visibility for booking option ' . $optionid .
+                    '. Exception in function observer.php/bookingoption_updated. ' . $e->getMessage());
+            }
+        }, [$optionid]);
     }
 
     /**

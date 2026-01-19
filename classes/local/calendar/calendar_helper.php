@@ -57,9 +57,10 @@ class calendar_helper {
             $DB->update_record('event', $courseevent);
         }
         // Now, hide all user events.
-        $usereventsql = "SELECT *
-                        FROM {booking_userevents}
-                        WHERE optionid = :optionid;";
+        $usereventsql = "SELECT e.*
+                        FROM {event} e
+                        JOIN {booking_userevents} bue ON bue.eventid = e.id
+                        WHERE bue.optionid = :optionid;";
         $params['optionid'] = $optionid;
         $userevents = $DB->get_records_sql($usereventsql, $params);
         foreach ($userevents as $userevent) {
@@ -90,12 +91,6 @@ class calendar_helper {
      */
     public static function option_delete_course_calendar_events(int $optionid): void {
         global $DB;
-
-        // First try to delete via calendarid reference.
-        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-        if (!empty($settings->calendarid)) {
-            $DB->delete_records('event', ['id' => $settings->calendarid]);
-        }
 
         // Just to be safe, we also delete via uuid.
         $courseeventsql = "SELECT * FROM {event} WHERE uuid LIKE " .
