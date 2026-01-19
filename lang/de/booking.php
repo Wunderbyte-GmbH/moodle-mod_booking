@@ -426,6 +426,7 @@ $string['bookelectivesbtn'] = 'Ausgewählte Wahlfächer buchen';
 $string['booking'] = 'Buchung';
 $string['booking:addeditownoption'] = 'Neue Buchungsoptionen anlegen und eigene bearbeiten.';
 $string['booking:addinstance'] = 'Neue Buchungsinstanz anlegen';
+$string['booking:alwayscanapprove'] = 'Kann Buchungsantworten immer bestätigen/ablehnen';
 $string['booking:assigndeputies'] = 'Stellvertretung erstellen';
 $string['booking:bookanyone'] = 'Darf alle Nutzer:innen buchen';
 $string['booking:bookforothers'] = "Für andere buchen";

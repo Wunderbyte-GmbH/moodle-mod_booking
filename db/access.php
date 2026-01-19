@@ -413,7 +413,14 @@ $capabilities = [
     ],
     'mod/booking:seealllisttoapprove' => [
         'captype' => 'read',
-        'contextlevel' => CONTEXT_MODULE,
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ],
+    ],
+    'mod/booking:alwayscanapprove' => [
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => [
             'manager' => CAP_ALLOW,
         ],
