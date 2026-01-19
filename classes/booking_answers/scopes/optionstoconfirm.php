@@ -236,8 +236,8 @@ class optionstoconfirm extends option {
         // The where restriction.
         $concat = $DB->sql_concat("ctx_ra.path", "'/%'");
 
-        if (is_siteadmin()) {
-            // Admin can see all answers regardless of capabilities.
+        if (has_capability('mod/booking:seealllisttoapprove', context_system::instance())) {
+            // Admin & all persons who have seealllisttoapprove capability can see all answers.
             $where = " 1=1 ";
         } else {
             // We only show the options if the user has the correct capability 'mod/booking:readresponses'in the course module.
