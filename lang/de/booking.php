@@ -1108,6 +1108,8 @@ $string['deleteinfoscheckboxadminwarning'] = '<div class="alert alert-warning st
 <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
 <span>Für die Ausführung muss eine entsprechende <a target="_blank" href="{$a}">Buchungsregel (Booking Rule)</a> aktiviert werden</span></div>';
 $string['deleteoptiondate'] = 'Termin entfernen';
+$string['deleteperformancemeasurement'] = 'Wollen Sie die Messung endgültig löschen?';
+$string['deleteperformancemeasurements'] = 'Wollen Sie alle Messungen zu diesem Shortcode endgültig löschen?';
 $string['deleterule'] = 'Löschen';
 $string['deletesemester'] = 'Semester löschen';
 $string['deletesubcategory'] = 'Löschen Sie zuerst alle Unterkategorien dieser Kategorie!';
@@ -1183,6 +1185,7 @@ $string['editcategory'] = 'Bearbeiten';
 $string['editingoptiondate'] = 'Sie bearbeiten gerade diesen Termin';
 $string['editinstitutions'] = 'Institutionen bearbeiten';
 $string['editotherbooking'] = 'Andere Buchungsoptionen';
+$string['editperformancemeasurement'] = 'Bearbeiten der Messung zum Shortcode {$a}';
 $string['editrule'] = "Bearbeiten";
 $string['editsubbooking'] = 'Bearbeite Zusatzbuchung';
 $string['edittag'] = 'Bearbeiten';
@@ -1206,6 +1209,7 @@ Danach können die Optionen auf der Berichtsseite als abgeschlossen markiert wer
 $string['enablecompletionminnumber'] = 'Mindestanzahl: ';
 $string['enddate'] = "Enddatum";
 $string['endtime'] = "Endzeit";
+$string['endtimemeasurement'] = "Zeit der Messung";
 $string['endtimenotset'] = 'Kursende nicht festgelegt';
 $string['enforceorder'] = 'Erzwinge Reihenfolge';
 $string['enforceorder_help'] = 'Nutzer:innen werden erst nach Abschluss des vorangegangene Kurses in den nächsten Kurs eingeschrieben.';
@@ -1237,6 +1241,7 @@ Diese Funktion bezieht sich auch auf den ausgewählten Kurs im Bereich Moodle Ku
 $string['enroluserstowaitinglist'] = "Buchende NutzerInnen auf die Warteliste setzen und erst nach Bestätigung einschreiben?";
 $string['enroluserwhobookedtocourse'] = "Möchten Sie diese Option selbst auch absolvieren?";
 $string['enroluserwhobookedtocoursewarning'] = "Wenn Sie nur einen Platz kaufen und selbst eingeschrieben werden, wird kein Einschreibelink generiert.";
+$string['enternote'] = 'Geben Sie eine Notiz ein...';
 $string['enteruserprofilefield'] = "Wähle Nutzer:innen nach eingegebenem Wert für Profilfeld. Achtung! Das betrifft ALLE Nutzer:inne nauf der Plattform.";
 $string['entervalidurl'] = 'Bitte geben Sie eine gültige URL an!';
 $string['entities'] = 'Orte mit Entities Plugin auswählen';
@@ -1377,6 +1382,8 @@ $string['firstnamerelated'] = "Vorname betroffene Person";
 $string['forcourse'] = 'für Kurs';
 $string['format'] = 'Format';
 $string['formconfig'] = 'Anzeige, welches Formular verwendet wird';
+$string['formmeasurementheading'] = 'Messungen vom Shortcode {$a}';
+$string['formmeasurementsheading'] = 'Einzelne Messung.';
 $string['formtype'] = "Formulartyp";
 $string['friday'] = 'Freitag';
 $string['from'] = 'Ab';

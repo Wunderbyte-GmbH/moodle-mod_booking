@@ -1132,6 +1132,8 @@ $string['deleteinfoscheckboxadminwarning'] = '<div class="alert alert-warning st
 <span> A corresponding <a target="_blank" href="{$a}">booking rule</a> must be configured to execute this option!</span>
 </div>';
 $string['deleteoptiondate'] = 'Remove date';
+$string['deleteperformancemeasurement'] = 'Do you really want to delete this measurement';
+$string['deleteperformancemeasurements'] = 'Do you really want to delete all measurements of this shortcode?';
 $string['deleteresponsesactivitycompletion'] = 'Delete all users with completed activity: {$a}';
 $string['deleterule'] = 'Delete';
 $string['deletesemester'] = 'Delete semester';
@@ -1210,6 +1212,7 @@ $string['editcategory'] = 'Edit';
 $string['editingoptiondate'] = 'You are currently editing this session';
 $string['editinstitutions'] = 'Edit institutions';
 $string['editotherbooking'] = 'Other booking rules';
+$string['editperformancemeasurement'] = 'Edit measurement of shortcode {$a}';
 $string['editrule'] = "Edit";
 $string['editsubbooking'] = 'Edit subbooking';
 $string['edittag'] = 'Edit';
@@ -1234,6 +1237,7 @@ The users can then be marked as completed on the report page. This has to be don
 $string['enablecompletionminnumber'] = 'Minimum number: ';
 $string['enddate'] = "Enddate";
 $string['endtime'] = "Endtime";
+$string['endtimemeasurement'] = "Measurement time";
 $string['endtimenotset'] = 'End date not set';
 $string['enforceorder'] = 'Enforce booking order';
 $string['enforceorder_help'] = 'Users will be inscribed only once they have completed the previous booking option';
@@ -1268,6 +1272,7 @@ This function also refers to the selected course in the Moodle Courses area.
 $string['enroluserstowaitinglist'] = "Put booking users on waitinglist and enrol only after confirmation?";
 $string['enroluserwhobookedtocourse'] = "Do you also want to book the option for yourself?";
 $string['enroluserwhobookedtocoursewarning'] = "If you purchase only one seat and choose to be enrolled yourself, there will be no enrollment link created.";
+$string['enternote'] = 'Enter a note...';
 $string['enteruserprofilefield'] = "Select users by entering a value for custom user profile field. Attention! This targets all the users on the plattform.";
 $string['entervalidurl'] = 'Please, enter a valid URL!';
 $string['entities'] = 'Choose places with entities plugin';
@@ -1407,6 +1412,8 @@ $string['firstnamerelated'] = "Firstname of the related person (like i.e. the us
 $string['forcourse'] = 'for course';
 $string['format'] = 'format';
 $string['formconfig'] = 'Show which form is used.';
+$string['formmeasurementheading'] = 'Measurements of shortcode {$a}';
+$string['formmeasurementsheading'] = 'Single measurements.';
 $string['formtype'] = "Type of form";
 $string['friday'] = 'Friday';
 $string['from'] = 'From';
