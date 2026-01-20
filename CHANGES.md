@@ -1,3 +1,14 @@
+## Version 9.0.8 (2026012000)
+* Improvement: Better wording for visibility.
+* Improvement: added typefilter to mybookings Wunderbyte-GmbH/Wunderbyte.
+* Improvement: Setting to send messages for invisible options.
+* Improvement: Add placeholder optionid.
+* Improvement: Add placeholder type to get bo type 0 normal, 1 selflearning.
+* Improvement: Missing Placeholders do not send mails (Wunderbyte-GmbH/Wunderbyte).
+* Bugfix: Reverted logic for sending messages of invisible option setting.
+* Bugfix: Allow external pollurls with placeholders.
+* Bugfix: Empty cmid does not lead blocking site.
+
 ## Version 9.0.7 (2026011600)
 * Improvement: Implement field controllers for customfield placeholders to support more field types (e.g. multiselect dynamic dropdown).
 * Improvement: Optionstoconfirm reduced now show coursestarttime
