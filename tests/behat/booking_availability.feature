@@ -372,7 +372,7 @@ Feature: Test booking options avaialbility conditions
     And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
     When I am on the "My booking" Activity page logged in as teacher1
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I set the field "Visibility" to "Hide from normal users (visible to entitled users only)"
+    And I set the field "Visibility" to "Invisible (except for users with capability to see invisible options)"
     And I press "Save"
     And I should see "Invisible" in the ".allbookingoptionstable_r1" "css_element"
     And I am on the "My booking" Activity page logged in as student1
