@@ -91,7 +91,7 @@ class certificate extends field_base {
      *
      * @var array
      */
-    public static $certificatedatekeys = ['expirydateabsolute', 'expirydaterelative', 'expirydatetype'];
+    public static $certificatedatekeys = ['expirydateabsolute', 'expirydaterelative', 'expirydatetype', 'certificaterequiresotheroptions'];
 
 
     /**
@@ -195,6 +195,41 @@ class certificate extends field_base {
             $mform->setType('certificate', PARAM_INT);
 
             toolCertificate::add_expirydate_to_form($mform);
+
+            $bookingoptions = [
+                'tags' => false,
+                'multiple' => true,
+                'noselectionstring' => get_string('choose...', 'mod_booking'),
+                'ajax' => 'mod_booking/form_booking_options_selector',
+                'valuehtmlcallback' => function ($value) {
+                    global $OUTPUT;
+                    if (empty($value)) {
+                        return get_string('choose...', 'mod_booking');
+                    }
+                    $optionsettings = singleton_service::get_instance_of_booking_option_settings((int)$value);
+                    $instancesettings = singleton_service::get_instance_of_booking_settings_by_cmid($optionsettings->cmid);
+
+                    $details = (object)[
+                        'id' => $optionsettings->id,
+                        'titleprefix' => $optionsettings->titleprefix,
+                        'text' => $optionsettings->text,
+                        'instancename' => $instancesettings->name,
+                    ];
+                    return $OUTPUT->render_from_template(
+                        'mod_booking/form_booking_options_selector_suggestion',
+                        $details
+                    );
+                },
+            ];
+
+            $mform->addElement(
+                'autocomplete',
+                'certificaterequiresotheroptions',
+                get_string('certificaterequiresotheroptions', 'mod_booking'),
+                [],
+                $bookingoptions
+            );
+            $mform->addHelpButton('certificaterequiresotheroptions', 'certificaterequiresotheroptions', 'mod_booking');
         } else {
             // If PRO version is not activated, we don't show the certificate field.
             // We can add a static text to inform the user.
@@ -539,5 +574,36 @@ class certificate extends field_base {
         }
 
         return $returnarray;
+    }
+
+    /**
+     * Check if all required options are completed for certificate issuance.
+     * If a certificate does not require other options, it will return true.
+     * If there are required options, it checks if the user has completed them all.
+     * There is no check if the current option is required in another option, if so, the other option will use this check on completion.
+     *
+     * @param booking_option_settings $settings
+     * @param int $userid
+     *
+     * @return bool
+     *
+     */
+    public static function all_required_options_fulfilled(booking_option_settings $settings, int $userid): bool {
+        $requiredoptions = booking_option::get_value_of_json_by_key(
+            $settings->id,
+            'certificaterequiresotheroptions'
+        ) ?? [];
+
+        if (empty($requiredoptions)) {
+            return true;
+        }
+
+        $ba = singleton_service::get_instance_of_booking_answers($settings);
+        foreach ($requiredoptions as $requiredoptionid) {
+            if (!$ba->is_activity_completed($userid)) {
+                return false;
+            }
+        }
+        return true;
     }
 }
