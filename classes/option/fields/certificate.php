@@ -272,7 +272,10 @@ class certificate extends field_base {
         $id = 0;
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        if (!class_exists('tool_certificate\certificate')) {
+        if (
+            !class_exists('tool_certificate\certificate')
+            || !get_config('booking', 'certificateon')
+        ) {
             return $id;
         }
         // Get certificate id.
