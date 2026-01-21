@@ -102,6 +102,7 @@ final class certificate_bo_completed_test extends advanced_testcase {
             $params = $standarddata['users']['params'] ?? [];
             $users[$user['name']] = $this->getDataGenerator()->create_user($params);
         }
+        $student1 = $users['student1'];
 
         // Fetch standarddata for booking.
         $bdata = $standarddata['booking'];
@@ -122,6 +123,20 @@ final class certificate_bo_completed_test extends advanced_testcase {
         }
 
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        // Create first option which is required for certificate issuance in second option.
+        $option1 = $standarddata['option'];
+        $option1['bookingid'] = $booking1->id;
+        $option1['courseid'] = $course->id;
+        $option1['text'] = 'first option';
+        $option1obj = $plugingenerator->create_option((object) $option1);
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1obj->id);
+
+        if (isset($data['completeotheroption'])) {
+            $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
+            $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
+            $bookingoption1 = singleton_service::get_instance_of_booking_option($settings1->cmid, $settings1->id);
+            $bookingoption1->toggle_user_completion($student1->id);
+        }
 
         $option = $standarddata['option'];
         if (isset($data['optionsettings'])) {
@@ -129,6 +144,9 @@ final class certificate_bo_completed_test extends advanced_testcase {
                 $option[$key] = $value;
             }
         }
+
+        $otherrequiredoptions = isset($data['optionsettings']['certificatedata']['otherrequiredoptions']) ? $option1obj->id : 0;
+
         $expirydaterelative = $data['optionsettings']['certificatedata']['expirydaterelative'] ?? 0;
         $expirydateabsolute = $data['optionsettings']['certificatedata']['expirydateabsolute'] ?? 0;
         $expirydatetype = $data['optionsettings']['certificatedata']['expirydatetype'];
@@ -136,7 +154,8 @@ final class certificate_bo_completed_test extends advanced_testcase {
         "expirydateabsolute":' . $expirydateabsolute . ',
         "expirydatetype":' . $expirydatetype . ',
         "expirydaterelative":' . $expirydaterelative . '
-        }';
+        ,"certificaterequiresotheroptions":["' . $otherrequiredoptions . '"]}';
+
         $option['bookingid'] = $booking1->id;
         $option['courseid'] = $course->id;
 
@@ -148,7 +167,6 @@ final class certificate_bo_completed_test extends advanced_testcase {
         // So far for the basic setup.
         // Now proceed to logic of the testcase.
         // Book the users.
-        $student1 = $users['student1'];
         $this->setUser($users['student1']);
         // Book the first user without any problem.
         $boinfo = new bo_info($settings);
@@ -435,6 +453,71 @@ final class certificate_bo_completed_test extends advanced_testcase {
                     MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
                 ],
                     'certcount' => 0, // When presencetoissuecertificate is on no certificate should be issued with completion.
+            ],
+        ],
+        'other_option_required_not_fulfilled' => [
+            [
+                'configsettings' => [
+                    [
+                    'component' => 'booking',
+                    'name' => 'certificateon',
+                    'value' => 1,
+                    ],
+                ],
+                'coursesettings' => [
+                    'firstcourse' => [
+                        'enablecompletion' => 1,
+                    ],
+                ],
+                'completionsettings' => [
+                    'multiple' => 0,
+                ],
+                'optionsettings' => [
+                    'useprice' => 0,
+                    'certificatedata' => [
+                        'expirydatetype' => 0,
+                        'otherrequiredoptions' => 1, // Here is the requirement.
+                    ],
+                ],
+            ],
+            [
+                'bookitresults' => [
+                    MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
+                ],
+                    'certcount' => 0,
+            ],
+        ],
+        'other_option_required_that_is_fulfilled' => [
+            [
+                'configsettings' => [
+                    [
+                    'component' => 'booking',
+                    'name' => 'certificateon',
+                    'value' => 1,
+                    ],
+                ],
+                'coursesettings' => [
+                    'firstcourse' => [
+                        'enablecompletion' => 1,
+                    ],
+                ],
+                'completionsettings' => [
+                    'multiple' => 0,
+                ],
+                'optionsettings' => [
+                    'useprice' => 0,
+                    'certificatedata' => [
+                        'expirydatetype' => 0,
+                        'otherrequiredoptions' => 1, // Here is the requirement.
+                    ],
+                ],
+                'completeotheroption' => 1,
+            ],
+            [
+                'bookitresults' => [
+                    MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
+                ],
+                    'certcount' => 1,
             ],
         ],
         ];

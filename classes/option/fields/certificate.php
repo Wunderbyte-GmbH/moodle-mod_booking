@@ -91,7 +91,12 @@ class certificate extends field_base {
      *
      * @var array
      */
-    public static $certificatedatekeys = ['expirydateabsolute', 'expirydaterelative', 'expirydatetype', 'certificaterequiresotheroptions'];
+    public static $certificatedatekeys = [
+        'expirydateabsolute',
+        'expirydaterelative',
+        'expirydatetype',
+        'certificaterequiresotheroptions',
+    ];
 
 
     /**
@@ -580,7 +585,8 @@ class certificate extends field_base {
      * Check if all required options are completed for certificate issuance.
      * If a certificate does not require other options, it will return true.
      * If there are required options, it checks if the user has completed them all.
-     * There is no check if the current option is required in another option, if so, the other option will use this check on completion.
+     * There is no check if the current option is required in another option, if so,
+     * the other option will use this check on completion.
      *
      * @param booking_option_settings $settings
      * @param int $userid
@@ -598,8 +604,12 @@ class certificate extends field_base {
             return true;
         }
 
-        $ba = singleton_service::get_instance_of_booking_answers($settings);
         foreach ($requiredoptions as $requiredoptionid) {
+            if (empty($requiredoptionid)) {
+                continue;
+            }
+            $settingsotheroption = singleton_service::get_instance_of_booking_option_settings($requiredoptionid);
+            $ba = singleton_service::get_instance_of_booking_answers($settingsotheroption);
             if (!$ba->is_activity_completed($userid)) {
                 return false;
             }

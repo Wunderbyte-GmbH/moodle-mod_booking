@@ -792,7 +792,7 @@ $string['certificatemodalheader'] = 'Certificates of {$a}';
 $string['certificateon'] = 'Activate certificate creation <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['certificateon_desc'] = 'Enable this setting if you want to issue certificates for the completion of booking options.';
 $string['certificaterequiresotheroptions'] = 'Requires completion of these other booking options:';
-$string['certificaterequiresotheroptions_desc'] = 'Select booking options that must be completed before a certificate can be issued for this booking option.';
+$string['certificaterequiresotheroptions_help'] = 'Select booking options that must be completed before a certificate can be issued for this booking option.';
 $string['certificateurl'] = 'Certificate URL';
 $string['certificatewithexpiration'] = 'Expires: {$a}';
 $string['certificatewithoutexpiration'] = 'No expiration date';
