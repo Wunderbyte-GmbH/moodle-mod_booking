@@ -559,6 +559,9 @@ class rule_react_on_event implements booking_rule {
 
         $condition = conditions_info::get_condition($jsonobject->conditionname);
 
+        if (empty($condition)) {
+            return [];
+        }
         $condition->set_conditiondata_from_json($this->rulejson);
 
         $condition->execute($sql, $params);
