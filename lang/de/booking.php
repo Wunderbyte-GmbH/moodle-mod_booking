@@ -779,7 +779,7 @@ $string['certificatemodalheader'] = 'Zertifikate von {$a}';
 $string['certificateon'] = 'Zertifikatserstellung aktivieren <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['certificateon_desc'] = 'Aktivieren Sie diese Einstellung, wenn sie Zertifikate für den Abschluss von Buchungsoptionen ausstellen möchten.';
 $string['certificaterequiresotheroptions'] = 'Zertifikat nur bei zusätzlichem Abschluss folgender Optionen ausstellen:';
-$string['certificaterequiresotheroptions_desc'] = 'Wählen Sie hier zusätzliche Buchungsoptionen aus, die Nutzer:innen abschließen müssen, um das Zertifikat zu erhalten. Wenn keine Buchungsoption ausgewählt ist, wird das Zertifikat ausgestellt, sobald die Buchungsoption abgeschlossen ist.';
+$string['certificaterequiresotheroptions_help'] = 'Wählen Sie hier zusätzliche Buchungsoptionen aus, die Nutzer:innen abschließen müssen, um das Zertifikat zu erhalten. Wenn keine Buchungsoption ausgewählt ist, wird das Zertifikat ausgestellt, sobald die Buchungsoption abgeschlossen ist.';
 $string['certificateurl'] = 'Zeritifikat URL';
 $string['certificatewithexpiration'] = 'Ablaufdatum: {$a}';
 $string['certificatewithoutexpiration'] = 'Kein Ablaufdatum.';
