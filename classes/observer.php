@@ -657,7 +657,10 @@ class mod_booking_observer {
         if ($data['other']['presencenew'] == $data['other']['presenceold']) {
             return;
         }
-        if ($data['other']['presencenew'] == get_config('booking', 'presencestatustoissuecertificate')) {
+        if (
+            $data['other']['presencenew'] == get_config('booking', 'presencestatustoissuecertificate')
+            && get_config('booking', 'certificateon')
+        ) {
             certificate::issue_certificate($data['objectid'], $data['relateduserid']);
         }
     }
