@@ -24,21 +24,15 @@
 
 namespace mod_booking\option\fields;
 
-use core_competency\competency;
-use core_user;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
-use mod_booking\customfield\booking_handler;
-use mod_booking\option\dates_handler;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
-use mod_booking\placeholders\placeholders\customfields;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
 use tool_certificate\certificate as toolCertificate;
 use MoodleQuickForm;
 use stdClass;
-use tool_certificate\template;
 
 /**
  * Class to handle one property of the booking_option_settings class.
@@ -298,221 +292,6 @@ class certificate extends field_base {
     }
 
     /**
-     * Issue certificate.
-     *
-     * @param int $optionid
-     * @param int $userid
-     * @param int $timebooked
-     *
-     * @return int
-     *
-     */
-    public static function issue_certificate(int $optionid, int $userid, int $timebooked = 0): int {
-        global $DB;
-        $id = 0;
-        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-
-        if (
-            !class_exists('tool_certificate\certificate')
-            || !get_config('booking', 'certificateon')
-        ) {
-            return $id;
-        }
-        // Get certificate id.
-        $certificateid = booking_option::get_value_of_json_by_key($optionid, 'certificate') ?? 0;
-
-        if (empty($certificateid)) {
-            return $id;
-        }
-
-        $template = template::instance($certificateid);
-
-        // Certificate expiry date key.
-        $expirydatetype = booking_option::get_value_of_json_by_key($optionid, 'expirydatetype') ?? 0;
-        $expirydateabsolute = booking_option::get_value_of_json_by_key($optionid, 'expirydateabsolute') ?? 0;
-        $expirydaterelative = booking_option::get_value_of_json_by_key($optionid, 'expirydaterelative') ?? 0;
-        $certificateexpirydate = toolCertificate::calculate_expirydate($expirydatetype, $expirydateabsolute, $expirydaterelative);
-        if (!empty($expirydatetype) && $certificateexpirydate < time()) {
-            return $id;
-        }
-        // Create Certificate.
-        $customfielddata = [];
-        $customfields = booking_handler::get_customfields();
-        foreach ($customfields as $customfield) {
-            if (!in_array($customfield->type, ['text', 'textarea', 'textformat'])) {
-                continue;
-            }
-            $placeholder = '{' . $customfield->shortname . '}';
-            $params = [];
-            $value = customfields::return_value(
-                $settings->cmid,
-                $settings->id,
-                $userid,
-                $placeholder,
-                $params,
-                $customfield->shortname
-            );
-            if (empty($value)) {
-                $value = " ";
-            }
-            $customfielddata['cf' . $customfield->shortname] = $value;
-        }
-        $bookingoptionfields = [
-            'bookingoptionid' => $settings->id,
-            'bookingoptionname' => $settings->get_title_with_prefix(),
-            'bookingoptiondescription' => clean_text(
-                $settings->description,
-                $format = FORMAT_HTML,
-                $options = ['strip_tags' => true]
-            ),
-            'location' => $settings->location,
-            'institution' => $settings->institution,
-            'teachers' => self::return_teachers_for_certificate($settings->teachers),
-            'sessions' => self::return_sessions_for_certificate($settings->sessions),
-            'duration' => self::return_duration_for_certificate($settings),
-            'timeawarded' => self::return_timeawarded_for_certificate($settings, $userid, $timebooked),
-            'competencies' => self::return_competencies_for_certificate($settings->competencies ?? ''),
-        ];
-
-        $data = array_merge(
-            $bookingoptionfields,
-            $customfielddata
-        );
-        singleton_service::set_temp_values_for_certificates($settings->id, $userid);
-        // Issue the certificate.
-        $id = $template->issue_certificate(
-            $userid,
-            $certificateexpirydate,
-            $data,
-            'tool_certificate',
-            empty($settings->courseid) ? null : $settings->courseid
-        );
-        // Get the issue and create the PDF.
-        $issue = $DB->get_record('tool_certificate_issues', ['id' => $id]);
-        $pdf = $template->create_issue_file($issue, false);
-        singleton_service::unset_temp_values_for_certificates();
-
-        return $id;
-    }
-    /**
-     * [Description for return_competency_for_certificate]
-     *
-     * @param string $competencies
-     *
-     * @return string
-     *
-     */
-    private static function return_competencies_for_certificate(string $competencies) {
-
-        if (empty($competencies)) {
-            return '';
-        }
-
-        $competenciesarray = explode(',', $competencies);
-        $collected = [];
-        foreach ($competenciesarray as $competencid) {
-            $competency = competency::get_record(['id' => (int) $competencid]);
-            $collected[] = $competency->get('shortname');
-        }
-        $returnstring = implode(', ', $collected);
-        return $returnstring;
-    }
-    /**
-     * Helper function to return Teachers for certificate.
-     *
-     * @param array $teachers
-     *
-     * @return string
-     *
-     */
-    private static function return_teachers_for_certificate(array $teachers) {
-        $certificateteachers = [];
-        foreach ($teachers as $teacher) {
-            $certificateteachers[] = "$teacher->firstname $teacher->lastname";
-        }
-        return implode("<br />", $certificateteachers);
-    }
-
-    /**
-     * Helper function to return Duration for certificate.
-     *
-     * @param object $settings
-     *
-     * @return string
-     *
-     */
-    private static function return_duration_for_certificate(object $settings) {
-        if (!empty($settings->sessions)) {
-            $duration = 0;
-            foreach ($settings->sessions as $session) {
-                $duration += ($session->courseendtime - $session->coursestarttime);
-            }
-        } else if (
-            !empty($settings->courseendtime)
-            && !empty($settings->coursestarttime)
-            && $settings->courseendtime > $settings->coursestarttime
-        ) {
-            $duration = $settings->courseendtime - $settings->coursestarttime;
-        } else {
-            return '';
-        }
-        $hours = (string)floor($duration / 3600);
-        $minutes = (string)floor(($duration % 3600) / 60);
-        $a = new stdClass();
-        $a->hours = $hours;
-        $a->minutes = $minutes;
-        return get_string('durationforcertificate', 'mod_booking', $a);
-    }
-
-    /**
-     * Helper function to return Sessions for certificate.
-     *
-     * @param array $sessions
-     *
-     * @return string
-     *
-     */
-    private static function return_sessions_for_certificate(array $sessions) {
-        $dates = "";
-        foreach ($sessions as $session) {
-            $dates .= dates_handler::prettify_optiondates_start_end(
-                $session->coursestarttime,
-                $session->courseendtime,
-                current_language(),
-                false
-            ) . "<br />";
-        }
-        return $dates;
-    }
-
-    /**
-     * Helper function to return the time the certificate was awarded
-     * @param booking_option_settings $settings
-     * @param int $userid
-     * @param int $timebooked
-     *
-     * @return string
-     *
-     */
-    private static function return_timeawarded_for_certificate(
-        booking_option_settings $settings,
-        int $userid,
-        int $timebooked
-    ) {
-        if (empty($timebooked)) {
-            $ba = singleton_service::get_instance_of_booking_answers($settings);
-            $users = $ba->get_usersonlist();
-            if (!$answer = $users[$userid] ?? false) {
-                return '';
-            }
-            $timebooked = $answer->timebooked ?? $answer->timemodified ?? time();
-        }
-
-        // The time awarded is currently the time modified. We might change that at one point.
-        return userdate($timebooked, get_string('strftimedaydate'));
-    }
-
-    /**
      * Return values for bookingoption_updated event.
      *
      * @param array $changes
@@ -579,41 +358,5 @@ class certificate extends field_base {
         }
 
         return $returnarray;
-    }
-
-    /**
-     * Check if all required options are completed for certificate issuance.
-     * If a certificate does not require other options, it will return true.
-     * If there are required options, it checks if the user has completed them all.
-     * There is no check if the current option is required in another option, if so,
-     * the other option will use this check on completion.
-     *
-     * @param booking_option_settings $settings
-     * @param int $userid
-     *
-     * @return bool
-     *
-     */
-    public static function all_required_options_fulfilled(booking_option_settings $settings, int $userid): bool {
-        $requiredoptions = booking_option::get_value_of_json_by_key(
-            $settings->id,
-            'certificaterequiresotheroptions'
-        ) ?? [];
-
-        if (empty($requiredoptions)) {
-            return true;
-        }
-
-        foreach ($requiredoptions as $requiredoptionid) {
-            if (empty($requiredoptionid)) {
-                continue;
-            }
-            $settingsotheroption = singleton_service::get_instance_of_booking_option_settings($requiredoptionid);
-            $ba = singleton_service::get_instance_of_booking_answers($settingsotheroption);
-            if (!$ba->is_activity_completed($userid)) {
-                return false;
-            }
-        }
-        return true;
     }
 }

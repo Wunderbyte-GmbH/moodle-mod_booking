@@ -47,6 +47,7 @@ use mod_booking\event\bookinganswer_presencechanged;
 use mod_booking\event\bookinganswer_notesedited;
 use mod_booking\event\bookinganswer_waitingforconfirmation;
 use mod_booking\event\bookingoption_bookedviaautoenrol;
+use mod_booking\local\certificateclass;
 use mod_booking\local\confirmationworkflow\confirmation;
 use mod_booking\option\dates_handler;
 use mod_booking\bo_actions\actions_info;
@@ -2754,9 +2755,9 @@ class booking_option {
                 get_config('booking', 'certificateon')
                 && !get_config('booking', 'presencestatustoissuecertificate')
                 && !empty($userdata->completed)
-                && certificate::all_required_options_fulfilled($this->settings, $userdata->id)
+                && certificateclass::all_required_options_fulfilled($this->settings, $userdata->id)
             ) {
-                $certid = certificate::issue_certificate($this->id, $userdata->id, $timebooked);
+                $certid = certificateclass::issue_certificate($this->id, $userdata->id, $timebooked);
             }
 
             if (

@@ -68,7 +68,8 @@ final class certificate_bo_completed_test extends advanced_testcase {
      * Test issue of certificates when bookingoption completed.
      *
      * @covers \mod_booking\booking_bookit::bookit
-     * @covers \mod_booking\option\fields\certificate::issue_certificate
+     * @covers \mod_booking\local\certificateclass::issue_certificate
+     * @covers \mod_booking\local\certificateclass::all_required_options_fulfilled
      *
      * @param array $data
      * @param array $expected
