@@ -135,8 +135,70 @@ class certificateclass {
         $pdf = $template->create_issue_file($issue, false);
         singleton_service::unset_temp_values_for_certificates();
 
+        // Get required options data for the event.
+        $requiredoptionsdata = self::get_required_options_data($settings, $userid);
+
+        // Trigger certificate issued event.
+        $event = \mod_booking\event\certificate_issued::create([
+            'context' => \context_module::instance($settings->cmid),
+            'objectid' => $id,
+            'relateduserid' => $userid,
+            'other' => [
+                'bookingoption_id' => $settings->id,
+                'bookingoption_name' => $settings->get_title_with_prefix(),
+                'required_options' => $requiredoptionsdata,
+            ],
+        ]);
+        $event->trigger();
+
         return $id;
     }
+    /**
+     * Get required options data for the event.
+     * Fetches all required booking options that need to be completed for certificate issuance.
+     *
+     * @param booking_option_settings $settings
+     * @param int $userid
+     *
+     * @return array Array of required options with their details
+     *
+     */
+    private static function get_required_options_data(booking_option_settings $settings, int $userid): array {
+        $requiredoptions = booking_option::get_value_of_json_by_key(
+            $settings->id,
+            'certificaterequiresotheroptions'
+        ) ?? [];
+
+        if (empty($requiredoptions)) {
+            return [];
+        }
+        $ba1 = singleton_service::get_instance_of_booking_answers($settings);
+        $iscompleted = $ba1->is_activity_completed($userid);
+        $requiredoptionsdata = [];
+        $requiredoptionsdata[$settings->id] = [
+                'optionid' => $settings->id,
+                'optionname' => $settings->get_title_with_prefix(),
+                'completed' => $iscompleted,
+        ];
+        foreach ($requiredoptions as $requiredoptionid) {
+            if (empty($requiredoptionid)) {
+                continue;
+            }
+
+            $settingsotheroption = singleton_service::get_instance_of_booking_option_settings($requiredoptionid);
+            $ba = singleton_service::get_instance_of_booking_answers($settingsotheroption);
+            $iscompleted = $ba->is_activity_completed($userid);
+
+            $requiredoptionsdata[$requiredoptionid] = [
+                'optionid' => $requiredoptionid,
+                'optionname' => $settingsotheroption->get_title_with_prefix(),
+                'completed' => $iscompleted,
+            ];
+        }
+
+        return $requiredoptionsdata;
+    }
+
     /**
      * [Description for return_competency_for_certificate]
      *
