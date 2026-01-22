@@ -36,6 +36,7 @@ use mod_booking\elective;
 use mod_booking\event\booking_debug;
 use mod_booking\event\bookinganswer_presencechanged;
 use mod_booking\event\bookinganswer_notesedited;
+use mod_booking\local\certificateclass;
 use mod_booking\local\checkanswers\checkanswers;
 use mod_booking\local\mobile\customformstore;
 use mod_booking\option\fields\certificate;
@@ -661,7 +662,7 @@ class mod_booking_observer {
             $data['other']['presencenew'] == get_config('booking', 'presencestatustoissuecertificate')
             && get_config('booking', 'certificateon')
         ) {
-            certificate::issue_certificate($data['objectid'], $data['relateduserid']);
+            certificateclass::issue_certificate($data['objectid'], $data['relateduserid']);
         }
     }
 
