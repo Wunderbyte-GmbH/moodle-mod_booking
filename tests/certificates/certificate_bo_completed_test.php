@@ -30,6 +30,7 @@ use advanced_testcase;
 use coding_exception;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\event\certificate_issued;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -188,6 +189,9 @@ final class certificate_bo_completed_test extends advanced_testcase {
         $result = booking_bookit::bookit('option', $settings->id, $student2->id);
         $this->setAdminUser();
         $bookingoption = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+
+        $sink = $this->redirectEvents();
+
         if (empty($data['completionsettings']['multiple'])) {
             $bookingoption->toggle_user_completion($student1->id);
         } else {
@@ -217,6 +221,17 @@ final class certificate_bo_completed_test extends advanced_testcase {
             $this->assertNotEmpty($storedfile, 'No stored file found');
         }
         $this->assertCount($expected['certcount'], $certificates);
+
+        // Get captured events.
+        $events = $sink->get_events();
+        $sink->close();
+
+        // Filter for certificate_issued events.
+        $certificateissudevents = array_filter($events, function ($event) {
+            return $event instanceof certificate_issued;
+        });
+        $this->assertCount($expected['certcount'], $certificateissudevents);
+
         self::teardown();
     }
 
