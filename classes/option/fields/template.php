@@ -130,6 +130,11 @@ class template extends field_base {
             return;
         }
 
+        // Sort templates alphabetically by text.
+        usort($alloptiontemplates, function($a, $b) {
+            return strcmp($a->text, $b->text);
+        });
+
         // Standardfunctionality to add a header to the mform (only if its not yet there).
         if ($applyheader) {
             fields_info::add_header_to_mform($mform, self::$header);
