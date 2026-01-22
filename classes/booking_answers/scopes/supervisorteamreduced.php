@@ -111,6 +111,7 @@ class supervisorteamreduced extends supervisorteam {
         $columns = [
             'name' => get_string('fullname', 'core'),
             'text' => get_string('bookingoptionname', 'mod_booking'),
+            'action_confirm_delete' => get_string('confirmbooking', 'mod_booking'),
             'coursestarttime' => get_string('coursestart', 'core'),
         ];
         return $columns;
