@@ -2717,6 +2717,7 @@ $string['taken'] = 'Taken';
 $string['taskadhocresetoptiondatesforsemester'] = 'Adhoc task: Reset and generate new optiondates for semester';
 $string['taskcheckanswers'] = 'Booking: Check answers';
 $string['taskcleanbookingdb'] = 'Booking: Clean database';
+$string['taskconfirmbookinganswerbymailbyruleadhoc'] = 'Booking: Confirm booking answer from waitinglist by mail (adhoc task)';
 $string['taskenrolbookeduserstocourse'] = 'Booking: Enrol booked users to course';
 $string['taskpurgecampaigncaches'] = 'Booking: Clean caches for booking campaigns';
 $string['taskrecalculateprices'] = 'Prices of a booking instance are recalculated using the price formula';

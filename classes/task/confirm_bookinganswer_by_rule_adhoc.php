@@ -50,7 +50,7 @@ class confirm_bookinganswer_by_rule_adhoc extends \core\task\adhoc_task {
      * @throws \coding_exception
      */
     public function get_name() {
-        return get_string('tasksendmailbyruleadhoc', 'mod_booking');
+        return get_string('taskconfirmbookinganswerbymailbyruleadhoc', 'mod_booking');
     }
 
     /**
