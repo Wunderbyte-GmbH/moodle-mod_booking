@@ -24,6 +24,8 @@
  */
 
 namespace mod_booking\table;
+use mod_booking\local\certificateclass;
+use mod_booking\option\fields\certificate;
 use moodle_exception;
 use core_plugin_manager;
 use mod_booking\enrollink;
@@ -669,6 +671,74 @@ class manageusers_table extends wunderbyte_table {
         return [
             'success' => 1,
             'message' => get_string('checkedanswersdeleted', 'mod_booking'),
+            'reload' => 1,
+        ];
+    }
+
+    /**
+     * Trigger the check for the given users in the given options if the are allowed to recieve a certificate and if so,
+     * issue the one that is stored in the settings.
+     *
+     * @param int $id
+     * @param string $data
+     * @return array
+     */
+    public function action_trigger_certificate_booking_answers(int $id, string $data): array {
+        global $DB;
+
+        $failure = [
+            'success' => 0,
+            'message' => get_string('certificatenotactive', 'mod_booking'),
+            'reload' => 1,
+        ];
+
+        if (
+            !class_exists('tool_certificate\certificate')
+            || !get_config('booking', 'certificateon')
+        ) {
+            return $failure;
+        }
+
+        $jsonobject = json_decode($data);
+
+        $bookinganswerids = $jsonobject->checkedids;
+        $triggered = false;
+        foreach ($bookinganswerids as $bookinganswerid) {
+            if ($answerrecord = $DB->get_record('booking_answers', ['id' => $bookinganswerid])) {
+                $optionid = $answerrecord->optionid;
+
+                $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+                $certificateid = booking_option::get_value_of_json_by_key((int) $settings->id, 'certificate') ?? 0;
+                // Check if certificate is defined.
+                $presenceconfig = get_config('booking', 'presencestatustoissuecertificate');
+                if (
+                    empty($certificateid)
+                    || (!empty($presenceconfig) && $answerrecord->status != $presenceconfig)
+                    || !get_config('booking', 'certificateon')
+                ) {
+                    continue;
+                }
+                $triggered = true;
+                certificateclass::issue_certificate($optionid, $answerrecord->userid);
+            } else {
+                throw new moodle_exception(
+                    'invalidanswerid',
+                    'mod_booking',
+                    '',
+                    null,
+                    'Answer ID: ' . $bookinganswerid . ' not found in table booking_answers.'
+                );
+            }
+        }
+
+        if (!$triggered) {
+            $failure['message'] = get_string('certificatenotapplyforusers', 'booking');
+            return $failure;
+        }
+        return [
+            'success' => 1,
+            'message' => get_string('certificatestriggered', 'mod_booking'),
             'reload' => 1,
         ];
     }

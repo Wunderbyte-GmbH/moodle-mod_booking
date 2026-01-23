@@ -582,6 +582,32 @@ class booked_users implements renderable, templatable {
     }
 
     /**
+     * Function to create delete button.
+     *
+     * @return array
+     *
+     */
+    public static function create_certificate_button(): array {
+        return [
+            'iclass' => 'fa fa-fw fa-certificate',
+            'label' => get_string('bookingstrackertriggercertificate', 'mod_booking'),
+            'class' => 'btn btn-success btn-sm ms-1',
+            'href' => '#',
+            'methodname' => 'trigger_certificate_booking_answers',
+            'nomodal' => false,
+            'selectionmandatory' => true,
+            'id' => -1,
+            'data' => [
+                'id' => 'id',
+                'titlestring' => 'issuecertificate',
+                'bodystring' => 'issuecertificatebody',
+                'submitbuttonstring' => 'apply',
+                'component' => 'mod_booking',
+            ],
+        ];
+    }
+
+    /**
      * Return an array of the default labels of the tables.
      * @return array
      */
