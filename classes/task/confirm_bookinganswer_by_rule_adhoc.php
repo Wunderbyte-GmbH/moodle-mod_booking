@@ -139,7 +139,8 @@ class confirm_bookinganswer_by_rule_adhoc extends \core\task\adhoc_task {
                 if ($bookinganswer->waitinglist != MOD_BOOKING_STATUSPARAM_WAITINGLIST) {
                     mtrace(
                         'confirm_bookinganswer_by_rule_adhoc task: booking answer is not on waiting list anymore for option '
-                        . $taskdata->optionid . ' and user ' . $taskdata->userid . PHP_EOL . 'current status is: ' . $bookinganswer->waitinglist
+                        . $taskdata->optionid . ' and user ' . $taskdata->userid . PHP_EOL . 'current status is: '
+                        . $bookinganswer->waitinglist
                     );
                     return;
                 }
