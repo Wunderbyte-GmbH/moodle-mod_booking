@@ -29,7 +29,7 @@ Feature: Create global booking rules as admin and insure they are working.
     And the following "activities" exist:
       | activity | course | name       | intro               | bookingmanager | eventtype | Default view for booking options | Send confirmation e-mail |
       | booking  | C1     | BookingCMP | Booking description | teacher1       | Webinar   | All bookings                     | Yes                      |
-    And I change viewport size to "1366x4000"
+    And I change viewport size to "1366x6000"
 
   @javascript
   Scenario: Booking rules: create settings for booking rules via UI as admin and edit it
@@ -244,6 +244,9 @@ Feature: Create global booking rules as admin and insure they are working.
 
   @javascript
   Scenario: Booking rules: create booking rule for option completion event and notify by user from event
+  ## Create rules which notify bookd user about completiopn and notify booking manager about uncompletion.
+  ## Complete option in behalf of student abd validate messages via events log.
+  ## Change booking manager and uncomplete option in behalf of student and validate messages via events log.
     Given the following "mod_booking > options" exist:
       | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
@@ -259,6 +262,18 @@ Feature: Create global booking rules as admin and insure they are working.
       | aftercompletion |                                |
       | condition       | 0                              |
       | cancelrules     |                                |
+    And the following booking rule exists:
+      | conditionname   | select_booking_manager         |
+      | contextid       | 1                              |
+      | conditiondata   | {"userfromeventtype":"userid"} |
+      | name            | manager-booking completion     |
+      | actionname      | send_mail                      |
+      | actiondata      | {"sendical":0,"sendicalcreateorcancel":"","subject":"manager-uncompletion","template":"manager-uncompletion msg","templateformat":"1"} |
+      | rulename        | rule_react_on_event            |
+      | boevent         | \mod_booking\event\bookingoption_uncompleted |
+      | aftercompletion |                                |
+      | condition       | 0                              |
+      | cancelrules     |                                |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -268,11 +283,28 @@ Feature: Create global booking rules as admin and insure they are working.
     And I click on "selectall" "checkbox"
     And I click on "(Un)confirm completion status" "button"
     And I should see "All selected users have been marked for activity completion"
-    ## Send messages via cron and verify via events log
+    ## Verify custom completion message
     And I trigger cron
     And I visit "/report/loglive/index.php"
     Then I should see "Booking option completed"
     And I should see "Custom message A message e-mail with subject \"completion\" has been sent to user: \"Teacher 1\" by the user \"Admin User\""
+    ## Update booking settings - changes booking manager
+    ##And I am on the "BookingCMP" "booking activity editing" page logged in as admin
+    And I am on the "BookingCMP" Activity page
+    And I follow "Settings"
+    And I wait until the page is ready
+    And I set the field "Organizer name" to "Teacher 2"
+    And I press "Save and display"
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Manage bookings" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "selectall" "checkbox"
+    And I click on "(Un)confirm completion status" "button"
+    And I should see "All selected users have been marked for activity completion"
+    ## Verify custom uncompletion message
+    And I trigger cron
+    And I visit "/report/loglive/index.php"
+    And I should see "Completion of booking option undone"
+    And I should see "Custom message A message e-mail with subject \"manager-uncompletion\" has been sent to user: \"Teacher 1\" by the user \"Teacher 1\""
     ## Logout is mandatory for admin pages to avoid error
     And I log out
 
