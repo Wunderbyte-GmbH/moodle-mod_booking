@@ -155,7 +155,7 @@ class scheduledmails_table extends wunderbyte_table {
     public function col_message(stdClass $values): string {
         global $PAGE;
 
-        $plain = trim(strip_tags($values->message));
+        $plain = trim(strip_tags($values->message ?? ''));
 
         if (core_text::strlen($plain) <= 20) {
             return format_string($values->message);
