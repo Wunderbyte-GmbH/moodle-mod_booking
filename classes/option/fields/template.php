@@ -131,7 +131,7 @@ class template extends field_base {
         }
 
         // Sort templates alphabetically by text.
-        usort($alloptiontemplates, function($a, $b) {
+        usort($alloptiontemplates, function ($a, $b) {
             return strcmp($a->text, $b->text);
         });
 
