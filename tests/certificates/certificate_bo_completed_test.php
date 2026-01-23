@@ -244,7 +244,6 @@ final class certificate_bo_completed_test extends advanced_testcase {
      * @covers \mod_booking\local\certificateclass::all_required_options_fulfilled
      *
      * @param array $data
-     * @param array $expected
      * @throws \coding_exception
      * @throws \dml_exception
      *

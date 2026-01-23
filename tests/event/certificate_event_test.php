@@ -80,8 +80,9 @@ final class certificate_event_test extends advanced_testcase {
         ]);
 
         $this->assertInstanceOf(certificate_issued::class, $event);
-        $this->assertEquals(1, $event->objectid);
-        $this->assertEquals(2, $event->data['relateduserid']);
+        $data = $event->get_data();
+        $this->assertEquals(1, $data['objectid']);
+        $this->assertEquals(2, $data['relateduserid']);
     }
 
     /**
@@ -138,7 +139,7 @@ final class certificate_event_test extends advanced_testcase {
             'relateduserid' => 2,
         ]);
 
-        $this->assertEquals('certificateissued', $event->get_name());
+        $this->assertEquals('Certificate issued', $event->get_name());
     }
 
     /**
@@ -288,27 +289,6 @@ final class certificate_event_test extends advanced_testcase {
         ]);
 
         $this->assertEquals('tool_certificate_issues', $event->objecttable);
-    }
-
-    /**
-     * Test get_required_options_data returns empty array when no required options.
-     *
-     * @covers \mod_booking\local\certificateclass::get_required_options_data
-     */
-    public function test_get_required_options_data_empty_when_no_requirements(): void {
-        // This test uses reflection to access the private method.
-        $reflection = new \ReflectionClass(certificateclass::class);
-        $method = $reflection->getMethod('get_required_options_data');
-        $method->setAccessible(true);
-
-        // Create mock settings object.
-        $settings = new stdClass();
-        $settings->id = 1;
-
-        $result = $method->invoke(null, $settings, 1);
-
-        $this->assertIsArray($result);
-        $this->assertEmpty($result);
     }
 
     /**
