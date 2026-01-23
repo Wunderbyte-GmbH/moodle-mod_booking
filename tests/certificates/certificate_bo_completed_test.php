@@ -28,6 +28,7 @@ namespace mod_booking;
 
 use advanced_testcase;
 use coding_exception;
+use mod_booking\table\manageusers_table;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\event\certificate_issued;
@@ -233,6 +234,201 @@ final class certificate_bo_completed_test extends advanced_testcase {
         $this->assertCount($expected['certcount'], $certificateissudevents);
 
         self::teardown();
+    }
+
+    /**
+     * Test issue of certificates when bookingoption completed.
+     *
+     * @covers \mod_booking\booking_bookit::bookit
+     * @covers \mod_booking\local\certificateclass::issue_certificate
+     * @covers \mod_booking\local\certificateclass::all_required_options_fulfilled
+     *
+     * @param array $data
+     * @param array $expected
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider_action
+     */
+    public function test_certificate_action(array $data): void {
+        global $DB, $CFG;
+
+        if (!class_exists('tool_certificate\certificate')) {
+            return;
+        }
+
+        // Set params requred for certificate issue.
+        foreach ($data['configsettings'] as $configsetting) {
+            set_config($configsetting['name'], $configsetting['value'], $configsetting['component']);
+        }
+        $standarddata = self::provide_standard_data();
+        // Coursesettings.
+        $courses = [];
+        $this->setAdminUser();
+        $certificate = $this->get_certificate_generator()->create_template((object)['name' => 'Certificate 1']);
+        foreach ($data['coursesettings'] as $shortname => $courssettings) {
+            $course = $this->getDataGenerator()->create_course($courssettings); // Usually 1 course is sufficient.
+            $courses[$shortname] = $course;
+        };
+        $users = [];
+        foreach ($standarddata['users'] as $user) {
+            $params = $standarddata['users']['params'] ?? [];
+            $users[$user['name']] = $this->getDataGenerator()->create_user($params);
+        }
+        $student1 = $users['student1'];
+
+        // Fetch standarddata for booking.
+        $bdata = $standarddata['booking'];
+        // Apply the custom settings for the first booking.
+        if (isset($data['bookingsettings'])) {
+            foreach ($data['bookingsettings'] as $key => $value) {
+                $bdata[$key] = $value;
+            }
+        }
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $users["bookingmanager"]->username;
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        // We enrol all users, this can be adapted if needed.
+        foreach ($users as $user) {
+            $this->getDataGenerator()->enrol_user($user->id, $course->id);
+        }
+
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        // Create first option which is required for certificate issuance in second option.
+        $option1 = $standarddata['option'];
+        $option1['bookingid'] = $booking1->id;
+        $option1['courseid'] = $course->id;
+        $option1['text'] = 'first option';
+        $option1obj = $plugingenerator->create_option((object) $option1);
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1obj->id);
+
+        if (isset($data['completeotheroption'])) {
+            $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
+            $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
+            $bookingoption1 = singleton_service::get_instance_of_booking_option($settings1->cmid, $settings1->id);
+            $bookingoption1->toggle_user_completion($student1->id);
+        }
+
+        $option = $standarddata['option'];
+        if (isset($data['optionsettings'])) {
+            foreach ($data['optionsettings'] as $key => $value) {
+                $option[$key] = $value;
+            }
+        }
+
+        $otherrequiredoptions = isset($data['optionsettings']['certificatedata']['otherrequiredoptions']) ? $option1obj->id : 0;
+
+        $expirydaterelative = $data['optionsettings']['certificatedata']['expirydaterelative'] ?? 0;
+        $expirydateabsolute = $data['optionsettings']['certificatedata']['expirydateabsolute'] ?? 0;
+        $expirydatetype = $data['optionsettings']['certificatedata']['expirydatetype'];
+        $option['json'] = '{"certificate":' . $certificate->get_id() . ',
+        "expirydateabsolute":' . $expirydateabsolute . ',
+        "expirydatetype":' . $expirydatetype . ',
+        "expirydaterelative":' . $expirydaterelative . '
+        ,"certificaterequiresotheroptions":["' . $otherrequiredoptions . '"]}';
+
+        $option['bookingid'] = $booking1->id;
+        $option['courseid'] = $course->id;
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option1 = $plugingenerator->create_option((object) $option);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        // So far for the basic setup.
+        // Now proceed to logic of the testcase.
+        // Book the users.
+        $this->setUser($users['student1']);
+        // Book the first user without any problem.
+        $boinfo = new bo_info($settings);
+
+        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
+        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+
+        $this->setAdminUser();
+        $bookingoption = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+
+        $sink = $this->redirectEvents();
+        $bookingoption->toggle_user_completion($student1->id);
+        $certificates = $DB->get_records('tool_certificate_issues');
+        // Get captured events.
+        $events = $sink->get_events();
+
+        // Filter for certificate_issued events.
+        $certificateissudevents = array_filter($events, function ($event) {
+            return $event instanceof certificate_issued;
+        });
+        // No certificates issues because "presencestatustoissuecertificate" setting was set to status 3.
+        $this->assertEmpty($certificates);
+        $this->assertEmpty($certificateissudevents);
+
+        set_config('presencestatustoissuecertificate', '0', 'booking');
+
+        // That's the only answer we need to the action.
+        $answer = $DB->get_record('booking_answers', ['userid' => $student1->id]);
+        $table = new manageusers_table('manageuserstable');
+        $actiondata = '{"type":"wb_action_button","id":"-1","methodname":"trigger_certificate_booking_answers",' .
+        '"formname":"","nomodal":"0","selectionmandatory":"1","titlestring":"issuecertificate",'
+        . '"bodystring":"issuecertificatebody","submitbuttonstring":"apply",'
+        . '"component":"mod_booking","initialized":"true","checkedids":["' . $answer->id . '"]}';
+        $table->action_trigger_certificate_booking_answers(0, $actiondata);
+        $certificates = $DB->get_records('tool_certificate_issues');
+
+        $events = $sink->get_events();
+        $certificateissudevents = array_filter($events, function ($event) {
+            return $event instanceof certificate_issued;
+        });
+
+        $this->assertNotEmpty($certificates);
+        $this->assertNotEmpty($certificateissudevents);
+
+        $sink->close();
+        self::teardown();
+    }
+
+    /**
+     * Data provider for condition_bookingpolicy_test
+     *
+     * @return array
+     * @throws \UnexpectedValueException
+     */
+    public static function booking_common_settings_provider_action(): array {
+        return [
+        'toggle_via_table' => [
+            [
+                'configsettings' => [
+                    [
+                        'component' => 'booking',
+                        'name' => 'certificateon',
+                        'value' => 1,
+                    ],
+                    [
+                        'component' => 'booking',
+                        'name' => 'presencestatustoissuecertificate',
+                        'value' => 3,
+                    ],
+                ],
+                'coursesettings' => [
+                    'firstcourse' => [
+                        'enablecompletion' => 1,
+                    ],
+                ],
+                'completionsettings' => [
+                    'multiple' => 0,
+                ],
+                'optionsettings' => [
+                        'useprice' => 0,
+                        'certificatedata' => [
+                            'expirydateabsolute' => strtotime('1 April 2085'),
+                            'expirydatetype' => 1, // 2 is absolute expirydate
+                        ],
+                ],
+            ],
+            ],
+        ];
     }
 
     /**
