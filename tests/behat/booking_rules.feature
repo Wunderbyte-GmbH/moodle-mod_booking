@@ -244,10 +244,7 @@ Feature: Create global booking rules as admin and insure they are working.
 
   @javascript
   Scenario: Booking rules: create booking rule for option completion event and notify by user from event
-    Given the following config values are set as admin:
-      | config                 | value  | plugin  |
-      | uselegacymailtemplates | 1      | booking |
-    And the following "mod_booking > options" exist:
+    Given the following "mod_booking > options" exist:
       | booking    | text            | course | description | limitanswers | maxanswers | datesmarker | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 |
       | BookingCMP | Option-football | C1     | Deskr2      | 1            | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   |
     And the following booking rule exists:
@@ -275,7 +272,6 @@ Feature: Create global booking rules as admin and insure they are working.
     And I trigger cron
     And I visit "/report/loglive/index.php"
     Then I should see "Booking option completed"
-    And I should see "Booking option completion A message e-mail with subject \"Booking option completed\" has been sent to user: \"Teacher 1\" by the user \"Student 1\""
     And I should see "Custom message A message e-mail with subject \"completion\" has been sent to user: \"Teacher 1\" by the user \"Admin User\""
     ## Logout is mandatory for admin pages to avoid error
     And I log out
