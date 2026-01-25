@@ -356,6 +356,7 @@ $string['bocondpreviouslybookedfullnotavailable'] = 'Only users who have previou
 $string['bocondpreviouslybookednotavailable'] = 'Only users who have previously booked <a href="{$a}">this option</a> are allowed to book.';
 $string['bocondpreviouslybookedoptionid'] = 'Must be already booked';
 $string['bocondpreviouslybookedrestrict'] = 'User has previously booked a certain option';
+$string['bocondpreviouslybookedrequirecompletion'] = 'Require completion of the selected booking option';
 $string['bocondpriceisset'] = 'priceisset: Price is set';
 $string['bocondpriceissetavailable'] = 'Book it';
 $string['bocondpriceissetfullavailable'] = 'Booking is possible';
