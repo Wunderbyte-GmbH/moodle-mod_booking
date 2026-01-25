@@ -96,6 +96,10 @@ class mod_booking_generator extends testing_module_generator {
         cache_helper::purge_all();
         singleton_service::destroy_instance();
         singleton_service::reset_campaigns();
+        enrollink::destroy_instances();
+        optionformconfig_info::destroy_singletons();
+        Mod_bookingPrice::destroy_singletons();
+        rules_info::destroy_singletons();
         allowedtobookininstance::reset_instance();
         customform::reset_instance();
         enrolledincohorts::reset_instance();
@@ -108,10 +112,6 @@ class mod_booking_generator extends testing_module_generator {
         selectusers::reset_instance();
         userprofilefield_1_default::reset_instance();
         userprofilefield_2_custom::reset_instance();
-        enrollink::destroy_instances();
-        optionformconfig_info::destroy_singletons();
-        Mod_bookingPrice::destroy_singletons();
-        rules_info::destroy_singletons();
         booking_rules::$rules = [];
         // Shopping cart.
         cartstore::reset();
