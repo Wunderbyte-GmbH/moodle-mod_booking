@@ -2907,6 +2907,8 @@ $string['userssuccessfullygetnewpresencestatus'] = 'All users have a new presenc
 $string['userssucesfullygetnewpresencestatus'] = 'Presence status for selected users successfully updated';
 $string['userstonotify'] = 'Notification list';
 $string['userwhotriggeredevent'] = 'User who triggered the event';
+$string['usesqlfilteravailability'] = "Use SQL for availability conditions";
+$string['usesqlfilteravailability_desc'] = "This setting enables SQL-based filters for availability conditions. When enabled, booking options that don't meet availability conditions are filtered out at the database level, improving performance. However, with very large tables, JSON parsing may cause overhead. Disable this setting if you notice performance issues or if you don't need SQL filters.";
 $string['viewallresponses'] = 'Manage {$a} responses';
 $string['viewconfirmationbooked'] = 'Your booking has been registered:
 {bookingdetails}

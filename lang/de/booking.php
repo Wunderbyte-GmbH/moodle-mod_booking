@@ -2810,6 +2810,8 @@ $string['userssuccessfullybooked'] = 'Alle Nutzer:innen wurden erfolgreich in di
 $string['userssucesfullygetnewpresencestatus'] = 'Anwesenheitsstatus für ausgewählte Nutzer:innen erfolgreich aktualisiert';
 $string['userstonotify'] = 'Benachrichtigungsliste';
 $string['userwhotriggeredevent'] = 'Nutzer:in, die das Ereignis ausgelöst hat';
+$string['usesqlfilteravailability'] = "Verwende SQL bei Einschränkungen der Verfügbarkeit";
+$string['usesqlfilteravailability_desc'] = "Diese Einstellung aktiviert SQL-basierte Filter für Verfügbarkeitsbedingungen. Wenn aktiviert, werden Buchungsoptionen, die Verfügbarkeitsbedingungen nicht erfüllen, bereits auf Datenbankebene herausgefiltert, was die Performance verbessert. Bei sehr großen Tabellen kann das JSON-Parsen jedoch Overhead verursachen. Deaktivieren Sie diese Einstellung, wenn Sie Performance-Probleme bemerken oder wenn Sie die SQL-Filter nicht benötigen.";
 $string['viewallresponses'] = '{$a} Buchungen verwalten';
 $string['viewconfirmationbooked'] = 'Ihre Buchung wurde registriert:
 {bookingdetails}
