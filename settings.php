@@ -371,6 +371,16 @@ if ($ADMIN->fulltree) {
             )
         );
 
+        // Use SQL for availability conditions.
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/usesqlfilteravailability',
+                get_string('usesqlfilteravailability', 'mod_booking'),
+                get_string('usesqlfilteravailability_desc', 'mod_booking'),
+                1
+            )
+        );
+
         // Choose which presence options should be vailabile.
 
         $presenceoptions = [

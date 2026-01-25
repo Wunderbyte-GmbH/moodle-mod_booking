@@ -88,6 +88,9 @@ final class condition_bookingtime_test extends advanced_testcase {
     public function test_booking_bookit_bookingtime(array $bdata): void {
         global $DB, $CFG, $PAGE;
 
+        // Make sure SQL filter for availability is enabled for this test.
+        set_config('usesqlfilteravailability', 1, 'booking');
+
         $bdata['cancancelbook'] = 1;
 
         // Setup test data.

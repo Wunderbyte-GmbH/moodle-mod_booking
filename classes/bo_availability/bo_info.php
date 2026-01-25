@@ -504,6 +504,12 @@ class bo_info {
      */
     public static function return_sql_from_conditions(int $userid) {
         global $PAGE;
+
+        // Check if SQL filter for availability conditions is enabled.
+        if (!get_config('booking', 'usesqlfilteravailability')) {
+            return ['', '', '', [], ''];
+        }
+
         // First, we get all the relevant conditions.
         $conditions = self::get_conditions(MOD_BOOKING_CONDPARAM_MFORM_ONLY);
         $selectall = '';

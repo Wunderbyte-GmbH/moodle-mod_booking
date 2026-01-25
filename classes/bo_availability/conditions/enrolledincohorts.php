@@ -166,11 +166,12 @@ class enrolledincohorts implements bo_condition {
     }
 
     /**
-     * Each function can return additional sql.
-     * This will be used if the conditions should not only block booking...
-     * ... but actually hide the conditons alltogether.
+     * Returns the SQL parts needed to filter booking options based on this condition.
+     *
      * @param int $userid
+     *
      * @return array
+     *
      */
     public function return_sql(int $userid = 0): array {
         global $USER, $DB;
@@ -181,27 +182,36 @@ class enrolledincohorts implements bo_condition {
             $userid = $USER->id;
         }
 
-        // We get the first userid from the restriction on which booking answers we see.
-        // But here we need to open this up. If we don't have the table for a given user...
-        // ... we want to see the one of USER.
-
         $usercohorts = singleton_service::get_cohorts_of_user($userid);
         $databasetype = $DB->get_dbfamily();
+        $conditionid = $this->id;
+
         if (empty($usercohorts)) {
             if ($databasetype == 'postgres') {
                 $where = "
                     (
                         availability IS NOT NULL
-                        AND NOT (availability::jsonb @> '[{\"sqlfilter\":\"1\"}]')
+                        AND NOT EXISTS (
+                            SELECT 1 FROM jsonb_array_elements(availability::jsonb) AS obj
+                            WHERE (obj->>'id')::int = $conditionid
+                            AND (obj->>'sqlfilter')::text = '1'
+                        )
                     )";
             } else if (
                 $databasetype == 'mysql'
-                && db_is_at_least_mariadb_106_or_mysql_8() // JSON_TABLE is only available in MariaDB 10.6+ and MySQL 8.0+.
+                && db_is_at_least_mariadb_106_or_mysql_8()
             ) {
                 $where = "
                     (
                         availability IS NOT NULL
-                        AND NOT JSON_CONTAINS(availability, '{\"sqlfilter\":\"1\"}', '$')
+                        AND NOT EXISTS (
+                            SELECT 1 FROM JSON_TABLE(availability, '$[*]' COLUMNS (
+                                id INT PATH '$.id',
+                                sqlfilter VARCHAR(10) PATH '$.sqlfilter'
+                            )) AS jt
+                            WHERE jt.id = $conditionid
+                            AND jt.sqlfilter = '1'
+                        )
                     )";
             } else {
                 return ["", "", "", $params, ""];
@@ -209,64 +219,58 @@ class enrolledincohorts implements bo_condition {
             return ["", "", "", $params, $where];
         }
 
-        // The $key param is the name of the param in json.
         if ($databasetype == 'postgres') {
-            // Appended as string for DB syntax reasons.
-            $appendwhere1 = "";
-            $cohortids = array_map(fn($c) => '"' . $c->id . '"', $usercohorts);
-            $appendwhere1 = implode(', ', $cohortids);
+            $cohortidstext = array_map(fn($id) => "'" . $id . "'", array_keys($usercohorts));
+            $appendwhere2 = implode(', ', $cohortidstext);
 
-            $cohorts = [];
-            $appendwhere2 = "";
-            foreach ($usercohorts as $cohort) {
-                $cohorts[] = "'$cohort->id'";
-            }
-            // List of current cohorts of user.
-            $appendwhere2 = implode(', ', $cohorts);
-
-            // Depending on the cohortidsoperator check either if user in enrolled in all or at least one cohorts selected.
-            // Default is AND - all cohorts must be met by user.
             $where = "
             availability IS NOT NULL
             AND
             (
                 (
-                    NOT (availability::jsonb @> '[{\"sqlfilter\":\"1\"}]')
+                    NOT EXISTS (
+                        SELECT 1 FROM jsonb_array_elements(availability::jsonb) AS obj
+                        WHERE (obj->>'id')::int = $conditionid
+                        AND (obj->>'sqlfilter')::text = '1'
+                    )
                 )
                 OR
                 (
-                    CASE
-                    WHEN (availability::jsonb->0->>'cohortidsoperator') = 'OR' THEN
-                        EXISTS (
-                            SELECT 1
-                            FROM jsonb_array_elements(availability::jsonb) AS obj
-                            WHERE obj->>'cohortids' IS NOT NULL
-                            AND EXISTS (
-                                SELECT 1
-                                FROM jsonb_array_elements_text((obj->'cohortids')::jsonb) AS cohortids
-                                WHERE cohortids::text IN ($appendwhere2)
-                            )
+                    EXISTS (
+                        SELECT 1 FROM jsonb_array_elements(availability::jsonb) AS obj
+                        WHERE (obj->>'id')::int = $conditionid
+                        AND (obj->>'sqlfilter')::text = '1'
+                        AND (
+                            CASE
+                            WHEN (obj->>'cohortidsoperator') = 'OR' THEN
+                                EXISTS (
+                                    SELECT 1
+                                    FROM jsonb_array_elements_text((obj->'cohortids')::jsonb) AS cohortids
+                                    WHERE cohortids::text IN ($appendwhere2)
+                                )
+                            ELSE
+                                (
+                                    SELECT COUNT(*) = 0
+                                    FROM (
+                                        SELECT jsonb_array_elements_text((obj->'cohortids')::jsonb)::text AS required_id
+                                    ) required
+                                    WHERE required_id NOT IN ($appendwhere2)
+                                )
+                            END
                         )
-                    ELSE
-                        NOT EXISTS (
-                            SELECT 1
-                            FROM jsonb_array_elements(availability::jsonb) AS obj
-                            WHERE obj->>'cohortids' IS NOT NULL
-                            AND NOT (obj->'cohortids')::jsonb <@ '[$appendwhere1]'::jsonb
-                        )
-                    END
+                    )
                 )
             )";
             return ['', '', '', $params, $where];
         } else if (
             $databasetype == 'mysql'
-            && db_is_at_least_mariadb_106_or_mysql_8() // JSON_TABLE is only available in MariaDB 10.6+ and MySQL 8.0+.
+            && db_is_at_least_mariadb_106_or_mysql_8()
         ) {
             $andcases = '';
             foreach (array_keys($usercohorts) as $cohortid) {
                 $andcases .= "
                 CASE
-                    WHEN JSON_SEARCH(availability, 'one', '$cohortid', NULL, '\$[*].cohortids') IS NOT NULL THEN 1
+                    WHEN JSON_SEARCH(jt.cohortids, 'one', '$cohortid') IS NOT NULL THEN 1
                     ELSE 0
                 END +";
             }
@@ -274,25 +278,33 @@ class enrolledincohorts implements bo_condition {
 
             $where = "
                 availability IS NOT NULL
-                AND ((
-                    (NOT JSON_CONTAINS(availability, '{\"sqlfilter\":\"1\"}', '$'))
-                )
-                OR (
-                    id IN (
-                        SELECT id
-                            FROM (
-                                        SELECT id,
-                                        JSON_UNQUOTE(JSON_EXTRACT(availability, '$[0].cohortidsoperator')) AS operator,
-                                        JSON_LENGTH(JSON_EXTRACT(availability, '$[*].cohortids[*]')) AS length,
-                                            ($andcases) AS true_conditions_count
-                                    FROM {booking_options}
-                                WHERE availability IS NOT NULL
-                            ) s1
-                        WHERE (
+                AND (
+                    (
+                        NOT EXISTS (
+                            SELECT 1 FROM JSON_TABLE(availability, '$[*]' COLUMNS (
+                                id INT PATH '$.id',
+                                sqlfilter VARCHAR(10) PATH '$.sqlfilter'
+                            )) AS jt
+                            WHERE jt.id = $conditionid
+                            AND jt.sqlfilter = '1'
+                        )
+                    )
+                    OR (
+                        id IN (
+                            SELECT bo_inner.id
+                            FROM {booking_options} bo_inner
+                            JOIN JSON_TABLE(bo_inner.availability, '$[*]' COLUMNS (
+                                id INT PATH '$.id',
+                                operator VARCHAR(10) PATH '$.cohortidsoperator',
+                                cohortids JSON PATH '$.cohortids'
+                            )) AS jt ON jt.id = $conditionid
+                            WHERE jt.operator IS NOT NULL
+                            AND (
                                 CASE
-                                    WHEN operator LIKE \"AND\" THEN length = true_conditions_count
-                                    ELSE true_conditions_count > 0
+                                WHEN jt.operator = 'OR' THEN ($andcases) > 0
+                                ELSE ($andcases) = JSON_LENGTH(jt.cohortids)
                                 END
+                            )
                         )
                     )
                 )
