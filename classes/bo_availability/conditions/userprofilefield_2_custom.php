@@ -32,6 +32,7 @@ use mod_booking\bo_availability\bo_info;
 use mod_booking\booking;
 use mod_booking\booking_option_settings;
 use mod_booking\local\override_user_field;
+use mod_booking\local\sql\operator_builder;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
 use MoodleQuickForm;
@@ -153,7 +154,7 @@ class userprofilefield_2_custom implements bo_condition {
                 && !isguestuser()
             ) {
                 // Profilefield is set.
-                $user = singleton_service::get_instance_of_user($userid);
+                $user = singleton_service::get_instance_of_user($userid, true);
 
                 $firstcheck = $this->compare_fields(
                     $user,
@@ -214,7 +215,8 @@ class userprofilefield_2_custom implements bo_condition {
     ): bool {
         $isavailable = false;
         // If value is not null, we compare it.
-        if ($profilefieldvalue) {
+        // We need to still be able to compare an empty string to an empty string!
+        if ($profilefieldvalue !== null) {
             switch ($operator) {
                 case '=':
                     if ($profilefieldvalue == $formvalue) {
@@ -278,12 +280,12 @@ class userprofilefield_2_custom implements bo_condition {
                     }
                     break;
                 case '()':
-                    if (empty($value)) {
+                    if (empty($profilefieldvalue)) {
                         $isavailable = true;
                     }
                     break;
                 case '(!)':
-                    if (!empty($value)) {
+                    if (!empty($profilefieldvalue)) {
                         $isavailable = true;
                     }
                     break;
@@ -317,18 +319,9 @@ class userprofilefield_2_custom implements bo_condition {
         int $userid
     ): bool {
 
-        // If the profilefield is not here right away, we might need to retrieve it.
-        if (!isset($user->$profilefield)) {
-            $fields = profile_get_user_fields_with_data($user->id);
-            $usercustomfields = new stdClass();
-            foreach ($fields as $formfield) {
-                $usercustomfields->{$formfield->field->shortname} = $formfield->data;
-            }
-            $user->profile = (array)$usercustomfields ?? [];
-            $value = $user->profile[$profilefield] ?? '';
-        } else {
-            $value = $user->$profilefield;
-        }
+        // Get profile field value.
+        $value = $user->profile[$profilefield] ?? $user->{"profile_field_$profilefield"} ?? '';
+
         $available = $this->compare_operation(
             $operator,
             $value,
@@ -358,8 +351,122 @@ class userprofilefield_2_custom implements bo_condition {
      * @return array
      */
     public function return_sql(int $userid = 0): array {
+        global $USER, $DB;
 
-        return ['', '', '', [], ''];
+        $params = [];
+
+        if (empty($userid)) {
+            $userid = $USER->id;
+        }
+
+        // Get user profile field values.
+        $user = singleton_service::get_instance_of_user($userid);
+
+        // Load custom profile fields.
+        $fields = profile_get_user_fields_with_data($user->id);
+        $usercustomfields = new stdClass();
+        foreach ($fields as $formfield) {
+            $usercustomfields->{$formfield->field->shortname} = $formfield->data;
+        }
+        $user->profile = (array)$usercustomfields ?? [];
+
+        $databasetype = $DB->get_dbfamily();
+        $conditionid = $this->id;
+
+        if ($databasetype == 'postgres') {
+            $where = "
+            availability IS NOT NULL
+            AND
+            (
+                (
+                    NOT EXISTS (
+                        SELECT 1 FROM jsonb_array_elements(availability::jsonb) AS obj
+                        WHERE (obj->>'id')::int = $conditionid
+                        AND (obj->>'sqlfilter')::text = '1'
+                    )
+                )
+                OR
+                (
+                    EXISTS (
+                        SELECT 1 FROM jsonb_array_elements(availability::jsonb) AS obj
+                        WHERE (obj->>'id')::int = $conditionid
+                        AND (obj->>'sqlfilter')::text = '1'
+                        AND (
+                            CASE
+                            WHEN (obj->>'connectsecondfield') IS NULL OR (obj->>'connectsecondfield')::text = '0' THEN
+                                " . operator_builder::build_profile_field_check('postgres', $user, 'obj', 'profilefield', 'operator', 'value') . "
+                            WHEN (obj->>'connectsecondfield')::text = '&&' THEN
+                                (
+                                    " . operator_builder::build_profile_field_check('postgres', $user, 'obj', 'profilefield', 'operator', 'value') . "
+                                    AND " . operator_builder::build_profile_field_check('postgres', $user, 'obj', 'profilefield2', 'operator2', 'value2') . "
+                                )
+                            WHEN (obj->>'connectsecondfield')::text = '||' THEN
+                                (
+                                    " . operator_builder::build_profile_field_check('postgres', $user, 'obj', 'profilefield', 'operator', 'value') . "
+                                    OR " . operator_builder::build_profile_field_check('postgres', $user, 'obj', 'profilefield2', 'operator2', 'value2') . "
+                                )
+                            ELSE FALSE
+                            END
+                        )
+                    )
+                )
+            )";
+            return ['', '', '', $params, $where];
+        } else if (
+            $databasetype == 'mysql'
+            && db_is_at_least_mariadb_106_or_mysql_8()
+        ) {
+            $where = "
+                availability IS NOT NULL
+                AND (
+                    (
+                        NOT EXISTS (
+                            SELECT 1 FROM JSON_TABLE(availability, '\$[*]' COLUMNS (
+                                id INT PATH '\$.id',
+                                sqlfilter VARCHAR(10) PATH '\$.sqlfilter'
+                            )) AS jt
+                            WHERE jt.id = $conditionid
+                            AND jt.sqlfilter = '1'
+                        )
+                    )
+                    OR (
+                        id IN (
+                            SELECT bo_inner.id
+                            FROM {booking_options} bo_inner
+                            JOIN JSON_TABLE(bo_inner.availability, '\$[*]' COLUMNS (
+                                id INT PATH '\$.id',
+                                profilefield VARCHAR(255) PATH '\$.profilefield',
+                                operator VARCHAR(10) PATH '\$.operator',
+                                value TEXT PATH '\$.value',
+                                connectsecondfield VARCHAR(10) PATH '\$.connectsecondfield',
+                                profilefield2 VARCHAR(255) PATH '\$.profilefield2',
+                                operator2 VARCHAR(10) PATH '\$.operator2',
+                                value2 TEXT PATH '\$.value2'
+                            )) AS jt ON jt.id = $conditionid
+                            WHERE (
+                                CASE
+                                WHEN jt.connectsecondfield IS NULL OR jt.connectsecondfield = '0' THEN
+                                    " . operator_builder::build_profile_field_check('mysql', $user, 'jt', 'profilefield', 'operator', 'value') . "
+                                WHEN jt.connectsecondfield = '&&' THEN
+                                    (
+                                        " . operator_builder::build_profile_field_check('mysql', $user, 'jt', 'profilefield', 'operator', 'value') . "
+                                        AND " . operator_builder::build_profile_field_check('mysql', $user, 'jt', 'profilefield2', 'operator2', 'value2') . "
+                                    )
+                                WHEN jt.connectsecondfield = '||' THEN
+                                    (
+                                        " . operator_builder::build_profile_field_check('mysql', $user, 'jt', 'profilefield', 'operator', 'value') . "
+                                        OR " . operator_builder::build_profile_field_check('mysql', $user, 'jt', 'profilefield2', 'operator2', 'value2') . "
+                                    )
+                                ELSE FALSE
+                                END
+                            )
+                        )
+                    )
+                )";
+            return ['', '', '', $params, $where];
+        } else {
+            return ['', '', '', $params, ''];
+        }
     }
 
     /**
@@ -559,6 +666,14 @@ class userprofilefield_2_custom implements bo_condition {
                 );
 
                 $mform->addElement(
+                    'advcheckbox',
+                    'bo_cond_customuserprofilefield_sqlfiltercheck',
+                    get_string('sqlfiltercheckstring', 'mod_booking')
+                );
+                $mform->hideIf('bo_cond_customuserprofilefield_sqlfiltercheck', 'bo_cond_customuserprofilefield_field', 'eq', 0);
+                $mform->hideIf('bo_cond_customuserprofilefield_sqlfiltercheck', 'bo_cond_userprofilefield_2_custom_restrict', 'notchecked');
+
+                $mform->addElement(
                     'checkbox',
                     'bo_cond_customuserprofilefield_overrideconditioncheckbox',
                     get_string('overrideconditioncheckbox', 'mod_booking')
@@ -703,6 +818,7 @@ class userprofilefield_2_custom implements bo_condition {
             $conditionobject->profilefield2 = $fromform->bo_cond_customuserprofilefield_field2 ?? "";
             $conditionobject->operator2 = $fromform->bo_cond_customuserprofilefield_operator2 ?? "";
             $conditionobject->value2 = $fromform->bo_cond_customuserprofilefield_value2 ?? "";
+            $conditionobject->sqlfilter = (string) ($fromform->bo_cond_customuserprofilefield_sqlfiltercheck ?? 0);
 
             if (!empty($fromform->bo_cond_customuserprofilefield_overrideconditioncheckbox)) {
                 $conditionobject->overrides = $fromform->bo_cond_customuserprofilefield_overridecondition;
@@ -728,6 +844,7 @@ class userprofilefield_2_custom implements bo_condition {
             $defaultvalues->bo_cond_customuserprofilefield_field2 = $acdefault->profilefield2 ?? "";
             $defaultvalues->bo_cond_customuserprofilefield_operator2 = $acdefault->operator2 ?? "";
             $defaultvalues->bo_cond_customuserprofilefield_value2 = $acdefault->value2 ?? "";
+            $defaultvalues->bo_cond_customuserprofilefield_sqlfiltercheck = $acdefault->sqlfilter ?? "";
         }
         if (!empty($acdefault->overrides)) {
             $defaultvalues->bo_cond_customuserprofilefield_overrideconditioncheckbox = "1";

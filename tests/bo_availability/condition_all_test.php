@@ -934,6 +934,9 @@ final class condition_all_test extends advanced_testcase {
     public function test_booking_bookit_cohorts_and_bookingtime(array $bdata): void {
         global $DB, $CFG;
 
+        // Make sure SQL filter for availability is enabled for this test.
+        set_config('usesqlfilteravailability', 1, 'booking');
+
         $bdata['cancancelbook'] = 1;
 
         // Setup test data.

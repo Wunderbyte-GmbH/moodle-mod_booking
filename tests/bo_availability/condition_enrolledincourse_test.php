@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Tests for booking option events.
+ * Tests for booking option availability conditions - enrolled in course.
  *
  * @package mod_booking
  * @category test
@@ -38,7 +38,7 @@ global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * Class handling tests for booking options.
+ * Class handling tests for booking options availability - enrolled in course.
  *
  * @package mod_booking
  * @category test
@@ -46,7 +46,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
-final class condition_enrolledincohorts_test extends advanced_testcase {
+final class condition_enrolledincourse_test extends advanced_testcase {
     /**
      * Tests set up.
      */
@@ -69,165 +69,10 @@ final class condition_enrolledincohorts_test extends advanced_testcase {
     }
 
     /**
-     * Test of booking option availability by cohorts and bookingtime.
+     * Test of booking option availability by enrolled courses.
      *
-     * @covers \mod_booking\bo_availability\conditions\enrolledincohorts::is_available
-     *
-     * @param array $bdata
-     * @throws \coding_exception
-     * @throws \dml_exception
-     *
-     * @dataProvider booking_common_settings_provider
-     */
-    public function test_booking_bookit_cohorts(array $bdata): void {
-        global $DB, $CFG, $PAGE;
-
-        $bdata['cancancelbook'] = 1;
-
-        singleton_service::destroy_instance();
-
-        // Setup test data.
-        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
-        $course2 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
-
-        // Create users.
-        $admin = $this->getDataGenerator()->create_user();
-        $student1 = $this->getDataGenerator()->create_user();
-        $student2 = $this->getDataGenerator()->create_user();
-        $student3 = $this->getDataGenerator()->create_user();
-        $student4 = $this->getDataGenerator()->create_user();
-        $teacher = $this->getDataGenerator()->create_user();
-        $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
-
-        $bdata['course'] = $course1->id;
-        $bdata['bookingmanager'] = $bookingmanager->username;
-
-        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
-
-        // Create 2 cohorts.
-        $contextsystem = \context_system::instance();
-        $cohort1 = $this->getDataGenerator()->create_cohort([
-            'contextid' => $contextsystem->id,
-            'name' => 'System booking cohort 1',
-            'idnumber' => 'SBC1',
-        ]);
-        $cohort2 = $this->getDataGenerator()->create_cohort([
-            'contextid' => $contextsystem->id,
-            'name' => 'System booking cohort 2',
-            'idnumber' => 'SBC2',
-        ]);
-
-        $this->setAdminUser();
-
-        cohort_add_member($cohort1->id, $student1->id);
-        cohort_add_member($cohort1->id, $student2->id);
-        cohort_add_member($cohort2->id, $student2->id);
-
-        $this->getDataGenerator()->enrol_user($student1->id, $course1->id);
-        $this->getDataGenerator()->enrol_user($student2->id, $course1->id);
-        $this->getDataGenerator()->enrol_user($student3->id, $course1->id);
-        $this->getDataGenerator()->enrol_user($student4->id, $course1->id);
-        $this->getDataGenerator()->enrol_user($teacher->id, $course1->id);
-        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course1->id);
-
-        $record = new stdClass();
-        $record->bookingid = $booking1->id;
-        $record->text = 'Test option1 (availability by cohort and time)';
-        $record->chooseorcreatecourse = 1; // Reqiured.
-        $record->courseid = $course1->id;
-
-        // Set test availability setting(s).
-        $record->bo_cond_enrolledincohorts_restrict = 1;
-        $record->bo_cond_enrolledincohorts_cohortids = [$cohort1->id, $cohort2->id];
-        $record->bo_cond_enrolledincohorts_cohortids_operator = 'AND';
-        $record->bo_cond_enrolledincohorts_sqlfiltercheck = 1;
-
-        [$course, $cm] = get_course_and_cm_from_cmid($booking1->cmid);
-        // Before the creation, we need to fix the Page context.
-        $PAGE->set_cm($cm, $course);
-        $PAGE->set_context(context_module::instance($booking1->cmid));
-
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $option1 = $plugingenerator->create_option($record);
-
-        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
-        // Make sure sql filter active indicator is set correctly.
-        $this->assertEquals(MOD_BOOKING_SQL_FILTER_ACTIVE_JSON_BO, $settings->sqlfilter);
-
-        $boinfo = new bo_info($settings);
-
-        // Try to book student1 NOT - allowed.
-        $this->setUser($student1);
-
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOHORTS, $id);
-
-        // This user should not see the booking option.
-        $rawdata = $plugingenerator->create_table_for_one_option($settings->id);
-        $this->assertEquals(0, count($rawdata)); // We expect that the student cant see the option.
-
-        // Try to book student2 - allowed.
-        $this->setUser($student2);
-
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
-
-        // This user should see the booking option.
-        $rawdata = $plugingenerator->create_table_for_one_option($settings->id);
-        $this->assertEquals(1, count($rawdata)); // We expect that the student can see the option.
-
-        $result = booking_bookit::bookit('option', $settings->id, $student2->id);
-        $result = booking_bookit::bookit('option', $settings->id, $student2->id);
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
-
-        // Try to book student3 - NOT allowed.
-        $this->setUser($student3);
-
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student3->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOHORTS, $id);
-
-        // This user should not see the booking option.
-        $rawdata = $plugingenerator->create_table_for_one_option($settings->id);
-        $this->assertEquals(0, count($rawdata)); // We expect that the student cant see the option.
-
-        // Now we  update test availability setting(s).
-        $this->setAdminUser();
-        $record->id = $option1->id;
-        $record->bo_cond_enrolledincohorts_cohortids_operator = 'OR';
-        $record->cmid = $settings->cmid;
-        booking_option::update($record);
-
-        // Try to book student1 - allowed.
-        $this->setUser($student1);
-
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
-
-        // This user should see the booking option.
-        $rawdata = $plugingenerator->create_table_for_one_option($settings->id);
-        $this->assertEquals(1, count($rawdata)); // We expect that the student can see the option.
-
-        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
-        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
-
-        // Try to book student3 - NOT allowed.
-        $this->setUser($student3);
-
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student3->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOHORTS, $id);
-
-        // This user should not see the booking option.
-        $rawdata = $plugingenerator->create_table_for_one_option($settings->id);
-        $this->assertEquals(0, count($rawdata)); // We expect that the student cant see the option.
-    }
-
-    /**
-     * Test add to group.
-     * @covers \mod_booking\bo_availability\conditions\enrolledincohorts::is_available
+     * @covers \mod_booking\bo_availability\conditions\enrolledincourse::is_available
+     * @covers \mod_booking\bo_availability\conditions\enrolledincourse::return_sql
      *
      * @param array $bdata
      * @throws \coding_exception
@@ -235,7 +80,7 @@ final class condition_enrolledincohorts_test extends advanced_testcase {
      *
      * @dataProvider booking_common_settings_provider
      */
-    public function test_booking_enrolledincohorts_with_bookit_bookingtime(array $bdata): void {
+    public function test_booking_bookit_enrolledincourse(array $bdata): void {
         global $DB, $CFG, $PAGE;
 
         // Make sure SQL filter for availability is enabled for this test.
@@ -248,6 +93,7 @@ final class condition_enrolledincohorts_test extends advanced_testcase {
         // Setup test data.
         $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $course2 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $course3 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
         // Create users.
         $admin = $this->getDataGenerator()->create_user();
@@ -263,25 +109,19 @@ final class condition_enrolledincohorts_test extends advanced_testcase {
 
         $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
 
-        // Create 2 cohorts.
-        $contextsystem = \context_system::instance();
-        $cohort1 = $this->getDataGenerator()->create_cohort([
-            'contextid' => $contextsystem->id,
-            'name' => 'System booking cohort 1',
-            'idnumber' => 'SBC1',
-        ]);
-        $cohort2 = $this->getDataGenerator()->create_cohort([
-            'contextid' => $contextsystem->id,
-            'name' => 'System booking cohort 2',
-            'idnumber' => 'SBC2',
-        ]);
-
         $this->setAdminUser();
 
-        cohort_add_member($cohort1->id, $student1->id);
-        cohort_add_member($cohort1->id, $student2->id);
-        cohort_add_member($cohort2->id, $student2->id);
+        // Enroll students in different courses.
+        // Student1 only in course2.
+        $this->getDataGenerator()->enrol_user($student1->id, $course2->id);
+        // Student2 in both course2 and course3.
+        $this->getDataGenerator()->enrol_user($student2->id, $course2->id);
+        $this->getDataGenerator()->enrol_user($student2->id, $course3->id);
+        // Student3 not enrolled in course2 or course3.
+        // Student4 only in course3.
+        $this->getDataGenerator()->enrol_user($student4->id, $course3->id);
 
+        // All users enrolled in course1 (the booking course).
         $this->getDataGenerator()->enrol_user($student1->id, $course1->id);
         $this->getDataGenerator()->enrol_user($student2->id, $course1->id);
         $this->getDataGenerator()->enrol_user($student3->id, $course1->id);
@@ -291,17 +131,187 @@ final class condition_enrolledincohorts_test extends advanced_testcase {
 
         $record = new stdClass();
         $record->bookingid = $booking1->id;
-        $record->text = 'Test option1 (availability by cohort and time)';
-        $record->chooseorcreatecourse = 1; // Reqiured.
+        $record->text = 'Test option1 (availability by enrolled courses)';
+        $record->chooseorcreatecourse = 1; // Required.
+        $record->courseid = $course1->id;
+
+        // Set test availability setting(s) - require enrollment in both course2 AND course3.
+        $record->bo_cond_enrolledincourse_restrict = 1;
+        $record->bo_cond_enrolledincourse_courseids = [$course2->id, $course3->id];
+        $record->bo_cond_enrolledincourse_courseids_operator = 'AND';
+        $record->bo_cond_enrolledincourse_sqlfiltercheck = 1;
+
+        [$course, $cm] = get_course_and_cm_from_cmid($booking1->cmid);
+        // Before the creation, we need to fix the Page context.
+        $PAGE->set_cm($cm, $course);
+        $PAGE->set_context(context_module::instance($booking1->cmid));
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option1 = $plugingenerator->create_option($record);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        // Make sure sql filter active indicator is set correctly.
+        $this->assertEquals(MOD_BOOKING_SQL_FILTER_ACTIVE_JSON_BO, $settings->sqlfilter);
+
+        $boinfo = new bo_info($settings);
+
+        // Try to book student1 NOT - allowed (only in course2, not in course3).
+        $this->setUser($student1);
+
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOURSE, $id);
+
+        // This user should not see the booking option.
+        $rawdata = $plugingenerator->create_table_for_one_option($settings->id);
+        $this->assertEquals(0, count($rawdata)); // We expect that the student cant see the option.
+
+        // Try to book student2 - allowed (enrolled in both course2 AND course3).
+        $this->setUser($student2);
+
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+
+        // This user should see the booking option.
+        $rawdata = $plugingenerator->create_table_for_one_option($settings->id);
+        $this->assertEquals(1, count($rawdata)); // We expect that the student can see the option.
+
+        $result = booking_bookit::bookit('option', $settings->id, $student2->id);
+        $result = booking_bookit::bookit('option', $settings->id, $student2->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // Try to book student3 - NOT allowed (not enrolled in any required course).
+        $this->setUser($student3);
+
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student3->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOURSE, $id);
+
+        // This user should not see the booking option.
+        $rawdata = $plugingenerator->create_table_for_one_option($settings->id);
+        $this->assertEquals(0, count($rawdata)); // We expect that the student cant see the option.
+
+        // Try to book student4 - NOT allowed (only in course3, not in course2).
+        $this->setUser($student4);
+
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student4->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOURSE, $id);
+
+        // This user should not see the booking option.
+        $rawdata = $plugingenerator->create_table_for_one_option($settings->id);
+        $this->assertEquals(0, count($rawdata)); // We expect that the student cant see the option.
+
+        // Now we update test availability setting(s) - change to OR operator.
+        $this->setAdminUser();
+        $record->id = $option1->id;
+        $record->bo_cond_enrolledincourse_courseids_operator = 'OR';
+        $record->cmid = $settings->cmid;
+        booking_option::update($record);
+
+        // Try to book student1 - allowed (enrolled in course2 OR course3).
+        $this->setUser($student1);
+
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+
+        // This user should see the booking option.
+        $rawdata = $plugingenerator->create_table_for_one_option($settings->id);
+        $this->assertEquals(1, count($rawdata)); // We expect that the student can see the option.
+
+        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // Try to book student4 - allowed (enrolled in course2 OR course3).
+        $this->setUser($student4);
+
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student4->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+
+        // This user should see the booking option.
+        $rawdata = $plugingenerator->create_table_for_one_option($settings->id);
+        $this->assertEquals(1, count($rawdata)); // We expect that the student can see the option.
+
+        // Try to book student3 - NOT allowed (still not enrolled in any required course).
+        $this->setUser($student3);
+
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student3->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOURSE, $id);
+
+        // This user should not see the booking option.
+        $rawdata = $plugingenerator->create_table_for_one_option($settings->id);
+        $this->assertEquals(0, count($rawdata)); // We expect that the student cant see the option.
+    }
+
+    /**
+     * Test enrolled in course with additional bookingtime condition.
+     * @covers \mod_booking\bo_availability\conditions\enrolledincourse::is_available
+     * @covers \mod_booking\bo_availability\conditions\enrolledincourse::return_sql
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_booking_enrolledincourse_with_bookit_bookingtime(array $bdata): void {
+        global $DB, $CFG, $PAGE;
+
+        // Make sure SQL filter for availability is enabled for this test.
+        set_config('usesqlfilteravailability', 1, 'booking');
+
+        $bdata['cancancelbook'] = 1;
+
+        singleton_service::destroy_instance();
+
+        // Setup test data.
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $course2 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $course3 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        // Create users.
+        $admin = $this->getDataGenerator()->create_user();
+        $student1 = $this->getDataGenerator()->create_user();
+        $student2 = $this->getDataGenerator()->create_user();
+        $student3 = $this->getDataGenerator()->create_user();
+        $teacher = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
+
+        $bdata['course'] = $course1->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        // Enroll students in different courses.
+        // Student1 only in course2.
+        $this->getDataGenerator()->enrol_user($student1->id, $course2->id);
+        // Student2 in both course2 and course3.
+        $this->getDataGenerator()->enrol_user($student2->id, $course2->id);
+        $this->getDataGenerator()->enrol_user($student2->id, $course3->id);
+        // Student3 not enrolled in course2 or course3.
+
+        // All users enrolled in course1 (the booking course).
+        $this->getDataGenerator()->enrol_user($student1->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($student2->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($student3->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($teacher->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course1->id);
+
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option1 (availability by course and time)';
+        $record->chooseorcreatecourse = 1; // Required.
         $record->courseid = $course1->id;
 
         // Set test availability setting(s).
-        $record->bo_cond_enrolledincohorts_restrict = 1;
-        $record->bo_cond_enrolledincohorts_cohortids = [$cohort1->id, $cohort2->id];
-        $record->bo_cond_enrolledincohorts_cohortids_operator = 'AND';
-        $record->bo_cond_enrolledincohorts_sqlfiltercheck = 1;
+        $record->bo_cond_enrolledincourse_restrict = 1;
+        $record->bo_cond_enrolledincourse_courseids = [$course2->id, $course3->id];
+        $record->bo_cond_enrolledincourse_courseids_operator = 'AND';
+        $record->bo_cond_enrolledincourse_sqlfiltercheck = 1;
 
-        $record->restrictanswerperiodopening = 1;
         $record->restrictanswerperiodclosing = 1;
         $record->bookingopeningtime = strtotime('now - 3 day');
         $record->bookingclosingtime = strtotime('now - 2 day');
@@ -313,16 +323,17 @@ final class condition_enrolledincohorts_test extends advanced_testcase {
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        // Option one has both restriction, but the time restrictioin should not prevent visiblity.
+        // Option one has both restrictions, but the course restriction should not prevent visibility.
         $option1 = $plugingenerator->create_option($record);
 
         $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
         // Make sure sql filter active indicator is set correctly.
+        // At this time, it's just enrolledincourse.
         $this->assertEquals(MOD_BOOKING_SQL_FILTER_ACTIVE_JSON_BO, $settings->sqlfilter);
 
         $boinfo = new bo_info($settings);
 
-        // Try to book student1 NOT - allowed.
+        // Try to book student1 NOT - allowed (not enrolled in course3).
         $this->setUser($student1);
 
         // This user should not see the booking option.
@@ -332,48 +343,58 @@ final class condition_enrolledincohorts_test extends advanced_testcase {
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_BOOKING_TIME, $id);
 
-        cohort_add_member($cohort2->id, $student1->id);
+        // Now enroll student1 in course3.
+        $this->setAdminUser();
+        $this->getDataGenerator()->enrol_user($student1->id, $course3->id);
 
-        // Cohort affiliations are saved in singletons, we need to destroy them.
+        // Course enrollments are saved in singletons, we need to destroy them.
         singleton_service::destroy_instance();
 
-        // This user should not see the booking option.
+        $this->setUser($student1);
+
+        // This user should now see the booking option.
         $rawdata = $plugingenerator->create_table_for_one_option($settings->id);
-        $this->assertEquals(1, count($rawdata)); // We expect that the student cant see the option.
+        $this->assertEquals(1, count($rawdata)); // We expect that the student can see the option.
 
         // Try to book student2 - allowed.
         $this->setUser($student2);
 
-        // This user should see the booking option, but can't book.
+        // This user should see the booking option, but can't book (time restriction).
         $rawdata = $plugingenerator->create_table_for_one_option($settings->id);
         $this->assertEquals(1, count($rawdata)); // We expect that the student2 can see the option.
 
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_BOOKING_TIME, $id);
 
-        // Now we  update test availability setting(s).
+        // Now we update test availability setting(s) - enable SQL filter for booking time.
         $this->setAdminUser();
         $record->id = $option1->id;
-        $record->bo_cond_booking_time_sqlfiltercheck = 1;
         $record->cmid = $settings->cmid;
+        $record->bo_cond_booking_time_sqlfiltercheck = 1;
         booking_option::update($record);
+        singleton_service::destroy_instance();
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        // Make sure sql filter active indicator is set correctly.
+        // Now, we should block by time.
+        $this->assertEquals(MOD_BOOKING_SQL_FILTER_ACTIVE_BO_TIME, $settings->sqlfilter);
 
         $this->setUser($student2);
 
-        // This user should see the booking option, but can't book.
+        // This user should not see the booking option anymore (time restriction with SQL filter).
         $rawdata = $plugingenerator->create_table_for_one_option($settings->id);
-        $this->assertEquals(0, count($rawdata)); // We expect that the student2 can see the option.
+        $this->assertEquals(0, count($rawdata)); // We expect that the student2 cannot see the option.
     }
 
     /**
-     * Data provider for condition_bookingpolicy_test
+     * Data provider for condition_enrolledincourse_test
      *
      * @return array
      * @throws \UnexpectedValueException
      */
     public static function booking_common_settings_provider(): array {
         $bdata = [
-            'name' => 'Test Booking Policy 1',
+            'name' => 'Test Booking Enrolled in Course',
             'eventtype' => 'Test event',
             'enablecompletion' => 1,
             'bookedtext' => ['text' => 'text'],
