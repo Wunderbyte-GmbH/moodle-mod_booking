@@ -210,12 +210,15 @@ class enrolledincourse implements bo_condition {
         $conditionid = $this->id;
 
         if (empty($usercourseids)) {
-            // User is not enrolled in any courses.
             if ($databasetype == 'postgres') {
                 $where = "
                     (
                         availability IS NOT NULL
-                        AND NOT (availability::jsonb @> '[{\"sqlfilter\":\"1\"}]')
+                        AND NOT EXISTS (
+                            SELECT 1 FROM jsonb_array_elements(availability::jsonb) AS obj
+                            WHERE (obj->>'id')::int = $conditionid
+                            AND (obj->>'sqlfilter')::text = '1'
+                        )
                     )";
             } else if (
                 $databasetype == 'mysql'
@@ -224,7 +227,14 @@ class enrolledincourse implements bo_condition {
                 $where = "
                     (
                         availability IS NOT NULL
-                        AND NOT JSON_CONTAINS(availability, '{\"sqlfilter\":\"1\"}', '$')
+                        AND NOT EXISTS (
+                            SELECT 1 FROM JSON_TABLE(availability, '$[*]' COLUMNS (
+                                id INT PATH '$.id',
+                                sqlfilter VARCHAR(10) PATH '$.sqlfilter'
+                            )) AS jt
+                            WHERE jt.id = $conditionid
+                            AND jt.sqlfilter = '1'
+                        )
                     )";
             } else {
                 return ["", "", "", $params, ""];
@@ -282,42 +292,49 @@ class enrolledincourse implements bo_condition {
             $databasetype == 'mysql'
             && db_is_at_least_mariadb_106_or_mysql_8()
         ) {
-            // Build case conditions for each course enrollment.
-            $andcases = '';
-            foreach ($usercourseids as $courseid) {
-                $andcases .= "
-                CASE
-                    WHEN JSON_SEARCH(availability, 'one', '$courseid', NULL, '\$[*].courseids') IS NOT NULL THEN 1
-                    ELSE 0
-                END +";
-            }
-            $andcases = rtrim($andcases, ' +');
+            $courseidstext = array_map(fn($id) => "'" . $id . "'", $usercourseids);
+            $appendwhere = implode(', ', $courseidstext);
 
             $where = "
                 availability IS NOT NULL
-                AND ((
-                    (NOT JSON_CONTAINS(availability, '{\"sqlfilter\":\"1\"}', '$'))
-                )
-                OR (
-                    id IN (
-                        SELECT id
-                            FROM (
-                                        SELECT id,
-                                        JSON_UNQUOTE(JSON_EXTRACT(availability, '$[0].courseidsoperator')) AS operator,
-                                        JSON_LENGTH(JSON_EXTRACT(availability, '$[*].courseids[*]')) AS length,
-                                            ($andcases) AS true_conditions_count
-                                    FROM {booking_options}
-                                WHERE availability IS NOT NULL
-                            ) s1
-                        WHERE (
+                AND (
+                        (
+                            NOT EXISTS (
+                                SELECT 1 FROM JSON_TABLE(availability, '$[*]' COLUMNS (
+                                    id INT PATH '$.id',
+                                    sqlfilter VARCHAR(10) PATH '$.sqlfilter'
+                                )) AS jt
+                                WHERE jt.id = $conditionid
+                                AND jt.sqlfilter = '1'
+                            )
+                        )
+                    OR (
+                        id IN (
+                            SELECT bo_inner.id
+                            FROM {booking_options} bo_inner
+                            JOIN JSON_TABLE(bo_inner.availability, '$[*]' COLUMNS (
+                                id INT PATH '$.id',
+                                operator VARCHAR(10) PATH '$.courseidsoperator',
+                                courseids JSON PATH '$.courseids'
+                            )) AS jt ON jt.id = $conditionid
+                            WHERE jt.operator IS NOT NULL
+                            AND (
                                 CASE
-                                    WHEN operator LIKE \"AND\" THEN length = true_conditions_count
-                                    ELSE true_conditions_count > 0
+                                WHEN jt.operator = 'OR' THEN (
+                                    SELECT COUNT(*) > 0
+                                    FROM JSON_TABLE(jt.courseids, '$[*]' COLUMNS (courseid VARCHAR(10) PATH '$')) AS course_jt
+                                    WHERE course_jt.courseid IN ($appendwhere)
+                                )
+                                ELSE (
+                                    SELECT COUNT(*) = 0
+                                    FROM JSON_TABLE(jt.courseids, '$[*]' COLUMNS (courseid VARCHAR(10) PATH '$')) AS course_jt
+                                    WHERE course_jt.courseid NOT IN ($appendwhere)
+                                )
                                 END
+                            )
                         )
                     )
-                )
-            )";
+                )";
             return ['', '', '', $params, $where];
         }
 

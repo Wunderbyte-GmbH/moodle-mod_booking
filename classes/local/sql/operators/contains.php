@@ -55,6 +55,12 @@ class contains implements base_operator {
 
     /**
      * PostgreSQL snippet: user field must be non-empty and contain the value (case-insensitive).
+     * @param string $objalias
+     * @param string $fieldkey
+     * @param string $valuekey
+     *
+     * @return string
+     *
      */
     public function get_sql_postgres(
         string $objalias,
@@ -81,6 +87,12 @@ class contains implements base_operator {
 
     /**
      * MySQL snippet: user field must be non-empty and contain the value (case-insensitive).
+     * @param string $tablealias
+     * @param string $fieldkey
+     * @param string $valuekey
+     *
+     * @return string
+     *
      */
     public function get_sql_mysql(
         string $tablealias,

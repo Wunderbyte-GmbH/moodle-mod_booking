@@ -56,6 +56,7 @@ final class condition_enrolledincohorts_test extends advanced_testcase {
         time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
+        $this->preventResetByRollback();
     }
 
     /**
@@ -83,6 +84,8 @@ final class condition_enrolledincohorts_test extends advanced_testcase {
         global $DB, $CFG, $PAGE;
 
         $bdata['cancancelbook'] = 1;
+        // Make sure SQL filter for availability is not enabled for this test.
+        set_config('usesqlfilteravailability', 1, 'booking');
 
         singleton_service::destroy_instance();
 
