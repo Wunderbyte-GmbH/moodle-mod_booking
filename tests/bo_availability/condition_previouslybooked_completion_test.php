@@ -36,6 +36,9 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
+/**
+ * Tests for booking option availability conditions - previouslybooked with completion requirement.
+ */
 final class condition_previouslybooked_completion_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
