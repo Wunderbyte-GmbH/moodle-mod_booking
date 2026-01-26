@@ -359,8 +359,50 @@ class userprofilefield_2_custom implements bo_condition {
             $userid = $USER->id;
         }
 
+        $databasetype = $DB->get_dbfamily();
+        $conditionid = $this->id;
+
         // Get user profile field values.
         $user = singleton_service::get_instance_of_user($userid);
+        // When not logged in, we don't get a user.
+        // So we just return a very simple version.
+
+        if (empty($user)) {
+            if ($databasetype == 'postgres') {
+                $where = "
+                availability IS NOT NULL
+                AND
+                (
+                    (
+                        NOT EXISTS (
+                            SELECT 1 FROM jsonb_array_elements(availability::jsonb) AS obj
+                            WHERE (obj->>'id')::int = $conditionid
+                            AND (obj->>'sqlfilter')::text = '1'
+                        )
+                    )
+                )";
+                return ['', '', '', $params, $where];
+            } else if (
+                $databasetype == 'mysql'
+                && db_is_at_least_mariadb_106_or_mysql_8()
+            ) {
+                $where = "
+                    availability IS NOT NULL
+                    AND (
+                        (
+                            NOT EXISTS (
+                                SELECT 1 FROM JSON_TABLE(availability, '\$[*]' COLUMNS (
+                                    id INT PATH '\$.id',
+                                    sqlfilter VARCHAR(10) PATH '\$.sqlfilter'
+                                )) AS jt
+                                WHERE jt.id = $conditionid
+                                AND jt.sqlfilter = '1'
+                            )
+                        )
+                    )";
+                return ['', '', '', $params, $where];
+            }
+        }
 
         // Load custom profile fields.
         $fields = profile_get_user_fields_with_data($user->id);
@@ -370,9 +412,7 @@ class userprofilefield_2_custom implements bo_condition {
         }
         $user->profile = (array)$usercustomfields ?? [];
 
-        $databasetype = $DB->get_dbfamily();
-        $conditionid = $this->id;
-
+        // phpcs:disable
         if ($databasetype == 'postgres') {
             $where = "
             availability IS NOT NULL
@@ -394,16 +434,51 @@ class userprofilefield_2_custom implements bo_condition {
                         AND (
                             CASE
                             WHEN (obj->>'connectsecondfield') IS NULL OR (obj->>'connectsecondfield')::text = '0' THEN
-                                " . operator_builder::build_profile_field_check('postgres', $user, 'obj', 'profilefield', 'operator', 'value') . "
+                                " . operator_builder::build_profile_field_check(
+                                        'postgres',
+                                        $user,
+                                        'obj',
+                                        'profilefield',
+                                        'operator',
+                                        'value'
+                                    ) . "
                             WHEN (obj->>'connectsecondfield')::text = '&&' THEN
                                 (
-                                    " . operator_builder::build_profile_field_check('postgres', $user, 'obj', 'profilefield', 'operator', 'value') . "
-                                    AND " . operator_builder::build_profile_field_check('postgres', $user, 'obj', 'profilefield2', 'operator2', 'value2') . "
+                                    " . operator_builder::build_profile_field_check(
+                                            'postgres',
+                                            $user,
+                                            'obj',
+                                            'profilefield',
+                                            'operator',
+                                            'value'
+                                        ) . "
+                                    AND " . operator_builder::build_profile_field_check(
+                                                'postgres',
+                                                $user,
+                                                'obj',
+                                                'profilefield2',
+                                                'operator2',
+                                                'value2'
+                                            ) . "
                                 )
                             WHEN (obj->>'connectsecondfield')::text = '||' THEN
                                 (
-                                    " . operator_builder::build_profile_field_check('postgres', $user, 'obj', 'profilefield', 'operator', 'value') . "
-                                    OR " . operator_builder::build_profile_field_check('postgres', $user, 'obj', 'profilefield2', 'operator2', 'value2') . "
+                                    " . operator_builder::build_profile_field_check(
+                                            'postgres',
+                                            $user,
+                                            'obj',
+                                            'profilefield',
+                                            'operator',
+                                            'value'
+                                        ) . "
+                                    OR " . operator_builder::build_profile_field_check(
+                                            'postgres',
+                                            $user,
+                                            'obj',
+                                            'profilefield2',
+                                            'operator2',
+                                            'value2'
+                                        ) . "
                                 )
                             ELSE FALSE
                             END
@@ -446,16 +521,51 @@ class userprofilefield_2_custom implements bo_condition {
                             WHERE (
                                 CASE
                                 WHEN jt.connectsecondfield IS NULL OR jt.connectsecondfield = '0' THEN
-                                    " . operator_builder::build_profile_field_check('mysql', $user, 'jt', 'profilefield', 'operator', 'value') . "
+                                    " . operator_builder::build_profile_field_check(
+                                            'mysql',
+                                            $user,
+                                            'jt',
+                                            'profilefield',
+                                            'operator',
+                                            'value'
+                                        ) . "
                                 WHEN jt.connectsecondfield = '&&' THEN
                                     (
-                                        " . operator_builder::build_profile_field_check('mysql', $user, 'jt', 'profilefield', 'operator', 'value') . "
-                                        AND " . operator_builder::build_profile_field_check('mysql', $user, 'jt', 'profilefield2', 'operator2', 'value2') . "
+                                        " . operator_builder::build_profile_field_check(
+                                                'mysql',
+                                                $user,
+                                                'jt',
+                                                'profilefield',
+                                                'operator',
+                                                'value'
+                                            ) . "
+                                        AND " . operator_builder::build_profile_field_check(
+                                                'mysql',
+                                                $user,
+                                                'jt',
+                                                'profilefield2',
+                                                'operator2',
+                                                'value2'
+                                            ) . "
                                     )
                                 WHEN jt.connectsecondfield = '||' THEN
                                     (
-                                        " . operator_builder::build_profile_field_check('mysql', $user, 'jt', 'profilefield', 'operator', 'value') . "
-                                        OR " . operator_builder::build_profile_field_check('mysql', $user, 'jt', 'profilefield2', 'operator2', 'value2') . "
+                                        " . operator_builder::build_profile_field_check(
+                                                'mysql',
+                                                $user,
+                                                'jt',
+                                                'profilefield',
+                                                'operator',
+                                                'value'
+                                            ) . "
+                                        OR " . operator_builder::build_profile_field_check(
+                                                'mysql',
+                                                $user,
+                                                'jt',
+                                                'profilefield2',
+                                                'operator2',
+                                                'value2'
+                                            ) . "
                                     )
                                 ELSE FALSE
                                 END
@@ -467,6 +577,7 @@ class userprofilefield_2_custom implements bo_condition {
         } else {
             return ['', '', '', $params, ''];
         }
+        // phpcs:enable
     }
 
     /**
@@ -670,8 +781,17 @@ class userprofilefield_2_custom implements bo_condition {
                     'bo_cond_customuserprofilefield_sqlfiltercheck',
                     get_string('sqlfiltercheckstring', 'mod_booking')
                 );
-                $mform->hideIf('bo_cond_customuserprofilefield_sqlfiltercheck', 'bo_cond_customuserprofilefield_field', 'eq', 0);
-                $mform->hideIf('bo_cond_customuserprofilefield_sqlfiltercheck', 'bo_cond_userprofilefield_2_custom_restrict', 'notchecked');
+                $mform->hideIf(
+                    'bo_cond_customuserprofilefield_sqlfiltercheck',
+                    'bo_cond_customuserprofilefield_field',
+                    'eq',
+                    0
+                );
+                $mform->hideIf(
+                    'bo_cond_customuserprofilefield_sqlfiltercheck',
+                    'bo_cond_userprofilefield_2_custom_restrict',
+                    'notchecked'
+                );
 
                 $mform->addElement(
                     'checkbox',

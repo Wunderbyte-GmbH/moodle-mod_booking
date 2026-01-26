@@ -266,29 +266,22 @@ class enrolledincohorts implements bo_condition {
             $databasetype == 'mysql'
             && db_is_at_least_mariadb_106_or_mysql_8()
         ) {
-            $andcases = '';
-            foreach (array_keys($usercohorts) as $cohortid) {
-                $andcases .= "
-                CASE
-                    WHEN JSON_SEARCH(jt.cohortids, 'one', '$cohortid') IS NOT NULL THEN 1
-                    ELSE 0
-                END +";
-            }
-            $andcases = rtrim($andcases, ' +');
+            $cohortidstext = array_map(fn($id) => "'" . $id . "'", array_keys($usercohorts));
+            $appendwhere = implode(', ', $cohortidstext);
 
             $where = "
                 availability IS NOT NULL
                 AND (
-                    (
-                        NOT EXISTS (
-                            SELECT 1 FROM JSON_TABLE(availability, '$[*]' COLUMNS (
-                                id INT PATH '$.id',
-                                sqlfilter VARCHAR(10) PATH '$.sqlfilter'
-                            )) AS jt
-                            WHERE jt.id = $conditionid
-                            AND jt.sqlfilter = '1'
+                        (
+                            NOT EXISTS (
+                                SELECT 1 FROM JSON_TABLE(availability, '$[*]' COLUMNS (
+                                    id INT PATH '$.id',
+                                    sqlfilter VARCHAR(10) PATH '$.sqlfilter'
+                                )) AS jt
+                                WHERE jt.id = $conditionid
+                                AND jt.sqlfilter = '1'
+                            )
                         )
-                    )
                     OR (
                         id IN (
                             SELECT bo_inner.id
@@ -301,14 +294,21 @@ class enrolledincohorts implements bo_condition {
                             WHERE jt.operator IS NOT NULL
                             AND (
                                 CASE
-                                WHEN jt.operator = 'OR' THEN ($andcases) > 0
-                                ELSE ($andcases) = JSON_LENGTH(jt.cohortids)
+                                WHEN jt.operator = 'OR' THEN (
+                                    SELECT COUNT(*) > 0
+                                    FROM JSON_TABLE(jt.cohortids, '$[*]' COLUMNS (cohortid VARCHAR(10) PATH '$')) AS cohort_jt
+                                    WHERE cohort_jt.cohortid IN ($appendwhere)
+                                )
+                                ELSE (
+                                    SELECT COUNT(*) = 0
+                                    FROM JSON_TABLE(jt.cohortids, '$[*]' COLUMNS (cohortid VARCHAR(10) PATH '$')) AS cohort_jt
+                                    WHERE cohort_jt.cohortid NOT IN ($appendwhere)
+                                )
                                 END
                             )
                         )
                     )
-                )
-            )";
+                )";
             return ['', '', '', $params, $where];
         } else {
             return ['', '', '', $params, ''];

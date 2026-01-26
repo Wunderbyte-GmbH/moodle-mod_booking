@@ -570,9 +570,7 @@ class bo_info {
 
         // For performance reason we have a flag if we need to check the value at all.
         $where = " (
-                        sqlfilter < 1 OR $bypass (
-                            $where
-                            )
+                        sqlfilter < 1 OR $bypass $where
                         )
                         ";
 

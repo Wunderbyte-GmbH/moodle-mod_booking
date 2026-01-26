@@ -180,10 +180,12 @@ class operator_builder {
         global $USER;
 
         $userid = (int)$USER->id;
+        // Explicitly COLLATE JSON-extracted values to utf8mb4_unicode_ci to match subquery results
+        // This prevents collation mismatch errors when comparing JSON data with profile field data
         $userval = "COALESCE((SELECT uid.data FROM {user_info_data} uid " .
             "JOIN {user_info_field} uif ON uid.fieldid = uif.id " .
-            "WHERE uid.userid = $userid AND uif.shortname = $tablealias.$fieldkey LIMIT 1), '')";
-        $condval = "$tablealias.$valuekey";
+            "WHERE uid.userid = $userid AND uif.shortname = $tablealias.$fieldkey COLLATE utf8mb4_unicode_ci LIMIT 1), '')";
+        $condval = "$tablealias.$valuekey COLLATE utf8mb4_unicode_ci";
 
         $notempty = "$userval <> ''";
         $condnotempty = "$condval <> ''";
@@ -195,11 +197,11 @@ class operator_builder {
         // Convert comma-separated condval into rows using JSON_TABLE for contains operations.
         $jsonarray = "CONCAT('[\"', REPLACE($condval, ',', '\",\"'), '\"]')";
         $containsany = "EXISTS (SELECT 1 FROM JSON_TABLE($jsonarray, '$[*]' COLUMNS (item TEXT PATH '$')) jtarr " .
-            "WHERE $userval <> '' AND LOWER($userval) LIKE CONCAT('%', LOWER(jtarr.item), '%'))";
+            "WHERE $userval <> '' AND LOWER($userval) LIKE CONCAT('%', LOWER(jtarr.item COLLATE utf8mb4_unicode_ci), '%'))";
         $containsnone = "NOT ($containsany)";
 
         return "(
-            CASE $tablealias.$operatorkey
+            CASE $tablealias.$operatorkey COLLATE utf8mb4_unicode_ci
                 WHEN '=' THEN (($notempty AND $userval = $condval) OR ($userval = '' AND $condval = ''))
                 WHEN '!=' THEN (($notempty AND $userval <> $condval) OR ($userval = '' AND $condnotempty))
                 WHEN '<' THEN ($notempty AND $userval < $condval)

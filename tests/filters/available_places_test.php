@@ -83,7 +83,7 @@ final class available_places_test extends \advanced_testcase {
      * We instantiate two tables in order to test both the general functionality
      * and the table functionality with AJAX and pagination.
      *
-     * @covers \local_wunderbyte_table\filters\types\customfieldfilter::available_places
+     * @covers \mod_booking\filters\available_places
      *
      * @return void
      */

@@ -516,6 +516,9 @@ final class condition_userprofilefield_test extends advanced_testcase {
      * @covers \mod_booking\bo_availability\conditions\userprofilefield_2_custom::return_sql
      * @covers \mod_booking\local\sql\operator_builder::build_profile_field_check
      *
+     * @param array $bdata
+     * @return void
+     *
      * @dataProvider booking_common_settings_provider
      */
     public function test_booking_bookit_userprofilefield_equals_empty(array $bdata): void {
@@ -604,6 +607,9 @@ final class condition_userprofilefield_test extends advanced_testcase {
      * @covers \mod_booking\bo_availability\conditions\userprofilefield_2_custom::is_available
      * @covers \mod_booking\bo_availability\conditions\userprofilefield_2_custom::return_sql
      * @covers \mod_booking\local\sql\operator_builder::build_profile_field_check
+     * @param array $bdata
+     *
+     * @return void
      *
      * @dataProvider booking_common_settings_provider
      */
@@ -709,7 +715,11 @@ final class condition_userprofilefield_test extends advanced_testcase {
      * @covers \mod_booking\bo_availability\conditions\userprofilefield_2_custom::return_sql
      * @covers \mod_booking\local\sql\operator_builder::build_profile_field_check
      *
+     * @param array $bdata
+     *
+     * @return void
      * @dataProvider booking_common_settings_provider
+     *
      */
     public function test_booking_bookit_userprofilefield_two_fields_and(array $bdata): void {
         global $DB, $PAGE;
@@ -820,6 +830,10 @@ final class condition_userprofilefield_test extends advanced_testcase {
      * @covers \mod_booking\bo_availability\conditions\userprofilefield_2_custom::is_available
      * @covers \mod_booking\bo_availability\conditions\userprofilefield_2_custom::return_sql
      * @covers \mod_booking\local\sql\operator_builder::build_profile_field_check
+     *
+     * @param array $bdata
+     *
+     * @return void
      *
      * @dataProvider booking_common_settings_provider
      */
