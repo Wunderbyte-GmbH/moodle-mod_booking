@@ -197,6 +197,13 @@ $functions = [
         'type'        => 'read',
         'ajax'        => 1,
     ],
+    'mod_booking_save_measurement' => [
+        'classname'   => 'mod_booking\\external\\save_measurement',
+        'methodname'  => 'execute',
+        'description' => 'Save performance measurement',
+        'type'        => 'write',
+        'ajax'        => 1,
+    ],
 ];
 
 $services = [

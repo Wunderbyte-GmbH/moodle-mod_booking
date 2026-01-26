@@ -40,6 +40,7 @@ define(['core/chartjs', 'core/ajax', 'jquery'], function(Chart, Ajax, $) {
 
         chartInstance = createChart(canvas, parsed);
         registerSidebarClicks();
+        registerSaveClicks();
     };
 
     /**
@@ -162,6 +163,39 @@ define(['core/chartjs', 'core/ajax', 'jquery'], function(Chart, Ajax, $) {
                     console.error('Error loading chart data', error);
                 }
             }]);
+        });
+    };
+
+    const registerSaveClicks = () => {
+        $(document).on('click', '[data-action="savemeasurement"]', function(e) {
+            e.preventDefault();
+
+            const $btn = $(this);
+            const $editor = $btn.closest('.card-body');
+
+            const measurementid = $btn.data('id');
+            const note = $editor.find('textarea').val();
+
+            if (!measurementid) {
+                return;
+            }
+
+            Ajax.call([{
+                methodname: 'mod_booking_save_measurement',
+                args: {
+                    measurementid: measurementid,
+                    note: note
+                }
+            }])[0].then(function(response) {
+                // Optional UX feedback
+                $editor.closest('.collapse').collapse('hide');
+
+                // Optional: visual success hint
+                $btn.blur();
+                window.location.reload();
+            }).catch(function(error) {
+                console.error('Saving measurement failed', error);
+            });
         });
     };
 
