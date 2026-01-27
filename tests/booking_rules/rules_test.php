@@ -38,6 +38,7 @@ use mod_booking\bo_availability\conditions\customform;
 use mod_booking\local\mobile\customformstore;
 use tool_mocktesttime\time_mock;
 use mod_booking_generator;
+use function PHPUnit\Framework\assertSame;
 
 /**
  * Tests for booking rules.
@@ -1334,6 +1335,14 @@ final class rules_test extends advanced_testcase {
         $this->assertStringContainsString($ruledata3['conditiondata'], $customdata->rulejson);
         $this->assertStringContainsString($ruledata3['actiondata'], $customdata->rulejson);
         $this->assertEquals($user3->id, $task->get_userid());
+
+        ob_start();
+        $messagesink = $this->redirectMessages();
+        $this->runAdhocTasks();
+        $sentmessages = $messagesink->get_messages();
+        // In this case, mail appears to be send from and to booking manager.
+        $this->assertSame($user3->id, $sentmessages[0]->useridto, 'message not send to the right user');
+        $res = ob_get_clean();
     }
 
     /**
