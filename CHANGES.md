@@ -1,3 +1,15 @@
+## Version 9.0.9 (2026012700)
+* Improvement: Better handling of confirmation task if status has changed.
+* Improvement: supervisorteamreduced can now delete booking answers from users
+* Improvement: Templates are sorted alphabetically
+* Bugfix: Fallback for bookingrule condition doesn't exist anymore
+* Bugfix: String for name of task
+* Bugfix: Only issue certificate when setting is on
+* Bugfix: Fallback for empty mail message
+* Bugfix: template should have unique identifier
+* New behat Scenario: Booking option template: create one and use it to create new option
+* Tests: phpunit: new class rule_cancellation_test with 4 scenarios
+
 ## Version 9.0.8 (2026012000)
 * Improvement: Better wording for visibility.
 * Improvement: added typefilter to mybookings Wunderbyte-GmbH/Wunderbyte.
