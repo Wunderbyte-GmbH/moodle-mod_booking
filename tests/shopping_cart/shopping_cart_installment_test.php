@@ -119,8 +119,6 @@ final class shopping_cart_installment_test extends advanced_testcase {
 
         time_mock::set_mock_time(strtotime('-4 days', time()));
         $time = time_mock::get_mock_time();
-        $now = time();
-        $this->assertEquals($time, $now);
 
         // Validate payment account if it has a config.
         $record1 = $DB->get_record('payment_accounts', ['id' => $this->account->get('id')]);
@@ -276,9 +274,10 @@ final class shopping_cart_installment_test extends advanced_testcase {
         $this->assertIsArray($res);
         $this->assertEmpty($res['error']);
         $this->assertEquals(56, $res['credit']);
-        // Validate that rules are scheduled.
+        // Validate that rules still not scheduled yet.
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
-        $this->assertCount(2, $tasks);
+        $this->assertCount(0, $tasks);
+        // Trigger rules manually (normally it happens in the shutdown handler) and validate result.
         rules_info::execute_booking_rules();
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
         $this->assertCount(2, $tasks);
@@ -298,23 +297,27 @@ final class shopping_cart_installment_test extends advanced_testcase {
         cartstore::reset();
         time_mock::set_mock_time(strtotime('+2 days', $time));
         $time = time_mock::get_mock_time();
-        $debugdate = userdate($time, get_string('strftimedate', 'langconfig'));
-
-        // Run adhock tasks.
+        // Validate count of tasks.
         $sink = $this->redirectMessages();
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $this->assertCount(2, $tasks);
+        // Run adhock tasks.
         ob_start();
-        $this->runAdhocTasks();
+        $plugingenerator->runtaskswithintime($time);
         $messages = $sink->get_messages();
         $res = ob_get_clean();
         $sink->close();
-        $messages = message_get_messages($student1->id);
+        // Validate messages sent.
+        $this->assertCount(1, $messages);
+        $this->assertEquals($student1->id, $messages[0]->useridto);
+        $this->assertEquals('installment_custom_subj', $messages[0]->subject);
+        $this->assertEquals('installment_custom_msg', $messages[0]->fullmessage);
+        // Validate number of tasks remains.
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
-
+        $this->assertCount(1, $tasks);
         // Re-init shoppng cart.
         $cartstore = cartstore::instance($student1->id);
         $data = $cartstore->get_localized_data();
-
         // Get infor about installments.
         $open = $cartstore->get_open_installments();
         $this->assertCount(3, $open);
@@ -345,23 +348,27 @@ final class shopping_cart_installment_test extends advanced_testcase {
         cartstore::reset();
         time_mock::set_mock_time(strtotime('+2 days', $time));
         $time = time_mock::get_mock_time();
-        $debugdate = userdate($time, get_string('strftimedate', 'langconfig'));
-
-        // Run adhock tasks.
+        // Validate count of tasks.
         $sink = $this->redirectMessages();
-        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-        /* $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc'); */
+        $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $this->assertCount(1, $tasks);
+        // Run adhock tasks.
         ob_start();
-        $this->runAdhocTasks();
+        $plugingenerator->runtaskswithintime($time);
         $messages = $sink->get_messages();
         $res = ob_get_clean();
         $sink->close();
-        $messages = message_get_messages($student1->id);
-
+        // Validate messages sent.
+        $this->assertCount(1, $messages);
+        $this->assertEquals($student1->id, $messages[0]->useridto);
+        $this->assertEquals('installment_custom_subj', $messages[0]->subject);
+        $this->assertEquals('installment_custom_msg', $messages[0]->fullmessage);
+        // Validate number of tasks remains.
+        $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $this->assertCount(0, $tasks);
         // Re-init shoppng cart.
         $cartstore = cartstore::instance($student1->id);
         $data = $cartstore->get_localized_data();
-
         // Get infor about installments.
         $open = $cartstore->get_open_installments();
         $this->assertCount(2, $open);
@@ -386,6 +393,14 @@ final class shopping_cart_installment_test extends advanced_testcase {
         $data = $cartstore->get_localized_data();
         $cartstore->get_expanded_checkout_data($data);
         $pay = shopping_cart::confirm_payment($student1->id, LOCAL_SHOPPING_CART_PAYMENT_METHOD_CREDITS, $data);
+        // Validate no more payments left.
+        cartstore::reset();
+        // Re-init shoppng cart.
+        $cartstore = cartstore::instance($student1->id);
+        $data = $cartstore->get_localized_data();
+        // Get infor about installments.
+        $open = $cartstore->get_open_installments();
+        $this->assertCount(0, $open);
     }
 
     /**
