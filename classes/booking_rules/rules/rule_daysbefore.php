@@ -291,7 +291,7 @@ class rule_daysbefore implements booking_rule {
         }
 
         // We retrieve the same sql we also use in the execute function.
-        $records = $this->get_records_for_execution($optionid, $userid, true);
+        $records = $this->get_records_for_execution($optionid, $userid, true, $nextruntime);
 
         // If there are multiple records (like for reminders for optiondates)...
         // ...we need to make sure that at least one runtime matches.
