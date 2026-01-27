@@ -541,8 +541,13 @@ class teachers_handler {
             foreach ($existingoptiondates as $existingoptiondate) {
                 if (empty($userid)) {
                     $DB->delete_records('booking_optiondates_teachers', ['optiondateid' => $existingoptiondate->id]);
+                    $DB->delete_records('booking_optiondates_answers', ['optiondateid' => $existingoptiondate->id]);
                 } else {
                     $DB->delete_records('booking_optiondates_teachers', [
+                        'optiondateid' => $existingoptiondate->id,
+                        'userid' => $userid,
+                    ]);
+                    $DB->delete_records('booking_optiondates_answers', [
                         'optiondateid' => $existingoptiondate->id,
                         'userid' => $userid,
                     ]);
