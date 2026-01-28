@@ -719,6 +719,9 @@ class manageusers_table extends wunderbyte_table {
                 ) {
                     continue;
                 }
+                if (empty($presenceconfig) && $answerrecord->completed == 0) {
+                    continue;
+                }
                 $triggered = true;
                 certificateclass::issue_certificate($optionid, $answerrecord->userid);
             } else {
