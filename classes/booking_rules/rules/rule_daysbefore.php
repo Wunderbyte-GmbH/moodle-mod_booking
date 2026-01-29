@@ -306,7 +306,7 @@ class rule_daysbefore implements booking_rule {
                 !empty($optiondateid)
                 && isset($record->optiondateid)
             ) {
-                // If the optiondateid doesn't macht, look for other matches.
+                // If the optiondateid doesn't match, look for other matches.
                 // If no match is found, rule doesn't apply anymore.
                 if ($record->optiondateid != $optiondateid) {
                     $rulestillapplies = false;

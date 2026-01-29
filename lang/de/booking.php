@@ -460,7 +460,7 @@ $string['booking:reducedoptionform3'] = "3. Reduziertes Buchungsoptionsformular 
 $string['booking:reducedoptionform4'] = "4. Reduziertes Buchungsoptionsformular für Kursbereich.";
 $string['booking:reducedoptionform5'] = "5. Reduziertes Buchungsoptionsformular für Kursbereich.";
 $string['booking:seepersonalteacherinformation'] = 'Detailinfos über Lehrende anzeigen';
-$string['booking:semesters'] = 'Buchung: Semester';
+$string['booking:semesters'] = 'Booking: Semester';
 $string['booking:sendpollurl'] = 'Umfragelink senden';
 $string['booking:sendpollurltoteachers'] = 'Umfragelink and Trainer:innen senden';
 $string['booking:subscribeusers'] = 'Für andere Teilnehmer:innen Buchungen durchführen';
@@ -480,12 +480,12 @@ $string['bookinganswerwaitingforconfirmation'] = 'Voranmeldung für Buchungsopti
 $string['bookinganswerwaitingforconfirmationdesc'] = 'Nutzer:in mit id {$a->relateduserid} hat sich für die Buchungsoption mit ID {$a->objectid} vorangemeldet.';
 $string['bookingattachment'] = 'Anhang';
 $string['bookingcampaign'] = 'Kampagne';
-$string['bookingcampaigns'] = 'Buchung: Kampagnen (PRO)';
+$string['bookingcampaigns'] = 'Booking: Kampagnen (PRO)';
 $string['bookingcampaignssubtitle'] = 'Mit Kampagnen können Sie für einen festgelegten Zeitraum die Preise von ausgewählten
  Buchungsoptionen vergünstigen und das Buchungslimit für diesen Zeitraum erhöhen. Damit die Kampagnen funktionieren, muss der
  Moodle Cron-Job regelmäßig laufen.<br>
  Überschneidende Kampagnen werden addiert. Zwei 50% Kampagnen führen zu einem 25% Preis.';
-$string['bookingcampaignswithbadge'] = 'Buchung: Kampagnen <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
+$string['bookingcampaignswithbadge'] = 'Booking: Kampagnen <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['bookingcategory'] = 'Kategorie';
 $string['bookingchangedtext'] = 'Benachrichtigung bei Änderungen an der Buchung (geht nur an User, die bereits gebucht haben). Verwenden Sie den Platzhalter {changes} um die Änderungen anzuzeigen. 0 eingeben um Änderungsbenachrichtigungen auszuschalten.';
 $string['bookingchangedtext_help'] = '0 eingeben um Änderungsbenachrichtigungen auszuschalten.';
@@ -515,7 +515,7 @@ $string['bookingimages'] = 'Header-Bilder für Buchungsoptionen hochladen - dies
 $string['bookingimagescustomfield'] = 'Benutzerdefiniertes Feld von Buchungsoptionen, mit dem die Header-Bilder gematcht werden';
 $string['bookinginstance'] = 'Buchungsinstanz';
 $string['bookinginstancetemplatename'] = 'Name der Buchungsinstanz-Vorlage';
-$string['bookinginstancetemplatessettings'] = 'Buchung: Vorlagen für Buchungsinstanzen';
+$string['bookinginstancetemplatessettings'] = 'Booking: Vorlagen für Buchungsinstanzen';
 $string['bookinginstanceupdated'] = 'Buchungsinstanz upgedated';
 $string['bookinglink'] = "Buchungsinstanzlink";
 $string['bookingmanagererror'] = 'Der angegebene Nutzername ist ungültig. Entweder existiert der/die Nutzer/in nicht oder es gibt mehrere Nutzer:innen mit dem selben Nutzernamen (Dies ist zum Beispiel der Fall, wenn Sie MNET und lokale Authentifizierung gleichzeitig aktiviert haben)';
@@ -604,7 +604,7 @@ $string['bookingruletemplates'] = 'Lade eine Template-Regel';
 $string['bookingruletemplatesactive'] = 'Vorgefertigte Templates für Regeln aktivieren';
 $string['bookings'] = 'Buchungen';
 $string['bookingsaved'] = '<b>Vielen Dank für Ihre Buchung!</b> <br /> Ihre Buchung wurde erfolgreich gespeichert und ist somit abgeschlossen. Sie können nun weitere Online-Seminare buchen oder bereits getätigte Buchungen verwalten';
-$string['bookingsettings'] = 'Buchung: Einstellungen';
+$string['bookingsettings'] = 'Booking: Einstellungen';
 $string['bookingstatusbooked'] = 'Gebucht';
 $string['bookingstatusdeleted'] = 'Gelöscht';
 $string['bookingstatusonnotificationlist'] = 'Auf der Benachrichtigungsliste';
@@ -973,7 +973,7 @@ $string['custombulkmessagesent'] = 'Persönl. Nachricht als Rundmail gesendet (>
 $string['customdatesbtn'] = '<i class="fa fa-plus-square"></i> Benutzerdefinierte Termine...';
 $string['customfield'] = 'Benutzerdefiniertes Feld, dessen Wert in den Buchungsoptionseinstellungen angegeben wird und in der Buchungsoptionsübersicht angezeigt wird';
 $string['customfieldchanged'] = 'Benutzerdefiniertes Feld geändert';
-$string['customfieldconfigure'] = 'Buchung: Benutzerdefinierte Buchungsoptionsfelder';
+$string['customfieldconfigure'] = 'Booking: Benutzerdefinierte Buchungsoptionsfelder';
 $string['customfielddef'] = 'Benutzerdefiniertes Buchungsoptionsfeld';
 $string['customfielddesc'] = 'Definieren Sie den Wert dieses Feldes in den Buchungsoptionseinstellungen.';
 $string['customfieldname'] = 'Feldname';
@@ -1991,7 +1991,7 @@ $string['presencestatustoissuecertificate_desc'] = "Wenn aktiviert, kann ein Zer
 $string['previous'] = 'Vorherige';
 $string['previouselybooked'] = 'Bereits gebucht';
 $string['price'] = 'Preis';
-$string['pricecategories'] = 'Buchung: Preiskategorien';
+$string['pricecategories'] = 'Booking: Preiskategorien';
 $string['pricecategoriessaved'] = 'Preiskategorien wurden gespeichert';
 $string['pricecategoriessubtitle'] = '<p>Hier können Sie unterschiedliche Kategorien von Preisen definieren,
     z.B. eigene Preiskategorien für Studierende, Mitarbeitende oder Externe.
