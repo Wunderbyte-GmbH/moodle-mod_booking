@@ -51,7 +51,7 @@ final class checklist_generator_test extends advanced_testcase {
 
     /**
      * Test HTML generation with placeholder replacement for PDF.
-     * @covers mod_booking\checklist\checklist_generator::get_placeholder_replacements
+     * @covers \mod_booking\checklist\checklist_generator
      */
     public function test_html_generation_for_pdf(): void {
         $this->resetAfterTest();

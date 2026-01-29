@@ -180,8 +180,8 @@ class operator_builder {
         global $USER;
 
         $userid = (int)$USER->id;
-        // Explicitly COLLATE JSON-extracted values to utf8mb4_unicode_ci to match subquery results
-        // This prevents collation mismatch errors when comparing JSON data with profile field data
+        // Explicitly COLLATE JSON-extracted values to utf8mb4_unicode_ci to match subquery results.
+        // This prevents collation mismatch errors when comparing JSON data with profile field data.
         $userval = "COALESCE((SELECT uid.data FROM {user_info_data} uid " .
             "JOIN {user_info_field} uif ON uid.fieldid = uif.id " .
             "WHERE uid.userid = $userid AND uif.shortname = $tablealias.$fieldkey COLLATE utf8mb4_unicode_ci LIMIT 1), '')";
