@@ -55,6 +55,7 @@ final class rules_n_days_test extends advanced_testcase {
         $this->resetAfterTest();
         time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
+        $this->preventResetByRollback();
     }
 
     /**
@@ -334,6 +335,122 @@ final class rules_n_days_test extends advanced_testcase {
 
         // Both tasks logged their results, so we check for the string twice.
         $this->assertTrue(substr_count($res, $expected['contains']) >= 2);
+    }
+
+    /**
+     * Test rule on before and after cursestart events.
+     *
+     * @covers \mod_booking\booking_option::update
+     * @covers \mod_booking\option\field_base::check_for_changes
+     * @covers \mod_booking\booking_rules\rules\rule_react_on_event::execute
+     * @covers \mod_booking\booking_rules\actions\send_mail::execute
+     * @covers \mod_booking\booking_rules\conditions\select_users::execute
+     * @covers \mod_booking\placeholders\placeholders\changes::return_value
+     *
+     * @param array $data
+     * @param array $expected
+     * @throws \coding_exception
+     *
+     * @dataProvider booking_rules_provider
+     */
+    public function test_rule_after_courseend(array $data, array $expected): void {
+        global $DB;
+
+        $this->setAdminUser();
+        $bdata = self::booking_common_settings_provider();
+        singleton_service::destroy_instance();
+
+        set_config('timezone', 'Europe/Kyiv');
+        set_config('forcetimezone', 'Europe/Kyiv');
+
+        // Setup test data.
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $user1 = $this->getDataGenerator()->create_user();
+        $user2 = $this->getDataGenerator()->create_user();
+
+        $bdata['booking']['course'] = $course->id;
+        $bdata['booking']['bookingmanager'] = $user2->username;
+
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata['booking']);
+
+        $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($user2->id, $course->id, 'student');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        // Create booking rule - "ndays before".
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"7daysaftercourseend","template":"will has ended 7 days ago","templateformat":"1"}';
+        $ruledata1 = [
+            'name' => '7daysafterend',
+            'conditionname' => 'select_users',
+            'contextid' => 1,
+            'conditiondata' => '{"userids":["2"]}',
+            'actionname' => 'send_mail',
+            'actiondata' => $actstr,
+            'rulename' => 'rule_daysbefore',
+            'ruledata' => '{"days":"7","datefield":"courseendtime","cancelrules":[]}',
+        ];
+        $rule1 = $plugingenerator->create_rule($ruledata1);
+
+        // Create booking rule - "ndays after".
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"7daysbefore","template":"will end in 7 days","templateformat":"1"}';
+        $ruledata2 = [
+            'name' => '7daysbefore',
+            'conditionname' => 'select_users',
+            'contextid' => 1,
+            'conditiondata' => '{"userids":["2"]}',
+            'actionname' => 'send_mail',
+            'actiondata' => $actstr,
+            'rulename' => 'rule_daysbefore',
+            'ruledata' => '{"days":"-7","datefield":"courseendtime","cancelrules":[]}',
+        ];
+        $rule2 = $plugingenerator->create_rule($ruledata2);
+
+        // Create booking option 1 (will start in 2 days).
+        $record = (object)$bdata['options'][1];
+        $record->bookingid = $booking->id;
+        $record->courseid = $course->id;
+        $record->coursestarttime_0 = strtotime('+19 days', time());
+        $record->courseendtime_0 = strtotime('+21 days', time());
+        $option1 = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option1->id);
+
+        $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        // Two reminder mails are scheduled.
+        $this->assertCount(2, $tasks);
+
+        if ($data['canceloption']) {
+            booking_option::cancelbookingoption($option1->id);
+        }
+
+        $time = time_mock::get_mock_time();
+        time_mock::set_mock_time(strtotime('+15 days', $time));
+        $time = time_mock::get_mock_time();
+
+        $messagesink = $this->redirectMessages();
+        $plugingenerator->runtaskswithintime($time);
+
+        $messages = $messagesink->get_messages();
+
+        // Assertions.
+        $this->assertCount($data['canceloption'] ? 0 : 1, $messages);
+
+        $plugingenerator->runtaskswithintime(time_mock::get_mock_time());
+
+        $time = time_mock::get_mock_time();
+        time_mock::set_mock_time(strtotime('+15 days', $time));
+        $time = time_mock::get_mock_time();
+
+        $plugingenerator->runtaskswithintime($time);
+
+        $messages = $messagesink->get_messages();
+        // Assertions.
+        $this->assertCount($data['canceloption'] ? 0 : 2, $messages);
+
+        $messagesink->close();
     }
 
     /**
