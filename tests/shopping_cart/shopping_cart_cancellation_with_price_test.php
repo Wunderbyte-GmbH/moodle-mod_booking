@@ -269,13 +269,13 @@ final class shopping_cart_cancellation_with_price_test extends advanced_testcase
             $this->assertArrayNotHasKey(2, $balance1);
             switch ($key) {
                 case 0:
-                    $this->assertEquals(65.3, $balance1[0]);
+                    $this->assertEquals(65, $balance1[0]);
                     break;
                 case 1:
-                    $this->assertEquals(58.3, $balance1[0]);
+                    $this->assertEquals(58, $balance1[0]);
                     break;
                 case 2:
-                    $this->assertEquals(51.3, $balance1[0]);
+                    $this->assertEquals(51, $balance1[0]);
                     break;
             }
         }
@@ -460,13 +460,13 @@ final class shopping_cart_cancellation_with_price_test extends advanced_testcase
             $this->assertArrayNotHasKey(2, $balance1);
             switch ($key) {
                 case 0:
-                    $this->assertEquals(55.4, $balance1[0]);
+                    $this->assertEquals(55, $balance1[0]);
                     break;
                 case 1:
-                    $this->assertEquals(49.4, $balance1[0]);
+                    $this->assertEquals(49, $balance1[0]);
                     break;
                 case 2:
-                    $this->assertEquals(43.4, $balance1[0]);
+                    $this->assertEquals(43, $balance1[0]);
                     break;
             }
         }
@@ -652,13 +652,13 @@ final class shopping_cart_cancellation_with_price_test extends advanced_testcase
             $this->assertArrayNotHasKey(2, $balance1);
             switch ($key) {
                 case 0:
-                    $this->assertEquals(28.67, $balance1[0]);
+                    $this->assertEquals(29, $balance1[0]);
                     break;
                 case 1:
-                    $this->assertEquals(25.37, $balance1[0]);
+                    $this->assertEquals(25, $balance1[0]);
                     break;
                 case 2:
-                    $this->assertEquals(22.07, $balance1[0]);
+                    $this->assertEquals(22, $balance1[0]);
                     break;
             }
         }
@@ -845,6 +845,7 @@ final class shopping_cart_cancellation_with_price_test extends advanced_testcase
         // Set parems requred for cancellation.
         $bdata['booking']['cancancelbook'] = 1;
         set_config('cancelationfee', $config['cancellationfee'], 'local_shopping_cart');
+        set_config('roundrefundamount', $config['roundrefundamount'], 'local_shopping_cart');
 
         // Setup test data.
         $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
@@ -975,6 +976,10 @@ final class shopping_cart_cancellation_with_price_test extends advanced_testcase
             // The value of the price column in history table should be exactly
             // same as value of the credit column in the credits table when there is no cancellation fee.
             $expectedamounttoreturn = $purchasingprice - $config['cancellationfee'];
+            if ($config['roundrefundamount']) {
+                // Round the refund value if roundrefundamount settings is turned on.
+                $expectedamounttoreturn = round($expectedamounttoreturn, 0);
+            }
             $this->assertSame($expectedamounttoreturn, $userlastcredit);
         }
     }
@@ -1112,16 +1117,37 @@ final class shopping_cart_cancellation_with_price_test extends advanced_testcase
             'Cancellation fee 0.00 EURO' => [
                 [
                     'cancellationfee' => 0.00,
+                    'roundrefundamount' => 1,
                 ],
             ],
             'Cancellation fee 1,5 EURO' => [
                 [
                     'cancellationfee' => 1.50,
+                    'roundrefundamount' => 1,
                 ],
             ],
             'Cancellation fee 1.00 EURO' => [
                 [
                     'cancellationfee' => 1.00,
+                    'roundrefundamount' => 1,
+                ],
+            ],
+            'Cancellation fee 0.00 EURO & rounding refund is turned off' => [
+                [
+                    'cancellationfee' => 0.00,
+                    'roundrefundamount' => 0,
+                ],
+            ],
+            'Cancellation fee 1,5 EURO & rounding refund is turned off' => [
+                [
+                    'cancellationfee' => 1.50,
+                    'roundrefundamount' => 0,
+                ],
+            ],
+            'Cancellation fee 1.00 EURO & rounding refund is turned off' => [
+                [
+                    'cancellationfee' => 1.00,
+                    'roundrefundamount' => 0,
                 ],
             ],
         ];
