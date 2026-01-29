@@ -69,14 +69,14 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
         $taskdata = $this->get_custom_data();
         $nextruntime = $this->get_next_run_time();
 
-        if (!PHPUNIT_TEST) {
+        if (!(defined('PHPUNIT_TEST') && PHPUNIT_TEST)) {
             mtrace('send_mail_by_rule_adhoc task: sending mail for option ' . $taskdata->optionid . ' to user '
             . $taskdata->userid);
         }
 
         if ($taskdata != null) {
             if (!$ruleinstance = $DB->get_record('booking_rules', ['id' => $taskdata->ruleid])) {
-                if (!PHPUNIT_TEST) {
+                if (!(defined('PHPUNIT_TEST') && PHPUNIT_TEST)) {
                     mtrace('send_mail_by_rule_adhoc task: Rule does not exist anymore. Mail was NOT SENT for option ' .
                         $taskdata->optionid . ' and user ' . $taskdata->userid);
                 }
@@ -106,7 +106,7 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
                     }
                 }
                 if ($abort) {
-                    if (!PHPUNIT_TEST) {
+                    if (!(defined('PHPUNIT_TEST') && PHPUNIT_TEST)) {
                         mtrace('send_mail_by_rule_adhoc task: Rule or Option has changed. Mail was NOT SENT for option.'
                             . $taskdata->optionid
                             . ' and user '
@@ -135,7 +135,7 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
                     $taskdata->optiondateid ?? 0
                 )
             ) {
-                if (!PHPUNIT_TEST) {
+                if (!(defined('PHPUNIT_TEST') && PHPUNIT_TEST)) {
                     mtrace('send_mail_by_rule_adhoc task: Rule does not apply anymore. Mail was NOT SENT for option ' .
                         $taskdata->optionid . ' and user ' . $taskdata->userid);
                 }
@@ -194,12 +194,12 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
             }
 
             if ($messagecontroller->send_or_queue()) {
-                if (!PHPUNIT_TEST) {
+                if (!(defined('PHPUNIT_TEST') && PHPUNIT_TEST)) {
                     mtrace('send_mail_by_rule_adhoc task: mail sent for option ' . $taskdata->optionid . ' to user '
                     . $taskdata->userid);
                 }
             } else {
-                if (!PHPUNIT_TEST) {
+                if (!(defined('PHPUNIT_TEST') && PHPUNIT_TEST)) {
                     mtrace('send_mail_by_rule_adhoc task: mail could not be sent for option ' . $taskdata->optionid . ' to user '
                     . $taskdata->userid);
                 }
