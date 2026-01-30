@@ -725,9 +725,21 @@ class message_controller {
         $attachments = null;
         $attachname = '';
 
+        if (!empty($this->rulejson)) {
+            $ruleobject = json_decode($this->rulejson);
+            if (empty($ruleobject->actiondata->sendical) || $ruleobject->actiondata->sendical != 1) {
+                // If the rule does not have sendical set, we return here.
+                return [$attachments, $attachname];
+            }
+        }
+
         if (
             $this->messageparam == MOD_BOOKING_MSGPARAM_CANCELLED_BY_PARTICIPANT
             || $this->messageparam == MOD_BOOKING_MSGPARAM_CANCELLED_BY_TEACHER_OR_SYSTEM
+            // If sent by rule and ical action is cancel.
+            || ($this->messageparam == MOD_BOOKING_MSGPARAM_CUSTOM_MESSAGE
+                && !empty($ruleobject->actiondata->sendicalcreateorcancel)
+                && $ruleobject->actiondata->sendicalcreateorcancel == 'cancel')
         ) {
             // Generate ical attachment cancelling the event.
             $ical = new ical($this->bookingsettings, $this->optionsettings, $this->user, $this->bookingmanager, false);
@@ -735,7 +747,7 @@ class message_controller {
             $attachments = $ical->get_attachments(true); // True means it's an ical that cancels the event!
             $attachname = $ical->get_name();
         } else {
-            // Generate ical attachments to go with the message. Check if ical attachments enabled.
+            // Generate ical attachments to go with the message.
             $ical = new ical($this->bookingsettings, $this->optionsettings, $this->user, $this->bookingmanager, $updated);
             $this->ical = $ical;
             $attachments = $ical->get_attachments(false); // False means normal creation of ical.

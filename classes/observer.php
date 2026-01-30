@@ -262,6 +262,8 @@ class mod_booking_observer {
         foreach ($allteachers as $key => $value) {
             new calendar($event->contextinstanceid, $event->objectid, $value, calendar::MOD_BOOKING_TYPETEACHERUPDATE);
         }
+        // Important: Tests will fail if this cache purge is removed!
+        booking_option::purge_cache_for_option($optionid);
 
         // Delay the update until the script is completely finishing.
         core_shutdown_manager::register_function(function ($optionid): void {
@@ -274,7 +276,7 @@ class mod_booking_observer {
                     calendar_helper::option_set_visibility_for_all_calendar_events($optionid, 1); // 1 = show.
                 }
 
-                // At the very last moment, when everything is done, we invalidate the table cache.
+                // At the very last moment, when everything is done, we invalidate the cache again.
                 booking_option::purge_cache_for_option($optionid);
             } catch (Throwable $e) {
                 debugging('Could not update calendar events visibility for booking option ' . $optionid .
