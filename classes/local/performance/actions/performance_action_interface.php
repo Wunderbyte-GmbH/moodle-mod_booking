@@ -54,6 +54,10 @@ interface performance_action_interface {
      */
     public static function execution_point(): execution_point;
 
+    /**
+     * Configure the action.
+     * @param array $config
+     */
     public function configure(array $config): void;
 
     /**
@@ -62,5 +66,10 @@ interface performance_action_interface {
      */
     public function execute(): void;
 
+    /**
+     * Export data for template.
+     * @param \core\output\renderer_base $renderer
+     * @return array
+     */
     public function export_for_template(\core\output\renderer_base $renderer): array;
 }

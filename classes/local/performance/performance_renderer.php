@@ -37,7 +37,7 @@ class performance_renderer {
     /**
      * @var string $hash
      */
-    const TABLE = 'booking_performance_measurements';
+    public const TABLE = 'booking_performance_measurements';
 
     /**
      * Returns sidebar.
@@ -74,9 +74,10 @@ class performance_renderer {
 
     /**
      * Returns sidebar.
+     * @param string $hash
      * @return array
      */
-    public function get_chart($hash): array {
+    public function get_chart(string $hash): array {
         global $DB;
 
         $records = $DB->get_records(
@@ -235,10 +236,10 @@ class performance_renderer {
     /**
      * Builds dataset for chart representation.
      * @param array $legend
-     * @param array $runs
+     * @param array $history
      * @return array
      */
-    private function build_datasets($legend, $history): array {
+    private function build_datasets(array $legend, array $history): array {
         $datasets = [];
         foreach ($legend as $key => $label) {
             $datasets[$key] = [

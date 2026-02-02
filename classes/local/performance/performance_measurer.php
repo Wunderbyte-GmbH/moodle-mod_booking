@@ -39,7 +39,7 @@ class performance_measurer {
     /**
      * @var string
      */
-    const TABLE = 'booking_performance_measurements';
+    public const TABLE = 'booking_performance_measurements';
 
     /**
      * @var string $shortcodehash
@@ -82,11 +82,12 @@ class performance_measurer {
     private static array $measurements = [];
 
     /**
-     * Constructs performance class,
+     * Constructs performance class.
      * @param string $shortcodehash
-     * @return void
+     * @param string $actions
+     * @param string $note
      */
-    private function __construct($shortcodehash, $actions, $note) {
+    private function __construct(string $shortcodehash, string $actions, string $note) {
         $this->shortcodename = $shortcodehash;
         $this->shortcodehash = hash('sha256', $shortcodehash);
         $this->note = $note;
@@ -96,11 +97,11 @@ class performance_measurer {
 
     /**
      * Constructs performance class,
-     * @param string $hash
-     * @param bool $nocycle
+     * @param string $name
+     * @param bool $nocycle false by default
      * @return void
      */
-    public function start($name, $nocycle = false) {
+    public function start(string $name, bool $nocycle = false): void {
         if (!self::$active) {
             return;
         }
@@ -158,10 +159,10 @@ class performance_measurer {
 
     /**
      * Constructs performance class,
-     * @param string $hash
+     * @param array|bool $openmeasurements
      * @return void
      */
-    private function delete_measurements($openmeasurements) {
+    private function delete_measurements(array|bool $openmeasurements): void {
         global $DB;
 
         if (empty($openmeasurements)) {
@@ -196,11 +197,11 @@ class performance_measurer {
 
     /**
      * Constructs performance class,
-     * @param string $hash
+     * @param string $name
      * @param bool $nocycle
      * @return void
      */
-    public function end($name, $nocycle = false) {
+    public function end(string $name, bool $nocycle = false): void {
         if (!self::$active) {
             return;
         }

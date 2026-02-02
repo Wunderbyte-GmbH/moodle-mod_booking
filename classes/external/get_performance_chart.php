@@ -37,16 +37,16 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/externallib.php');
 
 /**
- * External Service for getting instance template.
+ * External web service to get performance chart data.
  *
  * @package   mod_booking
- * @copyright 2022 Wunderbyte GmbH {@link http://www.wunderbyte.at}
- * @author    Georg Maißer
+ * @copyright 2025 Wunderbyte GmbH {@link http://www.wunderbyte.at}
+ * @author    Jacob Viertel
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class get_performance_chart extends external_api {
     /**
-     * Describes the parameters for update_bookingnotes.
+     * Describes the parameters.
      *
      * @return external_function_parameters
      */
@@ -57,11 +57,8 @@ class get_performance_chart extends external_api {
     }
 
     /**
-     * Webservice for update the notes in booking_answers table.
-     *
-     * @param int $baid
-     * @param string $note
-     *
+     * Execute service.
+     * @param string $value
      * @return array
      */
     public static function execute(string $value): array {
