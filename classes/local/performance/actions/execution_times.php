@@ -56,8 +56,8 @@ class execution_times implements performance_action_interface {
     }
 
     /**
-     * When does this action is being used.
-     * @param execution_point
+     * When this action is being used.
+     * @return execution_point
      */
     public static function execution_point(): execution_point {
         return execution_point::EXECUTION_TIMES;
@@ -65,7 +65,7 @@ class execution_times implements performance_action_interface {
 
     /**
      * Configure the run times.
-     * @param array
+     * @param array $config
      */
     public function configure(array $config): void {
         if (isset($config['counter']) && is_numeric($config['counter'])) {

@@ -93,7 +93,10 @@ class performance_table extends wunderbyte_table {
         [$a, $b, $html] = $table->lazyouthtml(10, true);
 
         $modal = $this->build_modal($html, $values->shortcodehash);
-        return $modal . $OUTPUT->render_from_template('local_wunderbyte_table/component_actionbutton', ['showactionbuttons' => $data]);
+        return $modal . $OUTPUT->render_from_template(
+            'local_wunderbyte_table/component_actionbutton',
+            ['showactionbuttons' => $data]
+        );
     }
 
     /**
@@ -158,14 +161,11 @@ class performance_table extends wunderbyte_table {
 
     /**
      * Implement delete row function.
-     *
      * @param mixed $id
-     * @param mixed $data
-     *
+     * @param string $data
      * @return array
-     *
      */
-    public function action_deleterow($id, string $data) {
+    public function action_deleterow(mixed $id, string $data): array {
         global $DB;
 
         $dataobject = json_decode($data);

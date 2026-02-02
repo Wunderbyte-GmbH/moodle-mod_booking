@@ -135,14 +135,11 @@ class measurements_table extends wunderbyte_table {
 
     /**
      * Implement delete row function.
-     *
      * @param mixed $id
-     * @param mixed $data
-     *
+     * @param string $data
      * @return array
-     *
      */
-    public function action_deletemeasurement($id, string $data) {
+    public function action_deletemeasurement(mixed $id, string $data): array {
         global $DB;
 
         $dataobject = json_decode($data);

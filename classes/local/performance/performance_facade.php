@@ -43,10 +43,10 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 class performance_facade {
     /**
      * Constructs performance class,
-     * @param string $shortcodehash
+     * @param array $parameter
      * @return array
      */
-    public static function execute($parameter) {
+    public static function execute(array $parameter): array {
         $status = false;
         performance_measurer::begin(
             $parameter['value'],
