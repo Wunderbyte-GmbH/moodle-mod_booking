@@ -225,7 +225,7 @@ abstract class field_base implements fields {
      * @param stdClass $formdata
      * @param field_base $self
      * @param mixed $mockdata // Only needed if there the object needs params for the save_data function.
-     * @param string $key
+     * @param string|null $key
      * @param mixed $value
      *
      * @return array
@@ -235,7 +235,7 @@ abstract class field_base implements fields {
         stdClass $formdata,
         field_base $self,
         $mockdata = '',
-        string $key = '',
+        string|null $key = null,
         $value = ''
     ): array {
         if (!isset($self)) {
