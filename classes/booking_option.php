@@ -2755,7 +2755,7 @@ class booking_option {
                 get_config('booking', 'certificateon')
                 && !get_config('booking', 'presencestatustoissuecertificate')
                 && !empty($userdata->completed)
-                && certificateclass::all_required_options_fulfilled($this->settings, $userdata->id)
+                && certificateclass::required_options_fulfilled($this->settings, $userdata->id)
             ) {
                 $certid = certificateclass::issue_certificate($this->id, $userdata->id, $timebooked);
             }

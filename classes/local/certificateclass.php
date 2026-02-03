@@ -32,9 +32,10 @@ use mod_booking\option\dates_handler;
 use mod_booking\placeholders\placeholders\customfields;
 use mod_booking\singleton_service;
 use mod_booking\customfield\booking_handler;
-use tool_certificate\template;
-use tool_certificate\certificate as toolCertificate;
 use stdClass;
+
+// Note: tool_certificate classes are referenced with fully qualified names
+// to avoid errors when the plugin is not installed.
 
 /**
  * Certificate class for logic related to issueing certificates.
@@ -68,13 +69,13 @@ class certificateclass {
             return $id;
         }
 
-        $template = template::instance($certificateid);
+        $template = \tool_certificate\template::instance($certificateid);
 
         // Certificate expiry date key.
         $expirydatetype = booking_option::get_value_of_json_by_key($optionid, 'expirydatetype') ?? 0;
         $expirydateabsolute = booking_option::get_value_of_json_by_key($optionid, 'expirydateabsolute') ?? 0;
         $expirydaterelative = booking_option::get_value_of_json_by_key($optionid, 'expirydaterelative') ?? 0;
-        $certificateexpirydate = toolCertificate::calculate_expirydate($expirydatetype, $expirydateabsolute, $expirydaterelative);
+        $certificateexpirydate = \tool_certificate\certificate::calculate_expirydate($expirydatetype, $expirydateabsolute, $expirydaterelative);
         if (!empty($expirydatetype) && $certificateexpirydate < time()) {
             return $id;
         }
@@ -330,7 +331,7 @@ class certificateclass {
      * @return bool
      *
      */
-    public static function all_required_options_fulfilled(booking_option_settings $settings, int $userid): bool {
+    public static function required_options_fulfilled(booking_option_settings $settings, int $userid): bool {
         $requiredoptions = booking_option::get_value_of_json_by_key(
             $settings->id,
             'certificaterequiresotheroptions'
@@ -340,6 +341,16 @@ class certificateclass {
             return true;
         }
 
+        // Check the flag if one or all are options are required to complete.
+        $mode = booking_option::get_value_of_json_by_key(
+            $settings->id,
+            'certificaterequiredoptionsmode'
+        ) ?? 0;
+        if (!empty($mode)) {
+            return self::one_required_option_fulfilled($requiredoptions, $userid);
+        }
+
+        // Default: all required options must be completed.
         foreach ($requiredoptions as $requiredoptionid) {
             if (empty($requiredoptionid)) {
                 continue;
@@ -351,5 +362,28 @@ class certificateclass {
             }
         }
         return true;
+    }
+
+    /**
+     * Check if at least one required option is completed for certificate issuance.
+     *
+     * @param array $requiredoptions Array of required option IDs
+     * @param int $userid
+     *
+     * @return bool
+     *
+     */
+    public static function one_required_option_fulfilled(array $requiredoptions, int $userid): bool {
+        foreach ($requiredoptions as $requiredoptionid) {
+            if (empty($requiredoptionid)) {
+                continue;
+            }
+            $settingsotheroption = singleton_service::get_instance_of_booking_option_settings($requiredoptionid);
+            $ba = singleton_service::get_instance_of_booking_answers($settingsotheroption);
+            if ($ba->is_activity_completed($userid)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
