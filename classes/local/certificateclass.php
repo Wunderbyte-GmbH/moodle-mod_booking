@@ -36,9 +36,6 @@ use tool_certificate\template;
 use tool_certificate\certificate as toolCertificate;
 use stdClass;
 
-// Note: tool_certificate classes are referenced with fully qualified names
-// to avoid errors when the plugin is not installed.
-
 /**
  * Certificate class for logic related to issueing certificates.
  */
