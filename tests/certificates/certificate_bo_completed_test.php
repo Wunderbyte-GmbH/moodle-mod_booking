@@ -139,6 +139,20 @@ final class certificate_bo_completed_test extends advanced_testcase {
             $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
             $bookingoption1 = singleton_service::get_instance_of_booking_option($settings1->cmid, $settings1->id);
             $bookingoption1->toggle_user_completion($student1->id);
+            // We book a second option.
+            $option2 = $standarddata['option'];
+            $option2['bookingid'] = $booking1->id;
+            $option2['courseid'] = $course->id;
+            $option2['text'] = 'second option';
+            $option2obj = $plugingenerator->create_option((object) $option2);
+            $settings2 = singleton_service::get_instance_of_booking_option_settings($option2obj->id);
+            $result = booking_bookit::bookit('option', $settings2->id, $student1->id);
+            $result = booking_bookit::bookit('option', $settings2->id, $student1->id);
+            // We only book the other user if allotheroptionscompleted is set.
+            if (!empty($data['allotheroptionscompleted'])) {
+                $bookingoption2 = singleton_service::get_instance_of_booking_option($settings2->cmid, $settings2->id);
+                $bookingoption2->toggle_user_completion($student1->id);
+            }
         }
 
         $option = $standarddata['option'];
@@ -148,16 +162,34 @@ final class certificate_bo_completed_test extends advanced_testcase {
             }
         }
 
-        $otherrequiredoptions = isset($data['optionsettings']['certificatedata']['otherrequiredoptions']) ? $option1obj->id : 0;
+        $otherrequiredoptions = [];
+        if (isset($data['optionsettings']['certificatedata']['otherrequiredoptions'])) {
+            $otherrequiredoptions[] = $option1obj->id;
+            // Add second option if it was created.
+            if (isset($option2obj)) {
+                $otherrequiredoptions[] = $option2obj->id;
+            }
+        }
 
         $expirydaterelative = $data['optionsettings']['certificatedata']['expirydaterelative'] ?? 0;
         $expirydateabsolute = $data['optionsettings']['certificatedata']['expirydateabsolute'] ?? 0;
         $expirydatetype = $data['optionsettings']['certificatedata']['expirydatetype'];
-        $option['json'] = '{"certificate":' . $certificate->get_id() . ',
-        "expirydateabsolute":' . $expirydateabsolute . ',
-        "expirydatetype":' . $expirydatetype . ',
-        "expirydaterelative":' . $expirydaterelative . '
-        ,"certificaterequiresotheroptions":["' . $otherrequiredoptions . '"]}';
+
+        if (!empty($otherrequiredoptions)) {
+            $certificaterequiredmode = $data['optionsettings']['certificatedata']['certificaterequiredoptionsmode'] ?? 0;
+            $requiredoptionsstr = implode('","', $otherrequiredoptions);
+            $option['json'] = '{"certificate":' . $certificate->get_id() . ',
+            "expirydateabsolute":' . $expirydateabsolute . ',
+            "expirydatetype":' . $expirydatetype . ',
+            "expirydaterelative":' . $expirydaterelative . ',
+            "certificaterequiresotheroptions":["' . $requiredoptionsstr . '"],
+            "certificaterequiredoptionsmode":' . $certificaterequiredmode . '}';
+        } else {
+            $option['json'] = '{"certificate":' . $certificate->get_id() . ',
+            "expirydateabsolute":' . $expirydateabsolute . ',
+            "expirydatetype":' . $expirydatetype . ',
+            "expirydaterelative":' . $expirydaterelative . '}';
+        }
 
         $option['bookingid'] = $booking1->id;
         $option['courseid'] = $course->id;
@@ -303,7 +335,7 @@ final class certificate_bo_completed_test extends advanced_testcase {
         $option1obj = $plugingenerator->create_option((object) $option1);
         $settings1 = singleton_service::get_instance_of_booking_option_settings($option1obj->id);
 
-        if (isset($data['completeotheroption'])) {
+        if (isset($data['completeotheroption']) && !empty($data['allotheroptionscompleted'])) {
             $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
             $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
             $bookingoption1 = singleton_service::get_instance_of_booking_option($settings1->cmid, $settings1->id);
@@ -698,7 +730,7 @@ final class certificate_bo_completed_test extends advanced_testcase {
                     'certcount' => 0,
             ],
         ],
-        'other_option_required_that_is_fulfilled' => [
+        'other_option_required_that_is_fulfilled_with_mode_all' => [
             [
                 'configsettings' => [
                     [
@@ -720,9 +752,46 @@ final class certificate_bo_completed_test extends advanced_testcase {
                     'certificatedata' => [
                         'expirydatetype' => 0,
                         'otherrequiredoptions' => 1, // Here is the requirement.
+                        'certificaterequiredoptionsmode' => 0, // All required options must be completed.
                     ],
                 ],
                 'completeotheroption' => 1,
+                'allotheroptionscompleted' => 1,
+            ],
+            [
+                'bookitresults' => [
+                    MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
+                ],
+                    'certcount' => 1,
+            ],
+        ],
+        'other_option_required_that_is_fulfilled_with_mode_one' => [
+            [
+                'configsettings' => [
+                    [
+                    'component' => 'booking',
+                    'name' => 'certificateon',
+                    'value' => 1,
+                    ],
+                ],
+                'coursesettings' => [
+                    'firstcourse' => [
+                        'enablecompletion' => 1,
+                    ],
+                ],
+                'completionsettings' => [
+                    'multiple' => 0,
+                ],
+                'optionsettings' => [
+                    'useprice' => 0,
+                    'certificatedata' => [
+                        'expirydatetype' => 0,
+                        'otherrequiredoptions' => 1, // Here is the requirement.
+                        'certificaterequiredoptionsmode' => 1, // One required options must be completed.
+                    ],
+                ],
+                'completeotheroption' => 1,
+                'allotheroptionscompleted' => 0,
             ],
             [
                 'bookitresults' => [
