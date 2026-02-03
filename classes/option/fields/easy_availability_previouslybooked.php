@@ -123,9 +123,10 @@ class easy_availability_previouslybooked extends field_base {
         $tempform = new stdClass();
         bo_info::set_defaults($tempform, json_decode($formdata->availability ?? '{}'));
 
-        foreach ($tempform as $key => $value) {
-            if (!isset($formdata->{$key})) {
-                $formdata->{$key} = $value;
+        // Add data missing in formdata if it's available in tempform.
+        foreach ($tempform as $k => $v) {
+            if (!isset($formdata->{$k})) {
+                $formdata->{$k} = $v;
             }
         }
 
@@ -137,9 +138,9 @@ class easy_availability_previouslybooked extends field_base {
         return $availabilityclass->check_for_changes(
             $formdata,
             $availabilityclass,
-            $mockdata,
-            $key,
-            $value
+            '', // Mockdata Mockdata - currently not implemented in availability class.
+            null, // Key - currently not implemented in availability class.
+            '' // Value - currently not implemented in availability class.
         );
     }
 
