@@ -236,21 +236,26 @@ class optionstoconfirm extends option {
         // The where restriction.
         $concat = $DB->sql_concat("ctx_ra.path", "'/%'");
 
-        // We only show the options if the user has the correct capability 'mod/booking:readresponses'in the course module.
-        $where = " EXISTS (
-                        SELECT 1
-                        FROM {booking_options} bo
-                        JOIN {modules} m ON m.name = 'booking'
-                        JOIN {course_modules} cm ON cm.instance = bo.bookingid AND cm.module = m.id
-                        JOIN {context} ctx_cm ON ctx_cm.instanceid = cm.id AND ctx_cm.contextlevel = :contextlevel
-                        JOIN {role_assignments} ra ON ra.userid = :userid
-                        JOIN {context} ctx_ra ON ctx_ra.id = ra.contextid
-                        JOIN {role_capabilities} rc ON rc.roleid = ra.roleid
-                        WHERE bo.id = optionid
-                        AND (ctx_cm.path LIKE $concat OR ctx_cm.id = ctx_ra.id)
-                        AND rc.capability = :capability
-                        AND rc.permission = 1
-                ) ";
+        if (has_capability('mod/booking:seealllisttoapprove', context_system::instance())) {
+            // Admin & all persons who have seealllisttoapprove capability can see all answers.
+            $where = " 1=1 ";
+        } else {
+            // We only show the options if the user has the correct capability 'mod/booking:readresponses'in the course module.
+            $where = " EXISTS (
+                    SELECT 1
+                    FROM {booking_options} bo
+                    JOIN {modules} m ON m.name = 'booking'
+                    JOIN {course_modules} cm ON cm.instance = bo.bookingid AND cm.module = m.id
+                    JOIN {context} ctx_cm ON ctx_cm.instanceid = cm.id AND ctx_cm.contextlevel = :contextlevel
+                    JOIN {role_assignments} ra ON ra.userid = :userid
+                    JOIN {context} ctx_ra ON ctx_ra.id = ra.contextid
+                    JOIN {role_capabilities} rc ON rc.roleid = ra.roleid
+                    WHERE bo.id = optionid
+                    AND (ctx_cm.path LIKE $concat OR ctx_cm.id = ctx_ra.id)
+                    AND rc.capability = :capability
+                    AND rc.permission = 1
+            ) ";
+        }
 
         $params['statusparam'] = $statusparam;
         $params['userid'] = $USER->id;
