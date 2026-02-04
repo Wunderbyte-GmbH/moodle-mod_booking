@@ -431,20 +431,27 @@ final class rules_n_days_test extends advanced_testcase {
         $time = time_mock::get_mock_time();
 
         $messagesink = $this->redirectMessages();
+
+        ob_start();
         $plugingenerator->runtaskswithintime($time);
+        $res = ob_get_clean(); // Not used here, but needed to clear buffer.
 
         $messages = $messagesink->get_messages();
 
         // Assertions.
         $this->assertCount($data['canceloption'] ? 0 : 1, $messages);
 
+        ob_start();
         $plugingenerator->runtaskswithintime(time_mock::get_mock_time());
+        $res = ob_get_clean(); // Not used here, but needed to clear buffer.
 
         $time = time_mock::get_mock_time();
         time_mock::set_mock_time(strtotime('+15 days', $time));
         $time = time_mock::get_mock_time();
 
+        ob_start();
         $plugingenerator->runtaskswithintime($time);
+        $res = ob_get_clean(); // Not used here, but needed to clear buffer.
 
         $messages = $messagesink->get_messages();
         // Assertions.

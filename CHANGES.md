@@ -1,3 +1,30 @@
+## Version 9.1.0 (2026013000)
+* New feature: Demand more than one option completions for a certificate.
+* New feature: Add previously completed functionality.
+* Improvement: Better strings.
+* Improvement: Possibility to trigger certificate in manage users table.
+* Improvement: New certificate_issued event.
+* Improvement: Rebase certificate logic into proper class.
+* Improvement: New condition to select manager of booking to receive message.
+* Improvement: Add more sql conditions.
+* Improvement: General linting and codestyle updates.
+* Bugfix: Use output buffer to fix failing test because of mtrace.
+* Bugfix: Make sure mariadb dialect is correct.
+* Bugfix: We need to call mtrace in unit tests too!
+* Bugfix: use defined PHPUNIT_TEST instead of PHPUNIT_TEST.
+* Bugfix: add missing parameter $nextruntime.
+* Bugfix: Event not showing and certificates button triggering certificate although it is not passing checks.
+* Bugfix: Suche im Angebot geht nicht.
+* Bugfix: Update privacy functions to fix issue.
+* Tests: Add new test to make sure mails are sent in relation to courseenddate, also after course has ended.
+* Tests: extend shopping_cart_installment_test() to validate messages, sent by rule on installment.
+* Tests: Fix tests for event.
+* Tests: Extend test of mail.
+* Tests: adjust behat Scenario "Booking rules" to support update booking manager and rule on uncompletion event.
+* Tests: remove obsolete steps.
+* Tests: adjust phpunit scenario on option completion to support uncompletion and update booking manager.
+* Tests: new phpunit scenario 'Reminder to manager two hours before booking opening time'.
+
 ## Version 9.0.9 (2026012700)
 * Improvement: Better handling of confirmation task if status has changed.
 * Improvement: supervisorteamreduced can now delete booking answers from users

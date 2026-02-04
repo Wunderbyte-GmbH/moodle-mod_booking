@@ -90,6 +90,7 @@ class certificate extends field_base {
         'expirydaterelative',
         'expirydatetype',
         'certificaterequiresotheroptions',
+        'certificaterequiredoptionsmode',
     ];
 
 
@@ -229,6 +230,22 @@ class certificate extends field_base {
                 $bookingoptions
             );
             $mform->addHelpButton('certificaterequiresotheroptions', 'certificaterequiresotheroptions', 'mod_booking');
+
+            $mform->addElement(
+                'advcheckbox',
+                'certificaterequiredoptionsmode',
+                get_string('certificaterequiredoptionsmode', 'mod_booking'),
+                get_string('certificaterequiresone', 'mod_booking'),
+                [],
+                [0, 1]
+            );
+            $mform->addHelpButton(
+                'certificaterequiredoptionsmode',
+                'certificaterequiredoptionsmode',
+                'mod_booking'
+            );
+            $mform->setDefault('certificaterequiredoptionsmode', 0);
+            $mform->hideIf('certificaterequiredoptionsmode', 'certificaterequiresotheroptions', 'eq', '');
         } else {
             // If PRO version is not activated, we don't show the certificate field.
             // We can add a static text to inform the user.

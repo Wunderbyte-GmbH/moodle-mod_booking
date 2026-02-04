@@ -330,7 +330,7 @@ class certificateclass {
      * @return bool
      *
      */
-    public static function all_required_options_fulfilled(booking_option_settings $settings, int $userid): bool {
+    public static function required_options_fulfilled(booking_option_settings $settings, int $userid): bool {
         $requiredoptions = booking_option::get_value_of_json_by_key(
             $settings->id,
             'certificaterequiresotheroptions'
@@ -340,6 +340,16 @@ class certificateclass {
             return true;
         }
 
+        // Check the flag if one or all are options are required to complete.
+        $mode = booking_option::get_value_of_json_by_key(
+            $settings->id,
+            'certificaterequiredoptionsmode'
+        ) ?? 0;
+        if (!empty($mode)) {
+            return self::one_required_option_fulfilled($requiredoptions, $userid);
+        }
+
+        // Default: all required options must be completed.
         foreach ($requiredoptions as $requiredoptionid) {
             if (empty($requiredoptionid)) {
                 continue;
@@ -351,5 +361,28 @@ class certificateclass {
             }
         }
         return true;
+    }
+
+    /**
+     * Check if at least one required option is completed for certificate issuance.
+     *
+     * @param array $requiredoptions Array of required option IDs
+     * @param int $userid
+     *
+     * @return bool
+     *
+     */
+    public static function one_required_option_fulfilled(array $requiredoptions, int $userid): bool {
+        foreach ($requiredoptions as $requiredoptionid) {
+            if (empty($requiredoptionid)) {
+                continue;
+            }
+            $settingsotheroption = singleton_service::get_instance_of_booking_option_settings($requiredoptionid);
+            $ba = singleton_service::get_instance_of_booking_answers($settingsotheroption);
+            if ($ba->is_activity_completed($userid)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

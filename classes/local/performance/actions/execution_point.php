@@ -15,22 +15,28 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Module Booking.
+ * Handle fields for booking option.
  *
  * @package mod_booking
- * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>,
- * @author David Bogner, Georg Maißer, Bernhard Fischer, Magdalena Holczik, Andraž Prinčič
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace mod_booking\local\performance\actions;
+
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2026020301;
-$plugin->requires = 2024100700; // Requires this Moodle version. Current: Moodle 4.5.
-$plugin->release = '9.1.0';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->component = 'mod_booking';
-$plugin->supported = [405, 501];
-$plugin->dependencies = [
-    'local_wunderbyte_table' => 2026011500,
-];
+require_once($CFG->dirroot . '/mod/booking/lib.php');
+
+/**
+ * Measures time performance for better tracking.
+ *
+ * @copyright Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Georg Maißer
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+enum execution_point: string {
+    case EXECUTION_TIMES  = 'executiontimes';
+    case BEFORE_ALL  = 'before_all';
+    case BEFORE_EACH = 'before_each';
+}
