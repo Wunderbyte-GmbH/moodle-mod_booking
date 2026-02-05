@@ -1,3 +1,28 @@
+## Version 9.1.1 (2026020500)
+* New feature: Admin sees all options in listtoapprove.
+* New feature: Implemented a mode to switch between one or all other options are required for certificate.
+* New feature: Add new capability 'seealllisttoapprove'.
+* Improvement: Display notes on hover.
+* Improvement: Adding note, adding default hash, adding autocomplete.
+* Improvement: Measurement points equally distributed, Measurements in run order, Actions enable check.
+* Improvement: Add delete measurements for shortcodehash.
+* Improvement: Add multiple measurements during one cycle.
+* Improvement: Add Table for performance measuring.
+* Improvement: Use lines instead of bars.
+* Improvement: Move performance class to correct location.
+* Improvement: Add capabilities view and edit performance.
+* Improvement: Adding actions. Setup pipelines and singletons.
+* Improvement: Setup performance dashboard.
+* Improvement: Change seealllisttoapprove capability context & define new capability for confirmation.
+* Improvement: Let person with seealllisttoapprove to see the answers.
+* Improvement: Admin can see all the answers.
+* Bugfix: Increase wunderbyte table dependency (for sql injection hotfix).
+* Bugfix: Fix wrong parameters for check_for_changes in "easy" fields.
+* Bugfix: Fix JS in dynamicoptionform and selectors for Moodle 5.1 (Bootstrap 5).
+* Bugfix: Fix check_for_changes function to accept null as key.
+* Bugfix: Fix version in upgrade.php after rebase conflicts.
+* Tests: Added new testcase.
+
 ## Version 9.1.0 (2026013000)
 * New feature: Demand more than one option completions for a certificate.
 * New feature: Add previously completed functionality.
