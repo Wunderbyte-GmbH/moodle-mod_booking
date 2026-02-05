@@ -2064,6 +2064,19 @@ if ($ADMIN->fulltree) {
             0
         )
     );
+
+    $icaldescriptionoptions = $customfieldsarray;
+    $coursecategoryarray['currentcategory'] = get_string('currentcategory', 'mod_booking');
+    $settings->add(
+        new admin_setting_configselect(
+            'booking/icaldescriptionfield',
+            get_string('icaldescriptionfield', 'mod_booking'),
+            get_string('icaldescriptionfielddesc', 'mod_booking'),
+            "-1",
+            $icaldescriptionoptions
+        )
+    );
+
     $settings->add(
         new admin_setting_heading(
             'mod_booking_signinsheet',
