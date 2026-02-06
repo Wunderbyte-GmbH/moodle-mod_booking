@@ -16,6 +16,9 @@
 
 namespace mod_booking\output\description;
 
+use mod_booking\placeholders\placeholders_info;
+use mod_booking\singleton_service;
+
 /**
  * Class description_ical
  *
@@ -26,8 +29,6 @@ namespace mod_booking\output\description;
 class description_ical extends description_base {
     /**
      * Template name.
-     * Can be varying based on the description param.
-     * This shoud be set in the child class.
      * @var int
      */
     protected string $template = 'mod_booking/bookingoption_description_ical';
@@ -37,4 +38,34 @@ class description_ical extends description_base {
      * @var int
      */
     protected int $param = MOD_BOOKING_DESCRIPTION_ICAL;
+
+    /**
+     * Render the description.
+     *
+     * @return string
+     */
+    public function render(): string {
+        // Get the custom field name for iCal description.
+        $cfname = get_config('booking', 'icaldescriptionfield');
+        $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
+
+        // If there is a user defined template for iCal description, use it.
+        if (!empty($settings->customfields[$cfname])) {
+            $userdefinedtemplate = $settings->customfields[$cfname];
+            // We use the placeholders_info class to render the text with placeholders.
+            $o = placeholders_info::render_text(
+                $userdefinedtemplate,
+                $settings->cmid,
+                $this->optionid,
+                0,
+                0,
+                0,
+                0,
+                $this->param
+            );
+            return $o;
+        }
+
+        return parent::render();
+    }
 }

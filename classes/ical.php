@@ -25,6 +25,8 @@
 
 namespace mod_booking;
 
+use mod_booking\output\description\description_ical;
+
 /**
  * MOD_BOOKING_DESCRIPTION_ICAL
  *
@@ -324,10 +326,12 @@ class ical {
         $eventid = false;
         if ($time) {
             // If it's an option date (a session), use the option date's eventid.
-            $fulldescription = get_rendered_eventdescription($this->option->id, $this->booking->cmid, MOD_BOOKING_DESCRIPTION_ICAL);
+            $descriptionical = new description_ical($this->option->id);
+            $fulldescription = $descriptionical->render();
         } else {
             // Use calendarid of the option if it's an option event.
-            $fulldescription = get_rendered_eventdescription($this->option->id, $this->booking->cmid, MOD_BOOKING_DESCRIPTION_ICAL);
+            $descriptionical = new description_ical($this->option->id);
+            $fulldescription = $descriptionical->render();
         }
 
         // Make sure we have not tags in full description.

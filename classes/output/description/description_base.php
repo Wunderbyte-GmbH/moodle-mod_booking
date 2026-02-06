@@ -29,6 +29,11 @@ use mod_booking\output\bookingoption_description;
  */
 class description_base {
     /**
+     * optionid
+     * @var int
+     */
+    protected int $optionid;
+    /**
      * output
      * @var \mod_booking\output\renderer
      */
@@ -79,6 +84,7 @@ class description_base {
         bool $forbookeduser = false,
     ) {
         global $PAGE;
+        $this->optionid = $optionid;
         $this->data = new bookingoption_description($optionid, null, $this->param, true, $forbookeduser);
         $this->output = $PAGE->get_renderer('mod_booking');
     }

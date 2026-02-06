@@ -26,8 +26,6 @@ namespace mod_booking\output\description;
 class description_teachers extends description_base {
     /**
      * Template name.
-     * Can be varying based on the description param.
-     * This shoud be set in the child class.
      * @var int
      */
     protected string $template = 'mod_booking/bookingoption_description_teachers';
