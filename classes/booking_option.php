@@ -3897,6 +3897,7 @@ class booking_option {
     public static function purge_cache_for_option(int $optionid) {
 
         cache_helper::purge_by_event('setbackoptionstable');
+        cache_helper::purge_by_event('setbackmyoptionstable');
         cache_helper::invalidate_by_event('setbackoptionsettings', [$optionid]);
 
         // We also need to destroy outdated singletons.
@@ -3907,6 +3908,10 @@ class booking_option {
 
         // We also purge the answers cache.
         self::purge_cache_for_answers($optionid);
+
+        if (class_exists('local_entities\entitiesrelation_handler')) {
+            cache_helper::purge_by_event('purgecachedentities');
+        }
     }
 
     /**
