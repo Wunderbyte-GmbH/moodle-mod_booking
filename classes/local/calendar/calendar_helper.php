@@ -27,6 +27,7 @@ namespace mod_booking\local\calendar;
 
 use context_module;
 use mod_booking\event\bookingoptiondate_created;
+use mod_booking\output\description\description_calendarevent;
 use mod_booking\singleton_service;
 use stdClass;
 
@@ -211,19 +212,11 @@ class calendar_helper {
         // We use $data here for $option and $optiondate, the necessary keys are the same.
         foreach ($allevents as $eventrecord) {
             if ($eventrecord->eventtype == 'user') {
-                $eventrecord->description = get_rendered_eventdescription(
-                    $settings->id,
-                    $cmid,
-                    MOD_BOOKING_DESCRIPTION_CALENDAR,
-                    true
-                );
+                $descriptioncalendar = new description_calendarevent($settings->id, true);
+                $eventrecord->description = $descriptioncalendar->render();
             } else {
-                $eventrecord->description = get_rendered_eventdescription(
-                    $settings->id,
-                    $cmid,
-                    MOD_BOOKING_DESCRIPTION_CALENDAR,
-                    false
-                );
+                $descriptioncalendar = new description_calendarevent($settings->id, false);
+                $eventrecord->description = $descriptioncalendar->render();
             }
             $eventrecord->name = $settings->get_title_with_prefix();
             $eventrecord->timestart = $data->coursestarttime;
