@@ -17,10 +17,11 @@
 namespace mod_booking\output\description;
 
 use mod_booking\output\bookingoption_description;
+use mod_booking\placeholders\placeholders_info;
+use mod_booking\singleton_service;
 
 /**
- * Base class to render the full description.
- * (including custom fields) of option events or optiondate events.
+ * Base class to render the full description (including custom fields).
  *
  * @package    mod_booking
  * @copyright  2026 Wunderbyte GmbH <info@wunderbyte.at>
@@ -46,10 +47,10 @@ class description_base {
     protected bookingoption_description $data;
 
     /**
-     * bookingoptiondescription
-     * @var bookingoption_description
+     * forbookeduser
+     * @var bool
      */
-    protected bookingoption_description $bookingoptiondescription;
+    protected bool $forbookeduser = false;
 
     /**
      * Template name.
@@ -85,18 +86,48 @@ class description_base {
     ) {
         global $PAGE;
         $this->optionid = $optionid;
+        $this->forbookeduser = $forbookeduser;
         $this->data = new bookingoption_description($optionid, null, $this->param, true, $forbookeduser);
         $this->output = $PAGE->get_renderer('mod_booking');
     }
 
     /**
-     * Renders the description.
+     * Renders the description using default template.
      * @return string
      */
     public function render(): string {
         $o = '';
         $data = $this->data->export_for_template($this->output);
         $o .= $this->output->render_from_template($this->template, $data);
+        return $o;
+    }
+
+    /**
+     * Renders the description using custom template if available.
+     * @param string $customfieldshortname Short name of the custom field containing the user defined template.
+     * @return string
+     */
+    protected function render_custom_template_from_customfield($customfieldshortname): string {
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
+
+        $o = '';
+        // If there is a user defined template for iCal description, use it.
+        if (!empty($settings->customfields[$customfieldshortname])) {
+            $userdefinedtemplate = $settings->customfields[$customfieldshortname];
+            // We use the placeholders_info class to render the text with placeholders.
+            $o = placeholders_info::render_text(
+                $userdefinedtemplate,
+                $settings->cmid,
+                $this->optionid,
+                0,
+                0,
+                0,
+                0,
+                $this->param
+            );
+        }
+
         return $o;
     }
 
@@ -111,5 +142,6 @@ class description_base {
      */
     public function set_description_param(int $param): void {
         $this->param = $param;
+        $this->data = new bookingoption_description($this->optionid, null, $this->param, true, $this->forbookeduser);
     }
 }

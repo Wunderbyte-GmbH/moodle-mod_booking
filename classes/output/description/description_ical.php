@@ -45,25 +45,15 @@ class description_ical extends description_base {
      * @return string
      */
     public function render(): string {
-        // Get the custom field name for iCal description.
-        $cfname = get_config('booking', 'icaldescriptionfield');
-        $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
 
-        // If there is a user defined template for iCal description, use it.
-        if (!empty($settings->customfields[$cfname])) {
-            $userdefinedtemplate = $settings->customfields[$cfname];
-            // We use the placeholders_info class to render the text with placeholders.
-            $o = placeholders_info::render_text(
-                $userdefinedtemplate,
-                $settings->cmid,
-                $this->optionid,
-                0,
-                0,
-                0,
-                0,
-                $this->param
-            );
-            return $o;
+        // For description_ical we accept user defined templates if available.
+        // So we get the custom field short name for iCal description.
+        // Currently, we use the same custom field for both ical and calendar event descriptions.
+        $cfshortname = get_config('booking', 'icaldescriptionfield');
+
+        $custom = parent::render_custom_template_from_customfield($cfshortname);
+        if (!empty($custom)) {
+            return $custom;
         }
 
         return parent::render();

@@ -16,6 +16,9 @@
 
 namespace mod_booking\output\description;
 
+use mod_booking\placeholders\placeholders_info;
+use mod_booking\singleton_service;
+
 /**
  * Class description_calendarevent
  *
@@ -35,4 +38,34 @@ class description_calendarevent extends description_base {
      * @var int
      */
     protected int $param = MOD_BOOKING_DESCRIPTION_CALENDAR;
+
+    /**
+     * Render the description.
+     *
+     * @return string
+     */
+    /**
+     * Render the description.
+     *
+     * @return string
+     */
+    /**
+     * Render the description.
+     *
+     * @return string
+     */
+    public function render(): string {
+
+        // For description_ical we accept user defined templates if available.
+        // So we get the custom field short name for iCal description.
+        // Currently, we use the same custom field for both ical and calendar event descriptions.
+        $cfshortname = get_config('booking', 'icaldescriptionfield');
+
+        $custom = parent::render_custom_template_from_customfield($cfshortname);
+        if (!empty($custom)) {
+            return $custom;
+        }
+
+        return parent::render();
+    }
 }
