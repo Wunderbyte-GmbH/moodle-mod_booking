@@ -33,7 +33,7 @@ use tool_mocktesttime\time_mock;
  * @copyright  2026 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-final class description_ical_test extends \advanced_testcase {
+final class description_ical_calendarevent_test extends advanced_testcase {
     /**
      * Tests set up.
      */
@@ -56,12 +56,34 @@ final class description_ical_test extends \advanced_testcase {
     }
 
     /**
+     * get_instance
+     *
+     * @param mixed $class
+     * @param mixed $optionid
+     * @return description_base
+     */
+    protected function get_instance($class, $optionid): description_base {
+        switch ($class) {
+            case 'ical':
+                return new description_ical($optionid);
+            case 'calendarevent':
+                return new description_calendarevent($optionid);
+        }
+
+        throw new \InvalidArgumentException('Invalid class name');
+    }
+
+    /**
      * This test checks the rendered content as description for an option when the requested
      * context is ical when custom field is empty or has a value.
+     * @param string $class
+     * @param array $mustcontain
      * @return void
+     * @dataProvider data_provider_1
      * @covers \mod_booking\output\description\description_ical
+     * @covers \mod_booking\output\description\description_calendarevent
      */
-    public function test_render_when_no_custom_field_is_selected(): void {
+    public function test_render_when_no_custom_field_is_selected(string $class, array $mustcontain): void {
         $this->resetAfterTest();
 
         // Setup test data.
@@ -84,10 +106,9 @@ final class description_ical_test extends \advanced_testcase {
         $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'editingteacher');
         $this->getDataGenerator()->enrol_user($student1->id, $course->id, 'student');
 
-
         $record = new stdClass();
         $record->bookingid = $booking->id;
-        $record->text = 'ABCDEFGHIJKLMONOPQRSTUVWXYZ';
+        $record->text = 'ABCDEFG';
         $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course->id;
         $record->description = 'Custom-Description';
@@ -102,13 +123,33 @@ final class description_ical_test extends \advanced_testcase {
         $option = $plugingenerator->create_option($record);
 
         // Create the description_ical object.
-        $descriptionical = new description_ical($option->id);
+        $descriptionical = $this->get_instance($class, $option->id);
 
         // Render the description.
         $output = $descriptionical->render();
 
         // The default template contains the teacher name, so we check that it is contained in the output.
-        $this->assertStringContainsString('Billy Teachy', $output);
+        foreach ($mustcontain as $must) {
+            $this->assertStringContainsString($must, $output);
+        }
+    }
+
+    /**
+     * data provider for test_render_when_no_custom_field_is_selected
+     * @return array
+     */
+    public static function data_provider_1(): array {
+        return [
+            'ical' => [
+                'class' => 'ical',
+                'must_contains' => ['Billy Teachy', 'ABCDEFG'], // Default template contains teacher name.
+            ],
+            'calendarevent' => [
+                'class' => 'calendarevent',
+                'must_contains' => ['Billy Teachy', 'ABCDEFG'],
+                // Default template contains teacher name & some class names which are not present in ical mustahce file.
+            ],
+        ];
     }
 
     /**
@@ -118,10 +159,16 @@ final class description_ical_test extends \advanced_testcase {
      * @param array $mustcontain
      * @param array $mustnotcontain
      * @return void
-     * @dataProvider data_provider
+     * @dataProvider data_provider_2
      * @covers \mod_booking\output\description\description_ical
+     * @covers \mod_booking\output\description\description_calendarevent
      */
-    public function test_render_with_user_defined_template(string $usertemplate, array $mustcontain, array $mustnotcontain): void {
+    public function test_render_with_user_defined_template(
+        string $class,
+        string $usertemplate,
+        array $mustcontain,
+        array $mustnotcontain
+    ): void {
         $this->resetAfterTest();
 
         // Setup test data.
@@ -171,7 +218,7 @@ final class description_ical_test extends \advanced_testcase {
 
         $record = new stdClass();
         $record->bookingid = $booking->id;
-        $record->text = 'ABCDEFGHIJKLMONOPQRSTUVWXYZ';
+        $record->text = 'ABCDEFG';
         $record->chooseorcreatecourse = 1; // Reqiured.
         $record->courseid = $course->id;
         $record->description = 'Custom-Description';
@@ -198,7 +245,7 @@ final class description_ical_test extends \advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         // Create the description_ical object.
-        $descriptionical = new description_ical($option->id);
+        $descriptionical = $this->get_instance($class, $option->id);
 
         // Render the description.
         $output = $descriptionical->render();
@@ -213,25 +260,47 @@ final class description_ical_test extends \advanced_testcase {
     }
 
     /**
-     * data provider.
+     * data provider for test_render_with_user_defined_template function.
      * @return array
      */
-    public static function data_provider(): array {
+    public static function data_provider_2(): array {
         return [
-            'Empty custom field value' => [
+            'ical: Empty custom field value' => [
+                'class' => 'ical',
                 'user_template' => '', // No value provided so default template is used.
-                'must_contains' => ['Billy Teachy'], // Default template contains teacher name.
+                'must_contains' => ['Billy Teachy', 'ABCDEFG'], // Default template contains teacher name.
                 'must_not_contains' => [],
             ],
-            'Custom field with placeholder: title' => [
+            'ical: Custom field with placeholder: title' => [
+                'class' => 'ical',
                 'user_template' => 'Event for {title}.',
-                'must_contains' => ['Event for ABCDEFGHIJKLMONOPQRSTUVWXYZ.'],
+                'must_contains' => ['Event for ABCDEFG.'],
                 'must_not_contains' => ['Billy Teachy'], // User defined tempate doesn't contain teacher name.
             ],
-            'Custom field with multiple placeholders: firstname, lastname' => [
+            'ical: Custom field with multiple placeholders: firstname, lastname' => [
+                'class' => 'ical',
                 'usertemplate' => 'Dear {firstname} {lastname}',
                 'must_contains' => ['Dear firstname1 lastname1'],
-                'must_not_contains' => ['ABCDEFGHIJKLMONOPQRSTUVWXYZ', 'Billy Teachy'],
+                'must_not_contains' => ['ABCDEFG', 'Billy Teachy'],
+                // User defined tempate doesn't contain teacher name and title.
+            ],
+            'calendarevent: Empty custom field value' => [
+                'class' => 'calendarevent',
+                'user_template' => '', // No value provided so default template is used.
+                'must_contains' => ['Billy Teachy', 'ABCDEFG'], // Default template contains teacher name.
+                'must_not_contains' => [],
+            ],
+            'calendarevent: Custom field with placeholder: title' => [
+                'class' => 'ical',
+                'user_template' => 'Event for {title}.',
+                'must_contains' => ['Event for ABCDEFG.'],
+                'must_not_contains' => ['Billy Teachy'], // User defined tempate doesn't contain teacher name.
+            ],
+            'calendarevent: Custom field with multiple placeholders: firstname, lastname' => [
+                'class' => 'ical',
+                'usertemplate' => 'Dear {firstname} {lastname}',
+                'must_contains' => ['Dear firstname1 lastname1'],
+                'must_not_contains' => ['ABCDEFG', 'Billy Teachy'],
                 // User defined tempate doesn't contain teacher name and title.
             ],
         ];
