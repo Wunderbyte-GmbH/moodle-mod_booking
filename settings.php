@@ -2067,15 +2067,36 @@ if ($ADMIN->fulltree) {
 
     $icaldescriptionoptions = $customfieldsarray;
     $coursecategoryarray['currentcategory'] = get_string('currentcategory', 'mod_booking');
-    $settings->add(
-        new admin_setting_configselect(
-            'booking/icaldescriptionfield',
-            get_string('icaldescriptionfield', 'mod_booking'),
-            get_string('icaldescriptionfielddesc', 'mod_booking'),
-            "-1",
-            $icaldescriptionoptions
-        )
-    );
+    if ($proversion) {
+            $settings->add(
+                new admin_setting_configselect(
+                    'booking/icaldescriptionfield',
+                    get_string('icaldescriptionfield', 'mod_booking'),
+                    get_string('icaldescriptionfielddesc', 'mod_booking'),
+                    "-1",
+                    $icaldescriptionoptions
+                )
+            );
+            $settings->add(
+                new admin_setting_configselect(
+                    'booking/calendareventdescriptionfield',
+                    get_string('caleventdescriptionfield', 'mod_booking'),
+                    get_string('caleventdescriptionfielddesc', 'mod_booking'),
+                    "-1",
+                    $icaldescriptionoptions
+                )
+            );
+    } else {
+            $settings->add(
+                new admin_setting_heading(
+                    'calcustomdescriptions',
+                    get_string('calcustomdescriptions', 'mod_booking'),
+                    get_string('prolicensefeatures', 'mod_booking') .
+                    get_string('profeatures:calendarcustomdescriptions', 'mod_booking') .
+                    get_string('infotext:prolicensenecessary', 'mod_booking')
+                )
+            );
+    }
 
     $settings->add(
         new admin_setting_heading(

@@ -708,7 +708,10 @@ $string['cacheturnoffforbookingsettings'] = 'Caching der Einstellungen der Buchu
 $string['cacheturnoffforbookingsettings_desc'] = 'Die Last auf die Datenbank wird durch diese Einstellung massiv erhöht. Bei schweren Problemen mit der Cache Kofiguration kann diese Einstellung dennoch vorteilhaft sein.';
 $string['caladdascourseevent'] = 'Zum Kalender hinzufügen (nur für Teilnehmer:innen des Moodle-Kurses sichtbar)';
 $string['caladdassiteevent'] = 'Zum Kalender hinzufügen (für alle Nutzer:innen sichtbar)';
+$string['calcustomdescriptions'] = 'Benutzerdefinierte Beschreibungen für den Kalender <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['caldonotadd'] = 'Nicht zum Kalender des Moodle-Kurses hinzufügen';
+$string['caleventdescriptionfield'] = 'Benutzerdefiniertes Feld für die Beschreibung des Kalendereintrags';
+$string['caleventdescriptionfielddesc'] = 'Wählen Sie ein benutzerdefiniertes Feld aus, das für die Beschreibung in den Kalendereinträgen verwendet wird.';
 $string['caleventtype'] = 'Kalenderereignis ist sichtbar für';
 $string['callbackfunctionnotapplied'] = 'Callback Funktion konnte nicht angewandt werden.';
 $string['callbackfunctionnotdefined'] = 'Callback Funktion nicht definiert.';
@@ -2090,6 +2093,10 @@ und für gebuchte Benutzer:innen die Anwesenheiten zu hinterlegen.</b></li>
 $string['profeatures:cachesettings'] = '<ul>
 <li><b>Kein Caching der Buchungsoptions-Einstellungen</b></li>
 <li><b>Kein Caching der Buchungsantworten (Buchungen)</b></li>
+</ul>';
+$string['profeatures:calendarcustomdescriptions'] = '<ul>
+<li><b>Möglichkeit, eine benutzerdefinierte Beschreibung für iCal-Anhangdateien zu erstellen, die Platzhalter unterstützt.</b></li>
+<li><b>Möglichkeit, eine benutzerdefinierte Beschreibung für Kalendereinträge zu erstellen, die Platzhalter unterstützt.</b></li>
 </ul>';
 $string['profeatures:cancellationsettings'] = '<ul>
 <li><b>Veränderbare Stornierungsfrist</b></li>

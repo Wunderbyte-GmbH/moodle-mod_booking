@@ -56,10 +56,9 @@ class description_calendarevent extends description_base {
      */
     public function render(): string {
 
-        // For description_ical we accept user defined templates if available.
-        // So we get the custom field short name for iCal description.
-        // Currently, we use the same custom field for both ical and calendar event descriptions.
-        $cfshortname = get_config('booking', 'icaldescriptionfield');
+        // For description_calendarevent we accept user defined templates if available.
+        // So we get the custom field short name for calendar event description.
+        $cfshortname = get_config('booking', 'caleventdescriptionfield');
 
         $custom = parent::render_custom_template_from_customfield($cfshortname);
         if (!empty($custom)) {

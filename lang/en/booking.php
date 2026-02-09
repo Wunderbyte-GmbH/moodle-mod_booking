@@ -721,7 +721,10 @@ $string['cacheturnoffforbookingsettings'] = 'Turn off caching of booking option 
 $string['cacheturnoffforbookingsettings_desc'] = 'This setting significantly increases the load on the database. However, if there are massive problems with the cache configuration, this setting can still be advantageous.';
 $string['caladdascourseevent'] = 'Add to calendar (visible only to participants of moodle course)';
 $string['caladdassiteevent'] = 'Add to calendar (visible to all users)';
+$string['calcustomdescriptions'] = 'Calendar Custom descriptions  <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['caldonotadd'] = 'Do not add to calendar of moodle course';
+$string['caleventdescriptionfield'] = 'Custom field for the calendar event description';
+$string['caleventdescriptionfielddesc'] = 'Choose a custom field that will be used for the description in the calendar events.';
 $string['caleventtype'] = 'Calendar event visibility';
 $string['callbackfunctionnotapplied'] = 'Callback function could not be applied.';
 $string['callbackfunctionnotdefined'] = 'Callback function is not defined.';
@@ -1495,7 +1498,7 @@ $string['hours'] = '{$a} hours';
 $string['howmanytimestorepeat'] = 'Number of repetitions';
 $string['howmanyusers'] = 'Book other users limit';
 $string['howoftentorepeat'] = 'Repetition interval';
-$string['icalcfg'] = 'Calendar settings and configuration of iCal attachements';
+$string['icalcfg'] = 'Calendar settings and configuration of iCal attachments';
 $string['icalcfgdesc'] = 'Configure calendar settings and the iCal (*.ics) files that are attached to e-mail messages. These files alow adding the booking dates to the personal calendar.';
 $string['icaldescriptionfield'] = 'Custom field for iCal description';
 $string['icaldescriptionfielddesc'] = 'Choose a custom field that will be used for the description in the iCal file.';
@@ -2198,6 +2201,10 @@ and record attendance for booked users.</b></li>
 $string['profeatures:cachesettings'] = '<ul>
 <li><b>No caching of bookingoption settings</b></li>
 <li><b>No caching of booking answers</b></li>
+</ul>';
+$string['profeatures:calendarcustomdescriptions'] = '<ul>
+<li><b>Ability to create a custom description for iCal attachment files that supports placeholders.</b></li>
+<li><b>Ability to create a custom description for calendar events that supports placeholders.</b></li>
 </ul>';
 $string['profeatures:cancellationsettings'] = '<ul>
 <li><b>adjustable cancellation period</b></li>
