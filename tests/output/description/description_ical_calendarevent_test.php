@@ -215,6 +215,7 @@ final class description_ical_calendarevent_test extends advanced_testcase {
         // Set a custom field for iCal description.
         $cfname = 'customfield1';
         set_config('icaldescriptionfield', $cfname, 'booking');
+        set_config('caleventdescriptionfield', $cfname, 'booking');
 
         $record = new stdClass();
         $record->bookingid = $booking->id;
