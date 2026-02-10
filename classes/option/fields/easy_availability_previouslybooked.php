@@ -121,7 +121,7 @@ class easy_availability_previouslybooked extends field_base {
 
         // Here we have to make sure we don't override anything.
         $tempform = new stdClass();
-        bo_info::set_defaults($tempform, json_decode($formdata->availability ?? '{}'));
+        bo_info::set_defaults($tempform, json_decode($formdata->availability ?? '[]'));
 
         // Add data missing in formdata if it's available in tempform.
         foreach ($tempform as $k => $v) {
@@ -132,7 +132,7 @@ class easy_availability_previouslybooked extends field_base {
 
         // Save the additional JSON conditions (the ones which have been added to the mform).
         bo_info::save_json_conditions_from_form($formdata);
-        $newoption->availability = $formdata->availability;
+        $newoption->availability = $formdata->availability ?? '[]';
 
         $availabilityclass = new availability();
         return $availabilityclass->check_for_changes(
@@ -266,6 +266,6 @@ class easy_availability_previouslybooked extends field_base {
             }
         }
         // We will always transmit the initial values.
-        $formdata->availability = $settings->availability ?? '{}';
+        $formdata->availability = $settings->availability ?? '[]';
     }
 }

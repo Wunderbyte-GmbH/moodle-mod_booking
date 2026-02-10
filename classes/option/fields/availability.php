@@ -109,7 +109,7 @@ class availability extends field_base {
         bookingopeningtime::prepare_save_field($formdata, $newoption, $updateparam);
         bookingclosingtime::prepare_save_field($formdata, $newoption, $updateparam);
 
-        $newoption->availability = $formdata->availability;
+        $newoption->availability = $formdata->availability ?? '[]';
         if (empty($newoption->sqlfilter)) {
             $newoption->sqlfilter = $formdata->sqlfilter;
         }
@@ -158,7 +158,10 @@ class availability extends field_base {
             if (!empty($data->availability)) {
                 $availability = $data->availability;
             } else {
-                $availability = $settings->availability ?? "{}";
+                $availability = $settings->availability ?? "[]";
+                if (empty($availability)) {
+                    $availability = "[]";
+                }
                 $data->availability = $availability;
             }
 
@@ -197,7 +200,7 @@ class availability extends field_base {
                 unset($data->boavenrolledincohortsoperator);
             }
         } else {
-            $availability = $settings->availability ?? "{}";
+            $availability = $settings->availability ?? "[]";
             bookingopeningtime::set_data($data, $settings);
             bookingclosingtime::set_data($data, $settings);
         }

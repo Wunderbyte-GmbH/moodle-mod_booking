@@ -234,7 +234,7 @@ class booking_option_settings {
     public $dayofweek = null;
 
     /** @var string $availability in json format */
-    public $availability = null;
+    public $availability = '[]';
 
     /** @var int $status like 1 for cancelled */
     public $status = null;
@@ -457,7 +457,7 @@ class booking_option_settings {
             $this->timemadevisible = $dbrecord->timemadevisible;
             $this->annotation = $dbrecord->annotation;
             $this->dayofweek = $dbrecord->dayofweek;
-            $this->availability = $dbrecord->availability;
+            $this->availability = $dbrecord->availability ?? '[]';
             $this->status = $dbrecord->status;
             $this->responsiblecontact = !empty($dbrecord->responsiblecontact) ? explode(',', $dbrecord->responsiblecontact) : [];
             $this->sqlfilter = $dbrecord->sqlfilter;
