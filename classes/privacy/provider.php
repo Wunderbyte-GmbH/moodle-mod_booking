@@ -50,12 +50,12 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class provider implements
+    // This plugin stores personal data.
+    \core_privacy\local\metadata\provider,
     // This plugin is capable of determining which users have data within it.
     \core_privacy\local\request\core_userlist_provider,
     // This plugin is a core_user_data_provider.
-    \core_privacy\local\request\plugin\provider,
-    // This plugin stores personal data.
-    \core_privacy\local\metadata\provider {
+    \core_privacy\local\request\plugin\provider {
     /**
      * Return the fields which contain personal data.
      *
