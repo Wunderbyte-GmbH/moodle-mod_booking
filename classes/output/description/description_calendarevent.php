@@ -58,7 +58,7 @@ class description_calendarevent extends description_base {
 
         // For description_calendarevent we accept user defined templates if available.
         // So we get the custom field short name for calendar event description.
-        $cfshortname = get_config('booking', 'caleventdescriptionfield');
+        $cfshortname = get_config('booking', 'calendareventdescriptionfield');
 
         $custom = parent::render_custom_template_from_customfield($cfshortname);
         if (!empty($custom)) {
