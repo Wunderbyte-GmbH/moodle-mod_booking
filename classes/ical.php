@@ -351,7 +351,7 @@ class ical {
             $fulldescriptionhtml = str_replace($url, '<a href="' . $url . '">Link</a>', $fulldescriptionhtml);
         }
         // Limit line length to 75 characters.
-        $fulldescriptionhtml = $this->fold_html_line($fulldescriptionhtml);
+        $fulldescriptionhtml = $this->fold_html_line("X-ALT-DESC;FMTTYPE=text/html:" . $fulldescriptionhtml);
 
         $fulldescription = rtrim(strip_tags(preg_replace("/<br>|<\/p>/", "\n", $fulldescription)));
         $fulldescription = str_replace("\n", "\\n", $fulldescription);
@@ -359,7 +359,7 @@ class ical {
         // Remove CR and CRLF from description as the description must be on one line to work with ical.
         $fulldescription = str_replace(["\r\n", "\n", "\r"], ' ', $fulldescription);
         // Limit line length to 75 characters.
-        $fulldescription = $this->fold_line($fulldescription);
+        $fulldescription = $this->fold_line("DESCRIPTION:" . $fulldescription);
 
         // Make sure that we fall back onto some reasonable no-reply address.
         $noreplyaddressdefault = 'noreply@' . get_host_from_url($CFG->wwwroot);
@@ -383,9 +383,7 @@ class ical {
         $veventparts = [
             "BEGIN:VEVENT",
             "CLASS:PUBLIC",
-            "DESCRIPTION:",
-            "{$fulldescription}", // Put the description content in the next line.
-            "X-ALT-DESC;FMTTYPE=text/html:",
+            "{$fulldescription}",
             "{$fulldescriptionhtml}",
             "DTEND:{$dtend}",
             "DTSTAMP:{$this->dtstamp}",
@@ -397,6 +395,8 @@ class ical {
             "{$attendee}",
             "UID:{$uid}",
         ];
+
+
 
         if (!empty($this->location)) {
             $veventparts[] = "LOCATION:{$this->location}";
