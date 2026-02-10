@@ -354,6 +354,7 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $data->optionid = $this->get_mappingid('booking_option', $data->optionid);
         $data->userid = $this->get_mappingid('user', $data->userid);
         $data->timemodified = $this->apply_date_offset($data->timemodified);
+        $data->completeddate = $this->apply_date_offset($data->completeddate);
 
         $DB->insert_record('booking_answers', $data);
         // No need to save this mapping as far as nothing depend on it.

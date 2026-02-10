@@ -91,7 +91,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
             'answer',
             ['id'],
             ['bookingid', 'optionid', 'userid', 'timemodified', 'completed', 'timecreated',
-                'waitinglist', 'frombookingid', 'numrec', 'status', 'notes',
+                'waitinglist', 'frombookingid', 'numrec', 'status', 'notes', 'completeddate',
             ]
         );
 
