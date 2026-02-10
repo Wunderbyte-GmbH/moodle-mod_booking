@@ -888,6 +888,7 @@ $string['competencychoose'] = 'Choose competencies of this booking option';
 $string['competencynonefound'] = 'No competencies defined yet';
 $string['completed'] = 'Completed';
 $string['completedcomments'] = 'Only with completed activity';
+$string['completeddate'] = 'Completion date';
 $string['completedratings'] = 'Only with completed activity';
 $string['completionchanged'] = 'Update of completion status';
 $string['completionchangedhistory'] = 'The completion status was changed from "{$a->completionold}" zu "{$a->completionnew}" geändert';

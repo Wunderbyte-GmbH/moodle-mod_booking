@@ -5174,6 +5174,18 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2026013000, 'booking');
     }
+    if ($oldversion < 2026020601) {
+        // Define field completeddate to be added to booking_answers.
+        $table = new xmldb_table('booking_answers');
+        $field = new xmldb_field('completeddate', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'pricecategory');
+
+        // Conditionally launch add field completeddate.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2026020601, 'booking');
+    }
 
     return true;
 }

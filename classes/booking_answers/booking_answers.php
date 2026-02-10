@@ -1310,6 +1310,7 @@ class booking_answers {
                 ba.timecreated,
                 ba.json,
                 ba.places,
+                ba.completeddate,
                 bo.coursestarttime,
                 bo.courseendtime,
                 bo.type botype

@@ -873,6 +873,7 @@ $string['competencychoose'] = 'Wählen Sie Kompetenzen dieser Buchungsoption';
 $string['competencynonefound'] = 'Bisher keine Kompetenzen angelegt';
 $string['completed'] = 'Abgeschlossen';
 $string['completedcomments'] = 'Nur diejenigen, die Aktivität abgeschlossen haben';
+$string['completeddate'] = 'Abschlussdatum';
 $string['completedratings'] = 'Nur diejenigen, die Aktivität abgeschlossen haben';
 $string['completionchanged'] = 'Abschlussänderung';
 $string['completionchangedhistory'] = 'Der Abschluss wurde von "{$a->completionold}" zu "{$a->completionnew}" geändert';
