@@ -1,3 +1,10 @@
+## Version 9.1.2 (2026021000)
+* Improvement: When cache for booking option is purged, also purge entities cache for that option.
+* Improvement: Put the interface names in alphabetical order.
+* Bugfix: Fix availability change check by making sure '[]' is always used as default value.
+* Bugfix: Make sure users can instantiate connected options (eg previously booked) even when those are invisible.
+* Tests: Update the Behat scenario to reflect the roundrefundamount setting.
+
 ## Version 9.1.1 (2026020500)
 * New feature: Admin sees all options in listtoapprove.
 * New feature: Implemented a mode to switch between one or all other options are required for certificate.
