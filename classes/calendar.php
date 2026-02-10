@@ -91,7 +91,6 @@ class calendar {
      * @param mixed $type
      * @param int $optiondateid
      * @param int $justbooked
-     *
      */
     public function __construct($cmid, $optionid, $userid, $type, $optiondateid = 0, $justbooked = 0) {
         global $DB;
@@ -247,13 +246,21 @@ class calendar {
             // Add to user calendar.
             $courseid = 0;
             $instance = 0;
-            $visible = 1;
+            if ($settings->invisible == 0) {
+                $visible = 1;
+            } else {
+                $visible = 0;
+            }
             $fulldescription = get_rendered_eventdescription($optionid, $cmid, MOD_BOOKING_DESCRIPTION_CALENDAR);
         } else {
             // Event calendar.
             $courseid = !empty($bookingsettings->course) ? $bookingsettings->course : 0;
             $instance = $settings->bookingid;
-            $visible = instance_is_visible('booking', $bookingsettings);
+            if ($settings->invisible == 0) {
+                $visible = instance_is_visible('booking', $bookingsettings);
+            } else {
+                $visible = 0;
+            }
             $fulldescription = get_rendered_eventdescription($optionid, $cmid, MOD_BOOKING_DESCRIPTION_CALENDAR);
         }
 
@@ -339,7 +346,6 @@ class calendar {
             // Add to user calendar.
             $courseid = 0;
             $instance = 0;
-            $visible = 1;
 
             // Get the user language to make sure, calendar entries are set in the right language.
             $user = singleton_service::get_instance_of_user($userid);
@@ -361,8 +367,14 @@ class calendar {
             // Event calendar.
             $courseid = !empty($bookingsettings->course) ? $bookingsettings->course : 0;
             $instance = $settings->bookingid;
-            $visible = instance_is_visible('booking', $bookingsettings);
             $fulldescription = get_rendered_eventdescription($optionid, $cmid, MOD_BOOKING_DESCRIPTION_CALENDAR);
+        }
+
+        // If the optiondate is visible, we still need to check the visibility of the whole booking instance.
+        if ($settings->invisible == 0) {
+            $visible = instance_is_visible('booking', $bookingsettings);
+        } else {
+            $visible = 0;
         }
 
         $event = new stdClass();

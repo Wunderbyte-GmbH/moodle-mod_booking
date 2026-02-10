@@ -265,24 +265,16 @@ class mod_booking_observer {
         // Important: Tests will fail if this cache purge is removed!
         booking_option::purge_cache_for_option($optionid);
 
-        // Delay the update until the script is completely finishing.
-        core_shutdown_manager::register_function(function ($optionid): void {
-            try {
-                $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-                // If the bookingoption was set to invisible, we hide all associated calendar events.
-                if ($settings->invisible == MOD_BOOKING_OPTION_INVISIBLE) {
-                    calendar_helper::option_set_visibility_for_all_calendar_events($optionid, 0); // 0 = hide.
-                } else {
-                    calendar_helper::option_set_visibility_for_all_calendar_events($optionid, 1); // 1 = show.
-                }
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        // If the bookingoption was set to invisible, we hide all associated calendar events.
+        if ($settings->invisible == MOD_BOOKING_OPTION_INVISIBLE) {
+            calendar_helper::option_set_visibility_for_all_calendar_events($optionid, 0); // 0 = hide.
+        } else {
+            calendar_helper::option_set_visibility_for_all_calendar_events($optionid, 1); // 1 = show.
+        }
 
-                // At the very last moment, when everything is done, we invalidate the cache again.
-                booking_option::purge_cache_for_option($optionid);
-            } catch (Throwable $e) {
-                debugging('Could not update calendar events visibility for booking option ' . $optionid .
-                    '. Exception in function observer.php/bookingoption_updated. ' . $e->getMessage());
-            }
-        }, [$optionid]);
+        // At the very last moment, when everything is done, we invalidate the cache again.
+        booking_option::purge_cache_for_option($optionid);
     }
 
     /**
