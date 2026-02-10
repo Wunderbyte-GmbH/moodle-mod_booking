@@ -2728,14 +2728,15 @@ class booking_option {
                 );
             }
         }
-
         $completionold = $userdata->completed;
         $userdata->completed = empty($completionold) ? '1' : '0';
         $userdata->timemodified = empty($timebooked) ? time() : $timebooked;
+        $completeddate = empty($userdata->completed) ? null : (empty($timebooked) ? time() : $timebooked);
 
         $data = [
             'id' => $userdata->baid,
             'completed' => $userdata->completed,
+            'completeddate' => $completeddate,
             'timemodified' => empty($timebooked) ? time() : $timebooked,
         ];
         $other = [
@@ -2757,7 +2758,9 @@ class booking_option {
                 && !empty($userdata->completed)
                 && certificateclass::required_options_fulfilled($this->settings, $userdata->id)
             ) {
-                $certid = certificateclass::issue_certificate($this->id, $userdata->id, $timebooked);
+                /* If we get a timebooked value, we set the completeddate to that timebooked value, otherwise we set it to now.
+                This is important for imports.*/
+                $certid = certificateclass::issue_certificate($this->id, $userdata->id, $completeddate);
             }
 
             if (

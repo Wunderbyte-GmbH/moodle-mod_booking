@@ -127,6 +127,20 @@ class manageusers_table extends wunderbyte_table {
         }
         return date('d.m.Y', $values->timemodified);
     }
+    /**
+     * Return column completeddate.
+     *
+     * @param stdClass $values
+     *
+     * @return string
+     *
+     */
+    public function col_completeddate(stdClass $values): string {
+        if (empty($values->completeddate)) {
+            return '';
+        }
+        return date('d.m.Y', $values->completeddate);
+    }
 
      /**
       * Returns lable of the booking status.

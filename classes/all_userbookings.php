@@ -762,4 +762,18 @@ class all_userbookings extends \table_sql {
         $id++;
         return $OUTPUT->render_from_template('mod_booking/report/allusercertificate_modal', $data);
     }
+    /**
+     * Column for completed date.
+     *
+     * @param stdClass $values
+     *
+     * @return string
+     *
+     */
+    public function col_completeddate(stdClass $values) {
+        if (isset($values->completeddate)) {
+            return userdate($values->completeddate);
+        }
+        return '';
+    }
 }

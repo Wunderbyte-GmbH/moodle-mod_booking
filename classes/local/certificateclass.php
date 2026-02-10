@@ -45,12 +45,12 @@ class certificateclass {
      *
      * @param int $optionid
      * @param int $userid
-     * @param int $timebooked
+     * @param int $completeddate
      *
      * @return int
      *
      */
-    public static function issue_certificate(int $optionid, int $userid, int $timebooked = 0): int {
+    public static function issue_certificate(int $optionid, int $userid, int $completeddate = 0): int {
         global $DB;
         $id = 0;
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
@@ -113,7 +113,7 @@ class certificateclass {
             'teachers' => self::return_teachers_for_certificate($settings->teachers),
             'sessions' => self::return_sessions_for_certificate($settings->sessions),
             'duration' => self::return_duration_for_certificate($settings),
-            'timeawarded' => self::return_timeawarded_for_certificate($settings, $userid, $timebooked),
+            'timeawarded' => self::return_timeawarded_for_certificate($settings, $userid, $completeddate),
             'competencies' => self::return_competencies_for_certificate($settings->competencies ?? ''),
         ];
 
@@ -294,7 +294,7 @@ class certificateclass {
      * Helper function to return the time the certificate was awarded
      * @param booking_option_settings $settings
      * @param int $userid
-     * @param int $timebooked
+     * @param int $completeddate
      *
      * @return string
      *
@@ -302,19 +302,19 @@ class certificateclass {
     private static function return_timeawarded_for_certificate(
         booking_option_settings $settings,
         int $userid,
-        int $timebooked
+        int $completeddate
     ) {
-        if (empty($timebooked)) {
+        if (empty($completeddate)) {
             $ba = singleton_service::get_instance_of_booking_answers($settings);
             $users = $ba->get_usersonlist();
             if (!$answer = $users[$userid] ?? false) {
                 return '';
             }
-            $timebooked = $answer->timebooked ?? $answer->timemodified ?? time();
+            $completeddate = $answer->completeddate ?? $answer->timemodified ?? time();
         }
 
         // The time awarded is currently the time modified. We might change that at one point.
-        return userdate($timebooked, get_string('strftimedaydate'));
+        return userdate($completeddate, get_string('strftimedaydate'));
     }
 
     /**

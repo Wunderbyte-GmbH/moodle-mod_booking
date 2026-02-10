@@ -708,6 +708,10 @@ if (!$tableallbookings->is_downloading()) {
                     $columns[] = 'allusercertificates';
                 }
                 break;
+            case 'completeddate':
+                $headers[] = get_string('completeddate', component: 'mod_booking');
+                $columns[] = 'completeddate';
+                break;
         }
     }
     $customfields = '';
@@ -856,6 +860,7 @@ if (!$tableallbookings->is_downloading()) {
             ba.waitinglist,
             ba.notes,
             ba.places,
+            ba.completeddate,
             \'\' otheroptions,
             ba.numrec' . $customfields . $shoppingcartfields . $certificatefields;
     $from = ' {booking_answers} ba
