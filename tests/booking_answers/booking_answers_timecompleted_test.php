@@ -94,14 +94,12 @@ final class booking_answers_timecompleted_test extends advanced_testcase {
     }
 
     /**
-     *  Tests booking answer class.
-     * @param array $optionsettings
-     * @param array $expected
+     *  Tests if the completeddate field is set correctly when toggling completion for a booking option.
      * @return void
      *
      * @covers \mod_booking\booking_answers\booking_answers
      */
-    public function test_booking_answers_all_methods(): void {
+    public function test_completeddate(): void {
         global $DB;
         $this->resetAfterTest(true);
         // Initial config.
@@ -126,7 +124,6 @@ final class booking_answers_timecompleted_test extends advanced_testcase {
         $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
         $optionobject = singleton_service::get_instance_of_booking_option($option1->cmid, $option1->id);
         $boinfo1 = new bo_info($settings1);
-
 
         // Book option for user.
         $this->setUser($student1);
