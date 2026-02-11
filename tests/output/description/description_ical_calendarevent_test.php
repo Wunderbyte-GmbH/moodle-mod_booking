@@ -56,6 +56,14 @@ final class description_ical_calendarevent_test extends advanced_testcase {
     }
 
     /**
+     * Removes cached users in the place holders.
+     * @return void
+     */
+    public static function reset_cache(): void {
+        \mod_booking\placeholders\placeholders_info::$placeholders = [];
+    }
+
+    /**
      * get_instance
      *
      * @param mixed $class
@@ -85,6 +93,7 @@ final class description_ical_calendarevent_test extends advanced_testcase {
      */
     public function test_render_when_no_custom_field_is_selected(string $class, array $mustcontain): void {
         $this->resetAfterTest();
+        self::reset_cache();
 
         // Setup test data.
         $course = $this->getDataGenerator()->create_course();
@@ -174,7 +183,7 @@ final class description_ical_calendarevent_test extends advanced_testcase {
         // Setup test data.
         $course = $this->getDataGenerator()->create_course();
         $users = [
-            ['username' => 'teacher1', 'firstname' => 'Billy', 'lastname' => 'Teachy', 'email' => 'teacher1@example.com'],
+            ['username' => 'teacher1', 'firstname' => 'Billy', 'lastname' => 'Teachy', 'email' => 'teacher1@example.com', ],
             ['username' => 'student1', 'firstname' => 'firstname1', 'lastname' => 'lastname1', 'email' => 'student1@sample.com'],
             ['username' => 'student2', 'firstname' => 'firstname2', 'lastname' => 'lastname2', 'email' => 'student2@sample.com'],
         ];
