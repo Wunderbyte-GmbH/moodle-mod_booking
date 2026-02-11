@@ -396,8 +396,6 @@ class ical {
             "UID:{$uid}",
         ];
 
-
-
         if (!empty($this->location)) {
             $veventparts[] = "LOCATION:{$this->location}";
         }
