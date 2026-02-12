@@ -27,6 +27,7 @@ namespace mod_booking\local\sql;
 use mod_booking\local\sql\operators\equals;
 use mod_booking\local\sql\operators\not_equals;
 use mod_booking\local\sql\operators\contains;
+use mod_booking\singleton_service;
 
 /**
  * Operator builder class to generate SQL snippets for different operators.
@@ -36,6 +37,59 @@ use mod_booking\local\sql\operators\contains;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class operator_builder {
+    /**
+     * Build a CASE statement that maps shortnames from the JSON field to user profile values.
+     *
+     * @param string $dbtype Database type ('postgres' or 'mysql')
+     * @param object $user User object with $user->profile array
+     * @param string $tablealias Table/object alias in SQL
+     * @param string $fieldkey JSON key containing the profile field shortname
+     * @return string SQL CASE statement
+     */
+    private static function build_shortname_case(
+        string $dbtype,
+        object $user,
+        string $tablealias,
+        string $fieldkey
+    ): string {
+        // If user has no profile data, return empty string.
+        if (empty($user->profile) || !is_array($user->profile)) {
+            if ($dbtype == 'postgres') {
+                return "''::text";
+            } else {
+                return "''";
+            }
+        }
+
+        // Build CASE statement for each profile field shortname.
+        $caseclauses = [];
+        foreach ($user->profile as $shortname => $value) {
+            // Safely escape the value for embedding in SQL.
+            $safedvalue = addslashes((string)$value);
+
+            if ($dbtype == 'postgres') {
+                $caseclauses[] = "WHEN '$shortname' THEN '$safedvalue'::text";
+            } else {
+                $caseclauses[] = "WHEN '$shortname' THEN '$safedvalue'";
+            }
+        }
+
+        // Build the full CASE statement.
+        if ($dbtype == 'postgres') {
+            $casestart = "CASE ($tablealias->>'$fieldkey')::text";
+        } else {
+            $casestart = "CASE JSON_UNQUOTE(JSON_EXTRACT($tablealias, CONCAT('$.', '$fieldkey')))";
+        }
+
+        $casebody = implode(" ", $caseclauses);
+
+        if ($dbtype == 'postgres') {
+            return "$casestart $casebody ELSE '' END";
+        } else {
+            return "$casestart $casebody ELSE '' END";
+        }
+    }
+
     /**
      * Get SQL snippet for a given operator.
      *
@@ -121,13 +175,10 @@ class operator_builder {
         string $operatorkey,
         string $valuekey
     ): string {
-        global $USER;
+        // Build a CASE statement that maps shortnames to user profile values.
+        $casestatement = self::build_shortname_case('postgres', $user, $objalias, $fieldkey);
 
-        $userid = (int)$USER->id;
-        // Expression to fetch the user's custom field value as text.
-        $userval = "COALESCE((SELECT uid.data FROM {user_info_data} uid " .
-            "JOIN {user_info_field} uif ON uid.fieldid = uif.id " .
-            "WHERE uid.userid = $userid AND uif.shortname = ($objalias->>'$fieldkey')::text LIMIT 1), '')";
+        $userval = $casestatement;
         $condval = "($objalias->>'$valuekey')::text";
 
         // Helper snippets.
@@ -177,18 +228,14 @@ class operator_builder {
         string $operatorkey,
         string $valuekey
     ): string {
-        global $USER;
+        // Build a CASE statement that maps shortnames to user profile values.
+        $casestatement = self::build_shortname_case('mysql', $user, $tablealias, $fieldkey);
 
-        $userid = (int)$USER->id;
-        // Explicitly COLLATE JSON-extracted values to utf8mb4_unicode_ci to match subquery results.
-        // This prevents collation mismatch errors when comparing JSON data with profile field data.
-        $userval = "COALESCE((SELECT uid.data FROM {user_info_data} uid " .
-            "JOIN {user_info_field} uif ON uid.fieldid = uif.id " .
-            "WHERE uid.userid = $userid AND uif.shortname = $tablealias.$fieldkey COLLATE utf8mb4_unicode_ci LIMIT 1), '')";
-        $condval = "$tablealias.$valuekey COLLATE utf8mb4_unicode_ci";
+        $userval = $casestatement;
+        $condval = "JSON_UNQUOTE(JSON_EXTRACT($tablealias, CONCAT('$.', '$valuekey')))";
 
-        $notempty = "$userval <> ''";
-        $condnotempty = "$condval <> ''";
+        $notempty = "TRIM($userval) <> ''";
+        $condnotempty = "TRIM($condval) <> ''";
         $like = "LOWER($userval) LIKE CONCAT('%', LOWER($condval), '%')";
         $notlike = "LOWER($userval) NOT LIKE CONCAT('%', LOWER($condval), '%')";
         $inarray = "FIND_IN_SET($userval, $condval) > 0";
@@ -197,15 +244,15 @@ class operator_builder {
         // Convert comma-separated condval into rows using JSON_TABLE for contains operations.
         $jsonarray = "CONCAT('[\"', REPLACE($condval, ',', '\",\"'), '\"]')";
         $containsany = "EXISTS (SELECT 1 FROM JSON_TABLE($jsonarray, '$[*]' COLUMNS (item TEXT PATH '$')) jtarr " .
-            "WHERE $userval <> '' AND LOWER($userval) LIKE CONCAT('%', LOWER(jtarr.item COLLATE utf8mb4_unicode_ci), '%'))";
+            "WHERE $userval <> '' AND LOWER($userval) LIKE CONCAT('%', LOWER(jtarr.item), '%'))";
         $containsnone = "NOT ($containsany)";
 
         return "(
-            CASE $tablealias.$operatorkey COLLATE utf8mb4_unicode_ci
+            CASE JSON_UNQUOTE(JSON_EXTRACT($tablealias, CONCAT('$.', '$operatorkey')))
                 WHEN '=' THEN (($notempty AND $userval = $condval) OR ($userval = '' AND $condval = ''))
                 WHEN '!=' THEN (($notempty AND $userval <> $condval) OR ($userval = '' AND $condnotempty))
-                WHEN '<' THEN ($notempty AND $userval < $condval)
-                WHEN '>' THEN ($notempty AND $userval > $condval)
+                WHEN '<' THEN ($notempty AND CAST($userval AS SIGNED) < CAST($condval AS SIGNED))
+                WHEN '>' THEN ($notempty AND CAST($userval AS SIGNED) > CAST($condval AS SIGNED))
                 WHEN '~' THEN ($notempty AND $like)
                 WHEN '!~' THEN ($notempty AND $notlike)
                 WHEN '[]' THEN ($notempty AND $inarray)
