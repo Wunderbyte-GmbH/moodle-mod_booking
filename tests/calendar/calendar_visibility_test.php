@@ -28,6 +28,8 @@ namespace mod_booking;
 use advanced_testcase;
 use coding_exception;
 use mod_booking_generator;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use stdClass;
 use tool_mocktesttime\time_mock;
 
@@ -39,6 +41,7 @@ use tool_mocktesttime\time_mock;
  * @copyright 2026 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversClass(\mod_booking\option\field_base::class)]
 final class calendar_visibility_test extends advanced_testcase {
     /**
      * Tests set up.
@@ -64,20 +67,15 @@ final class calendar_visibility_test extends advanced_testcase {
     /**
      * Test update of bookig option and tracking changes.
      *
-     * @covers \mod_booking\event\teacher_added
-     * @covers \mod_booking\booking_option::update
-     * @covers \mod_booking\option\field_base::check_for_changes
-     *
      * @param array $bdata
      * @throws \coding_exception
-     *
-     * @dataProvider booking_common_settings_provider
      */
+    #[DataProvider('booking_common_settings_provider')]
     public function test_visibility_of_optiondates_changes(array $bdata): void {
         global $DB;
 
         // Setup test data.
-        $course = $this->getDataGenerator()->create_course();
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $users = [
             ['username' => 'teacher1', 'firstname' => 'Teacher', 'lastname' => '1', 'email' => 'teacher1@example.com'],
             ['username' => 'student1', 'firstname' => 'Student', 'lastname' => '1', 'email' => 'student1@sample.com'],

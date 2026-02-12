@@ -262,12 +262,14 @@ abstract class field_base implements fields {
 
             // Handling for textfields.
             if (
-                is_array($mockdata->{$key})
+                property_exists($mockdata, $key)
+                && is_array($mockdata->{$key})
                 && isset($mockdata->{$key}['text'])
             ) {
                     $oldvalue = $mockdata->{$key}['text'];
             } else if (
-                is_object($mockdata->{$key})
+                property_exists($mockdata, $key)
+                && is_object($mockdata->{$key})
                 && property_exists($mockdata->{$key}, 'text')
             ) {
                 if (is_null($mockdata->{$key}->text)) {
@@ -275,8 +277,10 @@ abstract class field_base implements fields {
                 } else {
                     $oldvalue = $mockdata->{$key}->text;
                 }
-            } else { // Default handling.
+            } else if (property_exists($mockdata, $key)) { // Default handling.
                 $oldvalue = $mockdata->{$key};
+            } else {
+                $oldvalue = '';
             }
 
             if (
