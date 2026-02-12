@@ -131,9 +131,10 @@ class booking_time implements bo_condition {
      * This will be used if the conditions should not only block booking...
      * ... but actually hide the conditons alltogether.
      * @param int $userid
+     * @param array $params This is the array with parameters for the sql query.
      * @return array
      */
-    public function return_sql(int $userid = 0): array {
+    public function return_sql(int $userid = 0, &$params = []): array {
         $where = "(
                     sqlfilter <> 2
 
@@ -150,10 +151,8 @@ class booking_time implements bo_condition {
         $nowstart = strtotime('today 00:00');
         $nowend = strtotime('today 23:59');
 
-        $params = [
-            'bookingopeningtimenow1' => $nowstart,
-            'bookingopeningtimenow2' => $nowend,
-        ];
+        $params['bookingopeningtimenow1'] = $nowstart;
+        $params['bookingopeningtimenow2'] = $nowend;
 
         return ['', '', '', $params, $where];
     }

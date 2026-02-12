@@ -348,12 +348,11 @@ class userprofilefield_2_custom implements bo_condition {
      * This will be used if the conditions should not only block booking...
      * ... but actually hide the conditons alltogether.
      * @param int $userid
+     * @param array $params This is the array with parameters for the sql query.
      * @return array
      */
-    public function return_sql(int $userid = 0): array {
+    public function return_sql(int $userid = 0, &$params = []): array {
         global $USER, $DB;
-
-        $params = [];
 
         if (empty($userid)) {
             $userid = $USER->id;
@@ -405,12 +404,7 @@ class userprofilefield_2_custom implements bo_condition {
         }
 
         // Load custom profile fields.
-        $fields = profile_get_user_fields_with_data($user->id);
-        $usercustomfields = new stdClass();
-        foreach ($fields as $formfield) {
-            $usercustomfields->{$formfield->field->shortname} = $formfield->data;
-        }
-        $user->profile = (array)$usercustomfields ?? [];
+        $user = singleton_service::get_instance_of_user($userid, true);
 
         // phpcs:disable
         if ($databasetype == 'postgres') {
@@ -440,7 +434,8 @@ class userprofilefield_2_custom implements bo_condition {
                                         'obj',
                                         'profilefield',
                                         'operator',
-                                        'value'
+                                        'value',
+                                        $params
                                     ) . "
                             WHEN (obj->>'connectsecondfield')::text = '&&' THEN
                                 (
@@ -450,7 +445,8 @@ class userprofilefield_2_custom implements bo_condition {
                                             'obj',
                                             'profilefield',
                                             'operator',
-                                            'value'
+                                            'value',
+                                            $params
                                         ) . "
                                     AND " . operator_builder::build_profile_field_check(
                                                 'postgres',
@@ -458,7 +454,8 @@ class userprofilefield_2_custom implements bo_condition {
                                                 'obj',
                                                 'profilefield2',
                                                 'operator2',
-                                                'value2'
+                                                'value2',
+                                                $params
                                             ) . "
                                 )
                             WHEN (obj->>'connectsecondfield')::text = '||' THEN
@@ -469,7 +466,8 @@ class userprofilefield_2_custom implements bo_condition {
                                             'obj',
                                             'profilefield',
                                             'operator',
-                                            'value'
+                                            'value',
+                                            $params
                                         ) . "
                                     OR " . operator_builder::build_profile_field_check(
                                             'postgres',
@@ -477,7 +475,8 @@ class userprofilefield_2_custom implements bo_condition {
                                             'obj',
                                             'profilefield2',
                                             'operator2',
-                                            'value2'
+                                            'value2',
+                                            $params
                                         ) . "
                                 )
                             ELSE FALSE
@@ -527,7 +526,8 @@ class userprofilefield_2_custom implements bo_condition {
                                             'jt',
                                             'profilefield',
                                             'operator',
-                                            'value'
+                                            'value',
+                                            $params
                                         ) . "
                                 WHEN jt.connectsecondfield = '&&' THEN
                                     (
@@ -537,7 +537,8 @@ class userprofilefield_2_custom implements bo_condition {
                                                 'jt',
                                                 'profilefield',
                                                 'operator',
-                                                'value'
+                                                'value',
+                                                $params
                                             ) . "
                                         AND " . operator_builder::build_profile_field_check(
                                                 'mysql',
@@ -545,7 +546,8 @@ class userprofilefield_2_custom implements bo_condition {
                                                 'jt',
                                                 'profilefield2',
                                                 'operator2',
-                                                'value2'
+                                                'value2',
+                                                $params
                                             ) . "
                                     )
                                 WHEN jt.connectsecondfield = '||' THEN
@@ -556,7 +558,8 @@ class userprofilefield_2_custom implements bo_condition {
                                                 'jt',
                                                 'profilefield',
                                                 'operator',
-                                                'value'
+                                                'value',
+                                                $params
                                             ) . "
                                         OR " . operator_builder::build_profile_field_check(
                                                 'mysql',
@@ -564,7 +567,8 @@ class userprofilefield_2_custom implements bo_condition {
                                                 'jt',
                                                 'profilefield2',
                                                 'operator2',
-                                                'value2'
+                                                'value2',
+                                                $params
                                             ) . "
                                     )
                                 ELSE FALSE

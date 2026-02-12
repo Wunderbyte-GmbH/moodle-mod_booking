@@ -540,7 +540,7 @@ class bo_info {
                 $condition = new $class();
             }
 
-            [$select, $from, $filter, $params, $where] = $condition->return_sql($userid);
+            [$select, $from, $filter, $params, $where] = $condition->return_sql($userid, $paramsarray);
 
             $selectall .= $select;
             $fromall .= $from;

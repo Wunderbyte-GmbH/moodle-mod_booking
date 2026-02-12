@@ -166,17 +166,15 @@ class enrolledincohorts implements bo_condition {
     }
 
     /**
-     * Returns the SQL parts needed to filter booking options based on this condition.
-     *
+     * Each function can return additional sql.
+     * This will be used if the conditions should not only block booking...
+     * ... but actually hide the conditons alltogether.
      * @param int $userid
-     *
+     * @param array $params This is the array with parameters for the sql query.
      * @return array
-     *
      */
-    public function return_sql(int $userid = 0): array {
+    public function return_sql(int $userid = 0, &$params = []): array {
         global $USER, $DB;
-
-        $params = [];
 
         if (empty($userid)) {
             $userid = $USER->id;
