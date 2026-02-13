@@ -22,6 +22,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_booking\bo_availability\bo_info;
 use mod_booking\customfield\booking_handler;
 use mod_booking\local\htmlcomponents;
 use mod_booking\placeholders\placeholders_info;
@@ -368,16 +369,6 @@ if ($ADMIN->fulltree) {
                 get_string('turnoffmodals', 'mod_booking'),
                 get_string('turnoffmodals_desc', 'mod_booking'),
                 0
-            )
-        );
-
-        // Use SQL for availability conditions.
-        $settings->add(
-            new admin_setting_configcheckbox(
-                'booking/usesqlfilteravailability',
-                get_string('usesqlfilteravailability', 'mod_booking'),
-                get_string('usesqlfilteravailability_desc', 'mod_booking'),
-                1
             )
         );
 
@@ -737,6 +728,34 @@ if ($ADMIN->fulltree) {
                 get_string('alwaysbookanyone', 'mod_booking'),
                 get_string('alwaysbookanyone_desc', 'mod_booking'),
                 0
+            )
+        );
+
+        $settings->add(
+            new admin_setting_heading(
+                'conditionsheadnig',
+                get_string('conditionssettings', 'mod_booking') . " " . get_string('badge:pro', 'mod_booking'),
+                get_string('conditionssettings_desc', 'mod_booking')
+            )
+        );
+        // Use SQL for availability conditions.
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/usesqlfilteravailability',
+                get_string('usesqlfilteravailability', 'mod_booking'),
+                get_string('usesqlfilteravailability_desc', 'mod_booking'),
+                0
+            )
+        );
+        $skippablecondition = bo_info::get_skippable_conditions();
+
+        $settings->add(
+            new admin_setting_configmultiselect(
+                'booking/skippableconditions',
+                get_string('skippableconditions', 'mod_booking'),
+                get_string('skippableconditions_desc', 'mod_booking'),
+                [],
+                $skippablecondition
             )
         );
 
