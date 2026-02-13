@@ -63,26 +63,19 @@ class title extends \mod_booking\placeholders\placeholder_base {
         string &$text = '',
         array &$params = [],
         int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE
-    ) {
-
-        $classname = substr(strrchr(get_called_class(), '\\'), 1);
-
-        if (!empty($optionid)) {
-            // The cachekey depends on the kind of placeholder and it's ttl.
-            // If it's the same for all users, we don't use userid.
-            // If it's the same for all options of a cmid, we don't use optionid.
-            $cachekey = "$classname-$optionid";
-            if (isset(placeholders_info::$placeholders[$cachekey])) {
-                return placeholders_info::$placeholders[$cachekey];
-            }
-
-            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-            $value = $settings->get_title_with_prefix();
-        } else {
-            $value = get_string('sthwentwrongwithplaceholder', 'mod_booking', $classname);
-        }
-
-        return $value;
+    ): string {
+        // Title is now implemented in bookingoptionname, so we just call the function there to avoid code duplication.
+        return bookingoptionname::return_value(
+            $cmid,
+            $optionid,
+            $userid,
+            $installmentnr,
+            $duedate,
+            $price,
+            $text,
+            $params,
+            $descriptionparam
+        );
     }
 
     /**
