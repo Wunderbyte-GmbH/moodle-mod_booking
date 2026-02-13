@@ -135,7 +135,7 @@ class operator_builder {
         if ($dbtype == 'postgres') {
             $casestart = "CASE ($tablealias->>'$fieldkey')::text";
         } else {
-            $casestart = "CASE JSON_UNQUOTE(JSON_EXTRACT($tablealias, CONCAT('$.', '$fieldkey')))";
+            $casestart = "CASE $tablealias.$fieldkey";
         }
 
         $casebody = implode(" ", $caseclauses);
@@ -303,10 +303,10 @@ class operator_builder {
         string $valuekey,
         array &$params
     ): string {
-        $condval = "JSON_UNQUOTE(JSON_EXTRACT($tablealias, CONCAT('$.', '$valuekey')))";
+        $condval = "$tablealias.$valuekey";
 
         return "(
-            CASE JSON_UNQUOTE(JSON_EXTRACT($tablealias, CONCAT('$.', '$operatorkey')))
+            CASE $tablealias.$operatorkey
                 WHEN '=' THEN ((TRIM(" . self::build_shortname_case('mysql', $user, $tablealias, $fieldkey, $params) .
                     ") <> '' AND " . self::build_shortname_case('mysql', $user, $tablealias, $fieldkey, $params) .
                     " = $condval) OR (" . self::build_shortname_case('mysql', $user, $tablealias, $fieldkey, $params) .
