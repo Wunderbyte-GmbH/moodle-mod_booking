@@ -69,6 +69,25 @@ class alreadyreserved implements bo_condition {
     }
 
     /**
+     * Returns the name of the condition.
+     *
+     * @return string
+     *
+     */
+    public function get_name(): string {
+        return get_string('bocondalreadyreserved', 'mod_booking');
+    }
+
+    /**
+     * Returns whether the condition is skippable or not.
+     *
+     * @return bool
+     */
+    public function is_skippable(): bool {
+        return false;
+    }
+
+    /**
      * Needed to see if it shows up in mform.
      * @return bool
      */

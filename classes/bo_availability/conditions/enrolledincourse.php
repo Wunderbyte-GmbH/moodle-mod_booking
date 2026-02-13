@@ -127,6 +127,25 @@ class enrolledincourse implements bo_condition {
     }
 
     /**
+     * Returns the name of the condition.
+     *
+     * @return string
+     *
+     */
+    public function get_name(): string {
+        return get_string('bocondenrolledincourse', 'mod_booking');
+    }
+
+    /**
+     * Returns whether the condition is skippable or not.
+     *
+     * @return bool
+     */
+    public function is_skippable(): bool {
+        return true;
+    }
+
+    /**
      * Determines whether a particular item is currently available
      * according to this availability condition.
      * @param booking_option_settings $settings Item we're checking
@@ -400,7 +419,9 @@ class enrolledincourse implements bo_condition {
      */
     public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0) {
         global $DB;
-
+        if (empty(get_config('booking', 'usesqlfilteravailability'))) {
+            return;
+        }
         // Check if PRO version is activated.
         if (wb_payment::pro_version_is_activated()) {
             $coursesarray = [];

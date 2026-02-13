@@ -78,6 +78,24 @@ class allowedtobookininstance implements bo_condition {
         }
         return self::$instance[$id];
     }
+    /**
+     * Returns the name of the condition.
+     *
+     * @return string
+     *
+     */
+    public function get_name(): string {
+        return get_string('bocondallowedtobookininstance', 'mod_booking');
+    }
+
+    /**
+     * Returns whether the condition is skippable or not.
+     *
+     * @return bool
+     */
+    public function is_skippable(): bool {
+        return false;
+    }
 
     /**
      * Reset method to clear the singleton state.
