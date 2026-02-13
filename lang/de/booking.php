@@ -711,7 +711,9 @@ $string['caladdassiteevent'] = 'Zum Kalender hinzufügen (für alle Nutzer:innen
 $string['calcustomdescriptions'] = 'Benutzerdefinierte Beschreibungen für den Kalender <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['caldonotadd'] = 'Nicht zum Kalender des Moodle-Kurses hinzufügen';
 $string['caleventdescriptionfield'] = 'Benutzerdefiniertes Feld für die Beschreibung des Kalendereintrags';
-$string['caleventdescriptionfielddesc'] = 'Wählen Sie ein benutzerdefiniertes Feld aus, das für die Beschreibung in den Kalendereinträgen verwendet wird.';
+$string['caleventdescriptionfielddesc'] = 'Wählen Sie ein benutzerdefiniertes Feld aus, das für die Beschreibung in den Kalendereinträgen verwendet wird.<br>
+Sie können Platzhalter wie {title} oder {description} im Standardwert des benutzerdefinierten Feldes (oder als individuelle Werte auf Buchungsoptionsebene) verwenden.<br>
+<span class="text-danger"><b>Achtung:</b> Stellen Sie sicher, dass Sie einen guten <b>Standardwert</b> für dieses benutzerdefinierte Feld setzen <b>BEVOR</b> Sie neue Optionen bearbeiten oder erstellen.</span>';
 $string['caleventtype'] = 'Kalenderereignis ist sichtbar für';
 $string['callbackfunctionnotapplied'] = 'Callback Funktion konnte nicht angewandt werden.';
 $string['callbackfunctionnotdefined'] = 'Callback Funktion nicht definiert.';
@@ -1471,7 +1473,9 @@ $string['howoftentorepeat'] = 'Intervall der Wiederholungen';
 $string['icalcfg'] = 'Kalender-Einstellungen und iCal-Attachments';
 $string['icalcfgdesc'] = 'Einstellungen für die Einträge im Moodle-Kalender und iCal-Dateien, die an E-Mails angehängt werden können. Mit iCal-Dateien können Termine zum persönlichen Kalender hinzugefügt werden.';
 $string['icaldescriptionfield'] = 'Benutzerdefiniertes Feld für die iCal-Beschreibung';
-$string['icaldescriptionfielddesc'] = 'Wählen Sie ein benutzerdefiniertes Feld aus, das für die Beschreibung in der iCal-Datei verwendet wird.';
+$string['icaldescriptionfielddesc'] = 'Wählen Sie ein benutzerdefiniertes Feld aus, das für die Beschreibung in der iCal-Datei verwendet wird.<br>
+Sie können Platzhalter wie {title} oder {description} im Standardwert des benutzerdefinierten Feldes (oder als individuelle Werte auf Buchungsoptionsebene) verwenden.<br>
+<span class="text-danger"><b>Achtung:</b> Stellen Sie sicher, dass Sie einen guten <b>Standardwert</b> für dieses benutzerdefinierte Feld setzen <b>BEVOR</b> Sie neue Optionen bearbeiten oder erstellen.</span>';
 $string['icalfieldlocation'] = 'Text, der im iCal-Feld angezeigt werden soll';
 $string['icalfieldlocationdesc'] = 'Wählen Sie aus der Dropdown-Liste, welcher Text für das Kalender-Feld verwendet werden soll.';
 $string['icsattachementerror'] = 'Beim Versuch, die ICS-Datei in message_controller.php an die E-Mail anzuhängen, ist ein Fehler aufgetreten.';

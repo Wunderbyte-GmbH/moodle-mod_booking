@@ -724,7 +724,9 @@ $string['caladdassiteevent'] = 'Add to calendar (visible to all users)';
 $string['calcustomdescriptions'] = 'Calendar Custom descriptions  <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['caldonotadd'] = 'Do not add to calendar of moodle course';
 $string['caleventdescriptionfield'] = 'Custom field for the calendar event description';
-$string['caleventdescriptionfielddesc'] = 'Choose a custom field that will be used for the description in the calendar events.';
+$string['caleventdescriptionfielddesc'] = 'Choose a custom field that will be used for the description in the calendar events.<br>
+You can use placeholders like {title} or {description} in the custom field default (or individual values on booking option level).<br>
+<span class="text-danger"><b>Be careful:</b> Make sure that you define a good <b>default value</b> for this custom field <b>BEFORE</b> editing or creating any new options.</span>';
 $string['caleventtype'] = 'Calendar event visibility';
 $string['callbackfunctionnotapplied'] = 'Callback function could not be applied.';
 $string['callbackfunctionnotdefined'] = 'Callback function is not defined.';
@@ -1501,7 +1503,9 @@ $string['howoftentorepeat'] = 'Repetition interval';
 $string['icalcfg'] = 'Calendar settings and configuration of iCal attachments';
 $string['icalcfgdesc'] = 'Configure calendar settings and the iCal (*.ics) files that are attached to e-mail messages. These files alow adding the booking dates to the personal calendar.';
 $string['icaldescriptionfield'] = 'Custom field for iCal description';
-$string['icaldescriptionfielddesc'] = 'Choose a custom field that will be used for the description in the iCal file.';
+$string['icaldescriptionfielddesc'] = 'Choose a custom field that will be used for the description of iCal files attached to e-mails.<br>
+You can use placeholders like {title} or {description} in the custom field default (or individual values on booking option level).<br>
+<span class="text-danger"><b>Be careful:</b> Make sure that you define a good <b>default value</b> for this custom field <b>BEFORE</b> editing or creating any new options.</span>';
 $string['icalfieldlocation'] = 'Text to display in iCal field location';
 $string['icalfieldlocationdesc'] = 'Choose from the dropdown list what what text should be used for the calendar field location';
 $string['icsattachementerror'] = 'Something were wrong when trying to attach ICS file to the email in message controller.';
