@@ -21,7 +21,7 @@ use context;
  * Helper functions to check permissions.
  *
  * @package mod_booking
- * @copyright 2024 Wunderbyte GmbH <info@wunderbyte.at>
+ * @copyright 2026 Wunderbyte GmbH <info@wunderbyte.at>
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
