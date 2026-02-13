@@ -32,6 +32,7 @@ use external_function_parameters;
 use external_single_structure;
 use external_value;
 use mod_booking\coursecategories;
+use mod_booking\singleton_service;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -74,6 +75,22 @@ class set_checked_booking_instance extends external_api {
                 'id' => $id,
             ]
         );
+
+        // This service is a helper service for a separate project.
+        // If the class local_urise\permissions does not exist, we can assume that the service is called from an external source.
+        if (!class_exists('local_urise\permissions')) {
+            return [
+                'successs' => 0,
+            ];
+        }
+
+        $bookingsettings = singleton_service::get_instance_of_booking_by_bookingid($params['id']);
+        $context = \context_module::instance($bookingsettings->cmid);
+        if (!has_capability('local/urise:viewdashboard', $context)) {
+            return [
+                'successs' => 0,
+            ];
+        }
 
         $status = coursecategories::set_configured_booking_instances($params['id']);
 
