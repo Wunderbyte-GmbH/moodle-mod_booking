@@ -19,6 +19,7 @@ use external_api;
 use external_function_parameters;
 use external_value;
 use mod_booking\booking;
+use mod_booking\permissions;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -57,6 +58,12 @@ class search_users extends external_api {
         $params = self::validate_parameters(self::execute_parameters(), [
             'query' => $query,
         ]);
+
+        // We can't know for which context the user is searching for users,
+        // So we check if they have the capability to update bookings anywhere in the system.
+        if (!permissions::has_capability_anywhere('mod/booking:updatebooking')) {
+            throw new \moodle_exception('nopermissions', 'error');
+        }
 
         return booking::load_users($params['query']);
     }
