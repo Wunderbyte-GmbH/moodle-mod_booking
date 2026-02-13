@@ -35,6 +35,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 /**
  * Control and manage placeholders for booking instances, options and mails.
  *
+ * @package mod_booking
  * @copyright Wunderbyte GmbH <info@wunderbyte.at>
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
