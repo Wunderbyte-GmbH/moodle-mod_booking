@@ -1,8 +1,13 @@
-## Version 9.1.2 (2026021000)
+## Version 9.1.2 (2026021101)
 * Improvement: When cache for booking option is purged, also purge entities cache for that option.
 * Improvement: Put the interface names in alphabetical order.
+* Improvement: completeddate as new column in bookinganswers.
+* Improvement: Use user profile values directly instead of using queries.
+* Improvement: backup and restore completeddate.
+* Improvement: Use profile values only as sql params for security reason.
 * Bugfix: Fix availability change check by making sure '[]' is always used as default value.
 * Bugfix: Make sure users can instantiate connected options (eg previously booked) even when those are invisible.
+* Bugfix: Fix mariadb error regarding the return_sql function.
 * Tests: Update the Behat scenario to reflect the roundrefundamount setting.
 
 ## Version 9.1.1 (2026020500)
