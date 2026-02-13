@@ -67,12 +67,16 @@ class save_measurement extends external_api {
      * @return array
      */
     public static function execute($measurementid, $note) {
-        global $DB, $USER;
+        global $DB;
 
         $params = self::validate_parameters(
             self::execute_parameters(),
             compact('measurementid', 'note')
         );
+
+        $context = \context_system::instance();
+        // Make sure only users with the capability to edit performance can update the note.
+        require_capability('mod/booking:editperformance', $context);
 
         $record = $DB->get_record(
             performance_renderer::TABLE,
