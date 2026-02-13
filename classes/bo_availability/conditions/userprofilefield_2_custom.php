@@ -149,7 +149,7 @@ class userprofilefield_2_custom implements bo_condition {
      * @return bool
      */
     public function is_skippable(): bool {
-        return false;
+        return true;
     }
 
     /**
