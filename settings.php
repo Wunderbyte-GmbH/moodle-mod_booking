@@ -465,28 +465,6 @@ if ($ADMIN->fulltree) {
         )
     );
 
-    // If the user has the pro version, add a normal checkbox.
-    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-    /* if ($proversion) {
-        $settings->add(
-            new admin_setting_configcheckbox(
-                'booking/alloptionsinreport',
-                get_string('alloptionsinreport', 'mod_booking'),
-                get_string('alloptionsinreportdesc', 'mod_booking'),
-                0
-            )
-        );
-    } else {
-        For non-pro users, render a disabled checkbox.
-        $settings->add(
-            new admin_setting_configempty(
-                'booking/alloptionsinreport_disabled',
-                get_string('alloptionsinreport', 'mod_booking'),
-                '<input type="checkbox" disabled="disabled" /> ' . get_string('alloptionsinreportdesc', 'mod_booking')
-            )
-        );
-    } */
-
     $settings->add(
         new admin_setting_configcheckbox(
             'booking/responsiblecontactcanedit',
