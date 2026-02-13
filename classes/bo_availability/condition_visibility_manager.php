@@ -60,14 +60,14 @@ class condition_visibility_manager {
     public function freeze_fields_for_condition(MoodleQuickForm &$mform, int $conditionid): void {
         switch ($conditionid) {
             case MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOURSE:
-                $this->freeze_element($mform, 'bo_cond_enrolledincourse_restrict');
+                $this->disable_element($mform, 'bo_cond_enrolledincourse_restrict');
                 break;
 
             case MOD_BOOKING_BO_COND_JSON_CUSTOMUSERPROFILEFIELD:
-                $this->freeze_element($mform, 'bo_cond_userprofilefield_2_custom_restrict');
+                $this->disable_element($mform, 'bo_cond_userprofilefield_2_custom_restrict');
                 break;
             case MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOHORTS:
-                $this->freeze_element($mform, 'bo_cond_enrolledincohorts_restrict');
+                $this->disable_element($mform, 'bo_cond_enrolledincohorts_restrict');
                 break;
         }
     }
@@ -84,18 +84,18 @@ class condition_visibility_manager {
         $setting->set_locked_flag_options(admin_setting_flag::ENABLED, true);
     }
     /**
-     * Applies freezing to all skipped conditions.
+     * Applies freeze and adds warning to all fields from skipped conditions.
      *
      * @param MoodleQuickForm $mform
      * @param int $conditionid
      * @return void
      */
-    public function apply_freeze_to_mform(MoodleQuickForm &$mform, int $conditionid): void {
+    public function disable_elements_in_mform(MoodleQuickForm &$mform, int $conditionid): void {
             $this->freeze_fields_for_condition($mform, $conditionid);
     }
 
     /**
-     * Freezes a specific form element. It is a fallback since form elements might not exist depending on other settings.
+     * Freezes a specific form element and adds a warning message.
      *
      * @param MoodleQuickForm $mform
      * @param string $elementname
@@ -103,9 +103,11 @@ class condition_visibility_manager {
      * @return void
      *
      */
-    public function freeze_element(MoodleQuickForm &$mform, string $elementname) {
+    private function disable_element(MoodleQuickForm &$mform, string $elementname) {
         if ($mform->elementExists($elementname)) {
             $mform->freeze($elementname);
+            $warningelement = $mform->createElement('html', '<div class="alert alert-info" role="alert">' . 'STRING TEXT' . '</div>');
+            $mform->insertElementBefore($warningelement, $elementname);
         }
     }
     /**
