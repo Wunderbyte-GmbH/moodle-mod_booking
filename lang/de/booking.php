@@ -467,6 +467,7 @@ $string['booking:sendpollurl'] = 'Umfragelink senden';
 $string['booking:sendpollurltoteachers'] = 'Umfragelink and Trainer:innen senden';
 $string['booking:subscribeusers'] = 'Für andere Teilnehmer:innen Buchungen durchführen';
 $string['booking:updatebooking'] = 'Buchungen verwalten';
+$string['booking:updatenotes'] = 'Buchungsnotizen bearbeiten';
 $string['booking:view'] = 'Darf Buchungsinstanzen sehen';
 $string['booking:viewallratings'] = 'Alle Bewertungen sehen';
 $string['booking:viewanyrating'] = 'Alle Bewertungen sehen';
