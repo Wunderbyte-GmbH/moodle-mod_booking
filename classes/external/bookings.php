@@ -85,7 +85,7 @@ class bookings extends external_api {
             ['courseid' => $courseid, 'printusers' => $printusers, 'days' => $days]
         );
 
-        $bookings = $DB->get_records_select("booking", "course = {$courseid}");
+        $bookings = $DB->get_records("booking", ["course" => $courseid]);
 
         foreach ($bookings as $booking) {
             $ret = [];
