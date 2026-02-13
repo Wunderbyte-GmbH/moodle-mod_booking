@@ -188,7 +188,7 @@ class bo_info {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        $conditions = self::get_conditions(MOD_BOOKING_CONDPARAM_HARDCODED_ONLY);
+        $conditions = self::get_available_conditions(MOD_BOOKING_CONDPARAM_HARDCODED_ONLY);
 
         if (!empty($settings->availability)) {
             $availabilityarray = json_decode($settings->availability);
@@ -594,6 +594,61 @@ class bo_info {
 
         global $CFG;
 
+        $classes = self::get_condition_classes();
+        $conditions = [];
+
+        // We just want filenames, as they are also the classnames.
+        foreach ($classes as $classname => $path) {
+            if (!class_exists($classname)) {
+                continue;
+            }
+            if (method_exists($classname, 'instance')) {
+                $instance = $classname::instance();
+            } else {
+                $instance = new $classname();
+            }
+            switch ($condparam) {
+                case MOD_BOOKING_CONDPARAM_HARDCODED_ONLY:
+                    if ($instance->is_json_compatible() === false) {
+                        $conditions[] = $instance;
+                    }
+                    break;
+                case MOD_BOOKING_CONDPARAM_JSON_ONLY:
+                    if ($instance->is_json_compatible() === true) {
+                        $conditions[] = $instance;
+                    }
+                    break;
+                case MOD_BOOKING_CONDPARAM_MFORM_ONLY:
+                    if ($instance->is_shown_in_mform()) {
+                        $conditions[] = $instance;
+                    }
+                    break;
+                case MOD_BOOKING_CONDPARAM_CANBEOVERRIDDEN:
+                    if (isset($instance->overridable) && $instance->overridable === true) {
+                        $conditions[] = $instance;
+                    }
+                    break;
+                case MOD_BOOKING_CONDPARAM_ALL:
+                default:
+                    $conditions[] = $instance;
+                    break;
+            }
+        }
+
+        return $conditions;
+    }
+
+    /**
+     * Gets the available conditions depending on settings.
+     *
+     * @param int $condparam
+     *
+     * @return array
+     *
+     */
+    public static function get_available_conditions(int $condparam = MOD_BOOKING_CONDPARAM_ALL): array {
+
+        global $CFG;
         $classes = self::get_condition_classes();
         $skippedconditions = get_config('booking', 'skippableconditions');
         $skippedconditionarray = !empty($skippedconditions) ? explode(',', $skippedconditions) : [];

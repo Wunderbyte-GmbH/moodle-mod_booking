@@ -28,9 +28,6 @@ use admin_setting;
 use admin_setting_flag;
 use MoodleQuickForm;
 
-defined('MOODLE_INTERNAL') || die();
-
-require_once(__DIR__ . '/../../lib.php');
 
 /**
  * Class for managing visibility of condition settings and fields for skippable conditions.
@@ -62,39 +59,28 @@ class condition_visibility_manager {
      */
     public function freeze_fields_for_condition(MoodleQuickForm &$mform, int $conditionid): void {
         switch ($conditionid) {
-            case MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOHORTS:
-                break;
-
             case MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOURSE:
+                $this->freeze_element($mform, 'bo_cond_enrolledincourse_restrict');
                 break;
 
             case MOD_BOOKING_BO_COND_JSON_CUSTOMUSERPROFILEFIELD:
-                $mform->freeze('bo_cond_userprofilefield_1_default_restrict');
+                $this->freeze_element($mform, 'bo_cond_userprofilefield_2_custom_restrict');
+                break;
+            case MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOHORTS:
+                $this->freeze_element($mform, 'bo_cond_enrolledincohorts_restrict');
                 break;
         }
     }
 
     /**
-     * Freezes a form element if it exists.
-     *
-     * @param MoodleQuickForm $mform
-     * @param string $fieldname
-     * @return void
-     */
-    private function freeze_if_exists(MoodleQuickForm &$mform, string $fieldname): void {
-        if ($mform->elementExists($fieldname)) {
-            $mform->freeze($fieldname);
-        }
-    }
-    /**
-     * Adds a warning for a condition in the setting.
+     * Locks a setting for a condition. Experimental.
      *
      * @param admin_setting $setting
      *
      * @return void
      *
      */
-    public function add_warning_for_condition_in_setting(admin_setting $setting) {
+    public function lock_setting(admin_setting $setting) {
         $setting->set_locked_flag_options(admin_setting_flag::ENABLED, true);
     }
     /**
@@ -107,6 +93,21 @@ class condition_visibility_manager {
     public function apply_freeze_to_mform(MoodleQuickForm &$mform, int $conditionid): void {
             $this->freeze_fields_for_condition($mform, $conditionid);
     }
+
+    /**
+     * Freezes a specific form element. It is a fallback since form elements might not exist depending on other settings.
+     *
+     * @param MoodleQuickForm $mform
+     * @param string $elementname
+     *
+     * @return void
+     *
+     */
+    public function freeze_element(MoodleQuickForm &$mform, string $elementname) {
+        if ($mform->elementExists($elementname)) {
+            $mform->freeze($elementname);
+        }
+    }
     /**
      * Checks if a condition is skipped.
      *
@@ -116,10 +117,10 @@ class condition_visibility_manager {
      *
      */
     public function is_condition_skipped(int $conditionid): bool {
-        if (
-            in_array($conditionid, $this->get_skipped_conditions())
-            && !empty($this->get_skipped_conditions())
-        ) {
+        if (empty($this->get_skipped_conditions())) {
+            return false;
+        }
+        if (in_array($conditionid, $this->get_skipped_conditions())) {
             return true;
         }
         return false;
