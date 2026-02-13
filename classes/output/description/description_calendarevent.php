@@ -16,9 +16,6 @@
 
 namespace mod_booking\output\description;
 
-use mod_booking\placeholders\placeholders_info;
-use mod_booking\singleton_service;
-
 /**
  * Class description_calendarevent
  *
@@ -29,7 +26,7 @@ use mod_booking\singleton_service;
 class description_calendarevent extends description_base {
     /**
      * Template name.
-     * @var int
+     * @var string
      */
     protected string $template = 'mod_booking/bookingoption_description_event';
 
@@ -41,30 +38,20 @@ class description_calendarevent extends description_base {
 
     /**
      * Render the description.
-     *
-     * @return string
-     */
-    /**
-     * Render the description.
-     *
-     * @return string
-     */
-    /**
-     * Render the description.
-     *
      * @return string
      */
     public function render(): string {
-
         // For description_calendarevent we accept user defined templates if available.
         // So we get the custom field short name for calendar event description.
         $cfshortname = get_config('booking', 'calendareventdescriptionfield');
-
-        $custom = parent::render_custom_template_from_customfield($cfshortname);
-        if (!empty($custom)) {
-            return $custom;
+        if (!empty($cfshortname) && $cfshortname != '-1') {
+            $custom = parent::render_custom_template_from_customfield($cfshortname);
+            if (!empty(trim(strip_tags($custom)))) {
+                return $custom;
+            }
         }
-
+        /* Fallback: If no config setting found (because no PRO version is active) or
+        if no custom field has been set, we just render the default template. */
         return parent::render();
     }
 }

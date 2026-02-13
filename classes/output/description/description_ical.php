@@ -16,9 +16,6 @@
 
 namespace mod_booking\output\description;
 
-use mod_booking\placeholders\placeholders_info;
-use mod_booking\singleton_service;
-
 /**
  * Class description_ical
  *
@@ -29,32 +26,32 @@ use mod_booking\singleton_service;
 class description_ical extends description_base {
     /**
      * Template name.
-     * @var int
+     * @var string
      */
     protected string $template = 'mod_booking/bookingoption_description_ical';
 
     /**
-     * descriptionparam
+     * Description param.
      * @var int
      */
     protected int $param = MOD_BOOKING_DESCRIPTION_ICAL;
 
     /**
      * Render the description.
-     *
      * @return string
      */
     public function render(): string {
-
-        // For description_ical we accept user defined templates if available.
-        // So we get the custom field short name for iCal description.
+        // For the ical description we accept user defined templates if available.
+        // So we get the custom field short name for the ical description.
         $cfshortname = get_config('booking', 'icaldescriptionfield');
-
-        $custom = parent::render_custom_template_from_customfield($cfshortname);
-        if (!empty($custom)) {
-            return $custom;
+        if (!empty($cfshortname) && $cfshortname != '-1') {
+            $custom = parent::render_custom_template_from_customfield($cfshortname);
+            if (!empty(trim(strip_tags($custom)))) {
+                return $custom;
+            }
         }
-
+        /* Fallback: If no config setting found (because no PRO version is active) or
+        if no custom field has been set, we just render the default template. */
         return parent::render();
     }
 }
