@@ -165,4 +165,20 @@ interface bo_condition {
      * @return int
      */
     public function get_id(): int;
+
+    /**
+     * Returns the name of the condition.
+     *
+     * @return string
+     *
+     */
+    public function get_name(): string;
+
+    /**
+     * Returns whether the condition is skippable or not.
+     *
+     * @return bool
+     *
+     */
+    public function is_skippable(): bool;
 }

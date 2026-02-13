@@ -128,6 +128,25 @@ class enrolledincohorts implements bo_condition {
     }
 
     /**
+     * Returns the name of the condition.
+     *
+     * @return string
+     *
+     */
+    public function get_name(): string {
+        return get_string('bocondenrolledincohorts', 'mod_booking');
+    }
+
+    /**
+     * Returns whether the condition is skippable or not.
+     *
+     * @return bool
+     */
+    public function is_skippable(): bool {
+        return true;
+    }
+
+    /**
      * Determines whether a particular item is currently available
      * according to this availability condition.
      * @param booking_option_settings $settings Item we're checking
@@ -373,7 +392,7 @@ class enrolledincohorts implements bo_condition {
      */
     public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0) {
         global $DB;
-
+        // If SQL filter is not activated, the condition cannot be used.
         // Check if PRO version is activated.
         if (wb_payment::pro_version_is_activated()) {
             $cohortssarray = [];
@@ -395,7 +414,9 @@ class enrolledincohorts implements bo_condition {
                         "$cohortrecord->name (ID: $cohortrecord->id)";
                 }
             }
-
+            if (!empty(get_config('booking', 'usesqlfilteravailability'))) {
+                return;
+            }
             $mform->addElement(
                 'advcheckbox',
                 'bo_cond_enrolledincohorts_restrict',

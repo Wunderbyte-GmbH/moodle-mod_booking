@@ -66,6 +66,24 @@ class askforconfirmation implements bo_condition {
     public function get_id(): int {
         return $this->id;
     }
+    /**
+     * Returns the name of the condition.
+     *
+     * @return string
+     *
+     */
+    public function get_name(): string {
+        return get_string(identifier: 'bocondaskforconfirmation', component: 'mod_booking');
+    }
+
+    /**
+     * Returns whether the condition is skippable or not.
+     *
+     * @return bool
+     */
+    public function is_skippable(): bool {
+        return false;
+    }
 
     /**
      * Needed to see if class can take JSON.

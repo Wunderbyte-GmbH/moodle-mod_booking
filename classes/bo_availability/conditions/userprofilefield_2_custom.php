@@ -134,6 +134,25 @@ class userprofilefield_2_custom implements bo_condition {
     }
 
     /**
+     * Returns the name of the condition.
+     *
+     * @return string
+     *
+     */
+    public function get_name(): string {
+        return get_string('boconduserprofilefield2custom', 'mod_booking');
+    }
+
+    /**
+     * Returns whether the condition is skippable or not.
+     *
+     * @return bool
+     */
+    public function is_skippable(): bool {
+        return false;
+    }
+
+    /**
      * Determines whether a particular item is currently available
      * according to this availability condition.
      * @param booking_option_settings $settings Item we're checking
@@ -643,7 +662,9 @@ class userprofilefield_2_custom implements bo_condition {
      */
     public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0) {
         global $DB;
-
+        if (empty(get_config('booking', 'usesqlfilteravailability'))) {
+            return;
+        }
         // Check if PRO version is activated.
         if (wb_payment::pro_version_is_activated()) {
             $customuserprofilefields = $DB->get_records('user_info_field', null, '', 'id, name, shortname');
@@ -785,6 +806,9 @@ class userprofilefield_2_custom implements bo_condition {
                     'bo_cond_customuserprofilefield_sqlfiltercheck',
                     get_string('sqlfiltercheckstring', 'mod_booking')
                 );
+                // if(empty(get_config())) {
+                //     $mform->disabled
+                // }
                 $mform->hideIf(
                     'bo_cond_customuserprofilefield_sqlfiltercheck',
                     'bo_cond_customuserprofilefield_field',
