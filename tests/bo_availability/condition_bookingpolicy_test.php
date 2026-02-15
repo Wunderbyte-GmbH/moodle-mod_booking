@@ -51,7 +51,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @category test
  * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @runInSeparateProcess 
+ * @runInSeparateProcess
  * @runTestsInSeparateProcesses
  */
 final class condition_bookingpolicy_test extends advanced_testcase {
@@ -678,16 +678,18 @@ final class condition_bookingpolicy_test extends advanced_testcase {
         $record->cmid = $settings1->cmid;
         $record->invisible = MOD_BOOKING_OPTION_INVISIBLE;
         booking_option::update($record);
-        singleton_service::destroy_booking_option_singleton($option1->id);
+        singleton_service::destroy_instance();
         // Get booking as coursemodule info.
         $cm = get_coursemodule_from_instance('booking', $settings1->bookingid);
+
+        $this->setUser($student1);
         booking::purge_cache_for_booking_instance_by_cmid($cm->id);
         booking_option::purge_cache_for_option($option1->id);
         booking_option::purge_cache_for_option($option2->id);
+
         $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
         $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
 
-        $this->setUser($student1);
         // Now student1 is allowed to book option2 in course1.
         [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $student1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
