@@ -726,6 +726,9 @@ final class condition_bookingpolicy_test extends advanced_testcase {
 
         $this->resetAfterTest();
 
+        // Moodle way: load all profile fields for student1.
+        require_once($CFG->dirroot . '/user/profile/lib.php');
+
         // Setup test data.
         $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
