@@ -33,6 +33,7 @@ use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\local\mobile\customformstore;
+use moodle_url;
 // phpcs:ignore
 //use core\cron;
 use mod_booking\booking_rules\booking_rules;
@@ -679,10 +680,10 @@ final class condition_bookingpolicy_test extends advanced_testcase {
         $record->invisible = MOD_BOOKING_OPTION_INVISIBLE;
         booking_option::update($record);
         singleton_service::destroy_instance();
-        // Get booking as coursemodule info.
-        $cm = get_coursemodule_from_instance('booking', $settings1->bookingid);
 
+        // Switch to the student1 again and purge caches in behalf of that user.
         $this->setUser($student1);
+        $cm = get_coursemodule_from_instance('booking', $settings1->bookingid);
         booking::purge_cache_for_booking_instance_by_cmid($cm->id);
         booking_option::purge_cache_for_option($option1->id);
         booking_option::purge_cache_for_option($option2->id);
@@ -690,22 +691,22 @@ final class condition_bookingpolicy_test extends advanced_testcase {
         $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
         $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
 
-        // Now student1 is allowed to book option2 in course1.
+        // Validate if student1 is allowed to book option2 in course1 after option1 set to be invisible.
         [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $student1->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
-        $result = booking_bookit::bookit('option', $settings2->id, $student1->id);
         $pluginversion = get_config('mod_booking')->version;
-        $this->assertEquals(0, $result['status']);
-        $this->assertEquals("notallowedtobook", $result['message']);
         if ($pluginversion < 2026021000) {
-            // Should be: we will not be able to book and be blocked by previously,
-            // because the user can't instantiate the settings object because of missing rights.
-            // But it works as usually.
-            [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $student1->id, true);
-            $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMBOOKIT, $id);
+            // Before fix - user was not allowed to boook if previously booked option was set to invinsible.
+            $this->assertEquals(MOD_BOOKING_BO_COND_JSON_PREVIOUSLYBOOKED, $id);
+            $this->assertStringContainsString('Only users who have previously booked', $description);
+            $this->assertStringContainsString((string) $option1->id, $description);
+            $this->assertStringContainsString('are allowed to book', $description);
         } else {
+            // After fix - booking is possible.
+            $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+            $result = booking_bookit::bookit('option', $settings2->id, $student1->id);
+            $result = booking_bookit::bookit('option', $settings2->id, $student1->id);
             [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $student1->id, true);
-            $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMBOOKIT, $id);
+            $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
         }
     }
 
