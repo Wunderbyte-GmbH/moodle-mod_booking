@@ -1295,7 +1295,7 @@ class booking {
         $groupby = implode(" , ", $groupbyarray);
 
         // Now we merge all the params arrays.
-        $params = array_merge($params, $params1, $params2, $params3, $params4);
+        $params = array_merge($params, $params1, $params2, $params3, $params4 ?? []);
 
         // We build everything together.
         $from = $outerfrom;
