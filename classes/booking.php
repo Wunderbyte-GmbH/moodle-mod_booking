@@ -1261,7 +1261,7 @@ class booking {
 
         // When we actually ask for one specific record, we always need to return it and don't apply where conditions.
         // This is important because of the connected availability conditions.
-        if (empty($where['id'])) {
+        if (empty($wherearray['id'])) {
             [$select4, $from4, $filter4, $params4, $conditionsql] = bo_info::return_sql_from_conditions($userid ?? 0);
         }
 
