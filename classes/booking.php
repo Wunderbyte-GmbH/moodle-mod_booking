@@ -1258,7 +1258,12 @@ class booking {
         // Instead of "where" we return "filter". This is to support the filter functionality of wunderbyte table.
         [$select2, $from2, $filter2, $params2] = booking_option_settings::return_sql_for_teachers();
         [$select3, $from3, $filter3, $params3] = booking_option_settings::return_sql_for_imagefiles();
-        [$select4, $from4, $filter4, $params4, $conditionsql] = bo_info::return_sql_from_conditions($userid ?? 0);
+
+        // When we actually ask for one specific record, we always need to return it and don't apply where conditions.
+        // This is important because of the connected availability conditions.
+        if (empty($wherearray['id'])) {
+            [$select4, $from4, $filter4, $params4, $conditionsql] = bo_info::return_sql_from_conditions($userid ?? 0);
+        }
 
         // The $outerfrom takes all the select from the supplementary selects.
         $outerfrom .= !empty($select1) ? ", $select1 " : '';
