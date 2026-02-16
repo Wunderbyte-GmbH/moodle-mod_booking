@@ -930,6 +930,11 @@ $string['conditionselectusershoppingcart_desc'] = "User with payment obligation 
 $string['conditionselectusersuserids'] = "Select the users you want to target";
 $string['conditionsoverwritingbillboard'] = 'Overwrite messages about blocking reasons of bookings';
 $string['conditionsoverwritingbillboard_desc'] = 'A text can be entered in the settings of the booking instance that is displayed instead of other messages on blocking reasons of bookings.';
+$string['conditionssettings'] = 'Availability conditions settings';
+$string['conditionssettings_desc'] = 'You can opt out of certain conditions if they are not needed. This will give you a performance boost, since the system will not check these conditions anymore during the booking process.';
+$string['conditionsskippedwarning'] = '<div class="alert alert-info" role="alert">
+    This condition can not be selected, since it was skipped in the settings.
+    </div>';
 $string['conditiontextfield'] = 'Value';
 $string['configurefields'] = 'Configure fields and columns';
 $string['confirmactivtyfrom'] = 'Confirm users activity from';
@@ -2700,6 +2705,8 @@ $string['signinsheetmode_desc'] = 'Select the mode for downloading the sign-in s
 $string['signinsheettoporientation'] = 'Sign-in Sheet Top-Button Orientation';
 $string['signinsheettoporientationdesc'] = 'Orientation Top PDF download button';
 $string['signinsheettoporientationdesc_help'] = 'Sets the default orientation for the sign-in sheet top download button. Choose between Portrait and Landscape.';
+$string['skipableconditions'] = 'Skippable conditions';
+$string['skipableconditions_desc'] = 'Select which availability conditions should be skipped during the booking process.';
 $string['skipbookingrulesmode'] = 'Apply booking rules';
 $string['skipbookingrulesoptin'] = 'Opt in: Only apply the following rules';
 $string['skipbookingrulesoptout'] = 'Opt out: Don\'t apply the following rules';
@@ -3003,10 +3010,6 @@ $string['userstonotify'] = 'Notification list';
 $string['userwhotriggeredevent'] = 'User who triggered the event';
 $string['usesqlfilteravailability'] = "Use SQL for availability conditions";
 $string['usesqlfilteravailability_desc'] = "This setting enables SQL-based filters for availability conditions. When enabled, booking options that don't meet availability conditions are filtered out at the database level, improving performance. However, with very large tables, JSON parsing may cause overhead. Disable this setting if you notice performance issues or if you don't need SQL filters.";
-$string['conditionssettings'] = 'Availability conditions settings';
-$string['conditionssettings_desc'] = 'Configure availability conditions for booking options.';
-$string['skippableconditions'] = 'Skippable conditions';
-$string['skippableconditions_desc'] = 'Select which availability conditions should be skipped during the booking process.';
 $string['viewallresponses'] = 'Manage {$a} responses';
 $string['viewconfirmationbooked'] = 'Your booking has been registered:
 {bookingdetails}
