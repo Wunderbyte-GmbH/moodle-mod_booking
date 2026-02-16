@@ -1198,11 +1198,11 @@ class booking {
         if (!$context || !has_capability('mod/booking:canseeinvisibleoptions', $context)) {
             // If we have a direct link, we only hide totally invisible options.
             // Also, if the user has already booked and looks at her table, she should see it.
-            if (isset($where['id'])) {
+            if (isset($wherearray['id'])) {
                 // If we get one precise settings object, we always fetch it.
                 // Accessibilities need to be handled elsewhere.
                 // This is necessary to make sure we get the object for connected availability conditions.
-                $where = " ";
+                $where = " 1 = 1 ";
             } else if (!empty($userid)) {
                 $where = " invisible <> 1 ";
             } else {
