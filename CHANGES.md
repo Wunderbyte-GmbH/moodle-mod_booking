@@ -1,3 +1,45 @@
+## Version 9.1.3 (2026021600)
+* New feature: Add new description placeholder.
+* Improvement: Check capability of a user anywhere in the system.
+* Improvement: Add capabilities check for webservice.
+* Improvement: Validate the sessionkey sent in the service.
+* Improvement: Add capability check to update notes.
+* Improvement: Add more useful help strings to description field settings.
+* Improvement: Harden code for new description classes.
+* Improvement: {title} placeholder now uses same function as {bookingoptionname} placeholder.
+* Improvement: Also use class description_calendarevent in calendar constructor.
+* Improvement: New option booking settings for custom description of calendar events.
+* Improvement: Replace get_rendered_eventdescription with description_calendarevent.
+* Improvement: Apply the user-defined template to description_ical & description_calendarevent.
+* Improvement: Read the user-defined template from the custom field configured in the iCal settings.
+* Improvement: New description classes for each type of context (ical, calendar event, mail, etc.).
+* Improvement: New option in the iCal settings that allows the user to select a custom field as the description field for iCal.
+* Improvement: Get rid of unnecessary settings (iCals are sent by rules now).
+* Bugfix: Fix call of get_options_filter_sql in create_table_for_one_option in order to fix unit test.
+* Bugfix: Make sure we have param4.
+* Bugfix: Check capabilities properly.
+* Bugfix: Dont declare writing service as read.
+* Bugfix: Make sure to require capability for storing performance.
+* Bugfix: Make sure to user proper and secure way of fetching Data.
+* Bugfix: Don't render sql conditions when we only fetch one single option.
+* Bugfix: Make sure invisible options are correctly instantiated.
+* Bugfix: Add missing package tags.
+* Bugfix: Rename behat to validate.
+* Bugfix: Reverted deprecation fix as it is not yet supported by Moodle 4.5.
+* Bugfix: Fix warnings and deprecations in unit test.
+* Bugfix: Fix unit test and linting.
+* Bugfix: Put the descriptions on the same line as their property name in the iCal file, following the PropertyName:PropertyValue rule.
+* Bugfix: Set the correct name of option when reading config in description_calendarevent.
+* Bugfix: Make sure unit test for ical attachments works also with cancelled icals sent with Booking rules.
+* Tests: Improve previously booked test.
+* Tests: Fix test by requiring used constant.
+* Tests: Check access to invisible but previously booked options.
+* Tests: Add unit test for calendar visibility changes.
+* Tests: Clear the cache of the placeholder_info class during test initialization, as data from previous tests remains cached.
+* Tests: Update the PHPUnit tests to reflect the latest changes.
+* Tests: Add test coverage for both description_ical and description_calendarevent classes.
+* Tests: Verify that the rendered description matches the expected output in different scenarios.
+
 ## Version 9.1.2 (2026021101)
 * Improvement: When cache for booking option is purged, also purge entities cache for that option.
 * Improvement: Put the interface names in alphabetical order.
