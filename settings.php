@@ -752,8 +752,8 @@ if ($ADMIN->fulltree) {
         $settings->add(
             new admin_setting_configmultiselect(
                 'booking/skippableconditions',
-                get_string('skippableconditions', 'mod_booking'),
-                get_string('skippableconditions_desc', 'mod_booking'),
+                get_string('skipableconditions', 'mod_booking'),
+                get_string('skipableconditions_desc', 'mod_booking'),
                 [],
                 $skippablecondition
             )
