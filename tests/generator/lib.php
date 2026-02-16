@@ -656,7 +656,6 @@ class mod_booking_generator extends testing_module_generator {
 
         $wherearray = [
             'bookingid' => (int) $booking->id,
-            'id' => $optionid,
         ];
         [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(
@@ -669,10 +668,11 @@ class mod_booking_generator extends testing_module_generator {
                     $wherearray,
                     null,
                     [MOD_BOOKING_STATUSPARAM_BOOKED],
-                    '',
+                    " id=:ctfoooptionid ",
                     '',
                     $showonlyonetable
                 );
+        $params['ctfoooptionid'] = $optionid;
         $showonlyonetable->set_filter_sql($fields, $from, $where, $filter, $params);
 
         $showonlyonetable->printtable(10, true);
@@ -760,15 +760,8 @@ class mod_booking_generator extends testing_module_generator {
                 $task->set_lock($lock);
                 $cronlock->release();
 
-                if ($CFG->version >= 2023042400) {
-                    // Moodle 4.2 and newer.
-                    \core\cron::prepare_core_renderer();
-                    \core\cron::setup_user($user);
-                } else {
-                    // Moodle 4.1 and older.
-                    cron_prepare_core_renderer();
-                    cron_setup_user($user);
-                }
+                \core\cron::prepare_core_renderer();
+                \core\cron::setup_user($user);
 
                 $task->execute();
                 \core\task\manager::adhoc_task_complete($task);
