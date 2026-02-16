@@ -24,8 +24,7 @@
 
 namespace mod_booking\bo_availability;
 
-use admin_setting;
-use admin_setting_flag;
+use moodle_url;
 use MoodleQuickForm;
 
 
@@ -73,17 +72,6 @@ class condition_visibility_manager {
     }
 
     /**
-     * Locks a setting for a condition. Experimental.
-     *
-     * @param admin_setting $setting
-     *
-     * @return void
-     *
-     */
-    public function lock_setting(admin_setting $setting) {
-        $setting->set_locked_flag_options(admin_setting_flag::ENABLED, true);
-    }
-    /**
      * Applies freeze and adds warning to all fields from skipped conditions.
      *
      * @param MoodleQuickForm $mform
@@ -105,8 +93,19 @@ class condition_visibility_manager {
      */
     private function disable_element(MoodleQuickForm &$mform, string $elementname) {
         if ($mform->elementExists($elementname)) {
+            $linktosetting = new moodle_url(
+                '/admin/settings.php',
+                ['section' => 'modsettingbooking'],
+                'admin-skippableconditions'
+            );
             $mform->freeze($elementname);
-            $warningelement = $mform->createElement('html', '<div class="alert alert-info" role="alert">' . 'STRING TEXT' . '</div>');
+            $warningname = $elementname . '_warning';
+            $warningelement = $mform->createElement(
+                'static',
+                $warningname,
+                '',
+                get_string('conditionsskippedwarning', 'mod_booking', $linktosetting)
+            );
             $mform->insertElementBefore($warningelement, $elementname);
         }
     }

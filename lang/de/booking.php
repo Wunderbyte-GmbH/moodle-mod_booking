@@ -915,6 +915,11 @@ $string['conditionselectusershoppingcart_desc'] = "Nutzer:in mit Zahlungsverpfli
 $string['conditionselectusersuserids'] = "Wähle die gewünschten Nutzer:innen";
 $string['conditionsoverwritingbillboard'] = 'Überschreiben von Nachrichten zur Buchbarkeit bzw. deren Blockierung ermöglichen';
 $string['conditionsoverwritingbillboard_desc'] = 'In den Einstellungen der Buchungsinstanz kann ein Text eingegeben werden, der anstelle von anderen Nachrichten zur (Nicht-)Buchbarkeit angezeigt wird.';
+$string['conditionssettings'] = 'Verfügbarkeitsbedingungen';
+$string['conditionssettings_desc'] = 'Sie können bestimmte Verfügbarkeitsbedigungen deaktivieren, wenn sie nicht benötigt werden. Dadurch erhalten Sie einen Performance-Vorteil, da das System diese Verfügbarkeitsbedigungen während des Buchungsprozesses nicht mehr überprüft.';
+$string['conditionsskippedwarning'] = '<div class="alert alert-info" role="alert">
+    Diese Verfügbarkeit kann nicht ausgewählt werden, da sie in den <a href="{$a}" target="_blank"> Einstellungen </a> ausgesetzt wurde.
+    </div>';
 $string['conditiontextfield'] = 'Wert';
 $string['configurefields'] = 'Spalten und Felder anpassen';
 $string['confirmationdeleted'] = 'Bestätigung gelöscht';
@@ -2580,6 +2585,8 @@ $string['signinsheetmode_desc'] = 'Wählen Sie den Modus für das Herunterladen 
 $string['signinsheettoporientation'] = 'Ausrichtung oberer Button-Unterschriftenliste';
 $string['signinsheettoporientationdesc'] = 'Orientierung PDF download oberer Button';
 $string['signinsheettoporientationdesc_help'] = 'Legt die Standardausrichtung für den oberen Download-Button der Unterschriftenliste fest. Wählen Sie zwischen Hochformat und Querformat.';
+$string['skipableconditions'] = 'Aussetzbare Verfügbarkeitsbedingungen';
+$string['skipableconditions_desc'] = 'Wählen Sie aus, welche Verfügbarkeitsbedingungen während des Buchungsprozesses ausgesetz werden sollen.';
 $string['skipbookingrulesmode'] = 'Anwendung der Buchungsregeln';
 $string['skipbookingrulesoptin'] = 'Opt in: Nur folgende Regeln anwenden';
 $string['skipbookingrulesoptout'] = 'Opt out: Folgende Regeln nicht anwenden';
@@ -2873,10 +2880,6 @@ $string['userstonotify'] = 'Benachrichtigungsliste';
 $string['userwhotriggeredevent'] = 'Nutzer:in, die das Ereignis ausgelöst hat';
 $string['usesqlfilteravailability'] = "Verwende SQL bei Einschränkungen der Verfügbarkeit";
 $string['usesqlfilteravailability_desc'] = "Diese Einstellung aktiviert SQL-basierte Filter für Verfügbarkeitsbedingungen. Wenn aktiviert, werden Buchungsoptionen, die Verfügbarkeitsbedingungen nicht erfüllen, bereits auf Datenbankebene herausgefiltert, was die Performance verbessert. Bei sehr großen Tabellen kann das JSON-Parsen jedoch Overhead verursachen. Deaktivieren Sie diese Einstellung, wenn Sie Performance-Probleme bemerken oder wenn Sie die SQL-Filter nicht benötigen.";
-$string['conditionssettings'] = 'Verfügbarkeitsbedingungen';
-$string['conditionssettings_desc'] = 'Konfigurieren Sie die Verfügbarkeitsbedingungen für Buchungsoptionen.';
-$string['skippableconditions'] = 'Überspringbare Bedingungen';
-$string['skippableconditions_desc'] = 'Wählen Sie aus, welche Verfügbarkeitsbedingungen während des Buchungsprozesses übersprungen werden sollen.';
 $string['viewallresponses'] = '{$a} Buchungen verwalten';
 $string['viewconfirmationbooked'] = 'Ihre Buchung wurde registriert:
 {bookingdetails}
