@@ -1800,6 +1800,7 @@ $string['nolabels'] = 'No column labels defined in settings object.';
 $string['nolocationselected'] = 'No location selected';
 $string['nomoodlecourseconnection'] = 'No connection to Moodle course';
 $string['nomoreseats'] = 'There are no more seats available, you have reserved the last spot for yourself.';
+$string['nooptionid'] = 'No booking option id was found';
 $string['nooptionselected'] = 'No booking option selected';
 $string['nooverlapblocking'] = 'This option cannot be booked as it overlaps with your already booked option(s): {$a}';
 $string['nooverlappingselectblocking'] = 'Block booking';
