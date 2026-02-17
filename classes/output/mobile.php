@@ -587,6 +587,7 @@ class mobile {
             foreach ($navtabs as $navtab) {
                 if (
                     !empty($navtab) &&
+                    !empty($navlabelnames[$navtab]) &&
                     self::get_available_booking_options($navtab, $cmid)
                 ) {
                     $selectednavlabelnames[] = [
