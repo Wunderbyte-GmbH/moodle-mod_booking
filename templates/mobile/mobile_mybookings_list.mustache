@@ -49,64 +49,66 @@
 </div>
 
 <%#mybookings%>
-    <ion-card>
-        <ion-card-header>
-            <h3>
-                <% title %>
-            </h3>
-        </ion-card-header>
-        <ion-card-content>
-            <br>
-            <%# hassessions %>
-                <%# sessions %>
-                    <div><% concatinatedstartendtime %></div>
-                <%/ sessions %>
-            <br>
-            <%/ hassessions %>
-
-            <%# hascollapsedsessions %>
-            <ion-accordion-group
-              style="padding-bottom: 3px !important;"
-            >
-              <ion-accordion value="first">
-                <ion-item slot="header" color="light">
-                  <ion-label>
-                    {{ 'plugin.mod_booking.showdates' | translate }}
-                    <ion-icon name="calendar-outline" />
-                  </ion-label>
-                </ion-item>
-                <%# collapsedsessions %>
-                  <div
-                    class="ion-padding"
-                    style="padding-bottom: 9px !important; padding-top: 3px !important;"
-                    slot="content"
-                  >
-                    <% coursestarttime %> - <% courseendtime %>
-                  </div>
-                <%/ collapsedsessions %>
-              </ion-accordion>
-            </ion-accordion-group>
-            <%/ hascollapsedsessions %>
-
-            <%# hassessions %>
-            <br>
-            <%/ hassessions %>
-
-            <%# hasprice %>
-            <ion-text>
-                <b>
-                  {{ 'plugin.mod_booking.mobileappprice' | translate }}
-                </b>
-                <h4><% price.amount %> <% price.currency %></h4>
+    <%# itemid %>
+        <ion-card>
+            <ion-card-header>
+                <h3>
+                    <% title %>
+                </h3>
+            </ion-card-header>
+            <ion-card-content>
                 <br>
-            </ion-text>
-            <%/ hasprice %>
+                <%# hassessions %>
+                    <%# sessions %>
+                        <div><% concatinatedstartendtime %></div>
+                    <%/ sessions %>
+                <br>
+                <%/ hassessions %>
 
-            <ion-button core-site-plugins-new-content
+                <%# hascollapsedsessions %>
+                <ion-accordion-group
+                style="padding-bottom: 3px !important;"
+                >
+                <ion-accordion value="first">
+                    <ion-item slot="header" color="light">
+                    <ion-label>
+                        {{ 'plugin.mod_booking.showdates' | translate }}
+                        <ion-icon name="calendar-outline" />
+                    </ion-label>
+                    </ion-item>
+                    <%# collapsedsessions %>
+                    <div
+                        class="ion-padding"
+                        style="padding-bottom: 9px !important; padding-top: 3px !important;"
+                        slot="content"
+                    >
+                        <% coursestarttime %> - <% courseendtime %>
+                    </div>
+                    <%/ collapsedsessions %>
+                </ion-accordion>
+                </ion-accordion-group>
+                <%/ hascollapsedsessions %>
+
+                <%# hassessions %>
+                <br>
+                <%/ hassessions %>
+
+                <%# hasprice %>
+                <ion-text>
+                    <b>
+                    {{ 'plugin.mod_booking.mobileappprice' | translate }}
+                    </b>
+                    <h4><% price.amount %> <% price.currency %></h4>
+                    <br>
+                </ion-text>
+                <%/ hasprice %>
+
+                <ion-button core-site-plugins-new-content
                 title="<% text %>" component="mod_booking"
                 method="mobile_booking_option_details" [args]="{optionid: <% itemid %>, userid: <% userid %>}">
                 {{ 'plugin.mod_booking.details' | translate }}
-            </ion-button>
-        </ion-card-content>
-    </ion-card>
+                </ion-button>
+            </ion-card-content>
+        </ion-card>
+    <%/itemid%>
 <%/mybookings%>
