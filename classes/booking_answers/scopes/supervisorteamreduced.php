@@ -20,6 +20,7 @@ use Exception;
 use mod_booking\customfield\booking_handler;
 use mod_booking\table\manageusers_table;
 use local_wunderbyte_table\wunderbyte_table;
+use local_wunderbyte_table\local\customfield\wbt_field_controller_info;
 
 /**
  * Booking answers scope: supervisor's team.
@@ -63,10 +64,13 @@ class supervisorteamreduced extends supervisorteam {
         $table->define_cache('mod_booking', "bookedusertable");
         if (!empty($customfields)) {
             $customfieldheadings = [];
-            $customfieldsarray = booking_handler::get_customfields([array_values($customfields)]);
+            $customfieldvalues = [];
+            $customfieldsarray = booking_handler::get_customfields($customfields);
             foreach ($customfieldsarray as $customfield) {
                 // Customfield helper class on rendering.
                 $customfieldheadings[] = $customfield->name;
+                // Get the correct field controller from Wunderbyte table.
+                $fieldcontroller = wbt_field_controller_info::get_instance_by_shortname($customfield->name);
             }
             $headers = array_merge($headers, $customfieldheadings);
             $columns = array_merge($columns, $customfields);
