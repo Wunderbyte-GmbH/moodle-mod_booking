@@ -26,12 +26,15 @@ declare(strict_types=1);
 
 namespace mod_booking\external;
 
+use context_module;
+use context_system;
+use core\exception\moodle_exception;
 use external_api;
 use external_function_parameters;
 use external_single_structure;
 use external_value;
+use mod_booking\singleton_service;
 use mod_booking\utils\webservice_import;
-use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -342,7 +345,7 @@ class addbookingoption extends external_api {
      * @param string|null $titleprefix
      * @param int|null $targetcourseid
      * @param int|null $courseid
-     * @param int|null $bookingid
+     * @param int|null $bookingcmid
      * @param string|null $bookingidnumber
      * @param int|null $bookingoptionid
      * @param string|null $courseidnumber
@@ -393,7 +396,7 @@ class addbookingoption extends external_api {
         ?string $titleprefix = null,
         ?int $targetcourseid = null,
         ?int $courseid = null,
-        ?int $bookingid = null,
+        ?int $bookingcmid = null,
         ?string $bookingidnumber = null,
         ?int $bookingoptionid = null,
         ?string $courseidnumber = null,
@@ -436,6 +439,23 @@ class addbookingoption extends external_api {
         ?string $recommendedin = null,
         ?int $mergeparam = null
     ): array {
+        // Check if the user has the updatebooking capability in the correct context.
+        $hascapability = false;
+        if (!empty($bookingoptionid)) {
+            // If we have an existing option, we get the cmid via booking option settings.
+            $settings = singleton_service::get_instance_of_booking_option_settings($bookingoptionid);
+            $cmid = $settings->cmid ?? 0;
+            if ($cmid) {
+                $hascapability = has_capability('mod/booking:updatebooking', context_module::instance($cmid));
+            }
+        } else if (!empty($bookingcmid)) {
+            $hascapability = has_capability('mod/booking:updatebooking', context_module::instance($bookingcmid));
+        } else {
+            $hascapability = has_capability('mod/booking:updatebooking', context_system::instance());
+        }
+        if (!$hascapability) {
+            throw new moodle_exception('nopermissions', 'error');
+        }
 
         $params = external_api::validate_parameters(
             self::execute_parameters(),
@@ -445,7 +465,7 @@ class addbookingoption extends external_api {
                         'titleprefix' => $titleprefix, // Optional prefix to be shown before title.
                         'targetcourseid' => $targetcourseid, // Id of course where the booking option should be created.
                         'courseid' => $courseid, // Id of course where users should be inscribed when booked.
-                        'bookingcmid' => $bookingid, // Moodle cm ID of the target booking instance.
+                        'bookingcmid' => $bookingcmid, // Moodle cm ID of the target booking instance.
                         'bookingidnumber' => $bookingidnumber, // Idnumber of target booking instance.
                         'courseidnumber' => $courseidnumber, // Way of identifying target course via idnumber.
                         'courseshortname' => $courseshortname, // Way of identifiying target course via shortname.

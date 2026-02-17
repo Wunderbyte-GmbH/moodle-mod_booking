@@ -48,7 +48,7 @@ $functions = [
         'classname' => 'mod_booking\external\addbookingoption',
         'description' => 'Add Booking option',
         'type' => 'write',
-        'capabilities' => '',
+        'capabilities' => 'mod/booking:updatebooking',
         'ajax' => false,
     ],
     'mod_booking_categories' => [
@@ -167,7 +167,7 @@ $functions = [
         'classname' => 'mod_booking\external\save_option_field_config',
         'description' => 'Returns all possible configurable fields of option form',
         'type' => 'write',
-        'capabilities' => '',
+        'capabilities' => 'mod/booking:editoptionformconfig',
         'ajax' => 1,
     ],
     'mod_booking_set_checked_booking_instance' => [

@@ -26,11 +26,14 @@ declare(strict_types=1);
 
 namespace mod_booking\external;
 
+use context_system;
+use core\exception\moodle_exception;
 use dml_exception;
 use external_api;
 use external_function_parameters;
 use external_single_structure;
 use external_value;
+use mod_booking\permissions;
 use mod_booking\settings\optionformconfig\optionformconfig_info;
 
 defined('MOODLE_INTERNAL') || die();
@@ -75,6 +78,10 @@ class save_option_field_config extends external_api {
         int $id,
         string $json
     ): array {
+        // Check access for dynamic submission.
+        if (!has_capability('mod/booking:editoptionformconfig', context_system::instance())) {
+            throw new moodle_exception('nopermissions', 'error');
+        }
 
         $params = external_api::validate_parameters(
             self::execute_parameters(),
