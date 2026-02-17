@@ -747,15 +747,15 @@ if ($ADMIN->fulltree) {
                 0
             )
         );
-        $skippablecondition = bo_info::get_skippable_conditions();
+        $skipablecondition = bo_info::get_skippable_conditions();
 
         $settings->add(
             new admin_setting_configmultiselect(
-                'booking/skippableconditions',
+                'booking/skipableconditions',
                 get_string('skipableconditions', 'mod_booking'),
                 get_string('skipableconditions_desc', 'mod_booking'),
                 [],
-                $skippablecondition
+                $skipablecondition
             )
         );
 
