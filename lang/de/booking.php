@@ -321,8 +321,8 @@ $string['bocondisbookableavailable'] = 'Buchen';
 $string['bocondisbookablefullavailable'] = 'Buchen möglich';
 $string['bocondisbookablefullnotavailable'] = 'Buchen ist nicht erlaubt.
  <br>Sie haben aber das Recht dennoch zu buchen.';
-$string['bocondisbookablenotavailable'] = 'Buchen nicht möglich';
 $string['bocondisbookableinstance'] = 'isbookableinstance: Buchungsinstanz ist buchbar';
+$string['bocondisbookablenotavailable'] = 'Buchen nicht möglich';
 $string['bocondiscancelled'] = 'iscancelled: Buchungsoption storniert';
 $string['bocondiscancelledavailable'] = 'Buchen';
 $string['bocondiscancelledfullavailable'] = 'Buchen möglich';
@@ -916,10 +916,7 @@ $string['conditionselectusersuserids'] = "Wähle die gewünschten Nutzer:innen";
 $string['conditionsoverwritingbillboard'] = 'Überschreiben von Nachrichten zur Buchbarkeit bzw. deren Blockierung ermöglichen';
 $string['conditionsoverwritingbillboard_desc'] = 'In den Einstellungen der Buchungsinstanz kann ein Text eingegeben werden, der anstelle von anderen Nachrichten zur (Nicht-)Buchbarkeit angezeigt wird.';
 $string['conditionssettings'] = 'Verfügbarkeitsbedingungen';
-$string['conditionssettings_desc'] = 'Sie können bestimmte Verfügbarkeitsbedigungen deaktivieren, wenn sie nicht benötigt werden. Dadurch erhalten Sie einen Performance-Vorteil, da das System diese Verfügbarkeitsbedigungen während des Buchungsprozesses nicht mehr überprüft.';
-$string['conditionsskippedwarning'] = '<div class="alert alert-info" role="alert">
-    Diese Verfügbarkeit kann nicht ausgewählt werden, da sie in den <a href="{$a}" target="_blank"> Einstellungen </a> ausgesetzt wurde.
-    </div>';
+$string['conditionssettings_desc'] = 'Konfigurieren Sie die Verfügbarkeitsbedingungen für Buchungsoptionen.';
 $string['conditiontextfield'] = 'Wert';
 $string['configurefields'] = 'Spalten und Felder anpassen';
 $string['confirmationdeleted'] = 'Bestätigung gelöscht';
@@ -2585,8 +2582,8 @@ $string['signinsheetmode_desc'] = 'Wählen Sie den Modus für das Herunterladen 
 $string['signinsheettoporientation'] = 'Ausrichtung oberer Button-Unterschriftenliste';
 $string['signinsheettoporientationdesc'] = 'Orientierung PDF download oberer Button';
 $string['signinsheettoporientationdesc_help'] = 'Legt die Standardausrichtung für den oberen Download-Button der Unterschriftenliste fest. Wählen Sie zwischen Hochformat und Querformat.';
-$string['skipableconditions'] = 'Aussetzbare Verfügbarkeitsbedingungen';
-$string['skipableconditions_desc'] = 'Wählen Sie aus, welche Verfügbarkeitsbedingungen während des Buchungsprozesses ausgesetz werden sollen.';
+$string['skipableconditions'] = 'Überspringbare Bedingungen';
+$string['skipableconditions_desc'] = 'Wählen Sie aus, welche Verfügbarkeitsbedingungen während des Buchungsprozesses übersprungen werden sollen.';
 $string['skipbookingrulesmode'] = 'Anwendung der Buchungsregeln';
 $string['skipbookingrulesoptin'] = 'Opt in: Nur folgende Regeln anwenden';
 $string['skipbookingrulesoptout'] = 'Opt out: Folgende Regeln nicht anwenden';

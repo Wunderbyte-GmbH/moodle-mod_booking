@@ -806,9 +806,6 @@ class userprofilefield_2_custom implements bo_condition {
                     'bo_cond_customuserprofilefield_sqlfiltercheck',
                     get_string('sqlfiltercheckstring', 'mod_booking')
                 );
-                // if(empty(get_config())) {
-                //     $mform->disabled
-                // }
                 $mform->hideIf(
                     'bo_cond_customuserprofilefield_sqlfiltercheck',
                     'bo_cond_customuserprofilefield_field',

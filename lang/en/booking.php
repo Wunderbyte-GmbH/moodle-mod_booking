@@ -326,8 +326,8 @@ $string['bocondisbookableavailable'] = 'Book it';
 $string['bocondisbookablefullavailable'] = 'Booking is possible';
 $string['bocondisbookablefullnotavailable'] = 'Booking is forbidden for this booking option.
     <br>But you have the right to book a user anyways.';
-$string['bocondisbookablenotavailable'] = 'Not allowed to book';
 $string['bocondisbookableinstance'] = 'isbookableinstance: Booking instance is bookable';
+$string['bocondisbookablenotavailable'] = 'Not allowed to book';
 $string['bocondiscancelled'] = 'iscancelled: Booking option cancelled';
 $string['bocondiscancelledavailable'] = 'Book it';
 $string['bocondiscancelledfullavailable'] = 'Booking is possible';

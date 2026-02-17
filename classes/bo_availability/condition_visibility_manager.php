@@ -42,7 +42,7 @@ class condition_visibility_manager {
      * @return array
      */
     public function get_skipped_conditions(): array {
-        $skippedconditions = get_config('booking', 'skippableconditions');
+        $skippedconditions = get_config('booking', 'skipableconditions');
         if (empty($skippedconditions)) {
             return [];
         }
@@ -96,7 +96,7 @@ class condition_visibility_manager {
             $linktosetting = new moodle_url(
                 '/admin/settings.php',
                 ['section' => 'modsettingbooking'],
-                'admin-skippableconditions'
+                'admin-skipableconditions'
             );
             $mform->freeze($elementname);
             $warningname = $elementname . '_warning';
