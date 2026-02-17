@@ -329,6 +329,7 @@ class mobile {
         $data['cmid'] = $cmid;
         $data['mybookings'] = $outputdata;
         $data['timestamp'] = time();
+        $data['mybookings'][0]['itemid'] = null;
         return [
             'templates' => [
                 [
@@ -347,11 +348,27 @@ class mobile {
      * @return array
      */
     private static function sanitize_list_data($data) {
-        $data['title'] ??= '';
-        $data['text'] ??= '';
+        $data['title'] = (string)($data['title'] ?? '');
+        $data['text'] = (string)($data['text'] ?? '');
 
-        $data['sessions'] ??= [];
-        $data['collapsedsessions'] ??= [];
+        $data['sessions'] = $data['sessions'] ?? [];
+        $data['collapsedsessions'] = $data['collapsedsessions'] ?? [];
+
+        if (!empty($data['sessions']) && is_array($data['sessions'])) {
+            foreach ($data['sessions'] as &$session) {
+                $session = (array)$session;
+                $session['concatinatedstartendtime'] = $session['concatinatedstartendtime'] ?? '';
+            }
+            unset($session);
+        }
+        if (!empty($data['collapsedsessions']) && is_array($data['collapsedsessions'])) {
+            foreach ($data['collapsedsessions'] as &$session) {
+                $session = (array)$session;
+                $session['coursestarttime'] = $session['coursestarttime'] ?? ($data['coursestarttime'] ?? '');
+                $session['courseendtime'] = $session['courseendtime'] ?? ($data['courseendtime'] ?? '');
+            }
+            unset($session);
+        }
 
         $data['hassessions'] = !empty($data['sessions']);
         $data['hascollapsedsessions'] = !empty($data['collapsedsessions']);
@@ -363,8 +380,12 @@ class mobile {
             'currency' => $data['currency'] ?? '',
         ] : null;
 
-        $data['itemid'] ??= 0;
-        $data['userid'] ??= 0;
+        $data['concatinatedstartendtime'] = $data['concatinatedstartendtime'] ?? '';
+        $data['coursestarttime'] = $data['coursestarttime'] ?? '';
+        $data['courseendtime'] = $data['courseendtime'] ?? '';
+
+        $data['itemid'] = $data['itemid'] ?? null;
+        $data['userid'] = isset($data['userid']) ? (int)$data['userid'] : 0;
         return $data;
     }
 

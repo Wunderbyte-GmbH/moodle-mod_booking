@@ -1778,6 +1778,7 @@ $string['nocomments'] = 'Commenting disabled';
 $string['noconfirmationworkflow'] = 'No confirmtion necessary';
 $string['nocourse'] = 'No course selected for this booking option';
 $string['nocourseselected'] = 'No course selected';
+$string['nocmidselected'] = 'No cmid was selected';
 $string['nodatesstring'] = "There are currently no dates associated with this booking option";
 $string['nodatesstring_desc'] = "no dates";
 $string['nodescriptionmaxlength'] = 'No maximum length of description';
