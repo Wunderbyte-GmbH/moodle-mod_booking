@@ -774,7 +774,6 @@ class manageusers_table extends wunderbyte_table {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $ba = singleton_service::get_instance_of_booking_answers($settings);
-
         $jsonobject = (!empty($values->json)) ? json_decode($values->json) : null;
 
         if (!empty($jsonobject)) {
@@ -836,10 +835,13 @@ class manageusers_table extends wunderbyte_table {
         } else {
             $currentconfirmations = 0;
         }
-
+        $bookingoptionjsonobject = !empty($settings->json) ? json_decode($settings->json) : null;
+        $waitforconfirmation = property_exists($bookingoptionjsonobject, 'waitforconfirmation')
+                                ? $bookingoptionjsonobject->waitforconfirmation : 0;
         if (
                 $allowedtoconfirm
                 && $requiredconfirmations > $currentconfirmations
+                && $waitforconfirmation
         ) {
             $data[] = [
                 'arialabel' => get_string('actionbuttonconfirm', 'mod_booking'), // Name of your action button.
