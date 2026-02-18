@@ -414,9 +414,6 @@ class enrolledincohorts implements bo_condition {
                         "$cohortrecord->name (ID: $cohortrecord->id)";
                 }
             }
-            if (!empty(get_config('booking', 'usesqlfilteravailability'))) {
-                return;
-            }
             $mform->addElement(
                 'advcheckbox',
                 'bo_cond_enrolledincohorts_restrict',
