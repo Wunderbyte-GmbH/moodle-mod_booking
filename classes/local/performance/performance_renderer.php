@@ -91,6 +91,7 @@ class performance_renderer {
                 'labelsjson' => json_encode([]),
                 'datasetsjson' => json_encode([]),
                 'notesjson' => json_encode([]),
+                'shortcodename'   => '',
             ];
         }
 
@@ -104,6 +105,7 @@ class performance_renderer {
                 'labelsjson' => json_encode([]),
                 'datasetsjson' => json_encode([]),
                 'notesjson' => json_encode([]),
+                'shortcodename'   => '',
             ];
         }
 
@@ -129,11 +131,12 @@ class performance_renderer {
         $notes = array_map(function ($run) {
             return $run['note'] ?? '';
         }, $runs);
-
+        $firstrun = array_shift($records);
         return [
             'labelsjson'   => json_encode($labels),
             'datasetsjson' => json_encode(array_values($datasets)),
             'notesjson'    => json_encode($notes),
+            'shortcodename'   => $firstrun->shortcodename ?? '',
         ];
     }
 

@@ -29,6 +29,7 @@ use cache_helper;
 use html_writer;
 use local_wunderbyte_table\output\table;
 use local_wunderbyte_table\wunderbyte_table;
+use mod_booking\local\htmlcomponents;
 use mod_booking\local\performance\performance_renderer;
 use stdClass;
 
@@ -60,77 +61,36 @@ class measurements_table extends wunderbyte_table {
                 'type' => 'button',
                 'class' => 'btn btn-success mr-1',
                 'data-toggle' => 'collapse',
-                'data-target' => '#' . $collapseid,
+                'data-bs-toggle' => 'collapse',
+                'data-target' => '#edit_' . $collapseid,
+                'data-bs-target' => '#edit_' . $collapseid,
                 'aria-expanded' => 'false',
-                'aria-controls' => $collapseid,
+                'aria-controls' => 'edit_' . $collapseid,
             ]
         );
+        $editcollapsable = htmlcomponents::render_bootstrap_collapsable_modal($collapseid, $values->id);
 
-        $data[] = [
-            'label' => get_string('delete'), // Name of your action button.
-            'class' => 'btn btn-danger',
-            'href' => '#', // You can either use the link, or JS, or both.
-            'iclass' => 'fa fa-trash', // Add an icon before the label.
-            'id' => $values->id,
-            'name' => $values->measurementname,
-            'methodname' => 'deletemeasurement', // The method needs to be added to your child of wunderbyte_table class.
-            'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
-                'id' => $values->shortcodehash,
-                'titlestring' => 'delete',
-                'bodystring' => 'deleteperformancemeasurement',
-                'submitbuttonstring' => 'delete',
-                'component' => 'mod_booking',
-            ],
-        ];
-
-        // This transforms the array to make it easier to use in mustache template.
-        table::transform_actionbuttons_array($data);
-
-        $editcollapsable = $this->build_collapsable($collapseid, $values->id);
+        $deltebutton = html_writer::tag(
+            'button',
+            html_writer::tag('i', '', ['class' => 'fa fa-trash']) . ' ' . get_string('delete'),
+            [
+                'type' => 'button',
+                'class' => 'btn btn-danger mr-1',
+                'data-toggle' => 'collapse',
+                'data-bs-toggle' => 'collapse',
+                'data-target' => '#delete_' . $collapseid,
+                'data-bs-target' => '#delete_' . $collapseid,
+                'aria-expanded' => 'false',
+                'aria-controls' => 'delete_' . $collapseid,
+            ]
+        );
+        $deletecollapsable = htmlcomponents::render_bootstrap_collapsable_delete_confirmation($collapseid, $values->id);
 
         return
             $editbutton
-            . $OUTPUT->render_from_template(
-                'local_wunderbyte_table/component_actionbutton',
-                ['showactionbuttons' => $data]
-            )
+            . $deltebutton
+            . $deletecollapsable
             . $editcollapsable;
-    }
-
-    /**
-     * Build collapsable for editing.
-     *
-     * @param string $collapseid
-     * @param string $valuesid
-     * @return string
-     *
-     */
-    private function build_collapsable(string $collapseid, $valuesid) {
-        $editor = html_writer::start_div('collapse mt-2', ['id' => $collapseid]);
-
-        $editor .= html_writer::start_div('card card-body');
-
-        // Example inline field.
-        $editor .= html_writer::tag('label', 'Note');
-        $editor .= html_writer::tag(
-            'textarea',
-            s($values->note ?? ''),
-            [
-                'class' => 'form-control',
-                'rows' => 3,
-                'data-measurementid' => $valuesid,
-            ]
-        );
-
-        $editor .= html_writer::empty_tag('br');
-        $editor .= html_writer::tag('button', get_string('save'), [
-            'class' => 'btn btn-primary',
-            'data-action' => 'savemeasurement',
-            'data-id' => $valuesid,
-        ]);
-        $editor .= html_writer::end_div();
-        $editor .= html_writer::end_div();
-        return $editor;
     }
 
     /**

@@ -41,6 +41,8 @@ use mod_booking\booking;
 use mod_booking\form\dynamicdeputyselect;
 use mod_booking\local\shortcode_filterfield;
 use mod_booking\output\booked_users;
+use mod_booking\performance\performance_facade;
+use mod_booking\performance\performance_measurer;
 use mod_booking\shortcodes_handler;
 use mod_booking\customfield\booking_handler;
 use mod_booking\local\modechecker;
@@ -1163,6 +1165,9 @@ class shortcodes {
         cache_helper::purge_by_event('changesinwunderbytetable');
         // Add the arguments to make sure cache is built correctly.
         $argsstring = bin2hex(implode($args));
+
+        \mod_booking\local\performance\performance_facade::start_measurement('Building table');
+
         $table = new bulkoperations_table(bin2hex(random_bytes(8)) . '_optionbulkoperationstable_' . $argsstring);
         $columns = [
         'id' => get_string('id', 'local_wunderbyte_table'),
@@ -1197,6 +1202,8 @@ class shortcodes {
         $table->define_headers(array_values($columns));
         $table->define_columns(array_keys($columns));
         $table->addcheckboxes = true;
+
+        \mod_booking\local\performance\performance_facade::end_measurement('Building table');
 
         try {
             $filtercolumns = self::apply_bulkoperations_filter($table, $columns, $args);

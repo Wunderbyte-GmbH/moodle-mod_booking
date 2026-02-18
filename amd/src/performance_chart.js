@@ -41,6 +41,7 @@ define(['core/chartjs', 'core/ajax', 'jquery'], function(Chart, Ajax, $) {
         chartInstance = createChart(canvas, parsed);
         registerSidebarClicks();
         registerSaveClicks();
+        registerDeleteClicks();
     };
 
     /**
@@ -145,10 +146,16 @@ define(['core/chartjs', 'core/ajax', 'jquery'], function(Chart, Ajax, $) {
     };
 
     const registerSidebarClicks = () => {
-        $('.booking-sidebar-item a').on('click', function(e) {
-            e.preventDefault();
+        // Prevent double-binding if init() runs multiple times.
+        $(document).off('click', '#performancetable tbody tr td.shortcodename');
 
-            const hash = $(this).data('hash');
+        $(document).on('click', '#performancetable tbody tr td.shortcodename', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const $tr = $(this).closest('tr');
+            const hash = $tr.data('id') || $tr.attr('data-id'); // your shortcodehash
+
             if (!hash) {
                 return;
             }
@@ -195,6 +202,36 @@ define(['core/chartjs', 'core/ajax', 'jquery'], function(Chart, Ajax, $) {
                 window.location.reload();
             }).catch(function(error) {
                 console.error('Saving measurement failed', error);
+            });
+        });
+    };
+
+    const registerDeleteClicks = () => {
+        $(document).on('click', '[data-action="deletemeasurement"]', function(e) {
+            e.preventDefault();
+
+            const $btn = $(this);
+            const $editor = $btn.closest('.card-body');
+            const measurementid = $btn.data('id');
+
+            if (!measurementid) {
+                return;
+            }
+
+            Ajax.call([{
+                methodname: 'mod_booking_delete_measurement',
+                args: {
+                    measurementid: measurementid
+                }
+            }])[0].then(function(response) {
+                // Optional UX feedback
+                $editor.closest('.collapse').collapse('hide');
+
+                // Optional: visual success hint
+                $btn.blur();
+                window.location.reload();
+            }).catch(function(error) {
+                console.error('Deleting measurement failed', error);
             });
         });
     };

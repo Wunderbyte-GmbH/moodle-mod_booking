@@ -25,9 +25,10 @@
 }}
 <div class="top-section mb-4">
     <h3>{{title}}</h3>
-
     <div class="form-group position-relative">
-        <label for="performance-input" class="form-label">Select item:</label>
+        <label for="performance-input" class="form-label">
+            {{#str}} performanceselectitem, mod_booking {{/str}}
+        </label>
         <input
             id="performance-input"
             type="text"
@@ -44,7 +45,9 @@
     </div>
 
     <div class="form-group position-relative">
-        <label for="performance-note" class="form-label">Add any notes to mark run:</label>
+        <label for="performance-note" class="form-label">
+            {{#str}} performanceaddnotes, mod_booking {{/str}}
+        </label>
         <input
             id="performance-note"
             type="text"
@@ -65,12 +68,15 @@
             </div>
         {{/actions}}
     </div>
+    {{#shortcodename}}
+        <h2>{{#str}} performanceshortcodename, mod_booking {{/str}} {{shortcodename}}</h2>
+    {{/shortcodename}}
 
     <button
         type="button"
         class="btn btn-primary mt-3"
         id="performance-submit">
-        Submit
+        {{#str}} submit, mod_booking {{/str}}
     </button>
 </div>
 {{#js}}

@@ -204,6 +204,13 @@ $functions = [
         'type'        => 'write',
         'ajax'        => 1,
     ],
+    'mod_booking_delete_measurement' => [
+        'classname'   => 'mod_booking\\external\\delete_measurement',
+        'methodname'  => 'execute',
+        'description' => 'Delete performance measurement',
+        'type'        => 'write',
+        'ajax'        => 1,
+    ],
 ];
 
 $services = [

@@ -61,6 +61,9 @@ $templatecontext = [
     'autocompleteitems' => $sidebarconstruct['autocompleteitems'] ?? [],
     'actions' => action_registry::export_all_for_template($output),
 ];
+if (!empty($chartconstruct['shortcodename'])) {
+    $templatecontext['shortcodename'] = $chartconstruct['shortcodename'];
+}
 
 $templatecontext['chart'] = [
     'labelsjson' => $chartconstruct['labelsjson'],
