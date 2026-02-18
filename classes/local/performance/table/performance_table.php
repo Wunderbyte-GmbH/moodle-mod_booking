@@ -28,6 +28,7 @@ namespace mod_booking\local\performance\table;
 use html_writer;
 use local_wunderbyte_table\output\table;
 use local_wunderbyte_table\wunderbyte_table;
+use mod_booking\local\htmlcomponents;
 use mod_booking\local\performance\performance_renderer;
 use stdClass;
 
@@ -92,71 +93,11 @@ class performance_table extends wunderbyte_table {
 
         [$a, $b, $html] = $table->lazyouthtml(10, true);
 
-        $modal = $this->build_modal($html, $values->shortcodehash);
+        $modal = htmlcomponents::render_bootstrap_modal_with_body($html, $values->shortcodehash, $values->shortcodename);
         return $modal . $OUTPUT->render_from_template(
             'local_wunderbyte_table/component_actionbutton',
             ['showactionbuttons' => $data]
         );
-    }
-
-    /**
-     * Build modal for editing the shortcode measurements.
-     *
-     * @param string $html
-     * @param string $shortcodehash
-     * @return string
-     *
-     */
-    private function build_modal(string $html, $shortcodehash) {
-        $modalid = 'modal_' . $shortcodehash;
-        $modal = html_writer::start_tag('button', [
-            'type' => 'button',
-            'class' => 'btn btn-primary',
-            'data-toggle' => 'modal',
-            'data-target' => '#' . $modalid,
-        ]);
-        $modal .= html_writer::tag('i', '', ['class' => 'fa fa-edit', 'aria-label' => '', 'title' => '']);
-        $modal .= ' Edit';
-        $modal .= html_writer::end_tag('button');
-
-        $modal .= html_writer::start_tag('div', [
-            'class' => 'modal fade',
-            'id' => $modalid,
-            'tabindex' => '-1',
-            'role' => 'dialog',
-            'aria-hidden' => 'true',
-        ]);
-
-        $modal .= html_writer::start_div('modal-dialog modal-xl', ['role' => 'document']);
-        $modal .= html_writer::start_div('modal-content');
-
-        // Modal header.
-        $modal .= html_writer::start_div('modal-header');
-        $modal .= html_writer::tag('h5', 'Modal title', ['class' => 'modal-title']);
-        $modal .= html_writer::tag('button', html_writer::tag('span', '&times;', ['aria-hidden' => 'true']), [
-            'type' => 'button',
-            'class' => 'close',
-            'data-dismiss' => 'modal',
-            'aria-label' => 'Close',
-        ]);
-        $modal .= html_writer::end_div();
-
-        // Modal body with table HTML.
-        $modal .= html_writer::div($html, 'modal-body');
-
-        // Modal footer.
-        $modal .= html_writer::start_div('modal-footer');
-        $modal .= html_writer::tag('button', 'close', [
-            'type' => 'button',
-            'class' => 'btn btn-secondary',
-            'data-dismiss' => 'modal',
-        ]);
-        $modal .= html_writer::end_div();
-
-        $modal .= html_writer::end_div();
-        $modal .= html_writer::end_div();
-        $modal .= html_writer::end_div();
-        return $modal;
     }
 
     /**
@@ -181,5 +122,22 @@ class performance_table extends wunderbyte_table {
            'success' => 1,
            'message' => get_string('success'),
         ];
+    }
+
+    /**
+     * Make shortcodename a clickable link.
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_shortcodename(stdClass $values): string {
+        return html_writer::link(
+            '#',
+            s($values->shortcodename),
+            [
+                'class' => 'booking-sidebar-link',
+                'data-hash' => $values->shortcodehash,
+                'role' => 'button',
+            ]
+        );
     }
 }

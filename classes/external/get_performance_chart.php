@@ -76,6 +76,7 @@ class get_performance_chart extends external_api {
             'labelsjson' => new external_value(PARAM_TEXT, 'Status: true if success'),
             'datasetsjson' => new external_value(PARAM_TEXT, 'The updated note'),
             'notesjson' => new external_value(PARAM_TEXT, 'The updated note'),
+            'shortcodename' => new external_value(PARAM_TEXT, 'Chart title'),
         ]);
     }
 }

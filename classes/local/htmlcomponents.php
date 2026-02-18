@@ -155,4 +155,130 @@ class htmlcomponents {
 
         return $returnstring;
     }
+
+    /**
+     * Render Bootstrap modal with body.
+     *
+     * @param string $html
+     * @param string $shortcodehash
+     * @param string $shortcodename
+     *
+     * @return string
+     *
+     */
+    public static function render_bootstrap_modal_with_body(string $html, $shortcodehash, $shortcodename) {
+        $modalid = 'modal_' . $shortcodehash;
+        $modal = html_writer::start_tag('button', [
+            'type' => 'button',
+            'class' => 'btn btn-primary',
+            'data-toggle' => 'modal',
+            'data-target' => '#' . $modalid,
+            'data-bs-toggle' => 'modal',
+            'data-bs-target' => '#' . $modalid,
+        ]);
+        $modal .= html_writer::tag('i', '', ['class' => 'fa fa-edit', 'aria-label' => '', 'title' => '']);
+        $modal .= ' Edit';
+        $modal .= html_writer::end_tag('button');
+
+        $modal .= html_writer::start_tag('div', [
+            'class' => 'modal fade',
+            'id' => $modalid,
+            'tabindex' => '-1',
+            'role' => 'dialog',
+            'aria-hidden' => 'true',
+        ]);
+
+        $modal .= html_writer::start_div('modal-dialog modal-xl', ['role' => 'document']);
+        $modal .= html_writer::start_div('modal-content');
+
+        // Modal header.
+        $modal .= html_writer::start_div('modal-header');
+        $modal .= html_writer::tag(
+            'h5',
+            get_string('formmeasurementheading', 'booking', $shortcodename),
+            ['class' => 'modal-title']
+        );
+        $modal .= html_writer::end_div();
+
+        // Modal body with table HTML.
+        $modal .= html_writer::div($html, 'modal-body');
+
+        // Modal footer.
+        $modal .= html_writer::start_div('modal-footer');
+        $modal .= html_writer::tag('button', 'close', [
+            'type' => 'button',
+            'class' => 'btn btn-secondary',
+            'data-dismiss' => 'modal',
+            'data-bs-dismiss' => 'modal',
+        ]);
+        $modal .= html_writer::end_div();
+
+        $modal .= html_writer::end_div();
+        $modal .= html_writer::end_div();
+        $modal .= html_writer::end_div();
+        return $modal;
+    }
+
+    /**
+     * Render Bootstrap modal with body.
+     *
+     * @param string $collapseid
+     * @param string $valuesid
+     *
+     * @return string
+     */
+    public static function render_bootstrap_collapsable_delete_confirmation(string $collapseid, $valuesid) {
+        $editor = html_writer::start_div('collapse mt-2', ['id' => 'delete_' . $collapseid]);
+
+        $editor .= html_writer::start_div('card card-body');
+
+        // Example inline field.
+        $editor .= html_writer::tag('label', get_string('deleteperformancemeasurement', 'booking'));
+
+        $editor .= html_writer::empty_tag('br');
+        $editor .= html_writer::tag('button', get_string('delete'), [
+            'class' => 'btn btn-danger mr-1',
+            'data-action' => 'deletemeasurement',
+            'data-id' => $valuesid,
+        ]);
+        $editor .= html_writer::end_div();
+        $editor .= html_writer::end_div();
+        return $editor;
+    }
+
+    /**
+     * Render Bootstrap modal with body.
+     *
+     * @param string $collapseid
+     * @param string $valuesid
+     *
+     * @return string
+     */
+    public static function render_bootstrap_collapsable_modal(string $collapseid, $valuesid) {
+        $editor = html_writer::start_div('collapse mt-2', ['id' => 'edit_' . $collapseid]);
+
+        $editor .= html_writer::start_div('card card-body');
+
+        // Example inline field.
+        $editor .= html_writer::tag('label', 'Note');
+        $editor .= html_writer::tag(
+            'textarea',
+            s($values->note ?? ''),
+            [
+                'class' => 'form-control',
+                'rows' => 3,
+                'data-measurementid' => $valuesid,
+            ]
+        );
+
+        $editor .= html_writer::empty_tag('br');
+        $editor .= html_writer::tag('button', get_string('save'), [
+            'class' => 'btn btn-primary',
+            'data-action' => 'savemeasurement',
+            'data-id' => $valuesid,
+        ]);
+        $editor .= html_writer::end_div();
+        $editor .= html_writer::end_div();
+        return $editor;
+    }
 }

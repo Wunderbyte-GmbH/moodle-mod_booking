@@ -1154,7 +1154,7 @@ $string['deleteinfoscheckboxadminwarning'] = '<div class="alert alert-warning st
 <span> A corresponding <a target="_blank" href="{$a}">booking rule</a> must be configured to execute this option!</span>
 </div>';
 $string['deleteoptiondate'] = 'Remove date';
-$string['deleteperformancemeasurement'] = 'Do you really want to delete this measurement';
+$string['deleteperformancemeasurement'] = 'Do you really want to delete this measurement?';
 $string['deleteperformancemeasurements'] = 'Do you really want to delete all measurements of this shortcode?';
 $string['deleteresponsesactivitycompletion'] = 'Delete all users with completed activity: {$a}';
 $string['deleterule'] = 'Delete';
@@ -1995,6 +1995,11 @@ $string['pdflandscape'] = 'Landscape';
 $string['pdfportrait'] = 'Portrait';
 $string['percentageavailableplaces'] = 'Percentage of available places';
 $string['percentageavailableplaces_help'] = 'You need to enter a valid percentage beween 0 and 100 (without %-sign!).';
+$string['performanceaddnotes'] = 'Add any notes to mark run:';
+$string['performanceselectitem'] = 'Select item:';
+$string['performanceshortcodename'] = 'Your current shortcode is ';
+$string['performancesidebar'] = 'Sidebar';
+$string['performancesidebarempty'] = 'No sidebar entries available';
 $string['personnr'] = 'Person n° {$a}';
 $string['placeholdernotresolved'] = 'Placeholder {$a->classname} that must be resolved could not be resolved.';
 $string['placeholders'] = 'Placeholders';
