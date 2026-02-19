@@ -69,8 +69,6 @@ class supervisorteamreduced extends supervisorteam {
             foreach ($customfieldsarray as $customfield) {
                 // Customfield helper class on rendering.
                 $customfieldheadings[] = $customfield->name;
-                // Get the correct field controller from Wunderbyte table.
-                $fieldcontroller = wbt_field_controller_info::get_instance_by_shortname($customfield->name);
             }
             $headers = array_merge($headers, $customfieldheadings);
             $columns = array_merge($columns, $customfields);

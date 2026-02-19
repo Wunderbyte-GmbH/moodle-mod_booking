@@ -24,6 +24,8 @@
  */
 
 namespace mod_booking\table;
+use local_wunderbyte_table\local\customfield\wbt_field_controller_info;
+use mod_booking\customfield\booking_handler;
 use mod_booking\local\certificateclass;
 use mod_booking\option\fields\certificate;
 use moodle_exception;
@@ -1025,5 +1027,26 @@ class manageusers_table extends wunderbyte_table {
             'local_wunderbyte_table/component_actionbutton',
             ['showactionbuttons' => $data]
         );
+    }
+
+    /**
+     * This function is called for each data row to allow processing of columns which do not have a *_cols function.
+     *
+     * @param mixed $colname
+     * @param mixed $values
+     *
+     * @return string
+     *
+     */
+    public function other_cols($colname, $values) {
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid);
+        if ($settings->customfields[$colname] ?? false) {
+            if (!isset($values->$colname)) {
+                return '';
+            }
+            return $settings->customfieldsfortemplates[$colname]["value"];
+        } else {
+            return $values->$colname;
+        }
     }
 }
