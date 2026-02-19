@@ -519,7 +519,7 @@ Feature: Test booking options avaialbility conditions
 
   @javascript
   Scenario: Option availability: check users cohort settings
-   Given the following config values are set as admin:
+    Given the following config values are set as admin:
       | config                   | value | plugin  |
       | usesqlfilteravailability | 1     | booking |
     Given I am on the "My booking" Activity page logged in as teacher1
