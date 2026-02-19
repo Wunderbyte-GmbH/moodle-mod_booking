@@ -1285,6 +1285,44 @@ class shortcodes {
         return $out;
     }
 
+     /**
+     * List bookingoptions with checkboxes and buttons to trigger executeservice.
+     *
+     * @param string $shortcode
+     * @param array $args
+     * @param string|null $content
+     * @param object $env
+     * @param Closure $next
+     * @return string
+     */
+    public static function executeservice($shortcode, $args, $content, $env, $next): string {
+        global $CFG;
+
+        // Get rid of quotation marks.
+        self::fix_args($args);
+
+        $requiredargs = [];
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
+        if ($error['error'] === 1) {
+            return $error['message'];
+        }
+
+        // We really only allow admins to do this.
+        if (
+            !is_siteadmin()
+            || empty($args['service'])
+        ) {
+            return get_string('nopermissiontoaccesscontent', 'mod_booking');
+        }
+
+        $serviceclass = $args['service'];
+        unset($args['service']);
+
+        $serviceclass::execute(...array_values($args));
+
+        return '';
+    }
+
     /**
      * Modifies table and returns filtercolumns
      *
