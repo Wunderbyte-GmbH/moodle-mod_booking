@@ -172,6 +172,83 @@ final class condition_bookingtime_test extends advanced_testcase {
     }
 
     /**
+     * Test bookingtime SQL filter with "only past" mode enabled.
+     *
+     * @covers \mod_booking\bo_availability\conditions\booking_time::return_sql
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_booking_bookit_bookingtime_sqlfilter_only_past(array $bdata): void {
+        global $PAGE;
+
+        // Make sure SQL filter for availability is enabled for this test.
+        set_config('usesqlfilteravailability', 1, 'booking');
+        // New mode: when bookingtime SQL filtering applies, only hide past options.
+        set_config('sqlfilterbookingtimeonlypast', 1, 'booking');
+
+        $bdata['cancancelbook'] = 1;
+
+        // Setup test data.
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $course2 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        // Create users.
+        $student1 = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course1->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+        $this->getDataGenerator()->enrol_user($student1->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course1->id);
+
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option (future opening time)';
+        $record->chooseorcreatecourse = 1; // Required.
+        $record->courseid = $course2->id;
+        $record->maxanswers = 2;
+        $record->restrictanswerperiodopening = 1;
+        $record->restrictanswerperiodclosing = 1;
+        // Option is in the future: not yet open, but also not in the past.
+        $record->bookingopeningtime = strtotime('now + 2 day');
+        $record->bookingclosingtime = strtotime('now + 3 day');
+        // Add SQL filter for booking time.
+        $record->bo_cond_booking_time_sqlfiltercheck = 1;
+
+        [$course, $cm] = get_course_and_cm_from_cmid($booking1->cmid);
+
+        // Before the creation, we need to fix the Page context.
+        $PAGE->set_cm($cm, $course);
+        $PAGE->set_context(context_module::instance($booking1->cmid));
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option1 = $plugingenerator->create_option($record);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $this->assertEquals(MOD_BOOKING_SQL_FILTER_ACTIVE_BO_TIME, $settings->sqlfilter);
+
+        $boinfo = new bo_info($settings);
+
+        // Student should still see the option because it is not in the past.
+        $this->setUser($student1);
+        $rawdata = $plugingenerator->create_table_for_one_option($settings->id);
+        $this->assertEquals(1, count($rawdata));
+
+        // But booking_time condition still blocks actual booking (not yet opened).
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKING_TIME, $id);
+    }
+
+    /**
      * Data provider for condition_bookingpolicy_test
      *
      * @return array

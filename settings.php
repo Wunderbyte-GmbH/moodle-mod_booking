@@ -747,6 +747,14 @@ if ($ADMIN->fulltree) {
                 0
             )
         );
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/sqlfilterbookingtimeonlypast',
+                get_string('sqlfilterbookingtimeonlypast', 'mod_booking'),
+                get_string('sqlfilterbookingtimeonlypast_desc', 'mod_booking'),
+                0
+            )
+        );
         $skipablecondition = bo_info::get_skippable_conditions();
 
         $settings->add(
