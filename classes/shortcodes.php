@@ -1285,7 +1285,7 @@ class shortcodes {
         return $out;
     }
 
-     /**
+    /**
      * List bookingoptions with checkboxes and buttons to trigger executeservice.
      *
      * @param string $shortcode
