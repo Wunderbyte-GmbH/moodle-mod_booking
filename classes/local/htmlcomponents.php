@@ -227,7 +227,7 @@ class htmlcomponents {
      *
      * @return string
      */
-    public static function render_bootstrap_collapsable_delete_confirmation(string $collapseid, $valuesid) {
+    public static function render_bootstrap_collapsible_delete_confirmation(string $collapseid, $valuesid) {
         $editor = html_writer::start_div('collapse mt-2', ['id' => 'delete_' . $collapseid]);
 
         $editor .= html_writer::start_div('card card-body');
@@ -254,7 +254,7 @@ class htmlcomponents {
      *
      * @return string
      */
-    public static function render_bootstrap_collapsable_modal(string $collapseid, $valuesid) {
+    public static function render_bootstrap_collapsible_modal(string $collapseid, $valuesid) {
         $editor = html_writer::start_div('collapse mt-2', ['id' => 'edit_' . $collapseid]);
 
         $editor .= html_writer::start_div('card card-body');
