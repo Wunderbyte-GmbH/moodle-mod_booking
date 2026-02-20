@@ -70,7 +70,7 @@ class measurements_table extends wunderbyte_table {
         );
         $editcollapsible = htmlcomponents::render_bootstrap_collapsible_modal($collapseid, $values->id);
 
-        $deltebutton = html_writer::tag(
+        $deletebutton = html_writer::tag(
             'button',
             html_writer::tag('i', '', ['class' => 'fa fa-trash']) . ' ' . get_string('delete'),
             [
@@ -88,7 +88,7 @@ class measurements_table extends wunderbyte_table {
 
         return
             $editbutton
-            . $deltebutton
+            . $deletebutton
             . $deletecollapsible
             . $editcollapsible;
     }
