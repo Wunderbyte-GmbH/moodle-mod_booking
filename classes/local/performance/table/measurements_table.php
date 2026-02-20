@@ -68,7 +68,7 @@ class measurements_table extends wunderbyte_table {
                 'aria-controls' => 'edit_' . $collapseid,
             ]
         );
-        $editcollapsable = htmlcomponents::render_bootstrap_collapsable_modal($collapseid, $values->id);
+        $editcollapsible = htmlcomponents::render_bootstrap_collapsible_modal($collapseid, $values->id);
 
         $deltebutton = html_writer::tag(
             'button',
@@ -84,13 +84,13 @@ class measurements_table extends wunderbyte_table {
                 'aria-controls' => 'delete_' . $collapseid,
             ]
         );
-        $deletecollapsable = htmlcomponents::render_bootstrap_collapsable_delete_confirmation($collapseid, $values->id);
+        $deletecollapsible = htmlcomponents::render_bootstrap_collapsible_delete_confirmation($collapseid, $values->id);
 
         return
             $editbutton
             . $deltebutton
-            . $deletecollapsable
-            . $editcollapsable;
+            . $deletecollapsible
+            . $editcollapsible;
     }
 
     /**
