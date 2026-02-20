@@ -154,24 +154,41 @@ class booking_time implements bo_condition {
      * @return array
      */
     public function return_sql(int $userid = 0, &$params = []): array {
-        $where = "(
-                    sqlfilter <> 2
+        if (!empty(get_config('booking', 'sqlfilterbookingtimeonlypast'))) {
+            $where = "(
+                        sqlfilter <> 2
 
-                    OR (
-                        (bookingopeningtime < 1 OR bookingopeningtime < :bookingopeningtimenow1)
-                        AND (bookingclosingtime < 1 OR bookingclosingtime > :bookingopeningtimenow2)
-                    )
-                  )";
+                        OR (
+                            bookingclosingtime < 1 OR bookingclosingtime > :bookingopeningtimenow2
+                        )
+                      )";
 
-        // Using realtime here would destroy our caching.
-        // Cache would be invalidated every second.
-        // Therefore, the filter of bookingopeningtime goes on the timestamp of 00:00.
-        // Closing on 23:59.
-        $nowstart = strtotime('today 00:00');
-        $nowend = strtotime('today 23:59');
+            // Using realtime here would destroy our caching.
+            // Cache would be invalidated every second.
+            // Therefore, closing goes on timestamp of 23:59.
+            $nowend = strtotime('today 23:59');
 
-        $params['bookingopeningtimenow1'] = $nowstart;
-        $params['bookingopeningtimenow2'] = $nowend;
+            $params['bookingopeningtimenow2'] = $nowend;
+        } else {
+            $where = "(
+                        sqlfilter <> 2
+
+                        OR (
+                            (bookingopeningtime < 1 OR bookingopeningtime < :bookingopeningtimenow1)
+                            AND (bookingclosingtime < 1 OR bookingclosingtime > :bookingopeningtimenow2)
+                        )
+                      )";
+
+            // Using realtime here would destroy our caching.
+            // Cache would be invalidated every second.
+            // Therefore, the filter of bookingopeningtime goes on the timestamp of 00:00.
+            // Closing on 23:59.
+            $nowstart = strtotime('today 00:00');
+            $nowend = strtotime('today 23:59');
+
+            $params['bookingopeningtimenow1'] = $nowstart;
+            $params['bookingopeningtimenow2'] = $nowend;
+        }
 
         return ['', '', '', $params, $where];
     }
@@ -272,7 +289,21 @@ class booking_time implements bo_condition {
         $mform->addElement(
             'advcheckbox',
             'bo_cond_booking_time_sqlfiltercheck',
-            get_string('sqlfiltercheckstring', 'mod_booking')
+            !empty(get_config('booking', 'sqlfilterbookingtimeonlypast'))
+                ? get_string('sqlfiltercheckstringbookingtimeclosingonly', 'mod_booking')
+                : get_string('sqlfiltercheckstringbookingtimeopeningandclosing', 'mod_booking')
+        );
+        $mform->addHelpButton(
+            'bo_cond_booking_time_sqlfiltercheck',
+            'sqlfilterbookingtimeonlypast',
+            'mod_booking',
+            '',
+            false,
+            new \moodle_url(
+                '/admin/settings.php',
+                ['section' => 'modsettingbooking'],
+                'admin-sqlfilterbookingtimeonlypast'
+            )
         );
 
         // Override conditions should not be necessary here - but let's keep it if we change our mind.
