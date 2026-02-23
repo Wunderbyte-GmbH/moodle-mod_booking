@@ -1390,6 +1390,7 @@ $string['eventtype_help'] = 'Sie können den Namen der Ereignisart manuell einge
 $string['eventuserprofilefieldsupdated'] = 'Nutzerprofil aktualisiert';
 $string['excelfile'] = 'CSV Datei mit Aktivitätsabschluss';
 $string['executerestscript'] = 'REST script ausführen';
+$string['executeservice'] = 'Shortcode um die Performance von Webservices zu testen.';
 $string['existingsubscribers'] = 'Vorhandene Nutzer:innen';
 $string['expired'] = 'Diese Aktivität wurde leider am {$a} beendet und steht nicht mehr zur Verfügung';
 $string['extendlimitforoverbooked'] = 'Überbuchte Personen zusätzlich zu Faktor addieren';

@@ -1423,6 +1423,7 @@ $string['eventtype_help'] = 'You can either enter the event type manually or cho
 $string['eventuserprofilefieldsupdated'] = 'Userprofile updated';
 $string['excelfile'] = 'CSV file with activity completion';
 $string['executerestscript'] = 'Execute REST script';
+$string['executeservice'] = ' Shortcode to execute webservices via shortcode for testing performance';
 $string['executiontimes'] = 'How often should the shortcode being executed';
 $string['existingsubscribers'] = 'Existing subscribers';
 $string['expired'] = 'Sorry, this activity closed on {$a} and is no longer available';
