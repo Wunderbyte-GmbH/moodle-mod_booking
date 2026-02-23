@@ -2723,7 +2723,7 @@ $string['sortorder:desc'] = 'Z&rarr;A';
 $string['spaceleft'] = 'space available';
 $string['spacesleft'] = 'spaces available';
 $string['sqlfilterbookingtimeonlypast'] = "When options are skipped because of booking time, only skip options in the past";
-$string['sqlfilterbookingtimeonlypast_desc'] = "If enabled, SQL filtering for booking time only excludes options whose booking closing time is already in the past. Options that are not yet open remain visible.";
+$string['sqlfilterbookingtimeonlypast_desc'] = "If enabled, SQL filtering for booking time only excludes options whose booking closing time is already in the past. Options bookable in the future remain visible.";
 $string['sqlfilterbookingtimeonlypast_help'] = 'This controls how booking-time SQL filtering behaves. <a href="{$a}" target="_blank">Open booking settings</a>.';
 $string['sqlfiltercheckstring'] = 'Hide bookingoption when condition not met';
 $string['sqlfiltercheckstringbookingtimeclosingonly'] = 'Hide booking option only when booking closing time is in the past.';
