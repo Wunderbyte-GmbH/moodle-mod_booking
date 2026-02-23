@@ -43,10 +43,10 @@ Feature: Create global booking rules as admin and insure they are working.
     And I wait "2" seconds
     And I set the field "Event" to "Teacher was added to specific option date (optiondates_teacher_added)"
     And I wait "2" seconds
-    And I set the field "Condition of the rule" to "Directly select users without connection to the booking option"
+    And I set the field "Condition of the rule" to "Select specific user(s)"
     ##And I set the following fields to these values:
     ##  | Event                 | Substitution teacher was added (optiondates_teacher_added)     |
-    ##  | Condition of the rule | Directly select users without connection to the booking option |
+    ##  | Condition of the rule | Select specific user(s) |
     And I wait "1" seconds
     ## Mandatory workaround for autocomplete field
     And I set the field "Select the users you want to target" to "admin"
@@ -81,7 +81,7 @@ Feature: Create global booking rules as admin and insure they are working.
     ## And I wait until the page is ready
     And I should see "notifyadmin" in the ".booking-rules-list" "css_element"
     And I should see "React on event" in the ".booking-rules-list" "css_element"
-    And I should see "Directly select users without connection to the booking option" in the ".booking-rules-list" "css_element"
+    And I should see "Select specific user(s)" in the ".booking-rules-list" "css_element"
     And I should see "Send email" in the ".booking-rules-list" "css_element"
 
   @javascript
