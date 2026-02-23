@@ -2600,7 +2600,7 @@ $string['sortorder:desc'] = 'Z&rarr;A';
 $string['spaceleft'] = 'Platz verfügbar';
 $string['spacesleft'] = 'Plätze verfügbar';
 $string['sqlfilterbookingtimeonlypast'] = "Wenn Optionen wegen Buchungszeit ausgeblendet werden, nur vergangene Optionen ausblenden";
-$string['sqlfilterbookingtimeonlypast_desc'] = "Wenn aktiviert, filtert die SQL-Logik für Buchungszeit nur Optionen heraus, deren Buchungsschluss bereits in der Vergangenheit liegt. Noch nicht geöffnete Optionen bleiben sichtbar.";
+$string['sqlfilterbookingtimeonlypast_desc'] = "Wenn aktiviert, filtert die SQL-Logik für Buchungszeit nur Optionen heraus, deren Buchungsschluss bereits in der Vergangenheit liegt. Die Optionen mit Buchungsstart in der Zukunft bleiben sichtbar.";
 $string['sqlfilterbookingtimeonlypast_help'] = 'Steuert das SQL-Filterverhalten für Buchungszeiten. <a href="{$a}" target="_blank">Buchungs-Einstellungen öffnen</a>.';
 $string['sqlfiltercheckstring'] = 'Bookingoption ausblenden wenn diese Bedingung nicht erfüllt ist';
 $string['sqlfiltercheckstringbookingtimeclosingonly'] = 'Buchungsoption nur ausblenden, wenn der Buchungsschluss in der Vergangenheit liegt.';
