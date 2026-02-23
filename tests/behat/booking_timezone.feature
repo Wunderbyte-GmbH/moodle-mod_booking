@@ -23,12 +23,13 @@ Feature: Booking options show times in each user's timezone
       | student3 | C1     | student        |
     And I clean booking cache
     And the following "activities" exist:
-      | activity | course | name        | intro               | bookingmanager | eventtype | Default view for booking options |
-      | booking  | C1     | BookingTZ   | Booking TZ descr    | teacher1       | Webinar   | All bookings                     |
+      | activity | course | name        | intro               | bookingmanager | eventtype | Default view for booking options | optionsfields                                                                                                      |
+      | booking  | C1     | BookingTZ   | Booking TZ descr    | teacher1       | Webinar   | All bookings                     | description,statusdescription,teacher,bookingopeningtime,bookingclosingtime,showdates,dayofweektime,location,institution,minanswers |
     And the following "mod_booking > options" exist:
-      | booking   | text         | course | description | maxanswers | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
-      | BookingTZ | TZ-Option-01 | C1     | TZ Option   | 5          | 0              | 0              | 2373019200        | 2373026400      |
-    ## 2045/03/13 12:00 - 2045/03/13 14:00 UTC
+      | booking   | text         | course | description | maxanswers | availability | restrictanswerperiodopening | bookingopeningtime | restrictanswerperiodclosing | bookingclosingtime | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
+      | BookingTZ | TZ-Option-01 | C1     | TZ Option   | 5          | 1            | 1                           | 2373012000         | 1                           | 2373033600         | 0              | 0              | 2373019200        | 2373026400      |
+    ## 2045/03/13 10:00 - 2045/03/13 16:00 UTC (booking opening/closing)
+    ## 2045/03/13 12:00 - 2045/03/13 14:00 UTC (option dates)
     And I change viewport size to "1366x6000"
 
   @javascript
@@ -36,13 +37,19 @@ Feature: Booking options show times in each user's timezone
     Given I am on the "BookingTZ" Activity page logged in as student1
     And I should see "13 March 2045, 1:00 PM" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "3:00 PM" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Bookable from: 13 March 2045, 11:00 AM" in the ".allbookingoptionstable_r1 .bookingopeningtime" "css_element"
+    And I should see "Bookable until: 13 March 2045, 5:00 PM" in the ".allbookingoptionstable_r1 .bookingclosingtime" "css_element"
     And I log out
     When I am on the "BookingTZ" Activity page logged in as student2
     Then I should see "13 March 2045, 3:30 PM" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "5:30 PM" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Bookable from: 13 March 2045, 1:30 PM" in the ".allbookingoptionstable_r1 .bookingopeningtime" "css_element"
+    And I should see "Bookable until: 13 March 2045, 7:30 PM" in the ".allbookingoptionstable_r1 .bookingclosingtime" "css_element"
     And I should not see "13 March 2045, 1:00 PM" in the ".allbookingoptionstable_r1" "css_element"
     And I log out
     When I am on the "BookingTZ" Activity page logged in as student3
     Then I should see "13 March 2045, 7:00 AM" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "9:00 AM" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Bookable from: 13 March 2045, 5:00 AM" in the ".allbookingoptionstable_r1 .bookingopeningtime" "css_element"
+    And I should see "Bookable until: 13 March 2045, 11:00 AM" in the ".allbookingoptionstable_r1 .bookingclosingtime" "css_element"
     And I should not see "13 March 2045, 1:00 PM" in the ".allbookingoptionstable_r1" "css_element"
