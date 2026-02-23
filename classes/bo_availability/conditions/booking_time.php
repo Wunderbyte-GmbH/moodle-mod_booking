@@ -435,10 +435,10 @@ class booking_time implements bo_condition {
             // Localized time format.
             switch (current_language()) {
                 case 'de':
-                    $timeformat = "d.m.Y, H:i";
+                    $timeformat = "%d %B %Y, %H:%M";
                     break;
                 default:
-                    $timeformat = "F j, Y, g:i a";
+                    $timeformat = "%B %e, %Y, %l:%M %P";
                     break;
             }
 
@@ -447,13 +447,13 @@ class booking_time implements bo_condition {
 
             $description = '';
             if (!empty($openingtime) && time() < $openingtime) {
-                $openingdatestring = date($timeformat, $openingtime);
+                $openingdatestring = userdate((int) $openingtime, $timeformat);
                 $description .= $full ?
                     get_string('bocondbookingopeningtimefullnotavailable', 'mod_booking', $openingdatestring) :
                     get_string('bocondbookingopeningtimenotavailable', 'mod_booking', $openingdatestring);
             }
             if (!empty($closingtime) && time() > $closingtime) {
-                $closingdatestring = date($timeformat, $closingtime);
+                $closingdatestring = userdate((int) $closingtime, $timeformat);
                 $description .= $full ?
                     get_string('bocondbookingclosingtimefullnotavailable', 'mod_booking', $closingdatestring) :
                     get_string('bocondbookingclosingtimenotavailable', 'mod_booking', $closingdatestring);
