@@ -134,6 +134,11 @@ final class booking_timezone_test extends advanced_testcase {
         $record->text = 'TZ-Option-01';
         $record->description = 'TZ Option';
         $record->maxanswers = 5;
+        $record->availability = 1;
+        $record->restrictanswerperiodopening = 1;
+        $record->bookingopeningtime = 2373012000; // 2045-03-13 10:00 UTC.
+        $record->restrictanswerperiodclosing = 1;
+        $record->bookingclosingtime = 2373033600; // 2045-03-13 16:00 UTC.
         $record->optiondateid_0 = 0;
         $record->daystonotify_0 = 0;
         $record->coursestarttime_0 = 2373019200; // 2045-03-13 12:00 UTC.
@@ -147,11 +152,20 @@ final class booking_timezone_test extends advanced_testcase {
 
         $table = new bookingoptions_wbtable("cmid_{$cm->id} allbookingoptionstable");
         $table->define_cache('mod_booking', 'bookingoptionstable');
+        $timevalues = (object)[
+            'id' => $option->id,
+            'bookingopeningtime' => $record->bookingopeningtime,
+            'bookingclosingtime' => $record->bookingclosingtime,
+        ];
 
         $this->setUser($student1);
         $output1 = $table->col_showdates((object)['id' => $option->id]);
         $this->assertStringContainsString('13 March 2045, 1:00 PM', $output1);
         $this->assertStringContainsString('3:00 PM', $output1);
+        $opening1 = $table->col_bookingopeningtime($timevalues);
+        $closing1 = $table->col_bookingclosingtime($timevalues);
+        $this->assertStringContainsString('Bookable from: 13 March 2045, 11:00 AM', $opening1);
+        $this->assertStringContainsString('Bookable until: 13 March 2045, 5:00 PM', $closing1);
         $lang = current_language();
         $timezone = \core_date::get_user_timezone($student1);
         $timezonetoken = str_replace('/', '_', $timezone);
@@ -164,17 +178,29 @@ final class booking_timezone_test extends advanced_testcase {
         $this->assertStringContainsString('13 March 2045, 3:30 PM', $output2);
         $this->assertStringContainsString('5:30 PM', $output2);
         $this->assertStringNotContainsString('13 March 2045, 1:00 PM', $output2);
+        $opening2 = $table->col_bookingopeningtime($timevalues);
+        $closing2 = $table->col_bookingclosingtime($timevalues);
+        $this->assertStringContainsString('Bookable from: 13 March 2045, 1:30 PM', $opening2);
+        $this->assertStringContainsString('Bookable until: 13 March 2045, 7:30 PM', $closing2);
 
         $this->setUser($student3);
         $output3 = $table->col_showdates((object)['id' => $option->id]);
         $this->assertStringContainsString('13 March 2045, 7:00 AM', $output3);
         $this->assertStringContainsString('9:00 AM', $output3);
         $this->assertStringNotContainsString('13 March 2045, 1:00 PM', $output3);
+        $opening3 = $table->col_bookingopeningtime($timevalues);
+        $closing3 = $table->col_bookingclosingtime($timevalues);
+        $this->assertStringContainsString('Bookable from: 13 March 2045, 5:00 AM', $opening3);
+        $this->assertStringContainsString('Bookable until: 13 March 2045, 11:00 AM', $closing3);
 
         $this->setUser($student4);
         $output4 = $table->col_showdates((object)['id' => $option->id]);
         $this->assertStringContainsString('13 March 2045, 1:00 PM', $output4);
         $this->assertStringContainsString('3:00 PM', $output4);
+        $opening4 = $table->col_bookingopeningtime($timevalues);
+        $closing4 = $table->col_bookingclosingtime($timevalues);
+        $this->assertSame($opening1, $opening4);
+        $this->assertSame($closing1, $closing4);
         $this->assertSame($output4, $cache->get($cachekey));
     }
 }
