@@ -848,11 +848,13 @@ class dates_handler {
         }
         $h = $cache['strings']['h'];
 
+        $timezone = \core_date::get_user_timezone();
+
         // Helper closure for caching userdate results.
-        $getdate = function (int $ts, $format) use ($lang, &$cache) {
-            $key = $ts . '|' . (string)$format . '|' . $lang;
+        $getdate = function (int $ts, $format) use ($lang, $timezone, &$cache) {
+            $key = $ts . '|' . (string)$format . '|' . $lang . '|' . $timezone;
             if (!isset($cache['dates'][$key])) {
-                $cache['dates'][$key] = userdate($ts, $format);
+                $cache['dates'][$key] = userdate($ts, $format, $timezone);
             }
             return $cache['dates'][$key];
         };

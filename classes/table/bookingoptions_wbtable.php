@@ -887,9 +887,12 @@ class bookingoptions_wbtable extends wunderbyte_table {
             $ret = implode(' | ', $datestrings);
         } else {
             // Use the renderer to output this column.
+            global $USER;
             $lang = current_language();
+            $timezone = \core_date::get_user_timezone($USER);
+            $timezonetoken = str_replace('/', '_', $timezone);
 
-            $cachekey = "sessiondates$optionid$lang";
+            $cachekey = "sessiondates{$optionid}{$lang}{$timezonetoken}";
             $cache = cache::make($this->cachecomponent, $this->rawcachename);
 
             if (
