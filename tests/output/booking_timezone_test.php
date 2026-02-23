@@ -100,11 +100,21 @@ final class booking_timezone_test extends advanced_testcase {
             'timezone' => 'America/Chicago',
             'lang' => 'en',
         ]);
+        $student4 = $this->getDataGenerator()->create_user([
+            'username' => 'student4',
+            'firstname' => 'Student',
+            'lastname' => '4',
+            'email' => 'student4@example.com',
+            'timezone' => 'Europe/Vienna',
+            'lang' => 'en',
+        ]);
+
 
         $this->getDataGenerator()->enrol_user($teacher->id, $course->id, 'editingteacher');
         $this->getDataGenerator()->enrol_user($student1->id, $course->id, 'student');
         $this->getDataGenerator()->enrol_user($student2->id, $course->id, 'student');
         $this->getDataGenerator()->enrol_user($student3->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($student4->id, $course->id, 'student');
 
         $bookingdata = [
             'course' => $course->id,
@@ -142,6 +152,12 @@ final class booking_timezone_test extends advanced_testcase {
         $output1 = $table->col_showdates((object)['id' => $option->id]);
         $this->assertStringContainsString('13 March 2045, 1:00 PM', $output1);
         $this->assertStringContainsString('3:00 PM', $output1);
+        $lang = current_language();
+        $timezone = \core_date::get_user_timezone($student1);
+        $timezonetoken = str_replace('/', '_', $timezone);
+        $cachekey = "sessiondates{$option->id}{$lang}{$timezonetoken}";
+        $cache = \cache::make('mod_booking', 'bookingoptionstable');
+        $this->assertSame($output1, $cache->get($cachekey));
 
         $this->setUser($student2);
         $output2 = $table->col_showdates((object)['id' => $option->id]);
@@ -154,5 +170,11 @@ final class booking_timezone_test extends advanced_testcase {
         $this->assertStringContainsString('13 March 2045, 7:00 AM', $output3);
         $this->assertStringContainsString('9:00 AM', $output3);
         $this->assertStringNotContainsString('13 March 2045, 1:00 PM', $output3);
+
+        $this->setUser($student4);
+        $output4 = $table->col_showdates((object)['id' => $option->id]);
+        $this->assertStringContainsString('13 March 2045, 1:00 PM', $output4);
+        $this->assertStringContainsString('3:00 PM', $output4);
+        $this->assertSame($output4, $cache->get($cachekey));
     }
 }
