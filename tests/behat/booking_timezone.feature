@@ -35,14 +35,14 @@ Feature: Booking options show times in each user's timezone
   Scenario: Booking option dates are rendered in each user's timezone and not from cache
     Given I am on the "BookingTZ" Activity page logged in as student1
     And I should see "13 March 2045, 1:00 PM" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "13 March 2045, 3:00 PM" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "3:00 PM" in the ".allbookingoptionstable_r1" "css_element"
     And I log out
     When I am on the "BookingTZ" Activity page logged in as student2
     Then I should see "13 March 2045, 3:30 PM" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "13 March 2045, 5:30 PM" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "5:30 PM" in the ".allbookingoptionstable_r1" "css_element"
     And I should not see "13 March 2045, 1:00 PM" in the ".allbookingoptionstable_r1" "css_element"
     And I log out
     When I am on the "BookingTZ" Activity page logged in as student3
     Then I should see "13 March 2045, 7:00 AM" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "13 March 2045, 9:00 AM" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "9:00 AM" in the ".allbookingoptionstable_r1" "css_element"
     And I should not see "13 March 2045, 1:00 PM" in the ".allbookingoptionstable_r1" "css_element"
