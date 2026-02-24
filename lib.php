@@ -2532,6 +2532,79 @@ function booking_pretty_duration($seconds) {
 }
 
 /**
+ * Format user date/time and append timezone abbreviation when required.
+ *
+ * Appends the timezone abbreviation only if:
+ * - Users can choose their own timezone (forcetimezone = 99), and
+ * - The user's timezone differs from the site's timezone.
+ *
+ * Falls back to the city name if the abbreviation is non-informative.
+ *
+ * @param int $time Unix timestamp (UTC/GMT).
+ * @param string $format Moodle strftime format string.
+ * @param stdClass|null $user User object (defaults to current user).
+ * @return string
+ */
+function booking_format_userdate_with_timezone_abbr(int $time, string $format, ?stdClass $user = null): string {
+    global $USER;
+
+    if ($user === null) {
+        $user = $USER;
+    }
+
+    // As we need the real timestampt of user, we try to get user's timezone from $user object
+    // as get_user_timezone returns forced timezone if forcetimezone is set.
+    $usertz = !empty($user->timezone)
+        ? $user->timezone
+        : \core_date::get_user_timezone($user); // Fallback to core_date if user timezone is not set.
+
+    $forcetimezone = get_config('core', 'forcetimezone');
+
+    $sitetz = get_config('core', 'timezone');
+    if (empty($sitetz)) {
+        throw new coding_exception('sitetimezoneisnotset', 'core');
+    }
+
+    // Determine which timezone the time is rendered in.
+    $rendertz = ((string)$forcetimezone === '99') ? $usertz : $forcetimezone;
+    $datestr = userdate($time, $format, $rendertz);
+
+    $forcetimezone = (string)$forcetimezone;
+
+    // Decide whether to append timezone info.
+    $shouldappend = false;
+
+
+    // When forcetimezone is set to a specific timezone and it's different from timezone regardless of users's timezone,
+    // or when forcetimezone is set to "Users can choose their own timezone" and the user has a different timezone,
+    // we append the timezone information.
+    if ($forcetimezone !== '99' && $sitetz !== $forcetimezone) {
+        $shouldappend = true;
+    } else if ($forcetimezone === '99' && $usertz !== $sitetz) {
+        $shouldappend = true;
+    }
+
+    if (!$shouldappend || !is_string($rendertz)) {
+        return $datestr;
+    }
+
+    try {
+        $dt = new DateTime('@' . $time);
+        $dt->setTimezone(new DateTimeZone($rendertz));
+
+        $abbr = $dt->format('T');
+        if (preg_match('/^(GMT.*|\\+\\d{4}|-\\d{4})$/', $abbr)) {
+            $parts = explode('/', $dt->getTimezone()->getName());
+            $abbr = str_replace('_', ' ', end($parts));
+        }
+    } catch (Exception $e) {
+        return $datestr;
+    }
+
+    return $datestr . ' (' . $abbr . ')';
+}
+
+/**
  * Returns all other caps used in module
  */
 function booking_get_extra_capabilities() {

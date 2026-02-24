@@ -490,13 +490,19 @@ class bookingoption_description implements renderable, templatable {
         if (empty($settings->bookingopeningtime)) {
             $this->bookingopeningtime = null;
         } else {
-            $this->bookingopeningtime = userdate($settings->bookingopeningtime, get_string('strftimedatetime', 'langconfig'));
+            $this->bookingopeningtime = booking_format_userdate_with_timezone_abbr(
+                $settings->bookingopeningtime,
+                get_string('strftimedatetime', 'langconfig')
+            );
         }
 
         if (empty($settings->bookingclosingtime)) {
             $this->bookingclosingtime = null;
         } else {
-            $this->bookingclosingtime = userdate($settings->bookingclosingtime, get_string('strftimedatetime', 'langconfig'));
+            $this->bookingclosingtime = booking_format_userdate_with_timezone_abbr(
+                $settings->bookingclosingtime,
+                get_string('strftimedatetime', 'langconfig')
+            );
         }
 
         if (isset($settings->customfields)) {
