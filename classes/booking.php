@@ -1153,6 +1153,7 @@ class booking {
      * @param string $additionalwhere
      * @param string $innerfrom
      * @param ?wunderbyte_table $tableinstance
+     * @param array $args
      *
      * @return array
      */
@@ -1168,7 +1169,8 @@ class booking {
         $bookingparams = [MOD_BOOKING_STATUSPARAM_BOOKED],
         $additionalwhere = '',
         $innerfrom = '',
-        $tableinstance = null
+        $tableinstance = null,
+        $args = []
     ) {
 
         global $DB;
@@ -1195,7 +1197,11 @@ class booking {
         $innerfrom = empty($innerfrom) ? "FROM {booking_options} bo" : $innerfrom;
 
         // If the user does not have the capability to see invisible options...
-        if (!$context || !has_capability('mod/booking:canseeinvisibleoptions', $context)) {
+        if (
+            (!$context
+            || !has_capability('mod/booking:canseeinvisibleoptions', $context))
+            && !isset($args['showinvisible']) // The argument overrules the capability check.
+        ) {
             // If we have a direct link, we only hide totally invisible options.
             // Also, if the user has already booked and looks at her table, she should see it.
             if (isset($wherearray['id'])) {
@@ -1401,9 +1407,10 @@ class booking {
      *
      * @param int $teacherid
      * @param int $bookingid booking instance id - not cmid!
+     * @param array $args
      * @return array
      */
-    public static function get_all_options_of_teacher_sql(int $teacherid, int $bookingid) {
+    public static function get_all_options_of_teacher_sql(int $teacherid, int $bookingid, array $args) {
 
         $options = [
             'teacherobjects' => '%"id":' . $teacherid . ',%',
@@ -1413,7 +1420,21 @@ class booking {
             $options['bookingid'] = $bookingid;
         }
 
-        return self::get_options_filter_sql(0, 0, '', '*', null, [], $options);
+        return self::get_options_filter_sql(
+            0,
+            0,
+            '',
+            '*',
+            null,
+            [],
+            $options,
+            null,
+            [MOD_BOOKING_STATUSPARAM_BOOKED],
+            '',
+            '',
+            null,
+            $args
+        );
     }
 
     /**
