@@ -12,6 +12,7 @@ Feature: Booking options show times in each user's timezone
       | student1 | Student   | 1        | student1@example.com | S1       | Europe/Vienna   |
       | student2 | Student   | 2        | student2@example.com | S2       | Asia/Tehran     |
       | student3 | Student   | 3        | student3@example.com | S3       | America/Chicago |
+      | student4 | Student   | 4        | student4@example.com | S0       | UTC             |
     And the following "courses" exist:
       | fullname | shortname | category | enablecompletion |
       | Course 1 | C1        | 0        | 1                |
@@ -21,6 +22,7 @@ Feature: Booking options show times in each user's timezone
       | student1 | C1     | student        |
       | student2 | C1     | student        |
       | student3 | C1     | student        |
+      | student4 | C1     | student        |
     And I clean booking cache
     And the following "activities" exist:
       | activity | course | name        | intro               | bookingmanager | eventtype | Default view for booking options | optionsfields                                                                                                      |
@@ -35,21 +37,52 @@ Feature: Booking options show times in each user's timezone
   @javascript
   Scenario: Booking option dates are rendered in each user's timezone and not from cache
     Given I am on the "BookingTZ" Activity page logged in as student1
-    And I should see "13 March 2045, 1:00 PM" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "3:00 PM" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "Bookable from: 13 March 2045, 11:00 AM" in the ".allbookingoptionstable_r1 .bookingopeningtime" "css_element"
-    And I should see "Bookable until: 13 March 2045, 5:00 PM" in the ".allbookingoptionstable_r1 .bookingclosingtime" "css_element"
+    And I should see "13 March 2045, 1:00 PM (CET)" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "3:00 PM (CET)" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Bookable from: 13 March 2045, 11:00 AM (CET)" in the ".allbookingoptionstable_r1 .bookingopeningtime" "css_element"
+    And I should see "Bookable until: 13 March 2045, 5:00 PM (CET)" in the ".allbookingoptionstable_r1 .bookingclosingtime" "css_element"
     And I log out
     When I am on the "BookingTZ" Activity page logged in as student2
-    Then I should see "13 March 2045, 3:30 PM" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "5:30 PM" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "Bookable from: 13 March 2045, 1:30 PM" in the ".allbookingoptionstable_r1 .bookingopeningtime" "css_element"
-    And I should see "Bookable until: 13 March 2045, 7:30 PM" in the ".allbookingoptionstable_r1 .bookingclosingtime" "css_element"
-    And I should not see "13 March 2045, 1:00 PM" in the ".allbookingoptionstable_r1" "css_element"
+    Then I should see "13 March 2045, 3:30 PM (Tehran)" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "5:30 PM (Tehran)" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Bookable from: 13 March 2045, 1:30 PM (Tehran)" in the ".allbookingoptionstable_r1 .bookingopeningtime" "css_element"
+    And I should see "Bookable until: 13 March 2045, 7:30 PM (Tehran)" in the ".allbookingoptionstable_r1 .bookingclosingtime" "css_element"
+    And I should not see "13 March 2045, 1:00 PM (CET)" in the ".allbookingoptionstable_r1" "css_element"
+    When I am on the "BookingTZ" Activity page logged in as student4
+    And I should see "13 March 2045, 12:00 PM" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "2:00 PM" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Bookable from: 13 March 2045, 10:00 AM" in the ".allbookingoptionstable_r1 .bookingopeningtime" "css_element"
+    And I should see "Bookable until: 13 March 2045, 4:00 PM" in the ".allbookingoptionstable_r1 .bookingclosingtime" "css_element"
+    And I should not see "(" in the ".allbookingoptionstable_r1" "css_element"
+    And I should not see ")" in the ".allbookingoptionstable_r1" "css_element"
+    And I log out
+
+  @javascript
+  Scenario: Booking option dates are rendered using forced timezone when configured
+    Given the following config values are set as admin:
+      | config        | value         |
+      | timezone      | UTC           |
+      | forcetimezone | Europe/Vienna |
+    And I clean booking cache
+    When I am on the "BookingTZ" Activity page logged in as student2
+    Then I should see "13 March 2045, 1:00 PM (CET)" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "3:00 PM (CET)" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Bookable from: 13 March 2045, 11:00 AM (CET)" in the ".allbookingoptionstable_r1 .bookingopeningtime" "css_element"
+    And I should see "Bookable until: 13 March 2045, 5:00 PM (CET)" in the ".allbookingoptionstable_r1 .bookingclosingtime" "css_element"
+    And I should not see "(Tehran)" in the ".allbookingoptionstable_r1" "css_element"
     And I log out
     When I am on the "BookingTZ" Activity page logged in as student3
-    Then I should see "13 March 2045, 7:00 AM" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "9:00 AM" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "Bookable from: 13 March 2045, 5:00 AM" in the ".allbookingoptionstable_r1 .bookingopeningtime" "css_element"
-    And I should see "Bookable until: 13 March 2045, 11:00 AM" in the ".allbookingoptionstable_r1 .bookingclosingtime" "css_element"
-    And I should not see "13 March 2045, 1:00 PM" in the ".allbookingoptionstable_r1" "css_element"
+    Then I should see "13 March 2045, 1:00 PM (CET)" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "3:00 PM (CET)" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Bookable from: 13 March 2045, 11:00 AM (CET)" in the ".allbookingoptionstable_r1 .bookingopeningtime" "css_element"
+    And I should see "Bookable until: 13 March 2045, 5:00 PM (CET)" in the ".allbookingoptionstable_r1 .bookingclosingtime" "css_element"
+    And I should not see "(CDT)" in the ".allbookingoptionstable_r1" "css_element"
+    And I log out
+    When I am on the "BookingTZ" Activity page logged in as student4
+    And I wait "10" seconds
+    And I should see "13 March 2045, 12:00 PM" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "2:00 PM" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Bookable from: 13 March 2045, 10:00 AM" in the ".allbookingoptionstable_r1 .bookingopeningtime" "css_element"
+    And I should see "Bookable until: 13 March 2045, 4:00 PM" in the ".allbookingoptionstable_r1 .bookingclosingtime" "css_element"
+    And I should not see "(" in the ".allbookingoptionstable_r1" "css_element"
+    And I log out

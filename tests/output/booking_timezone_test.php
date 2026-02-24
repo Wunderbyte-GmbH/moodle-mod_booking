@@ -157,15 +157,38 @@ final class booking_timezone_test extends advanced_testcase {
             'bookingopeningtime' => $record->bookingopeningtime,
             'bookingclosingtime' => $record->bookingclosingtime,
         ];
+        $formatdatetime = get_string('strftimedatetime', 'langconfig');
+        $formattime = get_string('strftimetime', 'langconfig');
 
         $this->setUser($student1);
         $output1 = $table->col_showdates((object)['id' => $option->id]);
-        $this->assertStringContainsString('13 March 2045, 1:00 PM', $output1);
-        $this->assertStringContainsString('3:00 PM', $output1);
+        $expectedstart1 = booking_format_userdate_with_timezone_abbr(
+            $record->coursestarttime_0,
+            $formatdatetime,
+            $student1
+        );
+        $expectedend1 = booking_format_userdate_with_timezone_abbr(
+            $record->courseendtime_0,
+            $formattime,
+            $student1
+        );
+        $this->assertStringContainsString($expectedstart1, $output1);
+        $this->assertStringContainsString($expectedend1, $output1);
+        $this->assertStringContainsString(' (', $expectedstart1);
         $opening1 = $table->col_bookingopeningtime($timevalues);
         $closing1 = $table->col_bookingclosingtime($timevalues);
-        $this->assertStringContainsString('Bookable from: 13 March 2045, 11:00 AM', $opening1);
-        $this->assertStringContainsString('Bookable until: 13 March 2045, 5:00 PM', $closing1);
+        $expectedopen1 = booking_format_userdate_with_timezone_abbr(
+            $record->bookingopeningtime,
+            $formatdatetime,
+            $student1
+        );
+        $expectedclose1 = booking_format_userdate_with_timezone_abbr(
+            $record->bookingclosingtime,
+            $formatdatetime,
+            $student1
+        );
+        $this->assertStringContainsString('Bookable from: ' . $expectedopen1, $opening1);
+        $this->assertStringContainsString('Bookable until: ' . $expectedclose1, $closing1);
         $lang = current_language();
         $timezone = \core_date::get_user_timezone($student1);
         $timezonetoken = str_replace('/', '_', $timezone);
@@ -175,32 +198,110 @@ final class booking_timezone_test extends advanced_testcase {
 
         $this->setUser($student2);
         $output2 = $table->col_showdates((object)['id' => $option->id]);
-        $this->assertStringContainsString('13 March 2045, 3:30 PM', $output2);
-        $this->assertStringContainsString('5:30 PM', $output2);
-        $this->assertStringNotContainsString('13 March 2045, 1:00 PM', $output2);
+        $expectedstart2 = booking_format_userdate_with_timezone_abbr(
+            $record->coursestarttime_0,
+            $formatdatetime,
+            $student2
+        );
+        $expectedend2 = booking_format_userdate_with_timezone_abbr(
+            $record->courseendtime_0,
+            $formattime,
+            $student2
+        );
+        $this->assertStringContainsString($expectedstart2, $output2);
+        $this->assertStringContainsString($expectedend2, $output2);
+        $this->assertStringNotContainsString($expectedstart1, $output2);
         $opening2 = $table->col_bookingopeningtime($timevalues);
         $closing2 = $table->col_bookingclosingtime($timevalues);
-        $this->assertStringContainsString('Bookable from: 13 March 2045, 1:30 PM', $opening2);
-        $this->assertStringContainsString('Bookable until: 13 March 2045, 7:30 PM', $closing2);
+        $expectedopen2 = booking_format_userdate_with_timezone_abbr(
+            $record->bookingopeningtime,
+            $formatdatetime,
+            $student2
+        );
+        $expectedclose2 = booking_format_userdate_with_timezone_abbr(
+            $record->bookingclosingtime,
+            $formatdatetime,
+            $student2
+        );
+        $this->assertStringContainsString('Bookable from: ' . $expectedopen2, $opening2);
+        $this->assertStringContainsString('Bookable until: ' . $expectedclose2, $closing2);
 
         $this->setUser($student3);
         $output3 = $table->col_showdates((object)['id' => $option->id]);
-        $this->assertStringContainsString('13 March 2045, 7:00 AM', $output3);
-        $this->assertStringContainsString('9:00 AM', $output3);
-        $this->assertStringNotContainsString('13 March 2045, 1:00 PM', $output3);
+        $expectedstart3 = booking_format_userdate_with_timezone_abbr(
+            $record->coursestarttime_0,
+            $formatdatetime,
+            $student3
+        );
+        $expectedend3 = booking_format_userdate_with_timezone_abbr(
+            $record->courseendtime_0,
+            $formattime,
+            $student3
+        );
+        $this->assertStringContainsString($expectedstart3, $output3);
+        $this->assertStringContainsString($expectedend3, $output3);
+        $this->assertStringNotContainsString($expectedstart1, $output3);
         $opening3 = $table->col_bookingopeningtime($timevalues);
         $closing3 = $table->col_bookingclosingtime($timevalues);
-        $this->assertStringContainsString('Bookable from: 13 March 2045, 5:00 AM', $opening3);
-        $this->assertStringContainsString('Bookable until: 13 March 2045, 11:00 AM', $closing3);
+        $expectedopen3 = booking_format_userdate_with_timezone_abbr(
+            $record->bookingopeningtime,
+            $formatdatetime,
+            $student3
+        );
+        $expectedclose3 = booking_format_userdate_with_timezone_abbr(
+            $record->bookingclosingtime,
+            $formatdatetime,
+            $student3
+        );
+        $this->assertStringContainsString('Bookable from: ' . $expectedopen3, $opening3);
+        $this->assertStringContainsString('Bookable until: ' . $expectedclose3, $closing3);
 
         $this->setUser($student4);
         $output4 = $table->col_showdates((object)['id' => $option->id]);
-        $this->assertStringContainsString('13 March 2045, 1:00 PM', $output4);
-        $this->assertStringContainsString('3:00 PM', $output4);
+        $this->assertStringContainsString($expectedstart1, $output4);
+        $this->assertStringContainsString($expectedend1, $output4);
         $opening4 = $table->col_bookingopeningtime($timevalues);
         $closing4 = $table->col_bookingclosingtime($timevalues);
         $this->assertSame($opening1, $opening4);
         $this->assertSame($closing1, $closing4);
         $this->assertSame($output4, $cache->get($cachekey));
+
+        $this->setAdminUser();
+        set_config('forcetimezone', 'Europe/Vienna');
+        cache_helper::purge_all();
+
+        $tableforced = new bookingoptions_wbtable("cmid_{$cm->id} allbookingoptionstable");
+        $tableforced->define_cache('mod_booking', 'bookingoptionstable');
+
+        $this->setUser($student2);
+        $outputforced = $tableforced->col_showdates((object)['id' => $option->id]);
+        $expectedforcedstart = booking_format_userdate_with_timezone_abbr(
+            $record->coursestarttime_0,
+            $formatdatetime,
+            $student2
+        );
+        $expectedforcedend = booking_format_userdate_with_timezone_abbr(
+            $record->courseendtime_0,
+            $formattime,
+            $student2
+        );
+        $this->assertStringContainsString($expectedforcedstart, $outputforced);
+        $this->assertStringContainsString($expectedforcedend, $outputforced);
+        $this->assertStringNotContainsString('(Tehran)', $outputforced);
+
+        $openingforced = $tableforced->col_bookingopeningtime($timevalues);
+        $closingforced = $tableforced->col_bookingclosingtime($timevalues);
+        $expectedopenforced = booking_format_userdate_with_timezone_abbr(
+            $record->bookingopeningtime,
+            $formatdatetime,
+            $student2
+        );
+        $expectedcloseforced = booking_format_userdate_with_timezone_abbr(
+            $record->bookingclosingtime,
+            $formatdatetime,
+            $student2
+        );
+        $this->assertStringContainsString('Bookable from: ' . $expectedopenforced, $openingforced);
+        $this->assertStringContainsString('Bookable until: ' . $expectedcloseforced, $closingforced);
     }
 }
