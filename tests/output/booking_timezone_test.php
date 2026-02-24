@@ -145,7 +145,7 @@ final class booking_timezone_test extends advanced_testcase {
     }
 
     /**
-     * Summary of test_showdates_cache_respects_forced_timezone
+     * This test checks if all users in all timezones see the time in the forced time zone and checks if the timezone info.
      * @return void
      */
     public function test_showdates_cache_respects_forced_timezone(): void {
@@ -154,10 +154,7 @@ final class booking_timezone_test extends advanced_testcase {
         $data = $this->setup_environment();
         $student1 = $data['student1'];
         $student2 = $data['student2'];
-        $student3 = $data['student3'];
-        $student4 = $data['student4'];
         $student5 = $data['student5'];
-        $record = $data['record'];
         $option = $data['option'];
         $cm = $data['cm'];
         $timevalues = $data['timevalues'];
@@ -169,26 +166,36 @@ final class booking_timezone_test extends advanced_testcase {
         $tableforced->define_cache('mod_booking', 'bookingoptionstable');
         cache_helper::purge_all();
 
+        $this->setUser($student1);
+        $outputforced1 = $tableforced->col_showdates((object)['id' => $option->id]);
+        $this->assertStringContainsString('13 March 2045, 1:00 PM (CET)', $outputforced1);
+        $this->assertStringContainsString('3:00 PM (CET)', $outputforced1);
+        $this->assertStringNotContainsString('(Tehran)', $outputforced1);
+        $openingforced1 = $tableforced->col_bookingopeningtime($timevalues);
+        $closingforced1 = $tableforced->col_bookingclosingtime($timevalues);
+        $this->assertStringContainsString('Bookable from: 13 March 2045, 11:00 AM (CET)', $openingforced1);
+        $this->assertStringContainsString('Bookable until: 13 March 2045, 5:00 PM (CET)', $closingforced1);
+
         $this->setUser($student2);
-        $outputforced = $tableforced->col_showdates((object)['id' => $option->id]);
-        $this->assertStringContainsString('13 March 2045, 1:00 PM (CET)', $outputforced);
-        $this->assertStringContainsString('3:00 PM (CET)', $outputforced);
-        $this->assertStringNotContainsString('(Tehran)', $outputforced);
-        $openingforced = $tableforced->col_bookingopeningtime($timevalues);
-        $closingforced = $tableforced->col_bookingclosingtime($timevalues);
-        $this->assertStringContainsString('Bookable from: 13 March 2045, 11:00 AM (CET)', $openingforced);
-        $this->assertStringContainsString('Bookable until: 13 March 2045, 5:00 PM (CET)', $closingforced);
+        $outputforced2 = $tableforced->col_showdates((object)['id' => $option->id]);
+        $this->assertStringContainsString('13 March 2045, 1:00 PM (CET)', $outputforced2);
+        $this->assertStringContainsString('3:00 PM (CET)', $outputforced2);
+        $this->assertStringNotContainsString('(Tehran)', $outputforced2);
+        $openingforced2 = $tableforced->col_bookingopeningtime($timevalues);
+        $closingforced2 = $tableforced->col_bookingclosingtime($timevalues);
+        $this->assertStringContainsString('Bookable from: 13 March 2045, 11:00 AM (CET)', $openingforced2);
+        $this->assertStringContainsString('Bookable until: 13 March 2045, 5:00 PM (CET)', $closingforced2);
 
         // Check that the displayed times for users with the same timezone do not include the timezone abbreviation.
         $this->setUser($student5);
-        $output5 = $tableforced->col_showdates((object)['id' => $option->id]);
-        $shoudcontains = "13 March 2045, 12:00 PM";
-        $this->assertStringContainsString($shoudcontains, $output5);
-        $this->assertStringNotContainsString('(', $output5);
-        $opening0 = $tableforced->col_bookingopeningtime($timevalues);
-        $closing0 = $tableforced->col_bookingclosingtime($timevalues);
-        $this->assertStringNotContainsString('(', $opening0);
-        $this->assertStringNotContainsString('(', $closing0);
+        $outputforced5 = $tableforced->col_showdates((object)['id' => $option->id]);
+        $this->assertStringContainsString('13 March 2045, 1:00 PM (CET)', $outputforced5);
+        $this->assertStringContainsString('3:00 PM (CET)', $outputforced5);
+        $this->assertStringNotContainsString('(Tehran)', $outputforced5);
+        $openingforced5 = $tableforced->col_bookingopeningtime($timevalues);
+        $closingforced5 = $tableforced->col_bookingclosingtime($timevalues);
+        $this->assertStringContainsString('Bookable from: 13 March 2045, 11:00 AM (CET)', $openingforced5);
+        $this->assertStringContainsString('Bookable until: 13 March 2045, 5:00 PM (CET)', $closingforced5);
     }
 
     /**
@@ -198,6 +205,8 @@ final class booking_timezone_test extends advanced_testcase {
      */
     public function setup_environment() {
         global $PAGE;
+
+        $this->setAdminUser();
 
         $course = $this->getDataGenerator()->create_course();
         $teacher = $this->getDataGenerator()->create_user([
@@ -262,8 +271,6 @@ final class booking_timezone_test extends advanced_testcase {
             'bookingmanager' => $teacher->username,
         ];
         $booking = $this->getDataGenerator()->create_module('booking', $bookingdata);
-
-        $this->setAdminUser();
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');

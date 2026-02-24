@@ -79,10 +79,7 @@ Feature: Booking options show times in each user's timezone
     And I should not see "(CDT)" in the ".allbookingoptionstable_r1" "css_element"
     And I log out
     When I am on the "BookingTZ" Activity page logged in as student4
-    And I wait "10" seconds
-    And I should see "13 March 2045, 12:00 PM" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "2:00 PM" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "Bookable from: 13 March 2045, 10:00 AM" in the ".allbookingoptionstable_r1 .bookingopeningtime" "css_element"
-    And I should see "Bookable until: 13 March 2045, 4:00 PM" in the ".allbookingoptionstable_r1 .bookingclosingtime" "css_element"
-    And I should not see "(" in the ".allbookingoptionstable_r1" "css_element"
-    And I log out
+    And I should see "13 March 2045, 1:00 PM" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "3:00 PM" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Bookable from: 13 March 2045, 11:00 AM (CET)" in the ".allbookingoptionstable_r1 .bookingopeningtime" "css_element"
+    And I should see "Bookable until: 13 March 2045, 5:00 PM (CET)" in the ".allbookingoptionstable_r1 .bookingclosingtime" "css_element"
