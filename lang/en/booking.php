@@ -1496,6 +1496,8 @@ $string['gotomanageresponses'] = '&lt;&lt; Manage bookings';
 $string['gotomoodlecourse'] = 'Go to Moodle course';
 $string['groupdeleted'] = 'This booking instance creates groups automatically in the target course. But the group has been manually deleted in the target course. Activate the following checkbox in order to recreate the group';
 $string['groupexists'] = 'The group already exists in the target course, please choose another name for the booking option';
+$string['groupid'] = 'Group';
+$string['groupiddisplay_help'] = '<i class="fa fa-lightbulb-o" aria-hidden="true"></i>&nbsp;Upon booking, users are automatically enrolled into this course group<span class="text-small"></span>';
 $string['groupname'] = 'Group name';
 $string['h'] = '';
 $string['hascapability'] = 'Except has capability';
@@ -3125,6 +3127,8 @@ $string['whichview'] = 'Default view for booking options';
 $string['whichviewerror'] = 'You have to include the default view in: Views to show in the booking options overview';
 $string['withselected'] = 'With selected users:';
 $string['wrongdataallfields'] = 'Please, fill out all fields!';
+$string['wronggroup'] = 'Is this the wrong group?';
+$string['wronggroup_help'] = 'When duplicating booking instances, it is possible that the wrong group is duplicated. Click the checkbox to recreate the group.';
 $string['wronglabels'] = 'Imported CSV not containing the right labels. Column {$a} can not be imported.';
 $string['xusersarebooked'] = '{$a} users are booked';
 $string['yes'] = 'Yes';
@@ -3133,11 +3137,3 @@ $string['youareusingconfig'] = 'Your are using the following form configuration:
 $string['yourplaceonwaitinglist'] = 'You are on place {$a} on the waitinglist';
 $string['yourselection'] = 'Your selection';
 $string['zoommeeting'] = 'Zoom meeting';
-
-// phpcs:disable
-/*$string['ersaverelationsforoptiondates'] = 'Save entity for each date too';
-$string['confirm:ersaverelationsforoptiondates'] = '<span class="text-danger">
-<b>Be careful:</b> This booking option has dates with various entities.
-Do you really want to set this entity for ALL dates?</span>';
-$string['error:ersaverelationsforoptiondates'] = 'Please confirm that you want to overwrite deviating entities.'; */
-// phpcs:enable

@@ -564,15 +564,9 @@ class booking_option {
             $this->booking->get_canbook_userids();
         }
 
-        if ($CFG->version >= 2021051700) {
-            // This only works in Moodle 3.11 and later.
-            $mainuserfields = \core_user\fields::for_name()->with_userpic()->get_sql('u')->selects;
-            // The $mainuserfields variable already includes a comma in the beginning, so trim it first.
-            $mainuserfields = trim($mainuserfields, ', ');
-        } else {
-            // This is deprecated in Moodle 3.11 and later.
-            $mainuserfields = \user_picture::fields('u', null);
-        }
+        $mainuserfields = \core_user\fields::for_name()->with_userpic()->get_sql('u')->selects;
+        // The $mainuserfields variable already includes a comma in the beginning, so trim it first.
+        $mainuserfields = trim($mainuserfields, ', ');
 
         $sql = "SELECT $mainuserfields, ba.id AS answerid, ba.optionid, ba.bookingid
                   FROM {booking_answers} ba, {user} u
@@ -833,7 +827,7 @@ class booking_option {
         // Log cancellation of user.
         $event = bookinganswer_cancelled::create([
             'objectid' => $this->optionid,
-            'context' => \context_module::instance($this->cmid),
+            'context' => context_module::instance($this->cmid),
             'userid' => $USER->id, // The user who did cancel.
             'relateduserid' => $userid, // Affected user - the user who was cancelled.
         ]);
@@ -1485,7 +1479,7 @@ class booking_option {
             // Log cancellation of user.
             $event = booking_afteractionsfailed::create([
                 'objectid' => $this->optionid,
-                'context' => \context_module::instance($this->cmid),
+                'context' => context_module::instance($this->cmid),
                 'userid' => $USER->id, // The user triggered the action.
                 'relateduserid' => $user->id, // Affected user - the user for whom the booking failed..
                 'other' => [
@@ -1645,7 +1639,7 @@ class booking_option {
         if (isset($currentanswerid)) {
             $newanswer->id = $currentanswerid;
             if (!$DB->update_record('booking_answers', $newanswer)) {
-                new \moodle_exception("dmlwriteexception");
+                new moodle_exception("dmlwriteexception");
             }
         } else {
             // When we insert a record, we want timemodified to be the same as time created.
@@ -1654,7 +1648,7 @@ class booking_option {
             $newanswer->timemodified = $newanswer->timecreated;
 
             if (!$newanswer->id = $DB->insert_record('booking_answers', $newanswer)) {
-                new \moodle_exception("dmlwriteexception");
+                new moodle_exception("dmlwriteexception");
             }
         }
 
@@ -1746,7 +1740,7 @@ class booking_option {
                 // Log cancellation of user.
                 $event = booking_afteractionsfailed::create([
                     'objectid' => $this->optionid,
-                    'context' => \context_module::instance($this->cmid),
+                    'context' => context_module::instance($this->cmid),
                     'userid' => $USER->id, // The user triggered the action.
                     'relateduserid' => $user->id, // Affected user - the user for whom the booking failed..
                     'other' => [
@@ -2150,10 +2144,17 @@ class booking_option {
      * @param stdClass $newoption
      * @param bool $groupintarget
      * @param int $sourcecourseid
+     * @param bool $resetgroupid false by default, when set to true, the groupid in the booking option will be recreated
+     *                           => see prepare_save_field function in groupid field class
      * @return bool|number id of the group
      * @throws \moodle_exception
      */
-    public function create_group(stdClass $newoption, bool $groupintarget = true, int $sourcecourseid = 0) {
+    public function create_group(
+        stdClass $newoption,
+        bool $groupintarget = true,
+        int $sourcecourseid = 0,
+        bool $resetgroupid = false
+    ) {
         global $DB;
 
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($this->bookingid);
@@ -2163,22 +2164,29 @@ class booking_option {
         $newgroupdata = self::generate_group_data($bookingsettings, $newoption, $courseid);
         $existinggroups = groups_get_all_groups($courseid);
         $groupids = array_keys($existinggroups);
+
         // If group name already exists, do not create it a second time, it should be unique.
         if ($groupid = groups_get_group_by_name($courseid, $newgroupdata->name)) {
             return $groupid;
+        } else if ($resetgroupid) {
+            // If resetgroupid is true and the group does not yet exist, we need to create a new group.
+            return groups_create_group($newgroupdata);
         }
+
         if (
             $groupid = groups_get_group_by_name($courseid, $newgroupdata->name)
             && !isset($this->option->id)
         ) {
             $url = new moodle_url('/mod/booking/view.php', ['id' => $this->cmid]);
-            throw new \moodle_exception('groupexists', 'booking', $url->out());
+            throw new moodle_exception('groupexists', 'booking', $url->out());
         }
+
         // Target group ids are stored in groupid column of option.
         if (
             $groupintarget
             && $this->option->groupid > 0
             && in_array($this->option->groupid, $groupids)
+            && !$resetgroupid
         ) {
             // Group has been created but renamed.
             $newgroupdata->id = $this->option->groupid;
@@ -2322,7 +2330,7 @@ class booking_option {
             // Delete event if exist.
             try {
                 $event = \calendar_event::load($eventid);
-            } catch (\Exception $e) {
+            } catch (Throwable $e) {
                 $eventexists = false;
             }
             if ($eventexists) {
@@ -2931,8 +2939,8 @@ class booking_option {
         }
         if (!empty($failed)) {
             $error .= 'The following users could not be registered to the new booking option:';
-            $error .= \html_writer::empty_tag('br');
-            $error .= \html_writer::alist($failed);
+            $error .= html_writer::empty_tag('br');
+            $error .= html_writer::alist($failed);
         }
         // Remove source option.
         $this->delete_booking_option();
@@ -3265,7 +3273,7 @@ class booking_option {
 
         $sendtask = new send_completion_mails();
         $sendtask->set_custom_data($taskdata);
-        \core\task\manager::queue_adhoc_task($sendtask);
+        manager::queue_adhoc_task($sendtask);
     }
 
     /**

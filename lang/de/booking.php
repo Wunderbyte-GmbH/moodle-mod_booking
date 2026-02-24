@@ -1463,6 +1463,8 @@ $string['gotomanageresponses'] = '&lt;&lt; Buchungen verwalten';
 $string['gotomoodlecourse'] = 'Zum Moodle-Kurs';
 $string['groupdeleted'] = 'Diese Buchung erstellt automatisch Gruppen im Zielkurs. Aber die Gruppe wurde im Zielkurs manuell gelöscht. Aktivieren Sie folgende Checkbox, um die Gruppe erneut zu erstellen';
 $string['groupexists'] = 'Die Gruppe existiert bereits im Zielkurs. Bitte verwenden Sie einen anderen Namen für die Buchungsoption';
+$string['groupid'] = 'Gruppe';
+$string['groupiddisplay_help'] = '<i class="fa fa-lightbulb-o" aria-hidden="true"></i>&nbsp;Bei Buchung werden Nutzer:innen automatisch in diese Kurs-Gruppe eingeschrieben<span class="text-small"></span>';
 $string['groupname'] = 'Gruppenname';
 $string['h'] = ' Uhr';
 $string['hascapability'] = 'Außer mit dieser Fähikgeit';
@@ -2992,6 +2994,8 @@ $string['whichview'] = 'Standardansicht in der Buchungsoptionsübersicht';
 $string['whichviewerror'] = 'Die Standardansicht muss auch in den Ansichten der Buchungsoptionsübersicht ausgewählt werden';
 $string['withselected'] = 'Ausgewählte Nutzer:innen';
 $string['wrongdataallfields'] = 'Bitte alle Felder ausfüllen!';
+$string['wronggroup'] = 'Ist das die falsche Gruppe?';
+$string['wronggroup_help'] = 'Beim Duplizieren von Buchungsinstanzen kann es passieren, dass die falsche Gruppe mitdupliziert wird. Klicken Sie auf das Häkchen, um die Gruppe neu zu erstellen.';
 $string['wronglabels'] = 'Die importierten Spaltennamen entsprechen nicht der Vorgabe. {$a} kann nicht importiert werden.';
 $string['xusersarebooked'] = '{$a} Nutzer:innen sind gebucht';
 $string['yes'] = 'Ja';
@@ -3000,11 +3004,3 @@ $string['youareusingconfig'] = 'Sie verwenden folgende Formular-Konfiguration: {
 $string['yourplaceonwaitinglist'] = 'Sie sind auf Platz {$a} auf der Warteliste';
 $string['yourselection'] = 'Ihre Auswahl';
 $string['zoommeeting'] = 'Zoom-Meeting';
-
-// phpcs:disable
-/*$string['ersaverelationsforoptiondates'] = 'Entity auch für jeden Termin speichern';
-$string['confirm:ersaverelationsforoptiondates'] = '<span class="text-danger">
-<b>Achtung:</b> Diese Buchungsoption hat Termine mit unterschiedlichen Entities.
-Wollen Sie wirklich ALLE Termine mit der ausgewählten Entity überschreiben?</span>';
-$string['error:ersaverelationsforoptiondates'] = 'Bitte bestätigen Sie, dass Sie abweichende Entities überschreiben wollen.';*/
-// phpcs:enable
