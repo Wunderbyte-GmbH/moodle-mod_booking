@@ -1,3 +1,29 @@
+## Version 9.1.4 (2026022400)
+* Improvement: Better strings for the “selectusers” booking rule condition.
+* Improvement: Add new shortcode to allow performance testing of webservices.
+* Improvement: Update description for booking time SQL filtering.
+* Improvement: Update booking time filter description in German.
+* Improvement: Add new setting to restrict booking time SQL condition to future options only.
+* Improvement: Allow manageusers table to translate custom field values.
+* Improvement: Make Bootstrap 5 ready and improve usability.
+* Improvement: Fix failing tests.
+* Improvement: Link settings in alert string.
+* Improvement: Slim down function implementation.
+* Improvement: Rename fields and add warning to mform.
+* Improvement: Add logic to freeze fields.
+* Improvement: Implement visibility manager.
+* Improvement: Add setting and refactor get_class method.
+* Improvement: Implement skippable boolean and get_name function for all conditions.
+* Improvement: Add German language strings.
+* Bugfix: Add missing language strings.
+* Bugfix: Do not show confirm button when there is no confirmation workflow.
+* Bugfix: Fix spelling mistakes.
+* Bugfix: Ensure ignored data on CVS import is handled correctly.
+* Bugfix: Fix permission issues.
+* Bugfix: Handle empty values in mustache template correctly.
+* Bugfix: Fix empty navigation element issue.
+* Tests: Add test case for each setting.
+
 ## Version 9.1.3 (2026021600)
 * New feature: Add new description placeholder.
 * Improvement: Check capability of a user anywhere in the system.
