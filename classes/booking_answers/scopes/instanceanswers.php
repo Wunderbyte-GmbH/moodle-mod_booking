@@ -140,7 +140,10 @@ class instanceanswers extends scope_base_answers {
         $table->sort_default_column = 'timemodified';
         $table->sort_default_order = SORT_DESC;
 
-        $table->actionbuttons[] = booked_users::create_certificate_button();
+        if (!empty($certificatebutton = booked_users::create_certificate_button())) {
+            $table->actionbuttons[] = $certificatebutton;
+        }
+
         if ($statusparam != MOD_BOOKING_STATUSPARAM_DELETED) {
             $table->addcheckboxes = true;
             $table->actionbuttons[] = booked_users::create_delete_button();

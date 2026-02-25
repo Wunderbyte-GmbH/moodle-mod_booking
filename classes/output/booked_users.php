@@ -590,6 +590,9 @@ class booked_users implements renderable, templatable {
      *
      */
     public static function create_certificate_button(): array {
+        if (!get_config('booking', 'certificateon')) {
+            return [];
+        }
         return [
             'iclass' => 'fa fa-fw fa-certificate',
             'label' => get_string('bookingstrackertriggercertificate', 'mod_booking'),
