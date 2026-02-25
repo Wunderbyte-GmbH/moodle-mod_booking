@@ -1268,7 +1268,11 @@ if (!$tableallbookings->is_downloading()) {
 
     // We call the template render to display how many users are in previously booked list.
     $data = new booked_users('option', $optionid, false, false, false, false, false, false, false, true);
-    $previouslybooked = $renderer->render_booked_users($data);
+    if (!empty($data->previouslybooked)) {
+        $previouslybooked = $renderer->render_booked_users($data);
+    } else {
+        $previouslybooked = '';
+    }
 
     if (!empty($previouslybooked)) {
         $contents = html_writer::tag(
