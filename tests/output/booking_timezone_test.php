@@ -147,6 +147,9 @@ final class booking_timezone_test extends advanced_testcase {
     /**
      * This test checks if all users in all timezones see the time in the forced time zone and checks if the timezone info.
      * @return void
+     * @covers \mod_booking\table\bookingoptions_wbtable::col_showdates
+     * @covers \mod_booking\table\bookingoptions_wbtable::col_bookingopeningtime
+     * @covers \mod_booking\table\bookingoptions_wbtable::col_bookingclosingtime
      */
     public function test_showdates_cache_respects_forced_timezone(): void {
         global $PAGE;
