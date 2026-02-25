@@ -192,7 +192,10 @@ class option extends scope_base {
                 ]
             );
         }
-        $table->actionbuttons[] = booked_users::create_certificate_button();
+
+        if (!empty($certificatebutton = booked_users::create_certificate_button())) {
+            $table->actionbuttons[] = $certificatebutton;
+        }
 
         if ($statusparam != MOD_BOOKING_STATUSPARAM_DELETED) {
             $table->addcheckboxes = true;
