@@ -2574,7 +2574,6 @@ function booking_format_userdate_with_timezone_abbr(int $time, string $format, ?
     // Decide whether to append timezone info.
     $shouldappend = false;
 
-
     // When forcetimezone is set to a specific timezone and it's different from timezone regardless of users's timezone,
     // or when forcetimezone is set to "Users can choose their own timezone" and the user has a different timezone,
     // we append the timezone information.
