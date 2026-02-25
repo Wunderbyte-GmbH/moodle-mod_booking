@@ -77,6 +77,10 @@ final class booking_importer_test extends advanced_testcase {
         $this->resetAfterTest();
         // It is important to set timezone to have all dates correct!
         $this->setTimezone('Europe/London');
+        // We also set the timezone in the config, as we have logic in booking/lib
+        // that reads the timezone via get_config() to determine whether
+        // the user's timezone differs from the system timezone.
+        set_config('timezone', 'Europe/London');
 
         // Setup course.
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
