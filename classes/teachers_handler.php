@@ -79,9 +79,8 @@ class teachers_handler {
             get_string('teachers', 'mod_booking')
         );
 
-        /* Important note: Currently, all users can be added as teachers for a booking option.
-        In the future, there might be a user profile field defining users which are allowed
-        to be added as teachers. */
+        /* Important note: There is a config setting 'selectteacherswithprofilefieldonly' to define if
+        list of possible teachers should be limited to those with specific value in specifc profile field */
 
         // We need to preload list to not only have the id, but the rendered values.
 
