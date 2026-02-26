@@ -152,7 +152,7 @@ class pollurl extends field_base {
 
         $mform->addElement('text', 'pollurl', get_string('bookingpollurl', 'mod_booking'), ['size' => '64']);
         $mform->setType('pollurl', PARAM_TEXT);
-        $mform->setDefault('pollurl', get_config('booking', 'pollurltemplate'));
+        $mform->setDefault('pollurl', get_config('booking', 'pollurltemplate') ?: '');
         $mform->addHelpButton('pollurl', 'feedbackurl', 'mod_booking');
 
         $mform->addElement(
@@ -163,7 +163,7 @@ class pollurl extends field_base {
         );
         $mform->setType('pollurlteachers', PARAM_TEXT);
         $mform->addHelpButton('pollurlteachers', 'feedbackurlteachers', 'mod_booking');
-        $mform->setDefault('pollurlteachers', get_config('booking', 'pollurlteacherstemplate'));
+        $mform->setDefault('pollurlteachers', get_config('booking', 'pollurlteacherstemplate') ?: '');
 
         if (wb_payment::pro_version_is_activated()) {
             $availableplaceholders = placeholders_info::return_list_of_placeholders(true);
