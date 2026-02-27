@@ -2242,6 +2242,16 @@ if ($ADMIN->fulltree) {
                 0
             )
         );
+
+        // Option to skip purging the setbackoptionstable event. Only for very high performance environments.
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/skipsetbackoptionstable',
+                get_string('skipsetbackoptionstable', 'mod_booking'),
+                get_string('skipsetbackoptionstable_desc', 'mod_booking'),
+                0
+            )
+        );
     } else {
         $settings->add(
             new admin_setting_heading(

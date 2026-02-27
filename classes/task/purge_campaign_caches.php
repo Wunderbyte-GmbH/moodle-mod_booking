@@ -60,7 +60,11 @@ class purge_campaign_caches extends \core\task\adhoc_task {
      */
     public function execute() {
 
-        cache_helper::purge_by_event('setbackoptionstable');
+        // Respect admin setting: some high-performance sites may opt to skip this specific event purge.
+        if (!get_config('booking', 'skipsetbackoptionstable')) {
+            cache_helper::purge_by_event('setbackoptionstable');
+        }
+
         cache_helper::purge_by_event('setbackoptionsettings');
         cache_helper::purge_by_event('setbackprices');
 
