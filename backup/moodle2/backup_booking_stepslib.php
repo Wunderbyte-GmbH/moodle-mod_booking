@@ -65,6 +65,7 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
                 'defaultoptionsort', 'defaultsortorder', 'showviews', 'autcractive', 'autcrprofile',
                 'autcrvalue', 'autcrtemplate', 'semesterid', 'iselective', 'consumeatonce', 'maxcredits',
                 'enforceorder', 'enforceteacherorder', 'json', 'toporientation',
+                'cancelrelativedate', 'allowupdatetimestamp',
             ]
         );
 
