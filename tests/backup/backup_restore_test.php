@@ -153,10 +153,13 @@ final class backup_restore_test extends advanced_testcase {
         $bdata['booking']['name'] = 'Test Booking 1';
         $bdata['booking']['course'] = $course1->id;
         $bdata['booking']['bookingmanager'] = $teacher->username;
+        $bdata['booking']['cancancelbook'] = 2;
         $bookings[0] = $this->getDataGenerator()->create_module('booking', $bdata['booking']);
 
         // Create 2nd booking.
         $bdata['booking']['name'] = 'Test Booking 2';
+        $bdata['booking']['cancancelbook'] = 1;
+        $bdata['booking']['allowupdatedays'] = 7;
         $bookings[1] = $this->getDataGenerator()->create_module('booking', $bdata['booking']);
 
         // Create options for bookings.
