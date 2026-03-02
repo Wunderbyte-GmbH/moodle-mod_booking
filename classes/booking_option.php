@@ -1558,7 +1558,10 @@ class booking_option {
         // When a user submits a userform, we need to save this as well.
         credits::add_json_to_booking_answer($newanswer, $userid);
 
-        if (!empty($settings->selflearningcourse)) {
+        if (
+            !empty($settings->selflearningcourse)
+            && empty($currentanswerid) // We don't override on checkout.
+        ) {
             $now = time();
             $duration = $settings->duration ?? 0;
             $end = empty($duration) ? 0 : $now + $duration;
