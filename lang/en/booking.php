@@ -3143,3 +3143,8 @@ $string['youareusingconfig'] = 'Your are using the following form configuration:
 $string['yourplaceonwaitinglist'] = 'You are on place {$a} on the waitinglist';
 $string['yourselection'] = 'Your selection';
 $string['zoommeeting'] = 'Zoom meeting';
+
+// Report Builder datasource and entities.
+$string['datasource:bookingcompletions'] = 'Booking completions';
+$string['entitybookingoption'] = 'Booking option';
+$string['entitybookinganswer'] = 'Booking answer';
