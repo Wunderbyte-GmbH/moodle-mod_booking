@@ -1,3 +1,26 @@
+## Version 9.1.5 (2026030200)
+* New feature: Show groupid in option forms and add possibility to recreate groupid if it's wrong.
+* Improvement: Do not delete SQL queries cache by campaign reset as it is not necessary.
+* Improvement: Append timezone info to displayed time when shown in a different timezone than expected.
+* Improvement: Use userdate instead of date to display the correct datetime.
+* Improvement: Include the timezone in the cache key when generating and caching datetimes to prevent incorrect display across different time zones.
+* Bugfix: Do not delete customfield values on shopping cart checkout for selflearning courses.
+* Bugfix: Add German performance strings and change shortcode name dynamically.
+* Bugfix: Only display certificate button when certificate config is enabled.
+* Bugfix: Add fallback for missing name in price category.
+* Bugfix: Apply format string to booking name in teachers list.
+* Bugfix: Prevent pollurl from defaulting to 0 on non-pro booking versions.
+* Bugfix: Only show previously booked button when records are found.
+* Bugfix: Load new values if old ones are not loaded.
+* Tests: Use set_config to set the timezone in importer tests to cover timezone information in displayed times.
+* Tests: Fix expectations regarding appended timezone information.
+* Tests: Create scenario to verify behavior when forcetimezone is set to a specific timezone.
+* Tests: Add steps to cover appending timezone abbreviation or city name when user is in a different timezone.
+* Tests: Extend unit and Behat tests to verify booking opening and closing times are rendered in the correct timezone.
+* Tests: Fix Behat test steps that check the time of a booking option.
+* Tests: Extend booking_time_zone_test scenario to verify sessions with same timezone and language use a single cache key.
+* Tests: Create Behat and unit tests to verify option dates across different time zones.
+
 ## Version 9.1.4 (2026022400)
 * Improvement: Better strings for the “selectusers” booking rule condition.
 * Improvement: Add new shortcode to allow performance testing of webservices.
