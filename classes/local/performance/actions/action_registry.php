@@ -80,11 +80,9 @@ class action_registry {
      */
     public static function export_all_for_template($renderer): array {
         $out = [];
-
         foreach (self::instances() as $action) {
             $out[] = $action->export_for_template($renderer);
         }
-
         return $out;
     }
 }

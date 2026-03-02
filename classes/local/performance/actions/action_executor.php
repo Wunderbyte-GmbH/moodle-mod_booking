@@ -76,7 +76,6 @@ class action_executor {
         }
 
         $cfg = $actions->{$id};
-        // Your structure: $actions->purge_cache_action_before->enabled = 0|1.
         if (is_object($cfg) && property_exists($cfg, 'enabled')) {
             return !empty($cfg->enabled);
         }
