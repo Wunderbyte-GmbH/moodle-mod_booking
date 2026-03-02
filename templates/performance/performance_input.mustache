@@ -53,7 +53,7 @@
             type="text"
             class="form-control"
             name="performance_note"
-            placeholder="Add any note..."
+            placeholder="{{#str}} addingnotehere, mod_booking {{/str}}"
         />
     </div>
     <div class="performance-actions d-flex flex-wrap gap-3">
@@ -69,7 +69,10 @@
         {{/actions}}
     </div>
     {{#shortcodename}}
-        <h2>{{#str}} performanceshortcodename, mod_booking {{/str}} {{shortcodename}}</h2>
+        <h2>
+            {{#str}} performanceshortcodename, mod_booking {{/str}}
+            <span id="performance-shortcodename">{{shortcodename}}</span>
+        </h2>
     {{/shortcodename}}
 
     <button

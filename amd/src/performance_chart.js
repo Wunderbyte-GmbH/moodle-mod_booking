@@ -124,7 +124,6 @@ define(['core/chartjs', 'core/ajax', 'jquery'], function(Chart, Ajax, $) {
         try {
             const labels = JSON.parse(data.labelsjson || '[]');
             const datasets = JSON.parse(data.datasetsjson);
-
             // Normalize datasets to {x, y}
             chartInstance.data.labels = labels;
             chartInstance.data.datasets = datasets.map(ds => ({
@@ -140,6 +139,7 @@ define(['core/chartjs', 'core/ajax', 'jquery'], function(Chart, Ajax, $) {
             }));
 
             chartInstance.update();
+            updateShortcodeName(data);
         } catch (e) {
             console.error('Failed to update chart data:', e);
         }
@@ -234,6 +234,39 @@ define(['core/chartjs', 'core/ajax', 'jquery'], function(Chart, Ajax, $) {
                 console.error('Deleting measurement failed', error);
             });
         });
+    };
+
+    const updateShortcodeName = (data) => {
+        const valueEl = document.getElementById('performance-shortcodename');
+        if (!valueEl) {
+            return;
+        }
+
+        let sc = data.shortcodename ?? '';
+
+        if (typeof sc === 'string') {
+            const trimmed = sc.trim();
+            if ((trimmed.startsWith('[') && trimmed.endsWith(']')) ||
+                (trimmed.startsWith('"') && trimmed.endsWith('"'))) {
+                try {
+                    sc = JSON.parse(trimmed);
+                } catch (e) {
+                    // keep as-is
+                }
+            }
+        }
+        if (Array.isArray(sc)) {
+            sc = sc[0] ?? '';
+        }
+
+        sc = (sc ?? '').toString();
+
+        valueEl.textContent = sc;
+
+        const wrapper = document.getElementById('performance-shortcodename-wrapper');
+        if (wrapper) {
+            wrapper.classList.toggle('d-none', !sc);
+        }
     };
 
     return {
