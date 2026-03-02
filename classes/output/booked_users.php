@@ -625,7 +625,7 @@ class booked_users implements renderable, templatable {
             'deletedbookings' => get_string('deletedbookings', 'mod_booking'),
             'bookinghistory' => get_string('bookinghistory', 'mod_booking'),
             'optionstoconfirm' => get_string('optionstoconfirm', 'mod_booking'),
-            'previouselybooked' => get_string('previouselybooked', 'mod_booking'),
+            'previouslybooked' => get_string('previouslybooked', 'mod_booking'),
         ];
     }
 }
