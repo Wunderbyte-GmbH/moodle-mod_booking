@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace mod_booking\reportbuilder\datasource;
 
+use core_component;
 use core_course\reportbuilder\local\entities\course_category;
 use core_reportbuilder\datasource;
 use core_reportbuilder\local\entities\course;
@@ -107,26 +108,28 @@ class booking_answers_datasource extends datasource {
 
         // Expose all columns, filters and conditions from every entity.
         $this->add_all_from_entities();
-
-        // TODO: get_config for supervisor field id.
-        $supervisorfieldid = (int) $DB->get_field('user_info_field', 'id', ['shortname' => 'supervisor']);
-        if ($supervisorfieldid) {
-            $supervisorfieldalias = database::generate_alias();
-            $supervisorjoin = "LEFT JOIN {user_info_data} {$supervisorfieldalias}
+        $confirmationsupervisor = core_component::get_component_directory('bookingextension_confirmation_supervisor');;
+        if (!empty($confirmationsupervisor)) {
+            $shortname = get_config('bookingextension_confirmation_supervisor', 'supervisor');
+            $supervisorfieldid = (int) $DB->get_field('user_info_field', 'id', ['shortname' => $shortname]);
+            if ($supervisorfieldid) {
+                $supervisorfieldalias = database::generate_alias();
+                $supervisorjoin = "LEFT JOIN {user_info_data} {$supervisorfieldalias}
                                       ON {$supervisorfieldalias}.userid = {$u}.id
                                      AND {$supervisorfieldalias}.fieldid = {$supervisorfieldid}";
 
-            $this->add_condition(
-                (new filter(
-                    profile_field_current_user::class,
-                    'supervisor',
-                    new lang_string('condition:supervisor', 'mod_booking'),
-                    $userentity->get_entity_name(),
-                    "{$supervisorfieldalias}.data"
-                ))
+                $this->add_condition(
+                    (new filter(
+                        profile_field_current_user::class,
+                        'supervisor',
+                        new lang_string('condition:supervisor', 'mod_booking'),
+                        $userentity->get_entity_name(),
+                        "{$supervisorfieldalias}.data"
+                    ))
                     ->add_joins($userentity->get_joins())
                     ->add_join($supervisorjoin)
-            );
+                );
+            }
         }
     }
 
