@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-declare(strict_types=1);
-
 namespace mod_booking\reportbuilder\local\entities;
 
 use core\lang_string;
@@ -23,9 +21,11 @@ use core_reportbuilder\local\entities\base;
 use core_reportbuilder\local\filters\boolean_select;
 use core_reportbuilder\local\filters\date;
 use core_reportbuilder\local\filters\number;
+use core_reportbuilder\local\helpers\database;
 use core_reportbuilder\local\helpers\format;
 use core_reportbuilder\local\report\column;
 use core_reportbuilder\local\report\filter;
+use mod_booking\booking;
 
 /**
  * Booking answers (user bookings) entity for Report Builder.
@@ -87,7 +87,7 @@ class booking_answers extends base {
         $ba = $this->get_table_alias('booking_answers');
         $columns = [];
 
-        // Completed (boolean 0/1).
+        // Completed.
         $columns[] = (new column(
             'completed',
             new lang_string('completed', 'mod_booking'),
@@ -97,11 +97,8 @@ class booking_answers extends base {
             ->set_type(column::TYPE_BOOLEAN)
             ->add_field("{$ba}.completed")
             ->set_is_sortable(true)
-            ->add_callback(static function (?int $value): string {
-                if ($value === null) {
-                    return '';
-                }
-                return $value ? get_string('yes') : get_string('no');
+            ->add_callback(static function ($value): string {
+                return empty($value) ? get_string('no') : get_string('yes');
             });
 
         // Completion date.
@@ -131,7 +128,7 @@ class booking_answers extends base {
         // Time created.
         $columns[] = (new column(
             'timecreated',
-            new lang_string('timecreated'),
+            new lang_string('timecreated', 'mod_booking'),
             $this->get_entity_name()
         ))
             ->add_joins($this->get_joins())
@@ -140,7 +137,7 @@ class booking_answers extends base {
             ->set_is_sortable(true)
             ->add_callback([format::class, 'userdate']);
 
-        // Waiting list flag.
+        // Waiting list status.
         $columns[] = (new column(
             'waitinglist',
             new lang_string('waitinglist', 'mod_booking'),
@@ -150,35 +147,50 @@ class booking_answers extends base {
             ->set_type(column::TYPE_BOOLEAN)
             ->add_field("{$ba}.waitinglist")
             ->set_is_sortable(true)
-            ->add_callback(static function (?int $value): string {
-                if ($value === null) {
-                    return '';
+            ->add_callback(static function ($value): string {
+                switch ($value) {
+                    case MOD_BOOKING_STATUSPARAM_BOOKED:
+                        return get_string('booked', 'mod_booking');
+                    case MOD_BOOKING_STATUSPARAM_WAITINGLIST:
+                        return get_string('waitinglist', 'mod_booking');
+                    case MOD_BOOKING_STATUSPARAM_RESERVED:
+                        return get_string('vuebookingstatsreserved', 'mod_booking');
+                    case MOD_BOOKING_STATUSPARAM_DELETED:
+                        return get_string('deleted', 'mod_booking');
+                    case MOD_BOOKING_STATUSPARAM_NOTIFYMELIST:
+                        return get_string('bocondnotifymelist', 'mod_booking');
+                    case MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED:
+                        return get_string('bookingstatuspreviouslybooked', 'mod_booking');
+                    default:
+                        return '';
                 }
-                return $value ? get_string('yes') : get_string('no');
             });
 
         // Status.
         $columns[] = (new column(
             'status',
-            new lang_string('status'),
+            new lang_string('status', 'mod_booking'),
             $this->get_entity_name()
         ))
             ->add_joins($this->get_joins())
             ->set_type(column::TYPE_INTEGER)
             ->add_field("{$ba}.status")
+            ->add_callback(static function (?int $value): string {
+                $statusarray = booking::get_array_of_possible_presence_statuses();
+                return isset($statusarray[$value]) ? $statusarray[$value] : '';
+            })
             ->set_is_sortable(true);
 
-        // Notes.
+        // Pricecategory.
         $columns[] = (new column(
-            'notes',
-            new lang_string('notes', 'notes'),
+            'pricecategory',
+            new lang_string('bookingpricecategory', 'mod_booking'),
             $this->get_entity_name()
         ))
             ->add_joins($this->get_joins())
-            ->set_type(column::TYPE_LONGTEXT)
-            ->add_field("{$ba}.notes")
-            ->set_is_sortable(false);
-
+            ->set_type(column::TYPE_TEXT)
+            ->add_field("{$ba}.pricecategory")
+            ->set_is_sortable(true);
         return $columns;
     }
 
@@ -191,7 +203,6 @@ class booking_answers extends base {
         $ba = $this->get_table_alias('booking_answers');
         $filters = [];
 
-        // Completed boolean filter.
         $filters[] = (new filter(
             boolean_select::class,
             'completed',
@@ -221,7 +232,7 @@ class booking_answers extends base {
         ))
             ->add_joins($this->get_joins());
 
-        // Status number filter.
+        // Status filter.
         $filters[] = (new filter(
             number::class,
             'status',
