@@ -62,6 +62,7 @@ class booking_options_datasource extends datasource {
         $optionentity = new booking_options();
         $bo = $optionentity->get_table_alias('booking_options');
         $this->add_entity($optionentity);
+        $this->set_main_table('booking_options', $bo);
 
         // Course entity (core) — the Moodle course that owns the booking instance.
         $courseentity = new course();

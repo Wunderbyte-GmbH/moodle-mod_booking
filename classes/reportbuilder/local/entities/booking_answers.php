@@ -26,6 +26,7 @@ use core_reportbuilder\local\helpers\format;
 use core_reportbuilder\local\report\column;
 use core_reportbuilder\local\report\filter;
 use mod_booking\booking;
+use mod_booking\reportbuilder\local\filters\timestamp_years_past;
 
 /**
  * Booking answers (user bookings) entity for Report Builder.
@@ -125,6 +126,19 @@ class booking_answers extends base {
             ->set_is_sortable(true)
             ->add_callback([format::class, 'userdate']);
 
+        // Time booked.
+        $columns[] = (new column(
+            'timemodified',
+            new lang_string('timemodified', 'mod_booking'),
+            $this->get_entity_name()
+        ))
+            ->add_joins($this->get_joins())
+            ->set_type(column::TYPE_TIMESTAMP)
+            ->add_field("{$ba}.timemodified")
+            ->set_is_sortable(true)
+            ->add_callback([format::class, 'userdate']);
+
+
         // Time created.
         $columns[] = (new column(
             'timecreated',
@@ -217,6 +231,26 @@ class booking_answers extends base {
             date::class,
             'completeddate',
             new lang_string('completeddate', 'mod_booking'),
+            $this->get_entity_name(),
+            "{$ba}.completeddate"
+        ))
+            ->add_joins($this->get_joins());
+
+        // Time modified in the past X years filter. Because completaiondate might not always be set.
+        $filters[] = (new filter(
+            timestamp_years_past::class,
+            'timemodifiedyears',
+            new lang_string('filter:timemodifiedyears', 'mod_booking'),
+            $this->get_entity_name(),
+            "{$ba}.timemodified"
+        ))
+            ->add_joins($this->get_joins());
+
+        // Completed date in the past X years filter.
+        $filters[] = (new filter(
+            timestamp_years_past::class,
+            'completeddateyears',
+            new lang_string('filter:completeddateyears', 'mod_booking'),
             $this->get_entity_name(),
             "{$ba}.completeddate"
         ))
