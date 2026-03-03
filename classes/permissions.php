@@ -45,7 +45,6 @@ class permissions {
         foreach ($contextids as $contextid) {
             $context = context::instance_by_id($contextid);
             if (has_capability($capability, $context)) {
-                $hascapability = true;
                 return true;
             }
         }
