@@ -31,6 +31,7 @@ use core_reportbuilder\tests\core_reportbuilder_testcase;
 use core_reportbuilder_generator;
 use mod_booking\reportbuilder\datasource\booking_answers_datasource;
 use mod_booking\reportbuilder\datasource\booking_completions;
+use mod_booking\reportbuilder\datasource\booking_options_datasource;
 use mod_booking_generator;
 use stdClass;
 use tool_mocktesttime\time_mock;
@@ -144,6 +145,7 @@ final class reportbuilder_test extends core_reportbuilder_testcase {
         booking_bookit::bookit('option', $this->option2->id, $this->user2->id);
         booking_bookit::bookit('option', $this->option2->id, $this->user2->id);
         $this->datasource_stress_test_columns(booking_answers_datasource::class);
+        $this->datasource_stress_test_columns(booking_options_datasource::class);
     }
 
     /**
@@ -163,6 +165,7 @@ final class reportbuilder_test extends core_reportbuilder_testcase {
         booking_bookit::bookit('option', $this->option2->id, $this->user2->id);
         booking_bookit::bookit('option', $this->option2->id, $this->user2->id);
         $this->datasource_stress_test_conditions(booking_answers_datasource::class, 'booking_answers:timecreated');
+        $this->datasource_stress_test_conditions(booking_options_datasource::class, 'booking_options:text');
     }
 
     /**
