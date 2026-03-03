@@ -1,0 +1,106 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Certificate conditions overview page
+ *
+ * @package    mod_booking
+ * @copyright  2026 Your Name <you@example.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+require_once(__DIR__ . '/../../config.php');
+require_once($CFG->dirroot . '/mod/booking/locallib.php');
+require_once($CFG->libdir . '/adminlib.php');
+
+use mod_booking\utils\wb_payment;
+
+$cmid = optional_param('cmid', 0, PARAM_INT);
+$contextid = optional_param('contextid', 0, PARAM_INT);
+
+global $DB;
+
+// No guest autologin.
+require_login(0, false);
+
+$urlparams = [];
+
+if (empty($cmid) && empty($contextid)) {
+    $contextid = context_system::instance()->id;
+} else if (!empty($cmid)) {
+    [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'booking');
+    require_course_login($course, false, $cm);
+    $context = context_module::instance($cmid);
+    $contextid = $context->id;
+    $urlparams = ['cmid' => $cmid];
+}
+
+if (empty($urlparams)) {
+    $urlparams = ['contextid' => 1];
+}
+
+$context = context::instance_by_id($contextid);
+
+require_capability('mod/booking:editcertificateconditions', $context);
+
+$PAGE->set_context($context);
+
+$url = new moodle_url('/mod/booking/edit_certificateconditions.php', $urlparams);
+$PAGE->set_url($url);
+
+// In Moodle 4.0+ we want to turn the instance description off on every page except view.php.
+$PAGE->activityheader->disable();
+
+if ($contextid == 1) {
+    if (is_siteadmin()) {
+        admin_externalpage_setup('modbookingeditcertificateconditions');
+    }
+    $PAGE->set_pagelayout('standard');
+} else {
+    $PAGE->set_pagelayout('standard');
+}
+
+$PAGE->add_body_class('limitedwidth');
+$PAGE->set_pagetype('mod-booking-edit-certificateconditions');
+
+$PAGE->set_title(
+    format_string($SITE->shortname) . ': ' . get_string('certificateconditions', 'mod_booking')
+);
+/** @var \mod_booking\output\renderer $output */
+$output = $PAGE->get_renderer('mod_booking');
+
+echo $output->header();
+echo $output->heading(get_string('certificateconditionswithbadge', 'mod_booking'));
+
+echo html_writer::div(get_string('certificateconditionsettingsdesc', 'mod_booking',
+        (new moodle_url('/mod/booking/edit_certificateconditions.php'))->out()), 'alert alert-info');
+
+// Check if PRO version is active.
+if (wb_payment::pro_version_is_activated()) {
+    $rendered = \mod_booking\certificate_conditions\certificate_conditions::
+        get_rendered_list_of_saved_conditions($contextid);
+    echo $rendered;
+} else {
+    echo html_writer::div(get_string('infotext:prolicensenecessary', 'mod_booking'), 'alert alert-warning');
+}
+
+$PAGE->requires->js_call_amd(
+    'mod_booking/dynamiccertificateconditionsform',
+    'init',
+    ['.booking-rules-container']
+);
+
+echo $output->footer();

@@ -5187,5 +5187,72 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026021100, 'booking');
     }
 
+    // Add certificate conditions tables (pro feature).
+    if ($oldversion < 2026030200) {
+        // If previous attempts created malformed tables we drop them first so the new
+        // definition with proper primary key/auto column can be applied.
+        $table = new xmldb_table('booking_cert_cond');
+        if ($dbman->table_exists($table)) {
+            $dbman->drop_table($table);
+        }
+        $table = new xmldb_table('booking_cert_cond_item');
+        if ($dbman->table_exists($table)) {
+            $dbman->drop_table($table);
+        }
+
+        // Define table booking_cert_cond to be created.
+        $table = new xmldb_table('booking_cert_cond');
+
+        // Adding fields to table booking_cert_cond.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('contextid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('filterjson', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('logicjson', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('actionjson', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('isactive', XMLDB_TYPE_INTEGER, '2', null, null, null, '1');
+        $table->add_field('useastemplate', XMLDB_TYPE_INTEGER, '2', null, null, null, '0');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+
+        // Adding keys to table booking_cert_cond.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Adding indexes to table booking_cert_cond.
+        $table->add_index('contextid', XMLDB_INDEX_NOTUNIQUE, ['contextid']);
+
+        // Conditionally launch create table for booking_cert_cond.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Define table booking_cert_cond_item to be created.
+        $table = new xmldb_table('booking_cert_cond_item');
+
+        // Adding fields to table booking_cert_cond_item.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('conditionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('component', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('area', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('itemid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('sortorder', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('configjson', XMLDB_TYPE_TEXT, null, null, null, null, null);
+
+        // Adding keys to table booking_cert_cond_item.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Adding indexes to table booking_cert_cond_item.
+        $table->add_index('conditionid-sort', XMLDB_INDEX_NOTUNIQUE, ['conditionid', 'sortorder']);
+        $table->add_index('component', XMLDB_INDEX_NOTUNIQUE, ['component']);
+        $table->add_index('area', XMLDB_INDEX_NOTUNIQUE, ['area']);
+
+        // Conditionally launch create table for booking_cert_cond_item.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        upgrade_mod_savepoint(true, 2026030200, 'booking');
+    }
+
     return true;
 }

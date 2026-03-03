@@ -470,6 +470,36 @@ $string['booking:deleteresponses'] = 'Delete responses';
 $string['booking:downloadchecklist'] = 'Download checklist';
 $string['booking:downloadresponses'] = 'Download responses';
 $string['booking:editbookingrules'] = "Edit rules (Pro)";
+$string['booking:editcertificateconditions'] = "Edit certificate conditions";
+
+$string['certificateconditionname'] = 'Condition name';
+
+// Certificate conditions CRUD strings
+$string['addcertificatecondition'] = 'Add certificate condition';
+$string['editcertificatecondition'] = 'Edit';
+$string['deletecertificatecondition'] = 'Delete certificate condition';
+$string['deletecertificateconditionconfirmtext'] = 'Do you really want to delete the following certificate condition?';
+
+// Certificate conditions status messages
+$string['certificateconditionisactive'] = 'Condition is active and applied';
+$string['certificateconditionisnotactive'] = 'Condition is inactive';
+$string['useprotoenablemorecertificateconditions'] = 'You need a Pro license to create more certificate conditions.';
+$string['certificateconditionsothercontextheading'] = 'Certificate conditions in other contexts';
+$string['certificateconditionsnootherfound'] = 'No certificate conditions found in other contexts.';
+
+// filter language
+$string['filter_userprofilefield'] = 'User profile field';
+$string['filter_userprofilefield_field'] = 'Profile field name';
+$string['filter_userprofilefield_value'] = 'Required value';
+
+// logic language
+$string['certificatelogic'] = 'Logic';
+$string['logic_bookingoption'] = 'Booking option';
+$string['logic_bookingoption_optionid'] = 'Booking option ID';
+// action language
+$string['certificateaction'] = 'Action';
+$string['action_createcertificate'] = 'Create certificate';
+$string['action_createcertificate_certid'] = 'Certificate ID';
 $string['booking:editoptionformconfig'] = 'Edit option config form';
 $string['booking:editperformance'] = 'Test Performance';
 $string['booking:editscheduledmails'] = 'Edit scheduled mails';
@@ -634,6 +664,12 @@ $string['bookingruleisactive'] = "Rule is active and applied";
 $string['bookingruleisnotactive'] = "Rule is not active und will not be applied";
 $string['bookingrules'] = 'Booking Rules';
 $string['bookingrulesnootherfound'] = 'No other rules found';
+
+// Certificate conditions feature strings.
+$string['certificateconditions'] = 'Certificate Conditions';
+$string['certificateconditionswithbadge'] = 'Certificate Conditions <span class="badge bg-success text-light"><i class="fa fa-certificate" aria-hidden="true"></i> PRO</span>';
+$string['certificateconditionsettings'] = 'Settings for Certificate Conditions';
+$string['certificateconditionsettingsdesc'] = 'Settings that apply to the <a href="{$a}">Certificate Conditions feature</a>.';
 $string['bookingrulesothercontextheading'] = 'Links to rules in other contexts:';
 $string['bookingruletemplate'] = 'Deactivate preconfigured templates for rules.';
 $string['bookingruletemplates'] = 'Load a template rule';

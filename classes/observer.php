@@ -38,6 +38,7 @@ use mod_booking\event\bookinganswer_presencechanged;
 use mod_booking\event\bookinganswer_notesedited;
 use mod_booking\local\calendar\calendar_helper;
 use mod_booking\local\certificateclass;
+use mod_booking\certificate_conditions\certificate_conditions;
 use mod_booking\local\checkanswers\checkanswers;
 use mod_booking\local\mobile\customformstore;
 use mod_booking\option\fields\certificate;
@@ -359,6 +360,9 @@ class mod_booking_observer {
             $cmid,
             $optionid
         );
+
+        // Evaluate and execute certificate conditions for the completed option.
+        self::evaluate_certificate_conditions($event, $selecteduserid, $optionid);
 
         if (
             empty($bookingoption->booking->settings->sendmail)
@@ -743,5 +747,40 @@ class mod_booking_observer {
      */
     public static function customfield_created_updated_deleted(base $event): void {
         cache_helper::invalidate_by_event('setbackcustomfields', []);
+    }
+
+    /**
+     * Evaluate and execute certificate conditions when a booking option completes.
+     *
+     * @param \mod_booking\event\bookingoption_completed $event
+     * @param int $userid user who completed
+     * @param int $optionid booking option that was completed
+     * @return void
+     */
+    private static function evaluate_certificate_conditions(
+        \mod_booking\event\bookingoption_completed $event,
+        int $userid,
+        int $optionid
+    ): void {
+        global $DB;
+        // Get all active certificate conditions for system or module context.
+        $conditions = $DB->get_records('booking_cert_cond', ['isactive' => 1]);
+        if (empty($conditions)) {
+            return;
+        }
+        // Prepare context for condition evaluation.
+        $eventcontext = new stdClass();
+        $eventcontext->event = $event;
+        $eventcontext->userid = $userid;
+        $eventcontext->optionid = $optionid;
+        // Check each condition if it applies.
+        foreach ($conditions as $condition) {
+            \mod_booking\certificate_conditions\certificate_conditions::evaluate_and_execute_condition(
+                $condition,
+                $eventcontext,
+                $userid,
+                $optionid
+            );
+        }
     }
 }

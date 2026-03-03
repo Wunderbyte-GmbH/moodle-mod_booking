@@ -1473,6 +1473,23 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                 $bookingrulesnode->add_class('disabled-profeature');  // Add a custom class for non-pro users.
             }
         }
+        // Certificate Conditions.
+        if (has_capability('mod/booking:editcertificateconditions', $context)) {
+            $certcondnode = $navref->add(
+                get_string('certificateconditions', 'mod_booking') . " (" . format_string($bookingsettings->name) . ")",
+                new moodle_url(
+                    '/mod/booking/edit_certificateconditions.php',
+                    ['cmid' => $cm->id]
+                ),
+                navigation_node::TYPE_CUSTOM,
+                null,
+                'nav_editcertificateconditions'
+            );
+
+            if (!$proversion) {
+                $certcondnode->add_class('disabled-profeature');
+            }
+        }
 
         // Bookings Tracker.
         if (has_capability('mod/booking:managebookedusers', $context)) {
@@ -2450,6 +2467,8 @@ function booking_delete_instance($id) {
 
     // Delete rules of this instance.
     booking_rules::delete_rules_by_context($context->id);
+    // Delete certificate conditions of this instance.
+    \mod_booking\certificate_conditions\certificate_conditions::delete_conditions_by_context($context->id);
 
     return true;
 }
