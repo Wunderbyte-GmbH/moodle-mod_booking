@@ -26,6 +26,7 @@
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\booking_answers\booking_answers;
 use mod_booking\booking_option;
+use mod_booking\local\certificate_conditions\certificate_conditions;
 use mod_booking\option\fields\sharedplaces;
 use mod_booking\output\booked_users;
 use mod_booking\output\eventslist;
@@ -615,6 +616,33 @@ if (!$tableallbookings->is_downloading()) {
         'id, shortname, name'
     );
 
+    $optionhascertificate = !empty(booking_option::get_value_of_json_by_key($optionid, 'certificate'));
+    $optionistargetedbycondition = certificate_conditions::option_is_targeted_by_condition((int)$optionid);
+    $optionhasissuedcertificates = false;
+    if (class_exists('tool_certificate\certificate')) {
+        $databasetype = $DB->get_dbfamily();
+        switch ($databasetype) {
+            case 'postgres':
+                $existssql = "
+                    SELECT 1
+                      FROM {tool_certificate_issues} tci
+                     WHERE (tci.data::jsonb ->> 'bookingoptionid') ~ '^[0-9]+$'
+                       AND (tci.data::jsonb ->> 'bookingoptionid')::int = :optionid
+                ";
+                $optionhasissuedcertificates = $DB->record_exists_sql($existssql, ['optionid' => (int)$optionid]);
+                break;
+            case 'mysql':
+                $existssql = "
+                    SELECT 1
+                      FROM {tool_certificate_issues} tci
+                     WHERE CAST(JSON_UNQUOTE(JSON_EXTRACT(tci.data, '$.bookingoptionid')) AS UNSIGNED) = :optionid
+                ";
+                $optionhasissuedcertificates = $DB->record_exists_sql($existssql, ['optionid' => (int)$optionid]);
+                break;
+        }
+    }
+    $showcertificatecolumns = $optionhascertificate || $optionistargetedbycondition || $optionhasissuedcertificates;
+
     foreach ($responsesfields as $value) {
         switch ($value) {
             case 'completed':
@@ -697,13 +725,13 @@ if (!$tableallbookings->is_downloading()) {
                 $headers[] = get_string('email', 'mod_booking');
                 break;
             case 'certificate':
-                if (booking_option::get_value_of_json_by_key($optionid, 'certificate')) {
+                if ($showcertificatecolumns) {
                     $headers[] = get_string('certificatecolheader', 'mod_booking');
                     $columns[] = 'certificate';
                 }
                 break;
             case 'allusercertificates':
-                if (booking_option::get_value_of_json_by_key($optionid, 'certificate')) {
+                if ($showcertificatecolumns) {
                     $headers[] = get_string('allusercertificates', 'mod_booking');
                     $columns[] = 'allusercertificates';
                 }
@@ -803,7 +831,6 @@ if (!$tableallbookings->is_downloading()) {
                                 'id', tci.id,
                                 'code', tci.code,
                                 'expires', tci.expires,
-                                'data', data,
                                 'timecreated', timecreated
                             )
                         ) AS certificate
@@ -826,7 +853,6 @@ if (!$tableallbookings->is_downloading()) {
                                     'id', tci.id,
                                     'code', tci.code,
                                     'expires', tci.expires,
-                                    'data', tci.data,
                                     'timecreated', tci.timecreated
                                 )
                             ) AS certificate

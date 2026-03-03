@@ -24,6 +24,7 @@
 
 namespace mod_booking\option\fields;
 
+use mod_booking\local\certificate_conditions\option_conditions_info;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
@@ -246,6 +247,8 @@ class certificate extends field_base {
             );
             $mform->setDefault('certificaterequiredoptionsmode', 0);
             $mform->hideIf('certificaterequiredoptionsmode', 'certificaterequiresotheroptions', 'eq', '');
+
+            option_conditions_info::add_static_info_to_mform($mform, $formdata);
         } else {
             // If PRO version is not activated, we don't show the certificate field.
             // We can add a static text to inform the user.

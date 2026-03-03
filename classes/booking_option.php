@@ -2762,16 +2762,18 @@ class booking_option {
 
         // Booking answer has been set to completed.
         if (!empty($userdata->completed)) {
+            $certificateid = self::get_value_of_json_by_key((int)$this->id, 'certificate') ?? 0;
             // Create certificate.
             if (
                 get_config('booking', 'certificateon')
                 && !get_config('booking', 'presencestatustoissuecertificate')
+                && !empty($certificateid)
                 && !empty($userdata->completed)
                 && certificateclass::required_options_fulfilled($this->settings, $userdata->id)
             ) {
                 /* If we get a timebooked value, we set the completeddate to that timebooked value, otherwise we set it to now.
                 This is important for imports.*/
-                $certid = certificateclass::issue_certificate($this->id, $userdata->id, $completeddate);
+                $certid = certificateclass::issue_certificate($this->id, $userdata->id, $completeddate, (int)$certificateid);
             }
 
             if (
@@ -4105,11 +4107,21 @@ class booking_option {
      * Function to lazyload a list of booking options for autocomplete.
      *
      * @param string $query
+     * @return array
+     */
+    public static function load_booking_options(string $query) {
+        return self::load_booking_options_filtered($query, 0, 0);
+    }
+
+    /**
+     * Function to lazyload a list of booking options for autocomplete with optional instance filters.
+     *
+     * @param string $query
      * @param int $bookingid Optional booking instance id filter
      * @param int $cmid Optional course module id filter
      * @return array
      */
-    public static function load_booking_options(string $query, int $bookingid = 0, int $cmid = 0) {
+    public static function load_booking_options_filtered(string $query, int $bookingid = 0, int $cmid = 0) {
 
         global $DB;
 

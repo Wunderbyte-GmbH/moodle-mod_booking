@@ -739,7 +739,7 @@ class manageusers_table extends wunderbyte_table {
                     continue;
                 }
                 $triggered = true;
-                certificateclass::issue_certificate($optionid, $answerrecord->userid);
+                certificateclass::issue_certificate($optionid, $answerrecord->userid, 0, (int)$certificateid);
             } else {
                 throw new moodle_exception(
                     'invalidanswerid',

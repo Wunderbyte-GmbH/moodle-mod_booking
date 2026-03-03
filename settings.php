@@ -122,6 +122,16 @@ $ADMIN->add(
     )
 );
 
+// link to certificate conditions management
+$ADMIN->add(
+    'modbookingfolder',
+    new admin_externalpage(
+        'modbookingeditcertificateconditions',
+        get_string('certificateconditions', 'mod_booking'),
+        new moodle_url('/mod/booking/edit_certificateconditions.php')
+    )
+);
+
 $ADMIN->add(
     'modbookingfolder',
     new admin_externalpage(

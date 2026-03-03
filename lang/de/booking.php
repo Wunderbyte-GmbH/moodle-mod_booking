@@ -193,6 +193,10 @@ $string['boactions_desc'] = "Aktionen nach der Buchung sind derzeit ein experime
 Sie können es ausprobieren, aber bitte verwenden Sie es noch auf keiner Produktivplattform!";
 $string['boactionselectuserprofilefield'] = "Wähle Profilfeld";
 $string['boactionuserprofilefieldvalue'] = 'Wert';
+$string['certificatefilternorestriction'] = 'Keine Einschränkung';
+$string['certificateconditionsoptionheading'] = 'Zertifikatsbedingungen für diese Buchungsoption';
+$string['certificateconditionsoptionnone'] = 'Diese Buchungsoption wird derzeit von keiner Zertifikatsbedingung referenziert.';
+$string['certificateconditionsoptionlink'] = 'Zertifikatsbedingungen öffnen';
 $string['bocondallowedtobookininstance'] = 'Buchen soll auch ohne spezielle Berechtigung möglich sein';
 $string['bocondallowedtobookininstanceanyways'] = "Benutzer:innen dürfen auch ohne die Berechtigung '<b>mod/booking:choose</b>' buchen.<br>
 <div class='text-danger'>Hinweis: Sowohl dieses als auch das darüberliegende Kästchen müssen angehakt sein, um dies zu aktivieren.</div>";

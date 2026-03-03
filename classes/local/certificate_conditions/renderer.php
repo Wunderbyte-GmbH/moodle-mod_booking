@@ -699,7 +699,7 @@ class renderer extends plugin_renderer_base {
      * @param object $data
      * @return string
      */
-    public function render_certificateconditionslist($data) {
+    public function bookedpreviously($data) {
         $data = $data->export_for_template($this);
         return $this->render_from_template('mod_booking/certificateconditionslist', $data);
     }

@@ -46,11 +46,23 @@ class certificateclass {
      * @param int $optionid
      * @param int $userid
      * @param int $completeddate
+     * @param int $templateid
+     * @param int|null $expirydatetype
+     * @param int|null $expirydateabsolute
+     * @param int|null $expirydaterelative
      *
      * @return int
      *
      */
-    public static function issue_certificate(int $optionid, int $userid, int $completeddate = 0): int {
+    public static function issue_certificate(
+        int $optionid,
+        int $userid,
+        int $completeddate = 0,
+        int $templateid = 0,
+        ?int $expirydatetype = null,
+        ?int $expirydateabsolute = null,
+        ?int $expirydaterelative = null
+    ): int {
         global $DB;
         $id = 0;
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
@@ -61,19 +73,27 @@ class certificateclass {
         ) {
             return $id;
         }
-        // Get certificate id.
-        $certificateid = booking_option::get_value_of_json_by_key($optionid, 'certificate') ?? 0;
+        if (empty($templateid)) {
+            $templateid = (int)(booking_option::get_value_of_json_by_key($optionid, 'certificate') ?? 0);
+        }
 
-        if (empty($certificateid)) {
+        if (empty($templateid)) {
             return $id;
         }
 
-        $template = template::instance($certificateid);
+        $template = template::instance($templateid);
 
         // Certificate expiry date key.
-        $expirydatetype = booking_option::get_value_of_json_by_key($optionid, 'expirydatetype') ?? 0;
-        $expirydateabsolute = booking_option::get_value_of_json_by_key($optionid, 'expirydateabsolute') ?? 0;
-        $expirydaterelative = booking_option::get_value_of_json_by_key($optionid, 'expirydaterelative') ?? 0;
+        if ($expirydatetype === null) {
+            $expirydatetype = (int)(booking_option::get_value_of_json_by_key($optionid, 'expirydatetype') ?? 0);
+        }
+        if ($expirydateabsolute === null) {
+            $expirydateabsolute = (int)(booking_option::get_value_of_json_by_key($optionid, 'expirydateabsolute') ?? 0);
+        }
+        if ($expirydaterelative === null) {
+            $expirydaterelative = (int)(booking_option::get_value_of_json_by_key($optionid, 'expirydaterelative') ?? 0);
+        }
+
         $certificateexpirydate = toolCertificate::calculate_expirydate($expirydatetype, $expirydateabsolute, $expirydaterelative);
         if (!empty($expirydatetype) && $certificateexpirydate < time()) {
             return $id;
