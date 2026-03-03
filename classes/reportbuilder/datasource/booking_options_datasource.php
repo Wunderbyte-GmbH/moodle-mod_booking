@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-declare(strict_types=1);
-
 namespace mod_booking\reportbuilder\datasource;
 
 use core_course\reportbuilder\local\entities\course_category;
@@ -23,74 +21,49 @@ use core_reportbuilder\datasource;
 use core_reportbuilder\local\entities\course;
 use core_reportbuilder\local\entities\user;
 use core_reportbuilder\local\helpers\database;
+use core_reportbuilder\local\report\filter;
+use lang_string;
 use mod_booking\reportbuilder\local\entities\booking_answers;
 use mod_booking\reportbuilder\local\entities\booking_options;
+use mod_booking\reportbuilder\local\filters\profile_field_current_user;
 
 /**
- * Booking completions datasource for Report Builder.
+ * Booking options datasource for Report Builder.
  *
- * Shows each participant their own completed booking options together with
- * booking-option custom fields (e.g. "strahlenschutzpunkte") and user data.
+ * Shows completed booking options together with booking-option custom fields
+ * (e.g. "strahlenschutzfortbildungspunkte") and user data.
  *
- * Designed for use with **Schedule Recipient** delivery — the datasource
- * restricts rows to the current $USER so each recipient sees only their own
- * completed bookings.
+ * Two audience conditions are provided (select one when configuring the report):
+ * - "Participant is current user" — each recipient sees only their own completions.
+ * - "Supervisor is current user" — each recipient (supervisor) sees completions
+ *   for all users whose "supervisor" profile field contains that supervisor's ID.
  *
  * @package    mod_booking
  * @copyright  2026 Your Name
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class booking_completions extends datasource {
+class booking_options_datasource extends datasource {
     /**
      * Return user-friendly datasource name.
      *
      * @return string
      */
     public static function get_name(): string {
-        return get_string('datasource:bookingcompletions', 'mod_booking');
+        return get_string('datasource:bookingoptions', 'mod_booking');
     }
 
     /**
      * Initialise the datasource, define entities, joins and base conditions.
      */
     protected function initialise(): void {
-        global $USER;
+        global $DB;
 
-        // Main entity: booking_answers (the user-option pivot).
-        $answerentity = new booking_answers();
-        $this->add_entity($answerentity);
-
-        $ba = $answerentity->get_table_alias('booking_answers');
-        $this->set_main_table('booking_answers', $ba);
-
-        // Only completed bookings.
-        $this->add_base_condition_simple("{$ba}.completed", 1);
-
-        // Restrict to the current recipient (injected by Scheduled Reports).
-        $paramuserid = database::generate_param_name();
-        $this->add_base_condition_sql(
-            "{$ba}.userid = :{$paramuserid}",
-            [$paramuserid => (int) $USER->id]
-        );
-
-        // Booking options entity (includes custom fields like
-        // "strahlenschutzpunkte" via core custom_fields helper).
+        // Booking options entity with customfields.
         $optionentity = new booking_options();
         $bo = $optionentity->get_table_alias('booking_options');
-        $this->add_entity($optionentity
-            ->add_join("JOIN {booking_options} {$bo}
-                          ON {$bo}.id = {$ba}.optionid"));
+        $this->add_entity($optionentity);
 
-        // User entity (core) — the participant.
-        $userentity = new user();
-        $u = $userentity->get_table_alias('user');
-        $this->add_entity($userentity
-            ->add_join("JOIN {user} {$u}
-                          ON {$u}.id = {$ba}.userid
-                         AND {$u}.deleted = 0"));
-
-        // Course entity (core) — the Moodle course that owns the
-        // booking instance.
+        // Course entity (core) — the Moodle course that owns the booking instance.
         $courseentity = new course();
         $c = $courseentity->get_table_alias('course');
 
@@ -117,13 +90,11 @@ class booking_completions extends datasource {
     /**
      * Default columns shown when a new report is created from this datasource.
      *
-     * @return string[]
+     * @return array
      */
     public function get_default_columns(): array {
         return [
-            'user:fullname',
             'booking_options:text',
-            'booking_answers:completeddate',
         ];
     }
 
@@ -133,32 +104,24 @@ class booking_completions extends datasource {
      * @return array
      */
     public function get_default_column_sorting(): array {
-        return [
-            'booking_answers:completeddate' => SORT_DESC,
-        ];
+        return [];
     }
 
     /**
      * Default filters shown in the filter bar.
      *
-     * @return string[]
+     * @return array
      */
     public function get_default_filters(): array {
-        return [
-            'booking_answers:completeddate',
-            'booking_options:text',
-        ];
+        return [];
     }
 
     /**
      * Default conditions (always-applied admin conditions).
      *
-     * @return string[]
+     * @return array
      */
     public function get_default_conditions(): array {
-        return [
-            'booking_answers:completed',
-            'booking_answers:completeddate',
-        ];
+        return [];
     }
 }

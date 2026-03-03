@@ -3145,6 +3145,12 @@ $string['yourselection'] = 'Your selection';
 $string['zoommeeting'] = 'Zoom meeting';
 
 // Report Builder datasource and entities.
-$string['datasource:bookingcompletions'] = 'Booking completions';
-$string['entitybookingoption'] = 'Booking option';
+$string['condition:participantiscurrentuser'] = 'Participant is current user';
+$string['condition:profilefieldcurrentuser'] = 'Current user';
+$string['condition:supervisor'] = 'Supervisor is current user';
+$string['datasource:bookingoptions'] = 'Booking options';
+$string['datasource:bookinganswers'] = 'Booking answers';
 $string['entitybookinganswer'] = 'Booking answer';
+$string['entitybookingoption'] = 'Booking option';
+
+
