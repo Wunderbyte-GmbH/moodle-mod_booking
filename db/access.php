@@ -290,6 +290,15 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
+    // Capability to administrate certificate conditions.
+    // Has to be assigned via global role!
+    'mod/booking:editcertificateconditions' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ],
+    ],
     // Expert option form capability. Can be configured via settings.
     'mod/booking:expertoptionform' => [
         'captype' => 'write',

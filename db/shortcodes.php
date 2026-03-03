@@ -71,4 +71,8 @@ $shortcodes = [
         'callback' => 'mod_booking\shortcodes::executeservice',
         'description' => 'executeservice',
     ],
+    'bookingoptionsfromcondition' => [
+        'callback' => 'mod_booking\shortcodes::bookingoptionsfromcondition',
+        'description' => 'bookingoptionsfromcondition',
+    ],
 ];

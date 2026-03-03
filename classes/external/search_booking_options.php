@@ -64,7 +64,7 @@ class search_booking_options extends external_api {
             'cmid' => $cmid,
         ]);
 
-        return booking_option::load_booking_options(
+        return booking_option::load_booking_options_filtered(
             $params['query'],
             (int)$params['bookingid'],
             (int)$params['cmid']

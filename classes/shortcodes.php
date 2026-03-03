@@ -1324,6 +1324,40 @@ class shortcodes {
     }
 
     /**
+     * Renders all completed booking options of a condition as a list.
+     * @param string $shortcode
+     * @param array $args
+     * @param string|null $content
+     * @param object $env
+     * @param Closure $next
+     * @return string
+     *
+     */
+    public static function bookingoptionsfromcondition($shortcode, $args, $content, $env, $next) {
+        global $DB;
+        [$userid, $optionid, $conditionid] = singleton_service::get_temp_values_for_certificates();
+        if (empty($userid)) {
+            return "PLACEHOLDER";
+        }
+        $optionids = $DB->get_fieldset_select(
+            'booking_cert_cond_item',
+            'itemid',
+            'conditionid = :conditionid AND area = :area AND component = :component',
+            ['conditionid' => $conditionid, 'area' => 'bookingoption', 'component' => 'mod_booking']
+        );
+        $texts = [];
+        foreach ($optionids as $optionid) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+            $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
+            $hascompleted = $bookinganswer->is_activity_completed($userid);
+            if ($hascompleted) {
+                $texts[] = $settings->text;
+            }
+        }
+        return implode("<br>", $texts);
+    }
+
+    /**
      * Modifies table and returns filtercolumns
      *
      * @param wunderbyte_table $table

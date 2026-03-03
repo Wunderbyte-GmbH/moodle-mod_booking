@@ -122,6 +122,17 @@ $ADMIN->add(
     )
 );
 
+if (!empty(get_config('booking', 'certificateoptions'))) {
+    $ADMIN->add(
+        'modbookingfolder',
+        new admin_externalpage(
+            'modbookingeditcertificateconditions',
+            get_string('certificateconditions', 'mod_booking'),
+            new moodle_url('/mod/booking/edit_certificateconditions.php')
+        )
+    );
+}
+
 $ADMIN->add(
     'modbookingfolder',
     new admin_externalpage(
@@ -694,7 +705,28 @@ if ($ADMIN->fulltree) {
                 0,
             )
         );
-        if (get_config('booking', 'certificateon')) {
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/certificateoptions',
+                get_string('certificateoptions', 'mod_booking'),
+                get_string('certificateoptions_desc', 'mod_booking'),
+                0,
+                [
+                    0 => get_string('simplecertificateoption', 'mod_booking'),
+                1 => get_string('certificateconditions', 'mod_booking')]
+            )
+        );
+        if (!empty(get_config('booking', 'certificateoptions'))) {
+            $settings->add(
+                new admin_setting_configcheckbox(
+                    'booking/issuemultiplecertificates',
+                    get_string('issuemultiplecertificates', 'mod_booking'),
+                    get_string('issuemultiplecertificates_desc', 'mod_booking'),
+                    0
+                )
+            );
+        }
+        if (get_config('booking', 'certificateon') && get_config('booking', 'certificateoptions') == 0) {
             $settings->add(
                 new admin_setting_configselect(
                     'booking/presencestatustoissuecertificate',
