@@ -60,8 +60,14 @@ class search_users extends external_api {
         ]);
 
         // We can't know for which context the user is searching for users,
-        // So we check if they have the capability to update bookings anywhere in the system.
-        if (!permissions::has_capability_anywhere('mod/booking:updatebooking')) {
+        // So we check if they have one of the capabilities to update bookings anywhere in the system.
+        if (
+            permissions::has_capability_anywhere('mod/booking:limitededitownoption')
+            || permissions::has_capability_anywhere('mod/booking:addeditownoption')
+            || permissions::has_capability_anywhere('mod/booking:updatebooking')
+        ) {
+            return booking::load_users($params['query']);
+        } else {
             throw new \moodle_exception('nopermissions', 'error');
         }
 

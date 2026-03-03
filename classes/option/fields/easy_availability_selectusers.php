@@ -189,7 +189,7 @@ class easy_availability_selectusers extends field_base {
         $options = [
             'multiple' => true,
             'noselectionstring' => get_string('choose...', 'mod_booking'),
-            'ajax' => 'local_shopping_cart/form_users_selector',
+            'ajax' => 'mod_booking/form_users_selector',
             'valuehtmlcallback' => function ($value) {
                 global $OUTPUT;
                 if (empty($value)) {
