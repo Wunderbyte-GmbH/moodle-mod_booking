@@ -1062,22 +1062,4 @@ class userprofilefield_2_custom implements bo_condition {
         }
         return $description;
     }
-
-    /**
-     * This function adds error keys for form validation.
-     * @param array $data
-     * @param array $files
-     * @param array $errors
-     * @return array
-     */
-    public static function validation(array $data, array $files, array &$errors) {
-        if (
-            isset($data['bo_cond_customuserprofilefield_field'])
-            && isset($data['bo_cond_customuserprofilefield_field2'])
-            && ($data['bo_cond_customuserprofilefield_field'] == $data['bo_cond_customuserprofilefield_field2'])
-        ) {
-                $errors['bo_cond_customuserprofilefield_field2'] = get_string('choosedifferentvalue', 'mod_booking');
-        }
-        return $errors;
-    }
 }
