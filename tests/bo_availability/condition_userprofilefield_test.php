@@ -932,6 +932,300 @@ final class condition_userprofilefield_test extends advanced_testcase {
     }
 
     /**
+     * Test using the same custom profile field twice with AND (&&) connection.
+     * Ensures both checks against the same field are applied.
+     *
+     * @covers \mod_booking\bo_availability\conditions\userprofilefield_2_custom::is_available
+     * @covers \mod_booking\bo_availability\conditions\userprofilefield_2_custom::return_sql
+     * @covers \mod_booking\local\sql\operator_builder::build_profile_field_check
+     *
+     * @param array $bdata
+     *
+     * @return void
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_booking_bookit_userprofilefield_same_field_and(array $bdata): void {
+        global $DB, $PAGE;
+
+        set_config('usesqlfilteravailability', 1, 'booking');
+        $bdata['cancancelbook'] = 1;
+        singleton_service::destroy_instance();
+
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        $admin = $this->getDataGenerator()->create_user();
+        $student1 = $this->getDataGenerator()->create_user();
+        $student2 = $this->getDataGenerator()->create_user();
+        $student3 = $this->getDataGenerator()->create_user();
+        $student4 = $this->getDataGenerator()->create_user();
+        $teacher = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course1->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+        $this->setAdminUser();
+
+        // Single custom field used twice.
+        $skills = $this->getDataGenerator()->create_custom_profile_field([
+            'datatype' => 'text',
+            'shortname' => 'skills_same',
+            'name' => 'SkillsSame',
+        ]);
+
+        // Values: s1 has both PHP and SQL; s2 only PHP; s3 only SQL; s4 empty.
+        $DB->insert_record('user_info_data', ['userid' => $student1->id, 'fieldid' => $skills->id, 'data' => 'PHP, SQL']);
+        $DB->insert_record('user_info_data', ['userid' => $student2->id, 'fieldid' => $skills->id, 'data' => 'PHP']);
+        $DB->insert_record('user_info_data', ['userid' => $student3->id, 'fieldid' => $skills->id, 'data' => 'SQL']);
+
+        foreach ([$student1, $student2, $student3, $student4, $teacher, $bookingmanager] as $u) {
+            $this->getDataGenerator()->enrol_user($u->id, $course1->id);
+        }
+
+        // Condition: skills_same contains PHP AND skills_same contains SQL.
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Same field AND';
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $course1->id;
+        $record->bo_cond_userprofilefield_2_custom_restrict = 1;
+        $record->bo_cond_customuserprofilefield_field = 'skills_same';
+        $record->bo_cond_customuserprofilefield_operator = '~';
+        $record->bo_cond_customuserprofilefield_value = 'PHP';
+        $record->bo_cond_customuserprofilefield_connectsecondfield = '&&';
+        $record->bo_cond_customuserprofilefield_field2 = 'skills_same';
+        $record->bo_cond_customuserprofilefield_operator2 = '~';
+        $record->bo_cond_customuserprofilefield_value2 = 'SQL';
+        $record->bo_cond_customuserprofilefield_sqlfiltercheck = 1;
+
+        [$course, $cm] = get_course_and_cm_from_cmid($booking1->cmid);
+        $PAGE->set_cm($cm, $course);
+        $PAGE->set_context(context_module::instance($booking1->cmid));
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $plugingenerator->create_option($record);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $boinfo = new bo_info($settings);
+
+        // S1: has both => allowed.
+        $this->setUser($student1);
+        [$id] = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+
+        // S2: only PHP => blocked by second condition.
+        $this->setUser($student2);
+        [$id] = $boinfo->is_available($settings->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_JSON_CUSTOMUSERPROFILEFIELD, $id);
+
+        // S3: only SQL => blocked by first condition.
+        $this->setUser($student3);
+        [$id] = $boinfo->is_available($settings->id, $student3->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_JSON_CUSTOMUSERPROFILEFIELD, $id);
+
+        // S4: empty => blocked.
+        $this->setUser($student4);
+        [$id] = $boinfo->is_available($settings->id, $student4->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_JSON_CUSTOMUSERPROFILEFIELD, $id);
+    }
+
+    /**
+     * Test using the same custom profile field twice with OR (||) connection.
+     * Ensures either check against the same field allows access.
+     *
+     * @covers \mod_booking\bo_availability\conditions\userprofilefield_2_custom::is_available
+     * @covers \mod_booking\bo_availability\conditions\userprofilefield_2_custom::return_sql
+     * @covers \mod_booking\local\sql\operator_builder::build_profile_field_check
+     *
+     * @param array $bdata
+     *
+     * @return void
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_booking_bookit_userprofilefield_same_field_or(array $bdata): void {
+        global $DB, $PAGE;
+
+        set_config('usesqlfilteravailability', 1, 'booking');
+        $bdata['cancancelbook'] = 1;
+        singleton_service::destroy_instance();
+
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        $admin = $this->getDataGenerator()->create_user();
+        $student1 = $this->getDataGenerator()->create_user();
+        $student2 = $this->getDataGenerator()->create_user();
+        $student3 = $this->getDataGenerator()->create_user();
+        $student4 = $this->getDataGenerator()->create_user();
+        $teacher = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course1->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+        $this->setAdminUser();
+
+        // Single custom field used twice.
+        $skills = $this->getDataGenerator()->create_custom_profile_field([
+            'datatype' => 'text',
+            'shortname' => 'skills_same_or',
+            'name' => 'SkillsSameOr',
+        ]);
+
+        // Values: s1 has both PHP and SQL; s2 only PHP; s3 only SQL; s4 empty.
+        $DB->insert_record('user_info_data', ['userid' => $student1->id, 'fieldid' => $skills->id, 'data' => 'PHP, SQL']);
+        $DB->insert_record('user_info_data', ['userid' => $student2->id, 'fieldid' => $skills->id, 'data' => 'PHP']);
+        $DB->insert_record('user_info_data', ['userid' => $student3->id, 'fieldid' => $skills->id, 'data' => 'SQL']);
+
+        foreach ([$student1, $student2, $student3, $student4, $teacher, $bookingmanager] as $u) {
+            $this->getDataGenerator()->enrol_user($u->id, $course1->id);
+        }
+
+        // Condition: skills_same_or contains PHP OR skills_same_or contains SQL.
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Same field OR';
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $course1->id;
+        $record->bo_cond_userprofilefield_2_custom_restrict = 1;
+        $record->bo_cond_customuserprofilefield_field = 'skills_same_or';
+        $record->bo_cond_customuserprofilefield_operator = '~';
+        $record->bo_cond_customuserprofilefield_value = 'PHP';
+        $record->bo_cond_customuserprofilefield_connectsecondfield = '||';
+        $record->bo_cond_customuserprofilefield_field2 = 'skills_same_or';
+        $record->bo_cond_customuserprofilefield_operator2 = '~';
+        $record->bo_cond_customuserprofilefield_value2 = 'SQL';
+        $record->bo_cond_customuserprofilefield_sqlfiltercheck = 1;
+
+        [$course, $cm] = get_course_and_cm_from_cmid($booking1->cmid);
+        $PAGE->set_cm($cm, $course);
+        $PAGE->set_context(context_module::instance($booking1->cmid));
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $plugingenerator->create_option($record);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $boinfo = new bo_info($settings);
+
+        // S1: has both => allowed.
+        $this->setUser($student1);
+        [$id] = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+
+        // S2: only PHP => allowed by first condition.
+        $this->setUser($student2);
+        [$id] = $boinfo->is_available($settings->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+
+        // S3: only SQL => allowed by second condition.
+        $this->setUser($student3);
+        [$id] = $boinfo->is_available($settings->id, $student3->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+
+        // S4: empty => blocked (neither condition matches but empty handling for ~ does not match).
+        $this->setUser($student4);
+        [$id] = $boinfo->is_available($settings->id, $student4->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_JSON_CUSTOMUSERPROFILEFIELD, $id);
+    }
+
+    /**
+     * Test where the same custom profile field must contain one value and must not contain another (AND).
+     * Ensures contains + not-contains against same field behaves correctly and SQL filter matches.
+     *
+     * @covers \mod_booking\bo_availability\conditions\userprofilefield_2_custom::is_available
+     * @covers \mod_booking\bo_availability\conditions\userprofilefield_2_custom::return_sql
+     * @covers \mod_booking\local\sql\operator_builder::build_profile_field_check
+     *
+     * @param array $bdata
+     *
+     * @return void
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_booking_bookit_userprofilefield_same_field_contains_and_notcontains(array $bdata): void {
+        global $DB, $PAGE;
+
+        set_config('usesqlfilteravailability', 1, 'booking');
+        $bdata['cancancelbook'] = 1;
+        singleton_service::destroy_instance();
+
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        $admin = $this->getDataGenerator()->create_user();
+        $student1 = $this->getDataGenerator()->create_user();
+        $student2 = $this->getDataGenerator()->create_user();
+        $student3 = $this->getDataGenerator()->create_user();
+        $student4 = $this->getDataGenerator()->create_user();
+        $teacher = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course1->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+        $this->setAdminUser();
+
+        // Single custom field used twice: must contain PHP and must not contain Java.
+        $skills = $this->getDataGenerator()->create_custom_profile_field([
+            'datatype' => 'text',
+            'shortname' => 'skills_same_block',
+            'name' => 'SkillsSameBlock',
+        ]);
+
+        // Values: s1 'PHP' (allowed), s2 'PHP, SQL' (allowed), s3 'PHP, Java' (blocked), s4 empty (blocked).
+        $DB->insert_record('user_info_data', ['userid' => $student1->id, 'fieldid' => $skills->id, 'data' => 'PHP']);
+        $DB->insert_record('user_info_data', ['userid' => $student2->id, 'fieldid' => $skills->id, 'data' => 'PHP, SQL']);
+        $DB->insert_record('user_info_data', ['userid' => $student3->id, 'fieldid' => $skills->id, 'data' => 'PHP, Java']);
+
+        foreach ([$student1, $student2, $student3, $student4, $teacher, $bookingmanager] as $u) {
+            $this->getDataGenerator()->enrol_user($u->id, $course1->id);
+        }
+
+        // Condition: skills_same_block contains PHP AND does not contain Java (!~).
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Same field contains and not contains';
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $course1->id;
+        $record->bo_cond_userprofilefield_2_custom_restrict = 1;
+        $record->bo_cond_customuserprofilefield_field = 'skills_same_block';
+        $record->bo_cond_customuserprofilefield_operator = '~';
+        $record->bo_cond_customuserprofilefield_value = 'PHP';
+        $record->bo_cond_customuserprofilefield_connectsecondfield = '&&';
+        $record->bo_cond_customuserprofilefield_field2 = 'skills_same_block';
+        $record->bo_cond_customuserprofilefield_operator2 = '!~';
+        $record->bo_cond_customuserprofilefield_value2 = 'Java';
+        $record->bo_cond_customuserprofilefield_sqlfiltercheck = 1;
+
+        [$course, $cm] = get_course_and_cm_from_cmid($booking1->cmid);
+        $PAGE->set_cm($cm, $course);
+        $PAGE->set_context(context_module::instance($booking1->cmid));
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $plugingenerator->create_option($record);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $boinfo = new bo_info($settings);
+
+        // S1: 'PHP' => allowed (contains PHP, does not contain Java).
+        $this->setUser($student1);
+        [$id] = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+
+        // S2: 'PHP, SQL' => allowed (contains PHP, does not contain Java).
+        $this->setUser($student2);
+        [$id] = $boinfo->is_available($settings->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+
+        // S3: 'PHP, Java' => blocked (contains Java).
+        $this->setUser($student3);
+        [$id] = $boinfo->is_available($settings->id, $student3->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_JSON_CUSTOMUSERPROFILEFIELD, $id);
+
+        // S4: empty => blocked.
+        $this->setUser($student4);
+        [$id] = $boinfo->is_available($settings->id, $student4->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_JSON_CUSTOMUSERPROFILEFIELD, $id);
+    }
+
+    /**
      * Test of booking option availability by custom user profile field with empty value check.
      *
      * @covers \mod_booking\bo_availability\conditions\userprofilefield_2_custom::is_available
