@@ -301,7 +301,7 @@
                 </div>
             </div>
             {{#showchecklistdownloadbutton}}
-            <a href="{{{showchecklistdownloadbutton}}}" 
+            <a href="{{{showchecklistdownloadbutton}}}"
             class="btn btn-primary mt-3" role="button">
             <i class="fa fa-download fa-fw" aria-hidden="true"></i>&nbsp;{{#str}}checklistdownload, mod_booking{{/str}}
             </a>
@@ -319,9 +319,3 @@
         {{/competencyheader}}
     </div>
 </div>
-
-{{#js}}
-    require(['local_shopping_cart/cart'], function(cart) {
-    cart.buttoninit({{modalcounter}}, "mod_booking");
-    });
-{{/js}}
