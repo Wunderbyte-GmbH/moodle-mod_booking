@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-declare(strict_types=1);
-
 namespace mod_booking\reportbuilder\datasource;
 
 use core_component;
@@ -42,7 +40,7 @@ use mod_booking\reportbuilder\local\filters\profile_field_current_user;
  *   for all users whose "supervisor" profile field contains that supervisor's ID.
  *
  * @package    mod_booking
- * @copyright  2026 Your Name
+ * @copyright  2026 Wunderbyte GmbH <https://www.wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class booking_answers_datasource extends datasource {

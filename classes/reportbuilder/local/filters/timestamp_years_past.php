@@ -27,7 +27,7 @@ use core_reportbuilder\local\helpers\database;
  * Filter that checks whether a timestamp is within the past X years.
  *
  * @package    mod_booking
- * @copyright  2026 Your Name
+ * @copyright  2026 wunderbyte GmbH <https://www.wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class timestamp_years_past extends base {

@@ -19,18 +19,15 @@
  *
  * @package mod_booking
  * @category test
- * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
- * @author 2017 Andraž Prinčič
+ * @copyright 2026 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_booking;
 
-use core_reportbuilder\local\filters\boolean_select;
 use core_reportbuilder\tests\core_reportbuilder_testcase;
 use core_reportbuilder_generator;
 use mod_booking\reportbuilder\datasource\booking_answers_datasource;
-use mod_booking\reportbuilder\datasource\booking_completions;
 use mod_booking\reportbuilder\datasource\booking_options_datasource;
 use mod_booking_generator;
 use stdClass;
@@ -121,9 +118,12 @@ final class reportbuilder_test extends core_reportbuilder_testcase {
 
         /** @var core_reportbuilder_generator $generator */
         $generator = $this->getDataGenerator()->get_plugin_generator('core_reportbuilder');
-        $report = $generator->create_report(['name' => 'Completions', 'source' => booking_answers_datasource::class, 'default' => 1]);
+        $report = $generator->create_report([
+            'name' => 'Completions',
+            'source' => booking_answers_datasource::class,
+            'default' => 1,
+        ]);
         $content = $this->get_custom_report_content($report->get('id'));
-        // TODO: discuss assertions and default columns.
         $this->assertNotEmpty($content);
         $this->tearDown();
     }

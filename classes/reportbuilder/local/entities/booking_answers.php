@@ -21,7 +21,6 @@ use core_reportbuilder\local\entities\base;
 use core_reportbuilder\local\filters\boolean_select;
 use core_reportbuilder\local\filters\date;
 use core_reportbuilder\local\filters\number;
-use core_reportbuilder\local\helpers\database;
 use core_reportbuilder\local\helpers\format;
 use core_reportbuilder\local\report\column;
 use core_reportbuilder\local\report\filter;
@@ -35,7 +34,7 @@ use mod_booking\reportbuilder\local\filters\timestamp_years_past;
  * between users and booking options (bookings, completions, waiting-list).
  *
  * @package    mod_booking
- * @copyright  2026 Your Name
+ * @copyright  2006 Wunderbyte GmbH <https://www.wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class booking_answers extends base {
@@ -137,7 +136,6 @@ class booking_answers extends base {
             ->add_field("{$ba}.timemodified")
             ->set_is_sortable(true)
             ->add_callback([format::class, 'userdate']);
-
 
         // Time created.
         $columns[] = (new column(
