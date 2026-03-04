@@ -1498,6 +1498,7 @@ $string['gotomoodlecourse'] = 'Go to Moodle course';
 $string['groupdeleted'] = 'This booking instance creates groups automatically in the target course. But the group has been manually deleted in the target course. Activate the following checkbox in order to recreate the group';
 $string['groupexists'] = 'The group already exists in the target course, please choose another name for the booking option';
 $string['groupid'] = 'Group';
+$string['groupiddisplay'] = 'Group';
 $string['groupiddisplay_help'] = '<i class="fa fa-lightbulb-o" aria-hidden="true"></i>&nbsp;Upon booking, users are automatically enrolled into this course group<span class="text-small"></span>';
 $string['groupname'] = 'Group name';
 $string['h'] = '';

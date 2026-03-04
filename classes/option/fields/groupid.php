@@ -187,7 +187,7 @@ class groupid extends field_base {
         $mform->addElement(
             'static',
             'groupiddisplay',
-            get_string('group', 'moodle'),
+            get_string('groupiddisplay', 'mod_booking'),
             $grouplabel
         );
         $mform->addHelpButton('groupiddisplay', 'groupiddisplay', 'mod_booking');
