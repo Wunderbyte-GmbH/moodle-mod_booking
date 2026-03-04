@@ -43,6 +43,8 @@ class search_booking_options extends external_api {
 
         return new external_function_parameters([
             'query' => new external_value(PARAM_TEXT, 'The search query', VALUE_REQUIRED),
+            'bookingid' => new external_value(PARAM_INT, 'Optional booking instance id filter', VALUE_DEFAULT, 0),
+            'cmid' => new external_value(PARAM_INT, 'Optional course module id filter', VALUE_DEFAULT, 0),
         ]);
     }
 
@@ -50,15 +52,23 @@ class search_booking_options extends external_api {
      * Finds booking options matching the given query.
      *
      * @param string $query The search request.
+     * @param int $bookingid Optional booking instance id filter.
+     * @param int $cmid Optional course module id filter.
      * @return array
      */
-    public static function execute(string $query): array {
+    public static function execute(string $query, int $bookingid = 0, int $cmid = 0): array {
 
         $params = self::validate_parameters(self::execute_parameters(), [
             'query' => $query,
+            'bookingid' => $bookingid,
+            'cmid' => $cmid,
         ]);
 
-        return booking_option::load_booking_options($params['query']);
+        return booking_option::load_booking_options(
+            $params['query'],
+            (int)$params['bookingid'],
+            (int)$params['cmid']
+        );
     }
 
     /**
