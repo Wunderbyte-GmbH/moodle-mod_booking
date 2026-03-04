@@ -32,9 +32,7 @@ use dml_exception;
 use local_wunderbyte_table\filters\types\customfieldfilter;
 use local_wunderbyte_table\filters\types\datepicker;
 use local_wunderbyte_table\filters\types\standardfilter;
-use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
-use mod_booking\customfield\booking_handler;
 use mod_booking\elective;
 use mod_booking\filters\available_places;
 use mod_booking\option\fields\competencies;
@@ -917,13 +915,13 @@ class view implements renderable, templatable {
 
     /**
      * Helper function to initialize the layout for the table.
-     * @param wunderbyte_table $wbtable reference to the table class that should be initialized
+     * @param bookingoptions_wbtable $bowbtable reference to the table class that should be initialized
      * @param bool $filter
      * @param bool $search
      * @param bool $sort
      */
     public function wbtable_initialize_layout(
-        wunderbyte_table &$wbtable,
+        bookingoptions_wbtable &$bowbtable,
         bool $filter = true,
         bool $search = true,
         bool $sort = true
@@ -941,37 +939,37 @@ class view implements renderable, templatable {
         // Set default sort order.
         switch ($this->defaultoptionsort) {
             case 'titleprefix':
-                $wbtable->sortable(true, 'titleprefix', $sortorder);
+                $bowbtable->sortable(true, 'titleprefix', $sortorder);
                 break;
             case 'coursestarttime':
                 // Show newest first.
-                $wbtable->sortable(true, 'coursestarttime', $sortorder);
+                $bowbtable->sortable(true, 'coursestarttime', $sortorder);
                 break;
             case 'location':
                 if (in_array('location', $optionsfields)) {
-                    $wbtable->sortable(true, 'location', $sortorder);
+                    $bowbtable->sortable(true, 'location', $sortorder);
                 } else {
-                    $wbtable->sortable(true, 'text', $sortorder); // Fallback.
+                    $bowbtable->sortable(true, 'text', $sortorder); // Fallback.
                 }
                 break;
             case 'institution':
                 if (in_array('institution', $optionsfields)) {
-                    $wbtable->sortable(true, 'institution', $sortorder);
+                    $bowbtable->sortable(true, 'institution', $sortorder);
                 } else {
-                    $wbtable->sortable(true, 'text', $sortorder); // Fallback.
+                    $bowbtable->sortable(true, 'text', $sortorder); // Fallback.
                 }
                 break;
             case 'text':
             default:
-                $wbtable->sortable(true, 'text', $sortorder);
+                $bowbtable->sortable(true, 'text', $sortorder);
                 break;
         }
 
         // Only admins can download.
         if (has_capability('mod/booking:updatebooking', context_module::instance($this->cmid))) {
             $baseurl = new moodle_url('/mod/booking/download.php', ['cmid' => $this->cmid]);
-            $wbtable->define_baseurl($baseurl);
-            $wbtable->showdownloadbutton = true;
+            $bowbtable->define_baseurl($baseurl);
+            $bowbtable->showdownloadbutton = true;
         }
 
         // Get cd param from JSON of booking instance settings.
@@ -985,7 +983,7 @@ class view implements renderable, templatable {
             // If template switcher is turned on, we add it.
             // Only add templates that have been selected in instance.
             if (in_array(MOD_BOOKING_VIEW_PARAM_LIST, $selectedtemplates)) {
-                $wbtable->add_template_to_switcher(
+                $bowbtable->add_template_to_switcher(
                     'mod_booking/table_list',
                     get_string('viewparam:list', 'mod_booking'),
                     $viewparam === MOD_BOOKING_VIEW_PARAM_LIST ? true : false,
@@ -993,7 +991,7 @@ class view implements renderable, templatable {
                 );
             }
             if (in_array(MOD_BOOKING_VIEW_PARAM_CARDS, $selectedtemplates)) {
-                $wbtable->add_template_to_switcher(
+                $bowbtable->add_template_to_switcher(
                     'mod_booking/table_cards',
                     get_string('viewparam:cards', 'mod_booking'),
                     $viewparam === MOD_BOOKING_VIEW_PARAM_CARDS ? true : false,
@@ -1001,7 +999,7 @@ class view implements renderable, templatable {
                 );
             }
             if (in_array(MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT, $selectedtemplates)) {
-                $wbtable->add_template_to_switcher(
+                $bowbtable->add_template_to_switcher(
                     'mod_booking/table_list',
                     get_string('viewparam:listimgleft', 'mod_booking'),
                     $viewparam === MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT ? true : false,
@@ -1009,7 +1007,7 @@ class view implements renderable, templatable {
                 );
             }
             if (in_array(MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT, $selectedtemplates)) {
-                $wbtable->add_template_to_switcher(
+                $bowbtable->add_template_to_switcher(
                     'mod_booking/table_list',
                     get_string('viewparam:listimgright', 'mod_booking'),
                     $viewparam === MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT ? true : false,
@@ -1017,7 +1015,7 @@ class view implements renderable, templatable {
                 );
             }
             if (in_array(MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF, $selectedtemplates)) {
-                $wbtable->add_template_to_switcher(
+                $bowbtable->add_template_to_switcher(
                     'mod_booking/table_list',
                     get_string('viewparam:listimglefthalf', 'mod_booking'),
                     $viewparam === MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF ? true : false,
@@ -1029,7 +1027,7 @@ class view implements renderable, templatable {
         // Todo: Implement possibility to include custom fields in the table.
         // This is already implemented in shortcodes.
         self::apply_standard_params_for_bookingtable(
-            $wbtable,
+            $bowbtable,
             $optionsfields,
             $filter,
             $search,
@@ -1046,7 +1044,7 @@ class view implements renderable, templatable {
     /**
      * This standard functions sets important params for booking options.
      * It should be kept generic to be usable on the view as well as in shortcodes etc.
-     * @param wunderbyte_table $wbtable
+     * @param bookingoptions_wbtable $bowbtable
      * @param array $optionsfields
      * @param bool $filter
      * @param bool $search
@@ -1061,7 +1059,7 @@ class view implements renderable, templatable {
      * @throws coding_exception
      */
     public static function apply_standard_params_for_bookingtable(
-        wunderbyte_table &$wbtable,
+        bookingoptions_wbtable &$bowbtable,
         array $optionsfields = [],
         bool $filter = true,
         bool $search = true,
@@ -1081,25 +1079,25 @@ class view implements renderable, templatable {
         }
 
         // Activate sorting.
-        $wbtable->cardsort = true;
+        $bowbtable->cardsort = true;
 
         // Without defining sorting won't work!
-        $wbtable->define_columns(['titleprefix', 'coursestarttime', 'courseendtime']);
+        $bowbtable->define_columns(['titleprefix', 'coursestarttime', 'courseendtime']);
 
         // Check if there are additional customfields included.
         if (!empty($customfieldsinfoarray = shortcodes_handler::get_includecustomfields_info_array($args))) {
-            $wbtable->set_customfields_info_array($customfieldsinfoarray);
+            $bowbtable->set_customfields_info_array($customfieldsinfoarray);
         }
 
         // If template switcher is active, we need to use the table's viewparam.
-        $chosenviewparam = get_user_preferences('wbtable_chosen_template_viewparam_' . $wbtable->uniqueid);
-        if (!empty($wbtable->switchtemplates) && is_number($chosenviewparam)) {
+        $chosenviewparam = get_user_preferences('wbtable_chosen_template_viewparam_' . $bowbtable->uniqueid);
+        if (!empty($bowbtable->switchtemplates) && is_number($chosenviewparam)) {
             $viewparam = $chosenviewparam;
             // Extra safety, if the selected templates in instance change, we use the first one available.
             if (!empty($selectedtemplates)) {
                 if (!in_array($viewparam, $selectedtemplates)) {
                     $viewparam = (int)$selectedtemplates[0] ?? MOD_BOOKING_VIEW_PARAM_LIST;
-                    set_user_preference('wbtable_chosen_template_viewparam_' . $wbtable->uniqueid, $viewparam);
+                    set_user_preference('wbtable_chosen_template_viewparam_' . $bowbtable->uniqueid, $viewparam);
                 }
             }
         }
@@ -1107,36 +1105,36 @@ class view implements renderable, templatable {
         // Switch view type (cards view or list view).
         switch ($viewparam) {
             case MOD_BOOKING_VIEW_PARAM_CARDS:
-                self::generate_table_for_cards($wbtable, $optionsfields);
+                self::generate_table_for_cards($bowbtable, $optionsfields);
                 break;
             case MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT:
-                $wbtable->set_template_data('showheaderimageleft', true);
-                self::generate_table_for_list($wbtable, $optionsfields);
+                $bowbtable->set_template_data('showheaderimageleft', true);
+                self::generate_table_for_list($bowbtable, $optionsfields);
                 break;
             case MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT:
-                $wbtable->set_template_data('showheaderimageright', true);
-                self::generate_table_for_list($wbtable, $optionsfields);
+                $bowbtable->set_template_data('showheaderimageright', true);
+                self::generate_table_for_list($bowbtable, $optionsfields);
                 break;
             case MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF:
-                $wbtable->set_template_data('showheaderimagelefthalf', true);
-                self::generate_table_for_list($wbtable, $optionsfields);
+                $bowbtable->set_template_data('showheaderimagelefthalf', true);
+                self::generate_table_for_list($bowbtable, $optionsfields);
                 break;
             case MOD_BOOKING_VIEW_PARAM_LIST:
             default:
-                $wbtable->set_template_data('noheaderimage', true);
-                self::generate_table_for_list($wbtable, $optionsfields);
+                $bowbtable->set_template_data('noheaderimage', true);
+                self::generate_table_for_list($bowbtable, $optionsfields);
                 break;
         }
 
         // Header column.
-        $wbtable->define_header_column('text');
+        $bowbtable->define_header_column('text');
 
-        $wbtable->pageable(true);
-        $wbtable->stickyheader = true;
-        $wbtable->showcountlabel = true;
-        $wbtable->showreloadbutton = $reload;
+        $bowbtable->pageable(true);
+        $bowbtable->stickyheader = true;
+        $bowbtable->showcountlabel = true;
+        $bowbtable->showreloadbutton = $reload;
 
-        $wbtable->define_cache('mod_booking', 'bookingoptionstable');
+        $bowbtable->define_cache('mod_booking', 'bookingoptionstable');
 
         if ($search) {
             $fulltextsearchcolumns = [];
@@ -1154,25 +1152,25 @@ class view implements renderable, templatable {
             if (in_array('teacher', $optionsfields)) {
                 $fulltextsearchcolumns[] = 'teacherobjects';
             }
-            $wbtable->define_fulltextsearchcolumns($fulltextsearchcolumns);
+            $bowbtable->define_fulltextsearchcolumns($fulltextsearchcolumns);
         }
 
         if ($filter) {
             // Booking availability filter.
-            $wbtable->add_filter(available_places::get());
+            $bowbtable->add_filter(available_places::get());
 
             if (in_array('teacher', $optionsfields)) {
                 $standardfilter = new standardfilter('teacherobjects', get_string('teachers', 'mod_booking'));
                 $standardfilter->add_options(['jsonattribute' => 'name']);
-                $wbtable->add_filter($standardfilter);
+                $bowbtable->add_filter($standardfilter);
             }
             if (in_array('location', $optionsfields)) {
                 $standardfilter = new standardfilter('location', get_string('location', 'mod_booking'));
-                $wbtable->add_filter($standardfilter);
+                $bowbtable->add_filter($standardfilter);
             }
             if (in_array('institution', $optionsfields)) {
                 $standardfilter = new standardfilter('institution', get_string('institution', 'mod_booking'));
-                $wbtable->add_filter($standardfilter);
+                $bowbtable->add_filter($standardfilter);
             }
 
             if (in_array('coursestarttime', $optionsfields)) {
@@ -1188,7 +1186,7 @@ class view implements renderable, templatable {
                     'now',
                     'now + 1 year'
                 );
-                $wbtable->add_filter($datepicker);
+                $bowbtable->add_filter($datepicker);
             }
 
             if (in_array('bookingopeningtime', $optionsfields)) {
@@ -1204,7 +1202,7 @@ class view implements renderable, templatable {
                     'now',
                     'now + 1 year'
                 );
-                $wbtable->add_filter($datepicker);
+                $bowbtable->add_filter($datepicker);
             }
 
             $url = $PAGE->url ?? false;
@@ -1230,7 +1228,7 @@ class view implements renderable, templatable {
                         $localizedname = format_string($localizedname);
                         $customfieldfilter = new customfieldfilter($shortname, $localizedname);
                         $customfieldfilter->set_sql_for_fieldid($shortnamesid[$shortname]);
-                        $wbtable->add_filter($customfieldfilter);
+                        $bowbtable->add_filter($customfieldfilter);
                     }
                 }
             }
@@ -1238,11 +1236,11 @@ class view implements renderable, templatable {
                 $standardfilter = new standardfilter('competencies', get_string('competencies', 'mod_booking'));
                 $comptencyoptions = competencies::get_filter_options();
                 $standardfilter->add_options($comptencyoptions);
-                $wbtable->add_filter($standardfilter);
+                $bowbtable->add_filter($standardfilter);
             }
             // Add the option type filter if 'typefilter' arg is true.
             if (shortcodes_handler::arg_is_true($args['typefilter'] ?? false)) {
-                shortcodes::apply_bookingoptiontype_filter($wbtable, $cmid);
+                shortcodes::apply_bookingoptiontype_filter($bowbtable, $cmid);
             }
         }
 
@@ -1263,25 +1261,25 @@ class view implements renderable, templatable {
             if (in_array('bookingclosingtime', $optionsfields)) {
                 $sortablecolumns['bookingclosingtime'] = get_string('bookingclosingtime', 'mod_booking');
             }
-            $wbtable->define_sortablecolumns($sortablecolumns);
+            $bowbtable->define_sortablecolumns($sortablecolumns);
         }
 
         // Let's collapse filters per default.
-        $wbtable->filteronloadinactive = $filterinactive;
+        $bowbtable->filteronloadinactive = $filterinactive;
     }
 
     /**
      * Helper function to generate cards table.
-     * @param wunderbyte_table $wbtable reference to table instance
+     * @param bookingoptions_wbtable $bowbtable reference to table instance
      * @param array $optionsfields
      * @return void
      */
-    public static function generate_table_for_cards(wunderbyte_table &$wbtable, array $optionsfields) {
+    public static function generate_table_for_cards(bookingoptions_wbtable &$bowbtable, array $optionsfields) {
         // We define it here so we can pass it with the mustache template.
-        $wbtable->add_subcolumns('optionid', ['id']);
-        $wbtable->add_subcolumns('cardimage', ['image']);
-        $wbtable->add_classes_to_subcolumns('cardimage', ['columnvalueclass' => 'w-100'], ['image']);
-        $wbtable->add_subcolumns('optioninvisible', ['invisibleoption']);
+        $bowbtable->add_subcolumns('optionid', ['id']);
+        $bowbtable->add_subcolumns('cardimage', ['image']);
+        $bowbtable->add_classes_to_subcolumns('cardimage', ['columnvalueclass' => 'w-100'], ['image']);
+        $bowbtable->add_subcolumns('optioninvisible', ['invisibleoption']);
 
         // 1. Card body.
         $cardbody = ['coursestarttime', 'courseendtime'];
@@ -1301,26 +1299,26 @@ class view implements renderable, templatable {
             $cardbody[] = 'attachment';
         }
 
-        $wbtable->add_subcolumns('cardbody', $cardbody);
-        $wbtable->add_classes_to_subcolumns('cardbody', ['columnkeyclass' => 'd-none']);
-        $wbtable->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'd-none'], ['coursestarttime', 'courseendtime']);
-        $wbtable->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'float-end'], ['action']);
-        $wbtable->add_classes_to_subcolumns(
+        $bowbtable->add_subcolumns('cardbody', $cardbody);
+        $bowbtable->add_classes_to_subcolumns('cardbody', ['columnkeyclass' => 'd-none']);
+        $bowbtable->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'd-none'], ['coursestarttime', 'courseendtime']);
+        $bowbtable->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'float-end'], ['action']);
+        $bowbtable->add_classes_to_subcolumns(
             'cardbody',
             ['columnvalueclass' => 'text-center booking-option-info-invisible'],
             ['invisibleoption']
         );
-        $wbtable->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'h5'], ['text']);
-        $wbtable->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'd-block pt-1'], ['description']);
-        $wbtable->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'd-block pt-1'], ['statusdescription']);
+        $bowbtable->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'h5'], ['text']);
+        $bowbtable->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'd-block pt-1'], ['description']);
+        $bowbtable->add_classes_to_subcolumns('cardbody', ['columnvalueclass' => 'd-block pt-1'], ['statusdescription']);
         if (in_array('attachment', $optionsfields)) {
-            $wbtable->add_classes_to_subcolumns(
+            $bowbtable->add_classes_to_subcolumns(
                 'cardbody',
                 ['columnvalueclass' => 'd-block pt-1'],
                 ['attachment']
             );
         }
-        $wbtable->add_classes_to_subcolumns('cardbody', ['columnalt' => get_string('teacher', 'mod_booking')], ['teacher']);
+        $bowbtable->add_classes_to_subcolumns('cardbody', ['columnalt' => get_string('teacher', 'mod_booking')], ['teacher']);
 
         // 2. Cardlist.
         $cardlist = [];
@@ -1351,100 +1349,100 @@ class view implements renderable, templatable {
         }
         $cardlist[] = 'comments';
 
-        $wbtable->add_subcolumns('cardlist', $cardlist);
-        $wbtable->add_classes_to_subcolumns('cardlist', ['columnkeyclass' => 'd-none']);
+        $bowbtable->add_subcolumns('cardlist', $cardlist);
+        $bowbtable->add_classes_to_subcolumns('cardlist', ['columnkeyclass' => 'd-none']);
 
         if (in_array('dayofweektime', $optionsfields)) {
-            $wbtable->add_classes_to_subcolumns(
+            $bowbtable->add_classes_to_subcolumns(
                 'cardlist',
                 ['columnclass' => 'text-left text-gray pe-2'],
                 ['dayofweektime']
             );
-            $wbtable->add_classes_to_subcolumns(
+            $bowbtable->add_classes_to_subcolumns(
                 'cardlist',
                 ['columniclassbefore' => 'fa fa-clock-o fa-fw text-gray'],
                 ['dayofweektime']
             );
         }
         if (in_array('responsiblecontact', $optionsfields)) {
-            $wbtable->add_classes_to_subcolumns(
+            $bowbtable->add_classes_to_subcolumns(
                 'cardlist',
                 ['columnclass' => 'text-left pe-2 text-gray d-block'],
                 ['responsiblecontact']
             );
         }
         if (in_array('bookingopeningtime', $optionsfields)) {
-            $wbtable->add_classes_to_subcolumns(
+            $bowbtable->add_classes_to_subcolumns(
                 'cardlist',
                 ['columnclass' => 'text-left pe-2 text-gray d-block'],
                 ['bookingopeningtime']
             );
-            $wbtable->add_classes_to_subcolumns(
+            $bowbtable->add_classes_to_subcolumns(
                 'cardlist',
                 ['columniclassbefore' => 'fa fa-forward fa-fw text-gray'],
                 ['bookingopeningtime']
             );
         }
         if (in_array('bookingclosingtime', $optionsfields)) {
-            $wbtable->add_classes_to_subcolumns(
+            $bowbtable->add_classes_to_subcolumns(
                 'cardlist',
                 ['columnclass' => 'text-left pe-2 text-gray d-block'],
                 ['bookingclosingtime']
             );
-            $wbtable->add_classes_to_subcolumns(
+            $bowbtable->add_classes_to_subcolumns(
                 'cardlist',
                 ['columniclassbefore' => 'fa fa-step-forward fa-fw text-gray'],
                 ['bookingclosingtime']
             );
         }
         if (in_array('showdates', $optionsfields)) {
-            $wbtable->add_classes_to_subcolumns(
+            $bowbtable->add_classes_to_subcolumns(
                 'cardlist',
                 ['columnclass' => 'text-left pe-2 text-gray'],
                 ['showdates']
             );
         }
         if (in_array('location', $optionsfields)) {
-            $wbtable->add_classes_to_subcolumns(
+            $bowbtable->add_classes_to_subcolumns(
                 'cardlist',
                 ['columnclass' => 'text-left text-gray  pe-2'],
                 ['location']
             );
-            $wbtable->add_classes_to_subcolumns(
+            $bowbtable->add_classes_to_subcolumns(
                 'cardlist',
                 ['columniclassbefore' => 'fa fa-map-marker fa-fw text-gray'],
                 ['location']
             );
         }
         if (in_array('institution', $optionsfields)) {
-            $wbtable->add_classes_to_subcolumns(
+            $bowbtable->add_classes_to_subcolumns(
                 'cardlist',
                 ['columnclass' => 'text-left text-gray  pe-2'],
                 ['institution']
             );
-            $wbtable->add_classes_to_subcolumns(
+            $bowbtable->add_classes_to_subcolumns(
                 'cardlist',
                 ['columniclassbefore' => 'fa fa-building-o fa-fw text-gray'],
                 ['institution']
             );
         }
-        $wbtable->add_classes_to_subcolumns(
+        $bowbtable->add_classes_to_subcolumns(
             'cardlist',
             ['columnclass' => 'text-left text-gray pe-2'],
             ['bookings']
         );
-        $wbtable->add_classes_to_subcolumns(
+        $bowbtable->add_classes_to_subcolumns(
             'cardlist',
             ['columniclassbefore' => 'fa fa-ticket fa-fw text-gray'],
             ['bookings']
         );
         if (in_array('minanswers', $optionsfields)) {
-            $wbtable->add_classes_to_subcolumns(
+            $bowbtable->add_classes_to_subcolumns(
                 'cardlist',
                 ['columnclass' => 'text-left text-gray pe-2'],
                 ['minanswers']
             );
-            $wbtable->add_classes_to_subcolumns(
+            $bowbtable->add_classes_to_subcolumns(
                 'cardlist',
                 ['columniclassbefore' => 'fa fa-arrow-up fa-fw text-gray'],
                 ['minanswers']
@@ -1454,107 +1452,107 @@ class view implements renderable, templatable {
         // 3. Cardfooter.
 
         if (in_array('booknow', $optionsfields)) {
-            $wbtable->add_subcolumns('cardfooter', ['booknow', 'course', 'progressbar', 'ratings']);
+            $bowbtable->add_subcolumns('cardfooter', ['booknow', 'course', 'progressbar', 'ratings']);
         } else {
-            $wbtable->add_subcolumns('cardfooter', ['course', 'progressbar', 'ratings']);
+            $bowbtable->add_subcolumns('cardfooter', ['course', 'progressbar', 'ratings']);
         }
 
-        $wbtable->add_classes_to_subcolumns('cardfooter', ['columnkeyclass' => 'd-none']);
+        $bowbtable->add_classes_to_subcolumns('cardfooter', ['columnkeyclass' => 'd-none']);
         if (in_array('booknow', $optionsfields)) {
-            $wbtable->add_classes_to_subcolumns('cardfooter', ['columnclass' => 'text-right'], ['booknow']);
+            $bowbtable->add_classes_to_subcolumns('cardfooter', ['columnclass' => 'text-right'], ['booknow']);
         }
 
-        $wbtable->add_classes_to_subcolumns(
+        $bowbtable->add_classes_to_subcolumns(
             'cardfooter',
             ['columnclass' => 'text-left mt-1 text-gray'],
             ['progressbar']
         );
-        $wbtable->add_classes_to_subcolumns('cardfooter', ['columnclass' => 'mt-1'], ['ratings']);
-        $wbtable->add_classes_to_subcolumns('cardfooter', ['columnclass' => 'theme-text-color bold '], ['price']);
+        $bowbtable->add_classes_to_subcolumns('cardfooter', ['columnclass' => 'mt-1'], ['ratings']);
+        $bowbtable->add_classes_to_subcolumns('cardfooter', ['columnclass' => 'theme-text-color bold '], ['price']);
 
         // Override naming for columns.
-        $wbtable->add_classes_to_subcolumns(
+        $bowbtable->add_classes_to_subcolumns(
             'leftside',
             ['keystring' => get_string('tableheadertext', 'booking')],
             ['text']
         );
-        $wbtable->add_classes_to_subcolumns(
+        $bowbtable->add_classes_to_subcolumns(
             'leftside',
             ['keystring' => get_string('tableheaderteacher', 'booking')],
             ['teacher']
         );
 
         // Additional descriptions.
-        $wbtable->add_classes_to_subcolumns(
+        $bowbtable->add_classes_to_subcolumns(
             'cardlist',
             ['columnalt' => get_string('location', 'mod_booking')],
             ['location']
         );
-        $wbtable->add_classes_to_subcolumns(
+        $bowbtable->add_classes_to_subcolumns(
             'cardlist',
             ['columnalt' => get_string('dayofweektime', 'mod_booking')],
             ['dayofweektime']
         );
-        $wbtable->add_classes_to_subcolumns(
+        $bowbtable->add_classes_to_subcolumns(
             'cardlist',
             ['columnalt' => get_string('bookings', 'mod_booking')],
             ['bookings']
         );
-        $wbtable->add_classes_to_subcolumns(
+        $bowbtable->add_classes_to_subcolumns(
             'cardimage',
             ['cardimagealt' => get_string('bookingoptionimage', 'mod_booking')],
             ['image']
         );
 
         // Prepare possible custom fields.
-        self::prepare_customfields($wbtable);
+        self::prepare_customfields($bowbtable);
 
         // At last, we set the correct template!
-        $wbtable->tabletemplate = 'mod_booking/table_cards';
+        $bowbtable->tabletemplate = 'mod_booking/table_cards';
 
         // We also need to set the user preference for the template.
-        set_user_preference('wbtable_chosen_template_' . $wbtable->uniqueid, 'mod_booking/table_cards');
+        set_user_preference('wbtable_chosen_template_' . $bowbtable->uniqueid, 'mod_booking/table_cards');
     }
 
     /**
      * Helper function to generate cards table.
-     * @param wunderbyte_table $wbtable reference to table instance
+     * @param bookingoptions_wbtable $bowbtable reference to table instance
      * @return void
      */
-    public static function prepare_customfields(wunderbyte_table &$wbtable) {
-        $customfieldsinfoarray = $wbtable->get_customfields_info_array();
+    public static function prepare_customfields(bookingoptions_wbtable &$bowbtable) {
+        $customfieldsinfoarray = $bowbtable->get_customfields_info_array();
         if (empty($customfieldsinfoarray)) {
             return;
         }
         foreach ($customfieldsinfoarray as $cfshortname => $cfinfoarray) {
             if (!empty($cfinfoarray['region'])) {
-                $wbtable->add_subcolumns($cfinfoarray['region'], [$cfshortname]);
+                $bowbtable->add_subcolumns($cfinfoarray['region'], [$cfshortname]);
                 if (!empty($cfinfoarray['class'])) {
-                    $wbtable->add_classes_to_subcolumns(
+                    $bowbtable->add_classes_to_subcolumns(
                         $cfinfoarray['region'],
                         ['columnvalueclass' => $cfinfoarray['class']],
                         [$cfshortname]
                     );
                 }
                 if (!empty($cfinfoarray['iconclass'])) {
-                    $wbtable->add_classes_to_subcolumns(
+                    $bowbtable->add_classes_to_subcolumns(
                         $cfinfoarray['region'],
                         ['columniclassbefore' => $cfinfoarray['iconclass']],
                         [$cfshortname]
                     );
                 }
-                $wbtable->add_classes_to_subcolumns($cfinfoarray['region'], ['columnkeyclass' => 'd-none']);
+                $bowbtable->add_classes_to_subcolumns($cfinfoarray['region'], ['columnkeyclass' => 'd-none']);
             }
         }
     }
 
     /**
      * Helper function to generate list table.
-     * @param wunderbyte_table $wbtable reference to table instance
+     * @param bookingoptions_wbtable $bowbtable reference to table instance
      * @param array $optionsfields
      * @return void
      */
-    public static function generate_table_for_list(wunderbyte_table &$wbtable, array $optionsfields) {
+    public static function generate_table_for_list(bookingoptions_wbtable &$bowbtable, array $optionsfields) {
         $columnsleftside = [];
         $columnsleftside[] = 'invisibleoption';
         $columnsleftside[] = 'text';
@@ -1572,7 +1570,7 @@ class view implements renderable, templatable {
             $columnsleftside[] = 'attachment';
         }
 
-        $wbtable->add_subcolumns('leftside', $columnsleftside);
+        $bowbtable->add_subcolumns('leftside', $columnsleftside);
 
         $columnsfooter = [];
         $columnsfooter[] = 'bookings';
@@ -1605,122 +1603,122 @@ class view implements renderable, templatable {
         }
         $columnsfooter[] = 'comments';
 
-        $wbtable->add_subcolumns('footer', $columnsfooter);
+        $bowbtable->add_subcolumns('footer', $columnsfooter);
 
         if (in_array('booknow', $optionsfields)) {
-            $wbtable->add_subcolumns('rightside', ['booknow', 'course', 'progressbar', 'ratings']);
+            $bowbtable->add_subcolumns('rightside', ['booknow', 'course', 'progressbar', 'ratings']);
         } else {
-            $wbtable->add_subcolumns('rightside', ['course', 'progressbar', 'ratings']);
+            $bowbtable->add_subcolumns('rightside', ['course', 'progressbar', 'ratings']);
         }
 
         // Add header image.
-        $wbtable->add_subcolumns('headerimage', ['image']);
-        $wbtable->add_classes_to_subcolumns('headerimage', ['columnvalueclass' => 'w-100'], ['image']);
-        $wbtable->add_classes_to_subcolumns(
+        $bowbtable->add_subcolumns('headerimage', ['image']);
+        $bowbtable->add_classes_to_subcolumns('headerimage', ['columnvalueclass' => 'w-100'], ['image']);
+        $bowbtable->add_classes_to_subcolumns(
             'headerimage',
             ['headerimagealt' => get_string('bookingoptionimage', 'mod_booking')],
             ['image']
         );
 
-        $wbtable->add_classes_to_subcolumns('leftside', ['columnkeyclass' => 'd-none']);
-        $wbtable->add_classes_to_subcolumns(
+        $bowbtable->add_classes_to_subcolumns('leftside', ['columnkeyclass' => 'd-none']);
+        $bowbtable->add_classes_to_subcolumns(
             'leftside',
             ['columnvalueclass' => 'booking-option-info-invisible'],
             ['invisibleoption']
         );
-        $wbtable->add_classes_to_subcolumns('leftside', ['columnclass' => 'text-left m-0 mb-1 h5'], ['text']);
-        $wbtable->add_classes_to_subcolumns('leftside', ['columnclass' => 'text-right'], ['action']);
+        $bowbtable->add_classes_to_subcolumns('leftside', ['columnclass' => 'text-left m-0 mb-1 h5'], ['text']);
+        $bowbtable->add_classes_to_subcolumns('leftside', ['columnclass' => 'text-right'], ['action']);
         if (in_array('teacher', $optionsfields)) {
-            $wbtable->add_classes_to_subcolumns('leftside', ['columnclass' => 'text-left font-size-sm'], ['teacher']);
+            $bowbtable->add_classes_to_subcolumns('leftside', ['columnclass' => 'text-left font-size-sm'], ['teacher']);
         }
-        $wbtable->add_classes_to_subcolumns('footer', ['columnkeyclass' => 'd-none']);
+        $bowbtable->add_classes_to_subcolumns('footer', ['columnkeyclass' => 'd-none']);
         if (in_array('dayofweektime', $optionsfields)) {
-            $wbtable->add_classes_to_subcolumns(
+            $bowbtable->add_classes_to_subcolumns(
                 'footer',
                 ['columnclass' => 'text-left text-gray pe-2 font-size-sm'],
                 ['dayofweektime']
             );
-            $wbtable->add_classes_to_subcolumns(
+            $bowbtable->add_classes_to_subcolumns(
                 'footer',
                 ['columniclassbefore' => 'fa fa-clock-o fa-fw text-gray font-size-sm'],
                 ['dayofweektime']
             );
         }
         if (in_array('responsiblecontact', $optionsfields)) {
-            $wbtable->add_classes_to_subcolumns('footer', ['columnclass' => 'text-left font-size-sm'], ['responsiblecontact']);
+            $bowbtable->add_classes_to_subcolumns('footer', ['columnclass' => 'text-left font-size-sm'], ['responsiblecontact']);
         }
         if (in_array('bookingopeningtime', $optionsfields)) {
-            $wbtable->add_classes_to_subcolumns(
+            $bowbtable->add_classes_to_subcolumns(
                 'footer',
                 ['columnclass' => 'text-left pe-2 text-gray font-size-sm d-block'],
                 ['bookingopeningtime']
             );
-            $wbtable->add_classes_to_subcolumns(
+            $bowbtable->add_classes_to_subcolumns(
                 'footer',
                 ['columniclassbefore' => 'fa fa-forward fa-fw text-gray font-size-sm'],
                 ['bookingopeningtime']
             );
         }
         if (in_array('bookingclosingtime', $optionsfields)) {
-            $wbtable->add_classes_to_subcolumns(
+            $bowbtable->add_classes_to_subcolumns(
                 'footer',
                 ['columnclass' => 'text-left pe-2 text-gray font-size-sm d-block'],
                 ['bookingclosingtime']
             );
-            $wbtable->add_classes_to_subcolumns(
+            $bowbtable->add_classes_to_subcolumns(
                 'footer',
                 ['columniclassbefore' => 'fa fa-step-forward fa-fw text-gray font-size-sm'],
                 ['bookingclosingtime']
             );
         }
         if (in_array('showdates', $optionsfields)) {
-            $wbtable->add_classes_to_subcolumns(
+            $bowbtable->add_classes_to_subcolumns(
                 'footer',
                 ['columnclass' => 'text-left pe-2 text-gray font-size-sm'],
                 ['showdates']
             );
         }
         if (in_array('location', $optionsfields)) {
-            $wbtable->add_classes_to_subcolumns(
+            $bowbtable->add_classes_to_subcolumns(
                 'footer',
                 ['columnclass' => 'text-left text-gray  pe-2 font-size-sm'],
                 ['location']
             );
-            $wbtable->add_classes_to_subcolumns(
+            $bowbtable->add_classes_to_subcolumns(
                 'footer',
                 ['columniclassbefore' => 'fa fa-map-marker fa-fw text-gray font-size-sm'],
                 ['location']
             );
         }
         if (in_array('institution', $optionsfields)) {
-            $wbtable->add_classes_to_subcolumns(
+            $bowbtable->add_classes_to_subcolumns(
                 'footer',
                 ['columnclass' => 'text-left text-gray  pe-2 font-size-sm'],
                 ['institution']
             );
-            $wbtable->add_classes_to_subcolumns(
+            $bowbtable->add_classes_to_subcolumns(
                 'footer',
                 ['columniclassbefore' => 'fa fa-building-o fa-fw text-gray font-size-sm'],
                 ['institution']
             );
         }
-        $wbtable->add_classes_to_subcolumns(
+        $bowbtable->add_classes_to_subcolumns(
             'footer',
             ['columnclass' => 'text-left text-gray pe-2 font-size-sm'],
             ['bookings']
         );
-        $wbtable->add_classes_to_subcolumns(
+        $bowbtable->add_classes_to_subcolumns(
             'footer',
             ['columniclassbefore' => 'fa fa-ticket fa-fw text-gray font-size-sm'],
             ['bookings']
         );
         if (in_array('minanswers', $optionsfields)) {
-            $wbtable->add_classes_to_subcolumns(
+            $bowbtable->add_classes_to_subcolumns(
                 'footer',
                 ['columnclass' => 'text-left text-gray pe-2 font-size-sm'],
                 ['minanswers']
             );
-            $wbtable->add_classes_to_subcolumns(
+            $bowbtable->add_classes_to_subcolumns(
                 'footer',
                 ['columniclassbefore' => 'fa fa-arrow-up fa-fw text-gray font-size-sm'],
                 ['minanswers']
@@ -1728,34 +1726,34 @@ class view implements renderable, templatable {
         }
 
         if (in_array('booknow', $optionsfields)) {
-            $wbtable->add_classes_to_subcolumns('rightside', ['columnclass' => 'text-right'], ['booknow']);
+            $bowbtable->add_classes_to_subcolumns('rightside', ['columnclass' => 'text-right'], ['booknow']);
         }
-        $wbtable->add_classes_to_subcolumns(
+        $bowbtable->add_classes_to_subcolumns(
             'rightside',
             ['columnclass' => 'text-left mt-1 text-gray font-size-sm'],
             ['progressbar']
         );
-        $wbtable->add_classes_to_subcolumns('rightside', ['columnclass' => 'mt-1'], ['ratings']);
+        $bowbtable->add_classes_to_subcolumns('rightside', ['columnclass' => 'mt-1'], ['ratings']);
 
         // Override naming for columns.
-        $wbtable->add_classes_to_subcolumns(
+        $bowbtable->add_classes_to_subcolumns(
             'leftside',
             ['keystring' => get_string('tableheadertext', 'booking')],
             ['text']
         );
-        $wbtable->add_classes_to_subcolumns(
+        $bowbtable->add_classes_to_subcolumns(
             'leftside',
             ['keystring' => get_string('tableheaderteacher', 'booking')],
             ['teacher']
         );
 
         // Now we prepare possible custom fields.
-        self::prepare_customfields($wbtable);
+        self::prepare_customfields($bowbtable);
 
         // At last, we set the correct template!
-        $wbtable->tabletemplate = 'mod_booking/table_list';
+        $bowbtable->tabletemplate = 'mod_booking/table_list';
 
-        set_user_preference('wbtable_chosen_template_' . $wbtable->uniqueid, 'mod_booking/table_list');
+        set_user_preference('wbtable_chosen_template_' . $bowbtable->uniqueid, 'mod_booking/table_list');
     }
 
     /**
