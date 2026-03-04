@@ -4105,13 +4105,32 @@ class booking_option {
      * Function to lazyload a list of booking options for autocomplete.
      *
      * @param string $query
+     * @param int $bookingid Optional booking instance id filter
+     * @param int $cmid Optional course module id filter
      * @return array
      */
-    public static function load_booking_options(string $query) {
+    public static function load_booking_options(string $query, int $bookingid = 0, int $cmid = 0) {
 
         global $DB;
 
         $values = explode(' ', $query);
+        $params = [];
+
+        if (empty($bookingid) && !empty($cmid)) {
+            $cmparams = [
+                'cmid' => $cmid,
+                'modname' => 'booking',
+            ];
+            $bookingid = (int)$DB->get_field_sql(
+                "SELECT b.id
+                   FROM {booking} b
+                   JOIN {course_modules} cm ON cm.instance = b.id
+                   JOIN {modules} m ON m.id = cm.module
+                  WHERE cm.id = :cmid
+                    AND m.name = :modname",
+                $cmparams
+            );
+        }
 
         $fullsql = $DB->sql_concat(
             '\' \'',
@@ -4132,9 +4151,14 @@ class booking_option {
                     ON bo.bookingid = b.id
                 ) AS fulltexttable";
 
+        if (!empty($bookingid)) {
+            $sql .= " WHERE id IN (SELECT bo2.id FROM {booking_options} bo2 WHERE bo2.bookingid = :bookingidfilter) ";
+            $params['bookingidfilter'] = $bookingid;
+        }
+
         if (!empty($query)) {
             // We search for every word extra to get better results.
-            $firstrun = true;
+            $firstrun = empty($bookingid);
             $counter = 1;
             foreach ($values as $value) {
                 $sql .= $firstrun ? ' WHERE ' : ' AND ';
