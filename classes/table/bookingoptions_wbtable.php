@@ -1640,4 +1640,26 @@ class bookingoptions_wbtable extends wunderbyte_table {
         }
         return '';
     }
+
+    /**
+     * This function is called for each data row to allow processing of columns which do not have a *_cols function.
+     * @param mixed $colname
+     * @param mixed $values
+     * @return mixed
+     */
+    public function other_cols($colname, $values) {
+        // Show the values of customfields if they have been added as column.
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
+        if (isset($settings->customfieldsfortemplates[$colname]['value'])) {
+            if (
+                is_string($settings->customfieldsfortemplates[$colname]['value'])
+                || is_numeric($settings->customfieldsfortemplates[$colname]['value'])
+            ) {
+                return $settings->customfieldsfortemplates[$colname]['value'];
+            } else if (is_array($settings->customfieldsfortemplates[$colname]['value'])) {
+                return implode(', ', $settings->customfieldsfortemplates[$colname]['value']);
+            }
+        }
+        return $values->$colname ?? '';
+    }
 }
