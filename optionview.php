@@ -143,6 +143,7 @@ if ($settings && !empty($settings->id)) {
     // The isinvisible check ONLY checks the "real" invisible option, not the "visible only with direct link".
     // As the option here is only possible with direct link, we don't need to check this.
 
+
     if ($data->is_invisible()) {
         // If the user does have the capability to see invisible options...
         if (has_capability('mod/booking:canseeinvisibleoptions', $modcontext)) {
@@ -154,6 +155,10 @@ if ($settings && !empty($settings->id)) {
         }
     } else {
         echo $output->render_bookingoption_description_view($data);
+    }
+
+    if (array_key_exists('local_shopping_cart', \core_plugin_manager::instance()->get_installed_plugins('local'))) {
+        $PAGE->requires->js_call_amd('local_shopping_cart/cart', 'buttoninit', [$modalcounter, 'mod_booking']);
     }
 } else {
     $url = new moodle_url('/mod/booking/view.php', ['id' => $cmid]);
