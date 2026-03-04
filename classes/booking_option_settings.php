@@ -22,6 +22,7 @@ use context_user;
 use core_plugin_manager;
 use html_writer;
 use local_entities\entitiesrelation_handler;
+use local_wunderbyte_table\local\customfield\wbt_field_controller_info;
 use mod_booking\bo_availability\bo_subinfo;
 use mod_booking\bo_availability\conditions\subbooking;
 use mod_booking\booking_campaigns\campaigns_info;
@@ -1102,10 +1103,9 @@ class booking_option_settings {
             if (!empty($value)) {
                 $this->customfields[$shortname] = $value;
 
-                if ($type === 'select') {
-                    $options = singleton_service::get_customfields_select_options($fieldid);
-                    $value = $options[$value];
-                }
+                // Use the corresponding field controller to get the real value of the custom field.
+                $fieldcontroller = wbt_field_controller_info::get_instance_by_shortname($shortname);
+                $value = $fieldcontroller->get_option_value_by_key($value);
 
                 // We also return the customfieldsfortemplates where we get the real values of the selects.
                 $this->customfieldsfortemplates[$shortname] = [

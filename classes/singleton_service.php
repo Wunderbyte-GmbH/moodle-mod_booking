@@ -757,41 +757,6 @@ class singleton_service {
 
         return $instance->entities[$id] ?: new stdClass();
     }
-    /**
-     * We store the options of the customfield.
-     *
-     * @param int $fieldid
-     *
-     * @return array
-     *
-     */
-    public static function get_customfields_select_options(int $fieldid): array {
-
-        global $DB;
-
-        $customfields = [];
-        $instance = self::get_instance();
-
-        if (!isset($instance->customfields[$fieldid])) {
-            $field = $DB->get_record('customfield_field', ['id' => $fieldid], 'configdata');
-            $configdata = json_decode($field->configdata, true);
-
-            $options = $configdata['options'];
-            $optionlist = explode("\n", $options);
-            $counter = 1;
-
-            foreach ($optionlist as $option) {
-                $option =
-
-                $customfields[$counter] = trim($option);
-                $counter++;
-            }
-
-            $instance->customfields[$fieldid] = $customfields;
-        }
-
-        return $instance->customfields[$fieldid];
-    }
 
     /**
      * Returns ascending index for userids.
