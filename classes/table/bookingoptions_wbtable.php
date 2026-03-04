@@ -66,6 +66,37 @@ defined('MOODLE_INTERNAL') || die();
  */
 class bookingoptions_wbtable extends wunderbyte_table {
     /**
+     * Customfield columns.
+     * @var array
+     */
+    public $customfieldsinfoarray = [];
+
+    /**
+     * Store additional columns information.
+     * Structure:
+     * keys => shortname of the column or customfield
+     * values => array of arrays with keys:
+     *    'colname' => shortname of the column or customfield,
+     *    'class' => classes for the column, e.g. "text-center",
+     *    'region' => region where the column should be displayed, e.g. "cardbody",
+     *    'iconclass' => iconclass of the icon, e.g. "far fa-wrench",
+     *
+     * @param array $customfieldsinfoarray array of customfield column information
+     */
+    public function set_customfields_info_array(array $customfieldsinfoarray = []): void {
+        $this->customfieldsinfoarray = $customfieldsinfoarray;
+    }
+
+    /**
+     * Get additional customfield columns information.
+     *
+     * @return array of customfield column information
+     */
+    public function get_customfields_info_array(): array {
+        return $this->customfieldsinfoarray ?? [];
+    }
+
+    /**
      * This function is called for each data row to allow processing of the
      * invisible value. It's called 'invisibleoption' so it does not interfere with
      * the bootstrap class 'invisible'.
