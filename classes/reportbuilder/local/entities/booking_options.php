@@ -32,7 +32,7 @@ use core_reportbuilder\local\report\filter;
  * booking option custom fields (component=mod_booking, area=booking).
  *
  * @package    mod_booking
- * @copyright  2026 Your Name
+ * @copyright  Wunderbyte GmbH <https://www.wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class booking_options extends base {

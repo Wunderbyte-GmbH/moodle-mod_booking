@@ -33,7 +33,7 @@ use core_reportbuilder\local\helpers\database;
  * stored value (typically a join on {user_info_data}).
  *
  * @package    mod_booking
- * @copyright  2026 Your Name
+ * @copyright  Wunderbyte GmbH <https://www.wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class profile_field_current_user extends base {
