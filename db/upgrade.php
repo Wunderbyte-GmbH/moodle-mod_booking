@@ -5174,6 +5174,7 @@ function xmldb_booking_upgrade($oldversion) {
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2026013000, 'booking');
     }
+
     if ($oldversion < 2026021100) {
         // Define field completeddate to be added to booking_answers.
         $table = new xmldb_table('booking_answers');
@@ -5185,6 +5186,14 @@ function xmldb_booking_upgrade($oldversion) {
         }
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2026021100, 'booking');
+    }
+
+    if ($oldversion < 2026030500) {
+        // Run a script that deletes all custom fields within the tool_certificate component.
+        delete_customfields_in_tool_certificate_2026030500();
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2026030500, 'booking');
     }
 
     return true;

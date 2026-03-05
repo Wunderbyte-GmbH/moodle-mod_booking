@@ -259,3 +259,30 @@ function migrate_selflearningcourse_json_to_type_2025122201(): void {
         }
     }
 }
+
+/**
+ * Delete custom fields in tool_certificate component.
+ *
+ * @return void
+ */
+function delete_customfields_in_tool_certificate_2026030500(): void {
+    global $DB;
+
+    // Get the categories for this component.
+    $categories = $DB->get_records('customfield_category', ['component' => 'tool_certificate']);
+
+    foreach ($categories as $category) {
+        $categorycontroller = \core_customfield\category_controller::create($category->id);
+        try {
+            $handler = \core_customfield\handler::get_handler(
+                $category->component,
+                $category->area,
+                $category->itemid
+            );
+            $handler->delete_category($categorycontroller);
+        } catch (moodle_exception $e) {
+            // Handler class not found (plugin already removed) — delete directly via API.
+            \core_customfield\api::delete_category($categorycontroller);
+        }
+    }
+}
