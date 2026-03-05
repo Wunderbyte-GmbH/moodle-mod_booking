@@ -160,6 +160,8 @@ class booking_answers extends base {
             ->add_field("{$ba}.waitinglist")
             ->set_is_sortable(true)
             ->add_callback(static function ($value): string {
+                global $CFG;
+                require_once($CFG->dirroot . '/mod/booking/lib.php');
                 switch ($value) {
                     case MOD_BOOKING_STATUSPARAM_BOOKED:
                         return get_string('booked', 'mod_booking');
