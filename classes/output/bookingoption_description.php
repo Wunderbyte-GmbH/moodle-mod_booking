@@ -37,6 +37,7 @@ use mod_booking\booking_option;
 use mod_booking\local\modechecker;
 use mod_booking\option\dates_handler;
 use mod_booking\option\fields\competencies;
+use mod_booking\placeholders\placeholders_info;
 use mod_booking\price;
 use mod_booking\singleton_service;
 use moodle_url;
@@ -403,11 +404,40 @@ class bookingoption_description implements renderable, templatable {
             $customfieldshortname = get_config('booking', 'changedescriptionfield');
             $this->description = $settings->customfields[$customfieldshortname] ?? "";
         }
+
+        // In any case, we replace placeholders in the description.
+        $this->description = placeholders_info::render_text(
+            $this->description,
+            $settings->cmid,
+            $settings->id,
+            $user->id,
+            0,
+            0,
+            0,
+            MOD_BOOKING_DESCRIPTION_OPTIONVIEW,
+            null,
+            false
+        );
+
         // Do the same for internal annotation.
         $this->annotation = $settings->annotation;
 
         // Currently, this will only get the description for the current user.
         $this->statusdescription = $bookingoption->get_text_depending_on_status($bookinganswers);
+
+        // We also replace placeholders in the status description.
+        $this->statusdescription = placeholders_info::render_text(
+            $this->statusdescription,
+            $settings->cmid,
+            $settings->id,
+            $user->id,
+            0,
+            0,
+            0,
+            MOD_BOOKING_DESCRIPTION_OPTIONVIEW,
+            null,
+            false
+        );
 
         // Attachments.
         $this->attachments = booking_option::render_attachments($optionid, 'optionview-bookingoption-attachments mb-3');
@@ -678,7 +708,7 @@ class bookingoption_description implements renderable, templatable {
             'userid' => $this->userid,
             'description' => format_text($this->description),
             'attachments' => $this->attachments,
-            'statusdescription' => $this->statusdescription,
+            'statusdescription' => format_text($this->statusdescription),
             'imageurl' => $this->imageurl,
             'location' => $this->location,
             'address' => $this->address,

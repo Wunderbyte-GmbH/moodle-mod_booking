@@ -19,7 +19,7 @@
  *
  * @package mod_booking
  * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
- * @author Andraž Prinčič
+ * @author Bernhard Fischer, Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

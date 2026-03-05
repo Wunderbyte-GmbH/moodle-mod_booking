@@ -73,6 +73,9 @@ class customfields extends \mod_booking\placeholders\placeholder_base {
         if (
             isset($settings->customfields[$placeholder])
         ) {
+            // TODO: No instantiation of field_controllers necessary! We have to look into customfieldsfortemplates!
+            // there we already have the values created by field controllers in the singleton!
+            // TODO: continue here!
             $classname = "\\local_wunderbyte_table\\local\\customfield\\field\\"
                 . "{$settings->customfieldsfortemplates[$placeholder]['type']}\\wbt_field_controller";
             $record = $settings->customfieldsfortemplates[$placeholder]['field'];
