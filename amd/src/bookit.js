@@ -28,6 +28,7 @@ import {closeModal, closeInline} from 'mod_booking/bookingpage/prepageFooter';
 
 var currentbookitpage = {};
 var totalbookitpages = {};
+var inlineprepageconfig = {};
 
 export var SELECTORS = {
     MODALID: 'sbPrePageModal_',
@@ -48,7 +49,7 @@ export var SELECTORS = {
  */
 export const initbookitbutton = () => {
 
-    const container = document.querySelector('body'); // or a closer wrapper if you know it
+    const container = document.querySelector('body'); // Or a closer wrapper if you know it.
     if (!container) {
         return;
     }
@@ -63,6 +64,9 @@ export const initbookitbutton = () => {
                 return;
             }
 
+            const cancelTarget = e.target.closest('.shopping-cart-cancel-button');
+            const bookTarget = e.target.closest('.btn');
+
             // Ignore disabled buttons
             if (button.classList.contains('disabled')) {
                 return;
@@ -75,7 +79,7 @@ export const initbookitbutton = () => {
 
             const {itemid, area, userid} = button.dataset;
 
-            if (e.target.classList.contains('shopping-cart-cancel-button')) {
+            if (cancelTarget) {
                 import('local_shopping_cart/shistory')
                     .then(shoppingcart => {
                         shoppingcart.confirmCancelModal(button, 0);
@@ -85,8 +89,8 @@ export const initbookitbutton = () => {
                         // eslint-disable-next-line no-console
                         console.error(err);
                     });
-            } else if (e.target.classList.contains('btn')) {
-                if (!e.target.href || e.target.href.length < 2) {
+            } else if (bookTarget) {
+                if (!bookTarget.href || bookTarget.href.length < 2) {
                     bookit(itemid, area, userid, button.dataset);
                 }
             }
@@ -278,52 +282,71 @@ export const initprepageinline = (optionid, userid, totalnumberofpages, uniquid)
     currentbookitpage[optionid] = 0;
     totalbookitpages[optionid] = totalnumberofpages;
 
-    // Retrieve the right button.
-    const buttons = document.querySelectorAll(
-        '[data-itemid="' + optionid + '"]' +
-        '[data-area="option"]'
-    );
+    inlineprepageconfig[optionid] = {
+        userid,
+        uniquid,
+    };
 
-    // Add the click listener to the button.
+    const container = document.querySelector('body');
+    if (!container) {
+        return;
+    }
 
-    buttons.forEach(button => {
+    if (!container.dataset.prepageInlineDelegated) {
+        container.dataset.prepageInlineDelegated = 'true';
 
-        if (button.dataset.initialized) {
-            return;
-        }
+        container.addEventListener('click', e => {
+            const button = e.target.closest(
+                SELECTORS.BOOKITBUTTON +
+                '[data-itemid]' +
+                '[data-area="option"]'
+            );
 
-        button.dataset.initialized = true;
+            if (!button) {
+                return;
+            }
 
-        // eslint-disable-next-line no-console
-        console.log('add listener to button', button, button.dataset.action);
-
-        if (button.querySelector('[data-action="bookondetail"]')) {
             // eslint-disable-next-line no-console
-            console.log('bookondetail abort');
-            return;
-        }
+            console.log('add listener to button', button, button.dataset.action);
 
-        button.addEventListener('click', e => {
+            if (button.querySelector('[data-action="bookondetail"]')) {
+                // eslint-disable-next-line no-console
+                console.log('bookondetail abort');
+                return;
+            }
 
             // eslint-disable-next-line no-console
             console.log('e.target', e.target);
 
+            const optionid = button.dataset.itemid;
+            const config = inlineprepageconfig[optionid];
+
+            if (!config || !config.uniquid) {
+                return;
+            }
+
             // Get the row element.
-            let rowcontainer = e.target.closest('.mod-booking-row');
+            const rowcontainer = button.closest('.mod-booking-row');
+            if (!rowcontainer || !rowcontainer.lastElementChild) {
+                return;
+            }
 
             const transferarea = !rowcontainer.lastElementChild.classList.contains('inlineprepagearea');
             // We move the inlineprepagearea only if we need to.
             if (transferarea) {
-                let inlinediv = returnVisibleElement(optionid, uniquid, SELECTORS.INMODALDIV);
+                const inlinediv = returnVisibleElement(optionid, config.uniquid, SELECTORS.INMODALDIV);
+                if (!inlinediv) {
+                    return;
+                }
 
                 rowcontainer.append(inlinediv.closest('.inlineprepagearea'));
                 // Inlinediv.remove();
 
                 // We need to get all prepage modals on this site. Make sure they are initialized.
-                loadPreBookingPage(optionid, userid, uniquid);
+                loadPreBookingPage(optionid, config.userid, config.uniquid);
             }
         });
-    });
+    }
 };
 
 /**
