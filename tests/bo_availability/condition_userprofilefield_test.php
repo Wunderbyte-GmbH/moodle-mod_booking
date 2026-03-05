@@ -1169,7 +1169,7 @@ final class condition_userprofilefield_test extends advanced_testcase {
             'name' => 'SkillsSameBlock',
         ]);
 
-        // Values: s1 'PHP' (allowed), s2 'PHP, SQL' (allowed), s3 'PHP, Java' (blocked), s4 empty (blocked).
+        // S1: PHP (allowed), s2 PHP, SQL (allowed), s3 PHP, Java (blocked), s4 empty (blocked).
         $DB->insert_record('user_info_data', ['userid' => $student1->id, 'fieldid' => $skills->id, 'data' => 'PHP']);
         $DB->insert_record('user_info_data', ['userid' => $student2->id, 'fieldid' => $skills->id, 'data' => 'PHP, SQL']);
         $DB->insert_record('user_info_data', ['userid' => $student3->id, 'fieldid' => $skills->id, 'data' => 'PHP, Java']);
