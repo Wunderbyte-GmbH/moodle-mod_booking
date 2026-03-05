@@ -237,7 +237,7 @@ class cancelmyself implements bo_condition {
      * @return bool
      */
     public function hard_block(booking_option_settings $settings, $userid): bool {
-        return true;
+        return false;
     }
 
     /**
