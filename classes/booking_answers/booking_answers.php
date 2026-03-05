@@ -870,6 +870,22 @@ class booking_answers {
     }
 
     /**
+     * Get the count of how many times a user has booked this option.
+     *
+     * @param int $userid
+     * @return int
+     */
+    public function get_user_booking_count(int $userid): int {
+        $count = 0;
+        foreach ($this->answers as $answer) {
+            if ($answer->userid == $userid && $answer->waitinglist == MOD_BOOKING_STATUSPARAM_BOOKED) {
+                $count++;
+            }
+        }
+        return $count;
+    }
+
+    /**
      * Helper function to add availability info texts for available places and waiting list.
      *
      * @param  array $bookinginformation reference to booking information array.
