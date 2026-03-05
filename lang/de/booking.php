@@ -2096,7 +2096,8 @@ $string['problemsofcohortorgroupbooking'] = '<br><p>Es konnten nicht alle Buchun
 <ul>
 <li>{$a->notenrolledusers} Nutzer:innen sind nicht in den Kurs eingeschrieben</li>
 <li>{$a->notsubscribedusers} Nutzer:innen konnten aus anderen Gründen nicht gebucht werden</li>
-</ul>';
+</ul>
+<p>Der Grund ist wahrscheinlich, dass die zu Buchenden nicht in diesen Kurs eingeschrieben sind und Sie nicht das Recht mod_booking:bookanyone haben</p>';
 $string['problemwithdate'] = 'Bitte die Daten überprüfen';
 $string['profeatures:appearance'] = '<ul>
 <li><b>Wunderbyte Logo und Link ausblenden</b></li>

@@ -2206,7 +2206,8 @@ $string['problemsofcohortorgroupbooking'] = '<br><p>Not all users could be booke
 <ul>
 <li>{$a->notenrolledusers} users are not enrolled in the course</li>
 <li>{$a->notsubscribedusers} users not booked for other reasons</li>
-</ul>';
+</ul>
+<p>The reason is probably that the users to be booked are not enrolled in this course and you do not have the mod/booking:bookanyone capability</p>';
 $string['problemwithdate'] = 'Please verify dates';
 $string['profeatures:appearance'] = '<ul>
 <li><b>hide Wunderbyte logo and link</b></li>
