@@ -423,8 +423,8 @@ $string['boconduserprofilefieldoperator'] = 'Operator';
 $string['boconduserprofilefieldvalue'] = 'Value';
 $string['bonumberofdays'] = "Number of days";
 $string['bookagain'] = "Book again";
+$string['bookagainwithcountplural'] = 'Book again (already booked {$a} times)';
 $string['bookagainwithcountsingular'] = "Book again (already booked 1 time)";
-$string['bookagainwithcountplural'] = "Book again (already booked {$a} times)";
 $string['bookanyoneswitchoff'] = '<i class="fa fa-user-times" aria-hidden="true"></i> Do not allow booking of users who are not enrolled (recommended)';
 $string['bookanyoneswitchon'] = '<i class="fa fa-user-plus" aria-hidden="true"></i> Allow booking of users who are not enrolled';
 $string['bookanyonewarning'] = 'Be careful: You can now book any users you want. Only use this setting if you know what you are doing.
