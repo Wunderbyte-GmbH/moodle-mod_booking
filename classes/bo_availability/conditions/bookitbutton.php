@@ -277,7 +277,20 @@ class bookitbutton implements bo_condition {
         if ($userid === null) {
             $userid = $USER->id;
         }
-        $label = $this->get_description_string(false, $full, $settings);
+
+        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
+        $bookinginformation = $bookinganswer->return_all_booking_information($userid);
+
+        if (($settings->jsonobject->multiplebookings ?? 0) && isset($bookinginformation['iambooked'])) {
+            $count = $bookinganswer->get_user_booking_count($userid);
+            if ($count == 1) {
+                $label = get_string('bookagainwithcountsingular', 'mod_booking');
+            } else {
+                $label = get_string('bookagainwithcountplural', 'mod_booking', $count);
+            }
+        } else {
+            $label = $this->get_description_string(false, $full, $settings);
+        }
 
         return bo_info::render_button(
             $settings,
