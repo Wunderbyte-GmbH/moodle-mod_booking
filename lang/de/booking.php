@@ -415,6 +415,8 @@ $string['boconduserprofilefieldoperator'] = 'Operator';
 $string['boconduserprofilefieldvalue'] = 'Wert';
 $string['bonumberofdays'] = "Anzahl der tage";
 $string['bookagain'] = 'Erneut buchen';
+$string['bookagainwithcountsingular'] = 'Erneut buchen (bereits 1 Mal gebucht)';
+$string['bookagainwithcountplural'] = 'Erneut buchen (bereits {$a} Mal gebucht)';
 $string['bookanyoneswitchoff'] = '<i class="fa fa-user-times" aria-hidden="true"></i> Buchen von Nutzer:innen, die nicht eingeschrieben sind, nicht erlauben (empfohlen)';
 $string['bookanyoneswitchon'] = '<i class="fa fa-user-plus" aria-hidden="true"></i> Buchen von Nutzer:innen, die nicht eingeschrieben sind, erlauben';
 $string['bookanyonewarning'] = 'Achtung: Sie können nun beliebige Nutzer:innen buchen. Verwenden Sie diese Einstellung nur, wenn Sie genau wissen, was Sie tun.
