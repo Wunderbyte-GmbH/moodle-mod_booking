@@ -235,6 +235,9 @@ class cancelmyself implements bo_condition {
      * @return bool
      */
     public function hard_block(booking_option_settings $settings, $userid): bool {
+        if (empty($settings->jsonobject->multiplebookings ?? 0)) {
+            return true;
+        }
         return false;
     }
 
