@@ -106,7 +106,7 @@ class booking_answers_datasource extends datasource {
 
         // Expose all columns, filters and conditions from every entity.
         $this->add_all_from_entities();
-        $confirmationsupervisor = core_component::get_component_directory('bookingextension_confirmation_supervisor');;
+        $confirmationsupervisor = core_component::get_component_directory('bookingextension_confirmation_supervisor');
         if (!empty($confirmationsupervisor)) {
             $shortname = get_config('bookingextension_confirmation_supervisor', 'supervisor');
             $supervisorfieldid = (int) $DB->get_field('user_info_field', 'id', ['shortname' => $shortname]);
