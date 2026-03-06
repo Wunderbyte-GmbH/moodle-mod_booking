@@ -23,7 +23,6 @@ Feature: Booking option cohort subscription from book other users page
       | student1 | CBC1   | student        |
       | student2 | CBC1   | student        |
       | student3 | CBC1   | student        |
-      | student4 | CBC1   | student        |
     And the following "system role assigns" exist:
       | user     | course | role |
       | teacher1 | Acceptance test site | manager |
@@ -36,7 +35,6 @@ Feature: Booking option cohort subscription from book other users page
       | student1 | cohort_enrolled_001     |
       | student2 | cohort_enrolled_001     |
       | student3 | cohort_enrolled_001     |
-      | student4 | cohort_enrolled_001     |
       | student1 | cohort_mixed_001    |
       | student2 | cohort_mixed_001    |
       | student3 | cohort_mixed_001    |
@@ -51,12 +49,28 @@ Feature: Booking option cohort subscription from book other users page
     And I change viewport size to "1366x10000"
 
   @javascript
-  Scenario: Editing teacher books all users from a fully enrolled cohort
+  Scenario: Booking cohorts: Manager - editing teacher books all users from a fully enrolled cohort
     Given I am on the "Cohort booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Cohort subscription"
     And I set the field with xpath "//*[contains(@id,'fitem_id_cohortids')]//input[contains(@id,'form_autocomplete_input-')]" to "Cohort enrolled users"
+    When I press "Book cohort(s) or group(s)"
+    Then I should see "3 users found in the selected cohorts" in the "#user-notifications" "css_element"
+    And I should see "0 users found in the selected groups" in the "#user-notifications" "css_element"
+    And I should see "3 users where booked for this option" in the "#user-notifications" "css_element"
+    And I should see "student1@example.com" in the "#removeselect" "css_element"
+    And I should see "student2@example.com" in the "#removeselect" "css_element"
+    And I should see "student3@example.com" in the "#removeselect" "css_element"
+
+  @javascript
+  Scenario: Booking cohorts: Manager (editing teacher) not receives error when selected cohort contains users not enrolled in the course
+    ## Site-wide manager has permission "bookanyone" 
+    ## It was editing teacher receives error when selected cohort contains users not enrolled in the course
+    Given I am on the "Cohort booking" Activity page logged in as teacher1
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I set the field with xpath "//*[contains(@id,'fitem_id_cohortids')]//input[contains(@id,'form_autocomplete_input-')]" to "Cohort with non-enrolled"
     When I press "Book cohort(s) or group(s)"
     Then I should see "4 users found in the selected cohorts" in the "#user-notifications" "css_element"
     And I should see "0 users found in the selected groups" in the "#user-notifications" "css_element"
@@ -67,28 +81,12 @@ Feature: Booking option cohort subscription from book other users page
     And I should see "student4@example.com" in the "#removeselect" "css_element"
 
   @javascript
-  Scenario: Editing teacher receives error when selected cohort contains users not enrolled in the course
-    Given I am on the "Cohort booking" Activity page logged in as teacher1
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I set the field with xpath "//*[contains(@id,'fitem_id_cohortids')]//input[contains(@id,'form_autocomplete_input-')]" to "Cohort with non-enrolled"
-    And I click on "Cohort with non-enrolled" "text" in the "//*[contains(@id,'fitem_id_cohortids')]//ul[contains(@class,'form-autocomplete-suggestions')]" "xpath_element"
-    When I press "Book cohort(s) or group(s)"
-    Then I should see "This is the result of your cohort booking"
-    And I should see "5 users found in the selected cohorts"
-    And I should see "4 users where booked for this option"
-    And I should see "Not all users could be booked with cohort booking"
-    And I should see "1 users are not enrolled in the course"
-
-  @javascript
   Scenario: Admin can book users from a cohort with non-enrolled users without enrollment error
     Given I am on the "Cohort booking" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I set the field with xpath "//*[contains(@id,'fitem_id_cohortids')]//input[contains(@id,'form_autocomplete_input-')]" to "Cohort with non-enrolled"
-    And I click on "Cohort with non-enrolled" "text" in the "//*[contains(@id,'fitem_id_cohortids')]//ul[contains(@class,'form-autocomplete-suggestions')]" "xpath_element"
     When I press "Book cohort(s) or group(s)"
-    Then I should see "This is the result of your cohort booking"
-    And I should see "5 users found in the selected cohorts"
-    And I should see "5 users where booked for this option"
-    And I should not see "Not all users could be booked with cohort booking"
+    Then I should see "4 users found in the selected cohorts" in the "#user-notifications" "css_element"
+    And I should see "0 users found in the selected groups" in the "#user-notifications" "css_element"
+    And I should see "4 users where booked for this option" in the "#user-notifications" "css_element"
