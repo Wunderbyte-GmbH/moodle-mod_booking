@@ -59,9 +59,7 @@ class customfields extends \mod_booking\placeholders\placeholder_base {
         array &$params = [],
         string $placeholder = '',
         bool &$fieldexists = true
-    ) {
-
-        // TODO: Add caching (see other placeholders)!
+    ): string {
 
         global $CFG, $DB;
 
@@ -71,22 +69,15 @@ class customfields extends \mod_booking\placeholders\placeholder_base {
         $searchstring = '{' . $placeholder . '}';
 
         if (
-            isset($settings->customfields[$placeholder])
+            isset($settings->customfieldsfortemplates[$placeholder]["value"])
         ) {
-            // TODO: No instantiation of field_controllers necessary! We have to look into customfieldsfortemplates!
-            // there we already have the values created by field controllers in the singleton!
-            // TODO: continue here!
-            $classname = "\\local_wunderbyte_table\\local\\customfield\\field\\"
-                . "{$settings->customfieldsfortemplates[$placeholder]['type']}\\wbt_field_controller";
-            $record = $settings->customfieldsfortemplates[$placeholder]['field'];
-            if (class_exists($classname)) {
-                /** @var \local_wunderbyte_table\local\customfield\wbt_field_controller_base $class */
-                $class = new $classname($record->id, $record);
-                $value = $class->get_option_value_by_key(
-                    $settings->customfields[$placeholder],
-                    true,
-                    false
-                );
+            if (
+                is_string($settings->customfieldsfortemplates[$placeholder]['value'])
+                || is_numeric($settings->customfieldsfortemplates[$placeholder]['value'])
+            ) {
+                $value = $settings->customfieldsfortemplates[$placeholder]['value'];
+            } else if (is_array($settings->customfieldsfortemplates[$placeholder]['value'])) {
+                $value = implode(', ', $settings->customfieldsfortemplates[$placeholder]['value']);
             }
             $text = str_replace($searchstring, $value, $text);
         } else {

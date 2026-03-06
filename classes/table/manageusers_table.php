@@ -24,10 +24,7 @@
  */
 
 namespace mod_booking\table;
-use local_wunderbyte_table\local\customfield\wbt_field_controller_info;
-use mod_booking\customfield\booking_handler;
 use mod_booking\local\certificateclass;
-use mod_booking\option\fields\certificate;
 use moodle_exception;
 use core_plugin_manager;
 use mod_booking\enrollink;

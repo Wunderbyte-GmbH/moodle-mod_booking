@@ -28,7 +28,6 @@ use context_module;
 use context_system;
 use core_plugin_manager;
 use html_writer;
-use local_wunderbyte_table\local\customfield\wbt_field_controller_info;
 use mod_booking\booking;
 use mod_booking\booking_answers\booking_answers;
 use mod_booking\booking_bookit;
@@ -753,16 +752,21 @@ class bookingoption_description implements renderable, templatable {
         // We return all the customfields of the option.
         // But we make sure, the shortname of a customfield does not conflict with an existing key.
         if ($this->customfields) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
             foreach ($this->customfields as $key => $value) {
                 if (!isset($returnarray[$key])) {
-                    // Make sure, print value for arrays will be converted to string.
-                    $printvalue = is_array($value) ? implode(',', $value) : $value;
-
-                    // Get the correct field controller from Wunderbyte table.
-                    $fieldcontroller = wbt_field_controller_info::get_instance_by_shortname($key);
-
-                    // Get the option value from field controller.
-                    $returnarray[$key] = $fieldcontroller->get_option_value_by_key($printvalue);
+                    if (
+                        isset($settings->customfieldsfortemplates[$key]["value"])
+                    ) {
+                        if (
+                            is_string($settings->customfieldsfortemplates[$key]['value'])
+                            || is_numeric($settings->customfieldsfortemplates[$key]['value'])
+                        ) {
+                            $returnarray[$key] = $settings->customfieldsfortemplates[$key]['value'];
+                        } else if (is_array($settings->customfieldsfortemplates[$key]['value'])) {
+                            $returnarray[$key] = implode(', ', $settings->customfieldsfortemplates[$key]['value']);
+                        }
+                    }
                 }
             }
         }

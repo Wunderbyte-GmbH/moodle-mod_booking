@@ -1133,7 +1133,7 @@ class mod_booking_mod_form extends moodleform_mod {
             }
             $mform->setType('maxoptionsfromcategorycount', PARAM_INT);
 
-            $fieldcontroller = wbt_field_controller_info::get_instance_by_shortname($field);
+            $fieldcontroller = wbt_field_controller_info::get_instance_by_shortname($field, 'mod_booking', 'booking');
 
             $records = $fieldcontroller->get_values_array();
             // Extract values into a clean array.

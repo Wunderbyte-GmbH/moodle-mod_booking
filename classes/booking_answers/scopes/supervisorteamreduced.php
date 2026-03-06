@@ -20,7 +20,6 @@ use Exception;
 use mod_booking\customfield\booking_handler;
 use mod_booking\table\manageusers_table;
 use local_wunderbyte_table\wunderbyte_table;
-use local_wunderbyte_table\local\customfield\wbt_field_controller_info;
 
 /**
  * Booking answers scope: supervisor's team.

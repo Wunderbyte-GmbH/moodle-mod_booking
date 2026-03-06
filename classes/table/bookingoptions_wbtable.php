@@ -61,10 +61,16 @@ defined('MOODLE_INTERNAL') || die();
  * Class to handle search results for managers are shown in a table.
  *
  * @package mod_booking
- * @copyright 2023 Wunderbyte GmbH
+ * @copyright 2026 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class bookingoptions_wbtable extends wunderbyte_table {
+    /** @var string component for customfields */
+    public $customfieldcomponent = 'mod_booking';
+
+    /** @var string area used for customfields */
+    public $customfieldarea = 'booking';
+
     /**
      * Customfield columns.
      * @var array

@@ -820,7 +820,7 @@ function booking_add_instance($booking) {
     if (!empty($booking->maxoptionsfromcategoryvalue)) {
         $submitdata = [];
         $field = get_config('booking', 'maxoptionsfromcategoryfield');
-        $fieldcontroller = wbt_field_controller_info::get_instance_by_shortname($field);
+        $fieldcontroller = wbt_field_controller_info::get_instance_by_shortname($field, 'mod_booking', 'booking');
         foreach ($booking->maxoptionsfromcategoryvalue as $id) {
             $localizedstring = $fieldcontroller->get_option_value_by_key($id, false);
             $submitdata[$id] = [
@@ -1171,7 +1171,7 @@ function booking_update_instance($booking) {
     } else if (!empty($booking->maxoptionsfromcategoryvalue)) {
         $submitdata = [];
         $field = get_config('booking', 'maxoptionsfromcategoryfield');
-        $fieldcontroller = wbt_field_controller_info::get_instance_by_shortname($field);
+        $fieldcontroller = wbt_field_controller_info::get_instance_by_shortname($field, 'mod_booking', 'booking');
         foreach ($booking->maxoptionsfromcategoryvalue as $id) {
             $localizedstring = $fieldcontroller->get_option_value_by_key($id, false, true);
             $submitdata[$id] = [

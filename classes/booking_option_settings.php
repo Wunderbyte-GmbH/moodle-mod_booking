@@ -1104,7 +1104,7 @@ class booking_option_settings {
                 $this->customfields[$shortname] = $value;
 
                 // Use the corresponding field controller to get the real value of the custom field.
-                $fieldcontroller = wbt_field_controller_info::get_instance_by_shortname($shortname);
+                $fieldcontroller = wbt_field_controller_info::get_instance_by_shortname($shortname, 'mod_booking', 'booking');
                 $value = $fieldcontroller->get_option_value_by_key($value);
 
                 // We also return the customfieldsfortemplates where we get the real values of the selects.
