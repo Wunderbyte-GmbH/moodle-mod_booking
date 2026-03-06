@@ -565,6 +565,21 @@ class customform implements bo_condition {
 
             $formobject->formtype = $fromform->{$key};
 
+            if ((string)$formobject->formtype === '0') {
+                // Ignore empty placeholder rows.
+                $key = 'bo_cond_customform_select_' . $formcounter . '_' . ($counter + 1);
+                if (!empty($fromform->{$key})) {
+                    $counter++;
+                } else {
+                    if (!empty($newform)) {
+                        $conditionobject->formsarray[$formcounter] = $newform;
+                    }
+                    $newform = [];
+                    $formcounter++;
+                }
+                continue;
+            }
+
             $key = 'bo_cond_customform_label_' . $formcounter . '_' . $counter;
             $formobject->label = $fromform->{$key} ?? null;
 
