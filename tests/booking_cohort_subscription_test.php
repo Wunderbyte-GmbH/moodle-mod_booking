@@ -101,12 +101,12 @@ final class booking_cohort_subscription_test extends advanced_testcase {
         $this->assertEquals(0, $result->notsubscribedusers);
         $this->assertEquals($expectedsubscribed, $result->subscribedusers);
 
-        $bookedanswers = $DB->get_records('booking_answers', [
-            'bookingid' => $data->booking->id,
-            'optionid' => $data->option->id,
-        ]);
+        $settings = singleton_service::get_instance_of_booking_option_settings($data->option->id);
+        $answers = singleton_service::get_instance_of_booking_answers($settings);
+        $bookedusers = $answers->get_usersonlist();
+
         $bookedemails = [];
-        foreach ($bookedanswers as $answer) {
+        foreach ($bookedusers as $answer) {
             $bookedemails[] = $DB->get_field('user', 'email', ['id' => $answer->userid]);
         }
         sort($bookedemails);
