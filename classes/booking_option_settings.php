@@ -1100,24 +1100,22 @@ class booking_option_settings {
             $fieldid = $field->get('id');
             $value = $data->get_value();
 
-            if (!empty($value)) {
-                $this->customfields[$shortname] = $value;
+            $this->customfields[$shortname] = $value;
 
-                // Use the corresponding field controller to get the real value of the custom field.
-                $fieldcontroller = wbt_field_controller_info::get_instance_by_shortname($shortname, 'mod_booking', 'booking');
-                $value = $fieldcontroller->get_option_value_by_key($value);
+            // Use the corresponding field controller to get the real value of the custom field.
+            $fieldcontroller = wbt_field_controller_info::get_instance_by_shortname($shortname, 'mod_booking', 'booking');
+            $value = $fieldcontroller->get_option_value_by_key($value);
 
-                // We also return the customfieldsfortemplates where we get the real values of the selects.
-                $this->customfieldsfortemplates[$shortname] = [
-                    // Store the whole field object too so we can use it instead of DB calls.
-                    'field' => $field->to_record(),
-                    'fieldid' => $fieldid,
-                    'label' => $label,
-                    'key' => $shortname,
-                    'value' => $value,
-                    'type' => $type,
-                ];
-            }
+            // We also return the customfieldsfortemplates where we get the real values of the selects.
+            $this->customfieldsfortemplates[$shortname] = [
+                // Store the whole field object too so we can use it instead of DB calls.
+                'field' => $field->to_record(),
+                'fieldid' => $fieldid,
+                'label' => $label,
+                'key' => $shortname,
+                'value' => $value,
+                'type' => $type,
+            ];
         }
     }
 
