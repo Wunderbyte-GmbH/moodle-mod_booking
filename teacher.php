@@ -49,7 +49,7 @@ $title = get_string('teacher', 'mod_booking');
 $PAGE->navbar->add($title);
 $PAGE->set_title(format_string($title));
 $PAGE->set_heading($title);
-$PAGE->set_pagelayout('standard');
+$PAGE->set_pagelayout('base');
 $PAGE->add_body_class('page-mod-booking-teacher');
 
 echo $OUTPUT->header();

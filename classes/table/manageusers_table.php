@@ -24,6 +24,10 @@
  */
 
 namespace mod_booking\table;
+use local_wunderbyte_table\local\customfield\wbt_field_controller_info;
+use mod_booking\customfield\booking_handler;
+use mod_booking\local\certificateclass;
+use mod_booking\option\fields\certificate;
 use moodle_exception;
 use core_plugin_manager;
 use mod_booking\enrollink;
@@ -124,6 +128,20 @@ class manageusers_table extends wunderbyte_table {
             return '';
         }
         return date('d.m.Y', $values->timemodified);
+    }
+    /**
+     * Return column completeddate.
+     *
+     * @param stdClass $values
+     *
+     * @return string
+     *
+     */
+    public function col_completeddate(stdClass $values): string {
+        if (empty($values->completeddate)) {
+            return '';
+        }
+        return date('d.m.Y', $values->completeddate);
     }
 
      /**
@@ -674,6 +692,77 @@ class manageusers_table extends wunderbyte_table {
     }
 
     /**
+     * Trigger the check for the given users in the given options if the are allowed to recieve a certificate and if so,
+     * issue the one that is stored in the settings.
+     *
+     * @param int $id
+     * @param string $data
+     * @return array
+     */
+    public function action_trigger_certificate_booking_answers(int $id, string $data): array {
+        global $DB;
+
+        $failure = [
+            'success' => 0,
+            'message' => get_string('certificatenotactive', 'mod_booking'),
+            'reload' => 1,
+        ];
+
+        if (
+            !class_exists('tool_certificate\certificate')
+            || !get_config('booking', 'certificateon')
+        ) {
+            return $failure;
+        }
+
+        $jsonobject = json_decode($data);
+
+        $bookinganswerids = $jsonobject->checkedids;
+        $triggered = false;
+        foreach ($bookinganswerids as $bookinganswerid) {
+            if ($answerrecord = $DB->get_record('booking_answers', ['id' => $bookinganswerid])) {
+                $optionid = $answerrecord->optionid;
+
+                $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+                $certificateid = booking_option::get_value_of_json_by_key((int) $settings->id, 'certificate') ?? 0;
+                // Check if certificate is defined.
+                $presenceconfig = get_config('booking', 'presencestatustoissuecertificate');
+                if (
+                    empty($certificateid)
+                    || (!empty($presenceconfig) && $answerrecord->status != $presenceconfig)
+                    || !get_config('booking', 'certificateon')
+                ) {
+                    continue;
+                }
+                if (empty($presenceconfig) && $answerrecord->completed == 0) {
+                    continue;
+                }
+                $triggered = true;
+                certificateclass::issue_certificate($optionid, $answerrecord->userid);
+            } else {
+                throw new moodle_exception(
+                    'invalidanswerid',
+                    'mod_booking',
+                    '',
+                    null,
+                    'Answer ID: ' . $bookinganswerid . ' not found in table booking_answers.'
+                );
+            }
+        }
+
+        if (!$triggered) {
+            $failure['message'] = get_string('certificatenotapplyforusers', 'booking');
+            return $failure;
+        }
+        return [
+            'success' => 1,
+            'message' => get_string('certificatestriggered', 'mod_booking'),
+            'reload' => 1,
+        ];
+    }
+
+    /**
      * This handles the action column with buttons, icons, checkboxes.
      *
      * @param stdClass $values
@@ -687,14 +776,15 @@ class manageusers_table extends wunderbyte_table {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $ba = singleton_service::get_instance_of_booking_answers($settings);
-
         $jsonobject = (!empty($values->json)) ? json_decode($values->json) : null;
 
         if (!empty($jsonobject)) {
             if (!empty($jsonobject->confirmwaitinglist)) {
                 $data[] = [
                     'label' => get_string('unconfirm', 'mod_booking'), // Name of your action button.
-                    'class' => "btn btn-nolabel unconfirmbooking-username-{$values->username} ",
+                    'title' => get_string('unconfirm', 'mod_booking'), // Name of your action button.
+                    'arialabel' => get_string('unconfirm', 'mod_booking'), // Name of your action button.
+                    'class' => "btn btn-nolabel unconfirmbooking-username-{$values->username}",
                     'href' => '#', // You can either use the link, or JS, or both.
                     'iclass' => 'fa fa-ban', // Add an icon before the label.
                     'id' => $values->id,
@@ -747,16 +837,20 @@ class manageusers_table extends wunderbyte_table {
         } else {
             $currentconfirmations = 0;
         }
-
+        $bookingoptionjsonobject = !empty($settings->json) ? json_decode($settings->json) : null;
+        $waitforconfirmation = property_exists($bookingoptionjsonobject, 'waitforconfirmation')
+                                ? $bookingoptionjsonobject->waitforconfirmation : 0;
         if (
                 $allowedtoconfirm
                 && $requiredconfirmations > $currentconfirmations
+                && $waitforconfirmation
         ) {
             $data[] = [
-                'label' => '', // Name of your action button.
+                'arialabel' => get_string('actionbuttonconfirm', 'mod_booking'), // Name of your action button.
+                'title' => get_string('actionbuttonconfirm', 'mod_booking'), // Name of your action button.
                 'class' => "btn btn-nolabel confirmbooking-username-{$values->username} ",
                 'href' => '#', // You can either use the link, or JS, or both.
-                'iclass' => 'fa fa-check', // Add an icon before the label.
+                'iclass' => 'fa fa-thumbs-up', // Add an icon before the label.
                 'id' => $values->id,
                 'name' => $values->id,
                 'methodname' => 'confirmbooking', // The method needs to be added to your child of wunderbyte_table class.
@@ -774,8 +868,9 @@ class manageusers_table extends wunderbyte_table {
 
             // Deny booking Button.
             $data[] = [
-                'label' => '', // Name of your action button.
-                'class' => '',
+                'title' => get_string('actionbuttondeny', 'mod_booking'), // Name of your action button.
+                'arialabel' => get_string('actionbuttondeny', 'mod_booking'), // Name of your action button.
+                'class' => 'btn btn-nolabel',
                 'href' => '#', // You can either use the link, or JS, or both.
                 'iclass' => 'fa fa-thumbs-down', // Add an icon before the label.
                 'id' => $values->id,
@@ -796,8 +891,9 @@ class manageusers_table extends wunderbyte_table {
 
         // Trash booking button.
         $data[] = [
-            'label' => '', // Name of your action button.
-            'class' => '',
+            'title' => get_string('actionbuttondelete', 'mod_booking'), // Name of your action button.
+            'arialabel' => get_string('actionbuttondelete', 'mod_booking'), // Name of your action button.
+            'class' => 'btn btn-nolabel',
             'href' => '#', // You can either use the link, or JS, or both.
             'iclass' => 'fa fa-trash', // Add an icon before the label.
             'id' => $values->id,
@@ -835,7 +931,7 @@ class manageusers_table extends wunderbyte_table {
         global $OUTPUT;
 
         $data[] = [
-            'label' => '', // Name of your action button.
+            'label' => get_string('actionbuttondelete', 'mod_booking'), // Name of your action button.
             'class' => '',
             'href' => '#', // You can either use the link, or JS, or both.
             'iclass' => 'fa fa-trash', // Add an icon before the label.
@@ -933,5 +1029,26 @@ class manageusers_table extends wunderbyte_table {
             'local_wunderbyte_table/component_actionbutton',
             ['showactionbuttons' => $data]
         );
+    }
+
+    /**
+     * This function is called for each data row to allow processing of columns which do not have a *_cols function.
+     *
+     * @param mixed $colname
+     * @param mixed $values
+     *
+     * @return string
+     *
+     */
+    public function other_cols($colname, $values) {
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid);
+        if ($settings->customfields[$colname] ?? false) {
+            if (!isset($values->$colname)) {
+                return '';
+            }
+            return $settings->customfieldsfortemplates[$colname]["value"];
+        } else {
+            return $values->$colname;
+        }
     }
 }

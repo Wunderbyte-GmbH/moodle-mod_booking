@@ -32,6 +32,7 @@ use Exception;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\event\booking_debug;
 use mod_booking\message_controller;
+use mod_booking\singleton_service;
 
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
@@ -81,13 +82,14 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
             if (empty($ruleinstance)) {
                 return;
             }
-
+            $option = singleton_service::get_instance_of_booking_option_settings($taskdata->optionid);
             // The first check needs to be if the rule has changed at all, eg. in any of the set values.
             if (
                 $taskdata->rulejson !== $ruleinstance->rulejson
+                || $option->cmid !== $taskdata->cmid
             ) {
                 $abort = false;
-                if ($ruleinstance->rulename === 'rule_daysbefore') {
+                if (in_array($ruleinstance->rulename, ['rule_daysbefore', 'rule_specifictime'])) {
                     $abort = true;
                 } else {
                     $td = json_decode($taskdata->rulejson);
@@ -101,7 +103,7 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
                 }
                 if ($abort) {
                     mtrace(
-                        'send_mail_by_rule_adhoc task: Rule has changed. Mail was NOT SENT for option.'
+                        'send_mail_by_rule_adhoc task: Rule or Option has changed. Mail was NOT SENT for option.'
                         . $taskdata->optionid
                         . ' and user '
                         . $taskdata->userid

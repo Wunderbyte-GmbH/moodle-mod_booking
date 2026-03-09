@@ -311,9 +311,13 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
      * @covers \mod_booking\booking_rules\rules\rule_react_on_event
      * @covers \mod_booking\booking_rules\actions\send_mail
      *
+     * @dataProvider interval_confirmation_provider
+     *
+     * @param array $data
+     *
      * @return void
      */
-    public function test_auto_booking_of_priced_option_for_first_waitinglist_user_who_has_price_cateroy_free(): void {
+    public function test_auto_booking_of_priced_option_for_first_waitinglist_user_who_has_price_cateroy_free($data): void {
         global $DB;
 
         $this->resetAfterTest();
@@ -391,7 +395,7 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
                 'ordernum' => 1,
                 'name' => 'student',
                 'identifier' => 'student',
-                'defaultvalue' => 0,
+                'defaultvalue' => $data['studentprice'],
                 'pricecatsortorder' => 2,
             ],
         ];
@@ -497,7 +501,7 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
             $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
         }
 
-        // Chekc if 5th student see the fully booked.
+        // Check if 5th student see the fully booked.
         $this->setUser($student[5]);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student[5]->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_FULLYBOOKED, $id);
@@ -534,9 +538,21 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
         $tasks = \core\task\manager::get_adhoc_tasks(\mod_booking\task\send_mail_by_rule_adhoc::class);
         $this->assertNotEmpty($tasks, 'Expected send_mail_by_rule_adhoc adhoc tasks to be created.');
 
+        $time = time_mock::get_mock_time();
+        if ($data['executealltasks']) {
+            // Set this in the far future, so all tasks are being executed.
+            time_mock::set_mock_time(strtotime('+ 30 hours', $time));
+        }
+        $time = time_mock::get_mock_time();
+        $sink = $this->redirectMessages();
         ob_start();
-        $this->runAdhocTasks();
+        $plugingenerator->runtaskswithintime($time);
+        $tasks = \core\task\manager::get_adhoc_tasks(\mod_booking\task\send_mail_by_rule_adhoc::class);
+        // Do this twice because first tasks schedule mails for second mailing.
+        $plugingenerator->runtaskswithintime($time);
+        $messages = $sink->get_messages();
         $res = ob_get_clean();
+        $sink->close();
 
         // Both tasks logged their results, so we check for the string twice.
         $this->assertTrue(substr_count($res, '_by_rule_adhoc') >= 2);
@@ -545,22 +561,97 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
         $answers = singleton_service::get_instance_of_booking_answers($settings);
         $bookedusers = $answers->get_usersonlist();
 
-        $userids = array_map(fn($o) => $o->userid, $bookedusers);
-        $allowed = ["Student 2" => $student[2]->id, "Student 3" => $student[3]->id];
-        foreach ($allowed as $std => $expectedid) {
-            $this->assertContains(
-                $expectedid,
-                $userids,
-                "{$std} not found in booked users."
-            );
+        $this->assertCount($data['nstudentbooked'], $bookedusers);
+
+        if ($data['studentexpectedtobebooked']) {
+            $userids = array_map(fn($o) => $o->userid, $bookedusers);
+            $allowed = ["Student 2" => $student[2]->id, "Student 3" => $student[3]->id];
+            foreach ($allowed as $std => $expectedid) {
+                $this->assertContains(
+                    $expectedid,
+                    $userids,
+                    "{$std} not found in booked users."
+                );
+            }
+            // Check if 5th student see the fully booked.
+            $this->setUser($student[3]);
+            [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student[3]->id, true);
+            $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
         }
+        $this->assertCount($data['mailssend'], $messages, 'wrong number of messages send');
 
-        // Chekc if 5th student see the fully booked.
-        $this->setUser($student[3]);
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student[3]->id, true);
+        // Proceed with the case of manual confirmation.
+        if ($data['szenario'] != 'nouserbookedmanualconfirmation') {
+            return;
+        }
+        // In case all users have prices and all tasks have run through the whole waiting list...
+        // Student 1 remains booked, the other two remain on the waitinglist.
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student[2]->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student[3]->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
+        // Last user on waitinglist is able to book. The task confirmed and there was no unconfirm task.
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student[4]->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
+        // User that was deleted from the list can book on waitinglist again.
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student[1]->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id);
 
-        $this->assertCount(2, $bookedusers, 'Expected exactly 2 booked students.');
+        // Now let's manually confirm the blocked student.
+        $this->setAdminUser();
+        $option->user_submit_response(
+            $student[3],
+            0,
+            0,
+            MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION,
+            MOD_BOOKING_VERIFIED
+        );
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student[3]->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
+    }
+
+    /**
+     * Data provider for condition_bookingpolicy_test
+     *
+     * @return array
+     * @throws \UnexpectedValueException
+     */
+    public static function interval_confirmation_provider(): array {
+        return [
+            'first user on waitinglist no price, book instantly' => [
+                [
+                    'szenario' => 'firstuserbookedinstantly',
+                    'studentprice' => 0,
+                    'executealltasks' => true,
+                    'numberoftasksexecuted' => 2,
+                    'studentexpectedtobebooked' => true,
+                    'nstudentbooked' => 2,
+                    'mailssend' => 0, // Because condition doesn't apply anymore, no free seats as user was booked immediatly.
+                ],
+            ],
+            'first user on waitinglist has price, send mail with confirmation' => [
+                [
+                    'szenario' => 'firstuserbookedconfirmedwithprice',
+                    'studentprice' => 10,
+                    'executealltasks' => false,
+                    'numberoftasksexecuted' => 1,
+                    'studentexpectedtobebooked' => false,
+                    'nstudentbooked' => 1,
+                    'mailssend' => 1,
+                ],
+            ],
+            'all users confirmed, no one booked, manual confirmation' => [
+                [
+                    'szenario' => 'nouserbookedmanualconfirmation',
+                    'studentprice' => 10,
+                    'executealltasks' => true,
+                    'numberoftasksexecuted' => 1,
+                    'studentexpectedtobebooked' => false,
+                    'nstudentbooked' => 1,
+                    'mailssend' => 2,
+                ],
+            ],
+        ];
     }
 
     /**

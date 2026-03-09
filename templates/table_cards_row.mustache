@@ -64,37 +64,37 @@
       "footer": {
         "bookings": {
           "columnkeyclass": "d-none",
-          "columnclass": "text-left text-gray pr-2 font-size-sm",
+          "columnclass": "text-left text-gray pe-2 font-size-sm",
           "columniclassbefore": "fa fa-ticket fa-fw text-gray font-size-sm"
         },
         "minanswers": {
           "columnkeyclass": "d-none",
-          "columnclass": "text-left text-gray pr-2 font-size-sm",
+          "columnclass": "text-left text-gray pe-2 font-size-sm",
           "columniclassbefore": "fa fa-arrow-up fa-fw text-gray font-size-sm"
         },
         "dayofweektime": {
           "columnkeyclass": "d-none",
-          "columnclass": "text-left text-gray pr-2 font-size-sm",
+          "columnclass": "text-left text-gray pe-2 font-size-sm",
           "columniclassbefore": "fa fa-clock-o fa-fw text-gray font-size-sm"
         },
         "location": {
           "columnkeyclass": "d-none",
-          "columnclass": "text-left text-gray  pr-2 font-size-sm",
+          "columnclass": "text-left text-gray  pe-2 font-size-sm",
           "columniclassbefore": "fa fa-map-marker fa-fw text-gray font-size-sm"
         },
         "institution": {
           "columnkeyclass": "d-none",
-          "columnclass": "text-left text-gray  pr-2 font-size-sm",
+          "columnclass": "text-left text-gray  pe-2 font-size-sm",
           "columniclassbefore": "fa fa-building-o fa-fw text-gray font-size-sm"
         },
         "responsiblecontact": {
           "columnkeyclass": "d-none",
-          "columnclass": "text-left text-gray  pr-2 font-size-sm",
+          "columnclass": "text-left text-gray  pe-2 font-size-sm",
           "columniclassbefore": "fa fa-user fa-fw text-gray font-size-sm"
         },
         "showdates": {
           "columnkeyclass": "d-none",
-          "columnclass": "text-left pr-2 text-gray font-size-sm"
+          "columnclass": "text-left pe-2 text-gray font-size-sm"
         },
         "comments": {
           "columnkeyclass": "d-none"
@@ -135,7 +135,7 @@ style="max-width: 25rem;"
         </div>
       {{/value}}
     {{/cardimage}}
-    <div class="{{cardbodyclass}} mt-2 ml-2 mr-2 p-2">
+    <div class="{{cardbodyclass}} mt-2 ms-2 me-2 p-2">
       {{#cardbody}}
         {{#columnclass}}<div class="{{.}}{{#key}} {{key}}{{/key}}">{{/columnclass}}
               <span {{^value}} style="display:none" {{/value}}>
@@ -164,7 +164,7 @@ style="max-width: 25rem;"
         {{#columnclass}}</div>{{/columnclass}}
       {{/cardbody}}
     </div>
-    <div class="mt-2 ml-3 mr-3">
+    <div class="mt-2 ms-3 me-3">
       <div class="{{cardlistclass}}">
         <ul class="infolist">
         {{#cardlist}}

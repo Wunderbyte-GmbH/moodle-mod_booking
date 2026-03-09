@@ -133,7 +133,7 @@ class customform_form extends dynamic_form {
         $mform->addElement('hidden', 'id', $id);
         $mform->addElement('hidden', 'userid', $userid);
 
-        $availability = json_decode($settings->availability);
+        $availability = json_decode($settings->availability ?? '[]');
 
         // Right now, we can only have one condition of type custom field.
         foreach ($availability as $condition) {

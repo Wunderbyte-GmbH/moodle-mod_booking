@@ -30,6 +30,7 @@ use external_api;
 use external_function_parameters;
 use external_value;
 use external_single_structure;
+use mod_booking\permissions;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -66,6 +67,10 @@ class instancetemplate extends external_api {
         global $DB;
 
         $params = self::validate_parameters(self::execute_parameters(), ['id' => $id]);
+
+        if (permissions::has_capability_anywhere() === false) {
+            throw new \moodle_exception('nopermissions', 'error');
+        }
 
         $template = $DB->get_record("booking_instancetemplate", ['id' => $id], '*', IGNORE_MISSING);
 

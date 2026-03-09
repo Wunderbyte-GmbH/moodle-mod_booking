@@ -145,7 +145,7 @@ class timecreated extends field_base {
             $readabletimecreated = userdate($timecreated, get_string('strftimedaydatetime', 'langconfig'));
             $mform->addElement(
                 'html',
-                '<div class="bookingoption-form-timecreated text-muted small ml-4 mt-3">'
+                '<div class="bookingoption-form-timecreated text-muted small ms-4 mt-3">'
                 . get_string('timecreated', 'mod_booking') . ": "
                 . $readabletimecreated . '</div>'
             );

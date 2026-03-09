@@ -708,6 +708,10 @@ if (!$tableallbookings->is_downloading()) {
                     $columns[] = 'allusercertificates';
                 }
                 break;
+            case 'completeddate':
+                $headers[] = get_string('completeddate', component: 'mod_booking');
+                $columns[] = 'completeddate';
+                break;
         }
     }
     $customfields = '';
@@ -856,6 +860,7 @@ if (!$tableallbookings->is_downloading()) {
             ba.waitinglist,
             ba.notes,
             ba.places,
+            ba.completeddate,
             \'\' otheroptions,
             ba.numrec' . $customfields . $shoppingcartfields . $certificatefields;
     $from = ' {booking_answers} ba
@@ -974,7 +979,7 @@ if (!$tableallbookings->is_downloading()) {
         );
         $actionbuttonstop .= "<span>" .
             html_writer::link($url, '<i class="fa fa-users fa-fw" aria-hidden="true"></i>&nbsp;' .
-                get_string('bookotherusers', 'booking'), ['class' => 'btn btn-primary btn-sm mr-2']) .
+                get_string('bookotherusers', 'booking'), ['class' => 'btn btn-primary btn-sm me-2']) .
         "</span>";
     }
 
@@ -989,14 +994,14 @@ if (!$tableallbookings->is_downloading()) {
         if (!empty($mailtolink)) {
             $actionbuttonstop .= "<span>" .
                 html_writer::link($mailtolink, '<i class="fa fa-envelope fa-fw" aria-hidden="true"></i>&nbsp;' .
-                    get_string('sendmailtoallbookedusers', 'booking'), ['class' => 'btn btn-primary btn-sm mr-2']) .
+                    get_string('sendmailtoallbookedusers', 'booking'), ['class' => 'btn btn-primary btn-sm me-2']) .
             "</span>";
         }
     }
 
     // Button to download signin sheet.
     $actionbuttonstop .=
-        '<button class="btn btn-primary btn-sm mr-2" id="downloadsigninsheet-top-btn" buttonaction='
+        '<button class="btn btn-primary btn-sm me-2" id="downloadsigninsheet-top-btn" buttonaction='
         . $bookingoption->booking->settings->toporientation . '>
             <i class="fa fa-download fa-fw" aria-hidden="true"></i>&nbsp;' .
             get_string('signinsheetdownload', 'mod_booking') .
@@ -1263,7 +1268,11 @@ if (!$tableallbookings->is_downloading()) {
 
     // We call the template render to display how many users are in previously booked list.
     $data = new booked_users('option', $optionid, false, false, false, false, false, false, false, true);
-    $previouslybooked = $renderer->render_booked_users($data);
+    if (!empty($data->previouslybooked)) {
+        $previouslybooked = $renderer->render_booked_users($data);
+    } else {
+        $previouslybooked = '';
+    }
 
     if (!empty($previouslybooked)) {
         $contents = html_writer::tag(

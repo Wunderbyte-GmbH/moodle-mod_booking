@@ -48,7 +48,7 @@ $functions = [
         'classname' => 'mod_booking\external\addbookingoption',
         'description' => 'Add Booking option',
         'type' => 'write',
-        'capabilities' => '',
+        'capabilities' => 'mod/booking:updatebooking',
         'ajax' => false,
     ],
     'mod_booking_categories' => [
@@ -166,8 +166,8 @@ $functions = [
     'mod_booking_set_parent_content' => [
         'classname' => 'mod_booking\external\save_option_field_config',
         'description' => 'Returns all possible configurable fields of option form',
-        'type' => 'read',
-        'capabilities' => '',
+        'type' => 'write',
+        'capabilities' => 'mod/booking:editoptionformconfig',
         'ajax' => 1,
     ],
     'mod_booking_set_checked_booking_instance' => [
@@ -183,6 +183,33 @@ $functions = [
         'type'          => 'write',
         'capabilities'  => 'mod/booking:readresponses',
         'ajax'          => 1,
+    ],
+    'mod_booking_submit_performance' => [
+        'classname'     => 'mod_booking\external\performance',
+        'description' => 'Handle performance submit',
+        'type'        => 'write',
+        'ajax'        => 1,
+    ],
+    'mod_booking_get_performance_chart' => [
+        'classname'   => 'mod_booking\external\get_performance_chart',
+        'methodname'  => 'execute',
+        'description' => 'Get performance chart data by hash',
+        'type'        => 'read',
+        'ajax'        => 1,
+    ],
+    'mod_booking_save_measurement' => [
+        'classname'   => 'mod_booking\\external\\save_measurement',
+        'methodname'  => 'execute',
+        'description' => 'Save performance measurement',
+        'type'        => 'write',
+        'ajax'        => 1,
+    ],
+    'mod_booking_delete_measurement' => [
+        'classname'   => 'mod_booking\\external\\delete_measurement',
+        'methodname'  => 'execute',
+        'description' => 'Delete performance measurement',
+        'type'        => 'write',
+        'ajax'        => 1,
     ],
 ];
 

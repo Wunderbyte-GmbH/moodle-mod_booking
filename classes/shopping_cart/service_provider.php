@@ -318,7 +318,6 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
         }
     }
 
-
     /**
      * This cancels an already booked course.
      * @param string $area

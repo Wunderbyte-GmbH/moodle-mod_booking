@@ -65,7 +65,7 @@ echo $OUTPUT->heading(get_string('optionformconfig', 'mod_booking') . " ($name)"
 // Dismissible alert containing the description of the report.
 echo '<div class="alert alert-info alert-dismissible fade show" role="alert">' .
     get_string('optionformconfiginfotext', 'mod_booking') .
-    '<button type="button" class="close btn-close" data-dismiss="alert" data-bs-dismiss="alert" aria-label="Close">
+    '<button type="button" class="btn-close" data-dismiss="alert" data-bs-dismiss="alert" aria-label="Close">
     <span aria-hidden="true">&times;</span>
     </button>
 </div>';

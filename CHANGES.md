@@ -1,3 +1,261 @@
+## Version 9.1.5 (2026030200)
+* New feature: Show groupid in option forms and add possibility to recreate groupid if it's wrong.
+* Improvement: Do not delete SQL queries cache by campaign reset as it is not necessary.
+* Improvement: Append timezone info to displayed time when shown in a different timezone than expected.
+* Improvement: Use userdate instead of date to display the correct datetime.
+* Improvement: Include the timezone in the cache key when generating and caching datetimes to prevent incorrect display across different time zones.
+* Bugfix: Do not delete customfield values on shopping cart checkout for selflearning courses.
+* Bugfix: Add German performance strings and change shortcode name dynamically.
+* Bugfix: Only display certificate button when certificate config is enabled.
+* Bugfix: Add fallback for missing name in price category.
+* Bugfix: Apply format string to booking name in teachers list.
+* Bugfix: Prevent pollurl from defaulting to 0 on non-pro booking versions.
+* Bugfix: Only show previously booked button when records are found.
+* Bugfix: Load new values if old ones are not loaded.
+* Tests: Use set_config to set the timezone in importer tests to cover timezone information in displayed times.
+* Tests: Fix expectations regarding appended timezone information.
+* Tests: Create scenario to verify behavior when forcetimezone is set to a specific timezone.
+* Tests: Add steps to cover appending timezone abbreviation or city name when user is in a different timezone.
+* Tests: Extend unit and Behat tests to verify booking opening and closing times are rendered in the correct timezone.
+* Tests: Fix Behat test steps that check the time of a booking option.
+* Tests: Extend booking_time_zone_test scenario to verify sessions with same timezone and language use a single cache key.
+* Tests: Create Behat and unit tests to verify option dates across different time zones.
+
+## Version 9.1.4 (2026022400)
+* Improvement: Better strings for the “selectusers” booking rule condition.
+* Improvement: Add new shortcode to allow performance testing of webservices.
+* Improvement: Update description for booking time SQL filtering.
+* Improvement: Update booking time filter description in German.
+* Improvement: Add new setting to restrict booking time SQL condition to future options only.
+* Improvement: Allow manageusers table to translate custom field values.
+* Improvement: Make Bootstrap 5 ready and improve usability.
+* Improvement: Fix failing tests.
+* Improvement: Link settings in alert string.
+* Improvement: Slim down function implementation.
+* Improvement: Rename fields and add warning to mform.
+* Improvement: Add logic to freeze fields.
+* Improvement: Implement visibility manager.
+* Improvement: Add setting and refactor get_class method.
+* Improvement: Implement skippable boolean and get_name function for all conditions.
+* Improvement: Add German language strings.
+* Bugfix: Add missing language strings.
+* Bugfix: Do not show confirm button when there is no confirmation workflow.
+* Bugfix: Fix spelling mistakes.
+* Bugfix: Ensure ignored data on CVS import is handled correctly.
+* Bugfix: Fix permission issues.
+* Bugfix: Handle empty values in mustache template correctly.
+* Bugfix: Fix empty navigation element issue.
+* Tests: Add test case for each setting.
+
+## Version 9.1.3 (2026021600)
+* New feature: Add new description placeholder.
+* Improvement: Check capability of a user anywhere in the system.
+* Improvement: Add capabilities check for webservice.
+* Improvement: Validate the sessionkey sent in the service.
+* Improvement: Add capability check to update notes.
+* Improvement: Add more useful help strings to description field settings.
+* Improvement: Harden code for new description classes.
+* Improvement: {title} placeholder now uses same function as {bookingoptionname} placeholder.
+* Improvement: Also use class description_calendarevent in calendar constructor.
+* Improvement: New option booking settings for custom description of calendar events.
+* Improvement: Replace get_rendered_eventdescription with description_calendarevent.
+* Improvement: Apply the user-defined template to description_ical & description_calendarevent.
+* Improvement: Read the user-defined template from the custom field configured in the iCal settings.
+* Improvement: New description classes for each type of context (ical, calendar event, mail, etc.).
+* Improvement: New option in the iCal settings that allows the user to select a custom field as the description field for iCal.
+* Improvement: Get rid of unnecessary settings (iCals are sent by rules now).
+* Bugfix: Fix call of get_options_filter_sql in create_table_for_one_option in order to fix unit test.
+* Bugfix: Make sure we have param4.
+* Bugfix: Check capabilities properly.
+* Bugfix: Dont declare writing service as read.
+* Bugfix: Make sure to require capability for storing performance.
+* Bugfix: Make sure to user proper and secure way of fetching Data.
+* Bugfix: Don't render sql conditions when we only fetch one single option.
+* Bugfix: Make sure invisible options are correctly instantiated.
+* Bugfix: Add missing package tags.
+* Bugfix: Rename behat to validate.
+* Bugfix: Reverted deprecation fix as it is not yet supported by Moodle 4.5.
+* Bugfix: Fix warnings and deprecations in unit test.
+* Bugfix: Fix unit test and linting.
+* Bugfix: Put the descriptions on the same line as their property name in the iCal file, following the PropertyName:PropertyValue rule.
+* Bugfix: Set the correct name of option when reading config in description_calendarevent.
+* Bugfix: Make sure unit test for ical attachments works also with cancelled icals sent with Booking rules.
+* Tests: Improve previously booked test.
+* Tests: Fix test by requiring used constant.
+* Tests: Check access to invisible but previously booked options.
+* Tests: Add unit test for calendar visibility changes.
+* Tests: Clear the cache of the placeholder_info class during test initialization, as data from previous tests remains cached.
+* Tests: Update the PHPUnit tests to reflect the latest changes.
+* Tests: Add test coverage for both description_ical and description_calendarevent classes.
+* Tests: Verify that the rendered description matches the expected output in different scenarios.
+
+## Version 9.1.2 (2026021101)
+* Improvement: When cache for booking option is purged, also purge entities cache for that option.
+* Improvement: Put the interface names in alphabetical order.
+* Improvement: completeddate as new column in bookinganswers.
+* Improvement: Use user profile values directly instead of using queries.
+* Improvement: backup and restore completeddate.
+* Improvement: Use profile values only as sql params for security reason.
+* Bugfix: Fix availability change check by making sure '[]' is always used as default value.
+* Bugfix: Make sure users can instantiate connected options (eg previously booked) even when those are invisible.
+* Bugfix: Fix mariadb error regarding the return_sql function.
+* Tests: Update the Behat scenario to reflect the roundrefundamount setting.
+
+## Version 9.1.1 (2026020500)
+* New feature: Admin sees all options in listtoapprove.
+* New feature: Implemented a mode to switch between one or all other options are required for certificate.
+* New feature: Add new capability 'seealllisttoapprove'.
+* Improvement: Display notes on hover.
+* Improvement: Adding note, adding default hash, adding autocomplete.
+* Improvement: Measurement points equally distributed, Measurements in run order, Actions enable check.
+* Improvement: Add delete measurements for shortcodehash.
+* Improvement: Add multiple measurements during one cycle.
+* Improvement: Add Table for performance measuring.
+* Improvement: Use lines instead of bars.
+* Improvement: Move performance class to correct location.
+* Improvement: Add capabilities view and edit performance.
+* Improvement: Adding actions. Setup pipelines and singletons.
+* Improvement: Setup performance dashboard.
+* Improvement: Change seealllisttoapprove capability context & define new capability for confirmation.
+* Improvement: Let person with seealllisttoapprove to see the answers.
+* Improvement: Admin can see all the answers.
+* Bugfix: Increase wunderbyte table dependency (for sql injection hotfix).
+* Bugfix: Fix wrong parameters for check_for_changes in "easy" fields.
+* Bugfix: Fix JS in dynamicoptionform and selectors for Moodle 5.1 (Bootstrap 5).
+* Bugfix: Fix check_for_changes function to accept null as key.
+* Bugfix: Fix version in upgrade.php after rebase conflicts.
+* Tests: Added new testcase.
+
+## Version 9.1.0 (2026013000)
+* New feature: Demand more than one option completions for a certificate.
+* New feature: Add previously completed functionality.
+* Improvement: Better strings.
+* Improvement: Possibility to trigger certificate in manage users table.
+* Improvement: New certificate_issued event.
+* Improvement: Rebase certificate logic into proper class.
+* Improvement: New condition to select manager of booking to receive message.
+* Improvement: Add more sql conditions.
+* Improvement: General linting and codestyle updates.
+* Bugfix: Use output buffer to fix failing test because of mtrace.
+* Bugfix: Make sure mariadb dialect is correct.
+* Bugfix: We need to call mtrace in unit tests too!
+* Bugfix: use defined PHPUNIT_TEST instead of PHPUNIT_TEST.
+* Bugfix: add missing parameter $nextruntime.
+* Bugfix: Event not showing and certificates button triggering certificate although it is not passing checks.
+* Bugfix: Suche im Angebot geht nicht.
+* Bugfix: Update privacy functions to fix issue.
+* Tests: Add new test to make sure mails are sent in relation to courseenddate, also after course has ended.
+* Tests: extend shopping_cart_installment_test() to validate messages, sent by rule on installment.
+* Tests: Fix tests for event.
+* Tests: Extend test of mail.
+* Tests: adjust behat Scenario "Booking rules" to support update booking manager and rule on uncompletion event.
+* Tests: remove obsolete steps.
+* Tests: adjust phpunit scenario on option completion to support uncompletion and update booking manager.
+* Tests: new phpunit scenario 'Reminder to manager two hours before booking opening time'.
+
+## Version 9.0.9 (2026012700)
+* Improvement: Better handling of confirmation task if status has changed.
+* Improvement: supervisorteamreduced can now delete booking answers from users
+* Improvement: Templates are sorted alphabetically
+* Bugfix: Fallback for bookingrule condition doesn't exist anymore
+* Bugfix: String for name of task
+* Bugfix: Only issue certificate when setting is on
+* Bugfix: Fallback for empty mail message
+* Bugfix: template should have unique identifier
+* New behat Scenario: Booking option template: create one and use it to create new option
+* Tests: phpunit: new class rule_cancellation_test with 4 scenarios
+
+## Version 9.0.8 (2026012000)
+* Improvement: Better wording for visibility.
+* Improvement: added typefilter to mybookings Wunderbyte-GmbH/Wunderbyte.
+* Improvement: Setting to send messages for invisible options.
+* Improvement: Add placeholder optionid.
+* Improvement: Add placeholder type to get bo type 0 normal, 1 selflearning.
+* Improvement: Missing Placeholders do not send mails (Wunderbyte-GmbH/Wunderbyte).
+* Bugfix: Reverted logic for sending messages of invisible option setting.
+* Bugfix: Allow external pollurls with placeholders.
+* Bugfix: Empty cmid does not lead blocking site.
+
+## Version 9.0.7 (2026011600)
+* Improvement: Implement field controllers for customfield placeholders to support more field types (e.g. multiselect dynamic dropdown).
+* Improvement: Optionstoconfirm reduced now show coursestarttime
+* Improvement: Add checklist setting
+* Improvement: Properly url encode everything
+* Bugfix: Remove can_issue check as it fails when called from observer.
+* Bugfix: Make sure optionstoconfirmreduced still work
+* Bugfix: fureonly not working
+* Bugfix: Correctly check for invisible options
+* Bugfix: Fix pollurl collapsible for Bootstrap 5 and improve usability.
+* Bugfix: With previouslybooked condition, if option isn't found block Wunderbyte-GmbH/Wunderbyte-GmbH
+* Bugfix: Correctly check for selflearningcourse in answers Wunderbyte-GmbH/Wunderbyte-GmbH
+* Bugfix: Make double sure that we could actually assign competency on completion
+
+## Version 9.0.6 (2026011400)
+* Bugfix: Make double sure that we could actually assign competency on completion
+* Bugfix: Correctly check for selflearningcourse in answers
+* Bugfix: With previouslybooked condition, if option isn't found block
+
+## Version 9.0.5 (2026010900)
+* Improvement: Don't wrap selflearningcourse information in placeholder in paragraph.
+* Improvement: For better usability, we hide the message button on teacher page if messaging is impossible.
+* Improvement: Backup shopping cart iteminfo if it exists.
+* Bugfix: Fixed default booking image fallback to use the captured default image record instead of the last iterated image.
+* Bugfix: Make sure rules are not executed for self-learning courses if the rule depends on option date(s).
+* Bugfix: Make sure no icals are sent for selflearningcourses.
+* Bugfix: Fix e-mails for self-learning courses.
+* Bugfix: Fix layout for teacher page (should be full width in boost).
+* Bugfix: Fix missing fields in backup stepslib for booking instance.
+
+## Version 9.0.4 (2026010700)
+* New feature: Introduce new booking option type and replace selflearningcourse flag from JSON.
+* New feature: New booking rule for a specific time before or after a chosen date field.
+* New feature: Scheduled emails page for debugging mode.
+* Improvement: Separate booking event for moving up from the waiting list.
+* Improvement: Get entity ID more efficiently.
+* Improvement: Load image URL more efficiently.
+* Improvement: Add placeholders to pollurl and pollurlteachers.
+* Improvement: Use capital letters for labels of German words.
+* Improvement: Define new identifier for actions on booking answer.
+* Improvement: Set title and aria-label for action buttons.
+* Improvement: Update actions column by adding text to buttons and increasing spacing.
+* Improvement: Change column title of actions button.
+* Improvement: Add search and filter functionality on my bookings page.
+* Improvement: My certificates page now shows linked course.
+* Improvement: Make mobile list more robust.
+* Improvement: Cache custom fields.
+* Improvement: Refactor options-to-confirm scope.
+* Improvement: Set localized language strings.
+* Bugfix: Fix image matching for arrays.
+* Bugfix: Fix broken Behat by reverting SQL and using booking_handler for get_value.
+* Bugfix: Remove unnecessary variable.
+* Bugfix: Fix non-deterministic ordering for tied timemodified values causing waiting-list selection to vary.
+* Bugfix: Do not assume that the last element in an array is the one needed.
+* Bugfix: Missing string error.
+* Bugfix: Custom fields of type textformat are supported for certificate creation.
+* Bugfix: Invalidate event log table cache after message was sent.
+* Bugfix: Fix error where cache definition requires simple keys.
+* Bugfix: Unset mobile active tab.
+* Bugfix: Fix wrong display of PRO license status.
+* Bugfix: Adhoc task failed due to missing cache_helper class.
+* Bugfix: Set correct string values for cached scheduled mails cache.
+* Tests: Verify booking rules on specific time for self-learning course.
+* Tests: Verify booking rules on specific time.
+* Tests: Test booking answer moved up from waiting list event with rules.
+* Tests: Modify expected values in Behat test due to refund value changes.
+* Tests: Manually confirm users after confirm_bookinganswer_by_rule adhoc task.
+* Tests: Modify expected values for user credits.
+* Tests: New PHPUnit test for refund value with different cancellation fees.
+* Tests: Reset static variables in PHPUnit tests.
+* Tests: Create methods to reset instances of static variables.
+
+## Version 9.0.3 (2025121200)
+* Bugfix: Don't send mails when CMID of option has changed.
+* Bugfix: Missing format_strings for booking rules.
+* Bugfix: Fix reliability bugs reported by Sonarqube with high severity.
+
+## Version 9.0.2 (2025121100)
+* Bugfix: Fix bugs in Bookings tracker.
+
 ## Version 9.0.1 (2025121000)
 * New feature: Create shortcode for altering a wb_table column.
 * New feature: Add new 'includecustomfields' argument for shortcodes.

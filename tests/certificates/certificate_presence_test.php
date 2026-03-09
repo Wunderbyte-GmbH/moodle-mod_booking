@@ -68,7 +68,7 @@ final class certificate_presence_test extends advanced_testcase {
      * Test issue of certificates when presence changed.
      *
      * @covers \mod_booking\booking_bookit::bookit
-     * @covers \mod_booking\option\fields\certificate::issue_certificate
+     * @covers \mod_booking\local\certificateclass::issue_certificate
      *
      * @param array $data
      * @param array $expected

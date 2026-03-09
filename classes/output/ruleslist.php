@@ -113,9 +113,9 @@ class ruleslist implements renderable, templatable {
                 $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($ruledata->instanceid);
 
                 $rule->courseid = $ruledata->courseid;
-                $rule->coursename = $ruledata->coursename;
+                $rule->coursename = format_string($ruledata->coursename);
                 $rule->linktorulesininstance = $url->out();
-                $rule->bookingname = $bookingsettings->name;
+                $rule->bookingname = format_string($bookingsettings->name);
 
                 $contexts[$rule->contextid] = 1;
                 $this->rulesothercontext[] = (array)$rule;

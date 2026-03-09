@@ -132,6 +132,9 @@ class mobileformbuilder {
         $resetsubmissionform = '';
 
         foreach ($formsarray as $key => $submission) {
+            $submission->headertext = get_string('headerform', 'mod_booking');
+            $submission->canceltext = get_string('cancel', 'mod_booking');
+            $submission->submissiontext = get_string('submit', 'mod_booking');
             $data = [
               'myform' => (array)$submission,
             ];

@@ -25,6 +25,8 @@
 
 namespace mod_booking;
 
+use mod_booking\output\description\description_ical;
+
 /**
  * MOD_BOOKING_DESCRIPTION_ICAL
  *
@@ -168,13 +170,6 @@ class ical {
     protected $userfullname = '';
 
     /**
-     * $attachical
-     *
-     * @var bool
-     */
-    protected $attachical = false;
-
-    /**
      * $individualvevents
      *
      * @var array
@@ -231,44 +226,32 @@ class ical {
             $urlbits = parse_url($CFG->wwwroot);
             $this->host = $urlbits['host'];
             $this->userfullname = \fullname($this->user);
-            $this->attachical = \get_config('booking', 'attachical');
         }
     }
 
     /**
-     * Create attachments to add to the notification email
+     * Create attachments to add to the notification email.
      *
      * @param bool $cancel optional - true to generate a 'cancel' ical event
-     * @return array with filename as key and fielpath as value empty array if no dates are set
+     * @return array with filename as key and field path as value empty array if no dates are set
      */
-    public function get_attachments($cancel = false) {
-        global $CFG;
+    public function get_attachments($cancel = false): array {
         if (!$this->datesareset) {
             return [];
         }
-
-        // UIDs should be globally unique. @$this->host: Hostname for this moodle installation.
-        $uid = md5($CFG->siteidentifier . $this->option->id . 'mod_booking_option') . '@' . $this->host;
-        $dtstart = $this->generate_timestamp($this->option->coursestarttime);
-        $dtend = $this->generate_timestamp($this->option->courseendtime);
 
         if ($cancel) {
             $this->role = 'NON-PARTICIPANT';
             $this->partstat = 'DECLINED';
             $this->status = "\nSTATUS:CANCELLED";
-        }
-
-        // Determine the correct iCal method.
-        if ($cancel) {
+            // Determine the correct iCal method.
             $icalmethod = 'CANCEL';
-        } else if ($this->updated) {
-            $icalmethod = 'REQUEST';
         } else {
             $icalmethod = 'REQUEST';
         }
 
         // This is where we attach the iCal.
-        if (!empty($this->times) && $this->attachical) {
+        if (!empty($this->times)) {
             $this->get_vevents_from_optiondates();
         }
 
@@ -343,10 +326,12 @@ class ical {
         $eventid = false;
         if ($time) {
             // If it's an option date (a session), use the option date's eventid.
-            $fulldescription = get_rendered_eventdescription($this->option->id, $this->booking->cmid, MOD_BOOKING_DESCRIPTION_ICAL);
+            $descriptionical = new description_ical($this->option->id);
+            $fulldescription = $descriptionical->render();
         } else {
             // Use calendarid of the option if it's an option event.
-            $fulldescription = get_rendered_eventdescription($this->option->id, $this->booking->cmid, MOD_BOOKING_DESCRIPTION_ICAL);
+            $descriptionical = new description_ical($this->option->id);
+            $fulldescription = $descriptionical->render();
         }
 
         // Make sure we have not tags in full description.
@@ -366,7 +351,7 @@ class ical {
             $fulldescriptionhtml = str_replace($url, '<a href="' . $url . '">Link</a>', $fulldescriptionhtml);
         }
         // Limit line length to 75 characters.
-        $fulldescriptionhtml = $this->fold_html_line($fulldescriptionhtml);
+        $fulldescriptionhtml = $this->fold_html_line("X-ALT-DESC;FMTTYPE=text/html:" . $fulldescriptionhtml);
 
         $fulldescription = rtrim(strip_tags(preg_replace("/<br>|<\/p>/", "\n", $fulldescription)));
         $fulldescription = str_replace("\n", "\\n", $fulldescription);
@@ -374,7 +359,7 @@ class ical {
         // Remove CR and CRLF from description as the description must be on one line to work with ical.
         $fulldescription = str_replace(["\r\n", "\n", "\r"], ' ', $fulldescription);
         // Limit line length to 75 characters.
-        $fulldescription = $this->fold_line($fulldescription);
+        $fulldescription = $this->fold_line("DESCRIPTION:" . $fulldescription);
 
         // Make sure that we fall back onto some reasonable no-reply address.
         $noreplyaddressdefault = 'noreply@' . get_host_from_url($CFG->wwwroot);
@@ -398,9 +383,7 @@ class ical {
         $veventparts = [
             "BEGIN:VEVENT",
             "CLASS:PUBLIC",
-            "DESCRIPTION:",
-            "{$fulldescription}", // Put the description content in the next line.
-            "X-ALT-DESC;FMTTYPE=text/html:",
+            "{$fulldescription}",
             "{$fulldescriptionhtml}",
             "DTEND:{$dtend}",
             "DTSTAMP:{$this->dtstamp}",

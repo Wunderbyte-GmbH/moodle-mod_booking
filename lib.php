@@ -111,6 +111,10 @@ define('MOD_BOOKING_STATUSPARAM_COMPLETION_CHANGED', 18);
 define('MOD_BOOKING_STATUSPARAM_NOTES_EDITED', 19);
 define('MOD_BOOKING_STATUSPARAM_CONFIRMATION_DELETED', 20);
 
+// Values for Booking Option Types.
+define('MOD_BOOKING_OPTIONTYPE_DEFAULT', 0);
+define('MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE', 1);
+
 // Define booking presence status parameters.
 define('MOD_BOOKING_PRESENCE_STATUS_NOTSET', 0);
 define('MOD_BOOKING_PRESENCE_STATUS_COMPLETE', 1);
@@ -253,6 +257,7 @@ define('MOD_BOOKING_OPTION_FIELD_MULTIPLEBOOKINGS', 165);
 define('MOD_BOOKING_OPTION_FIELD_POLLURL', 170);
 define('MOD_BOOKING_OPTION_FIELD_COURSEID', 180); // Course to enrol to.
 define('MOD_BOOKING_OPTION_FIELD_ENROLMENTSTATUS', 185);
+define('MOD_BOOKING_OPTION_FIELD_GROUPID', 189);
 define('MOD_BOOKING_OPTION_FIELD_ADDTOGROUP', 190);
 define('MOD_BOOKING_OPTION_FIELD_DURATION', 195);
 define('MOD_BOOKING_OPTION_FIELD_ENTITIES', 200);
@@ -391,6 +396,11 @@ define('MOD_BOOKING_RECURRING_APPLY_TO_CHILDREN', 1);
 define('MOD_BOOKING_RECURRING_OVERWRITE_CHILDREN', 2);
 define('MOD_BOOKING_RECURRING_APPLY_TO_SIBLINGS', 3);
 define('MOD_BOOKING_RECURRING_OVERWRITE_SIBLINGS', 4);
+
+// Define booking option visibility status.
+define('MOD_BOOKING_OPTION_VISIBLE', 0);
+define('MOD_BOOKING_OPTION_INVISIBLE', 1);
+define('MOD_BOOKING_OPTION_VISIBLEWITHLINK', 2);
 
 /**
  * Booking get coursemodule info.
@@ -1421,7 +1431,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
             'nav_recalculateprices'
         );
         $navref->add(
-            get_string('teachersinstancereport', 'mod_booking') . " ($bookingsettings->name)",
+            get_string('teachersinstancereport', 'mod_booking') . " (" . format_string($bookingsettings->name) . ")",
             new moodle_url('/mod/booking/teachers_instance_report.php', ['cmid' => $cm->id]),
             navigation_node::TYPE_CUSTOM,
             null,
@@ -1432,7 +1442,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
 
         // Option Form Config.
         $optionformconfignode = $navref->add(
-            get_string('optionformconfig', 'mod_booking') . " ($bookingsettings->name)",
+            get_string('optionformconfig', 'mod_booking') . " (" . format_string($bookingsettings->name) . ")",
             new moodle_url(
                 '/mod/booking/optionformconfig.php',
                 ['cmid' => $cm->id]
@@ -1449,7 +1459,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         // Booking Rules.
         if (has_capability('mod/booking:editbookingrules', $context)) {
             $bookingrulesnode = $navref->add(
-                get_string('bookingrules', 'mod_booking') . " ($bookingsettings->name)",
+                get_string('bookingrules', 'mod_booking') . " (" . format_string($bookingsettings->name) . ")",
                 new moodle_url(
                     '/mod/booking/edit_rules.php',
                     ['cmid' => $cm->id]
@@ -1467,7 +1477,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         // Bookings Tracker.
         if (has_capability('mod/booking:managebookedusers', $context)) {
             $bookingstrackernode = $navref->add(
-                get_string('bookingstracker', 'mod_booking') . " ($bookingsettings->name)",
+                get_string('bookingstracker', 'mod_booking') . " (" . format_string($bookingsettings->name) . ")",
                 new moodle_url(
                     '/mod/booking/report2.php',
                     ['cmid' => $cm->id]
@@ -2520,6 +2530,78 @@ function booking_pretty_duration($seconds) {
         }
     }
     return implode(' ', $durationparts);
+}
+
+/**
+ * Format user date/time and append timezone abbreviation when required.
+ *
+ * Appends the timezone abbreviation only if:
+ * - Users can choose their own timezone (forcetimezone = 99), and
+ * - The user's timezone differs from the site's timezone.
+ *
+ * Falls back to the city name if the abbreviation is non-informative.
+ *
+ * @param int $time Unix timestamp (UTC/GMT).
+ * @param string $format Moodle strftime format string.
+ * @param stdClass|null $user User object (defaults to current user).
+ * @return string
+ */
+function booking_format_userdate_with_timezone_abbr(int $time, string $format, ?stdClass $user = null): string {
+    global $USER;
+
+    if ($user === null) {
+        $user = $USER;
+    }
+
+    // As we need the real timestampt of user, we try to get user's timezone from $user object
+    // as get_user_timezone returns forced timezone if forcetimezone is set.
+    $usertz = !empty($user->timezone)
+        ? $user->timezone
+        : \core_date::get_user_timezone($user); // Fallback to core_date if user timezone is not set.
+
+    $forcetimezone = get_config('core', 'forcetimezone');
+
+    $sitetz = get_config('core', 'timezone');
+    if (empty($sitetz)) {
+        throw new coding_exception('sitetimezoneisnotset', 'core');
+    }
+
+    // Determine which timezone the time is rendered in.
+    $rendertz = ((string)$forcetimezone === '99') ? $usertz : $forcetimezone;
+    $datestr = userdate($time, $format, $rendertz);
+
+    $forcetimezone = (string)$forcetimezone;
+
+    // Decide whether to append timezone info.
+    $shouldappend = false;
+
+    // When forcetimezone is set to a specific timezone and it's different from timezone regardless of users's timezone,
+    // or when forcetimezone is set to "Users can choose their own timezone" and the user has a different timezone,
+    // we append the timezone information.
+    if ($forcetimezone !== '99' && $sitetz !== $forcetimezone) {
+        $shouldappend = true;
+    } else if ($forcetimezone === '99' && $usertz !== $sitetz) {
+        $shouldappend = true;
+    }
+
+    if (!$shouldappend || !is_string($rendertz)) {
+        return $datestr;
+    }
+
+    try {
+        $dt = new DateTime('@' . $time);
+        $dt->setTimezone(new DateTimeZone($rendertz));
+
+        $abbr = $dt->format('T');
+        if (preg_match('/^(GMT.*|\\+\\d{4}|-\\d{4})$/', $abbr)) {
+            $parts = explode('/', $dt->getTimezone()->getName());
+            $abbr = str_replace('_', ' ', end($parts));
+        }
+    } catch (Exception $e) {
+        return $datestr;
+    }
+
+    return $datestr . ' (' . $abbr . ')';
 }
 
 /**

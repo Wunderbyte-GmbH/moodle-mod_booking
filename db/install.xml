@@ -170,6 +170,7 @@
         <FIELD NAME="dayofweek" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="String for reoccurring date series, like 'Friday'."/>
         <FIELD NAME="availability" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Availability restrictions for viewing this booking option, in JSON format. Null if no restrictions."/>
         <FIELD NAME="status" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="If set to 0 - Status is not canceled. 1 - Status is canceld but visible"/>
+        <FIELD NAME="type" TYPE="int" LENGTH="2" NOTNULL="false" SEQUENCE="false" COMMENT="The booking option type."/>
         <FIELD NAME="responsiblecontact" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="credits" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Elective feature."/>
         <FIELD NAME="sortorder" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Elective feature."/>
@@ -204,6 +205,7 @@
         <FIELD NAME="json" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Supplementary information on this booking option json encoded for max flexibility."/>
         <FIELD NAME="timebooked" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="pricecategory" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="completeddate" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -615,6 +617,26 @@
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
+    </TABLE>
+
+    <TABLE NAME="booking_performance_measurements" COMMENT="Save performance measurements">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="starttime" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="endtime" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="shortcodename" TYPE="char" LENGTH="1333" NOTNULL="true" SEQUENCE="false" COMMENT="The measured shortcode string."/>
+        <FIELD NAME="shortcodehash" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Hash value of a shortcode."/>
+        <FIELD NAME="measurementname" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Name of the measurement."/>
+        <FIELD NAME="actions" TYPE="char" LENGTH="1333" NOTNULL="false" SEQUENCE="false" COMMENT="Comma separated ids of actions"/>
+        <FIELD NAME="note" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Added note for explanation or context"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="hashx" UNIQUE="false" FIELDS="shortcodehash" COMMENT="Hashed value index"/>
+        <INDEX NAME="hashnameendx" UNIQUE="false" FIELDS="shortcodehash, endtime"/>
+      </INDEXES>
     </TABLE>
   </TABLES>
 </XMLDB>

@@ -27,6 +27,8 @@ namespace mod_booking;
 
 use calendar_event;
 use Exception;
+use mod_booking\option\fields\description;
+use mod_booking\output\description\description_calendarevent;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -52,35 +54,35 @@ class calendar {
      *
      * @var int
      */
-    const MOD_BOOKING_TYPEUSER = 2;
+    public const MOD_BOOKING_TYPEUSER = 2;
 
     /**
      * MOD_BOOKING_TYPETEACHERADD
      *
      * @var int
      */
-    const MOD_BOOKING_TYPETEACHERADD = 3;
+    public const MOD_BOOKING_TYPETEACHERADD = 3;
 
     /**
      * MOD_BOOKING_TYPETEACHERREMOVE
      *
      * @var int
      */
-    const MOD_BOOKING_TYPETEACHERREMOVE = 4;
+    public const MOD_BOOKING_TYPETEACHERREMOVE = 4;
 
     /**
      * MOD_BOOKING_TYPETEACHERUPDATE
      *
      * @var int
      */
-    const MOD_BOOKING_TYPETEACHERUPDATE = 5;
+    public const MOD_BOOKING_TYPETEACHERUPDATE = 5;
 
     /**
      * MOD_BOOKING_TYPEOPTIONDATE
      *
      * @var int
      */
-    const MOD_BOOKING_TYPEOPTIONDATE = 6;
+    public const MOD_BOOKING_TYPEOPTIONDATE = 6;
 
     /**
      * Class constructor.
@@ -91,7 +93,6 @@ class calendar {
      * @param mixed $type
      * @param int $optiondateid
      * @param int $justbooked
-     *
      */
     public function __construct($cmid, $optionid, $userid, $type, $optiondateid = 0, $justbooked = 0) {
         global $DB;
@@ -247,14 +248,24 @@ class calendar {
             // Add to user calendar.
             $courseid = 0;
             $instance = 0;
-            $visible = 1;
-            $fulldescription = get_rendered_eventdescription($optionid, $cmid, MOD_BOOKING_DESCRIPTION_CALENDAR);
+            if ($settings->invisible == 0) {
+                $visible = 1;
+            } else {
+                $visible = 0;
+            }
+            $descriptioncalendar = new description_calendarevent($optionid, false);
+            $fulldescription = $descriptioncalendar->render();
         } else {
             // Event calendar.
             $courseid = !empty($bookingsettings->course) ? $bookingsettings->course : 0;
             $instance = $settings->bookingid;
-            $visible = instance_is_visible('booking', $bookingsettings);
-            $fulldescription = get_rendered_eventdescription($optionid, $cmid, MOD_BOOKING_DESCRIPTION_CALENDAR);
+            if ($settings->invisible == 0) {
+                $visible = instance_is_visible('booking', $bookingsettings);
+            } else {
+                $visible = 0;
+            }
+            $descriptioncalendar = new description_calendarevent($optionid, false);
+            $fulldescription = $descriptioncalendar->render();
         }
 
         $event = new stdClass();
@@ -339,7 +350,6 @@ class calendar {
             // Add to user calendar.
             $courseid = 0;
             $instance = 0;
-            $visible = 1;
 
             // Get the user language to make sure, calendar entries are set in the right language.
             $user = singleton_service::get_instance_of_user($userid);
@@ -349,20 +359,23 @@ class calendar {
             // If the user is booked, we have a different kind of description.
             $bookedusers = $bookingoption->get_all_users_booked();
             $forbookeduser = isset($bookedusers[$userid]);
-            $fulldescription = get_rendered_eventdescription(
-                $optionid,
-                $cmid,
-                MOD_BOOKING_DESCRIPTION_CALENDAR,
-                $forbookeduser
-            );
+            $descriptioncalendar = new description_calendarevent($optionid, $forbookeduser);
+            $fulldescription = $descriptioncalendar->render();
             // Reset to system language.
             force_current_language($currentlang);
         } else {
             // Event calendar.
             $courseid = !empty($bookingsettings->course) ? $bookingsettings->course : 0;
             $instance = $settings->bookingid;
+            $descriptioncalendar = new description_calendarevent($optionid, false);
+            $fulldescription = $descriptioncalendar->render();
+        }
+
+        // If the optiondate is visible, we still need to check the visibility of the whole booking instance.
+        if ($settings->invisible == 0) {
             $visible = instance_is_visible('booking', $bookingsettings);
-            $fulldescription = get_rendered_eventdescription($optionid, $cmid, MOD_BOOKING_DESCRIPTION_CALENDAR);
+        } else {
+            $visible = 0;
         }
 
         $event = new stdClass();

@@ -85,6 +85,16 @@ class userprofilefield_1_default implements bo_condition {
     }
 
     /**
+     * Reset method to clear the singleton state.
+     *
+     * @return void
+     *
+     */
+    public static function reset_instance(): void {
+        self::$instance = null;
+    }
+
+    /**
      * Constructor.
      *
      * @param ?int $id
@@ -120,6 +130,25 @@ class userprofilefield_1_default implements bo_condition {
      */
     public function is_shown_in_mform(): bool {
         return true;
+    }
+
+    /**
+     * Returns the name of the condition.
+     *
+     * @return string
+     *
+     */
+    public function get_name(): string {
+        return get_string('boconduserprofilefield1default', 'mod_booking');
+    }
+
+    /**
+     * Returns whether the condition is skippable or not.
+     *
+     * @return bool
+     */
+    public function is_skippable(): bool {
+        return false;
     }
 
     /**
@@ -280,9 +309,10 @@ class userprofilefield_1_default implements bo_condition {
      * This will be used if the conditions should not only block booking...
      * ... but actually hide the conditons alltogether.
      * @param int $userid
+     * @param array $params This is the array with parameters for the sql query.
      * @return array
      */
-    public function return_sql(int $userid = 0): array {
+    public function return_sql(int $userid = 0, &$params = []): array {
 
         return ['', '', '', [], ''];
     }

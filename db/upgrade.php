@@ -5123,5 +5123,69 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2025112500, 'booking'); // Update to your new version number.
     }
 
+    if ($oldversion < 2025121900) {
+        // Define field type to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('type', XMLDB_TYPE_INTEGER, '2', null, null, null, null, 'status');
+
+        // Conditionally launch add field type.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2025121900, 'booking');
+    }
+
+    if ($oldversion < 2025122201) {
+        // Migrate old selflearningcourse json flag to new type field.
+        migrate_selflearningcourse_json_to_type_2025122201();
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2025122201, 'booking');
+    }
+
+    if ($oldversion < 2026013000) {
+        // Define table booking_performance_measurements to be created.
+        $table = new xmldb_table('booking_performance_measurements');
+
+        // Adding fields to table booking_performance_measurements.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('starttime', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('endtime', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('shortcodename', XMLDB_TYPE_CHAR, '1333', XMLDB_NOTNULL, null, null, null);
+        $table->add_field('shortcodehash', XMLDB_TYPE_CHAR, '255', XMLDB_NOTNULL, null, null, null);
+        $table->add_field('measurementname', XMLDB_TYPE_CHAR, '255', XMLDB_NOTNULL, null, null, null);
+        $table->add_field('actions', XMLDB_TYPE_CHAR, '1333', null, null, null, null);
+        $table->add_field('note', XMLDB_TYPE_TEXT, null, null, null, null, null);
+
+        // Adding keys to table booking_performance_measurements.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Adding indexes to table booking_performance_measurements.
+        $table->add_index('hashx', XMLDB_INDEX_NOTUNIQUE, ['shortcodehash']);
+        $table->add_index('hashnameendx', XMLDB_INDEX_NOTUNIQUE, ['shortcodehash', 'endtime']);
+
+        // Conditionally launch create table for booking_performance_measurements.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2026013000, 'booking');
+    }
+    if ($oldversion < 2026021100) {
+        // Define field completeddate to be added to booking_answers.
+        $table = new xmldb_table('booking_answers');
+        $field = new xmldb_field('completeddate', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'pricecategory');
+
+        // Conditionally launch add field completeddate.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2026021100, 'booking');
+    }
+
     return true;
 }

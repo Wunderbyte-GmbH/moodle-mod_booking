@@ -230,6 +230,11 @@ class fileparser {
                     $data[$columnname] = $value;
                 }
 
+                // Add the dateformat from settings to data so it can be used in date parsing.
+                if (!empty($this->settings->dateformat)) {
+                    $data['dateparseformat'] = $this->settings->dateformat;
+                }
+
                 // Execute the callback. If this doesn't work, don't treat the record.
                 $callbackresponse = $this->execute_callback($data);
                 if ($callbackresponse['success'] == 0) {

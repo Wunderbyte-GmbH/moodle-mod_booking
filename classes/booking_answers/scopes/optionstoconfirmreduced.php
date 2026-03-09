@@ -69,7 +69,7 @@ class optionstoconfirmreduced extends optionstoconfirm {
         $table = new manageusers_table($tablename);
         if (!empty($customfields)) {
             $customfieldheadings = [];
-            $customfieldsarray = booking_handler::get_customfields([array_values($customfields)]);
+            $customfieldsarray = booking_handler::get_customfields(array_values($customfields));
             foreach ($customfieldsarray as $customfield) {
                 $customfieldheadings[] = $customfield->name;
             }
@@ -100,7 +100,7 @@ class optionstoconfirmreduced extends optionstoconfirm {
             'name' => get_string('fullname', 'core'),
             'text' => get_string('bookingoptionname', 'mod_booking'),
             'action_confirm_delete' => get_string('confirmbooking', 'mod_booking'),
-            'timemodified' => get_string('timecreated', 'core'),
+            'coursestarttime' => get_string('coursestarttime', 'mod_booking'),
         ];
         return $columns;
     }

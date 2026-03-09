@@ -92,7 +92,7 @@
                                                 <h5 class="modal-title" id="descriptionlong-modal-title-{{teacherid}}">
                                                     {{#str}} description, mod_booking {{/str}}
                                                 </h5>
-                                                <button type="button" class="close btn-close" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Close">
+                                                <button type="button" class="btn-close" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Close">
                                                     <span aria-hidden="true">&times;</span>
                                                 </button>
                                             </div>
@@ -132,17 +132,6 @@
                                 <div class="header-button-title">{{#str}} messagebutton, mod_booking {{/str}}</div>
                             </div>
                         </a>
-                        {{/messagingispossible}}
-                        {{^messagingispossible}}
-                        <div data-toggle="tooltip" data-bs-toggle="tooltip" data-placement="top" title="{{#str}} messagingteacherimpossible, mod_booking {{/str}}">
-                            <a id="message-user-button" role="button" class="btn btn-light disabled">
-                                <div>
-                                    <i class="icon fa fa-comment-o fa-fw iconsmall" title="{{#str}} messagebutton, mod_booking {{/str}}"
-                                    role="img" aria-label="{{#str}} messagebutton, mod_booking {{/str}}"></i>
-                                    <div class="header-button-title">{{#str}} messagebutton, mod_booking {{/str}}</div>
-                                </div>
-                            </a>
-                        </div>
                         {{/messagingispossible}}
                     {{/messagesdeactivated}}
                     {{#email}}

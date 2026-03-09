@@ -79,8 +79,11 @@ if (isset($usersonlist[$userid])) {
     echo $OUTPUT->footer();
     return;
 }
-
-$text = placeholders_info::render_text($text, $cmid, $optionid);
+try {
+    $text = placeholders_info::render_text($text, $cmid, $optionid);
+} catch (moodle_exception $e) {
+    $text = $e->getMessage();
+}
 
 echo "{$text}";
 

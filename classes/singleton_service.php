@@ -115,6 +115,9 @@ class singleton_service {
     /** @var array $tempdataforcertificate */
     public array $tempdataforcertificate;
 
+    /** @var array $bookingimagefilerecords */
+    public array $bookingimagefilerecords;
+
 
     /**
      * Constructor
@@ -922,5 +925,34 @@ class singleton_service {
     public static function unset_temp_values_for_certificates() {
         $instance = self::get_instance();
         unset($instance->kswuserid, $instance->kswoptionid);
+    }
+
+    /**
+     * Stores the booking image record statically.
+     *
+     * @param int $bookingid
+     *
+     * @return array
+     *
+     */
+    public static function load_booking_image(int $bookingid) {
+        $instance = self::get_instance();
+
+        return $instance->bookingimagefilerecords[$bookingid] ?? [];
+    }
+
+    /**
+     * Stores the booking image statically
+     *
+     * @param int $bookingid
+     * @param array $filerecords
+     *
+     * @return void
+     *
+     */
+    public static function set_booking_image(int $bookingid, array $filerecords) {
+        $instance = self::get_instance();
+
+        $instance->bookingimagefilerecords[$bookingid] = $filerecords;
     }
 }

@@ -136,6 +136,7 @@ function send_custom_message(int $optionid, string $subject, string $message, ar
             ],
         ]);
         $event->trigger();
+        cache_helper::purge_by_event('setbackeventlogtable');
     }
 
     // Check, if a bulk message has been sent.
@@ -161,6 +162,7 @@ function send_custom_message(int $optionid, string $subject, string $message, ar
                 ],
             ]);
             $event->trigger();
+            cache_helper::purge_by_event('setbackeventlogtable');
         }
     }
 }

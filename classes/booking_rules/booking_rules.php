@@ -58,7 +58,8 @@ class booking_rules {
         // Fetch all rules.
         $rules = self::get_list_of_saved_rules();
         $data = new ruleslist($rules, $contextid, $enableaddbutton);
-        $output = $PAGE->get_renderer('booking');
+        /** @var \mod_booking\output\renderer $output */
+        $output = $PAGE->get_renderer('mod_booking');
         return $output->render_ruleslist($data);
     }
 

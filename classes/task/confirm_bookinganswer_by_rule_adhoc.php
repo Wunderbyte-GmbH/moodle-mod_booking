@@ -50,7 +50,7 @@ class confirm_bookinganswer_by_rule_adhoc extends \core\task\adhoc_task {
      * @throws \coding_exception
      */
     public function get_name() {
-        return get_string('tasksendmailbyruleadhoc', 'mod_booking');
+        return get_string('taskconfirmbookinganswerbymailbyruleadhoc', 'mod_booking');
     }
 
     /**
@@ -82,7 +82,7 @@ class confirm_bookinganswer_by_rule_adhoc extends \core\task\adhoc_task {
 
             // The first check needs to be if the rule has changed at all, eg. in any of the set values.
             if (
-                $ruleinstance->rulename === 'rule_daysbefore'
+                in_array($ruleinstance->rulename, ['rule_daysbefore', 'rule_specifictime'])
                 && ($taskdata->rulejson !== $ruleinstance->rulejson)
             ) {
                 mtrace(
@@ -135,8 +135,15 @@ class confirm_bookinganswer_by_rule_adhoc extends \core\task\adhoc_task {
                 $bookinganswer = $DB->get_record('booking_answers', [
                     'optionid' => $taskdata->optionid,
                     'userid' => $taskdata->userid,
-                    'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
                 ]);
+                if ($bookinganswer->waitinglist != MOD_BOOKING_STATUSPARAM_WAITINGLIST) {
+                    mtrace(
+                        'confirm_bookinganswer_by_rule_adhoc task: booking answer is not on waiting list anymore for option '
+                        . $taskdata->optionid . ' and user ' . $taskdata->userid . PHP_EOL . 'current status is: '
+                        . $bookinganswer->waitinglist
+                    );
+                    return;
+                }
 
                 $user = singleton_service::get_instance_of_user($taskdata->userid);
                 // Get the price for the user.
@@ -163,7 +170,7 @@ class confirm_bookinganswer_by_rule_adhoc extends \core\task\adhoc_task {
                         MOD_BOOKING_STATUSPARAM_WAITINGLIST_CONFIRMED
                     );
 
-                    // Set json to null for all other users on waiting list for this optuion
+                    // Set json to null for all other users on waiting list for this option
                     // in booking answer records if confirmationonnotification is equal to 2.
                     if ($optionsettings->confirmationonnotification == 2) {
                         // Get sprecific booking answer record.

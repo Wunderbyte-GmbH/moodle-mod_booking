@@ -81,6 +81,16 @@ class previouslybooked implements bo_condition {
     }
 
     /**
+     * Reset method to clear the singleton state.
+     *
+     * @return void
+     *
+     */
+    public static function reset_instance(): void {
+        self::$instance = null;
+    }
+
+    /**
      * Constructor.
      *
      * @param ?int $id
@@ -119,6 +129,25 @@ class previouslybooked implements bo_condition {
     }
 
     /**
+     * Returns the name of the condition.
+     *
+     * @return string
+     *
+     */
+    public function get_name(): string {
+        return get_string('bocondpreviouslybooked', 'mod_booking');
+    }
+
+    /**
+     * Returns whether the condition is skippable or not.
+     *
+     * @return bool
+     */
+    public function is_skippable(): bool {
+        return false;
+    }
+
+    /**
      * Determines whether a particular item is currently available
      * according to this availability condition.
      * @param booking_option_settings $settings Item we're checking
@@ -147,11 +176,18 @@ class previouslybooked implements bo_condition {
                 $bookinginformation = $bookinganswer->return_all_booking_information($userid);
 
                 if (isset($bookinginformation['iambooked'])) {
-                    $isavailable = true;
+                    // If completion is required, ensure the user completed the referenced option.
+                    $requirecompletion = !empty($this->customsettings->requirecompletion);
+                    if ($requirecompletion) {
+                        $ba = singleton_service::get_instance_of_booking_answers($optionsettings);
+                        $isavailable = ($ba->is_activity_completed($userid) === 1);
+                    } else {
+                        $isavailable = true;
+                    }
                 }
             } else {
-                // If not, it's always available.
-                $isavailable = true;
+                // If not, it's not available.
+                $isavailable = false;
             }
         }
 
@@ -168,9 +204,10 @@ class previouslybooked implements bo_condition {
      * This will be used if the conditions should not only block booking...
      * ... but actually hide the conditons alltogether.
      * @param int $userid
+     * @param array $params This is the array with parameters for the sql query.
      * @return array
      */
-    public function return_sql(int $userid = 0): array {
+    public function return_sql(int $userid = 0, &$params = []): array {
 
         return ['', '', '', [], ''];
     }
@@ -278,6 +315,18 @@ class previouslybooked implements bo_condition {
             );
             $mform->setType('bo_cond_previouslybooked_optionid', PARAM_INT);
             $mform->hideIf('bo_cond_previouslybooked_optionid', 'bo_cond_previouslybooked_restrict', 'notchecked');
+
+            // Require completion of the selected booking option before allowing booking.
+            $mform->addElement(
+                'advcheckbox',
+                'bo_cond_previouslybooked_requirecompletion',
+                get_string('bocondpreviouslybookedrequirecompletion', 'mod_booking')
+            );
+            $mform->hideIf(
+                'bo_cond_previouslybooked_requirecompletion',
+                'bo_cond_previouslybooked_restrict',
+                'notchecked'
+            );
 
             $mform->addElement(
                 'checkbox',
@@ -391,6 +440,11 @@ class previouslybooked implements bo_condition {
             $conditionobject->class = $classname;
             $conditionobject->optionid = $fromform->bo_cond_previouslybooked_optionid;
 
+            // Persist completion requirement.
+            if (!empty($fromform->bo_cond_previouslybooked_requirecompletion)) {
+                $conditionobject->requirecompletion = 1;
+            }
+
             if (!empty($fromform->bo_cond_previouslybooked_overrideconditioncheckbox)) {
                 $conditionobject->overrides = $fromform->bo_cond_previouslybooked_overridecondition;
                 $conditionobject->overrideoperator = $fromform->bo_cond_previouslybooked_overrideoperator;
@@ -409,6 +463,9 @@ class previouslybooked implements bo_condition {
         if (!empty($acdefault->optionid)) {
             $defaultvalues->bo_cond_previouslybooked_restrict = "1";
             $defaultvalues->bo_cond_previouslybooked_optionid = $acdefault->optionid;
+        }
+        if (!empty($acdefault->requirecompletion)) {
+            $defaultvalues->bo_cond_previouslybooked_requirecompletion = "1";
         }
         if (!empty($acdefault->overrides)) {
             $defaultvalues->bo_cond_previouslybooked_overrideconditioncheckbox = "1";

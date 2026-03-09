@@ -848,26 +848,34 @@ class dates_handler {
         }
         $h = $cache['strings']['h'];
 
-        // Helper closure for caching userdate results.
-        $getdate = function (int $ts, $format) use ($lang, &$cache) {
-            $key = $ts . '|' . (string)$format . '|' . $lang;
+        $timezone = \core_date::get_user_timezone();
+
+        // Helper closure for caching date-only userdate results.
+        $getdate = function (int $ts, $format) use ($lang, $timezone, &$cache) {
+            $key = $ts . '|' . (string)$format . '|' . $lang . '|' . $timezone;
             if (!isset($cache['dates'][$key])) {
-                $cache['dates'][$key] = userdate($ts, $format);
+                $cache['dates'][$key] = userdate($ts, $format, $timezone);
             }
             return $cache['dates'][$key];
         };
 
         $date = new stdClass();
         $date->starttimestamp = $starttime;
-        $date->starttime      = $getdate($starttime, $formats['time']);
+        $date->starttime      = booking_format_userdate_with_timezone_abbr($starttime, $formats['time']);
         $date->startdate      = $getdate($starttime, $showweekdays ? $formats['daydate'] : $formats['date']);
-        $date->startdatetime  = $getdate($starttime, $showweekdays ? $formats['daydatetime'] : $formats['datetime']);
+        $date->startdatetime  = booking_format_userdate_with_timezone_abbr(
+            $starttime,
+            $showweekdays ? $formats['daydatetime'] : $formats['datetime']
+        );
 
         if ($endtime) {
             $date->endtimestamp = $endtime;
-            $date->endtime      = $getdate($endtime, $formats['time']);
+            $date->endtime      = booking_format_userdate_with_timezone_abbr($endtime, $formats['time']);
             $date->enddate      = $getdate($endtime, $showweekdays ? $formats['daydate'] : $formats['date']);
-            $date->enddatetime  = $getdate($endtime, $showweekdays ? $formats['daydatetime'] : $formats['datetime']);
+            $date->enddatetime  = booking_format_userdate_with_timezone_abbr(
+                $endtime,
+                $showweekdays ? $formats['daydatetime'] : $formats['datetime']
+            );
         }
 
         // HTML output.

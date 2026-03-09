@@ -50,12 +50,12 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class provider implements
+    // This plugin stores personal data.
+    \core_privacy\local\metadata\provider,
     // This plugin is capable of determining which users have data within it.
     \core_privacy\local\request\core_userlist_provider,
     // This plugin is a core_user_data_provider.
-    \core_privacy\local\request\plugin\provider,
-    // This plugin stores personal data.
-    \core_privacy\local\metadata\provider {
+    \core_privacy\local\request\plugin\provider {
     /**
      * Return the fields which contain personal data.
      *
@@ -173,6 +173,50 @@ class provider implements
                 'timemodified' => 'privacy:metadata:bookingodtdeductions:timemodified',
             ],
             'privacy:metadata:bookingodtdeductions'
+        );
+
+        $collection->add_database_table(
+            'booking_enrollink_bundles',
+            [
+                'courseid' => 'privacy:metadata:bookingenrollinkbundles:courseid',
+                'userid' => 'privacy:metadata:bookingenrollinkbundles:userid',
+                'timecreated' => 'privacy:metadata:bookingenrollinkbundles:timecreated',
+                'places' => 'privacy:metadata:bookingenrollinkbundles:places',
+                'erlid' => 'privacy:metadata:bookingenrollinkbundles:erlid',
+                'timemodified' => 'privacy:metadata:bookingenrollinkbundles:timemodified',
+                'usermodified' => 'privacy:metadata:bookingenrollinkbundles:usermodified',
+                'baid' => 'privacy:metadata:bookingenrollinkbundles:baid',
+                'optionid' => 'privacy:metadata:bookingenrollinkbundles:optionid',
+            ],
+            'privacy:metadata:bookingenrollinkbundles'
+        );
+
+        $collection->add_database_table(
+            'booking_enrollink_items',
+            [
+                'erlid' => 'privacy:metadata:bookingenrollinkitems:erlid',
+                'userid' => 'privacy:metadata:bookingenrollinkitems:userid',
+                'consumed' => 'privacy:metadata:bookingenrollinkitems:consumed',
+                'timecreated' => 'privacy:metadata:bookingenrollinkitems:timecreated',
+                'timemodified' => 'privacy:metadata:bookingenrollinkitems:timemodified',
+            ],
+            'privacy:metadata:bookingenrollinkitems'
+        );
+
+        $collection->add_database_table(
+            'booking_optiondates_answers',
+            [
+                'optiondateid' => 'privacy:metadata:bookingoptiondatesanswers:optiondateid',
+                'optionid' => 'privacy:metadata:bookingoptiondatesanswers:optionid',
+                'userid' => 'privacy:metadata:bookingoptiondatesanswers:userid',
+                'status' => 'privacy:metadata:bookingoptiondatesanswers:status',
+                'json' => 'privacy:metadata:bookingoptiondatesanswers:json',
+                'notes' => 'privacy:metadata:bookingoptiondatesanswers:notes',
+                'usermodified' => 'privacy:metadata:bookingoptiondatesanswers:usermodified',
+                'timecreated' => 'privacy:metadata:bookingoptiondatesanswers:timecreated',
+                'timemodified' => 'privacy:metadata:bookingoptiondatesanswers:timemodified',
+            ],
+            'privacy:metadata:bookingoptiondatesanswers'
         );
 
         return $collection;
@@ -461,6 +505,18 @@ class provider implements
 
         // Add users with entries in ical sequence table.
         $userlist->add_from_sql('userid', "SELECT userid FROM {booking_icalsequence}", []);
+
+        // Add users with booking_subbooking_answers.
+        $userlist->add_from_sql('userid', "SELECT userid FROM {booking_subbooking_answers}", []);
+
+        // Add users with booking_odt_deductions.
+        $userlist->add_from_sql('userid', "SELECT userid FROM {booking_odt_deductions}", []);
+
+        // Add users with booking_optiondates_answers.
+        $userlist->add_from_sql('userid', "SELECT userid FROM {booking_optiondates_answers}", []);
+
+        // Add users with booking_history.
+        $userlist->add_from_sql('userid', "SELECT userid FROM {booking_history}", []);
     }
 
     /**
@@ -499,5 +555,9 @@ class provider implements
         $DB->delete_records_select('booking_userevents', $select, $params);
         $DB->delete_records_select('booking_ratings', $select, $params);
         $DB->delete_records_select('booking_icalsequence', $select, $params);
+        $DB->delete_records_select('booking_subbooking_answers', $select, $params);
+        $DB->delete_records_select('booking_odt_deductions', $select, $params);
+        $DB->delete_records_select('booking_icalsequence', $select, $params);
+        $DB->delete_records_select('booking_optiondates_answers', $select, $params);
     }
 }

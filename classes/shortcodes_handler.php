@@ -215,7 +215,7 @@ class shortcodes_handler {
         includecustomfields="cfshortname1,cfshortname2"
         It is also possible to include regions, class, icons and iconclass like this:
         includecustomfields="<customfieldshortname>|<region>|<iconclass1>|<iconclass2>|<classes>,..."
-        example: includecustomfields="cfshortname1|cardbody|far|fa-wrennch,cfshortname2|cardheader|fas|fa-user|text-center"
+        example: includecustomfields="cfshortname1|cardbody|far|fa-wrench,cfshortname2|cardheader|fas|fa-user|text-center"
         */
         if (empty($args['includecustomfields'])) {
             return [];

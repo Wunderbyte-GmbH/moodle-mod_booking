@@ -86,6 +86,25 @@ class booking_time implements bo_condition {
     }
 
     /**
+     * Returns the name of the condition.
+     *
+     * @return string
+     *
+     */
+    public function get_name(): string {
+        return get_string(identifier: 'bocondbookingtime', component: 'mod_booking');
+    }
+
+    /**
+     * Returns whether the condition is skippable or not.
+     *
+     * @return bool
+     */
+    public function is_skippable(): bool {
+        return false;
+    }
+
+    /**
      * Determines whether a particular item is currently available
      * according to this availability condition.
      * @param booking_option_settings $settings Item we're checking
@@ -131,29 +150,45 @@ class booking_time implements bo_condition {
      * This will be used if the conditions should not only block booking...
      * ... but actually hide the conditons alltogether.
      * @param int $userid
+     * @param array $params This is the array with parameters for the sql query.
      * @return array
      */
-    public function return_sql(int $userid = 0): array {
-        $where = "(
-                    sqlfilter <> 2
+    public function return_sql(int $userid = 0, &$params = []): array {
+        if (!empty(get_config('booking', 'sqlfilterbookingtimeonlypast'))) {
+            $where = "(
+                        sqlfilter <> 2
 
-                    OR (
-                        (bookingopeningtime < 1 OR bookingopeningtime < :bookingopeningtimenow1)
-                        AND (bookingclosingtime < 1 OR bookingclosingtime > :bookingopeningtimenow2)
-                    )
-                  )";
+                        OR (
+                            bookingclosingtime < 1 OR bookingclosingtime > :bookingopeningtimenow2
+                        )
+                      )";
 
-        // Using realtime here would destroy our caching.
-        // Cache would be invalidated every second.
-        // Therefore, the filter of bookingopeningtime goes on the timestamp of 00:00.
-        // Closing on 23:59.
-        $nowstart = strtotime('today 00:00');
-        $nowend = strtotime('today 23:59');
+            // Using realtime here would destroy our caching.
+            // Cache would be invalidated every second.
+            // Therefore, closing goes on timestamp of 23:59.
+            $nowend = strtotime('today 23:59');
 
-        $params = [
-            'bookingopeningtimenow1' => $nowstart,
-            'bookingopeningtimenow2' => $nowend,
-        ];
+            $params['bookingopeningtimenow2'] = $nowend;
+        } else {
+            $where = "(
+                        sqlfilter <> 2
+
+                        OR (
+                            (bookingopeningtime < 1 OR bookingopeningtime < :bookingopeningtimenow1)
+                            AND (bookingclosingtime < 1 OR bookingclosingtime > :bookingopeningtimenow2)
+                        )
+                      )";
+
+            // Using realtime here would destroy our caching.
+            // Cache would be invalidated every second.
+            // Therefore, the filter of bookingopeningtime goes on the timestamp of 00:00.
+            // Closing on 23:59.
+            $nowstart = strtotime('today 00:00');
+            $nowend = strtotime('today 23:59');
+
+            $params['bookingopeningtimenow1'] = $nowstart;
+            $params['bookingopeningtimenow2'] = $nowend;
+        }
 
         return ['', '', '', $params, $where];
     }
@@ -254,7 +289,21 @@ class booking_time implements bo_condition {
         $mform->addElement(
             'advcheckbox',
             'bo_cond_booking_time_sqlfiltercheck',
-            get_string('sqlfiltercheckstring', 'mod_booking')
+            !empty(get_config('booking', 'sqlfilterbookingtimeonlypast'))
+                ? get_string('sqlfiltercheckstringbookingtimeclosingonly', 'mod_booking')
+                : get_string('sqlfiltercheckstringbookingtimeopeningandclosing', 'mod_booking')
+        );
+        $mform->addHelpButton(
+            'bo_cond_booking_time_sqlfiltercheck',
+            'sqlfilterbookingtimeonlypast',
+            'mod_booking',
+            '',
+            false,
+            new \moodle_url(
+                '/admin/settings.php',
+                ['section' => 'modsettingbooking'],
+                'admin-sqlfilterbookingtimeonlypast'
+            )
         );
 
         // Override conditions should not be necessary here - but let's keep it if we change our mind.
@@ -386,10 +435,10 @@ class booking_time implements bo_condition {
             // Localized time format.
             switch (current_language()) {
                 case 'de':
-                    $timeformat = "d.m.Y, H:i";
+                    $timeformat = "%d %B %Y, %H:%M";
                     break;
                 default:
-                    $timeformat = "F j, Y, g:i a";
+                    $timeformat = "%B %e, %Y, %l:%M %P";
                     break;
             }
 
@@ -398,13 +447,13 @@ class booking_time implements bo_condition {
 
             $description = '';
             if (!empty($openingtime) && time() < $openingtime) {
-                $openingdatestring = date($timeformat, $openingtime);
+                $openingdatestring = userdate((int) $openingtime, $timeformat);
                 $description .= $full ?
                     get_string('bocondbookingopeningtimefullnotavailable', 'mod_booking', $openingdatestring) :
                     get_string('bocondbookingopeningtimenotavailable', 'mod_booking', $openingdatestring);
             }
             if (!empty($closingtime) && time() > $closingtime) {
-                $closingdatestring = date($timeformat, $closingtime);
+                $closingdatestring = userdate((int) $closingtime, $timeformat);
                 $description .= $full ?
                     get_string('bocondbookingclosingtimefullnotavailable', 'mod_booking', $closingdatestring) :
                     get_string('bocondbookingclosingtimenotavailable', 'mod_booking', $closingdatestring);

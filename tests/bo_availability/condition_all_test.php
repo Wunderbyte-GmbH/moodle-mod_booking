@@ -148,7 +148,7 @@ final class condition_all_test extends advanced_testcase {
         // Booking is impossible for studnet2 because he does not have 'mod/booking:choose' capability (not enrolled in course).
         $this->setUser($student2);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, false);
-        $this->assertEquals(MOD_BOOKING_CONDPARAM_CANBEOVERRIDDEN, $id);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CAPBOOKINGCHOOSE, $id);
         $this->assertEquals(false, $isavailable);
         $this->assertEquals("No right to book", $description);
 
@@ -933,6 +933,9 @@ final class condition_all_test extends advanced_testcase {
      */
     public function test_booking_bookit_cohorts_and_bookingtime(array $bdata): void {
         global $DB, $CFG;
+
+        // Make sure SQL filter for availability is enabled for this test.
+        set_config('usesqlfilteravailability', 1, 'booking');
 
         $bdata['cancancelbook'] = 1;
 

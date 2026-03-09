@@ -26,6 +26,7 @@ namespace mod_booking\bo_availability;
 
 use context_module;
 use context_system;
+use core_component;
 use local_shopping_cart\shopping_cart;
 use local_wunderbyte_table\local\helper\actforuser;
 use mod_booking\booking;
@@ -187,10 +188,11 @@ class bo_info {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        $conditions = self::get_conditions(MOD_BOOKING_CONDPARAM_HARDCODED_ONLY);
+        $conditions = self::get_available_conditions(MOD_BOOKING_CONDPARAM_HARDCODED_ONLY);
 
         if (!empty($settings->availability)) {
             $availabilityarray = json_decode($settings->availability);
+            self::exclude_conditions($availabilityarray);
 
             // If the json is not valid, we throw an error.
             if (!is_array($availabilityarray) && (!$availabilityarray || empty($availabilityarray))) {
@@ -415,10 +417,13 @@ class bo_info {
         $mform->addElement('header', 'availabilityconditions', get_string('availabilityconditionsheader', 'mod_booking'));
 
         $conditions = self::get_conditions(MOD_BOOKING_CONDPARAM_MFORM_ONLY);
-
+        $visibilitymanager = new condition_visibility_manager();
         foreach ($conditions as $condition) {
             // For each condition, add the appropriate form fields.
             $condition->add_condition_to_mform($mform, $optionid, $moodleform);
+            if ($visibilitymanager->is_condition_skipped($condition->id)) {
+                $visibilitymanager->disable_elements_in_mform($mform, $condition->id);
+            }
         }
     }
 
@@ -504,8 +509,14 @@ class bo_info {
      */
     public static function return_sql_from_conditions(int $userid) {
         global $PAGE;
+
+        // Check if SQL filter for availability conditions is enabled.
+        if (!get_config('booking', 'usesqlfilteravailability')) {
+            return ['', '', '', [], ''];
+        }
+
         // First, we get all the relevant conditions.
-        $conditions = self::get_conditions(MOD_BOOKING_CONDPARAM_MFORM_ONLY);
+        $conditions = self::get_available_conditions(MOD_BOOKING_CONDPARAM_MFORM_ONLY);
         $selectall = '';
         $fromall = '';
         $filterall = '';
@@ -534,7 +545,7 @@ class bo_info {
                 $condition = new $class();
             }
 
-            [$select, $from, $filter, $params, $where] = $condition->return_sql($userid);
+            [$select, $from, $filter, $params, $where] = $condition->return_sql($userid, $paramsarray);
 
             $selectall .= $select;
             $fromall .= $from;
@@ -564,9 +575,7 @@ class bo_info {
 
         // For performance reason we have a flag if we need to check the value at all.
         $where = " (
-                        sqlfilter < 1 OR $bypass (
-                            $where
-                            )
+                        sqlfilter < 1 OR $bypass $where
                         )
                         ";
 
@@ -586,55 +595,62 @@ class bo_info {
 
         global $CFG;
 
-        // First, we get all the available conditions from our directory.
-        $path = $CFG->dirroot . '/mod/booking/classes/bo_availability/conditions/*.php';
-        $filelist = glob($path);
-
+        $classes = self::get_condition_classes();
         $conditions = [];
 
         // We just want filenames, as they are also the classnames.
-        foreach ($filelist as $filepath) {
-            $path = pathinfo($filepath);
-            $filename = 'mod_booking\\bo_availability\\conditions\\' . $path['filename'];
-
-            // We instantiate all the classes, because we need some information.
-            if (class_exists($filename)) {
-                if (method_exists($filename, 'instance')) {
-                    $instance = $filename::instance();
-                } else {
-                    $instance = new $filename();
-                }
-
-                switch ($condparam) {
-                    case MOD_BOOKING_CONDPARAM_HARDCODED_ONLY:
-                        if ($instance->is_json_compatible() === false) {
-                            $conditions[] = $instance;
-                        }
-                        break;
-                    case MOD_BOOKING_CONDPARAM_JSON_ONLY:
-                        if ($instance->is_json_compatible() === true) {
-                            $conditions[] = $instance;
-                        }
-                        break;
-                    case MOD_BOOKING_CONDPARAM_MFORM_ONLY:
-                        if ($instance->is_shown_in_mform()) {
-                            $conditions[] = $instance;
-                        }
-                        break;
-                    case MOD_BOOKING_CONDPARAM_CANBEOVERRIDDEN:
-                        if (isset($instance->overridable) && $instance->overridable === true) {
-                            $conditions[] = $instance;
-                        }
-                        break;
-                    case MOD_BOOKING_CONDPARAM_ALL:
-                    default:
+        foreach ($classes as $classname => $path) {
+            if (!class_exists($classname)) {
+                continue;
+            }
+            if (method_exists($classname, 'instance')) {
+                $instance = $classname::instance();
+            } else {
+                $instance = new $classname();
+            }
+            switch ($condparam) {
+                case MOD_BOOKING_CONDPARAM_HARDCODED_ONLY:
+                    if ($instance->is_json_compatible() === false) {
                         $conditions[] = $instance;
-                        break;
-                }
+                    }
+                    break;
+                case MOD_BOOKING_CONDPARAM_JSON_ONLY:
+                    if ($instance->is_json_compatible() === true) {
+                        $conditions[] = $instance;
+                    }
+                    break;
+                case MOD_BOOKING_CONDPARAM_MFORM_ONLY:
+                    if ($instance->is_shown_in_mform()) {
+                        $conditions[] = $instance;
+                    }
+                    break;
+                case MOD_BOOKING_CONDPARAM_CANBEOVERRIDDEN:
+                    if (isset($instance->overridable) && $instance->overridable === true) {
+                        $conditions[] = $instance;
+                    }
+                    break;
+                case MOD_BOOKING_CONDPARAM_ALL:
+                default:
+                    $conditions[] = $instance;
+                    break;
             }
         }
 
         return $conditions;
+    }
+
+    /**
+     * Gets the available conditions depending on settings.
+     *
+     * @param int $condparam
+     *
+     * @return array
+     *
+     */
+    public static function get_available_conditions(int $condparam = MOD_BOOKING_CONDPARAM_ALL): array {
+        $allconditions = self::get_conditions($condparam);
+        self::exclude_conditions($allconditions);
+        return $allconditions;
     }
 
     /**
@@ -649,7 +665,6 @@ class bo_info {
         if (class_exists($filename)) {
             return new $filename();
         }
-
         return null;
     }
 
@@ -1458,5 +1473,56 @@ class bo_info {
         }
 
         return $foruser;
+    }
+    /**
+     * Fetches all skippable conditions for settings page.
+     *
+     * @return array
+     *
+     */
+    public static function get_skippable_conditions() {
+        $conditions = [];
+        $classes = self::get_condition_classes();
+        foreach ($classes as $classname => $path) {
+            if (method_exists($classname, 'instance')) {
+                $instance = $classname::instance();
+            } else {
+                $instance = new $classname();
+            }
+            if ($instance->is_skippable()) {
+                $conditions[$instance->get_id()] = $instance->get_name();
+            }
+        }
+        return $conditions;
+    }
+    /**
+     * Fetches all condition classes for settings page.
+     *
+     * @return array
+     *
+     */
+    private static function get_condition_classes() {
+        $classes = core_component::get_component_classes_in_namespace(
+            'mod_booking',
+            'bo_availability\\conditions'
+        );
+        return $classes;
+    }
+    /**
+     * Helperfunction to exclude conditions which are set as excluded in the config from the array of conditions.
+     *
+     * @param array $conditions
+     *
+     * @return void
+     *
+     */
+    private static function exclude_conditions(array &$conditions) {
+        $excludedcondition = get_config('booking', 'skippableconditions');
+        $excludedconditionarray = !empty($excludedcondition) ? explode(',', $excludedcondition) : [];
+        foreach ($conditions as $key => $condition) {
+            if (in_array($condition->id, $excludedconditionarray)) {
+                unset($conditions[$key]);
+            }
+        }
     }
 }

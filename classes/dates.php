@@ -234,10 +234,10 @@ class dates {
                     ?? $defaultvalues->enddate
                     ?? $defaultvalues->courseendtime
                     ?? $defaultvalues->courseenddate;
-
+                $dateparseformat = $defaultvalues->dateparseformat ?? '';
                 $defaultvalues->{MOD_BOOKING_FORM_OPTIONDATEID . 0} = 0;
-                $defaultvalues->{MOD_BOOKING_FORM_COURSESTARTTIME . 0} = strtotime($starttime, time());
-                $defaultvalues->{MOD_BOOKING_FORM_COURSEENDTIME . 0} = strtotime($endtime, time());
+                $defaultvalues->{MOD_BOOKING_FORM_COURSESTARTTIME . 0} = self::parse_date_with_format($starttime, $dateparseformat);
+                $defaultvalues->{MOD_BOOKING_FORM_COURSEENDTIME . 0} = self::parse_date_with_format($endtime, $dateparseformat);
                 $defaultvalues->{MOD_BOOKING_FORM_DAYSTONOTIFY . 0} = 0;
             }
         }
@@ -962,7 +962,7 @@ class dates {
                    FROM {booking_rules} br
                    JOIN {context} ctx
                      ON ctx.id = br.contextid
-                  WHERE br.rulename = 'rule_daysbefore'
+                  WHERE br.rulename IN ('rule_daysbefore', 'rule_specifictime')
                     AND {$DB->sql_like('br.rulejson', ':optiondatestarttime', true)}
                     AND (
                         (ctx.contextlevel = :systemcontext AND ctx.instanceid = 0)
@@ -979,5 +979,24 @@ class dates {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Parse date string using custom format if available, fallback to strtotime().
+     * @param string $datestring The date string to parse
+     * @param string $dateparseformat Optional custom date format (from CSV import)
+     * @return int Unix timestamp
+     */
+    private static function parse_date_with_format($datestring, $dateparseformat) {
+        // If we have a custom date format from CSV import, use it.
+        if (!empty($dateparseformat)) {
+            $date = DateTime::createFromFormat($dateparseformat, $datestring);
+            if ($date !== false) {
+                return $date->getTimestamp();
+            }
+        }
+        // Fallback to strtotime.
+        $timestamp = strtotime($datestring);
+        return $timestamp !== false ? $timestamp : time();
     }
 }

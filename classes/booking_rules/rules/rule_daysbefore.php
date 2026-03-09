@@ -229,13 +229,17 @@ class rule_daysbefore implements booking_rule {
         }
 
         // Self-learning courses use coursestarttime only for sorting #684.
-        // So if a rule is dependent on coursestarttime or courseendtime, we just skip the execution.
+        // So if a rule is dependent on date(s) of the option, we just skip the execution.
         if (!empty($settings->selflearningcourse)) {
             if (
                 !empty($jsonobject->ruledata->datefield)
-                && (
-                    ($jsonobject->ruledata->datefield == 'coursestarttime')
-                    || ($jsonobject->ruledata->datefield == 'courseendtime')
+                && in_array(
+                    $jsonobject->ruledata->datefield,
+                    [
+                        'coursestarttime',
+                        'courseendtime',
+                        'optiondatestarttime',
+                    ]
                 )
             ) {
                 return;
@@ -287,7 +291,7 @@ class rule_daysbefore implements booking_rule {
         }
 
         // We retrieve the same sql we also use in the execute function.
-        $records = $this->get_records_for_execution($optionid, $userid, true);
+        $records = $this->get_records_for_execution($optionid, $userid, true, $nextruntime);
 
         // If there are multiple records (like for reminders for optiondates)...
         // ...we need to make sure that at least one runtime matches.
@@ -302,7 +306,7 @@ class rule_daysbefore implements booking_rule {
                 !empty($optiondateid)
                 && isset($record->optiondateid)
             ) {
-                // If the optiondateid doesn't macht, look for other matches.
+                // If the optiondateid doesn't match, look for other matches.
                 // If no match is found, rule doesn't apply anymore.
                 if ($record->optiondateid != $optiondateid) {
                     $rulestillapplies = false;

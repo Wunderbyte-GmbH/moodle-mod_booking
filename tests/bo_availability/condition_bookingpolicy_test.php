@@ -26,12 +26,14 @@
 
 namespace mod_booking;
 
+use cache_helper;
 use advanced_testcase;
 use coding_exception;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\local\mobile\customformstore;
+use moodle_url;
 // phpcs:ignore
 //use core\cron;
 use mod_booking\booking_rules\booking_rules;
@@ -50,6 +52,8 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @category test
  * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @runInSeparateProcess
+ * @runTestsInSeparateProcesses
  */
 final class condition_bookingpolicy_test extends advanced_testcase {
     /**
@@ -573,6 +577,140 @@ final class condition_bookingpolicy_test extends advanced_testcase {
     }
 
     /**
+     * Test booking option availability: \condition\previouslybooked`.
+     *
+     * Create two options, second option has previously booked first option
+     * Book one user in first option
+     * Make the first option invisible
+     * Destroy singleton instance AND purge caches
+     * Switch to the user booked in the first option
+     * Without booking commit 8e7a35eac89d5a5ed0b08a888369a1db8cf5fac0
+     * (Bugfix: Make sure users can instantiate connected options (eg previously booked) even when those are invisible)
+     * We will not be able to book and be blocked by previously, because
+     * The user can't instantiate the settings object because of missing rights.
+     * With the commit, this should work.
+     *
+     * @covers \mod_booking\bo_availability\conditions\previouslybooked::is_available
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_settings_provider
+     */
+    public function test_previously_booked_invisible(array $bdata): void {
+        global $CFG;
+
+        $this->resetAfterTest();
+        // Setup test data.
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        // Create users.
+        $student1 = $this->getDataGenerator()->create_user();
+        $student2 = $this->getDataGenerator()->create_user();
+        $teacher = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user(); // Booking manager.
+
+        $bdata['course'] = $course1->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($booking1->id);
+        singleton_service::destroy_booking_singleton_by_cmid($bookingsettings->cmid);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($booking1->id);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($student1->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($student2->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($teacher->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course1->id);
+
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option1';
+        $record->chooseorcreatecourse = 1; // Reqiured.
+        $record->courseid = $course1->id;
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option1 = $plugingenerator->create_option($record);
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $boinfo1 = new bo_info($settings1);
+
+        // The 2nd option in the course1.
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option2';
+        $record->chooseorcreatecourse = 1; // Reqiured.
+        $record->courseid = $course1->id;
+        // Set test availability setting(s).
+        $record->bo_cond_previouslybooked_restrict = 1;
+        $record->bo_cond_previouslybooked_optionid = $option1->id;
+        $option2 = $plugingenerator->create_option($record);
+        $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
+        $boinfo2 = new bo_info($settings2);
+
+        // Book the student right away.
+        $this->setUser($student1);
+
+        // Student1 not allowed to book option2 in course1 until option 1 will be booked.
+        $result = booking_bookit::bookit('option', $settings2->id, $student1->id);
+        [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_JSON_PREVIOUSLYBOOKED, $id);
+
+        // Student1 is allowed to book option1 in course1.
+        $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMBOOKIT, $id);
+        $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // Now student1 is allowed to book option2 in course1.
+        [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+
+        // Set option1 as invisible.
+        $this->setAdminUser();
+        singleton_service::destroy_booking_singleton_by_cmid($settings1->cmid);
+
+        $record->id = $option1->id;
+        $record->cmid = $settings1->cmid;
+        $record->invisible = MOD_BOOKING_OPTION_INVISIBLE;
+        booking_option::update($record);
+        singleton_service::destroy_instance();
+
+        // Switch to the student1 again and purge caches in behalf of that user.
+        $this->setUser($student1);
+        $cm = get_coursemodule_from_instance('booking', $settings1->bookingid);
+        booking::purge_cache_for_booking_instance_by_cmid($cm->id);
+        booking_option::purge_cache_for_option($option1->id);
+        booking_option::purge_cache_for_option($option2->id);
+
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
+
+        // Validate if student1 is allowed to book option2 in course1 after option1 set to be invisible.
+        [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $student1->id, true);
+        $pluginversion = get_config('mod_booking')->version;
+        if ($pluginversion < 2026021000) {
+            // Before fix - user was not allowed to boook if previously booked option was set to invinsible.
+            $this->assertEquals(MOD_BOOKING_BO_COND_JSON_PREVIOUSLYBOOKED, $id);
+            $this->assertStringContainsString('Only users who have previously booked', $description);
+            $this->assertStringContainsString((string) $option1->id, $description);
+            $this->assertStringContainsString('are allowed to book', $description);
+        } else {
+            // After fix - booking is possible.
+            $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+            $result = booking_bookit::bookit('option', $settings2->id, $student1->id);
+            $result = booking_bookit::bookit('option', $settings2->id, $student1->id);
+            [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $student1->id, true);
+            $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+        }
+    }
+
+    /**
      * Test booking option availability: \condition\jsonuserfields.
      *
      * @covers \mod_booking\bo_availability\conditions\userprofilefield_1_default::is_available
@@ -588,6 +726,9 @@ final class condition_bookingpolicy_test extends advanced_testcase {
         global $CFG;
 
         $this->resetAfterTest();
+
+        // Moodle way: load all profile fields for student1.
+        require_once($CFG->dirroot . '/user/profile/lib.php');
 
         // Setup test data.
         $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);

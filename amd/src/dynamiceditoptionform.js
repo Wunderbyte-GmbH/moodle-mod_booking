@@ -103,7 +103,15 @@ export const init = (cmid, id, optionid, bookingid, copyoptionid, returnurl) => 
     var checkbox1 = document.querySelector('[type="checkbox"][name="restrictanswerperiodopening"]');
     var checkbox2 = document.querySelector('[type="checkbox"][name="restrictanswerperiodclosing"]');
     var conditionalCheckbox = document.querySelector('[type="checkbox"][name="bo_cond_booking_time_sqlfiltercheck"]');
-    let closest = conditionalCheckbox.closest('[class^="form-group row"],[class*=" fitem"]');
+    var closest = null;
+    if (conditionalCheckbox) {
+        // Support both Moodle 4.5 (Bootstrap 4) and 5.1 (Bootstrap 5)
+        closest = conditionalCheckbox.closest(
+            '[class^="form-group row"],' + // Moodle 4.5.
+            '[class*="fitem"],' + // Moodle legacy.
+            '[data-fieldtype]' // Moodle 5.1 form field wrapper.
+        );
+    }
 
     dynamicForm.addEventListener('change', e => {
         // eslint-disable-next-line no-console
