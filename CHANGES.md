@@ -1,3 +1,20 @@
+## Version 9.1.6 (2026030900)
+* New feature: Show custom fields of related person (person affected by event) by adding "-related" to the placeholder, e.g. {myuserprofilefield-related}.
+* New feature: New {emailrelated} placeholder to show e-mail of the related user (person affected by event).
+* Improvement: Move customfields info array functionality from wunderbyte_table to bookingoptions_wbtable for better code quality.
+* Improvement: Allow restriction on specific instances when searching booking options via ajax.
+* Improvement: Show actual values of customfields when using includecustomfields with shortcodes.
+* Improvement: In booking_option_settings load all customfields using wbt_field_controllers to get actual values.
+* Improvement: Improve book cohort feature by improved error message and override via bookanyone capability.
+* Improvement: Major improvements for field customfield handling and custom field performance.
+* Improvement: Make sure we also add custom fields with empty value to customfieldsfortemplates array.
+* Bugfix: Possibility to use custom user profile field twice for availability condition.
+* Bugfix: Fix permission check in search_users web service.
+* Bugfix: Don't call shoppingcart js when it's not installed.
+* Bugfix: Refactor bookit.js to work correctly with buttons with tags.
+* Bugfix: Fix formatting (needed for mlang support) of customfields in details view (optionview.php).
+* Bugfix: not saving empty formtype in customform.
+
 ## Version 9.1.5 (2026030200)
 * New feature: Show groupid in option forms and add possibility to recreate groupid if it's wrong.
 * Improvement: Do not delete SQL queries cache by campaign reset as it is not necessary.
