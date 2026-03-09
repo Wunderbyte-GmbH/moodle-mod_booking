@@ -766,6 +766,10 @@ class bookingoption_description implements renderable, templatable {
                         } else if (is_array($settings->customfieldsfortemplates[$key]['value'])) {
                             $returnarray[$key] = implode(', ', $settings->customfieldsfortemplates[$key]['value']);
                         }
+                        // For some reason, format_string does not work, so we do it with format_text and remove the outer div.
+                        $returnarray[$key] = format_text($returnarray[$key]);
+                        // Remove the first <div...> and the last </div>.
+                        $returnarray[$key] = preg_replace('/^<div[^>]*>|(<\/div>)$/i', '', $returnarray[$key]);
                     }
                 }
             }
