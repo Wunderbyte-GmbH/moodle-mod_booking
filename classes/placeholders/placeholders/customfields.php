@@ -49,6 +49,7 @@ class customfields extends \mod_booking\placeholders\placeholder_base {
      * @param array $params
      * @param string $placeholder
      * @param bool $fieldexists
+     * @param string $rulejson = ''
      * @return string
      */
     public static function return_value(
@@ -58,7 +59,8 @@ class customfields extends \mod_booking\placeholders\placeholder_base {
         string &$text = '',
         array &$params = [],
         string $placeholder = '',
-        bool &$fieldexists = true
+        bool &$fieldexists = true,
+        string $rulejson = ''
     ): string {
 
         global $CFG, $DB;
@@ -67,10 +69,22 @@ class customfields extends \mod_booking\placeholders\placeholder_base {
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $value = '';
         $searchstring = '{' . $placeholder . '}';
+        $classname = substr(strrchr(get_called_class(), '\\'), 1);
 
         if (
             isset($settings->customfieldsfortemplates[$placeholder]["value"])
         ) {
+            // The cachekey depends on the kind of placeholder and it's ttl.
+            // If it's the same for all users, we don't use userid.
+            // If it's the same for all options of a cmid, we don't use optionid.
+            $cachekey = "$classname-$optionid-$placeholder";
+            if (isset(placeholders_info::$placeholders[$cachekey])) {
+                $value = placeholders_info::$placeholders[$cachekey];
+                // Replace the reference text and return the value.
+                $text = str_replace($searchstring, $value, $text);
+                return $value;
+            }
+
             if (
                 is_string($settings->customfieldsfortemplates[$placeholder]['value'])
                 || is_numeric($settings->customfieldsfortemplates[$placeholder]['value'])
@@ -79,8 +93,46 @@ class customfields extends \mod_booking\placeholders\placeholder_base {
             } else if (is_array($settings->customfieldsfortemplates[$placeholder]['value'])) {
                 $value = implode(', ', $settings->customfieldsfortemplates[$placeholder]['value']);
             }
+            // Replace the reference text.
             $text = str_replace($searchstring, $value, $text);
+
+            // Save the value to profit from singleton.
+            placeholders_info::$placeholders[$cachekey] = $value;
         } else {
+            /* When the user profile field shorname ends on "-related" (e.g. "companyname-related")
+            then we'll take the profile field of the related user instead of the active user. */
+            if (str_contains($placeholder, '-related')) {
+                // We now know that we have to look for the related user's profile fields.
+                $placeholder = str_replace('-related', '', $placeholder);
+                $rulejson = json_decode($rulejson);
+                if (
+                    !empty($rulejson)
+                    && !empty($rulejson->datafromevent)
+                ) {
+                    $class = $rulejson->datafromevent->eventname;
+                    $event = $class::restore((array)$rulejson->datafromevent, []);
+                    $eventdata = (object)$event->get_data();
+
+                    if (!empty($eventdata->relateduserid)) {
+                        // Userid is set to the related user.
+                        $userid = $eventdata->relateduserid;
+                    }
+                } else {
+                    $value = get_string('sthwentwrongwithplaceholder', 'mod_booking', $classname);
+                }
+            }
+
+            // The cachekey depends on the kind of placeholder and it's ttl.
+            // If it's the same for all users, we don't use userid.
+            // If it's the same for all options of a cmid, we don't use optionid.
+            $cachekey = "$classname-$userid-$placeholder";
+            if (isset(placeholders_info::$placeholders[$cachekey])) {
+                $value = placeholders_info::$placeholders[$cachekey];
+                // Replace the reference text and return the value.
+                $text = str_replace($searchstring, $value, $text);
+                return $value;
+            }
+
             $user = singleton_service::get_instance_of_user($userid);
             if (empty($user->profile)) {
                 require_once("$CFG->dirroot/user/profile/lib.php");
@@ -94,7 +146,14 @@ class customfields extends \mod_booking\placeholders\placeholder_base {
                 }
             }
             if (isset($user->profile[$placeholder])) {
+                // This is where we set the value.
                 $value = $user->profile[$placeholder];
+
+                // Replace the reference text and return the value.
+                $text = str_replace($searchstring, $value, $text);
+
+                // Save the value to profit from singleton.
+                placeholders_info::$placeholders[$cachekey] = $value;
             } else {
                 $fieldexists = false;
             }

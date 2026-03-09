@@ -167,7 +167,8 @@ class placeholders_info {
                     $text,
                     $placeholders,
                     $placeholder,
-                    $fieldexists
+                    $fieldexists,
+                    $rulejson ?? ''
                 );
             }
 
