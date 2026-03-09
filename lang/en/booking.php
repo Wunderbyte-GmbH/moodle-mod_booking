@@ -1275,6 +1275,7 @@ $string['electivesbookedsuccess'] = 'Your selected electives have been booked su
 $string['electivesettings'] = 'Elective Settings';
 $string['email'] = "Email";
 $string['emailbody'] = 'Email body';
+$string['emailrelated'] = 'E-mail address of related person (like i.e. the user the booking was made for)';
 $string['emailsettings'] = 'E-mail settings <span class="badge bg-warning"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Deprecated</span>';
 $string['enable'] = 'Enable';
 $string['enablecompletionmincompleted'] = 'Min. number of completed booking options';

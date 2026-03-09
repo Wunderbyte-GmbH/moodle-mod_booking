@@ -1243,6 +1243,7 @@ $string['electivesbookedsuccess'] = 'Ihre ausgewählten Wahlfächer wurden erfol
 $string['electivesettings'] = 'Wahlfach Einstellungen';
 $string['email'] = "E-Mail";
 $string['emailbody'] = 'E-Mail Text';
+$string['emailrelated'] = 'E-Mail-Adresse der betroffenen Person';
 $string['emailsettings'] = 'E-Mail-Einstellungen <span class="badge bg-warning"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Veraltet</span>';
 $string['enable'] = 'Aktivieren';
 $string['enablecompletionmincompleted'] = 'Mindestanzahl an Buchungsoptionen, in denen der/die Nutzer:in auf "Abgeschlossen" gesetzt werden muss';
@@ -1424,7 +1425,7 @@ $string['filterenddate'] = 'Bis';
 $string['filterfullybooked'] = 'Ausgebucht';
 $string['filterstartdate'] = 'Von';
 $string['firstname'] = "Vorname";
-$string['firstnamerelated'] = "Vorname betroffene Person";
+$string['firstnamerelated'] = "Vorname der betroffenen Person";
 $string['forcourse'] = 'für Kurs';
 $string['format'] = 'Format';
 $string['formconfig'] = 'Anzeige, welches Formular verwendet wird';
@@ -1584,7 +1585,7 @@ $string['keepusersbookedonreducingmaxanswers_desc'] = 'Benutzer:innen weiterhin 
 auch wenn das Limit der verfügbaren Plätze reduziert wird. Beispiel: Ein Kurs hat 5 Plätze.
 Das Limit wird auf 3 reduziert. Die 5 Nutzer:innen, die schon gebucht haben, bleiben trotzdem im Status "gebucht".';
 $string['lastname'] = "Nachname";
-$string['lastnamerelated'] = "Nachname betroffene Person";
+$string['lastnamerelated'] = "Nachname der betroffenen Person";
 $string['lblacceptingfrom'] = 'Bezeichnung für: Annehmen von';
 $string['lblbooking'] = 'Bezeichnung für: Buchung';
 $string['lblbooktootherbooking'] = 'Bezeichnung für den Button "Zu anderer Buchungsoption hinzufügen"';
