@@ -175,6 +175,12 @@ export function closeModal(optionid, reloadTables = true) {
     const modalEls = Array.from(document.querySelectorAll(modalSelectorAll));
 
     modalEls.forEach(modalEl => {
+        const onHidden = () => {
+            modalEl.removeEventListener('hidden.bs.modal', onHidden);
+            cleanupModalArtifacts();
+        };
+        modalEl.addEventListener('hidden.bs.modal', onHidden);
+
         // Attach a one-time shown.bs.modal listener to hide after shown (like original).
         const onShown = (e) => {
             modalEl.removeEventListener('shown.bs.modal', onShown);
@@ -208,6 +214,9 @@ export function closeModal(optionid, reloadTables = true) {
             if (reloadTables) {
                 reloadAllTables();
             }
+
+            // Bootstrap hide is async; force-clean stale artifacts shortly after close.
+            window.setTimeout(cleanupModalArtifacts, 50);
         };
 
         modalEl.addEventListener('shown.bs.modal', onShown);
@@ -239,6 +248,9 @@ export function closeModal(optionid, reloadTables = true) {
         if (reloadTables) {
             reloadAllTables();
         }
+
+        // Defensive cleanup in case no bootstrap lifecycle event fires.
+        window.setTimeout(cleanupModalArtifacts, 50);
     });
 }
 
@@ -260,16 +272,7 @@ export function hideModalFallback(modalEl) {
     modalEl.removeAttribute('aria-modal');
     modalEl.removeAttribute('role');
 
-    // Remove modal-open class from body (undo scroll lock).
-    document.body.classList.remove('modal-open');
-
-    // Remove any modal-backdrop elements left behind.
-    const backdrops = Array.from(document.querySelectorAll('.modal-backdrop'));
-    backdrops.forEach(backdrop => {
-        if (backdrop.parentNode) {
-            backdrop.parentNode.removeChild(backdrop);
-        }
-    });
+    cleanupModalArtifacts();
 
     // Dispatch events similar to Bootstrap so other code will react.
     // Bootstrap uses CustomEvent with namespaced names; we emulate them.
@@ -279,6 +282,26 @@ export function hideModalFallback(modalEl) {
     } catch (e) {
         // If CustomEvent is not supported (ancient browsers), ignore.
     }
+}
+
+/**
+ * Remove stale Bootstrap modal artifacts that can block page scrolling.
+ */
+function cleanupModalArtifacts() {
+    // Keep lock only if another modal is still visible.
+    const hasShownModal = !!document.querySelector('.modal.show');
+    if (!hasShownModal) {
+        document.body.classList.remove('modal-open');
+        document.body.style.removeProperty('overflow');
+        document.body.style.removeProperty('padding-right');
+    }
+
+    const backdrops = Array.from(document.querySelectorAll('.modal-backdrop'));
+    backdrops.forEach(backdrop => {
+        if (backdrop.parentNode) {
+            backdrop.parentNode.removeChild(backdrop);
+        }
+    });
 }
 
 /**
