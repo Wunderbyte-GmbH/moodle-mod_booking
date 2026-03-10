@@ -115,7 +115,7 @@
     <tr>
         <td class="text-left name">{{name}}</td>
         {{#timeslots}}
-        <td>
+        <td class="{{#free}}bg-success text-white{{/free}}{{^free}}bg-danger text-white{{/free}}">
             {{> local_shopping_cart/addtocartdb_priceonly}}
         </td>
         {{/timeslots}}

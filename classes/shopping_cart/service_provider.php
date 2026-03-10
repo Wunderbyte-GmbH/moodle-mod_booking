@@ -28,12 +28,14 @@ use context_system;
 use local_shopping_cart\local\entities\cartitem;
 use local_shopping_cart\shopping_cart;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\bo_availability\conditions\bookitbutton;
 use mod_booking\booking;
 use mod_booking\booking_answers\booking_answers;
 use mod_booking\booking_bookit;
 use mod_booking\booking_option;
 use mod_booking\enrollink;
 use mod_booking\event\booking_failed;
+use mod_booking\local\slotbooking\slot_answer;
 use mod_booking\semester;
 use mod_booking\singleton_service;
 use mod_booking\subbookings\subbookings_info;
@@ -59,12 +61,21 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
         global $CFG, $USER;
         require_once($CFG->dirroot . '/mod/booking/lib.php');
 
+        $effectiveuserid = empty($userid) ? (int)$USER->id : $userid;
+
         if ($area === 'option') {
             // First, we need to check if we have the right to actually load the item.
             $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
+            $ignoredconditionids = self::get_cart_book_intent_ignored_condition_ids($settings, $userid);
 
             $boinfo = new bo_info($settings);
-            [$id, $isavailable, $description] = $boinfo->is_available($itemid, $userid, true);
+            [$id, $isavailable, $description] = $boinfo->is_available(
+                $itemid,
+                $userid,
+                true,
+                false,
+                $ignoredconditionids
+            );
 
             // The blocking ID has to be the price id.
             // If its already in the cart, we can also just proceed.
@@ -120,33 +131,24 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                 $costcenter = reset($costcenter);
             }
 
-            $modifieddescription = get_config('booking', 'sccartdescription');
-            if (!empty($modifieddescription)) {
-                $replacements = [];
-                preg_match_all('/\{(.*?)\}/', $modifieddescription, $matches);
-
-                foreach ($matches[1] as $match) {
-                    $value = $settings->$match ?? get_string('invalidplaceholder', 'mod_booking');
-
-                    if (is_numeric($value)) {
-                        $value = userdate(time(), get_string('strftimedaydate', 'core_langconfig'));
-                    }
-
-                    $replacements['{' . $match . '}'] = $value;
-                }
-                $description = str_replace(array_keys($replacements), array_values($replacements), $modifieddescription);
-            } else {
-                $description = $item['description'];
-            }
-
             $ba = singleton_service::get_instance_of_booking_answers($settings);
             $users = $ba->get_usersreserved();
-            $userid = empty($userid) ? $userid : $USER->id;
-            $answer = $users[$userid] ?? [];
+            $answer = $users[$effectiveuserid] ?? [];
+            $bookinginformation = $ba->return_all_booking_information($effectiveuserid);
             $nritems = enrollink::return_number_of_booked_licenses_from_booking_answer((object)$answer);
 
             $numberofitems = empty($nritems) ? 1 : $nritems;
             $multipliable = empty($nritems) ? 0 : 1;
+
+            $item = self::apply_reserved_slotbooking_price($settings, $item, $answer);
+            $description = self::build_cartitem_description(
+                $settings,
+                $item,
+                $answer,
+                $bookinginformation,
+                $numberofitems
+            );
+
             $cartitem = new cartitem(
                 $item['itemid'],
                 $item['title'],
@@ -220,6 +222,248 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
         } else {
             return ['error' => 'novalidarea'];
         }
+    }
+
+    /**
+     * Override cart item price from reserved slotbooking answer data when available.
+     *
+     * @param object $settings
+     * @param array $item
+     * @param mixed $answer
+     * @return array
+     */
+    private static function apply_reserved_slotbooking_price(object $settings, array $item, $answer): array {
+        if ((int)($settings->type ?? 0) !== MOD_BOOKING_OPTIONTYPE_SLOTBOOKING) {
+            return $item;
+        }
+
+        if (empty($answer)) {
+            return $item;
+        }
+
+        $slotdata = slot_answer::get_slot_data((object)$answer);
+        if (!is_array($slotdata) || !isset($slotdata['price']) || !is_numeric($slotdata['price'])) {
+            return $item;
+        }
+
+        $item['price'] = round((float)$slotdata['price'], 2);
+        return $item;
+    }
+
+    /**
+     * Build cartitem description with resolved placeholders and slot booking context.
+     *
+     * @param object $settings
+     * @param array $item
+     * @param mixed $answer
+     * @param array $bookinginformation
+     * @param int $numberofitems
+     * @return string
+     */
+    private static function build_cartitem_description(
+        object $settings,
+        array $item,
+        $answer,
+        array $bookinginformation,
+        int $numberofitems
+    ): string {
+        $description = (string)($item['description'] ?? '');
+        $slotdata = slot_answer::get_slot_data((object)$answer) ?? [];
+        $flatbookinginformation = self::flatten_booking_information($bookinginformation);
+
+        $modifieddescription = get_config('booking', 'sccartdescription');
+        if (!empty($modifieddescription)) {
+            $replacements = [];
+            $placeholdervalues = self::build_slotbooking_placeholder_values(
+                $item,
+                $slotdata,
+                $flatbookinginformation,
+                $numberofitems,
+                !empty($settings->useprice)
+            );
+
+            preg_match_all('/\{(.*?)\}/', $modifieddescription, $matches);
+            foreach ($matches[1] as $match) {
+                if (array_key_exists($match, $placeholdervalues)) {
+                    $value = $placeholdervalues[$match];
+                } else {
+                    $value = $settings->$match ?? get_string('invalidplaceholder', 'mod_booking');
+                }
+
+                if (is_numeric($value)) {
+                    $value = userdate(time(), get_string('strftimedaydate', 'core_langconfig'));
+                }
+
+                $replacements['{' . $match . '}'] = (string)$value;
+            }
+
+            $description = str_replace(array_keys($replacements), array_values($replacements), $modifieddescription);
+        }
+
+        if (empty($settings->useprice)) {
+            $description = self::remove_price_information_from_description($description);
+        }
+
+        return self::append_slotbooking_context_to_description(
+            $settings,
+            $description,
+            $slotdata,
+            $flatbookinginformation,
+            $numberofitems
+        );
+    }
+
+    /**
+     * Flatten wrapped booking information (e.g. iambooked/iamreserved/notbooked key).
+     *
+     * @param array $bookinginformation
+     * @return array
+     */
+    private static function flatten_booking_information(array $bookinginformation): array {
+        if (empty($bookinginformation)) {
+            return [];
+        }
+
+        $rootkeys = ['iambooked', 'iamreserved', 'onwaitinglist', 'notbooked'];
+        foreach ($rootkeys as $rootkey) {
+            if (isset($bookinginformation[$rootkey]) && is_array($bookinginformation[$rootkey])) {
+                return $bookinginformation[$rootkey];
+            }
+        }
+
+        return $bookinginformation;
+    }
+
+    /**
+     * Build placeholder map for slot booking related values.
+     *
+     * @param array $item
+     * @param array $slotdata
+     * @param array $bookinginformation
+     * @param int $numberofitems
+     * @param bool $useprice
+     * @return array<string, string|int|float>
+     */
+    private static function build_slotbooking_placeholder_values(
+        array $item,
+        array $slotdata,
+        array $bookinginformation,
+        int $numberofitems,
+        bool $useprice
+    ): array {
+        $slots = is_array($slotdata['slots'] ?? null) ? $slotdata['slots'] : [];
+        $firstslot = !empty($slots) ? reset($slots) : [];
+        $lastslot = !empty($slots) ? end($slots) : [];
+
+        $slotstart = !empty($firstslot['start']) ? (int)$firstslot['start'] : 0;
+        $slotend = !empty($lastslot['end']) ? (int)$lastslot['end'] : 0;
+
+        $slotlines = [];
+        foreach ($slots as $slot) {
+            if (empty($slot['start']) || empty($slot['end'])) {
+                continue;
+            }
+
+            $slotlines[] = userdate((int)$slot['start'], get_string('strftimedatetime', 'langconfig')) . ' - ' .
+                userdate((int)$slot['end'], get_string('strftimedatetime', 'langconfig'));
+        }
+
+        return [
+            'slot_num_slots' => (int)($slotdata['num_slots'] ?? count($slots)),
+            'slot_price' => $useprice ? (float)($slotdata['price'] ?? ($item['price'] ?? 0)) : '',
+            'slot_start' => $slotstart > 0 ? userdate($slotstart, get_string('strftimedatetime', 'langconfig')) : '',
+            'slot_end' => $slotend > 0 ? userdate($slotend, get_string('strftimedatetime', 'langconfig')) : '',
+            'slot_dates' => implode(', ', $slotlines),
+            'booking_booked' => (int)($bookinginformation['booked'] ?? 0),
+            'booking_waiting' => (int)($bookinginformation['waiting'] ?? 0),
+            'booking_reserved' => (int)($bookinginformation['reserved'] ?? 0),
+            'booking_freeonlist' => (int)($bookinginformation['freeonlist'] ?? 0),
+            'booking_fullybooked' => !empty($bookinginformation['fullybooked']) ? '1' : '0',
+            'numberofitems' => $numberofitems,
+        ];
+    }
+
+    /**
+     * Remove rendered price fragments from cart description.
+     *
+     * @param string $description
+     * @return string
+     */
+    private static function remove_price_information_from_description(string $description): string {
+        return preg_replace('/<div class="bo_price">.*?<\/div>/si', '', $description) ?? $description;
+    }
+
+    /**
+     * Append selected slot details and booking context to description for slot booking options.
+     *
+     * @param object $settings
+     * @param string $description
+     * @param array $slotdata
+     * @param array $bookinginformation
+     * @param int $numberofitems
+     * @return string
+     */
+    private static function append_slotbooking_context_to_description(
+        object $settings,
+        string $description,
+        array $slotdata,
+        array $bookinginformation,
+        int $numberofitems
+    ): string {
+        if ((int)($settings->type ?? 0) !== MOD_BOOKING_OPTIONTYPE_SLOTBOOKING) {
+            return $description;
+        }
+
+        $slots = is_array($slotdata['slots'] ?? null) ? $slotdata['slots'] : [];
+        if (empty($slots)) {
+            return $description;
+        }
+
+        $slotlines = [];
+        foreach ($slots as $slot) {
+            if (empty($slot['start']) || empty($slot['end'])) {
+                continue;
+            }
+
+            $slotlines[] = userdate((int)$slot['start'], get_string('strftimedatetime', 'langconfig')) . ' - ' .
+                userdate((int)$slot['end'], get_string('strftimedatetime', 'langconfig'));
+        }
+
+        if (empty($slotlines)) {
+            return $description;
+        }
+
+        $slotcount = (int)($slotdata['num_slots'] ?? count($slotlines));
+        $visiblecontext = [];
+        if ($slotcount > 1) {
+            $visiblecontext[] = 'Anzahl der Slots: ' . $slotcount;
+        }
+
+        $contextpayload = [
+            'slot' => $slotdata,
+            'booking' => $bookinginformation,
+            'numberofitems' => $numberofitems,
+        ];
+
+        $payloadjson = json_encode($contextpayload);
+        $payloadnode = '';
+        if (is_string($payloadjson)) {
+            $payloadnode = '<div class="d-none booking-cart-context" data-booking-context="' .
+                s($payloadjson) . '"></div>';
+        }
+
+        $contexthtml = '';
+        if (!empty($visiblecontext)) {
+            $contexthtml = '<br>' . implode('<br>', array_map('s', $visiblecontext));
+        }
+
+        $slotdetailsnode = '<div class="booking-cart-slot-details"><strong>' .
+            s(get_string('slot_calendar_slots_header', 'mod_booking')) . ':</strong><br>' .
+            implode('<br>', array_map('s', $slotlines)) .
+            $contexthtml .
+            '</div>';
+
+        return $description . $slotdetailsnode . $payloadnode;
     }
 
     /**
@@ -449,6 +693,35 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
     }
 
     /**
+     * Return ignored condition ids for cart checks in book-again intent only.
+     *
+     * @param object $settings
+     * @param int $userid
+     * @return int[]
+     */
+    private static function get_cart_book_intent_ignored_condition_ids(object $settings, int $userid): array {
+        global $USER;
+
+        if (empty($settings->jsonobject->multiplebookings)) {
+            return [];
+        }
+
+        $effectiveuserid = empty($userid) ? (int)$USER->id : $userid;
+        if (empty($effectiveuserid)) {
+            return [];
+        }
+
+        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
+        $bookinginformation = $bookinganswer->return_all_booking_information($effectiveuserid);
+
+        if (empty($bookinginformation['iambooked'])) {
+            return [];
+        }
+
+        return bookitbutton::get_book_intent_override_condition_ids();
+    }
+
+    /**
      * Callback to check if adding item to cart is allowed.
      *
      * @param string $area
@@ -466,12 +739,19 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             booking_option::purge_cache_for_answers($itemid);
 
             $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
+            $ignoredconditionids = self::get_cart_book_intent_ignored_condition_ids($settings, $userid);
 
             $boinfo = new bo_info($settings);
             // There are two cases where we can actually book.
             // We call thefunction with hadblock set to true.
             // This means that we only get those blocks that actually should prevent booking.
-            [$id, $isavailable, $description] = $boinfo->is_available($itemid, $userid, true, true);
+            [$id, $isavailable, $description] = $boinfo->is_available(
+                $itemid,
+                $userid,
+                true,
+                true,
+                $ignoredconditionids
+            );
 
             // These conditions are allowed, so we need a check.
             $allowedconditions = [
