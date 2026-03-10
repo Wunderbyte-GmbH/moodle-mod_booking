@@ -1604,7 +1604,7 @@ class booking {
                 $optiontitle,
                 $record->coursestarttime,
                 $record->courseendtime,
-                1,
+                (int)($record->status ?? 0),
                 $link,
                 $bgcolor
             );
@@ -1633,11 +1633,12 @@ class booking {
                         'optiondate' area,
                         bo.id optionid,
                         bo.text,
+                        bo.status,
                         bod.coursestarttime,
                         bod.courseendtime
                     FROM {booking_optiondates} bod
                     JOIN (
-                        SELECT id, text
+                        SELECT id, text, status
                         FROM {booking_options}
                     ) bo
                     ON bod.optionid = bo.id
@@ -1648,6 +1649,7 @@ class booking {
                     'option' area,
                     id optionid,
                     text,
+                    status,
                     coursestarttime,
                     courseendtime
                     FROM {booking_options}
