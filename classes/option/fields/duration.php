@@ -29,6 +29,7 @@ use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
+use mod_booking\option\type_resolver;
 use mod_booking\utils\wb_payment;
 use moodle_url;
 use MoodleQuickForm;
@@ -36,6 +37,7 @@ use MoodleQuickForm_duration;
 use stdClass;
 use dml_exception;
 use mod_booking\booking;
+use html_writer;
 
 /**
  * Class for field 'duration'.
@@ -99,6 +101,8 @@ class duration extends field_base {
         int $updateparam,
         $returnvalue = null
     ): array {
+        type_resolver::normalize_formdata($formdata, (int)($newoption->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT));
+
         if (
             !empty($formdata->duration)
             && ($formdata->selflearningcourse ?? false)
@@ -108,13 +112,6 @@ class duration extends field_base {
             $newoption->duration = 0;
         }
 
-        // We currently only support 2 option types.
-        if (isset($formdata->selflearningcourse) && ($formdata->selflearningcourse == 1)) {
-            $newoption->type = 1; // MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE.
-        } else {
-            // Important note: We have to adjust this when we introduce new option types!
-            $newoption->type ??= 0; // MOD_BOOKING_OPTIONTYPE_DEFAULT.
-        }
         // Get rid of legacy json key.
         booking::remove_key_from_json($newoption, 'selflearningcourse');
 
@@ -169,35 +166,8 @@ class duration extends field_base {
             $selflearningcourselabel = get_config('booking', 'selflearningcourselabel');
         }
 
-        // Add checkbox to mark self-learning courses.
-        $mform->addElement(
-            'advcheckbox',
-            'selflearningcourse',
-            $selflearningcourselabel . " " . get_string('badge:pro', 'mod_booking'),
-            null,
-            null,
-            [0, 1]
-        );
-        $mform->setDefault('selflearningcourse', 0);
-        if ($showlinktosettings) {
-            // If PRO version is active, but selflearningcourse is not, we show a link to config settings.
-            $mform->addHelpButton(
-                'selflearningcourse',
-                'turnthisoninsettings',
-                'mod_booking',
-                '',
-                false,
-                new moodle_url(
-                    '/admin/settings.php',
-                    ['section' => 'modsettingbooking'],
-                    'admin-selflearningcourseactive'
-                )
-            );
-        } else {
-            // Else we show the normal help text.
-            $mform->addHelpButton('selflearningcourse', 'selflearningcourse', 'mod_booking', '', false, $selflearningcourselabel);
-        }
-        $mform->disabledIf('selflearningcourse', 'selflearningcourseactive', 'neq', 1);
+        $mform->addElement('hidden', 'selflearningcourse', 0);
+        $mform->setType('selflearningcourse', PARAM_INT);
 
         if ($selflearningcourseactive === 1) {
             $mform->addElement(
@@ -208,14 +178,27 @@ class duration extends field_base {
                     get_string('selflearningcoursealert', 'mod_booking', $selflearningcourselabel) .
                 '</div>'
             );
-            $mform->hideIf('selflearningcoursealert', 'selflearningcourse');
+            $mform->hideIf('selflearningcoursealert', 'optiontype', 'neq', MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE);
+        } else if ($showlinktosettings) {
+            $mform->addElement(
+                'static',
+                'selflearningcoursealert',
+                '',
+                '<div class="alert alert-warning">' .
+                    html_writer::link(
+                        new moodle_url('/admin/settings.php', ['section' => 'modsettingbooking'], 'admin-selflearningcourseactive'),
+                        get_string('turnthisoninsettings', 'mod_booking')
+                    ) .
+                '</div>'
+            );
+            $mform->hideIf('selflearningcoursealert', 'optiontype', 'neq', MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE);
         }
 
         // Add duration.
         $mform->addElement('duration', 'duration', get_string('duration', 'mod_booking'));
         $mform->setType('duration', PARAM_INT);
         $mform->setDefault('duration', 2592000); // 30 days.
-        $mform->hideIf('duration', 'selflearningcourse', 'neq', 1);
+        $mform->hideIf('duration', 'optiontype', 'neq', MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE);
     }
 
     /**
@@ -271,7 +254,7 @@ class duration extends field_base {
      */
     public static function validation(array $data, array $files, array &$errors) {
         // Check if we have dates set by checking if there are keys starting with "optiondate_".
-        if (!empty($data['selflearningcourse'])) {
+        if ((int)($data['optiontype'] ?? MOD_BOOKING_OPTIONTYPE_DEFAULT) === MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE) {
             $keys = preg_grep('/^optiondateid_/', array_keys($data));
             if (!empty($keys)) {
                 $selflearningcourselabel = get_string('selflearningcourse', 'mod_booking');

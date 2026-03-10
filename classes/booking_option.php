@@ -39,6 +39,7 @@ use html_writer;
 use invalid_parameter_exception;
 use local_entities\entitiesrelation_handler;
 use mod_booking\bo_availability\conditions\customform;
+use mod_booking\bo_availability\conditions\slotbooking;
 use mod_booking\bo_availability\conditions\optionhasstarted;
 use mod_booking\event\booking_debug;
 use mod_booking\event\booking_rulesexecutionfailed;
@@ -65,7 +66,10 @@ use mod_booking\teachers_handler;
 use mod_booking\customfield\booking_handler;
 use mod_booking\event\booking_afteractionsfailed;
 use mod_booking\event\bookinganswer_cancelled;
+use mod_booking\event\bookinganswer_slotbooked;
+use mod_booking\event\bookinganswer_slotcancelled;
 use mod_booking\event\bookingoption_freetobookagain;
+use mod_booking\local\slotbooking\slot_answer;
 use mod_booking\message_controller;
 use mod_booking\option\fields\credits;
 use mod_booking\option\fields_info;
@@ -1555,6 +1559,9 @@ class booking_option {
         // When a user submits a userform, we need to save this as well.
         customform::add_json_to_booking_answer($newanswer, $userid);
 
+        // For slot-enabled options we persist selected slot metadata into booking_answers.
+        slotbooking::add_json_to_booking_answer($newanswer, $userid);
+
         // When a user submits a userform, we need to save this as well.
         credits::add_json_to_booking_answer($newanswer, $userid);
 
@@ -1844,6 +1851,18 @@ class booking_option {
             );
             $event->trigger();
 
+            $sloteventother = self::build_slot_event_other_from_answer((object)$answer, (int)$this->optionid);
+            if (!empty($sloteventother['bookedslots'])) {
+                $slotevent = bookinganswer_slotbooked::create([
+                    'objectid' => (int)($sloteventother['baid'] ?? 0),
+                    'context' => context_module::instance($this->cmid),
+                    'userid' => $USER->id,
+                    'relateduserid' => $user->id,
+                    'other' => $sloteventother,
+                ]);
+                $slotevent->trigger();
+            }
+
             enrollink::trigger_enrolbot_actions(
                 $this->optionid,
                 $user->id,
@@ -1851,11 +1870,25 @@ class booking_option {
                 $ba,
                 $other['baid']
             );
+                    $slotcancelother = self::build_slot_event_other_from_answer((object)$result, (int)$this->optionid);
+
         }
 
         $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
         // Check if the option is a multidates session.
         if (!$optiondates = $settings->sessions) {
+
+                    if (!empty($slotcancelother['bookedslots'])) {
+                        $slotcancelevent = bookinganswer_slotcancelled::create([
+                            'objectid' => (int)$result->id,
+                            'context' => context_module::instance($this->cmid),
+                            'userid' => $USER->id,
+                            'relateduserid' => (int)$result->userid,
+                            'other' => $slotcancelother,
+                        ]);
+                        $slotcancelevent->trigger();
+                    }
+
             $optiondates = false;
         }
 
@@ -1881,6 +1914,75 @@ class booking_option {
             $this->send_confirm_message($user);
         }
         return true;
+    }
+
+    /**
+     * Build event payload for slot-based booking events.
+     *
+     * @param object $answer booking answer row
+     * @param int $optionid booking option id
+     * @return array<string, mixed>
+     */
+    private static function build_slot_event_other_from_answer(object $answer, int $optionid): array {
+        $slots = self::extract_event_slots_from_answer($answer);
+
+        return [
+            'optionid' => $optionid,
+            'baid' => (int)($answer->id ?? $answer->baid ?? 0),
+            'bookedslots' => $slots,
+            'slotcount' => count($slots),
+        ];
+    }
+
+    /**
+     * Extract slot fragments for event payloads.
+     *
+     * @param object $answer booking answer row
+     * @return array<int, array{start:int,end:int}>
+     */
+    private static function extract_event_slots_from_answer(object $answer): array {
+        $slots = [];
+        $slotdata = slot_answer::get_slot_data($answer);
+
+        if (!empty($slotdata['teachers_per_slot']) && is_array($slotdata['teachers_per_slot'])) {
+            foreach ($slotdata['teachers_per_slot'] as $entry) {
+                if (!is_array($entry)) {
+                    continue;
+                }
+
+                $start = (int)($entry['start'] ?? 0);
+                $end = (int)($entry['end'] ?? 0);
+                if ($start <= 0 || $end <= $start) {
+                    continue;
+                }
+
+                $slots[$start . ':' . $end] = [
+                    'start' => $start,
+                    'end' => $end,
+                ];
+            }
+        }
+
+        if (empty($slots) && !empty($slotdata['slots']) && is_array($slotdata['slots'])) {
+            foreach ($slotdata['slots'] as $entry) {
+                if (!is_array($entry)) {
+                    continue;
+                }
+
+                $start = (int)($entry['start'] ?? 0);
+                $end = (int)($entry['end'] ?? 0);
+                if ($start <= 0 || $end <= $start) {
+                    continue;
+                }
+
+                $slots[$start . ':' . $end] = [
+                    'start' => $start,
+                    'end' => $end,
+                ];
+            }
+        }
+
+        return array_values($slots);
     }
 
     /**

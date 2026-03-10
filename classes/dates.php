@@ -126,6 +126,7 @@ class dates {
             $mform->setType('semesterid', PARAM_INT);
             $element->setValue($semesterid);
             $mform->hideIf('semesterid', 'selflearningcourse', 'eq', 1);
+            $mform->hideIf('semesterid', 'optiontype', 'eq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
             $elements[] = $element;
 
             $element = $mform->addElement(
@@ -138,6 +139,7 @@ class dates {
             $mform->setType('dayofweektime', PARAM_TEXT);
             $element->setValue($dayofweektime);
             $mform->hideIf('dayofweektime', 'selflearningcourse', 'eq', 1);
+            $mform->hideIf('dayofweektime', 'optiontype', 'eq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
             $elements[] = $element;
 
             $element = $mform->addElement(
@@ -148,6 +150,7 @@ class dates {
                 get_string('multipledayofweektimestringshint', 'mod_booking')
             );
             $mform->hideIf('multipledayofweektimestringshint', 'selflearningcourse', 'eq', 1);
+            $mform->hideIf('multipledayofweektimestringshint', 'optiontype', 'eq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
             $elements[] = $element;
 
             // Button to attach JavaScript to reload the form.
@@ -159,6 +162,7 @@ class dates {
                 ['data-action' => 'addoptiondateseries']
             );
             $mform->hideIf('addoptiondateseries', 'selflearningcourse', 'eq', 1);
+            $mform->hideIf('addoptiondateseries', 'optiontype', 'eq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
         }
 
         $datescounter = $defaultvalues["datescounter"] ?? 0;
@@ -303,9 +307,11 @@ class dates {
             );
         } else if (!empty($defaultvalues->id)) {
             $settings = singleton_service::get_instance_of_booking_option_settings($defaultvalues->id);
-            // Make sure, no sessions are created for self-learning courses.
+            $currentoptiontype = (int)($defaultvalues->optiontype ?? $settings->optiontype ?? MOD_BOOKING_OPTIONTYPE_DEFAULT);
+            // Make sure, no sessions are created for self-learning courses and slot-booking options.
             if (
                 empty($settings->selflearningcourse)
+                && $currentoptiontype !== MOD_BOOKING_OPTIONTYPE_SLOTBOOKING
                 && !isset($defaultvalues->coursestarttime_1)
             ) {
                 $sessions = $settings->sessions;
@@ -887,6 +893,7 @@ class dates {
             ['data-action' => 'adddatebutton']
         );
         $mform->hideIf('adddatebutton', 'selflearningcourse', 'eq', 1);
+        $mform->hideIf('adddatebutton', 'optiontype', 'eq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
     }
 
     /**
@@ -925,6 +932,7 @@ class dates {
             ['data-action' => 'adddatebutton']
         );
         $mform->hideIf('adddatebutton', 'selflearningcourse', 'eq', 1);
+        $mform->hideIf('adddatebutton', 'optiontype', 'eq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
     }
 
     /**

@@ -240,7 +240,7 @@ class booking_option_settings {
     /** @var int $status like 1 for cancelled */
     public $status = null;
 
-    /** @var int $type booking option type (0 = default, 1 = selflearningcourse) */
+    /** @var int $type booking option type (0 = default, 1 = selflearningcourse, 2 = slotbooking) */
     public $type = null;
 
     /** @var string $imageurl url */
@@ -308,6 +308,9 @@ class booking_option_settings {
 
     /** @var array $subpluginssettings Collects Data that Subplugins need in the Settings singleton*/
     public $subpluginssettings = [];
+
+    /** @var ?stdClass $slotconfig Cached slot booking configuration for this option */
+    public $slotconfig = null;
 
     /**
      * Constructor for the booking option settings class.
@@ -686,6 +689,14 @@ class booking_option_settings {
             } else {
                 $this->subpluginssettings = $dbrecord->subpluginssettings ?? [];
             }
+
+            // If slot config is not present in cache object, load it once and cache it.
+            if (!isset($dbrecord->slotconfig)) {
+                $this->load_slot_config_from_db($optionid);
+                $dbrecord->slotconfig = $this->slotconfig;
+            } else {
+                $this->slotconfig = $dbrecord->slotconfig;
+            }
             return $dbrecord;
         }
 
@@ -756,6 +767,19 @@ class booking_option_settings {
                 $this->subpluginssettings[$plugin->name] = $class::load_data_for_settings_singleton($optionid);
             }
         }
+    }
+
+    /**
+     * Load slot booking config for this option from DB.
+     *
+     * @param int $optionid
+     * @return void
+     */
+    private function load_slot_config_from_db(int $optionid): void {
+        global $DB;
+
+        $record = $DB->get_record('booking_slot_config', ['optionid' => $optionid], '*', IGNORE_MISSING);
+        $this->slotconfig = $record ?: null;
     }
 
     /**

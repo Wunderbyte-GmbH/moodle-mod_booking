@@ -1,0 +1,12 @@
+{{!
+    @template mod_booking/condition/slotbooking
+}}
+<div class="booking-slotbooking-prepage" data-optionid="{{optionid}}" data-userid="{{userid}}">
+    <p class="mb-3">{{#str}}slotbooking_prepage_description, mod_booking{{/str}}</p>
+    <div data-region="slotbooking-form"></div>
+</div>
+{{#js}}
+require(['mod_booking/condition/slotBooking'], function(init) {
+    init.init();
+});
+{{/js}}

@@ -744,6 +744,23 @@ if (!$tableallbookings->is_downloading()) {
         $tableallbookings->no_sorting('formfield_' . $counter);
     }
 
+    if (booking_option::get_value_of_json_by_key($optionid, 'slot_enabled')) {
+        $columns[] = 'slotstarttime';
+        $headers[] = get_string('starttime', 'mod_booking');
+        $columns[] = 'slotendtime';
+        $headers[] = get_string('endtime', 'mod_booking');
+        $columns[] = 'slotnumslots';
+        $headers[] = get_string('slot_report_numslots', 'mod_booking');
+        $columns[] = 'slotteachers';
+        $headers[] = get_string('slot_report_teachers', 'mod_booking');
+        $columns[] = 'slotprice';
+        $headers[] = get_string('slot_report_price', 'mod_booking');
+        if (has_capability('mod/booking:updatebooking', $context)) {
+            $columns[] = 'moveslot';
+            $headers[] = get_string('slot_move_action', 'mod_booking');
+        }
+    }
+
     $strbooking = get_string("modulename", "booking");
     $strbookings = get_string("modulenameplural", "booking");
     $strresponses = get_string("responses", "booking");
@@ -859,6 +876,9 @@ if (!$tableallbookings->is_downloading()) {
             ba.userid,
             ba.waitinglist,
             ba.notes,
+            ba.startdate,
+            ba.enddate,
+            ba.json,
             ba.places,
             ba.completeddate,
             \'\' otheroptions,
@@ -997,6 +1017,60 @@ if (!$tableallbookings->is_downloading()) {
                     get_string('sendmailtoallbookedusers', 'booking'), ['class' => 'btn btn-primary btn-sm me-2']) .
             "</span>";
         }
+    }
+
+    $isslotoption = (int)($bookingoption->option->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT)
+        === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING;
+
+    if (
+        $isslotoption && (
+            $isteacherofthisoption
+            || is_siteadmin()
+            || has_capability('mod/booking:manageslotunavailability', $context)
+            || has_capability('mod/booking:updatebooking', $context)
+        )
+    ) {
+        $teacherunavailabilityurl = new moodle_url('/mod/booking/teacherunavailability.php', [
+            'id' => $cm->id,
+            'optionid' => $optionid,
+            'scopeoptionid' => 0,
+        ]);
+        $actionbuttonstop .= "<span>" .
+            html_writer::link(
+                $teacherunavailabilityurl,
+                '<i class="fa fa-calendar-times-o fa-fw" aria-hidden="true"></i>&nbsp;' .
+                get_string('slot_teacher_unavailability', 'mod_booking'),
+                ['class' => 'btn btn-primary btn-sm me-2']
+            ) .
+        "</span>";
+    }
+
+    if ($isslotoption) {
+        $slotteacherassignmenturl = new moodle_url('/mod/booking/slotteacherassignments.php', [
+            'id' => $cm->id,
+            'optionid' => $optionid,
+        ]);
+        $actionbuttonstop .= "<span>" .
+            html_writer::link(
+                $slotteacherassignmenturl,
+                '<i class="fa fa-users fa-fw" aria-hidden="true"></i>&nbsp;' .
+                get_string('slot_student_teacher_assignments', 'mod_booking'),
+                ['class' => 'btn btn-primary btn-sm me-2']
+            ) .
+        "</span>";
+
+        $slotcalendarurl = new moodle_url('/mod/booking/slotcalendar.php', [
+            'id' => $cm->id,
+            'optionid' => $optionid,
+        ]);
+        $actionbuttonstop .= "<span>" .
+            html_writer::link(
+                $slotcalendarurl,
+                '<i class="fa fa-calendar fa-fw" aria-hidden="true"></i>&nbsp;' .
+                get_string('slot_calendar_title', 'mod_booking'),
+                ['class' => 'btn btn-primary btn-sm me-2']
+            ) .
+        "</span>";
     }
 
     // Button to download signin sheet.
@@ -1361,6 +1435,23 @@ if (!$tableallbookings->is_downloading()) {
         $headers[] = !empty($customformfield->label) ? $customformfield->label : 'label_' . $counter;
     }
 
+    if (booking_option::get_value_of_json_by_key($optionid, 'slot_enabled')) {
+        $columns[] = 'slotstarttime';
+        $headers[] = get_string('starttime', 'mod_booking');
+        $columns[] = 'slotendtime';
+        $headers[] = get_string('endtime', 'mod_booking');
+        $columns[] = 'slotnumslots';
+        $headers[] = get_string('slot_report_numslots', 'mod_booking');
+        $columns[] = 'slotteachers';
+        $headers[] = get_string('slot_report_teachers', 'mod_booking');
+        $columns[] = 'slotprice';
+        $headers[] = get_string('slot_report_price', 'mod_booking');
+        if (has_capability('mod/booking:updatebooking', $context)) {
+            $columns[] = 'moveslot';
+            $headers[] = get_string('slot_move_action', 'mod_booking');
+        }
+    }
+
     if (
         groups_get_activity_groupmode($cm) == SEPARATEGROUPS &&
             !has_capability('moodle/site:accessallgroups', \context_course::instance($course->id))
@@ -1420,6 +1511,9 @@ if (!$tableallbookings->is_downloading()) {
                     ba.waitinglist AS waitinglist,
                     ba.status,
                     ba.notes,
+                    ba.startdate,
+                    ba.enddate,
+                    ba.json,
                     ba.places,
                     ba.timecreated,
                     u.idnumber as idnumber

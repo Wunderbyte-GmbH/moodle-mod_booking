@@ -26,6 +26,7 @@ namespace mod_booking\option;
 
 use coding_exception;
 use mod_booking\booking_option_settings;
+use mod_booking\option\type_resolver;
 use mod_booking\singleton_service;
 use moodle_exception;
 use MoodleQuickForm;
@@ -65,6 +66,8 @@ class fields_info {
         $error = [];
         // Todo: implement error handling.
 
+        type_resolver::normalize_formdata($formdata, (int)($newoption->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT));
+
         $context = context_module::instance($formdata->cmid);
         $classes = self::get_field_classes($context->id);
 
@@ -87,6 +90,11 @@ class fields_info {
                 }
             }
         }
+
+        $newoption->type = type_resolver::normalize_formdata(
+            $formdata,
+            (int)($newoption->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT)
+        );
 
         return $feedback;
     }

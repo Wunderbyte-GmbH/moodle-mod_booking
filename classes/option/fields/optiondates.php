@@ -162,6 +162,17 @@ class optiondates extends field_base {
      */
     public static function validation(array $data, array $files, array &$errors): void {
 
+        if ((int)($data['optiontype'] ?? MOD_BOOKING_OPTIONTYPE_DEFAULT) === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING) {
+            $keys = preg_grep('/^optiondateid_/', array_keys($data));
+            if (!empty($keys)) {
+                $errors['optiontype'] = get_string(
+                    'error:selflearningcourseallowsnodates',
+                    'mod_booking',
+                    get_string('optiontype_slotbooking', 'mod_booking')
+                );
+            }
+        }
+
         // Run through all dates to make sure we don't have an array.
         // We need to transform dates to timestamps.
         [$dates, $highestindex] = dates::get_list_of_submitted_dates($data);
@@ -194,6 +205,7 @@ class optiondates extends field_base {
         // Standardfunctionality to add a header to the mform (only if its not yet there).
         if ($applyheader) {
             fields_info::add_header_to_mform($mform, self::$header);
+            $mform->hideIf('datesheader', 'optiontype', 'eq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
         }
         $mform->addElement('hidden', 'datesmarker', 0);
         $mform->setType('datesmarker', PARAM_INT);
@@ -208,6 +220,17 @@ class optiondates extends field_base {
      * @throws \dml_exception
      */
     public static function save_data(stdClass &$formdata, stdClass &$option): array {
+
+        if ((int)($formdata->optiontype ?? MOD_BOOKING_OPTIONTYPE_DEFAULT) === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING) {
+            foreach (array_keys((array)$formdata) as $key) {
+                if (preg_match('/^(optiondateid_|coursestarttime_|courseendtime_|daystonotify_)/', $key)) {
+                    unset($formdata->{$key});
+                }
+            }
+            $formdata->datescounter = 0;
+            $formdata->dayofweektime = '';
+            $formdata->semesterid = 0;
+        }
 
         return dates::save_optiondates_from_form($formdata, $option);
     }

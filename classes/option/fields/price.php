@@ -159,7 +159,6 @@ class price extends field_base {
 
         // Save the prices.
         $price = new Mod_bookingPrice('option', $option->id);
-
         $price->save_from_form($formdata);
     }
 

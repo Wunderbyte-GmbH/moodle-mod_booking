@@ -123,6 +123,12 @@ export const init = (cmid, id, optionid, bookingid, copyoptionid, returnurl) => 
             dynamicForm.processNoSubmitButton(button);
         }
 
+        if (e.target.name == 'optiontype') {
+            window.skipClientValidation = true;
+            let button = document.querySelector('[name="btn_optiontype"]');
+            dynamicForm.processNoSubmitButton(button);
+        }
+
         if (e.target.name == 'restrictanswerperiodopening' || e.target.name == 'restrictanswerperiodclosing') {
             hidecheckbox(checkbox1, checkbox2, closest, conditionalCheckbox, true);
 

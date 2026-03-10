@@ -25,11 +25,13 @@
 namespace mod_booking;
 
 use coding_exception;
+use mod_booking\local\slotbooking\slot_answer;
 use mod_booking\output\report_edit_bookingnotes;
 use html_writer;
 use moodle_url;
 use stdClass;
 use user_picture;
+use context_module;
 defined('MOODLE_INTERNAL') || die();
 require_once('../../lib/tablelib.php');
 
@@ -211,6 +213,14 @@ class all_userbookings extends \table_sql {
      * @throws coding_exception
      */
     protected function col_coursestarttime($values) {
+        $slotdata = slot_answer::get_slot_data($values);
+        if (!empty($slotdata['slots']) && is_array($slotdata['slots'])) {
+            $firstslot = reset($slotdata['slots']);
+            if (is_array($firstslot) && !empty($firstslot['start'])) {
+                return userdate((int)$firstslot['start'], get_string('strftimedatetime', 'langconfig'));
+            }
+        }
+
         if ($values->coursestarttime == 0) {
             return '';
         } else {
@@ -225,11 +235,216 @@ class all_userbookings extends \table_sql {
      * @throws coding_exception
      */
     protected function col_courseendtime($values) {
+        $slotdata = slot_answer::get_slot_data($values);
+        if (!empty($slotdata['slots']) && is_array($slotdata['slots'])) {
+            $lastslot = end($slotdata['slots']);
+            if (is_array($lastslot) && !empty($lastslot['end'])) {
+                return userdate((int)$lastslot['end'], get_string('strftimedatetime', 'langconfig'));
+            }
+        }
+
         if ($values->courseendtime == 0) {
             return '';
         } else {
             return userdate($values->courseendtime, get_string('strftimedatetime', 'langconfig'));
         }
+    }
+
+    /**
+     * Column for number of booked slots.
+     *
+     * @param object $values
+     * @return string
+     */
+    protected function col_slotnumslots($values): string {
+        $slotdata = slot_answer::get_slot_data($values);
+        if (empty($slotdata['slots']) || !is_array($slotdata['slots'])) {
+            return '';
+        }
+
+        return (string)count($slotdata['slots']);
+    }
+
+    /**
+     * Column for slot start time.
+     *
+     * @param object $values
+     * @return string
+     */
+    protected function col_slotstarttime($values): string {
+        $slotdata = slot_answer::get_slot_data($values);
+        if (!empty($slotdata['slots']) && is_array($slotdata['slots'])) {
+            $firstslot = reset($slotdata['slots']);
+            if (is_array($firstslot) && !empty($firstslot['start'])) {
+                return userdate((int)$firstslot['start'], get_string('strftimedatetime', 'langconfig'));
+            }
+        }
+
+        if (!empty($values->startdate)) {
+            return userdate((int)$values->startdate, get_string('strftimedatetime', 'langconfig'));
+        }
+
+        return '';
+    }
+
+    /**
+     * Column for slot end time.
+     *
+     * @param object $values
+     * @return string
+     */
+    protected function col_slotendtime($values): string {
+        $slotdata = slot_answer::get_slot_data($values);
+        if (!empty($slotdata['slots']) && is_array($slotdata['slots'])) {
+            $lastslot = end($slotdata['slots']);
+            if (is_array($lastslot) && !empty($lastslot['end'])) {
+                return userdate((int)$lastslot['end'], get_string('strftimedatetime', 'langconfig'));
+            }
+        }
+
+        if (!empty($values->enddate)) {
+            return userdate((int)$values->enddate, get_string('strftimedatetime', 'langconfig'));
+        }
+
+        return '';
+    }
+
+    /**
+     * Column for assigned teachers from slot JSON.
+     *
+     * @param object $values
+     * @return string
+     */
+    protected function col_slotteachers($values): string {
+        $slotdata = slot_answer::get_slot_data($values);
+        if (!empty($slotdata['teachers_per_slot']) && is_array($slotdata['teachers_per_slot'])) {
+            $allteacherids = [];
+            foreach ($slotdata['teachers_per_slot'] as $entry) {
+                if (!is_array($entry) || empty($entry['teachers']) || !is_array($entry['teachers'])) {
+                    continue;
+                }
+                $allteacherids = array_merge($allteacherids, $entry['teachers']);
+            }
+
+            $allteacherids = array_values(array_unique(array_filter(array_map('intval', $allteacherids), function ($id) {
+                return $id > 0;
+            })));
+
+            $teachers = !empty($allteacherids) ? user_get_users_by_id($allteacherids) : [];
+            $lines = [];
+
+            foreach ($slotdata['teachers_per_slot'] as $entry) {
+                if (!is_array($entry) || empty($entry['teachers']) || !is_array($entry['teachers'])) {
+                    continue;
+                }
+
+                $teacherids = array_values(array_unique(array_filter(array_map('intval', $entry['teachers']), function ($id) {
+                    return $id > 0;
+                })));
+                if (empty($teacherids)) {
+                    continue;
+                }
+
+                $names = [];
+                foreach ($teacherids as $teacherid) {
+                    if (!empty($teachers[$teacherid])) {
+                        $names[] = fullname($teachers[$teacherid]);
+                    } else {
+                        $names[] = (string)$teacherid;
+                    }
+                }
+
+                $start = (int)($entry['start'] ?? 0);
+                $end = (int)($entry['end'] ?? 0);
+
+                if ($start > 0 && $end > $start) {
+                    $slotlabel = userdate($start, get_string('strftimedatetime', 'langconfig'))
+                        . ' - ' . userdate($end, get_string('strftimetime', 'langconfig'));
+                    $lines[] = $slotlabel . ': ' . implode(', ', $names);
+                } else {
+                    $lines[] = implode(', ', $names);
+                }
+            }
+
+            if (!empty($lines)) {
+                return implode(' ; ', $lines);
+            }
+        }
+
+        if (empty($slotdata['teachers']) || !is_array($slotdata['teachers'])) {
+            return '';
+        }
+
+        $teacherids = array_values(array_unique(array_filter(array_map('intval', $slotdata['teachers']), function ($id) {
+            return $id > 0;
+        })));
+
+        if (empty($teacherids)) {
+            return '';
+        }
+
+        $teachers = user_get_users_by_id($teacherids);
+        if (empty($teachers)) {
+            return implode(', ', $teacherids);
+        }
+
+        $names = [];
+        foreach ($teacherids as $teacherid) {
+            if (!empty($teachers[$teacherid])) {
+                $names[] = fullname($teachers[$teacherid]);
+            } else {
+                $names[] = (string)$teacherid;
+            }
+        }
+
+        return implode(', ', $names);
+    }
+
+    /**
+     * Column for slot price paid from slot JSON.
+     *
+     * @param object $values
+     * @return string
+     */
+    protected function col_slotprice($values): string {
+        $slotdata = slot_answer::get_slot_data($values);
+        if (!isset($slotdata['price'])) {
+            return '';
+        }
+
+        return (string)$slotdata['price'];
+    }
+
+    /**
+     * Column for move slot action.
+     *
+     * @param object $values
+     * @return string
+     */
+    protected function col_moveslot($values): string {
+        if (empty($this->cm)) {
+            return '';
+        }
+
+        $context = context_module::instance($this->cm->id);
+        $canmoveslots = has_capability('mod/booking:moveslots', $context)
+            || has_capability('mod/booking:updatebooking', $context);
+        if (!$canmoveslots) {
+            return '';
+        }
+
+        $slotdata = slot_answer::get_slot_data($values);
+        if (empty($slotdata)) {
+            return '';
+        }
+
+        $url = new moodle_url('/mod/booking/moveslot.php', [
+            'id' => $this->cm->id,
+            'optionid' => $values->optionid,
+            'baid' => $values->id,
+        ]);
+
+        return html_writer::link($url, get_string('slot_move_action', 'mod_booking'));
     }
 
     /**

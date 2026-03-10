@@ -54,6 +54,8 @@ use mod_booking\output\col_availableplaces;
 use mod_booking\output\col_teacher;
 use mod_booking\price;
 use mod_booking\singleton_service;
+use mod_booking\local\slotbooking\slot_answer;
+use mod_booking\local\slotbooking\slot_availability;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -626,6 +628,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @throws coding_exception
      */
     public function col_bookings($values) {
+        global $DB, $USER;
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -640,7 +643,72 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $output = singleton_service::get_renderer('mod_booking');
 
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
-        $buyforuser = price::return_user_to_buy_for();
+
+        $targetuserid = (int)$this->foruserid;
+        if ($targetuserid <= 0) {
+            $targetuserid = (int)$USER->id;
+        }
+        $buyforuser = singleton_service::get_instance_of_user($targetuserid);
+
+        $isslotoption = (int)($settings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT) === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING;
+        if ($isslotoption) {
+            $displaymode = (string)get_config('booking', 'slot_bookings_display_mode');
+            if (!in_array($displaymode, ['availableforuser', 'bookedvscapacity'], true)) {
+                $displaymode = 'availableforuser';
+            }
+
+            $slots = slot_availability::get_slots_with_status((int)$values->id, $targetuserid);
+
+            $slotcounttext = '';
+            if ($displaymode === 'bookedvscapacity') {
+                $bookedslots = 0;
+                $bookableslots = 0;
+                foreach ($slots as $slot) {
+                    if (($slot['status'] ?? '') === 'unavailable') {
+                        continue;
+                    }
+                    $bookedslots += max(0, (int)($slot['bookings'] ?? 0));
+                    $bookableslots += max(0, (int)($slot['capacity'] ?? 0));
+                }
+                $slotcounttext = $bookedslots . ' / ' . $bookableslots;
+            } else {
+                $availableuserslots = 0;
+                foreach ($slots as $slot) {
+                    if (in_array((string)($slot['status'] ?? 'unavailable'), ['open', 'warning'], true)) {
+                        $availableuserslots++;
+                    }
+                }
+                $slotcounttext = (string)$availableuserslots;
+            }
+
+            if ($this->is_downloading()) {
+                return $slotcounttext;
+            }
+
+            $cmid = (int)($settings->cmid ?? 0);
+            if ($cmid > 0) {
+                $syscontext = context_system::instance();
+                $modcontext = context_module::instance($cmid);
+                $canviewreport = (
+                    has_capability('mod/booking:viewreports', $syscontext)
+                    || has_capability('mod/booking:updatebooking', $modcontext)
+                    || has_capability('mod/booking:updatebooking', $syscontext)
+                    || booking_check_if_teacher((int)$settings->id)
+                );
+
+                if ($canviewreport) {
+                    $reporturl = new moodle_url('/mod/booking/report.php', [
+                        'id' => $cmid,
+                        'optionid' => (int)$settings->id,
+                    ]);
+
+                    return html_writer::link($reporturl, $slotcounttext, ['style' => 'text-decoration: none;']);
+                }
+            }
+
+            return $slotcounttext;
+        }
+
         // Render col_bookings using a template.
         $data = new col_availableplaces($values, $settings, $buyforuser);
 
@@ -891,6 +959,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @throws coding_exception
      */
     public function col_showdates($values) {
+        global $USER;
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -918,13 +987,77 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $cmid = $settings->cmid;
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
+        $isslotoption = (int)($settings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT) === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING;
+        if ($isslotoption) {
+            $answersobject = singleton_service::get_instance_of_booking_answers($settings);
+            $usersonlist = $answersobject->get_usersonlist();
+
+            if (empty($usersonlist[$USER->id])) {
+                return '';
+            }
+
+            $answer = $usersonlist[$USER->id];
+            $slotdata = slot_answer::get_slot_data($answer);
+            if (empty($slotdata['slots']) || !is_array($slotdata['slots'])) {
+                return '';
+            }
+
+            $slots = array_values(array_filter($slotdata['slots'], static function ($slot): bool {
+                return is_array($slot)
+                    && !empty($slot['start'])
+                    && !empty($slot['end'])
+                    && (int)$slot['end'] > (int)$slot['start'];
+            }));
+
+            if (empty($slots)) {
+                return '';
+            }
+
+            usort($slots, static function (array $left, array $right): int {
+                return (int)$left['start'] <=> (int)$right['start'];
+            });
+
+            $slotlines = [];
+            foreach ($slots as $slot) {
+                $start = (int)$slot['start'];
+                $end = (int)$slot['end'];
+                $slotlines[] = userdate($start, get_string('strftimedatetime', 'langconfig'))
+                    . ' - ' . userdate($end, get_string('strftimetime', 'langconfig'));
+            }
+
+            if (empty($slotlines)) {
+                return '';
+            }
+
+            $label = get_string('slot_report_numslots', 'mod_booking');
+
+            if ($this->is_downloading()) {
+                return $label . ': ' . implode(' | ', $slotlines);
+            }
+
+            $ret = html_writer::start_div('booking-showdates-area');
+            $ret .= html_writer::start_div('booking-showdates-title');
+            $ret .= html_writer::span(html_writer::tag('i', '', [
+                'class' => 'fa fa-calendar fa-fw',
+                'aria-hidden' => 'true',
+            ]));
+            $ret .= html_writer::span(html_writer::tag('b', s($label) . ':'));
+            $ret .= html_writer::end_div();
+
+            foreach ($slotlines as $line) {
+                $ret .= html_writer::div(s($line));
+            }
+
+            $ret .= html_writer::end_div();
+            return $ret;
+        }
+
         $ret = '';
         if ($this->is_downloading()) {
             $datestrings = dates_handler::return_array_of_sessions_datestrings($optionid);
             $ret = implode(' | ', $datestrings);
         } else {
             // Use the renderer to output this column.
-            global $USER;
             $lang = current_language();
             $timezone = \core_date::get_user_timezone($USER);
             $timezonetoken = str_replace('/', '_', $timezone);

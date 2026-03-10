@@ -1513,6 +1513,7 @@ class shortcodes {
             [
                 0 => get_string('optiontypefilternormal', 'mod_booking'),
                 1 => $selflearningcourselabel,
+                2 => get_string('optiontypefilterslotbooking', 'mod_booking'),
             ]
         );
         $table->add_filter($optiontypefilter);
