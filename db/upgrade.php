@@ -5191,9 +5191,131 @@ function xmldb_booking_upgrade($oldversion) {
     if ($oldversion < 2026030500) {
         // Run a script that deletes all custom fields within the tool_certificate component.
         delete_customfields_in_tool_certificate_2026030500();
-
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2026030500, 'booking');
+    }
+
+    if ($oldversion < 2026030501) {
+        upgrade_mod_savepoint(true, 2026030501, 'booking');
+    }
+
+    if ($oldversion < 2026030502) {
+        $table = new xmldb_table('booking_slot_config');
+        $field = new xmldb_field(
+            'booking_interface',
+            XMLDB_TYPE_CHAR,
+            '20',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            'list',
+            'max_slots_per_user'
+        );
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2026030502, 'booking');
+    }
+
+    if ($oldversion < 2026030900) {
+        // Define table booking_slot_student_teacher to be created.
+        $table = new xmldb_table('booking_slot_student_teacher');
+
+        // Adding fields to table booking_slot_student_teacher.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('teacherid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+
+        // Adding keys to table booking_slot_student_teacher.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('fk_optionid', XMLDB_KEY_FOREIGN, ['optionid'], 'booking_options', ['id']);
+
+        // Adding indexes to table booking_slot_student_teacher.
+        $table->add_index('optionid-userid', XMLDB_INDEX_NOTUNIQUE, ['optionid', 'userid']);
+        $table->add_index('optionid-teacherid', XMLDB_INDEX_NOTUNIQUE, ['optionid', 'teacherid']);
+        $table->add_index('optionid-userid-teacherid', XMLDB_INDEX_UNIQUE, ['optionid', 'userid', 'teacherid']);
+
+        // Conditionally launch create table for booking_slot_student_teacher.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        upgrade_mod_savepoint(true, 2026030900, 'booking');
+    }
+
+    if ($oldversion < 2026030901) {
+        // Define table booking_slot_config to be created.
+        $table = new xmldb_table('booking_slot_config');
+
+        // Adding fields to table booking_slot_config.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('slot_type', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, 'fixed');
+        $table->add_field('slot_duration_minutes', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('slot_interval_minutes', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('opening_time', XMLDB_TYPE_CHAR, '5', null, XMLDB_NOTNULL, null, '08:00');
+        $table->add_field('closing_time', XMLDB_TYPE_CHAR, '5', null, XMLDB_NOTNULL, null, '18:00');
+        $table->add_field('valid_from', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('valid_until', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('days_of_week', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, '1,2,3,4,5');
+        $table->add_field('max_participants_per_slot', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '1');
+        $table->add_field('max_slots_per_user', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '1');
+        $table->add_field('teacher_pool', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('teachers_required', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+
+        // Adding keys to table booking_slot_config.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('fk_optionid', XMLDB_KEY_FOREIGN, ['optionid'], 'booking_options', ['id']);
+
+        // Conditionally launch create table for booking_slot_config.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Define table booking_teacher_unavailability to be created.
+        $table = new xmldb_table('booking_teacher_unavailability');
+
+        // Adding fields to table booking_teacher_unavailability.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('teacherid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('unavailable_from', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('unavailable_until', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('reason', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+
+        // Adding keys to table booking_teacher_unavailability.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Adding indexes to table booking_teacher_unavailability.
+        $table->add_index('optionid-teacherid', XMLDB_INDEX_NOTUNIQUE, ['optionid', 'teacherid']);
+
+        // Conditionally launch create table for booking_teacher_unavailability.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Add startdate and enddate to booking_answers for slot overlap queries.
+        $table = new xmldb_table('booking_answers');
+        $startdate = new xmldb_field('startdate', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'completeddate');
+        $enddate = new xmldb_field('enddate', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'startdate');
+
+        if (!$dbman->field_exists($table, $startdate)) {
+            $dbman->add_field($table, $startdate);
+        }
+        if (!$dbman->field_exists($table, $enddate)) {
+            $dbman->add_field($table, $enddate);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2026030901, 'booking');
     }
 
     return true;
