@@ -96,12 +96,6 @@ class teacherunavailability_form extends dynamic_form {
             }
         }
 
-        if (empty($indices) && $fallbackcounter > 0) {
-            for ($index = 1; $index <= $fallbackcounter; $index++) {
-                $indices[] = $index;
-            }
-        }
-
         $indices = array_values(array_unique($indices));
         sort($indices);
 
@@ -110,12 +104,13 @@ class teacherunavailability_form extends dynamic_form {
 
     /**
      * Add one unavailability entry as collapsible card.
-     *
      * @param \MoodleQuickForm $mform
      * @param int $index
-     * @param array{id:int, from:int, until:int, reason:string} $entry
+     * @param array $entry
      * @param bool $expanded
+     *
      * @return void
+     *
      */
     private function add_entry_as_collapsible(\MoodleQuickForm $mform, int $index, array $entry, bool $expanded): void {
         global $OUTPUT;
@@ -198,6 +193,13 @@ class teacherunavailability_form extends dynamic_form {
             }
         }
 
+        // `unavailability_counter` is a hidden field rendered by definition() on every
+        // AJAX cycle (including noSubmit delete calls). Its presence means the form has
+        // already been through at least one render and the submitted state is authoritative.
+        // Only fall back to the DB on the very first (initial) page load where this field
+        // is absent — this way deleting the last row and then saving works correctly.
+        $formhasbeenrendered = array_key_exists('unavailability_counter', (array)$this->_ajaxformdata);
+
         if (!empty($indices)) {
             sort($indices);
             foreach ($indices as $index) {
@@ -208,7 +210,8 @@ class teacherunavailability_form extends dynamic_form {
                     'reason' => (string)($this->_ajaxformdata['reason_' . $index] ?? ''),
                 ];
             }
-        } else {
+        } else if (!$formhasbeenrendered) {
+            // Only fall back to DB on the very first load (unavailability_counter not yet present).
             $optionid = (int)($this->_ajaxformdata['optionid'] ?? 0);
             $teacherid = (int)($this->_ajaxformdata['teacherid'] ?? 0);
 

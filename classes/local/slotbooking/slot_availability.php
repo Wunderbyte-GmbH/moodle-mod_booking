@@ -49,6 +49,22 @@ class slot_availability {
         return max(0, (int)$config->teachers_required);
     }
 
+        /**
+         * Clear the per-request booked-slot-range cache for a given option.
+         * Call this between successive bookings in the same PHP request so slot
+         * availability is re-evaluated from the database each time.
+         *
+         * @param int $optionid booking option id (pass 0 to clear all)
+         * @return void
+         */
+        public static function clear_request_cache(int $optionid = 0): void {
+            if ($optionid > 0) {
+                unset(self::$bookedslotrangecache[$optionid]);
+            } else {
+                self::$bookedslotrangecache = [];
+            }
+        }
+
     /**
      * Returns available teachers for a given slot.
      *
@@ -99,6 +115,7 @@ class slot_availability {
      * @param int $optionid booking option id
      * @param int $slotstart slot start timestamp
      * @param int $slotend slot end timestamp
+     * @param int $excludeanswerid booking answer id to ignore in overlap checks
      * @return int
      */
     public static function count_bookings(int $optionid, int $slotstart, int $slotend, int $excludeanswerid = 0): int {
@@ -158,8 +175,8 @@ class slot_availability {
                 continue;
             }
 
-            $status = (int)($answer->status ?? $answer->waitinglist ?? MOD_BOOKING_STATUSPARAM_NOTBOOKED);
-            if (in_array($status, [MOD_BOOKING_STATUSPARAM_NOTBOOKED, MOD_BOOKING_STATUSPARAM_DELETED], true)) {
+            $bookingstate = (int)($answer->waitinglist ?? MOD_BOOKING_STATUSPARAM_NOTBOOKED);
+            if (self::is_inactive_booking_state($bookingstate)) {
                 continue;
             }
 
@@ -242,6 +259,9 @@ class slot_availability {
      * @param int $optionid booking option id
      * @param int $slotstart slot start timestamp
      * @param int $slotend slot end timestamp
+     * @param int $userid user id used for overlap and teacher assignment checks
+     * @param int[] $selectedteachers selected teacher ids requested for this slot
+     * @param int $excludeanswerid booking answer id to ignore in overlap checks
      * @return bool
      */
     public static function is_slot_available(
@@ -426,6 +446,10 @@ class slot_availability {
             return [];
         }
 
+        if ((string)($config->slot_type ?? 'fixed') === 'session') {
+            return self::get_session_slots_for_range($optionid, $rangestart, $rangeend);
+        }
+
         $duration = (int)$config->slot_duration_minutes * MINSECS;
         if ($duration <= 0) {
             return [];
@@ -477,11 +501,55 @@ class slot_availability {
     }
 
     /**
-     * Returns slots with availability status.
+     * Returns slots directly from option sessions (booking_optiondates).
      *
      * @param int $optionid booking option id
      * @param int $rangestart range start timestamp
      * @param int $rangeend range end timestamp
+     * @return array<int, array{0:int, 1:int}>
+     */
+    private static function get_session_slots_for_range(int $optionid, int $rangestart, int $rangeend): array {
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        if (empty($settings) || empty($settings->sessions)) {
+            return [];
+        }
+
+        $slots = [];
+        foreach ((array)$settings->sessions as $session) {
+            $slotstart = (int)($session->coursestarttime ?? 0);
+            $slotend = (int)($session->courseendtime ?? 0);
+            if ($slotstart <= 0 || $slotend <= $slotstart) {
+                continue;
+            }
+
+            // Keep sessions that overlap with the requested range.
+            if ($slotend <= $rangestart || $slotstart >= $rangeend) {
+                continue;
+            }
+
+            $slots[$slotstart . ':' . $slotend] = [$slotstart, $slotend];
+        }
+
+        if (empty($slots)) {
+            return [];
+        }
+
+        $slots = array_values($slots);
+        usort($slots, static function(array $a, array $b): int {
+            if ($a[0] !== $b[0]) {
+                return $a[0] <=> $b[0];
+            }
+            return $a[1] <=> $b[1];
+        });
+
+        return $slots;
+    }
+
+    /**
+     * Returns slots with availability status.
+     *
+     * @param int $optionid booking option id
+     * @param int $userid user id
      * @return array<int, array{start:int, end:int, status:string, bookings:int, capacity:int}>
      */
     public static function get_slots_with_status(int $optionid, int $userid = 0): array {
@@ -635,6 +703,7 @@ class slot_availability {
      * @param \stdClass $config slot config record
      * @param int $slotstart slot start timestamp
      * @param int $slotend slot end timestamp
+     * @param int $excludeanswerid booking answer id to ignore in overlap checks
      * @return bool
      */
     private static function has_teacher_capacity(\stdClass $config, int $slotstart, int $slotend, int $excludeanswerid = 0): bool {
@@ -654,6 +723,7 @@ class slot_availability {
      * @param \stdClass $config slot config record
      * @param int $slotstart slot start timestamp
      * @param int $slotend slot end timestamp
+     * @param int $excludeanswerid booking answer id to ignore in overlap checks
      * @return int[]
      */
     private static function get_available_teacher_ids(
@@ -757,17 +827,19 @@ class slot_availability {
             return [];
         }
 
-        $sql = "SELECT id, json, startdate, enddate
+            $inactivestates = self::get_inactive_booking_states();
+            [$notinsql, $notinparams] = $DB->get_in_or_equal($inactivestates, SQL_PARAMS_NAMED, 'inactive', false);
+
+            $sql = "SELECT id, json, startdate, enddate
                   FROM {booking_answers}
                  WHERE startdate < :slotend
                    AND enddate > :slotstart
-                   AND status NOT IN (:statusnotbooked, :statusdeleted)";
+                   AND waitinglist {$notinsql}";
         $params = [
             'slotend' => $slotend,
             'slotstart' => $slotstart,
-            'statusnotbooked' => MOD_BOOKING_STATUSPARAM_NOTBOOKED,
-            'statusdeleted' => MOD_BOOKING_STATUSPARAM_DELETED,
         ];
+            $params = array_merge($params, $notinparams);
 
         if ($excludeanswerid > 0) {
             $sql .= ' AND id <> :excludeanswerid';
@@ -881,21 +953,23 @@ class slot_availability {
             return [];
         }
 
-        $sql = "SELECT id, optionid
+            $inactivestates = self::get_inactive_booking_states();
+            [$notinsql, $notinparams] = $DB->get_in_or_equal($inactivestates, SQL_PARAMS_NAMED, 'inactive', false);
+
+            $sql = "SELECT id, optionid
                   FROM {booking_answers}
                  WHERE userid = :userid
                    AND optionid <> :optionid
                    AND startdate < :slotend
                    AND enddate > :slotstart
-                   AND status NOT IN (:statusnotbooked, :statusdeleted)";
+                   AND waitinglist {$notinsql}";
         $params = [
             'userid' => $userid,
             'optionid' => $optionid,
             'slotend' => $slotend,
             'slotstart' => $slotstart,
-            'statusnotbooked' => MOD_BOOKING_STATUSPARAM_NOTBOOKED,
-            'statusdeleted' => MOD_BOOKING_STATUSPARAM_DELETED,
         ];
+            $params = array_merge($params, $notinparams);
 
         if ($excludeanswerid > 0) {
             $sql .= ' AND id <> :excludeanswerid';
@@ -940,6 +1014,39 @@ class slot_availability {
         }
 
         return $names;
+    }
+
+    /**
+     * Return booking states that must not consume slot capacity.
+     *
+     * @return int[]
+     */
+    private static function get_inactive_booking_states(): array {
+        return [
+            MOD_BOOKING_STATUSPARAM_NOTBOOKED,
+            MOD_BOOKING_STATUSPARAM_DELETED,
+            MOD_BOOKING_STATUSPARAM_BOOKED_DELETED,
+            MOD_BOOKING_STATUSPARAM_WAITINGLIST_DELETED,
+            MOD_BOOKING_STATUSPARAM_RESERVED_DELETED,
+            MOD_BOOKING_STATUSPARAM_NOTIFYMELIST_DELETED,
+            MOD_BOOKING_STATUSPARAM_CONFIRMATION_DELETED,
+        ];
+    }
+
+    /**
+     * Check if a booking state should be ignored for slot occupancy logic.
+     *
+     * @param int $bookingstate
+     * @return bool
+     */
+    private static function is_inactive_booking_state(int $bookingstate): bool {
+        static $lookup = null;
+
+        if ($lookup === null) {
+            $lookup = array_fill_keys(self::get_inactive_booking_states(), true);
+        }
+
+        return !empty($lookup[$bookingstate]);
     }
 
     /**

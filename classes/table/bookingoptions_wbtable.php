@@ -1296,6 +1296,26 @@ class bookingoptions_wbtable extends wunderbyte_table {
                     ) . '</div>';
             }
 
+            if (has_capability('mod/booking:bookallstudents', $context)) {
+                $bookallstudentsurl = new moodle_url(
+                    '/mod/booking/bulk_book_handler.php',
+                    [
+                        'optionid' => $optionid,
+                        'sesskey' => sesskey(),
+                    ]
+                );
+
+                $ddoptions[] = '<div class="dropdown-item">' .
+                    html_writer::link(
+                        $bookallstudentsurl,
+                        $OUTPUT->pix_icon(
+                            'i/users',
+                            get_string('bookallstudents', 'mod_booking')
+                        ) .
+                        get_string('bookallstudents', 'mod_booking')
+                    ) . '</div>';
+            }
+
             // Create booking option from each option date.
             $createfromoptiondateurl = new moodle_url(
                 '/mod/booking/editoptions.php',

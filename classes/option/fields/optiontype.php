@@ -178,12 +178,25 @@ class optiontype extends field_base {
      * @return void
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
+        if (!empty($data->importing)) {
+            $data->selflearningcourse = $data->selflearningcourse
+                ?? $settings->selflearningcourse ?? 0;
+        } else if (!isset($data->selflearningcourse) && !empty($settings->selflearningcourse)) {
+            $data->selflearningcourse = $settings->selflearningcourse;
+        }
+
+        if (!empty($data->selflearningcourse)) {
+            $data->optiontype = MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE;
+        }
+
         if (!isset($data->optiontype)) {
             $data->optiontype = in_array((int)($settings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT), [
                 MOD_BOOKING_OPTIONTYPE_DEFAULT,
                 MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE,
                 MOD_BOOKING_OPTIONTYPE_SLOTBOOKING,
             ], true) ? (int)$settings->type : MOD_BOOKING_OPTIONTYPE_DEFAULT;
+        } else if ($data->optiontype == MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE) {
+            $data->selflearningcourse = 1;
         }
 
         type_resolver::normalize_formdata($data, (int)$data->optiontype);

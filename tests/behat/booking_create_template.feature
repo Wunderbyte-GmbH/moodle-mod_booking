@@ -120,7 +120,7 @@ Feature: In a booking create a template
     And I wait "1" seconds
     ## Validate self-learning options
     And I expand all fieldsets
-    And the field "Self-learning course" matches value "1"
+    And the field "optiontype" matches value "Self-learning course"
     And the field "duration[number]" matches value "10"
     And the field "duration[timeunit]" matches value "seconds"
     And I should not see "Enrol users at course start time"

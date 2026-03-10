@@ -125,6 +125,13 @@ export const init = (cmid, id, optionid, bookingid, copyoptionid, returnurl) => 
 
         if (e.target.name == 'optiontype') {
             window.skipClientValidation = true;
+            // Synchronize selflearningcourse hidden field with optiontype selection.
+            // MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE = 1
+
+            let selflearningField = document.querySelector('[name="selflearningcourse"]');
+            if (selflearningField) {
+                selflearningField.value = (e.target.value == 1) ? 1 : 0;
+            }
             let button = document.querySelector('[name="btn_optiontype"]');
             dynamicForm.processNoSubmitButton(button);
         }

@@ -1,5 +1,19 @@
 {{!
     @template mod_booking/condition/slotbooking
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * data-optionid
+    * data-userid
+    * data-region
+
+    Example context (json):
+    {
+        "optionid": 42,
+        "userid": 5
+    }
 }}
 <div class="booking-slotbooking-prepage" data-optionid="{{optionid}}" data-userid="{{userid}}">
     <p class="mb-3">{{#str}}slotbooking_prepage_description, mod_booking{{/str}}</p>

@@ -143,9 +143,10 @@ class bookinganswer_slotmoved extends \core\event\base {
 
     /**
      * Format one or more slots for event description text.
+     * @param array $slots
      *
-     * @param array<int, array{start:int,end:int}> $slots
      * @return string
+     *
      */
     private function format_slot_list(array $slots): string {
         if (empty($slots)) {

@@ -48,14 +48,15 @@ Feature: Configure and validate self-learning course feature for booking option
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Moodle course"
-    And I set the field "Self-learning course" to "checked"
+    And I set the field "optiontype" to "Self-learning course"
     And I wait "1" seconds
+    And I expand all fieldsets
     And I set the field "duration[number]" to "3"
     And I set the field "duration[timeunit]" to "seconds"
     And I should not see "Enrol users at course start time"
-    And I follow "Dates"
+    And the field "optiontype" matches value "Self-learning course"
     And I should see "Sorting date"
-    And I should not see "Add date"
+    And I should see "Dates"
     And I press "Save"
     And I log out
     ## Verify self-enrollment

@@ -776,11 +776,25 @@ class booking_option {
                 if (
                     !in_array($result->waitinglist, [MOD_BOOKING_STATUSPARAM_DELETED, MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED])
                 ) {
+                    $slotcancelother = self::build_slot_event_other_from_answer((object)$result, (int)$this->optionid);
+
                     $result->waitinglist = MOD_BOOKING_STATUSPARAM_DELETED;
                     $result->timemodified = time();
                     $result->openruleexecution = $openruleexecution ? time() : 0;
                     // We mark all the booking answers as deleted.
                     $DB->update_record('booking_answers', $result);
+
+                    if (!empty($slotcancelother['bookedslots'])) {
+                        $slotcancelevent = bookinganswer_slotcancelled::create([
+                            'objectid' => (int)$result->id,
+                            'context' => context_module::instance($this->cmid),
+                            'userid' => $USER->id,
+                            'relateduserid' => (int)$result->userid,
+                            'other' => $slotcancelother,
+                        ]);
+                        $slotcancelevent->trigger();
+                    }
+
                     // Also delete corresponding entries in booking_optiondates_answers table.
                     $DB->delete_records(
                         'booking_optiondates_answers',
@@ -1851,16 +1865,19 @@ class booking_option {
             );
             $event->trigger();
 
-            $sloteventother = self::build_slot_event_other_from_answer((object)$answer, (int)$this->optionid);
-            if (!empty($sloteventother['bookedslots'])) {
-                $slotevent = bookinganswer_slotbooked::create([
-                    'objectid' => (int)($sloteventother['baid'] ?? 0),
-                    'context' => context_module::instance($this->cmid),
-                    'userid' => $USER->id,
-                    'relateduserid' => $user->id,
-                    'other' => $sloteventother,
-                ]);
-                $slotevent->trigger();
+            $slotanswer = !empty($answer) ? (object)$answer : null;
+            if (!empty($slotanswer)) {
+                $sloteventother = self::build_slot_event_other_from_answer($slotanswer, (int)$this->optionid);
+                if (!empty($sloteventother['bookedslots'])) {
+                    $slotevent = bookinganswer_slotbooked::create([
+                        'objectid' => (int)($sloteventother['baid'] ?? 0),
+                        'context' => context_module::instance($this->cmid),
+                        'userid' => $USER->id,
+                        'relateduserid' => $user->id,
+                        'other' => $sloteventother,
+                    ]);
+                    $slotevent->trigger();
+                }
             }
 
             enrollink::trigger_enrolbot_actions(
@@ -1870,25 +1887,11 @@ class booking_option {
                 $ba,
                 $other['baid']
             );
-                    $slotcancelother = self::build_slot_event_other_from_answer((object)$result, (int)$this->optionid);
-
         }
 
         $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
         // Check if the option is a multidates session.
         if (!$optiondates = $settings->sessions) {
-
-                    if (!empty($slotcancelother['bookedslots'])) {
-                        $slotcancelevent = bookinganswer_slotcancelled::create([
-                            'objectid' => (int)$result->id,
-                            'context' => context_module::instance($this->cmid),
-                            'userid' => $USER->id,
-                            'relateduserid' => (int)$result->userid,
-                            'other' => $slotcancelother,
-                        ]);
-                        $slotcancelevent->trigger();
-                    }
-
             $optiondates = false;
         }
 

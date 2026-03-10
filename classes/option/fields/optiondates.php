@@ -162,14 +162,14 @@ class optiondates extends field_base {
      */
     public static function validation(array $data, array $files, array &$errors): void {
 
-        if ((int)($data['optiontype'] ?? MOD_BOOKING_OPTIONTYPE_DEFAULT) === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING) {
+        $isslotbooking = (int)($data['optiontype'] ?? MOD_BOOKING_OPTIONTYPE_DEFAULT) === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING;
+        $usesessiondates = $isslotbooking && (string)($data['slot_type'] ?? 'fixed') === 'session';
+
+        if ($isslotbooking && !$usesessiondates) {
             $keys = preg_grep('/^optiondateid_/', array_keys($data));
             if (!empty($keys)) {
-                $errors['optiontype'] = get_string(
-                    'error:selflearningcourseallowsnodates',
-                    'mod_booking',
-                    get_string('optiontype_slotbooking', 'mod_booking')
-                );
+                // Slot types fixed/rolling ignore dates, so do not validate them here.
+                return;
             }
         }
 
@@ -205,7 +205,6 @@ class optiondates extends field_base {
         // Standardfunctionality to add a header to the mform (only if its not yet there).
         if ($applyheader) {
             fields_info::add_header_to_mform($mform, self::$header);
-            $mform->hideIf('datesheader', 'optiontype', 'eq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
         }
         $mform->addElement('hidden', 'datesmarker', 0);
         $mform->setType('datesmarker', PARAM_INT);
@@ -221,7 +220,10 @@ class optiondates extends field_base {
      */
     public static function save_data(stdClass &$formdata, stdClass &$option): array {
 
-        if ((int)($formdata->optiontype ?? MOD_BOOKING_OPTIONTYPE_DEFAULT) === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING) {
+        if (
+            (int)($formdata->optiontype ?? MOD_BOOKING_OPTIONTYPE_DEFAULT) === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING
+            && (string)($formdata->slot_type ?? 'fixed') !== 'session'
+        ) {
             foreach (array_keys((array)$formdata) as $key) {
                 if (preg_match('/^(optiondateid_|coursestarttime_|courseendtime_|daystonotify_)/', $key)) {
                     unset($formdata->{$key});
