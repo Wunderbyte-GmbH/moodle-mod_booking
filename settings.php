@@ -577,6 +577,32 @@ if ($ADMIN->fulltree) {
         )
     );
 
+    $slotbookingsdisplaymodes = [
+        'availableforuser' => get_string('slot_bookings_display_mode_availableforuser', 'mod_booking'),
+        'bookedvscapacity' => get_string('slot_bookings_display_mode_bookedvscapacity', 'mod_booking'),
+    ];
+    if ($proversion) {
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/slot_bookings_display_mode',
+                get_string('slot_bookings_display_mode', 'mod_booking'),
+                get_string('slot_bookings_display_mode_desc', 'mod_booking'),
+                'availableforuser',
+                $slotbookingsdisplaymodes
+            )
+        );
+    } else {
+        $settings->add(
+            new admin_setting_heading(
+                'slot_bookings_display_mode',
+                get_string('slot_bookings_display_mode', 'mod_booking'),
+                get_string('prolicensefeatures', 'mod_booking') .
+                get_string('profeatures:slotbooking', 'mod_booking') .
+                get_string('infotext:prolicensenecessary', 'mod_booking')
+            )
+        );
+    }
+
     $settings->add(
         new admin_setting_configcheckbox(
             'booking/bookonlyondetailspage',

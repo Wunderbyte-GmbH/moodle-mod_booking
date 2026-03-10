@@ -88,7 +88,7 @@ Feature: In a booking instance with multiple bookings enabled
   Scenario: Multiple bookings enabled: wait time between bookings is respected
     Given the following "mod_booking > options" exist:
       | booking    | text          | course | description       | multiplebookings | allowtobookagainafter |
-      | My booking | Test option 1 | C1     | Multiple bookings | 1                | 2                     |
+      | My booking | Test option 1 | C1     | Multiple bookings | 1                | 1                     |
     And I am on the "My booking" Activity page logged in as student1
     # First booking
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
@@ -96,7 +96,8 @@ Feature: In a booking instance with multiple bookings enabled
     Then I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     # Try to book immediately (should be blocked due to wait time)
     And I should not see "Book again" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I wait "3" seconds
+    And I reload the page
+    And I wait until the page is ready
     And I should see "Book again (already booked 1 time)" in the ".allbookingoptionstable_r1" "css_element"
 
   @javascript

@@ -144,6 +144,9 @@ class notifymelist implements bo_condition {
             $waitinglistoff = get_config('booking', 'turnoffwaitinglist');
             // If the user is not yet booked, and option is not fully booked, we return true.
             $freeonwaitinglist = $bookinginformation['notbooked']['freeonwaitinglist'] ?? 0;
+            if (isset($bookinginformation['iambooked'])) {
+                return true;
+            }
             if (isset($bookinginformation['notbooked'])) {
                 if ($bookinginformation['notbooked']['fullybooked'] === false) {
                     $isavailable = true;

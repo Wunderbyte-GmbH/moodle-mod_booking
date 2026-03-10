@@ -170,9 +170,14 @@ class template extends field_base {
             $alloptiontemplates = [reset($alloptiontemplates)];
             $mform->addElement(
                 'static',
-                'nolicense',
-                get_string('licensekeycfg', 'mod_booking'),
-                get_string('licensekeycfgdesc', 'mod_booking')
+                'optiontypeprohintnoproversion',
+                '',
+                '<i class="fa fa-lightbulb-o" aria-hidden="true"></i>&nbsp;' .
+                get_string(
+                    'optiontypeprohintnoproversion',
+                    'mod_booking',
+                    'https://showroom.wunderbyte.at/course/view.php?id=62'
+                )
             );
         }
 

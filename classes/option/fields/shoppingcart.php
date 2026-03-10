@@ -230,12 +230,12 @@ class shoppingcart extends field_base {
                 $oldvalue != $newvalue
                 && !(empty($oldvalue) && empty($newvalue))
             ) {
-                    // If change was found in any of the shoppingcart fields, return this generic information.
-                    return [
-                        'changes' => [
-                            'fieldname' => 'shoppingcart',
-                        ],
-                    ];
+                // If change was found in any shopping cart field, return generic change information.
+                return [
+                    'changes' => [
+                        'fieldname' => 'shoppingcart',
+                    ],
+                ];
             }
             // TODO: Track changes for each key like in customfields / pollurl.
         }

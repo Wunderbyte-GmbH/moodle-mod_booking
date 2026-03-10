@@ -147,11 +147,13 @@ Feature: Create enrollink availability form for booking options with connected c
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r2" "css_element"
     And I click on "[data-bs-target='#accordion-item-waitinglist']" "css_element"
     And I click on ".confirmbooking-username-teacher1 i" "css_element"
-    And I wait "1" seconds
+    And I wait until the page is ready
     And I click on "Book" "button" in the ".modal-footer" "css_element"
     And I am on the "BookingCMP" Activity page
     And I should see "75.00 EUR" in the ".allbookingoptionstable_r2 .booknow" "css_element"
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r2" "css_element"
+    And I wait until the page is ready
+    And I follow "Continue"
     And I visit "/local/shopping_cart/checkout.php"
     ## Verify prices and credits
     And I should see "Option-waitinglist" in the ".shopping-cart-checkout-items-container" "css_element"
@@ -162,7 +164,7 @@ Feature: Create enrollink availability form for booking options with connected c
     And I should see "375.00 EUR" in the ".sc_price_label .sc_remainingcredit" "css_element"
     And I should see "0 EUR" in the ".sc_totalprice" "css_element"
     And I press "Checkout"
-    And I wait "1" seconds
+    And I wait until the page is ready
     And I press "Confirm"
     And I should see "Payment successful!"
     And I should see "Credits used" in the ".payment-success ul.list-group" "css_element"

@@ -146,6 +146,11 @@ class enrollink {
             return $block;
         }
 
+        // A logout state must not trigger enrolment side effects.
+        if (!isloggedin()) {
+            return MOD_BOOKING_AUTOENROL_STATUS_EXCEPTION;
+        }
+
         if (isguestuser()) {
             return MOD_BOOKING_AUTOENROL_STATUS_LOGGED_IN_AS_GUEST;
         }

@@ -286,6 +286,7 @@ Feature: Create global booking rules as admin and insure they are working.
     ## Verify custom completion message
     And I trigger cron
     And I visit "/report/loglive/index.php"
+    And I wait until the page is ready
     Then I should see "Booking option completed"
     And I should see "Custom message A message e-mail with subject \"completion\" has been sent to user: \"Teacher 1\" by the user \"Admin User\""
     ## Update booking settings - changes booking manager
@@ -303,6 +304,7 @@ Feature: Create global booking rules as admin and insure they are working.
     ## Verify custom uncompletion message
     And I trigger cron
     And I visit "/report/loglive/index.php"
+    And I wait until the page is ready
     And I should see "Completion of booking option undone"
     And I should see "Custom message A message e-mail with subject \"manager-uncompletion\" has been sent to user: \"Teacher 1\" by the user \"Teacher 1\""
     ## Logout is mandatory for admin pages to avoid error

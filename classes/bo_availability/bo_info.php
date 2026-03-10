@@ -33,6 +33,7 @@ use mod_booking\booking;
 use mod_booking\booking_bookit;
 use mod_booking\booking_context_helper;
 use mod_booking\booking_option_settings;
+use mod_booking\bo_availability\conditions\bookitbutton;
 use mod_booking\output\button_notifyme;
 use mod_booking\output\col_price;
 use mod_booking\price;
@@ -108,24 +109,28 @@ class bo_info {
      * This function displays debugging() messages if the availability
      * information is invalid.
      *
-     * @param ?int $optionid
-     * @param int $userid If set, specifies a different user ID to check availability for
+     * @param int|null $optionid
+     * @param int $userid
      * @param bool $hardblock
      * @param bool $noblockingpages
-     * @return array [isavailable, description]
+     * @param array $ignoredconditionids
+     *
+     * @return array
+     *
      */
     public function is_available(
         ?int $optionid = null,
         int $userid = 0,
         bool $hardblock = false,
-        bool $noblockingpages = false
+        bool $noblockingpages = false,
+        array $ignoredconditionids = []
     ): array {
 
         if (!$optionid) {
             $optionid = $this->optionid;
         }
 
-        $results = $this->get_condition_results($optionid, $userid, $hardblock);
+        $results = $this->get_condition_results($optionid, $userid, $hardblock, $ignoredconditionids);
 
         if (count($results) === 0) {
             $id = MOD_BOOKING_BO_COND_CONFIRMATION; // This is the lowest id.
@@ -175,9 +180,15 @@ class bo_info {
      * @param int|null $optionid
      * @param int $userid
      * @param bool $onlyhardblock
+     * @param array $ignoredconditionids
      * @return array
      */
-    public static function get_condition_results(?int $optionid = null, int $userid = 0, bool $onlyhardblock = false): array {
+    public static function get_condition_results(
+        ?int $optionid = null,
+        int $userid = 0,
+        bool $onlyhardblock = false,
+        array $ignoredconditionids = []
+    ): array {
         global $USER, $CFG;
 
         require_once($CFG->dirroot . '/mod/booking/lib.php');
@@ -215,6 +226,7 @@ class bo_info {
         }
 
         $resultsarray = [];
+        $ignoredconditionkeys = array_flip(array_map('intval', $ignoredconditionids));
 
         $overrideconditions = [];
 
@@ -223,6 +235,11 @@ class bo_info {
         They come from the field 'availability' field of the booking options table. */
         while (count($conditions) > 0) {
             $condition = array_shift($conditions);
+
+            $conditionid = (int)($condition->id ?? 0);
+            if (!empty($ignoredconditionkeys) && isset($ignoredconditionkeys[$conditionid])) {
+                continue;
+            }
 
             $classname = get_class($condition);
 
@@ -674,9 +691,10 @@ class bo_info {
      * @param int $optionid
      * @param int $pagenumber
      * @param int $userid
+     * @param string $skipcondition optional condition shortname to exclude (e.g. 'slotbooking')
      * @return array
      */
-    public static function load_pre_booking_page(int $optionid, int $pagenumber, int $userid) {
+    public static function load_pre_booking_page(int $optionid, int $pagenumber, int $userid, string $skipcondition = '') {
 
         $results = self::get_condition_results($optionid, $userid);
 
@@ -686,7 +704,7 @@ class bo_info {
         });
 
         // Sorted List of blocking conditions which also provide a proper page.
-        $conditions = self::return_sorted_conditions($results);
+        $conditions = self::return_sorted_conditions($results, $skipcondition);
         $condition = self::return_class_of_current_page($conditions, $pagenumber);
 
         // If the current condition doesn't have the "pre" key...
@@ -718,10 +736,11 @@ class bo_info {
                         || $id === MOD_BOOKING_BO_COND_ONWAITINGLIST
                     )
                 ) {
-                    $response = booking_bookit::bookit('option', $optionid, $userid);
+                    $bookitdata = bookitbutton::get_book_intent_override_data_json();
+                    $response = booking_bookit::bookit('option', $optionid, $userid, $bookitdata);
                     if ($response['status'] != 1) {
                         // We need to book twice, as confirmation might be in place.
-                        $response = booking_bookit::bookit('option', $optionid, $userid);
+                        $response = booking_bookit::bookit('option', $optionid, $userid, $bookitdata);
                     }
                 }
             } else {
@@ -1071,9 +1090,10 @@ class bo_info {
      * If there are just booking & confirmation pages, we supress them.
      *
      * @param array $results
+     * @param string $skipcondition optional condition shortname to exclude (e.g. 'slotbooking')
      * @return array
      */
-    public static function return_sorted_conditions(array $results) {
+    public static function return_sorted_conditions(array $results, string $skipcondition = '') {
 
         // Make sure the keys are set.
         $prepages = [];
@@ -1105,6 +1125,15 @@ class bo_info {
             // One no button condition determines this for all.
             if ($result['button'] === MOD_BOOKING_BO_BUTTON_NOBUTTON) {
                 $showbutton = false;
+            }
+
+            // Skip a condition whose shortname matches $skipcondition (case-insensitive).
+            if (!empty($skipcondition)) {
+                $classparts = explode('\\', $result['classname']);
+                $conditionshortname = array_pop($classparts);
+                if (strcasecmp($conditionshortname, $skipcondition) === 0) {
+                    continue;
+                }
             }
 
             $newclass = [
@@ -1152,8 +1181,15 @@ class bo_info {
         // We can in the future include a setting which will allow for always showing booking modal.
         // But right now, we will always suppress the Booking modal, when there is only one page.
         // This single page has to be necessarily the confirmation page.
-        if ((count($prepages['pre']) + count($prepages['post'])) < 2) {
-            return [];
+        $total = count($prepages['pre']) + count($prepages['post']);
+        if ($total < 2) {
+            // Exception: when an inline condition was already completed ($skipcondition is set),
+            // we must show whatever pages remain – even if it's just one (e.g. the confirmation).
+            if (empty($skipcondition) || $total < 1) {
+                return [];
+            }
+            // With skipcondition and exactly 1 remaining page: return as-is.
+            // The booking action is triggered by load_pre_booking_page, not by a separate book step.
         } else if (empty($prepages['pre'])) {
             array_unshift($conditionsarray, $prepages['book']);
         }

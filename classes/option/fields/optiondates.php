@@ -162,6 +162,21 @@ class optiondates extends field_base {
      */
     public static function validation(array $data, array $files, array &$errors): void {
 
+        $isslotbooking = (int)($data['optiontype'] ?? MOD_BOOKING_OPTIONTYPE_DEFAULT) === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING;
+        $usesessiondates = $isslotbooking && (string)($data['slot_type'] ?? 'fixed') === 'session';
+
+        if ($isslotbooking && !$usesessiondates) {
+            $keys = preg_grep('/^optiondateid_/', array_keys($data));
+            if (!empty($keys)) {
+                $errors['slot_type'] = get_string(
+                    'error:slotbookingallowsnodates',
+                    'mod_booking',
+                    get_string('slot_type_session', 'mod_booking')
+                );
+                return;
+            }
+        }
+
         // Run through all dates to make sure we don't have an array.
         // We need to transform dates to timestamps.
         [$dates, $highestindex] = dates::get_list_of_submitted_dates($data);
@@ -208,6 +223,20 @@ class optiondates extends field_base {
      * @throws \dml_exception
      */
     public static function save_data(stdClass &$formdata, stdClass &$option): array {
+
+        if (
+            (int)($formdata->optiontype ?? MOD_BOOKING_OPTIONTYPE_DEFAULT) === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING
+            && (string)($formdata->slot_type ?? 'fixed') !== 'session'
+        ) {
+            foreach (array_keys((array)$formdata) as $key) {
+                if (preg_match('/^(optiondateid_|coursestarttime_|courseendtime_|daystonotify_)/', $key)) {
+                    unset($formdata->{$key});
+                }
+            }
+            $formdata->datescounter = 0;
+            $formdata->dayofweektime = '';
+            $formdata->semesterid = 0;
+        }
 
         return dates::save_optiondates_from_form($formdata, $option);
     }

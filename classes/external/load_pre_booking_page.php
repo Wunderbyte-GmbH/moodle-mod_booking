@@ -55,6 +55,12 @@ class load_pre_booking_page extends external_api {
             'optionid' => new external_value(PARAM_INT, 'option id'),
             'userid' => new external_value(PARAM_INT, 'user id', VALUE_DEFAULT, 0),
             'pagenumber' => new external_value(PARAM_INT, 'number of page we want to load'),
+            'skipcondition' => new external_value(
+                PARAM_ALPHANUMEXT,
+                'condition shortname to skip (e.g. slotbooking)',
+                VALUE_DEFAULT,
+                ''
+            ),
             ]);
     }
 
@@ -64,10 +70,11 @@ class load_pre_booking_page extends external_api {
      * @param int $optionid
      * @param int $userid
      * @param int $pagenumber
+     * @param string $skipcondition optional condition shortname to exclude from the sorted pages
      *
      * @return array
      */
-    public static function execute(int $optionid, int $userid, int $pagenumber): array {
+    public static function execute(int $optionid, int $userid, int $pagenumber, string $skipcondition = ''): array {
         global $USER;
 
         $params = self::validate_parameters(
@@ -76,10 +83,16 @@ class load_pre_booking_page extends external_api {
                 'optionid' => $optionid,
                 'userid' => $userid,
                 'pagenumber' => $pagenumber,
+                'skipcondition' => $skipcondition,
             ]
         );
 
-        $result = bo_info::load_pre_booking_page($params['optionid'], $params['pagenumber'], $params['userid']);
+        $result = bo_info::load_pre_booking_page(
+            $params['optionid'],
+            $params['pagenumber'],
+            $params['userid'],
+            $params['skipcondition']
+        );
 
         return $result;
     }

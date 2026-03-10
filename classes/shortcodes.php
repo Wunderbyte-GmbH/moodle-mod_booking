@@ -38,6 +38,7 @@ use local_wunderbyte_table\filters\types\standardfilter;
 use local_wunderbyte_table\local\helper\actforuser;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
+use mod_booking\booking_bookit;
 use mod_booking\form\dynamicdeputyselect;
 use mod_booking\local\shortcode_filterfield;
 use mod_booking\output\booked_users;
@@ -643,6 +644,57 @@ class shortcodes {
      * @param Closure $next
      * @return string
      */
+    public static function bookingoptionview($shortcode, $args, $content, $env, $next) {
+
+        global $USER, $CFG;
+
+        // Get rid of quotation marks.
+        self::fix_args($args);
+
+        $requiredargs = ['optionid'];
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
+        if ($error['error'] === 1) {
+            return $error['message'];
+        }
+
+        $optionid = (int)$args['optionid'];
+        $inlinestartpage = !empty($args['inlinestartpage']) ? (string)$args['inlinestartpage'] : '';
+        $userid = $USER->id;
+
+        try {
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        } catch (Throwable $e) {
+            return get_string('shortcode:error', 'mod_booking');
+        }
+
+        if (empty($settings->id)) {
+            return get_string('shortcode:error', 'mod_booking');
+        }
+
+        try {
+            $out = booking_bookit::render_bookit_button($settings, $userid, $inlinestartpage);
+        } catch (Throwable $e) {
+            $out = get_string('shortcode:error', 'mod_booking');
+            /** @var \context $syscontext */
+            $syscontext = context_system::instance();
+            if ($CFG->debug > 0 && has_capability('moodle/site:config', $syscontext)) {
+                $out .= $e->getMessage();
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * A small shortcode to add links to the booking options which link to this course.
+     *
+     * @param string $shortcode
+     * @param array $args
+     * @param string|null $content
+     * @param object $env
+     * @param Closure $next
+     * @return string
+     */
     public static function linkbacktocourse($shortcode, $args, $content, $env, $next) {
 
         global $COURSE, $USER, $DB, $PAGE;
@@ -804,6 +856,11 @@ class shortcodes {
 
         // Set common table options requirelogin, sortorder, sortby.
         self::set_common_table_options_from_arguments($table, $args);
+
+        // If inlinestartpage is set, pass it to the table so col_booknow renders inline.
+        if (!empty($args['inlinestartpage'])) {
+            $table->inlinestartpage = $args['inlinestartpage'];
+        }
 
         $showfilter = !empty($args['filter']) ? true : false;
         $showsort = !empty($args['sort']) ? true : false;
@@ -1635,6 +1692,7 @@ class shortcodes {
             [
                 0 => get_string('optiontypefilternormal', 'mod_booking'),
                 1 => $selflearningcourselabel,
+                2 => get_string('optiontypefilterslotbooking', 'mod_booking'),
             ]
         );
         $table->add_filter($optiontypefilter);

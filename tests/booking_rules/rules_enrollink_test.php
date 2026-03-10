@@ -532,7 +532,7 @@ final class rules_enrollink_test extends advanced_testcase {
             MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION,
             MOD_BOOKING_VERIFIED
         );
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $teacher1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $teacher1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
         // User buying the bundle.
         $option->user_submit_response(

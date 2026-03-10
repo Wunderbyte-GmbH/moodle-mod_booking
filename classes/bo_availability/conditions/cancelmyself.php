@@ -237,10 +237,7 @@ class cancelmyself implements bo_condition {
      * @return bool
      */
     public function hard_block(booking_option_settings $settings, $userid): bool {
-        if (empty($settings->jsonobject->multiplebookings ?? 0)) {
-            return true;
-        }
-        return false;
+        return true;
     }
 
     /**
@@ -295,6 +292,15 @@ class cancelmyself implements bo_condition {
      * @return array
      */
     public function render_page(int $optionid, int $userid = 0) {
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $alreadybooked = new alreadybooked();
+
+        if (!$alreadybooked->is_available($settings, $userid)) {
+            // If the user is not booked, we do not show the page.
+            return [];
+        }
+
         return [];
     }
 
@@ -352,7 +358,7 @@ class cancelmyself implements bo_condition {
                         $settings,
                         $userid,
                         $label,
-                        'btn btn-light btn-sm shopping-cart-cancel-button',
+                        'btn btn-light btn-sm shopping-cart-cancel-button bo-cancel-button',
                         false,
                         $fullwidth,
                         'button',
@@ -369,7 +375,7 @@ class cancelmyself implements bo_condition {
             $settings,
             $userid,
             $label,
-            'btn btn-light btn-sm',
+            'btn btn-light btn-sm bo-cancel-button',
             false,
             $fullwidth,
             'button',

@@ -24,12 +24,14 @@
 
 namespace mod_booking\option\fields;
 
+use html_writer;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\option\field_base;
 use mod_booking\price as Mod_bookingPrice;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
+use moodle_url;
 use stdClass;
 
 /**
@@ -132,6 +134,27 @@ class price extends field_base {
         // Add price.
         $price = new Mod_bookingPrice('option', $formdata['id']);
         $price->add_price_to_mform($mform);
+
+        $currentoptionid = (int)($formdata['optionid'] ?? $formdata['id'] ?? 0);
+        $cmid = (int)($formdata['cmid'] ?? 0);
+
+        if ($cmid > 0 && $currentoptionid > 0) {
+            $ruleeditorurl = new moodle_url('/mod/booking/slotrules.php', [
+                'id' => $cmid,
+                'optionid' => $currentoptionid,
+            ]);
+            $ruleeditorlink = html_writer::link($ruleeditorurl, get_string('slot_rule_editor_open', 'mod_booking'));
+            $slotpriceinfo = get_string('slot_price_base_info', 'mod_booking')
+                . '<br>'
+                . $ruleeditorlink;
+        } else {
+            $slotpriceinfo = get_string('slot_price_base_info', 'mod_booking')
+                . '<br>'
+                . get_string('slot_rule_editor_savefirst', 'mod_booking');
+        }
+
+        $mform->addElement('static', 'slot_price_base_info', '', $slotpriceinfo);
+        $mform->hideIf('slot_price_base_info', 'optiontype', 'neq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
     }
 
     /**
@@ -159,7 +182,6 @@ class price extends field_base {
 
         // Save the prices.
         $price = new Mod_bookingPrice('option', $option->id);
-
         $price->save_from_form($formdata);
     }
 
