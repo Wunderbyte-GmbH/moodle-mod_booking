@@ -932,12 +932,7 @@ class dates {
      * @throws coding_exception
      */
     private static function timestamp_to_array(int $timestamp) {
-
-        $formatteddate = date('Y-m-d, H:i', $timestamp);
-        $time = new DateTime(
-            $formatteddate
-        );
-
+        $time = new DateTime("@$timestamp");
         $datearray = [
             'day' => [$time->format('d')],
             'month' => [$time->format('m')],
@@ -945,7 +940,6 @@ class dates {
             'hour' => [$time->format('H')],
             'minute' => [$time->format('i')],
         ];
-
         return $datearray;
     }
 
