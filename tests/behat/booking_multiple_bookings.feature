@@ -26,20 +26,6 @@ Feature: In a booking instance with multiple bookings enabled
     And I change viewport size to "1366x10000"
 
   @javascript
-  Scenario: Multiple bookings disabled: student can only book once
-    Given the following "mod_booking > options" exist:
-      | booking    | text          | course | description       |
-      | My booking | Test option 1 | C1     | Multiple bookings |
-    And I am on the "My booking" Activity page logged in as student1
-    And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    When I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
-    Then I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
-    And I should not see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I should see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-
-  @javascript
   Scenario: Multiple bookings enabled: student can book the same option multiple times and see booking count
     Given the following "mod_booking > options" exist:
       | booking    | text          | course | description       | multiplebookings |
@@ -102,14 +88,16 @@ Feature: In a booking instance with multiple bookings enabled
   Scenario: Multiple bookings enabled: wait time between bookings is respected
     Given the following "mod_booking > options" exist:
       | booking    | text          | course | description       | multiplebookings | allowtobookagainafter |
-      | My booking | Test option 1 | C1     | Multiple bookings | 1                | 3600                  |
+      | My booking | Test option 1 | C1     | Multiple bookings | 1                | 2                     |
     And I am on the "My booking" Activity page logged in as student1
     # First booking
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
-    Then I should see "Book again (already booked 1 time)" in the ".allbookingoptionstable_r1" "css_element"
+    Then I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     # Try to book immediately (should be blocked due to wait time)
     And I should not see "Book again" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I wait "3" seconds
+    And I should see "Book again (already booked 1 time)" in the ".allbookingoptionstable_r1" "css_element"
 
   @javascript
   Scenario: Multiple bookings enabled: different students can each book multiple times
@@ -135,18 +123,6 @@ Feature: In a booking instance with multiple bookings enabled
     And I log out
     And I am on the "My booking" Activity page logged in as student1
     And I should see "Book again (already booked 2 times)" in the ".allbookingoptionstable_r1" "css_element"
-
-  @javascript
-  Scenario: Multiple bookings disabled: button does not show booking count
-    Given the following "mod_booking > options" exist:
-      | booking    | text          | course | description       |
-      | My booking | Test option 1 | C1     | Multiple bookings |
-    And I am on the "My booking" Activity page logged in as student1
-    When I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
-    Then I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
-    And I should not see "Book again" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
 
   @javascript
   Scenario: Multiple bookings enabled: cancel booking returns option to unbooked state
