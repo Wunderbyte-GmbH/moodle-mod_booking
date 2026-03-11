@@ -38,7 +38,17 @@ $search = optional_param('search', 0, PARAM_INT);
 $filter = optional_param('filter', 0, PARAM_INT);
 $typefilter = optional_param('typefilter', 0, PARAM_INT);
 
-if (!empty($userid) && has_capability('local/shopping_cart:cashier', context_system::instance())) {
+$shoppingcardexists = core_component::get_plugin_directory('local', 'shopping_cart');
+$hascapability = false;
+
+if (has_capability('mod/booking:bookforothers', context_system::instance())) {
+    $hascapability = true;
+}
+
+if ($shoppingcardexists) {
+    $hascapability = has_capability('local/shopping_cart:cashier', context_system::instance());
+}
+if (!empty($userid) && $hascapability) {
     $user = singleton_service::get_instance_of_user($userid);
 } else {
     $user = $USER;
