@@ -282,7 +282,7 @@ class bookitbutton implements bo_condition {
         $bookinginformation = $bookinganswer->return_all_booking_information($userid);
 
         if (($settings->jsonobject->multiplebookings ?? 0) && isset($bookinginformation['iambooked'])) {
-            $count = $bookinganswer->get_user_booking_count($userid);
+            $count = $bookinganswer->count_previous_bookings($userid);
             if ($count == 1) {
                 $label = get_string('bookagainwithcountsingular', 'mod_booking');
             } else {
