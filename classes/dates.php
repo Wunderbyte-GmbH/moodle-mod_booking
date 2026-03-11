@@ -29,7 +29,9 @@
 namespace mod_booking;
 
 use coding_exception;
+use core_date;
 use DateTime;
+use DateTimeZone;
 use local_entities\entitiesrelation_handler;
 use mod_booking\customfield\optiondate_cfields;
 use mod_booking\option\dates_handler;
@@ -933,6 +935,7 @@ class dates {
      */
     private static function timestamp_to_array(int $timestamp) {
         $time = new DateTime("@$timestamp");
+        $time->setTimezone(new DateTimeZone(core_date::get_user_timezone()));
         $datearray = [
             'day' => [$time->format('d')],
             'month' => [$time->format('m')],
