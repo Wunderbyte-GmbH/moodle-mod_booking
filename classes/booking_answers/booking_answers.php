@@ -875,10 +875,14 @@ class booking_answers {
      * @param int $userid
      * @return int
      */
-    public function get_user_booking_count(int $userid): int {
+    public function count_previous_bookings(int $userid): int {
         $count = 0;
         foreach ($this->answers as $answer) {
-            if ($answer->userid == $userid && $answer->waitinglist == MOD_BOOKING_STATUSPARAM_BOOKED) {
+            if (
+                $answer->userid == $userid
+                && ($answer->waitinglist == MOD_BOOKING_STATUSPARAM_BOOKED
+                    || $answer->waitinglist == MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED)
+            ) {
                 $count++;
             }
         }
@@ -1277,6 +1281,7 @@ class booking_answers {
             MOD_BOOKING_STATUSPARAM_WAITINGLIST,
             MOD_BOOKING_STATUSPARAM_RESERVED,
             MOD_BOOKING_STATUSPARAM_NOTIFYMELIST,
+            MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED,
         ],
         $onlycompleted = false
     ) {
