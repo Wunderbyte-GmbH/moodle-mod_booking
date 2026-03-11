@@ -844,7 +844,7 @@ final class shopping_cart_cancellation_with_price_test extends advanced_testcase
 
         // Set parems requred for cancellation.
         $bdata['booking']['cancancelbook'] = 1;
-        set_config('cancelationfee', $config['cancellationfee'], 'local_shopping_cart');
+        set_config('cancelationfee', $config['cancelationfee'], 'local_shopping_cart');
         set_config('roundrefundamount', $config['roundrefundamount'], 'local_shopping_cart');
 
         // Setup test data.
@@ -938,8 +938,8 @@ final class shopping_cart_cancellation_with_price_test extends advanced_testcase
                 $buser->userid,
                 $componentname,
                 $buser->id,
-                $itemprice - $config['cancellationfee'],
-                $config['cancellationfee'],
+                $itemprice - $config['cancelationfee'],
+                $config['cancelationfee'],
                 1,
                 1
             );
@@ -975,7 +975,7 @@ final class shopping_cart_cancellation_with_price_test extends advanced_testcase
             // To check that we compare the user's last credit records to see how much credits they received after cancellation.
             // The value of the price column in history table should be exactly
             // same as value of the credit column in the credits table when there is no cancellation fee.
-            $expectedamounttoreturn = $purchasingprice - $config['cancellationfee'];
+            $expectedamounttoreturn = $purchasingprice - $config['cancelationfee'];
             if ($config['roundrefundamount']) {
                 // Round the refund value if roundrefundamount settings is turned on.
                 $expectedamounttoreturn = round($expectedamounttoreturn, 0);
@@ -1116,37 +1116,37 @@ final class shopping_cart_cancellation_with_price_test extends advanced_testcase
         return [
             'Cancellation fee 0.00 EURO' => [
                 [
-                    'cancellationfee' => 0.00,
+                    'cancelationfee' => 0.00,
                     'roundrefundamount' => 1,
                 ],
             ],
             'Cancellation fee 1,5 EURO' => [
                 [
-                    'cancellationfee' => 1.50,
+                    'cancelationfee' => 1.50,
                     'roundrefundamount' => 1,
                 ],
             ],
             'Cancellation fee 1.00 EURO' => [
                 [
-                    'cancellationfee' => 1.00,
+                    'cancelationfee' => 1.00,
                     'roundrefundamount' => 1,
                 ],
             ],
             'Cancellation fee 0.00 EURO & rounding refund is turned off' => [
                 [
-                    'cancellationfee' => 0.00,
+                    'cancelationfee' => 0.00,
                     'roundrefundamount' => 0,
                 ],
             ],
             'Cancellation fee 1,5 EURO & rounding refund is turned off' => [
                 [
-                    'cancellationfee' => 1.50,
+                    'cancelationfee' => 1.50,
                     'roundrefundamount' => 0,
                 ],
             ],
             'Cancellation fee 1.00 EURO & rounding refund is turned off' => [
                 [
-                    'cancellationfee' => 1.00,
+                    'cancelationfee' => 1.00,
                     'roundrefundamount' => 0,
                 ],
             ],
