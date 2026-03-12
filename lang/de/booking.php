@@ -1354,6 +1354,7 @@ $string['error:reasonforsubstituteteacher'] = 'Geben Sie einen Grund für die Ve
 $string['error:reasontoolong'] = 'Grund ist zu lange, geben Sie einen kürzeren Text ein.';
 $string['error:ruleactionsendcopynotpossible'] = 'Für das gewählte Ereignis kann leider keine E-Mail-Kopie versendet werden.';
 $string['error:selflearningcourseallowsnodates'] = 'Buchungsoptionen vom Typ "{$a}" dürfen keine Termine haben. Bitte löschen Sie alle Termine bevor Sie speichern.';
+$string['error:slotbookingallowsnodates'] = 'Bei Slot-Buchungen sind Termine nur erlaubt, wenn der Slot-Typ "{$a}" ist. Bitte löschen Sie alle Termine oder wechseln Sie den Slot-Typ.';
 $string['error:semestermissingbutcanceldependentonsemester'] = 'Die Einstellung zur Berechnung der
 Stornierungsfrist ab Semesterbeginn ist aktiv, aber das Semester fehlt!';
 $string['error:taskalreadystarted'] = 'Sie haben bereits einen Task gestartet!';
@@ -2686,6 +2687,7 @@ $string['slot_select_required'] = 'Bitte wählen Sie zuerst einen verfügbaren S
 $string['slot_selection'] = 'Slot';
 $string['slot_settings_header'] = 'Slot-Buchung Einstellungen';
 $string['slot_session_dates_hint'] = 'Wenn Sie "Aus Optionsterminen (Sessions)" wählen, definieren Sie die eigentlichen Slot-Zeiten im Abschnitt Termine weiter unten.';
+$string['slotbookingdateswarning'] = 'Für diesen Slot-Typ werden keine Termine verwendet. Optionstermine sind nur erlaubt, wenn der Slot-Typ "Aus Optionsterminen (Sessions)" ist.';
 $string['slot_student_teacher_assignments'] = 'Trainer:innen-Zuweisung pro Teilnehmer:in';
 $string['slot_student_teacher_assignments_desc'] = 'Weisen Sie jeder eingeschriebenen Person eine oder mehrere Lehrpersonen aus dem Trainer:innen-Pool dieser Option zu.';
 $string['slot_student_teacher_assignments_no_students'] = 'In diesem Kurs sind keine eingeschriebenen Teilnehmenden vorhanden.';

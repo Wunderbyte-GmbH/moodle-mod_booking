@@ -658,19 +658,33 @@ class bookingoptions_wbtable extends wunderbyte_table {
             }
 
             $slots = slot_availability::get_slots_with_status((int)$values->id, $targetuserid);
+            $slottype = (string)($settings->slotconfig->slot_type ?? 'fixed');
 
             $slotcounttext = '';
             if ($displaymode === 'bookedvscapacity') {
-                $bookedslots = 0;
-                $bookableslots = 0;
-                foreach ($slots as $slot) {
-                    if (($slot['status'] ?? '') === 'unavailable') {
-                        continue;
+                if ($slottype === 'session') {
+                    // Session-based slots map 1:1 to option sessions, so we display slot counts (booked / total slots).
+                    $bookedslots = 0;
+                    $totalslots = count($slots);
+                    foreach ($slots as $slot) {
+                        if ((int)($slot['bookings'] ?? 0) > 0) {
+                            $bookedslots++;
+                        }
                     }
-                    $bookedslots += max(0, (int)($slot['bookings'] ?? 0));
-                    $bookableslots += max(0, (int)($slot['capacity'] ?? 0));
+                    $slotcounttext = $bookedslots . ' / ' . $totalslots;
+                } else {
+                    // Keep legacy places-based display for generated fixed/rolling slots.
+                    $bookedslots = 0;
+                    $bookableslots = 0;
+                    foreach ($slots as $slot) {
+                        if (($slot['status'] ?? '') === 'unavailable') {
+                            continue;
+                        }
+                        $bookedslots += max(0, (int)($slot['bookings'] ?? 0));
+                        $bookableslots += max(0, (int)($slot['capacity'] ?? 0));
+                    }
+                    $slotcounttext = $bookedslots . ' / ' . $bookableslots;
                 }
-                $slotcounttext = $bookedslots . ' / ' . $bookableslots;
             } else {
                 $availableuserslots = 0;
                 foreach ($slots as $slot) {

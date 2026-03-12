@@ -168,7 +168,11 @@ class optiondates extends field_base {
         if ($isslotbooking && !$usesessiondates) {
             $keys = preg_grep('/^optiondateid_/', array_keys($data));
             if (!empty($keys)) {
-                // Slot types fixed/rolling ignore dates, so do not validate them here.
+                $errors['slot_type'] = get_string(
+                    'error:slotbookingallowsnodates',
+                    'mod_booking',
+                    get_string('slot_type_session', 'mod_booking')
+                );
                 return;
             }
         }

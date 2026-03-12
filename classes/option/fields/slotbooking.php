@@ -126,6 +126,17 @@ class slotbooking extends field_base {
         $mform->setType('slot_type', PARAM_ALPHA);
         $mform->hideIf('slot_type', 'optiontype', 'neq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
 
+        $mform->registerNoSubmitButton('btn_slot_type');
+        $mform->addElement(
+            'submit',
+            'btn_slot_type',
+            'xxx',
+            [
+                'class' => 'd-none',
+                'data-action' => 'btn_slot_type',
+            ]
+        );
+
         $mform->addElement('text', 'slot_duration_minutes', get_string('slot_duration_minutes', 'mod_booking'));
         $mform->setType('slot_duration_minutes', PARAM_INT);
         $mform->hideIf('slot_duration_minutes', 'optiontype', 'neq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);

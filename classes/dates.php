@@ -92,6 +92,17 @@ class dates {
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($bookingid);
         $bookingoptionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
+        $currentoptiontype = (int)($defaultvalues['optiontype']
+            ?? $bookingoptionsettings->type
+            ?? MOD_BOOKING_OPTIONTYPE_DEFAULT);
+        $currentslottype = $formdata['slot_type']
+            ?? (string)($defaultvalues['slot_type']
+            ?? $bookingoptionsettings->slotconfig->slot_type
+            ?? 'fixed');
+        $isselflearning = !empty($defaultvalues['selflearningcourse'] ?? $bookingoptionsettings->selflearningcourse ?? 0);
+        $allowoptiondates = !$isselflearning
+            && ($currentoptiontype !== MOD_BOOKING_OPTIONTYPE_SLOTBOOKING || $currentslottype === 'session');
+
         $semestersarray = semester::get_semesters_id_name_array();
 
         // We check if there are semsters at all...
@@ -126,6 +137,8 @@ class dates {
             $mform->setType('semesterid', PARAM_INT);
             $element->setValue($semesterid);
             $mform->hideIf('semesterid', 'selflearningcourse', 'eq', 1);
+            $mform->hideIf('semesterid', 'optiontype', 'eq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
+            $mform->hideIf('semesterid', 'slot_type', 'eq', 'session');
             $elements[] = $element;
 
             $element = $mform->addElement(
@@ -138,6 +151,8 @@ class dates {
             $mform->setType('dayofweektime', PARAM_TEXT);
             $element->setValue($dayofweektime);
             $mform->hideIf('dayofweektime', 'selflearningcourse', 'eq', 1);
+            $mform->hideIf('dayofweektime', 'optiontype', 'eq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
+            $mform->hideIf('dayofweektime', 'slot_type', 'eq', 'session');
             $elements[] = $element;
 
             $element = $mform->addElement(
@@ -148,6 +163,8 @@ class dates {
                 get_string('multipledayofweektimestringshint', 'mod_booking')
             );
             $mform->hideIf('multipledayofweektimestringshint', 'selflearningcourse', 'eq', 1);
+            $mform->hideIf('multipledayofweektimestringshint', 'optiontype', 'eq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
+            $mform->hideIf('multipledayofweektimestringshint', 'slot_type', 'eq', 'session');
             $elements[] = $element;
 
             // Button to attach JavaScript to reload the form.
@@ -159,6 +176,8 @@ class dates {
                 ['data-action' => 'addoptiondateseries']
             );
             $mform->hideIf('addoptiondateseries', 'selflearningcourse', 'eq', 1);
+            $mform->hideIf('addoptiondateseries', 'optiontype', 'eq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
+            $mform->hideIf('addoptiondateseries', 'slot_type', 'eq', 'session');
         }
 
         $datescounter = $defaultvalues["datescounter"] ?? 0;
@@ -172,6 +191,15 @@ class dates {
         $mform->setType('datescounter', PARAM_INT);
         /* $element->setValue($datescounter); */ // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         $elements[] = $element;
+
+        $elements[] = $mform->addElement(
+            'static',
+            'slotbookingdateswarning',
+            '',
+            '<div class="alert alert-warning">' . get_string('slotbookingdateswarning', 'mod_booking') . '</div>'
+        );
+        $mform->hideIf('slotbookingdateswarning', 'optiontype', 'neq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
+        $mform->hideIf('slotbookingdateswarning', 'slot_type', 'eq', 'session');
 
         $now = time();
         $nextfullhour = strtotime(date('Y-m-d H:00:00', $now)) + 3600;
@@ -196,10 +224,10 @@ class dates {
             $mform->registerNoSubmitButton(MOD_BOOKING_FORM_DELETEDATE . $idx);
         }
 
-        if ($datescounter > 0) {
+        if ($datescounter > 0 && $allowoptiondates) {
             self::add_dates_to_form($mform, $elements, $dates, $formdata);
         } else {
-            self::add_no_dates_yet_to_form($mform, $elements, $dates, $formdata);
+            self::add_no_dates_yet_to_form($mform, $elements, $dates, $formdata, $allowoptiondates);
         }
 
         self::move_form_elements_to_the_right_place($mform, $elements);
@@ -303,7 +331,7 @@ class dates {
             );
         } else if (!empty($defaultvalues->id)) {
             $settings = singleton_service::get_instance_of_booking_option_settings($defaultvalues->id);
-            $currentoptiontype = (int)($defaultvalues->optiontype ?? $settings->optiontype ?? MOD_BOOKING_OPTIONTYPE_DEFAULT);
+            $currentoptiontype = (int)($defaultvalues->optiontype ?? $settings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT);
             $currentslottype = (string)($defaultvalues->slot_type ?? $settings->slotconfig->slot_type ?? 'fixed');
             // Make sure, no sessions are created for self-learning courses and slot-booking options.
             if (
@@ -906,10 +934,18 @@ class dates {
      * @return void
      *
      */
-    private static function add_no_dates_yet_to_form(MoodleQuickForm &$mform, array &$elements, array $dates, array $formdata) {
+    private static function add_no_dates_yet_to_form(
+        MoodleQuickForm &$mform,
+        array &$elements,
+        array $dates,
+        array $formdata,
+        bool $allowoptiondates = true
+    ) {
 
-        $elements[] = $mform->addElement('static', 'nodatesmessage', '', get_string('datenotset', 'mod_booking'));
-        $mform->hideIf('nodatesmessage', 'selflearningcourse', 'eq', 1);
+        if ($allowoptiondates) {
+            $elements[] = $mform->addElement('static', 'nodatesmessage', '', get_string('datenotset', 'mod_booking'));
+            $mform->hideIf('nodatesmessage', 'selflearningcourse', 'eq', 1);
+        }
 
         // After deleting, we still need to register the right no delete button.
         // The default values are those we have just set via set_data.
@@ -923,14 +959,16 @@ class dates {
         }
 
         // Button to attach JavaScript to reload the form.
-        $mform->registerNoSubmitButton('adddatebutton');
-        $elements[] = $mform->addElement(
-            'submit',
-            'adddatebutton',
-            get_string('adddatebutton', 'mod_booking'),
-            ['data-action' => 'adddatebutton']
-        );
-        $mform->hideIf('adddatebutton', 'selflearningcourse', 'eq', 1);
+        if ($allowoptiondates) {
+            $mform->registerNoSubmitButton('adddatebutton');
+            $elements[] = $mform->addElement(
+                'submit',
+                'adddatebutton',
+                get_string('adddatebutton', 'mod_booking'),
+                ['data-action' => 'adddatebutton']
+            );
+            $mform->hideIf('adddatebutton', 'selflearningcourse', 'eq', 1);
+        }
     }
 
     /**
