@@ -37,9 +37,6 @@ const SELECTORS = {
     PAGE: '[id="page"]'
 };
 
-const OPTIONTYPE_SLOTBOOKING = 2;
-
-
 export const init = (cmid, id, optionid, bookingid, copyoptionid, returnurl) => {
     // Initialize the form - pass the container element and the form class name.
 
@@ -102,13 +99,10 @@ export const init = (cmid, id, optionid, bookingid, copyoptionid, returnurl) => 
         console.log('validation error');
     });
 
-    // Keep add-date button in sync with current option/slot type on initial render.
-    updateAddDateButtonVisibility();
-
-    var checkbox1 = document.querySelector('[type="checkbox"][name="restrictanswerperiodopening"]');
-    var checkbox2 = document.querySelector('[type="checkbox"][name="restrictanswerperiodclosing"]');
-    var conditionalCheckbox = document.querySelector('[type="checkbox"][name="bo_cond_booking_time_sqlfiltercheck"]');
-    var closest = null;
+    const checkbox1 = document.querySelector('[type="checkbox"][name="restrictanswerperiodopening"]');
+    const checkbox2 = document.querySelector('[type="checkbox"][name="restrictanswerperiodclosing"]');
+    const conditionalCheckbox = document.querySelector('[type="checkbox"][name="bo_cond_booking_time_sqlfiltercheck"]');
+    let closest = null;
     if (conditionalCheckbox) {
         // Support both Moodle 4.5 (Bootstrap 4) and 5.1 (Bootstrap 5)
         closest = conditionalCheckbox.closest(
@@ -139,14 +133,12 @@ export const init = (cmid, id, optionid, bookingid, copyoptionid, returnurl) => 
             }
             let button = document.querySelector('[name="btn_optiontype"]');
             dynamicForm.processNoSubmitButton(button);
-            updateAddDateButtonVisibility();
         }
 
         if (e.target.name == 'slot_type') {
             window.skipClientValidation = true;
             let button = document.querySelector('[name="btn_slot_type"]');
             dynamicForm.processNoSubmitButton(button);
-            updateAddDateButtonVisibility();
         }
 
         if (e.target.name == 'restrictanswerperiodopening' || e.target.name == 'restrictanswerperiodclosing') {
