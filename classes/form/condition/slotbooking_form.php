@@ -84,6 +84,19 @@ class slotbooking_form extends dynamic_form {
             $data->slot_teacher_selection = (string)$cached->slot_teacher_selection;
         }
 
+        $selectedslotkeys = array_values(array_unique(array_filter(
+            array_map('trim', explode(',', (string)$data->slot_selection)),
+            function ($entry) {
+                return $entry !== '';
+            }
+        )));
+        $selectedslotset = array_fill_keys($selectedslotkeys, true);
+        $openslots = self::get_open_slots($optionid, $userid);
+        foreach ($openslots as $index => $slot) {
+            $fieldname = self::slot_selection_checkbox_name($index);
+            $data->{$fieldname} = !empty($selectedslotset[$slot['key']]) ? 1 : 0;
+        }
+
         $this->set_data($data);
     }
 
@@ -95,13 +108,21 @@ class slotbooking_form extends dynamic_form {
     public function process_dynamic_submission(): stdClass {
         $data = $this->get_data();
 
-        $selectionvalue = $data->slot_selection ?? '';
-        if (is_array($selectionvalue)) {
-            $selectionvalue = implode(',', array_filter(array_map('trim', $selectionvalue), function ($entry) {
-                return $entry !== '';
-            }));
+        $submittedvalues = (array)$data;
+        $selectedfromcheckboxes = self::extract_selected_slot_entries_from_checkboxes($submittedvalues);
+
+        $selectionvalue = '';
+        if (!empty($selectedfromcheckboxes)) {
+            $selectionvalue = implode(',', $selectedfromcheckboxes);
         } else {
-            $selectionvalue = (string)$selectionvalue;
+            $selectionvalue = $data->slot_selection ?? '';
+            if (is_array($selectionvalue)) {
+                $selectionvalue = implode(',', array_filter(array_map('trim', $selectionvalue), function ($entry) {
+                    return $entry !== '';
+                }));
+            } else {
+                $selectionvalue = (string)$selectionvalue;
+            }
         }
         $data->slot_selection = $selectionvalue;
 
@@ -174,39 +195,7 @@ class slotbooking_form extends dynamic_form {
             ? (string)$config->booking_interface
             : 'list';
 
-        $slots = slot_availability::get_slots_with_status($optionid, $userid);
-
-        $openslots = [];
-        $options = [];
-        foreach ($slots as $slot) {
-            $slotstatus = (string)($slot['status'] ?? 'unavailable');
-            if (!in_array($slotstatus, ['open', 'warning'], true)) {
-                continue;
-            }
-            $start = (int)$slot['start'];
-            $end = (int)$slot['end'];
-            $daylabel = userdate($start, get_string('strftimedaydate', 'langconfig'));
-            $key = $start . ':' . $end;
-            $label = userdate($start, get_string('strftimetime', 'langconfig'))
-                . ' - '
-                . userdate($end, get_string('strftimetime', 'langconfig'));
-            if ($slotstatus === 'warning') {
-                $label .= ' (!)';
-            }
-            if (!isset($options[$daylabel])) {
-                $options[$daylabel] = [];
-            }
-            $options[$daylabel][$key] = $label;
-
-            $openslots[] = [
-                'key' => $key,
-                'start' => $start,
-                'end' => $end,
-                'daylabel' => $daylabel,
-                'timelabel' => $label,
-                'teachers' => slot_availability::get_available_teachers_for_slot($optionid, $start, $end),
-            ];
-        }
+        $openslots = self::get_open_slots($optionid, $userid);
 
         $mform->addElement('hidden', 'slot_max_selection', (string)$maxslots);
         $mform->setType('slot_max_selection', PARAM_INT);
@@ -246,16 +235,32 @@ class slotbooking_form extends dynamic_form {
         }
 
         if ($maxslots > 1) {
-            $flatoptions = [];
-            foreach ($openslots as $slot) {
-                $flatoptions[$slot['key']] = $slot['daylabel'] . ' · ' . $slot['timelabel'];
+            $mform->addElement('hidden', 'slot_selection', '');
+            $mform->setType('slot_selection', PARAM_TEXT);
+
+            if (!empty($openslots)) {
+                $mform->setDefault('slot_validation_error_target', self::slot_selection_checkbox_name(0));
             }
-            $mform->addElement('select', 'slot_selection', get_string('slot_selection', 'mod_booking'), $flatoptions, [
-                'multiple' => 'multiple',
-                'size' => min(12, max(6, count($flatoptions))),
-            ]);
-            $mform->setType('slot_selection', PARAM_RAW_TRIMMED);
+
+            foreach ($openslots as $index => $slot) {
+                $fieldname = self::slot_selection_checkbox_name($index);
+                $label = $slot['daylabel'] . ' · ' . $slot['timelabel'];
+                $checkbox = $mform->addElement('advcheckbox', $fieldname, '', $label);
+                $mform->setType($fieldname, PARAM_INT);
+                $checkbox->updateAttributes([
+                    'data-slot-selection-checkbox' => '1',
+                ]);
+            }
+
             return;
+        }
+
+        $options = [];
+        foreach ($openslots as $slot) {
+            if (!isset($options[$slot['daylabel']])) {
+                $options[$slot['daylabel']] = [];
+            }
+            $options[$slot['daylabel']][$slot['key']] = $slot['timelabel'];
         }
 
         $mform->addElement('selectgroups', 'slot_selection', get_string('slot_selection', 'mod_booking'), $options);
@@ -277,18 +282,19 @@ class slotbooking_form extends dynamic_form {
         }
 
         $maxslots = max(1, (int)($data['slot_max_selection'] ?? 1));
-        $selectiondata = $data['slot_selection'] ?? '';
-
-        $entries = [];
-        if (is_array($selectiondata)) {
-            $entries = array_filter(array_map('trim', $selectiondata), function ($entry) {
-                return $entry !== '';
-            });
-        } else {
-            $selection = (string)$selectiondata;
-            $entries = array_filter(array_map('trim', explode(',', $selection)), function ($entry) {
-                return $entry !== '';
-            });
+        $entries = self::extract_selected_slot_entries_from_checkboxes($data);
+        if (empty($entries)) {
+            $selectiondata = $data['slot_selection'] ?? '';
+            if (is_array($selectiondata)) {
+                $entries = array_filter(array_map('trim', $selectiondata), function ($entry) {
+                    return $entry !== '';
+                });
+            } else {
+                $selection = (string)$selectiondata;
+                $entries = array_filter(array_map('trim', explode(',', $selection)), function ($entry) {
+                    return $entry !== '';
+                });
+            }
         }
 
         if (empty($entries)) {
@@ -386,5 +392,86 @@ class slotbooking_form extends dynamic_form {
      */
     protected function get_page_url_for_dynamic_submission(): moodle_url {
         return new moodle_url('/mod/booking/view.php');
+    }
+
+    /**
+     * Build deterministic checkbox field name for a slot list entry.
+     *
+     * @param int $index slot index in the rendered open-slot list
+     * @return string
+     */
+    private static function slot_selection_checkbox_name(int $index): string {
+        return 'slot_selection_cb_' . $index;
+    }
+
+    /**
+     * Return currently open slots with labels and teacher availability.
+     *
+     * @param int $optionid booking option id
+     * @param int $userid user id
+     * @return array<int, array{key:string,start:int,end:int,daylabel:string,timelabel:string,teachers:array}>
+     */
+    private static function get_open_slots(int $optionid, int $userid): array {
+        $slots = slot_availability::get_slots_with_status($optionid, $userid);
+        $openslots = [];
+
+        foreach ($slots as $slot) {
+            $slotstatus = (string)($slot['status'] ?? 'unavailable');
+            if (!in_array($slotstatus, ['open', 'warning'], true)) {
+                continue;
+            }
+
+            $start = (int)$slot['start'];
+            $end = (int)$slot['end'];
+            $daylabel = userdate($start, get_string('strftimedaydate', 'langconfig'));
+            $key = $start . ':' . $end;
+            $label = userdate($start, get_string('strftimetime', 'langconfig'))
+                . ' - '
+                . userdate($end, get_string('strftimetime', 'langconfig'));
+            if ($slotstatus === 'warning') {
+                $label .= ' (!)';
+            }
+
+            $openslots[] = [
+                'key' => $key,
+                'start' => $start,
+                'end' => $end,
+                'daylabel' => $daylabel,
+                'timelabel' => $label,
+                'teachers' => slot_availability::get_available_teachers_for_slot($optionid, $start, $end),
+            ];
+        }
+
+        return $openslots;
+    }
+
+    /**
+     * Extract selected slot entries from checkbox controls.
+     *
+     * @param array $formvalues submitted form values
+     * @return array<int, string>
+     */
+    private static function extract_selected_slot_entries_from_checkboxes(array $formvalues): array {
+        $calendarraw = (string)($formvalues['slot_calendar_data'] ?? '[]');
+        $openslots = json_decode($calendarraw, true);
+        if (!is_array($openslots)) {
+            return [];
+        }
+
+        $entries = [];
+        foreach ($openslots as $index => $slot) {
+            if (!is_array($slot) || empty($slot['key'])) {
+                continue;
+            }
+
+            $fieldname = self::slot_selection_checkbox_name((int)$index);
+            if (empty($formvalues[$fieldname])) {
+                continue;
+            }
+
+            $entries[] = (string)$slot['key'];
+        }
+
+        return array_values(array_unique($entries));
     }
 }

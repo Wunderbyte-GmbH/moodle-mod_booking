@@ -207,12 +207,14 @@ class slotbooking extends field_base {
             }
         }
 
-        $mform->addElement('autocomplete', 'slot_teacher_pool', get_string('slot_teacher_pool', 'mod_booking'), $teacheroptions, [
-            'multiple' => true,
-            'tags' => false,
-        ]);
-        $mform->setType('slot_teacher_pool', PARAM_RAW_TRIMMED);
-        $mform->hideIf('slot_teacher_pool', 'optiontype', 'neq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
+        $mform->addElement('static', 'slot_teacher_pool_label', get_string('slot_teacher_pool', 'mod_booking'), '');
+        $mform->hideIf('slot_teacher_pool_label', 'optiontype', 'neq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
+        foreach ($teacheroptions as $teacherid => $teachername) {
+            $fieldname = 'slot_teacher_pool_' . (int)$teacherid;
+            $mform->addElement('advcheckbox', $fieldname, '', $teachername);
+            $mform->setType($fieldname, PARAM_INT);
+            $mform->hideIf($fieldname, 'optiontype', 'neq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
+        }
 
         $mform->addElement('text', 'slot_teachers_required', get_string('slot_teachers_required', 'mod_booking'));
         $mform->setType('slot_teachers_required', PARAM_INT);
@@ -323,7 +325,7 @@ class slotbooking extends field_base {
         $record->max_participants_per_slot = max(1, (int)($formdata->slot_max_participants_per_slot ?? 1));
         $record->max_slots_per_user = max(1, (int)($formdata->slot_max_slots_per_user ?? 1));
         $record->booking_interface = ($formdata->slot_booking_view_mode ?? 'calendar') === 'calendar' ? 'calendar' : 'list';
-        $record->teacher_pool = json_encode(array_values(array_map('intval', (array)($formdata->slot_teacher_pool ?? []))));
+        $record->teacher_pool = json_encode(self::extract_teacher_pool_from_formdata($formdata));
         $record->teachers_required = max(0, (int)($formdata->slot_teachers_required ?? 0));
         $record->timemodified = $now;
 
@@ -393,6 +395,10 @@ class slotbooking extends field_base {
                 $pool = json_decode((string)$config->teacher_pool, true);
                 if (is_array($pool)) {
                     $data->slot_teacher_pool = array_values(array_map('intval', $pool));
+                    foreach ($data->slot_teacher_pool as $teacherid) {
+                        $fieldname = 'slot_teacher_pool_' . (int)$teacherid;
+                        $data->{$fieldname} = 1;
+                    }
                 }
 
                 for ($i = 1; $i <= 7; $i++) {
@@ -432,5 +438,36 @@ class slotbooking extends field_base {
         }
 
         return implode(',', $days);
+    }
+
+    /**
+     * Extract selected teacher ids from checkbox fields (with legacy fallback).
+     *
+     * @param stdClass $formdata form data
+     * @return array<int, int>
+     */
+    private static function extract_teacher_pool_from_formdata(stdClass $formdata): array {
+        $selected = [];
+        foreach ((array)$formdata as $key => $value) {
+            if (strpos((string)$key, 'slot_teacher_pool_') !== 0 || empty($value)) {
+                continue;
+            }
+
+            $teacherid = (int)substr((string)$key, strlen('slot_teacher_pool_'));
+            if ($teacherid > 0) {
+                $selected[] = $teacherid;
+            }
+        }
+
+        if (empty($selected) && !empty($formdata->slot_teacher_pool)) {
+            $selected = array_values(array_map('intval', (array)$formdata->slot_teacher_pool));
+        }
+
+        $selected = array_values(array_unique(array_filter($selected, function ($id) {
+            return $id > 0;
+        })));
+        sort($selected);
+
+        return $selected;
     }
 }

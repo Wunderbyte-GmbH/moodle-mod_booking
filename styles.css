@@ -1,3 +1,37 @@
+.prepage-booking-page input[data-slot-selection-checkbox="1"].form-check-input + label {
+    margin: 0 0 0 0.45rem;
+    display: inline;
+}
+
+/* Slot teacher assignments: compact layout and cleaner spacing. */
+#page-mod-booking-slotteacherassignments form.mform .fitem {
+    border-top: 1px solid #d9d9d9;
+    padding-top: 0.6rem;
+    margin-top: 0.35rem;
+    margin-bottom: 0.45rem;
+}
+
+#page-mod-booking-slotteacherassignments form.mform .fitem .col-md-3 {
+    padding-top: 0.25rem;
+}
+
+#page-mod-booking-slotteacherassignments form.mform .fgroup .checkbox {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+}
+
+#page-mod-booking-slotteacherassignments form.mform .fgroup .form-check {
+    margin: 0;
+}
+
+#page-mod-booking-slotteacherassignments form.mform .fgroup .form-check-input {
+    margin-top: 0.2rem;
+}
+
+#page-mod-booking-slotteacherassignments form.mform .fgroup .form-check-label {
+    margin-left: 0.35rem;
+}
 .mod-booking .results {
     border-collapse: separate;
 }
