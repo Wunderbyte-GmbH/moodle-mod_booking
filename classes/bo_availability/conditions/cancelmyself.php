@@ -134,11 +134,13 @@ class cancelmyself implements bo_condition {
 
         // Get the booking answers for this instance.
         $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
-
         $bookinginformation = $bookinganswer->return_all_booking_information($userid);
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
 
-        if (!empty($settings->jsonobject->useprice) && (!class_exists('local_shopping_cart\shopping_cart'))) {
+        if ($bookinganswer->is_activity_completed($userid)) {
+            // If the user has already completed the booking option, (s)he cannot cancel!
+            $isavailable = true; // True means, it won't be shown.
+        } else if (!empty($settings->jsonobject->useprice) && (!class_exists('local_shopping_cart\shopping_cart'))) {
             // If we have a price, this condition is not used.
             $isavailable = true; // True means, it won't be shown.
         } else {
