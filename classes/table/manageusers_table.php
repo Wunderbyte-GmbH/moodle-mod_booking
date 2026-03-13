@@ -841,6 +841,7 @@ class manageusers_table extends wunderbyte_table {
                 $allowedtoconfirm
                 && $requiredconfirmations > $currentconfirmations
                 && $waitforconfirmation
+                && $ba->user_status($values->userid) != MOD_BOOKING_STATUSPARAM_BOOKED
         ) {
             $data[] = [
                 'arialabel' => get_string('actionbuttonconfirm', 'mod_booking'), // Name of your action button.
