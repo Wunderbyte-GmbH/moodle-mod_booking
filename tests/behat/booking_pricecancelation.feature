@@ -60,7 +60,7 @@ Feature: Create booking option with price and force students answer as admin tha
     ##And I wait "1" seconds
     When I click on "Cancel purchase" "text" in the ".allbookingoptionstable_r2 .booknow" "css_element"
     Then I should see "Do you really want to cancel this purchase?" in the ".modal.show .modal-body" "css_element"
-    And I should see "You'll get the costs of your purchase (88.00 EUR) minus a cancelation fee (0.00 EUR) as credit (88.00 EUR) for your next purchase." in the ".modal.show .modal-body" "css_element"
+    And I should see "You'll get the costs of your purchase (88.00 EUR) minus a cancelation fee (0.00 EUR) as credit for your next purchase: 88.00 EUR" in the ".modal.show .modal-body" "css_element"
     And I click on "Cancel purchase" "button" in the ".modal.show .modal-footer" "css_element"
     ## Notification has been displayed but become clossed instantly
     ##And I should see "Successfully canceled" in the ".notifications" "css_element"
