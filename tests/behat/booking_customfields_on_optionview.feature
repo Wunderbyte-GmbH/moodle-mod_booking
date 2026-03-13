@@ -38,9 +38,9 @@ Feature: As admin - configure customfield filter for booking instance and view i
       | activity | course | name     | intro               | bookingmanager | eventtype | Default view for booking options | Send confirmation e-mail |
       | booking  | C1     | Booking0 | Booking description | teacher1       | Webinar   | All bookings                     | Yes                      |
     And the following "mod_booking > options" exist:
-      | booking   | text       | course | description | importing | maxanswers | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | useprice | spt1  | dtime      | ddownmenu | dynamicuser       |
-      | Booking0  | Option01-t | C1     | tenis       | 1         | 3          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 0        | tenis | 2346937200 | 1         | student1,student3 |
-      | Booking0  | Option02-f | C1     | yoga        | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | yoga  | 2347110000 | 0         | student2,student3 |
+      | booking   | text       | course | description            | importing | maxanswers | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | optiondateid_1 | daystonotify_1 | coursestarttime_1 | courseendtime_1 | useprice | spt1  | dtime      | ddownmenu | dynamicuser       |
+      | Booking0  | Option01-t | C1     | tenis-{dnumber}-{spt1} | 1         | 3          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 0              | 0              | ## +3 days ##     | ## +4 days ##   | 0        | tenis | 2346937200 | 1         | student1,student3 |
+      | Booking0  | Option02-f | C1     | yoga                   | 1         | 3          | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 0              | 0              | ## +4 days ##     | ## +4 days ##   | 0        | yoga  | 2347110000 | 0         | student2,student3 |
     ## 2044/05/15 and 2044/05/17
     And the following "custom field categories" exist:
       | name        | component   | area    | itemid |
@@ -50,6 +50,9 @@ Feature: As admin - configure customfield filter for booking instance and view i
   @javascript
   Scenario: Booking: configure multiple customfield values and view it on the optionview page
     Given I am on the "Booking0" Activity page logged in as admin
+    ## Verify customfields placeholder in description
+    And I should see "tenis-5-tenis" in the ".allbookingoptionstable_r1" "css_element"
+    ## Verify customfields values on optionview page
     And I click on "Option01-t" "text" in the ".allbookingoptionstable_r1" "css_element"
     And I switch to a second window
     And I should see "tenis" in the ".optionview-customfield-spt1" "css_element"
@@ -58,3 +61,5 @@ Feature: As admin - configure customfield filter for booking instance and view i
     And I should see "Option1" in the ".optionview-customfield-ddownmenu" "css_element"
     And I should see "5" in the ".optionview-customfield-dnumber" "css_element"
     And I should see "student1, student3" in the ".optionview-customfield-dynamicuser" "css_element"
+    ## Verify customfields placeholder in description again
+    And I should see "tenis-5-tenis" in the ".mod-booking-row .content" "css_element"

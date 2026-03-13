@@ -62,7 +62,7 @@ final class booking_customfields_on_optionview_test extends advanced_testcase {
             'bookingid' => $booking->id,
             'text' => 'Option01-t',
             'course' => $course->id,
-            'description' => 'tenis',
+            'description' => 'tenis-{dnumber}-{spt1}',
             'importing' => 1,
             'maxanswers' => 3,
             'spt1' => 'tenis',
@@ -75,6 +75,7 @@ final class booking_customfields_on_optionview_test extends advanced_testcase {
         $data = (new bookingoption_description($option->id))->export_for_template($PAGE->get_renderer('mod_booking'));
 
         $customfieldshtml = $data['optionviewcustomfields'];
+        $descriptiohtml = $data['description'];
 
         $this->assertStringContainsString('optionview-customfield-spt1', $customfieldshtml);
         $this->assertStringContainsString('tenis', $customfieldshtml);
@@ -93,6 +94,10 @@ final class booking_customfields_on_optionview_test extends advanced_testcase {
 
         $this->assertStringContainsString('optionview-customfield-dynamicuser', $customfieldshtml);
         $this->assertStringContainsString('student1, student3', $customfieldshtml);
+
+        // Verify that the customfield placeholders in description.
+        $this->assertStringContainsString('text_to_html', $descriptiohtml);
+        $this->assertStringContainsString('tenis-5-tenis', $descriptiohtml);
     }
 
     /**
