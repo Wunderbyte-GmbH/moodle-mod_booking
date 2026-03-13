@@ -59,6 +59,7 @@ class prepagemodal implements renderable, templatable {
 
     /** @var string $results  */
     public $results = "";
+
     /**
      * Constructor
      *
@@ -67,13 +68,15 @@ class prepagemodal implements renderable, templatable {
      * @param string $buttoncondition
      * @param string $extrabuttoncondition
      * @param int $userid
+     * @param string $results
      */
     public function __construct(
         $settings,
         int $totalnumberofpages,
         string $buttoncondition,
         string $extrabuttoncondition = '',
-        int $userid = 0
+        int $userid = 0,
+        string $results = ''
     ) {
 
         global $PAGE;
@@ -95,6 +98,7 @@ class prepagemodal implements renderable, templatable {
         $this->totalnumberofpages = $totalnumberofpages;
         $this->buttoncondition = $buttoncondition;
         $this->userid = $userid;
+        $this->results = $results;
         $condition = new $buttoncondition();
         [$template, $data] = $condition->render_button($settings, $userid, $full);
 
@@ -113,6 +117,7 @@ class prepagemodal implements renderable, templatable {
         }
 
         $data['nojs'] = true;
+    $data['results'] = $this->results;
         $data = new bookit_button($data);
         /** @var \mod_booking\output\renderer $output */
         $output = $PAGE->get_renderer('mod_booking');

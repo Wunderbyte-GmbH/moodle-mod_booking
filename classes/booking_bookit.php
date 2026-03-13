@@ -174,9 +174,8 @@ class booking_bookit {
                 $buttoncondition, // This is the button we need to render twice.
                 !$justmyalert ? $extrabuttoncondition : '', // There might be a second button to render.
                 $userid, // The userid for which all this will be rendered.
+                json_encode(array_keys($results)), // Keep button condition metadata parity with non-modal rendering.
             );
-
-            $data->results = json_encode(array_keys($results));
 
             $datas[] = $data;
 
