@@ -105,7 +105,7 @@ class slotbooking implements bo_condition {
         if ($this->is_slot_booking_enabled($settings)) {
             // Keep the prepage condition visible/stable throughout the booking flow.
             // The actual slot selection check is done in hard_block().
-            $isavailable = $this->has_existing_booking((int)$settings->id, $userid);
+            $isavailable = false;
         }
 
         if ($not) {
@@ -391,26 +391,5 @@ class slotbooking implements bo_condition {
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $value = (int)($settings->slotconfig->max_slots_per_user ?? 1);
         return max(1, $value);
-    }
-
-    /**
-     * Checks if user already has an active booking answer for this option.
-     *
-     * @param int $optionid option id
-     * @param int $userid user id
-     * @return bool
-     */
-    private function has_existing_booking(int $optionid, int $userid): bool {
-        global $DB;
-
-        return $DB->record_exists_select(
-            'booking_answers',
-            'optionid = :optionid AND userid = :userid AND waitinglist < :deletedstate',
-            [
-                'optionid' => $optionid,
-                'userid' => $userid,
-                'deletedstate' => MOD_BOOKING_STATUSPARAM_DELETED,
-            ]
-        );
     }
 }
