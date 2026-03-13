@@ -4,7 +4,7 @@
 }
 
 /* Slot teacher assignments: compact layout and cleaner spacing. */
-#page-mod-booking-slotteacherassignments form.mform .fitem {
+#page-mod-booking-slotteacherassignments form.mform div.fitem {
     border-top: 1px solid #d9d9d9;
     padding-top: 0.6rem;
     margin-top: 0.35rem;

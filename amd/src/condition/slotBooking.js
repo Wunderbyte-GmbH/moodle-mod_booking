@@ -109,7 +109,14 @@ const ensureTeacherContainer = (container, anchor) => {
     return teacherContainer;
 };
 
-const renderTeacherSelection = (teacherContainer, selectedSlotKeys, slotsMap, requiredCount, hiddenInput) => {
+const renderTeacherSelection = (
+    teacherContainer,
+    selectedSlotKeys,
+    slotsMap,
+    requiredCount,
+    hiddenInput,
+    examinersLabel
+) => {
     const currentSelection = parseTeacherSelection(hiddenInput);
 
     const selectedSet = new Set(selectedSlotKeys);
@@ -128,7 +135,7 @@ const renderTeacherSelection = (teacherContainer, selectedSlotKeys, slotsMap, re
 
     const heading = document.createElement('div');
     heading.className = 'small fw-bold mb-2';
-    heading.textContent = `Teachers per slot: ${requiredCount}`;
+    heading.textContent = `${examinersLabel}: ${requiredCount}`;
     teacherContainer.appendChild(heading);
 
     selectedSlotKeys.forEach(slotKey => {
@@ -244,7 +251,9 @@ export async function init() {
         const selectionInput = getSelectionInput(container);
         const jsonInput = container.querySelector('input[name="slot_calendar_data"]');
         const teacherSelectionInput = container.querySelector('input[name="slot_teacher_selection"]');
+        const examinersLabelInput = container.querySelector('input[name="slot_examiners_per_slot_label"]');
         const teachersRequiredInput = container.querySelector('input[name="slot_teachers_required_count"]');
+        const examinersLabel = (examinersLabelInput?.value || 'Examiners per slot').trim();
 
         if (!selectionInput) {
             return;
@@ -262,7 +271,14 @@ export async function init() {
 
         const refreshTeacherSelection = () => {
             const selectedSlotKeys = getSelectedSlotKeys(selectionInput);
-            renderTeacherSelection(teacherContainer, selectedSlotKeys, slotsMap, teachersRequired, teacherSelectionInput);
+            renderTeacherSelection(
+                teacherContainer,
+                selectedSlotKeys,
+                slotsMap,
+                teachersRequired,
+                teacherSelectionInput,
+                examinersLabel
+            );
         };
 
         if (calendarRoot && !calendarRoot.dataset.slotCalendarInitialized) {

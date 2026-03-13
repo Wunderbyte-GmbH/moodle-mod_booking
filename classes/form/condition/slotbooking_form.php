@@ -206,6 +206,9 @@ class slotbooking_form extends dynamic_form {
         $mform->addElement('hidden', 'slot_teacher_selection', '');
         $mform->setType('slot_teacher_selection', PARAM_RAW_TRIMMED);
 
+        $mform->addElement('hidden', 'slot_examiners_per_slot_label', get_string('slot_examiners_per_slot', 'mod_booking'));
+        $mform->setType('slot_examiners_per_slot_label', PARAM_TEXT);
+
         $mform->addElement('hidden', 'slot_validation_error_target', 'slot_selection');
         $mform->setType('slot_validation_error_target', PARAM_ALPHANUMEXT);
 
