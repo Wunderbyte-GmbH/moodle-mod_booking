@@ -145,7 +145,7 @@ class customformstore {
                 }
             }
             if (!empty($formelement->notempty)) {
-                if (empty($data[$identifier])) {
+                if (empty(trim($data[$identifier]))) {
                     $errors[$identifier] = get_string('error:mustnotbeempty', 'mod_booking');
                 }
             }
