@@ -164,18 +164,6 @@ class customform implements bo_condition {
 
         if (empty($this->customsettings->formsarray)) {
             $isavailable = true;
-        } else {
-            $ba = singleton_service::get_instance_of_booking_answers($settings);
-            $usersonlist = $ba->get_usersonlist();
-            $usersonwaitinglist = $ba->get_usersonwaitinglist();
-            // If the user is already on a list...
-            if (($usersonlist[$userid] ?? false) || ($usersonwaitinglist[$userid] ?? false)) {
-                $customformstore = new customformstore($userid, $settings->id);
-                // If the form is already filled out, don't show it again.
-                if ($customformstore->get_customform_data()) {
-                    $isavailable = true;
-                }
-            }
         }
 
         // If it's inversed, we inverse.
