@@ -17,6 +17,7 @@
 namespace mod_booking\booking_rules\rules;
 
 use context;
+use core_component;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking;
 use mod_booking\booking_rules\actions_info;
@@ -179,7 +180,7 @@ class rule_daysbefore implements booking_rule {
             $jsonobject->useastemplate = $data->useastemplate;
             $record->useastemplate = $data->useastemplate;
         }
-
+        $jsonobject->ruledata->component = core_component::get_component_from_classname(static::class);
         $record->rulejson = json_encode($jsonobject);
         $record->rulename = $this->rulename;
         $record->contextid = $data->contextid ?? 1;
