@@ -193,11 +193,11 @@ class teacherunavailability_form extends dynamic_form {
             }
         }
 
-        // `unavailability_counter` is a hidden field rendered by definition() on every
+        // Unavailability counter is a hidden field rendered by definition() on every
         // AJAX cycle (including noSubmit delete calls). Its presence means the form has
         // already been through at least one render and the submitted state is authoritative.
         // Only fall back to the DB on the very first (initial) page load where this field
-        // is absent — this way deleting the last row and then saving works correctly.
+        // is absent. This way deleting the last row and then saving works correctly.
         $formhasbeenrendered = array_key_exists('unavailability_counter', (array)$this->_ajaxformdata);
 
         if (!empty($indices)) {

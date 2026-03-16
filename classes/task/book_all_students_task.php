@@ -24,7 +24,9 @@ use moodle_url;
 /**
  * Adhoc task to bulk-book all students into a booking option.
  *
- * @package mod_booking
+ * @package     mod_booking
+ * @copyright   2026 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class book_all_students_task extends adhoc_task {
     /**

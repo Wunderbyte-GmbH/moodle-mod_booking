@@ -57,13 +57,13 @@ class slot_availability {
          * @param int $optionid booking option id (pass 0 to clear all)
          * @return void
          */
-        public static function clear_request_cache(int $optionid = 0): void {
-            if ($optionid > 0) {
-                unset(self::$bookedslotrangecache[$optionid]);
-            } else {
-                self::$bookedslotrangecache = [];
-            }
+    public static function clear_request_cache(int $optionid = 0): void {
+        if ($optionid > 0) {
+            unset(self::$bookedslotrangecache[$optionid]);
+        } else {
+            self::$bookedslotrangecache = [];
         }
+    }
 
     /**
      * Returns available teachers for a given slot.
@@ -535,7 +535,7 @@ class slot_availability {
         }
 
         $slots = array_values($slots);
-        usort($slots, static function(array $a, array $b): int {
+        usort($slots, static function (array $a, array $b): int {
             if ($a[0] !== $b[0]) {
                 return $a[0] <=> $b[0];
             }

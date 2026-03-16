@@ -17,7 +17,9 @@
 /**
  * Queue a bulk-book-all-students task for a booking option.
  *
- * @package mod_booking
+ * @package     mod_booking
+ * @copyright   2026 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require_once('../../config.php');

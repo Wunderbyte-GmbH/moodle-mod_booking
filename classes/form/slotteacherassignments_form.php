@@ -188,14 +188,22 @@ class slotteacherassignments_form extends dynamic_form {
         [$teacheroptions, $studentids] = $this->get_teacher_and_student_ids();
 
         if (empty($teacheroptions)) {
-            $mform->addElement('static', 'slotta_no_teachers', '',
-                get_string('slot_student_teacher_assignments_no_teachers', 'mod_booking'));
+            $mform->addElement(
+                'static',
+                'slotta_no_teachers',
+                '',
+                get_string('slot_student_teacher_assignments_no_teachers', 'mod_booking')
+            );
             return;
         }
 
         if (empty($studentids)) {
-            $mform->addElement('static', 'slotta_no_students', '',
-                get_string('slot_student_teacher_assignments_no_students', 'mod_booking'));
+            $mform->addElement(
+                'static',
+                'slotta_no_students',
+                '',
+                get_string('slot_student_teacher_assignments_no_students', 'mod_booking')
+            );
             return;
         }
 
@@ -303,9 +311,12 @@ class slotteacherassignments_form extends dynamic_form {
             }
         }
 
-        $teacherpool = array_values(array_unique(array_filter(array_map('intval', $teacherpool), static function (int $teacherid): bool {
-            return $teacherid > 0;
-        })));
+        $teacherpool = array_values(array_unique(array_filter(
+            array_map('intval', $teacherpool),
+            static function (int $teacherid): bool {
+                return $teacherid > 0;
+            }
+        )));
 
         $teachers = !empty($teacherpool) ? user_get_users_by_id($teacherpool) : [];
         $teacheroptions = [];
@@ -320,7 +331,8 @@ class slotteacherassignments_form extends dynamic_form {
             $context,
             'mod/booking:choose',
             0,
-            'u.id, u.firstname, u.lastname, u.firstnamephonetic, u.lastnamephonetic, u.middlename, u.alternatename, u.idnumber, u.email'
+            'u.id, u.firstname, u.lastname, u.firstnamephonetic, u.lastnamephonetic, '
+            . 'u.middlename, u.alternatename, u.idnumber, u.email'
         );
 
         $studentids = array_values(array_map(static function (stdClass $student): int {

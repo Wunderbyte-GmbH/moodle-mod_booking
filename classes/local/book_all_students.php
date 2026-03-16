@@ -28,6 +28,10 @@ use stdClass;
  * Bulk-book students into a booking option.
  *
  * Uses booking_option::user_submit_response() for every booking action.
+ *
+ * @package     mod_booking
+ * @copyright   2026 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class book_all_students {
     /**
@@ -182,7 +186,7 @@ class book_all_students {
         ";
 
         $records = $DB->get_records_sql($sql, ['courseid' => $courseid]);
-        return array_map(static function(stdClass $record): int {
+        return array_map(static function (stdClass $record): int {
             return (int)$record->userid;
         }, array_values($records));
     }
@@ -274,7 +278,7 @@ class book_all_students {
         }
 
         // Prefer the least-filled slots first to avoid bias towards the first day.
-        usort($slots, static function(array $a, array $b): int {
+        usort($slots, static function (array $a, array $b): int {
             $abookings = (int)($a['bookings'] ?? 0);
             $bbookings = (int)($b['bookings'] ?? 0);
 
@@ -333,7 +337,7 @@ class book_all_students {
                     continue;
                 }
 
-                $availableteacherids = array_map(static function(array $teacher): int {
+                $availableteacherids = array_map(static function (array $teacher): int {
                     return (int)$teacher['id'];
                 }, $availableteachers);
 
@@ -414,9 +418,9 @@ class book_all_students {
             return [];
         }
 
-        return array_values(array_unique(array_filter(array_map(static function($record): int {
+        return array_values(array_unique(array_filter(array_map(static function ($record): int {
             return (int)($record->teacherid ?? 0);
-        }, $records), static function(int $id): bool {
+        }, $records), static function (int $id): bool {
             return $id > 0;
         })));
     }

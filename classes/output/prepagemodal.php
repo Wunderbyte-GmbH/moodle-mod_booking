@@ -117,7 +117,7 @@ class prepagemodal implements renderable, templatable {
         }
 
         $data['nojs'] = true;
-    $data['results'] = $this->results;
+        $data['results'] = $this->results;
         $data = new bookit_button($data);
         /** @var \mod_booking\output\renderer $output */
         $output = $PAGE->get_renderer('mod_booking');
