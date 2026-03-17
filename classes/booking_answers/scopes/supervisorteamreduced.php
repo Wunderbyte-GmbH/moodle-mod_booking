@@ -80,7 +80,11 @@ class supervisorteamreduced extends supervisorteam {
         }
 
         $table->set_sql($fields, $from, $where, $params);
-        $table->sortablecolumns = $columns;
+        $sortablecolumns = [];
+        foreach ($columns as $index => $columnkey) {
+            $sortablecolumns[$columnkey] = $headers[$index] ?? $columnkey;
+        }
+        $table->define_sortablecolumns($sortablecolumns);
         $table->fulltextsearchcolumns = ['name', 'text'];
 
         return $table;

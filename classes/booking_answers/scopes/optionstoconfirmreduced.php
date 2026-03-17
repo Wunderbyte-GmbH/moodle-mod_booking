@@ -84,6 +84,11 @@ class optionstoconfirmreduced extends optionstoconfirm {
             $table->use_pages = true;
         }
         $table->set_sql($fields, $from, $where, $params);
+        $sortablecolumns = [];
+        foreach ($columns as $index => $columnkey) {
+            $sortablecolumns[$columnkey] = $headers[$index] ?? $columnkey;
+        }
+        $table->define_sortablecolumns($sortablecolumns);
         return $table;
     }
 
