@@ -115,6 +115,7 @@ class booking_handler extends \core_customfield\handler {
                     LEFT JOIN {customfield_category} cfc
                     ON cff.categoryid = cfc.id
                     WHERE cfc.component = 'mod_booking'
+                    AND cfc.area = 'booking'
                     ORDER BY cfc.sortorder, cff.sortorder";
             $params = [];
         } else {
@@ -124,6 +125,7 @@ class booking_handler extends \core_customfield\handler {
                     LEFT JOIN {customfield_category} cfc
                     ON cff.categoryid = cfc.id
                     WHERE cfc.component = 'mod_booking'
+                    AND cfc.area = 'booking'
                     AND cff.shortname $insql
                     ORDER BY cfc.sortorder, cff.sortorder";
         }
@@ -497,7 +499,8 @@ class booking_handler extends \core_customfield\handler {
                         FROM {customfield_field} cf
                         JOIN {customfield_category} cc
                           ON cc.id = cf.categoryid
-                       WHERE cc.component = 'mod_booking'"
+                       WHERE cc.component = 'mod_booking'
+                         AND cc.area = 'booking'"
         );
         $forbiddenshortnames = array_intersect($boproperties, $usedshortnames);
         if (empty($forbiddenshortnames)) {

@@ -227,6 +227,7 @@ class campaigns_info {
     public static function return_rendered_list_of_saved_campaigns() {
         global $PAGE;
         $campaigns = self::get_list_of_saved_campaigns();
+        /** @var \mod_booking\output\renderer $output */
         $output = $PAGE->get_renderer('mod_booking');
         return $output->render_campaignslist(new campaignslist($campaigns));
     }
@@ -337,7 +338,8 @@ class campaigns_info {
                 ON cf.categoryid = cc.id
                 JOIN {customfield_data} cd
                 ON cd.fieldid = cf.id
-                WHERE cc.area = 'booking'
+                WHERE cc.component = 'mod_booking'
+                AND cc.area = 'booking'
                 AND cd.value IS NOT NULL
                 AND cd.value <> ''
                 AND cf.shortname = :bofieldname";

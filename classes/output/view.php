@@ -1219,7 +1219,13 @@ class view implements renderable, templatable {
                     $shortnames = array_keys(get_object_vars($jsonsettings->customfieldsforfilter));
 
                     [$insql, $params] = $DB->get_in_or_equal($shortnames, SQL_PARAMS_NAMED);
-                    $records = $DB->get_records_select('customfield_field', "shortname $insql", $params, '', 'id, shortname');
+                    $sql = "SELECT cf.id, cf.shortname
+                              FROM {customfield_field} cf
+                              JOIN {customfield_category} cc ON cf.categoryid = cc.id
+                             WHERE cf.shortname $insql
+                               AND cc.component = 'mod_booking'
+                               AND cc.area = 'booking'";
+                    $records = $DB->get_records_sql($sql, $params);
                     $shortnamesid = [];
                     foreach ($records as $record) {
                         $shortnamesid[$record->shortname] = (int)$record->id;

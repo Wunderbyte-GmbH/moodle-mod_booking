@@ -1340,7 +1340,10 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
     $viewphpurl = new moodle_url('/mod/booking/view.php', ['id' => $cm->id]);
     $returnurl = $viewphpurl->out();
 
-    if (has_capability('mod/booking:updatebooking', $context)) {
+    if (
+        has_capability('mod/booking:updatebooking', $context)
+        || has_capability('mod/booking:addeditownoption', $context)
+    ) {
         $navref->add(
             get_string('createnewbookingoption', 'booking'),
             // For a new booking option, optionid needs to be empty.

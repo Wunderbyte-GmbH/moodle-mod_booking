@@ -100,7 +100,10 @@ class coursecategories {
                 FROM {customfield_field} cff
                 JOIN {customfield_data} cfd ON cff.id = cfd.fieldid
                 JOIN {customfield_category} cfc ON cff.categoryid = cfc.id
-                WHERE cff.shortname =:firstadditionalcount AND cfc.component='mod_booking' AND cfd.charvalue <> ''
+                WHERE cff.shortname =:firstadditionalcount
+                AND cfc.component='mod_booking'
+                AND cfc.area = 'booking'
+                AND cfd.charvalue <> ''
                 GROUP BY optionid
                 ) s4 ON s4.optionid = bo.id
             ";
@@ -118,7 +121,10 @@ class coursecategories {
                 FROM {customfield_field} cff
                 JOIN {customfield_data} cfd ON cff.id = cfd.fieldid
                 JOIN {customfield_category} cfc ON cff.categoryid = cfc.id
-                WHERE cff.shortname =:secondadditionalcount AND cfc.component='mod_booking' AND cfd.charvalue <> ''
+                WHERE cff.shortname =:secondadditionalcount
+                AND cfc.component='mod_booking'
+                AND cfc.area = 'booking'
+                AND cfd.charvalue <> ''
                 GROUP BY optionid
                 ) s6 ON s6.optionid = bo.id
             ";

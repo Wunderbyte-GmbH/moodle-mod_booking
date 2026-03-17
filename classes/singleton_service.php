@@ -824,12 +824,11 @@ class singleton_service {
     }
 
     /**
-     * [Description for get_customfield_field_by_shortname]
+     * Get a booking option custom field by its shortname.
      *
      * @param string $field
      *
      * @return object
-     *
      */
     public static function get_customfield_field_by_shortname(string $field) {
         $instance = self::get_instance();
@@ -837,7 +836,14 @@ class singleton_service {
         if (!isset($instance->customfieldbyshortname[$field])) {
             global $DB;
 
-            $record = $DB->get_record('customfield_field', ['shortname' => $field]);
+            $sql = "SELECT cf.*
+                    FROM {customfield_field} cf
+                    JOIN {customfield_category} cc ON cf.categoryid = cc.id
+                    WHERE cf.shortname = :shortname
+                    AND cc.component = 'mod_booking'
+                    AND cc.area = 'booking'";
+
+            $record = $DB->get_record_sql($sql, ['shortname' => $field]);
 
             $instance->customfieldbyshortname[$field] = $record;
         }

@@ -719,7 +719,14 @@ class mod_booking_generator extends testing_module_generator {
     private function get_customfield_id(string $identifier): int {
         global $DB;
 
-        if (!$id = $DB->get_field('customfield_field', 'id', ['shortname' => $identifier])) {
+        $sql = "SELECT cf.id
+                  FROM {customfield_field} cf
+                  JOIN {customfield_category} cc ON cf.categoryid = cc.id
+                 WHERE cf.shortname = :shortname
+                   AND cc.component = 'mod_booking'
+                   AND cc.area = 'booking'";
+
+        if (!$id = $DB->get_field_sql($sql, ['shortname' => $identifier])) {
             throw new Exception('The specified booking customfield with shortname "' . $identifier . '" does not exist');
         }
         return $id;

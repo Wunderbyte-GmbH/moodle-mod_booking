@@ -269,6 +269,7 @@ class restore_booking_activity_structure_step extends restore_activity_structure
             LEFT JOIN {customfield_category} cfc
             ON cfc.id = cff.categoryid
             WHERE cfc.component = 'mod_booking'
+            AND cfc.area = 'booking'
             AND cfd.instanceid = :oldid";
 
         $params = [
