@@ -63,6 +63,73 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  */
 class shortcodes {
     /**
+     * Reserve a unique SQL named-parameter key in the target params array.
+     *
+     * @param array $params
+     * @param string $prefix
+     * @return string
+     */
+    private static function reserve_param_key(array &$params, string $prefix): string {
+        $index = 0;
+        do {
+            $candidate = $prefix . $index;
+            $index++;
+        } while (array_key_exists($candidate, $params));
+
+        return $candidate;
+    }
+
+    /**
+     * Generate a prefix that does not collide with existing named params.
+     *
+     * @param array $params
+     * @param string $baseprefix
+     * @return string
+     */
+    private static function reserve_param_prefix(array $params, string $baseprefix): string {
+        $index = 0;
+        do {
+            $prefix = $baseprefix . $index . '_';
+            $index++;
+            $collision = false;
+            foreach (array_keys($params) as $key) {
+                if (strpos((string)$key, $prefix) === 0) {
+                    $collision = true;
+                    break;
+                }
+            }
+        } while ($collision);
+
+        return $prefix;
+    }
+
+    /**
+     * Merge named parameters into target params and rename collisions in SQL.
+     *
+     * @param string $sql
+     * @param array $targetparams
+     * @param array $incomingparams
+     * @return string
+     */
+    private static function merge_params_into_sql(string $sql, array &$targetparams, array $incomingparams): string {
+        foreach ($incomingparams as $key => $value) {
+            $key = (string)$key;
+            if (!array_key_exists($key, $targetparams)) {
+                $targetparams[$key] = $value;
+                continue;
+            }
+
+            $newkey = self::reserve_param_key($targetparams, $key . '_');
+            $targetparams[$newkey] = $value;
+
+            $pattern = '/:' . preg_quote($key, '/') . '(?![A-Za-z0-9_])/';
+            $sql = preg_replace($pattern, ':' . $newkey, $sql);
+        }
+
+        return $sql;
+    }
+
+    /**
      * This shortcode shows a list of booking options, which have a booking customfield...
      * ... with the shortname "recommendedin" and the value set to the shortname of the course...
      * ... in which they should appear.
@@ -143,10 +210,21 @@ class shortcodes {
             unset($table->subcolumns['rightside']);
         }
 
-        $additionalwhere = " (recommendedin = '$course->shortname'
-                            OR recommendedin LIKE '$course->shortname,%'
-                            OR recommendedin LIKE '%,$course->shortname'
-                            OR recommendedin LIKE '%,$course->shortname,%') ";
+        $recommendedparams = [];
+        $recommendedeq = self::reserve_param_key($recommendedparams, 'recommendedin_eq_');
+        $recommendedstart = self::reserve_param_key($recommendedparams, 'recommendedin_start_');
+        $recommendedend = self::reserve_param_key($recommendedparams, 'recommendedin_end_');
+        $recommendedmiddle = self::reserve_param_key($recommendedparams, 'recommendedin_middle_');
+
+        $recommendedparams[$recommendedeq] = $course->shortname;
+        $recommendedparams[$recommendedstart] = $course->shortname . ',%';
+        $recommendedparams[$recommendedend] = '%,' . $course->shortname;
+        $recommendedparams[$recommendedmiddle] = '%,' . $course->shortname . ',%';
+
+        $additionalwhere = " (recommendedin = :$recommendedeq
+                    OR recommendedin LIKE :$recommendedstart
+                    OR recommendedin LIKE :$recommendedend
+                    OR recommendedin LIKE :$recommendedmiddle) ";
 
         [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(
@@ -165,6 +243,7 @@ class shortcodes {
                 );
 
         self::applyallarg($args, $where);
+        $where = self::merge_params_into_sql($where, $params, $recommendedparams);
 
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
@@ -772,13 +851,11 @@ class shortcodes {
                     $table
                 );
 
-        $params = array_merge($tempparams, $params);
+        $where = self::merge_params_into_sql($where, $params, $tempparams);
         self::applyallarg($args, $where);
 
         if (!empty($additionalparams)) {
-            foreach ($additionalparams as $key => $value) {
-                $params[$key] = $value;
-            }
+            $where = self::merge_params_into_sql($where, $params, $additionalparams);
         }
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
@@ -1528,18 +1605,23 @@ class shortcodes {
      */
     public static function set_common_table_options_from_arguments(&$table, $args): void {
         $defaultorder = SORT_ASC; // Default.
+        $sortby = null;
         if (!empty($args['sortorder'])) {
             if (strtolower($args['sortorder']) === "desc") {
                 $defaultorder = SORT_DESC;
             }
         }
         if (!empty($args['sortby'])) {
+            $sortby = clean_param((string)$args['sortby'], PARAM_ALPHANUMEXT);
+        }
+
+        if (!empty($sortby)) {
             if (
-                !isset($table->columns[$args['sortby']])
+                !isset($table->columns[$sortby])
             ) {
-                $table->define_columns([$args['sortby']]);
+                $table->define_columns([$sortby]);
             }
-            $table->sortable(true, $args['sortby'], $defaultorder);
+            $table->sortable(true, $sortby, $defaultorder);
         } else {
             $table->sortable(true, 'text', $defaultorder);
         }
@@ -1604,13 +1686,7 @@ class shortcodes {
         $customfields = booking_handler::get_customfields();
         $filterfields = array_merge($customfields, $columnfilters);
         $newparamname = static function (string $prefix) use (&$tempparamsarray): string {
-            $index = 0;
-            do {
-                $candidate = $prefix . $index;
-                $index++;
-            } while (array_key_exists($candidate, $tempparamsarray));
-
-            return $candidate;
+            return self::reserve_param_key($tempparamsarray, $prefix);
         };
 
         // Set given customfields (shortnames) as arguments.
@@ -1747,9 +1823,10 @@ class shortcodes {
                     $bookings[] = $booking->id;
                 }
             }
-            [$inorequal, $tempparams] = $DB->get_in_or_equal($bookings, SQL_PARAMS_NAMED);
+            $prefix = self::reserve_param_prefix($params ?? [], 'cmid_');
+            [$inorequal, $tempparams] = $DB->get_in_or_equal($bookings, SQL_PARAMS_NAMED, $prefix);
             $additionalwhere = " (bookingid $inorequal) ";
-            $params = array_merge($tempparams, $params ?? []);
+            $params = array_merge($params ?? [], $tempparams);
         }
         if (empty($additionalwhere)) {
             $additionalwhere = " ( bookingid > 0 ) ";
