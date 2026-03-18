@@ -76,7 +76,7 @@ final class booking_customfields_rules_test extends advanced_testcase {
      *
      * @dataProvider booking_common_settings_provider
      */
-    public function test_rule_on_option_booked_with_customfields(array $bdata): void {
+    public function test_rule_on_option_booked_with_customfields_and_profilefields(array $bdata): void {
         global $DB;
 
         singleton_service::destroy_instance();
@@ -93,9 +93,9 @@ final class booking_customfields_rules_test extends advanced_testcase {
         // Setup test data.
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $user1 = $this->getDataGenerator()->create_user();
-        $user2 = $this->getDataGenerator()->create_user();
+        $user2 = $this->getDataGenerator()->create_user(['profile_field_company' => 'Demo Inc']);
         $user3 = $this->getDataGenerator()->create_user(['profile_field_company' => 'Acme Inc']);
-        $user4 = $this->getDataGenerator()->create_user();
+        $user4 = $this->getDataGenerator()->create_user(['profile_field_company' => 'TNMU Inc']);
         $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'editingteacher');
         $this->getDataGenerator()->enrol_user($user2->id, $course->id, 'student');
         $this->getDataGenerator()->enrol_user($user3->id, $course->id, 'student');
@@ -113,8 +113,8 @@ final class booking_customfields_rules_test extends advanced_testcase {
         // Create booking rule 1 - "bookingoption_booked".
         $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
         $actstr .= '"subject":"bookedsubj","templateformat":"1",';
-        $actstr .= '"template":"Dear {firstname} {lastname}, a new user has been booked:';
-        $actstr .= '{firstnamerelated} {lastnamerelated}, {emailrelated}."}';
+        $actstr .= '"template":"Dear {firstname} {lastname} of {company}, a new user has been booked:';
+        $actstr .= '{firstnamerelated} {lastnamerelated}, {emailrelated} of {company-related}."}';
         $ruledata1 = [
             'name' => 'notifyuser',
             'conditionname' => 'select_users',
@@ -163,12 +163,22 @@ final class booking_customfields_rules_test extends advanced_testcase {
 
         // Validate messages.
         $this->assertCount(2, $messages);
+        // Load user profile data to validate profile field values.
+        profile_load_data($user2);
+        profile_load_data($user3);
+        profile_load_data($user4);
         foreach ($messages as $key => $message) {
             $this->assertStringContainsString($user4->firstname, $message->fullmessage);
             $this->assertStringContainsString($user4->lastname, $message->fullmessage);
             $this->assertSame(1, preg_match('(' . $user2->firstname . '|' . $user3->firstname . ')', $message->fullmessage));
             $this->assertSame(1, preg_match('(' . $user2->lastname . '|' . $user3->lastname . ')', $message->fullmessage));
             $this->assertSame(1, preg_match('(' . $user2->email . '|' . $user3->email . ')', $message->fullmessage));
+            // Validate user profile field values in message.
+            $this->assertStringContainsString($user4->profile_field_company, $message->fullmessage);
+            $this->assertSame(1, preg_match(
+                '(' . $user2->profile_field_company . '|' . $user3->profile_field_company . ')',
+                $message->fullmessage
+            ));
         }
     }
 
