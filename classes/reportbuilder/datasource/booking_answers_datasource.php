@@ -76,21 +76,35 @@ class booking_answers_datasource extends datasource {
         // User entity (core) — the participant.
         $userentity = new user();
         $u = $userentity->get_table_alias('user');
+        $cmalias = database::generate_alias();
+        $cohortalias = database::generate_alias();
         $this->add_entity($userentity
             ->add_join("JOIN {user} {$u}
                           ON {$u}.id = {$ba}.userid
                          AND {$u}.deleted = 0
-                         AND {$u}.suspended = 0"));
+                         AND {$u}.suspended = 0")
+            ->add_join("LEFT JOIN {cohort_members} {$cmalias} ON {$cmalias}.userid = {$u}.id")
+            ->add_join("LEFT JOIN {cohort} {$cohortalias} ON {$cohortalias}.id = {$cmalias}.cohortid"));
 
-        // Course entity (core) — the Moodle course that owns the
-        // booking instance.
+        // Add cohort filter condition with selector.
+        $this->add_condition(
+            (new filter(
+                \mod_booking\reportbuilder\local\filters\cohort_selector::class,
+                'cohortid',
+                new lang_string('condition:cohort', 'mod_booking'),
+                $userentity->get_entity_name(),
+                "{$cmalias}.cohortid"
+            ))
+            ->add_joins($userentity->get_joins())
+        );
+
+        // Course entity (core) — the Moodle course that owns the booking instance.
         $courseentity = new course();
         $c = $courseentity->get_table_alias('course');
 
-        // We need the booking instance table to bridge options → course.
+        // Bridge booking options to course via booking instance.
         $bkalias = database::generate_alias();
         $this->add_entity($courseentity
-            ->add_joins($optionentity->get_joins())
             ->add_join("JOIN {booking} {$bkalias}
                           ON {$bkalias}.id = {$bo}.bookingid")
             ->add_join("JOIN {course} {$c}

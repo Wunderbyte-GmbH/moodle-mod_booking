@@ -919,6 +919,7 @@ $string['completionchangedhistory'] = 'The completion status was changed from "{
 $string['completionmodule'] = 'Upon completion of the selected course activity, enable bulk deletion of user bookings';
 $string['completionmodule_help'] = 'Display bulk deletion button for booking answers, if another course module has been completed. The bookings of users will be deleted with a click of a button on the report page! Only activities with completion enabled can be selected from the list.';
 $string['completionoptioncompletedcminfo'] = 'Get marked as completed in at least {$a} booking options (by teacher, manager or admin).';
+$string['condition:cohort'] = 'Cohort';
 $string['condition:profilefieldcurrentuser'] = 'Current user';
 $string['condition:supervisor'] = 'Supervisor is current user';
 $string['condition:withinpastxyears'] = 'Is within the past X years';
