@@ -602,7 +602,8 @@ class recurringoptions extends field_base {
                         if (empty($change['changes'])) {
                             continue;
                         }
-                        switch ($change['changes']['fieldname']) {
+                        // If no field name is set, we switch to default.
+                        switch ($change['changes']['fieldname'] ?? '') {
                             case "dates":
                                 self::update_recurring_date_sessions($childdata, $newparentoptiondates);
                                 $update = true;
