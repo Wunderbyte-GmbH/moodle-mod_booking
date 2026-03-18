@@ -1601,19 +1601,38 @@ class shortcodes {
         array &$tempparamsarray = [],
         array $columnfilters = []
     ) {
-
-        global $DB;
         $customfields = booking_handler::get_customfields();
         $filterfields = array_merge($customfields, $columnfilters);
+        $newparamname = static function (string $prefix) use (&$tempparamsarray): string {
+            $index = 0;
+            do {
+                $candidate = $prefix . $index;
+                $index++;
+            } while (array_key_exists($candidate, $tempparamsarray));
+
+            return $candidate;
+        };
 
         // Set given customfields (shortnames) as arguments.
-        $additionalwhere = '';
+        $additionalconditions = [];
         if (!empty($filterfields) && !empty($args)) {
             foreach ($args as $key => $value) {
                 foreach ($filterfields as $customfield) {
+                    $shortname = (string)($customfield->shortname ?? '');
+                    if ($shortname === '') {
+                        continue;
+                    }
+                    // Only allow safe identifier characters for dynamic SQL field names.
+                    if (clean_param($shortname, PARAM_ALPHANUMEXT) !== $shortname) {
+                        continue;
+                    }
+
+                    // The notkey is for exclusion rather than inclusion.
+                    $notkey = $shortname . '-not' == $key;
                     if (
-                        $customfield->shortname == $key
-                        || 'columnfilter_' . $customfield->shortname == $key
+                        $shortname == $key
+                        || $notkey // Also povide for excluding a value via -not.
+                        || 'columnfilter_' . $shortname == $key
                     ) {
                         $configdata = json_decode($customfield->configdata ?? '[]');
 
@@ -1621,43 +1640,58 @@ class shortcodes {
                             !empty($configdata->multiselect)
                             || (isset($customfield->type) && $customfield->type == 'multiselect')
                         ) {
-                            if (!empty($additionalwhere)) {
-                                $additionalwhere .= " AND ";
-                            }
-
-                            $values = explode(',', $value);
-
-                            if (!empty($values)) {
-                                $additionalwhere .= " ( ";
-                            }
+                            $values = explode(',', (string)$value);
+                            $multiselectconditions = [];
 
                             foreach ($values as $vkey => $vvalue) {
                                 $vvalue = trim($vvalue);
-                                if ($vkey > 0) {
-                                    $additionalwhere .= ' OR ';
+                                if ($vvalue === '') {
+                                    continue;
                                 }
-                                $additionalwhere .= "(
-                                    {$customfield->shortname} = '$vvalue'
-                                    OR {$customfield->shortname} LIKE '$vvalue,%'
-                                    OR {$customfield->shortname} LIKE '%,$vvalue'
-                                    OR {$customfield->shortname} LIKE '%,$vvalue,%'
+
+                                $operator = $notkey ? 'AND' : 'OR';
+                                $like = $notkey ? 'NOT LIKE' : 'LIKE';
+                                $equals = $notkey ? '<>' : '=';
+
+                                $eqparam = $newparamname('cfms_eq_');
+                                $startparam = $newparamname('cfms_start_');
+                                $endparam = $newparamname('cfms_end_');
+                                $midparam = $newparamname('cfms_mid_');
+
+                                $tempparamsarray[$eqparam] = $vvalue;
+                                $tempparamsarray[$startparam] = $vvalue . ',%';
+                                $tempparamsarray[$endparam] = '%,' . $vvalue;
+                                $tempparamsarray[$midparam] = '%,' . $vvalue . ',%';
+
+                                $multiselectconditions[] = "(
+                                    $shortname $equals :$eqparam
+                                    $operator $shortname $like :$startparam
+                                    $operator $shortname $like :$endparam
+                                    $operator $shortname $like :$midparam
                                 )";
                             }
 
-                            if (!empty($values)) {
-                                $additionalwhere .= " ) ";
+                            if (!empty($multiselectconditions)) {
+                                $joinoperator = $notkey ? ' AND ' : ' OR ';
+                                $additionalconditions[] = '( ' . implode($joinoperator, $multiselectconditions) . ' )';
                             }
+                        } else if ($notkey == true) {
+                            $argument = strip_tags((string)$value);
+                            $argument = trim($argument);
+                            $paramname = $newparamname('cfnot_');
+                            $tempparamsarray[$paramname] = $argument;
+                            $additionalconditions[] = " ($shortname <> :$paramname) ";
                         } else {
-                            $argument = strip_tags($value);
+                            $argument = strip_tags((string)$value);
                             $argument = trim($argument);
                             if (
                                 !empty($args['cfinclude'])
                             ) {
-                                $additionalwhere .= !empty($additionalwhere) ? '' : ' 1 = 1';
-                                $tempwherearray = [$customfield->shortname => $argument];
-                                booking::apply_wherearray($additionalwhere, $tempwherearray, $tempparamsarray, 1000);
+                                $paramname = $newparamname('cfinc_');
+                                $tempparamsarray[$paramname] = $argument;
+                                $additionalconditions[] = " ($shortname = :$paramname) ";
                             } else {
-                                $wherearray[$customfield->shortname] = $argument;
+                                $wherearray[$shortname] = $argument;
                             }
                         }
                         break;
@@ -1665,8 +1699,9 @@ class shortcodes {
                 }
             }
         }
-        if (!empty($additionalwhere)) {
-            $additionalwhere = " ( $additionalwhere ) ";
+        $additionalwhere = '';
+        if (!empty($additionalconditions)) {
+            $additionalwhere = ' ( ' . implode(' AND ', $additionalconditions) . ' ) ';
         }
 
         return $additionalwhere;
