@@ -105,6 +105,7 @@ class booking_answers_datasource extends datasource {
         // Bridge booking options to course via booking instance.
         $bkalias = database::generate_alias();
         $this->add_entity($courseentity
+            ->add_joins($optionentity->get_joins())
             ->add_join("JOIN {booking} {$bkalias}
                           ON {$bkalias}.id = {$bo}.bookingid")
             ->add_join("JOIN {course} {$c}
