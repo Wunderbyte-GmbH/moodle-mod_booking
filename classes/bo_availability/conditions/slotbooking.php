@@ -134,6 +134,8 @@ class slotbooking implements bo_condition {
      * @return bool
      */
     public function hard_block(booking_option_settings $settings, $userid): bool {
+
+        return false;
         if (!$this->is_slot_booking_enabled($settings)) {
             return false;
         }

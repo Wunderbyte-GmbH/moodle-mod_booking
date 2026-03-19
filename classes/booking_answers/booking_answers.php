@@ -332,6 +332,89 @@ class booking_answers {
         return $this->userspreviouslybooked;
     }
 
+    /**
+     * Marks one booking answer as deleted and optionally reactivates the latest previously-booked answer.
+     *
+     * @param object $answer
+     * @param bool $openruleexecution
+     * @param bool $reactivatepreviouslybooked
+     * @return bool
+     */
+    public function delete_answer_record(
+        object $answer,
+        bool $openruleexecution = false,
+        bool $reactivatepreviouslybooked = false
+    ): bool {
+        global $DB;
+
+        if (empty($answer->id) || empty($answer->userid) || empty($answer->optionid)) {
+            return false;
+        }
+
+        $now = time();
+        $deleterecord = (object)[
+            'id' => (int)$answer->id,
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_DELETED,
+            'timemodified' => $now,
+            'openruleexecution' => $openruleexecution ? $now : 0,
+        ];
+
+        $DB->update_record('booking_answers', $deleterecord);
+
+        if (!$reactivatepreviouslybooked) {
+            return true;
+        }
+
+        $candidates = $this->userspreviouslybooked[$answer->userid] ?? [];
+
+        if (is_object($candidates)) {
+            $candidates = [$candidates];
+        }
+
+        if (!is_array($candidates) || empty($candidates)) {
+            return true;
+        }
+
+        $latest = null;
+        foreach ($candidates as $candidate) {
+            if (!is_object($candidate)) {
+                continue;
+            }
+
+            if ($latest === null) {
+                $latest = $candidate;
+                continue;
+            }
+
+            $candidateid = (int)($candidate->baid ?? $candidate->id ?? 0);
+            $latestid = (int)($latest->baid ?? $latest->id ?? 0);
+            $candidatemodified = (int)($candidate->timemodified ?? 0);
+            $latestmodified = (int)($latest->timemodified ?? 0);
+
+            if ($candidatemodified > $latestmodified || ($candidatemodified === $latestmodified && $candidateid > $latestid)) {
+                $latest = $candidate;
+            }
+        }
+
+        if ($latest === null) {
+            return true;
+        }
+
+        $latestid = (int)($latest->baid ?? $latest->id ?? 0);
+        if (empty($latestid)) {
+            return true;
+        }
+
+        $reactivaterecord = (object)[
+            'id' => $latestid,
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
+            'timemodified' => $now,
+        ];
+        $DB->update_record('booking_answers', $reactivaterecord);
+
+        return true;
+    }
+
 
     /**
      * Checks booking status of $userid for this booking option. If no $userid is given $USER is used (logged in user)

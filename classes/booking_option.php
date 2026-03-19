@@ -752,6 +752,8 @@ class booking_option {
             return false;
         }
 
+        $deletedbookinganswer = false;
+
         if ($cancelreservation) {
             $ba = singleton_service::get_instance_of_booking_answers($optionsettings);
             // All answers, fetch for user.
@@ -778,11 +780,13 @@ class booking_option {
                 ) {
                     $slotcancelother = self::build_slot_event_other_from_answer((object)$result, (int)$this->optionid);
 
-                    $result->waitinglist = MOD_BOOKING_STATUSPARAM_DELETED;
-                    $result->timemodified = time();
-                    $result->openruleexecution = $openruleexecution ? time() : 0;
-                    // We mark all the booking answers as deleted.
-                    $DB->update_record('booking_answers', $result);
+                    $reactivatepreviouslybooked =
+                        !$deletedbookinganswer
+                        && !empty($optionsettings->jsonobject->multiplebookings ?? 0);
+
+                    if ($ba->delete_answer_record($result, $openruleexecution, $reactivatepreviouslybooked)) {
+                        $deletedbookinganswer = true;
+                    }
 
                     if (!empty($slotcancelother['bookedslots'])) {
                         $slotcancelevent = bookinganswer_slotcancelled::create([

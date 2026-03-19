@@ -26,10 +26,252 @@ const SELECTORS = {
     INLINEID: 'sbPrePageInline_',
     INMODALDIV: ' div.modalMainContent',
     INMODALFOOTER: ' div.prepage-booking-footer',
+    FOOTERACTIONLINK: '.prepage-booking-footer a',
     INMODALBUTTON: 'div.in-modal-button',
     BOOKITBUTTON: 'div.booking-button-area',
     STATICBACKDROP: 'div.modal-backdrop',
 };
+
+var footerbuttonconfig = {};
+
+/**
+ * Trigger a Bootstrap-like custom event.
+ *
+ * @param {HTMLElement} element
+ * @param {string} eventName
+ */
+function dispatchBootstrapEvent(element, eventName) {
+    try {
+        const event = new CustomEvent(eventName, {bubbles: true, cancelable: true});
+        element.dispatchEvent(event);
+    } catch (e) {
+        // If CustomEvent is not supported (ancient browsers), ignore.
+    }
+}
+
+/**
+ * Hide a modal using the Bootstrap 5 API when available.
+ *
+ * @param {HTMLElement} modalEl
+ * @returns {boolean}
+ */
+function hideBootstrap5Modal(modalEl) {
+    const ModalCtor = window.bootstrap?.Modal;
+    if (!ModalCtor) {
+        return false;
+    }
+
+    let modalInstance = null;
+    if (typeof ModalCtor.getOrCreateInstance === 'function') {
+        modalInstance = ModalCtor.getOrCreateInstance(modalEl);
+    } else if (typeof ModalCtor.getInstance === 'function') {
+        modalInstance = ModalCtor.getInstance(modalEl);
+    }
+
+    if (!modalInstance || typeof modalInstance.hide !== 'function') {
+        return false;
+    }
+
+    modalInstance.hide();
+    return true;
+}
+
+/**
+ * Hide a collapse using the Bootstrap 5 API when available.
+ *
+ * @param {HTMLElement} inlineEl
+ * @returns {boolean}
+ */
+function hideBootstrap5Collapse(inlineEl) {
+    const CollapseCtor = window.bootstrap?.Collapse;
+    if (!CollapseCtor) {
+        return false;
+    }
+
+    let collapseInstance = null;
+    if (typeof CollapseCtor.getOrCreateInstance === 'function') {
+        collapseInstance = CollapseCtor.getOrCreateInstance(inlineEl, {toggle: false});
+    } else if (typeof CollapseCtor.getInstance === 'function') {
+        collapseInstance = CollapseCtor.getInstance(inlineEl);
+        if (!collapseInstance) {
+            collapseInstance = new CollapseCtor(inlineEl, {toggle: false});
+        }
+    }
+
+    if (!collapseInstance || typeof collapseInstance.hide !== 'function') {
+        return false;
+    }
+
+    collapseInstance.hide();
+    return true;
+}
+
+/**
+ * Sync collapse trigger state after an inline section is hidden.
+ *
+ * @param {HTMLElement} inlineEl
+ */
+function updateCollapseControls(inlineEl) {
+    if (!inlineEl?.id) {
+        return;
+    }
+
+    const selector = [
+        '[data-bs-target="#' + inlineEl.id + '"]',
+        '[data-target="#' + inlineEl.id + '"]',
+        'a[href="#' + inlineEl.id + '"]',
+    ].join(', ');
+
+    document.querySelectorAll(selector).forEach(control => {
+        control.classList.add('collapsed');
+        control.setAttribute('aria-expanded', 'false');
+    });
+}
+
+/**
+ * Extract option id from nearest modal/inline prepage container.
+ * @param {HTMLElement} element
+ * @returns {integer|null}
+ */
+function getOptionidFromContainer(element) {
+    const container = element.closest('[id^="' + SELECTORS.MODALID + '"] , [id^="' + SELECTORS.INLINEID + '"]');
+    if (!container || !container.id) {
+        return null;
+    }
+
+    const matcher = new RegExp('^' + SELECTORS.MODALID + '(\\d+)_|^' + SELECTORS.INLINEID + '(\\d+)_');
+    const match = container.id.match(matcher);
+
+    if (!match) {
+        return null;
+    }
+
+    const optionid = match[1] || match[2];
+
+    if (!optionid) {
+        return null;
+    }
+
+    return parseInt(optionid, 10);
+}
+
+/**
+ * Optional shopping cart re-init for actions that may redirect or close views.
+ * @param {boolean} shoppingcartisinstalled
+ */
+function runShoppingCartPreActions(shoppingcartisinstalled) {
+    if (!shoppingcartisinstalled) {
+        return;
+    }
+
+    import('local_shopping_cart/cart')
+        .then(module => {
+            const cart = module.default ?? module;
+            const oncashier = window.location.href.indexOf('cashier.php');
+
+            if (typeof cart.reinit === 'function') {
+                if (oncashier > 0) {
+                    const params = new URLSearchParams(window.location.search);
+                    const userid = params.get('userid') || -1;
+                    cart.reinit(userid);
+                } else {
+                    cart.reinit();
+                }
+            }
+
+            return null;
+        })
+        .catch(() => {
+            // eslint-disable-next-line no-console
+            console.log('local_shopping_cart/cart could not be loaded');
+        });
+}
+
+/**
+ * Register delegated footer listeners once on body.
+ */
+function registerDelegatedFooterListeners() {
+    const container = document.querySelector('body');
+    if (!container || container.dataset.prepageFooterDelegated) {
+        return;
+    }
+
+    container.dataset.prepageFooterDelegated = 'true';
+
+    container.addEventListener('hide.bs.modal', event => {
+        const modal = event.target.closest('[id^="' + SELECTORS.MODALID + '"]');
+        if (!modal) {
+            return;
+        }
+
+        const optionid = getOptionidFromContainer(modal);
+        if (optionid !== null) {
+            setBackModalVariables(optionid);
+        }
+    });
+
+    container.addEventListener('click', event => {
+        const element = event.target.closest(SELECTORS.FOOTERACTIONLINK);
+        if (!element) {
+            return;
+        }
+
+        if (element.classList.contains('hidden') || element.dataset.blocked === 'true') {
+            event.preventDefault();
+            return;
+        }
+
+        const optionid = getOptionidFromContainer(element);
+        if (optionid === null) {
+            return;
+        }
+
+        const action = element.dataset.action;
+        const config = footerbuttonconfig[optionid] ?? {};
+        const userid = config.userid;
+        const shoppingcartisinstalled = !!config.shoppingcartisinstalled;
+
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        switch (action) {
+            case 'closeinline':
+            case 'continuepost':
+            case 'checkout':
+            case 'closemodal':
+                runShoppingCartPreActions(shoppingcartisinstalled);
+                break;
+            default:
+                break;
+        }
+
+        switch (action) {
+            case 'back':
+                backToPreviousPage(optionid, userid);
+                break;
+            case 'continue':
+            case 'continuepost':
+                continueToNextPage(optionid, userid);
+                break;
+            case 'checkout':
+                closeModal(optionid);
+                if (element.dataset.href) {
+                    window.location.href = element.dataset.href;
+                }
+                break;
+            case 'closemodal':
+                reloadOnBookingView();
+                closeModal(optionid);
+                break;
+            case 'closeinline':
+                reloadOnBookingView();
+                closeInline(optionid);
+                break;
+            default:
+                break;
+        }
+    }, true);
+}
 
 /**
  * Add the click listener to a prepage modal button.
@@ -38,130 +280,12 @@ const SELECTORS = {
  * @param {boolean} shoppingcartisinstalled
  */
 export function initFooterButtons(optionid, userid, shoppingcartisinstalled) {
+    footerbuttonconfig[optionid] = {
+        userid,
+        shoppingcartisinstalled: !!shoppingcartisinstalled,
+    };
 
-    // eslint-disable-next-line no-console
-    console.log('initFooterButtons', optionid);
-
-    // Find inline footer anchors first (inline mode).
-    let selectorInline = '[id^="' + SELECTORS.INLINEID + optionid + '_"]' + SELECTORS.INMODALFOOTER + ' a';
-    let elements = Array.from(document.querySelectorAll(selectorInline));
-
-    if (elements.length === 0) {
-        // Fallback: try modal-based.
-        let selectorModal = '[id^="' + SELECTORS.MODALID + optionid + '_"]' + SELECTORS.INMODALFOOTER + ' a';
-        elements = Array.from(document.querySelectorAll(selectorModal));
-
-        // Every time we close the modal, reset to the first prepage.
-        const modalSelectorAll = '[id^="' + SELECTORS.MODALID + optionid + '_"]';
-        const modalEls = Array.from(document.querySelectorAll(modalSelectorAll));
-        modalEls.forEach(modalEl => {
-            // Listen to hide.bs.modal.
-            modalEl.addEventListener('hide.bs.modal', () => {
-                setBackModalVariables(optionid);
-            });
-        });
-    }
-
-    // eslint-disable-next-line no-console
-    console.log('buttons found', elements);
-
-    elements.forEach(element => {
-        if (!element || element.dataset.initialized) {
-            return;
-        }
-        // Mark initialized
-        element.dataset.initialized = '1';
-
-        const action = element.dataset.action;
-
-        // eslint-disable-next-line no-console
-        console.log(element, action);
-
-        // Pre-actions executed immediately for some actions (shopping cart reinit).
-        switch (action) {
-            case 'closeinline':
-            case 'continuepost':
-            case 'checkout':
-            case 'closemodal':
-                // eslint-disable-next-line no-console
-                console.log('closeinline/checkout/continuepost', action);
-                if (shoppingcartisinstalled) {
-                    // Dynamic import of cart module — adapt to module export shape.
-                    import('local_shopping_cart/cart')
-                        .then(module => {
-                            // Module may export default or named exports; support both.
-                            const cart = module.default ?? module;
-                            // eslint-disable-next-line no-console
-                            console.log('cart module loaded', cart);
-                            const oncashier = window.location.href.indexOf('cashier.php');
-                            // eslint-disable-next-line promise/always-return
-                            if (typeof cart.reinit === 'function') {
-                                if (oncashier > 0) {
-                                    const params = new URLSearchParams(window.location.search);
-                                    let userid = params.get("userid") || -1;
-                                    cart.reinit(userid);
-                                } else {
-                                    cart.reinit();
-                                }
-                            }
-                        })
-                        .catch(() => {
-                            // eslint-disable-next-line no-console
-                            console.log('local_shopping_cart/cart could not be loaded');
-                        });
-                }
-                // Ensure collapse hide handler will reload tables
-                listenToCloseInline(optionid);
-                break;
-            default:
-                // Nothing immediate
-                break;
-        }
-
-        // Attach click listener
-        element.addEventListener('click', function (evt) {
-            // If hidden or blocked, ignore as before.
-            if (this.classList.contains('hidden')) {
-                return;
-            }
-            if (this.dataset.blocked === 'true') {
-                return;
-            }
-
-            // IMPORTANT: stop Bootstrap / other handlers from running on this click,
-            // and prevent the default anchor navigation.
-            evt.preventDefault();
-            // Stop propagation and stop other listeners on the same element from running (Bootstrap's listener is later).
-            evt.stopImmediatePropagation();
-
-            const action = this.dataset.action;
-
-            switch (action) {
-                case 'back':
-                    backToPreviousPage(optionid, userid);
-                    break;
-                case 'continue':
-                case 'continuepost':
-                    continueToNextPage(optionid, userid);
-                    break;
-                case 'checkout':
-                    closeModal(optionid);
-                    if (this.dataset.href) {
-                        window.location.href = this.dataset.href;
-                    }
-                    break;
-                case 'closemodal':
-                    reloadOnBookingView();
-                    closeModal(optionid);
-                    break;
-                case 'closeinline':
-                    reloadOnBookingView();
-                    closeInline(optionid);
-                    break;
-            }
-        });
-
-    });
+    registerDelegatedFooterListeners();
 }
 
 /**
@@ -175,78 +299,29 @@ export function closeModal(optionid, reloadTables = true) {
     const modalEls = Array.from(document.querySelectorAll(modalSelectorAll));
 
     modalEls.forEach(modalEl => {
-        const onHidden = () => {
-            modalEl.removeEventListener('hidden.bs.modal', onHidden);
-            cleanupModalArtifacts();
-        };
-        modalEl.addEventListener('hidden.bs.modal', onHidden);
-
-        // Attach a one-time shown.bs.modal listener to hide after shown (like original).
-        const onShown = (e) => {
-            modalEl.removeEventListener('shown.bs.modal', onShown);
-            // eslint-disable-next-line no-console
-            console.log('modal hide after shown', e);
-
-            try {
-                let modalInstance = window.bootstrap?.Modal.getInstance(modalEl) ?? null;
-                // eslint-disable-next-line no-console
-                console.log('modal instance', modalInstance);
-                if (!modalInstance && typeof window.bootstrap !== 'undefined') {
-                    // Create without showing (do not toggle)
-                    modalInstance = new window.bootstrap.Modal(modalEl);
+        try {
+            const onHidden = () => {
+                if (reloadTables) {
+                    reloadAllTables();
                 }
-                if (modalInstance) {
-                    // eslint-disable-next-line no-console
-                    console.log('modal instance - to be hidden', modalInstance);
-                    modalInstance.hide();
-                } else {
-                    // eslint-disable-next-line no-console
-                    console.log('modalEl instance - DOM fallback', modalEl);
-                    // Fallback: remove 'show' class and backdrop if present
+            };
+
+            modalEl.addEventListener('hidden.bs.modal', onHidden, {once: true});
+
+            if (modalEl.classList.contains('show')) {
+                if (!hideBootstrap5Modal(modalEl)) {
                     hideModalFallback(modalEl);
                 }
-            } catch (err) {
-                // eslint-disable-next-line no-console
-                console.warn('Error hiding bootstrap modal instance', err);
-                hideModalFallback(modalEl);
-            }
-
-            if (reloadTables) {
-                reloadAllTables();
-            }
-
-            // Bootstrap hide is async; force-clean stale artifacts shortly after close.
-            window.setTimeout(cleanupModalArtifacts, 50);
-        };
-
-        modalEl.addEventListener('shown.bs.modal', onShown);
-
-        // Now try to hide it immediately as well.
-        try {
-            let modalInstance = window.bootstrap?.Modal.getInstance(modalEl) ?? null;
-            // eslint-disable-next-line no-console
-            console.log('modal instance (immediate)', modalInstance);
-            if (!modalInstance && typeof window.bootstrap !== 'undefined') {
-                // Create without showing (do not toggle)
-                modalInstance = new window.bootstrap.Modal(modalEl);
-            }
-            if (modalInstance) {
-                // eslint-disable-next-line no-console
-                console.log('modal instance - to be hidden (immediate)', modalInstance);
-                modalInstance.hide();
             } else {
-                // eslint-disable-next-line no-console
-                console.log('modalEl instance - DON fallback (immediate)', modalEl);
-                hideModalFallback(modalEl);
+                onHidden();
             }
         } catch (err) {
             // eslint-disable-next-line no-console
-            console.warn('Error hiding bootstrap modal instance (immediate)', err);
+            console.warn('Error hiding bootstrap modal instance', err);
             hideModalFallback(modalEl);
-        }
-
-        if (reloadTables) {
-            reloadAllTables();
+            if (reloadTables) {
+                reloadAllTables();
+            }
         }
 
         // Defensive cleanup in case no bootstrap lifecycle event fires.
@@ -265,6 +340,8 @@ export function hideModalFallback(modalEl) {
         return;
     }
 
+    dispatchBootstrapEvent(modalEl, 'hide.bs.modal');
+
     // Remove modal "visible" styling.
     modalEl.classList.remove('show');
     modalEl.style.display = 'none';
@@ -272,16 +349,42 @@ export function hideModalFallback(modalEl) {
     modalEl.removeAttribute('aria-modal');
     modalEl.removeAttribute('role');
 
-    cleanupModalArtifacts();
+    // Remove modal-open class from body (undo scroll lock).
+    document.body.classList.remove('modal-open');
+    document.body.style.removeProperty('padding-right');
+    document.body.style.removeProperty('overflow');
 
-    // Dispatch events similar to Bootstrap so other code will react.
-    // Bootstrap uses CustomEvent with namespaced names; we emulate them.
-    try {
-        const shownEvent = new CustomEvent('hidden.bs.modal', { bubbles: true, cancelable: true });
-        modalEl.dispatchEvent(shownEvent);
-    } catch (e) {
-        // If CustomEvent is not supported (ancient browsers), ignore.
+    // Remove any modal-backdrop elements left behind.
+    const backdrops = Array.from(document.querySelectorAll('.modal-backdrop'));
+    backdrops.forEach(backdrop => {
+        if (backdrop.parentNode) {
+            backdrop.parentNode.removeChild(backdrop);
+        }
+    });
+
+    dispatchBootstrapEvent(modalEl, 'hidden.bs.modal');
+}
+
+/**
+ * DOM fallback to hide an inline collapse element.
+ *
+ * @param {HTMLElement} inlineEl
+ */
+function hideCollapseFallback(inlineEl) {
+    if (!inlineEl) {
+        return;
     }
+
+    dispatchBootstrapEvent(inlineEl, 'hide.bs.collapse');
+
+    inlineEl.classList.remove('show');
+    inlineEl.classList.remove('collapsing');
+    inlineEl.classList.add('collapse');
+    inlineEl.style.removeProperty('height');
+    inlineEl.setAttribute('aria-expanded', 'false');
+    updateCollapseControls(inlineEl);
+
+    dispatchBootstrapEvent(inlineEl, 'hidden.bs.collapse');
 }
 
 /**
@@ -315,70 +418,30 @@ export function closeInline(optionid, reloadTables = true) {
     const inlineEls = Array.from(document.querySelectorAll(inlineSelectorAll));
 
     inlineEls.forEach(inlineEl => {
-        const onShown = (e) => {
-            inlineEl.removeEventListener('shown.bs.collapse', onShown);
-            // eslint-disable-next-line no-console
-            console.log('collapse hide after shown', e);
-
-            try {
-                let collapseInstance = window.bootstrap?.Collapse.getInstance(inlineEl) ?? null;
-                if (!collapseInstance && typeof window.bootstrap !== 'undefined') {
-                    collapseInstance = new window.bootstrap.Collapse(inlineEl, { toggle: false });
-                }
-                if (collapseInstance) {
-                    // toggle will hide it if shown
-                    collapseInstance.toggle();
-                } else {
-                    // fallback toggle: toggle class 'show'
-                    inlineEl.classList.toggle('show');
-                }
-            } catch (err) {
-                // eslint-disable-next-line no-console
-                console.warn('Error toggling bootstrap collapse instance', err);
-            }
-
-            if (reloadTables) {
-                reloadAllTables();
-            }
-        };
-
-        inlineEl.addEventListener('shown.bs.collapse', onShown);
-
-        // Now trigger hide/toggle immediately as well.
         try {
-            let collapseInstance = window.bootstrap?.Collapse.getInstance(inlineEl) ?? null;
-            if (!collapseInstance && typeof window.bootstrap !== 'undefined') {
-                collapseInstance = new window.bootstrap.Collapse(inlineEl, { toggle: false });
-            }
-            if (collapseInstance) {
-                collapseInstance.toggle();
+            const onHidden = () => {
+                if (reloadTables) {
+                    reloadAllTables();
+                }
+            };
+
+            inlineEl.addEventListener('hidden.bs.collapse', onHidden, {once: true});
+
+            if (inlineEl.classList.contains('show')) {
+                if (!hideBootstrap5Collapse(inlineEl)) {
+                    hideCollapseFallback(inlineEl);
+                }
             } else {
-                inlineEl.classList.toggle('show');
+                onHidden();
             }
         } catch (err) {
             // eslint-disable-next-line no-console
-            console.warn('Error toggling bootstrap collapse instance (immediate)', err);
+            console.warn('Error hiding bootstrap collapse instance', err);
+            hideCollapseFallback(inlineEl);
+            if (reloadTables) {
+                reloadAllTables();
+            }
         }
-
-        if (reloadTables) {
-            reloadAllTables();
-        }
-    });
-}
-
-/**
- * Attach listeners so that hiding inline collapse triggers a table reload.
- *
- * @param {int} optionid
- */
-function listenToCloseInline(optionid) {
-    const inlineSelectorAll = '[id^="' + SELECTORS.INLINEID + optionid + '_"]';
-    const inlineEls = Array.from(document.querySelectorAll(inlineSelectorAll));
-
-    inlineEls.forEach(inlineEl => {
-        inlineEl.addEventListener('hide.bs.collapse', () => {
-            reloadAllTables();
-        });
     });
 }
 

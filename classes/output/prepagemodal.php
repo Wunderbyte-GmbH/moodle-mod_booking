@@ -26,6 +26,7 @@
 namespace mod_booking\output;
 
 use context_module;
+use local_shopping_cart\context_helper;
 use renderer_base;
 use renderable;
 use templatable;
@@ -82,6 +83,8 @@ class prepagemodal implements renderable, templatable {
         global $PAGE;
 
         $context = context_module::instance($settings->cmid);
+
+        context_helper::fix_page_context($PAGE);
 
         // Verification required to avoid error like "unsupported modification of PAGE->context from xx to yy".
         if (!isset($PAGE->context->contextlevel)) {

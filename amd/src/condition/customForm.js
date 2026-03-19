@@ -64,6 +64,18 @@ export async function init() {
         userid,
     });
 
+    // Delegated listener: clear field on click if it still holds its initial value.
+    container.addEventListener('click', e => {
+        const input = e.target.closest('input[data-initial-value]');
+        if (!input) {
+            return;
+        }
+
+        if (input.value !== '' && input.value === input.dataset.initialValue) {
+            input.value = '';
+        }
+    });
+
     let continuebutton = container.closest(SELECTOR.PREPAGEBODY).querySelector(SELECTOR.CONTINUEBUTTON);
 
     // eslint-disable-next-line no-console
@@ -96,10 +108,12 @@ export async function init() {
 
         continuebutton.dataset.blocked = true;
 
-        continuebutton.addEventListener('click', () => {
+        continuebutton.addEventListener('click', e => {
 
             if (continuebutton.dataset.blocked == 'true') {
-
+                e.preventDefault();
+                // eslint-disable-next-line no-console
+                console.log('Continue button click blocked because form is not validated yet.');
                 dynamicForm.submitFormAjax();
             }
         });

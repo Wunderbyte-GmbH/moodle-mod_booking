@@ -146,7 +146,6 @@ class booking_bookit {
                     if (modechecker::use_special_details_page_treatment()) {
                         $justmyalert = false;
                         $extrabuttoncondition = $result['classname'];
-                        $renderprepagemodal = false;
                     }
                     break;
             }
@@ -237,6 +236,8 @@ class booking_bookit {
                 $extrabutton->data['main'] = $data['main'];
                 // Make sure that JS is turned on.
                 $extrabutton->data['nojs'] = false;
+                $extrabutton->data['overrideids'] = $data['overrideids'] ?? '';
+                $extrabutton->data['results'] = $data['results'] ?? '';
                 $datas = [$extrabutton];
                 $templates = [$template];
             } else {
@@ -262,6 +263,8 @@ class booking_bookit {
 
         global $USER, $CFG;
 
+        $requestoverrides = bookit_request_overrides::from_data($data);
+
         // Make sure the user has the right to book in principle.
         if ($area === 'option') {
             $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
@@ -283,11 +286,18 @@ class booking_bookit {
         if ($area === 'option') {
             $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
             $boinfo = new bo_info($settings);
+            $ignoredconditionids = $requestoverrides->consume_option_ignored_condition_ids($settings);
 
             // There are two cases where we can actually book.
             // We call thefunction with hadblock set to true.
             // This means that we only get those blocks that actually should prevent booking.
-            [$id, $isavailable, $description] = $boinfo->is_available($itemid, $userid, true);
+            [$id, $isavailable, $description] = $boinfo->is_available(
+                $itemid,
+                $userid,
+                true,
+                false,
+                $ignoredconditionids
+            );
 
             // If isavailable is true, there is actually no blocking condition at all.
             // This might never be the case, as we use this to introduce prepages and buttons (add to cart or bookit).
@@ -375,7 +385,11 @@ class booking_bookit {
 
                 // This means we can actuall book on waitinglist.
                 $isavailable = true;
-            } else if ($id === MOD_BOOKING_BO_COND_ALREADYBOOKED || $id === MOD_BOOKING_BO_COND_ONWAITINGLIST) {
+            } else if (
+                $id === MOD_BOOKING_BO_COND_ALREADYBOOKED
+                || $id === MOD_BOOKING_BO_COND_ONWAITINGLIST
+                || $id === MOD_BOOKING_BO_COND_CANCELMYSELF
+            ) {
                 $cancelmyself = new cancelmyself();
                 // Add a layer of security to not cancel just because of unintentional double click.
                 if (

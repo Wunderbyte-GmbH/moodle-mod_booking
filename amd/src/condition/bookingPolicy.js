@@ -90,9 +90,10 @@ export async function init(elementid) {
     // Unless the form is validated (see above).
     if (continuebutton) {
         continuebutton.dataset.blocked = true;
-        continuebutton.addEventListener('click', () => {
+        continuebutton.addEventListener('click', e => {
 
             if (continuebutton.dataset.blocked == 'true') {
+                e.preventDefault();
                 dynamicForm.submitFormAjax();
             }
         });

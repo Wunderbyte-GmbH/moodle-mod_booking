@@ -254,7 +254,7 @@ class confirmbookit implements bo_condition {
         }
         $label = $this->get_description_string();
 
-        return bo_info::render_button(
+        [$template, $data] = bo_info::render_button(
             $settings,
             $userid,
             $label,
@@ -265,6 +265,12 @@ class confirmbookit implements bo_condition {
             'option',
             false
         );
+
+        if (!empty($settings->jsonobject->multiplebookings ?? 0)) {
+            $data['overrideids'] = json_encode(bookitbutton::get_book_intent_override_condition_ids());
+        }
+
+        return [$template, $data];
     }
 
     /**
