@@ -48,7 +48,7 @@ class cohort_selector extends base {
                 'escape' => false,
             ]);
         }
-        $mform->addElement('select', $this->name, new lang_string('condition:cohort', 'cohort'), $options);
+        $mform->addElement('select', $this->name, new lang_string('condition:cohort', 'mod_booking'), $options);
         $mform->setType($this->name, PARAM_INT);
         $mform->setDefault($this->name, 0);
     }
@@ -70,5 +70,16 @@ class cohort_selector extends base {
         $sql = "{$fieldsql} = :{$paramname}";
         $params[$paramname] = $cohortid;
         return [$sql, $params];
+    }
+
+    /**
+     * Return sample filter values.
+     *
+     * @return array
+     */
+    public function get_sample_values(): array {
+        return [
+            $this->name => 1,
+        ];
     }
 }
