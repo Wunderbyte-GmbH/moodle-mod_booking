@@ -148,7 +148,7 @@ class selectusers implements bo_condition {
      * @return bool
      */
     public function is_skippable(): bool {
-        return false;
+        return true;
     }
 
     /**
@@ -396,7 +396,10 @@ class selectusers implements bo_condition {
             );
         }
 
-        $mform->addElement('html', '<hr class="w-50"/>');
+        $mform->addElement(
+            'html',
+            '<div id="bo_cond_selectusers_restrict_hr" class="d-flex justify-content-end"><hr class="w-75"/></div>'
+        );
     }
 
     /**

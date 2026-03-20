@@ -150,7 +150,7 @@ class hascompetency implements bo_condition {
      * @return bool
      */
     public function is_skippable(): bool {
-        return false;
+        return true;
     }
 
     /**
@@ -422,7 +422,10 @@ class hascompetency implements bo_condition {
             );
         }
 
-        $mform->addElement('html', '<hr class="w-50"/>');
+        $mform->addElement(
+            'html',
+            '<div id="bo_cond_hascompetency_restrict_hr" class="d-flex justify-content-end"><hr class="w-75"/></div>'
+        );
     }
 
     /**

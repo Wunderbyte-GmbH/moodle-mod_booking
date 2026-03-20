@@ -101,7 +101,7 @@ class booking_time implements bo_condition {
      * @return bool
      */
     public function is_skippable(): bool {
-        return false;
+        return true;
     }
 
     /**
@@ -370,7 +370,10 @@ class booking_time implements bo_condition {
         $mform->hideIf('bo_cond_booking_time_overridecondition', 'bo_cond_booking_time_overrideconditioncheckbox',
             'notchecked');*/
 
-        $mform->addElement('html', '<hr class="w-50"/>');
+        $mform->addElement(
+            'html',
+            '<div id="restrictanswerperiodclosing_hr" class="d-flex justify-content-end"><hr class="w-75"/></div>'
+        );
     }
 
     /**

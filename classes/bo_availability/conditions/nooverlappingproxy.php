@@ -297,7 +297,10 @@ class nooverlappingproxy implements bo_condition {
             $options
         );
         $mform->hideIf('bo_cond_nooverlapping_handling', 'bo_cond_nooverlapping_restrict', 'eq', 0);
-        $mform->addElement('html', '<hr class="w-50"/>');
+        $mform->addElement(
+            'html',
+            '<div id="bo_cond_nooverlapping_restrict_hr" class="d-flex justify-content-end"><hr class="w-75"/></div>'
+        );
     }
 
     /**

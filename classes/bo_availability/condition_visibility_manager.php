@@ -24,6 +24,7 @@
 
 namespace mod_booking\bo_availability;
 
+use context_system;
 use moodle_url;
 use MoodleQuickForm;
 
@@ -46,7 +47,10 @@ class condition_visibility_manager {
         if (empty($skippedconditions)) {
             return [];
         }
-        return explode(',', $skippedconditions);
+        $skippedconditionsarray = explode(',', $skippedconditions);
+        // Remove any zero values from the array.
+        $skippedconditionsarray = array_filter($skippedconditionsarray, fn($v) => $v != "0");
+        return $skippedconditionsarray;
     }
 
     /**
@@ -58,15 +62,85 @@ class condition_visibility_manager {
      */
     public function freeze_fields_for_condition(MoodleQuickForm &$mform, int $conditionid): void {
         switch ($conditionid) {
-            case MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOURSE:
-                $this->disable_element($mform, 'bo_cond_enrolledincourse_restrict');
+            case MOD_BOOKING_BO_COND_JSON_ALLOWEDTOBOOKININSTANCE:
+                $this->disable_element($mform, 'bo_cond_allowedtobookininstance_restrict');
                 break;
-
-            case MOD_BOOKING_BO_COND_JSON_CUSTOMUSERPROFILEFIELD:
-                $this->disable_element($mform, 'bo_cond_userprofilefield_2_custom_restrict');
+            case MOD_BOOKING_BO_COND_BOOKING_TIME:
+                $this->disable_element($mform, 'restrictanswerperiodopening');
+                $this->disable_element($mform, 'restrictanswerperiodclosing');
+                break;
+            case MOD_BOOKING_BO_COND_JSON_CUSTOMFORM:
+                $this->disable_element($mform, 'bo_cond_customform_restrict');
                 break;
             case MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOHORTS:
                 $this->disable_element($mform, 'bo_cond_enrolledincohorts_restrict');
+                break;
+            case MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOURSE:
+                $this->disable_element($mform, 'bo_cond_enrolledincourse_restrict');
+                break;
+            case MOD_BOOKING_BO_COND_JSON_HASCOMPETENCY:
+                $this->disable_element($mform, 'bo_cond_hascompetency_restrict');
+                break;
+            case MOD_BOOKING_BO_COND_JSON_NOOVERLAPPING:
+                $this->disable_element($mform, 'bo_cond_nooverlapping_restrict');
+                break;
+            case MOD_BOOKING_BO_COND_JSON_PREVIOUSLYBOOKED:
+                $this->disable_element($mform, 'bo_cond_previouslybooked_restrict');
+                break;
+            case MOD_BOOKING_BO_COND_JSON_SELECTUSERS:
+                $this->disable_element($mform, 'bo_cond_selectusers_restrict');
+                break;
+            case MOD_BOOKING_BO_COND_JSON_USERPROFILEFIELD:
+                $this->disable_element($mform, 'bo_cond_userprofilefield_1_default_restrict');
+                break;
+            case MOD_BOOKING_BO_COND_JSON_CUSTOMUSERPROFILEFIELD:
+                $this->disable_element($mform, 'bo_cond_userprofilefield_2_custom_restrict');
+                break;
+        }
+    }
+
+    /**
+     * Hides form fields based on condition ID.
+     *
+     * @param MoodleQuickForm $mform
+     * @param int $conditionid
+     * @return void
+     */
+    public function hide_fields_for_condition(MoodleQuickForm &$mform, int $conditionid): void {
+        switch ($conditionid) {
+            case MOD_BOOKING_BO_COND_JSON_ALLOWEDTOBOOKININSTANCE:
+                $this->hide_element($mform, 'bo_cond_allowedtobookininstance_restrict');
+                break;
+            case MOD_BOOKING_BO_COND_BOOKING_TIME:
+                $this->hide_element($mform, 'restrictanswerperiodopening');
+                $this->hide_element($mform, 'restrictanswerperiodclosing');
+                break;
+            case MOD_BOOKING_BO_COND_JSON_CUSTOMFORM:
+                $this->hide_element($mform, 'bo_cond_customform_restrict');
+                break;
+            case MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOHORTS:
+                $this->hide_element($mform, 'bo_cond_enrolledincohorts_restrict');
+                break;
+            case MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOURSE:
+                $this->hide_element($mform, 'bo_cond_enrolledincourse_restrict');
+                break;
+            case MOD_BOOKING_BO_COND_JSON_HASCOMPETENCY:
+                $this->hide_element($mform, 'bo_cond_hascompetency_restrict');
+                break;
+            case MOD_BOOKING_BO_COND_JSON_NOOVERLAPPING:
+                $this->hide_element($mform, 'bo_cond_nooverlapping_restrict');
+                break;
+            case MOD_BOOKING_BO_COND_JSON_PREVIOUSLYBOOKED:
+                $this->hide_element($mform, 'bo_cond_previouslybooked_restrict');
+                break;
+            case MOD_BOOKING_BO_COND_JSON_SELECTUSERS:
+                $this->hide_element($mform, 'bo_cond_selectusers_restrict');
+                break;
+            case MOD_BOOKING_BO_COND_JSON_USERPROFILEFIELD:
+                $this->hide_element($mform, 'bo_cond_userprofilefield_1_default_restrict');
+                break;
+            case MOD_BOOKING_BO_COND_JSON_CUSTOMUSERPROFILEFIELD:
+                $this->hide_element($mform, 'bo_cond_userprofilefield_2_custom_restrict');
                 break;
         }
     }
@@ -79,7 +153,13 @@ class condition_visibility_manager {
      * @return void
      */
     public function disable_elements_in_mform(MoodleQuickForm &$mform, int $conditionid): void {
+        if (has_capability('mod/booking:updatebooking', context_system::instance())) {
+            // Users with the updatebooking capability see the skipped conditions but with the fields frozen and a warning added.
             $this->freeze_fields_for_condition($mform, $conditionid);
+        } else {
+            // A user without the updatebooking capability should not see any skipped conditions at all.
+            $this->hide_fields_for_condition($mform, $conditionid);
+        }
     }
 
     /**
@@ -109,6 +189,29 @@ class condition_visibility_manager {
             $mform->insertElementBefore($warningelement, $elementname);
         }
     }
+
+    /**
+     * Hides a specific form element.
+     *
+     * @param MoodleQuickForm $mform
+     * @param string $elementname
+     *
+     * @return void
+     *
+     */
+    private function hide_element(MoodleQuickForm &$mform, string $elementname) {
+        if (!$mform->elementExists('permanentvalueone')) {
+            $mform->addElement('hidden', 'permanentvalueone', 1);
+            $mform->setType('permanentvalueone', PARAM_INT);
+        }
+        if ($mform->elementExists($elementname)) {
+            $mform->hideIf($elementname, 'permanentvalueone', 'eq', 1);
+        }
+        // Also hide the associated <hr> wrapper div if it exists.
+        $hrid = $elementname . '_hr';
+        $mform->addElement('html', '<script>document.getElementById("' . $hrid . '")?.remove();</script>');
+    }
+
     /**
      * Checks if a condition is skipped.
      *
@@ -118,10 +221,11 @@ class condition_visibility_manager {
      *
      */
     public function is_condition_skipped(int $conditionid): bool {
-        if (empty($this->get_skipped_conditions())) {
+        $skippedconditions = $this->get_skipped_conditions();
+        if (empty($skippedconditions)) {
             return false;
         }
-        if (in_array($conditionid, $this->get_skipped_conditions())) {
+        if (in_array($conditionid, $skippedconditions)) {
             return true;
         }
         return false;

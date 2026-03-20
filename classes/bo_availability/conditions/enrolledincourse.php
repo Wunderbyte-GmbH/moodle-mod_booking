@@ -570,7 +570,10 @@ class enrolledincourse implements bo_condition {
             );
         }
 
-        $mform->addElement('html', '<hr class="w-50"/>');
+        $mform->addElement(
+            'html',
+            '<div id="bo_cond_enrolledincourse_restrict_hr" class="d-flex justify-content-end"><hr class="w-75"/></div>'
+        );
     }
 
     /**

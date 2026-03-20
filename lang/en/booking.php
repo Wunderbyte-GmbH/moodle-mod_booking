@@ -936,9 +936,7 @@ $string['conditionsoverwritingbillboard'] = 'Overwrite messages about blocking r
 $string['conditionsoverwritingbillboard_desc'] = 'A text can be entered in the settings of the booking instance that is displayed instead of other messages on blocking reasons of bookings.';
 $string['conditionssettings'] = 'Availability conditions settings';
 $string['conditionssettings_desc'] = 'You can opt out of certain conditions if they are not needed. This will give you a performance boost, since the system will not check these conditions anymore during the booking process.';
-$string['conditionsskippedwarning'] = '<div class="alert alert-info" role="alert">
-    This condition can not be selected, since it was skipped in the settings.
-    </div>';
+$string['conditionsskippedwarning'] = '<div class="alert alert-warning" role="alert">This condition can not be selected because it was <a href="{$a}" target="_blank">turned off (skipped) in the settings</a>.</div>';
 $string['conditiontextfield'] = 'Value';
 $string['configurefields'] = 'Configure fields and columns';
 $string['confirmactivtyfrom'] = 'Confirm users activity from';
@@ -1815,6 +1813,7 @@ $string['nocancelreason'] = "You need to give a reason for canceling this bookin
 $string['nocfnameselected'] = "Nothing selected. Either type new name or select one from the list.";
 $string['nocmidselected'] = 'No cmid was selected';
 $string['nocomments'] = 'Commenting disabled';
+$string['noconditionselected'] = 'No condition selected';
 $string['noconfirmationworkflow'] = 'No confirmtion necessary';
 $string['nocourse'] = 'No course selected for this booking option';
 $string['nocourseselected'] = 'No course selected';
@@ -2726,7 +2725,7 @@ $string['signinsheetmode_desc'] = 'Select the mode for downloading the sign-in s
 $string['signinsheettoporientation'] = 'Sign-in Sheet Top-Button Orientation';
 $string['signinsheettoporientationdesc'] = 'Orientation Top PDF download button';
 $string['signinsheettoporientationdesc_help'] = 'Sets the default orientation for the sign-in sheet top download button. Choose between Portrait and Landscape.';
-$string['skipableconditions'] = 'Skippable conditions';
+$string['skipableconditions'] = 'Turn off specific availability conditions';
 $string['skipableconditions_desc'] = 'Select which availability conditions should be skipped during the booking process.';
 $string['skipbookingrulesmode'] = 'Apply booking rules';
 $string['skipbookingrulesoptin'] = 'Opt in: Only apply the following rules';
