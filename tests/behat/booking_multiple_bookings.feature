@@ -150,3 +150,38 @@ Feature: In a booking instance with multiple bookings enabled
     # After canceling all bookings, should return to "Book now"
     Then I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should not see "Book again" in the ".allbookingoptionstable_r1" "css_element"
+
+  @javascript
+  Scenario: Multiple bookings enabled: prepage modal with wait time between bookings
+    Given the following "mod_booking > options" exist:
+      | booking    | text          | course | description       | multiplebookings | allowtobookagainafter |
+      | My booking | Test option 1 | C1     | Multiple bookings | 1                | 2                     |
+    And I am on the "My booking" Activity page logged in as admin
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I follow "Availability conditions"
+    And I set the field "Form needs to be filled out before booking" to "checked"
+    And I wait "1" seconds
+    And I set the following fields to these values:
+      | bo_cond_customform_select_1_1   | select |
+      | bo_cond_customform_label_1_1    | Choice |
+      | bo_cond_customform_notempty_1_1 | 1      |
+    And I set the field "bo_cond_customform_value_1_1" to multiline:
+    """
+    choose => Select...
+    optb => OptionB => 5
+    optc => OptionC => 10
+    """
+    And I press "Save"
+    And I log out
+    And I am on the "My booking" Activity page logged in as student1
+    # First booking
+    And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I should see "Choice" in the ".condition-customform" "css_element"
+    And I set the field "customform_select_1" to "choose"
+    ##And I wait "41" seconds
+    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
+    Then I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
+    # Try to book immediately (should be blocked due to wait time)
+    And I should not see "Book again" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I wait "3" seconds
+    And I should see "Book again (already booked 1 time)" in the ".allbookingoptionstable_r1" "css_element"
