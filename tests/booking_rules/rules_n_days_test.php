@@ -88,10 +88,13 @@ final class rules_n_days_test extends advanced_testcase {
         global $DB;
 
         $this->setAdminUser();
-        $bdata = self::booking_common_settings_provider();
 
+        // Set timezone before computing any timestamps to ensure DST-consistent calculations.
         set_config('timezone', 'Europe/Kyiv');
         set_config('forcetimezone', 'Europe/Kyiv');
+        \core_date::set_default_server_timezone();
+
+        $bdata = self::booking_common_settings_provider();
 
         // Setup test data.
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);

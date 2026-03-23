@@ -262,7 +262,9 @@ class rule_daysbefore implements booking_rule {
                 $this->days = (int)$record->daystonotify;
             }
             // Set the time of when the task should run.
-            $nextruntime = (int) $record->datefield - ((int) $this->days * 86400);
+            // Use strtotime to correctly handle DST transitions instead of fixed 86400s per day.
+            $daysoffset = -1 * (int) $this->days;
+            $nextruntime = strtotime("{$daysoffset} days", (int) $record->datefield);
             $record->rulename = $this->rulename;
             $record->nextruntime = $nextruntime;
             $action->execute($record);
@@ -314,7 +316,8 @@ class rule_daysbefore implements booking_rule {
                 }
                 // Match found, now compare the records.
                 $days = isset($record->daystonotify) ? (int)$record->daystonotify : 0;
-                $oldnextruntime = (int)$record->datefield - ($days * 86400);
+                $daysoffset = -1 * $days;
+                $oldnextruntime = strtotime("{$daysoffset} days", (int)$record->datefield);
 
                 if ($oldnextruntime == $nextruntime) {
                     $rulestillapplies = true;
