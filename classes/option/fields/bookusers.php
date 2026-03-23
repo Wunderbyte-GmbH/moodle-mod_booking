@@ -131,7 +131,6 @@ class bookusers extends field_base {
      * @throws \dml_exception
      */
     public static function save_data(stdClass &$formdata, stdClass &$option) {
-
         // Book users here.
         // We can only do username OR useremail, not both.
         if (!empty($formdata->username)) {
@@ -144,16 +143,20 @@ class bookusers extends field_base {
             $bookingoption = singleton_service::get_instance_of_booking_option($formdata->cmid, $formdata->id);
             foreach ($usersids as $userid) {
                 $user = singleton_service::get_instance_of_user($userid);
+                $updateansweronimport = false;
                 if (!empty($formdata->timebooked)) {
                     $parsed = strtotime($formdata->timebooked);
                     $timebooked = $parsed !== false ? $parsed : null;
                 } else {
                     $timebooked = 0;
                 }
-                $bookingoption->user_submit_response($user, 0, 0, 0, MOD_BOOKING_VERIFIED, '', $timebooked);
+                if (!empty($formdata->userupdate)) {
+                    $updateansweronimport = true;
+                }
+                $bookingoption->user_submit_response($user, 0, 0, 0, MOD_BOOKING_VERIFIED, '', $timebooked, $updateansweronimport);
 
                 if (!empty($formdata->completed)) {
-                    $bookingoption->toggle_user_completion($userid, $timebooked);
+                    $bookingoption->toggle_user_completion($userid, $timebooked, $updateansweronimport);
                 }
             }
         }

@@ -1208,7 +1208,8 @@ class booking_option {
         $status = MOD_BOOKING_BO_SUBMIT_STATUS_DEFAULT,
         $verified = MOD_BOOKING_UNVERIFIED,
         $erlid = "",
-        $timebooked = 0
+        $timebooked = 0,
+        $updateansweronimport = false,
     ) {
 
         global $USER;
@@ -1305,8 +1306,8 @@ class booking_option {
                     if (
                         $waitinglist == MOD_BOOKING_STATUSPARAM_BOOKED
                         && (
-                            !$ismultipbookingsoptionenable
-                            || $currentanswer->timemodified == $timebooked
+                            !$ismultipbookingsoptionenable && !$updateansweronimport
+                            || ($currentanswer->timemodified == $timebooked && !$updateansweronimport)
                         )
                     ) {
                         return true;
@@ -2701,7 +2702,7 @@ class booking_option {
      * @return bool
      *
      */
-    public function toggle_user_completion(int $userid, int $timebooked = 0) {
+    public function toggle_user_completion(int $userid, int $timebooked = 0, bool $updateansweronimport = false) {
         global $USER, $DB, $USER;
 
         $cmid = $this->cmid;
@@ -2725,7 +2726,8 @@ class booking_option {
                 if ($userdata) {
                     $userdata->baid = $userdata->id;
                     $userdata->id = $userdata->userid;
-                    if (!empty($userdata->completed)) {
+                    // If the User is already completed and we do not update the answer on import, we return false.
+                    if (empty($userdata->completed) && empty($updateansweronimport)) {
                         return false;
                     }
                 }
@@ -2739,8 +2741,13 @@ class booking_option {
                 );
             }
         }
-        $completionold = $userdata->completed;
-        $userdata->completed = empty($completionold) ? '1' : '0';
+        // If we update the answer on import we set it automatically to one. We can do this because we do not toggle completion if it isn't set to 1.
+        if (!empty($updateansweronimport)) {
+            $userdata->completed = '1';
+        } else {
+            $completionold = $userdata->completed;
+            $userdata->completed = empty($completionold) ? '1' : '0';
+        }
         $userdata->timemodified = empty($timebooked) ? time() : $timebooked;
         $completeddate = empty($userdata->completed) ? null : (empty($timebooked) ? time() : $timebooked);
 
