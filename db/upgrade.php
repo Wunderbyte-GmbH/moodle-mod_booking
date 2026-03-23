@@ -5188,7 +5188,6 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026021100, 'booking');
     }
 
-
     if ($oldversion < 2026030500) {
         // Run a script that deletes all custom fields within the tool_certificate component.
         delete_customfields_in_tool_certificate_2026030500();
