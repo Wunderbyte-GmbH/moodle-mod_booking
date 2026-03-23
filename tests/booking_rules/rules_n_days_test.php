@@ -42,6 +42,112 @@ use mod_booking_generator;
  */
 final class rules_n_days_test extends advanced_testcase {
     /**
+     * Test rule when option start time is updated to later date.
+     *
+     * @covers \mod_booking\booking_option::update
+     * @covers \mod_booking\option\field_base::check_for_changes
+     * @covers \mod_booking\booking_rules\rules\rule_react_on_event::execute
+     * @covers \mod_booking\booking_rules\actions\send_mail::execute
+     * @covers \mod_booking\booking_rules\conditions\select_users::execute
+     */
+    public function test_rule_option_start_update(): void {
+        global $DB;
+
+        $this->setAdminUser();
+        $bdata = self::booking_common_settings_provider();
+
+        set_config('timezone', 'Europe/Kyiv');
+        set_config('forcetimezone', 'Europe/Kyiv');
+
+        // Setup test data.
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $user1 = $this->getDataGenerator()->create_user();
+        $user2 = $this->getDataGenerator()->create_user();
+
+        $bdata['booking']['course'] = $course->id;
+        $bdata['booking']['bookingmanager'] = $user2->username;
+
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata['booking']);
+
+        $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($user2->id, $course->id, 'student');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        // Create booking rule - "3 days before coursestart".
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"3daysbefore","template":"starts in 3 days","templateformat":"1"}';
+        $ruledata1 = [
+            'name' => '3daysbefore',
+            'conditionname' => 'select_users',
+            'contextid' => 1,
+            'conditiondata' => '{"userids":["' . $user2->id . '"]}',
+            'actionname' => 'send_mail',
+            'actiondata' => $actstr,
+            'rulename' => 'rule_daysbefore',
+            'ruledata' => '{"days":"3","datefield":"coursestarttime","cancelrules":[]}',
+        ];
+        $rule1 = $plugingenerator->create_rule($ruledata1);
+
+        // Create booking option with start in 10 days.
+        $record = (object)$bdata['options'][0];
+        $record->bookingid = $booking->id;
+        $record->courseid = $course->id;
+        $record->coursestarttime_0 = strtotime('+10 days', time());
+        $record->courseendtime_0 = strtotime('+10 days +1 hour', time());
+        $option1 = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option1->id);
+
+        // Tasks should be created for 3 days before start (7 days from now).
+        $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $this->assertCount(1, $messages);
+        $customdata = reset($messages)->get_custom_data();
+        $this->assertEquals(strtotime('+7 days', time()), reset($messages)->get_next_run_time());
+        $this->assertStringContainsString('3daysbefore', $customdata->customsubject);
+
+        // Update the option to start in 20 days (10 days later).
+        $record->id = $option1->id;
+        $record->coursestarttime_0 = strtotime('+20 days', time());
+        $record->courseendtime_0 = strtotime('+20 days +1 hour', time());
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $record->cmid = $settings->cmid;
+        booking_option::update($record);
+        singleton_service::destroy_booking_option_singleton($option1->id);
+
+        // New tasks should be created for the new start time (17 days from now).
+        rules_info::execute_booking_rules();
+        $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $this->assertCount(2, $messages);
+
+        $oldtaskfound = false;
+        $newtaskfound = false;
+        foreach ($messages as $message) {
+            $customdata = $message->get_custom_data();
+            if ($message->get_next_run_time() == strtotime('+7 days', time())) {
+                $oldtaskfound = true;
+            } else if ($message->get_next_run_time() == strtotime('+17 days', time())) {
+                $newtaskfound = true;
+            }
+        }
+        $this->assertTrue($oldtaskfound, 'Old task should still exist');
+        $this->assertTrue($newtaskfound, 'New task should be created');
+
+        // Advance time to the old task time and run tasks.
+        time_mock::set_mock_time(strtotime('+7 days', time()));
+        unset_config('noemailever');
+        ob_start();
+        $messagesink = $this->redirectMessages();
+        $this->runAdhocTasks();
+        $messages = $messagesink->get_messages();
+        $res = ob_get_clean();
+        $messagesink->close();
+
+        // Assert that only the new mails were sent (old task should not send).
+        $this->assertCount(1, $messages);
+    }
+
+    /**
      * String that is displayed in the mtask log when mail was send successfully.
      *
      * @var string
