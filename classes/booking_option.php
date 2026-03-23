@@ -1199,6 +1199,7 @@ class booking_option {
      * @param int $verified 0 for unverified, 1 for pending and 2 for verified.
      * @param string $erlid the identifier of the enrollink, if given
      * @param int $timebooked the timestamp when the booking was made
+     * @param bool $updateansweronimport if set to true, the function will update existing bookinganswer on imports.
      * @return bool true if booking was possible, false if meanwhile the booking got full
      */
     public function user_submit_response(
@@ -2698,6 +2699,7 @@ class booking_option {
      *
      * @param int $userid
      * @param int $timebooked // Pass on a timestamp, if we import old data.
+     * @param bool $updateansweronimport  // Updates bookinganswer on import.
      *
      * @return bool
      *
@@ -2741,7 +2743,8 @@ class booking_option {
                 );
             }
         }
-        // If we update the answer on import we set it automatically to one. We can do this because we do not toggle completion if it isn't set to 1.
+        // If we update the answer on import we set it automatically to one.
+        // We can do this because we do not toggle completion if it isn't set to 1.
         if (!empty($updateansweronimport)) {
             $userdata->completed = '1';
         } else {
