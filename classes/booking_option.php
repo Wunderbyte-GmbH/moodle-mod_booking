@@ -1305,10 +1305,11 @@ class booking_option {
                     // If we come from sync_waiting_list it might be possible that someone is moved from booked to waiting list.
                     // If we are already booked and multiple bookings is not enabled, we don't do anything.
                     if (
-                        $waitinglist == MOD_BOOKING_STATUSPARAM_BOOKED
+                        !$updateansweronimport
+                        && $waitinglist == MOD_BOOKING_STATUSPARAM_BOOKED
                         && (
-                            !$ismultipbookingsoptionenable && !$updateansweronimport
-                            || ($currentanswer->timemodified == $timebooked && !$updateansweronimport)
+                            !$ismultipbookingsoptionenable 
+                            || $currentanswer->timemodified == $timebooked
                         )
                     ) {
                         return true;
