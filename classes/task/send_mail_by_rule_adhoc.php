@@ -108,7 +108,7 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
                         . ' and user '
                         . $taskdata->userid
                         .  PHP_EOL
-                        . 'This message is expected and not signn of malfunction.'
+                        . 'This message is expected and not sign of malfunction.'
                     );
                     return;
                 }
