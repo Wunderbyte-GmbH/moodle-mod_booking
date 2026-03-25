@@ -1,0 +1,14 @@
+identifier,useremail,timebooked,completed,userupdate
+0bc1504fc4c9eb7,chefito.chef@tuwien.ac.at,2015-06-26,1,1
+0bc1504fc4c9eb7,bertin.agnelli@tuwien.ac.at,2015-06-26,0,1
+57f48211725094b,bertin.agnelli@tuwien.ac.at,2015-05-07,1,1
+57f48211725094b,1234,2015-05-07,0,1
+e3fcd0215bdff19,cecil.assouad@tuwien.ac.at,2015-10-27,1,1
+e3fcd0215bdff19,abarne.abruzzi@tuwien.ac.at,2025-10-26,-,1
+1a5c3d78b01c2ff,abarne.abruzzi@tuwien.ac.at,not-a-date,,1
+1a5c3d78b01c2ff,cecil.assouad@tuwien.ac.at,2025-07-04,1,1
+e805ebd6f42b890,chefito.chef@tuwien.ac.at,2015-06-12,1,1
+e805ebd6f42b890,bertin.agnelli@tuwien.ac.at,2015-10-23,1,1
+e805ebd6f42b890,cecil.assouad@tuwien.ac.at,not-a-date,-,1
+3fad89f6ba41801,bertin.agnelli@tuwien.ac.at,2015-04-10,1,1
+3fad89f6ba41801,chefito.chef@tuwien.ac.at,2015-05-07,,1
