@@ -331,7 +331,8 @@ class rule_daysbefore implements booking_rule {
                 if (isset($record->daystonotify)) {
                     $this->days = (int)$record->daystonotify;
                 }
-                $oldnextruntime = (int) $record->datefield - ((int) $this->days * 86400);
+                $daysoffset = -1 * (int) $this->days;
+                $oldnextruntime = strtotime("{$daysoffset} days", (int) $record->datefield);
                 if ($oldnextruntime == $nextruntime) {
                     $rulestillapplies = true;
                     break;
