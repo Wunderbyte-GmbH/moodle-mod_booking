@@ -24,6 +24,8 @@
 
 namespace mod_booking\option\fields;
 
+use core\exception\moodle_exception;
+use DateTime;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use mod_booking\singleton_service;
@@ -133,31 +135,81 @@ class bookusers extends field_base {
     public static function save_data(stdClass &$formdata, stdClass &$option) {
         // Book users here.
         // We can only do username OR useremail, not both.
+        if (empty($formdata->importing)) {
+            return;
+        }
         if (!empty($formdata->username)) {
             $usersids = teachers_handler::get_user_ids_from_string($formdata->username, false);
         } else if (!empty($formdata->useremail)) {
             $usersids = teachers_handler::get_user_ids_from_string($formdata->useremail);
         }
-
+        if (empty($usersids)) {
+            throw new moodle_exception(
+                'nouserfound',
+                'mod_booking',
+                '',
+                null,
+                'No users found with the given username or email.'
+            );
+        }
         if (!empty($usersids)) {
             $bookingoption = singleton_service::get_instance_of_booking_option($formdata->cmid, $formdata->id);
-            foreach ($usersids as $userid) {
-                $user = singleton_service::get_instance_of_user($userid);
-                $updateansweronimport = false;
-                if (!empty($formdata->timebooked)) {
-                    $parsed = strtotime($formdata->timebooked);
-                    $timebooked = $parsed !== false ? $parsed : null;
-                } else {
-                    $timebooked = 0;
-                }
-                if (!empty($formdata->userupdate)) {
-                    $updateansweronimport = true;
-                }
-                $bookingoption->user_submit_response($user, 0, 0, 0, MOD_BOOKING_VERIFIED, '', $timebooked, $updateansweronimport);
+            $usererrors = [];
+            $updateansweronimport = !empty($formdata->userupdate);
 
-                if (!empty($formdata->completed)) {
-                    $bookingoption->toggle_user_completion($userid, $timebooked, $updateansweronimport);
+            foreach ($usersids as $userid) {
+                $itemerrors = [];
+                $timebooked = 0;
+
+                // Validate and parse timebooked.
+                if (!empty($formdata->timebooked)) {
+                    $date = DateTime::createFromFormat($formdata->dateparseformat, $formdata->timebooked);
+                    if (!$date) {
+                        $itemerrors[] = get_string('wrongdateformat', 'mod_booking', [
+                            'format' => $formdata->dateparseformat,
+                            'value' => $formdata->timebooked,
+                        ]);
+                    } else {
+                        $parsed = $date->getTimestamp();
+                        $timebooked = $parsed !== false ? $parsed : 0;
+                    }
                 }
+
+                // Validate completed value.
+                if (!empty($formdata->completed)) {
+                    if (!is_number($formdata->completed) || $formdata->completed < 0 || $formdata->completed > 1) {
+                        $itemerrors[] = get_string('wrongcompletedvalue', 'mod_booking', $formdata->completed);
+                    }
+                }
+
+                if (!empty($itemerrors)) {
+                    $usererrors = array_merge($usererrors, $itemerrors);
+                    continue;
+                }
+
+                try {
+                    $user = singleton_service::get_instance_of_user($userid);
+                    $bookingoption->user_submit_response(
+                        $user,
+                        0,
+                        0,
+                        0,
+                        MOD_BOOKING_VERIFIED,
+                        '',
+                        $timebooked,
+                        $updateansweronimport
+                    );
+
+                    if (!empty($formdata->completed)) {
+                        $bookingoption->toggle_user_completion($userid, $timebooked, $updateansweronimport);
+                    }
+                } catch (\Exception $e) {
+                    $usererrors[] = $e->getMessage();
+                }
+            }
+
+            if (!empty($usererrors)) {
+                throw new \Exception(implode(' | ', $usererrors));
             }
         }
     }

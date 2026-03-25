@@ -2744,12 +2744,12 @@ class booking_option {
                 );
             }
         }
+        $completionold = $userdata->completed;
         // If we update the answer on import we set it automatically to one.
         // We can do this because we do not toggle completion if it isn't set to 1.
         if (!empty($updateansweronimport)) {
             $userdata->completed = '1';
         } else {
-            $completionold = $userdata->completed;
             $userdata->completed = empty($completionold) ? '1' : '0';
         }
         $userdata->timemodified = empty($timebooked) ? time() : $timebooked;

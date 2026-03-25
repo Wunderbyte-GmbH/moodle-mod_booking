@@ -70,8 +70,38 @@ class bookingoptionsimporter {
         $ajaxformdata = [
             'id' => 'mbo_csv_import_form',
             'settingscallback' => 'mod_booking\importer\bookingoptionsimporter::execute_bookingoptions_csv_import',
+            'previewcallback' => 'mod_booking\importer\bookingoptionsimporter::execute_bookingoptions_csv_import_preview',
         ];
         return $ajaxformdata;
+    }
+
+    /**
+     * Define settings and run fileparser in preview (dry-run) mode without saving any data.
+     *
+     * @param stdClass $data ajaxdata from import form
+     * @param string $content raw CSV content
+     * @return array preview data with 'validrows' and 'skippedrows'
+     *
+     */
+    public static function execute_bookingoptions_csv_import_preview(stdClass $data, string $content): array {
+
+        $definedcolumns = self::define_bookingoption_columns();
+        $callback = self::get_callbackfunction();
+
+        $settings = self::define_settings(
+            $definedcolumns,
+            $callback,
+            true,
+            $data->delimiter_name,
+            $data->encoding,
+            $data->dateparseformat,
+        );
+
+        $settings->set_columnswithvalues(['cmid' => $data->cmid]);
+
+        $parser = new fileparser($settings);
+
+        return $parser->preview_csv_data($content);
     }
 
     /**
@@ -267,11 +297,17 @@ class bookingoptionsimporter {
                 'type' => PARAM_TEXT,
                 'importinstruction' => "coursestarttime",
             ],
-             [
+            [
                 'name' => 'courseendtime',
                 'mandatory' => false,
                 'type' => PARAM_TEXT,
                 'importinstruction' => "courseendtime",
+            ],
+            [
+                'name' => 'completed',
+                'mandatory' => false,
+                'type' => PARAM_INT,
+                'importinstructions' => "completed",
             ],
         ];
         return $columnssequential;
