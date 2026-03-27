@@ -66,4 +66,13 @@ $tasks = [
         'dayofweek' => '0',
         'month' => '*',
     ],
+    // Cleanup invalid scheduled mails every day at 02:00 AM.
+    ['classname' => 'mod_booking\task\cleanup_invalid_scheduled_mails',
+        'blocking' => 0,
+        'minute' => '0',
+        'hour' => '2',
+        'day' => '*',
+        'dayofweek' => '*',
+        'month' => '*',
+    ],
 ];

@@ -403,8 +403,15 @@ class rule_specifictime implements booking_rule {
         $anduserid = "";
 
         // In case it's a deprecated rule with a "days" field, we convert it to seconds.
+        $numberofseconds = 0;
+        if (isset($ruledata->seconds) && is_number($ruledata->seconds)) {
+            $numberofseconds = (int)$ruledata->seconds;
+        } else if (isset($ruledata->days) && is_number($ruledata->days)) {
+            $numberofseconds = (int)$ruledata->days * DAYSECS;
+        }
+
         $params = [
-            'numberofseconds' => ((int) $ruledata->seconds) ?? 0,
+            'numberofseconds' => $numberofseconds,
             'nowparam' => time(),
         ];
 
