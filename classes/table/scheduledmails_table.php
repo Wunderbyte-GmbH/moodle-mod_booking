@@ -29,6 +29,7 @@ use cache_helper;
 use core_text;
 use html_writer;
 use local_wunderbyte_table\output\table;
+use mod_booking\local\scheduledmails;
 use mod_booking\singleton_service;
 
 defined('MOODLE_INTERNAL') || die();
@@ -71,6 +72,16 @@ class scheduledmails_table extends wunderbyte_table {
             return '';
         }
         return date('d.m.Y h:s', $values->nextruntime);
+    }
+
+    /**
+     * Return current status if this scheduled mail would still be sent.
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_status(stdClass $values): string {
+        return scheduledmails::is_task_still_valid($values) ? get_string('yes') : get_string('no');
     }
 
     /**
@@ -283,13 +294,13 @@ class scheduledmails_table extends wunderbyte_table {
 
     /**
      * Action to delete a scheduled mail.
-     *
      * @param int $id
+     * @param string $data
      *
      * @return array
      *
      */
-    public function action_deleteitem(int $id): array {
+    public function action_deleteitem(int $id, string $data = ''): array {
         global $DB;
 
         $DB->delete_records('task_adhoc', ['id' => $id]);
@@ -299,6 +310,26 @@ class scheduledmails_table extends wunderbyte_table {
         return [
             'success' => 1,
             'message' => get_string('deleted', 'mod_booking'),
+        ];
+    }
+
+    /**
+     * Action to remove all currently invalid scheduled mails based on col_status logic.
+     *
+     * @param int $id
+     * @param string $data
+     * @return array
+     */
+    public function action_cleanupinvalid(int $id, string $data = ''): array {
+        $contextid = $this->context->id;
+        $result = scheduledmails::cleanup_invalid_tasks_in_context($contextid);
+
+        return [
+            'success' => 1,
+            'message' => 'Checked ' . (int)($result['checked'] ?? 0)
+                . ' scheduled mails and deleted '
+                . (int)($result['deleted'] ?? 0)
+                . ' invalid entries.',
         ];
     }
 }
