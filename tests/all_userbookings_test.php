@@ -20,6 +20,7 @@ use advanced_testcase;
 use stdClass;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\local\mobile\customformstore;
+use tool_mocktesttime\time_mock;
 
 /**
  * Tests for all_userbookings::other_cols.
@@ -36,6 +37,9 @@ final class all_userbookings_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
+        time_mock::init();
+        time_mock::set_mock_time(strtotime('now'));
+        singleton_service::destroy_instance();
     }
 
     /**
@@ -258,7 +262,7 @@ final class all_userbookings_test extends advanced_testcase {
                     'expected' => '1',
                 ],
             ],
-            // Type 'enrolusersaction' skipped because dedicated tests already available - rules_enrollink_test. 
+            // Type 'enrolusersaction' skipped because dedicated tests already available - rules_enrollink_test.
         ];
     }
 }
