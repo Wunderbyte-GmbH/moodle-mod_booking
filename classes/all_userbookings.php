@@ -32,7 +32,8 @@ use moodle_url;
 use stdClass;
 use user_picture;
 defined('MOODLE_INTERNAL') || die();
-require_once('../../lib/tablelib.php');
+global $CFG;
+require_once($CFG->libdir . '/tablelib.php');
 
 /**
  * Displays all bookings for a booking option
