@@ -1412,7 +1412,8 @@ class shortcodes {
      */
     public static function bookingoptionsfromcondition($shortcode, $args, $content, $env, $next) {
         global $DB;
-        [$userid, $optionid, $conditionid] = singleton_service::get_temp_values_for_certificates();
+        $tempvalues = singleton_service::get_temp_values_for_certificates();
+        [$userid, $optionid, $conditionid] = array_pad($tempvalues, 3, null);
         if (empty($userid)) {
             return "PLACEHOLDER";
         }
