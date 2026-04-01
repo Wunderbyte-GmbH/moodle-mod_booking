@@ -1459,64 +1459,80 @@ class booking_option_settings {
      * @return array
      */
     public static function return_sql_for_teachers($searchparams = []): array {
-
         global $DB;
 
-        $select = $DB->sql_group_concat('bt1.teacherobject') . ' as teacherobjects';
-
-        // We have to create the teacher object beforehand, in order to be able to use group_concat afterwards.
-        $innerselect = $DB->sql_concat_join("''", [
+        // Build teacher JSON safely.
+        $teacherjson = $DB->sql_concat_join("''", [
             "'{\"id\":'",
             "u.id",
-            "', \"firstname\":\"'",
+            "',\"firstname\":\"'",
             "u.firstname",
-            "'\", \"lastname\":\"'",
+            "'\",\"lastname\":\"'",
             "u.lastname",
-            "'\", \"name\":\"'",
+            "'\",\"name\":\"'",
             "u.lastname",
             "', '",
-            'u.firstname',
+            "u.firstname",
             "'\"}'",
         ]);
+
+        // Aggregate FIRST (critical fix).
+        $from = "
+            LEFT JOIN (
+                SELECT
+                    bt.optionid,
+                    " . $DB->sql_group_concat($teacherjson) . " AS teacherobjects
+                FROM {booking_teachers} bt
+                JOIN {user} u ON u.id = bt.userid
+                GROUP BY bt.optionid
+            ) bt1 ON bt1.optionid = bo.id
+        ";
+
+        $select = "bt1.teacherobjects";
+
+        // Better filtering (no JSON LIKE if possible).
         $where = '';
         $params = [];
 
-        $from = 'LEFT JOIN
-        (
-            SELECT bt.optionid, ' . $innerselect . ' as teacherobject
-            FROM {booking_teachers} bt
-            JOIN {user} u
-            ON bt.userid = u.id
-        ) bt1
-        ON bt1.optionid = bo.id';
+        if (!empty($searchparams)) {
+            $conditions = [];
+            $counter = 0;
 
-        // As this is a complete subrequest, we have to add the "where" to the outer table, where it is already rendered.
-        $counter = 0;
-        foreach ($searchparams as $searchparam) {
-            if (!$key = key($searchparam)) {
-                throw new moodle_exception('wrongstructureofsearchparams', 'mod_booking');
+            foreach ($searchparams as $searchparam) {
+                $key = key($searchparam);
+                if (!$key) {
+                    throw new moodle_exception('wrongstructureofsearchparams', 'mod_booking');
+                }
+
+                $value = $searchparam[$key];
+
+                // Instead of JSON LIKE, filter on actual columns.
+                $paramid = $key . $counter;
+
+                if ($key === 'id') {
+                    $conditions[] = "EXISTS (
+                        SELECT 1
+                        FROM {booking_teachers} bt
+                        WHERE bt.optionid = bo.id AND bt.userid = :$paramid
+                    )";
+                    $params[$paramid] = $value;
+                } else if ($key === 'firstname' || $key === 'lastname') {
+                    $conditions[] = "EXISTS (
+                        SELECT 1
+                        FROM {booking_teachers} bt
+                        JOIN {user} u ON u.id = bt.userid
+                        WHERE bt.optionid = bo.id
+                        AND " . $DB->sql_like("u.$key", ":$paramid", false) . "
+                    )";
+                    $params[$paramid] = "%$value%";
+                }
+                $counter++;
             }
-            $value = $searchparam[$key];
 
-            // Only add Or if we are not in the first line.
-            $where .= $counter > 0 ? ' OR ' : ' AND (';
-
-            $value = "%\"$key\"\:%$value%";
-
-            // Make sure we never use the param more than once.
-            if (isset($params[$key])) {
-                $key = $key . $counter;
+            if (!empty($conditions)) {
+                $where = " AND (" . implode(" OR ", $conditions) . ")";
             }
-
-            $where .= $DB->sql_like('s1.teacherobjects', ":$key", false);
-
-            // Now we have to add the values to our params array.
-            $params[$key] = $value;
-            $counter++;
         }
-        // If we ran through the loop at least once, we close it again here.
-        $where .= $counter > 0 ? ') ' : '';
-
         return [$select, $from, $where, $params];
     }
 
