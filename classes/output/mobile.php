@@ -329,7 +329,6 @@ class mobile {
         $data['cmid'] = $cmid;
         $data['mybookings'] = $outputdata;
         $data['timestamp'] = time();
-        $data['mybookings'][0]['itemid'] = null;
         return [
             'templates' => [
                 [
