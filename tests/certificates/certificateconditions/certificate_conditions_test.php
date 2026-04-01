@@ -28,6 +28,7 @@ namespace mod_booking;
 
 use advanced_testcase;
 use coding_exception;
+use mod_booking\table\manageusers_table;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\event\certificate_issued;
@@ -449,6 +450,59 @@ final class certificate_conditions_test extends advanced_testcase {
         singleton_service::destroy_booking_answers($optionaobj->id);
 
         // We complete the option and should have no additional certificate.
+        $this->assertEquals(1, $DB->count_records('tool_certificate_issues', ['userid' => $this->users['student1']->id]));
+    }
+    /**
+     * Test with setting to manual certificate trigger.
+     *
+     * @covers \mod_booking\local\certificate_conditions\conditions\taggedoptions
+     * @covers \mod_booking\local\certificateclass::issue_certificate
+     * @covers \mod_booking\local\certificateclass::all_required_options_fulfilled
+     * @covers \mod_booking\local\certificate_conditions\actions\createcertificate
+     */
+    public function test_only_manual_certificate_trigger(): void {
+        global $DB;
+        $this->base_scenario();
+        // We turn off automatic triggering of certificates to test the manual trigger.
+        set_config('certificatemanualtrigger', 1, 'booking');
+        // Create a Certificate Template.
+        $certificate = $this->get_certificate_generator()->create_template((object)['name' => 'Certificate 1']);
+        // Create Condition: bookingoption with filter and insert it into DB.
+        $data = $this->set_taggedoptions_condition($certificate);
+        $conditionid = $DB->insert_record('booking_cert_cond', $data);
+        $this->set_condition_items($conditionid);
+
+        $this->setUser($this->users['student1']);
+        // User 1 Books option 1.
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($this->bookingoptions[0]->id);
+        // We book user1.
+        $result = booking_bookit::bookit('option', $settings1->id, $this->users['student1']->id);
+        $result = booking_bookit::bookit('option', $settings1->id, $this->users['student1']->id);
+
+        $this->setAdminUser();
+        $optionaobj = singleton_service::get_instance_of_booking_option($settings1->cmid, $settings1->id);
+        $optionaobj->toggle_user_completion($this->users['student1']->id);
+        singleton_service::destroy_booking_answers($optionaobj->id);
+
+        // We complete the option and should have no certificate, because it is manual trigger only.
+        $this->assertEquals(0, $DB->count_records('tool_certificate_issues', ['userid' => $this->users['student1']->id]));
+
+        // Now we manually trigger it.
+        $answer = $DB->get_record('booking_answers', ['userid' => $this->users['student1']->id]);
+        $table = new manageusers_table('manageuserstable');
+        $actiondata = '{"type":"wb_action_button","id":"-1","methodname":"trigger_certificate_booking_answers",' .
+        '"formname":"","nomodal":"0","selectionmandatory":"1","titlestring":"issuecertificate",'
+        . '"bodystring":"issuecertificatebody","submitbuttonstring":"apply",'
+        . '"component":"mod_booking","initialized":"true","checkedids":["' . $answer->id . '"]}';
+        $sink = $this->redirectEvents();
+        $table->action_trigger_certificate_booking_answers(0, $actiondata);
+        $events = $sink->get_events();
+        // We check if no bookingoption_completed event was triggered because of the manual trigger.
+        foreach ($events as $event) {
+            $name = $event->get_name();
+            $this->assertNotEquals($name, get_string('bookingoptioncompleted', 'mod_booking'));
+        }
+        // Now we should have a certificate.
         $this->assertEquals(1, $DB->count_records('tool_certificate_issues', ['userid' => $this->users['student1']->id]));
     }
 

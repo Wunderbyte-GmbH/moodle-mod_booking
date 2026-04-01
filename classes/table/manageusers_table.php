@@ -25,9 +25,11 @@
 
 namespace mod_booking\table;
 use mod_booking\local\certificateclass;
+use mod_booking\local\certificate_conditions\certificate_conditions;
 use moodle_exception;
 use core_plugin_manager;
 use mod_booking\enrollink;
+use mod_booking\event\bookingoption_completed;
 use mod_booking\event\bookinganswer_confirmed;
 use mod_booking\event\bookinganswer_denied;
 use mod_booking\local\bookingstracker\bookingstracker_helper;
@@ -697,7 +699,7 @@ class manageusers_table extends wunderbyte_table {
      * @return array
      */
     public function action_trigger_certificate_booking_answers(int $id, string $data): array {
-        global $DB;
+        global $DB, $USER;
 
         $failure = [
             'success' => 0,
@@ -723,20 +725,36 @@ class manageusers_table extends wunderbyte_table {
                 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
                 $certificateid = booking_option::get_value_of_json_by_key((int) $settings->id, 'certificate') ?? 0;
-                // Check if certificate is defined.
                 $presenceconfig = get_config('booking', 'presencestatustoissuecertificate');
+
+                // Manually trigger condition-based certificate actions with a synthetic completion event.
+                // This action runs outside the observer flow where bookingoption_completed is usually dispatched.
+                $manualevent = bookingoption_completed::create([
+                    'objectid' => (int)$optionid,
+                    'context' => context_module::instance((int)$settings->cmid),
+                    'userid' => (int)$USER->id,
+                    'relateduserid' => (int)$answerrecord->userid,
+                    'other' => ['cmid' => (int)$settings->cmid],
+                ]);
                 if (
-                    empty($certificateid)
-                    || (!empty($presenceconfig) && $answerrecord->status != $presenceconfig)
-                    || !get_config('booking', 'certificateon')
+                    certificate_conditions::evaluate_certificate_conditions_with_result(
+                        $manualevent,
+                        (int)$answerrecord->userid,
+                        (int)$optionid
+                    )
                 ) {
-                    continue;
+                    $triggered = true;
                 }
-                if (empty($presenceconfig) && $answerrecord->completed == 0) {
-                    continue;
+
+                // Keep legacy trigger behaviour for option-level certificate configuration.
+                if (
+                    !empty($certificateid)
+                    && (empty($presenceconfig) || $answerrecord->status == $presenceconfig)
+                    && (!empty($presenceconfig) || $answerrecord->completed != 0)
+                ) {
+                    $triggered = true;
+                    certificateclass::issue_certificate($optionid, $answerrecord->userid, 0, (int)$certificateid);
                 }
-                $triggered = true;
-                certificateclass::issue_certificate($optionid, $answerrecord->userid, 0, (int)$certificateid);
             } else {
                 throw new moodle_exception(
                     'invalidanswerid',

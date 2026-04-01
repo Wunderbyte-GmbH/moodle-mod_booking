@@ -2781,6 +2781,7 @@ class booking_option {
                 && !empty($certificateid)
                 && !empty($userdata->completed)
                 && certificateclass::required_options_fulfilled($this->settings, $userdata->id)
+                && empty(get_config('booking', 'certificatemanualtrigger'))
             ) {
                 /* If we get a timebooked value, we set the completeddate to that timebooked value, otherwise we set it to now.
                 This is important for imports.*/

@@ -258,6 +258,22 @@ class certificate_conditions {
         int $userid,
         int $optionid
     ): void {
+        self::evaluate_certificate_conditions_with_result($event, $userid, $optionid);
+    }
+
+    /**
+     * Evaluate all active certificate conditions and return whether any action was executed.
+     *
+     * @param object $event the event object
+     * @param int $userid user to apply action to
+     * @param int $optionid booking option
+     * @return bool true if at least one condition passed and executed its action
+     */
+    public static function evaluate_certificate_conditions_with_result(
+        object $event,
+        int $userid,
+        int $optionid
+    ): bool {
         global $DB;
         $eventcontext = new stdClass();
         $eventcontext->event = $event;
@@ -265,10 +281,15 @@ class certificate_conditions {
         $eventcontext->optionid = $optionid;
 
         $records = $DB->get_records('booking_cert_cond', ['isactive' => 1]);
+        $triggered = false;
 
         foreach ($records as $record) {
-            self::evaluate_single_condition($record, $eventcontext, $userid, $optionid);
+            if (self::evaluate_single_condition($record, $eventcontext, $userid, $optionid)) {
+                $triggered = true;
+            }
         }
+
+        return $triggered;
     }
 
     /**

@@ -716,6 +716,16 @@ if ($ADMIN->fulltree) {
                 1 => get_string('certificateconditions', 'mod_booking')]
             )
         );
+        if (get_config('booking', 'certificateon')) {
+            $settings->add(
+                new admin_setting_configcheckbox(
+                    'booking/certificatemanualtrigger',
+                    get_string('certificatemanualtrigger', 'mod_booking'),
+                    get_string('certificatemanualtrigger_desc', 'mod_booking'),
+                    0
+                )
+            );
+        }
         if (!empty(get_config('booking', 'certificateoptions'))) {
             $settings->add(
                 new admin_setting_configcheckbox(
@@ -726,6 +736,7 @@ if ($ADMIN->fulltree) {
                 )
             );
         }
+
         if (get_config('booking', 'certificateon') && get_config('booking', 'certificateoptions') == 0) {
             $settings->add(
                 new admin_setting_configselect(

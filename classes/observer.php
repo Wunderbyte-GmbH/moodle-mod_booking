@@ -361,13 +361,14 @@ class mod_booking_observer {
             $optionid
         );
 
-        // Evaluate and execute certificate conditions for the completed option.
-        certificate_conditions::evaluate_certificate_conditions(
-            $event,
-            $selecteduserid,
-            $optionid
-        );
-
+        if (empty(get_config('booking', 'certificatemanualtrigger'))) {
+            // Evaluate and execute certificate conditions for the completed option.
+            certificate_conditions::evaluate_certificate_conditions(
+                $event,
+                $selecteduserid,
+                $optionid
+            );
+        }
         if (
             empty($bookingoption->booking->settings->sendmail)
             || !get_config('booking', 'uselegacymailtemplates')
@@ -651,6 +652,7 @@ class mod_booking_observer {
         if (
             $data['other']['presencenew'] == get_config('booking', 'presencestatustoissuecertificate')
             && get_config('booking', 'certificateon')
+            && empty(get_config('booking', 'certificatemanualtrigger'))
         ) {
             $certificateid = booking_option::get_value_of_json_by_key((int)$data['objectid'], 'certificate') ?? 0;
             if (!empty($certificateid)) {
