@@ -236,6 +236,14 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $data->bookingid = $this->get_new_parentid('booking');
         $data->timemodified = $this->apply_date_offset($data->timemodified);
 
+        // Map user IDs for usercreated and usermodified.
+        if (!empty($data->usercreated)) {
+            $data->usercreated = $this->get_mappingid('user', $data->usercreated) ?: 0;
+        }
+        if (!empty($data->usermodified)) {
+            $data->usermodified = $this->get_mappingid('user', $data->usermodified) ?: 0;
+        }
+
         $cmid = null;
         $cmidsql = "SELECT cm.id AS cmid
                     FROM {course_modules} cm

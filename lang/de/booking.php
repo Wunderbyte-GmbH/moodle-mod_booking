@@ -1012,6 +1012,7 @@ $string['coursestart'] = 'Starten';
 $string['coursestarttime'] = 'Kursbeginn';
 $string['createcompetencylink'] = '<a href="{$a}" class="btn btn-outline-secondary" target="_blank" rel="noopener noreferrer">
 Neue Kompetenz erstellen (in Kompetenzrahmen) </a>';
+$string['created'] = 'Erstellt';
 $string['createdbywunderbyte'] = 'Dieses Buchungsmodul wurde von der Wunderbyte GmbH entwickelt';
 $string['createical'] = 'Termin(e) erstellen';
 $string['createnewbookingoption'] = 'Neue Buchungsoption';
@@ -1784,6 +1785,7 @@ $string['mod/booking:reducedoptionform4'] = 'Buchungsoption reduziert 4';
 $string['mod/booking:reducedoptionform5'] = 'Buchungsoption reduziert 5';
 $string['mod/booking:seepersonalteacherinformation'] = 'Detailinfos über Lehrende anzeigen';
 $string['modaloptiondateformtitle'] = 'Benutzerdefinierte Termine';
+$string['modified'] = 'Letzte Änderung';
 $string['modulename'] = 'Buchung';
 $string['modulenameplural'] = 'Buchungen';
 $string['monday'] = 'Montag';
@@ -2920,6 +2922,7 @@ $string['useprotoenablemorerules'] = 'Sie benötigen Booking PRO, um weitere Reg
 $string['useraffectedbyevent'] = 'Vom Ereignis betroffene:r Nutzer:in';
 $string['usercalendarentry'] = 'Sie haben <a href="{$a}">diese Option</a> gebucht.';
 $string['usercalendarurl'] = "Nutzer:innen Kalender";
+$string['usercreated'] = 'Erstellt von';
 $string['userdownload'] = 'Nutzer:innenliste herunterladen';
 $string['usergavereason'] = '{$a} gab folgenden Grund für die Stornierung an:';
 $string['userinfofieldoff'] = 'Kein User-Profilfeld ausgewählt';
@@ -2929,7 +2932,7 @@ $string['userleavemessage'] = 'Hallo {$a->participant},
 Sie wurden erfolgreich von {$a->title} abgemeldet.
 ';
 $string['userleavesubject'] = 'Sie wurden erfolgreich abgemeldet von: {$a->title}';
-$string['usermodified'] = 'Bearbeitet von';
+$string['usermodified'] = 'Zuletzt bearbeitet von';
 $string['username'] = "Usernamen";
 $string['usernameofbookingmanager'] = 'Buchungsverwalter/in auswählen';
 $string['usernameofbookingmanager_help'] = 'Nutzername des/der Nutzer/in, der als Absender/in der Buchungsbestätigunsmitteilungen angeführt wird. Wenn die Option "Eine Kopie des Bestätigungsmail an Buchungsverwalter senden" aktiviert ist, wird die Kopie der Buchungsbestätigung an diese/n Nutzer/in gesendet.';

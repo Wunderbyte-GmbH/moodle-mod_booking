@@ -34,7 +34,6 @@ require_once($CFG->dirroot . '/course/externallib.php');
 
 use local_entities\entitiesrelation_handler;
 use mod_booking\booking;
-use mod_booking\booking_option;
 use mod_booking\output\coursepage_shortinfo_and_button;
 use mod_booking\singleton_service;
 use mod_booking\teachers_handler;
@@ -43,8 +42,6 @@ use mod_booking\booking_rules\rules_info;
 use mod_booking\booking_rules\booking_rules;
 use local_wunderbyte_table\local\customfield\wbt_field_controller_info;
 use mod_booking\customfield\booking_handler;
-use mod_booking\option\fields\certificate;
-use mod_booking\option\fields\competencies;
 
 // Default fields for bookingoptions in view.php and for download.
 define('MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS', "identifier,titleprefix,text,description,teacher,responsiblecontact," .
@@ -229,6 +226,8 @@ define('MOD_BOOKING_OPTION_FIELD_PREPARE_IMPORT', 1); // Has to be the first fie
 define('MOD_BOOKING_OPTION_FIELD_ID', 10);
 define('MOD_BOOKING_OPTION_FIELD_JSON', 11);
 define('MOD_BOOKING_OPTION_FIELD_DUPLICATION', 12); // Needed for duplication to work.
+define('MOD_BOOKING_OPTION_FIELD_USERCREATED', 18);
+define('MOD_BOOKING_OPTION_FIELD_USERMODIFIED', 19);
 define('MOD_BOOKING_OPTION_FIELD_RETURNURL', 20);
 define('MOD_BOOKING_OPTION_FIELD_TIMECREATED', 22);
 define('MOD_BOOKING_OPTION_FIELD_TIMEMODIFIED', 23);
@@ -1731,10 +1730,10 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
 }
 
 /**
- * Check if logged in user is a teacher of the passed option.
+ * Check if logged in user is a teacher, responsible contact, or the creator of the passed option.
  * @param mixed|int $optionoroptionid optional option class or optionid
  * @param int $userid optional userid, if none is provided, we use the logged-in $USER->id
- * @return true if is assigned as teacher otherwise return false
+ * @return bool true if user is assigned as teacher, responsible contact (if enabled), or the creator of the option
  */
 function booking_check_if_teacher($optionoroptionid = null, int $userid = 0) {
     global $DB, $USER;
@@ -1774,6 +1773,8 @@ function booking_check_if_teacher($optionoroptionid = null, int $userid = 0) {
             get_config('booking', 'responsiblecontactcanedit')
             && $isresponsiblecontact
         ) {
+            return true;
+        } else if (!empty($settings->usercreated) && $settings->usercreated == $userid) {
             return true;
         } else {
             return false;

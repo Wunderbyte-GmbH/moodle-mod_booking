@@ -76,7 +76,8 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
             [
                 'text', 'maxanswers', 'maxoverbooking', 'minanswers', 'bookingopeningtime', 'bookingclosingtime', 'courseid',
                 'coursestarttime', 'courseendtime', 'enrolmentstatus', 'description', 'descriptionformat',
-                'limitanswers', 'timecreated', 'timemodified', 'addtocalendar', 'calendarid', 'pollurl',
+                'limitanswers', 'timecreated', 'timemodified', 'usercreated', 'usermodified',
+                'addtocalendar', 'calendarid', 'pollurl',
                 'groupid', 'sent', 'sent2', 'sentteachers', 'location', 'institution', 'address',
                 'pollurlteachers', 'howmanyusers', 'pollsend', 'removeafterminutes',
                 'notificationtext', 'notificationtextformat', 'disablebookingusers',
@@ -302,6 +303,8 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
 
         // Define id annotations.
         $answer->annotate_ids('user', 'userid');
+        $option->annotate_ids('user', 'usercreated');
+        $option->annotate_ids('user', 'usermodified');
 
         // Define file annotations.
         $booking->annotate_files('mod_booking', 'intro', null); // This file area hasn't itemid.

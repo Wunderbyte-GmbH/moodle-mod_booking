@@ -15,11 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class to handle one property of the booking_option_settings class.
+ * Class to handle the usermodified property of the booking_option_settings class.
  *
  * @package mod_booking
  * @copyright Wunderbyte GmbH <info@wunderbyte.at>
- * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -32,19 +31,18 @@ use MoodleQuickForm;
 use stdClass;
 
 /**
- * Class to handle one property of the booking_option_settings class.
+ * Class to handle the usermodified property of the booking_option_settings class.
  *
  * @package mod_booking
  * @copyright Wunderbyte GmbH <info@wunderbyte.at>
- * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class timemodified extends field_base {
+class usermodified extends field_base {
     /**
      * This ID is used for sorting execution.
      * @var int
      */
-    public static $id = MOD_BOOKING_OPTION_FIELD_TIMEMODIFIED;
+    public static $id = MOD_BOOKING_OPTION_FIELD_USERMODIFIED;
 
     /**
      * Some fields are saved with the booking option...
@@ -93,54 +91,12 @@ class timemodified extends field_base {
         int $updateparam,
         $returnvalue = null
     ): array {
+        global $USER;
+
         parent::prepare_save_field($formdata, $newoption, $updateparam, 0);
-        // We always store the current time in the time modified field, no matter what.
-        $newoption->timemodified = time();
+        // We always store the current user in the usermodified field, no matter what.
+        $newoption->usermodified = $USER->id;
 
         return [];
-    }
-
-    /**
-     * Instance form definition
-     * @param MoodleQuickForm $mform
-     * @param array $formdata
-     * @param array $optionformconfig
-     * @param array $fieldstoinstanciate
-     * @param bool $applyheader
-     * @return void
-     */
-    public static function instance_form_definition(
-        MoodleQuickForm &$mform,
-        array &$formdata,
-        array $optionformconfig,
-        $fieldstoinstanciate = [],
-        $applyheader = true
-    ) {
-        // Standardfunctionality to add a header to the mform (only if its not yet there).
-        if ($applyheader) {
-            fields_info::add_header_to_mform($mform, self::$header);
-        }
-
-        $optionid = $formdata['id'] ?? $formdata['optionid'] ?? 0;
-
-        if (!empty($optionid)) {
-            $displaytext = '';
-            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-            if (!empty($settings->timemodified)) {
-                $timemodified = $settings->timemodified;
-                $readabletimemodified = userdate($timemodified, get_string('strftimedatetime', 'langconfig'));
-                $displaytext .= $readabletimemodified;
-            }
-            if (!empty($settings->usermodified)) {
-                $user = singleton_service::get_instance_of_user($settings->usermodified);
-                $displaytext .= ' (' . fullname($user) . ')';
-            }
-            $mform->addElement(
-                'html',
-                '<div class="bookingoption-form-timemodified text-muted small ms-4 mb-3">'
-                . get_string('modified', 'mod_booking') . ": "
-                . $displaytext . '</div>'
-            );
-        }
     }
 }

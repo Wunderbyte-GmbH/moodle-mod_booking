@@ -1040,6 +1040,7 @@ $string['coursestarttime'] = 'Start time of the course';
 $string['courseurl'] = 'Course URL';
 $string['createcompetencylink'] = '<a href="{$a}" class="btn btn-outline-secondary" target="_blank" rel="noopener noreferrer">
 Create new competency (in framework) </a>';
+$string['created'] = 'Created';
 $string['createdbywunderbyte'] = 'Booking module created by Wunderbyte GmbH';
 $string['createical'] = 'Create calendar event(s)';
 $string['createnewbookingoption'] = 'New booking option';
@@ -1814,6 +1815,7 @@ $string['mod/booking:reducedoptionform4'] = 'Reduced booking option 4';
 $string['mod/booking:reducedoptionform5'] = 'Reduced booking option 5';
 $string['mod/booking:seepersonalteacherinformation'] = 'See personal teacher information';
 $string['modaloptiondateformtitle'] = 'Custom dates';
+$string['modified'] = 'Last modified';
 $string['modulename'] = 'Booking';
 $string['modulenameplural'] = 'Bookings';
 $string['monday'] = 'Monday';
@@ -3047,6 +3049,7 @@ $string['useprotoenablemorerules'] = 'You need Booking PRO, to be able to add mo
 $string['useraffectedbyevent'] = 'User affected by the event';
 $string['usercalendarentry'] = 'You are booked for <a href="{$a}">this session</a>.';
 $string['usercalendarurl'] = "User calendar URL";
+$string['usercreated'] = 'Created by';
 $string['userdownload'] = 'Download users';
 $string['usergavereason'] = '{$a} gave the following reason for cancellation:';
 $string['userid'] = 'UserID';
@@ -3057,7 +3060,7 @@ $string['userleavemessage'] = 'Hello {$a->participant},
 You have been unsubscribed from {$a->title}.
 ';
 $string['userleavesubject'] = 'You successfully unsubscribed from {$a->title}';
-$string['usermodified'] = 'Modified by';
+$string['usermodified'] = 'Last modified by';
 $string['username'] = "username";
 $string['usernameofbookingmanager'] = 'Choose a booking manager';
 $string['usernameofbookingmanager_help'] = 'Username of the user who will be displayed in the "From" field of the confirmation notifications. If the option "Send confirmation e-mail to booking manager" is enabled, this is the user who receives a copy of the confirmation notifications.';
