@@ -45,6 +45,8 @@ Zum Kurs: {$a->courselink}
 Alle Buchungsoptionen ansehen: {$a->bookinglink}';
 $string['activitycompletiontextsubject'] = 'Buchungsoption abgeschlossen';
 $string['addastemplate'] = 'Als Vorlage hinzufügen';
+$string['addastemplatename'] = 'Name der Vorlage (nur notwendig, wenn anders als Titel der Buchungsoption)';
+$string['addastemplatename_help'] = 'Geben Sie einen Namen für diese Vorlage ein. Wenn angegeben, wird dieser Name als Anzeigename für die Vorlage verwendet anstelle des Buchungsoptionsnamens.';
 $string['addbookingcampaign'] = 'Kampagne hinzufügen';
 $string['addbookingrule'] = 'Regel hinzufügen';
 $string['addcategory'] = 'Kategorien bearbeiten';
@@ -1385,6 +1387,7 @@ $string['error:selflearningcourseallowsnodates'] = 'Buchungsoptionen vom Typ "{$
 $string['error:semestermissingbutcanceldependentonsemester'] = 'Die Einstellung zur Berechnung der
 Stornierungsfrist ab Semesterbeginn ist aktiv, aber das Semester fehlt!';
 $string['error:taskalreadystarted'] = 'Sie haben bereits einen Task gestartet!';
+$string['error:templatenamereq'] = 'Sie müssen entweder einen Buchungsoptionsnamen oder einen Vorlagennamen angeben.';
 $string['error:tousepriceinstallshoppingcart'] = 'Sie müssen das Warenkorb-Plugin (local_shopping_cart) installieren,
 wenn Sie möchten, dass Benutzer etwas kaufen können, das einen Preis hat.';
 $string['error:wrongpagenumberforprebookingpage'] = 'Die Seitenzahl für die Vorbuchungsseite ist ungültig.';

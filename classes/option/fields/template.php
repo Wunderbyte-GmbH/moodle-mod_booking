@@ -124,15 +124,26 @@ class template extends field_base {
 
         // Option templates.
         $optiontemplates = ['' => ''];
-        $alloptiontemplates = $DB->get_records('booking_options', ['bookingid' => 0], '', $fields = 'id, text', 0, 0);
+        $alloptiontemplates = $DB->get_records('booking_options', ['bookingid' => 0], '', $fields = 'id, text, json', 0, 0);
 
         if (empty($alloptiontemplates)) {
             return;
         }
 
-        // Sort templates alphabetically by text.
+        // Determine the display name for each template: templatename from JSON takes priority over text.
+        foreach ($alloptiontemplates as $template) {
+            $template->displayname = $template->text;
+            if (!empty($template->json)) {
+                $jsonobj = json_decode($template->json);
+                if (!empty($jsonobj->templatename)) {
+                    $template->displayname = $jsonobj->templatename;
+                }
+            }
+        }
+
+        // Sort templates alphabetically by display name.
         usort($alloptiontemplates, function ($a, $b) {
-            return strcmp($a->text, $b->text);
+            return strcmp($a->displayname, $b->displayname);
         });
 
         // Standardfunctionality to add a header to the mform (only if its not yet there).
@@ -164,7 +175,7 @@ class template extends field_base {
         }
 
         foreach ($alloptiontemplates as $key => $value) {
-            $optiontemplates[$value->id] = $value->text;
+            $optiontemplates[$value->id] = $value->displayname;
         }
 
         $mform->addElement(

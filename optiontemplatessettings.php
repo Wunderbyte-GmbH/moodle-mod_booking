@@ -69,7 +69,7 @@ if (($action === 'delete') && ($optionid > 0)) {
 }
 
 $table = new optiontemplatessettings_table('optiontemplatessettings', $cmid);
-$fields = 'bo.id AS optionid, bo.text AS name, bo.bookingid AS bookingid';
+$fields = 'bo.id AS optionid, bo.text AS name, bo.json, bo.bookingid AS bookingid';
 $table->set_sql(
     $fields,
     "{booking_options} bo",

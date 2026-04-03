@@ -47,6 +47,8 @@ Go to course: {$a->courselink}
 See all booking options: {$a->bookinglink}';
 $string['activitycompletiontextsubject'] = 'Booking option completed';
 $string['addastemplate'] = 'Add as template';
+$string['addastemplatename'] = 'Template name';
+$string['addastemplatename_help'] = 'Enter a name for this template. If provided, this name will be used as the display name for the template instead of the booking option name.';
 $string['addbookingcampaign'] = 'Add campaign';
 $string['addbookingrule'] = 'Add rule';
 $string['addcategory'] = 'Edit categories';
@@ -1417,6 +1419,7 @@ $string['error:ruleactionsendcopynotpossible'] = 'It\'s not possible to send an 
 $string['error:selflearningcourseallowsnodates'] = 'Booking options of type "{$a}" are not allowed to have dates. Please remove all dates and save again.';
 $string['error:semestermissingbutcanceldependentonsemester'] = 'The setting to calculate cancellation periods from semester start is active but semester is missing!';
 $string['error:taskalreadystarted'] = 'You have already started a task!';
+$string['error:templatenamereq'] = 'You must provide either a booking option name or a template name.';
 $string['error:tousepriceinstallshoppingcart'] = 'You need to install shopping cart if you want users to buy something that has a price.';
 $string['error:wrongpagenumberforprebookingpage'] = 'Error: Wrong page number for pre-booking page.';
 $string['error:wrongteacherid'] = 'Error: No user could be found for the provided "teacherid".';
