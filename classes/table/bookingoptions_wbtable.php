@@ -1314,6 +1314,27 @@ class bookingoptions_wbtable extends wunderbyte_table {
                     }
                 }
 
+                // Save booking option as template.
+                if (has_capability('mod/booking:manageoptiontemplates', $context)) {
+                    if (!empty($optionid)) {
+                        $ddoptions[] = '<div class="dropdown-item">
+                            <i class="icon fa fa-fw fa-clipboard" aria-hidden="true"></i>' .
+                            html_writer::link(
+                                new moodle_url('/mod/booking/optiontemplatessettings.php', [
+                                    'id' => $cmid,
+                                    'optionid' => $optionid,
+                                    'action' => 'copytotemplate',
+                                    'sesskey' => sesskey(),
+                                    'returnto' => 'url',
+                                    'returnurl' => $returnurl,
+                                ]),
+                                get_string('copytotemplate', 'mod_booking'),
+                                ['class' => 'd-inline']
+                            ) . '</div>';
+                    }
+                }
+
+                // Duplicate booking option.
                 $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(new moodle_url(
                     '/mod/booking/editoptions.php',
                     [
@@ -1326,8 +1347,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
                 ), $OUTPUT->pix_icon(
                     't/copy',
                     get_string('duplicatebookingoption', 'mod_booking')
-                ) .
-                    get_string('duplicatebookingoption', 'mod_booking')) . '</div>';
+                ) . get_string('duplicatebookingoption', 'mod_booking')) . '</div>';
 
                 $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
                     new moodle_url('/mod/booking/report.php', [

@@ -1704,7 +1704,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
             $navref->add(
                 get_string('copytotemplate', 'mod_booking'),
                 new moodle_url(
-                    '/mod/booking/report.php',
+                    '/mod/booking/optiontemplatessettings.php',
                     [
                         'id' => $cmid,
                         'optionid' => $optionid,
