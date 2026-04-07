@@ -1429,10 +1429,16 @@ class shortcodes {
             $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
             $hascompleted = $bookinganswer->is_activity_completed($userid);
             if ($hascompleted) {
-                $texts[] = $settings->text;
+                $certificateteachers = [];
+                foreach ($settings->teachers as $teacher) {
+                    $certificateteachers[] = "$teacher->firstname $teacher->lastname";
+                }
+                $texts[] = $settings->text
+                . "<br>" . get_string('teachersbookingoptionsfromcondition', 'mod_booking')
+                . implode(",", $certificateteachers);
             }
         }
-        return implode("<br>", $texts);
+        return implode(get_string('delimiterbookingoptionsfromcondition', 'mod_booking'), $texts);
     }
 
     /**
