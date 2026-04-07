@@ -267,6 +267,16 @@ class template extends field_base {
                 if ($mform->elementExists($k) && $v !== null) {
                     if ($mform->elementExists($k)) {
                         $element = $mform->getElement($k);
+                        // Date time selectors need timestamps converted to arrays.
+                        if ($element->getType() === 'date_time_selector' && is_numeric($v)) {
+                            $v = [
+                                "day"    => date("d", $v),
+                                "month"  => date("m", $v),
+                                "year"   => date("Y", $v),
+                                "hour"   => date("H", $v),
+                                "minute" => date("i", $v),
+                            ];
+                        }
                         $element->setValue($v);
                     }
                 }
