@@ -69,9 +69,20 @@ if (!$context = context_module::instance($cmid)) {
 }
 
 if (
-    (has_capability('mod/booking:updatebooking', $context)
-    || (has_capability('mod/booking:addeditownoption', $context)
-        && (empty($optionid) || booking_check_if_teacher($optionid)))) == false
+    (
+        // Either the user has the general capability to update booking options...
+        has_capability('mod/booking:updatebooking', $context)
+        || (
+            // ... or they have the capability to edit their own options and are actually editing their own option.
+            has_capability('mod/booking:addeditownoption', $context)
+            && booking_check_if_teacher($optionid)
+        )
+        || (
+            // ... or they have the capability to add options and are creating a new option (optionid is 0).
+            has_capability('mod/booking:addoption', $context)
+            && empty($optionid)
+        )
+    ) == false
 ) {
     throw new moodle_exception('nopermissions');
 }

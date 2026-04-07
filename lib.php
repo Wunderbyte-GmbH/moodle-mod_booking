@@ -1341,8 +1341,10 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
     $returnurl = $viewphpurl->out();
 
     if (
+        // Either the user has the capability to update booking options in general...
         has_capability('mod/booking:updatebooking', $context)
-        || has_capability('mod/booking:addeditownoption', $context)
+        // ...or the user has the capability to add new booking options.
+        || has_capability('mod/booking:addoption', $context)
     ) {
         $navref->add(
             get_string('createnewbookingoption', 'booking'),

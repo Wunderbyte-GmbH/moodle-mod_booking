@@ -452,8 +452,10 @@ $string['bookedtextsubjectbookingmanager'] = 'New booking for {$a->title} by {$a
 $string['bookedusers'] = 'Booked users';
 $string['bookelectivesbtn'] = 'Book selected electives';
 $string['booking'] = 'Booking';
-$string['booking:addeditownoption'] = 'Add new option and edit own options.';
-$string['booking:addinstance'] = 'Add new booking';
+$string['booking:addeditownoption'] = 'Edit own booking options (own booking options are those
+that you either created yourself or are assigned to as a teacher)';
+$string['booking:addinstance'] = 'Add new booking instances';
+$string['booking:addoption'] = 'Add new booking options';
 $string['booking:alwayscanapprove'] = 'Always can confirm/deny booking answers';
 $string['booking:assigndeputies'] = 'Assign deputies';
 $string['booking:bookanyone'] = 'Allowed to book anyone';

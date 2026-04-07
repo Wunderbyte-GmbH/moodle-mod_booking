@@ -74,7 +74,17 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
+    // This is ONLY the editing capability, but we kept the name for legacy reasons.
     'mod/booking:addeditownoption' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+    ],
+    // This is the capability to ADD new booking options. It is separate from the editing capability.
+    'mod/booking:addoption' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => [

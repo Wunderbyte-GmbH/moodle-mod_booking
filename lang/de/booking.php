@@ -442,8 +442,10 @@ $string['bookedtextsubjectbookingmanager'] = 'Neue Buchung für {$a->title} von 
 $string['bookedusers'] = 'Gebuchte Nutzer:innen';
 $string['bookelectivesbtn'] = 'Ausgewählte Wahlfächer buchen';
 $string['booking'] = 'Buchung';
-$string['booking:addeditownoption'] = 'Neue Buchungsoptionen anlegen und eigene bearbeiten.';
-$string['booking:addinstance'] = 'Neue Buchungsinstanz anlegen';
+$string['booking:addeditownoption'] = 'Eigene Buchungsoptionen bearbeiten (eigene Buchungsoptionen sind solche,
+die man entweder selbst angelegt hat oder bei denen man als Trainer:in zugewiesen ist)';
+$string['booking:addinstance'] = 'Neue Buchungsinstanzen anlegen';
+$string['booking:addoption'] = 'Neue Buchungsoptionen anlegen';
 $string['booking:alwayscanapprove'] = 'Kann Buchungsantworten immer bestätigen/ablehnen';
 $string['booking:assigndeputies'] = 'Stellvertretung erstellen';
 $string['booking:bookanyone'] = 'Darf alle Nutzer:innen buchen';
