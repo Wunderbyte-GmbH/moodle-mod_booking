@@ -3086,6 +3086,15 @@ class booking_option {
         $templateoption->identifier = '';
         $templateoption->copytotemplate = true;
 
+        // Reset all optiondateid values to 0 so they are treated as new dates
+        // to be inserted rather than matched against (non-existent) sessions
+        // of the new template record.
+        foreach ($templateoption as $key => $value) {
+            if (strpos($key, MOD_BOOKING_FORM_OPTIONDATEID) !== false) {
+                $templateoption->{$key} = 0;
+            }
+        }
+
         return self::update($templateoption, context_module::instance($this->cmid));
     }
 
