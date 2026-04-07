@@ -1222,6 +1222,7 @@ $string['deletesemester'] = 'Delete semester';
 $string['deletesubcategory'] = 'Please, first delete all subcategories of this category!';
 $string['deletethisbookingoption'] = 'Delete this booking option';
 $string['deleteuserfrombooking'] = 'Do you really want to delete the users from the booking?';
+$string['delimiterbookingoptionsfromcondition'] = '<br>';
 $string['delnotification'] = 'You deleted {$a->del} of {$a->all} users. Users, that have completed activity, can\'t be deleted!';
 $string['delnotificationactivitycompletion'] = 'You deleted {$a->del} of {$a->all} users. Users, that have completed activity, can\'t be deleted!';
 $string['deny'] = 'Deny';
@@ -2905,6 +2906,7 @@ $string['teachersallowmailtobookedusers_desc'] = 'If you activate this setting, 
     to all booked users using their own mail client - the e-mail-addresses of all users will be visible.
     <span class="text-danger"><b>Be careful:</b> This might be a privacy issue. Only activate this,
     if you are sure it corresponds with your organization\'s privacy policy.</span>';
+$string['teachersbookingoptionsfromcondition'] = 'Teachers: ';
 $string['teachersettings'] = 'Teachers <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['teachersettings_desc'] = 'Teacher-specific settings.';
 $string['teachersforoption'] = 'Teachers';

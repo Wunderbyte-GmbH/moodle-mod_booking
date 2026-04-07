@@ -1192,6 +1192,7 @@ $string['deletesemester'] = 'Semester löschen';
 $string['deletesubcategory'] = 'Löschen Sie zuerst alle Unterkategorien dieser Kategorie!';
 $string['deletethisbookingoption'] = 'Diese Buchungsoption löschen';
 $string['deleteuserfrombooking'] = 'Buchung für Nutzer:innen wirklich stornieren?';
+$string['delimiterbookingoptionsfromcondition'] = '<br>';
 $string['deny'] = 'Verweigern';
 $string['denybooking'] = 'Verweigern';
 $string['denybookinglong'] = 'Wollen Sie diese Buchung wirklich verweigern?';
@@ -2779,6 +2780,7 @@ $string['teachersallowmailtobookedusers_desc'] = 'Wenn Sie diese Einstellung akt
 mit ihrem eigenen Mail-Programm an gebuchte Nutzer:innen senden - die E-Mail-Adressen der gebuchten Nutzer:innen werden dadurch sichtbar.
 <span class="text-danger"><b>Achtung:</b> Dies könnte ein Datenschutz-Problem darstellen. Aktivieren Sie dies nur,
 wenn es die Datenschutzbestimmungen Ihrer Organisation erlauben.</span>';
+$string['teachersbookingoptionsfromcondition'] = 'Referent:innen: ';
 $string['teachersettings'] = 'Trainer:innen <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['teachersettings_desc'] = 'Trainer:innen-spezifische Einstellungen.';
 $string['teachersforoption'] = 'Trainer:innen';
