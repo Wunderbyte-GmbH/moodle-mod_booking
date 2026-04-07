@@ -31,19 +31,15 @@ use mod_booking\output\semesters_holidays;
 require_once('../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
-global $OUTPUT;
+global $OUTPUT, $PAGE;
 
 // No guest autologin.
 require_login(0, false);
 
 $cmid = optional_param('id', 0, PARAM_INT);
-
-admin_externalpage_setup(
-    'modbookingsemesters',
-    '',
-    [],
-    new moodle_url('/mod/booking/semesters.php')
-);
+$PAGE->set_context(context_system::instance());
+$context = context_system::instance();
+require_capability('mod/booking:editsemesters', $context);
 
 $pageurl = new moodle_url('/mod/booking/semesters.php');
 $PAGE->set_url($pageurl);
