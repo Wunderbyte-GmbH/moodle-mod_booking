@@ -464,6 +464,7 @@ $string['booking:editbookingrules'] = "Regeln bearbeiten (Pro)";
 $string['booking:editoptionformconfig'] = 'Buchungsoptionsfelder bearbeiten';
 $string['booking:editperformance'] = 'Performance testen';
 $string['booking:editscheduledmails'] = 'Geplante Mails bearbeiten';
+$string['booking:editsemesters'] = 'Semester bearbeiten';
 $string['booking:editteacherdescription'] = 'Beschreibung der Lehrenden bearbeiten';
 $string['booking:executebulkoperations'] = "Darf Bulk-Operationen durchführen";
 $string['booking:expertoptionform'] = "Expert Buchungsoptions Formular";

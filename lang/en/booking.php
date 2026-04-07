@@ -476,6 +476,7 @@ $string['booking:editcertificateconditions'] = "Edit certificate conditions";
 $string['booking:editoptionformconfig'] = 'Edit option config form';
 $string['booking:editperformance'] = 'Test Performance';
 $string['booking:editscheduledmails'] = 'Edit scheduled mails';
+$string['booking:editsemesters'] = 'Edit semesters';
 $string['booking:editteacherdescription'] = 'Edit teacher description';
 $string['booking:executebulkoperations'] = "Can execute bulk operations";
 $string['booking:expertoptionform'] = "Expert option form";
