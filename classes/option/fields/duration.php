@@ -244,7 +244,14 @@ class duration extends field_base {
 
         // If it's from a template, we need to convert the seconds to number and unit.
         if (!empty($data->fromtemplate)) {
-            $durationinseconds = $settings->duration ?? 0;
+            $durationinseconds = (int) ($settings->duration ?? 0);
+            if ($durationinseconds == 0) {
+                $data->duration = [
+                    'number'   => 0,
+                    'timeunit' => MINSECS,
+                ];
+                return;
+            }
             // Instantiate a dummy duration element (required to call the method).
             $durationelement = new MoodleQuickForm_duration('duration', 'Duration');
             // Convert the seconds to number and unit using the dummy element.
