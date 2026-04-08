@@ -106,15 +106,6 @@ class get_submission_mobile extends external_api {
             ];
         }
 
-        // if (!confirm_sesskey($params['sessionkey'])) {
-        //     return [
-        //         'submitted' => 0,
-        //         'message' => 'Invalid session key for user ' . $userid . ' and option ' . $itemid,
-        //         'template' => '',
-        //         'json' => '',
-        //     ];
-        // }
-
         try {
             $cache = cache::make('mod_booking', 'customformuserdata');
             $cachekey = $userid . "_" . $itemid . '_customform';
