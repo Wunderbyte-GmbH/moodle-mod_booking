@@ -236,9 +236,11 @@ class duration extends field_base {
             $data->selflearningcourse = $data->selflearningcourse
                 ?? $settings->selflearningcourse ?? 0;
         } else {
-            $selflearningcourse = $settings->selflearningcourse;
+            $selflearningcourse = $settings->selflearningcourse ?? 0;
             if (!empty($selflearningcourse)) {
                 $data->selflearningcourse = $selflearningcourse;
+            } else {
+                $data->selflearningcourse = 0;
             }
         }
 
