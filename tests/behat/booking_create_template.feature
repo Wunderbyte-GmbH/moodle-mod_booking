@@ -93,12 +93,15 @@ Feature: In a booking create a template
   @javascript
   Scenario: Booking option template: create self-learning template and use it for new option
     Given the following config values are set as admin:
+      | timezone      | Europe/London |
+      | forcetimezone | Europe/London |
+    And the following config values are set as admin:
       | config                           | value | plugin  |
       | linktomoodlecourseonbookedbutton | 1     | booking |
       | selflearningcourseactive         | 1     | booking |
     And the following "mod_booking > options" exist:
       | booking    | text         | description  | useprice | course | chooseorcreatecourse | selflearningcourse | duration | coursestarttime | maxanswers | teachersforoption | responsiblecontact |
-      | My booking | SelfLearning | SelfLearning | 1        | C2     | 1                    | 1                  | 10       | ## +2 days ##   | 5          | teacher1, admin   | teacher2, teacher3 |
+      | My booking | SelfLearning | SelfLearning | 1        | C2     | 1                    | 1                  | 10       | 2529738000      | 5          | teacher1, admin   | teacher2, teacher3 |
     And the following "mod_booking > prices" exist:
       | itemname     | area   | pricecategoryidentifier | price | currency |
       | SelfLearning | option | default                 | 75    | EUR      |
@@ -108,10 +111,8 @@ Feature: In a booking create a template
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "More" "text" in the ".secondary-navigation .moremenu.navigation" "css_element"
     And I follow "Save booking option as template"
-    ## TODO: validate rediection when it will be fixed
-    And I am on the "My booking" Activity page
-    And I click on "More" "text" in the ".secondary-navigation .moremenu.navigation" "css_element"
-    And I follow "Manage booking option templates"
+    ## Validate rediection
+    And I should see "Booking option templates"
     And I should see "SelfLearning" in the "#optiontemplatessettings_r0" "css_element"
     ## Apply template to a new option
     And I am on the "My booking" Activity page
@@ -124,15 +125,30 @@ Feature: In a booking create a template
     And the field "duration[number]" matches value "10"
     And the field "duration[timeunit]" matches value "seconds"
     And I should not see "Enrol users at course start time"
+    ## Validate sorting date
     And I should see "Sorting date"
     And I should not see "Add date"
+    And the field "coursestarttime[day]" matches value "1"
+    And the field "coursestarttime[month]" matches value "March"
+    And the field "coursestarttime[year]" matches value "2050"
+    And the field "coursestarttime[hour]" matches value "09"
+    ##And the field "coursestarttime[minute]" matches value "00"
     ## Validate price options
     And the field "useprice" matches value "1"
-    ## TODO: validate custom price values when it will be fixed
+    ##And the field "Base Price" matches value "75.00"
+    ##And the field "Spec Price" matches value "80.00"
+    ##And I should see "75.00" in the "//input[@aria-label='Base Price']" "xpath_element"
+    ##And I should see "80.00" in the "//input[@aria-label='Spec Price']" "xpath_element"
     ## Validate responsible contacts and assigned teachers
     And I should see "teacher2@example.com" in the "//div[contains(@id, 'fitem_id_responsiblecontact_')]" "xpath_element"
     And I should see "teacher3@example.com" in the "//div[contains(@id, 'fitem_id_responsiblecontact_')]" "xpath_element"
-    ## TODO: validate teachers when it will be fixed
-    ##And I should see "admin@example.com" in the "//div[contains(@id, 'fitem_id_teachersforoption_')]" "xpath_element"
-    ##And I should see "teacher1@example.com" in the "//div[contains(@id, 'fitem_id_teachersforoption_')]" "xpath_element"
+    And I should see "moodle@example.com" in the "//div[contains(@id, 'fitem_id_teachersforoption_')]" "xpath_element"
+    And I should see "teacher1@example.com" in the "//div[contains(@id, 'fitem_id_teachersforoption_')]" "xpath_element"
+    ## Update option, save and validate base price
+    And I set the field "Booking option name" to "SelfLearning - by template"
+    And I press "Save"
+    And I wait "1" seconds
+    ## Verify template
+    Then I should see "SelfLearning - by template" in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "75.00 EUR" in the ".allbookingoptionstable_r2" "css_element"
     And I log out
