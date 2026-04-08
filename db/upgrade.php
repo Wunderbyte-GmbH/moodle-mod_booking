@@ -5252,7 +5252,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026032700, 'booking');
     }
 
-    if ($oldversion < 2026040200) {
+    if ($oldversion < 2026040800) {
         $table = new xmldb_table('booking_options');
 
         // Add field usercreated.
@@ -5267,7 +5267,7 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        upgrade_mod_savepoint(true, 2026040200, 'booking');
+        upgrade_mod_savepoint(true, 2026040800, 'booking');
     }
 
     return true;
