@@ -30,6 +30,14 @@ use mod_booking\local\mobile\customformstore;
 use stdClass;
 use tool_mocktesttime\time_mock;
 
+/**
+ * Tests for mobile booking with custom forms.
+ *
+ * @package mod_booking
+ * @category test
+ * @copyright 2025
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 final class mobile_customform_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
@@ -39,12 +47,12 @@ final class mobile_customform_test extends advanced_testcase {
         singleton_service::destroy_instance();
     }
 
-    public function tearDown(): void {
-        parent::tearDown();
-    }
-
     /**
      * Test mobile booking with custom form.
+     *
+     * @covers \mod_booking\local\mobile\customformstore::set_customform_data
+     * @covers \mod_booking\local\mobile\customformstore::validation
+     * @covers \mod_booking\bo_availability\conditions\customform::return_formelements
      */
     public function test_mobile_booking_with_custom_form(): void {
         global $DB;
@@ -58,7 +66,7 @@ final class mobile_customform_test extends advanced_testcase {
         ];
         $booking = $this->getDataGenerator()->create_module('booking', $bdata);
 
-        // Create booking option directly
+        // Create booking option directly.
         $option = new stdClass();
         $option->bookingid = $booking->id;
         $option->identifier = uniqid();
@@ -70,7 +78,7 @@ final class mobile_customform_test extends advanced_testcase {
 
         $optionid = $DB->insert_record('booking_options', $option);
 
-        // Create custom form with 4 fields
+        // Create custom form with 4 fields.
         $formsarray = new stdClass();
         for ($i = 1; $i <= 4; $i++) {
             $formsarray->{$i} = new stdClass();
@@ -124,6 +132,7 @@ final class mobile_customform_test extends advanced_testcase {
             echo "✓ Form validation passed\n";
             $this->assertTrue(true);
         } else {
+            // Print returned validation errors for easier debugging.
             echo "✗ Validation errors:\n";
             foreach ($errors as $field => $error) {
                 echo "  - $field: $error\n";
