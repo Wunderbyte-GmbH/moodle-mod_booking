@@ -25,6 +25,7 @@
 namespace mod_booking\option\fields;
 
 use mod_booking\booking_option_settings;
+use mod_booking\dates;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use mod_booking\utils\wb_payment;
@@ -32,6 +33,7 @@ use coding_exception;
 use dml_exception;
 use moodle_exception;
 use MoodleQuickForm;
+use MoodleQuickForm_duration;
 use stdClass;
 
 /**
@@ -267,14 +269,21 @@ class template extends field_base {
                 if ($mform->elementExists($k) && $v !== null) {
                     if ($mform->elementExists($k)) {
                         $element = $mform->getElement($k);
-                        // Date time selectors need timestamps converted to arrays.
-                        if ($element->getType() === 'date_time_selector' && is_numeric($v)) {
+
+                        // Some elements need special handling to convert the value from the template into the format they need.
+                        if ($element->getType() === 'date_time_selector' && is_number($v)) {
+                            // Date time selectors need timestamps converted to arrays.
+                            $v = dates::timestamp_to_array($v);
+                        } else if ($element->getType() === 'duration' && is_number($v)) {
+                            // Duration elements need seconds converted to number and unit.
+                            $durationinseconds = (int) $v;
+                            // Instantiate a dummy duration element (required to call the method).
+                            $durationelement = new MoodleQuickForm_duration('duration', 'Duration');
+                            // Convert the seconds to number and unit using the dummy element.
+                            [$number, $timeunit] = $durationelement->seconds_to_unit($durationinseconds);
                             $v = [
-                                "day"    => date("d", $v),
-                                "month"  => date("m", $v),
-                                "year"   => date("Y", $v),
-                                "hour"   => date("H", $v),
-                                "minute" => date("i", $v),
+                                'number' => $number,
+                                'timeunit' => $timeunit,
                             ];
                         }
                         $element->setValue($v);
