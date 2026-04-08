@@ -1436,7 +1436,7 @@ class shortcodes {
                     }
                     $texts[] = $settings->text
                     . "<br>" . get_string('teachersbookingoptionsfromcondition', 'mod_booking')
-                    . implode(",", $certificateteachers);
+                    . implode(", ", $certificateteachers);
                 } else {
                     $texts[] = $settings->text;
                 }
