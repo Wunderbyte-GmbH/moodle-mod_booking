@@ -1430,12 +1430,16 @@ class shortcodes {
             $hascompleted = $bookinganswer->is_activity_completed($userid);
             if ($hascompleted) {
                 $certificateteachers = [];
-                foreach ($settings->teachers as $teacher) {
-                    $certificateteachers[] = "$teacher->firstname $teacher->lastname";
+                if (!empty($settings->teachers)) {
+                    foreach ($settings->teachers as $teacher) {
+                        $certificateteachers[] = "$teacher->firstname $teacher->lastname";
+                    }
+                    $texts[] = $settings->text
+                    . "<br>" . get_string('teachersbookingoptionsfromcondition', 'mod_booking')
+                    . implode(",", $certificateteachers);
+                } else {
+                    $texts[] = $settings->text;
                 }
-                $texts[] = $settings->text
-                . "<br>" . get_string('teachersbookingoptionsfromcondition', 'mod_booking')
-                . implode(",", $certificateteachers);
             }
         }
         return implode(get_string('delimiterbookingoptionsfromcondition', 'mod_booking'), $texts);
