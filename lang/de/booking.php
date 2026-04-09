@@ -129,7 +129,7 @@ $string['applyunitfactor'] = 'Einheitenfaktor anwenden';
 $string['applyunitfactor_desc'] = 'Wenn diese Einstellung aktiviert ist, wird die Länge der oben gesetzten Unterrichtseinheiten (z.B. 45 min) zur Berechnung der Anzahl der Einheiten
  herangezogen und als Faktor für die Preisformel verwendet. Beispiel: Eine Buchungsoption hat die Terminserie "Mo, 15:00 - 16:30". Sie dauert also 2 UE von
  jeweils 45 min. Auf die Preisformel wird also der Einheitenfaktor von 2 angewendet. (Einheitenfaktor wird nur bei vorhandener Preisformel angewendet.)';
-$string['applyuserwhobookedcheckbox'] = 'Ja, ich buche das Training auch für mich selbst.';
+$string['applyuserwhobookedcheckbox'] = 'Ja, ich buche das Training auch für mich selbst (und verbrauche einen der angegebenen Plätze).';
 $string['approvalbytrainer'] = "Bestätigung durch Lehrende im Kurs";
 $string['approvalsettings'] = "Bestätigungsworkflows";
 $string['approvalsettings_desc'] = "Booking unterstützt verschiedene Bestätigungsprozesse, wenn Nutzer:innen sich ihre Buchungen bestätigen lassen müssen. Im Standardprozess können Trainer:innen die Anfragen über die Warteliste bestätigen. Andere Prozesse können über Bookingextension Subplugins nachgeladen werden.";
@@ -1314,8 +1314,17 @@ $string['enrollinktriggered'] = 'Einschreibe-Link Generierung ausgelöst';
 $string['enrollinktriggered:description'] = 'Das Event als Grundlage für die automatische Generierung eines Einschreibe-Links wurde ausgelöst.';
 $string['enrolmentstatus'] = 'Nutzer:innen erst zu Kursbeginn in den Kurs einschreiben (Standard: Nicht angehakt &rarr; sofort einschreiben.)';
 $string['enrolmentstatus_help'] = 'Achtung: Damit die automatische Einschreibung funktioniert,
- müssen Sie in den Einstellungen der Buchungsinstanz "Nutzer:innen automatisch einschreiben" auf "Ja" setzen.';
+müssen Sie in den Einstellungen der Buchungsinstanz "Nutzer:innen automatisch einschreiben" auf "Ja" setzen.';
 $string['enrolmultipleusers'] = 'Mehrere Nutzer:innen einschreiben';
+$string['enrolmultipleusersformmode'] = 'Verhalten des Formular-Elements "Mehrere Nutzer:innen einschreiben"';
+$string['enrolmultipleusersformmode:alsobookmyself'] = 'Person, die die Buchung für andere durchführt, nimmt ebenfalls teil (und verbraucht einen der angegebenen Plätze)';
+$string['enrolmultipleusersformmode:alsobookmyself:hint'] = 'Hinweis: Einer der angegebenen Plätze wird von Ihnen selbst verbraucht.';
+$string['enrolmultipleusersformmode:checkbox'] = 'Person, die die Buchung für andere durchführt, darf selbst wählen - Checkbox anzeigen (Standard)';
+$string['enrolmultipleusersformmode:donotbookmyself'] = 'Person, die die Buchung für andere durchführt, nimmt nicht selbst teil (buchende Person verbraucht keinen Platz)';
+$string['enrolmultipleusersformmode:donotbookmyself:hint'] = 'Sie nehmen nicht selbst an der Buchung teil, sondern buchen nur für andere Personen. Sie verbrauchen keinen der angegebenen Plätze.';
+$string['enrolmultipleusersformmode_desc'] = 'Setzen Sie das Standardverhalten des Formular-Elements "Mehrere Nutzer:innen einschreiben".
+Sie finden dieses Element im Bearbeitungsformular von Buchungsoptionen unter "Verfügbarkeit einschränken" &gt; "Formular muss vor der Buchung ausgefüllt werden"
+&gt; Element "Mehrere Nutzer:innen einschreiben"';
 $string['enrolusersaction:alert'] = '<div class="alert alert-info" role="alert">
 <i class="fa fa-info-circle" aria-hidden="true"></i>
 <span>
@@ -1324,7 +1333,7 @@ Diese Funktion bezieht sich auch auf den ausgewählten Kurs im Bereich Moodle Ku
 </span>
 </div>';
 $string['enroluserstowaitinglist'] = "Buchende NutzerInnen auf die Warteliste setzen und erst nach Bestätigung einschreiben?";
-$string['enroluserwhobookedtocourse'] = "Möchten Sie diese Option selbst auch absolvieren?";
+$string['enroluserwhobookedtocourse'] = "Nehmen Sie ebenfalls teil?";
 $string['enroluserwhobookedtocoursewarning'] = "Wenn Sie nur einen Platz kaufen und selbst eingeschrieben werden, wird kein Einschreibelink generiert.";
 $string['enternote'] = 'Geben Sie eine Notiz ein...';
 $string['enteruserprofilefield'] = "Wähle Nutzer:innen nach eingegebenem Wert für Profilfeld. Achtung! Das betrifft ALLE Nutzer:inne nauf der Plattform.";

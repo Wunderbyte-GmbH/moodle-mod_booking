@@ -293,34 +293,63 @@ class customform_form extends dynamic_form {
                         );
                         $mform->setDefault('customform_enrolusersaction_' . $counter, $formelementvalue->value);
                         $mform->setType('customform_enrolusersaction_' . $counter, PARAM_TEXT);
-                        $mform->addElement(
-                            'advcheckbox',
-                            'customform_enroluserwhobookedcheckbox_' . $formelementvalue->formtype . '_' . $counter,
-                            get_string('enroluserwhobookedtocourse', 'mod_booking'),
-                            get_string('applyuserwhobookedcheckbox', 'mod_booking')
-                        );
-                        $mform->setDefault(
-                            'customform_enroluserwhobookedcheckbox_' . $formelementvalue->formtype . '_' . $counter,
-                            1
-                        );
-                        $mform->addElement(
-                            'static',
-                            'infoenroluserwhobookedstatic',
-                            '',
-                            get_string('enroluserwhobookedtocoursewarning', 'mod_booking')
-                        );
-                        $mform->hideIf(
-                            'infoenroluserwhobookedstatic',
-                            $identifier,
-                            'neq',
-                            '1'
-                        );
-                        $mform->hideIf(
-                            'infoenroluserwhobookedstatic',
-                            'customform_enroluserwhobookedcheckbox_' . $formelementvalue->formtype . '_' . $counter,
-                            'neq',
-                            '1'
-                        );
+                        $enrolmode = (int) get_config('booking', 'enrolmultipleusersformmode');
+                        if ($enrolmode === MOD_BOOKING_ENROLMULTIPLEUSERS_CHECKBOX) {
+                            // Mode 0 (default): show checkbox so user can decide.
+                            $mform->addElement(
+                                'advcheckbox',
+                                'customform_enroluserwhobookedcheckbox_' . $formelementvalue->formtype . '_' . $counter,
+                                get_string('enroluserwhobookedtocourse', 'mod_booking'),
+                                get_string('applyuserwhobookedcheckbox', 'mod_booking')
+                            );
+                            $mform->setDefault(
+                                'customform_enroluserwhobookedcheckbox_' . $formelementvalue->formtype . '_' . $counter,
+                                1
+                            );
+                            $mform->addElement(
+                                'static',
+                                'infoenroluserwhobookedstatic',
+                                '',
+                                get_string('enroluserwhobookedtocoursewarning', 'mod_booking')
+                            );
+                            $mform->hideIf(
+                                'infoenroluserwhobookedstatic',
+                                $identifier,
+                                'neq',
+                                '1'
+                            );
+                            $mform->hideIf(
+                                'infoenroluserwhobookedstatic',
+                                'customform_enroluserwhobookedcheckbox_' . $formelementvalue->formtype . '_' . $counter,
+                                'neq',
+                                '1'
+                            );
+                        } else if ($enrolmode === MOD_BOOKING_ENROLMULTIPLEUSERS_ALSOBOOKMYSELF) {
+                            // Mode 1: always book the booker — no checkbox, just an info hint.
+                            $mform->addElement(
+                                'static',
+                                'infoenrolalsobookmyselfstatic',
+                                '',
+                                get_string('enrolmultipleusersformmode:alsobookmyself:hint', 'mod_booking')
+                            );
+                        } else if ($enrolmode === MOD_BOOKING_ENROLMULTIPLEUSERS_DONOTBOOKMYSELF) {
+                            // Mode 2: never book the booker — hidden field with value 0 + info hint.
+                            $mform->addElement(
+                                'hidden',
+                                'customform_enroluserwhobookedcheckbox_' . $formelementvalue->formtype . '_' . $counter,
+                                0
+                            );
+                            $mform->setType(
+                                'customform_enroluserwhobookedcheckbox_' . $formelementvalue->formtype . '_' . $counter,
+                                PARAM_INT
+                            );
+                            $mform->addElement(
+                                'static',
+                                'infoenroldonotbookmyselfstatic',
+                                '',
+                                get_string('enrolmultipleusersformmode:donotbookmyself:hint', 'mod_booking')
+                            );
+                        }
                 }
 
                 $counter++;

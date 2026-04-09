@@ -813,6 +813,21 @@ if ($ADMIN->fulltree) {
             )
         );
 
+        $enrolmultipleusersformmodeoptions = [
+            MOD_BOOKING_ENROLMULTIPLEUSERS_CHECKBOX => get_string('enrolmultipleusersformmode:checkbox', 'mod_booking'),
+            MOD_BOOKING_ENROLMULTIPLEUSERS_ALSOBOOKMYSELF => get_string('enrolmultipleusersformmode:alsobookmyself', 'mod_booking'),
+            MOD_BOOKING_ENROLMULTIPLEUSERS_DONOTBOOKMYSELF => get_string('enrolmultipleusersformmode:donotbookmyself', 'mod_booking'),
+        ];
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/enrolmultipleusersformmode',
+                get_string('enrolmultipleusersformmode', 'mod_booking'),
+                get_string('enrolmultipleusersformmode_desc', 'mod_booking'),
+                MOD_BOOKING_ENROLMULTIPLEUSERS_CHECKBOX,
+                $enrolmultipleusersformmodeoptions
+            )
+        );
+
         // PRO feature: "What's new" tab.
         $settings->add(
             new admin_setting_heading(
