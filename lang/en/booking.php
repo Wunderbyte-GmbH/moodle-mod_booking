@@ -134,7 +134,7 @@ $string['applyunitfactor_desc'] = 'If this setting is active, the educational un
  to calculate the number of educational units. This number will be used as factor for the price formula.
  Example: A booking option has a date series like "Mon, 15:00 - 16:30". So it lasts 2 educational units (45 min each).
  So a unit factor of 2 will be applied to the price formula. (Unit factor will only be applied if a price formula is present.)';
-$string['applyuserwhobookedcheckbox'] = 'Yes, I am booking the training also for myself.';
+$string['applyuserwhobookedcheckbox'] = 'Yes, I am booking the training also for myself (and consume one of the specified places).';
 $string['approvalbytrainer'] = "Approval by the teacher";
 $string['approvalsettings'] = "Approval workflows";
 $string['approvalsettings_desc'] = "Booking supports various confirmation processes when users need to have to have their bookings confirmed. In the standard process, trainers can confirm the requests from the waiting list. Other processes can be added via Bookingextension subplugins.";
@@ -1352,6 +1352,15 @@ $string['enrolmentstatus'] = 'Enrol users at course start time (Default: Not che
 $string['enrolmentstatus_help'] = 'Notice: In order for automatic enrolment to work, you need to change the booking instance setting
  "Automatically enrol users" to "Yes".';
 $string['enrolmultipleusers'] = 'Enrol multiple users';
+$string['enrolmultipleusersformmode'] = 'Behavior of the form element "Enrol multiple users"';
+$string['enrolmultipleusersformmode:alsobookmyself'] = 'The person booking for others also participates (and consumes one of the specified places)';
+$string['enrolmultipleusersformmode:alsobookmyself:hint'] = 'Note: One of the specified places will be consumed by yourself.';
+$string['enrolmultipleusersformmode:checkbox'] = 'The person booking for others can choose themselves - show checkbox (default)';
+$string['enrolmultipleusersformmode:donotbookmyself'] = 'The person booking for others does not participate themselves (the booking person does not consume a place)';
+$string['enrolmultipleusersformmode:donotbookmyself:hint'] = 'You are not participating in the booking yourself, but are only booking for other persons. You do not consume any of the specified places.';
+$string['enrolmultipleusersformmode_desc'] = 'Set the default behavior of the form element "Enrol multiple users".
+You\'ll find this element in the editing form of booking options under "Availability conditions" &gt; "Form needs to be filled out before booking"
+&gt; Element "Enrol multiple users".';
 $string['enrolusersaction:alert'] = '<div class="alert alert-info" role="alert">
 <i class="fa fa-info-circle" aria-hidden="true"></i>
 <span>
@@ -1360,7 +1369,7 @@ This function also refers to the selected course in the Moodle Courses area.
 </span>
 </div>';
 $string['enroluserstowaitinglist'] = "Put booking users on waitinglist and enrol only after confirmation?";
-$string['enroluserwhobookedtocourse'] = "Do you also want to book the option for yourself?";
+$string['enroluserwhobookedtocourse'] = "Do you also participate?";
 $string['enroluserwhobookedtocoursewarning'] = "If you purchase only one seat and choose to be enrolled yourself, there will be no enrollment link created.";
 $string['enternote'] = 'Enter a note...';
 $string['enteruserprofilefield'] = "Select users by entering a value for custom user profile field. Attention! This targets all the users on the plattform.";

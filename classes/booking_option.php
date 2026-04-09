@@ -287,7 +287,7 @@ class booking_option {
     }
 
     /**
-     * This calculates number of user that can be booked to the connected booking option
+     * This calculates number of users that can be booked to the connected booking option
      * Looks for max participant in the connected booking given the optionid
      *
      * @param int $optionid
