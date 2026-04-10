@@ -84,6 +84,99 @@ $string['aftercompletedtext'] = 'Nach Aktivitätsabschluss';
 $string['aftercompletedtext_help'] = 'Text, der nach dem Abschluss angezeigt wird';
 $string['aftersubmitaction'] = 'Nach dem Speichern...';
 $string['age'] = 'Alter';
+$string['agent_booking_blocker_followup_bookingpolicy'] =
+    'Bitte bestaetigen Sie, wie die Zustimmung zur Buchungsrichtlinie uebermittelt werden soll.';
+$string['agent_booking_blocker_followup_customform'] =
+    'Bitte geben Sie die erforderlichen Werte fuer das benutzerdefinierte Formular an, die uebermittelt werden sollen.';
+$string['agent_booking_blocker_followup_customform_bookingpolicy'] =
+    'Bitte geben Sie die Werte fuer das benutzerdefinierte Formular an und bestaetigen Sie, wie die Zustimmung zur Buchungsrichtlinie uebermittelt werden soll.';
+$string['agent_booking_blocker_followup_generic'] =
+    'Bitte geben Sie die erforderlichen Informationen an, um die blockierende(n) Bedingung(en) zu erfuellen.';
+$string['agent_booking_create_option_exists_multiple'] =
+    'Eine oder mehrere Buchungsoptionen mit exakt diesem Titel existieren bereits: {$a}. Moechten Sie stattdessen eine davon aktualisieren?';
+$string['agent_booking_create_option_exists_single'] =
+    'Eine Buchungsoption mit exakt diesem Titel existiert bereits (id={$a}). Moechten Sie diese Option statt einer Neuanlage aktualisieren?';
+$string['agent_booking_resolve_user_ambiguous'] =
+    'Mehrere Nutzer:innen wurden gefunden: {$a}. Bitte geben Sie eine spezifischere Nutzerabfrage an (z. B. mit E-Mail oder Nutzer-ID).';
+$string['agent_booking_resolve_user_no_match'] =
+    'Keine Nutzerin/kein Nutzer passt zur Nutzerabfrage "{$a}".';
+$string['agent_booking_resolve_user_query_required'] =
+    'Bitte geben Sie eine Nutzerabfrage zur Identifikation der Person an.';
+$string['agent_booking_update_permission_check_failed'] =
+    'Die Berechtigung fuer dieses Update konnte im aktuellen Buchungskontext nicht geprueft werden.';
+$string['agent_booking_update_permission_denied_generic'] =
+    'Sie duerfen ein oder mehrere angeforderte Felder nicht bearbeiten.';
+$string['agent_booking_update_permission_denied_groups'] =
+    'Sie duerfen diese Feldgruppen in diesem Buchungskontext nicht bearbeiten: {$a}.';
+$string['ai_preview_latest_option'] =
+    'Hier ist die zuletzt erstellte oder aktualisierte Buchungsoption.';
+$string['ai_preview_no_commands'] = 'Keine Befehlsvorschau verfuegbar.';
+$string['ai_preview_no_matching_option'] =
+    'Keine bestehende Option fuer die Zeilenvorschau gefunden. Bitte bestaetigen Sie zuerst die Zieloption.';
+$string['ai_preview_not_supported_task'] =
+    'Eine Zeilenvorschau ist nur fuer Befehle zum Erstellen/Aktualisieren von Optionen verfuegbar.';
+$string['aiinitialprompt'] = 'Initialer AI-System-Prompt';
+$string['aiinitialprompt_desc'] = 'Bearbeitbarer Basis-Prompt fuer den Booking-AI-Assistenten. Unterstuetzte Platzhalter: {{bookingname}}, {{timezonename}}, {{nowiso}}, {{tasklist}}, {{schemajson}}.';
+$string['ai_action_add_price_category'] = 'Preiskategorie anlegen';
+$string['ai_action_create_option'] = 'Buchungsoption erstellen';
+$string['ai_action_list_actions'] = 'Unterstuetzte Aktionen auflisten';
+$string['ai_action_list_option_properties'] = 'Bearbeitbare Eigenschaften von Buchungsoptionen auflisten';
+$string['ai_action_search_courses'] = 'Kurse suchen';
+$string['ai_action_search_options'] = 'Buchungsoptionen suchen';
+$string['ai_action_search_users'] = 'Nutzer:innen suchen';
+$string['ai_action_update_option'] = 'Buchungsoption aktualisieren';
+$string['ai_property_bookuserscompleted'] = 'Nutzer:innen buchen: als abgeschlossen markieren';
+$string['ai_property_bookuserstimebooked'] = 'Nutzer:innen buchen: Buchungszeit';
+$string['ai_property_bookusersupdateexisting'] = 'Nutzer:innen buchen: bestehende Buchungen aktualisieren';
+$string['ai_property_customform'] = 'Bedingung benutzerdefiniertes Formular';
+$string['ai_property_customformdeleteinfoscheckboxadmin'] = 'Benutzerdefiniertes Formular: Admin-Loeschinfo-Checkbox';
+$string['ai_property_customformelements'] = 'Elemente des benutzerdefinierten Formulars';
+$string['ai_property_customformjson'] = 'Konfiguration des benutzerdefinierten Formulars';
+$string['ai_property_optionid'] = 'ID der Ziel-Buchungsoption';
+$string['ai_property_optionquery'] = 'Ziel-Buchungsoption';
+$string['ai_property_optionwhen'] = 'Zeitlicher Hinweis zur Ziel-Buchungsoption';
+$string['ai_property_selectusers'] = 'Bedingung ausgewaehlte Nutzer:innen';
+$string['ai_property_selflearningcourse'] = 'Selbstlernkurs';
+$string['ai_property_teacheremail'] = 'E-Mail der Lehrperson';
+$string['ai_property_teacherquery'] = 'Lehrperson';
+$string['ai_property_suffix_capabilitynotneeded'] = 'Berechtigung nicht erforderlich';
+$string['ai_property_suffix_connectsecondfield'] = 'Zweites Feld verbinden';
+$string['ai_property_suffix_deleteinfoscheckboxadmin'] = 'Admin-Loeschinfo-Checkbox';
+$string['ai_property_suffix_elements'] = 'Elemente';
+$string['ai_property_suffix_enabled'] = 'Aktiviert';
+$string['ai_property_suffix_field'] = 'Feld';
+$string['ai_property_suffix_field2'] = 'Zweites Feld';
+$string['ai_property_suffix_json'] = 'Konfiguration';
+$string['ai_property_suffix_mode'] = 'Modus';
+$string['ai_property_suffix_operator'] = 'Operator';
+$string['ai_property_suffix_operator2'] = 'Zweiter Operator';
+$string['ai_property_suffix_override'] = 'Ueberschreibung';
+$string['ai_property_suffix_overrideconditionids'] = 'IDs fuer Ueberschreibungsbedingungen';
+$string['ai_property_suffix_overrideoperator'] = 'Ueberschreibungsoperator';
+$string['ai_property_suffix_query'] = 'Abfrage';
+$string['ai_property_suffix_requirecompletion'] = 'Abschluss erforderlich';
+$string['ai_property_suffix_sqlfilter'] = 'SQL-Filter';
+$string['ai_property_suffix_value'] = 'Wert';
+$string['ai_property_suffix_value2'] = 'Zweiter Wert';
+$string['ai_property_userprofilecustom'] = 'Bedingung benutzerdefiniertes Profilfeld';
+$string['ai_property_userprofilestandard'] = 'Bedingung Standard-Profilfeld';
+$string['ai_status_confirm_booking_search_options'] = 'Ich werde die Buchungsoptionen auflisten.';
+$string['ai_status_confirm_booking_update_option'] = 'Ich werde die Buchungsoption aktualisieren.';
+$string['ai_status_confirm_booking_bulk_update_options'] = 'Ich werde mehrere Buchungsoptionen auf einmal aktualisieren. Soll ich fortfahren?';
+$string['ai_status_confirm_booking_create_option'] = 'Ich werde eine neue Buchungsoption erstellen.';
+$string['ai_status_confirm_default'] = 'Soll ich die vorgeschlagene Aktion ausfuehren?';
+$string['ai_status_taskcall_booking_search_options'] = 'Lade Liste der Buchungsoptionen.';
+$string['ai_status_taskcall_entities_list_all'] = 'Lade Liste aller Entities.';
+$string['ai_status_taskcall_entities_search'] = 'Suche passende Entities.';
+$string['ai_status_taskcall_entities_create'] = 'Lege neue Entity an.';
+$string['ai_status_taskcall_shopping_cart_items'] = 'Lade Warenkorbpositionen.';
+$string['ai_status_taskcall_shopping_cart_totals'] = 'Lade Warenkorbsummen.';
+$string['ai_status_taskcall_booking_search_users'] = 'Suche passende Nutzer:innen.';
+$string['ai_status_taskcall_booking_search_courses'] = 'Suche passende Kurse.';
+$string['ai_status_taskcall_booking_update_option'] = 'Aktualisiere die Buchungsoption.';
+$string['ai_status_taskcall_booking_bulk_update_options'] = 'Aktualisiere mehrere Buchungsoptionen.';
+$string['ai_status_taskcall_booking_create_option'] = 'Erstelle die Buchungsoption.';
+$string['ai_status_taskcall_default'] = 'Fuehre die Aktion aus.';
 $string['alertrecalculate'] = '<b>Vorsicht!</b> Alle Preise der Instanz werden mit der eingetragenen Formel neu berechnet und alle alten Preise werden überschrieben.';
 $string['allbookingoptions'] = 'Nutzer:innen für alle Buchungsoptionen herunterladen';
 $string['allchangessaved'] = 'Alle Änderungen wurden gespeichert.';

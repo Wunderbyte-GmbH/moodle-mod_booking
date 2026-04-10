@@ -36,6 +36,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 require_once($CFG->dirroot . '/user/profile/lib.php');
 
 use mod_booking\booking;
+use mod_booking\local\wbagent\orchestrator;
 use mod_booking\plugininfo\bookingextension_interface;
 use mod_booking\local\checkanswers\checkanswers;
 use mod_booking\price;
@@ -252,6 +253,42 @@ if ($ADMIN->fulltree) {
             ''
         )
     );
+
+    // PRO feature: AI settings.
+    if ($proversion) {
+        $settings->add(
+            new admin_setting_heading(
+                'aisettings',
+                get_string('aisettings', 'mod_booking'),
+                get_string('aisettings_desc', 'mod_booking')
+            )
+        );
+
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/aiexecutionmode',
+                get_string('aiexecutionmode', 'mod_booking'),
+                get_string('aiexecutionmode_desc', 'mod_booking'),
+                'direct',
+                [
+                    'direct' => get_string('aiexecutionmode_direct', 'mod_booking'),
+                    'adhoc' => get_string('aiexecutionmode_adhoc', 'mod_booking'),
+                ]
+            )
+        );
+
+        $settings->add(
+            new admin_setting_configtextarea(
+                'booking/aiinitialprompt',
+                get_string('aiinitialprompt', 'mod_booking'),
+                get_string('aiinitialprompt_desc', 'mod_booking'),
+                orchestrator::get_default_initial_prompt_template(),
+                PARAM_RAW,
+                22,
+                120
+            )
+        );
+    }
 
     // PRO feature: Appearance settings.
     if ($proversion) {

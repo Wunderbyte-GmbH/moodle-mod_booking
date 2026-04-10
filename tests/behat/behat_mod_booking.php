@@ -237,4 +237,156 @@ class behat_mod_booking extends behat_base {
         ];
         $pg->create_instance($page);
     }
+
+    // -------------------------------------------------------------------------
+    // AI instructions chat steps
+    // -------------------------------------------------------------------------
+
+    /**
+     * Navigate to the AI instructions chat page for a named booking instance.
+     *
+     * @Given /^I am on the AI instructions page for booking "(?P<bookingname_string>[^"]*)"$/
+     * @param string $bookingname
+     * @return void
+     */
+    public function i_am_on_the_ai_instructions_page_for_booking(string $bookingname): void {
+        $cm = $this->get_cm_by_booking_name($bookingname);
+        $url = new \moodle_url('/mod/booking/aiinstructions.php', ['id' => $cm->id]);
+        $this->getSession()->visit($this->locate_path($url->out_as_local_url(false)));
+    }
+
+    /**
+     * Log in as a given user and navigate to the AI instructions chat page.
+     *
+     * @Given /^I am on the AI instructions page for booking "(?P<bookingname_string>[^"]*)" logged in as (?P<username_string>\w+)$/
+     * @param string $bookingname
+     * @param string $username
+     * @return void
+     */
+    public function i_am_on_the_ai_instructions_page_for_booking_logged_in_as(
+        string $bookingname,
+        string $username
+    ): void {
+        $this->execute('behat_auth::i_log_in_as', [$username]);
+        $this->i_am_on_the_ai_instructions_page_for_booking($bookingname);
+    }
+
+    /**
+     * Log in as user, visit the AI instructions page, verify access is denied, then navigate away.
+     * Navigating away is required so that the ChainedStepTester's automatic
+     * "I look for exceptions" check runs on a clean page instead of the error page.
+     *
+     * @Given /^I visit the AI instructions page for booking "(?P<bookingname_string>[^"]*)" as "(?P<username_string>[^"]*)" and expect access denied$/
+     * @param string $bookingname
+     * @param string $username
+     * @return void
+     */
+    public function i_visit_ai_instructions_and_expect_access_denied(
+        string $bookingname,
+        string $username
+    ): void {
+        $this->execute('behat_auth::i_log_in_as', [$username]);
+        $cm  = $this->get_cm_by_booking_name($bookingname);
+        $url = new \moodle_url('/mod/booking/aiinstructions.php', ['id' => $cm->id]);
+        $this->getSession()->visit($this->locate_path($url->out_as_local_url(false)));
+
+        // Verify the page shows a Moodle fatal-error (permission denied).
+        $errordiv = $this->getSession()->getPage()->find('xpath', "//div[@data-rel='fatalerror']");
+        if (!$errordiv) {
+            throw new \Behat\Mink\Exception\ExpectationException(
+                'Expected a Moodle permission-denied error page but none was found.',
+                $this->getSession()
+            );
+        }
+
+        // Navigate away so that the ChainedStepTester automatic "I look for exceptions"
+        // step runs on the homepage rather than on the error page.
+        $homeurl = new \moodle_url('/');
+        $this->getSession()->visit($this->locate_path($homeurl->out_as_local_url(false)));
+    }
+
+    /**
+     * Type a message into the AI chat input and click send.
+     *
+     * @When /^I send the AI message "(?P<message_string>[^"]*)"$/
+     * @param string $message
+     * @return void
+     */
+    public function i_send_the_ai_message(string $message): void {
+        $page   = $this->getSession()->getPage();
+        $input  = $page->find('css', '#booking-ai-input');
+        if (!$input) {
+            throw new \Behat\Mink\Exception\ElementNotFoundException(
+                $this->getSession(),
+                'element',
+                'css',
+                '#booking-ai-input'
+            );
+        }
+        $input->setValue($message);
+
+        $sendbtn = $page->find('css', '#booking-ai-send');
+        if (!$sendbtn) {
+            throw new \Behat\Mink\Exception\ElementNotFoundException(
+                $this->getSession(),
+                'element',
+                'css',
+                '#booking-ai-send'
+            );
+        }
+        $sendbtn->click();
+    }
+
+    /**
+     * Click the "Confirm" button in the AI command confirmation panel.
+     *
+     * @When /^I confirm the AI action$/
+     * @return void
+     */
+    public function i_confirm_the_ai_action(): void {
+        $btn = $this->getSession()->getPage()->find('css', '#booking-ai-btn-confirm');
+        if (!$btn) {
+            throw new \Behat\Mink\Exception\ElementNotFoundException(
+                $this->getSession(),
+                'element',
+                'css',
+                '#booking-ai-btn-confirm'
+            );
+        }
+        $btn->click();
+    }
+
+    /**
+     * Click the "Cancel" button in the AI command confirmation panel.
+     *
+     * @When /^I cancel the AI action$/
+     * @return void
+     */
+    public function i_cancel_the_ai_action(): void {
+        $btn = $this->getSession()->getPage()->find('css', '#booking-ai-btn-cancel');
+        if (!$btn) {
+            throw new \Behat\Mink\Exception\ElementNotFoundException(
+                $this->getSession(),
+                'element',
+                'css',
+                '#booking-ai-btn-cancel'
+            );
+        }
+        $btn->click();
+    }
+
+    /**
+     * Wait until at least one assistant message appears in the AI chat thread.
+     *
+     * Times out after 15 seconds.
+     *
+     * @Then /^I wait for the AI response$/
+     * @return void
+     */
+    public function i_wait_for_the_ai_response(): void {
+        $this->spin(function () {
+            $el = $this->getSession()->getPage()->find('css', '.booking-ai-msg.assistant');
+            return $el !== null;
+        }, false, 15);
+    }
 }

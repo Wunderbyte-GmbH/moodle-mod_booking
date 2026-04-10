@@ -219,6 +219,47 @@ class provider implements
             'privacy:metadata:bookingoptiondatesanswers'
         );
 
+        $collection->add_database_table(
+            'booking_ai_threads',
+            [
+                'userid'       => 'privacy:metadata:bookingaithreads:userid',
+                'cmid'         => 'privacy:metadata:bookingaithreads:cmid',
+                'bookingid'    => 'privacy:metadata:bookingaithreads:bookingid',
+                'status'       => 'privacy:metadata:bookingaithreads:status',
+                'metadatajson' => 'privacy:metadata:bookingaithreads:metadatajson',
+                'timecreated'  => 'privacy:metadata:bookingaithreads:timecreated',
+                'timemodified' => 'privacy:metadata:bookingaithreads:timemodified',
+            ],
+            'privacy:metadata:bookingaithreads'
+        );
+
+        $collection->add_database_table(
+            'booking_ai_messages',
+            [
+                'threadid'       => 'privacy:metadata:bookingaimessages:threadid',
+                'role'           => 'privacy:metadata:bookingaimessages:role',
+                'content'        => 'privacy:metadata:bookingaimessages:content',
+                'structuredjson' => 'privacy:metadata:bookingaimessages:structuredjson',
+                'timecreated'    => 'privacy:metadata:bookingaimessages:timecreated',
+            ],
+            'privacy:metadata:bookingaimessages'
+        );
+
+        $collection->add_database_table(
+            'booking_ai_runs',
+            [
+                'threadid'       => 'privacy:metadata:bookingairuns:threadid',
+                'userid'         => 'privacy:metadata:bookingairuns:userid',
+                'cmid'           => 'privacy:metadata:bookingairuns:cmid',
+                'status'         => 'privacy:metadata:bookingairuns:status',
+                'commandsjson'   => 'privacy:metadata:bookingairuns:commandsjson',
+                'resultsjson'    => 'privacy:metadata:bookingairuns:resultsjson',
+                'timecreated'    => 'privacy:metadata:bookingairuns:timecreated',
+                'timemodified'   => 'privacy:metadata:bookingairuns:timemodified',
+            ],
+            'privacy:metadata:bookingairuns'
+        );
+
         return $collection;
     }
 

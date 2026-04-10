@@ -494,6 +494,13 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
+    'mod/booking:useaiinstructions' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+ 		],
+    ],
     'mod/booking:editsemesters' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,

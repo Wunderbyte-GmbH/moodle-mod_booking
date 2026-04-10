@@ -1,0 +1,78 @@
+{{!
+    AI Instructions chat interface template.
+    @package    mod_booking
+    @copyright  2025 Wunderbyte GmbH <info@wunderbyte.at>
+    @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+}}
+<div id="booking-ai-wrapper" class="booking-ai-instructions" data-cmid="{{cmid}}" data-threadid="{{threadid}}" data-sesskey="{{sesskey}}">
+
+    {{#provider_available}}
+    <div class="booking-ai-chat-container card">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <h5 class="mb-0">{{#str}}aiinstructions, mod_booking{{/str}}</h5>
+            <span class="badge badge-success">{{#str}}ai_provider_active, mod_booking{{/str}}</span>
+        </div>
+
+        <div class="card-body p-0">
+            {{! Message history }}
+            <div id="booking-ai-messages" class="booking-ai-messages p-3" style="min-height:300px; max-height:500px; overflow-y:auto;">
+            </div>
+
+            {{! Confirmation panel – shown when AI proposes commands }}
+            <div id="booking-ai-confirm-panel" class="booking-ai-confirm-panel alert alert-info m-3 d-none">
+                <h6>{{#str}}ai_confirm_heading, mod_booking{{/str}}</h6>
+                <div id="booking-ai-confirm-preview" class="mb-2"></div>
+                <div id="booking-ai-option-preview-wrap" class="mb-3 d-none">
+                    <div id="booking-ai-option-preview"></div>
+                </div>
+                <button id="booking-ai-btn-confirm" class="btn btn-primary mr-2">
+                    {{#str}}ai_btn_confirm, mod_booking{{/str}}
+                </button>
+                <button id="booking-ai-btn-cancel" class="btn btn-secondary">
+                    {{#str}}ai_btn_cancel, mod_booking{{/str}}
+                </button>
+            </div>
+
+            {{! Run status panel }}
+            <div id="booking-ai-run-status" class="booking-ai-run-status alert m-3 d-none"></div>
+            <div id="booking-ai-run-preview-wrap" class="m-3 d-none">
+                <div id="booking-ai-run-preview"></div>
+            </div>
+        </div>
+
+        <div class="card-footer">
+            <div class="input-group">
+                <textarea id="booking-ai-input"
+                          class="form-control booking-ai-input"
+                          rows="2"
+                          placeholder="{{#str}}ai_input_placeholder, mod_booking{{/str}}"
+                          ></textarea>
+                <div class="input-group-append">
+                    <button id="booking-ai-send" class="btn btn-primary">
+                        {{#str}}ai_btn_send, mod_booking{{/str}}
+                    </button>
+                </div>
+            </div>
+            <div id="booking-ai-thinking" class="text-muted small mt-1 d-none">
+                {{#str}}ai_thinking, mod_booking{{/str}}
+            </div>
+        </div>
+    </div>
+    {{/provider_available}}
+
+    {{^provider_available}}
+    <div class="alert alert-warning">
+        <strong>{{#str}}ai_provider_not_configured, mod_booking{{/str}}</strong>
+        <p>{{#str}}ai_provider_not_configured_desc, mod_booking{{/str}}</p>
+    </div>
+    {{/provider_available}}
+
+</div>
+
+<style>
+.booking-ai-messages .booking-ai-msg { margin-bottom: 0.75rem; }
+.booking-ai-messages .booking-ai-msg.user  .bubble { background:#d1ecf1; border-radius:10px; padding:0.5rem 1rem; display:inline-block; max-width:80%; }
+.booking-ai-messages .booking-ai-msg.assistant .bubble { background:#f8f9fa; border:1px solid #dee2e6; border-radius:10px; padding:0.5rem 1rem; display:inline-block; max-width:80%; }
+.booking-ai-messages .booking-ai-msg.user  { text-align:right; }
+.booking-ai-messages .booking-ai-msg.assistant { text-align:left; }
+</style>

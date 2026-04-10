@@ -334,6 +334,19 @@ class fields_info {
     }
 
     /**
+     * Return field class ids currently available for the user/context.
+     *
+     * @param int $contextid
+     * @param int $save
+     * @return array<int,int>
+     */
+    public static function get_available_field_class_ids(int $contextid, int $save = -1): array {
+        $classes = self::get_field_classes($contextid, $save);
+        $ids = array_keys($classes);
+        return array_values(array_map('intval', $ids));
+    }
+
+    /**
      * Get all classes function.
      * This already filters classes for the given users and settings.
      * Save param allows to filter for all (default) or special save logic.
