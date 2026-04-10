@@ -80,13 +80,11 @@ class ai_send_message extends external_api {
     public static function execute(int $cmid, string $message): array {
         global $USER;
 
+        require_sesskey();
+
         $params = self::validate_parameters(self::execute_parameters(), ['cmid' => $cmid, 'message' => $message]);
         $cmid    = $params['cmid'];
         $message = trim($params['message']);
-
-        require_sesskey();
-
-        $authz = new authorization_service();
         $authz->require_valid_context($cmid);
         $authz->require_use_capability($USER->id, $cmid);
 

@@ -72,6 +72,8 @@ class ai_confirm_run extends external_api {
     public static function execute(int $cmid, int $threadid, string $commands): array {
         global $USER;
 
+        require_sesskey();
+
         $params = self::validate_parameters(self::execute_parameters(), [
             'cmid'     => $cmid,
             'threadid' => $threadid,
