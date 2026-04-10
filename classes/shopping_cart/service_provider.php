@@ -91,7 +91,8 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                 $serviceperiodstart = time();
                 $serviceperiodend = time() + $settings->duration;
             } else if (
-            // If cancellation is dependent on semester start, we also use semester start and end dates for the service period.
+                // If cancellation is dependent on semester start...
+                // We also use semester start and end dates for the service period.
                 get_config('booking', 'canceldependenton') == "semesterstart"
                 && !empty($settings->semesterid)
             ) {
