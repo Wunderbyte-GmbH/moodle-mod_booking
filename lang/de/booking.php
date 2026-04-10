@@ -45,6 +45,8 @@ Zum Kurs: {$a->courselink}
 Alle Buchungsoptionen ansehen: {$a->bookinglink}';
 $string['activitycompletiontextsubject'] = 'Buchungsoption abgeschlossen';
 $string['addastemplate'] = 'Als Vorlage hinzufügen';
+$string['addastemplatename'] = 'Name der Vorlage (nur notwendig, wenn anders als Titel der Buchungsoption)';
+$string['addastemplatename_help'] = 'Geben Sie einen Namen für diese Vorlage ein. Wenn angegeben, wird dieser Name als Anzeigename für die Vorlage verwendet anstelle des Buchungsoptionsnamens.';
 $string['addbookingcampaign'] = 'Kampagne hinzufügen';
 $string['addbookingrule'] = 'Regel hinzufügen';
 $string['addcategory'] = 'Kategorien bearbeiten';
@@ -442,8 +444,10 @@ $string['bookedtextsubjectbookingmanager'] = 'Neue Buchung für {$a->title} von 
 $string['bookedusers'] = 'Gebuchte Nutzer:innen';
 $string['bookelectivesbtn'] = 'Ausgewählte Wahlfächer buchen';
 $string['booking'] = 'Buchung';
-$string['booking:addeditownoption'] = 'Neue Buchungsoptionen anlegen und eigene bearbeiten.';
-$string['booking:addinstance'] = 'Neue Buchungsinstanz anlegen';
+$string['booking:addeditownoption'] = 'Eigene Buchungsoptionen bearbeiten (eigene Buchungsoptionen sind solche,
+die man entweder selbst angelegt hat oder bei denen man als Trainer:in zugewiesen ist)';
+$string['booking:addinstance'] = 'Neue Buchungsinstanzen anlegen';
+$string['booking:addoption'] = 'Neue Buchungsoptionen anlegen';
 $string['booking:alwayscanapprove'] = 'Kann Buchungsantworten immer bestätigen/ablehnen';
 $string['booking:assigndeputies'] = 'Stellvertretung erstellen';
 $string['booking:bookanyone'] = 'Darf alle Nutzer:innen buchen';
@@ -464,6 +468,7 @@ $string['booking:editbookingrules'] = "Regeln bearbeiten (Pro)";
 $string['booking:editoptionformconfig'] = 'Buchungsoptionsfelder bearbeiten';
 $string['booking:editperformance'] = 'Performance testen';
 $string['booking:editscheduledmails'] = 'Geplante Mails bearbeiten';
+$string['booking:editsemesters'] = 'Semester bearbeiten';
 $string['booking:editteacherdescription'] = 'Beschreibung der Lehrenden bearbeiten';
 $string['booking:executebulkoperations'] = "Darf Bulk-Operationen durchführen";
 $string['booking:expertoptionform'] = "Expert Buchungsoptions Formular";
@@ -1011,6 +1016,7 @@ $string['coursestart'] = 'Starten';
 $string['coursestarttime'] = 'Kursbeginn';
 $string['createcompetencylink'] = '<a href="{$a}" class="btn btn-outline-secondary" target="_blank" rel="noopener noreferrer">
 Neue Kompetenz erstellen (in Kompetenzrahmen) </a>';
+$string['created'] = 'Erstellt';
 $string['createdbywunderbyte'] = 'Dieses Buchungsmodul wurde von der Wunderbyte GmbH entwickelt';
 $string['createical'] = 'Termin(e) erstellen';
 $string['createnewbookingoption'] = 'Neue Buchungsoption';
@@ -1191,6 +1197,7 @@ $string['deletesemester'] = 'Semester löschen';
 $string['deletesubcategory'] = 'Löschen Sie zuerst alle Unterkategorien dieser Kategorie!';
 $string['deletethisbookingoption'] = 'Diese Buchungsoption löschen';
 $string['deleteuserfrombooking'] = 'Buchung für Nutzer:innen wirklich stornieren?';
+$string['delimiterbookingoptionsfromcondition'] = '<br>';
 $string['deny'] = 'Verweigern';
 $string['denybooking'] = 'Verweigern';
 $string['denybookinglong'] = 'Wollen Sie diese Buchung wirklich verweigern?';
@@ -1380,6 +1387,7 @@ $string['error:selflearningcourseallowsnodates'] = 'Buchungsoptionen vom Typ "{$
 $string['error:semestermissingbutcanceldependentonsemester'] = 'Die Einstellung zur Berechnung der
 Stornierungsfrist ab Semesterbeginn ist aktiv, aber das Semester fehlt!';
 $string['error:taskalreadystarted'] = 'Sie haben bereits einen Task gestartet!';
+$string['error:templatenamereq'] = 'Sie müssen entweder einen Buchungsoptionsnamen oder einen Vorlagennamen angeben.';
 $string['error:tousepriceinstallshoppingcart'] = 'Sie müssen das Warenkorb-Plugin (local_shopping_cart) installieren,
 wenn Sie möchten, dass Benutzer etwas kaufen können, das einen Preis hat.';
 $string['error:wrongpagenumberforprebookingpage'] = 'Die Seitenzahl für die Vorbuchungsseite ist ungültig.';
@@ -1782,6 +1790,7 @@ $string['mod/booking:reducedoptionform4'] = 'Buchungsoption reduziert 4';
 $string['mod/booking:reducedoptionform5'] = 'Buchungsoption reduziert 5';
 $string['mod/booking:seepersonalteacherinformation'] = 'Detailinfos über Lehrende anzeigen';
 $string['modaloptiondateformtitle'] = 'Benutzerdefinierte Termine';
+$string['modified'] = 'Letzte Änderung';
 $string['modulename'] = 'Buchung';
 $string['modulenameplural'] = 'Buchungen';
 $string['monday'] = 'Montag';
@@ -2778,6 +2787,7 @@ $string['teachersallowmailtobookedusers_desc'] = 'Wenn Sie diese Einstellung akt
 mit ihrem eigenen Mail-Programm an gebuchte Nutzer:innen senden - die E-Mail-Adressen der gebuchten Nutzer:innen werden dadurch sichtbar.
 <span class="text-danger"><b>Achtung:</b> Dies könnte ein Datenschutz-Problem darstellen. Aktivieren Sie dies nur,
 wenn es die Datenschutzbestimmungen Ihrer Organisation erlauben.</span>';
+$string['teachersbookingoptionsfromcondition'] = 'Referent:innen: ';
 $string['teachersettings'] = 'Trainer:innen <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['teachersettings_desc'] = 'Trainer:innen-spezifische Einstellungen.';
 $string['teachersforoption'] = 'Trainer:innen';
@@ -2917,6 +2927,7 @@ $string['useprotoenablemorerules'] = 'Sie benötigen Booking PRO, um weitere Reg
 $string['useraffectedbyevent'] = 'Vom Ereignis betroffene:r Nutzer:in';
 $string['usercalendarentry'] = 'Sie haben <a href="{$a}">diese Option</a> gebucht.';
 $string['usercalendarurl'] = "Nutzer:innen Kalender";
+$string['usercreated'] = 'Erstellt von';
 $string['userdownload'] = 'Nutzer:innenliste herunterladen';
 $string['usergavereason'] = '{$a} gab folgenden Grund für die Stornierung an:';
 $string['userinfofieldoff'] = 'Kein User-Profilfeld ausgewählt';
@@ -2926,7 +2937,7 @@ $string['userleavemessage'] = 'Hallo {$a->participant},
 Sie wurden erfolgreich von {$a->title} abgemeldet.
 ';
 $string['userleavesubject'] = 'Sie wurden erfolgreich abgemeldet von: {$a->title}';
-$string['usermodified'] = 'Bearbeitet von';
+$string['usermodified'] = 'Zuletzt bearbeitet von';
 $string['username'] = "Usernamen";
 $string['usernameofbookingmanager'] = 'Buchungsverwalter/in auswählen';
 $string['usernameofbookingmanager_help'] = 'Nutzername des/der Nutzer/in, der als Absender/in der Buchungsbestätigunsmitteilungen angeführt wird. Wenn die Option "Eine Kopie des Bestätigungsmail an Buchungsverwalter senden" aktiviert ist, wird die Kopie der Buchungsbestätigung an diese/n Nutzer/in gesendet.';

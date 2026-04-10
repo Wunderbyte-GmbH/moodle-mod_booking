@@ -21,16 +21,20 @@
  * @copyright 2019 David Bogner, http://www.edulabs.org
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+use context_module;
+use mod_booking\singleton_service;
 use mod_booking\table\optiontemplatessettings_table;
 
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/tablelib.php');
 require_once($CFG->libdir . '/adminlib.php');
 
-$id = required_param('id', PARAM_INT); // Course module id.
+$cmid = required_param('id', PARAM_INT); // Course module id.
 $optionid = optional_param('optionid', 0, PARAM_INT);
 $action = optional_param('action', 0, PARAM_ALPHANUM);
-[$course, $cm] = get_course_and_cm_from_cmid($id);
+
+$context = context_module::instance($cmid);
+[$course, $cm] = get_course_and_cm_from_cmid($cmid);
 
 // No guest autologin.
 require_course_login($course, false, $cm);
@@ -38,7 +42,25 @@ require_course_login($course, false, $cm);
 // In Moodle 4.0+ we want to turn the instance description off on every page except view.php.
 $PAGE->activityheader->disable();
 
-$pageurl = new moodle_url('/mod/booking/optiontemplatessettings.php', ['id' => $id, 'optionid' => $optionid]);
+$pageurl = new moodle_url('/mod/booking/optiontemplatessettings.php', ['id' => $cmid, 'optionid' => $optionid]);
+
+// This is where new booking option templates are created.
+if (
+    $action == 'copytotemplate' && has_capability('mod/booking:manageoptiontemplates', $context) &&
+         confirm_sesskey()
+) {
+    $urlparams = [
+        'id' => $cmid,
+        'optionid' => $optionid,
+        'action' => 'copytotemplate',
+    ];
+    $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
+    $bookingoption->urlparams = $urlparams;
+    $bookingoption->apply_tags();
+
+    $bookingoption->copytotemplate();
+    redirect($pageurl, get_string('copytotemplatesucesfull', 'booking'), 5);
+}
 
 if (($action === 'delete') && ($optionid > 0)) {
     $DB->delete_records('booking_options', ['id' => $optionid]);
@@ -46,8 +68,8 @@ if (($action === 'delete') && ($optionid > 0)) {
     redirect($pageurl, get_string('templatedeleted', 'booking'), 5);
 }
 
-$table = new optiontemplatessettings_table('optiontemplatessettings', $id);
-$fields = 'bo.id AS optionid, bo.text AS name, bo.bookingid AS bookingid';
+$table = new optiontemplatessettings_table('optiontemplatessettings', $cmid);
+$fields = 'bo.id AS optionid, bo.text AS name, bo.json, bo.bookingid AS bookingid';
 $table->set_sql(
     $fields,
     "{booking_options} bo",

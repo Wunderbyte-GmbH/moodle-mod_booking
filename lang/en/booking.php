@@ -47,6 +47,8 @@ Go to course: {$a->courselink}
 See all booking options: {$a->bookinglink}';
 $string['activitycompletiontextsubject'] = 'Booking option completed';
 $string['addastemplate'] = 'Add as template';
+$string['addastemplatename'] = 'Template name';
+$string['addastemplatename_help'] = 'Enter a name for this template. If provided, this name will be used as the display name for the template instead of the booking option name.';
 $string['addbookingcampaign'] = 'Add campaign';
 $string['addbookingrule'] = 'Add rule';
 $string['addcategory'] = 'Edit categories';
@@ -452,8 +454,10 @@ $string['bookedtextsubjectbookingmanager'] = 'New booking for {$a->title} by {$a
 $string['bookedusers'] = 'Booked users';
 $string['bookelectivesbtn'] = 'Book selected electives';
 $string['booking'] = 'Booking';
-$string['booking:addeditownoption'] = 'Add new option and edit own options.';
-$string['booking:addinstance'] = 'Add new booking';
+$string['booking:addeditownoption'] = 'Edit own booking options (own booking options are those
+that you either created yourself or are assigned to as a teacher)';
+$string['booking:addinstance'] = 'Add new booking instances';
+$string['booking:addoption'] = 'Add new booking options';
 $string['booking:alwayscanapprove'] = 'Always can confirm/deny booking answers';
 $string['booking:assigndeputies'] = 'Assign deputies';
 $string['booking:bookanyone'] = 'Allowed to book anyone';
@@ -476,6 +480,7 @@ $string['booking:editcertificateconditions'] = "Edit certificate conditions";
 $string['booking:editoptionformconfig'] = 'Edit option config form';
 $string['booking:editperformance'] = 'Test Performance';
 $string['booking:editscheduledmails'] = 'Edit scheduled mails';
+$string['booking:editsemesters'] = 'Edit semesters';
 $string['booking:editteacherdescription'] = 'Edit teacher description';
 $string['booking:executebulkoperations'] = "Can execute bulk operations";
 $string['booking:expertoptionform'] = "Expert option form";
@@ -1039,6 +1044,7 @@ $string['coursestarttime'] = 'Start time of the course';
 $string['courseurl'] = 'Course URL';
 $string['createcompetencylink'] = '<a href="{$a}" class="btn btn-outline-secondary" target="_blank" rel="noopener noreferrer">
 Create new competency (in framework) </a>';
+$string['created'] = 'Created';
 $string['createdbywunderbyte'] = 'Booking module created by Wunderbyte GmbH';
 $string['createical'] = 'Create calendar event(s)';
 $string['createnewbookingoption'] = 'New booking option';
@@ -1221,6 +1227,7 @@ $string['deletesemester'] = 'Delete semester';
 $string['deletesubcategory'] = 'Please, first delete all subcategories of this category!';
 $string['deletethisbookingoption'] = 'Delete this booking option';
 $string['deleteuserfrombooking'] = 'Do you really want to delete the users from the booking?';
+$string['delimiterbookingoptionsfromcondition'] = '<br>';
 $string['delnotification'] = 'You deleted {$a->del} of {$a->all} users. Users, that have completed activity, can\'t be deleted!';
 $string['delnotificationactivitycompletion'] = 'You deleted {$a->del} of {$a->all} users. Users, that have completed activity, can\'t be deleted!';
 $string['deny'] = 'Deny';
@@ -1412,6 +1419,7 @@ $string['error:ruleactionsendcopynotpossible'] = 'It\'s not possible to send an 
 $string['error:selflearningcourseallowsnodates'] = 'Booking options of type "{$a}" are not allowed to have dates. Please remove all dates and save again.';
 $string['error:semestermissingbutcanceldependentonsemester'] = 'The setting to calculate cancellation periods from semester start is active but semester is missing!';
 $string['error:taskalreadystarted'] = 'You have already started a task!';
+$string['error:templatenamereq'] = 'You must provide either a booking option name or a template name.';
 $string['error:tousepriceinstallshoppingcart'] = 'You need to install shopping cart if you want users to buy something that has a price.';
 $string['error:wrongpagenumberforprebookingpage'] = 'Error: Wrong page number for pre-booking page.';
 $string['error:wrongteacherid'] = 'Error: No user could be found for the provided "teacherid".';
@@ -1812,6 +1820,7 @@ $string['mod/booking:reducedoptionform4'] = 'Reduced booking option 4';
 $string['mod/booking:reducedoptionform5'] = 'Reduced booking option 5';
 $string['mod/booking:seepersonalteacherinformation'] = 'See personal teacher information';
 $string['modaloptiondateformtitle'] = 'Custom dates';
+$string['modified'] = 'Last modified';
 $string['modulename'] = 'Booking';
 $string['modulenameplural'] = 'Bookings';
 $string['monday'] = 'Monday';
@@ -2904,6 +2913,7 @@ $string['teachersallowmailtobookedusers_desc'] = 'If you activate this setting, 
     to all booked users using their own mail client - the e-mail-addresses of all users will be visible.
     <span class="text-danger"><b>Be careful:</b> This might be a privacy issue. Only activate this,
     if you are sure it corresponds with your organization\'s privacy policy.</span>';
+$string['teachersbookingoptionsfromcondition'] = 'Teachers: ';
 $string['teachersettings'] = 'Teachers <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['teachersettings_desc'] = 'Teacher-specific settings.';
 $string['teachersforoption'] = 'Teachers';
@@ -3044,6 +3054,7 @@ $string['useprotoenablemorerules'] = 'You need Booking PRO, to be able to add mo
 $string['useraffectedbyevent'] = 'User affected by the event';
 $string['usercalendarentry'] = 'You are booked for <a href="{$a}">this session</a>.';
 $string['usercalendarurl'] = "User calendar URL";
+$string['usercreated'] = 'Created by';
 $string['userdownload'] = 'Download users';
 $string['usergavereason'] = '{$a} gave the following reason for cancellation:';
 $string['userid'] = 'UserID';
@@ -3054,7 +3065,7 @@ $string['userleavemessage'] = 'Hello {$a->participant},
 You have been unsubscribed from {$a->title}.
 ';
 $string['userleavesubject'] = 'You successfully unsubscribed from {$a->title}';
-$string['usermodified'] = 'Modified by';
+$string['usermodified'] = 'Last modified by';
 $string['username'] = "username";
 $string['usernameofbookingmanager'] = 'Choose a booking manager';
 $string['usernameofbookingmanager_help'] = 'Username of the user who will be displayed in the "From" field of the confirmation notifications. If the option "Send confirmation e-mail to booking manager" is enabled, this is the user who receives a copy of the confirmation notifications.';

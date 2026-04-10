@@ -27,6 +27,7 @@ namespace mod_booking\option\fields;
 use mod_booking\option\fields;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
+use mod_booking\booking_option;
 use mod_booking\utils\wb_payment;
 use MoodleQuickForm;
 use stdClass;
@@ -96,9 +97,32 @@ class addastemplate extends field_base {
         // When the addastemplate is not null, we set bookingid to 0.
         if (!empty($formdata->addastemplate)) {
             $newoption->bookingid = 0;
+
+            // Store templatename in JSON if provided.
+            if (!empty($formdata->templatename)) {
+                booking_option::add_data_to_json($newoption, 'templatename', $formdata->templatename);
+            }
         }
 
         return parent::prepare_save_field($formdata, $newoption, $updateparam, '');
+    }
+
+    /**
+     * Validate templatename - either text or templatename must be provided for templates.
+     * @param array $data
+     * @param array $files
+     * @param array $errors
+     * @return array
+     */
+    public static function validation(array $data, array $files, array &$errors) {
+        if (!empty($data['addastemplate'])) {
+            $textisempty = empty(trim($data['text'] ?? ''));
+            $templatenameisempty = empty(trim($data['templatename'] ?? ''));
+            if ($textisempty && $templatenameisempty) {
+                $errors['templatename'] = get_string('error:templatenamereq', 'mod_booking');
+            }
+        }
+        return $errors;
     }
 
     /**
@@ -147,6 +171,18 @@ class addastemplate extends field_base {
                     $addastemplate
                 );
                 $mform->setType('addastemplate', PARAM_INT);
+
+                // Template name field - only visible when saving as template.
+                $mform->addElement(
+                    'text',
+                    'templatename',
+                    get_string('addastemplatename', 'mod_booking'),
+                    ['size' => '64']
+                );
+                $mform->addHelpButton('templatename', 'addastemplatename', 'mod_booking');
+                $mform->setType('templatename', PARAM_TEXT);
+                $mform->addRule('templatename', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
+                $mform->hideIf('templatename', 'addastemplate', 'eq', 0);
             } else {
                 $mform->addElement(
                     'static',

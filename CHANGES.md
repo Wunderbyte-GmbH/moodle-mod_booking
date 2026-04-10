@@ -1,3 +1,31 @@
+## Version 9.3.0 (2026040800)
+* New feature: Add possibility to save booking option templates without title and use template name instead.
+* New feature: Add possibility for users with addeditownoption capability to actually add and edit their own option. Add new usercreated and usermodified fields to booking options and display them.
+* New feature: Create new setting to issue certificates only manually.
+* Improvement: Treat elements that need special format directly in definition_after_data of template.php.
+* Improvement: Make sure copytotemplate uses set_data of field classes and creates new booking option correctly with the booking_option::update function.
+* Improvement: Move booking option template creation from report.php to optiontemplatesettings.php and add new entry to dropdown menu.
+* Improvement: Make sure addeditownoption is an edit-only capability (wrongly named for legacy reasons). To create booking options we introduce a new mod/booking:adoption capability.
+* Improvement: handle empty teachers.
+* Improvement: adapt certificate shortcode to requirements.
+* Improvement: make editsemesters a capability.
+* Improvement: Updated packages for vue.
+* Improvement: Show real form values instead of just keys for form field selects.
+* Improvement: Show name of booking instance when recreating option dates with change semesters form.
+* Improvement: Better icon in bookings tracker.
+* Improvement: Design improvements of Bookings tracker (report2.php).
+* Improvement: Improve dates placeholders and templates and remove redundancies.
+* Bugfix: Also set 0 value of selflearningcourse in duration class.
+* Bugfix: Fix date_time_selectors in booking option templates.
+* Bugfix: Make sure option dates can also be saved within template.
+* Bugfix: Fix form submission in mobile app.
+* Bugfix: fix empty temp values.
+* Bugfix: delete_conditions_by_context function was never called because of typo.
+* Bugfix: Fixed displaying empty booking option list.
+* Bugfix: Fix NULL useridfrom when booking manager account is missing.
+* Bugfix: Keep HTML in description placeholder by using format_text instead of format_string.
+* Bugfix: Admin & all persons who have alwayscanapprove capability can confirm answers regardless of any other conditions.
+
 ## Version 9.2.1 (2026033000)
 * Improvement: Make sure freetobookagain event is also triggered at campaign start/end if there are free places again because of campaign limits. Do this within the purge_campaign_caches task.
 * Bugfix: Make sure specific time mails are not sent incorrectly.

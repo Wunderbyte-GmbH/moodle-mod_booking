@@ -72,6 +72,25 @@ class optiontemplatessettings_table extends table_sql {
     }
 
     /**
+     * Display the template name. Uses templatename from JSON if available, otherwise falls back to text.
+     *
+     * @param object $values
+     * @return string
+     */
+    public function col_name($values) {
+        if (!empty($values->json)) {
+            $jsonobj = json_decode($values->json);
+            if (!empty($jsonobj->templatename)) {
+                return format_string($jsonobj->templatename);
+            }
+        }
+        if (!empty($values->name)) {
+            return format_string($values->name);
+        }
+        return '-';
+    }
+
+    /**
      * Display the booking instances where template is used.
      *
      * @param object $values

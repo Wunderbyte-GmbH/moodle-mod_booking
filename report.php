@@ -233,14 +233,6 @@ if ($action == 'downloadchecklist') {
 }
 
 if (
-    $action == 'copytotemplate' && has_capability('mod/booking:manageoptiontemplates', $context) &&
-         confirm_sesskey()
-) {
-    $bookingoption->copytotemplate();
-    redirect($baseurl, get_string('copytotemplatesucesfull', 'booking'), 5);
-}
-
-if (
     $action == 'deletebookingoption' && $confirm == 1 &&
          has_capability('mod/booking:updatebooking', $context) && confirm_sesskey()
 ) {

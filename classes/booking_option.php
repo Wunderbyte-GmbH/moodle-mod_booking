@@ -3051,17 +3051,51 @@ class booking_option {
 
     /**
      * Copy this booking option to template.
+     *
+     * Uses fields_info::set_data to load all field data from the source option,
+     * then resets id, bookingid and identifier so that update() inserts a new
+     * record that acts as a template (bookingid = 0).
+     *
+     * @return int The id of the newly created template option.
      */
     public function copytotemplate() {
-        global $DB;
+        /* Step 1: Build a data object with the real option id so that set_data
+        can load all field values from the existing option. */
+        $templateoption = (object)[
+            'fromtemplate' => false,
+            'cmid' => $this->cmid,
+            'id' => $this->id,
+            'optionid' => $this->id,
+            'bookingid' => $this->bookingid,
+            'copyoptionid' => 0, // Do NOT set it here as we might get stuck in a loop.
+            'oldcopyoptionid' => 0,
+            'returnurl' => '',
+        ];
 
-        $option = $DB->get_record('booking_options', ['id' => $this->optionid]);
+        fields_info::set_data($templateoption);
 
-        unset($option->id);
-        $option->bookingid = 0;
-        $option->identifier = self::create_truly_unique_option_identifier();
+        /* Step 2: Reconfigure for template creation.
+        id = 0 triggers INSERT instead of UPDATE in update().
+        bookingid = 0 marks the new record as a template.
+        The copytotemplate flag prevents id::prepare_save_field from
+        deriving bookingid from cmid, which would override our 0.
+        identifier is cleared so update() generates a new unique one. */
+        $templateoption->id = 0;
+        $templateoption->optionid = 0;
+        $templateoption->bookingid = 0;
+        $templateoption->identifier = '';
+        $templateoption->copytotemplate = true;
 
-        $DB->insert_record("booking_options", $option);
+        // Reset all optiondateid values to 0 so they are treated as new dates
+        // to be inserted rather than matched against (non-existent) sessions
+        // of the new template record.
+        foreach ($templateoption as $key => $value) {
+            if (strpos($key, MOD_BOOKING_FORM_OPTIONDATEID) !== false) {
+                $templateoption->{$key} = 0;
+            }
+        }
+
+        return self::update($templateoption, context_module::instance($this->cmid));
     }
 
     /**

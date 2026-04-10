@@ -5251,6 +5251,24 @@ function xmldb_booking_upgrade($oldversion) {
 
         upgrade_mod_savepoint(true, 2026032700, 'booking');
     }
+  
+    if ($oldversion < 2026040800) {
+        $table = new xmldb_table('booking_options');
+
+        // Add field usercreated.
+        $field = new xmldb_field('usercreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'timemodified');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add field usermodified.
+        $field = new xmldb_field('usermodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'usercreated');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2026040800, 'booking');
+    }
 
     if ($oldversion < 2026041000) {
         // Create booking_ai_threads table.

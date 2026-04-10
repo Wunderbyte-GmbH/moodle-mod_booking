@@ -128,22 +128,6 @@ class coursestarttime extends field_base {
         if (!empty($settings->selflearningcourse)) {
             parent::set_data($data, $settings);
             $data->coursestarttime = (int)($data->coursestarttime ?? 0);
-            // We only do this conversion for templates.
-            // Otherwise, it will work with unix timestamps just fine.
-            if (
-                !empty($data->fromtemplate)
-                && !empty($data->coursestarttime)
-                && is_number($data->coursestarttime)
-            ) {
-                $coursestarttime = $data->coursestarttime;
-                $data->coursestarttime = [
-                    "day"    => date("d", $coursestarttime),
-                    "month"  => date("m", $coursestarttime),
-                    "year"   => date("Y", $coursestarttime),
-                    "hour"   => date("H", $coursestarttime),
-                    "minute" => date("i", $coursestarttime),
-                ];
-            }
         } else {
             return;
         }
