@@ -86,8 +86,12 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             $serviceperiodstart = $item['coursestarttime'];
             $serviceperiodend = $item['courseendtime'];
 
+            if ($settings->type == MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE) {
+                // For self learning courses, we use the booking time as service period.
+                $serviceperiodstart = time();
+                $serviceperiodend = time() + $settings->duration;
+            } else if (
             // If cancellation is dependent on semester start, we also use semester start and end dates for the service period.
-            if (
                 get_config('booking', 'canceldependenton') == "semesterstart"
                 && !empty($settings->semesterid)
             ) {
