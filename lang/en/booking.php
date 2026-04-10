@@ -3190,3 +3190,46 @@ $string['youareusingconfig'] = 'Your are using the following form configuration:
 $string['yourplaceonwaitinglist'] = 'You are on place {$a} on the waitinglist';
 $string['yourselection'] = 'Your selection';
 $string['zoommeeting'] = 'Zoom meeting';
+
+// AI Instructions strings.
+$string['aiinstructions'] = 'AI Instructions';
+$string['aiinstructions_heading'] = 'AI Booking Assistant';
+$string['ai_provider_active'] = 'AI provider active';
+$string['ai_provider_not_configured'] = 'No AI provider configured';
+$string['ai_provider_not_configured_desc'] = 'Please ask your Moodle administrator to configure a core AI provider before using this feature.';
+$string['ai_provider_error'] = 'The AI provider returned an error. Please try again later.';
+$string['ai_empty_message'] = 'Please enter a message.';
+$string['ai_no_commands'] = 'No commands to execute.';
+$string['ai_run_queued'] = 'Your request has been queued for processing.';
+$string['ai_input_placeholder'] = 'Describe what you want to create or update…';
+$string['ai_btn_send'] = 'Send';
+$string['ai_btn_confirm'] = 'Confirm & Execute';
+$string['ai_btn_cancel'] = 'Cancel';
+$string['ai_confirm_heading'] = 'Review proposed changes';
+$string['ai_thinking'] = 'AI is thinking…';
+$string['task_execute_ai_run'] = 'Execute AI agent run';
+
+// AI privacy metadata strings.
+$string['privacy:metadata:bookingaithreads'] = 'AI conversation threads created by users for booking instances.';
+$string['privacy:metadata:bookingaithreads:userid'] = 'The user ID who owns this thread.';
+$string['privacy:metadata:bookingaithreads:cmid'] = 'The course-module ID of the booking instance.';
+$string['privacy:metadata:bookingaithreads:bookingid'] = 'The booking instance ID.';
+$string['privacy:metadata:bookingaithreads:status'] = 'Thread status (active or closed).';
+$string['privacy:metadata:bookingaithreads:metadatajson'] = 'Analytics metadata stored as JSON.';
+$string['privacy:metadata:bookingaithreads:timecreated'] = 'The time the thread was created.';
+$string['privacy:metadata:bookingaithreads:timemodified'] = 'The time the thread was last modified.';
+$string['privacy:metadata:bookingaimessages'] = 'Individual messages within AI agent conversation threads.';
+$string['privacy:metadata:bookingaimessages:threadid'] = 'The thread this message belongs to.';
+$string['privacy:metadata:bookingaimessages:role'] = 'Message role: user, assistant, or system.';
+$string['privacy:metadata:bookingaimessages:content'] = 'The raw message text.';
+$string['privacy:metadata:bookingaimessages:structuredjson'] = 'Structured state extracted from the message.';
+$string['privacy:metadata:bookingaimessages:timecreated'] = 'The time the message was created.';
+$string['privacy:metadata:bookingairuns'] = 'AI agent execution runs tracking actions to be or already executed.';
+$string['privacy:metadata:bookingairuns:threadid'] = 'The thread this run belongs to.';
+$string['privacy:metadata:bookingairuns:userid'] = 'The user ID who triggered this run.';
+$string['privacy:metadata:bookingairuns:cmid'] = 'The course-module ID for this run.';
+$string['privacy:metadata:bookingairuns:status'] = 'Run status (pending, queued, running, completed, failed).';
+$string['privacy:metadata:bookingairuns:commandsjson'] = 'Validated commands as JSON.';
+$string['privacy:metadata:bookingairuns:resultsjson'] = 'Per-command execution results as JSON.';
+$string['privacy:metadata:bookingairuns:timecreated'] = 'The time the run was created.';
+$string['privacy:metadata:bookingairuns:timemodified'] = 'The time the run was last modified.';

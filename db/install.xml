@@ -677,5 +677,64 @@
         <INDEX NAME="hashnameendx" UNIQUE="false" FIELDS="shortcodehash, endtime"/>
       </INDEXES>
     </TABLE>
+    <TABLE NAME="booking_ai_threads" COMMENT="AI agent conversation threads, one per user per booking context">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="cmid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Course-module id (booking instance)"/>
+        <FIELD NAME="bookingid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Booking instance id"/>
+        <FIELD NAME="status" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="active" SEQUENCE="false" COMMENT="active | closed"/>
+        <FIELD NAME="metadatajson" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Analytics metadata: intent categories, entities, state"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="useridcmid" UNIQUE="false" FIELDS="userid, cmid"/>
+        <INDEX NAME="statusidx" UNIQUE="false" FIELDS="status"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="booking_ai_messages" COMMENT="Individual messages within an AI agent conversation thread">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="threadid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="role" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="user" SEQUENCE="false" COMMENT="user | assistant | system"/>
+        <FIELD NAME="content" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Raw message text"/>
+        <FIELD NAME="structuredjson" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Extracted intent, entities, validated draft command"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="threadid" TYPE="foreign" FIELDS="threadid" REFTABLE="booking_ai_threads" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="threadidx" UNIQUE="false" FIELDS="threadid"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="booking_ai_runs" COMMENT="AI agent execution runs tracking actions to be or already executed">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="threadid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="cmid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="status" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="pending" SEQUENCE="false" COMMENT="pending | queued | running | completed | failed"/>
+        <FIELD NAME="idempotencykey" TYPE="char" LENGTH="64" NOTNULL="true" DEFAULT="" SEQUENCE="false" COMMENT="SHA256 hash for deduplication"/>
+        <FIELD NAME="commandsjson" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Interpreter-validated execution commands"/>
+        <FIELD NAME="resultsjson" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Execution results per action"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="threadid" TYPE="foreign" FIELDS="threadid" REFTABLE="booking_ai_threads" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="useridcmidx" UNIQUE="false" FIELDS="userid, cmid"/>
+        <INDEX NAME="statusidx" UNIQUE="false" FIELDS="status"/>
+        <INDEX NAME="idempotencyidx" UNIQUE="true" FIELDS="idempotencykey"/>
+      </INDEXES>
+    </TABLE>
   </TABLES>
 </XMLDB>

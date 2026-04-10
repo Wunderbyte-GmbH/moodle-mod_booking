@@ -211,6 +211,46 @@ $functions = [
         'type'        => 'write',
         'ajax'        => 1,
     ],
+    'mod_booking_ai_send_message' => [
+        'classname'   => 'mod_booking\\external\\ai_send_message',
+        'methodname'  => 'execute',
+        'description' => 'Send a user message to the AI booking agent and receive its response.',
+        'type'        => 'write',
+        'capabilities' => 'mod/booking:useaiinstructions',
+        'ajax'        => 1,
+    ],
+    'mod_booking_ai_confirm_run' => [
+        'classname'   => 'mod_booking\\external\\ai_confirm_run',
+        'methodname'  => 'execute',
+        'description' => 'Confirm a proposed AI run and enqueue asynchronous execution.',
+        'type'        => 'write',
+        'capabilities' => 'mod/booking:useaiinstructions',
+        'ajax'        => 1,
+    ],
+    'mod_booking_ai_poll_thread' => [
+        'classname'   => 'mod_booking\\external\\ai_poll_thread',
+        'methodname'  => 'execute',
+        'description' => 'Return all messages in an AI conversation thread.',
+        'type'        => 'read',
+        'capabilities' => 'mod/booking:useaiinstructions',
+        'ajax'        => 1,
+    ],
+    'mod_booking_ai_poll_run_status' => [
+        'classname'   => 'mod_booking\\external\\ai_poll_run_status',
+        'methodname'  => 'execute',
+        'description' => 'Return the current status and results of an AI execution run.',
+        'type'        => 'read',
+        'capabilities' => 'mod/booking:useaiinstructions',
+        'ajax'        => 1,
+    ],
+    'mod_booking_ai_list_candidate_options' => [
+        'classname'   => 'mod_booking\\external\\ai_list_candidate_options',
+        'methodname'  => 'execute',
+        'description' => 'Return a list of booking options for AI disambiguation.',
+        'type'        => 'read',
+        'capabilities' => 'mod/booking:useaiinstructions',
+        'ajax'        => 1,
+    ],
 ];
 
 $services = [

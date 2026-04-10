@@ -1441,6 +1441,16 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
             null,
             'nav_teachers_instance_report'
         );
+
+        if (has_capability('mod/booking:useaiinstructions', $context)) {
+            $navref->add(
+                get_string('aiinstructions', 'mod_booking') . " (" . format_string($bookingsettings->name) . ")",
+                new moodle_url('/mod/booking/aiinstructions.php', ['id' => $cmid]),
+                navigation_node::TYPE_CUSTOM,
+                null,
+                'nav_aiinstructions'
+            );
+        }
         // Pro version entries - visible to all, but greyed out for non-pro users.
         $proversion = wb_payment::pro_version_is_activated();
 
