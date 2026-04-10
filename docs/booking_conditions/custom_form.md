@@ -46,7 +46,7 @@ For each element you want to add:
 
 Repeat for each element. Elements with no type selected (type = 0) are ignored.
 
-![Custom form condition in the option form](pix/custom_form_form_placeholder.png)
+![Custom form condition in the option form](pix/custom_form_placeholder.png)
 
 #### Special element: Enrol users action
 

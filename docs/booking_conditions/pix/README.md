@@ -17,6 +17,6 @@ Placeholder filenames used in the Markdown files:
 | `user_profile_field_custom_form_placeholder.png` | `user_profile_field_custom.md` |
 | `no_overlapping_form_placeholder.png` | `no_overlapping.md` |
 | `allowed_to_book_in_instance_form_placeholder.png` | `allowed_to_book_in_instance.md` |
-| `custom_form_form_placeholder.png` | `custom_form.md` |
+| `custom_form_placeholder.png` | `custom_form.md` |
 
 Replace each placeholder with an actual screenshot of the corresponding section of the booking option edit form.

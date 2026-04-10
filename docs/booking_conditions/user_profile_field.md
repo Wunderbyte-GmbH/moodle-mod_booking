@@ -42,7 +42,7 @@ A dropdown lists all standard columns of the Moodle `user` database table. Selec
 | In list | `[]` | Field value is one of a comma-separated list of values |
 | Not in list | `[!]` | Field value is not in the comma-separated list |
 | Contains value from list | `[~]` | Field value contains at least one value from the comma-separated list |
-| Does not contain any value from list | `[!~]` | Field value does not contain any value from the comma-separated list |
+| Does not contain any value from the list | `[!~]` | Field value does not contain any value from the comma-separated list |
 | Is empty | `()` | Field has no value |
 | Is not empty | `(!)` | Field has a value |
 
