@@ -5267,6 +5267,61 @@ function xmldb_booking_upgrade($oldversion) {
         }
 
         upgrade_mod_savepoint(true, 2026040800, 'booking');
+	}
+    if ($oldversion < 2026040801) {
+        // Create booking_ai_threads table.
+        $table = new xmldb_table('booking_ai_threads');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('cmid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('bookingid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('status', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, 'active');
+        $table->add_field('metadatajson', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_index('useridcmid', XMLDB_INDEX_NOTUNIQUE, ['userid', 'cmid']);
+        $table->add_index('statusidx', XMLDB_INDEX_NOTUNIQUE, ['status']);
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Create booking_ai_messages table.
+        $table = new xmldb_table('booking_ai_messages');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('threadid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('role', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, 'user');
+        $table->add_field('content', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('structuredjson', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('threadid', XMLDB_KEY_FOREIGN, ['threadid'], 'booking_ai_threads', ['id']);
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Create booking_ai_runs table.
+        $table = new xmldb_table('booking_ai_runs');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('threadid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('cmid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('status', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, 'pending');
+        $table->add_field('idempotencykey', XMLDB_TYPE_CHAR, '64', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('commandsjson', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('resultsjson', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('threadid', XMLDB_KEY_FOREIGN, ['threadid'], 'booking_ai_threads', ['id']);
+        $table->add_index('useridcmidx', XMLDB_INDEX_NOTUNIQUE, ['userid', 'cmid']);
+        $table->add_index('statusidx', XMLDB_INDEX_NOTUNIQUE, ['status']);
+        $table->add_index('idempotencyidx', XMLDB_INDEX_UNIQUE, ['idempotencykey']);
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        upgrade_mod_savepoint(true, 2026040801, 'booking');
     }
 
     if ($oldversion < 2026041009) {
