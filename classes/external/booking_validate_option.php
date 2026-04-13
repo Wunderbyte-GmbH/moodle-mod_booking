@@ -60,7 +60,7 @@ class booking_validate_option extends external_api {
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
             'cmid'   => new external_value(PARAM_INT, 'Course-module id.'),
-            'task'   => new external_value(PARAM_ALPHA, 'Mutation type: create, update, or bulk_update.'),
+            'task'   => new external_value(PARAM_ALPHANUMEXT, 'Mutation type: create, update, or bulk_update.'),
             'fields' => new external_value(PARAM_RAW, 'JSON-encoded option fields to validate.'),
         ]);
     }

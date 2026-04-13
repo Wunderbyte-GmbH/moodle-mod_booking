@@ -121,7 +121,14 @@ class option_mutation_service {
     /**
      * Map a raw booking_task_support result array to a mutation_result_dto.
      *
-     * @param array<string,mixed> $result
+     * Expected keys in $result:
+     *   - 'status'           string  'executed' or 'error'
+     *   - 'detail'           string  Human-readable message
+     *   - 'resultid'         int     Created/updated option id (or null)
+     *   - 'warnings'         array   Warning strings (optional)
+     *   - 'previewoptionids' array   Preview option ids (optional)
+     *
+     * @param array<string,mixed> $result Raw result from booking_task_support::execute().
      * @return mutation_result_dto
      */
     private function map_result(array $result): mutation_result_dto {

@@ -185,7 +185,7 @@ class ai_send_message extends external_api {
         // "yes/ja/confirm" can replay them without a new LLM round-trip.
         if (($result['response_type'] ?? '') === 'confirmation_request' && !empty($result['commands'])) {
             // Format: userid:threadid::commandsjson — double colon separates header from payload.
-            $intentkey = hash('sha256', (int)$USER->id . ':' . $threadid . '::' . json_encode($result['commands']));
+            $intentkey = hash('sha256', (string)(int)$USER->id . ':' . $threadid . '::' . json_encode($result['commands']));
             $store->set_pending_intent($threadid, $result['commands'], $intentkey);
         } else {
             // Any non-confirmation response clears a stale pending intent.
