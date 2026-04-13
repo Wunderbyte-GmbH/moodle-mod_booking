@@ -139,6 +139,34 @@ class ai_send_message extends external_api {
         $store->add_message($threadid, 'user', $message);
         $outputlang = self::infer_output_language($message);
 
+        // Pending-intent: if user sends a short confirmation, re-use the stored pending intent
+        // instead of making a new LLM call.  This binds "ja/yes/ok/…" strictly to the most
+        // recent confirmation_request for this thread.
+        if (self::is_confirmation_only_message($message)) {
+            $pendingintent = $store->get_pending_intent($threadid);
+            if ($pendingintent !== null) {
+                $store->clear_pending_intent($threadid);
+                $confirmcommands = $pendingintent['commands'];
+                $confirmmessage  = get_string('ai_confirm_pending_intent', 'mod_booking');
+                $store->add_message($threadid, 'assistant', $confirmmessage, [
+                    'response_type' => 'confirmation_request',
+                    'commands'      => $confirmcommands,
+                    'ambiguities'   => [],
+                    'errors'        => [],
+                ]);
+                return [
+                    'response_type'  => 'confirmation_request',
+                    'message'        => $confirmmessage,
+                    'commands'       => json_encode($confirmcommands),
+                    'ambiguities'    => '[]',
+                    'threadid'       => $threadid,
+                    'runid'          => 0,
+                    'resultsjson'    => '[]',
+                    'previewoptionid' => 0,
+                ];
+            }
+        }
+
         $result = $orchestrator->process($threadid, $cmid, (int)$USER->id);
         if (self::should_auto_execute_read_only($result, $registry)) {
             $result = self::auto_execute_read_only_commands(
@@ -152,6 +180,18 @@ class ai_send_message extends external_api {
                 $outputlang
             );
         }
+
+        // Store mutating confirmation_request responses as pending intent so the next short
+        // "yes/ja/confirm" can replay them without a new LLM round-trip.
+        if (($result['response_type'] ?? '') === 'confirmation_request' && !empty($result['commands'])) {
+            // Format: userid:threadid::commandsjson — double colon separates header from payload.
+            $intentkey = hash('sha256', (int)$USER->id . ':' . $threadid . '::' . json_encode($result['commands']));
+            $store->set_pending_intent($threadid, $result['commands'], $intentkey);
+        } else {
+            // Any non-confirmation response clears a stale pending intent.
+            $store->clear_pending_intent($threadid);
+        }
+
         $result['message'] = self::normalize_agent_message_language($result, $message, $outputlang);
 
         $store->add_message($threadid, 'assistant', $result['message'] ?? '', [
@@ -499,5 +539,27 @@ class ai_send_message extends external_api {
             'resultsjson'   => new external_value(PARAM_RAW, 'JSON-encoded execution results (if available).'),
             'previewoptionid' => new external_value(PARAM_INT, 'Latest option id to preview directly, if available.'),
         ]);
+    }
+
+    /**
+     * Short-form confirmation tokens that re-apply the pending intent without a new LLM call.
+     *
+     * A message matching one of these tokens (case-insensitive, after trim) is treated as a
+     * bare confirmation and will replay the most recent pending intent for the thread.
+     */
+    private const CONFIRMATION_TOKENS = [
+        'ja', 'yes', 'ok', 'confirm', 'bestätige', 'bestätigen',
+        'jep', 'yep', 'sure', 'go ahead', 'los', 'weiter',
+        'mach es', 'tu es', 'do it', 'proceed',
+    ];
+
+    /**
+     * Check whether a message is a short confirmation response only (no new mutation intent).
+     *
+     * @param string $message
+     * @return bool
+     */
+    private static function is_confirmation_only_message(string $message): bool {
+        return in_array(mb_strtolower(trim($message)), self::CONFIRMATION_TOKENS, true);
     }
 }

@@ -259,6 +259,38 @@ $functions = [
         'capabilities' => 'mod/booking:useaiinstructions',
         'ajax'        => 1,
     ],
+    'mod_booking_booking_create_option' => [
+        'classname'   => 'mod_booking\\external\\booking_create_option',
+        'methodname'  => 'execute',
+        'description' => 'Create a booking option via versioned Application-Service API (v1).',
+        'type'        => 'write',
+        'capabilities' => 'mod/booking:updatebooking',
+        'ajax'        => false,
+    ],
+    'mod_booking_booking_update_option' => [
+        'classname'   => 'mod_booking\\external\\booking_update_option',
+        'methodname'  => 'execute',
+        'description' => 'Update a booking option via versioned Application-Service API (v1).',
+        'type'        => 'write',
+        'capabilities' => 'mod/booking:updatebooking',
+        'ajax'        => false,
+    ],
+    'mod_booking_booking_bulk_update_options' => [
+        'classname'   => 'mod_booking\\external\\booking_bulk_update_options',
+        'methodname'  => 'execute',
+        'description' => 'Bulk-update booking options via versioned Application-Service API (v1).',
+        'type'        => 'write',
+        'capabilities' => 'mod/booking:updatebooking',
+        'ajax'        => false,
+    ],
+    'mod_booking_booking_validate_option' => [
+        'classname'   => 'mod_booking\\external\\booking_validate_option',
+        'methodname'  => 'execute',
+        'description' => 'Dry-run validation of a booking option mutation (no side effects).',
+        'type'        => 'read',
+        'capabilities' => 'mod/booking:updatebooking',
+        'ajax'        => false,
+    ],
 ];
 
 $services = [

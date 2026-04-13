@@ -3479,6 +3479,7 @@ $string['ai_preview_latest_option'] = 'Here is the most recently created or upda
 $string['ai_preview_no_commands'] = 'No command preview available.';
 $string['ai_preview_no_matching_option'] = 'No existing option could be identified for row preview. Please confirm the target option first.';
 $string['ai_preview_not_supported_task'] = 'A row preview is only available for create/update option commands.';
+$string['ai_confirm_pending_intent'] = 'I have re-applied your previous confirmation request. Please confirm to proceed.';
 $string['ai_thinking'] = 'AI is thinking…';
 $string['task_execute_ai_run'] = 'Execute AI agent run';
 

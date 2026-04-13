@@ -32,6 +32,7 @@ use external_function_parameters;
 use external_single_structure;
 use external_value;
 use mod_booking\local\wbagent\authorization_service;
+use mod_booking\local\wbagent\preview_policy;
 use mod_booking\booking;
 use mod_booking\output\view;
 use mod_booking\singleton_service;
@@ -117,6 +118,18 @@ class ai_render_command_preview extends external_api {
         $context = context_module::instance($params['cmid']);
         self::validate_context($context);
         $authz->require_use_capability((int)$USER->id, $params['cmid']);
+
+        // Preview policy: if commands are provided but none are on the previewable-task allowlist,
+        // return a silent no-op (empty HTML, no error).  This prevents spurious output for
+        // tasks like entities.create_entity that produce no booking-option row.
+        if (trim((string)$params['commands']) !== '') {
+            $decodedcmds = json_decode((string)$params['commands'], true);
+            if (is_array($decodedcmds) && !empty($decodedcmds)) {
+                if (empty(preview_policy::filter_previewable_commands($decodedcmds))) {
+                    return ['html' => '', 'optionids' => '[]'];
+                }
+            }
+        }
 
         $cm = get_coursemodule_from_id('booking', $params['cmid'], 0, false, MUST_EXIST);
         $resolvedoptionid = (int)$params['optionid'];

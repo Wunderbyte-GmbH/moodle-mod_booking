@@ -298,4 +298,51 @@ class conversation_store implements agent_conversation_store {
         $update->timemodified = time();
         $DB->update_record('booking_ai_threads', $update);
     }
+
+    /**
+     * Store a pending intent (commands awaiting user confirmation) for a thread.
+     *
+     * Call this whenever the agent returns a confirmation_request so that a
+     * subsequent short confirmation ("ja", "yes", …) can re-use the commands
+     * without triggering a new LLM call.
+     *
+     * @param int    $threadid
+     * @param array  $commands  The mutation commands awaiting confirmation.
+     * @param string $intentkey A caller-generated hash to identify this intent.
+     * @return void
+     */
+    public function set_pending_intent(int $threadid, array $commands, string $intentkey): void {
+        $this->set_thread_metadata_value($threadid, 'pending_intent', [
+            'commands'  => $commands,
+            'intentkey' => $intentkey,
+            'timestamp' => time(),
+        ]);
+    }
+
+    /**
+     * Retrieve the pending intent for a thread, or null if none is stored.
+     *
+     * @param int $threadid
+     * @return array{commands:array,intentkey:string,timestamp:int}|null
+     */
+    public function get_pending_intent(int $threadid): ?array {
+        $value = $this->get_thread_metadata_value($threadid, 'pending_intent');
+        if (!is_array($value) || empty($value['commands'])) {
+            return null;
+        }
+        return $value;
+    }
+
+    /**
+     * Clear the pending intent for a thread.
+     *
+     * Must be called after a confirmation is processed or when a new unrelated
+     * message is received so that stale intents never leak into later turns.
+     *
+     * @param int $threadid
+     * @return void
+     */
+    public function clear_pending_intent(int $threadid): void {
+        $this->set_thread_metadata_value($threadid, 'pending_intent', null);
+    }
 }
