@@ -198,6 +198,15 @@ class template extends field_base {
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
         if (!empty($data->id)) {
+            /* When editing an existing template (not applying a template to a new option),
+            load templatename from JSON so it is present in the form and gets saved again. */
+            if (
+                empty($data->fromtemplate)
+                && !isset($data->templatename)
+                && isset($settings->jsonobject)
+            ) {
+                $data->templatename = $settings->jsonobject->templatename ?? '';
+            }
             return;
         }
 

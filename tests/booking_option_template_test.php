@@ -27,7 +27,10 @@ namespace mod_booking;
 
 use advanced_testcase;
 use mod_booking_generator;
+use context_module;
+use mod_booking\booking_option;
 use mod_booking\option\fields\addastemplate;
+use mod_booking\option\fields\template as template_field;
 use mod_booking\option\fields\text;
 use mod_booking\table\optiontemplatessettings_table;
 use stdClass;
@@ -459,6 +462,136 @@ final class booking_option_template_test extends advanced_testcase {
             'text',
             $errors6,
             'Whitespace-only text should be treated as empty'
+        );
+    }
+
+    /**
+     * Test 8: Editing an existing template loads templatename into form data via set_data.
+     *
+     * When a template (bookingid=0) is opened for editing, set_data must populate
+     * $data->templatename from the stored JSON so the field is pre-filled in the form
+     * and gets written back to JSON on save.
+     *
+     * @covers \mod_booking\option\fields\template::set_data
+     */
+    public function test_edit_template_set_data_loads_templatename(): void {
+        [, , $booking] = $this->create_booking_setup();
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $template = $plugingenerator->create_template([
+            'bookingid' => $booking->id,
+            'templatename' => 'My Title',
+        ]);
+
+        // Simulate opening the existing template for editing: $data->id is set, no fromtemplate flag.
+        $data = (object)[
+            'id' => $template->id,
+            'cmid' => $template->cmid,
+        ];
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($template->id);
+        template_field::set_data($data, $settings);
+
+        $this->assertEquals(
+            'My Title',
+            $data->templatename,
+            'set_data must load templatename from JSON when editing an existing template'
+        );
+    }
+
+    /**
+     * Test 9: Applying a template to a new option must NOT copy templatename.
+     *
+     * When set_data is called with fromtemplate=true (i.e. populating a new option
+     * from an existing template), the templatename must not be transferred.
+     *
+     * @covers \mod_booking\option\fields\template::set_data
+     */
+    public function test_apply_template_to_new_option_does_not_set_templatename(): void {
+        [, , $booking] = $this->create_booking_setup();
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $template = $plugingenerator->create_template([
+            'bookingid' => $booking->id,
+            'templatename' => 'Template Title',
+        ]);
+
+        // Simulate the "apply template to new option" flow: fromtemplate flag is set.
+        $data = (object)[
+            'id' => $template->id,
+            'fromtemplate' => true,
+            'cmid' => $template->cmid,
+        ];
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($template->id);
+        template_field::set_data($data, $settings);
+
+        $this->assertFalse(
+            isset($data->templatename) && $data->templatename === 'Template Title',
+            'templatename must not be copied when applying a template to a new option'
+        );
+    }
+
+    /**
+     * Test 10: Round-trip — editing and saving a template preserves templatename in JSON.
+     *
+     * Full round-trip: set_data loads templatename, booking_option::update saves it back.
+     * After saving, the DB JSON must still contain the original templatename.
+     *
+     * @covers \mod_booking\option\fields\template::set_data
+     * @covers \mod_booking\option\fields\addastemplate::prepare_save_field
+     */
+    public function test_edit_template_roundtrip_preserves_templatename(): void {
+        global $DB;
+
+        [, , $booking] = $this->create_booking_setup();
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $template = $plugingenerator->create_template([
+            'bookingid' => $booking->id,
+            'templatename' => 'Original Name',
+            'text' => 'Option Title',
+        ]);
+
+        // Build the data object as it would be submitted when re-saving the template.
+        $data = (object)[
+            'id' => $template->id,
+            'optionid' => $template->id,
+            'cmid' => $template->cmid,
+            'bookingid' => $booking->id,
+            'text' => 'Option Title',
+            'addastemplate' => 1,
+            'identifier' => $template->identifier,
+            'addtocalendar' => 0,
+            'maxanswers' => 0,
+            'teachersforoption' => [],
+            'responsiblecontact' => [],
+        ];
+
+        // Step 1: set_data loads templatename from settings into $data.
+        $settings = singleton_service::get_instance_of_booking_option_settings($template->id);
+        template_field::set_data($data, $settings);
+
+        $this->assertEquals('Original Name', $data->templatename, 'set_data must load templatename');
+
+        // Step 2: save — addastemplate::prepare_save_field writes templatename back to JSON.
+        $context = context_module::instance($template->cmid);
+        booking_option::update($data, $context);
+
+        // Step 3: verify JSON in DB still contains templatename.
+        $dbrecord = $DB->get_record('booking_options', ['id' => $template->id]);
+        $this->assertNotEmpty($dbrecord->json, 'JSON must not be empty after save');
+        $jsonobj = json_decode($dbrecord->json);
+        $this->assertEquals(
+            'Original Name',
+            $jsonobj->templatename,
+            'templatename must be preserved in JSON after editing and re-saving a template'
         );
     }
 }

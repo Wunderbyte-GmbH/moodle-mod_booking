@@ -28,6 +28,7 @@ use mod_booking\option\fields;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use mod_booking\booking_option;
+use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
 use MoodleQuickForm;
 use stdClass;
@@ -98,9 +99,13 @@ class addastemplate extends field_base {
         if (!empty($formdata->addastemplate)) {
             $newoption->bookingid = 0;
 
+            $settings = singleton_service::get_instance_of_booking_option_settings($newoption->id);
+            $oldtemplatename = $settings->jsonobject->templatename ?? '';
+            $newtemplatename = $formdata->templatename ?? '';
+
             // Store templatename in JSON if provided.
-            if (!empty($formdata->templatename)) {
-                booking_option::add_data_to_json($newoption, 'templatename', $formdata->templatename);
+            if ($newtemplatename !== $oldtemplatename) {
+                booking_option::add_data_to_json($newoption, 'templatename', $newtemplatename);
             }
         }
 
