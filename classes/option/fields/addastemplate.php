@@ -94,18 +94,27 @@ class addastemplate extends field_base {
         int $updateparam,
         $returnvalue = null
     ): array {
-
         // When the addastemplate is not null, we set bookingid to 0.
         if (!empty($formdata->addastemplate)) {
             $newoption->bookingid = 0;
 
-            $settings = singleton_service::get_instance_of_booking_option_settings($newoption->id);
-            $oldtemplatename = $settings->jsonobject->templatename ?? '';
-            $newtemplatename = $formdata->templatename ?? '';
-
-            // Store templatename in JSON if provided.
-            if ($newtemplatename !== $oldtemplatename) {
-                booking_option::add_data_to_json($newoption, 'templatename', $newtemplatename);
+            /* The $newoption object is a fresh stdClass on every save, so templatename must be handled explicitly:
+            - field present and non-empty: write the new value.
+            - field present and empty: user cleared it — remove from JSON.
+            - field absent (e.g. CSV/webservice import): preserve the existing DB value. */
+            if (isset($formdata->templatename)) {
+                if ($formdata->templatename !== '') {
+                    booking_option::add_data_to_json($newoption, 'templatename', $formdata->templatename);
+                } else {
+                    booking_option::remove_key_from_json($newoption, 'templatename');
+                }
+            } else {
+                // CSV/webservice import. Preserve existing templatename if it exists.
+                $settings = singleton_service::get_instance_of_booking_option_settings($newoption->id ?? 0);
+                $existingtemplatename = $settings->jsonobject->templatename ?? null;
+                if ($existingtemplatename !== null && $existingtemplatename !== '') {
+                    booking_option::add_data_to_json($newoption, 'templatename', $existingtemplatename);
+                }
             }
         }
 

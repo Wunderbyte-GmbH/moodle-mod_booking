@@ -814,9 +814,12 @@ if ($ADMIN->fulltree) {
         );
 
         $enrolmultipleusersformmodeoptions = [
-            MOD_BOOKING_ENROLMULTIPLEUSERS_CHECKBOX => get_string('enrolmultipleusersformmode:checkbox', 'mod_booking'),
-            MOD_BOOKING_ENROLMULTIPLEUSERS_ALSOBOOKMYSELF => get_string('enrolmultipleusersformmode:alsobookmyself', 'mod_booking'),
-            MOD_BOOKING_ENROLMULTIPLEUSERS_DONOTBOOKMYSELF => get_string('enrolmultipleusersformmode:donotbookmyself', 'mod_booking'),
+            MOD_BOOKING_ENROLMULTIPLEUSERS_CHECKBOX =>
+                get_string('enrolmultipleusersformmode:checkbox', 'mod_booking'),
+            MOD_BOOKING_ENROLMULTIPLEUSERS_ALSOBOOKMYSELF =>
+                get_string('enrolmultipleusersformmode:alsobookmyself', 'mod_booking'),
+            MOD_BOOKING_ENROLMULTIPLEUSERS_DONOTBOOKMYSELF =>
+                get_string('enrolmultipleusersformmode:donotbookmyself', 'mod_booking'),
         ];
         $settings->add(
             new admin_setting_configselect(

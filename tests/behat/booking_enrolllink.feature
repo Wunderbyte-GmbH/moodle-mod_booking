@@ -195,7 +195,7 @@ Feature: Create enrollink availability form for booking options with connected c
     And I am on the "BookingCMP" Activity page logged in as teacher1
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Number of users" in the ".condition-customform" "css_element"
-    And I should see "You will automatically be booked yourself as well." in the ".condition-customform" "css_element"
+    And I should see "Note: One of the specified places will be consumed by yourself." in the ".condition-customform" "css_element"
     And I should not see "Do you also want to book the option for yourself?" in the ".condition-customform" "css_element"
     And I set the field "customform_enrolusersaction_1" to "3"
     And I follow "Continue"
@@ -213,7 +213,7 @@ Feature: Create enrollink availability form for booking options with connected c
     And I am on the "BookingCMP" Activity page logged in as teacher1
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Number of users" in the ".condition-customform" "css_element"
-    And I should see "You will NOT be booked yourself." in the ".condition-customform" "css_element"
+    And I should see "You are not participating in the booking yourself, but are only booking for other persons. You do not consume any of the specified places." in the ".condition-customform" "css_element"
     And I should not see "Do you also want to book the option for yourself?" in the ".condition-customform" "css_element"
     And I set the field "customform_enrolusersaction_1" to "3"
     And I follow "Continue"
