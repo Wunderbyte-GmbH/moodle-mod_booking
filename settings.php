@@ -781,6 +781,126 @@ if ($ADMIN->fulltree) {
                 get_string('conditionssettings_desc', 'mod_booking')
             )
         );
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/bookingtimerelativeenabled',
+                get_string('bookingtimerelativeenabled', 'mod_booking'),
+                get_string('bookingtimerelativeenabled_desc', 'mod_booking'),
+                0
+            )
+        );
+        $settings->add(
+            new admin_setting_configduration(
+                'booking/bookingtimerelativedefaultopeningduration',
+                get_string('bookingtimerelativedefaultopeningduration', 'mod_booking'),
+                get_string('bookingtimerelativedefaultopeningduration_desc', 'mod_booking'),
+                86400 * 7 // Default: Booking possible starting 7 days before the event.
+            )
+        );
+        $settings->hide_if(
+            'booking/bookingtimerelativedefaultopeningduration',
+            'booking/bookingtimerelativeenabled',
+            'eq',
+            0
+        );
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/bookingtimerelativedefaultopeningbeforeafter',
+                get_string('bookingtimerelativedefaultopeningbeforeafter', 'mod_booking'),
+                get_string('bookingtimerelativedefaultopeningbeforeafter_desc', 'mod_booking'),
+                1,
+                [
+                    1 => get_string('before', 'mod_booking'),
+                    -1 => get_string('after', 'mod_booking'),
+                ]
+            )
+        );
+        $settings->hide_if(
+            'booking/bookingtimerelativedefaultopeningbeforeafter',
+            'booking/bookingtimerelativeenabled',
+            'eq',
+            0
+        );
+        $bookingtimerelativepossibledatefields = [
+            'coursestarttime' => get_string('bookingoptionstart', 'mod_booking'),
+            'courseendtime' => get_string('bookingoptionend', 'mod_booking'),
+        ];
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/bookingtimerelativedefaultopeningdatefield',
+                get_string('bookingtimerelativedefaultopeningdatefield', 'mod_booking'),
+                get_string('bookingtimerelativedefaultopeningdatefield_desc', 'mod_booking'),
+                'coursestarttime',
+                $bookingtimerelativepossibledatefields
+            )
+        );
+        $settings->hide_if(
+            'booking/bookingtimerelativedefaultopeningdatefield',
+            'booking/bookingtimerelativeenabled',
+            'eq',
+            0
+        );
+        $settings->add(
+            new admin_setting_configduration(
+                'booking/bookingtimerelativedefaultclosingduration',
+                get_string('bookingtimerelativedefaultclosingduration', 'mod_booking'),
+                get_string('bookingtimerelativedefaultclosingduration_desc', 'mod_booking'),
+                86400 // Default: Booking possible until 1 day before the event.
+            )
+        );
+        $settings->hide_if(
+            'booking/bookingtimerelativedefaultclosingduration',
+            'booking/bookingtimerelativeenabled',
+            'eq',
+            0
+        );
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/bookingtimerelativedefaultclosingbeforeafter',
+                get_string('bookingtimerelativedefaultclosingbeforeafter', 'mod_booking'),
+                get_string('bookingtimerelativedefaultclosingbeforeafter_desc', 'mod_booking'),
+                1,
+                [
+                    1 => get_string('before', 'mod_booking'),
+                    -1 => get_string('after', 'mod_booking'),
+                ]
+            )
+        );
+        $settings->hide_if(
+            'booking/bookingtimerelativedefaultclosingbeforeafter',
+            'booking/bookingtimerelativeenabled',
+            'eq',
+            0
+        );
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/bookingtimerelativedefaultclosingdatefield',
+                get_string('bookingtimerelativedefaultclosingdatefield', 'mod_booking'),
+                get_string('bookingtimerelativedefaultclosingdatefield_desc', 'mod_booking'),
+                'coursestarttime',
+                $bookingtimerelativepossibledatefields
+            )
+        );
+        $settings->hide_if(
+            'booking/bookingtimerelativedefaultclosingdatefield',
+            'booking/bookingtimerelativeenabled',
+            'eq',
+            0
+        );
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/bookingtimerelativeautoapply',
+                get_string('bookingtimerelativeautoapply', 'mod_booking'),
+                get_string('bookingtimerelativeautoapply_desc', 'mod_booking'),
+                0 // Auto-apply is turned off by default.
+            )
+        );
+        $settings->hide_if(
+            'booking/bookingtimerelativeautoapply',
+            'booking/bookingtimerelativeenabled',
+            'eq',
+            0
+        );
         // Use SQL for availability conditions.
         $settings->add(
             new admin_setting_configcheckbox(

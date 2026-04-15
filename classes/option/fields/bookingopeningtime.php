@@ -25,7 +25,9 @@
 namespace mod_booking\option\fields;
 
 use core_course_external;
+use mod_booking\bo_availability\conditions\booking_time;
 use mod_booking\booking_option_settings;
+use mod_booking\dates;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use MoodleQuickForm;
@@ -98,6 +100,22 @@ class bookingopeningtime extends field_base {
         $returnvalue = null
     ): array {
 
+        // Make coursestarttime and courseendtime available for relative time computation.
+        if (!empty($newoption->coursestarttime)) {
+            $formdata->coursestarttime = $newoption->coursestarttime;
+        }
+        if (!empty($newoption->courseendtime)) {
+            $formdata->courseendtime = $newoption->courseendtime;
+        }
+
+        // Resolve booking_time persistence values (condition logic) and apply opening-related values here.
+        $bookingtimedata = booking_time::resolve_persistence_data($formdata);
+        if ($bookingtimedata->hasopening) {
+            $formdata->restrictanswerperiodopening = $bookingtimedata->restrictanswerperiodopening;
+            $formdata->bookingopeningtime = $bookingtimedata->bookingopeningtime;
+        }
+        booking_time::upsert_condition_in_availability($formdata);
+
         $key = fields_info::get_class_name(static::class);
         $value = $formdata->{$key} ?? null;
 
@@ -135,6 +153,31 @@ class bookingopeningtime extends field_base {
      * @return array
      */
     public static function validation(array $data, array $files, array &$errors) {
+
+        if (empty($data['restrictanswerperiodopening'])) {
+            return $errors;
+        }
+
+        [$dates] = dates::get_list_of_submitted_dates($data);
+        $openingmode = (int)($data['booking_time_opening_mode'] ?? 1);
+
+        if ($openingmode === 2) {
+            // Relative mode requires at least one option date and is not supported for self-learning courses.
+            if (empty($dates) || !empty($data['selflearningcourse'])) {
+                $errors['booking_time_opening_mode'] = get_string('bookingtimerelativeneedsdates', 'mod_booking');
+                return $errors;
+            }
+            // Compute the relative opening time using the first/last option date as base, then check bounds.
+            $firstdate = reset($dates);
+            $lastdate = end($dates);
+            $dataobj = (object)$data;
+            $dataobj->coursestarttime = $firstdate['coursestarttime'];
+            $dataobj->courseendtime = $lastdate['courseendtime'];
+            $bookingtimedata = booking_time::resolve_persistence_data($dataobj);
+            $openingtime = $bookingtimedata->bookingopeningtime;
+        } else {
+            $openingtime = (int)($data['bookingopeningtime'] ?? 0);
+        }
 
         return $errors;
     }

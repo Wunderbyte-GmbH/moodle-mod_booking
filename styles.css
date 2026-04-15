@@ -608,7 +608,14 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
 
 /* Booking config settings. */
 #page-admin-setting-modsettingbooking #admin-selectteacherswithprofilefieldonlyfield,
-#page-admin-setting-modsettingbooking #admin-selectteacherswithprofilefieldonlyvalue {
+#page-admin-setting-modsettingbooking #admin-selectteacherswithprofilefieldonlyvalue,
+#page-admin-setting-modsettingbooking #admin-bookingtimerelativedefaultopeningduration,
+#page-admin-setting-modsettingbooking #admin-bookingtimerelativedefaultclosingduration,
+#page-admin-setting-modsettingbooking #admin-bookingtimerelativedefaultopeningbeforeafter,
+#page-admin-setting-modsettingbooking #admin-bookingtimerelativedefaultclosingbeforeafter,
+#page-admin-setting-modsettingbooking #admin-bookingtimerelativedefaultopeningdatefield,
+#page-admin-setting-modsettingbooking #admin-bookingtimerelativedefaultclosingdatefield,
+#page-admin-setting-modsettingbooking #admin-bookingtimerelativeautoapply {
     margin-left: 75px;
 }
 

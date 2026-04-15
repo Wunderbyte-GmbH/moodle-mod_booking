@@ -30,7 +30,7 @@ Feature: In a booking instance
     And I change viewport size to "1366x10000"
 
   @javascript
-  Scenario: Booking option cancellation: disable cancellation and booking of oprion as a student
+  Scenario: Booking option cancellation: disable cancellation and booking of option as a student
     Given the following "mod_booking > options" exist:
       | booking    | text          | course | description  |
       | My booking | Test option 1 | C1     | Cancellation |
@@ -49,7 +49,7 @@ Feature: In a booking instance
     And I should not see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
 
   @javascript
-  Scenario: Booking option cancellation: book oprion as a student and self-cancell it
+  Scenario: Booking option cancellation: book option as a student and self-cancell it
     Given the following "mod_booking > options" exist:
       | booking    | text          | course | description  |
       | My booking | Test option 1 | C1     | Cancellation |

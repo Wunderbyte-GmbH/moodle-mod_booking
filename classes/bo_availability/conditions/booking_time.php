@@ -31,6 +31,7 @@ use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
 use mod_booking\option\time_handler;
+use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
 
@@ -52,11 +53,31 @@ class booking_time implements bo_condition {
     /** @var int $id Standard Conditions have hardcoded ids. */
     public $id = MOD_BOOKING_BO_COND_BOOKING_TIME;
 
+    /** @var stdClass|null $customsettings JSON-backed settings when condition is instantiated from availability JSON. */
+    public $customsettings = null;
+
     /** @var bool $overridable Indicates if the condition can be overriden. */
     public $overridable = true;
 
     /** @var bool $overwrittenbybillboard Indicates if the condition can be overwritten by the billboard. */
     public $overwrittenbybillboard = false;
+
+    /** @var array|null Singleton instances. */
+    private static $instances = null;
+
+    /**
+     * Singleton instance.
+     *
+     * @param ?int $id
+     * @return object
+     *
+     */
+    public static function instance(?int $id = null): object {
+        if (!isset(self::$instances[$id])) {
+            self::$instances[$id] = new self();
+        }
+        return self::$instances[$id];
+    }
 
     /**
      * Get the condition id.
@@ -74,7 +95,6 @@ class booking_time implements bo_condition {
      */
     public function is_json_compatible(): bool {
         return false;
-        // Important: If we want to re-activate override conditions here, we need to make it JSON compatible!
     }
 
     /**
@@ -254,37 +274,233 @@ class booking_time implements bo_condition {
     public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0) {
         global $DB;
 
+        $relativemodeenabled = self::is_relative_mode_enabled();
+
+        // Get existing condition data if available.
+        $openingmode = 0;
+        $closingmode = 0;
+        $conditionobject = null;
+        // For new options, the checkboxes start unchecked regardless of relative mode.
+        $checkboxopening = 0;
+        $checkboxclosing = 0;
+
+        if (empty($optionid)) {
+            if (self::is_relative_mode_enabled()) {
+                // Pre-select relative in the mode dropdowns, but leave the checkboxes unchecked.
+                $openingmode = 2;
+                $closingmode = 2;
+                // Only pre-check the checkboxes when the auto-apply setting is on.
+                if (!empty(get_config('booking', 'bookingtimerelativeautoapply'))) {
+                    $checkboxopening = 1;
+                    $checkboxclosing = 1;
+                }
+            }
+        } else if (!empty($optionid) && $optionid > 0) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+            if (!empty($settings->availability)) {
+                $jsonconditions = json_decode($settings->availability);
+                if (!empty($jsonconditions)) {
+                    foreach ($jsonconditions as $jsoncondition) {
+                        if (isset($jsoncondition->id) && $jsoncondition->id == MOD_BOOKING_BO_COND_BOOKING_TIME) {
+                            $conditionobject = $jsoncondition;
+                            $openingmode = $jsoncondition->openingmode ?? 0;
+                            $closingmode = $jsoncondition->closingmode ?? 0;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Backwards compatibility: if no JSON mode but we have DB times, treat as absolute.
+            if (empty($conditionobject)) {
+                if (!empty($settings->bookingopeningtime)) {
+                    $openingmode = 1;
+                }
+                if (!empty($settings->bookingclosingtime)) {
+                    $closingmode = 1;
+                }
+            }
+            // For existing options the checkbox mirrors whether a mode is active.
+            $checkboxopening = $openingmode > 0 ? 1 : 0;
+            $checkboxclosing = $closingmode > 0 ? 1 : 0;
+        }
+
+        // Opening time mode select - checkbox enables/disables this choice.
+        $modes = [
+            1 => get_string('bookingtimeabsolutemode', 'mod_booking'),
+            2 => get_string('bookingtimerelativemode', 'mod_booking'),
+        ];
+        // Master checkbox - enables/disables the time restrictions for opening period.
         $mform->addElement(
             'advcheckbox',
             'restrictanswerperiodopening',
             get_string('restrictanswerperiodopening', 'mod_booking')
         );
+        $mform->setDefault('restrictanswerperiodopening', $checkboxopening);
 
+        // Opening time mode select - only shown when checkbox is checked.
+        if ($relativemodeenabled) {
+            $mform->addElement(
+                'select',
+                'booking_time_opening_mode',
+                get_string('restrictanswerperiodopening', 'mod_booking'),
+                $modes
+            );
+            // Hide mode select when checkbox is unchecked.
+            $mform->hideIf('booking_time_opening_mode', 'restrictanswerperiodopening', 'eq', 0);
+            // Set default to absolute mode (1) when enabled, never 0.
+            $mform->setDefault('booking_time_opening_mode', max(1, $openingmode));
+        }
+
+        // Opening time absolute.
         $mform->addElement(
             'date_time_selector',
             'bookingopeningtime',
-            get_string('from', 'mod_booking'),
+            get_string('bookingtimeopeningabsolutedate', 'mod_booking'),
             time_handler::set_timeintervall(),
         );
         $mform->setType('bookingopeningtime', PARAM_INT);
-        $mform->setDefault('bookingopeningtime', time_handler::prettytime(time()));
-        $mform->hideIf('bookingopeningtime', 'restrictanswerperiodopening', 'notchecked');
+        $defaultopeningtime = $conditionobject->openingtime ?? $settings->bookingopeningtime ?? time_handler::prettytime(time());
+        $mform->setDefault('bookingopeningtime', $defaultopeningtime);
+        // Hide opening time picker when checkbox unchecked.
+        $mform->hideIf('bookingopeningtime', 'restrictanswerperiodopening', 'eq', 0);
+        if ($relativemodeenabled) {
+            // Also hide when mode is not absolute.
+            $mform->hideIf('bookingopeningtime', 'booking_time_opening_mode', 'neq', 1);
+        }
 
+        // Opening time relative.
+        $datefields = [
+            'coursestarttime' => get_string('bookingoptionstart', 'mod_booking'),
+            'courseendtime' => get_string('bookingoptionend', 'mod_booking'),
+        ];
+        if ($relativemodeenabled) {
+            $mform->addElement(
+                'duration',
+                'booking_time_opening_relative_duration',
+                get_string('bookingtimeopeningrelativeduration', 'mod_booking')
+            );
+            $mform->setDefault(
+                'booking_time_opening_relative_duration',
+                $conditionobject->openingrelativeduration ?? self::get_default_relative_opening_duration()
+            );
+            // Hide relative duration when checkbox unchecked or mode is not relative.
+            $mform->hideIf('booking_time_opening_relative_duration', 'restrictanswerperiodopening', 'eq', 0);
+            $mform->hideIf('booking_time_opening_relative_duration', 'booking_time_opening_mode', 'neq', 2);
+
+            $mform->addElement(
+                'select',
+                'booking_time_opening_relative_beforeafter',
+                get_string('bookingtimerelativebeforeafter', 'mod_booking'),
+                [
+                    1 => get_string('before', 'mod_booking'),
+                    -1 => get_string('after', 'mod_booking'),
+                ]
+            );
+            $mform->setDefault(
+                'booking_time_opening_relative_beforeafter',
+                $conditionobject->openingrelativebeforeafter ?? self::get_default_relative_opening_beforeafter()
+            );
+            // Hide relative before/after when checkbox unchecked or mode is not relative.
+            $mform->hideIf('booking_time_opening_relative_beforeafter', 'restrictanswerperiodopening', 'eq', 0);
+            $mform->hideIf('booking_time_opening_relative_beforeafter', 'booking_time_opening_mode', 'neq', 2);
+
+            $mform->addElement(
+                'select',
+                'booking_time_opening_relative_datefield',
+                get_string('bookingtimerelativedatefield', 'mod_booking'),
+                $datefields
+            );
+            $openingdatefield = $conditionobject->openingrelativedatefield ?? self::get_default_relative_opening_datefield();
+            $mform->setDefault('booking_time_opening_relative_datefield', $openingdatefield);
+            // Hide relative datefield when checkbox unchecked or mode is not relative.
+            $mform->hideIf('booking_time_opening_relative_datefield', 'restrictanswerperiodopening', 'eq', 0);
+            $mform->hideIf('booking_time_opening_relative_datefield', 'booking_time_opening_mode', 'neq', 2);
+        }
+
+        // Master checkbox - enables/disables the time restrictions for closing period.
         $mform->addElement(
             'advcheckbox',
             'restrictanswerperiodclosing',
             get_string('restrictanswerperiodclosing', 'mod_booking')
         );
+        $mform->setDefault('restrictanswerperiodclosing', $checkboxclosing);
 
+        // Closing time mode select - only shown when checkbox is checked.
+        if ($relativemodeenabled) {
+            $mform->addElement(
+                'select',
+                'booking_time_closing_mode',
+                get_string('restrictanswerperiodclosing', 'mod_booking'),
+                $modes
+            );
+            // Hide mode select when checkbox is unchecked.
+            $mform->hideIf('booking_time_closing_mode', 'restrictanswerperiodclosing', 'eq', 0);
+            // Set default to absolute mode (1) when enabled, never 0.
+            $mform->setDefault('booking_time_closing_mode', max(1, $closingmode));
+        }
+
+        // Closing time absolute.
         $mform->addElement(
             'date_time_selector',
             'bookingclosingtime',
-            get_string('until', 'mod_booking'),
+            get_string('bookingtimeclosingabsolutedate', 'mod_booking'),
             time_handler::set_timeintervall(),
         );
         $mform->setType('bookingclosingtime', PARAM_INT);
-        $mform->setDefault('bookingclosingtime', time_handler::prettytime(time()));
-        $mform->hideIf('bookingclosingtime', 'restrictanswerperiodclosing', 'notchecked');
+        $defaultclosingtime = $conditionobject->closingtime ?? $settings->bookingclosingtime ?? time_handler::prettytime(time());
+        $mform->setDefault('bookingclosingtime', $defaultclosingtime);
+        // Hide closing time picker when checkbox unchecked.
+        $mform->hideIf('bookingclosingtime', 'restrictanswerperiodclosing', 'eq', 0);
+        if ($relativemodeenabled) {
+            // Also hide when mode is not absolute.
+            $mform->hideIf('bookingclosingtime', 'booking_time_closing_mode', 'neq', 1);
+        }
+
+        // Closing time relative.
+        if ($relativemodeenabled) {
+            $mform->addElement(
+                'duration',
+                'booking_time_closing_relative_duration',
+                get_string('bookingtimeclosingrelativeduration', 'mod_booking')
+            );
+            $mform->setDefault(
+                'booking_time_closing_relative_duration',
+                $conditionobject->closingrelativeduration ?? self::get_default_relative_closing_duration()
+            );
+            // Hide relative duration when checkbox unchecked or mode is not relative.
+            $mform->hideIf('booking_time_closing_relative_duration', 'restrictanswerperiodclosing', 'eq', 0);
+            $mform->hideIf('booking_time_closing_relative_duration', 'booking_time_closing_mode', 'neq', 2);
+
+            $mform->addElement(
+                'select',
+                'booking_time_closing_relative_beforeafter',
+                get_string('bookingtimerelativebeforeafter', 'mod_booking'),
+                [
+                    1 => get_string('before', 'mod_booking'),
+                    -1 => get_string('after', 'mod_booking'),
+                ]
+            );
+            $mform->setDefault(
+                'booking_time_closing_relative_beforeafter',
+                $conditionobject->closingrelativebeforeafter ?? self::get_default_relative_closing_beforeafter()
+            );
+            // Hide relative before/after when checkbox unchecked or mode is not relative.
+            $mform->hideIf('booking_time_closing_relative_beforeafter', 'restrictanswerperiodclosing', 'eq', 0);
+            $mform->hideIf('booking_time_closing_relative_beforeafter', 'booking_time_closing_mode', 'neq', 2);
+
+            $mform->addElement(
+                'select',
+                'booking_time_closing_relative_datefield',
+                get_string('bookingtimerelativedatefield', 'mod_booking'),
+                $datefields
+            );
+            $closingdatefield = $conditionobject->closingrelativedatefield ?? self::get_default_relative_closing_datefield();
+            $mform->setDefault('booking_time_closing_relative_datefield', $closingdatefield);
+            // Hide relative datefield when checkbox unchecked or mode is not relative.
+            $mform->hideIf('booking_time_closing_relative_datefield', 'restrictanswerperiodclosing', 'eq', 0);
+            $mform->hideIf('booking_time_closing_relative_datefield', 'booking_time_closing_mode', 'neq', 2);
+        }
 
         $mform->addElement(
             'advcheckbox',
@@ -479,8 +695,86 @@ class booking_time implements bo_condition {
 
         // This condition is either hardcoded with the standard booking opening or booking closing time, or its customized.
         if ($this->id == MOD_BOOKING_BO_COND_BOOKING_TIME) {
-            $openingtime = $settings->bookingopeningtime ?? null;
-            $closingtime = $settings->bookingclosingtime ?? null;
+            $jsonstring = $settings->availability ?? '';
+            $openingmode = null;
+            $closingmode = null;
+            $jsonobject = null;
+
+            if (!empty($jsonstring)) {
+                $jsonconditions = json_decode($jsonstring);
+                if (is_array($jsonconditions)) {
+                    foreach ($jsonconditions as $jsoncondition) {
+                        if (isset($jsoncondition->id) && (int)$jsoncondition->id === MOD_BOOKING_BO_COND_BOOKING_TIME) {
+                            $jsonobject = $jsoncondition;
+                            break;
+                        }
+                    }
+                }
+
+                // Backwards compatibility: support old object-style JSON as well.
+                if (empty($jsonobject) && is_object($jsonconditions)) {
+                    $jsonobject = $jsonconditions;
+                }
+
+                if (!empty($jsonobject)) {
+                    $openingmode = $jsonobject->openingmode ?? null;
+                    $closingmode = $jsonobject->closingmode ?? null;
+                }
+            }
+
+            // Backwards compatibility: if no opening mode but we have DB opening time, treat as absolute.
+            if ($openingmode === null && !empty($settings->bookingopeningtime)) {
+                $openingmode = 1;
+            }
+
+            // Backwards compatibility: if no closing mode but we have DB closing time, treat as absolute.
+            if ($closingmode === null && !empty($settings->bookingclosingtime)) {
+                $closingmode = 1;
+            }
+
+            // Handle opening time.
+            if ($openingmode === 1) {
+                // Absolute opening: use DB field.
+                $openingtime = $settings->bookingopeningtime ?? null;
+            } else if ($openingmode === 2) {
+                // Relative opening.
+                $duration = $jsonobject->openingrelativeduration ?? 0;
+                $beforeafter = $jsonobject->openingrelativebeforeafter ?? 1;
+                $datefield = $jsonobject->openingrelativedatefield ?? 'coursestarttime';
+
+                $basetime = $this->get_base_time($settings, $datefield);
+                if ($basetime) {
+                    $openingtime = $basetime - ($beforeafter * $duration);
+                } else {
+                    // No usable base time (e.g. no sessions yet): fall back to the
+                    // pre-computed absolute value that was stored at save time.
+                    $openingtime = !empty($settings->bookingopeningtime) ? $settings->bookingopeningtime : null;
+                }
+            } else {
+                $openingtime = null;
+            }
+
+            // Handle closing time.
+            if ($closingmode === 1) {
+                // Absolute closing: use DB field.
+                $closingtime = $settings->bookingclosingtime ?? null;
+            } else if ($closingmode === 2) {
+                // Relative closing.
+                $duration = $jsonobject->closingrelativeduration ?? 0;
+                $beforeafter = $jsonobject->closingrelativebeforeafter ?? 1;
+                $datefield = $jsonobject->closingrelativedatefield ?? 'coursestarttime';
+
+                $basetime = $this->get_base_time($settings, $datefield);
+                if ($basetime) {
+                    $closingtime = $basetime - ($beforeafter * $duration);
+                } else {
+                    // No usable base time (e.g. no sessions yet): fall back to the
+                    // pre-computed absolute value that was stored at save time.
+                    $closingtime = !empty($settings->bookingclosingtime) ? $settings->bookingclosingtime : null;
+                }
+            } else {
+                $closingtime = null;
+            }
         } else {
             $jsonstring = $settings->availability ?? '';
 
@@ -493,56 +787,530 @@ class booking_time implements bo_condition {
         return [$openingtime, $closingtime];
     }
 
-    /*
+    /**
+     * Get the base timestamp for relative calculations.
+     * The coursestarttime refers to the booking_options.coursestarttime column,
+     * not the course start date.
+     *
+     * @param booking_option_settings $settings
+     * @param string $datefield
+     * @return int|null
+     */
+    private function get_base_time(booking_option_settings $settings, string $datefield): ?int {
+        switch ($datefield) {
+            case 'coursestarttime':
+                return $settings->coursestarttime ?? null;
+            case 'courseendtime':
+                return $settings->courseendtime ?? null;
+            // Add more cases as needed.
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * Resolve booking-time persistence data from form input.
+     *
+     * This is pure condition logic: interpret opening/closing modes and compute
+     * timestamps to be persisted by option field classes.
+     *
+     * @param stdClass $data
+     * @return stdClass
+     */
+    public static function resolve_persistence_data(stdClass $data): stdClass {
+        $result = (object)[
+            'hasopening' => false,
+            'hasclosing' => false,
+            'openingmode' => null,
+            'closingmode' => null,
+            'bookingopeningtime' => null,
+            'bookingclosingtime' => null,
+            'restrictanswerperiodopening' => null,
+            'restrictanswerperiodclosing' => null,
+        ];
+
+        $openingmode = null;
+        if (property_exists($data, 'booking_time_opening_mode')) {
+            $openingmode = (int)($data->booking_time_opening_mode ?? 0);
+            /* Master checkbox takes precedence: hideIf still submits hidden selects, so
+            an unchecked checkbox must override whatever booking_time_opening_mode says. */
+            if (property_exists($data, 'restrictanswerperiodopening') && empty($data->restrictanswerperiodopening)) {
+                $openingmode = 0;
+            }
+        } else if (property_exists($data, 'bookingopeningtime')) {
+            /* Legacy absolute-only interface.
+            Respect the master checkbox: an unchecked checkbox means no restriction,
+            regardless of the date_time_selector value (which always submits a non-zero timestamp). */
+            if (property_exists($data, 'restrictanswerperiodopening') && empty($data->restrictanswerperiodopening)) {
+                $openingmode = 0;
+            } else {
+                $openingmode = !empty($data->bookingopeningtime) ? 1 : 0;
+            }
+        }
+
+        $closingmode = null;
+        if (property_exists($data, 'booking_time_closing_mode')) {
+            $closingmode = (int)($data->booking_time_closing_mode ?? 0);
+            /* Master checkbox takes precedence: hideIf still submits hidden selects, so
+            an unchecked checkbox must override whatever booking_time_closing_mode says. */
+            if (property_exists($data, 'restrictanswerperiodclosing') && empty($data->restrictanswerperiodclosing)) {
+                $closingmode = 0;
+            }
+        } else if (property_exists($data, 'bookingclosingtime')) {
+            /* Legacy absolute-only interface.
+            Respect the master checkbox: an unchecked checkbox means no restriction,
+            regardless of the date_time_selector value (which always submits a non-zero timestamp). */
+            if (property_exists($data, 'restrictanswerperiodclosing') && empty($data->restrictanswerperiodclosing)) {
+                $closingmode = 0;
+            } else {
+                $closingmode = !empty($data->bookingclosingtime) ? 1 : 0;
+            }
+        }
+
+        if ($openingmode !== null) {
+            $result->hasopening = true;
+            $result->openingmode = $openingmode;
+            $result->restrictanswerperiodopening = $openingmode > 0 ? 1 : 0;
+
+            if ($openingmode === 0) {
+                $result->bookingopeningtime = 0;
+            } else if ($openingmode === 1) {
+                $result->bookingopeningtime = (int)($data->bookingopeningtime ?? 0);
+            } else if ($openingmode === 2) {
+                $duration = $data->booking_time_opening_relative_duration ?? 0;
+                $beforeafter = $data->booking_time_opening_relative_beforeafter ?? 1;
+                $datefield = $data->booking_time_opening_relative_datefield ?? 'coursestarttime';
+                $basetime = self::get_base_time_from_form_data($data, $datefield);
+                $result->bookingopeningtime = $basetime ? ($basetime - ($beforeafter * $duration)) : 0;
+            }
+        }
+
+        if ($closingmode !== null) {
+            $result->hasclosing = true;
+            $result->closingmode = $closingmode;
+            $result->restrictanswerperiodclosing = $closingmode > 0 ? 1 : 0;
+
+            if ($closingmode === 0) {
+                $result->bookingclosingtime = 0;
+            } else if ($closingmode === 1) {
+                $result->bookingclosingtime = (int)($data->bookingclosingtime ?? 0);
+            } else if ($closingmode === 2) {
+                $duration = $data->booking_time_closing_relative_duration ?? 0;
+                $beforeafter = $data->booking_time_closing_relative_beforeafter ?? 1;
+                $datefield = $data->booking_time_closing_relative_datefield ?? 'coursestarttime';
+                $basetime = self::get_base_time_from_form_data($data, $datefield);
+                $result->bookingclosingtime = $basetime ? ($basetime - ($beforeafter * $duration)) : 0;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get base timestamp for relative calculation from option form/update data.
+     *
+     * @param stdClass $data
+     * @param string $datefield
+     * @return int|null
+     */
+    private static function get_base_time_from_form_data(stdClass $data, string $datefield): ?int {
+        switch ($datefield) {
+            case 'coursestarttime':
+                return $data->coursestarttime ?? null;
+            case 'courseendtime':
+                return $data->courseendtime ?? null;
+            // Add more cases as needed.
+            default:
+                return null;
+        }
+    }
+
+    /**
      * Returns a condition object which is needed to create the condition JSON.
      *
      * @param stdClass $fromform
      * @return stdClass|null the object for the JSON
      */
-    // Override conditions should not be necessary here - but let's keep it if we change our mind.
-    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-    /*public function get_condition_object_for_json(stdClass $fromform): stdClass {
+    public function get_condition_object_for_json(stdClass $fromform): ?stdClass {
 
         $conditionobject = new stdClass();
 
-        // Booking time is a special case, bookingopeningtime and bookingclosingtime are stored in extra DB fields not in JSON!
-
-        if (!empty($fromform->restrictanswerperiodopening) || !empty($fromform->restrictanswerperiodclosing)) {
-            // Remove the namespace from classname.
-            $classname = __CLASS__;
-            $classnameparts = explode('\\', $classname);
-            $shortclassname = end($classnameparts); // Without namespace.
-
-            $conditionobject->id = MOD_BOOKING_BO_COND_BOOKING_TIME;
-            $conditionobject->name = $shortclassname;
-            $conditionobject->class = $classname;
-
-            // Important: We do not store bookingopeningtime and bookingclosingtime in JSON!
-            // They are stored in extra DB fields.
-
-            if (!empty($fromform->bo_cond_booking_time_overrideconditioncheckbox)) {
-                $conditionobject->overrides = $fromform->bo_cond_booking_time_overridecondition;
-                $conditionobject->overrideoperator = $fromform->bo_cond_booking_time_overrideoperator;
-            }
+        $openingmode = property_exists($fromform, 'booking_time_opening_mode')
+            ? (int)($fromform->booking_time_opening_mode ?? 0)
+            : null;
+        /* Master checkbox takes precedence: hideIf still submits hidden selects, so
+        an unchecked checkbox must override whatever booking_time_opening_mode says. */
+        if (
+            $openingmode !== null
+            && property_exists($fromform, 'restrictanswerperiodopening')
+            && empty($fromform->restrictanswerperiodopening)
+        ) {
+            $openingmode = 0;
         }
+        $closingmode = property_exists($fromform, 'booking_time_closing_mode')
+            ? (int)($fromform->booking_time_closing_mode ?? 0)
+            : null;
+        /* Master checkbox takes precedence: hideIf still submits hidden selects, so
+        an unchecked checkbox must override whatever booking_time_closing_mode says. */
+        if (
+            $closingmode !== null
+            && property_exists($fromform, 'restrictanswerperiodclosing')
+            && empty($fromform->restrictanswerperiodclosing)
+        ) {
+            $closingmode = 0;
+        }
+        $relativemodeenabled = self::is_relative_mode_enabled();
+        $existingcondition = self::get_existing_condition_object_from_form_or_option($fromform);
+
+        // Legacy interface mode: do not expose mode fields, keep existing JSON configuration if present.
+        if (
+            !$relativemodeenabled
+            && !property_exists($fromform, 'booking_time_opening_mode')
+            && !property_exists($fromform, 'booking_time_closing_mode')
+        ) {
+            return self::get_existing_condition_object_from_option((int)($fromform->id ?? 0));
+        }
+
+        // If one mode key is not part of submitted payload, keep previously stored mode.
+        if ($openingmode === null && !empty($existingcondition)) {
+            $openingmode = isset($existingcondition->openingmode) ? (int)$existingcondition->openingmode : null;
+        }
+        if ($closingmode === null && !empty($existingcondition)) {
+            $closingmode = isset($existingcondition->closingmode) ? (int)$existingcondition->closingmode : null;
+        }
+
+        // Fallback for payloads without explicit mode keys.
+        if ($openingmode === null) {
+            $openingmode = !empty($fromform->restrictanswerperiodopening) ? 1 : 0;
+        }
+        if ($closingmode === null) {
+            $closingmode = !empty($fromform->restrictanswerperiodclosing) ? 1 : 0;
+        }
+
+        // If both modes are 0 (no restriction), no JSON needed.
+        if ($openingmode == 0 && $closingmode == 0) {
+            return null;
+        }
+
+        // Remove the namespace from classname.
+        $classname = __CLASS__;
+        $classnameparts = explode('\\', $classname);
+        $shortclassname = end($classnameparts); // Without namespace.
+
+        $conditionobject->id = MOD_BOOKING_BO_COND_BOOKING_TIME;
+        $conditionobject->name = $shortclassname;
+        $conditionobject->class = $classname;
+
+        // Store opening mode and data.
+        $conditionobject->openingmode = $openingmode;
+        // For mode 1 (absolute), times are stored in DB fields, not in JSON.
+        // Only relative parameters are stored in JSON.
+        if ($openingmode == 2) {
+            // Relative opening: store relative data only.
+            $conditionobject->openingrelativeduration = $fromform->booking_time_opening_relative_duration
+                ?? $existingcondition->openingrelativeduration
+                ?? 0;
+            $conditionobject->openingrelativebeforeafter = $fromform->booking_time_opening_relative_beforeafter
+                ?? $existingcondition->openingrelativebeforeafter
+                ?? 1;
+            $conditionobject->openingrelativedatefield = $fromform->booking_time_opening_relative_datefield
+                ?? $existingcondition->openingrelativedatefield
+                ?? 'coursestarttime';
+        }
+
+        // Store closing mode and data.
+        $conditionobject->closingmode = $closingmode;
+        // For mode 1 (absolute), times are stored in DB fields, not in JSON.
+        // Only relative parameters are stored in JSON.
+        if ($closingmode == 2) {
+            // Relative closing: store relative data only.
+            $conditionobject->closingrelativeduration = $fromform->booking_time_closing_relative_duration
+                ?? $existingcondition->closingrelativeduration
+                ?? 0;
+            $conditionobject->closingrelativebeforeafter = $fromform->booking_time_closing_relative_beforeafter
+                ?? $existingcondition->closingrelativebeforeafter
+                ?? 1;
+            $conditionobject->closingrelativedatefield = $fromform->booking_time_closing_relative_datefield
+                ?? $existingcondition->closingrelativedatefield
+                ?? 'coursestarttime';
+        }
+
+        // Override conditions - keeping for future.
+        if (!empty($fromform->bo_cond_booking_time_overrideconditioncheckbox)) {
+            $conditionobject->overrides = $fromform->bo_cond_booking_time_overridecondition;
+            $conditionobject->overrideoperator = $fromform->bo_cond_booking_time_overrideoperator;
+        }
+
         // Might be an empty object.
         return $conditionobject;
-    }*/
+    }
+
+    /**
+     * Return existing booking_time condition from current form availability first,
+     * then fallback to persisted option settings.
+     *
+     * @param stdClass $fromform
+     * @return stdClass|null
+     */
+    private static function get_existing_condition_object_from_form_or_option(stdClass $fromform): ?stdClass {
+        if (!empty($fromform->availability)) {
+            $jsonconditions = json_decode($fromform->availability);
+            if (is_array($jsonconditions)) {
+                foreach ($jsonconditions as $jsoncondition) {
+                    if (!isset($jsoncondition->id) || (int)$jsoncondition->id !== MOD_BOOKING_BO_COND_BOOKING_TIME) {
+                        continue;
+                    }
+                    return $jsoncondition;
+                }
+            }
+        }
+
+        return self::get_existing_condition_object_from_option((int)($fromform->id ?? 0));
+    }
+
+    /**
+     * Upsert booking_time condition data in availability JSON based on current form values.
+     *
+     * This persists mode and relative details in JSON while keeping all other
+     * availability conditions untouched.
+     *
+     * @param stdClass $fromform
+     * @return void
+     */
+    public static function upsert_condition_in_availability(stdClass &$fromform): void {
+        $hasbookingtimepayload =
+            property_exists($fromform, 'booking_time_opening_mode')
+            || property_exists($fromform, 'booking_time_closing_mode')
+            || property_exists($fromform, 'booking_time_opening_relative_duration')
+            || property_exists($fromform, 'booking_time_opening_relative_beforeafter')
+            || property_exists($fromform, 'booking_time_opening_relative_datefield')
+            || property_exists($fromform, 'booking_time_closing_relative_duration')
+            || property_exists($fromform, 'booking_time_closing_relative_beforeafter')
+            || property_exists($fromform, 'booking_time_closing_relative_datefield');
+
+        // If there is no explicit booking_time payload, do not mutate availability JSON.
+        if (!$hasbookingtimepayload) {
+            return;
+        }
+
+        $availabilityconditions = [];
+        if (!empty($fromform->availability)) {
+            $decoded = json_decode($fromform->availability);
+            if (is_array($decoded)) {
+                $availabilityconditions = $decoded;
+            }
+        }
+
+        // Remove existing booking_time condition entry.
+        $filteredconditions = [];
+        foreach ($availabilityconditions as $condition) {
+            if (!isset($condition->id) || (int)$condition->id !== MOD_BOOKING_BO_COND_BOOKING_TIME) {
+                $filteredconditions[] = $condition;
+            }
+        }
+
+        // Build latest booking_time condition object from form and append when needed.
+        $instance = new self();
+        $conditionobject = $instance->get_condition_object_for_json($fromform);
+        if (!empty($conditionobject)) {
+            $filteredconditions[] = $conditionobject;
+        }
+
+        $fromform->availability = json_encode(array_values($filteredconditions));
+    }
 
     // Override conditions should not be necessary here - but let's keep it if we change our mind.
     // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-    /*
+    /**
      * Set default values to be shown in form when loaded from DB.
-     * @param stdClass &$defaultvalues the default values
+     * @param stdClass $defaultvalues the default values
      * @param stdClass $acdefault the condition object from JSON
      */
-    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-    /*public function set_defaults(stdClass &$defaultvalues, stdClass $acdefault) {
+    public function set_defaults(stdClass &$defaultvalues, stdClass $acdefault) {
+
+        $openingmode = $acdefault->openingmode ?? null;
+        $closingmode = $acdefault->closingmode ?? null;
+
+        // Backwards compatibility: if no opening mode but we have DB opening time, treat as absolute.
+        if ($openingmode === null && !empty($defaultvalues->bookingopeningtime)) {
+            $openingmode = 1;
+        }
+
+        // Backwards compatibility: if no closing mode but we have DB closing time, treat as absolute.
+        if ($closingmode === null && !empty($defaultvalues->bookingclosingtime)) {
+            $closingmode = 1;
+        }
+
+        // Set mode defaults: ensure valid modes (1 or 2), never 0.
+        $defaultvalues->booking_time_opening_mode = ($openingmode > 0) ? $openingmode : 1;
+        $defaultvalues->booking_time_closing_mode = ($closingmode > 0) ? $closingmode : 1;
+
+        if ($openingmode == 2) {
+            // Relative opening: load relative data from JSON.
+            $defaultvalues->booking_time_opening_relative_duration = $acdefault->openingrelativeduration ?? 0;
+            $defaultvalues->booking_time_opening_relative_beforeafter = $acdefault->openingrelativebeforeafter ?? 1;
+            $defaultvalues->booking_time_opening_relative_datefield = $acdefault->openingrelativedatefield ?? 'coursestarttime';
+        }
+
+        if ($closingmode == 2) {
+            // Relative closing: load relative data from JSON.
+            $defaultvalues->booking_time_closing_relative_duration = $acdefault->closingrelativeduration ?? 0;
+            $defaultvalues->booking_time_closing_relative_beforeafter = $acdefault->closingrelativebeforeafter ?? 1;
+            $defaultvalues->booking_time_closing_relative_datefield = $acdefault->closingrelativedatefield ?? 'coursestarttime';
+        }
 
         if (!empty($acdefault->overrides)) {
             $defaultvalues->bo_cond_booking_time_overrideconditioncheckbox = "1";
             $defaultvalues->bo_cond_booking_time_overridecondition = $acdefault->overrides;
             $defaultvalues->bo_cond_booking_time_overrideoperator = $acdefault->overrideoperator;
         }
-    }*/
+    }
+
+    /**
+     * Return existing booking_time condition object from option availability JSON.
+     *
+     * @param int $optionid
+     * @return stdClass|null
+     */
+    private static function get_existing_condition_object_from_option(int $optionid): ?stdClass {
+        if (empty($optionid)) {
+            return null;
+        }
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        if (empty($settings->availability)) {
+            return null;
+        }
+
+        $jsonconditions = json_decode($settings->availability);
+        if (empty($jsonconditions) || !is_array($jsonconditions)) {
+            return null;
+        }
+
+        foreach ($jsonconditions as $jsoncondition) {
+            if (!isset($jsoncondition->id) || (int)$jsoncondition->id !== MOD_BOOKING_BO_COND_BOOKING_TIME) {
+                continue;
+            }
+            return $jsoncondition;
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns whether relative booking time mode is enabled globally.
+     *
+     * @return bool
+     */
+    private static function is_relative_mode_enabled(): bool {
+        $configvalue = get_config('booking', 'bookingtimerelativeenabled');
+        if ($configvalue === false || $configvalue === null || $configvalue === '') {
+            return false;
+        }
+        return !empty($configvalue);
+    }
+
+    /**
+     * Returns the globally configured default relative duration in seconds.
+     *
+     * @return int
+     */
+    private static function get_default_relative_opening_duration(): int {
+        $duration = get_config('booking', 'bookingtimerelativedefaultopeningduration');
+        if ($duration !== false && $duration !== null && $duration !== '') {
+            return (int)$duration;
+        }
+
+        // Backwards compatibility with previous single default setting.
+        $legacyduration = get_config('booking', 'bookingtimerelativedefaultduration');
+        if ($legacyduration !== false && $legacyduration !== null && $legacyduration !== '') {
+            return (int)$legacyduration;
+        }
+
+        return 0;
+    }
+
+    /**
+     * Returns the globally configured default relative closing duration in seconds.
+     *
+     * @return int
+     */
+    private static function get_default_relative_closing_duration(): int {
+        $duration = get_config('booking', 'bookingtimerelativedefaultclosingduration');
+        if ($duration !== false && $duration !== null && $duration !== '') {
+            return (int)$duration;
+        }
+
+        // Backwards compatibility with previous single default setting.
+        $legacyduration = get_config('booking', 'bookingtimerelativedefaultduration');
+        if ($legacyduration !== false && $legacyduration !== null && $legacyduration !== '') {
+            return (int)$legacyduration;
+        }
+
+        return 0;
+    }
+
+    /**
+     * Returns the globally configured default datefield for the relative opening select.
+     *
+     * @return string
+     */
+    private static function get_default_relative_opening_datefield(): string {
+        $value = get_config('booking', 'bookingtimerelativedefaultopeningdatefield');
+        if ($value !== false && $value !== null && $value !== '') {
+            return (string)$value;
+        }
+        return 'coursestarttime';
+    }
+
+    /**
+     * Returns the globally configured default datefield for the relative closing select.
+     *
+     * @return string
+     */
+    private static function get_default_relative_closing_datefield(): string {
+        $value = get_config('booking', 'bookingtimerelativedefaultclosingdatefield');
+        if ($value !== false && $value !== null && $value !== '') {
+            return (string)$value;
+        }
+        return 'coursestarttime';
+    }
+
+    /**
+     * Returns the globally configured default before/after value for the relative opening beforeafter select.
+     * 1 = before, -1 = after.
+     *
+     * @return int
+     */
+    private static function get_default_relative_opening_beforeafter(): int {
+        $value = get_config('booking', 'bookingtimerelativedefaultopeningbeforeafter');
+        if ($value !== false && $value !== null && $value !== '') {
+            return (int)$value;
+        }
+        return 1;
+    }
+
+    /**
+     * Returns the globally configured default before/after value for the relative closing beforeafter select.
+     * 1 = before, -1 = after.
+     *
+     * @return int
+     */
+    private static function get_default_relative_closing_beforeafter(): int {
+        $value = get_config('booking', 'bookingtimerelativedefaultclosingbeforeafter');
+        if ($value !== false && $value !== null && $value !== '') {
+            return (int)$value;
+        }
+        return 1;
+    }
+
+    /**
+     * Destroys the singleton entirely.
+     *
+     * @return bool
+     */
+    public static function destroy_instances() {
+        self::$instances = [];
+        return true;
+    }
 }

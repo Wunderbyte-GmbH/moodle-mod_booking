@@ -24,6 +24,7 @@
  */
 
 use core\lock\lock;
+use mod_booking\bo_availability\conditions\booking_time;
 use mod_booking\booking;
 use mod_booking\booking_rules\booking_rules;
 use mod_booking\booking_rules\rules_info;
@@ -114,6 +115,7 @@ class mod_booking_generator extends testing_module_generator {
         userprofilefield_1_default::reset_instance();
         userprofilefield_2_custom::reset_instance();
         booking_rules::$rules = [];
+        booking_time::destroy_instances();
         // Shopping cart.
         cartstore::reset();
         // Time mock.
