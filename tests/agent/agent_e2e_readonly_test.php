@@ -207,6 +207,26 @@ final class agent_e2e_readonly_test extends abstract_agent_testcase {
     }
 
     // -------------------------------------------------------------------------
+    // get_current_user
+    // -------------------------------------------------------------------------
+
+    /**
+     * get_current_user returns the current executor user's info.
+     */
+    public function test_get_current_user_returns_executor_user(): void {
+        $this->setUser($this->teacher->id);
+
+        $result = $this->exec_command('booking.get_current_user', []);
+
+        $this->assertEquals('executed', $result['status'], $result['detail'] ?? '');
+        $this->assertEquals((int)$this->teacher->id, (int)$result['resultid']);
+        $this->assertEquals((int)$this->teacher->id, (int)($result['userid'] ?? 0));
+        $this->assertEquals($this->teacher->email, $result['email'] ?? '');
+        $fullname = trim($this->teacher->firstname . ' ' . $this->teacher->lastname);
+        $this->assertEquals($fullname, $result['fullname'] ?? '');
+    }
+
+    // -------------------------------------------------------------------------
     // is_read_only flag in registry
     // -------------------------------------------------------------------------
 

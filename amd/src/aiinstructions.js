@@ -34,6 +34,7 @@ const READ_ONLY_TASKS = [
     'booking.search_options',
     'booking.search_users',
     'booking.search_courses',
+    'booking.get_current_user',
     'booking.list_option_properties',
     'booking.list_actions',
     'entities.search',
@@ -239,6 +240,8 @@ const hideConfirmPanel = () => {
  * @param {Array} results Optional structured per-command results.
  */
 const showRunStatus = (status, message, results = []) => {
+    // eslint-disable-next-line no-console
+    console.log('[AI Debug] showRunStatus called', {status, message, results});
     const alertClass = (status === 'completed') ? 'alert-success'
                      : (status === 'failed')    ? 'alert-danger'
                      : 'alert-info';
@@ -276,7 +279,16 @@ const showRunStatus = (status, message, results = []) => {
                 }).join('<br>');
             }
 
+            let extraHtml = '';
+            if (result.fullname) {
+                extraHtml += `<div><strong>Name:</strong> ${escapeHtml(String(result.fullname))}</div>`;
+            }
+            if (result.email) {
+                extraHtml += `<div><strong>E-Mail:</strong> ${escapeHtml(String(result.email))}</div>`;
+            }
+
             return `<li><strong>${resultStatus}</strong>${resultDetail ? `: ${resultDetail}` : ''}`
+                + `${extraHtml ? `<div class="mt-1">${extraHtml}</div>` : ''}`
                 + `${optionsHtml ? `<div class="mt-1">${optionsHtml}</div>` : ''}`
                 + '</li>';
         }).join('');
@@ -297,8 +309,9 @@ const showRunStatus = (status, message, results = []) => {
 const extractPreviewOptionIds = (results) => {
     const ids = [];
     (Array.isArray(results) ? results : []).forEach((result) => {
+        const isUserCentricResult = Number(result.userid || 0) > 0;
         const singleId = Number(result.resultid || 0);
-        if (singleId > 0) {
+        if (!isUserCentricResult && singleId > 0) {
             ids.push(singleId);
         }
 
@@ -342,6 +355,8 @@ const pollRunStatus = (runid, cmid) => {
                 } catch (e) {
                     // Keep the status string.
                 }
+                // eslint-disable-next-line no-console
+                console.log('[AI Debug] pollRunStatus resp', resp, 'parsed results', results);
                 showRunStatus(resp.status, detail, results);
 
                 if (resp.status === 'completed') {
@@ -414,6 +429,8 @@ const sendMessage = (message) => {
             } catch (e) {
                 // Keep empty results on parse errors.
             }
+            // eslint-disable-next-line no-console
+            console.log('[AI Debug] execution_result resp', resp, 'parsed results', results);
 
             showRunStatus('completed', resp.message || 'completed', results);
 

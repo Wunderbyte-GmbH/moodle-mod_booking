@@ -119,6 +119,7 @@ $string['aiinitialprompt'] = 'Initialer AI-System-Prompt';
 $string['aiinitialprompt_desc'] = 'Bearbeitbarer Basis-Prompt fuer den Booking-AI-Assistenten. Unterstuetzte Platzhalter: {{bookingname}}, {{timezonename}}, {{nowiso}}, {{tasklist}}, {{schemajson}}.';
 $string['ai_action_add_price_category'] = 'Preiskategorie anlegen';
 $string['ai_action_create_option'] = 'Buchungsoption erstellen';
+$string['ai_action_get_current_user'] = 'Aktuellen Benutzer abrufen';
 $string['ai_action_list_actions'] = 'Unterstuetzte Aktionen auflisten';
 $string['ai_action_list_option_properties'] = 'Bearbeitbare Eigenschaften von Buchungsoptionen auflisten';
 $string['ai_action_search_courses'] = 'Kurse suchen';

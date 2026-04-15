@@ -3410,6 +3410,7 @@ $string['aiinitialprompt'] = 'AI initial system prompt';
 $string['aiinitialprompt_desc'] = 'Editable base prompt for the booking AI assistant. Supported placeholders: {{bookingname}}, {{timezonename}}, {{nowiso}}, {{tasklist}}, {{schemajson}}.';
 $string['ai_action_add_price_category'] = 'Create price category';
 $string['ai_action_create_option'] = 'Create booking option';
+$string['ai_action_get_current_user'] = 'Get current user';
 $string['ai_action_list_actions'] = 'List supported actions';
 $string['ai_action_list_option_properties'] = 'List editable booking option properties';
 $string['ai_action_search_courses'] = 'Search courses';

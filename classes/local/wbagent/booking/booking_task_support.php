@@ -41,6 +41,7 @@ use mod_booking\local\wbagent\booking\tasks\search_options_task;
 use mod_booking\local\wbagent\booking\tasks\search_users_task;
 use mod_booking\local\wbagent\booking\tasks\bulk_update_options_task;
 use mod_booking\local\wbagent\booking\tasks\update_option_task;
+use mod_booking\local\wbagent\booking\tasks\get_current_user_task;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking;
 use mod_booking\booking_bookit;
@@ -248,6 +249,14 @@ class booking_task_support {
             ];
         }
 
+        if ($taskname === get_current_user_task::TASK_NAME) {
+            return [
+                'version' => 1,
+                'description' => 'Get information about the current executor user.',
+                'properties' => [],
+            ];
+        }
+
         return [];
     }
 
@@ -372,6 +381,8 @@ class booking_task_support {
             if (!in_array($scope, $allowed, true)) {
                 $errors[] = 'Field "scope" must be one of: all, readonly, mutating.';
             }
+        } else if ($taskname === get_current_user_task::TASK_NAME) {
+            // No validation needed for get_current_user.
         } else {
             $errors[] = 'Unknown task: ' . $taskname;
         }
@@ -960,6 +971,22 @@ class booking_task_support {
                 'detail' => '',
                 'resultid' => null,
                 'actions' => $actions,
+            ];
+        }
+
+        if ($taskname === get_current_user_task::TASK_NAME) {
+            global $USER;
+
+            $user = $USER;
+            $fullname = trim((string)$user->firstname . ' ' . (string)$user->lastname);
+
+            return [
+                'status' => 'executed',
+                'detail' => 'Current user identified.',
+                'resultid' => (int)$user->id,
+                'userid' => (int)$user->id,
+                'email' => (string)$user->email,
+                'fullname' => $fullname,
             ];
         }
 
@@ -2225,6 +2252,19 @@ class booking_task_support {
             ];
         }
 
+        // Resolve self-reference keywords to the currently logged-in user.
+        $selfrefkeywords = ['me', 'myself', 'ich', 'mich', 'i'];
+        if (in_array(strtolower($query), $selfrefkeywords, true)) {
+            global $USER;
+            if (!empty($USER->id) && !empty($USER->email)) {
+                return [
+                    'status' => 'ok',
+                    'userid' => (int)$USER->id,
+                    'email'  => (string)$USER->email,
+                ];
+            }
+        }
+
         $users = self::search_user_candidates($query, 5);
         if (empty($users)) {
             return [
@@ -2656,6 +2696,7 @@ class booking_task_support {
             search_courses_task::TASK_NAME,
             list_option_properties_task::TASK_NAME,
             list_actions_task::TASK_NAME,
+            get_current_user_task::TASK_NAME,
         ], true);
     }
 
@@ -2793,6 +2834,7 @@ class booking_task_support {
             add_price_category_task::TASK_NAME => 'ai_action_add_price_category',
             list_option_properties_task::TASK_NAME => 'ai_action_list_option_properties',
             list_actions_task::TASK_NAME => 'ai_action_list_actions',
+            get_current_user_task::TASK_NAME => 'ai_action_get_current_user',
         ];
 
         if (isset($map[$taskname])) {
