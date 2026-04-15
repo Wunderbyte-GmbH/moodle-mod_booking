@@ -91,6 +91,9 @@ class orchestrator {
             if (!$manager->is_action_available(generate_text::class)) {
                 return false;
             }
+            if (!method_exists($manager, 'is_action_enabled_in_context')) {
+                return true;
+            }
 
             return $manager->is_action_enabled_in_context($context, generate_text::class);
         } catch (\Throwable $e) {
