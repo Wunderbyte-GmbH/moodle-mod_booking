@@ -831,6 +831,23 @@ if ($ADMIN->fulltree) {
             )
         );
 
+        // PRO feature: Favorites toggle.
+        $settings->add(
+            new admin_setting_heading(
+                'enablefavoritestoggleheading',
+                get_string('enablefavoritestoggle', 'mod_booking') . " " . get_string('badge:pro', 'mod_booking'),
+                get_string('enablefavoritestoggle_desc', 'mod_booking')
+            )
+        );
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/enablefavoritestoggle',
+                get_string('enablefavoritestoggle', 'mod_booking'),
+                '',
+                0
+            )
+        );
+
         // PRO feature: "What's new" tab.
         $settings->add(
             new admin_setting_heading(
@@ -1009,6 +1026,15 @@ if ($ADMIN->fulltree) {
             )
         );
     } else {
+        $settings->add(
+            new admin_setting_heading(
+                'enablefavoritestoggleheading',
+                get_string('enablefavoritestoggle', 'mod_booking') . " " . get_string('badge:pro', 'mod_booking'),
+                get_string('prolicensefeatures', 'mod_booking') .
+                get_string('profeatures:enablefavoritestoggle', 'mod_booking') .
+                get_string('infotext:prolicensenecessary', 'mod_booking')
+            )
+        );
         $settings->add(
             new admin_setting_heading(
                 'tabwhatsnew',
@@ -2341,6 +2367,7 @@ if ($ADMIN->fulltree) {
         $whichviewopts = [
             'showall' => get_string('showallbookingoptions', 'booking'),
             'mybooking' => get_string('showmybookingsonly', 'booking'),
+            'myfavorites' => get_string('showmyfavoritesonly', 'booking'),
             'myoptions' => get_string('optionsiteach', 'booking'),
             'optionsiamresponsiblefor' => get_string('optionsiamresponsiblefor', 'mod_booking'),
             'showactive' => get_string('activebookingoptions', 'booking'),

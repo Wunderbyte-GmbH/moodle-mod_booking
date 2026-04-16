@@ -430,10 +430,18 @@ if there only was one booking option. */
     width: 70%;
 }
 
-#page-mod-booking-view .wunderbyte-table-list .action {
+#page-mod-booking-view .wunderbyte-table-list .action:not(.imageright-card .action) {
     position: absolute;
     top: 0;
     right: 0;
+}
+
+.wunderbyte-table-list .imageright-card .action {
+    right: 25%;
+}
+
+.wunderbyte-table-list .booknow {
+    margin-top: 1rem;
 }
 
 /* DO NOT USE #page-mod-booking-view because this needs to work in shortcodes too! */

@@ -64,6 +64,7 @@ $string['addnewreporttemplate'] = 'Vorlage für Bericht hinzufügen';
 $string['addnewtagtemplate'] = 'Hinzufügen';
 $string['addoptiondate'] = 'Termin hinzufügen';
 $string['addoptiondateseries'] = 'Terminserie erstellen';
+$string['addoptiontofavorites'] = 'Zu Favoriten hinzufügen';
 $string['addpricecategory'] = 'Neue Preiskategorie hinzufügen';
 $string['addpricecategoryinfo'] = 'Sie können eine weitere Preiskategorie definieren.';
 $string['address'] = 'Adresse';
@@ -1292,6 +1293,9 @@ um die Buchungsaktivität (Buchungsinstanz) abzuschließen.
 Um die Nutzer:innen als abgeschlossen markieren zu können, fügen Sie unter dem Punkt "Spalten und Felder anpassen" bei "Buchungen verwalten" das Feld "Abgeschlossen" hinzu.
 Danach können die Optionen auf der Berichtsseite als abgeschlossen markiert werden. Das kann von Trainer:in, Kursersteller:in oder Manager:in durchgeführt werden.';
 $string['enablecompletionminnumber'] = 'Mindestanzahl: ';
+$string['enablefavoritestoggle'] = 'Buchungs-Favoriten';
+$string['enablefavoritestoggle_desc'] = 'Ermöglicht es Nutzer:innen, Buchungsoptionen als Favoriten zu markieren. Wenn aktiviert, erscheint bei jeder Buchungsoption ein Stern-Symbol, mit dem Nutzer:innen die Option zu ihrer persönlichen Favoritenliste hinzufügen oder daraus entfernen können. In den Einstellungen jeder Buchungsinstanz kann dann ein eigener Tab "Meine Favoriten" hinzugefügt werden.
+<span class="text-danger">Bitte denken Sie daran, den Tab "Meine Favoriten" in den Einstellungen Ihrer Buchungsinstanzen hinzuzufügen, nachdem Sie diese Funktion aktiviert haben.</span>';
 $string['enddate'] = "Enddatum";
 $string['endtime'] = "Endzeit";
 $string['endtimemeasurement'] = "Zeit der Messung";
@@ -1820,6 +1824,7 @@ $string['mustnotcombine'] = 'Ausgeschlossene Buchungsoptionen';
 $string['mustnotcombine_help'] = 'Buchungsoptionen mit denen diese Buchungsoption nicht kombiniert werden kann';
 $string['mybookingoptions'] = 'Meine Buchungen';
 $string['mycourselist'] = 'Zeige meine Buchungsoptionen';
+$string['myfavorites'] = 'Meine Favoriten';
 $string['myinstitution'] = 'Meine Institution';
 $string['name'] = 'Name';
 $string['newcourse'] = 'Neuen Kurs erstellen...';
@@ -1935,7 +1940,7 @@ $string['notifyme'] = 'Benachrichtigen wenn frei';
 $string['notifymelistdeleted'] = 'Nutzer:in von der Benachrichtigungsliste gelöscht';
 $string['notinarray'] = 'TeilnehmerIn hat keinen dieser Werte (Komma getrennt)';
 $string['notopenyet'] = 'Diese Aktivität ist bis {$a} nicht verfügbar';
-$string['nouserfound'] = 'Kein/e User/in gefunden: ';
+$string['nouserfound'] = 'Kein/e Benutzer:in gefunden: ';
 $string['numberofinstallment'] = 'Anzahl Ratenzahlung';
 $string['numberofinstallmentstring'] = '{$a}. Ratenzahlung';
 $string['numberparticipants'] = "Max buchbar";
@@ -2210,6 +2215,10 @@ $string['profeatures:cancellationsettings'] = '<ul>
 $string['profeatures:duplicationrestoreoption'] = '<ul>
 <li><b>Moodle-Kurs duplizieren, wenn eine Buchungsoption dupliziert wird</b></li>
 </ul>';
+$string['profeatures:enablefavoritestoggle'] = '<ul>
+<li>Nutzer:innen können Buchungsoptionen mit einem Stern-Symbol als Favoriten markieren.</li>
+<li>Pro Buchungsinstanz kann ein persönlicher Tab "Meine Favoriten" aktiviert werden.</li>
+</ul>';
 $string['profeatures:overbooking'] = '<ul>
 <li><b>Überbuchen erlauben</b></li>
 </ul>';
@@ -2301,6 +2310,7 @@ $string['reminder1sent'] = 'Erste Benachrichtigung versendet';
 $string['reminder2sent'] = 'Zweite Benachrichtigung versendet';
 $string['reminderteachersent'] = 'Benachrichtigung an Trainer:in versendet';
 $string['removeafterminutes'] = 'Aktivitätsabschluss nach N Minuten entfernen';
+$string['removeoptionfromfavorites'] = 'Aus Favoriten entfernen';
 $string['removeresponses'] = 'Alle Buchungen löschen';
 $string['removeuseronunenrol'] = 'Nutzer/in von Buchungsoption autom. entfernen wenn diese/r aus dem dazugehörenden Moodle-Kurs ausgetragen wurde?';
 $string['reoccurringdatestring'] = 'Wochentag, Start- und Endzeit (Tag, HH:MM - HH:MM)';
@@ -2612,6 +2622,7 @@ $string['showlistoncoursepage_help'] = 'Wenn Sie diese Einstellung aktivieren, w
  und ein Button, der auf die verfügbaren Buchungsoptionen verlinkt, angezeigt.';
 $string['showmessages'] = 'Zeige Nachrichten';
 $string['showmybookingsonly'] = 'Meine Buchungen';
+$string['showmyfavoritesonly'] = 'Meine Favoriten';
 $string['showmyfieldofstudyonly'] = "Mein Studiengang";
 $string['showoptiondatesextrainfo'] = 'Extra-Infos zu Terminen anzeigen';
 $string['showoptiondatesextrainfo_desc'] = 'Kommentare und Extra-Infos zu Terminen in der Liste der Buchungsoptionen anzeigen

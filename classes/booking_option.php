@@ -3740,6 +3740,129 @@ class booking_option {
     }
 
     /**
+     * Returns true if the given option is in the user's favorites preference.
+     *
+     * @param int $userid
+     * @param int $optionid
+     * @return bool
+     */
+    public static function user_has_favorite(int $userid, int $optionid): bool {
+        if ($userid <= 0 || $optionid <= 0) {
+            return false;
+        }
+
+        $favorites = self::get_user_favorite_optionids($userid);
+        return in_array($optionid, $favorites, true);
+    }
+
+    /**
+     * Takes the user on/off the favorites list (stored in user preference bookingoptionfavorites).
+     * Returns current status and optional error.
+     *
+     * @param int $userid
+     * @param int $optionid
+     * @return array
+     */
+    public static function toggle_favorite_user(int $userid, int $optionid): array {
+        global $USER;
+
+        $error = '';
+        $status = null;
+
+        if (!isloggedin() || isguestuser()) {
+            return [
+                'status' => 0,
+                'optionid' => 0,
+                'error' => get_string('accessdenied', 'mod_booking'),
+            ];
+        }
+
+        // Favorites are always user-specific. Toggling for a different user is not allowed.
+        if ($USER->id != $userid || $optionid <= 0) {
+            return [
+                'status' => 0,
+                'optionid' => 0,
+                'error' => get_string('accessdenied', 'mod_booking'),
+            ];
+        }
+
+        $favorites = self::get_user_favorite_optionids($userid);
+
+        if (in_array($optionid, $favorites, true)) {
+            $favorites = array_values(array_filter($favorites, fn(int $id): bool => $id !== $optionid));
+            $status = 0;
+        } else {
+            $favorites[] = $optionid;
+            $status = 1;
+        }
+
+        self::set_user_favorite_optionids($userid, $favorites);
+
+        return [
+            'status' => $status,
+            'optionid' => $optionid,
+            'error' => $error,
+        ];
+    }
+
+    /**
+     * Read and normalize favorite option ids from user preference bookingoptionfavorites.
+     *
+     * @param int $userid
+     * @return array
+     */
+    public static function get_user_favorite_optionids(int $userid): array {
+        $rawvalue = get_user_preferences('bookingoptionfavorites', '[]', $userid);
+        if (!is_string($rawvalue) || $rawvalue === '') {
+            return [];
+        }
+
+        $decoded = json_decode($rawvalue, true);
+        if (!is_array($decoded)) {
+            return [];
+        }
+
+        return self::normalize_favorite_optionids($decoded);
+    }
+
+    /**
+     * Persist favorite option ids as JSON array in user preference bookingoptionfavorites.
+     *
+     * @param int $userid
+     * @param array $optionids
+     * @return void
+     */
+    private static function set_user_favorite_optionids(int $userid, array $optionids): void {
+        $normalized = self::normalize_favorite_optionids($optionids);
+        set_user_preference('bookingoptionfavorites', json_encode($normalized), $userid);
+    }
+
+    /**
+     * Normalize favorites list to unique, positive integers and keep insertion order.
+     *
+     * @param array $optionids
+     * @return array
+     */
+    private static function normalize_favorite_optionids(array $optionids): array {
+        $normalized = [];
+
+        foreach ($optionids as $optionid) {
+            if (!is_numeric($optionid)) {
+                continue;
+            }
+
+            $candidate = (int)$optionid;
+            if ($candidate <= 0 || in_array($candidate, $normalized, true)) {
+                continue;
+            }
+
+            $normalized[] = $candidate;
+        }
+
+        return $normalized;
+    }
+
+    /**
      * Function to cancel a booking option.
      * This does not delete, but only makes in unbookable and specially marked.
      *
