@@ -211,35 +211,117 @@ class shoppingcart extends field_base {
         if (in_array($classname, $excludeclassesfromtrackingchanges)) {
             return [];
         }
-        $formvalues = (array) $formdata;
+
+        // Only track changes for updates of existing options.
+        if (empty($formdata->id)) {
+            return [];
+        }
+
+        $formvalues = (array)$formdata;
         $keys = preg_grep('/^sch_/', array_keys($formvalues));
+        if (empty($keys)) {
+            return [];
+        }
+
+        try {
+            $settings = singleton_service::get_instance_of_booking_option_settings($formdata->id);
+            $mockdata = new stdClass();
+            $mockdata->id = $formdata->id;
+            $self::set_data($mockdata, $settings);
+        } catch (\Exception $e) {
+            // If old values cannot be loaded safely, avoid false positives.
+            return [];
+        }
+
+        $mockvalues = (array)$mockdata;
+        $changes = [];
 
         foreach ($keys as $key) {
-            $newvalue = $formdata->$key;
-            if (!empty($formdata->id) && isset($value)) {
-                $settings = singleton_service::get_instance_of_booking_option_settings($formdata->id);
-                $mockdata = new stdClass();
-                $mockdata->id = $formdata->id;
-                $self::set_data($mockdata, $settings);
-                $oldvalue = $mockdata->$key;
-            } else {
-                $oldvalue = 0;
+            // If the old value is not present at all, skip this key to avoid race-condition false positives.
+            if (!array_key_exists($key, $mockvalues)) {
+                continue;
             }
 
-            if (
-                $oldvalue != $newvalue
-                && !(empty($oldvalue) && empty($newvalue))
-            ) {
-                    // If change was found in any of the shoppingcart fields, return this generic information.
-                    return [
-                        'changes' => [
-                            'fieldname' => 'shoppingcart',
-                        ],
-                    ];
+            $newvalue = $formvalues[$key] ?? null;
+            $oldvalue = $mockvalues[$key];
+
+            $newnormalized = $this->normalize_value_for_change_tracking($newvalue);
+            $oldnormalized = $this->normalize_value_for_change_tracking($oldvalue);
+
+            if ($newnormalized === $oldnormalized) {
+                continue;
             }
-            // TODO: Track changes for each key like in customfields / pollurl.
+
+            $label = $this->get_field_label_from_key($key);
+            $changes[$key] = [
+                'changes' => [
+                    'fieldname' => 'shoppingcart',
+                    'oldvalue' => $label . ' : ' . $oldnormalized,
+                    'newvalue' => $label . ' : ' . $newnormalized,
+                    'formkey' => $key,
+                ],
+            ];
         }
-        // No changes were found, so array is empty.
-        return [];
+
+        if (empty($changes)) {
+            return [];
+        }
+
+        return [
+            'changes' => $changes,
+        ];
+    }
+
+    /**
+     * Normalize values before comparison and output.
+     *
+     * @param mixed $value
+     * @return string
+     */
+    private function normalize_value_for_change_tracking($value): string {
+        if (is_array($value)) {
+            $normalized = array_map(function ($item) {
+                if ($item === null) {
+                    return '';
+                }
+                if (is_bool($item)) {
+                    return $item ? '1' : '0';
+                }
+                return trim((string)$item);
+            }, $value);
+            sort($normalized);
+            return implode(', ', $normalized);
+        }
+
+        if ($value === null) {
+            return '';
+        }
+
+        if (is_bool($value)) {
+            return $value ? '1' : '0';
+        }
+
+        return trim((string)$value);
+    }
+
+    /**
+     * Get a human-readable field label for shopping cart keys.
+     *
+     * @param string $key
+     * @return string
+     */
+    private function get_field_label_from_key(string $key): string {
+        $fieldname = preg_replace('/^sch_/', '', $key);
+
+        if (empty($fieldname)) {
+            return $key;
+        }
+
+        $stringmanager = get_string_manager();
+        if ($stringmanager->string_exists($fieldname, 'local_shopping_cart')) {
+            return get_string($fieldname, 'local_shopping_cart');
+        }
+
+        return str_replace('_', ' ', $fieldname);
     }
 }
