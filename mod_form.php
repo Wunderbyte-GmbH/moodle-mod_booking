@@ -352,6 +352,9 @@ class mod_booking_mod_form extends moodleform_mod {
 
         if ($isproversion) {
             // Some tabs are only available in PRO version.
+            if (get_config('booking', 'enablefavoritestoggle')) {
+                $whichviewopts['myfavorites'] = get_string('showmyfavoritesonly', 'mod_booking');
+            }
             $whichviewopts['showfieldofstudy'] = get_string('showmyfieldofstudyonly', 'mod_booking');
             $whichviewopts['showwhatsnew'] = get_string('whatsnew', 'mod_booking');
         }

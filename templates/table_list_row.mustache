@@ -127,7 +127,8 @@
   rounded
   ps-0 pe-3 pt-0 pb-0
   sk-fade ms-0 me-0 mb-3
-  flex-md-row align-items-center row gx-0" {{#datafields}} data-{{key}}="{{value}}" {{/datafields}}>
+  flex-md-row align-items-center row gx-0
+  {{#showheaderimageright}}imageright-card{{/showheaderimageright}}" {{#datafields}} data-{{key}}="{{value}}" {{/datafields}}>
 {{/showheaderimagelefthalf}}
   <div class="content w-100">
     <div class="row mod-booking-row {{rowclasses}} {{rowid}} {{#noheaderimage}}p-3{{/noheaderimage}} {{#showheaderimagelefthalf}}m-0{{/showheaderimagelefthalf}}">

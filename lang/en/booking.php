@@ -67,6 +67,7 @@ $string['addnewreporttemplate'] = 'Add new report template';
 $string['addnewtagtemplate'] = 'Add new tag template';
 $string['addoptiondate'] = 'Add date';
 $string['addoptiondateseries'] = 'Create date series';
+$string['addoptiontofavorites'] = 'Add to favorites';
 $string['addpricecategory'] = 'Add price category';
 $string['addpricecategoryinfo'] = 'You can add another price category';
 $string['address'] = 'Address';
@@ -1330,6 +1331,10 @@ $string['enablecompletionmincompleted_help'] = 'A user must be set to "Completed
 To mark users as "Completed", open the "Configure fields and columns" section (of the Booking instance) and add the "Completed" field under "Manage responses".
 The users can then be marked as completed on the report page. This has to be done by teacher, manager or admin.';
 $string['enablecompletionminnumber'] = 'Minimum number: ';
+$string['enablefavoritestoggle'] = 'Booking favorites';
+$string['enablefavoritestoggle_desc'] = 'Allow users to mark booking options as favorites. When enabled, a star icon appears on every booking option
+so users can add or remove it from their personal favorites list. A dedicated "My favorites" tab can then be added to each Booking instance.
+<span class="text-danger">Please remember to add the "My favorites" tab in the settings of your Booking instances after activating this feature.</span>';
 $string['enddate'] = "Enddate";
 $string['endtime'] = "Endtime";
 $string['endtimemeasurement'] = "Measurement time";
@@ -1862,6 +1867,7 @@ $string['mybookingoptions'] = 'My booked options';
 $string['mybookingsbooking'] = 'Booking (Course)';
 $string['mybookingsoption'] = 'Option';
 $string['mycourselist'] = 'Show my Booking options. ';
+$string['myfavorites'] = 'My favorites';
 $string['myinstitution'] = 'My institution';
 $string['name'] = 'Name';
 $string['newcourse'] = 'Create new course...';
@@ -2331,6 +2337,10 @@ $string['profeatures:cancellationsettings'] = '<ul>
 $string['profeatures:duplicationrestoreoption'] = '<ul>
 <li><b>duplicate moodle course when duplicating a booking option</b></li>
 </ul>';
+$string['profeatures:enablefavoritestoggle'] = '<ul>
+<li>Users can mark booking options as favorites using a star icon.</li>
+<li>A personal "My favorites" tab can be enabled per Booking instance.</li>
+</ul>';
 $string['profeatures:overbooking'] = '<ul>
 <li><b>allow overbooking</b></li>
 </ul>';
@@ -2423,6 +2433,7 @@ $string['reminder1sent'] = 'First reminder sent';
 $string['reminder2sent'] = 'Second reminder sent';
 $string['reminderteachersent'] = 'Teacher reminder sent';
 $string['removeafterminutes'] = 'Remove activity completion after N minutes';
+$string['removeoptionfromfavorites'] = 'Remove from favorites';
 $string['removeresponses'] = 'Remove all responses';
 $string['removeuseronunenrol'] = 'Remove user from booking upon unenrolment from associated course?';
 $string['reoccurringdatestring'] = 'Weekday, start and end time (Day, HH:MM - HH:MM)';
@@ -2743,6 +2754,7 @@ $string['showlistoncoursepage_help'] = 'If you activate this setting, the course
                                             redirecting to the available booking options will be shown.';
 $string['showmessages'] = 'Show messages';
 $string['showmybookingsonly'] = 'My booked options';
+$string['showmyfavoritesonly'] = 'My favorites';
 $string['showmyfieldofstudyonly'] = "My field of study";
 $string['showoptiondatesextrainfo'] = 'Show additional information for dates';
 $string['showoptiondatesextrainfo_desc'] = 'Show comments and extra infos of sessions (dates) in the list of booking options

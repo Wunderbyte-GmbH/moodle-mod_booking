@@ -94,6 +94,16 @@
         </button>
       </li>
     {{/myoptionstable}}
+    {{#myfavoritestable}}
+      <li class="nav-item me-1" role="presentation">
+        <button class="nav-link {{#myfavorites}}active{{/myfavorites}}" id="my-favorites-tab"
+          data-toggle="pill" data-target="#my-favorites"
+          data-bs-toggle="pill" data-bs-target="#my-favorites"
+          type="button" role="tab" aria-controls="my-favorites" aria-selected="true">
+          <i class="fa fa-star-o" aria-hidden="true"></i> {{#str}} showmyfavoritesonly, mod_booking {{/str}}
+        </button>
+      </li>
+    {{/myfavoritestable}}
     {{#optionsiteachtable}}
       <li class="nav-item me-1" role="presentation">
         <button class="nav-link {{#myoptions}}active{{/myoptions}}" id="options-i-teach-tab"
@@ -182,6 +192,9 @@
     {{#myoptionstable}}
       <div class="tab-pane fade {{#mybooking}}show active{{/mybooking}}" id="my-options" role="tabpanel" aria-labelledby="my-options-tab">{{{myoptionstable}}}</div>
     {{/myoptionstable}}
+    {{#myfavoritestable}}
+      <div class="tab-pane fade {{#myfavorites}}show active{{/myfavorites}}" id="my-favorites" role="tabpanel" aria-labelledby="my-favorites-tab">{{{myfavoritestable}}}</div>
+    {{/myfavoritestable}}
     {{#optionsiteachtable}}
       <div class="tab-pane fade {{#myoptions}}show active{{/myoptions}}" id="options-i-teach" role="tabpanel" aria-labelledby="options-i-teach-tab">{{{optionsiteachtable}}}</div>
     {{/optionsiteachtable}}
