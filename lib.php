@@ -1264,9 +1264,6 @@ function booking_update_instance($booking) {
     ]);
     $event->trigger();
 
-    // When updating an instance, we need to invalidate the cache for booking instances.
-    booking::purge_cache_for_booking_instance_by_cmid($cm->id);
-
     // Bugfix: If source of mail templates is global templates, we do not need to save instance mail templates.
     if (
         isset($booking->mailtemplatessource)
@@ -1285,7 +1282,16 @@ function booking_update_instance($booking) {
         unset($booking->userleave);
     }
 
-    return $DB->update_record('booking', $booking);
+    $updated = $DB->update_record('booking', $booking);
+
+    if ($updated) {
+        // Refresh plugin and course-module caches after the new instance name is persisted.
+        booking::purge_cache_for_booking_instance_by_cmid($cm->id);
+        \course_modinfo::purge_course_module_cache($cm->course, $cm->id);
+        rebuild_course_cache($cm->course, false, true);
+    }
+
+    return $updated;
 }
 
 /**
