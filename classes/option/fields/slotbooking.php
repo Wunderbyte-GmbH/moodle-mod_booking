@@ -425,7 +425,7 @@ class slotbooking extends field_base {
             ? max(1, (int)($formdata->slot_interval_minutes ?? 15))
             : ($record->slot_type === 'userdefined'
                 ? max(1, (int)floor((int)($formdata->slot_custom_min_duration ?? (60 * MINSECS)) / MINSECS))
-                : $record->slot_duration_minutes);
+                : max(1, (int)($formdata->slot_interval_minutes ?? $record->slot_duration_minutes)));
         $record->slot_start_interval_minutes = $record->slot_type === 'userdefined'
             ? max(1, (int)($formdata->slot_custom_start_interval_minutes ?? 30))
             : 0;
@@ -468,6 +468,87 @@ class slotbooking extends field_base {
         global $DB;
 
         $optionid = (int)($data->id ?? $settings->id ?? 0);
+        $isimporting = !empty($data->importing);
+
+        $setifmissing = static function (string $key, $value) use (&$data): void {
+            if (!property_exists($data, $key)) {
+                $data->{$key} = $value;
+            }
+        };
+
+        // Import flow: preserve explicitly provided values and only backfill missing keys.
+        if ($isimporting) {
+            $setifmissing('slot_enabled', 0);
+            $setifmissing('slot_type', 'fixed');
+            $setifmissing('slot_duration_minutes', 30);
+            $setifmissing('slot_interval_minutes', 15);
+            $setifmissing('slot_custom_max_duration', 30 * MINSECS);
+            $setifmissing('slot_custom_min_duration', 60 * MINSECS);
+            $setifmissing('slot_custom_max_days', DAYSECS);
+            $setifmissing('slot_custom_start_interval_minutes', 30);
+            $setifmissing('slot_opening_time', '08:00');
+            $setifmissing('slot_closing_time', '18:00');
+            $setifmissing('slot_valid_from', 0);
+            $setifmissing('slot_valid_until', 0);
+            $setifmissing('slot_max_participants_per_slot', 1);
+            $setifmissing('slot_max_slots_per_user', 1);
+            $setifmissing('slot_booking_view_mode', 'calendar');
+            $setifmissing('slot_add_examiners', 0);
+            $setifmissing('slot_teacher_pool', []);
+            $setifmissing('slot_teachers_required', 0);
+
+            for ($i = 1; $i <= 7; $i++) {
+                $field = 'slot_day_' . $i;
+                $setifmissing($field, ($i <= 5) ? 1 : 0);
+            }
+
+            if (!empty($optionid)) {
+                $config = $DB->get_record('booking_slot_config', ['optionid' => $optionid], '*', IGNORE_MISSING);
+                if (!empty($config)) {
+                    $setifmissing('slot_enabled', 1);
+                    $setifmissing('slot_type', $config->slot_type);
+                    $setifmissing('slot_duration_minutes', (int)$config->slot_duration_minutes);
+                    $setifmissing('slot_interval_minutes', (int)$config->slot_interval_minutes);
+                    $setifmissing('slot_custom_max_duration', max(1, (int)$config->slot_duration_minutes) * MINSECS);
+                    $setifmissing('slot_custom_min_duration', max(1, (int)$config->slot_interval_minutes) * MINSECS);
+                    $setifmissing('slot_custom_max_days', max(1, (int)($config->slot_max_days_per_slot ?? 1)) * DAYSECS);
+                    $setifmissing('slot_custom_start_interval_minutes', max(1, (int)($config->slot_start_interval_minutes ?? 30)));
+                    $setifmissing('slot_opening_time', $config->opening_time);
+                    $setifmissing('slot_closing_time', $config->closing_time);
+                    $setifmissing('slot_valid_from', (int)$config->valid_from);
+                    $setifmissing('slot_valid_until', (int)$config->valid_until);
+                    $setifmissing('slot_max_participants_per_slot', (int)$config->max_participants_per_slot);
+                    $setifmissing('slot_max_slots_per_user', (int)$config->max_slots_per_user);
+
+                    $interface = (string)($config->booking_interface ?? 'calendar');
+                    $setifmissing('slot_booking_view_mode', in_array($interface, ['list', 'calendar'], true) ? $interface : 'calendar');
+                    $setifmissing('slot_teachers_required', (int)$config->teachers_required);
+                    $setifmissing('slot_add_examiners', !empty($config->teacher_pool) || !empty($config->teachers_required) ? 1 : 0);
+
+                    $pool = json_decode((string)$config->teacher_pool, true);
+                    if (is_array($pool) && !property_exists($data, 'slot_teacher_pool')) {
+                        $data->slot_teacher_pool = array_values(array_map('intval', $pool));
+                    }
+                    if (!empty($data->slot_teacher_pool) && is_array($data->slot_teacher_pool)) {
+                        foreach ($data->slot_teacher_pool as $teacherid) {
+                            $fieldname = 'slot_teacher_pool_' . (int)$teacherid;
+                            $setifmissing($fieldname, 1);
+                        }
+                    }
+
+                    $days = array_filter(array_map('intval', explode(',', (string)$config->days_of_week)));
+                    foreach ($days as $day) {
+                        if ($day >= 1 && $day <= 7) {
+                            $field = 'slot_day_' . $day;
+                            $setifmissing($field, 1);
+                        }
+                    }
+                }
+            }
+
+            type_resolver::normalize_formdata($data, (int)($settings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT));
+            return;
+        }
 
         $data->slot_enabled = 0;
         $data->slot_type = 'fixed';

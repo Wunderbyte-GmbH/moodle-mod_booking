@@ -16,9 +16,11 @@
 
 namespace mod_booking\local\wbagent\booking\tasks;
 
+use mod_booking\local\wbagent\conversation_store;
+use mod_booking\local\wbagent\privacy_anonymizer;
 use mod_booking\local\wbagent\booking\booking_task_mutation_execute_service;
 use mod_booking\local\wbagent\booking\booking_task_support;
-use mod_booking\local\wbagent\booking\support\booking_mutation_validation;
+use mod_booking\local\wbagent\interfaces\task_trigger_provider_interface;
 
 /**
  * Task definition for booking.update_option.
@@ -27,7 +29,7 @@ use mod_booking\local\wbagent\booking\support\booking_mutation_validation;
  * @copyright  2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class update_option_task extends base_booking_task {
+class update_option_task extends base_booking_task implements task_trigger_provider_interface {
     /** Task name constant. */
     public const TASK_NAME = 'booking.update_option';
 
@@ -83,6 +85,32 @@ class update_option_task extends base_booking_task {
     }
 
     /**
+     * Return task-specific message triggers.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function get_message_triggers(): array {
+        return [
+            [
+                'id' => 'booking.use_preview_context_for_update',
+                'description' => 'User refers to the previously previewed option(s) as the update target.',
+            ],
+            [
+                'id' => 'booking.resolve_option_by_exact_query',
+                'description' => 'User asks to target an option by an exact/specific query string.',
+            ],
+            [
+                'id' => 'booking.option_resolution_ambiguous_clarify',
+                'description' => 'User provides clarification to resolve an ambiguous option match.',
+            ],
+            [
+                'id' => 'booking.option_resolution_failed_retry',
+                'description' => 'User retries target resolution after previous option resolution failure.',
+            ],
+        ];
+    }
+
+    /**
      * Return contextual guidance packs.
      *
      * @return array<int,array<string,mixed>>
@@ -108,6 +136,7 @@ class update_option_task extends base_booking_task {
                     '- Do not output standalone search tasks as final action for mutating intent.',
                     '- For date additions on existing options, use optiondates with optiondatesmode=append '
                         . '(or omit optiondatesmode; append is default).',
+                    '- Use confirmation_request for updates and follow structured validation issues when returned.',
                 ],
             ],
         ];
@@ -118,17 +147,44 @@ class update_option_task extends base_booking_task {
      *
      * @param array<string,mixed> $input
      * @param int $cmid
-     * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>}
+     * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>,issues?:array<int,array<string,mixed>>}
      */
     public function validate(array $input, int $cmid): array {
+        global $USER;
         global $DB;
+
+        if (!empty($USER->id) && (int)$USER->id > 0) {
+            $anonymizer = new privacy_anonymizer(new conversation_store());
+            $input = $anonymizer->deanonymize_command_input_for_active_user($cmid, (int)$USER->id, $input);
+        }
 
         $errors = [];
         $ambiguities = [];
+                $issues = [];
 
         if (empty($input['optionid'])) {
             if (empty($input['optionquery'])) {
                 $ambiguities[] = 'Which booking option should be updated? Provide optionid or optionquery.';
+                $issues[] = [
+                    'code' => 'MISSING_TARGET_OPTION',
+                    'severity' => 'needs_clarification',
+                    'user_question' => 'Which booking option should I update?',
+                    'remedy_options' => ['PROVIDE_OPTIONQUERY', 'PROVIDE_OPTIONID'],
+                ];
+            } else if (booking_task_support::is_last_preview_selection_reference((string)$input['optionquery'])) {
+                $previewids = booking_task_support::resolve_last_preview_option_ids_for_user_for_execute(
+                    $cmid,
+                    (int)($USER->id ?? 0)
+                );
+                if (empty($previewids)) {
+                    $errors[] = 'No recently previewed booking options are available for this follow-up request.';
+                    $issues[] = [
+                        'code' => 'MISSING_PREVIEW_CONTEXT',
+                        'severity' => 'needs_clarification',
+                        'user_question' => 'I could not find recently shown options. Which option(s) should I update?',
+                        'remedy_options' => ['PROVIDE_OPTIONQUERY', 'PROVIDE_OPTIONID'],
+                    ];
+                }
             } else if (!booking_task_support::is_last_option_reference((string)$input['optionquery'])) {
                 $result = booking_task_support::resolve_single_option(
                     $cmid,
@@ -137,8 +193,20 @@ class update_option_task extends base_booking_task {
                 );
                 if ($result['status'] === 'error') {
                     $errors[] = (string)$result['message'];
+                    $issues[] = [
+                        'code' => 'OPTION_RESOLUTION_FAILED',
+                        'severity' => 'needs_clarification',
+                        'user_question' => 'I could not uniquely find the option to update. Please specify it more precisely.',
+                        'remedy_options' => ['PROVIDE_MORE_SPECIFIC_OPTIONQUERY', 'PROVIDE_OPTIONID'],
+                    ];
                 } else if ($result['status'] === 'ambiguity') {
                     $ambiguities[] = (string)$result['message'];
+                    $issues[] = [
+                        'code' => 'OPTION_RESOLUTION_AMBIGUOUS',
+                        'severity' => 'needs_clarification',
+                        'user_question' => 'Multiple options match. Which one should I update?',
+                        'remedy_options' => ['SELECT_EXACT_OPTION', 'PROVIDE_OPTIONID'],
+                    ];
                 }
             }
         } else {
@@ -152,17 +220,29 @@ class update_option_task extends base_booking_task {
             ) {
                 $errors[] = 'Booking option with id ' . (int)$input['optionid']
                     . ' does not exist in this booking instance.';
+                $issues[] = [
+                    'code' => 'INVALID_OPTIONID',
+                    'severity' => 'needs_clarification',
+                    'user_question' => 'The selected option id does not exist here. Please provide a valid option.',
+                    'remedy_options' => ['PROVIDE_VALID_OPTIONID', 'PROVIDE_OPTIONQUERY'],
+                ];
             }
         }
 
-        $common = booking_mutation_validation::validate_common($input, $cmid, self::TASK_NAME);
-        $errors = array_merge($errors, $common['errors']);
-        $ambiguities = array_merge($ambiguities, $common['ambiguities']);
+        $preflight = (new booking_task_mutation_execute_service())->preflight_validate(
+            self::TASK_NAME,
+            $input,
+            $cmid,
+            (int)($USER->id ?? 0)
+        );
+        $errors = array_merge($errors, (array)($preflight['errors'] ?? []));
+        $ambiguities = array_merge($ambiguities, (array)($preflight['ambiguities'] ?? []));
 
         return [
             'valid' => empty($errors) && empty($ambiguities),
             'errors' => $errors,
             'ambiguities' => $ambiguities,
+            'issues' => $issues,
         ];
     }
 

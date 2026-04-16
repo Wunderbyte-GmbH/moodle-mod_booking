@@ -203,6 +203,8 @@ class orchestrator {
         $schemas = $this->registry->get_all_schemas();
         $tasklist = implode(', ', $this->registry->get_task_names());
         $schemajson = json_encode($schemas, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        $triggerregistry = new message_trigger_registry($this->registry);
+        $triggerjson = json_encode($triggerregistry->get_available_triggers(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         $timezonename = (string)(get_config('core', 'timezone') ?? '');
         if ($timezonename === '' || $timezonename === '99') {
             $timezonename = date_default_timezone_get();
@@ -234,7 +236,20 @@ class orchestrator {
         // Enforce language mirroring even when administrators provide a custom prompt template.
         $prompt .= "\n\nNON-OPTIONAL LANGUAGE POLICY:\n"
             . "- Use the same language as the latest user message for all user-facing text in JSON fields (especially 'message').\n"
-            . "- Do not switch language unless the user switches language.\n";
+            . "- Do not switch language unless the user switches language.\n"
+            . "- Return a valid ISO 639-1 value in 'lang' and ensure all user-facing text strictly matches that language.\n"
+            . "- If lang='cs', answer in Czech; if lang='de', answer in German; if lang='en', answer in English; etc.\n";
+
+        $prompt .= "\n\nNON-OPTIONAL TRIGGER POLICY:\n"
+            . "- Evaluate the latest user message against AVAILABLE MESSAGE TRIGGERS below.\n"
+            . "- Return a JSON array field 'used_triggers' with trigger ids that apply to the latest user message.\n"
+            . "- Do NOT invent trigger ids. Use only ids from the catalog.\n"
+            . "- If none apply, return an empty array for 'used_triggers'.\n"
+            . "- Keep response_type independent and correct; triggers are additional structured signals.\n"
+            . "\nAVAILABLE MESSAGE TRIGGERS:\n"
+            . (string)$triggerjson
+            . "\n\nREQUIRED OUTPUT FIELD:\n"
+            . "- Every response MUST include: \"used_triggers\": [\"...\"]\n";
 
         return $prompt;
     }

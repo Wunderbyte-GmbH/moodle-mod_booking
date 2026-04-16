@@ -22,11 +22,8 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_booking\local\wbagent\aiready;
 use mod_booking\local\wbagent\authorization_service;
-use mod_booking\local\wbagent\orchestrator;
-use mod_booking\local\wbagent\interpreter;
-use mod_booking\local\wbagent\task_registry;
-use mod_booking\local\wbagent\conversation_store;
 use mod_booking\singleton_service;
 
 require_once(__DIR__ . '/../../config.php');
@@ -43,7 +40,6 @@ $PAGE->activityheader->disable();
 // Authorization.
 $authz = new authorization_service();
 $authz->require_valid_context($cmid);
-$authz->require_use_capability($USER->id, $cmid);
 
 $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
 
@@ -67,17 +63,7 @@ if ($providerstatus) {
     $threadid = (int)$thread->id;
 }
 
-$templatedata = [
-    'cmid'               => $cmid,
-    'threadid'           => $threadid,
-    'sesskey'            => sesskey(),
-    'debug_enabled'      => !empty($CFG->debug),
-    'provider_available' => $providerstatus,
-    'no_provider_msg'    => $providerstatus ? '' : get_string('ai_provider_not_configured', 'mod_booking'),
-    'wwwroot'            => $CFG->wwwroot,
-];
-
-$PAGE->requires->js_call_amd('mod_booking/aiinstructions', 'init', [$templatedata]);
+$templatedata = (new aiready($cmid, $USER->id, $cm->instance))->export_for_template();
 
 echo $OUTPUT->header();
 echo $OUTPUT->render_from_template('mod_booking/aiinstructions', $templatedata);

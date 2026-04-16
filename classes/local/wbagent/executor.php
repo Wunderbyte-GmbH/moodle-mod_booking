@@ -24,7 +24,9 @@
 
 namespace mod_booking\local\wbagent;
 
+use mod_booking\local\wbagent\booking\booking_task_support;
 use mod_booking\local\wbagent\interfaces\agent_executor;
+use mod_booking\local\wbagent\privacy_anonymizer;
 
 /**
  * Dispatches interpreter-validated commands to the appropriate task.
@@ -84,10 +86,16 @@ class executor implements agent_executor {
         }
 
         $results = [];
+        $run = $this->store->get_run($runid);
+        $threadid = (int)($run->threadid ?? 0);
+        $anonymizer = new privacy_anonymizer($this->store);
 
         foreach ($commands as $cmd) {
             $taskname = $cmd['task'] ?? '';
             $input    = $cmd['input'] ?? [];
+            if ($threadid > 0 && is_array($input)) {
+                $input = $anonymizer->deanonymize_command_input($threadid, $input);
+            }
 
             $task = $this->registry->get_task($taskname);
             if (!$task) {
@@ -104,6 +112,13 @@ class executor implements agent_executor {
             }
 
             $result = $task->execute($input, $cmid, $userid);
+            if (!empty($result['previewoptionids']) && is_array($result['previewoptionids'])) {
+                booking_task_support::remember_last_preview_options_for_user_for_execute(
+                    $userid,
+                    $cmid,
+                    array_map('intval', $result['previewoptionids'])
+                );
+            }
             $results[] = $result;
         }
 

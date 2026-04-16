@@ -2,6 +2,11 @@
 
 Diese Uebersicht zeigt den Weg von der Eingabe im Textfeld bis zur Ausgabe im Chat.
 
+## Weiterfuehrende Doku
+
+- Task-Erweiterungsleitfaden fuer Agenten/Entwickler:
+    [booking/tasks/README_AGENT_TASKS.md](booking/tasks/README_AGENT_TASKS.md)
+
 ## End-to-End Flow
 
 ```mermaid

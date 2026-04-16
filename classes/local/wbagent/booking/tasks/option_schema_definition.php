@@ -81,6 +81,72 @@ class option_schema_definition {
                 'description' => 'Search query to resolve a teacher by name/email/id when teacheremail is unknown.',
                 'required'    => false,
             ],
+            'optiontype' => [
+                'type' => 'string',
+                'description' => 'Booking option type. Accepted values: normal|withdates, selflearning|selflearningcourse, '
+                    . 'slotbooking|slot.',
+                'required' => false,
+            ],
+            'slot_enabled' => [
+                'type' => 'boolean',
+                'description' => 'Alias for optiontype=slotbooking. If true, slot booking type is selected.',
+                'required' => false,
+            ],
+            'slot_opening_time' => [
+                'type' => 'string',
+                'description' => 'AVAILABILITY WINDOW start (HH:MM). This is NOT the slot duration. '
+                    . 'It defines the earliest time a slot can start on each active weekday (e.g. "12:00").',
+                'required' => false,
+            ],
+            'slot_closing_time' => [
+                'type' => 'string',
+                'description' => 'AVAILABILITY WINDOW end (HH:MM). This is NOT the slot duration. '
+                    . 'It defines the latest time a slot can end on each active weekday (e.g. "16:00").',
+                'required' => false,
+            ],
+            'slot_valid_from' => [
+                'type' => 'string',
+                'description' => 'Date from which recurring slots are generated (ISO 8601 or Unix timestamp).',
+                'required' => false,
+            ],
+            'slot_valid_until' => [
+                'type' => 'string',
+                'description' => 'Date until which recurring slots are generated (ISO 8601 or Unix timestamp).',
+                'required' => false,
+            ],
+            // WEEKDAY FLAGS: 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday, 7=Sunday.
+            // For slotbooking: set ONLY the intended day(s) to true. All other days MUST be explicitly false.
+            // Example for Wednesday only: slot_day_3=true, slot_day_1=false, slot_day_2=false,
+            //   slot_day_4=false, slot_day_5=false, slot_day_6=false, slot_day_7=false.
+            'slot_day_1' => ['type' => 'boolean', 'description' => 'Monday (day 1). true=active, false=inactive. Must be set explicitly.', 'required' => false],
+            'slot_day_2' => ['type' => 'boolean', 'description' => 'Tuesday (day 2). true=active, false=inactive. Must be set explicitly.', 'required' => false],
+            'slot_day_3' => ['type' => 'boolean', 'description' => 'Wednesday (day 3). true=active, false=inactive. Must be set explicitly.', 'required' => false],
+            'slot_day_4' => ['type' => 'boolean', 'description' => 'Thursday (day 4). true=active, false=inactive. Must be set explicitly.', 'required' => false],
+            'slot_day_5' => ['type' => 'boolean', 'description' => 'Friday (day 5). true=active, false=inactive. Must be set explicitly.', 'required' => false],
+            'slot_day_6' => ['type' => 'boolean', 'description' => 'Saturday (day 6). true=active, false=inactive. Must be set explicitly.', 'required' => false],
+            'slot_day_7' => ['type' => 'boolean', 'description' => 'Sunday (day 7). true=active, false=inactive. Must be set explicitly.', 'required' => false],
+            'slot_duration_minutes' => [
+                'type' => 'integer',
+                'description' => 'REQUIRED for slotbooking: Length of each INDIVIDUAL slot in minutes (e.g. 30). '
+                    . 'This is the duration a user books, NOT the opening-to-closing window. '
+                    . 'Example: window 12:00-16:00 with slot_duration_minutes=30 creates 8 slots of 30 min each.',
+                'required' => false,
+            ],
+            'slot_interval_minutes' => [
+                'type' => 'integer',
+                'description' => 'Slot interval in minutes for rolling slot setup.',
+                'required' => false,
+            ],
+            'slot_max_participants_per_slot' => [
+                'type' => 'integer',
+                'description' => 'Maximum participants per slot.',
+                'required' => false,
+            ],
+            'slot_max_slots_per_user' => [
+                'type' => 'integer',
+                'description' => 'Maximum number of slots each user can book.',
+                'required' => false,
+            ],
             'selflearningcourse' => [
                 'type' => 'boolean',
                 'description' => 'If true, marks this as a self-learning course (no fixed dates; '

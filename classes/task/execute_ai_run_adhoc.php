@@ -27,6 +27,7 @@ namespace mod_booking\task;
 use core\task\adhoc_task;
 use mod_booking\local\wbagent\authorization_service;
 use mod_booking\local\wbagent\conversation_store;
+use mod_booking\local\wbagent\execution_feedback_service;
 use mod_booking\local\wbagent\executor;
 use mod_booking\local\wbagent\task_registry;
 
@@ -96,55 +97,43 @@ class execute_ai_run_adhoc extends adhoc_task {
         $commands = json_decode($run->commandsjson ?? '[]', true) ?? [];
 
         try {
-            $results = $exec->execute_commands($commands, $cmid, $userid, $idempotency, $runid);
-            $store->update_run_status($runid, 'completed', $results);
-            $store->add_message((int)$run->threadid, 'assistant', self::summarize_results($results), [
+            $rawresults = $exec->execute_commands($commands, $cmid, $userid, $idempotency, $runid);
+            $feedbackservice = new execution_feedback_service($store);
+            $feedback = $feedbackservice->build_completion_feedback(
+                (int)$run->threadid,
+                $cmid,
+                $userid,
+                is_array($commands) ? $commands : [],
+                $rawresults,
+                current_language()
+            );
+            $store->update_run_status($runid, 'completed', $feedback['results']);
+            $store->add_message((int)$run->threadid, 'assistant', (string)$feedback['message'], [
                 'response_type' => 'execution_result',
                 'runid' => (int)$runid,
                 'status' => 'completed',
-                'results' => $results,
+                'results' => $feedback['results'],
             ]);
-            mtrace("execute_ai_run_adhoc: run {$runid} completed with " . count($results) . " result(s).");
+            mtrace("execute_ai_run_adhoc: run {$runid} completed with " . count($rawresults) . " result(s).");
         } catch (\Throwable $e) {
-            $results = [['status' => 'error', 'detail' => $e->getMessage(), 'resultid' => null]];
-            $store->update_run_status($runid, 'failed', $results);
-            $store->add_message((int)$run->threadid, 'assistant', get_string('ai_provider_error', 'mod_booking'), [
+            $rawresults = [['status' => 'error', 'detail' => $e->getMessage(), 'resultid' => null]];
+            $feedbackservice = new execution_feedback_service($store);
+            $feedback = $feedbackservice->build_completion_feedback(
+                (int)$run->threadid,
+                $cmid,
+                $userid,
+                is_array($commands) ? $commands : [],
+                $rawresults,
+                current_language()
+            );
+            $store->update_run_status($runid, 'failed', $feedback['results']);
+            $store->add_message((int)$run->threadid, 'assistant', (string)$feedback['message'], [
                 'response_type' => 'execution_result',
                 'runid' => (int)$runid,
                 'status' => 'failed',
-                'results' => $results,
+                'results' => $feedback['results'],
             ]);
             mtrace("execute_ai_run_adhoc: run {$runid} failed: " . $e->getMessage());
         }
-    }
-
-    /**
-     * Summarize run results into assistant-visible thread text.
-     *
-     * @param array<int,array<string,mixed>> $results
-     * @return string
-     */
-    private static function summarize_results(array $results): string {
-        if (empty($results)) {
-            return get_string('ai_run_executed', 'mod_booking');
-        }
-
-        $parts = [];
-        foreach ($results as $index => $result) {
-            $status = (string)($result['status'] ?? 'unknown');
-            $detail = trim((string)($result['detail'] ?? ''));
-            $resultid = (int)($result['resultid'] ?? 0);
-
-            $line = 'Command #' . ($index + 1) . ': ' . $status;
-            if ($resultid > 0) {
-                $line .= ' (resultid=' . $resultid . ')';
-            }
-            if ($detail !== '') {
-                $line .= ' - ' . $detail;
-            }
-            $parts[] = $line;
-        }
-
-        return implode("\n", $parts);
     }
 }

@@ -117,24 +117,48 @@ class booking_mutation_validation {
 
         $parsedoptiondates = booking_task_support::extract_optiondates($input);
 
+        // Check date/time fields. Skip validation if value is 0/empty and field is in override list.
+        $overrides = is_array($input['override'] ?? null) ? $input['override'] : [];
+
         if (isset($input['coursestarttime']) && !isset($input['optiondates'])) {
-            if (!booking_task_support::parse_datetime($input['coursestarttime'])) {
-                $errors[] = 'Field "coursestarttime" must be a valid ISO 8601 date-time string or Unix timestamp.';
+            $val = $input['coursestarttime'];
+            // Skip validation only if it's a placeholder AND in override.
+            $isplaceholder = $val === 0 || $val === '0' || $val === '' || $val === null;
+            if (!$isplaceholder || !in_array('coursestarttime', $overrides, true)) {
+                if (!booking_task_support::parse_datetime($val)) {
+                    $errors[] = 'Field "coursestarttime" must be a valid ISO 8601 date-time string or Unix timestamp.';
+                }
             }
         }
         if (isset($input['courseendtime']) && !isset($input['optiondates'])) {
-            if (!booking_task_support::parse_datetime($input['courseendtime'])) {
-                $errors[] = 'Field "courseendtime" must be a valid ISO 8601 date-time string or Unix timestamp.';
+            $val = $input['courseendtime'];
+            $isplaceholder = $val === 0 || $val === '0' || $val === '' || $val === null;
+            if (!$isplaceholder || !in_array('courseendtime', $overrides, true)) {
+                if (!booking_task_support::parse_datetime($val)) {
+                    $errors[] = 'Field "courseendtime" must be a valid ISO 8601 date-time string or Unix timestamp.';
+                }
             }
         }
-        if (isset($input['bookingopeningtime']) && !booking_task_support::parse_datetime($input['bookingopeningtime'])) {
-            $errors[] = 'Field "bookingopeningtime" must be a valid ISO 8601 date-time string or Unix timestamp.';
+        if (isset($input['bookingopeningtime'])) {
+            $val = $input['bookingopeningtime'];
+            $isplaceholder = $val === 0 || $val === '0' || $val === '' || $val === null;
+            if (!$isplaceholder || !in_array('bookingopeningtime', $overrides, true)) {
+                if (!booking_task_support::parse_datetime($val)) {
+                    $errors[] = 'Field "bookingopeningtime" must be a valid ISO 8601 date-time string or Unix timestamp.';
+                }
+            }
         }
-        if (isset($input['bookingclosingtime']) && !booking_task_support::parse_datetime($input['bookingclosingtime'])) {
-            $errors[] = 'Field "bookingclosingtime" must be a valid ISO 8601 date-time string or Unix timestamp.';
+        if (isset($input['bookingclosingtime'])) {
+            $val = $input['bookingclosingtime'];
+            $isplaceholder = $val === 0 || $val === '0' || $val === '' || $val === null;
+            if (!$isplaceholder || !in_array('bookingclosingtime', $overrides, true)) {
+                if (!booking_task_support::parse_datetime($val)) {
+                    $errors[] = 'Field "bookingclosingtime" must be a valid ISO 8601 date-time string or Unix timestamp.';
+                }
+            }
         }
 
-        if (isset($input['optiondates']) && empty($parsedoptiondates)) {
+        if (!empty($input['optiondates']) && empty($parsedoptiondates)) {
             $errors[] = 'Field "optiondates" must contain at least one valid date range.';
         }
 
@@ -306,7 +330,7 @@ class booking_mutation_validation {
             $errors[] = 'Field "userprofilecustomoperator2" is required when "userprofilecustomfield2" is provided.';
         }
 
-        if (isset($input['duration']) && (int)$input['duration'] <= 0) {
+        if (!empty($input['duration']) && (int)$input['duration'] <= 0) {
             $errors[] = 'Field "duration" must be a positive integer (seconds).';
         }
 

@@ -44,7 +44,8 @@ interface task_interface {
      *
      * @param array<string,mixed> $input
      * @param int $cmid
-     * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>}
+     * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>,
+     *     issues?:array<int,array<string,mixed>>}
      */
     public function validate(array $input, int $cmid): array;
 

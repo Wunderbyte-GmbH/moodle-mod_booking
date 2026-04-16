@@ -254,41 +254,52 @@ if ($ADMIN->fulltree) {
         )
     );
 
-    // PRO feature: AI settings.
-    if ($proversion) {
-        $settings->add(
-            new admin_setting_heading(
-                'aisettings',
-                get_string('aisettings', 'mod_booking'),
-                get_string('aisettings_desc', 'mod_booking')
-            )
-        );
+    $settings->add(
+        new admin_setting_heading(
+            'aisettings',
+            get_string('aisettings', 'mod_booking'),
+            get_string('aisettings_desc', 'mod_booking')
+        )
+    );
 
-        $settings->add(
-            new admin_setting_configselect(
-                'booking/aiexecutionmode',
-                get_string('aiexecutionmode', 'mod_booking'),
-                get_string('aiexecutionmode_desc', 'mod_booking'),
-                'direct',
-                [
-                    'direct' => get_string('aiexecutionmode_direct', 'mod_booking'),
-                    'adhoc' => get_string('aiexecutionmode_adhoc', 'mod_booking'),
-                ]
-            )
-        );
+    $settings->add(
+        new admin_setting_configtextarea(
+            'booking/aiinitialprompt',
+            get_string('aiinitialprompt', 'mod_booking'),
+            get_string('aiinitialprompt_desc', 'mod_booking'),
+            orchestrator::get_default_initial_prompt_template(),
+            PARAM_RAW,
+            22,
+            120
+        )
+    );
 
-        $settings->add(
-            new admin_setting_configtextarea(
-                'booking/aiinitialprompt',
-                get_string('aiinitialprompt', 'mod_booking'),
-                get_string('aiinitialprompt_desc', 'mod_booking'),
-                orchestrator::get_default_initial_prompt_template(),
-                PARAM_RAW,
-                22,
-                120
-            )
-        );
-    }
+    $settings->add(
+        new admin_setting_configselect(
+            'booking/aiexecutionmode',
+            get_string('aiexecutionmode', 'mod_booking'),
+            get_string('aiexecutionmode_desc', 'mod_booking'),
+            'direct',
+            [
+                'direct' => get_string('aiexecutionmode_direct', 'mod_booking'),
+                'adhoc' => get_string('aiexecutionmode_adhoc', 'mod_booking'),
+            ]
+        )
+    );
+
+    $settings->add(
+        new admin_setting_configselect(
+            'booking/aiprivacymode',
+            get_string('aiprivacymode', 'mod_booking'),
+            get_string('aiprivacymode_desc', 'mod_booking'),
+            'strict',
+            [
+                'off' => get_string('aiprivacymode_off', 'mod_booking'),
+                'soft' => get_string('aiprivacymode_soft', 'mod_booking'),
+                'strict' => get_string('aiprivacymode_strict', 'mod_booking'),
+            ]
+        )
+    );
 
     // PRO feature: Appearance settings.
     if ($proversion) {

@@ -33,6 +33,7 @@ use external_single_structure;
 use external_value;
 use mod_booking\local\wbagent\authorization_service;
 use mod_booking\local\wbagent\conversation_store;
+use mod_booking\local\wbagent\privacy_anonymizer;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -83,13 +84,32 @@ class ai_poll_run_status extends external_api {
             return [
                 'runid'      => $params['runid'],
                 'status'     => 'notfound',
+                'message'    => '',
+                'displaymessage' => '',
+                'privacyapplied' => 0,
                 'resultsjson' => '[]',
             ];
+        }
+
+        $message = '';
+        $displaymessage = '';
+        $privacyapplied = 0;
+        $executionmessage = $store->get_latest_execution_result_message_for_run((int)$run->threadid, (int)$run->id);
+        if ($executionmessage) {
+            $message = (string)($executionmessage->content ?? '');
+            $displaymessage = $message;
+            $anonymizer = new privacy_anonymizer($store);
+            $display = $anonymizer->deanonymize_message_for_display((int)$run->threadid, $message);
+            $displaymessage = (string)($display['message'] ?? $message);
+            $privacyapplied = (int)(!empty($display['replacedcount']));
         }
 
         return [
             'runid'       => (int)$run->id,
             'status'      => $run->status,
+            'message'     => $message,
+            'displaymessage' => $displaymessage,
+            'privacyapplied' => $privacyapplied,
             'resultsjson' => $run->resultsjson ?? '[]',
         ];
     }
@@ -103,6 +123,9 @@ class ai_poll_run_status extends external_api {
         return new external_single_structure([
             'runid'       => new external_value(PARAM_INT, 'Run id.'),
             'status'      => new external_value(PARAM_TEXT, 'Run status.'),
+            'message'     => new external_value(PARAM_RAW, 'Assistant message stored for this run.'),
+            'displaymessage' => new external_value(PARAM_RAW, 'Display message for this run.'),
+            'privacyapplied' => new external_value(PARAM_INT, 'Whether de-masking was applied for display.'),
             'resultsjson' => new external_value(PARAM_RAW, 'JSON-encoded per-command results.'),
         ]);
     }

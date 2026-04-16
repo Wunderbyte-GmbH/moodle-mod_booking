@@ -18,6 +18,7 @@ namespace mod_booking\local\wbagent\booking\tasks;
 
 use context_system;
 use mod_booking\local\pricecategories_handler;
+use mod_booking\local\wbagent\interfaces\task_trigger_provider_interface;
 
 /**
  * Task definition for booking.add_price_category.
@@ -25,7 +26,7 @@ use mod_booking\local\pricecategories_handler;
  * @copyright  2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class add_price_category_task extends base_booking_task {
+class add_price_category_task extends base_booking_task implements task_trigger_provider_interface {
     /** Task name constant. */
     public const TASK_NAME = 'booking.add_price_category';
 
@@ -58,6 +59,9 @@ class add_price_category_task extends base_booking_task {
                 'guidance' => [
                     '- Use a "prices" object keyed by price category identifier, e.g. {"default": 10, "student": 20}.',
                     '- If a requested price category is unknown, ask for clarification or add it via booking.add_price_category.',
+                    '- For mutating pricing actions, use confirmation_request first and follow structured issues.',
+                    '- If duplicate category creation is explicitly confirmed by user,',
+                    '  retry with override token duplicate_identifier.',
                 ],
             ],
         ];
@@ -94,6 +98,25 @@ class add_price_category_task extends base_booking_task {
                     'description' => 'Optional explicit sort order.',
                     'required' => false,
                 ],
+                'override' => [
+                    'type' => 'array',
+                    'description' => 'Optional override tokens for confirmed exceptions (e.g. duplicate_identifier).',
+                    'required' => false,
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Return task-specific message triggers.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function get_message_triggers(): array {
+        return [
+            [
+                'id' => 'booking.confirm_duplicate_price_category',
+                'description' => 'User explicitly confirms creating/keeping a duplicate price category identifier.',
             ],
         ];
     }
@@ -103,11 +126,13 @@ class add_price_category_task extends base_booking_task {
      *
      * @param array<string,mixed> $input
      * @param int $cmid
-     * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>}
+     * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>,issues?:array<int,array<string,mixed>>}
      */
     public function validate(array $input, int $cmid): array {
         $errors = [];
         $ambiguities = [];
+                $issues = [];
+                $overrides = is_array($input['override'] ?? null) ? $input['override'] : [];
 
         $identifier = trim((string)($input['identifier'] ?? ''));
         if ($identifier === '') {
@@ -129,13 +154,23 @@ class add_price_category_task extends base_booking_task {
             && isset($existing[strtolower($identifier)])
             && (int)$existing[strtolower($identifier)]->disabled === 0
         ) {
-            $ambiguities[] = 'Price category "' . $identifier . '" already exists.';
+            if (!in_array('duplicate_identifier', $overrides, true)) {
+                $errors[] = 'Price category "' . $identifier . '" already exists. '
+                    . 'To proceed anyway, add override: ["duplicate_identifier"].';
+                $issues[] = [
+                    'code' => 'DUPLICATE_PRICE_CATEGORY_CONFIRM_REQUIRED',
+                    'severity' => 'needs_confirmation',
+                    'user_question' => 'This price category already exists. Do you want to continue anyway?',
+                    'remedy_options' => ['CONFIRM_DUPLICATE_IDENTIFIER', 'USE_DIFFERENT_IDENTIFIER'],
+                ];
+            }
         }
 
         return [
             'valid' => empty($errors) && empty($ambiguities),
             'errors' => $errors,
             'ambiguities' => $ambiguities,
+            'issues' => $issues,
         ];
     }
 

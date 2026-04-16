@@ -126,7 +126,14 @@ final class agent_interpreter_test extends advanced_testcase {
             'response_type' => 'confirmation_request',
             'message'       => 'I will create "My Option".',
             'commands'      => [
-                ['task' => 'booking.create_option', 'version' => 1, 'input' => ['text' => 'My Option']],
+                ['task' => 'booking.create_option', 'version' => 1, 'input' => [
+                    'text' => 'My Option',
+                    'maxanswers' => 20,
+                    'coursestarttime' => '2036-06-01T09:00:00',
+                    'duration' => 3600,
+                    'location' => 'Room A',
+                    'teacherquery' => 'admin',
+                ]],
             ],
         ]);
         $result = $this->interpreter->interpret($raw, $this->cmid, 1);
@@ -147,8 +154,8 @@ final class agent_interpreter_test extends advanced_testcase {
             ],
         ]);
         $result = $this->interpreter->interpret($raw, $this->cmid, 1);
-        $this->assertEquals('error', $result['response_type']);
-        $this->assertNotEmpty($result['errors']);
+        $this->assertEquals('clarification', $result['response_type']);
+        $this->assertNotEmpty($result['message']);
     }
 
     /**
@@ -205,6 +212,10 @@ final class agent_interpreter_test extends advanced_testcase {
                     'version' => 1,
                     'input' => [
                         'text' => 'My Option',
+                        'maxanswers' => 20,
+                        'coursestarttime' => '2036-06-01T09:00:00',
+                        'duration' => 3600,
+                        'location' => 'Room A',
                         'teacherquery' => 'the current user',
                     ],
                 ],
@@ -214,6 +225,67 @@ final class agent_interpreter_test extends advanced_testcase {
         $result = $this->interpreter->interpret($raw, $this->cmid, 1);
         $this->assertEquals('confirmation_request', $result['response_type']);
         $this->assertEquals('__current_user__', $result['commands'][0]['input']['teacherquery'] ?? null);
+    }
+
+    /**
+     * Confirmable task issues must stay confirmation_request so pending-intent flow can continue.
+     */
+    public function test_confirmable_issue_returns_confirmation_request_with_commands(): void {
+        $raw = json_encode([
+            'response_type' => 'confirmation_request',
+            'message' => 'Please confirm creating this option if location is missing.',
+            'commands' => [
+                [
+                    'task' => 'booking.create_option',
+                    'version' => 1,
+                    'input' => [
+                        'text' => 'Ort ggf. anlegen',
+                        'maxanswers' => 20,
+                        'coursestarttime' => '2036-06-04T12:00:00',
+                        'duration' => 3600,
+                        'location' => 'Nicht sicherer Raumname',
+                        'teacherquery' => 'admin',
+                    ],
+                ],
+            ],
+        ]);
+
+        $result = $this->interpreter->interpret($raw, $this->cmid, 1);
+
+        $this->assertEquals('confirmation_request', $result['response_type']);
+        $this->assertCount(1, $result['commands']);
+        $this->assertEquals('booking.create_option', $result['commands'][0]['task'] ?? '');
+    }
+
+    /**
+     * Missing location should become a confirmation_request with location/address overrides.
+     */
+    public function test_missing_location_becomes_confirmable_with_override(): void {
+        $raw = json_encode([
+            'response_type' => 'confirmation_request',
+            'message' => 'Create option without location.',
+            'commands' => [
+                [
+                    'task' => 'booking.create_option',
+                    'version' => 1,
+                    'input' => [
+                        'text' => 'Meine Veranstaltung um 12',
+                        'maxanswers' => 20,
+                        'coursestarttime' => '2036-06-04T12:00:00',
+                        'duration' => 3600,
+                        'teacherquery' => 'the current user',
+                    ],
+                ],
+            ],
+        ]);
+
+        $result = $this->interpreter->interpret($raw, $this->cmid, 1);
+
+        $this->assertEquals('confirmation_request', $result['response_type']);
+        $this->assertCount(1, $result['commands']);
+        $overrides = $result['commands'][0]['input']['override'] ?? [];
+        $this->assertContains('location', $overrides);
+        $this->assertContains('address', $overrides);
     }
 
     /**

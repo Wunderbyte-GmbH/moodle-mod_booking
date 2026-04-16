@@ -25,6 +25,11 @@
 defined('MOODLE_INTERNAL') || die;
 
 $definitions = [
+    'trialnonce' => [
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'ttl' => 120,
+    ],
     'cachedbookinginstances' => [
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,
@@ -202,6 +207,13 @@ $definitions = [
         'staticacceleration' => true,
         'staticaccelerationsize' => 10,
         'invalidationevents' => ['setbackscheduledmailscache'],
+    ],
+    'aiprivacynames' => [
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'staticacceleration' => true,
+        'staticaccelerationsize' => 5,
+        'ttl' => 900,
     ],
     'customfields' => [
         'mode' => cache_store::MODE_APPLICATION,

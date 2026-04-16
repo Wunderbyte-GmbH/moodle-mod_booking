@@ -35,6 +35,9 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class conversation_store implements agent_conversation_store {
+    /** Default pending intent TTL in seconds. */
+    private const PENDING_INTENT_TTL = 900;
+
     /**
      * Get the active thread for a user and cmid.
      *
@@ -76,6 +79,45 @@ class conversation_store implements agent_conversation_store {
         }
 
         $now = time();
+        $record = new stdClass();
+        $record->userid = $userid;
+        $record->cmid = $cmid;
+        $record->bookingid = $bookingid;
+        $record->status = 'active';
+        $record->metadatajson = null;
+        $record->timecreated = $now;
+        $record->timemodified = $now;
+        $record->id = $DB->insert_record('booking_ai_threads', $record);
+
+        return $record;
+    }
+
+    /**
+     * Archive existing active threads for this user/context and create a fresh thread.
+     *
+     * @param int $userid
+     * @param int $cmid
+     * @param int $bookingid
+     * @return stdClass
+     */
+    public function create_fresh_thread(int $userid, int $cmid, int $bookingid): stdClass {
+        global $DB;
+
+        $now = time();
+        $activethreads = $DB->get_records('booking_ai_threads', [
+            'userid' => $userid,
+            'cmid' => $cmid,
+            'status' => 'active',
+        ]);
+
+        foreach ($activethreads as $thread) {
+            $update = new stdClass();
+            $update->id = (int)$thread->id;
+            $update->status = 'archived';
+            $update->timemodified = $now;
+            $DB->update_record('booking_ai_threads', $update);
+        }
+
         $record = new stdClass();
         $record->userid = $userid;
         $record->cmid = $cmid;
@@ -138,6 +180,38 @@ class conversation_store implements agent_conversation_store {
         $records = $DB->get_records_sql($sql, ['threadid' => $threadid], 0, $limit);
         // Return in chronological order.
         return array_reverse(array_values($records));
+    }
+
+    /**
+     * Return the latest assistant execution_result message for a specific run.
+     *
+     * @param int $threadid
+     * @param int $runid
+     * @return stdClass|null
+     */
+    public function get_latest_execution_result_message_for_run(int $threadid, int $runid): ?stdClass {
+        $messages = $this->get_recent_messages($threadid, 50);
+        for ($i = count($messages) - 1; $i >= 0; $i--) {
+            $message = $messages[$i];
+            if (($message->role ?? '') !== 'assistant') {
+                continue;
+            }
+
+            $structured = json_decode((string)($message->structuredjson ?? ''), true);
+            if (!is_array($structured)) {
+                continue;
+            }
+            if ((string)($structured['response_type'] ?? '') !== 'execution_result') {
+                continue;
+            }
+            if ((int)($structured['runid'] ?? 0) !== $runid) {
+                continue;
+            }
+
+            return $message;
+        }
+
+        return null;
     }
 
     /**
@@ -309,13 +383,32 @@ class conversation_store implements agent_conversation_store {
      * @param int    $threadid
      * @param array  $commands  The mutation commands awaiting confirmation.
      * @param string $intentkey A caller-generated hash to identify this intent.
+     * @param int    $userid
+     * @param int    $cmid
+     * @param int    $ttl
      * @return void
      */
-    public function set_pending_intent(int $threadid, array $commands, string $intentkey): void {
+    public function set_pending_intent(
+        int $threadid,
+        array $commands,
+        string $intentkey,
+        int $userid = 0,
+        int $cmid = 0,
+        int $ttl = self::PENDING_INTENT_TTL
+    ): void {
+        $now = time();
+        $confirmationcode = 'C' . str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
         $this->set_thread_metadata_value($threadid, 'pending_intent', [
-            'commands'  => $commands,
+            'commands' => $commands,
             'intentkey' => $intentkey,
-            'timestamp' => time(),
+            'checksum' => hash('sha256', json_encode($commands)),
+            'timestamp' => $now,
+            'expiresat' => $now + max(1, $ttl),
+            'state' => 'pending',
+            'userid' => $userid,
+            'cmid' => $cmid,
+            'confirmationcode' => $confirmationcode,
         ]);
     }
 
@@ -323,14 +416,51 @@ class conversation_store implements agent_conversation_store {
      * Retrieve the pending intent for a thread, or null if none is stored.
      *
      * @param int $threadid
-     * @return array{commands:array,intentkey:string,timestamp:int}|null
+     * @return array<string,mixed>|null
      */
     public function get_pending_intent(int $threadid): ?array {
         $value = $this->get_thread_metadata_value($threadid, 'pending_intent');
-        if (!is_array($value) || empty($value['commands'])) {
+        if (!is_array($value) || empty($value['commands']) || !is_array($value['commands'])) {
             return null;
         }
+
+        $state = (string)($value['state'] ?? 'pending');
+        if ($state !== 'pending') {
+            return null;
+        }
+
+        $expiresat = (int)($value['expiresat'] ?? 0);
+        if ($expiresat > 0 && $expiresat < time()) {
+            $this->clear_pending_intent($threadid);
+            return null;
+        }
+
         return $value;
+    }
+
+    /**
+     * Consume a pending intent exactly once and clear it from thread metadata.
+     *
+     * @param int $threadid
+     * @param int $userid
+     * @param int $cmid
+     * @return array<string,mixed>|null
+     */
+    public function consume_pending_intent(int $threadid, int $userid = 0, int $cmid = 0): ?array {
+        $pending = $this->get_pending_intent($threadid);
+        if ($pending === null) {
+            return null;
+        }
+
+        if ($userid > 0 && (int)($pending['userid'] ?? 0) > 0 && (int)$pending['userid'] !== $userid) {
+            return null;
+        }
+        if ($cmid > 0 && (int)($pending['cmid'] ?? 0) > 0 && (int)$pending['cmid'] !== $cmid) {
+            return null;
+        }
+
+        $this->clear_pending_intent($threadid);
+        return $pending;
     }
 
     /**

@@ -46,12 +46,17 @@ class task_provider implements task_provider_interface {
         $tasks = [];
 
         foreach (array_keys($taskclasses) as $classname) {
-            $reflection = new \ReflectionClass($classname);
-            if ($reflection->isAbstract()) {
+            try {
+                $reflection = new \ReflectionClass($classname);
+                if ($reflection->isAbstract()) {
+                    continue;
+                }
+
+                $task = $reflection->newInstance();
+            } catch (\Throwable $e) {
                 continue;
             }
 
-            $task = $reflection->newInstance();
             if (!$task instanceof task_interface) {
                 continue;
             }

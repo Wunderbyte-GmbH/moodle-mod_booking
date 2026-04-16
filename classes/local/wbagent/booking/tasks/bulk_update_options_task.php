@@ -16,8 +16,11 @@
 
 namespace mod_booking\local\wbagent\booking\tasks;
 
+use mod_booking\local\wbagent\conversation_store;
 use mod_booking\local\wbagent\booking\booking_task_mutation_execute_service;
-use mod_booking\local\wbagent\booking\support\booking_mutation_validation;
+use mod_booking\local\wbagent\booking\booking_task_support;
+use mod_booking\local\wbagent\interfaces\task_trigger_provider_interface;
+use mod_booking\local\wbagent\privacy_anonymizer;
 
 /**
  * Task definition for booking.bulk_update_options.
@@ -26,7 +29,7 @@ use mod_booking\local\wbagent\booking\support\booking_mutation_validation;
  * @copyright  2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class bulk_update_options_task extends base_booking_task {
+class bulk_update_options_task extends base_booking_task implements task_trigger_provider_interface {
     /** Task name constant. */
     public const TASK_NAME = 'booking.bulk_update_options';
 
@@ -80,32 +83,76 @@ class bulk_update_options_task extends base_booking_task {
     }
 
     /**
+     * Return task-specific message triggers.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function get_message_triggers(): array {
+        return [
+            [
+                'id' => 'booking.bulk_update_apply_to_all_confirmed',
+                'description' => 'User explicitly confirms applying a bulk update to all booking options.',
+            ],
+            [
+                'id' => 'booking.bulk_update_selection_by_query',
+                'description' => 'User specifies that bulk target selection should be based on optionquery.',
+            ],
+            [
+                'id' => 'booking.bulk_update_by_optionids',
+                'description' => 'User specifies explicit option ids for bulk update targets.',
+            ],
+        ];
+    }
+
+    /**
      * Validate task input.
      *
      * @param array<string,mixed> $input
      * @param int $cmid
-     * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>}
+     * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>,issues?:array<int,array<string,mixed>>}
      */
     public function validate(array $input, int $cmid): array {
         global $DB;
+        global $USER;
+
+        if (!empty($USER->id) && (int)$USER->id > 0) {
+            $anonymizer = new privacy_anonymizer(new conversation_store());
+            $input = $anonymizer->deanonymize_command_input_for_active_user($cmid, (int)$USER->id, $input);
+        }
 
         $errors = [];
         $ambiguities = [];
+                $issues = [];
 
         $hasids = !empty($input['optionids']) && is_array($input['optionids'])
             && count($input['optionids']) > 0;
         $hasquery = !empty($input['optionquery']) && is_string($input['optionquery'])
             && trim((string)$input['optionquery']) !== '';
         $applytoall = !empty($input['apply_to_all']);
+        $previewfallbackids = booking_task_support::resolve_last_preview_option_ids_for_user_for_execute(
+            $cmid,
+            (int)($USER->id ?? 0)
+        );
 
-        if (!$hasids && !$hasquery && !$applytoall) {
+        if (!$hasids && !$hasquery && !$applytoall && empty($previewfallbackids)) {
             $errors[] = 'Provide optionids (array), optionquery (string), or set apply_to_all=true '
                 . 'to specify which options should be updated.';
+            $issues[] = [
+                'code' => 'MISSING_BULK_TARGET_SELECTION',
+                'severity' => 'needs_clarification',
+                'user_question' => 'Which options should I update: all options, a query subset, or explicit option ids?',
+                'remedy_options' => ['SET_APPLY_TO_ALL', 'PROVIDE_OPTIONQUERY', 'PROVIDE_OPTIONIDS'],
+            ];
         }
 
         if ($hasids) {
+            $normalizedoptionids = booking_task_support::resolve_bulk_option_ids_for_execute(
+                $cmid,
+                ['optionids' => $input['optionids']],
+                (int)($USER->id ?? 0)
+            );
             $cm = get_coursemodule_from_id('booking', $cmid);
-            if ($cm) {
+            if ($cm && empty($normalizedoptionids)) {
                 foreach ($input['optionids'] as $optid) {
                     if (
                         !$DB->record_exists('booking_options', [
@@ -120,19 +167,35 @@ class bulk_update_options_task extends base_booking_task {
             }
         }
 
+        if (!$hasids && $hasquery && booking_task_support::is_last_preview_selection_reference((string)$input['optionquery'])) {
+            $previewids = booking_task_support::resolve_last_preview_option_ids_for_user_for_execute(
+                $cmid,
+                (int)($USER->id ?? 0)
+            );
+            if (empty($previewids)) {
+                $errors[] = 'No recently previewed booking options are available for this follow-up request.';
+            }
+        }
+
         if (!empty($input['bookusersquery'])) {
             $errors[] = 'Field "bookusersquery" is not supported for booking.bulk_update_options. '
                 . 'Use booking.update_option for per-option user booking.';
         }
 
-        $common = booking_mutation_validation::validate_common($input, $cmid, self::TASK_NAME);
-        $errors = array_merge($errors, $common['errors']);
-        $ambiguities = array_merge($ambiguities, $common['ambiguities']);
+        $preflight = (new booking_task_mutation_execute_service())->preflight_validate(
+            self::TASK_NAME,
+            $input,
+            $cmid,
+            (int)($USER->id ?? 0)
+        );
+        $errors = array_merge($errors, (array)($preflight['errors'] ?? []));
+        $ambiguities = array_merge($ambiguities, (array)($preflight['ambiguities'] ?? []));
 
         return [
             'valid' => empty($errors) && empty($ambiguities),
             'errors' => $errors,
             'ambiguities' => $ambiguities,
+            'issues' => $issues,
         ];
     }
 
@@ -158,6 +221,7 @@ class bulk_update_options_task extends base_booking_task {
                     '- All common update fields (maxanswers, maxoverbooking, location, etc.) work the same '
                         . 'as in booking.update_option and are applied to every matched option.',
                     '- Do not use bookusersquery with bulk_update_options.',
+                    '- Use confirmation_request for bulk mutations and follow structured validation issues when returned.',
                 ],
             ],
         ];

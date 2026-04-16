@@ -27,6 +27,8 @@
 
 use mod_booking\output\business_card;
 use mod_booking\output\view;
+use mod_booking\local\htmlcomponents;
+use mod_booking\local\wbagent\aiready;
 use mod_booking\singleton_service;
 
 require_once(__DIR__ . '/../../config.php');
@@ -94,12 +96,13 @@ $output = $PAGE->get_renderer('mod_booking');
 echo $OUTPUT->header();
 
 // If we have specified a teacher as organizer, we show a "busines_card" with photo, else legacy organizer description.
+ $organizerhtml = '';
 if (
     !empty($bookingsettings->organizatorname)
     && ($organizerid = (int)$bookingsettings->organizatorname)
 ) {
     $data = new business_card($bookingsettings, $organizerid);
-    echo $output->render_business_card($data);
+    $organizerhtml = $output->render_business_card($data);
 }
 
 // Attachments.
@@ -151,7 +154,26 @@ if (!empty($CFG->usetags)) {
 
 // Now we show the actual view.
 $view = new view($cmid, $whichview, $optionid);
-echo $output->render_view($view);
+$classicview = $organizerhtml . $output->render_view($view);
+$aitemplatedata = (new aiready($cmid, $USER->id, $cm->instance))->export_for_template();
+
+$hasoptions = $booking->get_all_options_count() > 0;
+$tabs = [
+    [
+        'title' => '<i class="fa fa-list" aria-hidden="true"></i>',
+        'label' => get_string('classicview', 'mod_booking'),
+        'body' => $classicview,
+        'active' => $hasoptions,
+    ],
+    [
+        'title' => '<i class="fa fa-magic" aria-hidden="true"></i>',
+        'label' => get_string('aiinstructions', 'mod_booking'),
+        'body' => $OUTPUT->render_from_template('mod_booking/aiinstructions', $aitemplatedata),
+        'active' => !$hasoptions,
+    ],
+];
+
+echo htmlcomponents::render_bootstrap_earmarks($tabs, 'booking-view-tabs-' . $cmid);
 
 if (!get_config('booking', 'turnoffwunderbytelogo')) {
     // Wunderbyte info and footer.

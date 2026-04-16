@@ -18,6 +18,9 @@ namespace mod_booking\local\wbagent\booking;
 
 use context_module;
 use mod_booking\booking_option;
+use mod_booking\local\wbagent\conversation_store;
+use mod_booking\local\wbagent\privacy_anonymizer;
+use mod_booking\local\wbagent\booking\support\booking_mutation_validation;
 use mod_booking\local\wbagent\booking\tasks\bulk_update_options_task;
 use mod_booking\local\wbagent\booking\tasks\create_option_task;
 use mod_booking\local\wbagent\booking\tasks\update_option_task;
@@ -41,7 +44,7 @@ class booking_task_mutation_execute_service {
      * @return array<string,mixed>|null Null when task is not handled here.
      */
     public function execute(string $taskname, array $input, int $cmid, int $userid, booking_task_support $support): ?array {
-        global $CFG;
+        global $CFG, $USER;
 
         if (
             !in_array(
@@ -58,6 +61,26 @@ class booking_task_mutation_execute_service {
         }
 
         require_once($CFG->dirroot . '/mod/booking/lib.php');
+
+        $preflight = $this->preflight_validate($taskname, $input, $cmid, $userid);
+        if (!empty($preflight['errors'])) {
+            return [
+                'status' => 'error',
+                'detail' => trim(implode(' ', $preflight['errors'])),
+                'resultid' => null,
+            ];
+        }
+        if (!empty($preflight['ambiguities'])) {
+            return [
+                'status' => 'error',
+                'detail' => trim(implode(' ', $preflight['ambiguities'])),
+                'resultid' => null,
+            ];
+        }
+
+        $input = is_array($preflight['normalized_input'] ?? null)
+            ? (array)$preflight['normalized_input']
+            : $input;
 
         $cm = get_coursemodule_from_id('booking', $cmid);
         if (!$cm) {
@@ -77,6 +100,36 @@ class booking_task_mutation_execute_service {
             'timebooked' => null,
         ];
 
+        if (
+            $taskname === update_option_task::TASK_NAME
+            && empty($input['optionid'])
+            && !empty($input['optionquery'])
+            && booking_task_support::is_last_preview_selection_reference((string)$input['optionquery'])
+        ) {
+            $previewids = booking_task_support::resolve_last_preview_option_ids_for_user_for_execute($cmid, $userid);
+            if (empty($previewids)) {
+                return [
+                    'status' => 'error',
+                    'detail' => 'No recently previewed booking options are available for this follow-up request.',
+                    'resultid' => null,
+                ];
+            }
+
+            if (count($previewids) === 1) {
+                $input['optionid'] = (int)reset($previewids);
+            } else {
+                $taskname = bulk_update_options_task::TASK_NAME;
+                $input['optionids'] = array_values(array_map('intval', $previewids));
+            }
+        }
+
+        $resolvedoptiontype = $this->resolve_option_type_from_input($input);
+        if ($resolvedoptiontype !== null) {
+            $data->optiontype = $resolvedoptiontype;
+            $data->selflearningcourse = $resolvedoptiontype === MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE ? 1 : 0;
+            $data->slot_enabled = $resolvedoptiontype === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING ? 1 : 0;
+        }
+
         foreach (['text', 'location', 'address', 'description'] as $field) {
             if (isset($input[$field])) {
                 $data->$field = clean_param($input[$field], PARAM_TEXT);
@@ -92,6 +145,82 @@ class booking_task_mutation_execute_service {
         if (array_key_exists('selflearningcourse', $input)) {
             $data->selflearningcourse = !empty($input['selflearningcourse']) ? 1 : 0;
         }
+
+        foreach (['slot_opening_time', 'slot_closing_time'] as $slottimefield) {
+            if (isset($input[$slottimefield])) {
+                $data->{$slottimefield} = trim((string)$input[$slottimefield]);
+            }
+        }
+
+        if (isset($input['slot_type'])) {
+            $slottype = trim((string)$input['slot_type']);
+            if (in_array($slottype, ['fixed', 'rolling', 'session', 'userdefined'], true)) {
+                $data->slot_type = $slottype;
+            }
+        }
+
+        if (isset($input['slot_booking_view_mode'])) {
+            $viewmode = trim((string)$input['slot_booking_view_mode']);
+            $data->slot_booking_view_mode = $viewmode === 'list' ? 'list' : 'calendar';
+        }
+
+        $slotintfields = [
+            'slot_duration_minutes',
+            'slot_interval_minutes',
+            'slot_max_participants_per_slot',
+            'slot_max_slots_per_user',
+        ];
+        foreach ($slotintfields as $slotintfield) {
+            if (isset($input[$slotintfield])) {
+                $data->{$slotintfield} = (int)$input[$slotintfield];
+            }
+        }
+
+        foreach (['slot_custom_max_duration', 'slot_custom_min_duration', 'slot_custom_max_days'] as $customslotfield) {
+            if (isset($input[$customslotfield])) {
+                $data->{$customslotfield} = (int)$input[$customslotfield];
+            }
+        }
+
+        if (isset($input['slot_custom_start_interval_minutes'])) {
+            $data->slot_custom_start_interval_minutes = (int)$input['slot_custom_start_interval_minutes'];
+        }
+
+        foreach (['slot_valid_from', 'slot_valid_until'] as $slotdatefield) {
+            if (isset($input[$slotdatefield])) {
+                $parsed = booking_task_support::parse_datetime($input[$slotdatefield]);
+                if ($parsed !== false) {
+                    $data->{$slotdatefield} = (int)$parsed;
+                }
+            }
+        }
+
+        // When slot_enabled, explicitly initialise ALL 7 day flags to 0 so no day
+        // is accidentally active from a previous save or missing input key.
+        if (!empty($input['slot_enabled'])) {
+            for ($day = 1; $day <= 7; $day++) {
+                $data->{'slot_day_' . $day} = 0;
+            }
+        }
+        for ($day = 1; $day <= 7; $day++) {
+            $key = 'slot_day_' . $day;
+            if (array_key_exists($key, $input)) {
+                $data->{$key} = !empty($input[$key]) ? 1 : 0;
+            }
+        }
+
+        if (array_key_exists('slot_add_examiners', $input)) {
+            $data->slot_add_examiners = !empty($input['slot_add_examiners']) ? 1 : 0;
+        }
+
+        if (isset($input['slot_teacher_pool']) && is_array($input['slot_teacher_pool'])) {
+            $data->slot_teacher_pool = array_values(array_map('intval', $input['slot_teacher_pool']));
+        }
+
+        if (isset($input['slot_teachers_required'])) {
+            $data->slot_teachers_required = max(0, (int)$input['slot_teachers_required']);
+        }
+
         if (isset($input['duration'])) {
             $data->duration = (int)$input['duration'];
         }
@@ -130,18 +259,31 @@ class booking_task_mutation_execute_service {
         if (!empty($input['teacheremail'])) {
             $data->teacheremail = trim((string)$input['teacheremail']);
         } else if (!empty($input['teacherquery'])) {
-            $teacherresult = booking_task_support::resolve_single_user((string)$input['teacherquery']);
-            if ($teacherresult['status'] !== 'ok') {
-                return ['status' => 'error', 'detail' => (string)$teacherresult['message'], 'resultid' => null];
+            $teacherquery = trim((string)$input['teacherquery']);
+
+            if ($this->is_self_reference_query($teacherquery) && !empty($USER->email)) {
+                $data->teacheremail = (string)$USER->email;
+            } else {
+                $teacherresult = booking_task_support::resolve_single_user($teacherquery);
+                if ($teacherresult['status'] !== 'ok') {
+                    // Teacher is optional for slotbooking: ignore unresolved noisy queries.
+                    if ($resolvedoptiontype === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING) {
+                        $teacherresult = null;
+                    } else {
+                        return ['status' => 'error', 'detail' => (string)$teacherresult['message'], 'resultid' => null];
+                    }
+                }
+                if ($teacherresult !== null) {
+                    if (empty($teacherresult['email'])) {
+                        return [
+                            'status' => 'error',
+                            'detail' => 'Resolved teacher has no e-mail address. Please provide teacheremail directly.',
+                            'resultid' => null,
+                        ];
+                    }
+                    $data->teacheremail = (string)$teacherresult['email'];
+                }
             }
-            if (empty($teacherresult['email'])) {
-                return [
-                    'status' => 'error',
-                    'detail' => 'Resolved teacher has no e-mail address. Please provide teacheremail directly.',
-                    'resultid' => null,
-                ];
-            }
-            $data->teacheremail = (string)$teacherresult['email'];
         }
 
         if (!empty($input['coursequery'])) {
@@ -470,16 +612,6 @@ class booking_task_mutation_execute_service {
             }
         }
 
-        $permissioncheck = booking_task_support::validate_update_field_permissions($input, (int)$context->id);
-        if (($permissioncheck['status'] ?? '') !== 'ok') {
-            return [
-                'status' => 'error',
-                'detail' => (string)($permissioncheck['message']
-                    ?? get_string('agent_booking_update_permission_denied_generic', 'booking')),
-                'resultid' => null,
-            ];
-        }
-
         if ($taskname === create_option_task::TASK_NAME) {
             $data->id = 0;
             if (empty($data->text)) {
@@ -521,7 +653,7 @@ class booking_task_mutation_execute_service {
                 }
             }
         } else if ($taskname === bulk_update_options_task::TASK_NAME) {
-            $optionids = booking_task_support::resolve_bulk_option_ids_for_execute($cmid, $input);
+            $optionids = booking_task_support::resolve_bulk_option_ids_for_execute($cmid, $input, $userid);
             if (empty($optionids)) {
                 return ['status' => 'error', 'detail' => 'No matching booking options found to update.', 'resultid' => null];
             }
@@ -619,5 +751,188 @@ class booking_task_mutation_execute_service {
         } catch (\Throwable $e) {
             return ['status' => 'error', 'detail' => $e->getMessage(), 'resultid' => null];
         }
+    }
+
+    /**
+     * Resolve option type from AI command input.
+     *
+     * @param array<string,mixed> $input
+     * @return int|null
+     */
+    private function resolve_option_type_from_input(array $input): ?int {
+        if (!empty($input['slot_enabled'])) {
+            return MOD_BOOKING_OPTIONTYPE_SLOTBOOKING;
+        }
+
+        if (array_key_exists('optiontype', $input)) {
+            $raw = strtolower(trim((string)$input['optiontype']));
+            if (in_array($raw, ['0', 'normal', 'withdates', 'with_dates', 'default'], true)) {
+                return MOD_BOOKING_OPTIONTYPE_DEFAULT;
+            }
+            if (in_array($raw, ['1', 'selflearning', 'self-learning', 'selflearningcourse'], true)) {
+                return MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE;
+            }
+            if (in_array($raw, ['2', 'slot', 'slotbooking', 'slot-booking'], true)) {
+                return MOD_BOOKING_OPTIONTYPE_SLOTBOOKING;
+            }
+        }
+
+        if (!empty($input['selflearningcourse'])) {
+            return MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE;
+        }
+
+        foreach (array_keys($input) as $key) {
+            if (is_string($key) && str_starts_with($key, 'slot_')) {
+                return MOD_BOOKING_OPTIONTYPE_SLOTBOOKING;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Shared preflight validation for mutating tasks.
+     *
+     * This method is intentionally side-effect free and can be reused from task::validate
+     * and from execute() so both stages use the same checks.
+     *
+     * @param string $taskname
+     * @param array<string,mixed> $input
+     * @param int $cmid
+     * @param int $userid
+     * @return array{errors:array<int,string>,ambiguities:array<int,string>,normalized_input:array<string,mixed>}
+     */
+    public function preflight_validate(string $taskname, array $input, int $cmid, int $userid): array {
+        global $USER;
+
+        $errors = [];
+        $ambiguities = [];
+        $normalizedinput = $input;
+
+        // Resolve ANON_USER tokens before semantic validation to avoid false user lookup misses.
+        $anonymizer = new privacy_anonymizer(new conversation_store());
+        $activeuserid = $userid > 0 ? $userid : (int)($USER->id ?? 0);
+        $normalizedinput = $anonymizer->deanonymize_command_input_for_active_user($cmid, $activeuserid, $normalizedinput);
+
+        $cm = get_coursemodule_from_id('booking', $cmid);
+        if (!$cm) {
+            $errors[] = 'Invalid course module.';
+            return [
+                'errors' => $errors,
+                'ambiguities' => $ambiguities,
+                'normalized_input' => $normalizedinput,
+            ];
+        }
+
+        $common = booking_mutation_validation::validate_common($normalizedinput, $cmid, $taskname);
+        $errors = array_merge($errors, $common['errors']);
+        $ambiguities = array_merge($ambiguities, $common['ambiguities']);
+
+        $resolvedoptiontype = $this->resolve_option_type_from_input($normalizedinput);
+        if (
+            !isset($normalizedinput['courseendtime'])
+            && isset($normalizedinput['coursestarttime'])
+            && isset($normalizedinput['duration'])
+            && (int)$normalizedinput['duration'] > 0
+        ) {
+            $startts = booking_task_support::parse_datetime($normalizedinput['coursestarttime']);
+            if ($startts !== false) {
+                $normalizedinput['courseendtime'] = (int)$startts + (int)$normalizedinput['duration'];
+            }
+        }
+
+        if ($taskname === create_option_task::TASK_NAME) {
+            $isnormal = $resolvedoptiontype === null || $resolvedoptiontype === MOD_BOOKING_OPTIONTYPE_DEFAULT;
+            if ($isnormal) {
+                $parsedoptiondates = booking_task_support::extract_optiondates($normalizedinput);
+                if (empty($parsedoptiondates)) {
+                    $errors[] = 'Field "optiondates" must contain at least one valid date range.';
+                }
+            }
+        }
+
+        if ($taskname === update_option_task::TASK_NAME && empty($normalizedinput['optionid'])) {
+            $optionquery = (string)($normalizedinput['optionquery'] ?? '');
+            if ($optionquery !== '') {
+                if (booking_task_support::is_last_preview_selection_reference($optionquery)) {
+                    $previewids = booking_task_support::resolve_last_preview_option_ids_for_user_for_execute($cmid, $userid);
+                    if (empty($previewids)) {
+                        $errors[] = 'No recently previewed booking options are available for this follow-up request.';
+                    } else if (count($previewids) === 1) {
+                        $normalizedinput['optionid'] = (int)reset($previewids);
+                    }
+                } else if (!booking_task_support::is_last_option_reference($optionquery)) {
+                    $result = booking_task_support::resolve_single_option(
+                        $cmid,
+                        $optionquery,
+                        (string)($normalizedinput['optionwhen'] ?? '')
+                    );
+                    if (($result['status'] ?? '') === 'ambiguity') {
+                        $ambiguities[] = (string)($result['message'] ?? '');
+                    } else if (($result['status'] ?? '') === 'error') {
+                        $errors[] = (string)($result['message'] ?? 'Could not resolve the option to update.');
+                    } else if (($result['status'] ?? '') === 'ok') {
+                        $normalizedinput['optionid'] = (int)($result['optionid'] ?? 0);
+                    }
+                }
+            }
+        }
+
+        if ($taskname === bulk_update_options_task::TASK_NAME) {
+            $optionids = booking_task_support::resolve_bulk_option_ids_for_execute($cmid, $normalizedinput, $userid);
+            if (empty($optionids)) {
+                $errors[] = 'No matching booking options found to update.';
+            }
+        }
+
+        if (empty($normalizedinput['teacheremail']) && !empty($normalizedinput['teacherquery'])) {
+            $teacherquery = trim((string)$normalizedinput['teacherquery']);
+            if ($this->is_self_reference_query($teacherquery) && !empty($USER->email)) {
+                $normalizedinput['teacheremail'] = (string)$USER->email;
+            }
+        }
+
+        return [
+            'errors' => array_values(array_unique(array_filter($errors))),
+            'ambiguities' => array_values(array_unique(array_filter($ambiguities))),
+            'normalized_input' => $normalizedinput,
+        ];
+    }
+
+    /**
+     * Detect whether a teacher query refers to the current user.
+     *
+     * @param string $query
+     * @return bool
+     */
+    private function is_self_reference_query(string $query): bool {
+        $normalized = strtolower(trim($query, " \t\n\r\0\x0B.,;:!?\"'"));
+        if ($normalized === '') {
+            return false;
+        }
+
+        if ($normalized === '__current_user__') {
+            return true;
+        }
+
+        $tokens = [
+            'self',
+            'me',
+            'myself',
+            'i',
+            'ich',
+            'mich',
+            'mir',
+            'mein',
+            'current user',
+            'aktueller benutzer',
+            'der aktuelle benutzer',
+        ];
+
+        if (in_array($normalized, $tokens, true)) {
+            return true;
+        }
+
+        return preg_match('/\b(ich|mich|mir|self|myself|me)\b/u', $normalized) === 1;
     }
 }

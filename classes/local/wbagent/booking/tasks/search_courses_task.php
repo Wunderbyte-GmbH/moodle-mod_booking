@@ -112,14 +112,15 @@ class search_courses_task extends base_booking_task {
                 'status' => 'executed',
                 'detail' => 'No matching courses found.',
                 'resultid' => null,
+                'courses' => [],
             ];
         }
 
-        $ids = array_map(fn($row) => (int)($row['courseid'] ?? 0), $courses);
         return [
             'status' => 'executed',
-            'detail' => 'Found courses: ' . implode(', ', $ids) . '. ' . json_encode($courses),
+            'detail' => 'Found ' . count($courses) . ' matching course(s).',
             'resultid' => (int)($courses[0]['courseid'] ?? 0),
+            'courses' => $courses,
         ];
     }
 }

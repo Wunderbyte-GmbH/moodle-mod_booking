@@ -27,6 +27,7 @@ namespace mod_booking\local\wbagent;
 use core_component;
 use mod_booking\local\wbagent\interfaces\task_interface;
 use mod_booking\local\wbagent\interfaces\task_provider_interface;
+use mod_booking\local\wbagent\interfaces\task_trigger_provider_interface;
 
 /**
  * Central registry that maps task names to their provider instances.
@@ -55,7 +56,25 @@ class task_registry {
     public function register(task_provider_interface $provider): void {
         $this->providers[$provider->get_component()] = $provider;
         foreach ($provider->get_tasks() as $task) {
-            $this->tasks[$task->get_name()] = $task;
+            $taskname = trim($task->get_name());
+            if ($taskname === '') {
+                \debugging(
+                    'Ignoring AI task with empty name from component ' . $provider->get_component(),
+                    DEBUG_DEVELOPER
+                );
+                continue;
+            }
+
+            if (isset($this->tasks[$taskname])) {
+                \debugging(
+                    'Duplicate AI task name detected: ' . $taskname
+                    . ' (component: ' . $provider->get_component() . '). Keeping first registered task.',
+                    DEBUG_DEVELOPER
+                );
+                continue;
+            }
+
+            $this->tasks[$taskname] = $task;
         }
     }
 
@@ -139,6 +158,50 @@ class task_registry {
     }
 
     /**
+     * Return all message trigger definitions contributed by tasks.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function get_message_triggers(): array {
+        $triggers = [];
+        $seenids = [];
+
+        foreach ($this->tasks as $task) {
+            if (!$task instanceof task_trigger_provider_interface) {
+                continue;
+            }
+
+            $tasktriggers = $task->get_message_triggers();
+            foreach ($tasktriggers as $trigger) {
+                if (!is_array($trigger)) {
+                    continue;
+                }
+
+                $id = trim((string)($trigger['id'] ?? ''));
+                if ($id === '' || isset($seenids[$id])) {
+                    continue;
+                }
+
+                $description = trim((string)($trigger['description'] ?? ''));
+                if ($description === '') {
+                    continue;
+                }
+
+                $seenids[$id] = true;
+                $triggers[] = [
+                    'id' => $id,
+                    'description' => $description,
+                    'examples' => isset($trigger['examples']) && is_array($trigger['examples'])
+                        ? array_values($trigger['examples'])
+                        : [],
+                ];
+            }
+        }
+
+        return $triggers;
+    }
+
+    /**
      * Build and return the default registry loaded with all booking task providers.
      *
      * @return self
@@ -153,12 +216,21 @@ class task_registry {
                 continue;
             }
 
-            $provider = new $classname();
+            try {
+                $provider = new $classname();
+            } catch (\Throwable $e) {
+                continue;
+            }
+
             if (!$provider instanceof task_provider_interface) {
                 continue;
             }
 
-            $registry->register($provider);
+            try {
+                $registry->register($provider);
+            } catch (\Throwable $e) {
+                continue;
+            }
             $registeredcomponents[$provider->get_component()] = true;
         }
 

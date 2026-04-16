@@ -51,6 +51,9 @@ use mod_booking\table\bookingoptions_wbtable;
  * Domain support for booking-related AI tasks.
  */
 class booking_task_support {
+    /** @var string Thread metadata key for the last preview option ids. */
+    private const LAST_PREVIEW_OPTION_IDS_METADATA_KEY = 'lastpreviewoptionids';
+
     /** @var array<string, task_interface>|null */
     private ?array $taskinstancescache = null;
 
@@ -243,7 +246,7 @@ class booking_task_support {
      * @param array<string,mixed> $input
      * @return int[]
      */
-    private static function resolve_bulk_option_ids(int $cmid, array $input): array {
+    private static function resolve_bulk_option_ids(int $cmid, array $input, int $userid = 0): array {
         global $DB;
 
         $cm = get_coursemodule_from_id('booking', $cmid);
@@ -252,8 +255,9 @@ class booking_task_support {
         }
 
         if (!empty($input['optionids']) && is_array($input['optionids'])) {
-            return array_values(array_filter(
-                array_map('intval', $input['optionids']),
+            $requestedids = array_values(array_filter(array_map('intval', $input['optionids'])));
+            $validids = array_values(array_filter(
+                $requestedids,
                 static function (int $id) use ($DB, $cm): bool {
                     return $id > 0 && $DB->record_exists(
                         'booking_options',
@@ -261,9 +265,22 @@ class booking_task_support {
                     );
                 }
             ));
+
+            if (!empty($validids)) {
+                return $validids;
+            }
+
+            if ($userid > 0) {
+                return self::remap_preview_ordinals_to_option_ids($cmid, $userid, $requestedids);
+            }
+
+            return [];
         }
 
         if (!empty($input['optionquery']) && is_string($input['optionquery'])) {
+            if ($userid > 0 && self::is_last_preview_selection_reference((string)$input['optionquery'])) {
+                return self::resolve_last_preview_option_ids_for_user($cmid, $userid);
+            }
             $rows = self::search_option_candidates($cmid, trim((string)$input['optionquery']), 500, '');
             return array_values(array_map(fn(array $row): int => (int)($row['optionid'] ?? 0), $rows));
         }
@@ -271,6 +288,10 @@ class booking_task_support {
         if (!empty($input['apply_to_all'])) {
             $records = $DB->get_records('booking_options', ['bookingid' => (int)$cm->instance], '', 'id');
             return array_values(array_map('intval', array_keys($records)));
+        }
+
+        if ($userid > 0) {
+            return self::resolve_last_preview_option_ids_for_user($cmid, $userid);
         }
 
         return [];
@@ -739,6 +760,23 @@ class booking_task_support {
             return ['status' => 'ambiguity', 'message' => 'Please provide optionquery to identify the option.'];
         }
 
+        // If there is exactly one case-insensitive exact title match, prefer it over fuzzy hits.
+        $exact = self::find_existing_options_by_exact_title($cmid, $query);
+        if (($exact['status'] ?? '') === 'single') {
+            return [
+                'status' => 'ok',
+                'optionid' => (int)$exact['optionid'],
+            ];
+        }
+
+        if (($exact['status'] ?? '') === 'multiple') {
+            return [
+                'status' => 'ambiguity',
+                'message' => 'Multiple options matched: ' . (string)($exact['candidates'] ?? '')
+                    . '. Please provide optionid.',
+            ];
+        }
+
         $rows = self::search_option_candidates($cmid, $query, 5, $when);
         if (empty($rows)) {
             return [
@@ -891,7 +929,7 @@ class booking_task_support {
      * @return array<string, mixed>
      */
     public static function resolve_single_user(string $query): array {
-        $query = trim($query);
+        $query = self::sanitize_person_lookup_query($query);
         if ($query === '') {
             return [
                 'status' => 'ambiguity',
@@ -1398,6 +1436,8 @@ class booking_task_support {
             'optionwhen' => ['ai_property_optionwhen', 'mod_booking'],
             'teacherquery' => ['ai_property_teacherquery', 'mod_booking'],
             'teacheremail' => ['ai_property_teacheremail', 'mod_booking'],
+            'optiontype' => ['optiontype', 'mod_booking'],
+            'slot_enabled' => ['optiontype_slotbooking', 'mod_booking'],
             'selflearningcourse' => ['ai_property_selflearningcourse', 'mod_booking'],
             'bookuserscompleted' => ['ai_property_bookuserscompleted', 'mod_booking'],
             'bookuserstimebooked' => ['ai_property_bookuserstimebooked', 'mod_booking'],
@@ -2063,6 +2103,35 @@ class booking_task_support {
     }
 
     /**
+     * Detect if a query refers to the last preview selection rather than a single option.
+     *
+     * @param string $query
+     * @return bool
+     */
+    public static function is_last_preview_selection_reference(string $query): bool {
+        $q = trim(strtolower($query));
+        if ($q === '') {
+            return false;
+        }
+
+        $patterns = [
+            '/\b(all|both|these|those|shown|displayed|found)\b/',
+            '/\b(all\s+(two|three|four|five|\d+))\b/',
+            '/\b(alle|allen|beide|diese|jene|gezeigten|gefundenen|saemtlichen|sämtlichen)\b/',
+            '/\b(alle\s+(zwei|drei|vier|fuenf|fünf|\d+))\b/',
+            '/\b(allen\s+(zweien|dreien|vieren|fuenfen|fünfen))\b/',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $q)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Resolve last worked-on option id from thread metadata.
      *
      * @param int $cmid
@@ -2117,6 +2186,105 @@ class booking_task_support {
     }
 
     /**
+     * Resolve the last preview option ids remembered for the user in this booking context.
+     *
+     * @param int $cmid
+     * @param int $userid
+     * @return int[]
+     */
+    private static function resolve_last_preview_option_ids_for_user(int $cmid, int $userid): array {
+        global $DB;
+
+        if ($cmid <= 0 || $userid <= 0) {
+            return [];
+        }
+
+        $store = new conversation_store();
+        $thread = $store->get_active_thread($userid, $cmid);
+        if (!$thread) {
+            return [];
+        }
+
+        $storedids = $store->get_thread_metadata_value((int)$thread->id, self::LAST_PREVIEW_OPTION_IDS_METADATA_KEY);
+        if (!is_array($storedids) || empty($storedids)) {
+            return [];
+        }
+
+        $cm = get_coursemodule_from_id('booking', $cmid);
+        if (!$cm) {
+            return [];
+        }
+
+        $validids = [];
+        foreach ($storedids as $storedid) {
+            $optionid = (int)$storedid;
+            if ($optionid <= 0) {
+                continue;
+            }
+            if ($DB->record_exists('booking_options', ['id' => $optionid, 'bookingid' => (int)$cm->instance])) {
+                $validids[] = $optionid;
+            }
+        }
+
+        return array_values(array_unique($validids));
+    }
+
+    /**
+     * Remember the last preview option ids for this user and booking context.
+     *
+     * @param int $userid
+     * @param int $cmid
+     * @param array<int,int> $optionids
+     * @return void
+     */
+    private static function remember_last_preview_options_for_user(int $userid, int $cmid, array $optionids): void {
+        if ($userid <= 0 || $cmid <= 0 || empty($optionids)) {
+            return;
+        }
+
+        $cm = get_coursemodule_from_id('booking', $cmid);
+        if (!$cm) {
+            return;
+        }
+
+        $normalizedids = array_values(array_unique(array_filter(array_map('intval', $optionids))));
+        if (empty($normalizedids)) {
+            return;
+        }
+
+        $store = new conversation_store();
+        $thread = $store->get_or_create_thread($userid, $cmid, (int)$cm->instance);
+        $store->set_thread_metadata_value((int)$thread->id, self::LAST_PREVIEW_OPTION_IDS_METADATA_KEY, $normalizedids);
+        $store->set_thread_metadata_value((int)$thread->id, 'lastpreviewoptionsts', time());
+    }
+
+    /**
+     * Remap ordinal pseudo ids like [1,2,3] onto the most recent preview option ids.
+     *
+     * @param int $cmid
+     * @param int $userid
+     * @param array<int,int> $requestedids
+     * @return int[]
+     */
+    private static function remap_preview_ordinals_to_option_ids(int $cmid, int $userid, array $requestedids): array {
+        $previewids = self::resolve_last_preview_option_ids_for_user($cmid, $userid);
+        if (empty($previewids) || empty($requestedids)) {
+            return [];
+        }
+
+        $mappedids = [];
+        foreach ($requestedids as $requestedid) {
+            $ordinal = (int)$requestedid;
+            if ($ordinal <= 0 || $ordinal > count($previewids)) {
+                return [];
+            }
+            $mappedids[] = (int)$previewids[$ordinal - 1];
+        }
+
+        return array_values(array_unique($mappedids));
+    }
+
+    /**
      * Build canonical link for an option by id.
      *
      * @param int $cmid
@@ -2130,6 +2298,18 @@ class booking_task_support {
             'whichview' => 'showonlyone',
         ]);
         return $url->out(false);
+    }
+
+    /**
+     * Remove privacy display markers and normalize whitespace for person lookups.
+     *
+     * @param string $query
+     * @return string
+     */
+    private static function sanitize_person_lookup_query(string $query): string {
+        $clean = preg_replace('/\s*👤\s*/u', ' ', $query);
+        $clean = preg_replace('/\s+/', ' ', (string)$clean);
+        return trim((string)$clean, " \t\n\r\0\x0B.,;:!?\"'");
     }
 
     /**
@@ -2183,8 +2363,8 @@ class booking_task_support {
      * @param array<string,mixed> $input
      * @return int[]
      */
-    public static function resolve_bulk_option_ids_for_execute(int $cmid, array $input): array {
-        return self::resolve_bulk_option_ids($cmid, $input);
+    public static function resolve_bulk_option_ids_for_execute(int $cmid, array $input, int $userid = 0): array {
+        return self::resolve_bulk_option_ids($cmid, $input, $userid);
     }
 
     /**
@@ -2214,6 +2394,29 @@ class booking_task_support {
         int $bookingid
     ): void {
         self::remember_last_option_for_user($userid, $cmid, $optionid, $bookingid);
+    }
+
+    /**
+     * Execute wrapper for preview-option metadata persistence.
+     *
+     * @param int $userid
+     * @param int $cmid
+     * @param array<int,int> $optionids
+     * @return void
+     */
+    public static function remember_last_preview_options_for_user_for_execute(int $userid, int $cmid, array $optionids): void {
+        self::remember_last_preview_options_for_user($userid, $cmid, $optionids);
+    }
+
+    /**
+     * Execute wrapper for resolving last preview option ids.
+     *
+     * @param int $cmid
+     * @param int $userid
+     * @return int[]
+     */
+    public static function resolve_last_preview_option_ids_for_user_for_execute(int $cmid, int $userid): array {
+        return self::resolve_last_preview_option_ids_for_user($cmid, $userid);
     }
 
     /**

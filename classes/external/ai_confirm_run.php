@@ -34,6 +34,7 @@ use external_single_structure;
 use external_value;
 use mod_booking\local\wbagent\authorization_service;
 use mod_booking\local\wbagent\conversation_store;
+use mod_booking\local\wbagent\execution_feedback_service;
 use mod_booking\local\wbagent\executor;
 use mod_booking\local\wbagent\task_registry;
 use mod_booking\task\execute_ai_run_adhoc;
@@ -90,15 +91,38 @@ class ai_confirm_run extends external_api {
         self::validate_context($context);
         $authz->require_use_capability((int)$USER->id, $params['cmid']);
 
-        $cmdsarray = json_decode($params['commands'], true);
-        if (!is_array($cmdsarray) || empty($cmdsarray)) {
-            return ['success' => false, 'runid' => 0, 'message' => get_string('ai_no_commands', 'mod_booking')];
+        $store = new conversation_store();
+        $pendingintent = $store->consume_pending_intent((int)$params['threadid'], (int)$USER->id, (int)$params['cmid']);
+        if ($pendingintent === null || empty($pendingintent['commands']) || !is_array($pendingintent['commands'])) {
+            return [
+                'success' => false,
+                'runid' => 0,
+                'message' => 'No pending confirmation is available for this action. Please ask the assistant again.',
+            ];
+        }
+
+        $cmdsarray = $pendingintent['commands'];
+        $outputlang = trim((string)$store->get_thread_metadata_value((int)$params['threadid'], 'last_output_lang'));
+        if ($outputlang === '') {
+            $outputlang = current_language();
+        }
+
+        // Optional tamper check: if client sent commands, they must match the server-side pending intent.
+        $clientcommands = json_decode($params['commands'], true);
+        if (is_array($clientcommands) && !empty($clientcommands)) {
+            $clientchecksum = hash('sha256', json_encode($clientcommands));
+            $pendingchecksum = (string)($pendingintent['checksum'] ?? '');
+            if ($pendingchecksum !== '' && $clientchecksum !== $pendingchecksum) {
+                return [
+                    'success' => false,
+                    'runid' => 0,
+                    'message' => 'Confirmation payload mismatch. Please confirm the latest assistant proposal.',
+                ];
+            }
         }
 
         $idempotencykey = hash('sha256', $USER->id . ':' . $params['cmid'] . ':' . $params['threadid']
-            . ':' . $params['commands'] . ':' . microtime(true));
-
-        $store = new conversation_store();
+            . ':' . json_encode($cmdsarray) . ':' . microtime(true));
         $runid = $store->create_run(
             $params['threadid'],
             (int)$USER->id,
@@ -138,15 +162,25 @@ class ai_confirm_run extends external_api {
         try {
             $registry = task_registry::make_default();
             $exec = new executor($registry, $store, $authz);
-            $results = $exec->execute_commands(
+            $rawresults = $exec->execute_commands(
                 $cmdsarray,
                 $params['cmid'],
                 (int)$USER->id,
                 $idempotencykey,
                 $runid
             );
+            $feedbackservice = new execution_feedback_service($store);
+            $feedback = $feedbackservice->build_completion_feedback(
+                (int)$params['threadid'],
+                (int)$params['cmid'],
+                (int)$USER->id,
+                $cmdsarray,
+                $rawresults,
+                $outputlang
+            );
+            $results = $feedback['results'];
             $store->update_run_status($runid, 'completed', $results);
-            $store->add_message((int)$params['threadid'], 'assistant', self::summarize_results($results), [
+            $store->add_message((int)$params['threadid'], 'assistant', (string)$feedback['message'], [
                 'response_type' => 'execution_result',
                 'runid' => (int)$runid,
                 'status' => 'completed',
@@ -159,51 +193,29 @@ class ai_confirm_run extends external_api {
                 'message' => get_string('ai_run_executed', 'mod_booking'),
             ];
         } catch (\Throwable $e) {
-            $store->update_run_status($runid, 'failed', [
-                ['status' => 'error', 'detail' => $e->getMessage(), 'resultid' => null],
-            ]);
-            $store->add_message((int)$params['threadid'], 'assistant', get_string('ai_provider_error', 'mod_booking'), [
+            $rawresults = [['status' => 'error', 'detail' => $e->getMessage(), 'resultid' => null]];
+            $feedbackservice = new execution_feedback_service($store);
+            $feedback = $feedbackservice->build_completion_feedback(
+                (int)$params['threadid'],
+                (int)$params['cmid'],
+                (int)$USER->id,
+                $cmdsarray,
+                $rawresults,
+                $outputlang
+            );
+            $store->update_run_status($runid, 'failed', $feedback['results']);
+            $store->add_message((int)$params['threadid'], 'assistant', (string)$feedback['message'], [
                 'response_type' => 'execution_result',
                 'runid' => (int)$runid,
                 'status' => 'failed',
-                'results' => [['status' => 'error', 'detail' => $e->getMessage(), 'resultid' => null]],
+                'results' => $feedback['results'],
             ]);
             return [
                 'success' => false,
                 'runid'   => $runid,
-                'message' => get_string('ai_provider_error', 'mod_booking'),
+                'message' => (string)$feedback['message'],
             ];
         }
-    }
-
-    /**
-     * Summarize run results into assistant-visible thread text.
-     *
-     * @param array<int,array<string,mixed>> $results
-     * @return string
-     */
-    private static function summarize_results(array $results): string {
-        if (empty($results)) {
-            return get_string('ai_run_executed', 'mod_booking');
-        }
-
-        $parts = [];
-        foreach ($results as $index => $result) {
-            $status = (string)($result['status'] ?? 'unknown');
-            $detail = trim((string)($result['detail'] ?? ''));
-            $resultid = (int)($result['resultid'] ?? 0);
-
-            $line = 'Command #' . ($index + 1) . ': ' . $status;
-            if ($resultid > 0) {
-                $line .= ' (resultid=' . $resultid . ')';
-            }
-            if ($detail !== '') {
-                $line .= ' - ' . $detail;
-            }
-            $parts[] = $line;
-        }
-
-        return implode("\n", $parts);
     }
 
     /**

@@ -16,7 +16,9 @@
 
 namespace mod_booking\local\wbagent\booking\tasks;
 
+use core_text;
 use mod_booking\local\wbagent\booking\booking_task_support;
+use mod_booking\local\wbagent\interfaces\task_trigger_provider_interface;
 
 /**
  * Task definition for booking.search_options.
@@ -25,7 +27,7 @@ use mod_booking\local\wbagent\booking\booking_task_support;
  * @copyright  2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class search_options_task extends base_booking_task {
+class search_options_task extends base_booking_task implements task_trigger_provider_interface {
     /** Task name constant. */
     public const TASK_NAME = 'booking.search_options';
 
@@ -77,6 +79,24 @@ class search_options_task extends base_booking_task {
     }
 
     /**
+     * Return task-specific message triggers.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function get_message_triggers(): array {
+        return [
+            [
+                'id' => 'booking.search_options_exact_title_match',
+                'description' => 'User asks for exact-title matching instead of fuzzy search.',
+            ],
+            [
+                'id' => 'booking.search_options_temporal_filter_applied',
+                'description' => 'User asks to constrain option search by time/date hints.',
+            ],
+        ];
+    }
+
+    /**
      * Validate task input.
      *
      * @param array<string,mixed> $input
@@ -105,11 +125,48 @@ class search_options_task extends base_booking_task {
      * @return array<string,mixed>
      */
     public function execute(array $input, int $cmid, int $userid): array {
+        global $DB;
+
         $query = trim((string)($input['query'] ?? ''));
         $when = trim((string)($input['when'] ?? ''));
         $limit = isset($input['limit']) ? max(1, (int)$input['limit']) : ($query === '' ? 50 : 10);
 
-        $rows = booking_task_support::search_option_candidates_for_preview($cmid, $query, $limit, $when);
+        $exacttitlequery = self::extract_exact_title_query($query);
+        $effectivequery = $exacttitlequery !== '' ? $exacttitlequery : $query;
+
+        // Robust exact-title short-circuit: even if the LLM only passes query="von billy"
+        // without explicit "title" wording, a unique exact title should win over fuzzy matches.
+        if ($effectivequery !== '') {
+            $exact = booking_task_support::find_existing_options_by_exact_title($cmid, $effectivequery);
+            if (($exact['status'] ?? '') === 'single') {
+                $optionid = (int)($exact['optionid'] ?? 0);
+                if ($optionid > 0) {
+                    $title = (string)$DB->get_field('booking_options', 'text', ['id' => $optionid]) ?: $effectivequery;
+                    $link = booking_task_support::build_option_link_for_output($cmid, $optionid);
+
+                    return [
+                        'status' => 'executed',
+                        'detail' => 'Found 1 option(s).',
+                        'resultid' => $optionid,
+                        'previewoptionids' => [$optionid],
+                        'options' => [[
+                            'id' => $optionid,
+                            'name' => $title,
+                            'link' => $link,
+                        ]],
+                    ];
+                }
+            }
+        }
+
+        $rows = booking_task_support::search_option_candidates_for_preview($cmid, $effectivequery, $limit, $when);
+        if ($exacttitlequery !== '' && !empty($rows)) {
+            $rows = array_values(array_filter($rows, static function (array $row) use ($exacttitlequery): bool {
+                $title = trim((string)($row['text'] ?? ''));
+                return core_text::strtolower($title) === core_text::strtolower($exacttitlequery);
+            }));
+        }
+
         if (empty($rows)) {
             return [
                 'status' => 'executed',
@@ -140,5 +197,38 @@ class search_options_task extends base_booking_task {
             )),
             'options' => $structuredoptions,
         ];
+    }
+
+    /**
+     * Extract exact title intent from natural-language query.
+     *
+     * Examples:
+     * - "zeig mir nur die, wo der titel \"von billy\" lautet"
+     * - "title is 'Code Swap'"
+     *
+     * @param string $query
+     * @return string
+     */
+    private static function extract_exact_title_query(string $query): string {
+        $normalized = core_text::strtolower(trim($query));
+        if ($normalized === '') {
+            return '';
+        }
+
+        $hastitleintent = (strpos($normalized, 'titel') !== false)
+            || (strpos($normalized, 'title') !== false);
+        if (!$hastitleintent) {
+            return '';
+        }
+
+        if (preg_match('/["\']([^"\']+)["\']/', $query, $m)) {
+            return trim((string)($m[1] ?? ''));
+        }
+
+        if (preg_match('/(?:titel|title)\s*(?:ist|is|=|lautet)?\s+(.+)$/iu', $query, $m)) {
+            return trim((string)($m[1] ?? ''));
+        }
+
+        return '';
     }
 }

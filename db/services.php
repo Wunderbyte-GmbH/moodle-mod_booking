@@ -28,6 +28,20 @@ defined('MOODLE_INTERNAL') || die();
 use mod_booking\plugininfo\bookingextension_interface;
 
 $functions = [
+    'mod_booking_activate_trial_context' => [
+        'classname'   => 'mod_booking\external\activate_trial_context',
+        'description' => 'Activate AI for course and booking module after trial token retrieval.',
+        'type'        => 'write',
+        'capabilities' => 'moodle/site:config',
+        'ajax'        => true,
+    ],
+    'mod_booking_request_trial_key' => [
+        'classname'   => 'mod_booking\external\request_trial_key',
+        'description' => 'Request a Wunderbyte free-trial AI key and auto-configure core_ai.',
+        'type'        => 'write',
+        'capabilities' => 'moodle/site:config',
+        'ajax'        => true,
+    ],
     'mod_booking_bookit' => [
         'classname' => 'mod_booking\external\bookit',
         'description' => 'Book option or suboption via ajax',
@@ -216,6 +230,14 @@ $functions = [
         'methodname'  => 'execute',
         'description' => 'Send a user message to the AI booking agent and receive its response.',
         'type'        => 'write',
+        'capabilities' => 'mod/booking:useaiinstructions',
+        'ajax'        => 1,
+    ],
+    'mod_booking_ai_privacy_precheck' => [
+        'classname'   => 'mod_booking\\external\\ai_privacy_precheck',
+        'methodname'  => 'execute',
+        'description' => 'Run privacy anonymization precheck on user text before forwarding to AI.',
+        'type'        => 'read',
         'capabilities' => 'mod/booking:useaiinstructions',
         'ajax'        => 1,
     ],

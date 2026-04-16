@@ -31,6 +31,10 @@ let pendingCommands = null;
 let currentThreadId = 0;
 let currentCmid = 0;
 let debugModeEnabled = false;
+let privacyCheckRunningLabel = 'Privacy check running...';
+let privacyAnswerNoteLabel = 'Privacy note: personal data in this response was de-anonymized for display.';
+let defaultThinkingLabel = '';
+let forceNewThreadOnFirstMessage = true;
 
 /**
  * Execute collected JavaScript returned by Moodle web service responses.
@@ -59,17 +63,6 @@ const READ_ONLY_TASKS = [
 ];
 
 /**
- * Check if a free-text message is an affirmative confirmation.
- *
- * @param {string} message
- * @returns {boolean}
- */
-const isAffirmativeMessage = (message) => {
-    const normalized = String(message || '').trim().toLowerCase();
-    return ['yes', 'y', 'ok', 'okay', 'confirm', 'confirmed', 'ja', 'j', 'weiter', 'go'].includes(normalized);
-};
-
-/**
  * Returns true when all commands are read-only and can run without confirm button.
  *
  * @param {Array} commands
@@ -87,21 +80,145 @@ const shouldAutoExecuteReadOnly = (commands) => {
 };
 
 /**
+ * Render compact debug metadata below a message bubble.
+ *
+ * @param {Object|null} meta
+ * @returns {string}
+ */
+const renderMessageDebugMeta = (meta) => {
+    if (!debugModeEnabled || !meta || typeof meta !== 'object') {
+        return '';
+    }
+
+    const keys = [
+        'response_type',
+        'threadid',
+        'runid',
+        'commands_count',
+        'llm_commands_json',
+        'attempted_tasks',
+        'issue_codes',
+        'pending_confirmation_code',
+        'errors',
+        'status',
+        'source',
+        'time',
+    ];
+    const parts = [];
+    keys.forEach((key) => {
+        if (Object.prototype.hasOwnProperty.call(meta, key) && meta[key] !== null && meta[key] !== '') {
+            parts.push(`${key}=${String(meta[key])}`);
+        }
+    });
+
+    if (parts.length === 0) {
+        return '';
+    }
+
+    return `<div class="booking-ai-msg-debug">${escapeHtml(parts.join(' | '))}</div>`;
+};
+
+/**
+ * Render an optional pretty JSON block for debug command payloads.
+ *
+ * @param {Object|null} meta
+ * @returns {string}
+ */
+const renderMessageDebugJson = (meta) => {
+    if (!debugModeEnabled || !meta || typeof meta !== 'object') {
+        return '';
+    }
+
+    const raw = String(meta.llm_commands_json || '').trim();
+    if (raw === '') {
+        return '';
+    }
+
+    let pretty = raw;
+    try {
+        pretty = JSON.stringify(JSON.parse(raw), null, 2);
+    } catch (e) {
+        // Keep raw if parsing fails.
+    }
+
+    return '<details class="booking-ai-debug-json">'
+        + '<summary>LLM Task JSON</summary>'
+        + `<pre>${escapeHtml(pretty)}</pre>`
+        + '</details>';
+};
+
+/**
+ * Parse JSON-encoded list safely.
+ *
+ * @param {string} raw
+ * @returns {Array}
+ */
+const parseJsonList = (raw) => {
+    try {
+        const parsed = JSON.parse(String(raw || '[]'));
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+        return [];
+    }
+};
+
+/**
  * Append a chat bubble to the message list.
  *
  * @param {string} role      'user' | 'assistant'
  * @param {string} content   Message text.
+ * @param {Object|null} meta Compact debug metadata.
  */
-const appendMessage = (role, content) => {
+const appendMessage = (role, content, meta = null) => {
     const list = document.getElementById('booking-ai-messages');
     if (!list) {
         return;
     }
     const div = document.createElement('div');
     div.classList.add('booking-ai-msg', role);
-    div.innerHTML = `<span class="bubble">${escapeHtml(content)}</span>`;
+    div.innerHTML = `<span class="bubble">${escapeHtml(content)}</span>`
+        + `${renderMessageDebugMeta(meta)}${renderMessageDebugJson(meta)}`;
     list.appendChild(div);
     list.scrollTop = list.scrollHeight;
+};
+
+/**
+ * Append a small privacy status line (not a normal chat bubble).
+ *
+ * @param {string} content
+ * @param {Object|null} meta
+ */
+const appendPrivacyNote = (content, meta = null) => {
+    const list = document.getElementById('booking-ai-messages');
+    if (!list) {
+        return;
+    }
+    const div = document.createElement('div');
+    div.classList.add('booking-ai-privacy-note');
+    div.innerHTML = `<span>${escapeHtml(content)}</span>${renderMessageDebugMeta(meta)}`;
+    list.appendChild(div);
+    list.scrollTop = list.scrollHeight;
+};
+
+/**
+ * Append the privacy note for assistant responses when display de-masking was applied.
+ *
+ * @param {Object|null} response
+ * @param {string} source
+ */
+const appendAssistantPrivacyNote = (response, source = 'ai_send_message') => {
+    if (!response || Number(response.privacyapplied || 0) !== 1) {
+        return;
+    }
+
+    appendPrivacyNote(privacyAnswerNoteLabel, {
+        response_type: 'privacy_response',
+        threadid: Number(response.threadid || currentThreadId || 0),
+        runid: Number(response.runid || 0),
+        status: 'privacy_applied',
+        source,
+        time: (new Date()).toISOString(),
+    });
 };
 
 /**
@@ -109,17 +226,192 @@ const appendMessage = (role, content) => {
  *
  * @param {string} role      'user' | 'assistant'
  * @param {string} html      Trusted HTML.
+ * @param {Object|null} meta Compact debug metadata.
  */
-const appendMessageHtml = (role, html) => {
+const appendMessageHtml = (role, html, meta = null) => {
     const list = document.getElementById('booking-ai-messages');
     if (!list) {
         return;
     }
     const div = document.createElement('div');
     div.classList.add('booking-ai-msg', role);
-    div.innerHTML = `<span class="bubble">${String(html || '')}</span>`;
+    div.innerHTML = `<span class="bubble">${String(html || '')}</span>`
+        + `${renderMessageDebugMeta(meta)}${renderMessageDebugJson(meta)}`;
     list.appendChild(div);
     list.scrollTop = list.scrollHeight;
+};
+
+/**
+ * Replace content of the dedicated side preview panel.
+ *
+ * @param {string} html Trusted HTML.
+ */
+const setSidePreviewHtml = (html) => {
+    const preview = document.getElementById('booking-ai-side-preview');
+    if (!preview) {
+        return;
+    }
+    preview.innerHTML = String(html || '');
+};
+
+/**
+ * Initialize drag-to-resize behavior for chat and preview panes on desktop.
+ */
+const initResizableLayout = () => {
+    const layout = document.getElementById('booking-ai-body-layout');
+    const splitter = document.getElementById('booking-ai-splitter');
+    if (!layout || !splitter) {
+        return;
+    }
+
+    const desktopMedia = window.matchMedia('(min-width: 992px)');
+    const storageKey = 'mod_booking_ai_preview_width';
+
+    const applyColumns = (previewPercent) => {
+        const safePreview = Math.min(90, Math.max(20, Number(previewPercent || 42)));
+        const mainPercent = 100 - safePreview;
+        layout.style.gridTemplateColumns = `minmax(0, ${mainPercent}%) 10px minmax(0, ${safePreview}%)`;
+        splitter.setAttribute('aria-valuenow', String(Math.round(safePreview)));
+    };
+
+    const restoreOrDefault = () => {
+        if (!desktopMedia.matches) {
+            layout.style.gridTemplateColumns = '';
+            return;
+        }
+        const stored = Number(window.localStorage.getItem(storageKey) || 42);
+        applyColumns(stored);
+    };
+
+    restoreOrDefault();
+
+    let dragging = false;
+
+    const onPointerMove = (clientX) => {
+        if (!dragging || !desktopMedia.matches) {
+            return;
+        }
+        const rect = layout.getBoundingClientRect();
+        if (rect.width <= 0) {
+            return;
+        }
+        const previewPercent = ((rect.right - clientX) / rect.width) * 100;
+        applyColumns(previewPercent);
+        window.localStorage.setItem(storageKey, String(Math.min(90, Math.max(20, previewPercent))));
+    };
+
+    const onMouseMove = (event) => {
+        onPointerMove(event.clientX);
+    };
+
+    const onTouchMove = (event) => {
+        const touch = event.touches && event.touches[0];
+        if (!touch) {
+            return;
+        }
+        onPointerMove(touch.clientX);
+    };
+
+    const stopDragging = () => {
+        dragging = false;
+        document.body.classList.remove('booking-ai-resizing');
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', stopDragging);
+        document.removeEventListener('touchmove', onTouchMove);
+        document.removeEventListener('touchend', stopDragging);
+    };
+
+    const startDragging = (event) => {
+        if (!desktopMedia.matches) {
+            return;
+        }
+        dragging = true;
+        document.body.classList.add('booking-ai-resizing');
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', stopDragging);
+        document.addEventListener('touchmove', onTouchMove, {passive: true});
+        document.addEventListener('touchend', stopDragging);
+
+        const touch = event.touches && event.touches[0];
+        if (touch) {
+            onPointerMove(touch.clientX);
+            return;
+        }
+        onPointerMove(event.clientX);
+    };
+
+    splitter.addEventListener('mousedown', startDragging);
+    splitter.addEventListener('touchstart', startDragging, {passive: true});
+
+    desktopMedia.addEventListener('change', () => {
+        restoreOrDefault();
+    });
+};
+
+/**
+ * Initialize mobile preview toggle and horizontal swipe gesture.
+ */
+const initMobilePreviewSwitch = () => {
+    const layout = document.getElementById('booking-ai-body-layout');
+    const toggle = document.getElementById('booking-ai-mobile-toggle');
+    if (!layout || !toggle) {
+        return;
+    }
+
+    const mobileMedia = window.matchMedia('(max-width: 991.98px)');
+    const label = toggle.querySelector('.booking-ai-mobile-toggle-label');
+
+    const setPreviewActive = (active) => {
+        const previewActive = Boolean(active);
+        layout.classList.toggle('mobile-preview-active', previewActive);
+        toggle.setAttribute('aria-pressed', previewActive ? 'true' : 'false');
+        if (label) {
+            label.textContent = previewActive ? 'Chat' : 'Preview';
+        }
+    };
+
+    setPreviewActive(false);
+
+    toggle.addEventListener('click', () => {
+        setPreviewActive(!layout.classList.contains('mobile-preview-active'));
+    });
+
+    let startX = 0;
+    let startY = 0;
+
+    layout.addEventListener('touchstart', (event) => {
+        const touch = event.touches && event.touches[0];
+        if (!touch || !mobileMedia.matches) {
+            return;
+        }
+        startX = touch.clientX;
+        startY = touch.clientY;
+    }, {passive: true});
+
+    layout.addEventListener('touchend', (event) => {
+        const touch = event.changedTouches && event.changedTouches[0];
+        if (!touch || !mobileMedia.matches) {
+            return;
+        }
+
+        const deltaX = touch.clientX - startX;
+        const deltaY = touch.clientY - startY;
+        if (Math.abs(deltaX) < 50 || Math.abs(deltaY) > 40) {
+            return;
+        }
+
+        if (deltaX < 0) {
+            setPreviewActive(true);
+        } else {
+            setPreviewActive(false);
+        }
+    }, {passive: true});
+
+    mobileMedia.addEventListener('change', () => {
+        if (!mobileMedia.matches) {
+            layout.classList.remove('mobile-preview-active');
+        }
+    });
 };
 
 /**
@@ -187,7 +479,8 @@ const showConfirmPanel = (message, commands) => {
             previewHtml += '</li>';
         });
         previewHtml += '</ul>';
-        appendMessageHtml('assistant', previewHtml);
+        preview.innerHTML = previewHtml;
+        setSidePreviewHtml(previewHtml);
 
         Ajax.call([{
             methodname: 'mod_booking_ai_render_command_preview',
@@ -197,14 +490,14 @@ const showConfirmPanel = (message, commands) => {
             },
         }])[0].then((resp) => {
             if (resp && resp.success && resp.html && resp.html.trim() !== '') {
-                appendMessageHtml('assistant', resp.html);
+                setSidePreviewHtml(resp.html);
                 runCollectedJavascript(resp.javascript);
             } else if (resp && resp.message) {
-                appendMessage('assistant', String(resp.message));
+                setSidePreviewHtml(`<div class="text-muted small">${escapeHtml(String(resp.message))}</div>`);
             }
             return resp;
         }).catch((err) => {
-            appendMessage('assistant', String(err.message || ''));
+            setSidePreviewHtml(`<div class="text-danger small">${escapeHtml(String(err.message || ''))}</div>`);
         });
     }
 
@@ -212,7 +505,7 @@ const showConfirmPanel = (message, commands) => {
 };
 
 /**
- * Render multiple booking option previews inline in the message thread.
+ * Render booking option previews in the side preview panel.
  *
  * @param {number} cmid
  * @param {Array<number>} optionIds
@@ -233,7 +526,7 @@ const renderOptionPreviewsInline = (cmid, optionIds) => {
         },
     }])[0].then((resp) => {
         if (resp && resp.success && resp.html && resp.html.trim() !== '') {
-            appendMessageHtml('assistant', resp.html);
+            setSidePreviewHtml(resp.html);
             runCollectedJavascript(resp.javascript);
         }
         return resp;
@@ -319,6 +612,10 @@ const showRunStatus = (status, message, results = []) => {
     }
     html += '</div>';
     appendMessageHtml('assistant', html);
+
+    // Keep execution output visible in the dedicated preview pane.
+    // If a richer option/table preview arrives later, it will replace this content.
+    setSidePreviewHtml(html);
 };
 
 /**
@@ -368,17 +665,28 @@ const pollRunStatus = (runid, cmid) => {
 
             if (resp.status === 'completed' || resp.status === 'failed') {
                 clearInterval(interval);
-                let detail = resp.status;
                 let results = [];
                 try {
                     results = JSON.parse(resp.resultsjson || '[]');
-                    detail = results.map((r) => `${r.status}: ${r.detail || ''}`).join('\n');
                 } catch (e) {
-                    // Keep the status string.
+                    // Keep empty results on parse errors.
                 }
                 // eslint-disable-next-line no-console
                 console.log('[AI Debug] pollRunStatus resp', resp, 'parsed results', results);
-                showRunStatus(resp.status, detail, results);
+
+                if (resp.status === 'completed') {
+                    appendAssistantPrivacyNote(resp, 'ai_poll_run_status');
+                    appendMessage('assistant', resp.displaymessage || resp.message || '', {
+                        response_type: 'execution_result',
+                        threadid: Number(currentThreadId || 0),
+                        runid: Number(resp.runid || runid || 0),
+                        status: 'execution_result',
+                        source: 'ai_poll_run_status',
+                        time: (new Date()).toISOString(),
+                    });
+                } else {
+                    showRunStatus(resp.status, resp.displaymessage || resp.message || resp.status);
+                }
 
                 if (resp.status === 'completed') {
                     const optionIds = extractPreviewOptionIds(results);
@@ -405,16 +713,15 @@ const sendMessage = (message) => {
         return;
     }
 
-    if (pendingCommands && isAffirmativeMessage(message)) {
-        confirmRun();
-        return;
-    }
-
-    appendMessage('user', message);
+    appendMessage('user', message, {
+        source: 'chat_input',
+        time: (new Date()).toISOString(),
+    });
 
     const thinking = document.getElementById('booking-ai-thinking');
     const sendBtn  = document.getElementById('booking-ai-send');
     if (thinking) {
+        thinking.textContent = privacyCheckRunningLabel;
         thinking.classList.remove('d-none');
     }
     if (sendBtn) {
@@ -422,11 +729,54 @@ const sendMessage = (message) => {
     }
 
     Ajax.call([{
+        methodname: 'mod_booking_ai_privacy_precheck',
+        args: {
+            cmid: currentCmid,
+            message,
+            forcenewthread: forceNewThreadOnFirstMessage ? 1 : 0,
+        },
+    }])[0].then((precheck) => {
+        forceNewThreadOnFirstMessage = false;
+
+        if (precheck.threadid && precheck.threadid > 0) {
+            currentThreadId = precheck.threadid;
+        }
+
+        const strictMode = Number(precheck.strictmode || 0) === 1;
+        const anonymizedCount = Number(precheck.anonymizedcount || 0);
+        if (strictMode || anonymizedCount > 0) {
+            appendPrivacyNote(precheck.message || '', {
+                response_type: 'privacy_precheck',
+                threadid: Number(precheck.threadid || currentThreadId || 0),
+                status: String(precheck.status || ''),
+                source: 'ai_privacy_precheck',
+                time: (new Date()).toISOString(),
+            });
+        }
+
+        if (String(precheck.status || '') !== 'ok') {
+            if (thinking) {
+                thinking.classList.add('d-none');
+                thinking.textContent = defaultThinkingLabel;
+            }
+            if (sendBtn) {
+                sendBtn.disabled = false;
+            }
+            return precheck;
+        }
+
+        const sanitizedMessage = String(precheck.sanitizedmessage || message);
+        if (thinking) {
+            thinking.textContent = defaultThinkingLabel;
+        }
+
+        return Ajax.call([{
         methodname: 'mod_booking_ai_send_message',
-        args: {cmid: currentCmid, message},
+        args: {cmid: currentCmid, message: sanitizedMessage},
     }])[0].then((resp) => {
         if (thinking) {
             thinking.classList.add('d-none');
+            thinking.textContent = defaultThinkingLabel;
         }
         if (sendBtn) {
             sendBtn.disabled = false;
@@ -441,9 +791,31 @@ const sendMessage = (message) => {
         }
 
         if (resp.response_type === 'clarification' || resp.response_type === 'error') {
-            appendMessage('assistant', resp.message);
+            appendAssistantPrivacyNote(resp, 'ai_send_message');
+            const attemptedTasks = parseJsonList(resp.attemptedtasksjson);
+            const errors = parseJsonList(resp.errorsjson);
+            const issueCodes = parseJsonList(resp.issuecodesjson);
+            appendMessage('assistant', resp.displaymessage || resp.message, {
+                response_type: resp.response_type || '',
+                threadid: Number(resp.threadid || currentThreadId || 0),
+                runid: Number(resp.runid || 0),
+                attempted_tasks: attemptedTasks.join(', '),
+                issue_codes: issueCodes.join(', '),
+                pending_confirmation_code: String(resp.pendingconfirmationcode || ''),
+                errors: errors.join(' || '),
+                source: 'ai_send_message',
+                time: (new Date()).toISOString(),
+            });
         } else if (resp.response_type === 'execution_result') {
-            appendMessage('assistant', resp.message || '');
+            appendAssistantPrivacyNote(resp, 'ai_send_message');
+            appendMessage('assistant', resp.displaymessage || resp.message || '', {
+                response_type: resp.response_type || '',
+                threadid: Number(resp.threadid || currentThreadId || 0),
+                runid: Number(resp.runid || 0),
+                status: 'execution_result',
+                source: 'ai_send_message',
+                time: (new Date()).toISOString(),
+            });
             let results = [];
             try {
                 results = JSON.parse(resp.resultsjson || '[]');
@@ -453,16 +825,35 @@ const sendMessage = (message) => {
             // eslint-disable-next-line no-console
             console.log('[AI Debug] execution_result resp', resp, 'parsed results', results);
 
-            showRunStatus('completed', resp.message || 'completed', results);
-
             const optionIds = extractPreviewOptionIds(results);
             if (optionIds.length > 0) {
                 renderOptionPreviewsInline(currentCmid, optionIds);
             }
         } else if (resp.response_type === 'confirmation_request' || resp.response_type === 'task_call') {
-            appendMessage('assistant', resp.message);
             try {
-                const cmds = JSON.parse(resp.commands || '[]');
+                const parsedCommands = JSON.parse(resp.commands || '[]');
+                const cmds = Array.isArray(parsedCommands)
+                    ? parsedCommands
+                    : (parsedCommands && typeof parsedCommands === 'object' && parsedCommands.task
+                        ? [parsedCommands]
+                        : []);
+                const attemptedTasks = parseJsonList(resp.attemptedtasksjson);
+                const errors = parseJsonList(resp.errorsjson);
+                const issueCodes = parseJsonList(resp.issuecodesjson);
+                appendAssistantPrivacyNote(resp, 'ai_send_message');
+                appendMessage('assistant', resp.displaymessage || resp.message, {
+                    response_type: resp.response_type || '',
+                    threadid: Number(resp.threadid || currentThreadId || 0),
+                    runid: Number(resp.runid || 0),
+                    commands_count: Array.isArray(cmds) ? cmds.length : 0,
+                    llm_commands_json: String(resp.commands || ''),
+                    attempted_tasks: attemptedTasks.join(', '),
+                    issue_codes: issueCodes.join(', '),
+                    pending_confirmation_code: String(resp.pendingconfirmationcode || ''),
+                    errors: errors.join(' || '),
+                    source: 'ai_send_message',
+                    time: (new Date()).toISOString(),
+                });
                 if (cmds.length > 0) {
                     if (shouldAutoExecuteReadOnly(cmds)) {
                         pendingCommands = cmds;
@@ -472,15 +863,31 @@ const sendMessage = (message) => {
                     }
                 }
             } catch (e) {
-                appendMessage('assistant', resp.commands || '');
+                appendAssistantPrivacyNote(resp, 'ai_send_message');
+                appendMessage('assistant', resp.commands || '', {
+                    response_type: resp.response_type || '',
+                    threadid: Number(resp.threadid || currentThreadId || 0),
+                    runid: Number(resp.runid || 0),
+                    source: 'ai_send_message',
+                    time: (new Date()).toISOString(),
+                });
             }
         } else {
-            appendMessage('assistant', resp.message || '');
+            appendAssistantPrivacyNote(resp, 'ai_send_message');
+            appendMessage('assistant', resp.displaymessage || resp.message || '', {
+                response_type: resp.response_type || '',
+                threadid: Number(resp.threadid || currentThreadId || 0),
+                runid: Number(resp.runid || 0),
+                source: 'ai_send_message',
+                time: (new Date()).toISOString(),
+            });
         }
         return resp;
+    });
     }).catch((err) => {
         if (thinking) {
             thinking.classList.add('d-none');
+            thinking.textContent = defaultThinkingLabel;
         }
         if (sendBtn) {
             sendBtn.disabled = false;
@@ -521,18 +928,216 @@ const confirmRun = () => {
 };
 
 /**
- * Initialise the AI instructions interface.
- *
- * @param {Object} config  Template data from PHP.
+ * Bind one-click trial activation button.
  */
-export const init = (config) => {
-    currentCmid     = config.cmid || 0;
-    currentThreadId = config.threadid || 0;
-    debugModeEnabled = !!config.debug_enabled;
+const bindTrialButton = () => {
+    const trialBtn     = document.getElementById('booking-ai-trial-btn');
+    const activateBtn  = document.getElementById('booking-ai-activate-btn');
+    const activateWrap = document.getElementById('booking-ai-trial-activate-wrap');
+    const trialSpinner = document.getElementById('booking-ai-trial-spinner');
+    const trialResult  = document.getElementById('booking-ai-trial-result');
+    const wrapper = document.getElementById('booking-ai-wrapper');
+    const trialSuccessDefault = String((wrapper && wrapper.dataset.trialSuccessDefault) || '');
+    const trialReloadingLabel = String((wrapper && wrapper.dataset.trialReloadingLabel) || '');
+    const trialFailedDefault = String((wrapper && wrapper.dataset.trialFailedDefault) || '');
+    const trialUnexpectedError = String((wrapper && wrapper.dataset.trialUnexpectedError) || '');
+    const trialActivateSuccess = String((wrapper && wrapper.dataset.trialActivateSuccess) || trialSuccessDefault);
 
-    if (!config.provider_available) {
+    if (trialBtn) {
+        trialBtn.addEventListener('click', () => {
+            trialBtn.disabled = true;
+            if (trialSpinner) {
+                trialSpinner.classList.remove('d-none');
+            }
+            if (trialResult) {
+                trialResult.classList.add('d-none');
+                trialResult.innerHTML = '';
+            }
+
+            Ajax.call([{
+                methodname: 'mod_booking_request_trial_key',
+                args: {cmid: Number(trialBtn.dataset.cmid || 0)},
+            }])[0].then((resp) => {
+                if (trialSpinner) {
+                    trialSpinner.classList.add('d-none');
+                }
+                if (trialResult) {
+                    trialResult.classList.remove('d-none');
+                    if (resp && resp.success) {
+                        trialResult.innerHTML =
+                            '<div class="alert alert-success mb-0">'
+                            + '<i class="fa fa-check-circle mr-2" aria-hidden="true"></i>'
+                            + renderTextWithLinks(resp.message || trialSuccessDefault)
+                            + '</div>';
+                        if (activateWrap) {
+                            activateWrap.classList.remove('d-none');
+                        }
+                        if (activateBtn) {
+                            activateBtn.disabled = false;
+                        }
+                    } else {
+                        trialResult.innerHTML =
+                            '<div class="alert alert-danger mb-0">'
+                            + '<i class="fa fa-exclamation-circle mr-2" aria-hidden="true"></i>'
+                            + renderTextWithLinks((resp && resp.message) || trialFailedDefault)
+                            + '</div>';
+                        trialBtn.disabled = false;
+                    }
+                }
+                return resp;
+            }).catch((err) => {
+                if (trialSpinner) {
+                    trialSpinner.classList.add('d-none');
+                }
+                if (trialResult) {
+                    trialResult.classList.remove('d-none');
+                    trialResult.innerHTML =
+                        '<div class="alert alert-danger mb-0">'
+                            + renderTextWithLinks(err.message || trialUnexpectedError)
+                        + '</div>';
+                }
+                trialBtn.disabled = false;
+                Notification.exception(err);
+            });
+        });
+    }
+
+    if (!activateBtn) {
         return;
     }
+
+    activateBtn.addEventListener('click', () => {
+        activateBtn.disabled = true;
+        if (trialSpinner) {
+            trialSpinner.classList.remove('d-none');
+        }
+
+        Ajax.call([{
+            methodname: 'mod_booking_activate_trial_context',
+            args: {cmid: Number((trialBtn && trialBtn.dataset.cmid) || (wrapper && wrapper.dataset.cmid) || 0)},
+        }])[0].then((resp) => {
+            if (trialSpinner) {
+                trialSpinner.classList.add('d-none');
+            }
+            if (trialResult) {
+                trialResult.classList.remove('d-none');
+                if (resp && resp.success) {
+                    trialResult.innerHTML =
+                        '<div class="alert alert-success mb-0">'
+                        + '<i class="fa fa-check-circle mr-2" aria-hidden="true"></i>'
+                        + renderTextWithLinks(resp.message || trialActivateSuccess)
+                        + ' <strong>' + escapeHtml(trialReloadingLabel) + '</strong></div>';
+                    setTimeout(() => window.location.reload(), 1800);
+                } else {
+                    trialResult.innerHTML =
+                        '<div class="alert alert-danger mb-0">'
+                        + '<i class="fa fa-exclamation-circle mr-2" aria-hidden="true"></i>'
+                        + renderTextWithLinks((resp && resp.message) || trialFailedDefault)
+                        + '</div>';
+                    activateBtn.disabled = false;
+                }
+            }
+            return resp;
+        }).catch((err) => {
+            if (trialSpinner) {
+                trialSpinner.classList.add('d-none');
+            }
+            if (trialResult) {
+                trialResult.classList.remove('d-none');
+                trialResult.innerHTML =
+                    '<div class="alert alert-danger mb-0">'
+                    + renderTextWithLinks(err.message || trialUnexpectedError)
+                    + '</div>';
+            }
+            activateBtn.disabled = false;
+            Notification.exception(err);
+        });
+    });
+};
+
+/**
+ * Display the welcome message based on booking statistics.
+ *
+ * @param {number} numOptions
+ * @param {number} numBooked
+ */
+const displayWelcomeMessage = (numOptions, numBooked) => {
+    const welcomeText = document.getElementById('booking-ai-welcome-text');
+    if (!welcomeText) {
+        return;
+    }
+
+    // The template already renders a server-side welcome text.
+    // Only inject via JS when the container is still empty.
+    if (String(welcomeText.textContent || '').trim() !== '') {
+        return;
+    }
+
+    let message = '';
+    if (numOptions === 0) {
+        message = 'Welcome! Would you like me to help you create your first booking option?';
+    } else {
+        message = `Welcome! You have ${numOptions} booking options here, and ${numBooked} people are already booked. ` +
+            'How can I help you?';
+    }
+
+    const p = document.createElement('p');
+    p.textContent = message;
+    welcomeText.appendChild(p);
+};
+
+/**
+ * Initialise the AI instructions interface.
+ *
+ * @param {Object|null} config Template data from DOM or explicit config.
+ */
+export const init = (config = null) => {
+    let runtimeConfig = config;
+
+    if (!runtimeConfig) {
+        const wrapper = document.getElementById('booking-ai-wrapper');
+        if (!wrapper) {
+            return;
+        }
+
+        runtimeConfig = {
+            cmid: Number(wrapper.dataset.cmid || 0),
+            threadid: Number(wrapper.dataset.threadid || 0),
+            ready_for_chat: String(wrapper.dataset.readyForChat || '0') === '1',
+            num_options: Number(wrapper.dataset.numOptions || 0),
+            num_booked: Number(wrapper.dataset.numBooked || 0),
+            debug_mode: String(wrapper.dataset.debugMode || '0') === '1',
+            privacy_check_running: String(wrapper.dataset.privacyCheckRunning || 'Privacy check running...'),
+            privacy_answer_note: String(
+                wrapper.dataset.privacyAnswerNote
+                || 'Privacy note: personal data in this response was de-anonymized for display.'
+            ),
+        };
+    }
+
+    currentCmid     = runtimeConfig.cmid || 0;
+    currentThreadId = runtimeConfig.threadid || 0;
+    debugModeEnabled = Boolean(runtimeConfig.debug_mode);
+    privacyCheckRunningLabel = String(runtimeConfig.privacy_check_running || privacyCheckRunningLabel);
+    privacyAnswerNoteLabel = String(runtimeConfig.privacy_answer_note || privacyAnswerNoteLabel);
+
+    const thinking = document.getElementById('booking-ai-thinking');
+    if (thinking) {
+        defaultThinkingLabel = String(thinking.textContent || '').trim() || 'Thinking...';
+    }
+
+    // Must be available in onboarding mode where ready_for_chat is false.
+    bindTrialButton();
+
+    if (!runtimeConfig.ready_for_chat) {
+        return;
+    }
+
+    initResizableLayout();
+    initMobilePreviewSwitch();
+
+    // Display welcome message based on booking statistics.
+    displayWelcomeMessage(runtimeConfig.num_options || 0, runtimeConfig.num_booked || 0);
 
     const sendBtn    = document.getElementById('booking-ai-send');
     const inputEl    = document.getElementById('booking-ai-input');
@@ -563,4 +1168,5 @@ export const init = (config) => {
     if (cancelBtn) {
         cancelBtn.addEventListener('click', hideConfirmPanel);
     }
+
 };

@@ -112,14 +112,15 @@ class search_users_task extends base_booking_task {
                 'status' => 'executed',
                 'detail' => 'No matching users found.',
                 'resultid' => null,
+                'users' => [],
             ];
         }
 
-        $ids = array_map(fn($row) => (int)($row['userid'] ?? 0), $users);
         return [
             'status' => 'executed',
-            'detail' => 'Found users: ' . implode(', ', $ids) . '. ' . json_encode($users),
+            'detail' => 'Found ' . count($users) . ' matching user(s).',
             'resultid' => (int)($users[0]['userid'] ?? 0),
+            'users' => $users,
         ];
     }
 }
