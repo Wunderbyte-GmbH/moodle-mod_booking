@@ -1317,12 +1317,12 @@ $string['enrolmentstatus_help'] = 'Achtung: Damit die automatische Einschreibung
 müssen Sie in den Einstellungen der Buchungsinstanz "Nutzer:innen automatisch einschreiben" auf "Ja" setzen.';
 $string['enrolmultipleusers'] = 'Mehrere Nutzer:innen einschreiben';
 $string['enrolmultipleusersformmode'] = 'Verhalten des Formular-Elements "Mehrere Nutzer:innen einschreiben"';
-$string['enrolmultipleusersformmode:alsobookmyself'] = 'Person, die die Buchung für andere durchführt, nimmt ebenfalls teil (und verbraucht einen der angegebenen Plätze)';
+$string['enrolmultipleusersformmode:alsobookmyself'] = 'Person, die die Buchung für andere durchführt, nimmt immer selbst teil (und verbraucht einen der angegebenen Plätze)';
 $string['enrolmultipleusersformmode:alsobookmyself:hint'] = 'Hinweis: Einer der angegebenen Plätze wird von Ihnen selbst verbraucht.';
-$string['enrolmultipleusersformmode:checkbox'] = 'Person, die die Buchung für andere durchführt, darf selbst wählen - Checkbox anzeigen (Standard)';
-$string['enrolmultipleusersformmode:donotbookmyself'] = 'Person, die die Buchung für andere durchführt, nimmt nicht selbst teil (buchende Person verbraucht keinen Platz)';
+$string['enrolmultipleusersformmode:checkbox'] = 'Person, die die Buchung für andere durchführt, darf selbst wählen, ob sie selbst teilnehmen möchte - Checkbox anzeigen (Standard)';
+$string['enrolmultipleusersformmode:donotbookmyself'] = 'Person, die die Buchung für andere durchführt, nimmt niemals selbst teil (buchende Person verbraucht keinen Platz)';
 $string['enrolmultipleusersformmode:donotbookmyself:hint'] = 'Sie nehmen nicht selbst an der Buchung teil, sondern buchen nur für andere Personen. Sie verbrauchen keinen der angegebenen Plätze.';
-$string['enrolmultipleusersformmode_desc'] = 'Setzen Sie das Standardverhalten des Formular-Elements "Mehrere Nutzer:innen einschreiben".
+$string['enrolmultipleusersformmode_desc'] = 'Setzen Sie das Verhalten des Formular-Elements "Mehrere Nutzer:innen einschreiben".
 Sie finden dieses Element im Bearbeitungsformular von Buchungsoptionen unter "Verfügbarkeit einschränken" &gt; "Formular muss vor der Buchung ausgefüllt werden"
 &gt; Element "Mehrere Nutzer:innen einschreiben"';
 $string['enrolusersaction:alert'] = '<div class="alert alert-info" role="alert">
@@ -1333,7 +1333,7 @@ Diese Funktion bezieht sich auch auf den ausgewählten Kurs im Bereich Moodle Ku
 </span>
 </div>';
 $string['enroluserstowaitinglist'] = "Buchende NutzerInnen auf die Warteliste setzen und erst nach Bestätigung einschreiben?";
-$string['enroluserwhobookedtocourse'] = "Nehmen Sie ebenfalls teil?";
+$string['enroluserwhobookedtocourse'] = "Möchten Sie diese Option selbst auch absolvieren?";
 $string['enroluserwhobookedtocoursewarning'] = "Wenn Sie nur einen Platz kaufen und selbst eingeschrieben werden, wird kein Einschreibelink generiert.";
 $string['enternote'] = 'Geben Sie eine Notiz ein...';
 $string['enteruserprofilefield'] = "Wähle Nutzer:innen nach eingegebenem Wert für Profilfeld. Achtung! Das betrifft ALLE Nutzer:inne nauf der Plattform.";
