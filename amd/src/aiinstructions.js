@@ -22,13 +22,27 @@
  */
 
 import Ajax from 'core/ajax';
+import Fragment from 'core/fragment';
 import Notification from 'core/notification';
+import Templates from 'core/templates';
 
 /** Pending commands waiting for user confirmation. */
 let pendingCommands = null;
 let currentThreadId = 0;
 let currentCmid = 0;
 let debugModeEnabled = false;
+
+/**
+ * Execute collected JavaScript returned by Moodle web service responses.
+ *
+ * @param {string} javascript
+ */
+const runCollectedJavascript = (javascript) => {
+    const js = Fragment.processCollectedJavascript(String(javascript || ''));
+    if (js && js.trim() !== '') {
+        Templates.runTemplateJS(js);
+    }
+};
 
 /** @type {Array<string>} */
 const READ_ONLY_TASKS = [
@@ -184,6 +198,7 @@ const showConfirmPanel = (message, commands) => {
         }])[0].then((resp) => {
             if (resp && resp.success && resp.html && resp.html.trim() !== '') {
                 appendMessageHtml('assistant', resp.html);
+                runCollectedJavascript(resp.javascript);
             } else if (resp && resp.message) {
                 appendMessage('assistant', String(resp.message));
             }
@@ -219,7 +234,9 @@ const renderOptionPreviewsInline = (cmid, optionIds) => {
     }])[0].then((resp) => {
         if (resp && resp.success && resp.html && resp.html.trim() !== '') {
             appendMessageHtml('assistant', resp.html);
+            runCollectedJavascript(resp.javascript);
         }
+        return resp;
     }).catch((err) => {
         Notification.exception(err);
     });

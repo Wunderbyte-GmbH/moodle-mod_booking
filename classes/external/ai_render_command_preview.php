@@ -102,7 +102,7 @@ class ai_render_command_preview extends external_api {
         string $query = '',
         int $limit = 10
     ): array {
-        global $DB, $USER;
+        global $DB, $USER, $OUTPUT, $PAGE;
 
         $params = self::validate_parameters(self::execute_parameters(), [
             'cmid' => $cmid,
@@ -119,12 +119,17 @@ class ai_render_command_preview extends external_api {
         self::validate_context($context);
         $authz->require_use_capability((int)$USER->id, $params['cmid']);
 
+        // Ensure page requirements manager is initialised and collect JS emitted while rendering preview HTML.
+        $OUTPUT->header();
+        $PAGE->start_collecting_javascript_requirements();
+
         // Command preview is a debugging aid and should only be visible when Moodle debug is enabled.
         if (!self::is_preview_enabled_in_debug_mode()) {
             return [
                 'success' => true,
                 'html' => '',
                 'message' => '',
+                'javascript' => (string)$PAGE->requires->get_end_code(),
             ];
         }
 
@@ -135,7 +140,12 @@ class ai_render_command_preview extends external_api {
             $decodedcmds = json_decode((string)$params['commands'], true);
             if (is_array($decodedcmds) && !empty($decodedcmds)) {
                 if (empty(preview_policy::filter_previewable_commands($decodedcmds))) {
-                    return ['html' => '', 'optionids' => '[]'];
+                    return [
+                        'success' => true,
+                        'html' => '',
+                        'message' => '',
+                        'javascript' => (string)$PAGE->requires->get_end_code(),
+                    ];
                 }
             }
         }
@@ -151,6 +161,7 @@ class ai_render_command_preview extends external_api {
                     'success' => false,
                     'html' => '',
                     'message' => get_string('ai_preview_no_matching_option', 'mod_booking'),
+                    'javascript' => (string)$PAGE->requires->get_end_code(),
                 ];
             }
 
@@ -158,6 +169,7 @@ class ai_render_command_preview extends external_api {
                 'success' => true,
                 'html' => $html,
                 'message' => '',
+                'javascript' => (string)$PAGE->requires->get_end_code(),
             ];
         }
 
@@ -182,6 +194,7 @@ class ai_render_command_preview extends external_api {
                     'success' => false,
                     'html' => '',
                     'message' => get_string('ai_preview_no_matching_option', 'mod_booking'),
+                    'javascript' => (string)$PAGE->requires->get_end_code(),
                 ];
             }
 
@@ -189,6 +202,7 @@ class ai_render_command_preview extends external_api {
                 'success' => true,
                 'html' => $html,
                 'message' => '',
+                'javascript' => (string)$PAGE->requires->get_end_code(),
             ];
         }
 
@@ -201,6 +215,7 @@ class ai_render_command_preview extends external_api {
                     'success' => false,
                     'html' => '',
                     'message' => get_string('ai_preview_no_commands', 'mod_booking'),
+                    'javascript' => (string)$PAGE->requires->get_end_code(),
                 ];
             }
 
@@ -210,6 +225,7 @@ class ai_render_command_preview extends external_api {
                     'success' => false,
                     'html' => '',
                     'message' => get_string('ai_preview_no_commands', 'mod_booking'),
+                    'javascript' => (string)$PAGE->requires->get_end_code(),
                 ];
             }
 
@@ -224,6 +240,7 @@ class ai_render_command_preview extends external_api {
                     'success' => true,
                     'html' => '',
                     'message' => '',
+                    'javascript' => (string)$PAGE->requires->get_end_code(),
                 ];
             }
 
@@ -273,6 +290,7 @@ class ai_render_command_preview extends external_api {
                             'success' => false,
                             'html' => '',
                             'message' => get_string('agent_booking_create_option_exists_multiple', 'mod_booking'),
+                            'javascript' => (string)$PAGE->requires->get_end_code(),
                         ];
                     }
                 }
@@ -290,6 +308,7 @@ class ai_render_command_preview extends external_api {
                 'success' => false,
                 'html' => '',
                 'message' => get_string('ai_preview_no_matching_option', 'mod_booking'),
+                'javascript' => (string)$PAGE->requires->get_end_code(),
             ];
         }
 
@@ -309,6 +328,7 @@ class ai_render_command_preview extends external_api {
                 'success' => false,
                 'html' => '',
                 'message' => get_string('ai_preview_no_matching_option', 'mod_booking'),
+                'javascript' => (string)$PAGE->requires->get_end_code(),
             ];
         }
 
@@ -328,6 +348,7 @@ class ai_render_command_preview extends external_api {
                 'success' => false,
                 'html' => '',
                 'message' => get_string('ai_preview_no_matching_option', 'mod_booking'),
+                'javascript' => (string)$PAGE->requires->get_end_code(),
             ];
         }
 
@@ -335,6 +356,7 @@ class ai_render_command_preview extends external_api {
             'success' => true,
             'html' => $html,
             'message' => '',
+            'javascript' => (string)$PAGE->requires->get_end_code(),
         ];
     }
 
@@ -426,6 +448,7 @@ class ai_render_command_preview extends external_api {
             'success' => new external_value(PARAM_BOOL, 'Whether preview could be rendered.'),
             'html' => new external_value(PARAM_RAW, 'Rendered preview HTML.'),
             'message' => new external_value(PARAM_TEXT, 'Fallback message if preview unavailable.'),
+            'javascript' => new external_value(PARAM_RAW, 'Collected JavaScript fragment.', VALUE_OPTIONAL),
         ]);
     }
 }
