@@ -30,8 +30,8 @@ Feature: Create booking option with price and force students answer as admin tha
       | pricecategoryfield | userpricecat | booking |
     And I clean booking cache
     And the following "activities" exist:
-      | activity | course | name       | intro               | bookingmanager | eventtype | cancancelbook | Default view for booking options | Send confirmation e-mail |
-      | booking  | C1     | BookingCMP | Booking description | teacher1       | Webinar   | 1             | All bookings                     | Yes                      |
+      | activity | course | name       | intro               | bookingmanager | eventtype | cancancelbook | cancelrelativedate |
+      | booking  | C1     | BookingCMP | Booking description | teacher1       | Webinar   | 1             | 2                  |
     And the following "mod_booking > options" exist:
       | booking     | text            | course | description    | importing | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | useprice | canceluntil    | canceluntilcheckbox |
       | BookingCMP  | Option-tenis    | C1     | Price-tenis    | 1         | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 1        | ## tomorrow ## | 1                   |
