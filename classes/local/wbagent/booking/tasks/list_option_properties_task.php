@@ -19,6 +19,7 @@ namespace mod_booking\local\wbagent\booking\tasks;
 /**
  * Task definition for booking.list_option_properties.
  *
+ * @package    mod_booking
  * @copyright  2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -40,5 +41,47 @@ class list_option_properties_task extends base_booking_task {
      */
     public function get_name(): string {
         return self::TASK_NAME;
+    }
+
+    /**
+     * Return task schema.
+     *
+     * @return array<string,mixed>
+     */
+    public function get_schema(): array {
+        return [
+            'version' => 1,
+            'description' => 'List booking option properties derived from create/update task schemas.',
+            'readonly' => $this->is_read_only(),
+            'properties' => [
+                'scope' => [
+                    'type' => 'string',
+                    'description' => 'Filter scope: all (default), create, update, or shared.',
+                    'required' => false,
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Validate task input.
+     *
+     * @param array<string,mixed> $input
+     * @param int $cmid
+     * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>}
+     */
+    public function validate(array $input, int $cmid): array {
+        $errors = [];
+        $scope = strtolower(trim((string)($input['scope'] ?? 'all')));
+        $allowed = ['all', 'create', 'update', 'shared'];
+        if (!in_array($scope, $allowed, true)) {
+            $errors[] = 'Field "scope" must be one of: all, create, update, shared.';
+        }
+
+        return [
+            'valid' => empty($errors),
+            'errors' => $errors,
+            'ambiguities' => [],
+        ];
     }
 }

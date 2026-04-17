@@ -19,6 +19,7 @@ namespace mod_booking\local\wbagent\booking\tasks;
 /**
  * Task definition for booking.search_courses.
  *
+ * @package    mod_booking
  * @copyright  2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -40,5 +41,50 @@ class search_courses_task extends base_booking_task {
      */
     public function get_name(): string {
         return self::TASK_NAME;
+    }
+
+    /**
+     * Return task schema.
+     *
+     * @return array<string,mixed>
+     */
+    public function get_schema(): array {
+        return [
+            'version' => 1,
+            'description' => 'Search courses via mod_booking external search_courses functionality.',
+            'readonly' => $this->is_read_only(),
+            'properties' => [
+                'query' => [
+                    'type' => 'string',
+                    'description' => 'Search text for course full name, short name or id.',
+                    'required' => true,
+                ],
+                'limit' => [
+                    'type' => 'integer',
+                    'description' => 'Maximum number of courses to return (default 10).',
+                    'required' => false,
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Validate task input.
+     *
+     * @param array<string,mixed> $input
+     * @param int $cmid
+     * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>}
+     */
+    public function validate(array $input, int $cmid): array {
+        $errors = [];
+        if (empty($input['query']) || !is_string($input['query'])) {
+            $errors[] = 'Field "query" is required for search_courses.';
+        }
+
+        return [
+            'valid' => empty($errors),
+            'errors' => $errors,
+            'ambiguities' => [],
+        ];
     }
 }

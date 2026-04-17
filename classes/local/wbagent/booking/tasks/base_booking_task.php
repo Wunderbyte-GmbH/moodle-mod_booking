@@ -22,6 +22,7 @@ use mod_booking\local\wbagent\booking\booking_task_support;
 /**
  * Base task delegating schema, validation and execution to booking support logic.
  *
+ * @package    mod_booking
  * @copyright  2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -58,9 +59,12 @@ abstract class base_booking_task extends base_task {
      * @return array<string,mixed>
      */
     public function get_schema(): array {
-        $schema = $this->support->get_task_schema($this->get_name());
-        $schema['readonly'] = $this->is_read_only();
-        return $schema;
+        return [
+            'version' => 1,
+            'description' => '',
+            'readonly' => $this->is_read_only(),
+            'properties' => [],
+        ];
     }
 
     /**
@@ -71,7 +75,11 @@ abstract class base_booking_task extends base_task {
      * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>}
      */
     public function validate(array $input, int $cmid): array {
-        return $this->support->validate($this->get_name(), $input, $cmid);
+        return [
+            'valid' => true,
+            'errors' => [],
+            'ambiguities' => [],
+        ];
     }
 
     /**

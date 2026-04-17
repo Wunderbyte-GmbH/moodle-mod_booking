@@ -25,27 +25,21 @@
 namespace mod_booking\local\wbagent\booking;
 
 use core_component;
-use context_module;
-use context_system;
 use mod_booking\local\wbagent\conversation_store;
 use mod_booking\local\wbagent\interfaces\task_interface;
-use mod_booking\local\wbagent\task_registry;
 use mod_booking\local\wbagent\booking\tasks\add_price_category_task;
 use mod_booking\local\wbagent\booking\tasks\base_booking_task;
 use mod_booking\local\wbagent\booking\tasks\create_option_task;
 use mod_booking\local\wbagent\booking\tasks\list_actions_task;
 use mod_booking\local\wbagent\booking\tasks\list_option_properties_task;
-use mod_booking\local\wbagent\booking\tasks\option_schema_definition;
 use mod_booking\local\wbagent\booking\tasks\search_courses_task;
 use mod_booking\local\wbagent\booking\tasks\search_options_task;
 use mod_booking\local\wbagent\booking\tasks\search_users_task;
-use mod_booking\local\wbagent\booking\tasks\bulk_update_options_task;
 use mod_booking\local\wbagent\booking\tasks\update_option_task;
 use mod_booking\local\wbagent\booking\tasks\get_current_user_task;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking;
 use mod_booking\booking_bookit;
-use mod_booking\booking_option;
 use mod_booking\external\search_courses;
 use mod_booking\external\search_users;
 use mod_booking\option\fields_info;
@@ -115,149 +109,7 @@ class booking_task_support {
         }
 
         $task = $this->get_task_instances()[$taskname] ?? null;
-        if ($task && $this->task_has_own_schema($task)) {
-            return (array)$task->get_schema();
-        }
-
-        $common = option_schema_definition::common_properties();
-
-        if ($taskname === create_option_task::TASK_NAME) {
-            return [
-                'version'     => 1,
-                'description' => 'Create a new booking option inside the current booking instance.',
-                'properties'  => array_merge([
-                    'text' => ['type' => 'string', 'description' => 'Title of the new booking option.', 'required' => true],
-                ], $common),
-            ];
-        }
-
-        if ($taskname === bulk_update_options_task::TASK_NAME) {
-            return [
-                'version'     => 1,
-                'description' => 'Update multiple booking options at once. All provided fields are applied to every '
-                    . 'matched option. Requires optionids, optionquery, or apply_to_all=true to select targets.',
-                'properties'  => array_merge([
-                    'optionids' => [
-                        'type'        => 'array',
-                        'description' => 'Array of specific option IDs to update.',
-                        'required'    => false,
-                    ],
-                    'optionquery' => [
-                        'type'        => 'string',
-                        'description' => 'Search query to select multiple options to update '
-                            . '(e.g. "yoga" selects all yoga options).',
-                        'required'    => false,
-                    ],
-                    'apply_to_all' => [
-                        'type'        => 'boolean',
-                        'description' => 'Set to true to update ALL options in this booking instance. '
-                            . 'Must be set when neither optionids nor optionquery is provided.',
-                        'required'    => false,
-                    ],
-                ], $common),
-            ];
-        }
-
-        if ($taskname === search_options_task::TASK_NAME) {
-            return [
-                'version' => 1,
-                'description' => 'Search booking options via the existing booking table fulltext/filter pipeline.',
-                'properties' => [
-                    'query' => [
-                        'type' => 'string',
-                        'description' => 'Optional search text (title/description/location), e.g. "next monday". '
-                            . 'If omitted, returns a short list of options in this booking instance.',
-                        'required' => false,
-                    ],
-                    'limit' => [
-                        'type' => 'integer',
-                        'description' => 'Maximum number of candidates to return (default 10).',
-                        'required' => false,
-                    ],
-                    'when' => [
-                        'type' => 'string',
-                        'description' => 'Optional temporal hint (e.g. "next monday").',
-                        'required' => false,
-                    ],
-                ],
-            ];
-        }
-
-        if ($taskname === search_users_task::TASK_NAME) {
-            return [
-                'version' => 1,
-                'description' => 'Search users via mod_booking external search_users functionality.',
-                'properties' => [
-                    'query' => [
-                        'type' => 'string',
-                        'description' => 'Search text for first name, last name, email or user id.',
-                        'required' => true,
-                    ],
-                    'limit' => [
-                        'type' => 'integer',
-                        'description' => 'Maximum number of users to return (default 10).',
-                        'required' => false,
-                    ],
-                ],
-            ];
-        }
-
-        if ($taskname === search_courses_task::TASK_NAME) {
-            return [
-                'version' => 1,
-                'description' => 'Search courses via mod_booking external search_courses functionality.',
-                'properties' => [
-                    'query' => [
-                        'type' => 'string',
-                        'description' => 'Search text for course full name, short name or id.',
-                        'required' => true,
-                    ],
-                    'limit' => [
-                        'type' => 'integer',
-                        'description' => 'Maximum number of courses to return (default 10).',
-                        'required' => false,
-                    ],
-                ],
-            ];
-        }
-
-        if ($taskname === list_option_properties_task::TASK_NAME) {
-            return [
-                'version' => 1,
-                'description' => 'List booking option properties derived from create/update task schemas.',
-                'properties' => [
-                    'scope' => [
-                        'type' => 'string',
-                        'description' => 'Filter scope: all (default), create, update, or shared.',
-                        'required' => false,
-                    ],
-                ],
-            ];
-        }
-
-        if ($taskname === list_actions_task::TASK_NAME) {
-            return [
-                'version' => 1,
-                'description' => 'List supported booking AI actions/tasks derived from registered task schemas.',
-                'properties' => [
-                    'scope' => [
-                        'type' => 'string',
-                        'description' => 'Filter scope: all (default), readonly, or mutating.',
-                        'required' => false,
-                    ],
-                ],
-            ];
-        }
-
-        if ($taskname === get_current_user_task::TASK_NAME) {
-            return [
-                'version' => 1,
-                'description' => 'Get information about the current executor user.',
-                'properties' => [],
-            ];
-        }
-
-        return [];
+        return $task ? (array)$task->get_schema() : [];
     }
 
     /**
@@ -269,447 +121,16 @@ class booking_task_support {
      * @return array
      */
     public function validate(string $taskname, array $input, int $cmid): array {
-        $errors = [];
-        $ambiguities = [];
-        $ismutationtask = $this->is_mutating_task_name($taskname);
-
-        if ($taskname === create_option_task::TASK_NAME) {
-            if (empty($input['text'])) {
-                $errors[] = 'Field "text" (option title) is required for create_option.';
-            } else {
-                $duplicatecheck = self::find_existing_options_by_exact_title($cmid, (string)$input['text']);
-                if (($duplicatecheck['status'] ?? '') === 'single') {
-                    $ambiguities[] = get_string(
-                        'agent_booking_create_option_exists_single',
-                        'booking',
-                        (int)$duplicatecheck['optionid']
-                    );
-                } else if (($duplicatecheck['status'] ?? '') === 'multiple') {
-                    $ambiguities[] = get_string(
-                        'agent_booking_create_option_exists_multiple',
-                        'booking',
-                        (string)($duplicatecheck['candidates'] ?? '')
-                    );
-                }
-            }
-        } else if ($taskname === update_option_task::TASK_NAME) {
-            if (empty($input['optionid'])) {
-                if (empty($input['optionquery'])) {
-                    $ambiguities[] = 'Which booking option should be updated? Provide optionid or optionquery.';
-                } else if (!self::is_last_option_reference((string)$input['optionquery'])) {
-                    $result = self::resolve_single_option(
-                        $cmid,
-                        (string)$input['optionquery'],
-                        (string)($input['optionwhen'] ?? '')
-                    );
-                    if ($result['status'] === 'error') {
-                        $errors[] = (string)$result['message'];
-                    } else if ($result['status'] === 'ambiguity') {
-                        $ambiguities[] = (string)$result['message'];
-                    }
-                }
-            } else {
-                // Verify the option belongs to this booking instance.
-                global $DB;
-                $cm = get_coursemodule_from_id('booking', $cmid);
-                if (
-                    !$cm ||
-                    !$DB->record_exists('booking_options', [
-                        'id' => (int)$input['optionid'],
-                        'bookingid' => $cm->instance,
-                    ])
-                ) {
-                    $errors[] = 'Booking option with id ' . (int)$input['optionid'] .
-                                ' does not exist in this booking instance.';
-                }
-            }
-        } else if ($taskname === bulk_update_options_task::TASK_NAME) {
-            $hasids = !empty($input['optionids']) && is_array($input['optionids'])
-                && count($input['optionids']) > 0;
-            $hasquery = !empty($input['optionquery']) && is_string($input['optionquery'])
-                && trim((string)$input['optionquery']) !== '';
-            $applytoall = !empty($input['apply_to_all']);
-
-            if (!$hasids && !$hasquery && !$applytoall) {
-                $errors[] = 'Provide optionids (array), optionquery (string), or set apply_to_all=true '
-                    . 'to specify which options should be updated.';
-            }
-
-            if ($hasids) {
-                global $DB;
-                $cm = get_coursemodule_from_id('booking', $cmid);
-                if ($cm) {
-                    foreach ($input['optionids'] as $optid) {
-                        if (
-                            !$DB->record_exists('booking_options', [
-                                'id' => (int)$optid,
-                                'bookingid' => (int)$cm->instance,
-                            ])
-                        ) {
-                            $errors[] = 'Option id ' . (int)$optid
-                                . ' does not exist in this booking instance.';
-                        }
-                    }
-                }
-            }
-
-            if (!empty($input['bookusersquery'])) {
-                $errors[] = 'Field "bookusersquery" is not supported for booking.bulk_update_options. '
-                    . 'Use booking.update_option for per-option user booking.';
-            }
-        } else if ($taskname === search_options_task::TASK_NAME) {
-            if (isset($input['query']) && !is_string($input['query'])) {
-                $errors[] = 'Field "query" must be a string when provided for search_options.';
-            }
-        } else if ($taskname === search_users_task::TASK_NAME) {
-            if (empty($input['query']) || !is_string($input['query'])) {
-                $errors[] = 'Field "query" is required for search_users.';
-            }
-        } else if ($taskname === search_courses_task::TASK_NAME) {
-            if (empty($input['query']) || !is_string($input['query'])) {
-                $errors[] = 'Field "query" is required for search_courses.';
-            }
-        } else if ($taskname === list_option_properties_task::TASK_NAME) {
-            $scope = strtolower(trim((string)($input['scope'] ?? 'all')));
-            $allowed = ['all', 'create', 'update', 'shared'];
-            if (!in_array($scope, $allowed, true)) {
-                $errors[] = 'Field "scope" must be one of: all, create, update, shared.';
-            }
-        } else if ($taskname === list_actions_task::TASK_NAME) {
-            $scope = strtolower(trim((string)($input['scope'] ?? 'all')));
-            $allowed = ['all', 'readonly', 'mutating'];
-            if (!in_array($scope, $allowed, true)) {
-                $errors[] = 'Field "scope" must be one of: all, readonly, mutating.';
-            }
-        } else if ($taskname === get_current_user_task::TASK_NAME) {
-            // No validation needed for get_current_user.
-        } else {
-            $errors[] = 'Unknown task: ' . $taskname;
+        $task = $this->get_task_instances()[$taskname] ?? null;
+        if (!$task) {
+            return [
+                'valid' => false,
+                'errors' => ['Unknown task: ' . $taskname],
+                'ambiguities' => [],
+            ];
         }
 
-        if ($ismutationtask) {
-            try {
-                $context = context_module::instance($cmid);
-                $permissioncheck = self::validate_update_field_permissions($input, (int)$context->id);
-                if (($permissioncheck['status'] ?? '') !== 'ok') {
-                    $errors[] = (string)($permissioncheck['message']
-                        ?? get_string('agent_booking_update_permission_denied_generic', 'booking'));
-                }
-            } catch (\Throwable $e) {
-                $errors[] = get_string('agent_booking_update_permission_check_failed', 'booking');
-            }
-
-            $pricevalidation = self::validate_prices_input($input);
-            $errors = array_merge($errors, $pricevalidation['errors']);
-            $ambiguities = array_merge($ambiguities, $pricevalidation['ambiguities']);
-        }
-
-        if (
-            $ismutationtask
-            && empty($input['teacheremail'])
-            && !empty($input['teacherquery'])
-        ) {
-            $userresult = self::resolve_single_user((string)$input['teacherquery']);
-            if ($userresult['status'] === 'error') {
-                $errors[] = (string)$userresult['message'];
-            } else if ($userresult['status'] === 'ambiguity') {
-                $ambiguities[] = (string)$userresult['message'];
-            }
-        }
-
-        if (
-            $ismutationtask
-            && !empty($input['coursequery'])
-        ) {
-            $courseresult = self::resolve_single_course((string)$input['coursequery']);
-            if ($courseresult['status'] === 'error') {
-                $errors[] = (string)$courseresult['message'];
-            } else if ($courseresult['status'] === 'ambiguity') {
-                $ambiguities[] = (string)$courseresult['message'];
-            }
-        }
-
-        if ($ismutationtask && (array_key_exists('invisible', $input) || array_key_exists('visibility', $input))) {
-            $normalizedvisibility = self::normalize_visibility_input($input);
-            if (!empty($normalizedvisibility['error'])) {
-                $errors[] = (string)$normalizedvisibility['error'];
-            }
-        }
-
-        if ($ismutationtask && array_key_exists('optiondatesmode', $input)) {
-            $mode = strtolower(trim((string)$input['optiondatesmode']));
-            if (!in_array($mode, ['append', 'replace'], true)) {
-                $errors[] = 'Field "optiondatesmode" must be either "append" or "replace".';
-            }
-        }
-
-        if (
-            $ismutationtask
-            && !empty($input['enrolledincoursequery'])
-        ) {
-            $restrictioncourses = self::resolve_courses_for_restriction((string)$input['enrolledincoursequery']);
-            if (!empty($restrictioncourses['errors'])) {
-                foreach ($restrictioncourses['errors'] as $error) {
-                    $errors[] = $error;
-                }
-            }
-            if (!empty($restrictioncourses['ambiguities'])) {
-                foreach ($restrictioncourses['ambiguities'] as $ambiguity) {
-                    $ambiguities[] = $ambiguity;
-                }
-            }
-
-            $operator = strtoupper(trim((string)($input['enrolledincourseoperator'] ?? 'OR')));
-            if (!in_array($operator, ['OR', 'AND'], true)) {
-                $errors[] = 'Field "enrolledincourseoperator" must be either "OR" or "AND".';
-            }
-        }
-
-        if (
-            $ismutationtask
-            && array_key_exists('enrolledincourseenabled', $input)
-            && empty($input['enrolledincourseenabled'])
-            && !empty($input['enrolledincoursequery'])
-        ) {
-            $errors[] = 'Cannot provide enrolledincoursequery when enrolledincourseenabled is false.';
-        }
-
-        $parsedoptiondates = self::extract_optiondates($input);
-
-        if (isset($input['coursestarttime']) && !isset($input['optiondates'])) {
-            if (!self::parse_datetime($input['coursestarttime'])) {
-                $errors[] = 'Field "coursestarttime" must be a valid ISO 8601 date-time string or Unix timestamp.';
-            }
-        }
-        if (isset($input['courseendtime']) && !isset($input['optiondates'])) {
-            if (!self::parse_datetime($input['courseendtime'])) {
-                $errors[] = 'Field "courseendtime" must be a valid ISO 8601 date-time string or Unix timestamp.';
-            }
-        }
-        if (isset($input['bookingopeningtime']) && !self::parse_datetime($input['bookingopeningtime'])) {
-            $errors[] = 'Field "bookingopeningtime" must be a valid ISO 8601 date-time string or Unix timestamp.';
-        }
-        if (isset($input['bookingclosingtime']) && !self::parse_datetime($input['bookingclosingtime'])) {
-            $errors[] = 'Field "bookingclosingtime" must be a valid ISO 8601 date-time string or Unix timestamp.';
-        }
-
-        if (isset($input['optiondates']) && empty($parsedoptiondates)) {
-            $errors[] = 'Field "optiondates" must contain at least one valid date range.';
-        }
-
-        if ($taskname === create_option_task::TASK_NAME) {
-            foreach ($parsedoptiondates as $idx => $date) {
-                $startts = $date['coursestarttime'];
-                $endts = $date['courseendtime'];
-                $label = count($parsedoptiondates) > 1 ? 'Date range #' . ($idx + 1) . ': ' : '';
-
-                if ($startts < (time() - DAYSECS)) {
-                    $ambiguities[] = $label
-                        . 'The provided start time appears to be in the past. '
-                        . 'Please confirm the intended date/time.';
-                }
-                if ($endts < (time() - DAYSECS)) {
-                    $ambiguities[] = $label
-                        . 'The provided end time appears to be in the past. '
-                        . 'Please confirm the intended date/time.';
-                }
-                if ($endts <= $startts) {
-                    $errors[] = $label . '"courseendtime" must be later than "coursestarttime".';
-                }
-            }
-        }
-
-        if (
-            $ismutationtask
-            && !empty($input['enrolledincohortquery'])
-        ) {
-            $cohortresult = self::resolve_cohorts_for_restriction((string)$input['enrolledincohortquery']);
-            foreach ($cohortresult['errors'] as $error) {
-                $errors[] = $error;
-            }
-            foreach ($cohortresult['ambiguities'] as $ambiguity) {
-                $ambiguities[] = $ambiguity;
-            }
-            $operator = strtoupper(trim((string)($input['enrolledincohortoperator'] ?? 'OR')));
-            if (!in_array($operator, ['OR', 'AND'], true)) {
-                $errors[] = 'Field "enrolledincohortoperator" must be either "OR" or "AND".';
-            }
-        }
-
-        if (
-            $ismutationtask
-            && array_key_exists('enrolledincohortenabled', $input)
-            && empty($input['enrolledincohortenabled'])
-            && !empty($input['enrolledincohortquery'])
-        ) {
-            $errors[] = 'Cannot provide enrolledincohortquery when enrolledincohortenabled is false.';
-        }
-
-        if (
-            $ismutationtask
-            && !empty($input['hascompetencyquery'])
-        ) {
-            $competencyresult = self::resolve_competencies_for_restriction((string)$input['hascompetencyquery']);
-            foreach ($competencyresult['errors'] as $error) {
-                $errors[] = $error;
-            }
-            foreach ($competencyresult['ambiguities'] as $ambiguity) {
-                $ambiguities[] = $ambiguity;
-            }
-            $operator = strtoupper(trim((string)($input['hascompetencyoperator'] ?? 'AND')));
-            if (!in_array($operator, ['OR', 'AND'], true)) {
-                $errors[] = 'Field "hascompetencyoperator" must be either "OR" or "AND".';
-            }
-        }
-
-        if (
-            $ismutationtask
-            && array_key_exists('hascompetencyenabled', $input)
-            && empty($input['hascompetencyenabled'])
-            && !empty($input['hascompetencyquery'])
-        ) {
-            $errors[] = 'Cannot provide hascompetencyquery when hascompetencyenabled is false.';
-        }
-
-        if (
-            $ismutationtask
-            && !empty($input['previouslybookedquery'])
-        ) {
-            $prev = self::resolve_single_option($cmid, (string)$input['previouslybookedquery']);
-            if ($prev['status'] === 'error') {
-                $errors[] = (string)$prev['message'];
-            } else if ($prev['status'] === 'ambiguity') {
-                $ambiguities[] = (string)$prev['message'];
-            }
-        }
-
-        if (
-            $ismutationtask
-            && array_key_exists('previouslybookedenabled', $input)
-            && empty($input['previouslybookedenabled'])
-            && !empty($input['previouslybookedquery'])
-        ) {
-            $errors[] = 'Cannot provide previouslybookedquery when previouslybookedenabled is false.';
-        }
-
-        if (
-            $ismutationtask
-            && !empty($input['selectusersquery'])
-        ) {
-            $users = self::resolve_users_for_restriction((string)$input['selectusersquery']);
-            foreach ($users['errors'] as $error) {
-                $errors[] = $error;
-            }
-            foreach ($users['ambiguities'] as $ambiguity) {
-                $ambiguities[] = $ambiguity;
-            }
-        }
-
-        if (
-            $ismutationtask
-            && array_key_exists('selectusersenabled', $input)
-            && empty($input['selectusersenabled'])
-            && !empty($input['selectusersquery'])
-        ) {
-            $errors[] = 'Cannot provide selectusersquery when selectusersenabled is false.';
-        }
-
-        if (
-            ($taskname === create_option_task::TASK_NAME || $taskname === update_option_task::TASK_NAME)
-            && !empty($input['bookusersquery'])
-        ) {
-            $users = self::resolve_users_for_booking((string)$input['bookusersquery']);
-            foreach ($users['errors'] as $error) {
-                $errors[] = $error;
-            }
-            foreach ($users['ambiguities'] as $ambiguity) {
-                $ambiguities[] = $ambiguity;
-            }
-        }
-
-        if ($taskname === update_option_task::TASK_NAME && !empty($input['bookusersquery'])) {
-            $forbidden = self::detect_forbidden_fields_for_bookusers_update($input);
-            if (!empty($forbidden)) {
-                $errors[] = 'When using "bookusersquery" in booking.update_option, '
-                    . 'no option updates are allowed in the same command. '
-                    . 'Remove these fields: ' . implode(', ', $forbidden) . '.';
-            }
-        }
-
-        if (isset($input['bookuserstimebooked']) && !self::parse_datetime($input['bookuserstimebooked'])) {
-            $errors[] = 'Field "bookuserstimebooked" must be a valid ISO 8601 date-time string or Unix timestamp.';
-        }
-
-        if (!empty($input['nooverlappingmode'])) {
-            $mode = strtolower(trim((string)$input['nooverlappingmode']));
-            if (!in_array($mode, ['block', 'warn'], true)) {
-                $errors[] = 'Field "nooverlappingmode" must be "block" or "warn".';
-            }
-        }
-
-        if (!empty($input['userprofilestandardfield']) || !empty($input['userprofilestandardoperator'])) {
-            if (empty($input['userprofilestandardfield']) || empty($input['userprofilestandardoperator'])) {
-                $errors[] = 'For standard profile condition, provide userprofilestandardfield and userprofilestandardoperator.';
-            }
-        }
-
-        if (!empty($input['userprofilecustomfield']) || !empty($input['userprofilecustomoperator'])) {
-            if (empty($input['userprofilecustomfield']) || empty($input['userprofilecustomoperator'])) {
-                $errors[] = 'For custom profile condition, provide userprofilecustomfield and userprofilecustomoperator.';
-            }
-        }
-
-        foreach (
-            [
-                'enrolledincourseoverrideoperator',
-                'enrolledincohortoverrideoperator',
-                'hascompetencyoverrideoperator',
-                'selectusersoverrideoperator',
-                'userprofilestandardoverrideoperator',
-                'userprofilecustomoverrideoperator',
-            ] as $overrideoperatorfield
-        ) {
-            if (isset($input[$overrideoperatorfield])) {
-                $op = strtoupper(trim((string)$input[$overrideoperatorfield]));
-                if (!in_array($op, ['OR', 'AND'], true)) {
-                    $errors[] = 'Field "' . $overrideoperatorfield . '" must be "OR" or "AND".';
-                }
-            }
-        }
-
-        if (isset($input['userprofilecustomfield2']) && empty($input['userprofilecustomoperator2'])) {
-            $errors[] = 'Field "userprofilecustomoperator2" is required when "userprofilecustomfield2" is provided.';
-        }
-
-        if (isset($input['duration']) && (int)$input['duration'] <= 0) {
-            $errors[] = 'Field "duration" must be a positive integer (seconds).';
-        }
-
-        if (
-            $ismutationtask
-            && array_key_exists('customformenabled', $input)
-            && empty($input['customformenabled'])
-            && (!empty($input['customformjson']) || !empty($input['customformelements']))
-        ) {
-            $errors[] = 'Cannot provide custom form content when customformenabled is false.';
-        }
-
-        if (array_key_exists('customformelements', $input)) {
-            if (!is_array($input['customformelements'])) {
-                $errors[] = 'Field "customformelements" must be an array.';
-            } else {
-                $validation = self::validate_customform_elements($input['customformelements']);
-                foreach ($validation['errors'] as $error) {
-                    $errors[] = $error;
-                }
-            }
-        }
-
-        return [
-            'valid'       => empty($errors) && empty($ambiguities),
-            'errors'      => $errors,
-            'ambiguities' => $ambiguities,
-        ];
+        return $task->validate($input, $cmid);
     }
 
     /**
@@ -757,35 +178,6 @@ class booking_task_support {
     }
 
     /**
-     * True when task is mutating according to task class read-only flag.
-     *
-     * @param string $taskname
-     * @return bool
-     */
-    private function is_mutating_task_name(string $taskname): bool {
-        $task = $this->get_task_instances()[$taskname] ?? null;
-        if (!$task) {
-            return false;
-        }
-        return !$task->is_read_only();
-    }
-
-    /**
-     * True when a task overrides get_schema() in its own class.
-     *
-     * @param task_interface $task
-     * @return bool
-     */
-    private function task_has_own_schema(task_interface $task): bool {
-        try {
-            $method = new \ReflectionMethod($task, 'get_schema');
-            return $method->getDeclaringClass()->getName() !== base_booking_task::class;
-        } catch (\Throwable $e) {
-            return false;
-        }
-    }
-
-    /**
      * Execute a validated command.
      *
      * @param string $taskname
@@ -795,783 +187,22 @@ class booking_task_support {
      * @return array
      */
     public function execute(string $taskname, array $input, int $cmid, int $userid): array {
-        global $DB, $CFG;
-
-        require_once($CFG->dirroot . '/mod/booking/lib.php');
-
-        $cm = get_coursemodule_from_id('booking', $cmid);
-        if (!$cm) {
-            return ['status' => 'error', 'detail' => 'Invalid course module.', 'resultid' => null];
+        $executeservice = new booking_task_execute_service();
+        $readonlyresult = $executeservice->execute($taskname, $input, $cmid, $userid, $this);
+        if (is_array($readonlyresult)) {
+            return $readonlyresult;
+        }
+        $mutationservice = new booking_task_mutation_execute_service();
+        $mutationresult = $mutationservice->execute($taskname, $input, $cmid, $userid, $this);
+        if (is_array($mutationresult)) {
+            return $mutationresult;
         }
 
-        if ($taskname === search_options_task::TASK_NAME) {
-            $query = trim((string)($input['query'] ?? ''));
-            $when = trim((string)($input['when'] ?? ''));
-            $limit = isset($input['limit']) ? max(1, (int)$input['limit']) : ($query === '' ? 50 : 10);
-
-            $rows = self::search_option_candidates($cmid, $query, $limit, $when);
-            if (empty($rows)) {
-                return [
-                    'status' => 'executed',
-                    'detail' => 'No matching booking options found.',
-                    'resultid' => null,
-                ];
-            }
-
-            $items = [];
-            $structuredoptions = [];
-            foreach ($rows as $row) {
-                $optionid = (int)($row['optionid'] ?? 0);
-                $name = (string)($row['text'] ?? '');
-                $link = self::build_option_link($cmid, $optionid);
-                $items[] = self::format_option_label($cmid, $optionid, $name);
-                $structuredoptions[] = [
-                    'id' => $optionid,
-                    'name' => $name,
-                    'link' => $link,
-                ];
-            }
-
-            return [
-                'status' => 'executed',
-                'detail' => 'Found ' . count($structuredoptions) . ' option(s).',
-                'resultid' => (int)($rows[0]['optionid'] ?? 0),
-                'previewoptionids' => array_values(array_map(
-                    static fn(array $row): int => (int)($row['optionid'] ?? 0),
-                    $rows
-                )),
-                'options' => $structuredoptions,
-            ];
-        }
-
-        if ($taskname === search_users_task::TASK_NAME) {
-            $query = trim((string)($input['query'] ?? ''));
-            $limit = isset($input['limit']) ? max(1, (int)$input['limit']) : 10;
-
-            if ($query === '') {
-                return ['status' => 'error', 'detail' => 'Field "query" is required.', 'resultid' => null];
-            }
-
-            $users = self::search_user_candidates($query, $limit);
-            if (empty($users)) {
-                return [
-                    'status' => 'executed',
-                    'detail' => 'No matching users found.',
-                    'resultid' => null,
-                ];
-            }
-
-            $ids = array_map(fn($row) => (int)($row['userid'] ?? 0), $users);
-            return [
-                'status' => 'executed',
-                'detail' => 'Found users: ' . implode(', ', $ids) . '. ' . json_encode($users),
-                'resultid' => (int)($users[0]['userid'] ?? 0),
-            ];
-        }
-
-        if ($taskname === search_courses_task::TASK_NAME) {
-            $query = trim((string)($input['query'] ?? ''));
-            $limit = isset($input['limit']) ? max(1, (int)$input['limit']) : 10;
-
-            if ($query === '') {
-                return ['status' => 'error', 'detail' => 'Field "query" is required.', 'resultid' => null];
-            }
-
-            $courses = self::search_course_candidates($query, $limit);
-            if (empty($courses)) {
-                return [
-                    'status' => 'executed',
-                    'detail' => 'No matching courses found.',
-                    'resultid' => null,
-                ];
-            }
-
-            $ids = array_map(fn($row) => (int)($row['courseid'] ?? 0), $courses);
-            return [
-                'status' => 'executed',
-                'detail' => 'Found courses: ' . implode(', ', $ids) . '. ' . json_encode($courses),
-                'resultid' => (int)($courses[0]['courseid'] ?? 0),
-            ];
-        }
-
-        if ($taskname === list_option_properties_task::TASK_NAME) {
-            $createschema = $this->get_task_schema(create_option_task::TASK_NAME);
-            $updateschema = $this->get_task_schema(update_option_task::TASK_NAME);
-            $createproperties = (array)($createschema['properties'] ?? []);
-            $updateproperties = (array)($updateschema['properties'] ?? []);
-
-            $scope = strtolower(trim((string)($input['scope'] ?? 'all')));
-            $keys = array_values(array_unique(array_merge(array_keys($createproperties), array_keys($updateproperties))));
-            sort($keys);
-
-            $properties = [];
-            foreach ($keys as $key) {
-                $increate = array_key_exists($key, $createproperties);
-                $inupdate = array_key_exists($key, $updateproperties);
-
-                if ($scope === 'create' && !$increate) {
-                    continue;
-                }
-                if ($scope === 'update' && !$inupdate) {
-                    continue;
-                }
-                if ($scope === 'shared' && !($increate && $inupdate)) {
-                    continue;
-                }
-
-                $source = $createproperties[$key] ?? $updateproperties[$key] ?? [];
-                $properties[] = [
-                    'name' => (string)$key,
-                    'label' => self::get_localized_property_label((string)$key),
-                    'type' => (string)($source['type'] ?? 'mixed'),
-                    'description' => (string)($source['description'] ?? ''),
-                    'increate' => $increate,
-                    'inupdate' => $inupdate,
-                    'requiredoncreate' => (bool)($createproperties[$key]['required'] ?? false),
-                    'requiredonupdate' => (bool)($updateproperties[$key]['required'] ?? false),
-                ];
-            }
-
-            return [
-                'status' => 'executed',
-                'detail' => '',
-                'resultid' => null,
-                'properties' => $properties,
-            ];
-        }
-
-        if ($taskname === list_actions_task::TASK_NAME) {
-            $scope = strtolower(trim((string)($input['scope'] ?? 'all')));
-            $actions = [];
-            $registry = task_registry::make_default();
-            foreach ($registry->get_task_names() as $name) {
-                if ($scope === 'readonly' && !$registry->is_read_only_task($name)) {
-                    continue;
-                }
-                if ($scope === 'mutating' && $registry->is_read_only_task($name)) {
-                    continue;
-                }
-
-                $task = $registry->get_task($name);
-                if (!$task) {
-                    continue;
-                }
-
-                $schema = $task->get_schema();
-                $actions[] = [
-                    'task' => $name,
-                    'label' => self::get_localized_action_label($name),
-                    'description' => (string)($schema['description'] ?? ''),
-                    'readonly' => $task->is_read_only(),
-                ];
-            }
-
-            return [
-                'status' => 'executed',
-                'detail' => '',
-                'resultid' => null,
-                'actions' => $actions,
-            ];
-        }
-
-        if ($taskname === get_current_user_task::TASK_NAME) {
-            global $USER;
-
-            $user = $USER;
-            $fullname = trim((string)$user->firstname . ' ' . (string)$user->lastname);
-
-            return [
-                'status' => 'executed',
-                'detail' => 'Current user identified.',
-                'resultid' => (int)$user->id,
-                'userid' => (int)$user->id,
-                'email' => (string)$user->email,
-                'fullname' => $fullname,
-            ];
-        }
-
-        $context = context_module::instance($cmid);
-
-        // Build the data object for booking_option::update().
-        $data = new \stdClass();
-        $data->bookingid = (int)$cm->instance;
-        $data->cmid = $cmid;
-        $data->importing = true; // Triggers array-mode processing in ::update().
-        $bookusersforoption = [];
-        $bookusersmeta = [
-            'completed' => false,
-            'updateexisting' => false,
-            'timebooked' => null,
+        return [
+            'status' => 'error',
+            'detail' => 'Unknown booking task: ' . $taskname,
+            'resultid' => null,
         ];
-
-        // Map common fields.
-        $textfields = ['text', 'location', 'address', 'description'];
-        foreach ($textfields as $field) {
-            if (isset($input[$field])) {
-                $data->$field = clean_param($input[$field], PARAM_TEXT);
-            }
-        }
-
-        $intfields = ['maxanswers', 'maxoverbooking'];
-        foreach ($intfields as $field) {
-            if (isset($input[$field])) {
-                $data->$field = (int)$input[$field];
-            }
-        }
-
-        if (array_key_exists('selflearningcourse', $input)) {
-            $data->selflearningcourse = !empty($input['selflearningcourse']) ? 1 : 0;
-        }
-        if (isset($input['duration'])) {
-            $data->duration = (int)$input['duration'];
-        }
-        if (array_key_exists('disablecancel', $input)) {
-            $data->disablecancel = !empty($input['disablecancel']) ? 1 : 0;
-        }
-
-        $normalizedvisibility = self::normalize_visibility_input($input);
-        if (isset($normalizedvisibility['value'])) {
-            $data->invisible = (int)$normalizedvisibility['value'];
-        }
-
-        if (isset($input['bookingopeningtime'])) {
-            $opening = self::parse_datetime($input['bookingopeningtime']);
-            if ($opening !== false) {
-                $data->bookingopeningtime = $opening;
-            }
-        }
-        if (isset($input['bookingclosingtime'])) {
-            $closing = self::parse_datetime($input['bookingclosingtime']);
-            if ($closing !== false) {
-                $data->bookingclosingtime = $closing;
-            }
-        }
-
-        $parsedoptiondates = self::extract_optiondates($input);
-
-        $normalizedprices = self::normalize_prices_input($input['prices'] ?? null);
-        if (!empty($normalizedprices)) {
-            $data->useprice = 1;
-            foreach ($normalizedprices as $identifier => $value) {
-                $data->{$identifier} = $value;
-            }
-        }
-
-        // Resolve teacher input using the importer-compatible teacheremail field.
-        if (!empty($input['teacheremail'])) {
-            $data->teacheremail = trim((string)$input['teacheremail']);
-        } else if (!empty($input['teacherquery'])) {
-            $teacherresult = self::resolve_single_user((string)$input['teacherquery']);
-            if ($teacherresult['status'] !== 'ok') {
-                return [
-                    'status' => 'error',
-                    'detail' => (string)$teacherresult['message'],
-                    'resultid' => null,
-                ];
-            }
-            if (empty($teacherresult['email'])) {
-                return [
-                    'status' => 'error',
-                    'detail' => 'Resolved teacher has no e-mail address. Please provide teacheremail directly.',
-                    'resultid' => null,
-                ];
-            }
-            $data->teacheremail = (string)$teacherresult['email'];
-        }
-
-        // Resolve connected Moodle course by query and map to importer-compatible field.
-        if (!empty($input['coursequery'])) {
-            $courseresult = self::resolve_single_course((string)$input['coursequery']);
-            if ($courseresult['status'] !== 'ok') {
-                return [
-                    'status' => 'error',
-                    'detail' => (string)$courseresult['message'],
-                    'resultid' => null,
-                ];
-            }
-            $data->courseid = (int)$courseresult['courseid'];
-            $data->enroltocourseshortname = (string)$courseresult['shortname'];
-            $data->chooseorcreatecourse = 1;
-        }
-
-        // Restrict booking to users enrolled in specific courses (availability condition).
-        if (array_key_exists('enrolledincourseenabled', $input) && empty($input['enrolledincourseenabled'])) {
-            $data->bo_cond_enrolledincourse_restrict = 0;
-        }
-        if (!empty($input['enrolledincoursequery'])) {
-            $restrictioncourses = self::resolve_courses_for_restriction((string)$input['enrolledincoursequery']);
-            if (!empty($restrictioncourses['errors'])) {
-                return [
-                    'status' => 'error',
-                    'detail' => implode(' ', $restrictioncourses['errors']),
-                    'resultid' => null,
-                ];
-            }
-            if (!empty($restrictioncourses['ambiguities'])) {
-                return [
-                    'status' => 'error',
-                    'detail' => implode(' ', $restrictioncourses['ambiguities']),
-                    'resultid' => null,
-                ];
-            }
-
-            if (empty($restrictioncourses['courseids'])) {
-                return [
-                    'status' => 'error',
-                    'detail' => 'No valid course found for enrolledincoursequery.',
-                    'resultid' => null,
-                ];
-            }
-
-            $data->bo_cond_enrolledincourse_restrict = 1;
-            $data->bo_cond_enrolledincourse_courseids = $restrictioncourses['courseids'];
-            $operator = strtoupper(trim((string)($input['enrolledincourseoperator'] ?? 'OR')));
-            $data->bo_cond_enrolledincourse_courseids_operator = in_array($operator, ['OR', 'AND'], true) ? $operator : 'OR';
-        }
-        if (array_key_exists('enrolledincoursesqlfilter', $input)) {
-            $data->bo_cond_enrolledincourse_sqlfiltercheck = !empty($input['enrolledincoursesqlfilter']) ? 1 : 0;
-        }
-        if (!empty($input['enrolledincourseoverride'])) {
-            $data->bo_cond_enrolledincourse_overrideconditioncheckbox = 1;
-            if (isset($input['enrolledincourseoverrideoperator'])) {
-                $op = strtoupper(trim((string)$input['enrolledincourseoverrideoperator']));
-                $data->bo_cond_enrolledincourse_overrideoperator = in_array($op, ['OR', 'AND'], true) ? $op : 'OR';
-            }
-            $overrideids = $input['enrolledincourseoverrideconditionids'] ?? [];
-            if (!empty($overrideids) && is_array($overrideids)) {
-                $data->bo_cond_enrolledincourse_overridecondition = array_map('intval', $overrideids);
-            }
-        } else if (array_key_exists('enrolledincourseoverride', $input) && empty($input['enrolledincourseoverride'])) {
-            $data->bo_cond_enrolledincourse_overrideconditioncheckbox = 0;
-        }
-
-        if (array_key_exists('enrolledincohortenabled', $input) && empty($input['enrolledincohortenabled'])) {
-            $data->bo_cond_enrolledincohorts_restrict = 0;
-        }
-        if (!empty($input['enrolledincohortquery'])) {
-            $cohorts = self::resolve_cohorts_for_restriction((string)$input['enrolledincohortquery']);
-            if (!empty($cohorts['errors']) || !empty($cohorts['ambiguities'])) {
-                return [
-                    'status' => 'error',
-                    'detail' => trim(implode(' ', array_merge($cohorts['errors'], $cohorts['ambiguities']))),
-                    'resultid' => null,
-                ];
-            }
-            $data->bo_cond_enrolledincohorts_restrict = 1;
-            $data->bo_cond_enrolledincohorts_cohortids = $cohorts['cohortids'];
-            $operator = strtoupper(trim((string)($input['enrolledincohortoperator'] ?? 'OR')));
-            $data->bo_cond_enrolledincohorts_cohortids_operator = in_array($operator, ['OR', 'AND'], true) ? $operator : 'OR';
-        }
-        if (array_key_exists('enrolledincohort_sqlfilter', $input)) {
-            $data->bo_cond_enrolledincohorts_sqlfiltercheck = !empty($input['enrolledincohort_sqlfilter']) ? 1 : 0;
-        }
-        if (!empty($input['enrolledincohortoverride'])) {
-            $data->bo_cond_enrolledincohorts_overrideconditioncheckbox = 1;
-            if (isset($input['enrolledincohortoverrideoperator'])) {
-                $op = strtoupper(trim((string)$input['enrolledincohortoverrideoperator']));
-                $data->bo_cond_enrolledincohorts_overrideoperator = in_array($op, ['OR', 'AND'], true) ? $op : 'OR';
-            }
-            $overrideids = $input['enrolledincohortoverrideconditionids'] ?? [];
-            if (!empty($overrideids) && is_array($overrideids)) {
-                $data->bo_cond_enrolledincohorts_overridecondition = array_map('intval', $overrideids);
-            }
-        } else if (array_key_exists('enrolledincohortoverride', $input) && empty($input['enrolledincohortoverride'])) {
-            $data->bo_cond_enrolledincohorts_overrideconditioncheckbox = 0;
-        }
-
-        if (array_key_exists('hascompetencyenabled', $input) && empty($input['hascompetencyenabled'])) {
-            $data->bo_cond_hascompetency_restrict = 0;
-        }
-        if (!empty($input['hascompetencyquery'])) {
-            $competencies = self::resolve_competencies_for_restriction((string)$input['hascompetencyquery']);
-            if (!empty($competencies['errors']) || !empty($competencies['ambiguities'])) {
-                return [
-                    'status' => 'error',
-                    'detail' => trim(implode(' ', array_merge($competencies['errors'], $competencies['ambiguities']))),
-                    'resultid' => null,
-                ];
-            }
-            $data->bo_cond_hascompetency_restrict = 1;
-            $data->bo_cond_hascompetency_competencyids = $competencies['competencyids'];
-            $operator = strtoupper(trim((string)($input['hascompetencyoperator'] ?? 'AND')));
-            $data->bo_cond_hascompetency_competencyids_operator = in_array($operator, ['OR', 'AND'], true) ? $operator : 'AND';
-        }
-        if (!empty($input['hascompetencyoverride'])) {
-            $data->bo_cond_hascompetency_overrideconditioncheckbox = 1;
-            if (isset($input['hascompetencyoverrideoperator'])) {
-                $op = strtoupper(trim((string)$input['hascompetencyoverrideoperator']));
-                $data->bo_cond_hascompetency_overrideoperator = in_array($op, ['OR', 'AND'], true) ? $op : 'OR';
-            }
-            if (!empty($input['hascompetencyoverrideconditionids']) && is_array($input['hascompetencyoverrideconditionids'])) {
-                $data->bo_cond_hascompetency_overridecondition = array_map('intval', $input['hascompetencyoverrideconditionids']);
-            }
-        } else if (array_key_exists('hascompetencyoverride', $input) && empty($input['hascompetencyoverride'])) {
-            $data->bo_cond_hascompetency_overrideconditioncheckbox = 0;
-        }
-
-        if (array_key_exists('previouslybookedenabled', $input) && empty($input['previouslybookedenabled'])) {
-            $data->bo_cond_previouslybooked_restrict = 0;
-        }
-        if (!empty($input['previouslybookedquery'])) {
-            $prev = self::resolve_single_option($cmid, (string)$input['previouslybookedquery']);
-            if (($prev['status'] ?? '') !== 'ok') {
-                return [
-                    'status' => 'error',
-                    'detail' => (string)($prev['message'] ?? 'Could not resolve previouslybookedquery.'),
-                    'resultid' => null,
-                ];
-            }
-            $data->bo_cond_previouslybooked_restrict = 1;
-            $data->bo_cond_previouslybooked_optionid = (int)$prev['optionid'];
-            if (!empty($input['previouslybookedrequirecompletion'])) {
-                $data->bo_cond_previouslybooked_requirecompletion = 1;
-            }
-        }
-
-        if (array_key_exists('selectusersenabled', $input) && empty($input['selectusersenabled'])) {
-            $data->bo_cond_selectusers_restrict = 0;
-        }
-        if (!empty($input['selectusersquery'])) {
-            $users = self::resolve_users_for_restriction((string)$input['selectusersquery']);
-            if (!empty($users['errors']) || !empty($users['ambiguities'])) {
-                return [
-                    'status' => 'error',
-                    'detail' => trim(implode(' ', array_merge($users['errors'], $users['ambiguities']))),
-                    'resultid' => null,
-                ];
-            }
-            $data->bo_cond_selectusers_restrict = 1;
-            $data->bo_cond_selectusers_userids = $users['userids'];
-        }
-
-        if (!empty($input['bookusersquery'])) {
-            $usersforbooking = self::resolve_users_for_booking((string)$input['bookusersquery']);
-            if (!empty($usersforbooking['errors']) || !empty($usersforbooking['ambiguities'])) {
-                return [
-                    'status' => 'error',
-                    'detail' => trim(implode(' ', array_merge($usersforbooking['errors'], $usersforbooking['ambiguities']))),
-                    'resultid' => null,
-                ];
-            }
-            $bookusersforoption = $usersforbooking['userids'];
-            $bookusersmeta['updateexisting'] = !empty($input['bookusersupdateexisting']);
-            $bookusersmeta['completed'] = !empty($input['bookuserscompleted']);
-            if (isset($input['bookuserstimebooked'])) {
-                $timebooked = self::parse_datetime($input['bookuserstimebooked']);
-                if ($timebooked !== false) {
-                    $bookusersmeta['timebooked'] = $timebooked;
-                }
-            }
-        }
-        if (!empty($input['selectusersoverride'])) {
-            $data->bo_cond_selectusers_overrideconditioncheckbox = 1;
-            if (isset($input['selectusersoverrideoperator'])) {
-                $op = strtoupper(trim((string)$input['selectusersoverrideoperator']));
-                $data->bo_cond_selectusers_overrideoperator = in_array($op, ['OR', 'AND'], true) ? $op : 'OR';
-            }
-            if (!empty($input['selectusersoverrideconditionids']) && is_array($input['selectusersoverrideconditionids'])) {
-                $data->bo_cond_selectusers_overridecondition = array_map('intval', $input['selectusersoverrideconditionids']);
-            }
-        } else if (array_key_exists('selectusersoverride', $input) && empty($input['selectusersoverride'])) {
-            $data->bo_cond_selectusers_overrideconditioncheckbox = 0;
-        }
-
-        if (array_key_exists('nooverlappingenabled', $input) && empty($input['nooverlappingenabled'])) {
-            $data->bo_cond_nooverlapping_restrict = 0;
-        }
-        if (!empty($input['nooverlappingmode'])) {
-            $mode = strtolower(trim((string)$input['nooverlappingmode']));
-            $data->bo_cond_nooverlapping_restrict = 1;
-            $data->bo_cond_nooverlapping_handling =
-                ($mode === 'warn')
-                    ? MOD_BOOKING_COND_OVERLAPPING_HANDLING_WARN
-                    : MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK;
-        }
-
-        if (array_key_exists('allowedtobookininstance', $input)) {
-            $restrict = !empty($input['allowedtobookininstance']) ? 1 : 0;
-            $data->bo_cond_allowedtobookininstance_restrict = $restrict;
-            if ($restrict === 1) {
-                $data->bo_cond_allowedtobookininstance_capabilitynotneeded =
-                    array_key_exists('allowedtobookininstancecapabilitynotneeded', $input)
-                        ? (!empty($input['allowedtobookininstancecapabilitynotneeded']) ? 1 : 0)
-                        : 1;
-            }
-        }
-
-        if (array_key_exists('userprofilestandardenabled', $input) && empty($input['userprofilestandardenabled'])) {
-            $data->bo_cond_userprofilefield_1_default_restrict = 0;
-        }
-        if (!empty($input['userprofilestandardfield']) && !empty($input['userprofilestandardoperator'])) {
-            $data->bo_cond_userprofilefield_1_default_restrict = 1;
-            $data->bo_cond_userprofilefield_field = trim((string)$input['userprofilestandardfield']);
-            $data->bo_cond_userprofilefield_operator = trim((string)$input['userprofilestandardoperator']);
-            $data->bo_cond_userprofilefield_value = (string)($input['userprofilestandardvalue'] ?? '');
-        }
-        if (!empty($input['userprofilestandardoverride'])) {
-            $data->bo_cond_userprofilefield_overrideconditioncheckbox = 1;
-            if (isset($input['userprofilestandardoverrideoperator'])) {
-                $op = strtoupper(trim((string)$input['userprofilestandardoverrideoperator']));
-                $data->bo_cond_userprofilefield_overrideoperator = in_array($op, ['OR', 'AND'], true) ? $op : 'OR';
-            }
-            if (
-                !empty($input['userprofilestandardoverrideconditionids'])
-                && is_array($input['userprofilestandardoverrideconditionids'])
-            ) {
-                $data->bo_cond_userprofilefield_overridecondition =
-                    array_map('intval', $input['userprofilestandardoverrideconditionids']);
-            }
-        } else if (array_key_exists('userprofilestandardoverride', $input) && empty($input['userprofilestandardoverride'])) {
-            $data->bo_cond_userprofilefield_overrideconditioncheckbox = 0;
-        }
-
-        if (array_key_exists('userprofilecustomenabled', $input) && empty($input['userprofilecustomenabled'])) {
-            $data->bo_cond_userprofilefield_2_custom_restrict = 0;
-        }
-        if (!empty($input['userprofilecustomfield']) && !empty($input['userprofilecustomoperator'])) {
-            $data->bo_cond_userprofilefield_2_custom_restrict = 1;
-            $data->bo_cond_customuserprofilefield_field = trim((string)$input['userprofilecustomfield']);
-            $data->bo_cond_customuserprofilefield_operator = trim((string)$input['userprofilecustomoperator']);
-            $data->bo_cond_customuserprofilefield_value = (string)($input['userprofilecustomvalue'] ?? '');
-        }
-        if (array_key_exists('userprofilecustomconnectsecondfield', $input)) {
-            $connectsecond = !empty($input['userprofilecustomconnectsecondfield']) ? 1 : 0;
-            $data->bo_cond_customuserprofilefield_connectsecondfield = $connectsecond;
-        }
-        if (isset($input['userprofilecustomfield2'])) {
-            $data->bo_cond_customuserprofilefield_field2 = trim((string)$input['userprofilecustomfield2']);
-        }
-        if (isset($input['userprofilecustomoperator2'])) {
-            $data->bo_cond_customuserprofilefield_operator2 = trim((string)$input['userprofilecustomoperator2']);
-        }
-        if (isset($input['userprofilecustomvalue2'])) {
-            $data->bo_cond_customuserprofilefield_value2 = (string)$input['userprofilecustomvalue2'];
-        }
-        if (array_key_exists('userprofilecustomsqlfilter', $input)) {
-            $data->bo_cond_customuserprofilefield_sqlfiltercheck = !empty($input['userprofilecustomsqlfilter']) ? 1 : 0;
-        }
-        if (!empty($input['userprofilecustomoverride'])) {
-            $data->bo_cond_customuserprofilefield_overrideconditioncheckbox = 1;
-            if (isset($input['userprofilecustomoverrideoperator'])) {
-                $op = strtoupper(trim((string)$input['userprofilecustomoverrideoperator']));
-                $data->bo_cond_customuserprofilefield_overrideoperator = in_array($op, ['OR', 'AND'], true) ? $op : 'OR';
-            }
-            if (
-                !empty($input['userprofilecustomoverrideconditionids'])
-                && is_array($input['userprofilecustomoverrideconditionids'])
-            ) {
-                $data->bo_cond_customuserprofilefield_overridecondition =
-                    array_map('intval', $input['userprofilecustomoverrideconditionids']);
-            }
-        } else if (array_key_exists('userprofilecustomoverride', $input) && empty($input['userprofilecustomoverride'])) {
-            $data->bo_cond_customuserprofilefield_overrideconditioncheckbox = 0;
-        }
-
-        if (array_key_exists('customformenabled', $input) && empty($input['customformenabled'])) {
-            $data->bo_cond_customform_restrict = 0;
-        }
-
-        if (array_key_exists('customformelements', $input) && is_array($input['customformelements'])) {
-            $elements = self::normalize_customform_elements($input['customformelements']);
-            if (!empty($elements)) {
-                $data->bo_cond_customform_restrict = 1;
-                $index = 1;
-                foreach ($elements as $element) {
-                    $data->{'bo_cond_customform_select_1_' . $index} = (string)$element['formtype'];
-                    $data->{'bo_cond_customform_label_1_' . $index} = (string)($element['label'] ?? '');
-                    $data->{'bo_cond_customform_value_1_' . $index} = (string)($element['value'] ?? '');
-                    $data->{'bo_cond_customform_notempty_1_' . $index} = !empty($element['required']) ? 1 : 0;
-                    $data->{'bo_cond_customform_enroluserstowaitinglist' . $index} =
-                        !empty($element['enroluserstowaitinglist']) ? 1 : 0;
-                    $index++;
-                }
-                if (array_key_exists('customformdeleteinfoscheckboxadmin', $input)) {
-                    $data->bo_cond_customform_deleteinfoscheckboxadmin =
-                        !empty($input['customformdeleteinfoscheckboxadmin']) ? 1 : 0;
-                }
-            } else if (array_key_exists('customformenabled', $input) && !empty($input['customformenabled'])) {
-                // Explicitly enabled with empty elements: clear condition content.
-                $data->bo_cond_customform_restrict = 0;
-            }
-        }
-
-        if (!empty($input['customformjson']) && is_array($input['customformjson'])) {
-            $customformjson = $input['customformjson'];
-            if (!empty($customformjson['formsarray']) && is_array($customformjson['formsarray'])) {
-                $data->bo_cond_customform_restrict = 1;
-                foreach ($customformjson['formsarray'] as $formcounter => $formrows) {
-                    if (!is_array($formrows)) {
-                        continue;
-                    }
-                    foreach ($formrows as $counter => $row) {
-                        if (!is_array($row)) {
-                            continue;
-                        }
-                        $fc = (int)$formcounter;
-                        $ix = (int)$counter;
-                        $data->{'bo_cond_customform_select_' . $fc . '_' . $ix} = (string)($row['formtype'] ?? '0');
-                        $data->{'bo_cond_customform_label_' . $fc . '_' . $ix} = (string)($row['label'] ?? '');
-                        $data->{'bo_cond_customform_value_' . $fc . '_' . $ix} = (string)($row['value'] ?? '');
-                        $data->{'bo_cond_customform_notempty_' . $fc . '_' . $ix} = !empty($row['notempty']) ? 1 : 0;
-                        $data->{'bo_cond_customform_enroluserstowaitinglist' . $ix} =
-                            !empty($row['enroluserstowaitinglist']) ? 1 : 0;
-                    }
-                }
-                $data->bo_cond_customform_deleteinfoscheckboxadmin =
-                    !empty($customformjson['deleteinfoscheckboxadmin']) ? 1 : 0;
-            }
-        }
-
-        if (
-            $taskname === create_option_task::TASK_NAME
-            || $taskname === update_option_task::TASK_NAME
-            || $taskname === bulk_update_options_task::TASK_NAME
-        ) {
-            $permissioncheck = self::validate_update_field_permissions($input, (int)$context->id);
-            if (($permissioncheck['status'] ?? '') !== 'ok') {
-                return [
-                    'status' => 'error',
-                    'detail' => (string)($permissioncheck['message']
-                        ?? get_string('agent_booking_update_permission_denied_generic', 'booking')),
-                    'resultid' => null,
-                ];
-            }
-        }
-
-        if ($taskname === create_option_task::TASK_NAME) {
-            $data->id = 0;
-            if (empty($data->text)) {
-                return ['status' => 'error', 'detail' => 'Option title is required.', 'resultid' => null];
-            }
-        } else if ($taskname === update_option_task::TASK_NAME) {
-            if (!empty($input['optionid'])) {
-                $data->id = (int)$input['optionid'];
-            } else if (self::is_last_option_reference((string)($input['optionquery'] ?? ''))) {
-                $lastoptionid = self::resolve_last_option_for_user($cmid, $userid);
-                if (!$lastoptionid) {
-                    return [
-                        'status' => 'error',
-                        'detail' => 'No previously worked-on option found in this booking context. '
-                            . 'Please provide optionid or a specific optionquery.',
-                        'resultid' => null,
-                    ];
-                }
-                $data->id = $lastoptionid;
-            } else {
-                $result = self::resolve_single_option(
-                    $cmid,
-                    (string)($input['optionquery'] ?? ''),
-                    (string)($input['optionwhen'] ?? '')
-                );
-                if ($result['status'] !== 'ok') {
-                    return [
-                        'status' => 'error',
-                        'detail' => (string)$result['message'],
-                        'resultid' => null,
-                    ];
-                }
-                $data->id = (int)$result['optionid'];
-            }
-
-            // Default update behavior for optiondates is append so existing sessions are not lost.
-            if (!empty($parsedoptiondates)) {
-                $datesmode = strtolower(trim((string)($input['optiondatesmode'] ?? 'append')));
-                if ($datesmode === 'append') {
-                    $parsedoptiondates = self::merge_existing_optiondates_with_new((int)$data->id, $parsedoptiondates);
-                }
-            }
-        } else if ($taskname === bulk_update_options_task::TASK_NAME) {
-            // Resolve all target option IDs and apply the update to each one.
-            $optionids = self::resolve_bulk_option_ids($cmid, $input);
-            if (empty($optionids)) {
-                return [
-                    'status' => 'error',
-                    'detail' => 'No matching booking options found to update.',
-                    'resultid' => null,
-                ];
-            }
-
-            $updated = [];
-            $failed  = [];
-            foreach ($optionids as $optionid) {
-                $itemdata = clone $data;
-                $itemdata->id = (int)$optionid;
-                try {
-                    booking_option::update($itemdata, $context);
-                    $updated[] = (int)$optionid;
-                    self::remember_last_option_for_user($userid, $cmid, (int)$optionid, (int)$cm->instance);
-                } catch (\Throwable $e) {
-                    $failed[] = (int)$optionid . ' (' . $e->getMessage() . ')';
-                }
-            }
-
-            if (!empty($failed)) {
-                return [
-                    'status'   => 'error',
-                    'detail'   => 'Updated: ' . implode(', ', $updated) . '. Failed: ' . implode('; ', $failed),
-                    'resultid' => !empty($updated) ? $updated[0] : null,
-                ];
-            }
-
-            return [
-                'status'           => 'executed',
-                'detail'           => 'Updated ' . count($updated) . ' booking option(s): '
-                    . implode(', ', $updated) . '.',
-                'resultid'         => !empty($updated) ? $updated[0] : null,
-                'previewoptionids' => $updated,
-            ];
-        }
-
-        if (!empty($parsedoptiondates)) {
-            self::apply_optiondates_to_update_data($data, $parsedoptiondates);
-        }
-
-        try {
-            $newoptionid = booking_option::update($data, $context);
-
-            if (
-                $taskname === create_option_task::TASK_NAME
-                || $taskname === update_option_task::TASK_NAME
-            ) {
-                self::remember_last_option_for_user($userid, $cmid, (int)$newoptionid, (int)$cm->instance);
-            }
-
-            $detail = 'Booking option ' . ($taskname === create_option_task::TASK_NAME ? 'created' : 'updated')
-                . ' (id=' . (int)$newoptionid . ', link=' . self::build_option_link($cmid, (int)$newoptionid) . ').';
-
-            $verificationwarnings = self::verify_persisted_option_state_for_task(
-                $taskname,
-                $input,
-                (int)$newoptionid
-            );
-            if (!empty($verificationwarnings)) {
-                $detail .= ' Verification warnings: ' . implode(' ', $verificationwarnings);
-            }
-
-            if (!empty($bookusersforoption)) {
-                $bookusersresult = self::book_users_via_bookit((int)$newoptionid, $bookusersforoption, $bookusersmeta);
-                if (!empty($bookusersresult['errors'])) {
-                    return [
-                        'status' => 'error',
-                        'detail' => $detail . ' User booking failed: ' . implode(' ', $bookusersresult['errors']),
-                        'resultid' => (int)$newoptionid,
-                    ];
-                }
-
-                if (!empty($bookusersresult['bookeduserids'])) {
-                    $detail .= ' Booked users: ' . implode(', ', $bookusersresult['bookeduserids']) . '.';
-                }
-            }
-
-            return [
-                'status'   => 'executed',
-                'detail'   => $detail,
-                'resultid' => (int)$newoptionid,
-                'warnings' => $verificationwarnings,
-            ];
-        } catch (\Throwable $e) {
-            return ['status' => 'error', 'detail' => $e->getMessage(), 'resultid' => null];
-        }
     }
 
     /**
@@ -1658,7 +289,7 @@ class booking_task_support {
      * @param int $contextid
      * @return array{status:string,message?:string}
      */
-    private static function validate_update_field_permissions(array $input, int $contextid): array {
+    public static function validate_update_field_permissions(array $input, int $contextid): array {
         $required = self::requested_update_field_groups($input);
         if (empty($required)) {
             return ['status' => 'ok'];
@@ -1874,7 +505,7 @@ class booking_task_support {
      * @param  mixed $value
      * @return int|false  UNIX timestamp or false on failure.
      */
-    private static function parse_datetime(mixed $value): int|false {
+    public static function parse_datetime(mixed $value): int|false {
         if (is_int($value)) {
             return $value > 0 ? $value : false;
         }
@@ -1918,7 +549,7 @@ class booking_task_support {
      * @param array $input
      * @return array<int, array<string, int>>
      */
-    private static function extract_optiondates(array $input): array {
+    public static function extract_optiondates(array $input): array {
         $result = [];
 
         if (!empty($input['optiondates']) && is_array($input['optiondates'])) {
@@ -2079,6 +710,28 @@ class booking_task_support {
     }
 
     /**
+     * Public wrapper for user search used by read-task executor.
+     *
+     * @param string $query
+     * @param int $limit
+     * @return array<int, array<string, mixed>>
+     */
+    public static function search_user_candidates_for_preview(string $query, int $limit = 10): array {
+        return self::search_user_candidates($query, $limit);
+    }
+
+    /**
+     * Public wrapper for course search used by read-task executor.
+     *
+     * @param string $query
+     * @param int $limit
+     * @return array<int, array<string, mixed>>
+     */
+    public static function search_course_candidates_for_preview(string $query, int $limit = 10): array {
+        return self::search_course_candidates($query, $limit);
+    }
+
+    /**
      * Resolve a single option id by query and optional temporal hint.
      *
      * @param int $cmid
@@ -2086,7 +739,7 @@ class booking_task_support {
      * @param string $when
      * @return array<string, mixed>
      */
-    private static function resolve_single_option(int $cmid, string $optionquery, string $when = ''): array {
+    public static function resolve_single_option(int $cmid, string $optionquery, string $when = ''): array {
         $query = trim($optionquery);
         if ($query === '') {
             return ['status' => 'ambiguity', 'message' => 'Please provide optionquery to identify the option.'];
@@ -2129,7 +782,7 @@ class booking_task_support {
      * @param string $title
      * @return array{status:string,optionid?:int,candidates?:string}
      */
-    private static function find_existing_options_by_exact_title(int $cmid, string $title): array {
+    public static function find_existing_options_by_exact_title(int $cmid, string $title): array {
         $title = trim($title);
         if ($title === '') {
             return ['status' => 'none'];
@@ -2243,7 +896,7 @@ class booking_task_support {
      * @param string $query
      * @return array<string, mixed>
      */
-    private static function resolve_single_user(string $query): array {
+    public static function resolve_single_user(string $query): array {
         $query = trim($query);
         if ($query === '') {
             return [
@@ -2253,8 +906,22 @@ class booking_task_support {
         }
 
         // Resolve self-reference keywords to the currently logged-in user.
-        $selfrefkeywords = ['me', 'myself', 'ich', 'mich', 'i'];
-        if (in_array(strtolower($query), $selfrefkeywords, true)) {
+        $normalizedquery = strtolower(trim((string)$query, " \t\n\r\0\x0B.,;:!?\"'"));
+        $normalizedquery = preg_replace('/\s+/', ' ', $normalizedquery) ?? $normalizedquery;
+        $selfrefkeywords = [
+            'me',
+            'myself',
+            'i',
+            'ich',
+            'mich',
+            'current',
+            'current user',
+            'the current user',
+            'currentuser',
+            'aktueller benutzer',
+            'der aktuelle benutzer',
+        ];
+        if (in_array($normalizedquery, $selfrefkeywords, true)) {
             global $USER;
             if (!empty($USER->id) && !empty($USER->email)) {
                 return [
@@ -2302,7 +969,7 @@ class booking_task_support {
      * @param string $query
      * @return array<string, mixed>
      */
-    private static function resolve_single_course(string $query): array {
+    public static function resolve_single_course(string $query): array {
         $query = trim($query);
         if ($query === '') {
             return ['status' => 'ambiguity', 'message' => 'Please provide coursequery to identify the course.'];
@@ -2348,7 +1015,7 @@ class booking_task_support {
      *   ambiguities: array<int,string>
      * }
      */
-    private static function resolve_courses_for_restriction(string $rawquery): array {
+    public static function resolve_courses_for_restriction(string $rawquery): array {
         $parts = array_values(array_filter(array_map('trim', explode(',', $rawquery)), static fn(string $p): bool => $p !== ''));
         if (empty($parts)) {
             return [
@@ -2411,7 +1078,7 @@ class booking_task_support {
      * @param string $rawquery
      * @return array{cohortids: array<int,int>, errors: array<int,string>, ambiguities: array<int,string>}
      */
-    private static function resolve_cohorts_for_restriction(string $rawquery): array {
+    public static function resolve_cohorts_for_restriction(string $rawquery): array {
         global $DB;
 
         $parts = self::split_query_list($rawquery);
@@ -2465,7 +1132,7 @@ class booking_task_support {
      * @param string $rawquery
      * @return array{competencyids: array<int,int>, errors: array<int,string>, ambiguities: array<int,string>}
      */
-    private static function resolve_competencies_for_restriction(string $rawquery): array {
+    public static function resolve_competencies_for_restriction(string $rawquery): array {
         global $DB;
 
         $parts = self::split_query_list($rawquery);
@@ -2519,7 +1186,7 @@ class booking_task_support {
      * @param string $rawquery
      * @return array{userids: array<int,int>, errors: array<int,string>, ambiguities: array<int,string>}
      */
-    private static function resolve_users_for_restriction(string $rawquery): array {
+    public static function resolve_users_for_restriction(string $rawquery): array {
         $parts = self::split_query_list($rawquery);
         if (empty($parts)) {
             return ['userids' => [], 'errors' => ['Please provide selectusersquery.'], 'ambiguities' => []];
@@ -2554,7 +1221,7 @@ class booking_task_support {
      * @param string $rawquery
      * @return array{userids: array<int,int>, emails: array<int,string>, errors: array<int,string>, ambiguities: array<int,string>}
      */
-    private static function resolve_users_for_booking(string $rawquery): array {
+    public static function resolve_users_for_booking(string $rawquery): array {
         $parts = self::split_query_list($rawquery);
         if (empty($parts)) {
             return ['userids' => [], 'emails' => [], 'errors' => ['Please provide bookusersquery.'], 'ambiguities' => []];
@@ -2778,6 +1445,16 @@ class booking_task_support {
     }
 
     /**
+     * Public wrapper for localized property labels used by read-task executor.
+     *
+     * @param string $propertyname
+     * @return string
+     */
+    public static function get_localized_property_label_for_output(string $propertyname): string {
+        return self::get_localized_property_label($propertyname);
+    }
+
+    /**
      * Return a localized label for a property suffix.
      *
      * @param string $suffix
@@ -2842,6 +1519,16 @@ class booking_task_support {
         }
 
         return $taskname;
+    }
+
+    /**
+     * Public wrapper for localized action labels used by read-task executor.
+     *
+     * @param string $taskname
+     * @return string
+     */
+    public static function get_localized_action_label_for_output(string $taskname): string {
+        return self::get_localized_action_label($taskname);
     }
 
     /**
@@ -2912,7 +1599,7 @@ class booking_task_support {
      * @param array $elements
      * @return array{errors: array<int,string>}
      */
-    private static function validate_customform_elements(array $elements): array {
+    public static function validate_customform_elements(array $elements): array {
         $errors = [];
         $allowed = [
             'advcheckbox',
@@ -3006,7 +1693,7 @@ class booking_task_support {
      * @param array $input
      * @return array<int,string>
      */
-    private static function detect_forbidden_fields_for_bookusers_update(array $input): array {
+    public static function detect_forbidden_fields_for_bookusers_update(array $input): array {
         $allowed = [
             'optionid',
             'optionquery',
@@ -3077,7 +1764,7 @@ class booking_task_support {
      * @param array $input
      * @return array{errors: array, ambiguities: array}
      */
-    private static function validate_prices_input(array $input): array {
+    public static function validate_prices_input(array $input): array {
         $errors = [];
         $ambiguities = [];
 
@@ -3237,7 +1924,7 @@ class booking_task_support {
      * @param array<string,mixed> $input
      * @return array{value?:int,error?:string}
      */
-    private static function normalize_visibility_input(array $input): array {
+    public static function normalize_visibility_input(array $input): array {
         $frominvisible = null;
         $fromvisibility = null;
 
@@ -3358,7 +2045,7 @@ class booking_task_support {
      * @param string $query
      * @return bool
      */
-    private static function is_last_option_reference(string $query): bool {
+    public static function is_last_option_reference(string $query): bool {
         $q = trim(strtolower($query));
         if ($q === '') {
             return false;
@@ -3451,6 +2138,17 @@ class booking_task_support {
     }
 
     /**
+     * Public wrapper for option links used by read-task executor.
+     *
+     * @param int $cmid
+     * @param int $optionid
+     * @return string
+     */
+    public static function build_option_link_for_output(int $cmid, int $optionid): string {
+        return self::build_option_link($cmid, $optionid);
+    }
+
+    /**
      * Format option label for AI-visible outputs.
      *
      * @param int $cmid
@@ -3461,5 +2159,115 @@ class booking_task_support {
     private static function format_option_label(int $cmid, int $optionid, string $name): string {
         $cleanname = trim($name) !== '' ? trim($name) : '-';
         return 'id=' . $optionid . ' name="' . $cleanname . '" link=' . self::build_option_link($cmid, $optionid);
+    }
+
+    /**
+     * Execute wrapper for price normalization.
+     *
+     * @param mixed $prices
+     * @return array<string, float>|null
+     */
+    public static function normalize_prices_input_for_execute($prices): ?array {
+        return self::normalize_prices_input($prices);
+    }
+
+    /**
+     * Execute wrapper for customform element normalization.
+     *
+     * @param array $elements
+     * @return array<int,array<string,mixed>>
+     */
+    public static function normalize_customform_elements_for_execute(array $elements): array {
+        return self::normalize_customform_elements($elements);
+    }
+
+    /**
+     * Execute wrapper for resolving bulk target ids.
+     *
+     * @param int $cmid
+     * @param array<string,mixed> $input
+     * @return int[]
+     */
+    public static function resolve_bulk_option_ids_for_execute(int $cmid, array $input): array {
+        return self::resolve_bulk_option_ids($cmid, $input);
+    }
+
+    /**
+     * Execute wrapper for "last option" resolution.
+     *
+     * @param int $cmid
+     * @param int $userid
+     * @return int|null
+     */
+    public static function resolve_last_option_for_user_for_execute(int $cmid, int $userid): ?int {
+        return self::resolve_last_option_for_user($cmid, $userid);
+    }
+
+    /**
+     * Execute wrapper for last-option metadata persistence.
+     *
+     * @param int $userid
+     * @param int $cmid
+     * @param int $optionid
+     * @param int $bookingid
+     * @return void
+     */
+    public static function remember_last_option_for_user_for_execute(
+        int $userid,
+        int $cmid,
+        int $optionid,
+        int $bookingid
+    ): void {
+        self::remember_last_option_for_user($userid, $cmid, $optionid, $bookingid);
+    }
+
+    /**
+     * Execute wrapper for append-date merge.
+     *
+     * @param int $optionid
+     * @param array<int, array<string, int>> $newdates
+     * @return array<int, array<string, int>>
+     */
+    public static function merge_existing_optiondates_with_new_for_execute(int $optionid, array $newdates): array {
+        return self::merge_existing_optiondates_with_new($optionid, $newdates);
+    }
+
+    /**
+     * Execute wrapper for applying optiondates payload.
+     *
+     * @param \stdClass $data
+     * @param array<int, array<string, int>> $optiondates
+     * @return void
+     */
+    public static function apply_optiondates_to_update_data_for_execute(\stdClass $data, array $optiondates): void {
+        self::apply_optiondates_to_update_data($data, $optiondates);
+    }
+
+    /**
+     * Execute wrapper for post-apply verification.
+     *
+     * @param string $taskname
+     * @param array<string,mixed> $input
+     * @param int $optionid
+     * @return array<int,string>
+     */
+    public static function verify_persisted_option_state_for_task_for_execute(
+        string $taskname,
+        array $input,
+        int $optionid
+    ): array {
+        return self::verify_persisted_option_state_for_task($taskname, $input, $optionid);
+    }
+
+    /**
+     * Execute wrapper for booking users through booking_bookit.
+     *
+     * @param int $optionid
+     * @param array<int,int> $userids
+     * @param array{completed: bool, updateexisting: bool, timebooked: int|null} $meta
+     * @return array{bookeduserids: array<int,int>, errors: array<int,string>}
+     */
+    public static function book_users_via_bookit_for_execute(int $optionid, array $userids, array $meta): array {
+        return self::book_users_via_bookit($optionid, $userids, $meta);
     }
 }

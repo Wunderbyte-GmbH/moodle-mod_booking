@@ -116,6 +116,21 @@ final class agent_e2e_create_option_test extends abstract_agent_testcase {
     }
 
     /**
+     * teacherquery "current" resolves to the executor user.
+     */
+    public function test_create_option_with_teacherquery_current(): void {
+        $this->setUser($this->teacher->id);
+
+        $result = $this->exec_command('booking.create_option', [
+            'text' => 'Option With Current Teacher',
+            'teacherquery' => 'current',
+        ]);
+
+        $this->assertEquals('executed', $result['status'], $result['detail'] ?? '');
+        $this->assertGreaterThan(0, (int)$result['resultid']);
+    }
+
+    /**
      * coursestarttime / courseendtime are stored as unix timestamps.
      */
     public function test_create_option_with_dates(): void {

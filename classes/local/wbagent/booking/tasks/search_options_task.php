@@ -19,6 +19,7 @@ namespace mod_booking\local\wbagent\booking\tasks;
 /**
  * Task definition for booking.search_options.
  *
+ * @package    mod_booking
  * @copyright  2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -40,5 +41,56 @@ class search_options_task extends base_booking_task {
      */
     public function get_name(): string {
         return self::TASK_NAME;
+    }
+
+    /**
+     * Return task schema.
+     *
+     * @return array<string,mixed>
+     */
+    public function get_schema(): array {
+        return [
+            'version' => 1,
+            'description' => 'Search booking options via the existing booking table fulltext/filter pipeline.',
+            'readonly' => $this->is_read_only(),
+            'properties' => [
+                'query' => [
+                    'type' => 'string',
+                    'description' => 'Optional search text (title/description/location), e.g. "next monday". '
+                        . 'If omitted, returns a short list of options in this booking instance.',
+                    'required' => false,
+                ],
+                'limit' => [
+                    'type' => 'integer',
+                    'description' => 'Maximum number of candidates to return (default 10).',
+                    'required' => false,
+                ],
+                'when' => [
+                    'type' => 'string',
+                    'description' => 'Optional temporal hint (e.g. "next monday").',
+                    'required' => false,
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Validate task input.
+     *
+     * @param array<string,mixed> $input
+     * @param int $cmid
+     * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>}
+     */
+    public function validate(array $input, int $cmid): array {
+        $errors = [];
+        if (isset($input['query']) && !is_string($input['query'])) {
+            $errors[] = 'Field "query" must be a string when provided for search_options.';
+        }
+
+        return [
+            'valid' => empty($errors),
+            'errors' => $errors,
+            'ambiguities' => [],
+        ];
     }
 }

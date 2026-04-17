@@ -19,6 +19,7 @@ namespace mod_booking\local\wbagent\booking\tasks;
 /**
  * Task definition for booking.get_current_user.
  *
+ * @package    mod_booking
  * @copyright  2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -40,5 +41,34 @@ class get_current_user_task extends base_booking_task {
      */
     public function get_name(): string {
         return self::TASK_NAME;
+    }
+
+    /**
+     * Return task schema.
+     *
+     * @return array<string,mixed>
+     */
+    public function get_schema(): array {
+        return [
+            'version' => 1,
+            'description' => 'Get information about the current executor user.',
+            'readonly' => $this->is_read_only(),
+            'properties' => [],
+        ];
+    }
+
+    /**
+     * Validate task input.
+     *
+     * @param array<string,mixed> $input
+     * @param int $cmid
+     * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>}
+     */
+    public function validate(array $input, int $cmid): array {
+        return [
+            'valid' => true,
+            'errors' => [],
+            'ambiguities' => [],
+        ];
     }
 }

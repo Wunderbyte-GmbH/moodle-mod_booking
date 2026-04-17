@@ -16,9 +16,13 @@
 
 namespace mod_booking\local\wbagent\booking\tasks;
 
+use mod_booking\local\wbagent\booking\booking_task_support;
+use mod_booking\local\wbagent\booking\support\booking_mutation_validation;
+
 /**
  * Task definition for booking.create_option.
  *
+ * @package    mod_booking
  * @copyright  2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -40,6 +44,67 @@ class create_option_task extends base_booking_task {
      */
     public function get_name(): string {
         return self::TASK_NAME;
+    }
+
+    /**
+     * Return task schema.
+     *
+     * @return array<string,mixed>
+     */
+    public function get_schema(): array {
+        return [
+            'version' => 1,
+            'description' => 'Create a new booking option inside the current booking instance.',
+            'readonly' => $this->is_read_only(),
+            'properties' => array_merge([
+                'text' => [
+                    'type' => 'string',
+                    'description' => 'Title of the new booking option.',
+                    'required' => true,
+                ],
+            ], option_schema_definition::common_properties()),
+        ];
+    }
+
+    /**
+     * Validate task input.
+     *
+     * @param array<string,mixed> $input
+     * @param int $cmid
+     * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>}
+     */
+    public function validate(array $input, int $cmid): array {
+        $errors = [];
+        $ambiguities = [];
+
+        if (empty($input['text'])) {
+            $errors[] = 'Field "text" (option title) is required for create_option.';
+        } else {
+            $duplicatecheck = booking_task_support::find_existing_options_by_exact_title($cmid, (string)$input['text']);
+            if (($duplicatecheck['status'] ?? '') === 'single') {
+                $ambiguities[] = get_string(
+                    'agent_booking_create_option_exists_single',
+                    'booking',
+                    (int)$duplicatecheck['optionid']
+                );
+            } else if (($duplicatecheck['status'] ?? '') === 'multiple') {
+                $ambiguities[] = get_string(
+                    'agent_booking_create_option_exists_multiple',
+                    'booking',
+                    (string)($duplicatecheck['candidates'] ?? '')
+                );
+            }
+        }
+
+        $common = booking_mutation_validation::validate_common($input, $cmid, self::TASK_NAME);
+        $errors = array_merge($errors, $common['errors']);
+        $ambiguities = array_merge($ambiguities, $common['ambiguities']);
+
+        return [
+            'valid' => empty($errors) && empty($ambiguities),
+            'errors' => $errors,
+            'ambiguities' => $ambiguities,
+        ];
     }
 
     /**

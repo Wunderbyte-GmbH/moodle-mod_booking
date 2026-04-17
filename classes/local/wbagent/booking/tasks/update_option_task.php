@@ -16,9 +16,13 @@
 
 namespace mod_booking\local\wbagent\booking\tasks;
 
+use mod_booking\local\wbagent\booking\booking_task_support;
+use mod_booking\local\wbagent\booking\support\booking_mutation_validation;
+
 /**
  * Task definition for booking.update_option.
  *
+ * @package    mod_booking
  * @copyright  2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -105,6 +109,59 @@ class update_option_task extends base_booking_task {
                         . '(or omit optiondatesmode; append is default).',
                 ],
             ],
+        ];
+    }
+
+    /**
+     * Validate task input.
+     *
+     * @param array<string,mixed> $input
+     * @param int $cmid
+     * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>}
+     */
+    public function validate(array $input, int $cmid): array {
+        global $DB;
+
+        $errors = [];
+        $ambiguities = [];
+
+        if (empty($input['optionid'])) {
+            if (empty($input['optionquery'])) {
+                $ambiguities[] = 'Which booking option should be updated? Provide optionid or optionquery.';
+            } else if (!booking_task_support::is_last_option_reference((string)$input['optionquery'])) {
+                $result = booking_task_support::resolve_single_option(
+                    $cmid,
+                    (string)$input['optionquery'],
+                    (string)($input['optionwhen'] ?? '')
+                );
+                if ($result['status'] === 'error') {
+                    $errors[] = (string)$result['message'];
+                } else if ($result['status'] === 'ambiguity') {
+                    $ambiguities[] = (string)$result['message'];
+                }
+            }
+        } else {
+            $cm = get_coursemodule_from_id('booking', $cmid);
+            if (
+                !$cm
+                || !$DB->record_exists('booking_options', [
+                    'id' => (int)$input['optionid'],
+                    'bookingid' => $cm->instance,
+                ])
+            ) {
+                $errors[] = 'Booking option with id ' . (int)$input['optionid']
+                    . ' does not exist in this booking instance.';
+            }
+        }
+
+        $common = booking_mutation_validation::validate_common($input, $cmid, self::TASK_NAME);
+        $errors = array_merge($errors, $common['errors']);
+        $ambiguities = array_merge($ambiguities, $common['ambiguities']);
+
+        return [
+            'valid' => empty($errors) && empty($ambiguities),
+            'errors' => $errors,
+            'ambiguities' => $ambiguities,
         ];
     }
 
