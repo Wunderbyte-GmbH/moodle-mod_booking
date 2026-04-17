@@ -26,9 +26,9 @@
 namespace mod_booking;
 
 use advanced_testcase;
+use mod_booking\local\wbagent\booking\tasks\create_option_task;
 use mod_booking\local\wbagent\interpreter;
 use mod_booking\local\wbagent\task_registry;
-use mod_booking\local\wbagent\booking\booking_task_provider;
 
 /**
  * Tests for the AI agent interpreter.
@@ -46,13 +46,25 @@ final class agent_interpreter_test extends advanced_testcase {
     /** @var interpreter */
     private interpreter $interpreter;
 
+    /** @var int */
+    private int $cmid;
+
     /**
      * Set up test registry and interpreter.
      */
     protected function setUp(): void {
         parent::setUp();
-        $this->registry    = new task_registry();
-        $this->registry->register(new booking_task_provider());
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $course = $this->getDataGenerator()->create_course();
+        $booking = $this->getDataGenerator()->create_module('booking', [
+            'course' => $course->id,
+            'name' => 'Interpreter Test Booking',
+        ]);
+        $this->cmid = (int)$booking->cmid;
+
+        $this->registry    = task_registry::make_default();
         $this->interpreter = new interpreter($this->registry);
     }
 
@@ -60,7 +72,7 @@ final class agent_interpreter_test extends advanced_testcase {
      * Test that invalid JSON produces an error response.
      */
     public function test_invalid_json_returns_error(): void {
-        $result = $this->interpreter->interpret('This is not JSON at all.', 1, 1);
+        $result = $this->interpreter->interpret('This is not JSON at all.', $this->cmid, 1);
         $this->assertEquals('error', $result['response_type']);
         $this->assertNotEmpty($result['errors']);
     }
@@ -73,7 +85,7 @@ final class agent_interpreter_test extends advanced_testcase {
             'response_type' => 'clarification',
             'message'       => 'Could you clarify the date?',
         ]);
-        $result = $this->interpreter->interpret($raw, 1, 1);
+        $result = $this->interpreter->interpret($raw, $this->cmid, 1);
         $this->assertEquals('clarification', $result['response_type']);
         $this->assertStringContainsString('clarify', $result['message']);
         $this->assertEmpty($result['commands']);
@@ -87,7 +99,7 @@ final class agent_interpreter_test extends advanced_testcase {
             'response_type' => 'do_something_evil',
             'message'       => 'hacked',
         ]);
-        $result = $this->interpreter->interpret($raw, 1, 1);
+        $result = $this->interpreter->interpret($raw, $this->cmid, 1);
         $this->assertEquals('error', $result['response_type']);
     }
 
@@ -102,7 +114,7 @@ final class agent_interpreter_test extends advanced_testcase {
                 ['task' => 'system.delete_all', 'version' => 1, 'input' => []],
             ],
         ]);
-        $result = $this->interpreter->interpret($raw, 1, 1);
+        $result = $this->interpreter->interpret($raw, $this->cmid, 1);
         $this->assertEquals('error', $result['response_type']);
     }
 
@@ -117,7 +129,7 @@ final class agent_interpreter_test extends advanced_testcase {
                 ['task' => 'booking.create_option', 'version' => 1, 'input' => ['text' => 'My Option']],
             ],
         ]);
-        $result = $this->interpreter->interpret($raw, 1, 1);
+        $result = $this->interpreter->interpret($raw, $this->cmid, 1);
         $this->assertEquals('confirmation_request', $result['response_type']);
         $this->assertCount(1, $result['commands']);
         $this->assertEquals('booking.create_option', $result['commands'][0]['task']);
@@ -134,7 +146,7 @@ final class agent_interpreter_test extends advanced_testcase {
                 ['task' => 'booking.create_option', 'version' => 1, 'input' => []],
             ],
         ]);
-        $result = $this->interpreter->interpret($raw, 1, 1);
+        $result = $this->interpreter->interpret($raw, $this->cmid, 1);
         $this->assertEquals('error', $result['response_type']);
         $this->assertNotEmpty($result['errors']);
     }
@@ -150,7 +162,7 @@ final class agent_interpreter_test extends advanced_testcase {
                 ['task' => 'booking.update_option', 'version' => 1, 'input' => ['location' => 'Room 1']],
             ],
         ]);
-        $result = $this->interpreter->interpret($raw, 1, 1);
+        $result = $this->interpreter->interpret($raw, $this->cmid, 1);
         // Should become a clarification because of the ambiguity.
         $this->assertEquals('clarification', $result['response_type']);
         $this->assertNotEmpty($result['ambiguities']);
@@ -164,7 +176,7 @@ final class agent_interpreter_test extends advanced_testcase {
             'response_type' => 'clarification',
             'message'       => 'Please clarify.',
         ]) . "\n```";
-        $result = $this->interpreter->interpret($raw, 1, 1);
+        $result = $this->interpreter->interpret($raw, $this->cmid, 1);
         $this->assertEquals('clarification', $result['response_type']);
     }
 
@@ -176,7 +188,49 @@ final class agent_interpreter_test extends advanced_testcase {
             'response_type' => 'clarification',
             'message'       => '<script>alert("xss")</script>Please clarify.',
         ]);
-        $result = $this->interpreter->interpret($raw, 1, 1);
+        $result = $this->interpreter->interpret($raw, $this->cmid, 1);
         $this->assertStringNotContainsString('<script>', $result['message']);
+    }
+
+    /**
+     * Self-reference teacherquery values are canonicalized by the interpreter.
+     */
+    public function test_teacherquery_self_reference_is_canonicalized(): void {
+        $raw = json_encode([
+            'response_type' => 'confirmation_request',
+            'message' => 'Create option with me as teacher.',
+            'commands' => [
+                [
+                    'task' => 'booking.create_option',
+                    'version' => 1,
+                    'input' => [
+                        'text' => 'My Option',
+                        'teacherquery' => 'the current user',
+                    ],
+                ],
+            ],
+        ]);
+
+        $result = $this->interpreter->interpret($raw, $this->cmid, 1);
+        $this->assertEquals('confirmation_request', $result['response_type']);
+        $this->assertEquals('__current_user__', $result['commands'][0]['input']['teacherquery'] ?? null);
+    }
+
+    /**
+     * Teacher guidance should map self references to teacherquery instead of asking for e-mail.
+     */
+    public function test_create_option_teacher_guidance_mentions_self_reference_mapping(): void {
+        $task = new create_option_task();
+        $packs = $task->get_contextual_prompt_packs();
+
+        $teacherpack = array_values(array_filter($packs, static function(array $pack): bool {
+            return ($pack['id'] ?? '') === 'booking.course_teacher';
+        }));
+
+        $this->assertCount(1, $teacherpack);
+        $guidance = implode("\n", $teacherpack[0]['guidance'] ?? []);
+
+        $this->assertStringContainsString('assign themselves as teacher', $guidance);
+        $this->assertStringContainsString('instead of asking for an e-mail address', $guidance);
     }
 }

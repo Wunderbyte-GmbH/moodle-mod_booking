@@ -46,6 +46,9 @@ class interpreter implements agent_interpreter {
     /** Allowed response_type values from the LLM. */
     private const ALLOWED_RESPONSE_TYPES = ['clarification', 'confirmation_request', 'task_call', 'error'];
 
+    /** Canonical token representing the current executor user. */
+    private const CURRENT_USER_TOKEN = '__current_user__';
+
     /** @var task_registry */
     private task_registry $registry;
 
@@ -259,6 +262,8 @@ class interpreter implements agent_interpreter {
                 continue;
             }
 
+            $input = $this->normalize_self_user_references($input);
+
             // Domain + semantic validation.
             $result = $task->validate($input, $cmid);
             if (!empty($result['errors'])) {
@@ -297,6 +302,70 @@ class interpreter implements agent_interpreter {
         }
 
         return [$validated, $errors, $ambiguities];
+    }
+
+    /**
+     * Canonicalize user self-references in known user-query fields.
+     *
+     * @param array<string,mixed> $input
+     * @return array<string,mixed>
+     */
+    private function normalize_self_user_references(array $input): array {
+        $fields = ['teacherquery', 'selectusersquery', 'bookusersquery'];
+        foreach ($fields as $field) {
+            if (!isset($input[$field]) || !is_string($input[$field])) {
+                continue;
+            }
+
+            $raw = trim($input[$field]);
+            if ($raw === '') {
+                continue;
+            }
+
+            $parts = array_map('trim', explode(',', $raw));
+            $normalizedparts = [];
+            foreach ($parts as $part) {
+                if ($part === '') {
+                    continue;
+                }
+                $normalizedparts[] = $this->is_self_reference_phrase($part)
+                    ? self::CURRENT_USER_TOKEN
+                    : $part;
+            }
+
+            if (!empty($normalizedparts)) {
+                $input[$field] = implode(', ', $normalizedparts);
+            }
+        }
+
+        return $input;
+    }
+
+    /**
+     * Decide whether a phrase refers to the current executor user.
+     *
+     * @param string $value
+     * @return bool
+     */
+    private function is_self_reference_phrase(string $value): bool {
+        $normalized = strtolower(trim($value, " \t\n\r\0\x0B.,;:!?\"'"));
+        $normalized = preg_replace('/\s+/', ' ', $normalized) ?? $normalized;
+
+        $selfrefkeywords = [
+            'me',
+            'myself',
+            'i',
+            'ich',
+            'mich',
+            'current',
+            'current user',
+            'the current user',
+            'currentuser',
+            'aktueller benutzer',
+            'der aktuelle benutzer',
+        ];
+
+        return in_array($normalized, $selfrefkeywords, true);
     }
 
     /**

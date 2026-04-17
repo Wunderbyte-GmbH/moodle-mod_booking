@@ -119,6 +119,15 @@ class ai_render_command_preview extends external_api {
         self::validate_context($context);
         $authz->require_use_capability((int)$USER->id, $params['cmid']);
 
+        // Command preview is a debugging aid and should only be visible when Moodle debug is enabled.
+        if (!self::is_preview_enabled_in_debug_mode()) {
+            return [
+                'success' => true,
+                'html' => '',
+                'message' => '',
+            ];
+        }
+
         // Preview policy: if commands are provided but none are on the previewable-task allowlist,
         // return a silent no-op (empty HTML, no error).  This prevents spurious output for
         // tasks like entities.create_entity that produce no booking-option row.
@@ -395,6 +404,16 @@ class ai_render_command_preview extends external_api {
         }
 
         return (string)$table->outhtml($limit, true);
+    }
+
+    /**
+     * Whether preview rendering is enabled via Moodle debug configuration.
+     *
+     * @return bool
+     */
+    private static function is_preview_enabled_in_debug_mode(): bool {
+        global $CFG;
+        return !empty($CFG->debug);
     }
 
     /**

@@ -71,6 +71,7 @@ $templatedata = [
     'cmid'               => $cmid,
     'threadid'           => $threadid,
     'sesskey'            => sesskey(),
+    'debug_enabled'      => !empty($CFG->debug),
     'provider_available' => $providerstatus,
     'no_provider_msg'    => $providerstatus ? '' : get_string('ai_provider_not_configured', 'mod_booking'),
     'wwwroot'            => $CFG->wwwroot,

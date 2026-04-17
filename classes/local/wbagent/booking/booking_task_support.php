@@ -909,6 +909,7 @@ class booking_task_support {
         $normalizedquery = strtolower(trim((string)$query, " \t\n\r\0\x0B.,;:!?\"'"));
         $normalizedquery = preg_replace('/\s+/', ' ', $normalizedquery) ?? $normalizedquery;
         $selfrefkeywords = [
+            '__current_user__',
             'me',
             'myself',
             'i',

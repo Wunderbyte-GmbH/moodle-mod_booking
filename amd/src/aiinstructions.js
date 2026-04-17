@@ -28,6 +28,7 @@ import Notification from 'core/notification';
 let pendingCommands = null;
 let currentThreadId = 0;
 let currentCmid = 0;
+let debugModeEnabled = false;
 
 /** @type {Array<string>} */
 const READ_ONLY_TASKS = [
@@ -157,37 +158,40 @@ const renderTextWithLinks = (text) => {
 const showConfirmPanel = (message, commands) => {
     pendingCommands = commands;
 
-    const panel   = document.getElementById('booking-ai-confirm-panel');
+    const panel = document.getElementById('booking-ai-confirm-panel');
     const preview = document.getElementById('booking-ai-confirm-preview');
     if (!panel || !preview) {
         return;
     }
 
-    let previewHtml = `<p>${escapeHtml(message)}</p><ul>`;
-    commands.forEach((cmd) => {
-        previewHtml += `<li><strong>${escapeHtml(cmd.task)}</strong>: ${escapeHtml(JSON.stringify(cmd.input))}`;
-        previewHtml += '</li>';
-    });
-    previewHtml += '</ul>';
     preview.innerHTML = '';
-    appendMessageHtml('assistant', previewHtml);
 
-    Ajax.call([{
-        methodname: 'mod_booking_ai_render_command_preview',
-        args: {
-            cmid: currentCmid,
-            commands: JSON.stringify(commands),
-        },
-    }])[0].then((resp) => {
-        if (resp && resp.success && resp.html && resp.html.trim() !== '') {
-            appendMessageHtml('assistant', resp.html);
-        } else if (resp && resp.message) {
-            appendMessage('assistant', String(resp.message));
-        }
-        return resp;
-    }).catch((err) => {
-        appendMessage('assistant', String(err.message || ''));
-    });
+    if (debugModeEnabled) {
+        let previewHtml = `<p>${escapeHtml(message)}</p><ul>`;
+        commands.forEach((cmd) => {
+            previewHtml += `<li><strong>${escapeHtml(cmd.task)}</strong>: ${escapeHtml(JSON.stringify(cmd.input))}`;
+            previewHtml += '</li>';
+        });
+        previewHtml += '</ul>';
+        appendMessageHtml('assistant', previewHtml);
+
+        Ajax.call([{
+            methodname: 'mod_booking_ai_render_command_preview',
+            args: {
+                cmid: currentCmid,
+                commands: JSON.stringify(commands),
+            },
+        }])[0].then((resp) => {
+            if (resp && resp.success && resp.html && resp.html.trim() !== '') {
+                appendMessageHtml('assistant', resp.html);
+            } else if (resp && resp.message) {
+                appendMessage('assistant', String(resp.message));
+            }
+            return resp;
+        }).catch((err) => {
+            appendMessage('assistant', String(err.message || ''));
+        });
+    }
 
     panel.classList.remove('d-none');
 };
@@ -507,6 +511,7 @@ const confirmRun = () => {
 export const init = (config) => {
     currentCmid     = config.cmid || 0;
     currentThreadId = config.threadid || 0;
+    debugModeEnabled = !!config.debug_enabled;
 
     if (!config.provider_available) {
         return;
