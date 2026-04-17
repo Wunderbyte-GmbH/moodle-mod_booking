@@ -71,4 +71,28 @@ class get_current_user_task extends base_booking_task {
             'ambiguities' => [],
         ];
     }
+
+    /**
+     * Execute task.
+     *
+     * @param array<string,mixed> $input
+     * @param int $cmid
+     * @param int $userid
+     * @return array<string,mixed>
+     */
+    public function execute(array $input, int $cmid, int $userid): array {
+        global $USER;
+
+        $user = $USER;
+        $fullname = trim((string)$user->firstname . ' ' . (string)$user->lastname);
+
+        return [
+            'status' => 'executed',
+            'detail' => 'Current user identified.',
+            'resultid' => (int)$user->id,
+            'userid' => (int)$user->id,
+            'email' => (string)$user->email,
+            'fullname' => $fullname,
+        ];
+    }
 }

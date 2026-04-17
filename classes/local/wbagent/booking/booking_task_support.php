@@ -187,15 +187,9 @@ class booking_task_support {
      * @return array
      */
     public function execute(string $taskname, array $input, int $cmid, int $userid): array {
-        $executeservice = new booking_task_execute_service();
-        $readonlyresult = $executeservice->execute($taskname, $input, $cmid, $userid, $this);
-        if (is_array($readonlyresult)) {
-            return $readonlyresult;
-        }
-        $mutationservice = new booking_task_mutation_execute_service();
-        $mutationresult = $mutationservice->execute($taskname, $input, $cmid, $userid, $this);
-        if (is_array($mutationresult)) {
-            return $mutationresult;
+        $task = $this->get_task_instances()[$taskname] ?? null;
+        if ($task) {
+            return $task->execute($input, $cmid, $userid);
         }
 
         return [

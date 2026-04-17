@@ -16,6 +16,8 @@
 
 namespace mod_booking\local\wbagent\booking\tasks;
 
+use mod_booking\local\wbagent\booking\booking_task_support;
+
 /**
  * Task definition for booking.search_users.
  *
@@ -85,6 +87,39 @@ class search_users_task extends base_booking_task {
             'valid' => empty($errors),
             'errors' => $errors,
             'ambiguities' => [],
+        ];
+    }
+
+    /**
+     * Execute task.
+     *
+     * @param array<string,mixed> $input
+     * @param int $cmid
+     * @param int $userid
+     * @return array<string,mixed>
+     */
+    public function execute(array $input, int $cmid, int $userid): array {
+        $query = trim((string)($input['query'] ?? ''));
+        $limit = isset($input['limit']) ? max(1, (int)$input['limit']) : 10;
+
+        if ($query === '') {
+            return ['status' => 'error', 'detail' => 'Field "query" is required.', 'resultid' => null];
+        }
+
+        $users = booking_task_support::search_user_candidates_for_preview($query, $limit);
+        if (empty($users)) {
+            return [
+                'status' => 'executed',
+                'detail' => 'No matching users found.',
+                'resultid' => null,
+            ];
+        }
+
+        $ids = array_map(fn($row) => (int)($row['userid'] ?? 0), $users);
+        return [
+            'status' => 'executed',
+            'detail' => 'Found users: ' . implode(', ', $ids) . '. ' . json_encode($users),
+            'resultid' => (int)($users[0]['userid'] ?? 0),
         ];
     }
 }

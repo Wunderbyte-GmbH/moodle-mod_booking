@@ -16,6 +16,9 @@
 
 namespace mod_booking\local\wbagent\booking\tasks;
 
+use mod_booking\local\wbagent\booking\booking_task_support;
+use mod_booking\local\wbagent\task_registry;
+
 /**
  * Task definition for booking.list_actions.
  *
@@ -105,6 +108,48 @@ class list_actions_task extends base_booking_task {
                     '- Do not map these capability/introspection questions to booking.search_options.',
                 ],
             ],
+        ];
+    }
+
+    /**
+     * Execute task.
+     *
+     * @param array<string,mixed> $input
+     * @param int $cmid
+     * @param int $userid
+     * @return array<string,mixed>
+     */
+    public function execute(array $input, int $cmid, int $userid): array {
+        $scope = strtolower(trim((string)($input['scope'] ?? 'all')));
+        $actions = [];
+        $registry = task_registry::make_default();
+        foreach ($registry->get_task_names() as $name) {
+            if ($scope === 'readonly' && !$registry->is_read_only_task($name)) {
+                continue;
+            }
+            if ($scope === 'mutating' && $registry->is_read_only_task($name)) {
+                continue;
+            }
+
+            $task = $registry->get_task($name);
+            if (!$task) {
+                continue;
+            }
+
+            $schema = $task->get_schema();
+            $actions[] = [
+                'task' => $name,
+                'label' => booking_task_support::get_localized_action_label_for_output($name),
+                'description' => (string)($schema['description'] ?? ''),
+                'readonly' => $task->is_read_only(),
+            ];
+        }
+
+        return [
+            'status' => 'executed',
+            'detail' => '',
+            'resultid' => null,
+            'actions' => $actions,
         ];
     }
 }

@@ -16,6 +16,9 @@
 
 namespace mod_booking\local\wbagent\booking\tasks;
 
+use mod_booking\local\wbagent\booking\booking_task_support;
+use mod_booking\local\wbagent\task_registry;
+
 /**
  * Task definition for booking.list_option_properties.
  *
@@ -82,6 +85,68 @@ class list_option_properties_task extends base_booking_task {
             'valid' => empty($errors),
             'errors' => $errors,
             'ambiguities' => [],
+        ];
+    }
+
+    /**
+     * Execute task.
+     *
+     * @param array<string,mixed> $input
+     * @param int $cmid
+     * @param int $userid
+     * @return array<string,mixed>
+     */
+    public function execute(array $input, int $cmid, int $userid): array {
+        $registry = task_registry::make_default();
+        $createtask = $registry->get_task(create_option_task::TASK_NAME);
+        $updatetask = $registry->get_task(update_option_task::TASK_NAME);
+
+        if (!$createtask || !$updatetask) {
+            return ['status' => 'error', 'detail' => 'Required task schemas are unavailable.', 'resultid' => null];
+        }
+
+        $createschema = $createtask->get_schema();
+        $updateschema = $updatetask->get_schema();
+        $createproperties = (array)($createschema['properties'] ?? []);
+        $updateproperties = (array)($updateschema['properties'] ?? []);
+
+        $scope = strtolower(trim((string)($input['scope'] ?? 'all')));
+        $keys = array_values(array_unique(array_merge(array_keys($createproperties), array_keys($updateproperties))));
+        sort($keys);
+
+        $properties = [];
+        foreach ($keys as $key) {
+            $increate = array_key_exists($key, $createproperties);
+            $inupdate = array_key_exists($key, $updateproperties);
+
+            if ($scope === 'create' && !$increate) {
+                continue;
+            }
+            if ($scope === 'update' && !$inupdate) {
+                continue;
+            }
+            if ($scope === 'shared' && !($increate && $inupdate)) {
+                continue;
+            }
+
+            $source = $createproperties[$key] ?? $updateproperties[$key] ?? [];
+            $properties[] = [
+                'name' => (string)$key,
+                'label' => booking_task_support::get_localized_property_label_for_output((string)$key),
+                'type' => (string)($source['type'] ?? 'mixed'),
+                'description' => (string)($source['description'] ?? ''),
+                'increate' => $increate,
+                'inupdate' => $inupdate,
+                'requiredoncreate' => (bool)($createproperties[$key]['required'] ?? false),
+                'requiredonupdate' => (bool)($updateproperties[$key]['required'] ?? false),
+            ];
+        }
+
+        return [
+            'status' => 'executed',
+            'detail' => '',
+            'resultid' => null,
+            'properties' => $properties,
         ];
     }
 }

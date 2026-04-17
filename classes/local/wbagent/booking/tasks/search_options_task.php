@@ -16,6 +16,8 @@
 
 namespace mod_booking\local\wbagent\booking\tasks;
 
+use mod_booking\local\wbagent\booking\booking_task_support;
+
 /**
  * Task definition for booking.search_options.
  *
@@ -91,6 +93,52 @@ class search_options_task extends base_booking_task {
             'valid' => empty($errors),
             'errors' => $errors,
             'ambiguities' => [],
+        ];
+    }
+
+    /**
+     * Execute task.
+     *
+     * @param array<string,mixed> $input
+     * @param int $cmid
+     * @param int $userid
+     * @return array<string,mixed>
+     */
+    public function execute(array $input, int $cmid, int $userid): array {
+        $query = trim((string)($input['query'] ?? ''));
+        $when = trim((string)($input['when'] ?? ''));
+        $limit = isset($input['limit']) ? max(1, (int)$input['limit']) : ($query === '' ? 50 : 10);
+
+        $rows = booking_task_support::search_option_candidates_for_preview($cmid, $query, $limit, $when);
+        if (empty($rows)) {
+            return [
+                'status' => 'executed',
+                'detail' => 'No matching booking options found.',
+                'resultid' => null,
+            ];
+        }
+
+        $structuredoptions = [];
+        foreach ($rows as $row) {
+            $optionid = (int)($row['optionid'] ?? 0);
+            $name = (string)($row['text'] ?? '');
+            $link = booking_task_support::build_option_link_for_output($cmid, $optionid);
+            $structuredoptions[] = [
+                'id' => $optionid,
+                'name' => $name,
+                'link' => $link,
+            ];
+        }
+
+        return [
+            'status' => 'executed',
+            'detail' => 'Found ' . count($structuredoptions) . ' option(s).',
+            'resultid' => (int)($rows[0]['optionid'] ?? 0),
+            'previewoptionids' => array_values(array_map(
+                static fn(array $row): int => (int)($row['optionid'] ?? 0),
+                $rows
+            )),
+            'options' => $structuredoptions,
         ];
     }
 }

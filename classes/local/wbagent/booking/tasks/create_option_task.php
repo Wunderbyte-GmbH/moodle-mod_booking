@@ -16,6 +16,7 @@
 
 namespace mod_booking\local\wbagent\booking\tasks;
 
+use mod_booking\local\wbagent\booking\booking_task_mutation_execute_service;
 use mod_booking\local\wbagent\booking\booking_task_support;
 use mod_booking\local\wbagent\booking\support\booking_mutation_validation;
 
@@ -116,10 +117,13 @@ class create_option_task extends base_booking_task {
         return [
             [
                 'id' => 'booking.course_teacher',
-                'triggers' => ['course', 'kurs', 'teacher', 'dozent', 'trainer'],
+                'triggers' => ['course', 'kurs', 'teacher', 'dozent', 'trainer', 'lehrer'],
                 'guidance' => [
                     '- Use coursequery to connect an option to a Moodle course.',
                     '- Use teacherquery or teacheremail to assign responsible teacher.',
+                    '- If the user says to assign themselves as teacher (e.g. "me as teacher", "mich als Lehrer"),'
+                        . ' set teacherquery to the current user/self-reference instead of asking for an e-mail address.',
+                    '- Only ask for teacheremail when no resolvable teacher name or self-reference was provided.',
                 ],
             ],
             [
@@ -202,5 +206,27 @@ class create_option_task extends base_booking_task {
      */
     public function verify_persisted_option_state(array $input, object $settings): array {
         return option_input_verification::verify_common_fields($input, $settings);
+    }
+
+    /**
+     * Execute task.
+     *
+     * @param array<string,mixed> $input
+     * @param int $cmid
+     * @param int $userid
+     * @return array<string,mixed>
+     */
+    public function execute(array $input, int $cmid, int $userid): array {
+        $service = new booking_task_mutation_execute_service();
+        $result = $service->execute(self::TASK_NAME, $input, $cmid, $userid, $this->support);
+        if (is_array($result)) {
+            return $result;
+        }
+
+        return [
+            'status' => 'error',
+            'detail' => 'Unknown booking task: ' . self::TASK_NAME,
+            'resultid' => null,
+        ];
     }
 }

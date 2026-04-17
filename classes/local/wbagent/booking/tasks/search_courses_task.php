@@ -16,6 +16,8 @@
 
 namespace mod_booking\local\wbagent\booking\tasks;
 
+use mod_booking\local\wbagent\booking\booking_task_support;
+
 /**
  * Task definition for booking.search_courses.
  *
@@ -85,6 +87,39 @@ class search_courses_task extends base_booking_task {
             'valid' => empty($errors),
             'errors' => $errors,
             'ambiguities' => [],
+        ];
+    }
+
+    /**
+     * Execute task.
+     *
+     * @param array<string,mixed> $input
+     * @param int $cmid
+     * @param int $userid
+     * @return array<string,mixed>
+     */
+    public function execute(array $input, int $cmid, int $userid): array {
+        $query = trim((string)($input['query'] ?? ''));
+        $limit = isset($input['limit']) ? max(1, (int)$input['limit']) : 10;
+
+        if ($query === '') {
+            return ['status' => 'error', 'detail' => 'Field "query" is required.', 'resultid' => null];
+        }
+
+        $courses = booking_task_support::search_course_candidates_for_preview($query, $limit);
+        if (empty($courses)) {
+            return [
+                'status' => 'executed',
+                'detail' => 'No matching courses found.',
+                'resultid' => null,
+            ];
+        }
+
+        $ids = array_map(fn($row) => (int)($row['courseid'] ?? 0), $courses);
+        return [
+            'status' => 'executed',
+            'detail' => 'Found courses: ' . implode(', ', $ids) . '. ' . json_encode($courses),
+            'resultid' => (int)($courses[0]['courseid'] ?? 0),
         ];
     }
 }
