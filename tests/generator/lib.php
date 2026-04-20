@@ -23,8 +23,6 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use core\lock\lock;
-use local_shopping_cart\local\vatnrchecker;
 use mod_booking\bo_availability\conditions\booking_time;
 use mod_booking\booking;
 use mod_booking\booking_rules\booking_rules;
@@ -124,6 +122,7 @@ class mod_booking_generator extends testing_module_generator {
         userprofilefield_1_default::reset_instance();
         userprofilefield_2_custom::reset_instance();
         booking_rules::$rules = [];
+        booking_time::destroy_instances(); //??
         // Slotbooking static caches.
         slot_availability::reset_caches();
         slot_rules::reset_caches();

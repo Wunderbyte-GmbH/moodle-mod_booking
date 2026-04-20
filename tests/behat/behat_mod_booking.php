@@ -111,7 +111,7 @@ class behat_mod_booking extends behat_base {
 
         $booking = $DB->get_record('booking', ['name' => $bookingname], '*', IGNORE_MISSING);
         if (!$booking) {
-            throw new \dml_missing_record_exception('booking', ['name' => $bookingname]);
+            throw new \dml_missing_record_exception('booking', '', ['name' => $bookingname]);
         }
 
         // Name collisions can happen across sequential scenarios; prefer the newest instance.
