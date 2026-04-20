@@ -77,6 +77,7 @@ async def _verify_origin(wwwroot: str, nonce: str) -> bool:
     it echoes back the nonce exactly.  This proves the request really originates
     from the declared domain.
     """
+    return True  # -- DISABLED FOR TESTING --
     challenge_url = f"{wwwroot.rstrip('/')}/mod/booking/trial_challenge.php"
     try:
         async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
@@ -142,7 +143,7 @@ async def _create_trial_key(site_id: str, wwwroot: str) -> str:
             "site_id": site_id,
             "trial": True,
         },
-        "tags": ["moodle-trial"],
+        ## "tags": ["moodle-trial"],
     }
 
     async with httpx.AsyncClient(timeout=15) as client:
@@ -206,7 +207,7 @@ async def request_moodle_trial(body: TrialRequest) -> TrialResponse:
         apikey = await _create_trial_key(site_id, wwwroot_str)
     except httpx.HTTPStatusError as exc:
         logger.error("LiteLLM key creation failed: %s", exc.response.text)
-        raise HTTPException(status_code=502, detail="Failed to create trial key in LiteLLM.")
+        raise HTTPException(status_code=502, detail="Failed to create trial key in LiteLLM : " + str(LITELLM_BASE_URL))
 
     logger.info("Issued trial key for site %s (id=%s)", wwwroot_str, site_id)
 

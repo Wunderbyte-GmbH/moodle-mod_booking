@@ -64,6 +64,9 @@ class request_trial_key extends external_api {
     /** URL of the Wunderbyte trial issuing endpoint. */
     public const TRIAL_ENDPOINT = 'https://llm.wunderbyte.at/api/moodle-trial';
 
+    /** Public base URL used by Moodle for inference requests. */
+    public const PROVIDER_BASE_URL = 'https://llm.wunderbyte.at';
+
     /** Provider name stored in ai_providers.name so we can find it later. */
     public const PROVIDER_NAME = 'Wunderbyte';
 
@@ -139,7 +142,7 @@ class request_trial_key extends external_api {
         // ----------------------------------------------------------------
         // 3. Validate server response.
         // ----------------------------------------------------------------
-        if (empty($data['apikey']) || empty($data['endpoint'])) {
+        if (empty($data['apikey'])) {
             $servermsg = $data['message'] ?? $data['error'] ?? get_string('aitrial_unexpected_response', 'mod_booking');
 
             if (preg_match('/token\s+expired|expired\s+token/i', (string)$servermsg)) {
@@ -153,9 +156,8 @@ class request_trial_key extends external_api {
             return ['success' => false, 'message' => $servermsg];
         }
 
-        $apikey   = (string) $data['apikey'];
-        $endpoint = rtrim((string) $data['endpoint'], '/');
-        $model    = (string) ($data['model'] ?? 'wunderbyte-trial');
+        $apikey = (string) $data['apikey'];
+        $model  = (string) ($data['model'] ?? 'wunderbyte-trial');
 
         // ----------------------------------------------------------------
         // 4. Find or create the "Wunderbyte" core_ai provider instance.
@@ -180,7 +182,7 @@ class request_trial_key extends external_api {
             generate_text::class => [
                 'enabled'  => true,
                 'settings' => [
-                    'endpoint'          => $endpoint . '/chat/completions',
+                    'endpoint'          => self::PROVIDER_BASE_URL . '/chat/completions',
                     'model'             => $model,
                     'systeminstruction' => '',
                 ],
