@@ -522,6 +522,12 @@ const buildFriendlyRunMessage = (status, message, results = []) => {
         return isGenericStatusMessage(safeMessage) ? '' : safeMessage;
     }
 
+    // For final run states, prefer the top-level backend message first.
+    // It already reflects output language and final summarization policy.
+    if (!isGenericStatusMessage(safeMessage)) {
+        return safeMessage;
+    }
+
     const first = Array.isArray(results) && results.length > 0 ? (results[0] || {}) : {};
 
     const userMessage = String(first.usermessage || '').trim();
@@ -537,10 +543,6 @@ const buildFriendlyRunMessage = (status, message, results = []) => {
     const detail = String(first.detail || '').trim();
     if (!isGenericStatusMessage(detail)) {
         return detail;
-    }
-
-    if (!isGenericStatusMessage(safeMessage)) {
-        return safeMessage;
     }
 
     return safeStatus === 'failed'

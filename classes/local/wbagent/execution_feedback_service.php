@@ -70,14 +70,13 @@ class execution_feedback_service {
         array $results,
         string $outputlang = ''
     ): array {
-        $message = $this->extract_task_user_message($results);
-        if ($message === '') {
-            $message = $this->generate_llm_feedback($threadid, $cmid, $userid, $commands, $results, $outputlang);
-        }
+        // Always generate the final user-facing message through the feedback layer
+        // so language policy is consistently enforced (same language as user input).
+        $message = $this->generate_llm_feedback($threadid, $cmid, $userid, $commands, $results, $outputlang);
 
         return [
             'message' => $message,
-            'results' => $this->sanitize_results_for_client($results),
+            'results' => $this->sanitize_results_for_client($results, $outputlang),
         ];
     }
 
@@ -201,7 +200,7 @@ class execution_feedback_service {
      * @param array<int,array<string,mixed>> $results
      * @return array<int,array<string,mixed>>
      */
-    private function sanitize_results_for_client(array $results): array {
+    private function sanitize_results_for_client(array $results, string $outputlang = ''): array {
         $sanitized = [];
         foreach ($results as $result) {
             if (!is_array($result)) {
@@ -210,11 +209,19 @@ class execution_feedback_service {
 
             $entry = [
                 'status' => (string)($result['status'] ?? ''),
-                'detail' => $this->sanitize_result_detail($result),
+                'detail' => $this->sanitize_result_detail($result, $outputlang),
                 'resultid' => isset($result['resultid']) ? (int)$result['resultid'] : null,
             ];
 
-            if (isset($result['usermessage']) && is_string($result['usermessage']) && trim($result['usermessage']) !== '') {
+            // Only pass task-authored user text through directly when no explicit output language
+            // was requested (legacy/internal paths). Otherwise, frontend should use the normalized
+            // top-level completion message to preserve language consistency.
+            if (
+                $outputlang === ''
+                && isset($result['usermessage'])
+                && is_string($result['usermessage'])
+                && trim($result['usermessage']) !== ''
+            ) {
                 $entry['usermessage'] = trim($result['usermessage']);
             }
 
@@ -258,7 +265,12 @@ class execution_feedback_service {
                 $entry['capabilities'] = $result['capabilities'];
             }
 
-            if (isset($result['summary']) && is_string($result['summary']) && trim($result['summary']) !== '') {
+            if (
+                $outputlang === ''
+                && isset($result['summary'])
+                && is_string($result['summary'])
+                && trim($result['summary']) !== ''
+            ) {
                 $entry['summary'] = trim($result['summary']);
             }
 
@@ -274,29 +286,59 @@ class execution_feedback_service {
      * @param array<string,mixed> $result
      * @return string
      */
-    private function sanitize_result_detail(array $result): string {
+    private function sanitize_result_detail(array $result, string $outputlang = ''): string {
+        $isgerman = strpos(strtolower($outputlang), 'de') === 0;
+
+        if (isset($result['diagnosis']) && is_array($result['diagnosis'])) {
+            $optionname = trim((string)($result['diagnosis']['optionname'] ?? ''));
+            if ($optionname !== '') {
+                return $isgerman
+                    ? ('Ich habe die Situation fuer die Buchungsoption "' . $optionname . '" analysiert.')
+                    : ('I analyzed the situation for booking option "' . $optionname . '".');
+            }
+
+            return $isgerman
+                ? 'Ich habe die Buchungssituation analysiert.'
+                : 'I analyzed the booking situation.';
+        }
+
         $usermessage = trim((string)($result['usermessage'] ?? ''));
-        if ($usermessage !== '') {
+        if ($usermessage !== '' && $outputlang === '') {
             return $usermessage;
         }
 
         if (isset($result['users']) && is_array($result['users'])) {
             $count = count($result['users']);
-            return $count === 0 ? 'No matching users found.' : 'Found ' . $count . ' matching user(s).';
+            if ($count === 0) {
+                return $isgerman ? 'Keine passenden Nutzer gefunden.' : 'No matching users found.';
+            }
+            return $isgerman
+                ? ('Es wurden ' . $count . ' passende Nutzer gefunden.')
+                : ('Found ' . $count . ' matching user(s).');
         }
 
         if (isset($result['courses']) && is_array($result['courses'])) {
             $count = count($result['courses']);
-            return $count === 0 ? 'No matching courses found.' : 'Found ' . $count . ' matching course(s).';
+            if ($count === 0) {
+                return $isgerman ? 'Keine passenden Kurse gefunden.' : 'No matching courses found.';
+            }
+            return $isgerman
+                ? ('Es wurden ' . $count . ' passende Kurse gefunden.')
+                : ('Found ' . $count . ' matching course(s).');
         }
 
         if (isset($result['options']) && is_array($result['options'])) {
             $count = count($result['options']);
-            return $count === 0 ? 'No matching booking options found.' : 'Found ' . $count . ' option(s).';
+            if ($count === 0) {
+                return $isgerman ? 'Keine passende Buchungsoption gefunden.' : 'No matching booking options found.';
+            }
+            return $isgerman
+                ? ('Es wurden ' . $count . ' Buchungsoption(en) gefunden.')
+                : ('Found ' . $count . ' option(s).');
         }
 
         if (array_key_exists('fullname', $result) || array_key_exists('email', $result)) {
-            return 'Current user identified.';
+            return $isgerman ? 'Aktueller Nutzer identifiziert.' : 'Current user identified.';
         }
 
         if (!empty($result['capabilities']) && is_array($result['capabilities'])) {
@@ -306,7 +348,16 @@ class execution_feedback_service {
             }
         }
 
-        return trim((string)($result['detail'] ?? ''));
+        $detail = trim((string)($result['detail'] ?? ''));
+        if ($detail !== '' && $outputlang === '') {
+            return $detail;
+        }
+
+        if ($detail !== '' && $outputlang !== '') {
+            return $isgerman ? 'Die Aktion wurde ausgefuehrt.' : 'The action was executed.';
+        }
+
+        return $isgerman ? 'Die Aktion wurde ausgefuehrt.' : 'The action was executed.';
     }
 
     /**
@@ -403,4 +454,3 @@ class execution_feedback_service {
         return $defaultmessage;
     }
 }
-
