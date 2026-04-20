@@ -79,6 +79,11 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
                     'description' => 'Optional issue type: booking_status, missing_email, cannot_book.',
                     'required' => false,
                 ],
+                'outputlang' => [
+                    'type' => 'string',
+                    'description' => 'Optional language code for localized task strings, e.g. de or en.',
+                    'required' => false,
+                ],
             ],
         ];
     }
@@ -135,13 +140,14 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
     public function validate(array $input, int $cmid): array {
         $errors = [];
         $ambiguities = [];
+        $lang = $this->get_output_language($input);
 
         $question = trim((string)($input['question'] ?? ''));
         if ($question === '') {
-            $errors[] = 'Field "question" is required for diagnose_booking_issue.';
+            $errors[] = $this->localized_string('agent_booking_diagnose_required_question', null, $lang);
         }
 
-        $optionvalidation = $this->validate_option_reference($input, $cmid);
+        $optionvalidation = $this->validate_option_reference($input, $cmid, $lang);
         $errors = array_merge($errors, $optionvalidation['errors']);
         $ambiguities = array_merge($ambiguities, $optionvalidation['ambiguities']);
 
@@ -162,13 +168,15 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
      */
     public function execute(array $input, int $cmid, int $userid): array {
         global $DB;
+        $lang = $this->get_output_language($input);
 
         $issuetype = $this->resolve_issue_type($input);
-        $resolvedoption = $this->resolve_option_id($input, $cmid, $userid);
+        $resolvedoption = $this->resolve_option_id($input, $cmid, $userid, $lang);
         if (($resolvedoption['status'] ?? '') !== 'ok') {
             return [
                 'status' => 'error',
-                'detail' => (string)($resolvedoption['message'] ?? 'Could not resolve booking option.'),
+                'detail' => (string)($resolvedoption['message']
+                    ?? $this->localized_string('agent_booking_diagnose_error_option_resolve', null, $lang)),
                 'resultid' => null,
                 'debugmessage' => $this->build_task_debug_message(self::TASK_NAME, $input, ['Status: error']),
             ];
@@ -182,8 +190,8 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
         $optionstats = $this->collect_option_stats($bookingid, $optionid, $userid, $settings);
 
         $userstatus = (string)$optionstats['userstatus'];
-        $reasons = $this->build_reason_lines($issuetype, $optionstats, $conditionresults);
-        $usermessage = $this->build_user_message($issuetype, $optionname, $userstatus, $reasons);
+        $reasons = $this->build_reason_lines($issuetype, $optionstats, $conditionresults, $lang);
+        $usermessage = $this->build_user_message($issuetype, $optionname, $userstatus, $reasons, $lang);
 
         return [
             'status' => 'executed',
@@ -273,7 +281,7 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
      * @param int $cmid
      * @return array{errors:array<int,string>,ambiguities:array<int,string>}
      */
-    private function validate_option_reference(array $input, int $cmid): array {
+    private function validate_option_reference(array $input, int $cmid, string $lang = ''): array {
         $errors = [];
         $ambiguities = [];
 
@@ -281,7 +289,7 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
         $optionquery = trim((string)($input['optionquery'] ?? ''));
 
         if ($optionid <= 0 && $optionquery === '') {
-            $ambiguities[] = 'Which booking option do you mean? Please provide the option title or option id.';
+            $ambiguities[] = $this->localized_string('agent_booking_diagnose_ambiguity_option_required', null, $lang);
             return ['errors' => $errors, 'ambiguities' => $ambiguities];
         }
 
@@ -295,9 +303,11 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
 
         $resolved = booking_task_support::resolve_single_option($cmid, $optionquery, '');
         if (($resolved['status'] ?? '') === 'ambiguity') {
-            $ambiguities[] = (string)($resolved['message'] ?? 'Please specify the option more precisely.');
+            $ambiguities[] = (string)($resolved['message']
+                ?? $this->localized_string('agent_booking_diagnose_ambiguity_option_specify', null, $lang));
         } else if (($resolved['status'] ?? '') === 'error') {
-            $errors[] = (string)($resolved['message'] ?? 'Could not resolve booking option.');
+            $errors[] = (string)($resolved['message']
+                ?? $this->localized_string('agent_booking_diagnose_error_option_resolve', null, $lang));
         }
 
         return ['errors' => $errors, 'ambiguities' => $ambiguities];
@@ -311,7 +321,7 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
      * @param int $userid
      * @return array<string,mixed>
      */
-    private function resolve_option_id(array $input, int $cmid, int $userid): array {
+    private function resolve_option_id(array $input, int $cmid, int $userid, string $lang = ''): array {
         global $DB;
 
         $optionid = (int)($input['optionid'] ?? 0);
@@ -320,12 +330,18 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
             if ($DB->record_exists('booking_options', ['id' => $optionid, 'bookingid' => (int)$cm->instance])) {
                 return ['status' => 'ok', 'optionid' => $optionid];
             }
-            return ['status' => 'error', 'message' => 'The provided optionid does not belong to this booking instance.'];
+            return [
+                'status' => 'error',
+                'message' => $this->localized_string('agent_booking_diagnose_error_option_not_in_instance', null, $lang),
+            ];
         }
 
         $optionquery = trim((string)($input['optionquery'] ?? ''));
         if ($optionquery === '') {
-            return ['status' => 'ambiguity', 'message' => 'Please provide the booking option title or id.'];
+            return [
+                'status' => 'ambiguity',
+                'message' => $this->localized_string('agent_booking_diagnose_ambiguity_option_title_or_id', null, $lang),
+            ];
         }
 
         if (booking_task_support::is_last_option_reference($optionquery)) {
@@ -334,9 +350,15 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
                 return ['status' => 'ok', 'optionid' => (int)$lastids[0]];
             }
             if (count($lastids) > 1) {
-                return ['status' => 'ambiguity', 'message' => 'Your last preview contains multiple options. Please tell me which one you mean.'];
+                return [
+                    'status' => 'ambiguity',
+                    'message' => $this->localized_string('agent_booking_diagnose_ambiguity_last_preview_multiple', null, $lang),
+                ];
             }
-            return ['status' => 'error', 'message' => 'There is no recent previewed option to refer to.'];
+            return [
+                'status' => 'error',
+                'message' => $this->localized_string('agent_booking_diagnose_error_last_preview_none', null, $lang),
+            ];
         }
 
         return booking_task_support::resolve_single_option($cmid, $optionquery, '');
@@ -416,40 +438,40 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
      * @param array<int,array<string,mixed>> $conditionresults
      * @return array<int,string>
      */
-    private function build_reason_lines(string $issuetype, array $optionstats, array $conditionresults): array {
+    private function build_reason_lines(string $issuetype, array $optionstats, array $conditionresults, string $lang = ''): array {
         $reasons = [];
         $userstatus = (string)($optionstats['userstatus'] ?? 'notbooked');
 
         if ($issuetype === 'booking_status') {
             if ($userstatus === 'booked') {
-                $reasons[] = 'You already have a confirmed booking for this option.';
+                $reasons[] = $this->localized_string('agent_booking_diagnose_reason_status_booked', null, $lang);
             } else if ($userstatus === 'waitinglist') {
-                $reasons[] = 'You are currently on the waiting list for this option.';
+                $reasons[] = $this->localized_string('agent_booking_diagnose_reason_status_waitinglist', null, $lang);
             } else if ($userstatus === 'reserved') {
-                $reasons[] = 'You currently have only a reservation, not a confirmed booking.';
+                $reasons[] = $this->localized_string('agent_booking_diagnose_reason_status_reserved', null, $lang);
             } else if ($userstatus === 'notifylist') {
-                $reasons[] = 'You are on the notify-me list, but not booked for this option.';
+                $reasons[] = $this->localized_string('agent_booking_diagnose_reason_status_notifylist', null, $lang);
             } else {
-                $reasons[] = 'There is no booking record for you on this option right now.';
+                $reasons[] = $this->localized_string('agent_booking_diagnose_reason_status_notbooked', null, $lang);
             }
         }
 
         if ($issuetype === 'cannot_book' || $issuetype === 'booking_status') {
             if ($userstatus === 'booked') {
-                $reasons[] = 'You are already booked, so another normal booking is not available.';
+                $reasons[] = $this->localized_string('agent_booking_diagnose_reason_cannot_book_already_booked', null, $lang);
             }
 
             if (!empty($optionstats['fullybooked'])) {
-                $reasons[] = 'The option is currently fully booked.';
+                $reasons[] = $this->localized_string('agent_booking_diagnose_reason_cannot_book_fully_booked', null, $lang);
             }
 
             if ((int)($optionstats['maxoverbooking'] ?? 0) === 0 && !empty($optionstats['fullybooked'])) {
-                $reasons[] = 'This option does not offer a waiting list.';
+                $reasons[] = $this->localized_string('agent_booking_diagnose_reason_cannot_book_no_waitinglist', null, $lang);
             } else if ((int)($optionstats['maxoverbooking'] ?? 0) > 0) {
                 if (!empty($optionstats['waitinglistfull'])) {
-                    $reasons[] = 'The waiting list is also full.';
+                    $reasons[] = $this->localized_string('agent_booking_diagnose_reason_cannot_book_waitinglist_full', null, $lang);
                 } else if (!empty($optionstats['fullybooked'])) {
-                    $reasons[] = 'The main places are full, but there is still room on the waiting list.';
+                    $reasons[] = $this->localized_string('agent_booking_diagnose_reason_cannot_book_waitinglist_available', null, $lang);
                 }
             }
 
@@ -463,19 +485,19 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
 
         if ($issuetype === 'missing_email') {
             if ($userstatus === 'booked') {
-                $reasons[] = 'You are booked for this option, so the missing email is not explained by a missing booking record.';
+                $reasons[] = $this->localized_string('agent_booking_diagnose_reason_missing_email_booked', null, $lang);
             } else if ($userstatus === 'waitinglist') {
-                $reasons[] = 'You are on the waiting list, which may trigger different notifications than a confirmed booking.';
+                $reasons[] = $this->localized_string('agent_booking_diagnose_reason_missing_email_waitinglist', null, $lang);
             } else {
-                $reasons[] = 'You are not currently booked for this option.';
+                $reasons[] = $this->localized_string('agent_booking_diagnose_reason_missing_email_not_booked', null, $lang);
             }
-            $reasons[] = 'This self-service check cannot prove whether an email was actually sent or delivered.';
-            $reasons[] = 'If needed, a manager can inspect booking mail templates, rules, and the scheduled mail queue.';
+            $reasons[] = $this->localized_string('agent_booking_diagnose_reason_missing_email_limitations', null, $lang);
+            $reasons[] = $this->localized_string('agent_booking_diagnose_reason_missing_email_manager_check', null, $lang);
         }
 
         $reasons = array_values(array_unique(array_filter(array_map('trim', $reasons))));
         if (empty($reasons)) {
-            $reasons[] = 'No specific blocking reason could be derived from the current booking state.';
+            $reasons[] = $this->localized_string('agent_booking_diagnose_reason_none', null, $lang);
         }
 
         return $reasons;
@@ -490,15 +512,22 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
      * @param array<int,string> $reasons
      * @return string
      */
-    private function build_user_message(string $issuetype, string $optionname, string $userstatus, array $reasons): string {
-        $intro = 'I checked your booking situation for "' . $optionname . '".';
+    private function build_user_message(
+        string $issuetype,
+        string $optionname,
+        string $userstatus,
+        array $reasons,
+        string $lang = ''
+    ): string {
+        $intro = $this->localized_string('agent_booking_diagnose_intro_checked_option', $optionname, $lang);
 
         if ($issuetype === 'missing_email') {
-            $intro .= ' Here is what I can confirm about the email question:';
+            $intro .= ' ' . $this->localized_string('agent_booking_diagnose_intro_missing_email', null, $lang);
         } else if ($issuetype === 'cannot_book') {
-            $intro .= ' Here is why booking may currently fail:';
+            $intro .= ' ' . $this->localized_string('agent_booking_diagnose_intro_cannot_book', null, $lang);
         } else {
-            $intro .= ' Your current status is ' . $userstatus . '.';
+            $statuslabel = $this->localized_string('agent_booking_diagnose_status_' . $userstatus, null, $lang);
+            $intro .= ' ' . $this->localized_string('agent_booking_diagnose_intro_status', $statuslabel, $lang);
         }
 
         $lines = array_map(static fn(string $reason): string => '- ' . $reason, $reasons);

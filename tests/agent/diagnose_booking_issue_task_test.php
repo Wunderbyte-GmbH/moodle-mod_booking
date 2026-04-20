@@ -173,4 +173,71 @@ final class diagnose_booking_issue_task_test extends abstract_agent_testcase {
         $this->assertSame('missing_email', (string)($result['diagnosis']['issue'] ?? ''));
         $this->assertStringContainsString('cannot prove whether an email was actually sent', (string)($result['detail'] ?? ''));
     }
+
+    /**
+     * Diagnose output is localized to German when current language is de.
+     */
+    public function test_diagnose_output_is_localized_for_german(): void {
+        $option = $this->create_generated_option('Diagnose Deutsch');
+
+        $result = $this->exec_command('booking.diagnose_booking_issue', [
+            'question' => 'Warum kann ich mich bei Diagnose Deutsch nicht eintragen?',
+            'optionquery' => 'Diagnose Deutsch',
+            'outputlang' => 'de',
+        ]);
+
+        $this->assertSame('executed', $result['status']);
+        $detail = (string)($result['detail'] ?? '');
+        $expectedintro = get_string_manager()->get_string(
+            'agent_booking_diagnose_intro_checked_option',
+            'mod_booking',
+            'Diagnose Deutsch',
+            'de'
+        );
+        $this->assertStringContainsString($expectedintro, $detail);
+    }
+
+    /**
+     * Validation ambiguity is localized to German when current language is de.
+     */
+    public function test_validate_ambiguity_is_localized_for_german(): void {
+        $task = new diagnose_booking_issue_task();
+
+        $result = $task->validate([
+            'question' => 'Warum kann ich mich nicht eintragen?',
+            'outputlang' => 'de',
+        ], (int)$this->booking->cmid);
+
+        $this->assertFalse($result['valid']);
+        $this->assertNotEmpty($result['ambiguities']);
+        $expectedambiguity = get_string_manager()->get_string(
+            'agent_booking_diagnose_ambiguity_option_required',
+            'mod_booking',
+            null,
+            'de'
+        );
+        $this->assertSame($expectedambiguity, (string)$result['ambiguities'][0]);
+    }
+
+    /**
+     * Diagnose output honors explicit outputlang in task input.
+     */
+    public function test_diagnose_output_honors_outputlang_override(): void {
+        $option = $this->create_generated_option('Diagnose Outputlang');
+
+        $result = $this->exec_command('booking.diagnose_booking_issue', [
+            'question' => 'Warum kann ich mich bei Diagnose Outputlang nicht eintragen?',
+            'optionquery' => 'Diagnose Outputlang',
+            'outputlang' => 'de',
+        ]);
+
+        $this->assertSame('executed', $result['status']);
+        $expectedintro = get_string_manager()->get_string(
+            'agent_booking_diagnose_intro_checked_option',
+            'mod_booking',
+            'Diagnose Outputlang',
+            'de'
+        );
+        $this->assertStringContainsString($expectedintro, (string)($result['detail'] ?? ''));
+    }
 }

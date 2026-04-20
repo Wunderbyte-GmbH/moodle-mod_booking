@@ -109,6 +109,57 @@ $string['agent_booking_update_permission_check_failed'] =
 $string['agent_booking_update_permission_denied_generic'] = 'You cannot update one or more requested fields.';
 $string['agent_booking_update_permission_denied_groups'] =
     'You are not allowed to update these field groups in this booking context: {$a}.';
+$string['agent_booking_diagnose_required_question'] = 'Field "question" is required for diagnose_booking_issue.';
+$string['agent_booking_diagnose_ambiguity_option_required'] =
+    'Which booking option do you mean? Please provide the option title or option id.';
+$string['agent_booking_diagnose_ambiguity_option_specify'] = 'Please specify the option more precisely.';
+$string['agent_booking_diagnose_error_option_resolve'] = 'Could not resolve booking option.';
+$string['agent_booking_diagnose_error_option_not_in_instance'] =
+    'The provided optionid does not belong to this booking instance.';
+$string['agent_booking_diagnose_ambiguity_option_title_or_id'] =
+    'Please provide the booking option title or id.';
+$string['agent_booking_diagnose_ambiguity_last_preview_multiple'] =
+    'Your last preview contains multiple options. Please tell me which one you mean.';
+$string['agent_booking_diagnose_error_last_preview_none'] =
+    'There is no recent previewed option to refer to.';
+$string['agent_booking_diagnose_reason_status_booked'] =
+    'You already have a confirmed booking for this option.';
+$string['agent_booking_diagnose_reason_status_waitinglist'] =
+    'You are currently on the waiting list for this option.';
+$string['agent_booking_diagnose_reason_status_reserved'] =
+    'You currently have only a reservation, not a confirmed booking.';
+$string['agent_booking_diagnose_reason_status_notifylist'] =
+    'You are on the notify-me list, but not booked for this option.';
+$string['agent_booking_diagnose_reason_status_notbooked'] =
+    'There is no booking record for you on this option right now.';
+$string['agent_booking_diagnose_reason_cannot_book_already_booked'] =
+    'You are already booked, so another normal booking is not available.';
+$string['agent_booking_diagnose_reason_cannot_book_fully_booked'] = 'The option is currently fully booked.';
+$string['agent_booking_diagnose_reason_cannot_book_no_waitinglist'] =
+    'This option does not offer a waiting list.';
+$string['agent_booking_diagnose_reason_cannot_book_waitinglist_full'] = 'The waiting list is also full.';
+$string['agent_booking_diagnose_reason_cannot_book_waitinglist_available'] =
+    'The main places are full, but there is still room on the waiting list.';
+$string['agent_booking_diagnose_reason_missing_email_booked'] =
+    'You are booked for this option, so the missing email is not explained by a missing booking record.';
+$string['agent_booking_diagnose_reason_missing_email_waitinglist'] =
+    'You are on the waiting list, which may trigger different notifications than a confirmed booking.';
+$string['agent_booking_diagnose_reason_missing_email_not_booked'] = 'You are not currently booked for this option.';
+$string['agent_booking_diagnose_reason_missing_email_limitations'] =
+    'This self-service check cannot prove whether an email was actually sent or delivered.';
+$string['agent_booking_diagnose_reason_missing_email_manager_check'] =
+    'If needed, a manager can inspect booking mail templates, rules, and the scheduled mail queue.';
+$string['agent_booking_diagnose_reason_none'] =
+    'No specific blocking reason could be derived from the current booking state.';
+$string['agent_booking_diagnose_intro_checked_option'] = 'I checked your booking situation for "{$a}".';
+$string['agent_booking_diagnose_intro_missing_email'] = 'Here is what I can confirm about the email question:';
+$string['agent_booking_diagnose_intro_cannot_book'] = 'Here is why booking may currently fail:';
+$string['agent_booking_diagnose_intro_status'] = 'Your current status is {$a}.';
+$string['agent_booking_diagnose_status_booked'] = 'booked';
+$string['agent_booking_diagnose_status_waitinglist'] = 'waiting list';
+$string['agent_booking_diagnose_status_reserved'] = 'reserved';
+$string['agent_booking_diagnose_status_notifylist'] = 'notify list';
+$string['agent_booking_diagnose_status_notbooked'] = 'not booked';
 $string['alertrecalculate'] = '<b>Caution!</b> All prices will be recalculated and all old prices will be overwritten.';
 $string['allbookingoptions'] = 'Download users for all booking options';
 $string['allchangessaved'] = 'All changes have been saved.';

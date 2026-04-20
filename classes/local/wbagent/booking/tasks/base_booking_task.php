@@ -143,4 +143,31 @@ abstract class base_booking_task extends base_task {
         }
         return implode("\n", $lines);
     }
+
+    /**
+     * Resolve preferred output language from task input.
+     *
+     * @param array<string,mixed> $input
+     * @return string
+     */
+    protected function get_output_language(array $input): string {
+        return trim((string)($input['outputlang'] ?? ''));
+    }
+
+    /**
+     * Read a localized string, optionally forcing a specific output language.
+     *
+     * @param string $identifier
+     * @param mixed $a
+     * @param string $lang
+     * @return string
+     */
+    protected function localized_string(string $identifier, $a = null, string $lang = ''): string {
+        $targetlang = trim($lang);
+        if ($targetlang === '') {
+            return get_string($identifier, 'mod_booking', $a);
+        }
+
+        return get_string_manager()->get_string($identifier, 'mod_booking', $a, $targetlang);
+    }
 }

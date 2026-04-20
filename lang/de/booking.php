@@ -108,6 +108,67 @@ $string['agent_booking_update_permission_denied_generic'] =
     'Sie duerfen ein oder mehrere angeforderte Felder nicht bearbeiten.';
 $string['agent_booking_update_permission_denied_groups'] =
     'Sie duerfen diese Feldgruppen in diesem Buchungskontext nicht bearbeiten: {$a}.';
+$string['agent_booking_diagnose_required_question'] =
+    'Das Feld "question" ist fuer diagnose_booking_issue erforderlich.';
+$string['agent_booking_diagnose_ambiguity_option_required'] =
+    'Welche Buchungsoption meinen Sie? Bitte geben Sie den Titel oder die ID der Option an.';
+$string['agent_booking_diagnose_ambiguity_option_specify'] =
+    'Bitte praezisieren Sie die Buchungsoption.';
+$string['agent_booking_diagnose_error_option_resolve'] =
+    'Die Buchungsoption konnte nicht aufgeloest werden.';
+$string['agent_booking_diagnose_error_option_not_in_instance'] =
+    'Die angegebene optionid gehoert nicht zu dieser Buchungsinstanz.';
+$string['agent_booking_diagnose_ambiguity_option_title_or_id'] =
+    'Bitte geben Sie den Titel oder die ID der Buchungsoption an.';
+$string['agent_booking_diagnose_ambiguity_last_preview_multiple'] =
+    'Ihre letzte Vorschau enthaelt mehrere Optionen. Bitte sagen Sie mir, welche Sie meinen.';
+$string['agent_booking_diagnose_error_last_preview_none'] =
+    'Es gibt keine kuerzlich vorgeschlagene Option, auf die verwiesen werden kann.';
+$string['agent_booking_diagnose_reason_status_booked'] =
+    'Sie haben fuer diese Option bereits eine bestaetigte Buchung.';
+$string['agent_booking_diagnose_reason_status_waitinglist'] =
+    'Sie stehen fuer diese Option aktuell auf der Warteliste.';
+$string['agent_booking_diagnose_reason_status_reserved'] =
+    'Sie haben derzeit nur eine Reservierung, aber keine bestaetigte Buchung.';
+$string['agent_booking_diagnose_reason_status_notifylist'] =
+    'Sie stehen auf der Benachrichtigungsliste, sind aber nicht gebucht.';
+$string['agent_booking_diagnose_reason_status_notbooked'] =
+    'Fuer Sie existiert derzeit kein Buchungseintrag fuer diese Option.';
+$string['agent_booking_diagnose_reason_cannot_book_already_booked'] =
+    'Sie sind bereits gebucht, daher ist eine weitere normale Buchung nicht verfuegbar.';
+$string['agent_booking_diagnose_reason_cannot_book_fully_booked'] =
+    'Die Option ist derzeit voll belegt.';
+$string['agent_booking_diagnose_reason_cannot_book_no_waitinglist'] =
+    'Diese Option bietet keine Warteliste an.';
+$string['agent_booking_diagnose_reason_cannot_book_waitinglist_full'] =
+    'Die Warteliste ist ebenfalls voll.';
+$string['agent_booking_diagnose_reason_cannot_book_waitinglist_available'] =
+    'Die regulaeren Plaetze sind voll, aber auf der Warteliste sind noch Plaetze frei.';
+$string['agent_booking_diagnose_reason_missing_email_booked'] =
+    'Sie sind fuer diese Option gebucht; eine fehlende Buchung erklaert die fehlende E-Mail daher nicht.';
+$string['agent_booking_diagnose_reason_missing_email_waitinglist'] =
+    'Sie stehen auf der Warteliste, wodurch andere Benachrichtigungen als bei einer bestaetigten Buchung moeglich sind.';
+$string['agent_booking_diagnose_reason_missing_email_not_booked'] =
+    'Sie sind fuer diese Option derzeit nicht gebucht.';
+$string['agent_booking_diagnose_reason_missing_email_limitations'] =
+    'Diese Selbstpruefung kann nicht nachweisen, ob eine E-Mail tatsaechlich gesendet oder zugestellt wurde.';
+$string['agent_booking_diagnose_reason_missing_email_manager_check'] =
+    'Bei Bedarf kann eine verantwortliche Person Mailvorlagen, Regeln und die geplante Mail-Warteschlange pruefen.';
+$string['agent_booking_diagnose_reason_none'] =
+    'Aus dem aktuellen Buchungsstatus konnte kein konkreter Blockierungsgrund abgeleitet werden.';
+$string['agent_booking_diagnose_intro_checked_option'] =
+    'Ich habe Ihre Buchungssituation fuer "{$a}" geprueft.';
+$string['agent_booking_diagnose_intro_missing_email'] =
+    'Das kann ich zur E-Mail-Frage bestaetigen:';
+$string['agent_booking_diagnose_intro_cannot_book'] =
+    'Darum kann die Buchung aktuell fehlschlagen:';
+$string['agent_booking_diagnose_intro_status'] =
+    'Ihr aktueller Status ist {$a}.';
+$string['agent_booking_diagnose_status_booked'] = 'gebucht';
+$string['agent_booking_diagnose_status_waitinglist'] = 'Warteliste';
+$string['agent_booking_diagnose_status_reserved'] = 'reserviert';
+$string['agent_booking_diagnose_status_notifylist'] = 'Benachrichtigungsliste';
+$string['agent_booking_diagnose_status_notbooked'] = 'nicht gebucht';
 $string['ai_preview_latest_option'] =
     'Hier ist die zuletzt erstellte oder aktualisierte Buchungsoption.';
 $string['ai_preview_no_commands'] = 'Keine Befehlsvorschau verfuegbar.';
