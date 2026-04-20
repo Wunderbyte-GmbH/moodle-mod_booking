@@ -176,6 +176,37 @@ final class agent_interpreter_test extends advanced_testcase {
     }
 
     /**
+     * Structured task ambiguity options should be propagated to interpreter output.
+     */
+    public function test_docs_ambiguity_options_are_propagated(): void {
+        $raw = json_encode([
+            'response_type' => 'task_call',
+            'message' => 'Let me check the docs topic.',
+            'commands' => [
+                [
+                    'task' => 'booking.explain_docs_topic',
+                    'version' => 1,
+                    'input' => [
+                        'question' => 'Explain the actions after booking.',
+                    ],
+                ],
+            ],
+        ]);
+
+        $result = $this->interpreter->interpret($raw, $this->cmid, 1);
+
+        $this->assertEquals('clarification', $result['response_type']);
+        $this->assertNotEmpty($result['ambiguities']);
+        $this->assertArrayHasKey('ambiguity_options', $result);
+        $this->assertNotEmpty($result['ambiguity_options']);
+
+        $first = $result['ambiguity_options'][0] ?? [];
+        $this->assertNotSame('', trim((string)($first['label'] ?? '')));
+        $this->assertNotSame('', trim((string)($first['query'] ?? '')));
+        $this->assertSame('booking.explain_docs_topic', (string)($first['task'] ?? ''));
+    }
+
+    /**
      * Test that JSON wrapped in markdown fences is parsed correctly.
      */
     public function test_markdown_fence_is_stripped(): void {

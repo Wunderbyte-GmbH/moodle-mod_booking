@@ -3469,6 +3469,12 @@ $string['ai_privacy_response_note'] = 'Privacy note: personal data in this respo
 $string['ai_privacy_precheck_summary'] = '{$a->count} entries anonymized in your request ({$a->names} names, {$a->emails} e-mails).';
 $string['ai_privacy_precheck_summary_none'] = 'Privacy check complete: no personal entries needed anonymization.';
 $string['ai_action_add_price_category'] = 'Create price category';
+$string['ai_docs_explain_required_question'] = 'Field "question" is required for explain_docs_topic.';
+$string['ai_docs_explain_invalid_maxdocs'] = 'Field "maxdocs" must be greater than 0 when provided.';
+$string['ai_docs_explain_no_match'] = 'I could not find a matching documentation topic for that question.';
+$string['ai_docs_explain_ambiguity_candidates'] =
+    'I found multiple relevant documentation topics. Please specify which one you mean: {$a}.';
+$string['ai_docs_explain_followup_query'] = 'Please explain this documentation topic: {$a}';
 $string['ai_action_create_option'] = 'Create booking option';
 $string['ai_action_get_current_user'] = 'Get current user';
 $string['ai_action_list_actions'] = 'List supported actions';

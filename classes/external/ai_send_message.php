@@ -104,6 +104,7 @@ class ai_send_message extends external_api {
             return ['response_type' => 'error', 'message' => self::localized_string('ai_empty_message', 'mod_booking'),
                 'displaymessage' => self::localized_string('ai_empty_message', 'mod_booking'), 'privacyapplied' => 0,
                     'commands' => '[]', 'ambiguities' => '[]', 'errorsjson' => '[]',
+                    'ambiguityoptionsjson' => '[]',
                     'attemptedtasksjson' => '[]', 'issuecodesjson' => '[]', 'pendingconfirmationcode' => '',
                     'threadid' => 0, 'runid' => 0, 'previewoptionid' => 0];
         }
@@ -122,6 +123,7 @@ class ai_send_message extends external_api {
                 'privacyapplied' => 0,
                 'commands'      => '[]',
                 'ambiguities'   => '[]',
+                'ambiguityoptionsjson' => '[]',
                 'errorsjson'    => '[]',
                 'attemptedtasksjson' => '[]',
                 'issuecodesjson' => '[]',
@@ -158,6 +160,7 @@ class ai_send_message extends external_api {
                 'used_triggers' => $result['used_triggers'] ?? [],
                 'commands' => [],
                 'ambiguities' => [],
+                'ambiguity_options' => [],
                 'errors' => [],
                 'attempted_tasks' => [],
                 'issue_codes' => [],
@@ -165,8 +168,10 @@ class ai_send_message extends external_api {
             ];
         }
 
-        if (($result['response_type'] ?? '') !== 'confirm_pending'
-            && self::result_has_trigger($result, 'core.is_confirmation_message')) {
+        if (
+            ($result['response_type'] ?? '') !== 'confirm_pending'
+            && self::result_has_trigger($result, 'core.is_confirmation_message')
+        ) {
             $result['response_type'] = 'confirm_pending';
         }
 
@@ -185,6 +190,7 @@ class ai_send_message extends external_api {
                         'privacyapplied' => 0,
                         'commands'       => '[]',
                         'ambiguities'    => '[]',
+                        'ambiguityoptionsjson' => '[]',
                         'errorsjson'     => '[]',
                         'attemptedtasksjson' => '[]',
                         'issuecodesjson' => '[]',
@@ -206,6 +212,7 @@ class ai_send_message extends external_api {
                         'privacyapplied' => 0,
                         'commands'       => '[]',
                         'ambiguities'    => json_encode($confirmationvalidation['ambiguities'] ?? []),
+                        'ambiguityoptionsjson' => json_encode($confirmationvalidation['ambiguity_options'] ?? []),
                         'errorsjson'     => json_encode($confirmationvalidation['errors'] ?? []),
                         'attemptedtasksjson' => json_encode($confirmationvalidation['attempted_tasks'] ?? []),
                         'issuecodesjson' => json_encode($confirmationvalidation['issue_codes'] ?? []),
@@ -226,6 +233,7 @@ class ai_send_message extends external_api {
                     'response_type' => 'confirmation_request',
                     'commands'      => $confirmcommands,
                     'ambiguities'   => [],
+                    'ambiguity_options' => [],
                     'errors'        => [],
                     'attempted_tasks' => [],
                     'issue_codes'   => [],
@@ -238,6 +246,7 @@ class ai_send_message extends external_api {
                     'privacyapplied' => 0,
                     'commands'       => json_encode($confirmcommands),
                     'ambiguities'    => '[]',
+                    'ambiguityoptionsjson' => '[]',
                     'errorsjson'     => '[]',
                     'attemptedtasksjson' => '[]',
                     'issuecodesjson' => '[]',
@@ -254,8 +263,10 @@ class ai_send_message extends external_api {
             $result['commands'] = [];
         }
 
-        if (self::result_has_trigger($result, 'core.force_new_duplicate_option')
-            && self::has_recent_duplicate_title_prompt($store, $threadid)) {
+        if (
+            self::result_has_trigger($result, 'core.force_new_duplicate_option')
+            && self::has_recent_duplicate_title_prompt($store, $threadid)
+        ) {
             $result = self::apply_duplicate_title_override($result);
         }
 
@@ -394,6 +405,7 @@ class ai_send_message extends external_api {
             'used_triggers' => $result['used_triggers'] ?? [],
             'commands'      => $result['commands'] ?? [],
             'ambiguities'   => $result['ambiguities'] ?? [],
+            'ambiguity_options' => $result['ambiguity_options'] ?? [],
             'errors'        => $result['errors'] ?? [],
             'attempted_tasks' => $result['attempted_tasks'] ?? [],
             'issue_codes'   => $result['issue_codes'] ?? [],
@@ -407,6 +419,7 @@ class ai_send_message extends external_api {
             'privacyapplied' => $privacyapplied,
             'commands'      => json_encode($result['commands'] ?? []),
             'ambiguities'   => json_encode($result['ambiguities'] ?? []),
+            'ambiguityoptionsjson' => json_encode($result['ambiguity_options'] ?? []),
             'errorsjson'    => json_encode($result['errors'] ?? []),
             'attemptedtasksjson' => json_encode($result['attempted_tasks'] ?? []),
             'issuecodesjson' => json_encode($result['issue_codes'] ?? []),
@@ -570,11 +583,13 @@ class ai_send_message extends external_api {
      * @param array<int,mixed> $commands
      * @param task_registry $registry
      * @param int $cmid
-     * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>,attempted_tasks:array<int,string>,issue_codes:array<int,string>}
+     * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>,
+     *     ambiguity_options:array<int,array<string,mixed>>,attempted_tasks:array<int,string>,issue_codes:array<int,string>}
      */
     private static function prevalidate_confirmation_commands(array $commands, task_registry $registry, int $cmid): array {
         $errors = [];
         $ambiguities = [];
+        $ambiguityoptions = [];
         $attemptedtasks = [];
         $issuecodes = [];
 
@@ -617,6 +632,28 @@ class ai_send_message extends external_api {
                     $ambiguities[] = $msg;
                 }
             }
+            if (!empty($validation['ambiguity_options']) && is_array($validation['ambiguity_options'])) {
+                foreach ((array)$validation['ambiguity_options'] as $option) {
+                    if (!is_array($option)) {
+                        continue;
+                    }
+
+                    $label = trim((string)($option['label'] ?? ''));
+                    $query = trim((string)($option['query'] ?? ''));
+                    if ($label === '' && $query === '') {
+                        continue;
+                    }
+
+                    $ambiguityoptions[] = [
+                        'id' => trim((string)($option['id'] ?? '')),
+                        'label' => $label,
+                        'query' => $query,
+                        'path' => trim((string)($option['path'] ?? '')),
+                        'title' => trim((string)($option['title'] ?? '')),
+                        'task' => $taskname,
+                    ];
+                }
+            }
 
             $issues = $validation['issues'] ?? [];
             if (is_array($issues)) {
@@ -636,6 +673,7 @@ class ai_send_message extends external_api {
             'valid' => empty($errors) && empty($ambiguities),
             'errors' => array_values(array_unique($errors)),
             'ambiguities' => array_values(array_unique($ambiguities)),
+            'ambiguity_options' => array_values($ambiguityoptions),
             'attempted_tasks' => array_values(array_unique($attemptedtasks)),
             'issue_codes' => array_values(array_unique($issuecodes)),
         ];
@@ -905,6 +943,10 @@ class ai_send_message extends external_api {
             'privacyapplied' => new external_value(PARAM_INT, '1 if display masking indicator applied, otherwise 0.'),
             'commands'      => new external_value(PARAM_RAW, 'JSON-encoded array of proposed commands.'),
             'ambiguities'   => new external_value(PARAM_RAW, 'JSON-encoded array of ambiguity questions.'),
+            'ambiguityoptionsjson' => new external_value(
+                PARAM_RAW,
+                'JSON-encoded structured ambiguity options for clickable frontend suggestions.'
+            ),
             'errorsjson'    => new external_value(PARAM_RAW, 'JSON-encoded technical validation errors.'),
             'attemptedtasksjson' => new external_value(PARAM_RAW, 'JSON-encoded attempted task names.'),
             'issuecodesjson' => new external_value(PARAM_RAW, 'JSON-encoded issue codes from task validation.'),

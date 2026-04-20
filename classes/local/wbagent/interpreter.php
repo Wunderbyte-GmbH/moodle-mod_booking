@@ -110,6 +110,7 @@ class interpreter implements agent_interpreter {
                 'used_triggers' => $usedtriggers,
                 'commands'      => [],
                 'ambiguities'   => [],
+                'ambiguity_options' => [],
                 'errors'        => [],
             ];
         }
@@ -123,6 +124,7 @@ class interpreter implements agent_interpreter {
                 'used_triggers' => $usedtriggers,
                 'commands'      => [],
                 'ambiguities'   => [],
+                'ambiguity_options' => [],
                 'errors'        => [$errormessage],
             ];
         }
@@ -135,6 +137,7 @@ class interpreter implements agent_interpreter {
                 'used_triggers' => $usedtriggers,
                 'commands'      => [],
                 'ambiguities'   => [],
+                'ambiguity_options' => [],
                 'errors'        => [],
             ];
         }
@@ -145,7 +148,7 @@ class interpreter implements agent_interpreter {
             return $this->error_result('Response type requires at least one command but none were provided.');
         }
 
-        [$validatedcommands, $errors, $ambiguities, $attemptedtasks, $issuecodes, $confirmablecommands] =
+        [$validatedcommands, $errors, $ambiguities, $ambiguityoptions, $attemptedtasks, $issuecodes, $confirmablecommands] =
             $this->validate_commands($commands, $cmid);
 
         // Stage 5: Any ambiguity from backend validation stops execution and forces clarification.
@@ -159,6 +162,7 @@ class interpreter implements agent_interpreter {
                     'used_triggers' => $usedtriggers,
                     'commands'      => $confirmablecommands,
                     'ambiguities'   => [],
+                    'ambiguity_options' => $ambiguityoptions,
                     'errors'        => [],
                     'attempted_tasks' => $attemptedtasks,
                     'issue_codes'   => $issuecodes,
@@ -172,6 +176,7 @@ class interpreter implements agent_interpreter {
                 'used_triggers' => $usedtriggers,
                 'commands'      => [],
                 'ambiguities'   => $ambiguities,
+                'ambiguity_options' => $ambiguityoptions,
                 'errors'        => [],
                 'attempted_tasks' => $attemptedtasks,
                 'issue_codes'   => $issuecodes,
@@ -188,6 +193,7 @@ class interpreter implements agent_interpreter {
                 'used_triggers' => $usedtriggers,
                 'commands'      => [],
                 'ambiguities'   => [],
+                'ambiguity_options' => [],
                 'errors'        => $errors,
                 'attempted_tasks' => $attemptedtasks,
                 'issue_codes'   => $issuecodes,
@@ -201,6 +207,7 @@ class interpreter implements agent_interpreter {
             'used_triggers' => $usedtriggers,
             'commands'      => $validatedcommands,
             'ambiguities'   => [],
+            'ambiguity_options' => [],
             'errors'        => [],
             'attempted_tasks' => $attemptedtasks,
             'issue_codes'   => $issuecodes,
@@ -302,7 +309,8 @@ class interpreter implements agent_interpreter {
         $validated = [];
         $errors = [];
         $ambiguities = [];
-          $attemptedtasks = [];
+                $ambiguityoptions = [];
+                $attemptedtasks = [];
         $issuecodes = [];
         $confirmablecommands = [];
 
@@ -418,6 +426,12 @@ class interpreter implements agent_interpreter {
                 foreach ($result['ambiguities'] as $a) {
                     $ambiguities[] = "$label: $a";
                 }
+                if (!empty($result['ambiguity_options']) && is_array($result['ambiguity_options'])) {
+                    $ambiguityoptions = array_merge(
+                        $ambiguityoptions,
+                        $this->normalize_ambiguity_options($result['ambiguity_options'], $label, (string)$taskname)
+                    );
+                }
                 continue;
             }
 
@@ -447,10 +461,51 @@ class interpreter implements agent_interpreter {
             $validated,
             $errors,
             $ambiguities,
+            $ambiguityoptions,
             array_values(array_unique($attemptedtasks)),
             array_values(array_unique($issuecodes)),
             $confirmablecommands,
         ];
+    }
+
+    /**
+     * Normalize task-provided structured ambiguity options for frontend consumption.
+     *
+     * @param array<int,mixed> $options
+     * @param string $label
+     * @param string $taskname
+     * @return array<int,array<string,mixed>>
+     */
+    private function normalize_ambiguity_options(array $options, string $label, string $taskname): array {
+        $normalized = [];
+        foreach ($options as $index => $option) {
+            if (!is_array($option)) {
+                continue;
+            }
+
+            $id = trim((string)($option['id'] ?? ''));
+            $optionlabel = trim((string)($option['label'] ?? ''));
+            $query = trim((string)($option['query'] ?? ''));
+            if ($optionlabel === '' && $query === '') {
+                continue;
+            }
+
+            if ($id === '') {
+                $id = strtolower($taskname) . ':' . ($index + 1);
+            }
+
+            $normalized[] = [
+                'id' => $id,
+                'label' => $optionlabel,
+                'query' => $query,
+                'task' => $taskname,
+                'command_label' => $label,
+                'path' => trim((string)($option['path'] ?? '')),
+                'title' => trim((string)($option['title'] ?? '')),
+            ];
+        }
+
+        return $normalized;
     }
 
     /**
@@ -518,7 +573,8 @@ class interpreter implements agent_interpreter {
 
         $combinedtext = $this->collect_text_fields($input);
         $hascustomindicator = preg_match(
-            '/\b(custom|userdefined|user-defined|flexibel|frei\s+waehlbar|frei\s+wählbar|selber\s+entscheiden|selbst\s+entscheiden|max(?:imal)?|hoechstens|höchstens|up\s+to|at\s+most)\b/u',
+            '/\b(custom|userdefined|user-defined|flexibel|frei\s+waehlbar|frei\s+wählbar|selber\s+entscheiden|
+            selbst\s+entscheiden|max(?:imal)?|hoechstens|höchstens|up\s+to|at\s+most)\b/u',
             $combinedtext
         ) === 1;
 
@@ -761,6 +817,7 @@ class interpreter implements agent_interpreter {
             'message'       => $message,
             'commands'      => [],
             'ambiguities'   => [],
+            'ambiguity_options' => [],
             'errors'        => [$message],
         ];
     }

@@ -163,6 +163,60 @@ const parseJsonList = (raw) => {
 };
 
 /**
+ * Parse JSON-encoded object list safely.
+ *
+ * @param {string} raw
+ * @returns {Array<Object>}
+ */
+const parseJsonObjectList = (raw) => {
+    try {
+        const parsed = JSON.parse(String(raw || '[]'));
+        if (!Array.isArray(parsed)) {
+            return [];
+        }
+        return parsed.filter((entry) => entry && typeof entry === 'object');
+    } catch (e) {
+        return [];
+    }
+};
+
+/**
+ * Render clickable ambiguity options below a clarification message.
+ *
+ * @param {Array<Object>} options
+ * @returns {string}
+ */
+const renderAmbiguityOptionsHtml = (options = []) => {
+    const entries = Array.isArray(options) ? options : [];
+    if (entries.length === 0) {
+        return '';
+    }
+
+    const buttons = entries.map((entry) => {
+        const query = String((entry && entry.query) || '').trim();
+        const title = String((entry && entry.title) || '').trim();
+        const label = String((entry && entry.label) || title || query).trim();
+        if (query === '' || label === '') {
+            return '';
+        }
+
+        return '<button type="button" class="btn btn-sm btn-outline-primary mr-2 mb-2 booking-ai-ambiguity-option"'
+            + ` data-query="${escapeHtml(query)}"`
+            + ` title="${escapeHtml(query)}">${escapeHtml(label)}</button>`;
+    }).filter((button) => button !== '').join('');
+
+    if (buttons === '') {
+        return '';
+    }
+
+    return '<div class="booking-ai-ambiguity-options mt-3 p-3 border rounded bg-light">'
+        + '<div class="font-weight-bold mb-1">Please select the topic you mean</div>'
+        + '<div class="small text-muted mb-2">I found multiple matching documentation entries.</div>'
+        + `<div class="d-flex flex-wrap">${buttons}</div>`
+        + '</div>';
+};
+
+/**
  * Append a chat bubble to the message list.
  *
  * @param {string} role      'user' | 'assistant'
@@ -1016,6 +1070,29 @@ const sendMessage = (message) => {
             const attemptedTasks = parseJsonList(resp.attemptedtasksjson);
             const errors = parseJsonList(resp.errorsjson);
             const issueCodes = parseJsonList(resp.issuecodesjson);
+            const ambiguityOptions = parseJsonObjectList(resp.ambiguityoptionsjson || '[]');
+            const messageText = String(resp.displaymessage || resp.message || '');
+            const ambiguityOptionsHtml = renderAmbiguityOptionsHtml(ambiguityOptions);
+
+            if (ambiguityOptionsHtml !== '' && resp.response_type === 'clarification') {
+                appendMessageHtml(
+                    'assistant',
+                    `<span>${renderTextWithLinks(messageText)}</span>${ambiguityOptionsHtml}`,
+                    {
+                        response_type: resp.response_type || '',
+                        threadid: Number(resp.threadid || currentThreadId || 0),
+                        runid: Number(resp.runid || 0),
+                        attempted_tasks: attemptedTasks.join(', '),
+                        issue_codes: issueCodes.join(', '),
+                        pending_confirmation_code: String(resp.pendingconfirmationcode || ''),
+                        errors: errors.join(' || '),
+                        source: 'ai_send_message',
+                        time: (new Date()).toISOString(),
+                    }
+                );
+                return resp;
+            }
+
             appendMessage('assistant', resp.displaymessage || resp.message, {
                 response_type: resp.response_type || '',
                 threadid: Number(resp.threadid || currentThreadId || 0),
@@ -1371,6 +1448,29 @@ export const init = (config = null) => {
                 const msg = inputEl.value;
                 inputEl.value = '';
                 sendMessage(msg);
+            }
+        });
+    }
+
+    const messageList = document.getElementById('booking-ai-messages');
+    if (messageList) {
+        messageList.addEventListener('click', (event) => {
+            const target = event.target;
+            if (!(target instanceof HTMLElement)) {
+                return;
+            }
+
+            const button = target.closest('.booking-ai-ambiguity-option');
+            if (!(button instanceof HTMLElement)) {
+                return;
+            }
+
+            const query = String(button.getAttribute('data-query') || '').trim();
+            if (query !== '') {
+                button.classList.remove('btn-outline-primary');
+                button.classList.add('btn-primary');
+                button.setAttribute('aria-disabled', 'true');
+                sendMessage(query);
             }
         });
     }

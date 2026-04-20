@@ -230,6 +230,12 @@ $string['aitrial_token_expired_subscription'] = 'Ihr Trial-Token ist abgelaufen.
 $string['aitrial_pro_license_url'] = 'https://showroom.wunderbyte.at/course/view.php?id=62';
 $string['aitrial_unexpected_response'] = 'Unerwartete Serverantwort.';
 $string['ai_action_add_price_category'] = 'Preiskategorie anlegen';
+$string['ai_docs_explain_required_question'] = 'Das Feld "question" ist fuer explain_docs_topic erforderlich.';
+$string['ai_docs_explain_invalid_maxdocs'] = 'Das Feld "maxdocs" muss groesser als 0 sein, wenn es angegeben wird.';
+$string['ai_docs_explain_no_match'] = 'Ich konnte kein passendes Dokumentationsthema fuer diese Frage finden.';
+$string['ai_docs_explain_ambiguity_candidates'] =
+    'Ich habe mehrere passende Dokumentationsthemen gefunden. Bitte praezisieren Sie, welches Sie meinen: {$a}.';
+$string['ai_docs_explain_followup_query'] = 'Bitte erklaeren Sie dieses Dokumentationsthema: {$a}';
 $string['ai_action_create_option'] = 'Buchungsoption erstellen';
 $string['ai_action_get_current_user'] = 'Aktuellen Benutzer abrufen';
 $string['ai_action_list_actions'] = 'Unterstuetzte Aktionen auflisten';
