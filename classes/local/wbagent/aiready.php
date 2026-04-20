@@ -96,8 +96,17 @@ class aiready {
                     'provider' => 'aiprovider_openai\\provider',
                 ]));
                 $provideractive = $manager->is_action_available(generate_text::class);
-                $courseenabled = ai_manager::is_ai_tools_enabled_in_course($context);
-                $contextenabled = $manager->is_action_enabled_in_context($context, generate_text::class);
+                if (
+                    method_exists($manager, 'is_ai_tools_enabled_in_course') &&
+                    method_exists($manager, 'is_action_enabled_in_context')
+                ) {
+                    $courseenabled = ai_manager::is_ai_tools_enabled_in_course($context);
+                    $contextenabled = $manager->is_action_enabled_in_context($context, generate_text::class);
+                } else {
+                    // Fallback if method does not exist (e.g. older core version) - assume enabled.
+                    $courseenabled = true;
+                    $contextenabled = true;
+                }
             } catch (\Throwable $e) {
                 $providersconfigured = false;
                 $haswunderbyteprovider = false;
