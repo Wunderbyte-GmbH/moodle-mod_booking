@@ -259,6 +259,14 @@ $capabilities = [
                 'manager' => CAP_ALLOW,
             ],
         ],
+	'mod/booking:bookmyteam' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+    ],
     'mod/booking:overrideboconditions' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
