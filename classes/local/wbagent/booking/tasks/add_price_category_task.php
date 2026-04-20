@@ -199,11 +199,19 @@ class add_price_category_task extends base_booking_task implements task_trigger_
         $defaultvalue = isset($input['defaultvalue']) ? (float)$input['defaultvalue'] : 0.0;
 
         $handler = new pricecategories_handler();
-        return $handler->upsert_pricecategory(
+        $result = $handler->upsert_pricecategory(
             $identifier,
             $name,
             $defaultvalue,
             isset($input['pricecatsortorder']) ? (int)$input['pricecatsortorder'] : null
         );
+        if (is_array($result)) {
+            $result['debugmessage'] = $this->build_task_debug_message(
+                self::TASK_NAME,
+                $input,
+                ['Status: ' . ($result['status'] ?? 'unknown')]
+            );
+        }
+        return $result;
     }
 }

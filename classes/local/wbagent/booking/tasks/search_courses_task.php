@@ -106,6 +106,8 @@ class search_courses_task extends base_booking_task {
             return ['status' => 'error', 'detail' => 'Field "query" is required.', 'resultid' => null];
         }
 
+        $debugbase = $this->build_task_debug_message(self::TASK_NAME, $input);
+
         $courses = booking_task_support::search_course_candidates_for_preview($query, $limit);
         if (empty($courses)) {
             return [
@@ -113,6 +115,7 @@ class search_courses_task extends base_booking_task {
                 'detail' => 'No matching courses found.',
                 'resultid' => null,
                 'courses' => [],
+                'debugmessage' => $debugbase . "\nResults: 0",
             ];
         }
 
@@ -121,6 +124,7 @@ class search_courses_task extends base_booking_task {
             'detail' => 'Found ' . count($courses) . ' matching course(s).',
             'resultid' => (int)($courses[0]['courseid'] ?? 0),
             'courses' => $courses,
+            'debugmessage' => $debugbase . "\nResults: " . count($courses),
         ];
     }
 }

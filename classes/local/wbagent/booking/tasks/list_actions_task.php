@@ -122,6 +122,7 @@ class list_actions_task extends base_booking_task {
     public function execute(array $input, int $cmid, int $userid): array {
         $scope = strtolower(trim((string)($input['scope'] ?? 'all')));
         $actions = [];
+        $selectedtasknames = [];
         $registry = task_registry::make_default();
         foreach ($registry->get_task_names() as $name) {
             if ($scope === 'readonly' && !$registry->is_read_only_task($name)) {
@@ -137,6 +138,7 @@ class list_actions_task extends base_booking_task {
             }
 
             $schema = $task->get_schema();
+            $selectedtasknames[] = $name;
             $actions[] = [
                 'task' => $name,
                 'label' => booking_task_support::get_localized_action_label_for_output($name),
@@ -145,11 +147,148 @@ class list_actions_task extends base_booking_task {
             ];
         }
 
+        $available = array_fill_keys($selectedtasknames, true);
+        $capabilities = $this->build_user_capabilities($available);
+        $summary = $this->build_user_summary($scope, $capabilities);
+        $debugmessage = $this->build_debug_summary($scope, $actions, $capabilities);
+
         return [
             'status' => 'executed',
-            'detail' => '',
+            'detail' => $summary,
             'resultid' => null,
+            'summary' => $summary,
+            'usermessage' => $summary,
+            'debugmessage' => $debugmessage,
+            'capabilities' => $capabilities,
             'actions' => $actions,
         ];
+    }
+
+    /**
+     * Build a technical debug summary for developers.
+     *
+     * @param string $scope
+     * @param array<int,array<string,mixed>> $actions
+     * @param array<int,array<string,string>> $capabilities
+     * @return string
+     */
+    private function build_debug_summary(string $scope, array $actions, array $capabilities): string {
+        $lines = [
+            'Task: ' . self::TASK_NAME,
+            'Scope: ' . $scope,
+            'Returned actions: ' . count($actions),
+            'Derived capabilities: ' . count($capabilities),
+        ];
+        return implode("\n", $lines);
+    }
+
+    /**
+     * Build a user-facing summary sentence for the selected scope.
+     *
+     * @param string $scope
+     * @param array<int,array<string,string>> $capabilities
+     * @return string
+     */
+    private function build_user_summary(string $scope, array $capabilities): string {
+        $intro = '';
+
+        if (empty($capabilities)) {
+            return get_string('ai_list_actions_summary_none', 'mod_booking');
+        }
+
+        if ($scope === 'readonly') {
+            $intro = get_string('ai_list_actions_summary_readonly', 'mod_booking');
+        } else if ($scope === 'mutating') {
+            $intro = get_string('ai_list_actions_summary_mutating', 'mod_booking');
+        } else {
+            $intro = get_string('ai_list_actions_summary_all', 'mod_booking');
+        }
+
+        $lines = array_map(static function(array $capability): string {
+            $title = trim((string)($capability['title'] ?? ''));
+            $description = trim((string)($capability['description'] ?? ''));
+
+            if ($title !== '' && $description !== '') {
+                return '- ' . $title . ': ' . $description;
+            }
+
+            if ($title !== '') {
+                return '- ' . $title;
+            }
+
+            if ($description !== '') {
+                return '- ' . $description;
+            }
+
+            return '';
+        }, $capabilities);
+
+        $lines = array_values(array_filter($lines, static fn(string $line): bool => $line !== ''));
+        if (empty($lines)) {
+            return $intro;
+        }
+
+        return $intro . "\n" . implode("\n", $lines);
+    }
+
+    /**
+     * Build user-friendly capability blocks from the currently selected task set.
+     *
+     * @param array<string,bool> $available
+     * @return array<int,array<string,string>>
+     */
+    private function build_user_capabilities(array $available): array {
+        $capabilities = [];
+
+        if (
+            isset($available[create_option_task::TASK_NAME])
+            || isset($available[update_option_task::TASK_NAME])
+            || isset($available[bulk_update_options_task::TASK_NAME])
+        ) {
+            $capabilities[] = [
+                'title' => get_string('ai_capability_manage_options_title', 'mod_booking'),
+                'description' => get_string('ai_capability_manage_options_desc', 'mod_booking'),
+            ];
+        }
+
+        if (isset($available[search_options_task::TASK_NAME])) {
+            $capabilities[] = [
+                'title' => get_string('ai_capability_search_options_title', 'mod_booking'),
+                'description' => get_string('ai_capability_search_options_desc', 'mod_booking'),
+            ];
+        }
+
+        if (isset($available[search_users_task::TASK_NAME]) || isset($available[search_courses_task::TASK_NAME])) {
+            $capabilities[] = [
+                'title' => get_string('ai_capability_search_people_courses_title', 'mod_booking'),
+                'description' => get_string('ai_capability_search_people_courses_desc', 'mod_booking'),
+            ];
+        }
+
+        if (
+            isset($available[list_option_properties_task::TASK_NAME])
+            || isset($available[self::TASK_NAME])
+        ) {
+            $capabilities[] = [
+                'title' => get_string('ai_capability_explain_setup_title', 'mod_booking'),
+                'description' => get_string('ai_capability_explain_setup_desc', 'mod_booking'),
+            ];
+        }
+
+        if (isset($available[add_price_category_task::TASK_NAME])) {
+            $capabilities[] = [
+                'title' => get_string('ai_capability_pricing_title', 'mod_booking'),
+                'description' => get_string('ai_capability_pricing_desc', 'mod_booking'),
+            ];
+        }
+
+        if (isset($available[get_current_user_task::TASK_NAME])) {
+            $capabilities[] = [
+                'title' => get_string('ai_capability_user_context_title', 'mod_booking'),
+                'description' => get_string('ai_capability_user_context_desc', 'mod_booking'),
+            ];
+        }
+
+        return $capabilities;
     }
 }

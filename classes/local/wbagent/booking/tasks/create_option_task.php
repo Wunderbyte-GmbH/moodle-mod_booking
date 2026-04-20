@@ -775,6 +775,11 @@ class create_option_task extends base_booking_task implements task_trigger_provi
         $service = new booking_task_mutation_execute_service();
         $result = $service->execute(self::TASK_NAME, $input, $cmid, $userid, $this->support);
         if (is_array($result)) {
+            $result['debugmessage'] = $this->build_task_debug_message(
+                self::TASK_NAME,
+                $input,
+                ['Status: ' . ($result['status'] ?? 'unknown')]
+            );
             return $result;
         }
 
@@ -782,6 +787,7 @@ class create_option_task extends base_booking_task implements task_trigger_provi
             'status' => 'error',
             'detail' => 'Unknown booking task: ' . self::TASK_NAME,
             'resultid' => null,
+            'debugmessage' => $this->build_task_debug_message(self::TASK_NAME, $input, ['Status: error']),
         ];
     }
 }

@@ -131,6 +131,8 @@ class search_options_task extends base_booking_task implements task_trigger_prov
         $when = trim((string)($input['when'] ?? ''));
         $limit = isset($input['limit']) ? max(1, (int)$input['limit']) : ($query === '' ? 50 : 10);
 
+        $debugbase = $this->build_task_debug_message(self::TASK_NAME, $input);
+
         $exacttitlequery = self::extract_exact_title_query($query);
         $effectivequery = $exacttitlequery !== '' ? $exacttitlequery : $query;
 
@@ -154,6 +156,7 @@ class search_options_task extends base_booking_task implements task_trigger_prov
                             'name' => $title,
                             'link' => $link,
                         ]],
+                        'debugmessage' => $debugbase . "\nResults: 1 (exact title match)",
                     ];
                 }
             }
@@ -172,6 +175,7 @@ class search_options_task extends base_booking_task implements task_trigger_prov
                 'status' => 'executed',
                 'detail' => 'No matching booking options found.',
                 'resultid' => null,
+                'debugmessage' => $debugbase . "\nResults: 0",
             ];
         }
 
@@ -196,6 +200,7 @@ class search_options_task extends base_booking_task implements task_trigger_prov
                 $rows
             )),
             'options' => $structuredoptions,
+            'debugmessage' => $debugbase . "\nResults: " . count($structuredoptions),
         ];
     }
 

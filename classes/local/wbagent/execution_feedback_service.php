@@ -70,7 +70,10 @@ class execution_feedback_service {
         array $results,
         string $outputlang = ''
     ): array {
-        $message = $this->generate_llm_feedback($threadid, $cmid, $userid, $commands, $results, $outputlang);
+        $message = $this->extract_task_user_message($results);
+        if ($message === '') {
+            $message = $this->generate_llm_feedback($threadid, $cmid, $userid, $commands, $results, $outputlang);
+        }
 
         return [
             'message' => $message,
@@ -211,6 +214,14 @@ class execution_feedback_service {
                 'resultid' => isset($result['resultid']) ? (int)$result['resultid'] : null,
             ];
 
+            if (isset($result['usermessage']) && is_string($result['usermessage']) && trim($result['usermessage']) !== '') {
+                $entry['usermessage'] = trim($result['usermessage']);
+            }
+
+            if (isset($result['debugmessage']) && is_string($result['debugmessage']) && trim($result['debugmessage']) !== '') {
+                $entry['debugmessage'] = trim($result['debugmessage']);
+            }
+
             if (!empty($result['previewoptionids']) && is_array($result['previewoptionids'])) {
                 $entry['previewoptionids'] = array_values(array_map('intval', $result['previewoptionids']));
             }
@@ -221,6 +232,14 @@ class execution_feedback_service {
 
             if (!empty($result['actions']) && is_array($result['actions'])) {
                 $entry['actions'] = $result['actions'];
+            }
+
+            if (!empty($result['capabilities']) && is_array($result['capabilities'])) {
+                $entry['capabilities'] = $result['capabilities'];
+            }
+
+            if (isset($result['summary']) && is_string($result['summary']) && trim($result['summary']) !== '') {
+                $entry['summary'] = trim($result['summary']);
             }
 
             $sanitized[] = $entry;
@@ -236,6 +255,11 @@ class execution_feedback_service {
      * @return string
      */
     private function sanitize_result_detail(array $result): string {
+        $usermessage = trim((string)($result['usermessage'] ?? ''));
+        if ($usermessage !== '') {
+            return $usermessage;
+        }
+
         if (isset($result['users']) && is_array($result['users'])) {
             $count = count($result['users']);
             return $count === 0 ? 'No matching users found.' : 'Found ' . $count . ' matching user(s).';
@@ -255,7 +279,40 @@ class execution_feedback_service {
             return 'Current user identified.';
         }
 
+        if (!empty($result['capabilities']) && is_array($result['capabilities'])) {
+            $summary = trim((string)($result['summary'] ?? ''));
+            if ($summary !== '') {
+                return $summary;
+            }
+        }
+
         return trim((string)($result['detail'] ?? ''));
+    }
+
+    /**
+     * Extract the first explicit task-authored user message.
+     *
+     * @param array<int,array<string,mixed>> $results
+     * @return string
+     */
+    private function extract_task_user_message(array $results): string {
+        foreach ($results as $result) {
+            if (!is_array($result)) {
+                continue;
+            }
+
+            $usermessage = trim((string)($result['usermessage'] ?? ''));
+            if ($usermessage !== '') {
+                return $usermessage;
+            }
+
+            $summary = trim((string)($result['summary'] ?? ''));
+            if ($summary !== '') {
+                return $summary;
+            }
+        }
+
+        return '';
     }
 
     /**

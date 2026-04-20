@@ -93,6 +93,11 @@ class get_current_user_task extends base_booking_task {
             'userid' => (int)$user->id,
             'email' => (string)$user->email,
             'fullname' => $fullname,
+            'debugmessage' => $this->build_task_debug_message(
+                self::TASK_NAME,
+                $input,
+                ['Resolved user: ' . $fullname . ' (id=' . $user->id . ')']
+            ),
         ];
     }
 }

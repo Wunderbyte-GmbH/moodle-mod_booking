@@ -106,6 +106,8 @@ class search_users_task extends base_booking_task {
             return ['status' => 'error', 'detail' => 'Field "query" is required.', 'resultid' => null];
         }
 
+        $debugbase = $this->build_task_debug_message(self::TASK_NAME, $input);
+
         $users = booking_task_support::search_user_candidates_for_preview($query, $limit);
         if (empty($users)) {
             return [
@@ -113,6 +115,7 @@ class search_users_task extends base_booking_task {
                 'detail' => 'No matching users found.',
                 'resultid' => null,
                 'users' => [],
+                'debugmessage' => $debugbase . "\nResults: 0",
             ];
         }
 
@@ -121,6 +124,7 @@ class search_users_task extends base_booking_task {
             'detail' => 'Found ' . count($users) . ' matching user(s).',
             'resultid' => (int)($users[0]['userid'] ?? 0),
             'users' => $users,
+            'debugmessage' => $debugbase . "\nResults: " . count($users),
         ];
     }
 }

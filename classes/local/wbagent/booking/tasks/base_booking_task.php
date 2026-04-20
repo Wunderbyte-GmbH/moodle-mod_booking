@@ -113,4 +113,34 @@ abstract class base_booking_task extends base_task {
     public function verify_persisted_option_state(array $input, object $settings): array {
         return [];
     }
+
+    /**
+     * Build a brief technical debug message for a task execution.
+     *
+     * @param string $taskname
+     * @param array<string,mixed> $input
+     * @param array<int,string> $extra Optional extra lines (e.g. result summary).
+     * @return string
+     */
+    protected function build_task_debug_message(string $taskname, array $input, array $extra = []): string {
+        $parts = [];
+        foreach ($input as $key => $value) {
+            if ($value === null || $value === '') {
+                continue;
+            }
+            if (is_array($value)) {
+                $parts[] = $key . '=[' . implode(', ', array_slice($value, 0, 5)) . ']';
+            } else {
+                $parts[] = $key . '=' . $value;
+            }
+        }
+        $lines = ['Task: ' . $taskname];
+        if (!empty($parts)) {
+            $lines[] = 'Params: ' . implode(', ', $parts);
+        }
+        foreach ($extra as $line) {
+            $lines[] = $line;
+        }
+        return implode("\n", $lines);
+    }
 }

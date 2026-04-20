@@ -456,6 +456,152 @@ const renderTextWithLinks = (text) => {
 };
 
 /**
+ * Detect generic status placeholders that are not user-friendly final answers.
+ *
+ * @param {string} message
+ * @returns {boolean}
+ */
+const isGenericStatusMessage = (message) => {
+    const normalized = String(message || '').trim().toLowerCase();
+    if (!normalized) {
+        return true;
+    }
+
+    const generic = [
+        'completed',
+        'queued',
+        'running',
+        'failed',
+        'executing',
+        'executing the action.',
+        'fuehre die aktion aus.',
+        'fuehre die aktion aus',
+    ];
+
+    return generic.includes(normalized);
+};
+
+/**
+ * Read the first non-empty string field from structured results.
+ *
+ * @param {Array} results
+ * @param {Array<string>} fields
+ * @returns {string}
+ */
+const getFirstResultField = (results, fields) => {
+    const safeResults = Array.isArray(results) ? results : [];
+    for (const result of safeResults) {
+        if (!result || typeof result !== 'object') {
+            continue;
+        }
+
+        for (const field of fields) {
+            const value = String(result[field] || '').trim();
+            if (value !== '') {
+                return value;
+            }
+        }
+    }
+
+    return '';
+};
+
+/**
+ * Build a user-friendly chat message from structured run results.
+ *
+ * @param {string} status
+ * @param {string} message
+ * @param {Array} results
+ * @returns {string}
+ */
+const buildFriendlyRunMessage = (status, message, results = []) => {
+    const safeStatus = String(status || '').toLowerCase();
+    const safeMessage = String(message || '').trim();
+
+    if (safeStatus !== 'completed' && safeStatus !== 'failed') {
+        return isGenericStatusMessage(safeMessage) ? '' : safeMessage;
+    }
+
+    const first = Array.isArray(results) && results.length > 0 ? (results[0] || {}) : {};
+
+    const userMessage = String(first.usermessage || '').trim();
+    if (!isGenericStatusMessage(userMessage)) {
+        return userMessage;
+    }
+
+    const summary = String(first.summary || '').trim();
+    if (!isGenericStatusMessage(summary)) {
+        return summary;
+    }
+
+    const detail = String(first.detail || '').trim();
+    if (!isGenericStatusMessage(detail)) {
+        return detail;
+    }
+
+    if (!isGenericStatusMessage(safeMessage)) {
+        return safeMessage;
+    }
+
+    return safeStatus === 'failed'
+        ? 'The request failed. Please check the details below.'
+        : 'Done.';
+};
+
+/**
+ * Build a task-authored debug bubble for developer mode.
+ *
+ * @param {string} status
+ * @param {string} message
+ * @param {Array} results
+ * @returns {string}
+ */
+const buildDebugRunHtml = (status, message, results = []) => {
+    if (!debugModeEnabled) {
+        return '';
+    }
+
+    const debugMessages = [];
+    (Array.isArray(results) ? results : []).forEach((result) => {
+        const debugMessage = String((result && result.debugmessage) || '').trim();
+        if (debugMessage !== '') {
+            debugMessages.push(debugMessage);
+        }
+    });
+
+    if (debugMessages.length > 0) {
+        const items = debugMessages.map((debugMessage) => `<li>${renderTextWithLinks(debugMessage)}</li>`).join('');
+        return '<div class="booking-ai-run-status-inline alert alert-secondary mb-0">'
+            + '<strong>Debug</strong>'
+            + `<ul class="mb-0">${items}</ul>`
+            + '</div>';
+    }
+
+    const fallback = getFirstResultField(results, ['detail']);
+    const safeMessage = String(message || fallback || status).trim();
+    if (safeMessage === '') {
+        return '';
+    }
+
+    return '<div class="booking-ai-run-status-inline alert alert-secondary mb-0">'
+        + `<strong>${escapeHtml(String(status || 'debug'))}</strong>: ${renderTextWithLinks(safeMessage)}`
+        + '</div>';
+};
+
+/**
+ * Append user-friendly assistant text while preserving line breaks.
+ *
+ * @param {string} content
+ */
+const appendFriendlyAssistantMessage = (content) => {
+    const text = String(content || '').trim();
+    if (!text) {
+        return;
+    }
+    appendMessageHtml('assistant', `<span>${renderTextWithLinks(text)}</span>`);
+};
+
+/**
  * Show the confirmation panel with a preview of the proposed commands.
  *
  * @param {string} message   AI summary message.
@@ -556,6 +702,32 @@ const hideConfirmPanel = () => {
 const showRunStatus = (status, message, results = []) => {
     // eslint-disable-next-line no-console
     console.log('[AI Debug] showRunStatus called', {status, message, results});
+
+    const friendlyMessage = buildFriendlyRunMessage(status, message, results);
+    if (friendlyMessage) {
+        appendFriendlyAssistantMessage(friendlyMessage);
+    }
+
+    const debugHtml = buildDebugRunHtml(status, message, results);
+    if (debugHtml) {
+        appendMessageHtml('assistant', debugHtml, {
+            response_type: 'execution_debug',
+            status: String(status || ''),
+            source: 'showRunStatus',
+            time: (new Date()).toISOString(),
+        });
+        setSidePreviewHtml(debugHtml);
+        return;
+    }
+
+    if (friendlyMessage && (status === 'completed' || status === 'failed')) {
+        setSidePreviewHtml(
+            `<div class="booking-ai-run-status-inline alert alert-light mb-0">`
+            + `${renderTextWithLinks(friendlyMessage)}</div>`
+        );
+        return;
+    }
+
     const alertClass = (status === 'completed') ? 'alert-success'
                      : (status === 'failed')    ? 'alert-danger'
                      : 'alert-info';
@@ -674,19 +846,8 @@ const pollRunStatus = (runid, cmid) => {
                 // eslint-disable-next-line no-console
                 console.log('[AI Debug] pollRunStatus resp', resp, 'parsed results', results);
 
-                if (resp.status === 'completed') {
-                    appendAssistantPrivacyNote(resp, 'ai_poll_run_status');
-                    appendMessage('assistant', resp.displaymessage || resp.message || '', {
-                        response_type: 'execution_result',
-                        threadid: Number(currentThreadId || 0),
-                        runid: Number(resp.runid || runid || 0),
-                        status: 'execution_result',
-                        source: 'ai_poll_run_status',
-                        time: (new Date()).toISOString(),
-                    });
-                } else {
-                    showRunStatus(resp.status, resp.displaymessage || resp.message || resp.status);
-                }
+                appendAssistantPrivacyNote(resp, 'ai_poll_run_status');
+                showRunStatus(resp.status, resp.displaymessage || resp.message || resp.status, results);
 
                 if (resp.status === 'completed') {
                     const optionIds = extractPreviewOptionIds(results);
@@ -808,14 +969,6 @@ const sendMessage = (message) => {
             });
         } else if (resp.response_type === 'execution_result') {
             appendAssistantPrivacyNote(resp, 'ai_send_message');
-            appendMessage('assistant', resp.displaymessage || resp.message || '', {
-                response_type: resp.response_type || '',
-                threadid: Number(resp.threadid || currentThreadId || 0),
-                runid: Number(resp.runid || 0),
-                status: 'execution_result',
-                source: 'ai_send_message',
-                time: (new Date()).toISOString(),
-            });
             let results = [];
             try {
                 results = JSON.parse(resp.resultsjson || '[]');
@@ -824,6 +977,7 @@ const sendMessage = (message) => {
             }
             // eslint-disable-next-line no-console
             console.log('[AI Debug] execution_result resp', resp, 'parsed results', results);
+            showRunStatus(resp.status || 'completed', resp.displaymessage || resp.message || '', results);
 
             const optionIds = extractPreviewOptionIds(results);
             if (optionIds.length > 0) {

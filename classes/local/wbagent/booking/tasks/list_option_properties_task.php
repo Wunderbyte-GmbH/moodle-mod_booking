@@ -147,6 +147,11 @@ class list_option_properties_task extends base_booking_task {
             'detail' => '',
             'resultid' => null,
             'properties' => $properties,
+            'debugmessage' => $this->build_task_debug_message(
+                self::TASK_NAME,
+                $input,
+                ['Properties returned: ' . count($properties)]
+            ),
         ];
     }
 }

@@ -113,8 +113,20 @@ final class agent_e2e_readonly_test extends abstract_agent_testcase {
         $result = $this->exec_command('booking.list_actions', ['scope' => 'all']);
 
         $this->assertEquals('executed', $result['status'], $result['detail'] ?? '');
+        $this->assertNotSame('', trim((string)($result['detail'] ?? '')));
         $this->assertArrayHasKey('actions', $result);
         $this->assertNotEmpty($result['actions']);
+        $this->assertArrayHasKey('capabilities', $result);
+        $this->assertNotEmpty($result['capabilities']);
+
+        foreach ((array)$result['capabilities'] as $capability) {
+            $this->assertArrayHasKey('title', $capability);
+            $this->assertArrayHasKey('description', $capability);
+
+            $joined = ((string)($capability['title'] ?? '')) . ' ' . ((string)($capability['description'] ?? ''));
+            $this->assertStringNotContainsString('booking.', $joined);
+            $this->assertStringNotContainsString('_task', $joined);
+        }
 
         $tasknames = array_column($result['actions'], 'task');
         $this->assertContains('booking.create_option', $tasknames);
