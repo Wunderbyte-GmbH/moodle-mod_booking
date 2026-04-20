@@ -24,6 +24,10 @@
 
 use mod_booking\local\wbagent\aiready;
 use mod_booking\local\wbagent\authorization_service;
+use mod_booking\local\wbagent\conversation_store;
+use mod_booking\local\wbagent\interpreter;
+use mod_booking\local\wbagent\orchestrator;
+use mod_booking\local\wbagent\task_registry;
 use mod_booking\singleton_service;
 
 require_once(__DIR__ . '/../../config.php');
