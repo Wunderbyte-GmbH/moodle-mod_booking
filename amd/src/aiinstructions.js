@@ -682,6 +682,60 @@ const renderOptionPreviewsInline = (cmid, optionIds) => {
 };
 
 /**
+ * Build task-authored side preview HTML when provided by results.
+ *
+ * @param {Array} results
+ * @returns {string}
+ */
+const buildTaskPreviewHtml = (results = []) => {
+    const entries = Array.isArray(results) ? results : [];
+    if (entries.length === 0) {
+        return '';
+    }
+
+    // Preferred path: task explicitly requests a user-profile preview.
+    for (const result of entries) {
+        const previewMode = String((result && result.previewmode) || '').trim();
+        if (previewMode === 'user_profile') {
+            const payload = (result && typeof result.previewdata === 'object' && result.previewdata)
+                ? result.previewdata
+                : result;
+            const fullname = escapeHtml(String((payload && payload.fullname) || result.fullname || '-'));
+            const email = escapeHtml(String((payload && payload.email) || result.email || '-'));
+            const userid = Number((payload && payload.userid) || result.userid || 0);
+            const userIdText = userid > 0 ? String(userid) : '-';
+
+            return '<div class="booking-ai-run-status-inline card mb-0">'
+                + '<div class="card-body p-3">'
+                + '<h6 class="mb-2">User profile</h6>'
+                + `<div><strong>Name:</strong> ${fullname}</div>`
+                + `<div><strong>E-Mail:</strong> ${email}</div>`
+                + `<div><strong>User ID:</strong> ${escapeHtml(userIdText)}</div>`
+                + '</div></div>';
+        }
+    }
+
+    // Backward-compatible fallback: infer user-profile preview from result fields.
+    const userResult = entries.find((result) => Number((result && result.userid) || 0) > 0);
+    if (!userResult) {
+        return '';
+    }
+
+    const fullname = escapeHtml(String(userResult.fullname || '-'));
+    const email = escapeHtml(String(userResult.email || '-'));
+    const userid = Number(userResult.userid || 0);
+    const userIdText = userid > 0 ? String(userid) : '-';
+
+    return '<div class="booking-ai-run-status-inline card mb-0">'
+        + '<div class="card-body p-3">'
+        + '<h6 class="mb-2">User profile</h6>'
+        + `<div><strong>Name:</strong> ${fullname}</div>`
+        + `<div><strong>E-Mail:</strong> ${email}</div>`
+        + `<div><strong>User ID:</strong> ${escapeHtml(userIdText)}</div>`
+        + '</div></div>';
+};
+
+/**
  * Hide the confirmation panel.
  */
 const hideConfirmPanel = () => {
@@ -716,7 +770,11 @@ const showRunStatus = (status, message, results = []) => {
             source: 'showRunStatus',
             time: (new Date()).toISOString(),
         });
-        setSidePreviewHtml(debugHtml);
+    }
+
+    const taskPreviewHtml = buildTaskPreviewHtml(results);
+    if (taskPreviewHtml && (status === 'completed' || status === 'failed')) {
+        setSidePreviewHtml(taskPreviewHtml);
         return;
     }
 

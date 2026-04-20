@@ -222,6 +222,26 @@ class execution_feedback_service {
                 $entry['debugmessage'] = trim($result['debugmessage']);
             }
 
+            if (isset($result['userid'])) {
+                $entry['userid'] = (int)$result['userid'];
+            }
+
+            if (isset($result['fullname']) && is_string($result['fullname']) && trim($result['fullname']) !== '') {
+                $entry['fullname'] = trim($result['fullname']);
+            }
+
+            if (isset($result['email']) && is_string($result['email']) && trim($result['email']) !== '') {
+                $entry['email'] = trim($result['email']);
+            }
+
+            if (isset($result['previewmode']) && is_string($result['previewmode']) && trim($result['previewmode']) !== '') {
+                $entry['previewmode'] = trim($result['previewmode']);
+            }
+
+            if (isset($result['previewdata']) && is_array($result['previewdata'])) {
+                $entry['previewdata'] = $result['previewdata'];
+            }
+
             if (!empty($result['previewoptionids']) && is_array($result['previewoptionids'])) {
                 $entry['previewoptionids'] = array_values(array_map('intval', $result['previewoptionids']));
             }

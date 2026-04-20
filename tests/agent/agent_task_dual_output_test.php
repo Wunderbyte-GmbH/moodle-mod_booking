@@ -255,6 +255,43 @@ final class agent_task_dual_output_test extends abstract_agent_testcase {
     }
 
     /**
+     * execution_feedback_service passes preview-relevant user profile fields through.
+     */
+    public function test_feedback_service_passes_preview_fields_through(): void {
+        $store = new conversation_store();
+        $service = new execution_feedback_service($store);
+
+        $rawresults = [
+            [
+                'status' => 'executed',
+                'detail' => 'Current user identified.',
+                'resultid' => 2,
+                'userid' => 2,
+                'fullname' => 'Admin User',
+                'email' => 'admin@example.com',
+                'previewmode' => 'user_profile',
+                'previewdata' => [
+                    'userid' => 2,
+                    'fullname' => 'Admin User',
+                    'email' => 'admin@example.com',
+                ],
+            ],
+        ];
+
+        $reflection = new \ReflectionClass($service);
+        $method = $reflection->getMethod('sanitize_results_for_client');
+        $method->setAccessible(true);
+
+        $sanitized = $method->invoke($service, $rawresults);
+
+        $this->assertSame(2, $sanitized[0]['userid']);
+        $this->assertSame('Admin User', $sanitized[0]['fullname']);
+        $this->assertSame('admin@example.com', $sanitized[0]['email']);
+        $this->assertSame('user_profile', $sanitized[0]['previewmode']);
+        $this->assertIsArray($sanitized[0]['previewdata'] ?? null);
+    }
+
+    /**
      * execution_feedback_service prefers usermessage over generated detail.
      */
     public function test_feedback_service_detail_uses_usermessage(): void {
@@ -396,6 +433,10 @@ final class agent_task_dual_output_test extends abstract_agent_testcase {
         $debugmessage = (string)($result['debugmessage'] ?? '');
         $this->assertStringContainsString('booking.get_current_user', $debugmessage);
         $this->assertStringContainsString('Resolved user:', $debugmessage);
+        $this->assertSame('user_profile', (string)($result['previewmode'] ?? ''),
+            'get_current_user should explicitly request user_profile preview mode.');
+        $this->assertIsArray($result['previewdata'] ?? null,
+            'get_current_user should provide previewdata payload for user profile rendering.');
     }
 
     // -------------------------------------------------------------------------
