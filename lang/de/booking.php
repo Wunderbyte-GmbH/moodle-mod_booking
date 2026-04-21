@@ -227,6 +227,8 @@ $string['ai_welcome_with_options'] = 'Willkommen! Sie haben hier {$a->numoptions
 $string['aitrial_support_firewall'] = 'Entschuldigung, das hat nicht funktioniert. Ein moeglicher Grund koennen Firewall-Einstellungen Ihres Systems sein. Wenn Sie trotzdem eine Testversion moechten, schreiben Sie bitte an info@wunderbyte.at.';
 $string['aitrial_token_received'] = 'Ihr Trial-Token wurde von Wunderbyte empfangen. Sie koennen jetzt AI fuer diesen Kurs und dieses Kursmodul aktivieren.';
 $string['aitrial_token_expired_subscription'] = 'Ihr Trial-Token ist abgelaufen. Hier koennen Sie ein Abonnement kaufen: {$a}';
+$string['ai_trial_token_invalid_title'] = 'Trial-Token ungueltig';
+$string['ai_trial_token_invalid_message'] = 'Ihr AI-Trial-Token ist nicht mehr gueltig. Bitte kaufen oder aktivieren Sie ein Abonnement-Token, um fortzufahren.';
 $string['aitrial_pro_license_url'] = 'https://showroom.wunderbyte.at/course/view.php?id=62';
 $string['aitrial_unexpected_response'] = 'Unerwartete Serverantwort.';
 $string['ai_action_add_price_category'] = 'Preiskategorie anlegen';

@@ -35,6 +35,19 @@ let privacyCheckRunningLabel = 'Privacy check running...';
 let privacyAnswerNoteLabel = 'Privacy note: personal data in this response was de-anonymized for display.';
 let defaultThinkingLabel = '';
 let forceNewThreadOnFirstMessage = true;
+let trialTokenInvalidAlertShown = false;
+let trialTokenInvalidTitleLabel = '';
+let trialTokenInvalidMessageLabel = '';
+let trialTokenInvalidOkLabel = '';
+
+/** @type {Array<string>} */
+const TRIAL_TOKEN_ISSUE_CODES = [
+    'TRIAL_TOKEN_INVALID',
+    'TRIAL_TOKEN_EXPIRED',
+    'SUBSCRIPTION_REQUIRED',
+    'AI_PROVIDER_AUTH_FAILED',
+    'AI_PROVIDER_QUOTA_EXCEEDED',
+];
 
 /**
  * Execute collected JavaScript returned by Moodle web service responses.
@@ -178,6 +191,79 @@ const parseJsonObjectList = (raw) => {
     } catch (e) {
         return [];
     }
+};
+
+/**
+ * Detect whether an AI error indicates an invalid/expired trial token.
+ *
+ * @param {Object|null} response
+ * @param {Array<string>} errors
+ * @param {Array<string>} issueCodes
+ * @returns {boolean}
+ */
+const isTrialTokenInvalidError = (response, errors = [], issueCodes = []) => {
+    const normalizedCodes = (Array.isArray(issueCodes) ? issueCodes : []).map((code) => String(code || '').trim().toUpperCase());
+    if (normalizedCodes.some((code) => TRIAL_TOKEN_ISSUE_CODES.includes(code))) {
+        return true;
+    }
+
+    const haystack = [
+        String((response && response.displaymessage) || ''),
+        String((response && response.message) || ''),
+        ...(Array.isArray(errors) ? errors : []),
+    ].join(' ').toLowerCase();
+
+    if (!haystack) {
+        return false;
+    }
+
+    const markers = [
+        'invalid token',
+        'token is invalid',
+        'token expired',
+        'expired token',
+        'invalid api key',
+        'incorrect api key',
+        'authenticationerror',
+        'rate limit exceeded for api_key',
+        'unauthorized',
+        '429: rate limit exceeded',
+        'limit type: tokens',
+        'current limit: 0',
+        'remaining: 0',
+        'insufficient_quota',
+        'insufficient quota',
+        'insufficient credits',
+        'max budget',
+        'budget exceeded',
+        'credit balance is too low',
+    ];
+
+    return markers.some((marker) => haystack.includes(marker));
+};
+
+/**
+ * Show one-time alert when trial token is no longer valid.
+ *
+ * @param {Object|null} response
+ * @param {Array<string>} errors
+ * @param {Array<string>} issueCodes
+ */
+const maybeShowTrialTokenInvalidAlert = (response, errors = [], issueCodes = []) => {
+    if (trialTokenInvalidAlertShown) {
+        return;
+    }
+
+    if (!isTrialTokenInvalidError(response, errors, issueCodes)) {
+        return;
+    }
+
+    trialTokenInvalidAlertShown = true;
+    Notification.alert(
+        trialTokenInvalidTitleLabel,
+        trialTokenInvalidMessageLabel,
+        trialTokenInvalidOkLabel
+    );
 };
 
 /**
@@ -1070,6 +1156,7 @@ const sendMessage = (message) => {
             const attemptedTasks = parseJsonList(resp.attemptedtasksjson);
             const errors = parseJsonList(resp.errorsjson);
             const issueCodes = parseJsonList(resp.issuecodesjson);
+            maybeShowTrialTokenInvalidAlert(resp, errors, issueCodes);
             const ambiguityOptions = parseJsonObjectList(resp.ambiguityoptionsjson || '[]');
             const messageText = String(resp.displaymessage || resp.message || '');
             const ambiguityOptionsHtml = renderAmbiguityOptionsHtml(ambiguityOptions);
@@ -1403,6 +1490,9 @@ export const init = (config = null) => {
                 wrapper.dataset.privacyAnswerNote
                 || 'Privacy note: personal data in this response was de-anonymized for display.'
             ),
+            trial_token_invalid_title: String(wrapper.dataset.aiTrialTokenInvalidTitle || ''),
+            trial_token_invalid_message: String(wrapper.dataset.aiTrialTokenInvalidMessage || ''),
+            trial_token_invalid_ok: String(wrapper.dataset.aiTrialTokenInvalidOk || ''),
         };
     }
 
@@ -1411,6 +1501,9 @@ export const init = (config = null) => {
     debugModeEnabled = Boolean(runtimeConfig.debug_mode);
     privacyCheckRunningLabel = String(runtimeConfig.privacy_check_running || privacyCheckRunningLabel);
     privacyAnswerNoteLabel = String(runtimeConfig.privacy_answer_note || privacyAnswerNoteLabel);
+    trialTokenInvalidTitleLabel = String(runtimeConfig.trial_token_invalid_title || '');
+    trialTokenInvalidMessageLabel = String(runtimeConfig.trial_token_invalid_message || '');
+    trialTokenInvalidOkLabel = String(runtimeConfig.trial_token_invalid_ok || '');
 
     const thinking = document.getElementById('booking-ai-thinking');
     if (thinking) {
