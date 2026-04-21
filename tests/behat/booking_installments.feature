@@ -65,21 +65,41 @@ Feature: Enabling installments as admin configuring installments as a teacher an
       | Due nr. of days before coursestart     | 1  |
     And I press "Save"
     And I should see "Only one of these values can be more than 0"
-    And I set the following fields to these values:
-      | Due nr. of days after initial purchase | 0 |
+    ##And I set the following fields to these values:
+    ##  | Due nr. of days after initial purchase | 0 |
+    And I set the field "Due nr. of days after initial purchase" to "0"
+    And I set the field "After saving..." to "Stay here"
     And I press "Save"
     And I wait "1" seconds
-    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And the field "Down payment" matches value "44"
-    And the field "Number of Payments" matches value "2"
+    And I follow "Shopping Cart"
+    And I set the field "Down payment" to "42"
+    And I set the field "Number of Payments" to "3"
+    And I set the field "Due nr. of days before coursestart" to "2"
+    And I set the field "After saving..." to "Stay here"
+    And I press "Save"
+    And I wait "1" seconds
+    ##And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And the field "Down payment" matches value "42"
+    And the field "Number of Payments" matches value "3"
     And the field "Due nr. of days after initial purchase" matches value "0"
-    And the field "Due nr. of days before coursestart" matches value "1"
+    And the field "Due nr. of days before coursestart" matches value "2"
     ## Above is little bit faster than the following
     ##And the following fields match these values:
-    ##  | Down payment                           | 44 |
-    ##  | Number of Payments                     | 2  |
+    ##  | Down payment                           | 42 |
+    ##  | Number of Payments                     | 3  |
     ##  | Due nr. of days after initial purchase | 0  |
-    ##  | Due nr. of days before coursestart     | 1  |
+    ##  | Due nr. of days before coursestart     | 2  |
+    ## Validate updates of installment settings 
+    And I click on "Show recent updates..." "button"
+    And I should see "2 of 2 records found" in the "#showEventList" "css_element"
+    And I should see "[DELETED]" in the "#showEventList .columnclass.description" "css_element"
+    And I should see "Down payment : 44" in the "#showEventList .columnclass.description" "css_element"
+    And I should see "[NEW]" in the "#showEventList .columnclass.description" "css_element"
+    And I should see "Down payment : 42" in the "#showEventList .columnclass.description" "css_element"
+    And I should see "Number of Payments : 2" in the "#showEventList .columnclass.description" "css_element"
+    And I should see "Number of Payments : 3" in the "#showEventList .columnclass.description" "css_element"
+    And I should see "Due nr. of days before coursestart : 1" in the "#showEventList .columnclass.description" "css_element"
+    And I should see "Due nr. of days before coursestart : 2" in the "#showEventList .columnclass.description" "css_element"
     And I log out
 
   @javascript
