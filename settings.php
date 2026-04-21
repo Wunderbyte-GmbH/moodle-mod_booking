@@ -687,6 +687,15 @@ if ($ADMIN->fulltree) {
 
     $settings->add(
         new admin_setting_configcheckbox(
+            'booking/customformprefillenabled',
+            get_string('customformprefillenabled', 'mod_booking'),
+            get_string('customformprefillenabled_desc', 'mod_booking'),
+            0
+        )
+    );
+
+    $settings->add(
+        new admin_setting_configcheckbox(
             'booking/showbookingdetailstoall',
             get_string('showbookingdetailstoall', 'mod_booking'),
             get_string('showbookingdetailstoall_desc', 'mod_booking'),
