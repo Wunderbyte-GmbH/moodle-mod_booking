@@ -159,9 +159,11 @@ class customform_form extends dynamic_form {
                 switch ($formelementvalue->formtype) {
                     case 'static':
                         $identifier = 'customform_' . $formelementvalue->formtype . '_' . $counter;
+                        $mform->addElement('hidden', $identifier, format_text($formelementvalue->value));
+                        $mform->setType($identifier, PARAM_RAW);
                         $mform->addElement(
                             'static',
-                            $identifier,
+                            $identifier . '_display',
                             format_string($formelementvalue->label),
                             format_text($formelementvalue->value)
                         );
@@ -172,8 +174,12 @@ class customform_form extends dynamic_form {
                             'advcheckbox',
                             $identifier,
                             '',
-                            format_string($formelementvalue->label) ?? "Label " . $counter
+                            format_string($formelementvalue->label) ?? "Label " . $counter,
+                            null,
+                            [0, 1]
                         );
+                        $mform->setType($identifier, PARAM_INT);
+                        $mform->setDefault($identifier, 0);
                         break;
                     case 'shorttext':
                         $identifier = 'customform_' . $formelementvalue->formtype . '_' . $counter;
