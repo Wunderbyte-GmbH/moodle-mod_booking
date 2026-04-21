@@ -404,7 +404,7 @@ class rule_specifictime implements booking_rule {
 
         // In case it's a deprecated rule with a "days" field, we convert it to seconds.
         $params = [
-            'numberofseconds' => ((int) $ruledata->seconds) ?? 0,
+            'numberofseconds' => (int) $this->seconds,
             'nowparam' => time(),
         ];
 
