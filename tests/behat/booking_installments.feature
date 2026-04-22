@@ -89,7 +89,7 @@ Feature: Enabling installments as admin configuring installments as a teacher an
     ##  | Number of Payments                     | 3  |
     ##  | Due nr. of days after initial purchase | 0  |
     ##  | Due nr. of days before coursestart     | 2  |
-    ## Validate updates of installment settings 
+    ## Validate updates of installment settings
     And I click on "Show recent updates..." "button"
     And I should see "2 of 2 records found" in the "#showEventList" "css_element"
     And I should see "[DELETED]" in the "#showEventList .columnclass.description" "css_element"
