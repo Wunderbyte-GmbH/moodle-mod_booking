@@ -366,6 +366,66 @@ final class rule_specifictime_test extends advanced_testcase {
                     ],
                 ],
             ],
+            'Self-learning options are skipped for reminders based on coursestarttime' => [
+                [
+                    'rulessettings' => [
+                        0 => [
+                            'name' => 'Skip self-learning coursestarttime reminders',
+                            'useastemplate' => 0,
+                            'conditionname' => 'select_student_in_bo',
+                            'conditiondata' => '{"borole":"0"}',
+                            'actionname' => 'send_mail',
+                            'actiondata' => '{"sendical":0,"sendicalcreateorcancel":"",
+                                "subject":"A session {Title} starts soon",
+                                "template":"Hi {firstname}. The session of \\"{title}\\" starts soon:<br>{bookingdetails}",
+                                "templateformat":"1"}',
+                            'rulename' => 'rule_specifictime',
+                            'ruledata' => '{"seconds":604800,"datefield":"coursestarttime"}',
+                        ],
+                    ],
+                    'useoption' => 0,
+                    'usecourse' => 1,
+                    'optionsettings' => [
+                        [
+                            'selflearningcourse' => 1,
+                            'duration' => 84400 * 4,
+                        ],
+                    ],
+                ],
+                [
+                    'initialnumberoftasks' => 0,
+                ],
+            ],
+            'Self-learning options are skipped for reminders based on courseendtime' => [
+                [
+                    'rulessettings' => [
+                        0 => [
+                            'name' => 'Skip self-learning courseendtime reminders',
+                            'useastemplate' => 0,
+                            'conditionname' => 'select_student_in_bo',
+                            'conditiondata' => '{"borole":"0"}',
+                            'actionname' => 'send_mail',
+                            'actiondata' => '{"sendical":0,"sendicalcreateorcancel":"",
+                                "subject":"A session {Title} was 2 days ago",
+                                "template":"Hi {firstname}. The session of \\"{title}\\" was 2 days ago:<br>{bookingdetails}",
+                                "templateformat":"1"}',
+                            'rulename' => 'rule_specifictime',
+                            'ruledata' => '{"seconds":-172800,"datefield":"courseendtime"}',
+                        ],
+                    ],
+                    'useoption' => 0,
+                    'usecourse' => 1,
+                    'optionsettings' => [
+                        [
+                            'selflearningcourse' => 1,
+                            'duration' => 84400 * 4,
+                        ],
+                    ],
+                ],
+                [
+                    'initialnumberoftasks' => 0,
+                ],
+            ],
             'Session reminders: Remind users before every session 1st in 2 days, 2nd and 3rd - in 10 minutes' => [
                 [
                     'rulessettings' => [
