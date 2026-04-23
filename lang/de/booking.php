@@ -1090,7 +1090,12 @@ $string['customformselectoptions'] = '<div class="alert alert-info" role="alert"
     </span>
     </div>';
 $string['customlabelsdeprecated'] = '[VERALTET] Benutzerdefinierte Bezeichnungen';
+$string['custommessageattachment'] = 'Anhang';
+$string['custommessageattachment_help'] = 'Optional eine Datei hochladen, die der E-Mail als Anhang beigefügt wird. Die Datei wird unmittelbar nach dem Versand aller E-Mails gelöscht.';
+$string['custommessagerecipients'] = 'Empfänger';
+$string['custommessagerecipients_help'] = 'Alle aktuell ausgewählten Nutzer sind vorausgewählt. Entfernen Sie hier Nutzer, die keine Nachricht erhalten sollen.';
 $string['custommessagesent'] = 'Persönliche Nachricht gesendet';
+$string['custommessagessentto'] = 'Persönliche Nachrichten wurden an folgende Personen gesendet: {$a}';
 $string['customprofilefield'] = 'Custom profile field to check';
 $string['customprofilefieldvalue'] = 'Custom profile field value to check';
 $string['customuserprofilefield'] = "Benutzerdefiniertes User Profilfeld";

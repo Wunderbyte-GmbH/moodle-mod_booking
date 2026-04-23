@@ -1803,7 +1803,6 @@ class bookingoptions_wbtable extends wunderbyte_table {
             ($this->showcountlabel ? '1' : '0') . '|' .
             ($this->showfilterontop ? '1' : '0') . '|' .
             ($this->filteronloadinactive ? '1' : '0') . '|' .
-            ($this->showrowcountselect ? '1' : '0') . '|' .
             $myfavoriteskey;
 
         // Only include tabletemplate and templatedata when there is no active template switcher.

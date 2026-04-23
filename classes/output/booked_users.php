@@ -283,7 +283,7 @@ class booked_users implements renderable, templatable {
         $table->showreloadbutton = true;
         $table->showrowcountselect = true;
 
-        $html = $table->outhtml(10, false);
+        $html = $table->outhtml(100, false);
         return count($table->rawdata) > 0 ? $html : null;
     }
 
@@ -504,7 +504,7 @@ class booked_users implements renderable, templatable {
             'instancename',
         ]);
 
-        [$idstring, $tablecachehash, $html] = $table->lazyouthtml(20, true);
+        [$idstring, $tablecachehash, $html] = $table->lazyouthtml(100, true);
         return $html;
     }
 

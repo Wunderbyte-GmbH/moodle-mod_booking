@@ -1118,7 +1118,12 @@ doubleroom => Double Room => 5 => student:100,expert:200,default:150 => 1,2,3,4,
 </span>
 </div>';
 $string['customlabelsdeprecated'] = '[DEPRECATED] Custom labels';
+$string['custommessageattachment'] = 'Attachment';
+$string['custommessageattachment_help'] = 'Optionally upload a file to be attached to the email. The file will be deleted immediately after all mails have been sent.';
+$string['custommessagerecipients'] = 'Recipients';
+$string['custommessagerecipients_help'] = 'All currently selected users are preselected. Remove users here if they should not receive the message.';
 $string['custommessagesent'] = 'Custom message sent';
+$string['custommessagessentto'] = 'Custom messages have been sent to the following users: {$a}';
 $string['customprofilefield'] = 'Custom profile field to check';
 $string['customprofilefieldvalue'] = 'Custom profile field value to check';
 $string['customuserprofilefield'] = "Custom user profile field";
