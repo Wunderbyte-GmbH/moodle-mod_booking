@@ -291,6 +291,16 @@ class nooverlapping implements bo_condition {
             get_string('nooverlappingselectinfo', 'mod_booking'),
             $options
         );
+
+        // For new options, prefill from admin config; user can still change before save.
+        if (empty($optionid)) {
+            $defaulthandling = (int) get_config('booking', 'defaultnooverlappingoncreate');
+            if (!empty($defaulthandling)) {
+                $mform->setDefault('bo_cond_nooverlapping_restrict', 1);
+                $mform->setDefault('bo_cond_nooverlapping_handling', $defaulthandling);
+            }
+        }
+
         $mform->hideIf('bo_cond_nooverlapping_handling', 'bo_cond_nooverlapping_restrict', 'eq', 0);
         $mform->addElement(
             'html',
@@ -442,7 +452,6 @@ class nooverlapping implements bo_condition {
      * @return void
      */
     public static function set_data(stdClass &$defaultvalues, int $optiondateid, int $idx) {
-
         $values = &$defaultvalues;
     }
 
@@ -506,10 +515,26 @@ class nooverlapping implements bo_condition {
             return MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY;
         }
         $availability = json_decode($settings->availability);
-        if (empty($availability[0]->nooverlapping)) {
+        if (empty($availability) || !is_array($availability)) {
             return MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY;
         }
-        $this->handling = $availability[0]->nooverlappinghandling ?? MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY;
+
+        foreach ($availability as $condition) {
+            if (empty($condition)) {
+                continue;
+            }
+
+            $isnooverlapping = !empty($condition->nooverlapping)
+                || (!empty($condition->id) && (int) $condition->id === MOD_BOOKING_BO_COND_JSON_NOOVERLAPPING)
+                || (!empty($condition->name) && $condition->name === 'nooverlapping');
+
+            if ($isnooverlapping) {
+                $this->handling = (int) ($condition->nooverlappinghandling ?? MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY);
+                return $this->handling;
+            }
+        }
+
+        $this->handling = MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY;
         return $this->handling;
     }
 }
