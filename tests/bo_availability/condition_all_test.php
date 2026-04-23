@@ -2045,6 +2045,306 @@ final class condition_all_test extends advanced_testcase {
     }
 
     /**
+     * Regression test: nooverlapping condition must be detected even if it is not the first availability element.
+     *
+     * @covers \mod_booking\bo_availability\conditions\nooverlapping::is_available
+     *
+     * @param array $bdata
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_nooverlapping_detected_when_not_first_in_availability(array $bdata): void {
+        global $DB;
+
+        $fixture = $this->create_booking_fixture_with_users($bdata);
+
+        $record = new stdClass();
+        $record->bookingid = $fixture['booking']->id;
+        $record->text = 'Base option';
+        $record->courseid = 0;
+        $record->maxanswers = 2;
+        $record->disablebookingusers = 0;
+        $record->coursestarttime = strtotime('now + 3 day');
+        $record->courseendtime = strtotime('now + 6 day');
+        $option1 = $fixture['plugingenerator']->create_option($record);
+
+        $record->text = 'Restricted option';
+        $record->coursestarttime = strtotime('now + 2 day');
+        $record->courseendtime = strtotime('now + 4 day');
+        $record->bo_cond_nooverlapping_restrict = 1;
+        $record->bo_cond_nooverlapping_handling = MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK;
+        $option2 = $fixture['plugingenerator']->create_option($record);
+
+        $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
+        $availability = json_decode($settings2->availability) ?? [];
+        $dummy = (object) [
+            'id' => 999,
+            'name' => 'dummy',
+            'class' => 'mod_booking\\bo_availability\\conditions\\dummy',
+        ];
+        $reordered = array_merge([$dummy], $availability);
+        $DB->set_field('booking_options', 'availability', json_encode($reordered), ['id' => $option2->id]);
+
+        singleton_service::destroy_booking_singleton_by_cmid($settings2->cmid);
+        \mod_booking\bo_availability\conditions\nooverlapping::reset_instance();
+
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
+        $boinfo2 = new bo_info($settings2);
+
+        $this->setUser($fixture['student1']);
+        booking_bookit::bookit('option', $settings1->id, $fixture['student1']->id);
+        booking_bookit::bookit('option', $settings1->id, $fixture['student1']->id);
+
+        [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $fixture['student1']->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_JSON_NOOVERLAPPING, $id);
+    }
+
+    /**
+     * Regression test: nooverlappingproxy must read nooverlapping handling even if condition is not first.
+     *
+     * @covers \mod_booking\bo_availability\conditions\nooverlappingproxy::is_available
+     *
+     * @param array $bdata
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_nooverlappingproxy_detected_when_not_first_in_availability(array $bdata): void {
+        global $DB;
+
+        $fixture = $this->create_booking_fixture_with_users($bdata);
+
+        $record = new stdClass();
+        $record->bookingid = $fixture['booking']->id;
+        $record->text = 'Base option';
+        $record->courseid = 0;
+        $record->maxanswers = 2;
+        $record->disablebookingusers = 0;
+        $record->coursestarttime = strtotime('now + 3 day');
+        $record->courseendtime = strtotime('now + 6 day');
+        $option1 = $fixture['plugingenerator']->create_option($record);
+
+        $record->text = 'Warn option';
+        $record->coursestarttime = strtotime('now + 2 day');
+        $record->courseendtime = strtotime('now + 4 day');
+        $record->bo_cond_nooverlapping_restrict = 1;
+        $record->bo_cond_nooverlapping_handling = MOD_BOOKING_COND_OVERLAPPING_HANDLING_WARN;
+        $option2 = $fixture['plugingenerator']->create_option($record);
+
+        $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
+        $availability = json_decode($settings2->availability) ?? [];
+        $dummy = (object) [
+            'id' => 998,
+            'name' => 'dummyproxy',
+            'class' => 'mod_booking\\bo_availability\\conditions\\dummyproxy',
+        ];
+        $reordered = array_merge([$dummy], $availability);
+        $DB->set_field('booking_options', 'availability', json_encode($reordered), ['id' => $option2->id]);
+
+        singleton_service::destroy_booking_singleton_by_cmid($settings2->cmid);
+        \mod_booking\bo_availability\conditions\nooverlappingproxy::reset_instance();
+
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
+
+        $this->setUser($fixture['student1']);
+        booking_bookit::bookit('option', $settings1->id, $fixture['student1']->id);
+        booking_bookit::bookit('option', $settings1->id, $fixture['student1']->id);
+
+        $proxy = \mod_booking\bo_availability\conditions\nooverlappingproxy::instance();
+        $this->assertTrue($proxy->is_available($settings2, $fixture['student1']->id, false));
+    }
+
+    /**
+     * Regression test: options without dates must never be blocked/warned by nooverlapping.
+     *
+     * @covers \mod_booking\bo_availability\conditions\nooverlapping::is_available
+     * @covers \mod_booking\bo_availability\conditions\nooverlapping::hard_block
+     *
+     * @param array $bdata
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_nooverlapping_ignored_when_option_has_no_dates(array $bdata): void {
+        $fixture = $this->create_booking_fixture_with_users($bdata);
+
+        $record = new stdClass();
+        $record->bookingid = $fixture['booking']->id;
+        $record->text = 'Timed option';
+        $record->courseid = 0;
+        $record->maxanswers = 2;
+        $record->disablebookingusers = 0;
+        $record->coursestarttime = strtotime('now + 3 day');
+        $record->courseendtime = strtotime('now + 6 day');
+        $option1 = $fixture['plugingenerator']->create_option($record);
+
+        $record->text = 'No date option';
+        unset($record->coursestarttime);
+        unset($record->courseendtime);
+        $record->bo_cond_nooverlapping_restrict = 1;
+        $record->bo_cond_nooverlapping_handling = MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK;
+        $option2 = $fixture['plugingenerator']->create_option($record);
+
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
+        $boinfo2 = new bo_info($settings2);
+
+        $this->setUser($fixture['student1']);
+        booking_bookit::bookit('option', $settings1->id, $fixture['student1']->id);
+        booking_bookit::bookit('option', $settings1->id, $fixture['student1']->id);
+
+        [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $fixture['student1']->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+
+        $condition = \mod_booking\bo_availability\conditions\nooverlapping::instance();
+        $this->assertFalse($condition->hard_block($settings2, $fixture['student1']->id));
+    }
+
+    /**
+     * Regression test: proxy overlap must not apply to options without dates.
+     *
+     * @covers \mod_booking\bo_availability\conditions\nooverlappingproxy::is_available
+     * @covers \mod_booking\bo_availability\conditions\nooverlappingproxy::hard_block
+     *
+     * @param array $bdata
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_nooverlappingproxy_ignored_when_option_has_no_dates(array $bdata): void {
+        $fixture = $this->create_booking_fixture_with_users($bdata);
+
+        $record = new stdClass();
+        $record->bookingid = $fixture['booking']->id;
+        $record->text = 'Timed restrictive option';
+        $record->courseid = 0;
+        $record->maxanswers = 2;
+        $record->disablebookingusers = 0;
+        $record->coursestarttime = strtotime('now + 3 day');
+        $record->courseendtime = strtotime('now + 6 day');
+        $record->bo_cond_nooverlapping_restrict = 1;
+        $record->bo_cond_nooverlapping_handling = MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK;
+        $option1 = $fixture['plugingenerator']->create_option($record);
+
+        $record->text = 'No date proxy option';
+        unset($record->bo_cond_nooverlapping_restrict);
+        unset($record->bo_cond_nooverlapping_handling);
+        unset($record->coursestarttime);
+        unset($record->courseendtime);
+        $option2 = $fixture['plugingenerator']->create_option($record);
+
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
+        $boinfo2 = new bo_info($settings2);
+
+        $this->setUser($fixture['student1']);
+        booking_bookit::bookit('option', $settings1->id, $fixture['student1']->id);
+        booking_bookit::bookit('option', $settings1->id, $fixture['student1']->id);
+
+        [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $fixture['student1']->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+
+        $proxy = \mod_booking\bo_availability\conditions\nooverlappingproxy::instance();
+        $this->assertFalse($proxy->hard_block($settings2, $fixture['student1']->id));
+    }
+
+    /**
+     * Edge case: nooverlapping should still be detected if JSON entry only exposes id/name (without nooverlapping flag).
+     *
+     * @covers \mod_booking\bo_availability\conditions\nooverlapping::is_available
+     *
+     * @param array $bdata
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_nooverlapping_detected_by_id_or_name_without_flag(array $bdata): void {
+        global $DB;
+
+        $fixture = $this->create_booking_fixture_with_users($bdata);
+
+        $record = new stdClass();
+        $record->bookingid = $fixture['booking']->id;
+        $record->text = 'Base option';
+        $record->courseid = 0;
+        $record->maxanswers = 2;
+        $record->disablebookingusers = 0;
+        $record->coursestarttime = strtotime('now + 3 day');
+        $record->courseendtime = strtotime('now + 6 day');
+        $option1 = $fixture['plugingenerator']->create_option($record);
+
+        $record->text = 'ID-name based nooverlapping';
+        $record->coursestarttime = strtotime('now + 2 day');
+        $record->courseendtime = strtotime('now + 4 day');
+        $record->bo_cond_nooverlapping_restrict = 1;
+        $record->bo_cond_nooverlapping_handling = MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK;
+        $option2 = $fixture['plugingenerator']->create_option($record);
+
+        $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
+        $availability = json_decode($settings2->availability) ?? [];
+        $updatedavailability = [];
+        foreach ($availability as $condition) {
+            if (!empty($condition->id) && (int) $condition->id === MOD_BOOKING_BO_COND_JSON_NOOVERLAPPING) {
+                $updatedavailability[] = (object) [
+                    'id' => MOD_BOOKING_BO_COND_JSON_NOOVERLAPPING,
+                    'name' => 'nooverlapping',
+                    'class' => 'mod_booking\\bo_availability\\conditions\\nooverlapping',
+                    'nooverlappinghandling' => MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK,
+                ];
+            } else {
+                $updatedavailability[] = $condition;
+            }
+        }
+        $DB->set_field('booking_options', 'availability', json_encode($updatedavailability), ['id' => $option2->id]);
+        singleton_service::destroy_booking_singleton_by_cmid($settings2->cmid);
+        \mod_booking\bo_availability\conditions\nooverlapping::reset_instance();
+
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
+        $boinfo2 = new bo_info($settings2);
+
+        $this->setUser($fixture['student1']);
+        booking_bookit::bookit('option', $settings1->id, $fixture['student1']->id);
+        booking_bookit::bookit('option', $settings1->id, $fixture['student1']->id);
+
+        [$id, $isavailable, $description] = $boinfo2->is_available($settings2->id, $fixture['student1']->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_JSON_NOOVERLAPPING, $id);
+    }
+
+    /**
+     * Shared fixture for nooverlapping tests.
+     *
+     * @param array $bdata
+     * @return array
+     */
+    private function create_booking_fixture_with_users(array $bdata): array {
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        $student1 = $this->getDataGenerator()->create_user();
+        $student2 = $this->getDataGenerator()->create_user();
+        $teacher = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($student1->id, $course->id);
+        $this->getDataGenerator()->enrol_user($student2->id, $course->id);
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id);
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course->id);
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        return [
+            'course' => $course,
+            'booking' => $booking,
+            'student1' => $student1,
+            'student2' => $student2,
+            'teacher' => $teacher,
+            'bookingmanager' => $bookingmanager,
+            'plugingenerator' => $plugingenerator,
+        ];
+    }
+
+    /**
      * Data provider for condition_bookingpolicy_test
      *
      * @return array
