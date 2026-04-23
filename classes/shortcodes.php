@@ -686,6 +686,58 @@ class shortcodes {
     }
 
     /**
+     * Renders the AI instructions chat interface inline for a given booking activity.
+     *
+     * Usage: [aiinstructions cmid=123]
+     *
+     * @param string $shortcode
+     * @param array $args
+     * @param string|null $content
+     * @param object $env
+     * @param Closure $next
+     * @return string
+     */
+    public static function aiinstructions($shortcode, $args, $content, $env, $next) {
+
+        global $OUTPUT, $USER;
+
+        // Get rid of quotation marks.
+        self::fix_args($args);
+
+        $requiredargs = ['cmid'];
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
+        if ($error['error'] === 1) {
+            return $error['message'];
+        }
+
+        $cmid = (int)$args['cmid'];
+
+        try {
+            [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'booking');
+        } catch (Throwable $e) {
+            return get_string('shortcode:error', 'mod_booking');
+        }
+
+        $authz = new \mod_booking\local\wbagent\authorization_service();
+        if (!$authz->can_use($USER->id, $cmid)) {
+            return '';
+        }
+
+        try {
+            $templatedata = (new \mod_booking\local\wbagent\aiready($cmid, $USER->id, $cm->instance))
+                ->export_for_template();
+            return $OUTPUT->render_from_template('mod_booking/aiinstructions', $templatedata);
+        } catch (Throwable $e) {
+            /** @var \context $syscontext */
+            $syscontext = context_system::instance();
+            if (has_capability('moodle/site:config', $syscontext)) {
+                return get_string('shortcode:error', 'mod_booking') . ' ' . $e->getMessage();
+            }
+            return get_string('shortcode:error', 'mod_booking');
+        }
+    }
+
+    /**
      * A small shortcode to add links to the booking options which link to this course.
      *
      * @param string $shortcode
@@ -696,8 +748,6 @@ class shortcodes {
      * @return string
      */
     public static function linkbacktocourse($shortcode, $args, $content, $env, $next) {
-
-        global $COURSE, $USER, $DB, $PAGE;
 
         // Get rid of quotation marks.
         self::fix_args($args);

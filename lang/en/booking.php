@@ -685,6 +685,7 @@ $string['bookingoptionname'] = 'Booking option name';
 $string['bookingoptionnamewithoutprefix'] = 'Name (without prefix)';
 $string['bookingoptionprice'] = 'Price';
 $string['bookingoptionview'] = 'Shortcode to show the booking button of a specific booking option.';
+$string['aiinstructions_shortcode'] = 'Shortcode to embed the AI instructions chat interface for a booking activity inline.';
 $string['bookingoptionsall'] = 'Shortcode to show all bookingoptions.';
 $string['bookingoptionsfromcondition'] = 'Shortcode to show bookingoptions from certificate condition.';
 $string['bookingoptionsfromtemplatemenu'] = 'New booking option from template';

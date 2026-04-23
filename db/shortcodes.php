@@ -79,4 +79,8 @@ $shortcodes = [
         'callback' => 'mod_booking\shortcodes::bookingoptionview',
         'description' => 'bookingoptionview',
     ],
+    'aiinstructions' => [
+        'callback' => 'mod_booking\shortcodes::aiinstructions',
+        'description' => 'aiinstructions_shortcode',
+    ],
 ];

@@ -899,6 +899,11 @@ const showRunStatus = (status, message, results = []) => {
     // eslint-disable-next-line no-console
     console.log('[AI Debug] showRunStatus called', {status, message, results});
 
+    // Notify the page that AI has finished so other components (e.g. booking list) can reload.
+    if (status === 'completed') {
+        document.dispatchEvent(new CustomEvent('mod_booking_ai_run_completed', {bubbles: true}));
+    }
+
     const friendlyMessage = buildFriendlyRunMessage(status, message, results);
     if (friendlyMessage) {
         appendFriendlyAssistantMessage(friendlyMessage);
