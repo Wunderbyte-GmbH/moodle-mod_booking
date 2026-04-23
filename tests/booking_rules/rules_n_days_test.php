@@ -151,6 +151,79 @@ final class rules_n_days_test extends advanced_testcase {
     }
 
     /**
+     * Self-learning options must not trigger reminders for option-level start/end date fields.
+     *
+     * @covers \mod_booking\booking_rules\rules\rule_daysbefore::execute
+     * @covers \mod_booking\booking_rules\rules\rule_daysbefore::check_if_rule_still_applies
+     *
+     * @dataProvider selflearning_rule_datefield_provider
+     *
+     * @param string $datefield
+     * @throws \coding_exception
+     */
+    public function test_selflearning_option_skips_option_level_datefield_rules(string $datefield): void {
+        $this->setAdminUser();
+
+        $bdata = self::booking_common_settings_provider();
+
+        // Setup test data.
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $user1 = $this->getDataGenerator()->create_user();
+        $user2 = $this->getDataGenerator()->create_user();
+
+        $bdata['booking']['course'] = $course->id;
+        $bdata['booking']['bookingmanager'] = $user2->username;
+
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata['booking']);
+
+        $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($user2->id, $course->id, 'student');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"selflearning-skip","template":"test","templateformat":"1"}';
+
+        $rule = [
+            'name' => 'selflearning-skip-rule',
+            'conditionname' => 'select_users',
+            'contextid' => 1,
+            'conditiondata' => '{"userids":["' . $user2->id . '"]}',
+            'actionname' => 'send_mail',
+            'actiondata' => $actstr,
+            'rulename' => 'rule_daysbefore',
+            'ruledata' => '{"days":"1","datefield":"' . $datefield . '","cancelrules":[]}',
+        ];
+        $plugingenerator->create_rule($rule);
+
+        $record = (object)$bdata['options'][0];
+        $record->bookingid = $booking->id;
+        $record->courseid = $course->id;
+        $record->selflearningcourse = 1;
+        $record->duration = 84400 * 4;
+        $record->coursestarttime_0 = strtotime('+10 days', time());
+        $record->courseendtime_0 = strtotime('+11 days', time());
+        $option = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option->id);
+
+        $tasks = \core\task\manager::get_adhoc_tasks('\\mod_booking\\task\\send_mail_by_rule_adhoc');
+        $this->assertCount(0, $tasks);
+    }
+
+    /**
+     * Date fields that must be ignored for self-learning options.
+     *
+     * @return array
+     */
+    public static function selflearning_rule_datefield_provider(): array {
+        return [
+            'coursestarttime' => ['coursestarttime'],
+            'courseendtime' => ['courseendtime'],
+        ];
+    }
+
+    /**
      * String that is displayed in the mtask log when mail was send successfully.
      *
      * @var string
