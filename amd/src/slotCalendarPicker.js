@@ -21,9 +21,39 @@
 
 const WEEK_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-const toDateKey = (timestamp) => {
-    const date = new Date(timestamp * 1000);
-    const year = date.getFullYear();
+const createDayKeyFormatter = (timezone) => {
+    try {
+        return new Intl.DateTimeFormat('en-CA', {
+            timeZone: timezone || undefined,
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+        });
+    } catch {
+        return new Intl.DateTimeFormat('en-CA', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+        });
+    }
+};
+
+const DEFAULT_DAY_KEY_FORMATTER = createDayKeyFormatter('');
+
+const toDateKey = (timestamp, formatter = DEFAULT_DAY_KEY_FORMATTER) => {
+    const parts = formatter.formatToParts(new Date(Number(timestamp) * 1000));
+    const year = parts.find(part => part.type === 'year')?.value || '0000';
+    const month = parts.find(part => part.type === 'month')?.value || '01';
+    const day = parts.find(part => part.type === 'day')?.value || '01';
+    return `${year}-${month}-${day}`;
+};
+
+const toDateKeyFromDate = (date) => {
+    if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
+        return '';
+    }
+
+    const year = String(date.getFullYear());
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
@@ -51,7 +81,11 @@ const getWeekStartDate = (date) => {
 };
 
 const toWeekKey = (date) => {
-    return toDateKey(Math.floor(getWeekStartDate(date).getTime() / 1000));
+    const weekStart = getWeekStartDate(date);
+    const year = weekStart.getFullYear();
+    const month = String(weekStart.getMonth() + 1).padStart(2, '0');
+    const day = String(weekStart.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 };
 
 const noop = () => {
@@ -79,8 +113,10 @@ export class SlotCalendarPicker {
         this.showPriceLegend = Boolean(options.showPriceLegend);
         this.dayStateResolver = typeof options.dayStateResolver === 'function' ? options.dayStateResolver : null;
         this.resetSelectionOnDayChange = Boolean(options.resetSelectionOnDayChange);
+        this.timezone = String(options.timezone || '').trim();
 
         this.viewMode = 'month';
+        this.dayKeyFormatter = createDayKeyFormatter(this.timezone);
         this.selected = new Set(Array.isArray(options.initialSelection) ? options.initialSelection : []);
 
         this.slotsByDay = new Map();
@@ -112,7 +148,7 @@ export class SlotCalendarPicker {
     prepareData() {
         this.slots.forEach(slot => {
             const key = slot.key || `${slot.start}:${slot.end}`;
-            const dayKey = toDateKey(Number(slot.start));
+            const dayKey = toDateKey(Number(slot.start), this.dayKeyFormatter);
             const entry = {
                 ...slot,
                 key,
@@ -430,7 +466,7 @@ export class SlotCalendarPicker {
         const month = this.currentDate.getMonth();
 
         days.forEach(date => {
-            const dayKey = toDateKey(Math.floor(date.getTime() / 1000));
+            const dayKey = toDateKeyFromDate(date);
             const daySlots = this.slotsByDay.get(dayKey) || [];
 
             const cell = document.createElement('div');

@@ -135,12 +135,21 @@ const getSelectionInput = (container) => {
 
 const getFormTimeZone = (container) => {
     if (!container) {
-        return null;
+        return 'UTC';
     }
 
     const timezoneInput = container.querySelector('input[name="slot_timezone"]');
     const timezone = String(timezoneInput?.value || '').trim();
-    return timezone || null;
+    if (!timezone || timezone === '99') {
+        return 'UTC';
+    }
+
+    try {
+        Intl.DateTimeFormat(undefined, {timeZone: timezone});
+        return timezone;
+    } catch {
+        return 'UTC';
+    }
 };
 
 const createTimeFormatter = (timezone) => {
@@ -851,6 +860,7 @@ export async function init() {
             if (!calendarRoot.dataset.slotCalendarInitialized) {
                 customCalendarPicker = initSlotCalendarPicker(calendarRoot, {
                     slots,
+                    timezone,
                     maxSelection: 1,
                     dayCountFormatter: (daySlots) => {
                         const daySlot = Array.isArray(daySlots) ? daySlots[0] : null;
@@ -910,6 +920,7 @@ export async function init() {
 
             const calendarOptions = {
                 slots,
+                timezone,
                 maxSelection: maxSlots,
                 initialSelection: fixedEditorRoot
                     ? []
