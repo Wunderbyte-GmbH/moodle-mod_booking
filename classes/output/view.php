@@ -678,7 +678,9 @@ class view implements renderable, templatable {
                 [MOD_BOOKING_STATUSPARAM_BOOKED],
                 '',
                 '',
-                $teacheroptionstable
+                $teacheroptionstable,
+                $teacherid,
+                (int)get_config('booking', 'teacherpagevisibilitymode')
             );
 
         $teacheroptionstable->set_filter_sql($fields, $from, $where, $filter, $params);

@@ -404,6 +404,175 @@ final class bookingoption_filter_test extends advanced_testcase {
             $this->markTestSkipped(
                 "Skipping test: local_wunderbyte_table required version >= {$requiredversion}. Found: {$found}."
             );
-        }
+}
+
+    }
+
+    /**
+     * Tests teacher page visibility modes for booking options.
+     *
+     * @covers \mod_booking\booking::get_options_filter_sql
+     * @return void
+     */
+    public function test_teacher_page_visibility_modes(): void {
+        $this->resetAfterTest();
+        $this->preventResetByRollback();
+        $this->setAdminUser();
+
+        $course = $this->getDataGenerator()->create_course();
+        $teacher = $this->getDataGenerator()->create_user();
+        $otherteacher = $this->getDataGenerator()->create_user();
+
+        $bdata = [
+            'course' => $course->id,
+            'name' => 'Test booking',
+        ];
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $cmid = $booking->cmid;
+        $bookingobj = singleton_service::get_instance_of_booking_by_cmid($cmid);
+        $context = $bookingobj->context;
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $optionvis = $plugingenerator->create_option((object)[
+            'bookingid' => $booking->id,
+            'text' => 'Visible option',
+            'invisible' => 0,
+            'teacherobjects' => json_encode([['id' => $teacher->id]]),
+        ]);
+
+        $optioninv1 = $plugingenerator->create_option((object)[
+            'bookingid' => $booking->id,
+            'text' => 'Fully invisible assigned',
+            'invisible' => 1,
+            'teacherobjects' => json_encode([['id' => $teacher->id]]),
+        ]);
+
+        $optioninv2 = $plugingenerator->create_option((object)[
+            'bookingid' => $booking->id,
+            'text' => 'Direct-link-only assigned',
+            'invisible' => 2,
+            'teacherobjects' => json_encode([['id' => $teacher->id]]),
+        ]);
+
+        $optioninv1other = $plugingenerator->create_option((object)[
+            'bookingid' => $booking->id,
+            'text' => 'Fully invisible unassigned',
+            'invisible' => 1,
+            'teacherobjects' => json_encode([['id' => $otherteacher->id]]),
+        ]);
+
+        set_config('teacherpagevisibilitymode', 0, 'booking');
+
+        $wherearray = [
+            'bookingid' => (int)$booking->id,
+            'teacherobjects' => '%"id":' . $teacher->id . ',%',
+        ];
+
+        [$fields, $from, $where, $params, $filter] = booking::get_options_filter_sql(
+            0,
+            0,
+            '',
+            null,
+            $context,
+            [],
+            $wherearray,
+            null,
+            [MOD_BOOKING_STATUSPARAM_BOOKED],
+            '',
+            '',
+            null,
+            $teacher->id,
+            0
+        );
+
+        $sql = "SELECT bo.id FROM {booking_options} bo $from WHERE $where";
+        $results = $this->db->get_fieldset_sql($sql, $params);
+
+        $this->assertContains($optionvis->id, $results);
+        $this->assertNotContains($optioninv1->id, $results);
+        $this->assertNotContains($optioninv2->id, $results);
+
+        set_config('teacherpagevisibilitymode', 1, 'booking');
+
+        [$fields, $from, $where, $params, $filter] = booking::get_options_filter_sql(
+            0,
+            0,
+            '',
+            null,
+            $context,
+            [],
+            $wherearray,
+            null,
+            [MOD_BOOKING_STATUSPARAM_BOOKED],
+            '',
+            '',
+            null,
+            $teacher->id,
+            1
+        );
+
+        $sql = "SELECT bo.id FROM {booking_options} bo $from WHERE $where";
+        $results = $this->db->get_fieldset_sql($sql, $params);
+
+        $this->assertContains($optionvis->id, $results);
+        $this->assertContains($optioninv1->id, $results);
+        $this->assertNotContains($optioninv2->id, $results);
+        $this->assertNotContains($optioninv1other->id, $results);
+
+        set_config('teacherpagevisibilitymode', 2, 'booking');
+
+        [$fields, $from, $where, $params, $filter] = booking::get_options_filter_sql(
+            0,
+            0,
+            '',
+            null,
+            $context,
+            [],
+            $wherearray,
+            null,
+            [MOD_BOOKING_STATUSPARAM_BOOKED],
+            '',
+            '',
+            null,
+            $teacher->id,
+            2
+        );
+
+        $sql = "SELECT bo.id FROM {booking_options} bo $from WHERE $where";
+        $results = $this->db->get_fieldset_sql($sql, $params);
+
+        $this->assertContains($optionvis->id, $results);
+        $this->assertNotContains($optioninv1->id, $results);
+        $this->assertContains($optioninv2->id, $results);
+
+        set_config('teacherpagevisibilitymode', 3, 'booking');
+
+        [$fields, $from, $where, $params, $filter] = booking::get_options_filter_sql(
+            0,
+            0,
+            '',
+            null,
+            $context,
+            [],
+            $wherearray,
+            null,
+            [MOD_BOOKING_STATUSPARAM_BOOKED],
+            '',
+            '',
+            null,
+            $teacher->id,
+            3
+        );
+
+        $sql = "SELECT bo.id FROM {booking_options} bo $from WHERE $where";
+        $results = $this->db->get_fieldset_sql($sql, $params);
+
+        $this->assertContains($optionvis->id, $results);
+        $this->assertContains($optioninv1->id, $results);
+        $this->assertContains($optioninv2->id, $results);
+        $this->assertNotContains($optioninv1other->id, $results);
     }
 }

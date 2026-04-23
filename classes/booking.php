@@ -1171,7 +1171,9 @@ class booking {
         $bookingparams = [MOD_BOOKING_STATUSPARAM_BOOKED],
         $additionalwhere = '',
         $innerfrom = '',
-        $tableinstance = null
+        $tableinstance = null,
+        $assignedteacherid = null,
+        $teacherpagevisibilitymode = 0
     ) {
 
         global $DB;
@@ -1208,6 +1210,23 @@ class booking {
                 $where = " 1 = 1 ";
             } else if (!empty($userid)) {
                 $where = " invisible <> 1 ";
+            } else if (!empty($assignedteacherid) && !empty($teacherpagevisibilitymode)) {
+                // Teacher-page visibility override: allow assigned teachers to see non-public options
+                // based on the teacherpagevisibilitymode setting.
+                // The teacher must be assigned to this option (already filtered by teacherobjects in wherearray).
+                if ($teacherpagevisibilitymode === 1) {
+                    // Mode 1: Show fully invisible options (invisible = 1) only.
+                    $where = "invisible IN (0, 1) ";
+                } else if ($teacherpagevisibilitymode === 2) {
+                    // Mode 2: Show direct-link-only options (invisible = 2) only.
+                    $where = "invisible IN (0, 2) ";
+                } else if ($teacherpagevisibilitymode === 3) {
+                    // Mode 3: Show both fully invisible and direct-link-only options.
+                    $where = " 1 = 1 ";
+                } else {
+                    // Default or unknown mode: fall back to showing only public options.
+                    $where = "invisible = 0 ";
+                }
             } else {
                 // ... then only show visible options.
                 $where = "invisible = 0 ";
