@@ -256,6 +256,10 @@ class slotbooking_form extends dynamic_form {
         $mform->addElement('hidden', 'slot_use_prices', (string)$showprices);
         $mform->setType('slot_use_prices', PARAM_INT);
 
+        $timezone = \core_date::get_user_timezone($USER);
+        $mform->addElement('hidden', 'slot_timezone', (string)$timezone);
+        $mform->setType('slot_timezone', PARAM_TEXT);
+
         $mform->addElement('hidden', 'slot_validation_error_target', 'slot_selection');
         $mform->setType('slot_validation_error_target', PARAM_ALPHANUMEXT);
 
