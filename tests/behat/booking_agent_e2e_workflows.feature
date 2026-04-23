@@ -34,7 +34,7 @@ Feature: Booking agent end-to-end task workflows
     And I follow "New booking option"
     And I set the following fields to these values:
       | Booking option name            | Flow Yoga Option |
-      | Maximum number of participants | 7                |
+      | Max. number of participants | 7                |
     And I press "Add date"
     And I wait "1" seconds
     And I set the following fields to these values:
@@ -50,10 +50,10 @@ Feature: Booking agent end-to-end task workflows
       | courseendtime_1[minute]   | 30              |
     And I set the following fields to these values:
       | Teacher (query) | teacher1 |
-    And I press "Save changes"
+    And I press "Save"
     And I wait until the page is ready
     Then I should see "Flow Yoga Option"
-    And I should see "Maximum number of participants: 7"
+    And I should see "Max. number of participants: 7"
 
   ##############################################################################
   # SCENARIO 2: Create → update capacity → verify new value
@@ -70,12 +70,12 @@ Feature: Booking agent end-to-end task workflows
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I wait until the page is ready
     And I set the following fields to these values:
-      | Maximum number of participants | 21 |
-    And I press "Save changes"
+      | Max. number of participants | 21 |
+    And I press "Save"
     And I wait until the page is ready
     Then I should see "Flow Yoga Update"
-    And I should see "Maximum number of participants: 21"
-    And I should not see "Maximum number of participants: 7"
+    And I should see "Max. number of participants: 21"
+    And I should not see "Max. number of participants: 7"
 
   ##############################################################################
   # SCENARIO 3: Filtered bulk update — only matching options are mutated
@@ -145,16 +145,16 @@ Feature: Booking agent end-to-end task workflows
     And I wait until the page is ready
     # Simulate invalid edit: clear the name and try to save (triggers validation error)
     And I set the field "Booking option name" to ""
-    And I press "Save changes"
+    And I press "Save"
     And I wait until the page is ready
     ## Moodle form validation should reject empty name (core get_string('required') → "Required")
     Then I should see "Required"
     # Now fix the name and apply a correct update (10 seats)
     And I set the following fields to these values:
       | Booking option name            | Recoverable Option |
-      | Maximum number of participants | 10                 |
-    And I press "Save changes"
+      | Max. number of participants | 10                 |
+    And I press "Save"
     And I wait until the page is ready
     Then I should see "Recoverable Option"
-    And I should see "Maximum number of participants: 10"
-    And I should not see "Maximum number of participants: 3"
+    And I should see "Max. number of participants: 10"
+    And I should not see "Max. number of participants: 3"

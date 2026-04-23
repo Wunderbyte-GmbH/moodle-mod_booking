@@ -108,8 +108,8 @@ Feature: Booking agent LLM integration workflows via AI chat
     ## Verify updated capacity appears in the activity.
     Then I am on the "LLM Booking" Activity page
     And I should see "LLM Workflow Option"
-    And I should see "Maximum number of participants: 20"
-    And I should not see "Maximum number of participants: 5"
+    And I should see "Max. number of participants: 20"
+    And I should not see "Max. number of participants: 5"
 
   ##############################################################################
   # LLM FLOW: Cancel proposed action — no changes should be applied
@@ -129,5 +129,5 @@ Feature: Booking agent LLM integration workflows via AI chat
     Then "#booking-ai-confirm-panel" "css_element" should not be visible
     ## Option must remain at 5 seats.
     And I am on the "LLM Booking" Activity page
-    And I should see "Maximum number of participants: 5"
-    And I should not see "Maximum number of participants: 99"
+    And I should see "Max. number of participants: 5"
+    And I should not see "Max. number of participants: 99"
