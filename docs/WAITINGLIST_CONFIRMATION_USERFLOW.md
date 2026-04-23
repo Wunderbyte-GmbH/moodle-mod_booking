@@ -24,29 +24,29 @@ flowchart TD
     AB -->|Yes| V[Booked place becomes free → bookingoption_freetobookagain event]
     AB -->|No| AA[Final status: BOOKED]
 
-    E --> J["Status: ON WAITING LIST (unconfirmed)"]
+    E --> J["Status: ON WAITING LIST - unconfirmed"]
 
     J --> K1{"While on waiting list:\nhow does confirmation happen?"}
-    J --> K2[User unsubscribes — 'Undo my booking']
+    J --> K2[User unsubscribes — Undo my booking]
 
     K1 -->|Admin / manager manually confirms the user| CONF
     K1 -->|rule_daysbefore or rule_specifictime task runs| M{confirmationonnotification setting}
 
-    K2 --> N["Answer set to DELETED\n(waiting-list slot freed, no booked place freed)"]
+    K2 --> N["Answer set to DELETED\nwaiting-list slot freed, no booked place freed"]
 
     M -->|0 = task confirmation disabled| J
-    M -->|1 = confirm all eligible users on waiting list| O["Task sets confirmation JSON\nfor all notified users (still on waiting list)"]
+    M -->|1 = confirm all eligible users on waiting list| O["Task sets confirmation JSON\nfor all notified users - still on waiting list"]
     M -->|2 = one at a time| P["Task sets confirmation JSON only for\nthe next user; others are un-confirmed"]
 
-    O --> CONF["User confirmed on waiting list\n= POSSIBILITY TO BOOK\n(status is still WAITINGLIST)"]
+    O --> CONF["User confirmed on waiting list\n= POSSIBILITY TO BOOK\nstatus is still WAITINGLIST"]
     P --> CONF
 
     CONF --> L{Price required for this user?}
-    L -->|No price, or user-specific price = 0| Q["Task auto-moves user:\nWAITINGLIST → BOOKED"]
-    L -->|Price > 0| R["User sees pay button\n(still on waiting list until paid)"]
+    L -->|No price, or user-specific price = 0| Q["Task auto-moves user:\nWAITINGLIST to BOOKED"]
+    L -->|Price > 0| R["User sees pay button\nstill on waiting list until paid"]
     R --> S{Does user pay in time?}
     S -->|Yes| Q
-    S -->|No| T["User stays on waiting list\n(confirmation JSON may be reset)"]
+    S -->|No| T["User stays on waiting list\nconfirmation JSON may be reset"]
 
     N --> X[Rule task re-evaluates remaining waiting-list users in timemodified order]
     V --> X
