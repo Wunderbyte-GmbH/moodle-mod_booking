@@ -20,7 +20,6 @@ use advanced_testcase;
 use context_system;
 use local_wunderbyte_table\filters\types\customfieldfilter;
 use mod_booking\table\bookingoptions_wbtable;
-use mod_booking_generator;
 use tool_mocktesttime\time_mock;
 
 /**
@@ -405,5 +404,284 @@ final class bookingoption_filter_test extends advanced_testcase {
                 "Skipping test: local_wunderbyte_table required version >= {$requiredversion}. Found: {$found}."
             );
         }
+    }
+
+    /**
+     * Tests teacher page visibility modes for booking options.
+     *
+     * @covers \mod_booking\booking::get_options_filter_sql
+     * @return void
+     */
+    public function test_teacher_page_visibility_modes(): void {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->preventResetByRollback();
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $teacher = $this->getDataGenerator()->create_user();
+        $this->setUser($teacher);
+
+        $bdata = [
+            'course' => $course->id,
+            'name' => 'Test booking',
+        ];
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $cmid = $booking->cmid;
+        $bookingobj = singleton_service::get_instance_of_booking_by_cmid($cmid);
+        $context = $bookingobj->context;
+
+        $wherearray = [
+            'bookingid' => (int)$booking->id,
+        ];
+
+        [$fields, $from, $where, $params, $filter] = booking::get_options_filter_sql(
+            0,
+            0,
+            '',
+            null,
+            $context,
+            [],
+            $wherearray,
+            null,
+            [MOD_BOOKING_STATUSPARAM_BOOKED],
+            '',
+            '',
+            null,
+            0
+        );
+        $this->assertStringContainsString('invisible = 0', $where);
+        $this->assertStringContainsString('bookingid =', $where);
+
+        [$fields, $from, $where, $params, $filter] = booking::get_options_filter_sql(
+            0,
+            0,
+            '',
+            null,
+            $context,
+            [],
+            $wherearray,
+            null,
+            [MOD_BOOKING_STATUSPARAM_BOOKED],
+            '',
+            '',
+            null,
+            1
+        );
+        $this->assertStringContainsString('invisible IN (0, 1)', $where);
+
+        [$fields, $from, $where, $params, $filter] = booking::get_options_filter_sql(
+            0,
+            0,
+            '',
+            null,
+            $context,
+            [],
+            $wherearray,
+            null,
+            [MOD_BOOKING_STATUSPARAM_BOOKED],
+            '',
+            '',
+            null,
+            2
+        );
+        $this->assertStringContainsString('invisible IN (0, 2)', $where);
+
+        [$fields, $from, $where, $params, $filter] = booking::get_options_filter_sql(
+            0,
+            0,
+            '',
+            null,
+            $context,
+            [],
+            $wherearray,
+            null,
+            [MOD_BOOKING_STATUSPARAM_BOOKED],
+            '',
+            '',
+            null,
+            3
+        );
+        $this->assertStringContainsString('1 = 1', $where);
+    }
+
+    /**
+     * Tests teacher page visibility modes with multiple teachers assigned to the same option.
+     * Verifies that the teacherobjects LIKE filter correctly selects options for each teacher
+     * and that each teacher independently sees the correct set of options per visibility mode.
+     *
+     * @covers \mod_booking\booking::get_options_filter_sql
+     * @return void
+     */
+    public function test_teacher_page_visibility_modes_multiteacher(): void {
+        global $DB;
+        $this->resetAfterTest();
+        $this->preventResetByRollback();
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $teacher1 = $this->getDataGenerator()->create_user();
+        $teacher2 = $this->getDataGenerator()->create_user();
+
+        $bdata = self::provide_bookingdata();
+        $bdata['course'] = $course->id;
+        $bdata['name'] = 'Multiteacher booking';
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+        $cmid = $booking->cmid;
+
+        $optiona = (object)['id' => $DB->insert_record('booking_options', (object)[
+            'bookingid' => $booking->id,
+            'text' => 'Visible teacher1 only',
+            'description' => 'Visible teacher1 only',
+            'invisible' => 0,
+        ])];
+        $optionb = (object)['id' => $DB->insert_record('booking_options', (object)[
+            'bookingid' => $booking->id,
+            'text' => 'Invisible teacher1 only',
+            'description' => 'Invisible teacher1 only',
+            'invisible' => 1,
+        ])];
+        $optionc = (object)['id' => $DB->insert_record('booking_options', (object)[
+            'bookingid' => $booking->id,
+            'text' => 'Invisible multi-teacher',
+            'description' => 'Invisible multi-teacher',
+            'invisible' => 1,
+        ])];
+        $optiond = (object)['id' => $DB->insert_record('booking_options', (object)[
+            'bookingid' => $booking->id,
+            'text' => 'Invisible teacher2 only',
+            'description' => 'Invisible teacher2 only',
+            'invisible' => 1,
+        ])];
+
+        // Assign teachers to options using booking_teachers relation.
+        $DB->insert_record('booking_teachers', (object)[
+            'bookingid' => $booking->id,
+            'userid' => $teacher1->id,
+            'optionid' => $optiona->id,
+            'completed' => 0,
+            'calendarid' => 0,
+        ]);
+        $DB->insert_record('booking_teachers', (object)[
+            'bookingid' => $booking->id,
+            'userid' => $teacher1->id,
+            'optionid' => $optionb->id,
+            'completed' => 0,
+            'calendarid' => 0,
+        ]);
+        $DB->insert_record('booking_teachers', (object)[
+            'bookingid' => $booking->id,
+            'userid' => $teacher1->id,
+            'optionid' => $optionc->id,
+            'completed' => 0,
+            'calendarid' => 0,
+        ]);
+        $DB->insert_record('booking_teachers', (object)[
+            'bookingid' => $booking->id,
+            'userid' => $teacher2->id,
+            'optionid' => $optionc->id,
+            'completed' => 0,
+            'calendarid' => 0,
+        ]);
+        $DB->insert_record('booking_teachers', (object)[
+            'bookingid' => $booking->id,
+            'userid' => $teacher2->id,
+            'optionid' => $optiond->id,
+            'completed' => 0,
+            'calendarid' => 0,
+        ]);
+
+        // Confirm invisible flag was persisted for options B, C and D.
+        $this->assertEquals(1, $DB->get_field('booking_options', 'invisible', ['id' => $optionb->id]));
+        $this->assertEquals(1, $DB->get_field('booking_options', 'invisible', ['id' => $optionc->id]));
+        $this->assertEquals(1, $DB->get_field('booking_options', 'invisible', ['id' => $optiond->id]));
+
+        $bookingobj = singleton_service::get_instance_of_booking_by_cmid($cmid);
+        $context = $bookingobj->context;
+
+        // Mode 1, teacher1's page: must see A, B, C but NOT D.
+        $this->setUser($teacher1);
+        $wherearray1 = [
+            'bookingid' => (int)$booking->id,
+            'teacherobjects' => '%"id":' . $teacher1->id . ',%',
+        ];
+        $table1 = new bookingoptions_wbtable("cmid_{$cmid}_t1_mode1");
+        [$fields, $from, $where, $params, $filter] = booking::get_options_filter_sql(
+            0,
+            0,
+            '',
+            null,
+            $context,
+            [],
+            $wherearray1,
+            null,
+            [MOD_BOOKING_STATUSPARAM_BOOKED],
+            '',
+            '',
+            $table1,
+            1
+        );
+        $table1->set_filter_sql($fields, $from, $where, $filter, $params);
+        $table1->printtable(10000, true);
+        $ids1 = array_keys((array)$table1->rawdata);
+        $this->assertContains((int)$optiona->id, $ids1, 'Mode 1, teacher1: visible option must appear');
+        $this->assertContains((int)$optionb->id, $ids1, 'Mode 1, teacher1: solo-teacher invisible option must appear');
+        $this->assertContains((int)$optionc->id, $ids1, 'Mode 1, teacher1: multi-teacher invisible option must appear');
+        $this->assertNotContains((int)$optiond->id, $ids1, 'Mode 1, teacher1: other teacher\'s option must not appear');
+
+        // Mode 1, teacher2's page: must see C, D but NOT A or B.
+        $this->setUser($teacher2);
+        $wherearray2 = [
+            'bookingid' => (int)$booking->id,
+            'teacherobjects' => '%"id":' . $teacher2->id . ',%',
+        ];
+        $table2 = new bookingoptions_wbtable("cmid_{$cmid}_t2_mode1");
+        [$fields, $from, $where, $params, $filter] = booking::get_options_filter_sql(
+            0,
+            0,
+            '',
+            null,
+            $context,
+            [],
+            $wherearray2,
+            null,
+            [MOD_BOOKING_STATUSPARAM_BOOKED],
+            '',
+            '',
+            $table2,
+            1
+        );
+        $table2->set_filter_sql($fields, $from, $where, $filter, $params);
+        $table2->printtable(10000, true);
+        $ids2 = array_keys((array)$table2->rawdata);
+        $this->assertContains((int)$optionc->id, $ids2, 'Mode 1, teacher2: multi-teacher invisible option must appear');
+        $this->assertContains((int)$optiond->id, $ids2, 'Mode 1, teacher2: solo-teacher2 invisible option must appear');
+        $this->assertNotContains((int)$optiona->id, $ids2, 'Mode 1, teacher2: teacher1-only visible option must not appear');
+        $this->assertNotContains((int)$optionb->id, $ids2, 'Mode 1, teacher2: teacher1-only invisible option must not appear');
+
+        // Mode 0 (default), teacher1's page: invisible options must be hidden.
+        $this->setUser($teacher1);
+        $table3 = new bookingoptions_wbtable("cmid_{$cmid}_t1_mode0");
+        [$fields, $from, $where, $params, $filter] = booking::get_options_filter_sql(
+            0,
+            0,
+            '',
+            null,
+            $context,
+            [],
+            $wherearray1,
+            null,
+            [MOD_BOOKING_STATUSPARAM_BOOKED],
+            '',
+            '',
+            $table3,
+            0
+        );
+        $table3->set_filter_sql($fields, $from, $where, $filter, $params);
+        $table3->printtable(10000, true);
+        $ids3 = array_keys((array)$table3->rawdata);
+        $this->assertContains((int)$optiona->id, $ids3, 'Mode 0, teacher1: visible option must appear');
+        $this->assertNotContains((int)$optionb->id, $ids3, 'Mode 0, teacher1: invisible option must not appear');
+        $this->assertNotContains((int)$optionc->id, $ids3, 'Mode 0, teacher1: invisible multi-teacher option must not appear');
     }
 }

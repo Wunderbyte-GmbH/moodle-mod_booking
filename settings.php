@@ -1051,6 +1051,22 @@ if ($ADMIN->fulltree) {
             )
         );
         $settings->add(
+            new admin_setting_configselect(
+                'booking/teacherpagevisibilitymode',
+                get_string('teacherpagevisibilitymode', 'mod_booking'),
+                get_string('teacherpagevisibilitymode_desc', 'mod_booking'),
+                MOD_BOOKING_VISIBILITY_OVERRIDE_DEFAULT,
+                [
+                    MOD_BOOKING_VISIBILITY_OVERRIDE_DEFAULT => get_string('teacherpagevisibilitymode:default', 'mod_booking'),
+                    MOD_BOOKING_VISIBILITY_OVERRIDE_FULLYINVISIBLE =>
+                        get_string('teacherpagevisibilitymode:fullyinvisible', 'mod_booking'),
+                    MOD_BOOKING_VISIBILITY_OVERRIDE_DIRECTLINKONLY =>
+                        get_string('teacherpagevisibilitymode:directlinkonly', 'mod_booking'),
+                    MOD_BOOKING_VISIBILITY_OVERRIDE_BOTH => get_string('teacherpagevisibilitymode:both', 'mod_booking'),
+                ]
+            )
+        );
+        $settings->add(
             new admin_setting_configcheckbox(
                 'booking/teachersallowmailtobookedusers',
                 get_string('teachersallowmailtobookedusers', 'mod_booking'),

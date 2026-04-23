@@ -1156,6 +1156,7 @@ class booking {
      * @param string $additionalwhere
      * @param string $innerfrom
      * @param ?wunderbyte_table $tableinstance
+     * @param int $visibilityoverridemode One of MOD_BOOKING_VISIBILITY_OVERRIDE_* constants.
      *
      * @return array
      */
@@ -1171,7 +1172,8 @@ class booking {
         $bookingparams = [MOD_BOOKING_STATUSPARAM_BOOKED],
         $additionalwhere = '',
         $innerfrom = '',
-        $tableinstance = null
+        $tableinstance = null,
+        $visibilityoverridemode = MOD_BOOKING_VISIBILITY_OVERRIDE_DEFAULT
     ) {
 
         global $DB;
@@ -1208,6 +1210,24 @@ class booking {
                 $where = " 1 = 1 ";
             } else if (!empty($userid)) {
                 $where = " invisible <> 1 ";
+            } else if (!empty($visibilityoverridemode)) {
+                // For the moment, this is used for the teacher page, where we want to show invisible options based on the settings.
+                // Teacher-page visibility override: allow assigned teachers to see non-public options
+                // based on the visibility override mode.
+                // The teacher assignment check is handled by caller-side where conditions.
+                if ($visibilityoverridemode === MOD_BOOKING_VISIBILITY_OVERRIDE_FULLYINVISIBLE) {
+                    // Mode 1: Show fully invisible options (invisible = 1) only.
+                    $where = "invisible IN (0, 1) ";
+                } else if ($visibilityoverridemode === MOD_BOOKING_VISIBILITY_OVERRIDE_DIRECTLINKONLY) {
+                    // Mode 2: Show direct-link-only options (invisible = 2) only.
+                    $where = "invisible IN (0, 2) ";
+                } else if ($visibilityoverridemode === MOD_BOOKING_VISIBILITY_OVERRIDE_BOTH) {
+                    // Mode 3: Show both fully invisible and direct-link-only options.
+                    $where = " 1 = 1 ";
+                } else {
+                    // Default or unknown mode: fall back to showing only public options.
+                    $where = "invisible = 0 ";
+                }
             } else {
                 // ... then only show visible options.
                 $where = "invisible = 0 ";
@@ -1216,6 +1236,7 @@ class booking {
             // The "Where"-clause is always added so we have to have something here for the sql to work.
             $where = "1=1 ";
         }
+
         // Add where condition for searchtext.
         if (!empty($searchtext)) {
             $where .= " AND " . $DB->sql_like("text", ":searchtext", false);
