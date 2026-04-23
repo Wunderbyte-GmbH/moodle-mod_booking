@@ -538,11 +538,29 @@ class nooverlappingproxy implements bo_condition {
             return MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY;
         }
         $availability = json_decode($settings->availability);
-        if (empty($availability[0]->nooverlapping)) {
+        $optionid = $settings->id;
+
+        if (empty($availability) || !is_array($availability)) {
             return MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY;
         }
-        $optionid = $settings->id;
-        $this->handling[$optionid] = $availability[0]->nooverlappinghandling ?? MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY;
+
+        foreach ($availability as $condition) {
+            if (empty($condition)) {
+                continue;
+            }
+
+            $isnooverlapping = !empty($condition->nooverlapping)
+                || (!empty($condition->id) && (int) $condition->id === MOD_BOOKING_BO_COND_JSON_NOOVERLAPPING)
+                || (!empty($condition->name) && $condition->name === 'nooverlapping');
+
+            if ($isnooverlapping) {
+                $this->handling[$optionid] = (int) ($condition->nooverlappinghandling
+                    ?? MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY);
+                return $this->handling[$optionid];
+            }
+        }
+
+        $this->handling[$optionid] = MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY;
         return $this->handling[$optionid];
     }
 }

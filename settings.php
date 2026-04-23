@@ -813,6 +813,21 @@ if ($ADMIN->fulltree) {
             )
         );
 
+        $defaultnooverlappingoptions = [
+            MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY => get_string('defaultnooverlappingoncreate:disabled', 'mod_booking'),
+            MOD_BOOKING_COND_OVERLAPPING_HANDLING_WARN  => get_string('defaultnooverlappingoncreate:warning', 'mod_booking'),
+            MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK => get_string('defaultnooverlappingoncreate:blocking', 'mod_booking'),
+        ];
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/defaultnooverlappingoncreate',
+                get_string('defaultnooverlappingoncreate', 'mod_booking'),
+                get_string('defaultnooverlappingoncreate_desc', 'mod_booking'),
+                MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY,
+                $defaultnooverlappingoptions
+            )
+        );
+
         $enrolmultipleusersformmodeoptions = [
             MOD_BOOKING_ENROLMULTIPLEUSERS_CHECKBOX =>
                 get_string('enrolmultipleusersformmode:checkbox', 'mod_booking'),
