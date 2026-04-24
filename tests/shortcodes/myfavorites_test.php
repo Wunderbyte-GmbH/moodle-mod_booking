@@ -170,7 +170,7 @@ final class myfavorites_test extends advanced_testcase {
 
         $output = $this->render_myfavorites();
 
-        $this->assertStringContainsString('shortcodes are turned off', $output);
+        $this->assertStringContainsString('The "My favorites" feature is currently disabled.', $output);
     }
 
     /**
