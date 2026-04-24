@@ -39,7 +39,6 @@ use mod_booking\local\wbagent\task_registry;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class task_registry_test extends advanced_testcase {
-
     /**
      * Duplicate task names should not throw and should keep the first registered task.
      */
@@ -80,8 +79,10 @@ final class task_registry_test extends advanced_testcase {
      * @return task_interface
      */
     private function make_task(string $name, bool $readonly): task_interface {
-        return new class($name, $readonly) implements task_interface {
+        return new class ($name, $readonly) implements task_interface {
+            /** @var string */
             private string $name;
+            /** @var bool */
             private bool $readonly;
 
             public function __construct(string $name, bool $readonly) {
@@ -119,7 +120,8 @@ final class task_registry_test extends advanced_testcase {
      * @return task_provider_interface
      */
     private function make_provider(string $component, array $tasks): task_provider_interface {
-        return new class($component, $tasks) implements task_provider_interface {
+        return new class ($component, $tasks) implements task_provider_interface {
+            /** @var string */
             private string $component;
             /** @var array<int,task_interface> */
             private array $tasks;

@@ -36,7 +36,6 @@ use mod_booking\local\wbagent\task_registry;
  * Tests for internal ai_send_message helpers used by mixed command handling.
  *
  * @runTestsInSeparateProcesses
- * @preserveGlobalState disabled
  *
  * @package    mod_booking
  * @category   test
@@ -44,7 +43,6 @@ use mod_booking\local\wbagent\task_registry;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class ai_send_message_internal_test extends advanced_testcase {
-
     /**
      * split_commands_by_mutability should classify unknown/malformed entries as mutating.
      */
@@ -141,7 +139,7 @@ final class ai_send_message_internal_test extends advanced_testcase {
     public function test_prevalidate_confirmation_commands_detects_invalid_input(): void {
         $registry = new task_registry();
         $registry->register($this->make_provider('local_validation', [
-            $this->make_task_with_custom_validate('booking.write_task', false, static function(array $input): array {
+            $this->make_task_with_custom_validate('booking.write_task', false, static function (array $input): array {
                 return [
                     'valid' => false,
                     'errors' => ['Missing required test field.'],
@@ -188,8 +186,10 @@ final class ai_send_message_internal_test extends advanced_testcase {
      * @return task_interface
      */
     private function make_task(string $name, bool $readonly): task_interface {
-        return new class($name, $readonly) implements task_interface {
+        return new class ($name, $readonly) implements task_interface {
+            /** @var string */
             private string $name;
+            /** @var bool */
             private bool $readonly;
 
             public function __construct(string $name, bool $readonly) {
@@ -228,8 +228,10 @@ final class ai_send_message_internal_test extends advanced_testcase {
      * @return task_interface
      */
     private function make_task_with_custom_validate(string $name, bool $readonly, callable $validator): task_interface {
-        return new class($name, $readonly, $validator) implements task_interface {
+        return new class ($name, $readonly, $validator) implements task_interface {
+            /** @var string */
             private string $name;
+            /** @var bool */
             private bool $readonly;
             /** @var callable */
             private $validator;
@@ -270,7 +272,8 @@ final class ai_send_message_internal_test extends advanced_testcase {
      * @return task_provider_interface
      */
     private function make_provider(string $component, array $tasks): task_provider_interface {
-        return new class($component, $tasks) implements task_provider_interface {
+        return new class ($component, $tasks) implements task_provider_interface {
+            /** @var string */
             private string $component;
             /** @var array<int,task_interface> */
             private array $tasks;

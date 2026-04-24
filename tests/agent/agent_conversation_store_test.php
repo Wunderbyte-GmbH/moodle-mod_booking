@@ -37,7 +37,6 @@ use mod_booking\local\wbagent\conversation_store;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class agent_conversation_store_test extends advanced_testcase {
-
     /**
      * Test thread creation and retrieval.
      */

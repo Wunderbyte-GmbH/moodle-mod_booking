@@ -25,7 +25,9 @@
 
 namespace mod_booking;
 
-require_once __DIR__ . '/abstract_agent_testcase.php';
+defined('MOODLE_INTERNAL') || die();
+
+require_once(__DIR__ . '/abstract_agent_testcase.php');
 
 use mod_booking\local\wbagent\task_registry;
 
@@ -39,12 +41,10 @@ use mod_booking\local\wbagent\task_registry;
  * @category   test
  * @copyright  2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @coversNothing
  */
 final class agent_e2e_readonly_test extends abstract_agent_testcase {
-
-    // -------------------------------------------------------------------------
-    // search_options
-    // -------------------------------------------------------------------------
+    // Search options.
 
     /**
      * search_options with a blank query returns all options in the instance.
@@ -102,9 +102,7 @@ final class agent_e2e_readonly_test extends abstract_agent_testcase {
         $this->assertContains((int)$opt->id, $result['previewoptionids']);
     }
 
-    // -------------------------------------------------------------------------
-    // list_actions
-    // -------------------------------------------------------------------------
+    // List actions.
 
     /**
      * list_actions (all scope) returns at least the expected core tasks.
@@ -181,9 +179,7 @@ final class agent_e2e_readonly_test extends abstract_agent_testcase {
         $this->assertContains('booking.bulk_update_options', $tasknames);
     }
 
-    // -------------------------------------------------------------------------
-    // list_option_properties
-    // -------------------------------------------------------------------------
+    // List option properties.
 
     /**
      * list_option_properties all scope returns common fields.
@@ -218,9 +214,7 @@ final class agent_e2e_readonly_test extends abstract_agent_testcase {
         }
     }
 
-    // -------------------------------------------------------------------------
-    // get_current_user
-    // -------------------------------------------------------------------------
+    // Get current user.
 
     /**
      * get_current_user returns the current executor user's info.
@@ -238,9 +232,7 @@ final class agent_e2e_readonly_test extends abstract_agent_testcase {
         $this->assertEquals($fullname, $result['fullname'] ?? '');
     }
 
-    // -------------------------------------------------------------------------
-    // is_read_only flag in registry
-    // -------------------------------------------------------------------------
+    // Is_read_only flag in registry.
 
     /**
      * Search/list tasks are always flagged as read-only in the registry.

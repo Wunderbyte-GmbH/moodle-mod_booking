@@ -117,7 +117,7 @@ class option_schema_definition {
             // WEEKDAY FLAGS: 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday, 7=Sunday.
             // For slotbooking: set ONLY the intended day(s) to true. All other days MUST be explicitly false.
             // Example for Wednesday only: slot_day_3=true, slot_day_1=false, slot_day_2=false,
-            //   slot_day_4=false, slot_day_5=false, slot_day_6=false, slot_day_7=false.
+            // slot_day_4=false, slot_day_5=false, slot_day_6=false, slot_day_7=false.
             'slot_day_1' => ['type' => 'boolean', 'description' => 'Monday (day 1). true=active, false=inactive. Must be set explicitly.', 'required' => false],
             'slot_day_2' => ['type' => 'boolean', 'description' => 'Tuesday (day 2). true=active, false=inactive. Must be set explicitly.', 'required' => false],
             'slot_day_3' => ['type' => 'boolean', 'description' => 'Wednesday (day 3). true=active, false=inactive. Must be set explicitly.', 'required' => false],

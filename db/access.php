@@ -499,7 +499,7 @@ $capabilities = [
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => [
             'editingteacher' => CAP_ALLOW,
- 		],
+        ],
     ],
     'mod/booking:editsemesters' => [
         'captype' => 'write',

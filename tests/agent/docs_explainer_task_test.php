@@ -16,7 +16,9 @@
 
 namespace mod_booking;
 
-require_once __DIR__ . '/abstract_agent_testcase.php';
+defined('MOODLE_INTERNAL') || die();
+
+require_once(__DIR__ . '/abstract_agent_testcase.php');
 
 use mod_booking\local\wbagent\booking\tasks\explain_docs_topic_task;
 use mod_booking\local\wbagent\services\docs_answering_service;
@@ -27,9 +29,9 @@ use mod_booking\local\wbagent\task_registry;
  *
  * @package    mod_booking
  * @category   test
+ * @coversNothing
  */
 final class docs_explainer_task_test extends abstract_agent_testcase {
-
     /**
      * New docs explain task must be registered in the default task registry.
      */
@@ -87,7 +89,7 @@ final class docs_explainer_task_test extends abstract_agent_testcase {
         $summary = (string)($result['usermessage'] ?? $result['detail'] ?? '');
 
         $this->assertNotSame('', trim($summary));
-        $this->assertStringNotContainsString('```', $summary);
+        $this->assertStringNotContainsString(str_repeat(chr(96), 3), $summary);
         $this->assertStringContainsString('book', strtolower($summary));
         $this->assertStringContainsString('other option', strtolower($summary));
     }
@@ -117,6 +119,8 @@ final class docs_explainer_task_test extends abstract_agent_testcase {
             private array $captured;
 
             /**
+             * Create the fake explain task.
+             *
              * @param array<string,mixed> $captured
              */
             public function __construct(array &$captured) {

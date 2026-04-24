@@ -28,12 +28,13 @@
 
 namespace mod_booking;
 
-require_once __DIR__ . '/abstract_agent_testcase.php';
+defined('MOODLE_INTERNAL') || die();
+
+require_once(__DIR__ . '/abstract_agent_testcase.php');
 
 use mod_booking\local\wbagent\orchestrator;
 use mod_booking\local\wbagent\conversation_store;
 use mod_booking\local\wbagent\interpreter;
-use mod_booking\local\wbagent\executor;
 use mod_booking\local\wbagent\task_registry;
 
 /**
@@ -44,11 +45,11 @@ use mod_booking\local\wbagent\task_registry;
  *
  * @group mod_booking
  * @group mod_booking_agent
+ * @coversNothing
  */
 final class agent_wave3_real_llm_test extends abstract_agent_testcase {
-
     /**
-     * Skip all tests unless explicitly enabled via environment variable
+     * Skip all tests unless explicitly enabled via environment variable.
      */
     public function setUp(): void {
         parent::setUp();
@@ -69,7 +70,7 @@ final class agent_wave3_real_llm_test extends abstract_agent_testcase {
     public function test_create_option_via_real_llm(): void {
         $this->setUser($this->teacher);
 
-        // Create conversation thread
+        // Create conversation thread.
         $store = new conversation_store();
         $thread = $store->get_or_create_thread(
             (int)$this->teacher->id,
@@ -78,52 +79,52 @@ final class agent_wave3_real_llm_test extends abstract_agent_testcase {
         );
         $this->assertNotNull($thread);
 
-        // User query in natural language (German as per requirements)
-        $user_query = 'Erstelle eine neue Yoga-Klasse für Anfänger. '
+        // User query in natural language (German as per requirements).
+        $userquery = 'Erstelle eine neue Yoga-Klasse für Anfänger. '
             . 'Maximal 15 Teilnehmer. '
             . 'Mittwochs um 18:00 Uhr. '
             . 'Dauer 90 Minuten. '
             . 'Studio A. '
             . 'Lehrer: ' . $this->teacher->firstname . ' ' . $this->teacher->lastname;
 
-        // Send through precheck (privacy check)
+        // Send through precheck (privacy check).
         $privacy = new \mod_booking\local\wbagent\privacy_anonymizer($store);
-        $precheck = $privacy->precheck_user_message($thread->id, $user_query);
+        $precheck = $privacy->precheck_user_message($thread->id, $userquery);
         $this->assertFalse($precheck['blocked'], 'Message should not be blocked');
 
-        $sanitized_query = $precheck['sanitizedmessage'];
+        $sanitizedquery = $precheck['sanitizedmessage'];
 
-        // Call orchestrator with real LLM
+        // Call orchestrator with real LLM.
         try {
             $orchestrator = new orchestrator($store);
-            $llm_response = $orchestrator->send_user_message_to_llm(
+            $llmresponse = $orchestrator->send_user_message_to_llm(
                 $thread->id,
-                $sanitized_query,
+                $sanitizedquery,
                 (int)$this->booking->cmid
             );
         } catch (\Throwable $e) {
             $this->markTestSkipped('LLM API unavailable: ' . $e->getMessage());
         }
 
-        $this->assertNotEmpty($llm_response, 'LLM should return a response');
+        $this->assertNotEmpty($llmresponse, 'LLM should return a response');
 
-        // Parse LLM response via interpreter
+        // Parse LLM response via interpreter.
         $interpreter = new interpreter($store, new task_registry());
-        $parsed = $interpreter->parse_llm_response($llm_response);
+        $parsed = $interpreter->parse_llm_response($llmresponse);
 
         $this->assertNotNull($parsed, 'Interpreter should parse LLM response');
         $this->assertArrayHasKey('response_type', $parsed);
 
-        // If response is a pending confirmation (typical for create_option)
+        // If response is a pending confirmation (typical for create_option).
         if ($parsed['response_type'] === 'confirm_pending') {
             $this->assertArrayHasKey('task', $parsed);
             $this->assertEquals('booking.create_option', $parsed['task']);
             $this->assertArrayHasKey('params', $parsed);
 
-            // Extract parameters
+            // Extract parameters.
             $params = $parsed['params'];
 
-            // Execute the command via executor
+            // Execute the command via executor.
             $executor = $this->make_executor();
             $results = $executor->execute_commands(
                 [['task' => 'booking.create_option', 'version' => 1, 'input' => $params]],
@@ -136,24 +137,28 @@ final class agent_wave3_real_llm_test extends abstract_agent_testcase {
             $this->assertNotEmpty($results);
             $result = reset($results);
 
-            // Verify execution status
+            // Verify execution status.
             $this->assertEquals('executed', $result['status'], $result['detail'] ?? '');
             $this->assertNotEmpty($result['resultid']);
 
-            // Verify the created option in database
+            // Verify the created option in database.
             $optionid = (int)$result['resultid'];
             $option = $this->get_option_from_db($optionid);
 
             $this->assertNotNull($option);
             $this->assertEquals($this->booking->id, (int)$option->bookingid);
 
-            // Verify key parameters were set
+            // Verify key parameters were set.
             $this->assertStringContainsString('Yoga', $option->text, 'Option name should contain "Yoga"');
             $this->assertGreaterThan(5, (int)$option->maxanswers, 'Max answers should be > 5');
             $this->assertGreaterThan(0, (int)$option->coursestarttime, 'Start time should be set');
-            $this->assertGreaterThan((int)$option->coursestarttime, (int)$option->courseendtime, 'End time should be after start time');
+            $this->assertGreaterThan(
+                (int)$option->coursestarttime,
+                (int)$option->courseendtime,
+                'End time should be after start time'
+            );
 
-            // Verify via wbtable output
+            // Verify via wbtable output.
             $rows = $this->gen->create_table_for_one_option($optionid);
             $this->assertNotEmpty($rows, 'Option should appear in booking table');
             $row = reset($rows);
@@ -167,7 +172,7 @@ final class agent_wave3_real_llm_test extends abstract_agent_testcase {
     public function test_search_options_via_llm(): void {
         $this->setUser($this->teacher);
 
-        // Create some test options first
+        // Create some test options first.
         for ($i = 0; $i < 3; $i++) {
             $this->exec_command('booking.create_option', [
                 'text' => "Test Pilates Session $i",
@@ -185,29 +190,29 @@ final class agent_wave3_real_llm_test extends abstract_agent_testcase {
             (int)$this->booking->id
         );
 
-        // Natural language search query
-        $user_query = 'Zeige mir alle Pilates Kurse an';
+        // Natural language search query.
+        $userquery = 'Zeige mir alle Pilates Kurse an';
 
-        // Privacy precheck
+        // Privacy precheck.
         $privacy = new \mod_booking\local\wbagent\privacy_anonymizer($store);
-        $precheck = $privacy->precheck_user_message($thread->id, $user_query);
-        $sanitized_query = $precheck['sanitizedmessage'];
+        $precheck = $privacy->precheck_user_message($thread->id, $userquery);
+        $sanitizedquery = $precheck['sanitizedmessage'];
 
-        // Send to LLM
+        // Send to LLM.
         try {
             $orchestrator = new orchestrator($store);
-            $llm_response = $orchestrator->send_user_message_to_llm(
+            $llmresponse = $orchestrator->send_user_message_to_llm(
                 $thread->id,
-                $sanitized_query,
+                $sanitizedquery,
                 (int)$this->booking->cmid
             );
         } catch (\Throwable $e) {
             $this->markTestSkipped('LLM API unavailable: ' . $e->getMessage());
         }
 
-        // Parse response
+        // Parse response.
         $interpreter = new interpreter($store, new task_registry());
-        $parsed = $interpreter->parse_llm_response($llm_response);
+        $parsed = $interpreter->parse_llm_response($llmresponse);
 
         $this->assertNotNull($parsed);
 
@@ -224,10 +229,10 @@ final class agent_wave3_real_llm_test extends abstract_agent_testcase {
             $result = reset($results);
             $this->assertEquals('executed', $result['status']);
 
-            // Verify search results
+            // Verify search results.
             if (isset($result['options']) && !empty($result['options'])) {
-                foreach ($result['options'] as $found_option) {
-                    $this->assertStringContainsString('Pilates', $found_option['name'] ?? '');
+                foreach ($result['options'] as $foundoption) {
+                    $this->assertStringContainsString('Pilates', $foundoption['name'] ?? '');
                 }
             }
         }
@@ -239,8 +244,8 @@ final class agent_wave3_real_llm_test extends abstract_agent_testcase {
     public function test_create_then_update_workflow_via_llm(): void {
         $this->setUser($this->teacher);
 
-        // First: Create an option via executor
-        $create_result = $this->exec_command('booking.create_option', [
+        // First: Create an option via executor.
+        $createresult = $this->exec_command('booking.create_option', [
             'text' => 'LLM Workflow Option',
             'maxanswers' => 5,
             'coursestarttime' => '2045-06-20T14:00:00',
@@ -248,11 +253,11 @@ final class agent_wave3_real_llm_test extends abstract_agent_testcase {
             'teacherquery' => 'current',
         ]);
 
-        $this->assertEquals('executed', $create_result['status']);
-        $optionid = (int)$create_result['resultid'];
+        $this->assertEquals('executed', $createresult['status']);
+        $optionid = (int)$createresult['resultid'];
         $original = $this->get_option_from_db($optionid);
 
-        // Second: Query LLM to update the option
+        // Second: Query LLM to update the option.
         $store = new conversation_store();
         $thread = $store->get_or_create_thread(
             (int)$this->teacher->id,
@@ -260,17 +265,17 @@ final class agent_wave3_real_llm_test extends abstract_agent_testcase {
             (int)$this->booking->id
         );
 
-        $user_query = "Erhöhe die Kapazität des Kurses 'LLM Workflow Option' auf 20 Teilnehmer";
+        $userquery = "Erhöhe die Kapazität des Kurses 'LLM Workflow Option' auf 20 Teilnehmer";
 
         $privacy = new \mod_booking\local\wbagent\privacy_anonymizer($store);
-        $precheck = $privacy->precheck_user_message($thread->id, $user_query);
-        $sanitized_query = $precheck['sanitizedmessage'];
+        $precheck = $privacy->precheck_user_message($thread->id, $userquery);
+        $sanitizedquery = $precheck['sanitizedmessage'];
 
         try {
             $orchestrator = new orchestrator($store);
-            $llm_response = $orchestrator->send_user_message_to_llm(
+            $llmresponse = $orchestrator->send_user_message_to_llm(
                 $thread->id,
-                $sanitized_query,
+                $sanitizedquery,
                 (int)$this->booking->cmid
             );
         } catch (\Throwable $e) {
@@ -278,10 +283,10 @@ final class agent_wave3_real_llm_test extends abstract_agent_testcase {
         }
 
         $interpreter = new interpreter($store, new task_registry());
-        $parsed = $interpreter->parse_llm_response($llm_response);
+        $parsed = $interpreter->parse_llm_response($llmresponse);
 
         if ($parsed['response_type'] === 'confirm_pending' && $parsed['task'] === 'booking.update_option') {
-            // Ensure the LLM identified the correct option
+            // Ensure the LLM identified the correct option.
             $params = $parsed['params'] ?? [];
             if (!isset($params['optionid'])) {
                 $params['optionid'] = $optionid;
@@ -300,7 +305,7 @@ final class agent_wave3_real_llm_test extends abstract_agent_testcase {
             $result = reset($results);
             $this->assertEquals('executed', $result['status']);
 
-            // Verify update in database
+            // Verify update in database.
             $updated = $this->get_option_from_db($optionid);
             $this->assertEquals(20, (int)$updated->maxanswers);
             $this->assertEquals($original->text, $updated->text, 'Title should not change');

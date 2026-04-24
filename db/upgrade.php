@@ -5267,7 +5267,7 @@ function xmldb_booking_upgrade($oldversion) {
         }
 
         upgrade_mod_savepoint(true, 2026040800, 'booking');
-	}
+    }
     if ($oldversion < 2026040801) {
         // Create booking_ai_threads table.
         $table = new xmldb_table('booking_ai_threads');
@@ -5360,7 +5360,7 @@ function xmldb_booking_upgrade($oldversion) {
         $table->add_field('slot_duration_minutes', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
         $table->add_field('slot_interval_minutes', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
         $table->add_field('slot_start_interval_minutes', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '30');
-        $table->add_field('slot_max_days_per_slot', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '1',);
+        $table->add_field('slot_max_days_per_slot', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '1');
         $table->add_field('opening_time', XMLDB_TYPE_CHAR, '5', null, XMLDB_NOTNULL, null, '08:00');
         $table->add_field('closing_time', XMLDB_TYPE_CHAR, '5', null, XMLDB_NOTNULL, null, '18:00');
         $table->add_field('valid_from', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');

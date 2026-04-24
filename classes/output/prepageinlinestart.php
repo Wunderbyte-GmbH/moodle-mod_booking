@@ -42,7 +42,6 @@ use templatable;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class prepageinlinestart implements renderable, templatable {
-
     /** @var int $optionid booking option id */
     public $optionid = 0;
 

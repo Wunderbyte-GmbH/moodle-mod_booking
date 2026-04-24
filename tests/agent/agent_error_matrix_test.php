@@ -25,7 +25,9 @@
 
 namespace mod_booking;
 
-require_once __DIR__ . '/abstract_agent_testcase.php';
+defined('MOODLE_INTERNAL') || die();
+
+require_once(__DIR__ . '/abstract_agent_testcase.php');
 
 use mod_booking\local\wbagent\interpreter;
 use mod_booking\local\wbagent\task_registry;
@@ -38,9 +40,9 @@ use mod_booking\local\wbagent\booking\booking_task_provider;
  * @category   test
  * @copyright  2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @coversNothing
  */
 final class agent_error_matrix_test extends abstract_agent_testcase {
-
     /** @var interpreter */
     private interpreter $interpreter;
 
@@ -53,9 +55,7 @@ final class agent_error_matrix_test extends abstract_agent_testcase {
         $this->interpreter = new interpreter($registry);
     }
 
-    // -------------------------------------------------------------------------
-    // Interpreter – malformed / invalid input
-    // -------------------------------------------------------------------------
+    // Interpreter - malformed / invalid input.
 
     /**
      * Completely invalid JSON → error response_type.
@@ -120,9 +120,7 @@ final class agent_error_matrix_test extends abstract_agent_testcase {
         $this->assertEquals('clarification', $result['response_type']);
     }
 
-    // -------------------------------------------------------------------------
-    // Executor – validation failures bubbling up
-    // -------------------------------------------------------------------------
+    // Executor - validation failures bubbling up.
 
     /**
      * create_option without text → stale-validation error in executor.
@@ -194,9 +192,7 @@ final class agent_error_matrix_test extends abstract_agent_testcase {
         $this->assertEquals('error', $result['status']);
     }
 
-    // -------------------------------------------------------------------------
-    // Interpreter – bulk_update_options schema
-    // -------------------------------------------------------------------------
+    // Interpreter - bulk_update_options schema.
 
     /**
      * bulk_update_options schema declares optionids, optionquery, apply_to_all.
@@ -207,8 +203,8 @@ final class agent_error_matrix_test extends abstract_agent_testcase {
 
         $this->assertArrayHasKey('properties', $schema);
         $props = $schema['properties'];
-        $this->assertArrayHasKey('optionids',    $props);
-        $this->assertArrayHasKey('optionquery',  $props);
+        $this->assertArrayHasKey('optionids', $props);
+        $this->assertArrayHasKey('optionquery', $props);
         $this->assertArrayHasKey('apply_to_all', $props);
     }
 

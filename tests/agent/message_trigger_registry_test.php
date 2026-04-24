@@ -46,7 +46,6 @@ use mod_booking\local\wbagent\booking\tasks\update_option_task;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class message_trigger_registry_test extends advanced_testcase {
-
     /**
      * Unknown trigger ids returned by the LLM must be dropped.
      */
@@ -120,9 +119,12 @@ final class message_trigger_registry_test extends advanced_testcase {
      * @return task_interface
      */
     private function make_task_with_trigger(string $name, bool $readonly, string $triggerid): task_interface {
-        return new class($name, $readonly, $triggerid) implements task_interface, task_trigger_provider_interface {
+        return new class ($name, $readonly, $triggerid) implements task_interface, task_trigger_provider_interface {
+            /** @var string */
             private string $name;
+            /** @var bool */
             private bool $readonly;
+            /** @var string */
             private string $triggerid;
 
             public function __construct(string $name, bool $readonly, string $triggerid) {
@@ -168,7 +170,8 @@ final class message_trigger_registry_test extends advanced_testcase {
      * @return task_provider_interface
      */
     private function make_provider(string $component, array $tasks): task_provider_interface {
-        return new class($component, $tasks) implements task_provider_interface {
+        return new class ($component, $tasks) implements task_provider_interface {
+            /** @var string */
             private string $component;
             /** @var array<int,task_interface> */
             private array $tasks;

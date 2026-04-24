@@ -56,7 +56,8 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
     public function get_schema(): array {
         return [
             'version' => 1,
-            'description' => 'Diagnose why the current user is not booked, cannot book, or did not receive email for a booking option or have any other issue regarding a booking option.',
+            'description' => 'Diagnose why the current user is not booked, cannot book, or did not receive email ' .
+                'for a booking option or have any other issue regarding a booking option.',
             'readonly' => $this->is_read_only(),
             'properties' => [
                 'question' => [

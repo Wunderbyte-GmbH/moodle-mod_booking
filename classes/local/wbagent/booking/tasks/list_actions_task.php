@@ -204,7 +204,7 @@ class list_actions_task extends base_booking_task {
             $intro = get_string('ai_list_actions_summary_all', 'mod_booking');
         }
 
-        $lines = array_map(static function(array $capability): string {
+        $lines = array_map(static function (array $capability): string {
             $title = trim((string)($capability['title'] ?? ''));
             $description = trim((string)($capability['description'] ?? ''));
 

@@ -46,7 +46,6 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class abstract_agent_testcase extends advanced_testcase {
-
     /** @var stdClass Course record. */
     protected stdClass $course;
 
@@ -158,7 +157,7 @@ abstract class abstract_agent_testcase extends advanced_testcase {
         ?int $cmid = null,
         ?int $userid = null
     ): array {
-        $cmid   = $cmid   ?? (int)$this->booking->cmid;
+        $cmid   = $cmid ?? (int)$this->booking->cmid;
         $userid = $userid ?? (int)$this->teacher->id;
 
         $this->setUser($userid);

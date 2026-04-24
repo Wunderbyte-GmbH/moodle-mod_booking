@@ -30,7 +30,9 @@
 
 namespace mod_booking;
 
-require_once __DIR__ . '/abstract_agent_testcase.php';
+defined('MOODLE_INTERNAL') || die();
+
+require_once(__DIR__ . '/abstract_agent_testcase.php');
 
 use mod_booking\local\wbagent\executor;
 use mod_booking\local\wbagent\task_registry;
@@ -40,15 +42,15 @@ use mod_booking\local\wbagent\task_registry;
  *
  * @group mod_booking
  * @group mod_booking_agent
+ * @coversNothing
  */
 final class agent_task_execution_test extends abstract_agent_testcase {
-
     /**
      * Test: Task registry contains all 10 core booking tasks
      */
-    public function test_task_registry_has_all_core_tasks() {
+    public function test_task_registry_has_all_core_tasks(): void {
         $registry = task_registry::make_default();
-        $task_names = $registry->get_task_names();
+        $tasknames = $registry->get_task_names();
 
         $expected = [
             'booking.create_option',
@@ -66,7 +68,7 @@ final class agent_task_execution_test extends abstract_agent_testcase {
         foreach ($expected as $task) {
             $this->assertContains(
                 $task,
-                $task_names,
+                $tasknames,
                 "Task registry must contain: $task"
             );
         }
@@ -75,7 +77,7 @@ final class agent_task_execution_test extends abstract_agent_testcase {
     /**
      * Test: Executor and Authorization Service can be instantiated
      */
-    public function test_executor_initialization() {
+    public function test_executor_initialization(): void {
         $executor = $this->make_executor();
         $this->assertNotNull($executor);
         $this->assertInstanceOf(executor::class, $executor);
@@ -84,7 +86,7 @@ final class agent_task_execution_test extends abstract_agent_testcase {
     /**
      * Test: Create option via command execution
      */
-    public function test_create_option_via_command() {
+    public function test_create_option_via_command(): void {
         $this->setUser($this->teacher);
 
         $result = $this->exec_command('booking.create_option', [
@@ -98,7 +100,7 @@ final class agent_task_execution_test extends abstract_agent_testcase {
     /**
      * Test: Search options returns structured result
      */
-    public function test_search_options_structure() {
+    public function test_search_options_structure(): void {
         $this->setUser($this->teacher);
 
         $result = $this->exec_command('booking.search_options', [
@@ -112,7 +114,7 @@ final class agent_task_execution_test extends abstract_agent_testcase {
     /**
      * Test: Search users returns structured result
      */
-    public function test_search_users_structure() {
+    public function test_search_users_structure(): void {
         $this->setUser($this->teacher);
 
         $result = $this->exec_command('booking.search_users', [
@@ -126,7 +128,7 @@ final class agent_task_execution_test extends abstract_agent_testcase {
     /**
      * Test: All list tasks return structured results
      */
-    public function test_list_tasks_structure() {
+    public function test_list_tasks_structure(): void {
         $this->setUser($this->teacher);
 
         $actions = $this->exec_command('booking.list_actions', []);
@@ -141,7 +143,7 @@ final class agent_task_execution_test extends abstract_agent_testcase {
     /**
      * Test: Get current user task
      */
-    public function test_get_current_user_task() {
+    public function test_get_current_user_task(): void {
         $this->setUser($this->teacher);
 
         $result = $this->exec_command('booking.get_current_user', []);

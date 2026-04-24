@@ -30,7 +30,9 @@
 
 namespace mod_booking;
 
-require_once __DIR__ . '/abstract_agent_testcase.php';
+defined('MOODLE_INTERNAL') || die();
+
+require_once(__DIR__ . '/abstract_agent_testcase.php');
 
 use mod_booking\local\wbagent\conversation_store;
 use mod_booking\local\wbagent\privacy_anonymizer;
@@ -40,13 +42,13 @@ use mod_booking\local\wbagent\privacy_anonymizer;
  *
  * @group mod_booking
  * @group mod_booking_agent
+ * @coversNothing
  */
 final class agent_privacy_mode_test extends abstract_agent_testcase {
-
     /**
      * Test: Privacy anonymizer blocks sensitive names in SOFT mode
      */
-    public function test_privacy_soft_mode_anonymizes_names() {
+    public function test_privacy_soft_mode_anonymizes_names(): void {
         $this->setUser($this->teacher);
 
         // Create a conversation store (defaults to MODE_OFF unless configured).
@@ -57,8 +59,8 @@ final class agent_privacy_mode_test extends abstract_agent_testcase {
         $message = 'Please assign John Smith as the teacher for this option.';
 
         // In MODE_OFF, names should pass through unchanged.
-        $result_off = $anonymizer->precheck_user_message(0, $message);
-        $this->assertStringContainsString('John Smith', $result_off['sanitizedmessage']);
+        $resultoff = $anonymizer->precheck_user_message(0, $message);
+        $this->assertStringContainsString('John Smith', $resultoff['sanitizedmessage']);
 
         // Verify the function executes without error.
         $this->assertTrue(true, "Privacy precheck executed successfully");
@@ -67,7 +69,7 @@ final class agent_privacy_mode_test extends abstract_agent_testcase {
     /**
      * Test: Privacy anonymizer handles email addresses
      */
-    public function test_privacy_handles_email_addresses() {
+    public function test_privacy_handles_email_addresses(): void {
         $this->setUser($this->teacher);
 
         $store = new conversation_store();
@@ -87,10 +89,10 @@ final class agent_privacy_mode_test extends abstract_agent_testcase {
     /**
      * Test: Task registry contains all core tasks
      */
-    public function test_task_registry_contains_core_tasks() {
+    public function test_task_registry_contains_core_tasks(): void {
         $registry = \mod_booking\local\wbagent\task_registry::make_default();
 
-        $expected_tasks = [
+        $expectedtasks = [
             'booking.create_option',
             'booking.update_option',
             'booking.bulk_update_options',
@@ -103,13 +105,13 @@ final class agent_privacy_mode_test extends abstract_agent_testcase {
             'booking.add_price_category',
         ];
 
-        $task_names = $registry->get_task_names();
+        $tasknames = $registry->get_task_names();
 
-        foreach ($expected_tasks as $task_name) {
+        foreach ($expectedtasks as $taskname) {
             $this->assertContains(
-                $task_name,
-                $task_names,
-                "Task registry should contain: $task_name"
+                $taskname,
+                $tasknames,
+                "Task registry should contain: $taskname"
             );
         }
     }
@@ -117,7 +119,7 @@ final class agent_privacy_mode_test extends abstract_agent_testcase {
     /**
      * Test: Message triggers are registered
      */
-    public function test_message_triggers_registered() {
+    public function test_message_triggers_registered(): void {
         // This is a placeholder that verifies the system doesn't crash.
         $this->assertTrue(true, "Message trigger system is functional");
     }
@@ -125,14 +127,14 @@ final class agent_privacy_mode_test extends abstract_agent_testcase {
     /**
      * Test: Task input validation
      */
-    public function test_task_input_validation_matrix() {
+    public function test_task_input_validation_matrix(): void {
         // Test that required fields are enforced.
         $this->setUser($this->teacher);
 
         // Try to create an option without required fields - should fail gracefully.
         $result = $this->exec_command('booking.create_option', [
             'text' => 'Valid Title',
-            // Missing: maxanswers, coursestarttime, duration, location
+            // Missing fields: maxanswers, coursestarttime, duration, location.
         ]);
 
         // Result should indicate missing fields or validation error.

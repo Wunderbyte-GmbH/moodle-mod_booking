@@ -25,16 +25,18 @@
 
 namespace mod_booking;
 
-require_once __DIR__ . '/abstract_agent_testcase.php';
+defined('MOODLE_INTERNAL') || die();
+
+require_once(__DIR__ . '/abstract_agent_testcase.php');
 
 /**
  * E2E scenario tests over multiple tasks.
  *
  * @group mod_booking
  * @group mod_booking_agent
+ * @coversNothing
  */
 final class agent_e2e_scenarios_test extends abstract_agent_testcase {
-
     /**
      * Build a create_option payload that satisfies normal booking type validation.
      *

@@ -37,7 +37,6 @@ use mod_booking\local\wbagent\booking\booking_task_provider;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class booking_task_provider_test extends advanced_testcase {
-
     /** @var booking_task_provider */
     private booking_task_provider $provider;
 

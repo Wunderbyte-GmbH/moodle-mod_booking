@@ -36,6 +36,21 @@ namespace mod_booking\local\wbagent\dto;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mutation_result_dto {
+    /** @var string One of: executed, error, skipped, dry_run_ok. */
+    public readonly string $status;
+
+    /** @var string Human-readable mutation detail message. */
+    public readonly string $detail;
+
+    /** @var int|null Created/updated record id when available. */
+    public readonly ?int $resultid;
+
+    /** @var array<int,string> Non-fatal warnings collected during mutation. */
+    public readonly array $warnings;
+
+    /** @var array<int,int|string> Option ids produced by preview flows. */
+    public readonly array $previewoptionids;
+
     /**
      * Constructor.
      *
@@ -46,12 +61,17 @@ class mutation_result_dto {
      * @param array    $previewoptionids Array of preview option ids.
      */
     public function __construct(
-        public readonly string $status,
-        public readonly string $detail,
-        public readonly ?int $resultid = null,
-        public readonly array $warnings = [],
-        public readonly array $previewoptionids = [],
+        string $status,
+        string $detail,
+        ?int $resultid = null,
+        array $warnings = [],
+        array $previewoptionids = [],
     ) {
+        $this->status = $status;
+        $this->detail = $detail;
+        $this->resultid = $resultid;
+        $this->warnings = $warnings;
+        $this->previewoptionids = $previewoptionids;
     }
 
     /**

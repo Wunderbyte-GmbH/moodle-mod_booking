@@ -38,7 +38,9 @@
 
 namespace mod_booking;
 
-require_once __DIR__ . '/abstract_agent_testcase.php';
+defined('MOODLE_INTERNAL') || die();
+
+require_once(__DIR__ . '/abstract_agent_testcase.php');
 
 use mod_booking\local\wbagent\aiready;
 use mod_booking\local\wbagent\conversation_store;
@@ -61,10 +63,7 @@ use mod_booking\local\wbagent\execution_feedback_service;
  * @covers     \mod_booking\local\wbagent\aiready
  */
 final class agent_task_dual_output_test extends abstract_agent_testcase {
-
-    // -------------------------------------------------------------------------
-    // list_actions_task — usermessage
-    // -------------------------------------------------------------------------
+    // List actions task - usermessage.
 
     /**
      * list_actions returns a non-empty usermessage field.
@@ -84,10 +83,16 @@ final class agent_task_dual_output_test extends abstract_agent_testcase {
         $result = $this->exec_command('booking.list_actions', ['scope' => 'all']);
 
         $usermessage = (string)($result['usermessage'] ?? '');
-        $this->assertStringNotContainsString('booking.', $usermessage,
-            'usermessage must not contain raw task namespace identifiers like "booking."');
-        $this->assertStringNotContainsString('_task', $usermessage,
-            'usermessage must not contain class-style identifiers like "_task"');
+        $this->assertStringNotContainsString(
+            'booking.',
+            $usermessage,
+            'usermessage must not contain raw task namespace identifiers like "booking."'
+        );
+        $this->assertStringNotContainsString(
+            '_task',
+            $usermessage,
+            'usermessage must not contain class-style identifiers like "_task"'
+        );
     }
 
     /**
@@ -111,9 +116,7 @@ final class agent_task_dual_output_test extends abstract_agent_testcase {
         );
     }
 
-    // -------------------------------------------------------------------------
-    // list_actions_task — debugmessage
-    // -------------------------------------------------------------------------
+    // List actions task - debugmessage.
 
     /**
      * list_actions returns a non-empty debugmessage field.
@@ -133,14 +136,26 @@ final class agent_task_dual_output_test extends abstract_agent_testcase {
         $result = $this->exec_command('booking.list_actions', ['scope' => 'all']);
 
         $debugmessage = (string)($result['debugmessage'] ?? '');
-        $this->assertStringContainsString('booking.list_actions', $debugmessage,
-            'debugmessage must contain the task identifier.');
-        $this->assertStringContainsString('Scope:', $debugmessage,
-            'debugmessage must mention the scope that was used.');
-        $this->assertStringContainsString('Returned actions:', $debugmessage,
-            'debugmessage must include a count of returned actions.');
-        $this->assertStringContainsString('Derived capabilities:', $debugmessage,
-            'debugmessage must include a count of derived capabilities.');
+        $this->assertStringContainsString(
+            'booking.list_actions',
+            $debugmessage,
+            'debugmessage must contain the task identifier.'
+        );
+        $this->assertStringContainsString(
+            'Scope:',
+            $debugmessage,
+            'debugmessage must mention the scope that was used.'
+        );
+        $this->assertStringContainsString(
+            'Returned actions:',
+            $debugmessage,
+            'debugmessage must include a count of returned actions.'
+        );
+        $this->assertStringContainsString(
+            'Derived capabilities:',
+            $debugmessage,
+            'debugmessage must include a count of derived capabilities.'
+        );
     }
 
     /**
@@ -150,12 +165,21 @@ final class agent_task_dual_output_test extends abstract_agent_testcase {
         $result = $this->exec_command('booking.list_actions', ['scope' => 'all']);
 
         $debugmessage = (string)($result['debugmessage'] ?? '');
-        $this->assertStringContainsString('Returned actions:', $debugmessage,
-            'debugmessage must show a count of returned actions.');
-        $this->assertStringContainsString('Derived capabilities:', $debugmessage,
-            'debugmessage must show a count of derived capabilities.');
-        $this->assertStringNotContainsString('booking.create_option', $debugmessage,
-            'debugmessage must not list individual task names (brief overview only).');
+        $this->assertStringContainsString(
+            'Returned actions:',
+            $debugmessage,
+            'debugmessage must show a count of returned actions.'
+        );
+        $this->assertStringContainsString(
+            'Derived capabilities:',
+            $debugmessage,
+            'debugmessage must show a count of derived capabilities.'
+        );
+        $this->assertStringNotContainsString(
+            'booking.create_option',
+            $debugmessage,
+            'debugmessage must not list individual task names (brief overview only).'
+        );
     }
 
     /**
@@ -169,9 +193,7 @@ final class agent_task_dual_output_test extends abstract_agent_testcase {
         $this->assertStringContainsString('Scope: mutating', (string)($mutating['debugmessage'] ?? ''));
     }
 
-    // -------------------------------------------------------------------------
-    // Both fields are distinct
-    // -------------------------------------------------------------------------
+    // Both fields are distinct.
 
     /**
      * usermessage and debugmessage must differ from each other.
@@ -189,9 +211,7 @@ final class agent_task_dual_output_test extends abstract_agent_testcase {
         );
     }
 
-    // -------------------------------------------------------------------------
-    // execution_feedback_service — usermessage pass-through
-    // -------------------------------------------------------------------------
+    // Execution feedback service - usermessage pass-through.
 
     /**
      * execution_feedback_service::sanitize_results_for_client passes usermessage through.
@@ -218,8 +238,11 @@ final class agent_task_dual_output_test extends abstract_agent_testcase {
         $sanitized = $method->invoke($service, $rawresults);
 
         $this->assertCount(1, $sanitized);
-        $this->assertArrayHasKey('usermessage', $sanitized[0],
-            'sanitized result must contain usermessage.');
+        $this->assertArrayHasKey(
+            'usermessage',
+            $sanitized[0],
+            'sanitized result must contain usermessage.'
+        );
         $this->assertEquals(
             'This is the friendly user message.',
             $sanitized[0]['usermessage']
@@ -249,8 +272,11 @@ final class agent_task_dual_output_test extends abstract_agent_testcase {
 
         $sanitized = $method->invoke($service, $rawresults);
 
-        $this->assertArrayHasKey('debugmessage', $sanitized[0],
-            'sanitized result must contain debugmessage.');
+        $this->assertArrayHasKey(
+            'debugmessage',
+            $sanitized[0],
+            'sanitized result must contain debugmessage.'
+        );
         $this->assertStringContainsString('booking.list_actions', $sanitized[0]['debugmessage']);
     }
 
@@ -321,9 +347,7 @@ final class agent_task_dual_output_test extends abstract_agent_testcase {
         );
     }
 
-    // -------------------------------------------------------------------------
-    // aiready debug_mode flag
-    // -------------------------------------------------------------------------
+    // Aiready debug_mode flag.
 
     /**
      * aiready::export_for_template sets debug_mode true when bookingdebugmode is on.
@@ -334,8 +358,10 @@ final class agent_task_dual_output_test extends abstract_agent_testcase {
         $aiready = new aiready((int)$this->booking->cmid, (int)$this->teacher->id, (int)$this->booking->id);
         $data = $aiready->export_for_template();
 
-        $this->assertTrue((bool)$data['debug_mode'],
-            'debug_mode must be true when bookingdebugmode config is enabled.');
+        $this->assertTrue(
+            (bool)$data['debug_mode'],
+            'debug_mode must be true when bookingdebugmode config is enabled.'
+        );
     }
 
     /**
@@ -350,8 +376,10 @@ final class agent_task_dual_output_test extends abstract_agent_testcase {
         $aiready = new aiready((int)$this->booking->cmid, (int)$this->teacher->id, (int)$this->booking->id);
         $data = $aiready->export_for_template();
 
-        $this->assertTrue((bool)$data['debug_mode'],
-            'debug_mode must be true when CFG->debug is DEBUG_DEVELOPER.');
+        $this->assertTrue(
+            (bool)$data['debug_mode'],
+            'debug_mode must be true when CFG->debug is DEBUG_DEVELOPER.'
+        );
     }
 
     /**
@@ -366,13 +394,13 @@ final class agent_task_dual_output_test extends abstract_agent_testcase {
         $aiready = new aiready((int)$this->booking->cmid, (int)$this->teacher->id, (int)$this->booking->id);
         $data = $aiready->export_for_template();
 
-        $this->assertFalse((bool)$data['debug_mode'],
-            'debug_mode must be false when both bookingdebugmode and CFG->debug are inactive.');
+        $this->assertFalse(
+            (bool)$data['debug_mode'],
+            'debug_mode must be false when both bookingdebugmode and CFG->debug are inactive.'
+        );
     }
 
-    // -------------------------------------------------------------------------
-    // search_options_task — debugmessage
-    // -------------------------------------------------------------------------
+    // Search options task - debugmessage.
 
     /**
      * search_options returns a debugmessage containing task name and params.
@@ -387,9 +415,7 @@ final class agent_task_dual_output_test extends abstract_agent_testcase {
         $this->assertStringContainsString('Results:', $debugmessage);
     }
 
-    // -------------------------------------------------------------------------
-    // search_users_task — debugmessage
-    // -------------------------------------------------------------------------
+    // Search users task - debugmessage.
 
     /**
      * search_users returns a debugmessage containing task name, params and result count.
@@ -403,9 +429,7 @@ final class agent_task_dual_output_test extends abstract_agent_testcase {
         $this->assertStringContainsString('Results:', $debugmessage);
     }
 
-    // -------------------------------------------------------------------------
-    // search_courses_task — debugmessage
-    // -------------------------------------------------------------------------
+    // Search courses task - debugmessage.
 
     /**
      * search_courses returns a debugmessage containing task name and result count.
@@ -419,9 +443,7 @@ final class agent_task_dual_output_test extends abstract_agent_testcase {
         $this->assertStringContainsString('Results:', $debugmessage);
     }
 
-    // -------------------------------------------------------------------------
-    // get_current_user_task — debugmessage
-    // -------------------------------------------------------------------------
+    // Get current user task - debugmessage.
 
     /**
      * get_current_user returns a debugmessage with resolved user info.
@@ -433,15 +455,18 @@ final class agent_task_dual_output_test extends abstract_agent_testcase {
         $debugmessage = (string)($result['debugmessage'] ?? '');
         $this->assertStringContainsString('booking.get_current_user', $debugmessage);
         $this->assertStringContainsString('Resolved user:', $debugmessage);
-        $this->assertSame('user_profile', (string)($result['previewmode'] ?? ''),
-            'get_current_user should explicitly request user_profile preview mode.');
-        $this->assertIsArray($result['previewdata'] ?? null,
-            'get_current_user should provide previewdata payload for user profile rendering.');
+        $this->assertSame(
+            'user_profile',
+            (string)($result['previewmode'] ?? ''),
+            'get_current_user should explicitly request user_profile preview mode.'
+        );
+        $this->assertIsArray(
+            $result['previewdata'] ?? null,
+            'get_current_user should provide previewdata payload for user profile rendering.'
+        );
     }
 
-    // -------------------------------------------------------------------------
-    // list_option_properties_task — debugmessage
-    // -------------------------------------------------------------------------
+    // List option properties task - debugmessage.
 
     /**
      * list_option_properties returns a debugmessage with property count.
@@ -455,9 +480,7 @@ final class agent_task_dual_output_test extends abstract_agent_testcase {
         $this->assertStringContainsString('Properties returned:', $debugmessage);
     }
 
-    // -------------------------------------------------------------------------
-    // build_task_debug_message — helper contract
-    // -------------------------------------------------------------------------
+    // Build task debug message - helper contract.
 
     /**
      * build_task_debug_message omits empty/null parameter values.
@@ -466,8 +489,11 @@ final class agent_task_dual_output_test extends abstract_agent_testcase {
         $result = $this->exec_command('booking.search_options', ['query' => 'foo', 'when' => '']);
 
         $debugmessage = (string)($result['debugmessage'] ?? '');
-        // 'when' is empty so it must not appear in Params line.
-        $this->assertStringNotContainsString('when=', $debugmessage,
-            'Empty params must not appear in debugmessage.');
+        // The empty 'when' value must not appear in the params line.
+        $this->assertStringNotContainsString(
+            'when=',
+            $debugmessage,
+            'Empty params must not appear in debugmessage.'
+        );
     }
 }

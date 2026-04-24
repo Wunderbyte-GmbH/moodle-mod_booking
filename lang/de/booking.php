@@ -96,6 +96,67 @@ $string['agent_booking_create_option_exists_multiple'] =
     'Eine oder mehrere Buchungsoptionen mit exakt diesem Titel existieren bereits: {$a}. Moechten Sie stattdessen eine davon aktualisieren?';
 $string['agent_booking_create_option_exists_single'] =
     'Eine Buchungsoption mit exakt diesem Titel existiert bereits (id={$a}). Moechten Sie diese Option statt einer Neuanlage aktualisieren?';
+$string['agent_booking_diagnose_ambiguity_last_preview_multiple'] =
+    'Ihre letzte Vorschau enthaelt mehrere Optionen. Bitte sagen Sie mir, welche Sie meinen.';
+$string['agent_booking_diagnose_ambiguity_option_required'] =
+    'Welche Buchungsoption meinen Sie? Bitte geben Sie den Titel oder die ID der Option an.';
+$string['agent_booking_diagnose_ambiguity_option_specify'] =
+    'Bitte praezisieren Sie die Buchungsoption.';
+$string['agent_booking_diagnose_ambiguity_option_title_or_id'] =
+    'Bitte geben Sie den Titel oder die ID der Buchungsoption an.';
+$string['agent_booking_diagnose_error_last_preview_none'] =
+    'Es gibt keine kuerzlich vorgeschlagene Option, auf die verwiesen werden kann.';
+$string['agent_booking_diagnose_error_option_not_in_instance'] =
+    'Die angegebene optionid gehoert nicht zu dieser Buchungsinstanz.';
+$string['agent_booking_diagnose_error_option_resolve'] =
+    'Die Buchungsoption konnte nicht aufgeloest werden.';
+$string['agent_booking_diagnose_intro_cannot_book'] =
+    'Darum kann die Buchung aktuell fehlschlagen:';
+$string['agent_booking_diagnose_intro_checked_option'] =
+    'Ich habe Ihre Buchungssituation fuer "{$a}" geprueft.';
+$string['agent_booking_diagnose_intro_missing_email'] =
+    'Das kann ich zur E-Mail-Frage bestaetigen:';
+$string['agent_booking_diagnose_intro_status'] =
+    'Ihr aktueller Status ist {$a}.';
+$string['agent_booking_diagnose_reason_cannot_book_already_booked'] =
+    'Sie sind bereits gebucht, daher ist eine weitere normale Buchung nicht verfuegbar.';
+$string['agent_booking_diagnose_reason_cannot_book_fully_booked'] =
+    'Die Option ist derzeit voll belegt.';
+$string['agent_booking_diagnose_reason_cannot_book_no_waitinglist'] =
+    'Diese Option bietet keine Warteliste an.';
+$string['agent_booking_diagnose_reason_cannot_book_waitinglist_available'] =
+    'Die regulaeren Plaetze sind voll, aber auf der Warteliste sind noch Plaetze frei.';
+$string['agent_booking_diagnose_reason_cannot_book_waitinglist_full'] =
+    'Die Warteliste ist ebenfalls voll.';
+$string['agent_booking_diagnose_reason_missing_email_booked'] =
+    'Sie sind fuer diese Option gebucht; eine fehlende Buchung erklaert die fehlende E-Mail daher nicht.';
+$string['agent_booking_diagnose_reason_missing_email_limitations'] =
+    'Diese Selbstpruefung kann nicht nachweisen, ob eine E-Mail tatsaechlich gesendet oder zugestellt wurde.';
+$string['agent_booking_diagnose_reason_missing_email_manager_check'] =
+    'Bei Bedarf kann eine verantwortliche Person Mailvorlagen, Regeln und die geplante Mail-Warteschlange pruefen.';
+$string['agent_booking_diagnose_reason_missing_email_not_booked'] =
+    'Sie sind fuer diese Option derzeit nicht gebucht.';
+$string['agent_booking_diagnose_reason_missing_email_waitinglist'] =
+    'Sie stehen auf der Warteliste, wodurch andere Benachrichtigungen als bei einer bestaetigten Buchung moeglich sind.';
+$string['agent_booking_diagnose_reason_none'] =
+    'Aus dem aktuellen Buchungsstatus konnte kein konkreter Blockierungsgrund abgeleitet werden.';
+$string['agent_booking_diagnose_reason_status_booked'] =
+    'Sie haben fuer diese Option bereits eine bestaetigte Buchung.';
+$string['agent_booking_diagnose_reason_status_notbooked'] =
+    'Fuer Sie existiert derzeit kein Buchungseintrag fuer diese Option.';
+$string['agent_booking_diagnose_reason_status_notifylist'] =
+    'Sie stehen auf der Benachrichtigungsliste, sind aber nicht gebucht.';
+$string['agent_booking_diagnose_reason_status_reserved'] =
+    'Sie haben derzeit nur eine Reservierung, aber keine bestaetigte Buchung.';
+$string['agent_booking_diagnose_reason_status_waitinglist'] =
+    'Sie stehen fuer diese Option aktuell auf der Warteliste.';
+$string['agent_booking_diagnose_required_question'] =
+    'Das Feld "question" ist fuer diagnose_booking_issue erforderlich.';
+$string['agent_booking_diagnose_status_booked'] = 'gebucht';
+$string['agent_booking_diagnose_status_notbooked'] = 'nicht gebucht';
+$string['agent_booking_diagnose_status_notifylist'] = 'Benachrichtigungsliste';
+$string['agent_booking_diagnose_status_reserved'] = 'reserviert';
+$string['agent_booking_diagnose_status_waitinglist'] = 'Warteliste';
 $string['agent_booking_resolve_user_ambiguous'] =
     'Mehrere Nutzer:innen wurden gefunden: {$a}. Bitte geben Sie eine spezifischere Nutzerabfrage an (z. B. mit E-Mail oder Nutzer-ID).';
 $string['agent_booking_resolve_user_no_match'] =
@@ -108,138 +169,7 @@ $string['agent_booking_update_permission_denied_generic'] =
     'Sie duerfen ein oder mehrere angeforderte Felder nicht bearbeiten.';
 $string['agent_booking_update_permission_denied_groups'] =
     'Sie duerfen diese Feldgruppen in diesem Buchungskontext nicht bearbeiten: {$a}.';
-$string['agent_booking_diagnose_required_question'] =
-    'Das Feld "question" ist fuer diagnose_booking_issue erforderlich.';
-$string['agent_booking_diagnose_ambiguity_option_required'] =
-    'Welche Buchungsoption meinen Sie? Bitte geben Sie den Titel oder die ID der Option an.';
-$string['agent_booking_diagnose_ambiguity_option_specify'] =
-    'Bitte praezisieren Sie die Buchungsoption.';
-$string['agent_booking_diagnose_error_option_resolve'] =
-    'Die Buchungsoption konnte nicht aufgeloest werden.';
-$string['agent_booking_diagnose_error_option_not_in_instance'] =
-    'Die angegebene optionid gehoert nicht zu dieser Buchungsinstanz.';
-$string['agent_booking_diagnose_ambiguity_option_title_or_id'] =
-    'Bitte geben Sie den Titel oder die ID der Buchungsoption an.';
-$string['agent_booking_diagnose_ambiguity_last_preview_multiple'] =
-    'Ihre letzte Vorschau enthaelt mehrere Optionen. Bitte sagen Sie mir, welche Sie meinen.';
-$string['agent_booking_diagnose_error_last_preview_none'] =
-    'Es gibt keine kuerzlich vorgeschlagene Option, auf die verwiesen werden kann.';
-$string['agent_booking_diagnose_reason_status_booked'] =
-    'Sie haben fuer diese Option bereits eine bestaetigte Buchung.';
-$string['agent_booking_diagnose_reason_status_waitinglist'] =
-    'Sie stehen fuer diese Option aktuell auf der Warteliste.';
-$string['agent_booking_diagnose_reason_status_reserved'] =
-    'Sie haben derzeit nur eine Reservierung, aber keine bestaetigte Buchung.';
-$string['agent_booking_diagnose_reason_status_notifylist'] =
-    'Sie stehen auf der Benachrichtigungsliste, sind aber nicht gebucht.';
-$string['agent_booking_diagnose_reason_status_notbooked'] =
-    'Fuer Sie existiert derzeit kein Buchungseintrag fuer diese Option.';
-$string['agent_booking_diagnose_reason_cannot_book_already_booked'] =
-    'Sie sind bereits gebucht, daher ist eine weitere normale Buchung nicht verfuegbar.';
-$string['agent_booking_diagnose_reason_cannot_book_fully_booked'] =
-    'Die Option ist derzeit voll belegt.';
-$string['agent_booking_diagnose_reason_cannot_book_no_waitinglist'] =
-    'Diese Option bietet keine Warteliste an.';
-$string['agent_booking_diagnose_reason_cannot_book_waitinglist_full'] =
-    'Die Warteliste ist ebenfalls voll.';
-$string['agent_booking_diagnose_reason_cannot_book_waitinglist_available'] =
-    'Die regulaeren Plaetze sind voll, aber auf der Warteliste sind noch Plaetze frei.';
-$string['agent_booking_diagnose_reason_missing_email_booked'] =
-    'Sie sind fuer diese Option gebucht; eine fehlende Buchung erklaert die fehlende E-Mail daher nicht.';
-$string['agent_booking_diagnose_reason_missing_email_waitinglist'] =
-    'Sie stehen auf der Warteliste, wodurch andere Benachrichtigungen als bei einer bestaetigten Buchung moeglich sind.';
-$string['agent_booking_diagnose_reason_missing_email_not_booked'] =
-    'Sie sind fuer diese Option derzeit nicht gebucht.';
-$string['agent_booking_diagnose_reason_missing_email_limitations'] =
-    'Diese Selbstpruefung kann nicht nachweisen, ob eine E-Mail tatsaechlich gesendet oder zugestellt wurde.';
-$string['agent_booking_diagnose_reason_missing_email_manager_check'] =
-    'Bei Bedarf kann eine verantwortliche Person Mailvorlagen, Regeln und die geplante Mail-Warteschlange pruefen.';
-$string['agent_booking_diagnose_reason_none'] =
-    'Aus dem aktuellen Buchungsstatus konnte kein konkreter Blockierungsgrund abgeleitet werden.';
-$string['agent_booking_diagnose_intro_checked_option'] =
-    'Ich habe Ihre Buchungssituation fuer "{$a}" geprueft.';
-$string['agent_booking_diagnose_intro_missing_email'] =
-    'Das kann ich zur E-Mail-Frage bestaetigen:';
-$string['agent_booking_diagnose_intro_cannot_book'] =
-    'Darum kann die Buchung aktuell fehlschlagen:';
-$string['agent_booking_diagnose_intro_status'] =
-    'Ihr aktueller Status ist {$a}.';
-$string['agent_booking_diagnose_status_booked'] = 'gebucht';
-$string['agent_booking_diagnose_status_waitinglist'] = 'Warteliste';
-$string['agent_booking_diagnose_status_reserved'] = 'reserviert';
-$string['agent_booking_diagnose_status_notifylist'] = 'Benachrichtigungsliste';
-$string['agent_booking_diagnose_status_notbooked'] = 'nicht gebucht';
-$string['ai_preview_latest_option'] =
-    'Hier ist die zuletzt erstellte oder aktualisierte Buchungsoption.';
-$string['ai_preview_no_commands'] = 'Keine Befehlsvorschau verfuegbar.';
-$string['ai_lookup_detected_blocked_mutation'] = 'Ich habe Ihre Nachricht als Such-/Listenanfrage verstanden und deshalb keine Aenderung vorbereitet. Bitte sagen Sie, was ich genau suchen soll.';
-$string['ai_preview_no_matching_option'] =
-    'Keine bestehende Option fuer die Zeilenvorschau gefunden. Bitte bestaetigen Sie zuerst die Zieloption.';
-$string['ai_preview_not_supported_task'] =
-    'Eine Zeilenvorschau ist nur fuer Befehle zum Erstellen/Aktualisieren von Optionen verfuegbar.';
-$string['aiready_admin_text'] = 'Ich kann im naechsten Schritt ein Trial-Setup fuer Sie vorbereiten. Sie erhalten einen AI-Key von Wunderbyte und koennen erste Tests durchfuehren. Wenn Sie nach dem Trial weitermachen moechten, koennen Sie Ihr eigenes Token verwenden oder ein Abonnement bei Wunderbyte kaufen.';
-$string['aiready_admin_text_provider_exists'] = 'Es scheint bereits einen funktionierenden AI-Provider zu geben. Sollen wir das System jetzt einrichten und pruefen, ob alles funktioniert?';
-$string['aiready_check_capability'] = 'Sie duerfen Booking AI verwenden';
-$string['aiready_check_capability_done'] = 'Ihre aktuelle Rolle kann AI Instructions in dieser Aktivitaet verwenden.';
-$string['aiready_check_capability_todo'] = 'Ihre aktuelle Rolle kann Booking AI in dieser Aktivitaet nicht verwenden.';
-$string['aiready_check_course_enabled'] = 'AI ist in diesem Kurs erlaubt';
-$string['aiready_check_course_enabled_done'] = 'AI-Tools sind fuer diesen Kurs aktiviert.';
-$string['aiready_check_course_enabled_todo'] = 'AI-Tools sind fuer diesen Kurs derzeit nicht aktiviert.';
-$string['aiready_check_context_enabled'] = 'AI in diesem Kursmodul erlaubt';
-$string['aiready_check_context_enabled_done'] = 'AI-Tools sind fuer diese Booking-Aktivitaet aktiviert.';
-$string['aiready_check_context_enabled_todo'] = 'AI-Tools sind in diesem Kursmodul derzeit nicht erlaubt.';
-$string['aiready_configure_here'] = 'Hier konfigurieren';
-$string['aiready_check_provider_active'] = 'AI-Provider aktiv';
-$string['aiready_check_provider_active_done'] = 'Ein Textgenerierungs-Provider ist aktiv und einsatzbereit.';
-$string['aiready_check_provider_active_todo'] = 'Derzeit ist kein aktiver Textgenerierungs-Provider vorhanden.';
-$string['aiready_check_provider_configured'] = 'AI-Provider konfiguriert';
-$string['aiready_check_provider_configured_done'] = 'Auf dieser Plattform ist ein AI-Provider konfiguriert.';
-$string['aiready_check_provider_configured_todo'] = 'Auf dieser Plattform ist noch kein AI-Provider konfiguriert.';
-$string['aiready_intro_heading'] = 'Hi, ich bin Ihr Booking-Agent.';
-$string['aiready_intro_text'] = 'Ich kann neue Buchungsoptionen erstellen, Ihnen die volle Leistungsfaehigkeit von Booking erklaeren und bei der Konfiguration Ihrer Plattform helfen. Dafuer muessen Sie AI auf dieser Plattform aktivieren.';
-$string['aiready_nonadmin_text'] = 'Nur ein Admin kann AI-Funktionen auf dieser Plattform freischalten. Wenn Sie das nutzen moechten, bitten Sie Ihren Admin, diese Seite zu besuchen.';
-$string['aiready_setup_required'] = 'Setup erforderlich';
-$string['aiinitialprompt'] = 'Initialer AI-System-Prompt';
-$string['aiinitialprompt_desc'] = 'Bearbeitbarer Basis-Prompt fuer den Booking-AI-Assistenten. Unterstuetzte Platzhalter: {{bookingname}}, {{timezonename}}, {{nowiso}}, {{tasklist}}, {{schemajson}}.';
-$string['aiprivacymode'] = 'AI-Datenschutzmodus';
-$string['aiprivacymode_desc'] = 'Steuert, ob personenbezogene Daten anonymisiert werden, bevor Nachrichten an den AI-Provider gesendet werden.';
-$string['aiprivacymode_off'] = 'Aus (keine Anonymisierung vor LLM)';
-$string['aiprivacymode_soft'] = 'Soft (nur serverseitig aufgeloeste Daten anonymisieren)';
-$string['aiprivacymode_strict'] = 'Strikt (serverseitige Daten und vom User eingegebene Namen/E-Mails vor LLM anonymisieren)';
-$string['ai_privacy_check_running'] = 'Datenschutzpruefung laeuft...';
-$string['ai_privacy_response_note'] = 'Datenschutzhinweis: Personenbezogene Daten in dieser Antwort wurden fuer die Anzeige deanonymisiert.';
-$string['ai_privacy_precheck_summary'] = '{$a->count} Eintraege in der Anfrage anonymisiert ({$a->names} Namen, {$a->emails} E-Mails).';
-$string['ai_privacy_precheck_summary_none'] = 'Datenschutzpruefung abgeschlossen: keine personenbezogenen Eintraege gefunden.';
-$string['aitrial_activating'] = 'Aktivierung laeuft...';
-$string['aitrial_activate_now'] = 'Ja, AI jetzt fuer diesen Kurs und dieses Kursmodul aktivieren';
-$string['aitrial_activate_success'] = 'Willkommen. AI ist jetzt fuer diesen Kurs und dieses Kursmodul aktiviert. Fuer einen schnellen Test sagen Sie zur LLM: "Say welcome".';
-$string['aitrial_activation_question'] = 'Sollen wir jetzt alles einrichten, um AI fuer diesen Kurs und dieses Kursmodul zu aktivieren?';
-$string['aitrial_activation_question_existing_provider'] = 'Es scheint einen funktionierenden AI-Provider zu geben. Sollen wir das System jetzt einrichten und pruefen, ob alles funktioniert?';
-$string['aitrial_button_start'] = 'Ich moechte jetzt meine kostenlose Testversion starten';
-$string['aitrial_coreai_unavailable'] = 'Das core-AI-Subsystem ist in dieser Moodle-Version nicht verfuegbar.';
-$string['aitrial_disclaimer'] = '* Dabei wird die URL dieser Seite an die Wunderbyte GmbH uebermittelt und Sie erhalten ein Token, das nur ueber Ihre Seiten-URL definiert ist. Es werden keine personenbezogenen oder weiteren Informationen uebermittelt oder gespeichert.';
-$string['aitrial_js_failed_default'] = 'Aktivierung fehlgeschlagen.';
-$string['aitrial_js_reloading'] = 'Neu laden...';
-$string['aitrial_js_unexpected_error'] = 'Ein unerwarteter Fehler ist aufgetreten.';
-$string['aitrial_success_activated'] = 'Ihre Wunderbyte-Testversion wurde aktiviert. Der AI-Assistent ist jetzt einsatzbereit.';
-$string['ai_welcome_empty'] = 'Willkommen! Möchten Sie, dass ich Ihnen bei der Erstellung Ihrer ersten Buchungsoption helfe?';
-$string['ai_welcome_with_options'] = 'Willkommen! Sie haben hier {$a->numoptions} Buchungsoptionen, und {$a->numbooked} Personen sind bereits gebucht. Wie kann ich Ihnen helfen?';
-$string['aitrial_support_firewall'] = 'Entschuldigung, das hat nicht funktioniert. Ein moeglicher Grund koennen Firewall-Einstellungen Ihres Systems sein. Wenn Sie trotzdem eine Testversion moechten, schreiben Sie bitte an info@wunderbyte.at.';
-$string['aitrial_token_received'] = 'Ihr Trial-Token wurde von Wunderbyte empfangen. Sie koennen jetzt AI fuer diesen Kurs und dieses Kursmodul aktivieren.';
-$string['aitrial_token_expired_subscription'] = 'Ihr Trial-Token ist abgelaufen. Hier koennen Sie ein Abonnement kaufen: {$a}';
-$string['ai_trial_token_invalid_title'] = 'Trial-Token ungueltig';
-$string['ai_trial_token_invalid_message'] = 'Ihr AI-Trial-Token ist nicht mehr gueltig. Bitte kaufen oder aktivieren Sie ein Abonnement-Token, um fortzufahren.';
-$string['aitrial_pro_license_url'] = 'https://showroom.wunderbyte.at/course/view.php?id=62';
-$string['aitrial_unexpected_response'] = 'Unerwartete Serverantwort.';
 $string['ai_action_add_price_category'] = 'Preiskategorie anlegen';
-$string['ai_docs_explain_required_question'] = 'Das Feld "question" ist fuer explain_docs_topic erforderlich.';
-$string['ai_docs_explain_invalid_maxdocs'] = 'Das Feld "maxdocs" muss groesser als 0 sein, wenn es angegeben wird.';
-$string['ai_docs_explain_no_match'] = 'Ich konnte kein passendes Dokumentationsthema fuer diese Frage finden.';
-$string['ai_docs_explain_generation_failed'] =
-    'Ich habe passende Dokumentation gefunden, konnte aber aktuell keine kurze Antwort erzeugen. Bitte formulieren Sie Ihre Frage um.';
-$string['ai_docs_explain_ambiguity_candidates'] =
-    'Ich habe mehrere passende Dokumentationsthemen gefunden. Bitte praezisieren Sie, welches Sie meinen: {$a}.';
-$string['ai_docs_explain_followup_query'] = 'Bitte erklaeren Sie dieses Dokumentationsthema: {$a}';
 $string['ai_action_create_option'] = 'Buchungsoption erstellen';
 $string['ai_action_get_current_user'] = 'Aktuellen Benutzer abrufen';
 $string['ai_action_list_actions'] = 'Unterstuetzte Aktionen auflisten';
@@ -248,6 +178,26 @@ $string['ai_action_search_courses'] = 'Kurse suchen';
 $string['ai_action_search_options'] = 'Buchungsoptionen suchen';
 $string['ai_action_search_users'] = 'Nutzer:innen suchen';
 $string['ai_action_update_option'] = 'Buchungsoption aktualisieren';
+$string['ai_docs_explain_ambiguity_candidates'] =
+    'Ich habe mehrere passende Dokumentationsthemen gefunden. Bitte praezisieren Sie, welches Sie meinen: {$a}.';
+$string['ai_docs_explain_followup_query'] = 'Bitte erklaeren Sie dieses Dokumentationsthema: {$a}';
+$string['ai_docs_explain_generation_failed'] =
+    'Ich habe passende Dokumentation gefunden, konnte aber aktuell keine kurze Antwort erzeugen. Bitte formulieren Sie Ihre Frage um.';
+$string['ai_docs_explain_invalid_maxdocs'] = 'Das Feld "maxdocs" muss groesser als 0 sein, wenn es angegeben wird.';
+$string['ai_docs_explain_no_match'] = 'Ich konnte kein passendes Dokumentationsthema fuer diese Frage finden.';
+$string['ai_docs_explain_required_question'] = 'Das Feld "question" ist fuer explain_docs_topic erforderlich.';
+$string['ai_lookup_detected_blocked_mutation'] = 'Ich habe Ihre Nachricht als Such-/Listenanfrage verstanden und deshalb keine Aenderung vorbereitet. Bitte sagen Sie, was ich genau suchen soll.';
+$string['ai_preview_latest_option'] =
+    'Hier ist die zuletzt erstellte oder aktualisierte Buchungsoption.';
+$string['ai_preview_no_commands'] = 'Keine Befehlsvorschau verfuegbar.';
+$string['ai_preview_no_matching_option'] =
+    'Keine bestehende Option fuer die Zeilenvorschau gefunden. Bitte bestaetigen Sie zuerst die Zieloption.';
+$string['ai_preview_not_supported_task'] =
+    'Eine Zeilenvorschau ist nur fuer Befehle zum Erstellen/Aktualisieren von Optionen verfuegbar.';
+$string['ai_privacy_check_running'] = 'Datenschutzpruefung laeuft...';
+$string['ai_privacy_precheck_summary'] = '{$a->count} Eintraege in der Anfrage anonymisiert ({$a->names} Namen, {$a->emails} E-Mails).';
+$string['ai_privacy_precheck_summary_none'] = 'Datenschutzpruefung abgeschlossen: keine personenbezogenen Eintraege gefunden.';
+$string['ai_privacy_response_note'] = 'Datenschutzhinweis: Personenbezogene Daten in dieser Antwort wurden fuer die Anzeige deanonymisiert.';
 $string['ai_property_bookuserscompleted'] = 'Nutzer:innen buchen: als abgeschlossen markieren';
 $string['ai_property_bookuserstimebooked'] = 'Nutzer:innen buchen: Buchungszeit';
 $string['ai_property_bookusersupdateexisting'] = 'Nutzer:innen buchen: bestehende Buchungen aktualisieren';
@@ -260,8 +210,6 @@ $string['ai_property_optionquery'] = 'Ziel-Buchungsoption';
 $string['ai_property_optionwhen'] = 'Zeitlicher Hinweis zur Ziel-Buchungsoption';
 $string['ai_property_selectusers'] = 'Bedingung ausgewaehlte Nutzer:innen';
 $string['ai_property_selflearningcourse'] = 'Selbstlernkurs';
-$string['ai_property_teacheremail'] = 'E-Mail der Lehrperson';
-$string['ai_property_teacherquery'] = 'Lehrperson';
 $string['ai_property_suffix_capabilitynotneeded'] = 'Berechtigung nicht erforderlich';
 $string['ai_property_suffix_connectsecondfield'] = 'Zweites Feld verbinden';
 $string['ai_property_suffix_deleteinfoscheckboxadmin'] = 'Admin-Loeschinfo-Checkbox';
@@ -281,25 +229,77 @@ $string['ai_property_suffix_requirecompletion'] = 'Abschluss erforderlich';
 $string['ai_property_suffix_sqlfilter'] = 'SQL-Filter';
 $string['ai_property_suffix_value'] = 'Wert';
 $string['ai_property_suffix_value2'] = 'Zweiter Wert';
+$string['ai_property_teacheremail'] = 'E-Mail der Lehrperson';
+$string['ai_property_teacherquery'] = 'Lehrperson';
 $string['ai_property_userprofilecustom'] = 'Bedingung benutzerdefiniertes Profilfeld';
 $string['ai_property_userprofilestandard'] = 'Bedingung Standard-Profilfeld';
-$string['ai_status_confirm_booking_search_options'] = 'Ich werde die Buchungsoptionen auflisten.';
-$string['ai_status_confirm_booking_update_option'] = 'Ich werde die Buchungsoption aktualisieren.';
 $string['ai_status_confirm_booking_bulk_update_options'] = 'Ich werde mehrere Buchungsoptionen auf einmal aktualisieren. Soll ich fortfahren?';
 $string['ai_status_confirm_booking_create_option'] = 'Ich werde eine neue Buchungsoption erstellen.';
+$string['ai_status_confirm_booking_search_options'] = 'Ich werde die Buchungsoptionen auflisten.';
+$string['ai_status_confirm_booking_update_option'] = 'Ich werde die Buchungsoption aktualisieren.';
 $string['ai_status_confirm_default'] = 'Soll ich die vorgeschlagene Aktion ausfuehren?';
-$string['ai_status_taskcall_booking_search_options'] = 'Lade Liste der Buchungsoptionen.';
-$string['ai_status_taskcall_entities_list_all'] = 'Lade Liste aller Entities.';
-$string['ai_status_taskcall_entities_search'] = 'Suche passende Entities.';
-$string['ai_status_taskcall_entities_create'] = 'Lege neue Entity an.';
-$string['ai_status_taskcall_shopping_cart_items'] = 'Lade Warenkorbpositionen.';
-$string['ai_status_taskcall_shopping_cart_totals'] = 'Lade Warenkorbsummen.';
-$string['ai_status_taskcall_booking_search_users'] = 'Suche passende Nutzer:innen.';
-$string['ai_status_taskcall_booking_search_courses'] = 'Suche passende Kurse.';
-$string['ai_status_taskcall_booking_update_option'] = 'Aktualisiere die Buchungsoption.';
 $string['ai_status_taskcall_booking_bulk_update_options'] = 'Aktualisiere mehrere Buchungsoptionen.';
 $string['ai_status_taskcall_booking_create_option'] = 'Erstelle die Buchungsoption.';
+$string['ai_status_taskcall_booking_search_courses'] = 'Suche passende Kurse.';
+$string['ai_status_taskcall_booking_search_options'] = 'Lade Liste der Buchungsoptionen.';
+$string['ai_status_taskcall_booking_search_users'] = 'Suche passende Nutzer:innen.';
+$string['ai_status_taskcall_booking_update_option'] = 'Aktualisiere die Buchungsoption.';
 $string['ai_status_taskcall_default'] = 'Fuehre die Aktion aus.';
+$string['ai_status_taskcall_entities_create'] = 'Lege neue Entity an.';
+$string['ai_status_taskcall_entities_list_all'] = 'Lade Liste aller Entities.';
+$string['ai_status_taskcall_entities_search'] = 'Suche passende Entities.';
+$string['ai_status_taskcall_shopping_cart_items'] = 'Lade Warenkorbpositionen.';
+$string['ai_status_taskcall_shopping_cart_totals'] = 'Lade Warenkorbsummen.';
+$string['ai_trial_token_invalid_message'] = 'Ihr AI-Trial-Token ist nicht mehr gueltig. Bitte kaufen oder aktivieren Sie ein Abonnement-Token, um fortzufahren.';
+$string['ai_trial_token_invalid_title'] = 'Trial-Token ungueltig';
+$string['ai_welcome_empty'] = 'Willkommen! Möchten Sie, dass ich Ihnen bei der Erstellung Ihrer ersten Buchungsoption helfe?';
+$string['ai_welcome_with_options'] = 'Willkommen! Sie haben hier {$a->numoptions} Buchungsoptionen, und {$a->numbooked} Personen sind bereits gebucht. Wie kann ich Ihnen helfen?';
+$string['aiinitialprompt'] = 'Initialer AI-System-Prompt';
+$string['aiinitialprompt_desc'] = 'Bearbeitbarer Basis-Prompt fuer den Booking-AI-Assistenten. Unterstuetzte Platzhalter: {{bookingname}}, {{timezonename}}, {{nowiso}}, {{tasklist}}, {{schemajson}}.';
+$string['aiprivacymode'] = 'AI-Datenschutzmodus';
+$string['aiprivacymode_desc'] = 'Steuert, ob personenbezogene Daten anonymisiert werden, bevor Nachrichten an den AI-Provider gesendet werden.';
+$string['aiprivacymode_off'] = 'Aus (keine Anonymisierung vor LLM)';
+$string['aiprivacymode_soft'] = 'Soft (nur serverseitig aufgeloeste Daten anonymisieren)';
+$string['aiprivacymode_strict'] = 'Strikt (serverseitige Daten und vom User eingegebene Namen/E-Mails vor LLM anonymisieren)';
+$string['aiready_admin_text'] = 'Ich kann im naechsten Schritt ein Trial-Setup fuer Sie vorbereiten. Sie erhalten einen AI-Key von Wunderbyte und koennen erste Tests durchfuehren. Wenn Sie nach dem Trial weitermachen moechten, koennen Sie Ihr eigenes Token verwenden oder ein Abonnement bei Wunderbyte kaufen.';
+$string['aiready_admin_text_provider_exists'] = 'Es scheint bereits einen funktionierenden AI-Provider zu geben. Sollen wir das System jetzt einrichten und pruefen, ob alles funktioniert?';
+$string['aiready_check_capability'] = 'Sie duerfen Booking AI verwenden';
+$string['aiready_check_capability_done'] = 'Ihre aktuelle Rolle kann AI Instructions in dieser Aktivitaet verwenden.';
+$string['aiready_check_capability_todo'] = 'Ihre aktuelle Rolle kann Booking AI in dieser Aktivitaet nicht verwenden.';
+$string['aiready_check_context_enabled'] = 'AI in diesem Kursmodul erlaubt';
+$string['aiready_check_context_enabled_done'] = 'AI-Tools sind fuer diese Booking-Aktivitaet aktiviert.';
+$string['aiready_check_context_enabled_todo'] = 'AI-Tools sind in diesem Kursmodul derzeit nicht erlaubt.';
+$string['aiready_check_course_enabled'] = 'AI ist in diesem Kurs erlaubt';
+$string['aiready_check_course_enabled_done'] = 'AI-Tools sind fuer diesen Kurs aktiviert.';
+$string['aiready_check_course_enabled_todo'] = 'AI-Tools sind fuer diesen Kurs derzeit nicht aktiviert.';
+$string['aiready_check_provider_active'] = 'AI-Provider aktiv';
+$string['aiready_check_provider_active_done'] = 'Ein Textgenerierungs-Provider ist aktiv und einsatzbereit.';
+$string['aiready_check_provider_active_todo'] = 'Derzeit ist kein aktiver Textgenerierungs-Provider vorhanden.';
+$string['aiready_check_provider_configured'] = 'AI-Provider konfiguriert';
+$string['aiready_check_provider_configured_done'] = 'Auf dieser Plattform ist ein AI-Provider konfiguriert.';
+$string['aiready_check_provider_configured_todo'] = 'Auf dieser Plattform ist noch kein AI-Provider konfiguriert.';
+$string['aiready_configure_here'] = 'Hier konfigurieren';
+$string['aiready_intro_heading'] = 'Hi, ich bin Ihr Booking-Agent.';
+$string['aiready_intro_text'] = 'Ich kann neue Buchungsoptionen erstellen, Ihnen die volle Leistungsfaehigkeit von Booking erklaeren und bei der Konfiguration Ihrer Plattform helfen. Dafuer muessen Sie AI auf dieser Plattform aktivieren.';
+$string['aiready_nonadmin_text'] = 'Nur ein Admin kann AI-Funktionen auf dieser Plattform freischalten. Wenn Sie das nutzen moechten, bitten Sie Ihren Admin, diese Seite zu besuchen.';
+$string['aiready_setup_required'] = 'Setup erforderlich';
+$string['aitrial_activate_now'] = 'Ja, AI jetzt fuer diesen Kurs und dieses Kursmodul aktivieren';
+$string['aitrial_activate_success'] = 'Willkommen. AI ist jetzt fuer diesen Kurs und dieses Kursmodul aktiviert. Fuer einen schnellen Test sagen Sie zur LLM: "Say welcome".';
+$string['aitrial_activating'] = 'Aktivierung laeuft...';
+$string['aitrial_activation_question'] = 'Sollen wir jetzt alles einrichten, um AI fuer diesen Kurs und dieses Kursmodul zu aktivieren?';
+$string['aitrial_activation_question_existing_provider'] = 'Es scheint einen funktionierenden AI-Provider zu geben. Sollen wir das System jetzt einrichten und pruefen, ob alles funktioniert?';
+$string['aitrial_button_start'] = 'Ich moechte jetzt meine kostenlose Testversion starten';
+$string['aitrial_coreai_unavailable'] = 'Das core-AI-Subsystem ist in dieser Moodle-Version nicht verfuegbar.';
+$string['aitrial_disclaimer'] = '* Dabei wird die URL dieser Seite an die Wunderbyte GmbH uebermittelt und Sie erhalten ein Token, das nur ueber Ihre Seiten-URL definiert ist. Es werden keine personenbezogenen oder weiteren Informationen uebermittelt oder gespeichert.';
+$string['aitrial_js_failed_default'] = 'Aktivierung fehlgeschlagen.';
+$string['aitrial_js_reloading'] = 'Neu laden...';
+$string['aitrial_js_unexpected_error'] = 'Ein unerwarteter Fehler ist aufgetreten.';
+$string['aitrial_pro_license_url'] = 'https://showroom.wunderbyte.at/course/view.php?id=62';
+$string['aitrial_success_activated'] = 'Ihre Wunderbyte-Testversion wurde aktiviert. Der AI-Assistent ist jetzt einsatzbereit.';
+$string['aitrial_support_firewall'] = 'Entschuldigung, das hat nicht funktioniert. Ein moeglicher Grund koennen Firewall-Einstellungen Ihres Systems sein. Wenn Sie trotzdem eine Testversion moechten, schreiben Sie bitte an info@wunderbyte.at.';
+$string['aitrial_token_expired_subscription'] = 'Ihr Trial-Token ist abgelaufen. Hier koennen Sie ein Abonnement kaufen: {$a}';
+$string['aitrial_token_received'] = 'Ihr Trial-Token wurde von Wunderbyte empfangen. Sie koennen jetzt AI fuer diesen Kurs und dieses Kursmodul aktivieren.';
+$string['aitrial_unexpected_response'] = 'Unerwartete Serverantwort.';
 $string['alertrecalculate'] = '<b>Vorsicht!</b> Alle Preise der Instanz werden mit der eingetragenen Formel neu berechnet und alle alten Preise werden überschrieben.';
 $string['allbookingoptions'] = 'Nutzer:innen für alle Buchungsoptionen herunterladen';
 $string['allchangessaved'] = 'Alle Änderungen wurden gespeichert.';
@@ -808,7 +808,6 @@ $string['bookingoptionmovedupfromwaitinglistdesc'] = 'Der Nutzer mit der ID {$a-
 $string['bookingoptionname'] = 'Bezeichnung der Buchungsoption';
 $string['bookingoptionnamewithoutprefix'] = 'Name (ohne Präfix)';
 $string['bookingoptionprice'] = 'Preis';
-$string['bookingoptionview'] = 'Shortcode, um den Buchungsbutton einer bestimmten Buchungsoption anzuzeigen.';
 $string['bookingoptionsall'] = 'Shortcode um alle Buchungsoptionen anzuzeigen.';
 $string['bookingoptionsfromcondition'] = 'Shortcode um alle abgeschlossenen Kurse einer Zertifikatsbedingung zu rendern.';
 $string['bookingoptionsfromtemplatemenu'] = 'Neue Buchungsoption aus Vorlage erstellen';
@@ -817,6 +816,7 @@ $string['bookingoptiontitle'] = 'Bezeichnung der Buchungsoption';
 $string['bookingoptionuncompleted'] = 'Abschluss der Buchungsoption rückgängig gemacht';
 $string['bookingoptionupdated'] = 'Buchungsoption aktualisiert';
 $string['bookingoptionupdateddesc'] = 'NutzerIn mit ID "{$a->userid}" hat Buchungsoption "{$a->objectid}" aktualisiert.';
+$string['bookingoptionview'] = 'Shortcode, um den Buchungsbutton einer bestimmten Buchungsoption anzuzeigen.';
 $string['bookingoptionwaitinglistbooked'] = 'Auf Warteliste gebucht';
 $string['bookingorganizatorname'] = 'Name des Veranstalters';
 $string['bookingpassed'] = 'Dieses Event ist nicht mehr aktiv.';
@@ -2238,12 +2238,12 @@ $string['optiontemplatenotsavednovalidlicense'] = 'Buchungsoption konnte nicht a
 $string['optiontemplatessettings'] = 'Buchungsoptionsvorlagen';
 $string['optiontype'] = 'Buchungsoptionstyp';
 $string['optiontype_apply'] = 'Typ anwenden';
-$string['optiontypeprohintnoproversion'] = 'Mit <a href="{$a}" target="_blank">Booking PRO</a> erhalten Sie viele starke Funktionen wie Slot-Buchung, unbegrenzte Nachrichtenvorlagen, Shortcodes und Freigabe-Workflows.';
-$string['optiontypeslotbookinghint'] = 'Mit <a href="{$a}" target="_blank">Booking PRO</a> können Sie die Zeitslot-Buchungsfunktion nutzen.';
 $string['optiontype_slotbooking'] = 'Slot-Buchung';
 $string['optiontype_withdates'] = 'Mit Terminen';
 $string['optiontypefilternormal'] = 'Normal';
 $string['optiontypefilterslotbooking'] = 'Slot-Buchung';
+$string['optiontypeprohintnoproversion'] = 'Mit <a href="{$a}" target="_blank">Booking PRO</a> erhalten Sie viele starke Funktionen wie Slot-Buchung, unbegrenzte Nachrichtenvorlagen, Shortcodes und Freigabe-Workflows.';
+$string['optiontypeslotbookinghint'] = 'Mit <a href="{$a}" target="_blank">Booking PRO</a> können Sie die Zeitslot-Buchungsfunktion nutzen.';
 $string['optionviewcustomfields'] = 'Benutzerdefinierte Felder auf Detailseite anzeigen';
 $string['optionviewcustomfieldsdesc'] = 'Wählen Sie die benutzerdefinierten Buchungsoptionsfelder aus, die auf der Detailseite von Buchungsoptionen angezeigt werden sollen. Um die Reihenfolge der benutzerdefinierten Felder auf der Detailseite zu ändern, können Sie einfach die Reihenfolge der benutzerdefinierten Felder <a href="/mod/booking/customfield.php" target="_blank">hier</a> ändern.';
 $string['optionvisibility'] = 'Sichtbarkeit';
@@ -2445,17 +2445,17 @@ $string['profeatures:progressbars'] = '<ul>
 <li><b>Fortschrittsbalken für bereits vergangene Zeit anzeigen</b></li>
 <li><b>Fortschrittsbalken können ausgeklappt werden</b></li>
 </ul>';
-$string['profeatures:slotbooking'] = '<ul>
-<li><b>Jede Buchungsoption als flexible Slot-Buchung anbieten</b></li>
-<li><b>Teilnehmende Termine in Listen- oder Kalenderansicht auswählen lassen</b></li>
-<li><b>Erweiterte Slot-Regeln wie benutzerdefinierte Dauer und Prüferauswahl nutzen</b></li>
-</ul>';
 $string['profeatures:selflearningcourse'] = '<ul>
 <li><b>Buchungsoptionen mit fixer Dauer aktivieren (z.B. für Selbstlernkurse)</b></li>
 <li><b>Benutzerdefinierten Namen vergeben (z.B. "Selbstlernkurs")</b></li>
 </ul>';
 $string['profeatures:shortcodes'] = '<ul>
 <li><b>Shortcodes verwenden, um Buchungsoptionen auf beliebigen Seiten anzuzeigen</b></li>
+</ul>';
+$string['profeatures:slotbooking'] = '<ul>
+<li><b>Jede Buchungsoption als flexible Slot-Buchung anbieten</b></li>
+<li><b>Teilnehmende Termine in Listen- oder Kalenderansicht auswählen lassen</b></li>
+<li><b>Erweiterte Slot-Regeln wie benutzerdefinierte Dauer und Prüferauswahl nutzen</b></li>
 </ul>';
 $string['profeatures:subbookings'] = '<ul>
 <li><b>Zusatzbuchungen aktivieren</b></li>
@@ -2921,8 +2921,8 @@ $string['slot_custom_duration'] = 'Dauer';
 $string['slot_custom_max_days'] = 'Maximale Tage pro Slot';
 $string['slot_custom_max_duration'] = 'Maximale Slot-Dauer';
 $string['slot_custom_min_duration'] = 'Minimale Slot-Dauer';
-$string['slot_custom_start_interval_minutes'] = 'Intervall fuer Slot-Start (Minuten)';
 $string['slot_custom_start'] = 'Start';
+$string['slot_custom_start_interval_minutes'] = 'Intervall fuer Slot-Start (Minuten)';
 $string['slot_day_fri'] = 'Freitag';
 $string['slot_day_mon'] = 'Montag';
 $string['slot_day_sat'] = 'Samstag';
@@ -2956,8 +2956,8 @@ $string['slot_move_select'] = 'Neuen Slot auswählen';
 $string['slot_move_success'] = 'Slot wurde erfolgreich verschoben.';
 $string['slot_no_open_slots'] = 'Derzeit sind keine verfügbaren Slots vorhanden.';
 $string['slot_opening_time'] = 'Öffnungszeit (HH:MM)';
-$string['slot_price_source_info'] = 'Die Slot-Bepreisung verwendet den regulären Optionspreis aus dem Preis-Abschnitt.';
 $string['slot_price_base_info'] = 'Bei Slot-Buchungen ist der initiale Preis in diesem Abschnitt der Basispreis für alle Slots. Einzelne Slots können danach über den Slot-Regel-Editor eigene Preise erhalten.';
+$string['slot_price_source_info'] = 'Die Slot-Bepreisung verwendet den regulären Optionspreis aus dem Preis-Abschnitt.';
 $string['slot_report_numslots'] = 'Gebuchte Slots';
 $string['slot_report_price'] = 'Bezahlter Slot-Preis';
 $string['slot_report_teachers'] = 'Zugewiesene Pruefer:innen';

@@ -25,7 +25,9 @@
 
 namespace mod_booking;
 
-require_once __DIR__ . '/abstract_agent_testcase.php';
+defined('MOODLE_INTERNAL') || die();
+
+require_once(__DIR__ . '/abstract_agent_testcase.php');
 
 /**
  * E2E tests for the booking.bulk_update_options agent task.
@@ -34,19 +36,17 @@ require_once __DIR__ . '/abstract_agent_testcase.php';
  * @category   test
  * @copyright  2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @coversNothing
  */
 final class agent_e2e_bulk_update_test extends abstract_agent_testcase {
-
-    // -------------------------------------------------------------------------
-    // apply_to_all
-    // -------------------------------------------------------------------------
+    // Apply to all.
 
     /**
      * apply_to_all=true updates every option in the instance.
      */
     public function test_apply_to_all_updates_all_options(): void {
         $opt1 = $this->create_option('Bulk Alpha', ['maxanswers' => 1, 'maxoverbooking' => 0]);
-        $opt2 = $this->create_option('Bulk Beta',  ['maxanswers' => 2, 'maxoverbooking' => 0]);
+        $opt2 = $this->create_option('Bulk Beta', ['maxanswers' => 2, 'maxoverbooking' => 0]);
         $opt3 = $this->create_option('Bulk Gamma', ['maxanswers' => 3, 'maxoverbooking' => 0]);
 
         $result = $this->exec_command('booking.bulk_update_options', [
@@ -61,7 +61,7 @@ final class agent_e2e_bulk_update_test extends abstract_agent_testcase {
 
         foreach ([$opt1->id, $opt2->id, $opt3->id] as $id) {
             $updated = $this->get_option_from_db((int)$id);
-            $this->assertEquals(8, (int)$updated->maxanswers,     "maxanswers mismatch on option $id");
+            $this->assertEquals(8, (int)$updated->maxanswers, "maxanswers mismatch on option $id");
             $this->assertEquals(3, (int)$updated->maxoverbooking, "maxoverbooking mismatch on option $id");
         }
     }
@@ -83,15 +83,13 @@ final class agent_e2e_bulk_update_test extends abstract_agent_testcase {
         $this->assertContains((int)$opt2->id, $result['previewoptionids']);
     }
 
-    // -------------------------------------------------------------------------
-    // optionids array
-    // -------------------------------------------------------------------------
+    // Optionids array.
 
     /**
      * Only the options listed in optionids are updated.
      */
     public function test_explicit_optionids_updates_only_listed(): void {
-        $opt1 = $this->create_option('Listed Option',  ['maxanswers' => 1]);
+        $opt1 = $this->create_option('Listed Option', ['maxanswers' => 1]);
         $opt2 = $this->create_option('Unlisted Option', ['maxanswers' => 1]);
 
         $result = $this->exec_command('booking.bulk_update_options', [
@@ -105,7 +103,7 @@ final class agent_e2e_bulk_update_test extends abstract_agent_testcase {
         $untouched = $this->get_option_from_db((int)$opt2->id);
 
         $this->assertEquals(10, (int)$updated->maxanswers);
-        $this->assertEquals(1,  (int)$untouched->maxanswers);
+        $this->assertEquals(1, (int)$untouched->maxanswers);
     }
 
     /**
@@ -120,9 +118,7 @@ final class agent_e2e_bulk_update_test extends abstract_agent_testcase {
         $this->assertEquals('error', $result['status']);
     }
 
-    // -------------------------------------------------------------------------
-    // optionquery
-    // -------------------------------------------------------------------------
+    // Optionquery.
 
     /**
      * optionquery selects a subset of options by name.
@@ -139,18 +135,16 @@ final class agent_e2e_bulk_update_test extends abstract_agent_testcase {
 
         $this->assertEquals('executed', $result['status'], $result['detail'] ?? '');
 
-        $updatedYoga1 = $this->get_option_from_db((int)$yoga1->id);
-        $updatedYoga2 = $this->get_option_from_db((int)$yoga2->id);
+        $updatedyoga1 = $this->get_option_from_db((int)$yoga1->id);
+        $updatedyoga2 = $this->get_option_from_db((int)$yoga2->id);
         $untouched    = $this->get_option_from_db((int)$other->id);
 
-        $this->assertEquals(7, (int)$updatedYoga1->maxanswers);
-        $this->assertEquals(7, (int)$updatedYoga2->maxanswers);
+        $this->assertEquals(7, (int)$updatedyoga1->maxanswers);
+        $this->assertEquals(7, (int)$updatedyoga2->maxanswers);
         $this->assertEquals(1, (int)$untouched->maxanswers);
     }
 
-    // -------------------------------------------------------------------------
-    // Error paths
-    // -------------------------------------------------------------------------
+    // Error paths.
 
     /**
      * No target provided (no optionids, no optionquery, apply_to_all not set) → error.
@@ -183,20 +177,18 @@ final class agent_e2e_bulk_update_test extends abstract_agent_testcase {
      * Applying bulk update with apply_to_all when there are no options → graceful error.
      */
     public function test_apply_to_all_no_options_returns_error(): void {
-        // No options created — empty instance.
+        // No options created; empty instance.
         $result = $this->exec_command('booking.bulk_update_options', [
             'apply_to_all' => true,
             'maxanswers'   => 5,
         ]);
 
-        // Should be 'error' with a meaningful detail (no matching options).
+        // Result should be error with a meaningful detail (no matching options).
         $this->assertEquals('error', $result['status']);
         $this->assertNotEmpty($result['detail']);
     }
 
-    // -------------------------------------------------------------------------
-    // wbtable verification
-    // -------------------------------------------------------------------------
+    // Wbtable verification.
 
     /**
      * After apply_to_all, every option read via wbtable reflects the new values.

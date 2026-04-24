@@ -16,7 +16,9 @@
 
 namespace mod_booking;
 
-require_once __DIR__ . '/abstract_agent_testcase.php';
+defined('MOODLE_INTERNAL') || die();
+
+require_once(__DIR__ . '/abstract_agent_testcase.php');
 
 use mod_booking\local\wbagent\booking\tasks\diagnose_booking_issue_task;
 use mod_booking\singleton_service;
@@ -26,10 +28,11 @@ use mod_booking\singleton_service;
  *
  * @package    mod_booking
  * @category   test
+ * @copyright  2026 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers     \mod_booking\local\wbagent\booking\tasks\diagnose_booking_issue_task
  */
 final class diagnose_booking_issue_task_test extends abstract_agent_testcase {
-
     /**
      * Create a booking option through the plugin generator.
      *

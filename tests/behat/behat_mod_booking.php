@@ -238,9 +238,7 @@ class behat_mod_booking extends behat_base {
         $pg->create_instance($page);
     }
 
-    // -------------------------------------------------------------------------
-    // AI instructions chat steps
-    // -------------------------------------------------------------------------
+    // AI instructions chat steps.
 
     /**
      * Navigate to the AI instructions chat page for a named booking instance.
@@ -273,10 +271,11 @@ class behat_mod_booking extends behat_base {
 
     /**
      * Log in as user, visit the AI instructions page, verify access is denied, then navigate away.
-     * Navigating away is required so that the ChainedStepTester's automatic
-     * "I look for exceptions" check runs on a clean page instead of the error page.
+     * Navigating away is required so that the ChainedStepTester's automatic exception check.
+     * The clean-page navigation avoids failures on the error page.
      *
-     * @Given /^I visit the AI instructions page for booking "(?P<bookingname_string>[^"]*)" as "(?P<username_string>[^"]*)" and expect access denied$/
+     * @Given /^I visit the AI instructions page for booking "(?P<bookingname_string>[^"]*)"$/
+     * as "(?P<username_string>[^"]*)" and expect access denied
      * @param string $bookingname
      * @param string $username
      * @return void

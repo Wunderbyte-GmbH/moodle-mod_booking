@@ -25,7 +25,9 @@
 
 namespace mod_booking;
 
-require_once __DIR__ . '/abstract_agent_testcase.php';
+defined('MOODLE_INTERNAL') || die();
+
+require_once(__DIR__ . '/abstract_agent_testcase.php');
 
 use mod_booking\local\wbagent\authorization_service;
 use mod_booking\local\wbagent\conversation_store;
@@ -41,12 +43,10 @@ use moodle_exception;
  * @category   test
  * @copyright  2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @coversNothing
  */
 final class agent_executor_test extends abstract_agent_testcase {
-
-    // -------------------------------------------------------------------------
-    // task_registry
-    // -------------------------------------------------------------------------
+    // Task registry.
 
     /**
      * make_default() auto-discovers all booking tasks including bulk_update_options.
@@ -107,9 +107,7 @@ final class agent_executor_test extends abstract_agent_testcase {
         $this->assertFalse($registry->is_read_only_task('booking.unknown'));
     }
 
-    // -------------------------------------------------------------------------
-    // idempotency guard
-    // -------------------------------------------------------------------------
+    // Idempotency guard.
 
     /**
      * run_exists_other_than returns false when only one run with the given key exists.
@@ -173,7 +171,7 @@ final class agent_executor_test extends abstract_agent_testcase {
 
         $results = $exec->execute_commands(
             [
-                ['task' => 'booking.create_option',  'version' => 1, 'input' => ['text' => 'Good Command']],
+                ['task' => 'booking.create_option', 'version' => 1, 'input' => ['text' => 'Good Command']],
                 ['task' => 'booking.this_is_unknown', 'version' => 1, 'input' => []],
             ],
             $cmid,
@@ -184,12 +182,10 @@ final class agent_executor_test extends abstract_agent_testcase {
 
         $this->assertCount(2, $results);
         $this->assertEquals('executed', $results[0]['status']);
-        $this->assertEquals('error',    $results[1]['status']);
+        $this->assertEquals('error', $results[1]['status']);
     }
 
-    // -------------------------------------------------------------------------
-    // authorization_service
-    // -------------------------------------------------------------------------
+    // Authorization service.
 
     /**
      * require_use_capability throws for a user without the capability.

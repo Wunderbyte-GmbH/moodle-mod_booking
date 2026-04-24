@@ -25,7 +25,9 @@
 
 namespace mod_booking;
 
-require_once __DIR__ . '/abstract_agent_testcase.php';
+defined('MOODLE_INTERNAL') || die();
+
+require_once(__DIR__ . '/abstract_agent_testcase.php');
 
 /**
  * E2E tests for the booking.update_option agent task.
@@ -34,9 +36,9 @@ require_once __DIR__ . '/abstract_agent_testcase.php';
  * @category   test
  * @copyright  2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @coversNothing
  */
 final class agent_e2e_update_option_test extends abstract_agent_testcase {
-
     /**
      * Update maxanswers on an existing option via explicit optionid.
      */

@@ -39,7 +39,6 @@ use mod_booking\local\wbagent\task_registry;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class agent_interpreter_test extends advanced_testcase {
-
     /** @var task_registry */
     private task_registry $registry;
 
@@ -326,7 +325,7 @@ final class agent_interpreter_test extends advanced_testcase {
         $task = new create_option_task();
         $packs = $task->get_contextual_prompt_packs();
 
-        $teacherpack = array_values(array_filter($packs, static function(array $pack): bool {
+        $teacherpack = array_values(array_filter($packs, static function (array $pack): bool {
             return ($pack['id'] ?? '') === 'booking.course_teacher';
         }));
 

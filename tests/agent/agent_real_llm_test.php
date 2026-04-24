@@ -39,9 +39,10 @@ use mod_booking\local\wbagent\conversation_store;
 
 /**
  * Real-LLM smoke tests (opt-in).
+ *
+ * @coversNothing
  */
 final class agent_real_llm_test extends advanced_testcase {
-
     /** @var \stdClass */
     private $course;
 

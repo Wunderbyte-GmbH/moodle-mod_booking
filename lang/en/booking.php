@@ -100,6 +100,57 @@ $string['agent_booking_create_option_exists_multiple'] =
     'One or more booking options with this exact title already exist: {$a}. Do you want to update one of them instead of creating a new option?';
 $string['agent_booking_create_option_exists_single'] =
     'A booking option with this exact title already exists (id={$a}). Do you want to update this option instead of creating a new one?';
+$string['agent_booking_diagnose_ambiguity_last_preview_multiple'] =
+    'Your last preview contains multiple options. Please tell me which one you mean.';
+$string['agent_booking_diagnose_ambiguity_option_required'] =
+    'Which booking option do you mean? Please provide the option title or option id.';
+$string['agent_booking_diagnose_ambiguity_option_specify'] = 'Please specify the option more precisely.';
+$string['agent_booking_diagnose_ambiguity_option_title_or_id'] =
+    'Please provide the booking option title or id.';
+$string['agent_booking_diagnose_error_last_preview_none'] =
+    'There is no recent previewed option to refer to.';
+$string['agent_booking_diagnose_error_option_not_in_instance'] =
+    'The provided optionid does not belong to this booking instance.';
+$string['agent_booking_diagnose_error_option_resolve'] = 'Could not resolve booking option.';
+$string['agent_booking_diagnose_intro_cannot_book'] = 'Here is why booking may currently fail:';
+$string['agent_booking_diagnose_intro_checked_option'] = 'I checked your booking situation for "{$a}".';
+$string['agent_booking_diagnose_intro_missing_email'] = 'Here is what I can confirm about the email question:';
+$string['agent_booking_diagnose_intro_status'] = 'Your current status is {$a}.';
+$string['agent_booking_diagnose_reason_cannot_book_already_booked'] =
+    'You are already booked, so another normal booking is not available.';
+$string['agent_booking_diagnose_reason_cannot_book_fully_booked'] = 'The option is currently fully booked.';
+$string['agent_booking_diagnose_reason_cannot_book_no_waitinglist'] =
+    'This option does not offer a waiting list.';
+$string['agent_booking_diagnose_reason_cannot_book_waitinglist_available'] =
+    'The main places are full, but there is still room on the waiting list.';
+$string['agent_booking_diagnose_reason_cannot_book_waitinglist_full'] = 'The waiting list is also full.';
+$string['agent_booking_diagnose_reason_missing_email_booked'] =
+    'You are booked for this option, so the missing email is not explained by a missing booking record.';
+$string['agent_booking_diagnose_reason_missing_email_limitations'] =
+    'This self-service check cannot prove whether an email was actually sent or delivered.';
+$string['agent_booking_diagnose_reason_missing_email_manager_check'] =
+    'If needed, a manager can inspect booking mail templates, rules, and the scheduled mail queue.';
+$string['agent_booking_diagnose_reason_missing_email_not_booked'] = 'You are not currently booked for this option.';
+$string['agent_booking_diagnose_reason_missing_email_waitinglist'] =
+    'You are on the waiting list, which may trigger different notifications than a confirmed booking.';
+$string['agent_booking_diagnose_reason_none'] =
+    'No specific blocking reason could be derived from the current booking state.';
+$string['agent_booking_diagnose_reason_status_booked'] =
+    'You already have a confirmed booking for this option.';
+$string['agent_booking_diagnose_reason_status_notbooked'] =
+    'There is no booking record for you on this option right now.';
+$string['agent_booking_diagnose_reason_status_notifylist'] =
+    'You are on the notify-me list, but not booked for this option.';
+$string['agent_booking_diagnose_reason_status_reserved'] =
+    'You currently have only a reservation, not a confirmed booking.';
+$string['agent_booking_diagnose_reason_status_waitinglist'] =
+    'You are currently on the waiting list for this option.';
+$string['agent_booking_diagnose_required_question'] = 'Field "question" is required for diagnose_booking_issue.';
+$string['agent_booking_diagnose_status_booked'] = 'booked';
+$string['agent_booking_diagnose_status_notbooked'] = 'not booked';
+$string['agent_booking_diagnose_status_notifylist'] = 'notify list';
+$string['agent_booking_diagnose_status_reserved'] = 'reserved';
+$string['agent_booking_diagnose_status_waitinglist'] = 'waiting list';
 $string['agent_booking_resolve_user_ambiguous'] =
     'Multiple users matched: {$a}. Please provide a more specific user query (for example with e-mail or user id).';
 $string['agent_booking_resolve_user_no_match'] = 'No user matched user query "{$a}".';
@@ -109,57 +160,7 @@ $string['agent_booking_update_permission_check_failed'] =
 $string['agent_booking_update_permission_denied_generic'] = 'You cannot update one or more requested fields.';
 $string['agent_booking_update_permission_denied_groups'] =
     'You are not allowed to update these field groups in this booking context: {$a}.';
-$string['agent_booking_diagnose_required_question'] = 'Field "question" is required for diagnose_booking_issue.';
-$string['agent_booking_diagnose_ambiguity_option_required'] =
-    'Which booking option do you mean? Please provide the option title or option id.';
-$string['agent_booking_diagnose_ambiguity_option_specify'] = 'Please specify the option more precisely.';
-$string['agent_booking_diagnose_error_option_resolve'] = 'Could not resolve booking option.';
-$string['agent_booking_diagnose_error_option_not_in_instance'] =
-    'The provided optionid does not belong to this booking instance.';
-$string['agent_booking_diagnose_ambiguity_option_title_or_id'] =
-    'Please provide the booking option title or id.';
-$string['agent_booking_diagnose_ambiguity_last_preview_multiple'] =
-    'Your last preview contains multiple options. Please tell me which one you mean.';
-$string['agent_booking_diagnose_error_last_preview_none'] =
-    'There is no recent previewed option to refer to.';
-$string['agent_booking_diagnose_reason_status_booked'] =
-    'You already have a confirmed booking for this option.';
-$string['agent_booking_diagnose_reason_status_waitinglist'] =
-    'You are currently on the waiting list for this option.';
-$string['agent_booking_diagnose_reason_status_reserved'] =
-    'You currently have only a reservation, not a confirmed booking.';
-$string['agent_booking_diagnose_reason_status_notifylist'] =
-    'You are on the notify-me list, but not booked for this option.';
-$string['agent_booking_diagnose_reason_status_notbooked'] =
-    'There is no booking record for you on this option right now.';
-$string['agent_booking_diagnose_reason_cannot_book_already_booked'] =
-    'You are already booked, so another normal booking is not available.';
-$string['agent_booking_diagnose_reason_cannot_book_fully_booked'] = 'The option is currently fully booked.';
-$string['agent_booking_diagnose_reason_cannot_book_no_waitinglist'] =
-    'This option does not offer a waiting list.';
-$string['agent_booking_diagnose_reason_cannot_book_waitinglist_full'] = 'The waiting list is also full.';
-$string['agent_booking_diagnose_reason_cannot_book_waitinglist_available'] =
-    'The main places are full, but there is still room on the waiting list.';
-$string['agent_booking_diagnose_reason_missing_email_booked'] =
-    'You are booked for this option, so the missing email is not explained by a missing booking record.';
-$string['agent_booking_diagnose_reason_missing_email_waitinglist'] =
-    'You are on the waiting list, which may trigger different notifications than a confirmed booking.';
-$string['agent_booking_diagnose_reason_missing_email_not_booked'] = 'You are not currently booked for this option.';
-$string['agent_booking_diagnose_reason_missing_email_limitations'] =
-    'This self-service check cannot prove whether an email was actually sent or delivered.';
-$string['agent_booking_diagnose_reason_missing_email_manager_check'] =
-    'If needed, a manager can inspect booking mail templates, rules, and the scheduled mail queue.';
-$string['agent_booking_diagnose_reason_none'] =
-    'No specific blocking reason could be derived from the current booking state.';
-$string['agent_booking_diagnose_intro_checked_option'] = 'I checked your booking situation for "{$a}".';
-$string['agent_booking_diagnose_intro_missing_email'] = 'Here is what I can confirm about the email question:';
-$string['agent_booking_diagnose_intro_cannot_book'] = 'Here is why booking may currently fail:';
-$string['agent_booking_diagnose_intro_status'] = 'Your current status is {$a}.';
-$string['agent_booking_diagnose_status_booked'] = 'booked';
-$string['agent_booking_diagnose_status_waitinglist'] = 'waiting list';
-$string['agent_booking_diagnose_status_reserved'] = 'reserved';
-$string['agent_booking_diagnose_status_notifylist'] = 'notify list';
-$string['agent_booking_diagnose_status_notbooked'] = 'not booked';
+$string['aiinstructions_shortcode'] = 'Shortcode to embed the AI instructions chat interface for a booking activity inline.';
 $string['alertrecalculate'] = '<b>Caution!</b> All prices will be recalculated and all old prices will be overwritten.';
 $string['allbookingoptions'] = 'Download users for all booking options';
 $string['allchangessaved'] = 'All changes have been saved.';
@@ -684,8 +685,6 @@ $string['bookingoptionmovedupfromwaitinglistdesc'] = 'The user with ID {$a->rela
 $string['bookingoptionname'] = 'Booking option name';
 $string['bookingoptionnamewithoutprefix'] = 'Name (without prefix)';
 $string['bookingoptionprice'] = 'Price';
-$string['bookingoptionview'] = 'Shortcode to show the booking button of a specific booking option.';
-$string['aiinstructions_shortcode'] = 'Shortcode to embed the AI instructions chat interface for a booking activity inline.';
 $string['bookingoptionsall'] = 'Shortcode to show all bookingoptions.';
 $string['bookingoptionsfromcondition'] = 'Shortcode to show bookingoptions from certificate condition.';
 $string['bookingoptionsfromtemplatemenu'] = 'New booking option from template';
@@ -694,6 +693,7 @@ $string['bookingoptiontitle'] = 'Booking option title';
 $string['bookingoptionuncompleted'] = 'Completion of booking option undone';
 $string['bookingoptionupdated'] = 'Booking option updated';
 $string['bookingoptionupdateddesc'] = 'User with id "{$a->userid}" updated bookingoption with id "{$a->objectid}".';
+$string['bookingoptionview'] = 'Shortcode to show the booking button of a specific booking option.';
 $string['bookingoptionwaitinglistbooked'] = 'Booked on waitinglist';
 $string['bookingorganizatorname'] = 'Organizer name';
 $string['bookingpassed'] = 'Your event has ended.';
@@ -1185,6 +1185,8 @@ $string['customform'] = "Customform";
 $string['customformnotchecked'] = 'You didn\'t accept yet.';
 $string['customformparams_desc'] = "Use parameter that are set in the customform.";
 $string['customformparamsvalue'] = "Customform parameter";
+$string['customformprefillenabled'] = 'Enable custom form URL prefill';
+$string['customformprefillenabled_desc'] = 'Allows prefill values via optionview URL parameters and shows prefill key hints in the custom form configuration.';
 $string['customformselectoptions'] = '<div class="alert alert-info" role="alert">
 <i class="fa fa-info-circle"></i>
 <span><b>Values for selection can be specified like:</b> <br>
@@ -2065,8 +2067,6 @@ $string['onlyusersfrominstitution'] = 'You can only add users from this institut
 $string['onwaitinglist'] = 'You are on the waiting list';
 $string['openbookingdetailinsametab'] = 'Display detailview directly when clicking on the title of the booking option';
 $string['openbookingdetailinsametab_desc'] = "In the course list, clicking on the title of the booking option will lead to it's detail view. If you select this option, users will see this new page immediately. Otherwise the detail view will open in a new tab.";
-$string['customformprefillenabled'] = 'Enable custom form URL prefill';
-$string['customformprefillenabled_desc'] = 'Allows prefill values via optionview URL parameters and shows prefill key hints in the custom form configuration.';
 $string['openformat'] = 'open format';
 $string['optional'] = 'optional';
 $string['optionannotation'] = 'Internal annotation';
@@ -2133,12 +2133,12 @@ $string['optiontemplatenotsavednovalidlicense'] = 'Booking option template could
 $string['optiontemplatessettings'] = 'Booking option templates';
 $string['optiontype'] = 'Option type';
 $string['optiontype_apply'] = 'Apply type';
-$string['optiontypeprohintnoproversion'] = 'With <a href="{$a}" target="_blank">Booking PRO</a> you get cool features like Slot booking, unlimited message templates, shortcodes and approval workflows.';
-$string['optiontypeslotbookinghint'] = 'With <a href="{$a}" target="_blank">Booking PRO</a> you can use the time slot booking feature.';
 $string['optiontype_slotbooking'] = 'Slot booking';
 $string['optiontype_withdates'] = 'With dates';
 $string['optiontypefilternormal'] = 'Normal';
 $string['optiontypefilterslotbooking'] = 'Slot booking';
+$string['optiontypeprohintnoproversion'] = 'With <a href="{$a}" target="_blank">Booking PRO</a> you get cool features like Slot booking, unlimited message templates, shortcodes and approval workflows.';
+$string['optiontypeslotbookinghint'] = 'With <a href="{$a}" target="_blank">Booking PRO</a> you can use the time slot booking feature.';
 $string['optionviewcustomfields'] = 'Show customfields on detail page';
 $string['optionviewcustomfieldsdesc'] = 'Select the booking option customfields that you want to be shown on the details page of a booking option. To change the order of the customfields on the details page, you can just change the order of the customfields <a href="/mod/booking/customfield.php" target="_blank">here</a>';
 $string['optionvisibility'] = 'Visibility';
@@ -2908,8 +2908,8 @@ $string['slot_custom_duration'] = 'Duration';
 $string['slot_custom_max_days'] = 'Max days for one slot';
 $string['slot_custom_max_duration'] = 'Maximal slot length';
 $string['slot_custom_min_duration'] = 'Minimal slot length';
-$string['slot_custom_start_interval_minutes'] = 'Slot start interval (minutes)';
 $string['slot_custom_start'] = 'Start';
+$string['slot_custom_start_interval_minutes'] = 'Slot start interval (minutes)';
 $string['slot_day_fri'] = 'Friday';
 $string['slot_day_mon'] = 'Monday';
 $string['slot_day_sat'] = 'Saturday';
@@ -2961,9 +2961,9 @@ $string['slot_rule_editor_title'] = 'Slot rule editor';
 $string['slot_rule_error_activerange'] = 'The active until date must be after active from date.';
 $string['slot_rule_existing'] = 'Existing slot rules';
 $string['slot_rule_none'] = 'No slot rules exist for this option yet.';
-$string['slot_rule_price_summary'] = 'Price effect';
 $string['slot_rule_price_delete_confirm'] = 'Do you really want to delete this slot rule price entry?';
 $string['slot_rule_price_deleted'] = 'Slot rule price entry deleted.';
+$string['slot_rule_price_summary'] = 'Price effect';
 $string['slot_rule_pricecategoryidentifier'] = 'Price category identifier';
 $string['slot_rule_pricecurrency'] = 'Currency (optional)';
 $string['slot_rule_priceheader'] = 'Price rule details';
