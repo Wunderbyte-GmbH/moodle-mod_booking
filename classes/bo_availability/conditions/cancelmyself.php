@@ -140,7 +140,7 @@ class cancelmyself implements bo_condition {
         if ($bookinganswer->is_activity_completed($userid)) {
             // If the user has already completed the booking option, (s)he cannot cancel!
             $isavailable = true; // True means, it won't be shown.
-        } else if (!empty($settings->jsonobject->useprice) && (class_exists('local_shopping_cart\shopping_cart'))) {
+        } else if (!empty($settings->jsonobject->useprice) && (!class_exists('local_shopping_cart\shopping_cart'))) {
             // If we have a price, this condition is not used.
             $isavailable = true; // True means, it won't be shown.
         } else {
