@@ -71,6 +71,17 @@ export async function init() {
             return;
         }
 
+        // Only shorttext fields should be auto-cleared on first click.
+        if (
+            !input.name
+            || (
+                !input.name.startsWith('customform_shorttext_')
+                && !input.name.startsWith('customform_url_')
+            )
+        ) {
+            return;
+        }
+
         if (input.value !== '' && input.value === input.dataset.initialValue) {
             input.value = '';
         }
