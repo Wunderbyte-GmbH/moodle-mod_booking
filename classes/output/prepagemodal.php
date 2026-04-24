@@ -115,6 +115,7 @@ class prepagemodal implements renderable, templatable {
             if (!empty($data['main']) || $full) { // Full means has capability "bookforothers" & therefore 2 areas: top & main.
                 $extradata['top'] = $extradata["main"];
                 $extradata['main'] = $data['main'] ?? [];
+                $extradata['price'] = $data['price'] ?? [];
             }
             $data = $extradata;
         }
