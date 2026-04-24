@@ -34,7 +34,6 @@ use mod_booking_generator;
 use context_system;
 use stdClass;
 use core\event\notification_sent;
-use tool_mocktesttime\time_mock;
 
 /**
  * Class handling tests for booking reminder mails.
@@ -51,8 +50,7 @@ final class send_reminder_mails_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
         singleton_service::destroy_instance();
     }
 

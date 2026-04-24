@@ -114,7 +114,7 @@ class booking_time implements bo_condition {
      */
     public function is_available(booking_option_settings $settings, int $userid, bool $not = false): bool {
 
-        $now = time();
+        $now  = \core\di::get(\core\clock::class)->time();
 
         // Here, the logic is easier when we set available to true first.
         $isavailable = true;

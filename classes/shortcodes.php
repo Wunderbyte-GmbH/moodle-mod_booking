@@ -1035,7 +1035,7 @@ class shortcodes {
                     $table
                 );
         if (!empty($args['futureonly'])) {
-            $startoftoday = time();
+            $startoftoday  = \core\di::get(\core\clock::class)->time();
             $where .= " AND courseendtime > $startoftoday ";
         }
         $table->set_filter_sql($fields, $from, $where, $filter, $params);

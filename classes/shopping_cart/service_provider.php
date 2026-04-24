@@ -414,7 +414,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             by setting a canceluntil date in shopping_cart_history table directly. */
             // Check if the option has its own canceluntil date and if it has already passed.
             // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-            /* $now = time();
+            /* $now  = \core\di::get(\core\clock::class)->time();
             $canceluntil = booking_option::get_value_of_json_by_key($itemid, 'canceluntil');
             if (!empty($canceluntil) && $now > $canceluntil) {
                 $allowedtocancel = false;

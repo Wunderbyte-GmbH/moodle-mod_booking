@@ -30,7 +30,6 @@ use advanced_testcase;
 use context_course;
 use context_system;
 use mod_booking\settings\optionformconfig\optionformconfig_info;
-use tool_mocktesttime\time_mock;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -46,8 +45,7 @@ final class optionformconfig_info_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
         singleton_service::destroy_instance();
     }
 

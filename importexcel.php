@@ -112,7 +112,7 @@ if ($mform->is_cancelled()) {
 
                 if ($user !== false) {
                     $user->completed = $line[$completedpos];
-                    $user->timemodified = time();
+                    $user->timemodified  = \core\di::get(\core\clock::class)->time();
                     $DB->update_record('booking_answers', $user, false);
 
                     $countcompleted = $DB->count_records(

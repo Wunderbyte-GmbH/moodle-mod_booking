@@ -20,7 +20,6 @@ use advanced_testcase;
 use context_system;
 use mod_booking_generator;
 use mod_booking\output\bookingoption_description;
-use tool_mocktesttime\time_mock;
 
 /**
  * Tests for configured customfields shown on option view.
@@ -37,8 +36,7 @@ final class booking_customfields_on_optionview_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
         singleton_service::destroy_instance();
     }
 

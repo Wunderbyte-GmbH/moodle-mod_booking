@@ -36,7 +36,6 @@ use mod_booking\bo_availability\bo_info;
 use local_shopping_cart\shopping_cart;
 use local_shopping_cart\local\cartstore;
 use local_shopping_cart_generator;
-use tool_mocktesttime\time_mock;
 use mod_booking\booking_rules\booking_rules;
 use mod_booking\booking_rules\rules_info;
 
@@ -63,8 +62,7 @@ final class shopping_cart_installment_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
         singleton_service::destroy_instance();
         set_config('country', 'AT');
         /** @var \core_payment_generator $generator */
@@ -74,8 +72,8 @@ final class shopping_cart_installment_test extends advanced_testcase {
         $record->accountid = $this->account->get('id');
         $record->gateway = 'paypal';
         $record->enabled = 1;
-        $record->timecreated = time();
-        $record->timemodified = time();
+        $record->timecreated  = \core\di::get(\core\clock::class)->time();
+        $record->timemodified  = \core\di::get(\core\clock::class)->time();
 
         $config = new stdClass();
         $config->environment = 'sandbox';
@@ -117,8 +115,8 @@ final class shopping_cart_installment_test extends advanced_testcase {
             return;
         }
 
-        time_mock::set_mock_time(strtotime('-4 days', time()));
-        $time = time_mock::get_mock_time();
+        \core\di::get(\core\clock::class)->set_to(strtotime('-4 days', time()));
+        $time = \core\di::get(\core\clock::class)->time();
 
         // Validate payment account if it has a config.
         $record1 = $DB->get_record('payment_accounts', ['id' => $this->account->get('id')]);
@@ -295,8 +293,8 @@ final class shopping_cart_installment_test extends advanced_testcase {
 
         // Reset cart and move +2 day forward - we should pay 1st installment.
         cartstore::reset();
-        time_mock::set_mock_time(strtotime('+2 days', $time));
-        $time = time_mock::get_mock_time();
+        \core\di::get(\core\clock::class)->set_to(strtotime('+2 days', $time));
+        $time = \core\di::get(\core\clock::class)->time();
         // Validate count of tasks.
         $sink = $this->redirectMessages();
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
@@ -346,8 +344,8 @@ final class shopping_cart_installment_test extends advanced_testcase {
 
         // Reset cart and move +2 day forward - we should pay 2nd installment.
         cartstore::reset();
-        time_mock::set_mock_time(strtotime('+2 days', $time));
-        $time = time_mock::get_mock_time();
+        \core\di::get(\core\clock::class)->set_to(strtotime('+2 days', $time));
+        $time = \core\di::get(\core\clock::class)->time();
         // Validate count of tasks.
         $sink = $this->redirectMessages();
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');

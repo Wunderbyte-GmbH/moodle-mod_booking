@@ -29,7 +29,6 @@ use advanced_testcase;
 use local_entities_generator;
 use stdClass;
 use mod_booking\booking_rules\rules_info;
-use tool_mocktesttime\time_mock;
 use mod_booking_generator;
 
 /**
@@ -137,7 +136,7 @@ final class rules_n_days_test extends advanced_testcase {
         $this->assertTrue($newtaskfound, 'New task should be created');
 
         // Advance time to the old task time and run tasks.
-        time_mock::set_mock_time(strtotime('+7 days', time()));
+        \core\di::get(\core\clock::class)->set_to(strtotime('+7 days', time()));
         unset_config('noemailever');
         ob_start();
         $messagesink = $this->redirectMessages();
@@ -162,8 +161,7 @@ final class rules_n_days_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
         $this->preventResetByRollback();
     }
 
@@ -437,9 +435,9 @@ final class rules_n_days_test extends advanced_testcase {
             booking_option::cancelbookingoption($option1->id);
         }
 
-        $time = time_mock::get_mock_time();
-        time_mock::set_mock_time(strtotime('+5 days', $time));
-        $time = time_mock::get_mock_time();
+        $time = \core\di::get(\core\clock::class)->time();
+        \core\di::get(\core\clock::class)->set_to(strtotime('+5 days', $time));
+        $time = \core\di::get(\core\clock::class)->time();
 
         ob_start();
         $this->runAdhocTasks();
@@ -538,9 +536,9 @@ final class rules_n_days_test extends advanced_testcase {
             booking_option::cancelbookingoption($option1->id);
         }
 
-        $time = time_mock::get_mock_time();
-        time_mock::set_mock_time(strtotime('+15 days', $time));
-        $time = time_mock::get_mock_time();
+        $time = \core\di::get(\core\clock::class)->time();
+        \core\di::get(\core\clock::class)->set_to(strtotime('+15 days', $time));
+        $time = \core\di::get(\core\clock::class)->time();
 
         $messagesink = $this->redirectMessages();
 
@@ -554,12 +552,12 @@ final class rules_n_days_test extends advanced_testcase {
         $this->assertCount($data['canceloption'] ? 0 : 1, $messages);
 
         ob_start();
-        $plugingenerator->runtaskswithintime(time_mock::get_mock_time());
+        $plugingenerator->runtaskswithintime(\core\di::get(\core\clock::class)->time());
         $res = ob_get_clean(); // Not used here, but needed to clear buffer.
 
-        $time = time_mock::get_mock_time();
-        time_mock::set_mock_time(strtotime('+15 days', $time));
-        $time = time_mock::get_mock_time();
+        $time = \core\di::get(\core\clock::class)->time();
+        \core\di::get(\core\clock::class)->set_to(strtotime('+15 days', $time));
+        $time = \core\di::get(\core\clock::class)->time();
 
         ob_start();
         $plugingenerator->runtaskswithintime($time);
@@ -596,8 +594,7 @@ final class rules_n_days_test extends advanced_testcase {
         $this->setAdminUser();
         $bdata = self::booking_common_settings_provider();
 
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
 
         // Setup course, users, booking instance.
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
@@ -713,13 +710,13 @@ final class rules_n_days_test extends advanced_testcase {
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
         $this->assertCount($expected['numberoftasks'], $tasks, 'wrong number of tasks');
 
-        $time = time_mock::get_mock_time();
-        time_mock::set_mock_time(strtotime('30 June 2050 16:00', $time));
+        $time = \core\di::get(\core\clock::class)->time();
+        \core\di::get(\core\clock::class)->set_to(strtotime('30 June 2050 16:00', $time));
 
         unset_config('noemailever');
         ob_start();
         $messagesink = $this->redirectMessages();
-        $plugingenerator->runtaskswithintime(time_mock::get_mock_time());
+        $plugingenerator->runtaskswithintime(\core\di::get(\core\clock::class)->time());
         $messages = $messagesink->get_messages();
         $trace = ob_get_clean();
         $messagesink->close();
@@ -760,8 +757,7 @@ final class rules_n_days_test extends advanced_testcase {
         $this->setAdminUser();
         $bdata = self::booking_common_settings_provider();
 
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
 
         // Setup course, users, booking instance.
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
@@ -834,13 +830,13 @@ final class rules_n_days_test extends advanced_testcase {
         $this->assertCount($expected['initialnumberoftasks'], $tasks, 'wrong number of tasks');
 
         if (isset($expected['tasksperoptiondates'])) {
-            $time = time_mock::get_mock_time();
+            $time = \core\di::get(\core\clock::class)->time();
             unset_config('noemailever');
             foreach ($expected['tasksperoptiondates'] as $tasksperoptiondates) {
-                time_mock::set_mock_time(strtotime($tasksperoptiondates['mock_time'], $time));
+                \core\di::get(\core\clock::class)->set_to(strtotime($tasksperoptiondates['mock_time'], $time));
                 ob_start();
                 $messagesink = $this->redirectMessages();
-                $plugingenerator->runtaskswithintime(time_mock::get_mock_time());
+                $plugingenerator->runtaskswithintime(\core\di::get(\core\clock::class)->time());
                 $messages = $messagesink->get_messages();
                 $trace = ob_get_clean();
                 $messagesink->close();
@@ -881,8 +877,7 @@ final class rules_n_days_test extends advanced_testcase {
         $this->setAdminUser();
         $bdata = self::booking_common_settings_provider();
 
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
 
         // Setup course, users, booking instance.
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
@@ -950,13 +945,13 @@ final class rules_n_days_test extends advanced_testcase {
         // After update, expect initial tasks to be doubled.
         $this->assertCount($testdata['initialtasks'] * 2, $tasks, 'wrong number of tasks');
 
-        $time = time_mock::get_mock_time();
-        time_mock::set_mock_time(strtotime('30 June 2050 16:00', $time));
+        $time = \core\di::get(\core\clock::class)->time();
+        \core\di::get(\core\clock::class)->set_to(strtotime('30 June 2050 16:00', $time));
 
         unset_config('noemailever');
         ob_start();
         $messagesink = $this->redirectMessages();
-        $plugingenerator->runtaskswithintime(time_mock::get_mock_time());
+        $plugingenerator->runtaskswithintime(\core\di::get(\core\clock::class)->time());
         $messages = $messagesink->get_messages();
         $trace = ob_get_clean();
         $messagesink->close();

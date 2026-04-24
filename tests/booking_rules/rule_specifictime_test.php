@@ -28,7 +28,6 @@ namespace mod_booking;
 use advanced_testcase;
 use local_entities_generator;
 use mod_booking\booking_rules\rules_info;
-use tool_mocktesttime\time_mock;
 use mod_booking_generator;
 
 /**
@@ -52,8 +51,7 @@ final class rule_specifictime_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
     }
 
     /**
@@ -93,8 +91,7 @@ final class rule_specifictime_test extends advanced_testcase {
         $this->setAdminUser();
         $bdata = self::booking_common_settings_provider();
 
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
 
         // Setup course, users, booking instance.
         $courses = [];
@@ -166,17 +163,17 @@ final class rule_specifictime_test extends advanced_testcase {
         $this->assertCount($expected['initialnumberoftasks'], $tasks, 'wrong number of tasks');
 
         if (isset($expected['tasksperoptiondates'])) {
-            $time = time_mock::get_mock_time();
+            $time = \core\di::get(\core\clock::class)->time();
             unset_config('noemailever');
             foreach ($expected['tasksperoptiondates'] as $tasksperoptiondates) {
                 if (!empty($data['mock_timestamp'])) {
-                    time_mock::set_mock_time($tasksperoptiondates['mock_time']);
+                    \core\di::get(\core\clock::class)->set_to($tasksperoptiondates['mock_time']);
                 } else {
-                    time_mock::set_mock_time(strtotime($tasksperoptiondates['mock_time'], $time));
+                    \core\di::get(\core\clock::class)->set_to(strtotime($tasksperoptiondates['mock_time'], $time));
                 }
                 ob_start();
                 $messagesink = $this->redirectMessages();
-                $plugingenerator->runtaskswithintime(time_mock::get_mock_time());
+                $plugingenerator->runtaskswithintime(\core\di::get(\core\clock::class)->time());
                 $messages = $messagesink->get_messages();
                 $trace = ob_get_clean();
                 $messagesink->close();

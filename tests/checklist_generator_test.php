@@ -20,7 +20,6 @@ use mod_booking\checklist\checklist_generator;
 use mod_booking\booking_option;
 use advanced_testcase;
 use ReflectionClass;
-use tool_mocktesttime\time_mock;
 
 /**
  * Class handling tests for checklist.
@@ -34,8 +33,7 @@ final class checklist_generator_test extends advanced_testcase {
     protected function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
         singleton_service::destroy_instance();
     }
 

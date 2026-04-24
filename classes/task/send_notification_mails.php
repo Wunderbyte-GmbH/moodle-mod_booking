@@ -82,7 +82,7 @@ class send_notification_mails extends \core\task\scheduled_task {
             $booking = singleton_service::get_instance_of_booking_by_bookingid($bookingid);
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-            $now = time();
+            $now  = \core\di::get(\core\clock::class)->time();
             if (
                 (!empty($settings->courseendtime) && $now > $settings->courseendtime)
                 || (empty($booking->id) || empty($settings->id))

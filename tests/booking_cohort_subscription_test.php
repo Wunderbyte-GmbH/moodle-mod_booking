@@ -29,7 +29,6 @@ use advanced_testcase;
 use context_module;
 use context_system;
 use stdClass;
-use tool_mocktesttime\time_mock;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -47,8 +46,7 @@ final class booking_cohort_subscription_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
         singleton_service::destroy_instance();
     }
 

@@ -87,7 +87,7 @@ if ($optionid > 0) {
     $sqlvalues['optionid'] = $optionid;
 }
 
-$timestamp = time();
+$timestamp  = \core\di::get(\core\clock::class)->time();
 
 $urlparams['searchdateday'] = "";
 if ($searchdateday > 0) {

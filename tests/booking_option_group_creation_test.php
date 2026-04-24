@@ -38,7 +38,6 @@ use advanced_testcase;
 use cache_helper;
 use mod_booking_generator;
 use stdClass;
-use tool_mocktesttime\time_mock;
 
 /**
  * Tests that a group is automatically created when a booking option with a
@@ -57,8 +56,7 @@ final class booking_option_group_creation_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
         singleton_service::destroy_instance();
     }
 

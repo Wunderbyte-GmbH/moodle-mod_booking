@@ -32,7 +32,6 @@ use mod_booking\bo_availability\bo_info;
 use mod_booking\local\checkanswers\checkanswers;
 use stdClass;
 use mod_booking_generator;
-use tool_mocktesttime\time_mock;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -55,8 +54,7 @@ final class checkanswers_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
         singleton_service::destroy_instance();
         set_config('uselegacymailtemplates', 0, 'booking');
         set_config('unenroluserswithoutaccessareyousure', 1, 'booking');
@@ -100,8 +98,8 @@ final class checkanswers_test extends advanced_testcase {
         $group->name = 'Hidden Group';
         $group->description = 'This group is used for restricting visibility.';
         $group->idnumber = 'group_hidden_001';
-        $group->timecreated = time();
-        $group->timemodified = time();
+        $group->timecreated  = \core\di::get(\core\clock::class)->time();
+        $group->timemodified  = \core\di::get(\core\clock::class)->time();
 
         // Insert the group into the database.
         $groupid = groups_create_group($group);

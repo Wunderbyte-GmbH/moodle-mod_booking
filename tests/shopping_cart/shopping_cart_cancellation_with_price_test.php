@@ -35,7 +35,6 @@ use local_shopping_cart\shopping_cart_history;
 use local_shopping_cart\local\cartstore;
 use local_shopping_cart\form\modal_cancel_all_addcredit;
 use local_shopping_cart\shopping_cart_credits;
-use tool_mocktesttime\time_mock;
 use mod_booking\booking_rules\booking_rules;
 use mod_booking\booking_rules\rules_info;
 
@@ -59,8 +58,7 @@ final class shopping_cart_cancellation_with_price_test extends advanced_testcase
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
         singleton_service::destroy_instance();
     }
 

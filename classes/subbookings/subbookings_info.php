@@ -501,7 +501,7 @@ class subbookings_info {
 
         global $DB, $USER;
 
-        $now = time();
+        $now  = \core\di::get(\core\clock::class)->time();
 
         $id = 0;
 

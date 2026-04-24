@@ -809,7 +809,7 @@ class booking_answers {
 
         // If the config setting 'maxperuserdontcountpassed' is set, we don't count passed bookings.
         if (get_config('booking', 'maxperuserdontcountpassed')) {
-            $now = time();
+            $now  = \core\di::get(\core\clock::class)->time();
             foreach ($answers as $key => $answer) {
                 if (!empty($answer->courseendtime) && $answer->courseendtime < $now) {
                     unset($answers[$key]);

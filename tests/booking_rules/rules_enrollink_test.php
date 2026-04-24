@@ -36,7 +36,6 @@ use mod_booking\local\mobile\customformstore;
 use local_shopping_cart\shopping_cart;
 use local_shopping_cart\local\cartstore;
 use mod_booking\enrollink;
-use tool_mocktesttime\time_mock;
 
 /**
  * Tests for booking enrollink rules.
@@ -55,8 +54,7 @@ final class rules_enrollink_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
         singleton_service::destroy_instance();
     }
 

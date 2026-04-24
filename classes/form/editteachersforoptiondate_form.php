@@ -182,7 +182,7 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
             }
         }
 
-        $now = time();
+        $now  = \core\di::get(\core\clock::class)->time();
 
         // Save deductions if there are any.
         $settings = singleton_service::get_instance_of_booking_option_settings($data->optionid);

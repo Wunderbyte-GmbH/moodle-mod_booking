@@ -126,7 +126,7 @@ class prepagemodal implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output) {
 
-        $now = time();
+        $now  = \core\di::get(\core\clock::class)->time();
         $rand = rand(1, 1000);
 
         return [

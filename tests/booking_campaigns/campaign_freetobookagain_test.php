@@ -31,7 +31,6 @@ use context_system;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\task\purge_campaign_caches;
 use stdClass;
-use tool_mocktesttime\time_mock;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -52,8 +51,7 @@ final class campaign_freetobookagain_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
         singleton_service::destroy_instance();
     }
 
@@ -189,7 +187,7 @@ final class campaign_freetobookagain_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         // Book student2 via waitinglist then confirm (verified).
-        time_mock::set_mock_time(strtotime('+1 hour', time()));
+        \core\di::get(\core\clock::class)->set_to(strtotime('+1 hour', time()));
         $this->setUser($student2);
         singleton_service::destroy_user($student2->id);
         $result = booking_bookit::bookit('option', $settings->id, $student2->id);
@@ -200,7 +198,7 @@ final class campaign_freetobookagain_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         // Now the option is fully booked (2/2). Put student3 on the waitinglist.
-        time_mock::set_mock_time(strtotime('+2 hours', time()));
+        \core\di::get(\core\clock::class)->set_to(strtotime('+2 hours', time()));
         $this->setUser($student3);
         singleton_service::destroy_user($student3->id);
         $result = booking_bookit::bookit('option', $settings->id, $student3->id);

@@ -219,7 +219,7 @@ class ical {
         if (($coursedates || $sessiontimes)) {
             $this->datesareset = true;
             $this->user = $DB->get_record('user', ['id' => $user->id]);
-            $now = time();
+            $now  = \core\di::get(\core\clock::class)->time();
             $this->dtstamp = $this->generate_timestamp($now);
             $this->summary = $this->escape($settings->get_title_with_prefix());
             $this->description = $this->escape($settings->description ?? '', true);

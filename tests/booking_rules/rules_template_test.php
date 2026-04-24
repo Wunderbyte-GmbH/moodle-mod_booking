@@ -41,7 +41,6 @@ use mod_booking\form\editteachersforoptiondate_form;
 use stdClass;
 use mod_booking\bo_availability\bo_info;
 use mod_booking_generator;
-use tool_mocktesttime\time_mock;
 
 /**
  * Tests for booking rules.
@@ -58,8 +57,7 @@ final class rules_template_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
         singleton_service::destroy_instance();
     }
 

@@ -503,7 +503,7 @@ class elective {
         global $DB;
         // Get all booking options with associated Moodle courses that have enrolmentstatus 0 and coursestartdate in the past.
         $select = "enrolmentstatus < 1 AND coursestarttime < :now";
-        $now = time();
+        $now  = \core\di::get(\core\clock::class)->time();
         $boids = $DB->get_records_select_menu('booking_options', $select, ['now' => $now], '', 'id, bookingid');
         foreach ($boids as $optionid => $bookingid) {
             // Might happen for templates.

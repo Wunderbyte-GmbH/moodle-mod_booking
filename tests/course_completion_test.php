@@ -31,7 +31,6 @@ use coding_exception;
 use completion_completion;
 use context_system;
 use mod_booking_generator;
-use tool_mocktesttime\time_mock;
 use core_competency\api;
 use core_competency\competency;
 
@@ -56,8 +55,7 @@ final class course_completion_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
         singleton_service::destroy_instance();
     }
 

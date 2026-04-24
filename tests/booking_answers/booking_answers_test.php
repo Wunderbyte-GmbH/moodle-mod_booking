@@ -20,7 +20,6 @@ use advanced_testcase;
 use mod_booking\singleton_service;
 use mod_booking\booking_bookit;
 use mod_booking\bo_availability\bo_info;
-use tool_mocktesttime\time_mock;
 use stdClass;
 use mod_booking_generator;
 
@@ -42,8 +41,7 @@ final class booking_answers_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
         singleton_service::destroy_instance();
     }
 
@@ -69,8 +67,7 @@ final class booking_answers_test extends advanced_testcase {
         set_config('timezone', 'Europe/Kyiv');
         set_config('forcetimezone', 'Europe/Kyiv');
 
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
 
         // Setup test data.
 
@@ -218,12 +215,11 @@ final class booking_answers_test extends advanced_testcase {
         // Check multiple bookings if the opton is enabled.
         if (!empty($optionsettings['multiplebookings'])) {
             // We advance the time and check bo_availabilty to see if expectation are met.
-            $time = time_mock::get_mock_time();
-            $this->assertSame(time(), $time);
+            $time = \core\di::get(\core\clock::class)->time();
             $clockforwardshift = $time + $optionsettings['allowtobookagainafter'] + 20;
-            time_mock::set_mock_time($time + $clockforwardshift); // Jump N seconds into the future.
-            $future = time_mock::get_mock_time();
-            $this->assertEquals(time(), $future);
+            \core\di::get(\core\clock::class)->set_to($time + $clockforwardshift); // Jump N seconds into the future.
+            $future = \core\di::get(\core\clock::class)->time();
+            $this->assertEquals($time + $clockforwardshift, $future);
 
             // Book again option for students 2 and 3.
             $this->setUser($student2);
@@ -235,12 +231,11 @@ final class booking_answers_test extends advanced_testcase {
             $a = $DB->get_records('booking_answers', ['waitinglist' => 6]);
 
             // We advance the time and check bo_availabilty to see if expectation are met.
-            $time = time_mock::get_mock_time();
-            $this->assertSame(time(), $time);
+            $time = \core\di::get(\core\clock::class)->time();
             $clockforwardshift = $time + $optionsettings['allowtobookagainafter'] + 30;
-            time_mock::set_mock_time($time + $clockforwardshift); // Jump N seconds into the future.
-            $future = time_mock::get_mock_time();
-            $this->assertEquals(time(), $future);
+            \core\di::get(\core\clock::class)->set_to($time + $clockforwardshift); // Jump N seconds into the future.
+            $future = \core\di::get(\core\clock::class)->time();
+            $this->assertEquals($time + $clockforwardshift, $future);
 
             // Book again option for students 2 and 3.
             $this->setUser($student2);

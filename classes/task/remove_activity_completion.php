@@ -50,7 +50,7 @@ class remove_activity_completion extends \core\task\scheduled_task {
      */
     public function execute() {
         global $DB, $CFG;
-        $now = time();
+        $now  = \core\di::get(\core\clock::class)->time();
         $params = ['now' => $now];
 
         $result = $DB->get_records_sql(
@@ -77,7 +77,7 @@ class remove_activity_completion extends \core\task\scheduled_task {
             $booking = $DB->get_record('booking', ['id' => $value->bookingid]);
 
             $userdata->completed = '0';
-            $userdata->timemodified = time();
+            $userdata->timemodified  = \core\di::get(\core\clock::class)->time();
 
             $DB->update_record('booking_answers', $userdata);
 

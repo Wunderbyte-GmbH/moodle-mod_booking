@@ -173,7 +173,7 @@ class dates {
         /* $element->setValue($datescounter); */ // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         $elements[] = $element;
 
-        $now = time();
+        $now  = \core\di::get(\core\clock::class)->time();
         $nextfullhour = strtotime(date('Y-m-d H:00:00', $now)) + 3600;
 
         // If we want to show more dates than we currently have...

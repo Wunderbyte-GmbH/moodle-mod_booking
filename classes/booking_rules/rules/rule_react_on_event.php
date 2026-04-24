@@ -425,7 +425,7 @@ class rule_react_on_event implements booking_rule {
 
         foreach ($records as $record) {
             // Set the time of when the task should run.
-            $nextruntime = time();
+            $nextruntime  = \core\di::get(\core\clock::class)->time();
             $record->rulename = $this->rulename;
             $record->nextruntime = $nextruntime;
             $action->execute($record);
@@ -511,7 +511,7 @@ class rule_react_on_event implements booking_rule {
             return true;
         }
 
-        $now = time();
+        $now  = \core\di::get(\core\clock::class)->time();
         $days = (int)$aftercompletiondays;
         $add = $days * 24 * 60 * 60;
         if ($endtime + $add <= $now) {

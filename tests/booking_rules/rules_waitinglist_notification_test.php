@@ -33,7 +33,6 @@ use local_shopping_cart\shopping_cart;
 use local_shopping_cart\shopping_cart_history;
 use local_shopping_cart\local\cartstore;
 use local_shopping_cart\output\shoppingcart_history_list;
-use tool_mocktesttime\time_mock;
 use mod_booking_generator;
 
 defined('MOODLE_INTERNAL') || die();
@@ -56,8 +55,7 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
         singleton_service::destroy_instance();
     }
 
@@ -101,7 +99,7 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
         set_config('timezone', 'Europe/Kyiv');
         set_config('forcetimezone', 'Europe/Kyiv');
 
-        $time = time_mock::get_mock_time();
+        $time = \core\di::get(\core\clock::class)->time();
 
         $bdata['cancancelbook'] = 1;
         set_config('cancelationfee', 0, 'local_shopping_cart');
@@ -204,8 +202,8 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // Book the student3 via waitinglist.
-        time_mock::set_mock_time(strtotime('+1 days', time()));
-        $time = time_mock::get_mock_time();
+        \core\di::get(\core\clock::class)->set_to(strtotime('+1 days', time()));
+        $time = \core\di::get(\core\clock::class)->time();
         $this->setUser($student3);
         singleton_service::destroy_user($student3->id);
         $result = booking_bookit::bookit('option', $settings1->id, $student3->id);
@@ -217,8 +215,8 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // Book the student4 via waitinglist.
-        time_mock::set_mock_time(strtotime('+1 day', time()));
-        $time = time_mock::get_mock_time();
+        \core\di::get(\core\clock::class)->set_to(strtotime('+1 day', time()));
+        $time = \core\di::get(\core\clock::class)->time();
         $this->setUser($student4);
         singleton_service::destroy_user($student4->id);
         $result = booking_bookit::bookit('option', $settings1->id, $student4->id);
@@ -260,7 +258,7 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
 
         // In the future we run tasks.
         // No free seats available, so no messages should be send.
-        time_mock::set_mock_time(strtotime('+3 day', time()));
+        \core\di::get(\core\clock::class)->set_to(strtotime('+3 day', time()));
         $sink = $this->redirectMessages();
         ob_start();
         $this->runAdhocTasks();
@@ -538,12 +536,12 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
         $tasks = \core\task\manager::get_adhoc_tasks(\mod_booking\task\send_mail_by_rule_adhoc::class);
         $this->assertNotEmpty($tasks, 'Expected send_mail_by_rule_adhoc adhoc tasks to be created.');
 
-        $time = time_mock::get_mock_time();
+        $time = \core\di::get(\core\clock::class)->time();
         if ($data['executealltasks']) {
             // Set this in the far future, so all tasks are being executed.
-            time_mock::set_mock_time(strtotime('+ 30 hours', $time));
+            \core\di::get(\core\clock::class)->set_to(strtotime('+ 30 hours', $time));
         }
-        $time = time_mock::get_mock_time();
+        $time = \core\di::get(\core\clock::class)->time();
         $sink = $this->redirectMessages();
         ob_start();
         $plugingenerator->runtaskswithintime($time);

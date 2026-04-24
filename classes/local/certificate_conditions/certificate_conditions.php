@@ -213,7 +213,7 @@ class certificate_conditions {
                 $record->actionjson = $data->actionjson ?? null;
             }
         }
-        $now = time();
+        $now  = \core\di::get(\core\clock::class)->time();
         if (!empty($data->id) && $data->id > 0) {
             $record->id = $data->id;
             $record->timemodified = $now;

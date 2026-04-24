@@ -432,7 +432,7 @@ class enrollink {
         $data->courseid = $settings->courseid;
         $data->userid = $USER->id;
         $data->usermodified = $USER->id;
-        $data->timecreated = time();
+        $data->timecreated  = \core\di::get(\core\clock::class)->time();
         $data->timemodified = $data->timecreated;
         $data->places = (string) $places;
         $data->erlid = md5(random_string());

@@ -192,7 +192,7 @@ class subbooking_additionalitem implements booking_subbooking {
         global $DB, $USER;
 
         $record = new stdClass();
-        $now = time();
+        $now  = \core\di::get(\core\clock::class)->time();
 
         if (!isset($data->json)) {
             $jsonobject = new stdClass();

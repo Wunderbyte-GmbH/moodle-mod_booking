@@ -52,7 +52,6 @@ use mod_booking\bo_availability\conditions\userprofilefield_1_default;
 use mod_booking\bo_availability\conditions\userprofilefield_2_custom;
 use mod_booking\settings\optionformconfig\optionformconfig_info;
 use mod_booking\enrollink;
-use tool_mocktesttime\time_mock;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -116,7 +115,7 @@ class mod_booking_generator extends testing_module_generator {
         // Shopping cart.
         cartstore::reset();
         // Time mock.
-        time_mock::reset_mock_time();
+        \core\di::set(\core\clock::class, new \core\system_clock());
         // Clean up globals after each test.
         $_GET = [];
         $_POST = [];
@@ -416,7 +415,7 @@ class mod_booking_generator extends testing_module_generator {
 
         $record = (object) $record;
 
-        $record->timemodified = time();
+        $record->timemodified  = \core\di::get(\core\clock::class)->time();
         $record->usermodified = $USER->id;
 
         $record->id = $DB->insert_record('booking_subbooking_options', $record);

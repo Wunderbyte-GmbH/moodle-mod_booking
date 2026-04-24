@@ -328,7 +328,7 @@ class mobile {
         $data['whichview'] = $whichview;
         $data['cmid'] = $cmid;
         $data['mybookings'] = $outputdata;
-        $data['timestamp'] = time();
+        $data['timestamp']  = \core\di::get(\core\clock::class)->time();
         $data['mybookings'][0]['itemid'] = null;
         return [
             'templates' => [

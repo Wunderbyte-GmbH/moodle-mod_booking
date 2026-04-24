@@ -694,7 +694,7 @@ function booking_comment_validate(stdClass $commentparam): bool {
 function booking_add_instance($booking) {
     global $DB, $CFG;
 
-    $booking->timemodified = time();
+    $booking->timemodified  = \core\di::get(\core\clock::class)->time();
 
     if (isset($booking->responsesfields) && is_array($booking->responsesfields) && count($booking->responsesfields) > 0) {
         $booking->responsesfields = implode(',', $booking->responsesfields);
@@ -927,7 +927,7 @@ function booking_add_instance($booking) {
                 if (isset($booking->limit[$key])) {
                     $option->maxanswers = $booking->limit[$key];
                 }
-                $option->timemodified = time();
+                $option->timemodified  = \core\di::get(\core\clock::class)->time();
                 $DB->insert_record("booking_options", $option);
             }
         }
@@ -954,7 +954,7 @@ function booking_update_instance($booking) {
     $bookingid = $booking->id;
     $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($bookingid);
 
-    $booking->timemodified = time();
+    $booking->timemodified  = \core\di::get(\core\clock::class)->time();
     $cm = get_coursemodule_from_instance('booking', $booking->id);
     $context = context_module::instance($cm->id);
 
@@ -1229,7 +1229,7 @@ function booking_update_instance($booking) {
             if (isset($booking->limit[$key])) {
                 $option->maxanswers = $booking->limit[$key];
             }
-            $option->timemodified = time();
+            $option->timemodified  = \core\di::get(\core\clock::class)->time();
             if (isset($booking->optionid[$key]) && !empty($booking->optionid[$key])) { // Existing booking record.
                 $option->id = $booking->optionid[$key];
                 if (!empty($value)) {

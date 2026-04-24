@@ -605,7 +605,7 @@ final class certificate_conditions_test extends advanced_testcase {
         ]);
         $data->isactive = 1;
         $data->usetemplate = 0;
-        $data->timecreated = time();
+        $data->timecreated  = \core\di::get(\core\clock::class)->time();
         return $data;
     }
 
@@ -632,7 +632,7 @@ final class certificate_conditions_test extends advanced_testcase {
         ]);
         $data->isactive = 1;
         $data->usetemplate = 0;
-        $data->timecreated = time();
+        $data->timecreated  = \core\di::get(\core\clock::class)->time();
         return $data;
     }
 

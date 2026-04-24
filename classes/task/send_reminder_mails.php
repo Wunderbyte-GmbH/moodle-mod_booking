@@ -73,7 +73,7 @@ class send_reminder_mails extends \core\task\scheduled_task {
             return;
         }
 
-        $now = time();
+        $now  = \core\di::get(\core\clock::class)->time();
         $toprocess = $DB->get_records_sql(
             'SELECT bo.id optionid, bo.bookingid, bo.coursestarttime, b.daystonotify, b.daystonotify2, bo.sent, bo.sent2
             FROM {booking_options} bo
@@ -138,7 +138,7 @@ class send_reminder_mails extends \core\task\scheduled_task {
     private function send_session_notifications() {
         global $DB;
 
-        $now = time();
+        $now  = \core\di::get(\core\clock::class)->time();
         $sessionstoprocess = $DB->get_records_sql(
             "SELECT bod.id optiondateid, bod.bookingid, bod.optionid, bod.coursestarttime, bod.daystonotify, bod.sent
             FROM {booking_optiondates} bod
@@ -169,7 +169,7 @@ class send_reminder_mails extends \core\task\scheduled_task {
     private function send_teacher_notifications() {
         global $DB;
 
-        $now = time();
+        $now  = \core\di::get(\core\clock::class)->time();
         $toprocess = $DB->get_records_sql(
             "SELECT bo.id optionid, bo.bookingid, bo.coursestarttime, b.daystonotifyteachers, bo.sentteachers
             FROM {booking_options} bo
@@ -221,7 +221,7 @@ class send_reminder_mails extends \core\task\scheduled_task {
      */
     private function send_notification(int $messageparam, stdClass $record, int $daystonotify) {
         global $DB;
-        $now = time();
+        $now  = \core\di::get(\core\clock::class)->time();
         $timetosend = strtotime('-' . $daystonotify . ' days', $record->coursestarttime);
         if ($timetosend < $now) {
             $optionid = $record->optionid;

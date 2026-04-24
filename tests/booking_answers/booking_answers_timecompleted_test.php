@@ -20,7 +20,6 @@ use advanced_testcase;
 use mod_booking\singleton_service;
 use mod_booking\booking_bookit;
 use mod_booking\bo_availability\bo_info;
-use tool_mocktesttime\time_mock;
 use stdClass;
 use mod_booking_generator;
 
@@ -40,8 +39,7 @@ final class booking_answers_timecompleted_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
         singleton_service::destroy_instance();
     }
 
@@ -67,8 +65,7 @@ final class booking_answers_timecompleted_test extends advanced_testcase {
         set_config('timezone', 'Europe/Kyiv');
         set_config('forcetimezone', 'Europe/Kyiv');
 
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
 
         // Setup test data.
 

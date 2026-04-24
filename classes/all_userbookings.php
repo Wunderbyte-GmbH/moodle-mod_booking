@@ -750,7 +750,7 @@ class all_userbookings extends \table_sql {
     public function col_certificate(stdClass $values) {
         $checkmark = '&#x2705; ';
         $cross = '&#x274C; ';
-        $now = time();
+        $now  = \core\di::get(\core\clock::class)->time();
 
         $certificates = $this->get_certificates_for_row($values);
         if (empty($certificates)) {

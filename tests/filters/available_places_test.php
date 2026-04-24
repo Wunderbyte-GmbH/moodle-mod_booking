@@ -25,7 +25,6 @@ use mod_booking\bo_availability\bo_info;
 use mod_booking\singleton_service;
 use mod_booking\table\bookingoptions_wbtable;
 use mod_booking_generator;
-use tool_mocktesttime\time_mock;
 
 /**
  * Tests for Booking
@@ -45,8 +44,7 @@ final class available_places_test extends \advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
         singleton_service::destroy_instance();
         $_POST = [];
         $_GET = [];

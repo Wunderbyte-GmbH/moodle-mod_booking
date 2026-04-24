@@ -26,7 +26,6 @@
 namespace mod_booking;
 
 use advanced_testcase;
-use tool_mocktesttime\time_mock;
 use mod_booking_generator;
 
 /**
@@ -50,8 +49,7 @@ final class rule_cancellation_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
     }
 
     /**
@@ -94,8 +92,7 @@ final class rule_cancellation_test extends advanced_testcase {
         $this->setAdminUser();
         $bdata = self::booking_common_settings_provider();
 
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
 
         if (isset($data['config'])) {
             foreach ($data['config'] as $key => $value) {
@@ -182,7 +179,7 @@ final class rule_cancellation_test extends advanced_testcase {
             // Get actual messages.
             ob_start();
             $messagesink = $this->redirectMessages();
-            $plugingenerator->runtaskswithintime(time_mock::get_mock_time());
+            $plugingenerator->runtaskswithintime(\core\di::get(\core\clock::class)->time());
             $messages = $messagesink->get_messages();
             $trace = ob_get_clean();
             $messagesink->close();

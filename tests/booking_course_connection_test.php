@@ -33,7 +33,6 @@ use mod_booking\local\connectedcourse;
 use context_system;
 use core_course_category;
 use stdClass;
-use tool_mocktesttime\time_mock;
 
 /**
  * Class handling tests for booking options.
@@ -50,8 +49,7 @@ final class booking_course_connection_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
         singleton_service::destroy_instance();
     }
 

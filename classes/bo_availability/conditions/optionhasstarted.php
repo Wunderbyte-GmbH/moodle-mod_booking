@@ -122,7 +122,7 @@ class optionhasstarted implements bo_condition {
         } else if (!empty($settings->coursestarttime)) {
             // In this case, we have to check if the booking option has already started.
             $start = $settings->coursestarttime;
-            $now = time();
+            $now  = \core\di::get(\core\clock::class)->time();
             $isavailable = $now > $start ? false : true;
         } else {
             $isavailable = true;

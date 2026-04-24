@@ -77,7 +77,7 @@ class subbookings {
 
         global $DB, $USER;
 
-        $now = time();
+        $now  = \core\di::get(\core\clock::class)->time();
 
         $status = $addedtocart ? MOD_BOOKING_STATUSPARAM_BOOKED : MOD_BOOKING_STATUSPARAM_RESERVED;
 

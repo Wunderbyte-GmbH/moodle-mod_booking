@@ -218,7 +218,7 @@ if ($ADMIN->fulltree) {
         $expirationdate = wb_payment::decryptlicensekey($licensekey);
         if (!empty($expirationdate)) {
             $expirationdatetimestamp = strtotime($expirationdate);
-            $now = time();
+            $now  = \core\di::get(\core\clock::class)->time();
             if ($expirationdatetimestamp < $now) {
                 // License has expired.
                 $licensekeydesc = "<p style='color: red; font-weight: bold'>"

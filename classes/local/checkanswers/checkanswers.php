@@ -127,7 +127,7 @@ class checkanswers {
             // For security, we schedule the taks five minutes in the future.
             // This will give the possiblity to cancel the task if needed.
             if (PHPUNIT_TEST) {
-                $executiontime = time(); // Now.
+                $executiontime  = \core\di::get(\core\clock::class)->time(); // Now.
             } else {
                 $executiontime = strtotime('+ 15 minutes', time());
             }

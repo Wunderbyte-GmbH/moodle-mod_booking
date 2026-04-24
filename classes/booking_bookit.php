@@ -303,21 +303,21 @@ class booking_bookit {
             } else if ($id === MOD_BOOKING_BO_COND_BOOKITBUTTON) {
                 $cache = cache::make('mod_booking', 'confirmbooking');
                 $cachekey = $userid . "_" . $settings->id . "_bookit";
-                $now = time();
+                $now = \core\di::get(\core\clock::class)->time();
                 $cache->set($userid, [$cachekey => $now]);
 
                 $isavailable = false;
             } else if ($id === MOD_BOOKING_BO_COND_BOOKWITHCREDITS) {
                 $cache = cache::make('mod_booking', 'confirmbooking');
                 $cachekey = $userid . "_" . $settings->id . "_bookwithcredits";
-                $now = time();
+                $now = \core\di::get(\core\clock::class)->time();
                 $cache->set($userid, [$cachekey => $now]);
 
                 $isavailable = false;
             } else if ($id === MOD_BOOKING_BO_COND_BOOKWITHSUBSCRIPTION) {
                 $cache = cache::make('mod_booking', 'confirmbooking');
                 $cachekey = $userid . "_" . $settings->id . "_bookwithsubscription";
-                $now = time();
+                $now = \core\di::get(\core\clock::class)->time();
                 $cache->set($userid, [$cachekey => $now]);
 
                 $isavailable = false;
@@ -364,7 +364,7 @@ class booking_bookit {
             } else if ($id === MOD_BOOKING_BO_COND_ASKFORCONFIRMATION) {
                 $cache = cache::make('mod_booking', 'confirmbooking');
                 $cachekey = $userid . "_" . $settings->id . "_confirmation";
-                $now = time();
+                $now = \core\di::get(\core\clock::class)->time();
                 $cache->set($userid, [$cachekey => $now]);
 
                 $isavailable = false;
@@ -386,7 +386,7 @@ class booking_bookit {
                      // If the cancel condition is blocking here, we can actually mark the option for cancelation.
                     $cache = cache::make('mod_booking', 'confirmbooking');
                     $cachekey = $userid . "_" . $settings->id . "_cancel";
-                    $now = time();
+                    $now = \core\di::get(\core\clock::class)->time();
                     $cache->set($userid, [$cachekey => $now]);
                 }
             } else if ($id === MOD_BOOKING_BO_COND_CONFIRMCANCEL) {

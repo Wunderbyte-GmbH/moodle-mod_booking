@@ -35,7 +35,6 @@ use mod_booking\price;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
 use stdClass;
-use tool_mocktesttime\time_mock;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -57,8 +56,7 @@ final class condition_maxoptionsfromcategory_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
         singleton_service::destroy_instance();
     }
 

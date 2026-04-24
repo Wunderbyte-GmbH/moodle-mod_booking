@@ -21,7 +21,6 @@ use context_system;
 use local_wunderbyte_table\filters\types\customfieldfilter;
 use mod_booking\table\bookingoptions_wbtable;
 use mod_booking_generator;
-use tool_mocktesttime\time_mock;
 
 /**
  * Class handling tests for bookinghistory.
@@ -65,8 +64,7 @@ final class bookingoption_filter_test extends advanced_testcase {
     protected function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
         singleton_service::destroy_instance();
         // Clear before each test.
         $_GET = [];

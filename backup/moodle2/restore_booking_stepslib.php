@@ -279,8 +279,8 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $oldcustomfields = $DB->get_records_sql($sql, $params);
         foreach ($oldcustomfields as $cf) {
             unset($cf->id);
-            $cf->timecreated = time();
-            $cf->timemodified = time();
+            $cf->timecreated  = \core\di::get(\core\clock::class)->time();
+            $cf->timemodified  = \core\di::get(\core\clock::class)->time();
             $cf->instanceid = $newitemid;
             $DB->insert_record('customfield_data', $cf);
         }
@@ -511,7 +511,7 @@ class restore_booking_activity_structure_step extends restore_activity_structure
                 throw new moodle_exception('entityrelationhasinvalidarea');
             }
             $data->instanceid = $this->get_mappingid('booking_option', $data->instanceid);
-            $data->timecreated = time();
+            $data->timecreated  = \core\di::get(\core\clock::class)->time();
             $DB->insert_record('local_entities_relations', $data);
             // No need to save this mapping as far as nothing depends on it.
         }
@@ -536,7 +536,7 @@ class restore_booking_activity_structure_step extends restore_activity_structure
                 throw new moodle_exception('entityrelationhasinvalidarea');
             }
             $data->instanceid = $this->get_mappingid('booking_optiondate', $data->instanceid);
-            $data->timecreated = time();
+            $data->timecreated  = \core\di::get(\core\clock::class)->time();
             $DB->insert_record('local_entities_relations', $data);
             // No need to save this mapping as far as nothing depends on it.
         }
@@ -554,8 +554,8 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         if (get_config('booking', 'duplicationrestoresubbookings')) {
             $data = (object) $data;
             $data->optionid = $this->get_mappingid('booking_option', $data->optionid);
-            $data->timecreated = time();
-            $data->timemodified = time();
+            $data->timecreated  = \core\di::get(\core\clock::class)->time();
+            $data->timemodified  = \core\di::get(\core\clock::class)->time();
             $data->usermodified = $USER->id;
             $DB->insert_record('booking_subbooking_options', $data);
         }
@@ -616,8 +616,8 @@ class restore_booking_activity_structure_step extends restore_activity_structure
                 return;
             }
             $data->itemid = $this->get_mappingid('booking_option', $data->itemid);
-            $data->timecreated = time();
-            $data->timemodified = time();
+            $data->timecreated  = \core\di::get(\core\clock::class)->time();
+            $data->timemodified  = \core\di::get(\core\clock::class)->time();
             $DB->insert_record('local_shopping_cart_iteminfo', $data);
             // No need to save this mapping as far as nothing depends on it.
         }

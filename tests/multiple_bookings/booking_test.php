@@ -25,7 +25,6 @@ use mod_booking\booking_answers\booking_answers;
 use mod_booking\table\manageusers_table;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking_generator;
-use tool_mocktesttime\time_mock;
 use local_shopping_cart\shopping_cart;
 use local_shopping_cart\local\cartstore;
 use local_shopping_cart_generator;
@@ -50,8 +49,7 @@ final class booking_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
         singleton_service::destroy_instance();
     }
 
@@ -100,8 +98,7 @@ final class booking_test extends advanced_testcase {
             'cancancelbook' => 0,
         ]);
 
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
 
         return [
             'course' => $course,
@@ -260,10 +257,10 @@ final class booking_test extends advanced_testcase {
         $this->assertSame(MOD_BOOKING_STATUSPARAM_BOOKED, (int) $answer->waitinglist);
 
         // We advance the time and check bo_availabilty to see if expectation are met.
-        $time = time_mock::get_mock_time();
+        $time = \core\di::get(\core\clock::class)->time();
         $this->assertSame(time(), $time);
-        time_mock::set_mock_time($time + $clockforwardshift); // Jump N seconds into the future.
-        $future = time_mock::get_mock_time();
+        \core\di::get(\core\clock::class)->set_to($time + $clockforwardshift); // Jump N seconds into the future.
+        $future = \core\di::get(\core\clock::class)->time();
         $this->assertEquals(time(), $future);
 
         // No we are in future, we will check the booking option availability.

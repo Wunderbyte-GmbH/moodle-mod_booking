@@ -36,7 +36,6 @@ use mod_booking\booking_rules\rules_info;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\local\mobile\customformstore;
-use tool_mocktesttime\time_mock;
 use mod_booking_generator;
 use function PHPUnit\Framework\assertSame;
 
@@ -56,8 +55,7 @@ final class rules_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
         singleton_service::destroy_instance();
     }
 

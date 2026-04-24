@@ -773,7 +773,7 @@ class booking_option {
                     !in_array($result->waitinglist, [MOD_BOOKING_STATUSPARAM_DELETED, MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED])
                 ) {
                     $result->waitinglist = MOD_BOOKING_STATUSPARAM_DELETED;
-                    $result->timemodified = time();
+                    $result->timemodified  = \core\di::get(\core\clock::class)->time();
                     $result->openruleexecution = $openruleexecution ? time() : 0;
                     // We mark all the booking answers as deleted.
                     $DB->update_record('booking_answers', $result);
@@ -1524,7 +1524,7 @@ class booking_option {
     ) {
 
         global $DB, $USER;
-        $now = time();
+        $now  = \core\di::get(\core\clock::class)->time();
 
         // For book with credits, we need to delete the cache.
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
@@ -1565,7 +1565,7 @@ class booking_option {
             !empty($settings->selflearningcourse)
             && empty($currentanswerid) // We don't override on checkout.
         ) {
-            $now = time();
+            $now  = \core\di::get(\core\clock::class)->time();
             $duration = $settings->duration ?? 0;
             $end = empty($duration) ? 0 : $now + $duration;
             self::add_data_to_json($newanswer, 'selflearningendofsubscription', $end);
@@ -1601,18 +1601,18 @@ class booking_option {
             $tm = self::get_data_from_json($answer, 'confirmwaitinglist_timemodified');
             if (is_array($tm)) { // If it is an array, we just add new time to it.
                 $timemodified = $tm;
-                $timemodified[] = time();
+                $timemodified[]  = \core\di::get(\core\clock::class)->time();
             } else if (is_numeric($tm)) { // If it is a number we chnaged it to array of number and then we add new value.
                 $timemodified = [(int) $tm];
-                $timemodified[] = time();
+                $timemodified[]  = \core\di::get(\core\clock::class)->time();
             } else {
                 $timemodified = [];
-                $timemodified[] = time();
+                $timemodified[]  = \core\di::get(\core\clock::class)->time();
             }
         } else {
             $confirmationcount = 1;
             $modifieduserid[] = $USER->id;
-            $timemodified[] = time();
+            $timemodified[]  = \core\di::get(\core\clock::class)->time();
         }
 
         // The confirmation on the waitinglist is saved here.
@@ -1717,7 +1717,7 @@ class booking_option {
                 );
             } else {
                 // When it's the first reserveration, we just confirm it.
-                $currentanswer->timemodified = time();
+                $currentanswer->timemodified  = \core\di::get(\core\clock::class)->time();
                 $currentanswer->waitinglist = MOD_BOOKING_STATUSPARAM_BOOKED;
 
                 self::write_user_answer_to_db(
@@ -2039,7 +2039,7 @@ class booking_option {
                     // Timecreated is not a perfect solution, because users could have been on the waitinglist.
                     $now = $ba->timecreated;
                 } else {
-                    $now = time();
+                    $now  = \core\di::get(\core\clock::class)->time();
                 }
 
                 $duration = $this->settings->duration ?? 0;
@@ -3026,7 +3026,7 @@ class booking_option {
                 ['optionid' => $this->optionid, 'userid' => $userid, 'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED]
             );
             $userdata->completed = '1';
-            $userdata->timemodified = time();
+            $userdata->timemodified  = \core\di::get(\core\clock::class)->time();
 
             $DB->update_record('booking_answers', $userdata);
 
@@ -3599,7 +3599,7 @@ class booking_option {
                 return false;
         }
 
-        $now = time();
+        $now  = \core\di::get(\core\clock::class)->time();
         $openingtime = strtotime("+15 minutes", $now);
 
         if (!$sessionid) {
@@ -3725,7 +3725,7 @@ class booking_option {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        $now = time();
+        $now  = \core\di::get(\core\clock::class)->time();
 
         $record = $DB->get_record('booking_options', ['id' => $optionid]);
 
@@ -3782,7 +3782,7 @@ class booking_option {
     public static function get_consumed_quota(int $optionid) {
 
         $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
-        $now = time();
+        $now  = \core\di::get(\core\clock::class)->time();
         $consumedquota = 0.0;
 
         if (empty($optionsettings->sessions)) {

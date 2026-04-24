@@ -98,7 +98,7 @@ class timecreated extends field_base {
         $optionid = $formdata->optionid ?? $formdata->id ?? 0;
         if (empty($optionid)) {
             // The option is new.
-            $newoption->timecreated = time();
+            $newoption->timecreated  = \core\di::get(\core\clock::class)->time();
         } else {
             // It's an existing option.
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
@@ -106,7 +106,7 @@ class timecreated extends field_base {
                 if (!empty($settings->timemodified)) {
                     $newoption->timecreated = $settings->timemodified;
                 } else {
-                    $newoption->timecreated = time();
+                    $newoption->timecreated  = \core\di::get(\core\clock::class)->time();
                 }
             } else {
                 $newoption->timecreated = $settings->timecreated;

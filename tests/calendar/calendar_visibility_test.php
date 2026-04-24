@@ -29,7 +29,6 @@ use advanced_testcase;
 use coding_exception;
 use mod_booking_generator;
 use stdClass;
-use tool_mocktesttime\time_mock;
 
 /**
  * Calendar visibility tests.
@@ -46,8 +45,7 @@ final class calendar_visibility_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
-        time_mock::set_mock_time(strtotime('now'));
+        $this->mock_clock_with_frozen(time());
         singleton_service::destroy_instance();
     }
 

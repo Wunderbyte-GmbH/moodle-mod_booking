@@ -111,7 +111,7 @@ class cancelmyself implements bo_condition {
     public function is_available(booking_option_settings $settings, int $userid, bool $not = false): bool {
 
         $optionid = $settings->id;
-        $now = time();
+        $now  = \core\di::get(\core\clock::class)->time();
 
         // This is the return value. Not available to begin with.
         $isavailable = false;
@@ -126,7 +126,7 @@ class cancelmyself implements bo_condition {
         }
 
         // Check if the option has its own canceluntil date and if it has already passed.
-        $now = time();
+        $now  = \core\di::get(\core\clock::class)->time();
         $canceluntil = booking_option::get_value_of_json_by_key($optionid, 'canceluntil');
         if (!empty($canceluntil) && $now > $canceluntil) {
             return true;

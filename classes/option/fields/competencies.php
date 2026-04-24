@@ -393,8 +393,8 @@ class competencies extends field_base {
                 ]))->out(false);
             $record->contextid = $cmid;
             $record->status = 1; // 1 = active
-            $record->timecreated = time();
-            $record->timemodified = time();
+            $record->timecreated  = \core\di::get(\core\clock::class)->time();
+            $record->timemodified  = \core\di::get(\core\clock::class)->time();
 
             $userevidence = new user_evidence(0, $record);
             $userevidence->create();

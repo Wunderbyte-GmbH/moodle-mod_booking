@@ -535,7 +535,7 @@ class campaigns_info {
         string $operator
     ): bool {
         $isactive = false;
-        $now = time();
+        $now  = \core\di::get(\core\clock::class)->time();
         if ($starttime <= $now && $now <= $endtime) {
             if (!empty($fieldname)) {
                 if (is_string($fieldname) && $fieldname === $fieldvalue) {

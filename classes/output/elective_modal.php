@@ -78,7 +78,7 @@ class elective_modal implements renderable, templatable {
 
         $cmid = (int)$booking->cmid;
         $cachearray = $cache->get($cmid);
-        $now = time();
+        $now  = \core\di::get(\core\clock::class)->time();
 
         // If the the cache has not yet expired, we use it.
         if (isset($cachearray['expirationtime']) && $cachearray['expirationtime'] > $now) {

@@ -105,7 +105,7 @@ class userprofilefield extends booking_action {
                     if (!empty($startstring)) {
                         $startdate = strtotime($startstring, time());
                     } else if (empty($startdate)) {
-                        $startdate = time();
+                        $startdate  = \core\di::get(\core\clock::class)->time();
                     }
 
                     $user->{$key} = userdate($startdate) . " - " . userdate($enddate);
