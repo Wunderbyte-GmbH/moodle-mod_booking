@@ -93,9 +93,9 @@ final class docs_explainer_task_test extends abstract_agent_testcase {
     }
 
     /**
-     * Docs explain task asks for clarification when a question matches multiple documentation files.
+     * Generic questions no longer require user disambiguation.
      */
-    public function test_docs_explain_task_reports_ambiguity_for_generic_action_questions(): void {
+    public function test_docs_explain_task_auto_selects_top_docs_without_ambiguity_prompt(): void {
         $task = task_registry::make_default()->get_task('booking.explain_docs_topic');
 
         $this->assertNotNull($task);
@@ -103,20 +103,8 @@ final class docs_explainer_task_test extends abstract_agent_testcase {
             'question' => 'Explain the actions after booking.',
         ], (int)$this->booking->cmid);
 
-        $this->assertFalse($validation['valid']);
-        $this->assertNotEmpty($validation['ambiguities']);
-        $ambiguity = implode("\n", $validation['ambiguities']);
-        $this->assertStringContainsString('book other options', strtolower($ambiguity));
-        $this->assertStringContainsString('cancel booking', strtolower($ambiguity));
-
-        $options = $validation['ambiguity_options'] ?? [];
-        $this->assertIsArray($options);
-        $this->assertNotEmpty($options);
-
-        $first = $options[0] ?? [];
-        $this->assertNotSame('', trim((string)($first['label'] ?? '')));
-        $this->assertNotSame('', trim((string)($first['query'] ?? '')));
-        $this->assertStringContainsString('documentation topic', strtolower((string)($first['query'] ?? '')));
+        $this->assertTrue($validation['valid']);
+        $this->assertEmpty($validation['ambiguities']);
     }
 
     /**
@@ -158,19 +146,24 @@ final class docs_explainer_task_test extends abstract_agent_testcase {
                     /**
                      * Return a synthetic LLM answer and capture the request payload.
                      *
-                     * @param array<string,mixed> $doc
+                     * @param array<int,array<string,mixed>> $docs
                      * @return array<string,mixed>
                      */
                     public function answer_question(
                         string $question,
-                        array $doc,
+                        array $docs,
                         string $outputlang,
                         int $cmid,
                         int $userid
                     ): array {
+                        $docpaths = [];
+                        foreach ($docs as $doc) {
+                            $docpaths[] = (string)($doc['path'] ?? '');
+                        }
+
                         $this->captured = [
                             'question' => $question,
-                            'docpath' => (string)($doc['path'] ?? ''),
+                            'docpaths' => $docpaths,
                             'outputlang' => $outputlang,
                             'cmid' => $cmid,
                             'userid' => $userid,
@@ -194,12 +187,15 @@ final class docs_explainer_task_test extends abstract_agent_testcase {
             (string)($result['usermessage'] ?? '')
         );
         $this->assertSame('Was bedeutet bookotheroptions?', (string)($captured['question'] ?? ''));
-        $this->assertSame('actions_after_booking/bookotheroptions.md', (string)($captured['docpath'] ?? ''));
+        $docpaths = (array)($captured['docpaths'] ?? []);
+        $this->assertNotEmpty($docpaths);
+        $this->assertLessThanOrEqual(2, count($docpaths));
+        $this->assertContains('actions_after_booking/bookotheroptions.md', $docpaths);
         $this->assertSame('de', (string)($captured['outputlang'] ?? ''));
     }
 
     /**
-     * If the answering service fails, the task should fall back to the deterministic summary.
+     * If the answering service fails, the task should fall back to a localized safe message.
      */
     public function test_docs_explain_task_falls_back_when_answering_service_fails(): void {
         $task = new class extends explain_docs_topic_task {
@@ -211,14 +207,14 @@ final class docs_explainer_task_test extends abstract_agent_testcase {
             protected function create_docs_answering_service(): docs_answering_service {
                 return new class extends docs_answering_service {
                     /**
-                     * Always fail to force deterministic fallback.
+                     * Always fail to force fallback handling.
                      *
-                     * @param array<string,mixed> $doc
+                     * @param array<int,array<string,mixed>> $docs
                      * @return array<string,mixed>
                      */
                     public function answer_question(
                         string $question,
-                        array $doc,
+                        array $docs,
                         string $outputlang,
                         int $cmid,
                         int $userid
@@ -235,9 +231,52 @@ final class docs_explainer_task_test extends abstract_agent_testcase {
         ], (int)$this->booking->cmid, (int)$this->teacher->id);
 
         $this->assertSame('executed', $result['status'], (string)($result['detail'] ?? ''));
-        $summary = strtolower((string)($result['usermessage'] ?? ''));
-        $this->assertStringContainsString('book', $summary);
-        $this->assertStringContainsString('other option', $summary);
+        $summary = (string)($result['usermessage'] ?? '');
+        $this->assertNotSame('', trim($summary));
+        $this->assertStringContainsString('could not generate', strtolower($summary));
         $this->assertStringNotContainsString('synthetic answering failure', $summary);
+    }
+
+    /**
+     * Docs explain task enforces a hard maximum of 500 characters for the user message.
+     */
+    public function test_docs_explain_task_limits_answer_to_500_characters(): void {
+        $task = new class extends explain_docs_topic_task {
+            /**
+             * Create a fake answering service that returns an overly long answer.
+             *
+             * @return docs_answering_service
+             */
+            protected function create_docs_answering_service(): docs_answering_service {
+                return new class extends docs_answering_service {
+                    /**
+                     * Return an answer that is intentionally longer than the allowed limit.
+                     *
+                     * @param array<int,array<string,mixed>> $docs
+                     * @return array<string,mixed>
+                     */
+                    public function answer_question(
+                        string $question,
+                        array $docs,
+                        string $outputlang,
+                        int $cmid,
+                        int $userid
+                    ): array {
+                        return [
+                            'answer' => str_repeat('A', 650),
+                        ];
+                    }
+                };
+            }
+        };
+
+        $result = $task->execute([
+            'question' => 'What does bookotheroptions do?',
+            'outputlang' => 'en',
+        ], (int)$this->booking->cmid, (int)$this->teacher->id);
+
+        $this->assertSame('executed', $result['status'], (string)($result['detail'] ?? ''));
+        $summary = (string)($result['usermessage'] ?? '');
+        $this->assertLessThanOrEqual(500, \core_text::strlen($summary));
     }
 }

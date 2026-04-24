@@ -3477,6 +3477,8 @@ $string['ai_action_add_price_category'] = 'Create price category';
 $string['ai_docs_explain_required_question'] = 'Field "question" is required for explain_docs_topic.';
 $string['ai_docs_explain_invalid_maxdocs'] = 'Field "maxdocs" must be greater than 0 when provided.';
 $string['ai_docs_explain_no_match'] = 'I could not find a matching documentation topic for that question.';
+$string['ai_docs_explain_generation_failed'] =
+    'I found matching documentation but could not generate a concise answer right now. Please try rephrasing your question.';
 $string['ai_docs_explain_ambiguity_candidates'] =
     'I found multiple relevant documentation topics. Please specify which one you mean: {$a}.';
 $string['ai_docs_explain_followup_query'] = 'Please explain this documentation topic: {$a}';

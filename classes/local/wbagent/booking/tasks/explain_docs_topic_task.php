@@ -55,18 +55,14 @@ class explain_docs_topic_task extends base_booking_task implements task_trigger_
     public function get_schema(): array {
         return [
             'version' => 1,
-            'description' => 'Explain booking plugin features by searching the local booking/docs markdown documentation.',
+            'description' => 'Explain booking plugin features by searching the local booking/docs markdown '
+                . 'documentation and using the two best matches.',
             'readonly' => $this->is_read_only(),
             'properties' => [
                 'question' => [
                     'type' => 'string',
                     'description' => 'The user question about a plugin feature or function documented in booking/docs.',
                     'required' => true,
-                ],
-                'maxdocs' => [
-                    'type' => 'integer',
-                    'description' => 'Maximum number of matched documentation files to return (default 3).',
-                    'required' => false,
                 ],
                 'outputlang' => [
                     'type' => 'string',
@@ -124,49 +120,22 @@ class explain_docs_topic_task extends base_booking_task implements task_trigger_
      *
      * @param array<string,mixed> $input
      * @param int $cmid
-     * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>,
-     *      ambiguity_options?:array<int,array<string,mixed>>}
+     * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>}
      */
     public function validate(array $input, int $cmid): array {
         $errors = [];
-        $ambiguities = [];
-        $ambiguityoptions = [];
-        $lang = $this->get_output_language($input);
-
         $question = trim((string)($input['question'] ?? ''));
+        $lang = $this->resolve_output_language($input, $question);
+
         if ($question === '') {
             $errors[] = $this->localized_string('ai_docs_explain_required_question', null, $lang);
         }
 
-        if (isset($input['maxdocs']) && (int)$input['maxdocs'] <= 0) {
-            $errors[] = $this->localized_string('ai_docs_explain_invalid_maxdocs', null, $lang);
-        }
-
-        if (empty($errors) && $question !== '') {
-            $service = $this->create_docs_lookup_service();
-            $docs = $service->search($question, 5);
-            if ($service->is_ambiguous($docs)) {
-                $candidates = $service->get_ambiguity_candidates($docs, 4);
-                $ambiguities[] = $this->localized_string(
-                    'ai_docs_explain_ambiguity_candidates',
-                    implode('; ', $candidates),
-                    $lang
-                );
-                $ambiguityoptions = $this->build_ambiguity_options($docs, $lang);
-            }
-        }
-
-        $result = [
-            'valid' => empty($errors) && empty($ambiguities),
+        return [
+            'valid' => empty($errors),
             'errors' => $errors,
-            'ambiguities' => $ambiguities,
+            'ambiguities' => [],
         ];
-
-        if (!empty($ambiguityoptions)) {
-            $result['ambiguity_options'] = $ambiguityoptions;
-        }
-
-        return $result;
     }
 
     /**
@@ -178,14 +147,14 @@ class explain_docs_topic_task extends base_booking_task implements task_trigger_
      * @return array<string,mixed>
      */
     public function execute(array $input, int $cmid, int $userid): array {
-        $lang = $this->get_output_language($input);
         $question = trim((string)($input['question'] ?? ''));
-        $maxdocs = isset($input['maxdocs']) ? max(1, (int)$input['maxdocs']) : 3;
+        $lang = $this->resolve_output_language($input, $question);
 
         $service = $this->create_docs_lookup_service();
-        $docs = $service->search($question, $maxdocs);
+        $docs = $service->search($question, 2);
         if (empty($docs)) {
             $detail = $this->localized_string('ai_docs_explain_no_match', null, $lang);
+            $detail = $this->enforce_max_chars($detail, 650);
             return [
                 'status' => 'executed',
                 'detail' => $detail,
@@ -197,29 +166,30 @@ class explain_docs_topic_task extends base_booking_task implements task_trigger_
             ];
         }
 
-        $firstdoc = $docs[0];
-        $summary = $service->build_summary($firstdoc);
-        $answersource = 'deterministic';
-        if (!$service->is_ambiguous($docs)) {
-            try {
-                $answeringresult = $this->create_docs_answering_service()->answer_question(
-                    $question,
-                    $firstdoc,
-                    $lang,
-                    $cmid,
-                    $userid
-                );
-                $llmanswer = trim((string)($answeringresult['answer'] ?? ''));
-                if ($llmanswer !== '') {
-                    $summary = $llmanswer;
-                    $answersource = 'llm';
-                }
-            } catch (\Throwable $e) {
-                $answersource = 'deterministic';
+        $selecteddocs = array_slice($docs, 0, 2);
+        $firstdoc = $selecteddocs[0];
+        $summary = $this->localized_string('ai_docs_explain_generation_failed', null, $lang);
+        $answersource = 'fallback';
+        try {
+            $answeringresult = $this->create_docs_answering_service()->answer_question(
+                $question,
+                $selecteddocs,
+                $lang,
+                $cmid,
+                $userid
+            );
+            $llmanswer = trim((string)($answeringresult['answer'] ?? ''));
+            if ($llmanswer !== '') {
+                $summary = $llmanswer;
+                $answersource = 'llm';
             }
+        } catch (\Throwable $e) {
+            $answersource = 'fallback';
         }
+        $summary = $this->enforce_max_chars($summary, 500);
+
         $structureddocs = [];
-        foreach ($docs as $doc) {
+        foreach ($selecteddocs as $doc) {
             $structureddocs[] = [
                 'path' => (string)($doc['path'] ?? ''),
                 'title' => (string)($doc['title'] ?? ''),
@@ -240,7 +210,7 @@ class explain_docs_topic_task extends base_booking_task implements task_trigger_
                 $input,
                 [
                     'Answer source: ' . $answersource,
-                    'Docs matched: ' . count($docs),
+                    'Docs matched: ' . count($selecteddocs),
                     'Top doc: ' . (string)($firstdoc['path'] ?? ''),
                 ]
             ),
@@ -266,32 +236,70 @@ class explain_docs_topic_task extends base_booking_task implements task_trigger_
     }
 
     /**
-     * Build structured ambiguity options for frontend selection.
+     * Resolve output language from input or question text.
      *
-     * @param array<int,array<string,mixed>> $docs
-     * @param string $lang
-     * @return array<int,array<string,mixed>>
+     * @param array<string,mixed> $input
+     * @param string $question
+     * @return string
      */
-    private function build_ambiguity_options(array $docs, string $lang): array {
-        $options = [];
-        foreach (array_slice($docs, 0, 4) as $doc) {
-            $path = trim((string)($doc['path'] ?? ''));
-            $title = trim((string)($doc['title'] ?? ''));
-            if ($path === '' && $title === '') {
-                continue;
-            }
-
-            $label = $title !== '' ? $title : $path;
-            $query = $this->localized_string('ai_docs_explain_followup_query', $label, $lang);
-            $options[] = [
-                'id' => 'docs:' . ($path !== '' ? $path : md5($label)),
-                'label' => $label,
-                'query' => $query,
-                'path' => $path,
-                'title' => $title,
-            ];
+    private function resolve_output_language(array $input, string $question): string {
+        $lang = $this->get_output_language($input);
+        if ($lang !== '') {
+            return $lang;
         }
 
-        return $options;
+        return $this->detect_question_language($question);
+    }
+
+    /**
+     * Detect a best-effort language code from the user question.
+     *
+     * @param string $question
+     * @return string
+     */
+    private function detect_question_language(string $question): string {
+        $text = strtolower(trim($question));
+        if ($text === '') {
+            return 'en';
+        }
+
+        $germanmarkers = [
+            ' was ', ' wie ', ' warum ', ' bedeutet ', ' bitte ', 'erklaer',
+            'funktioniert', 'fuer', ' und ', ' der ', ' die ', ' das ',
+            ' ist ', ' ich ', ' nicht ', ' mit ', ' beim ', ' zur ', ' zum ',
+        ];
+        if (preg_match('/[\x{00E4}\x{00F6}\x{00FC}\x{00DF}]/u', $text) === 1) {
+            return 'de';
+        }
+        foreach ($germanmarkers as $marker) {
+            if (strpos(' ' . $text . ' ', $marker) !== false) {
+                return 'de';
+            }
+        }
+
+        return 'en';
+    }
+
+    /**
+     * Enforce a hard maximum character length.
+     *
+     * @param string $text
+     * @param int $maxchars
+     * @return string
+     */
+    private function enforce_max_chars(string $text, int $maxchars): string {
+        $normalized = trim(preg_replace('/\s+/', ' ', $text) ?? $text);
+        if ($normalized === '' || $maxchars <= 0) {
+            return '';
+        }
+
+        if (\core_text::strlen($normalized) <= $maxchars) {
+            return $normalized;
+        }
+
+        $ellipsis = '...';
+        $available = max(1, $maxchars - \core_text::strlen($ellipsis));
+        $trimmed = trim(\core_text::substr($normalized, 0, $available));
+        return $trimmed . $ellipsis;
     }
 }
