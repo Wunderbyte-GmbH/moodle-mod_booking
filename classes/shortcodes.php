@@ -1069,6 +1069,19 @@ class shortcodes {
     public static function myfavorites($shortcode, $args, $content, $env, $next) {
         global $USER, $PAGE, $CFG;
 
+        if (!wb_payment::pro_version_is_activated()) {
+            return get_string('infotext:prolicensenecessarytextandlink', 'mod_booking');
+        }
+
+        if (!get_config('booking', 'enablefavoritestoggle')) {
+            $settingsurl = new moodle_url(
+                '/admin/settings.php',
+                ['section' => 'modsettingbooking'],
+                'admin-enablefavoritestoggle'
+            );
+            return get_string('infotext:favoritestoggleisdisabled', 'mod_booking', $settingsurl->out(false));
+        }
+
         // Get rid of quotation marks.
         self::fix_args($args);
 
@@ -1152,22 +1165,12 @@ class shortcodes {
             self::apply_customfieldfilter($table, $customfieldfilter);
         }
 
-        // The myfavorites shortcode shows the favorites toggle only when the PRO feature is enabled.
-        // It can be explicitly disabled via favorites=0 or favorites=false.
-        if (
-            wb_payment::pro_version_is_activated() &&
-            get_config('booking', 'enablefavoritestoggle') &&
-            (!isset($args['favorites']) || ($args['favorites'] !== '0' && $args['favorites'] !== 'false'))
-        ) {
-            $table->showfavoritestoggle = true;
-        }
-
         // If "rightside" is in the "exclude" array, then we do not show the rightside area (containing the "Book now" button).
         if (!empty($exclude) && in_array('rightside', $exclude)) {
             unset($table->subcolumns['rightside']);
         }
 
-        // The "My favorites" tab has the favorites toggle activated by default.
+        // Always enable favorites toggle for the [myfavoritescards] shortcode.
         $args['favorites'] = '1';
 
         // Set common table options requirelogin, sortorder, sortby.
