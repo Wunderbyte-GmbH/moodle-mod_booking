@@ -765,9 +765,12 @@ export async function init() {
 
     const optionid = container.dataset.optionid;
     const userid = container.dataset.userid;
+    const formRegion = container.querySelector('[data-region="slotbooking-form"]');
+    if (!formRegion) {
+        return;
+    }
 
-    const dynamicForm = new DynamicForm(container.querySelector('[data-region="slotbooking-form"]'),
-        'mod_booking\\form\\condition\\slotbooking_form');
+    const dynamicForm = new DynamicForm(formRegion, 'mod_booking\\form\\condition\\slotbooking_form');
     let currentLoadArgs = {
         id: optionid,
         userid,
@@ -977,6 +980,10 @@ export async function init() {
     };
 
     const reloadForm = async(reloadArgs = null) => {
+        if (!container.isConnected || !formRegion.isConnected) {
+            return;
+        }
+
         if (reloadArgs) {
             currentLoadArgs = reloadArgs;
         }
@@ -1041,7 +1048,12 @@ export async function init() {
     });
 
     if (!container.dataset.slotbookingRefreshBound) {
-        document.addEventListener(SLOTBOOKING_REFRESH_EVENT, async(event) => {
+        const slotbookingRefreshHandler = async(event) => {
+            if (!container.isConnected || !formRegion.isConnected) {
+                document.removeEventListener(SLOTBOOKING_REFRESH_EVENT, slotbookingRefreshHandler);
+                return;
+            }
+
             const detail = event.detail || {};
             const refreshedOptionid = Number(detail.optionid || 0);
             const refreshedUserid = Number(detail.userid || 0);
@@ -1055,7 +1067,9 @@ export async function init() {
             }
 
             await reloadForm();
-        });
+        };
+
+        document.addEventListener(SLOTBOOKING_REFRESH_EVENT, slotbookingRefreshHandler);
 
         container.dataset.slotbookingRefreshBound = '1';
     }
