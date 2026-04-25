@@ -78,10 +78,10 @@ Feature: Booking agent LLM integration workflows via AI chat
   @javascript @real_llm
   Scenario: Teacher searches for Pilates options via natural language
     Given the following "mod_booking > options" exist:
-      | booking      | text                   | course | maxanswers | optiondateid_0 | coursestarttime_0 | courseendtime_0 |
-      | LLM Booking  | Test Pilates Session 0 | C1     | 10         | 0              | ## +10 days ##    | ## +11 days ##  |
-      | LLM Booking  | Test Pilates Session 1 | C1     | 11         | 0              | ## +12 days ##    | ## +13 days ##  |
-      | LLM Booking  | Test Pilates Session 2 | C1     | 12         | 0              | ## +14 days ##    | ## +15 days ##  |
+      | booking      | text                   | description                  | course | maxanswers | optiondateid_0 | coursestarttime_0 | courseendtime_0 |
+      | LLM Booking  | Test Pilates Session 0 | Test Pilates Session 0 descr | C1     | 10         | 0              | ## +10 days ##    | ## +11 days ##  |
+      | LLM Booking  | Test Pilates Session 1 | Test Pilates Session 1 descr | C1     | 11         | 0              | ## +12 days ##    | ## +13 days ##  |
+      | LLM Booking  | Test Pilates Session 2 | Test Pilates Session 2 descr | C1     | 12         | 0              | ## +14 days ##    | ## +15 days ##  |
     And I am on the AI instructions page for booking "LLM Booking" logged in as teacher1
     When I send the AI message "Zeige mir alle Pilates Kurse an"
     And I wait for the AI response
@@ -96,8 +96,8 @@ Feature: Booking agent LLM integration workflows via AI chat
   @javascript @real_llm
   Scenario: Teacher creates an option and then raises its capacity via a second message
     Given the following "mod_booking > options" exist:
-      | booking      | text                 | course | maxanswers | optiondateid_0 | coursestarttime_0 | courseendtime_0 |
-      | LLM Booking  | LLM Workflow Option  | C1     | 5          | 0              | ## +10 days ##    | ## +11 days ##  |
+      | booking      | text                 | description                  | course | maxanswers | optiondateid_0 | coursestarttime_0 | courseendtime_0 |
+      | LLM Booking  | LLM Workflow Option  | LLM Workflow Option descr    | C1     | 5          | 0              | ## +10 days ##    | ## +11 days ##  |
     And I am on the AI instructions page for booking "LLM Booking" logged in as teacher1
     ## Step 1: Ask LLM to increase capacity of the existing option.
     When I send the AI message "Erhöhe die Kapazität des Kurses 'LLM Workflow Option' auf 20 Teilnehmer"
@@ -118,8 +118,8 @@ Feature: Booking agent LLM integration workflows via AI chat
   @javascript @real_llm
   Scenario: Teacher cancels a proposed AI action and the option stays unchanged
     Given the following "mod_booking > options" exist:
-      | booking      | text              | course | maxanswers | optiondateid_0 | coursestarttime_0 | courseendtime_0 |
-      | LLM Booking  | Unchanged Option  | C1     | 5          | 0              | ## +10 days ##    | ## +11 days ##  |
+      | booking      | text              | description              | course | maxanswers | optiondateid_0 | coursestarttime_0 | courseendtime_0 |
+      | LLM Booking  | Unchanged Option  | Unchanged Option descr   | C1     | 5          | 0              | ## +10 days ##    | ## +11 days ##  |
     And I am on the AI instructions page for booking "LLM Booking" logged in as teacher1
     When I send the AI message "Ändere die maximale Teilnehmerzahl der Option 'Unchanged Option' auf 99"
     And I wait for the AI response
