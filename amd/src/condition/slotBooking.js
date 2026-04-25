@@ -530,7 +530,7 @@ const renderFixedSlotsEditor = (container, daySlots, selectionInput, maxSlots, t
         timeText.style.whiteSpace = 'nowrap';
         timeText.style.overflow = 'hidden';
         timeText.style.textOverflow = 'ellipsis';
-        timeText.textContent = `${toTimeValue(slotStart, timeFormatter)} \u2013 ${toTimeValue(slotEnd, timeFormatter)}`;
+        timeText.textContent = `${toTimeValue(slotStart, timeFormatter)} - ${toTimeValue(slotEnd, timeFormatter)}`;
         headerRow.appendChild(timeText);
 
         if (isBooked) {
