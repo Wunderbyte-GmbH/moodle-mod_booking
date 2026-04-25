@@ -33,6 +33,7 @@ Feature: Slot booking option renders fixed calendar slots in student timezone
   @javascript
   Scenario: Slotbookig: student sees predefined Monday and Wednesday slot dates in slotbooking modal calendar and book one slot
     Given I am on the "BookingSlots" Activity page logged in as student1
+    And I should see "12" in the ".allbookingoptionstable_r1 .bookings " "css_element"
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
     And I wait "1" seconds
     ##Validate no illegal slots
@@ -62,3 +63,4 @@ Feature: Slot booking option renders fixed calendar slots in student timezone
     And I should see "Slot booking option" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
     And I follow "Close"
     And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "11" in the ".allbookingoptionstable_r1 .bookings " "css_element"
