@@ -116,6 +116,7 @@ class prepagemodal implements renderable, templatable {
                 $extradata['top'] = $extradata["main"];
                 $extradata['main'] = $data['main'] ?? [];
                 $extradata['price'] = $data['price'] ?? [];
+                $extradata['component'] = $data['component'] ?? 'mod_booking';
             }
             $data = $extradata;
         }
