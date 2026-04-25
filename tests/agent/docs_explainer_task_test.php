@@ -115,13 +115,13 @@ final class docs_explainer_task_test extends abstract_agent_testcase {
     public function test_docs_explain_task_uses_answering_service_for_clear_match(): void {
         $captured = [];
         $task = new class ($captured) extends explain_docs_topic_task {
-            /** @var array<string,mixed> */
+            /** @var array */
             private array $captured;
 
             /**
              * Create the fake explain task.
              *
-             * @param array<string,mixed> $captured
+             * @param array $captured
              */
             public function __construct(array &$captured) {
                 parent::__construct();
@@ -135,13 +135,13 @@ final class docs_explainer_task_test extends abstract_agent_testcase {
              */
             protected function create_docs_answering_service(): docs_answering_service {
                 return new class ($this->captured) extends docs_answering_service {
-                    /** @var array<string,mixed> */
+                    /** @var array */
                     private array $captured;
 
                     /**
                      * Create the fake answering service.
                      *
-                     * @param array<string,mixed> $captured
+                     * @param array $captured
                      */
                     public function __construct(array &$captured) {
                         $this->captured = &$captured;
@@ -150,8 +150,8 @@ final class docs_explainer_task_test extends abstract_agent_testcase {
                     /**
                      * Return a synthetic LLM answer and capture the request payload.
                      *
-                     * @param array<int,array<string,mixed>> $docs
-                     * @return array<string,mixed>
+                     * @param array $docs
+                     * @return array
                      */
                     public function answer_question(
                         string $question,
@@ -213,8 +213,8 @@ final class docs_explainer_task_test extends abstract_agent_testcase {
                     /**
                      * Always fail to force fallback handling.
                      *
-                     * @param array<int,array<string,mixed>> $docs
-                     * @return array<string,mixed>
+                     * @param array $docs
+                     * @return array
                      */
                     public function answer_question(
                         string $question,
@@ -256,8 +256,8 @@ final class docs_explainer_task_test extends abstract_agent_testcase {
                     /**
                      * Return an answer that is intentionally longer than the allowed limit.
                      *
-                     * @param array<int,array<string,mixed>> $docs
-                     * @return array<string,mixed>
+                     * @param array $docs
+                     * @return array
                      */
                     public function answer_question(
                         string $question,

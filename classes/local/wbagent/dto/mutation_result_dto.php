@@ -126,7 +126,7 @@ class mutation_result_dto {
     /**
      * Return all properties as an associative array.
      *
-     * @return array<string,mixed>
+     * @return array
      */
     public function to_array(): array {
         return [

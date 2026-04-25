@@ -48,6 +48,8 @@ use mod_booking\local\wbagent\booking\tasks\update_option_task;
 final class message_trigger_registry_test extends advanced_testcase {
     /**
      * Unknown trigger ids returned by the LLM must be dropped.
+     *
+     * @covers \mod_booking\local\wbagent\message_trigger_registry::normalize_used_triggers
      */
     public function test_normalize_used_triggers_filters_unknown_ids(): void {
         $registry = new task_registry();
@@ -68,6 +70,8 @@ final class message_trigger_registry_test extends advanced_testcase {
 
     /**
      * Task-provided triggers should be exposed via registry.
+     *
+     * @covers \mod_booking\local\wbagent\message_trigger_registry::get_available_triggers
      */
     public function test_available_triggers_include_task_contributions(): void {
         $registry = new task_registry();
@@ -85,6 +89,12 @@ final class message_trigger_registry_test extends advanced_testcase {
 
     /**
      * High/medium-priority mod_booking tasks should expose dedicated trigger ids.
+     *
+     * @covers \mod_booking\local\wbagent\booking\tasks\add_price_category_task::get_message_triggers
+     * @covers \mod_booking\local\wbagent\booking\tasks\bulk_update_options_task::get_message_triggers
+     * @covers \mod_booking\local\wbagent\booking\tasks\create_option_task::get_message_triggers
+     * @covers \mod_booking\local\wbagent\booking\tasks\search_options_task::get_message_triggers
+     * @covers \mod_booking\local\wbagent\booking\tasks\update_option_task::get_message_triggers
      */
     public function test_selected_booking_tasks_expose_message_triggers(): void {
         $tasks = [
@@ -127,32 +137,74 @@ final class message_trigger_registry_test extends advanced_testcase {
             /** @var string */
             private string $triggerid;
 
+            /**
+             * Constructor.
+             *
+             * @param string $name
+             * @param bool $readonly
+             * @param string $triggerid
+             */
             public function __construct(string $name, bool $readonly, string $triggerid) {
                 $this->name = $name;
                 $this->readonly = $readonly;
                 $this->triggerid = $triggerid;
             }
 
+            /**
+             * Get task name.
+             *
+             * @return string
+             */
             public function get_name(): string {
                 return $this->name;
             }
 
+            /**
+             * Get input schema.
+             *
+             * @return array
+             */
             public function get_schema(): array {
                 return [];
             }
 
+            /**
+             * Validate task input.
+             *
+             * @param array $input
+             * @param int $cmid
+             * @return array
+             */
             public function validate(array $input, int $cmid): array {
                 return ['valid' => true, 'errors' => [], 'ambiguities' => []];
             }
 
+            /**
+             * Execute task.
+             *
+             * @param array $input
+             * @param int $cmid
+             * @param int $userid
+             * @return array
+             */
             public function execute(array $input, int $cmid, int $userid): array {
                 return ['status' => 'executed', 'detail' => 'ok', 'resultid' => null];
             }
 
+            /**
+             * Whether task is read-only.
+             *
+             * @return bool
+             */
             public function is_read_only(): bool {
                 return $this->readonly;
             }
 
+            /**
+             * Return message triggers provided by task.
+             *
+             * @return array
+             */
             public function get_message_triggers(): array {
                 return [[
                     'id' => $this->triggerid,
@@ -166,29 +218,50 @@ final class message_trigger_registry_test extends advanced_testcase {
      * Create a lightweight provider double.
      *
      * @param string $component
-     * @param array<int,task_interface> $tasks
+     * @param array $tasks
      * @return task_provider_interface
      */
     private function make_provider(string $component, array $tasks): task_provider_interface {
         return new class ($component, $tasks) implements task_provider_interface {
             /** @var string */
             private string $component;
-            /** @var array<int,task_interface> */
+            /** @var array */
             private array $tasks;
 
+            /**
+             * Constructor.
+             *
+             * @param string $component
+             * @param array $tasks
+             */
             public function __construct(string $component, array $tasks) {
                 $this->component = $component;
                 $this->tasks = $tasks;
             }
 
+            /**
+             * Get provider component.
+             *
+             * @return string
+             */
             public function get_component(): string {
                 return $this->component;
             }
 
+            /**
+             * Get provider tasks.
+             *
+             * @return array
+             */
             public function get_tasks(): array {
                 return $this->tasks;
             }
 
+            /**
+             * Get optional contextual prompt packs.
+             *
+             * @return array
+             */
             public function get_contextual_prompt_packs(): array {
                 return [];
             }

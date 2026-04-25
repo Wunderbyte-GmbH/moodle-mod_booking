@@ -49,7 +49,7 @@ class list_actions_task extends base_booking_task {
     /**
      * Return task schema.
      *
-     * @return array<string,mixed>
+     * @return array
      */
     public function get_schema(): array {
         return [
@@ -69,7 +69,7 @@ class list_actions_task extends base_booking_task {
     /**
      * Validate task input.
      *
-     * @param array<string,mixed> $input
+     * @param array $input
      * @param int $cmid
      * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>}
      */
@@ -114,10 +114,10 @@ class list_actions_task extends base_booking_task {
     /**
      * Execute task.
      *
-     * @param array<string,mixed> $input
+     * @param array $input
      * @param int $cmid
      * @param int $userid
-     * @return array<string,mixed>
+     * @return array
      */
     public function execute(array $input, int $cmid, int $userid): array {
         $scope = strtolower(trim((string)($input['scope'] ?? 'all')));
@@ -168,8 +168,8 @@ class list_actions_task extends base_booking_task {
      * Build a technical debug summary for developers.
      *
      * @param string $scope
-     * @param array<int,array<string,mixed>> $actions
-     * @param array<int,array<string,string>> $capabilities
+     * @param array $actions
+     * @param array $capabilities
      * @return string
      */
     private function build_debug_summary(string $scope, array $actions, array $capabilities): string {
@@ -186,7 +186,7 @@ class list_actions_task extends base_booking_task {
      * Build a user-facing summary sentence for the selected scope.
      *
      * @param string $scope
-     * @param array<int,array<string,string>> $capabilities
+     * @param array $capabilities
      * @return string
      */
     private function build_user_summary(string $scope, array $capabilities): string {
@@ -234,7 +234,7 @@ class list_actions_task extends base_booking_task {
     /**
      * Build user-friendly capability blocks from the currently selected task set.
      *
-     * @param array<string,bool> $available
+     * @param array $available
      * @return array<int,array<string,string>>
      */
     private function build_user_capabilities(array $available): array {

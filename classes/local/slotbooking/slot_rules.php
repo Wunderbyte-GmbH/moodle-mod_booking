@@ -30,10 +30,10 @@ use cache;
  * Helper class to fetch and apply slot rules.
  */
 class slot_rules {
-    /** @var array<int, array<int, \stdClass>> */
+    /** @var array */
     private static $requestrulescache = [];
 
-    /** @var array<int, array<int, \stdClass>> */
+    /** @var array */
     private static $requestpricerulescache = [];
 
     /** @var string rule type: close matching slots */
@@ -49,7 +49,7 @@ class slot_rules {
      * Return all rules for an option from request cache, MUC, or DB.
      *
      * @param int $optionid booking option id
-     * @return array<int, \stdClass>
+     * @return array
      */
     public static function get_rules_for_option(int $optionid): array {
         global $DB;
@@ -103,8 +103,8 @@ class slot_rules {
      * Apply currently supported slot rules to generated slots.
      *
      * @param int $optionid booking option id
-     * @param array<int, array{0:int, 1:int}> $slots generated base slots
-     * @return array<int, array{0:int, 1:int}>
+     * @param array $slots generated base slots
+     * @return array
      */
     public static function apply_to_slots(int $optionid, array $slots): array {
         if (empty($slots)) {
@@ -205,7 +205,7 @@ class slot_rules {
     /**
      * Determine if a slot remains bookable after rule filtering.
      *
-     * @param array<int, \stdClass> $rules option rules
+     * @param array $rules option rules
      * @param int $slotstart slot start timestamp
      * @param int $slotend slot end timestamp
      * @return bool
@@ -229,7 +229,7 @@ class slot_rules {
      * Return price rules for an option from request cache, MUC, or DB.
      *
      * @param int $optionid booking option id
-     * @return array<int, \stdClass>
+     * @return array
      */
     private static function get_price_rules_for_option(int $optionid): array {
         global $DB;

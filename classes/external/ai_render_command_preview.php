@@ -92,7 +92,10 @@ class ai_render_command_preview extends external_api {
      * @param int $cmid
      * @param string $commands
      * @param int $optionid
-     * @return array<string,mixed>
+     * @param string $optionids
+     * @param string $query
+     * @param int $limit
+     * @return array
      */
     public static function execute(
         int $cmid,
@@ -364,7 +367,7 @@ class ai_render_command_preview extends external_api {
      * Render one Wunderbyte options table for list/query/multi-id preview mode.
      *
      * @param int $cmid
-     * @param array<int,int> $optionids
+     * @param array $optionids
      * @param string $query
      * @param int $limit
      * @return string

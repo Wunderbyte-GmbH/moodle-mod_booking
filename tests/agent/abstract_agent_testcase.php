@@ -62,8 +62,7 @@ abstract class abstract_agent_testcase extends advanced_testcase {
     protected $gen;
 
     // -------------------------------------------------------------------------
-    // Life-cycle
-    // -------------------------------------------------------------------------
+    // Life-cycle.
 
     /**
      * Shared setup: course, booking instance, teacher, student.
@@ -100,8 +99,7 @@ abstract class abstract_agent_testcase extends advanced_testcase {
     }
 
     // -------------------------------------------------------------------------
-    // Helpers: data creation
-    // -------------------------------------------------------------------------
+    // Helpers: data creation.
 
     /**
      * Create a booking option in the shared booking instance.
@@ -124,8 +122,7 @@ abstract class abstract_agent_testcase extends advanced_testcase {
     }
 
     // -------------------------------------------------------------------------
-    // Helpers: executor
-    // -------------------------------------------------------------------------
+    // Helpers: executor.
 
     /**
      * Build a default executor instance.

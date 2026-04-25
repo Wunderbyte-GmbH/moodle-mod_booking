@@ -28,9 +28,9 @@ class option_input_verification {
     /**
      * Verify commonly used mutable option fields.
      *
-     * @param array<string,mixed> $input
+     * @param array $input
      * @param object $settings
-     * @return array<int,string>
+     * @return array
      */
     public static function verify_common_fields(array $input, object $settings): array {
         $warnings = [];

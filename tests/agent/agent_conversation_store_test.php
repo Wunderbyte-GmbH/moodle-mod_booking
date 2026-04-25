@@ -33,6 +33,7 @@ use mod_booking\local\wbagent\conversation_store;
  *
  * @package    mod_booking
  * @category   test
+ * @coversNothing
  * @copyright  2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

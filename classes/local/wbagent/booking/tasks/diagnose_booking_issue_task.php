@@ -51,7 +51,7 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
     /**
      * Return task schema.
      *
-     * @return array<string,mixed>
+     * @return array
      */
     public function get_schema(): array {
         return [
@@ -67,7 +67,8 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
                 ],
                 'optionquery' => [
                     'type' => 'string',
-                    'description' => 'Booking option title, id-like reference, or words like "last option" when referring to the last shown option.',
+                    'description' => 'Booking option title, id-like reference, or words like "last option" '
+                        . 'when referring to the last shown option.',
                     'required' => false,
                 ],
                 'optionid' => [
@@ -92,13 +93,14 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
     /**
      * Return task-specific message triggers.
      *
-     * @return array<int,array<string,mixed>>
+     * @return array
      */
     public function get_message_triggers(): array {
         return [
             [
                 'id' => 'booking.diagnose_booking_issue_self_help',
-                'description' => 'User asks why they are not booked, cannot book, did not receive mail for a booking option or have any other issue regarding a booking option.',
+                'description' => 'User asks why they are not booked, cannot book, did not receive mail '
+                    . 'for a booking option or have any other issue regarding a booking option.',
                 'examples' => [
                     'Warum bin ich bei Buchungsoption XY nicht eingetragen?',
                     'Wieso habe ich keine Mail von der Buchungsoption XY bekommen?',
@@ -111,7 +113,7 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
     /**
      * Return contextual guidance packs.
      *
-     * @return array<int,array<string,mixed>>
+     * @return array
      */
     public function get_contextual_prompt_packs(): array {
         return [
@@ -125,7 +127,8 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
                 'guidance' => [
                     '- Use booking.diagnose_booking_issue for self-help questions about one booking option.',
                     '- Pass the original user wording as question so the task can classify the issue type.',
-                    '- Pass optionquery when the option title/reference is available; otherwise the task will ask a follow-up question.',
+                    '- Pass optionquery when the option title/reference is available; '
+                        . 'otherwise the task will ask a follow-up question.',
                 ],
             ],
         ];
@@ -134,9 +137,9 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
     /**
      * Validate task input.
      *
-     * @param array<string,mixed> $input
+     * @param array $input
      * @param int $cmid
-     * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>}
+     * @return array
      */
     public function validate(array $input, int $cmid): array {
         $errors = [];
@@ -162,10 +165,10 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
     /**
      * Execute task.
      *
-     * @param array<string,mixed> $input
+     * @param array $input
      * @param int $cmid
      * @param int $userid
-     * @return array<string,mixed>
+     * @return array
      */
     public function execute(array $input, int $cmid, int $userid): array {
         global $DB;
@@ -225,7 +228,7 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
     /**
      * Resolve issue type from explicit input or the question text.
      *
-     * @param array<string,mixed> $input
+     * @param array $input
      * @return string
      */
     private function resolve_issue_type(array $input): string {
@@ -278,9 +281,10 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
     /**
      * Validate whether the task has enough option information.
      *
-     * @param array<string,mixed> $input
+     * @param array $input
      * @param int $cmid
-     * @return array{errors:array<int,string>,ambiguities:array<int,string>}
+     * @param string $lang
+     * @return array
      */
     private function validate_option_reference(array $input, int $cmid, string $lang = ''): array {
         $errors = [];
@@ -317,10 +321,11 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
     /**
      * Resolve the target option id from explicit id, query or last preview selection.
      *
-     * @param array<string,mixed> $input
+     * @param array $input
      * @param int $cmid
      * @param int $userid
-     * @return array<string,mixed>
+     * @param string $lang
+     * @return array
      */
     private function resolve_option_id(array $input, int $cmid, int $userid, string $lang = ''): array {
         global $DB;
@@ -368,8 +373,11 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
     /**
      * Extract normalized user status key from booking information.
      *
-     * @param array<string,mixed> $bookinginformation
-     * @return string
+     * @param int $bookingid
+     * @param int $optionid
+     * @param int $userid
+     * @param object $settings
+     * @return array
      */
     private function collect_option_stats(int $bookingid, int $optionid, int $userid, object $settings): array {
         global $DB;
@@ -435,9 +443,10 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
      * Build concrete reason lines for the diagnosis.
      *
      * @param string $issuetype
-     * @param array<string,mixed> $optionstats
-     * @param array<int,array<string,mixed>> $conditionresults
-     * @return array<int,string>
+     * @param array $optionstats
+     * @param array $conditionresults
+     * @param string $lang
+     * @return array
      */
     private function build_reason_lines(string $issuetype, array $optionstats, array $conditionresults, string $lang = ''): array {
         $reasons = [];
@@ -472,7 +481,11 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
                 if (!empty($optionstats['waitinglistfull'])) {
                     $reasons[] = $this->localized_string('agent_booking_diagnose_reason_cannot_book_waitinglist_full', null, $lang);
                 } else if (!empty($optionstats['fullybooked'])) {
-                    $reasons[] = $this->localized_string('agent_booking_diagnose_reason_cannot_book_waitinglist_available', null, $lang);
+                    $reasons[] = $this->localized_string(
+                        'agent_booking_diagnose_reason_cannot_book_waitinglist_available',
+                        null,
+                        $lang
+                    );
                 }
             }
 
@@ -510,7 +523,8 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
      * @param string $issuetype
      * @param string $optionname
      * @param string $userstatus
-     * @param array<int,string> $reasons
+     * @param array $reasons
+     * @param string $lang
      * @return string
      */
     private function build_user_message(

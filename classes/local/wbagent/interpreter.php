@@ -291,8 +291,8 @@ class interpreter implements agent_interpreter {
     /**
      * Extract used trigger ids from raw payload and allow-list them.
      *
-     * @param array<string,mixed> $parsed
-     * @return array<int,string>
+     * @param array $parsed
+     * @return array
      */
     private function extract_used_triggers(array $parsed): array {
         $triggerregistry = new message_trigger_registry($this->registry);
@@ -471,10 +471,10 @@ class interpreter implements agent_interpreter {
     /**
      * Normalize task-provided structured ambiguity options for frontend consumption.
      *
-     * @param array<int,mixed> $options
+     * @param array $options
      * @param string $label
      * @param string $taskname
-     * @return array<int,array<string,mixed>>
+     * @return array
      */
     private function normalize_ambiguity_options(array $options, string $label, string $taskname): array {
         $normalized = [];
@@ -511,8 +511,8 @@ class interpreter implements agent_interpreter {
     /**
      * Canonicalize user self-references in known user-query fields.
      *
-     * @param array<string,mixed> $input
-     * @return array<string,mixed>
+     * @param array $input
+     * @return array
      */
     private function normalize_self_user_references(array $input): array {
         $fields = ['teacherquery', 'selectusersquery', 'bookusersquery'];
@@ -549,8 +549,8 @@ class interpreter implements agent_interpreter {
      * Canonicalize task input before validation/confirmation is returned to UI.
      *
      * @param string $taskname
-     * @param array<string,mixed> $input
-     * @return array<string,mixed>
+     * @param array $input
+     * @return array
      */
     private function canonicalize_command_input(string $taskname, array $input): array {
         if (!in_array($taskname, ['booking.create_option', 'booking.update_option'], true)) {
@@ -667,7 +667,7 @@ class interpreter implements agent_interpreter {
     /**
      * Detect whether command input targets slotbooking.
      *
-     * @param array<string,mixed> $input
+     * @param array $input
      * @return bool
      */
     private function is_slotbooking_input(array $input): bool {
@@ -751,7 +751,7 @@ class interpreter implements agent_interpreter {
     /**
      * Collect free-text fields into one lowercased string for intent cues.
      *
-     * @param array<string,mixed> $input
+     * @param array $input
      * @return string
      */
     private function collect_text_fields(array $input): string {
@@ -767,7 +767,7 @@ class interpreter implements agent_interpreter {
     /**
      * Detect whether command input targets self-learning option type.
      *
-     * @param array<string,mixed> $input
+     * @param array $input
      * @return bool
      */
     private function is_selflearning_input(array $input): bool {
@@ -837,8 +837,8 @@ class interpreter implements agent_interpreter {
      *
      * Avoid placeholder LLM texts like "Executing." when validation asked for clarification.
      *
-     * @param array<string,mixed> $parsed
-     * @param array<int,string> $ambiguities
+     * @param array $parsed
+     * @param array $ambiguities
      * @return string
      */
     private function clarification_message(array $parsed, array $ambiguities): string {
@@ -863,7 +863,8 @@ class interpreter implements agent_interpreter {
     /**
      * Build a user-facing error text from validation errors.
      *
-     * @param array<int,string> $errors
+     * @param array $errors
+     * @param string $lang
      * @return string
      */
     private function user_facing_validation_message(array $errors, string $lang = ''): string {
@@ -922,7 +923,7 @@ class interpreter implements agent_interpreter {
     /**
      * Determine whether validation errors are recoverable missing-input cases.
      *
-     * @param array<int,string> $errors
+     * @param array $errors
      * @return bool
      */
     private function is_recoverable_input_validation_error(array $errors): bool {

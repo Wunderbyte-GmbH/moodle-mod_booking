@@ -57,8 +57,8 @@ class preview_policy {
     /**
      * Filter a commands array to only those that support preview.
      *
-     * @param array<int,array<string,mixed>> $commands
-     * @return array<int,array<string,mixed>>
+     * @param array $commands
+     * @return array
      */
     public static function filter_previewable_commands(array $commands): array {
         return array_values(array_filter(
@@ -70,7 +70,7 @@ class preview_policy {
     /**
      * Whether any command in the list supports preview.
      *
-     * @param array<int,array<string,mixed>> $commands
+     * @param array $commands
      * @return bool
      */
     public static function has_previewable_command(array $commands): bool {

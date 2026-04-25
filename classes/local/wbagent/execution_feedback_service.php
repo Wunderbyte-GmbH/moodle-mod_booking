@@ -57,10 +57,10 @@ class execution_feedback_service {
      * @param int $threadid
      * @param int $cmid
      * @param int $userid
-     * @param array<int,array<string,mixed>> $commands
-     * @param array<int,array<string,mixed>> $results
+     * @param array $commands
+     * @param array $results
      * @param string $outputlang
-     * @return array{message:string,results:array<int,array<string,mixed>>}
+     * @return array
      */
     public function build_completion_feedback(
         int $threadid,
@@ -86,8 +86,8 @@ class execution_feedback_service {
      * @param int $threadid
      * @param int $cmid
      * @param int $userid
-     * @param array<int,array<string,mixed>> $commands
-     * @param array<int,array<string,mixed>> $results
+     * @param array $commands
+     * @param array $results
      * @param string $outputlang
      * @return string
      */
@@ -158,8 +158,8 @@ class execution_feedback_service {
      *
      * @param string $outputlang
      * @param string $latestusermessage
-     * @param array<int,array<string,mixed>> $commands
-     * @param array<int,array<string,mixed>> $results
+     * @param array $commands
+     * @param array $results
      * @return string
      */
     private function build_feedback_prompt(
@@ -197,8 +197,9 @@ class execution_feedback_service {
     /**
      * Remove sensitive or low-value raw result fields before data reaches the client.
      *
-     * @param array<int,array<string,mixed>> $results
-     * @return array<int,array<string,mixed>>
+     * @param array $results
+     * @param string $outputlang
+     * @return array
      */
     private function sanitize_results_for_client(array $results, string $outputlang = ''): array {
         $sanitized = [];
@@ -283,7 +284,8 @@ class execution_feedback_service {
     /**
      * Collapse raw task details into a safe client detail string.
      *
-     * @param array<string,mixed> $result
+     * @param array $result
+     * @param string $outputlang
      * @return string
      */
     private function sanitize_result_detail(array $result, string $outputlang = ''): string {
@@ -363,7 +365,7 @@ class execution_feedback_service {
     /**
      * Extract the first explicit task-authored user message.
      *
-     * @param array<int,array<string,mixed>> $results
+     * @param array $results
      * @return string
      */
     private function extract_task_user_message(array $results): string {
@@ -389,7 +391,7 @@ class execution_feedback_service {
     /**
      * Deterministic fallback when no post-execution LLM feedback can be generated.
      *
-     * @param array<int,array<string,mixed>> $results
+     * @param array $results
      * @param string $outputlang
      * @return string
      */

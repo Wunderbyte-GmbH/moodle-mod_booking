@@ -33,11 +33,11 @@ class docs_answering_service {
      * Answer a user question using one or more selected documentation files.
      *
      * @param string $question
-     * @param array<int,array<string,mixed>> $docs
+     * @param array $docs
      * @param string $outputlang
      * @param int $cmid
      * @param int $userid
-     * @return array<string,mixed>
+     * @return array
      */
     public function answer_question(string $question, array $docs, string $outputlang, int $cmid, int $userid): array {
         $docs = array_values(array_filter($docs, static function (array $doc): bool {
@@ -92,7 +92,7 @@ class docs_answering_service {
      * Build a constrained grounded-answer prompt.
      *
      * @param string $question
-     * @param array<int,array<string,mixed>> $docs
+     * @param array $docs
      * @param string $outputlang
      * @return string
      */

@@ -33,7 +33,7 @@ interface task_provider_interface {
     /**
      * Return concrete task instances contributed by this provider.
      *
-     * @return array<int,task_interface>
+     * @return array
      */
     public function get_tasks(): array;
 

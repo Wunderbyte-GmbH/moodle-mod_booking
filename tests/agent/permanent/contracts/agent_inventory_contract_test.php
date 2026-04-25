@@ -29,6 +29,8 @@ use advanced_testcase;
 
 /**
  * Enforces a minimum inventory baseline so critical tests/features cannot disappear unnoticed.
+ *
+ * @coversNothing
  */
 final class agent_inventory_contract_test extends advanced_testcase {
     /**

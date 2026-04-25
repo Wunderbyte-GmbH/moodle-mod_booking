@@ -52,7 +52,7 @@ class update_option_task extends base_booking_task implements task_trigger_provi
     /**
      * Return task schema.
      *
-     * @return array<string,mixed>
+     * @return array
      */
     public function get_schema(): array {
         return [
@@ -145,7 +145,7 @@ class update_option_task extends base_booking_task implements task_trigger_provi
     /**
      * Validate task input.
      *
-     * @param array<string,mixed> $input
+     * @param array $input
      * @param int $cmid
      * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>,issues?:array<int,array<string,mixed>>}
      */
@@ -249,9 +249,9 @@ class update_option_task extends base_booking_task implements task_trigger_provi
     /**
      * Verify that relevant fields were persisted as requested.
      *
-     * @param array<string,mixed> $input
+     * @param array $input
      * @param object $settings
-     * @return array<int,string>
+     * @return array
      */
     public function verify_persisted_option_state(array $input, object $settings): array {
         return option_input_verification::verify_common_fields($input, $settings);
@@ -260,10 +260,10 @@ class update_option_task extends base_booking_task implements task_trigger_provi
     /**
      * Execute task.
      *
-     * @param array<string,mixed> $input
+     * @param array $input
      * @param int $cmid
      * @param int $userid
-     * @return array<string,mixed>
+     * @return array
      */
     public function execute(array $input, int $cmid, int $userid): array {
         $service = new booking_task_mutation_execute_service();

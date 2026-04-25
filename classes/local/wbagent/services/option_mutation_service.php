@@ -128,7 +128,7 @@ class option_mutation_service {
      *   - 'warnings'         array   Warning strings (optional)
      *   - 'previewoptionids' array   Preview option ids (optional)
      *
-     * @param array<string,mixed> $result Raw result from booking_task_support::execute().
+     * @param array $result Raw result from booking_task_support::execute().
      * @return mutation_result_dto
      */
     private function map_result(array $result): mutation_result_dto {

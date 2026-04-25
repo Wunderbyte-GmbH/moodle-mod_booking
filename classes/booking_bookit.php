@@ -175,7 +175,7 @@ class booking_bookit {
         // Do we really want to render a modal?
         $showprepagemodal = (!$justmyalert && (count($prepages) > 0) && $renderprepagemodal);
 
-        // ── Inline-start rendering ──────────────────────────────────────────────
+        // Inline-start rendering.
         // When $inlinestartpage is set and there is a matching condition in the prepage list,
         // render that condition server-side and display it inline.  Remaining pages open via
         // the normal modal/inline collapse when the user clicks "Continue".
@@ -235,7 +235,7 @@ class booking_bookit {
                 return [$templates, $datas];
             }
         }
-        // ── End inline-start rendering ──────────────────────────────────────────
+        // End inline-start rendering.
 
         // Big decision: can we render the button right away, or do we need to introduce a modal.
         if ($showprepagemodal) {

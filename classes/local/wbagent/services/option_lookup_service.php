@@ -43,7 +43,7 @@ class option_lookup_service {
      * @param string $query
      * @param int    $limit
      * @param string $when  Optional temporal hint for disambiguation.
-     * @return array<string,mixed>
+     * @return array
      */
     public function search_options(int $cmid, string $query, int $limit = 10, string $when = ''): array {
         return (new booking_task_support())->execute(

@@ -31,7 +31,7 @@ use mod_booking\singleton_service;
  * Slot availability service class.
  */
 class slot_availability {
-    /** @var array<int, array<int, array<int, array{start:int,end:int}>>> */
+    /** @var array<int, array> */
     private static $bookedslotrangecache = [];
 
     /**
@@ -71,7 +71,7 @@ class slot_availability {
      * @param int $optionid booking option id
      * @param int $slotstart slot start timestamp
      * @param int $slotend slot end timestamp
-     * @return array<int, array{id:int, fullname:string, initials:string}>
+     * @return array
      */
     public static function get_available_teachers_for_slot(int $optionid, int $slotstart, int $slotend): array {
         global $DB, $CFG;
@@ -148,7 +148,7 @@ class slot_availability {
      * Returns booked slot ranges grouped by booking answer id, cached for this request.
      *
      * @param int $optionid booking option id
-     * @return array<int, array<int, array{start:int,end:int}>>
+     * @return array
      */
     private static function get_booked_slot_ranges_by_answer(int $optionid): array {
         if (isset(self::$bookedslotrangecache[$optionid])) {
@@ -196,7 +196,7 @@ class slot_availability {
      * Extract exact booked slot ranges from booking answer JSON.
      *
      * @param object $answer booking answer row
-     * @return array<int, array{start:int,end:int}>
+     * @return array
      */
     private static function extract_booked_ranges_from_answer(object $answer): array {
         $ranges = [];
@@ -258,7 +258,7 @@ class slot_availability {
      *
      * @param int $optionid booking option id
      * @param int $userid user id
-     * @return array<string, bool>
+     * @return array
      */
     private static function get_booked_slot_key_set_for_user(int $optionid, int $userid): array {
         if ($optionid <= 0 || $userid <= 0) {
@@ -342,7 +342,7 @@ class slot_availability {
      * @param int $userid user id
      * @param int[] $selectedteachers selected teacher ids for this slot
      * @param int $excludeanswerid booking answer id to ignore in overlap checks
-     * @return array{bookable:bool, status:string, errormessage:string, warningmessage:string}
+     * @return array
      */
     public static function evaluate_slot_for_user(
         int $optionid,
@@ -525,7 +525,7 @@ class slot_availability {
      * @param int $optionid booking option id
      * @param int $rangestart range start timestamp
      * @param int $rangeend range end timestamp
-     * @return array<int, array{0:int, 1:int}>
+     * @return array
      */
     public static function get_slots_for_range(int $optionid, int $rangestart, int $rangeend): array {
         $config = self::get_slot_config($optionid);
@@ -617,7 +617,7 @@ class slot_availability {
      * @param int $optionid booking option id
      * @param int $rangestart range start timestamp
      * @param int $rangeend range end timestamp
-     * @return array<int, array{0:int, 1:int}>
+     * @return array
      */
     private static function get_session_slots_for_range(int $optionid, int $rangestart, int $rangeend): array {
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
@@ -661,7 +661,7 @@ class slot_availability {
      *
      * @param int $optionid booking option id
      * @param int $userid user id
-     * @return array<int, array{start:int, end:int, status:string, bookings:int, capacity:int}>
+     * @return array
      */
     public static function get_slots_with_status(int $optionid, int $userid = 0): array {
         [$rangestart, $rangeend] = self::get_default_slot_range($optionid);
@@ -678,7 +678,8 @@ class slot_availability {
      * @param int $optionid booking option id
      * @param int $daystart start of day timestamp
      * @param int $dayend end of day timestamp
-     * @return array<int, array{start:int,end:int}>
+     * @param int $userid
+     * @return array
      */
     public static function get_booked_ranges_for_day(int $optionid, int $daystart, int $dayend, int $userid = 0): array {
         $result = [];
@@ -731,7 +732,7 @@ class slot_availability {
      * @param int $rangestart range start timestamp
      * @param int $rangeend range end timestamp
      * @param int $userid user id
-     * @return array<int, array{start:int, end:int, status:string, bookings:int, capacity:int, warningmessage:string}>
+     * @return array
      */
     public static function get_slots_with_status_for_range(
         int $optionid,
@@ -797,7 +798,7 @@ class slot_availability {
      * Get default slot range from slot config.
      *
      * @param int $optionid booking option id
-     * @return array{0:int, 1:int}
+     * @return array
      */
     private static function get_default_slot_range(int $optionid): array {
         $config = self::get_slot_config($optionid);

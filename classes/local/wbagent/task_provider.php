@@ -39,7 +39,7 @@ class task_provider implements task_provider_interface {
     /**
      * Return concrete task instances.
      *
-     * @return array<int,\mod_booking\local\wbagent\interfaces\task_interface>
+     * @return array
      */
     public function get_tasks(): array {
         $taskclasses = core_component::get_component_classes_in_namespace('mod_booking', 'local\\wbagent\\booking\\tasks');

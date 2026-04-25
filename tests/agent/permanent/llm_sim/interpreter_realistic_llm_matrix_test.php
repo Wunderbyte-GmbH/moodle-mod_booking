@@ -31,6 +31,8 @@ use mod_booking\local\wbagent\task_registry;
 
 /**
  * Deterministic tests with realistic (but simulated) LLM outputs.
+ *
+ * @coversNothing
  */
 final class interpreter_realistic_llm_matrix_test extends advanced_testcase {
     /** @var int */
@@ -73,9 +75,11 @@ final class interpreter_realistic_llm_matrix_test extends advanced_testcase {
     /**
      * Realistic simulated payload matrix.
      *
-     * @return array<string,array{0:string,1:string}>
+     * @return array
      */
     public static function provide_realistic_llm_payloads(): array {
+        $fence = chr(96) . chr(96) . chr(96);
+
         return [
             'clarification_german' => [
                 json_encode([
@@ -86,10 +90,10 @@ final class interpreter_realistic_llm_matrix_test extends advanced_testcase {
                 'clarification',
             ],
             'markdown_fenced_json' => [
-                "```json\n" . json_encode([
+                $fence . "json\n" . json_encode([
                     'response_type' => 'clarification',
                     'message' => 'Please clarify the teacher.',
-                ]) . "\n```",
+                ]) . "\n" . $fence,
                 'clarification',
             ],
             'unknown_response_type' => [

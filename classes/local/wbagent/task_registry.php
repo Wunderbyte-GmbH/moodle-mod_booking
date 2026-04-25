@@ -100,7 +100,7 @@ class task_registry {
     /**
      * Return all registered task instances.
      *
-     * @return array<string,task_interface>
+     * @return array
      */
     public function get_tasks(): array {
         return $this->tasks;
@@ -120,7 +120,7 @@ class task_registry {
     /**
      * Return schemas for all registered tasks (for inclusion in the system prompt).
      *
-     * @return array<string, array>  task name => schema array
+     * @return array  task name => schema array
      */
     public function get_all_schemas(): array {
         $schemas = [];

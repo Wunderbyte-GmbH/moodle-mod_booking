@@ -35,6 +35,7 @@ use mod_booking\local\wbagent\task_registry;
  *
  * @package    mod_booking
  * @category   test
+ * @coversNothing
  * @copyright  2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -209,10 +210,11 @@ final class agent_interpreter_test extends advanced_testcase {
      * Test that JSON wrapped in markdown fences is parsed correctly.
      */
     public function test_markdown_fence_is_stripped(): void {
-        $raw = "```json\n" . json_encode([
+        $fence = chr(96) . chr(96) . chr(96);
+        $raw = $fence . "json\n" . json_encode([
             'response_type' => 'clarification',
             'message'       => 'Please clarify.',
-        ]) . "\n```";
+        ]) . "\n" . $fence;
         $result = $this->interpreter->interpret($raw, $this->cmid, 1);
         $this->assertEquals('clarification', $result['response_type']);
     }

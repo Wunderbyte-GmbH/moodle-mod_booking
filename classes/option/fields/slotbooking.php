@@ -521,9 +521,15 @@ class slotbooking extends field_base {
                     $setifmissing('slot_max_slots_per_user', (int)$config->max_slots_per_user);
 
                     $interface = (string)($config->booking_interface ?? 'calendar');
-                    $setifmissing('slot_booking_view_mode', in_array($interface, ['list', 'calendar'], true) ? $interface : 'calendar');
+                    $setifmissing(
+                        'slot_booking_view_mode',
+                        in_array($interface, ['list', 'calendar'], true) ? $interface : 'calendar'
+                    );
                     $setifmissing('slot_teachers_required', (int)$config->teachers_required);
-                    $setifmissing('slot_add_examiners', !empty($config->teacher_pool) || !empty($config->teachers_required) ? 1 : 0);
+                    $setifmissing(
+                        'slot_add_examiners',
+                        !empty($config->teacher_pool) || !empty($config->teachers_required) ? 1 : 0
+                    );
 
                     $pool = json_decode((string)$config->teacher_pool, true);
                     if (is_array($pool) && !property_exists($data, 'slot_teacher_pool')) {

@@ -47,7 +47,7 @@ final class booking_task_class_ownership_test extends advanced_testcase {
     /**
      * Data provider for tasks expected to declare get_schema() directly.
      *
-     * @return array<int,array{0:string}>
+     * @return array
      */
     public static function schema_owner_provider(): array {
         return [
@@ -66,7 +66,7 @@ final class booking_task_class_ownership_test extends advanced_testcase {
     /**
      * Data provider for tasks expected to declare validate() directly.
      *
-     * @return array<int,array{0:string}>
+     * @return array
      */
     public static function validate_owner_provider(): array {
         return self::schema_owner_provider();
@@ -76,7 +76,7 @@ final class booking_task_class_ownership_test extends advanced_testcase {
      * Task classes should define get_schema() in their own class.
      *
      * @dataProvider schema_owner_provider
-     * @param class-string $classname
+     *  string $classname
      */
     public function test_task_declares_own_schema_method(string $classname): void {
         $reflection = new \ReflectionClass($classname);
@@ -93,7 +93,7 @@ final class booking_task_class_ownership_test extends advanced_testcase {
      * Task classes should define validate() in their own class.
      *
      * @dataProvider validate_owner_provider
-     * @param class-string $classname
+     *  string $classname
      */
     public function test_task_declares_own_validate_method(string $classname): void {
         $reflection = new \ReflectionClass($classname);

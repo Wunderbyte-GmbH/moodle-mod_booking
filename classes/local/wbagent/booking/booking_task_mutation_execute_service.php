@@ -37,7 +37,7 @@ class booking_task_mutation_execute_service {
      * Execute supported mutating tasks.
      *
      * @param string $taskname
-     * @param array<string,mixed> $input
+     * @param array $input
      * @param int $cmid
      * @param int $userid
      * @param booking_task_support $support
@@ -756,7 +756,7 @@ class booking_task_mutation_execute_service {
     /**
      * Resolve option type from AI command input.
      *
-     * @param array<string,mixed> $input
+     * @param array $input
      * @return int|null
      */
     private function resolve_option_type_from_input(array $input): ?int {
@@ -797,7 +797,7 @@ class booking_task_mutation_execute_service {
      * and from execute() so both stages use the same checks.
      *
      * @param string $taskname
-     * @param array<string,mixed> $input
+     * @param array $input
      * @param int $cmid
      * @param int $userid
      * @return array{errors:array<int,string>,ambiguities:array<int,string>,normalized_input:array<string,mixed>}

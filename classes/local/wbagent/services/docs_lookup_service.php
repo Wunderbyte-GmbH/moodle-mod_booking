@@ -75,7 +75,7 @@ class docs_lookup_service {
     /**
      * Whether the given search result set should be treated as ambiguous.
      *
-     * @param array<int,array<string,mixed>> $docs
+     * @param array $docs
      * @return bool
      */
     public function is_ambiguous(array $docs): bool {
@@ -101,9 +101,9 @@ class docs_lookup_service {
     /**
      * Return human-readable top candidate titles for ambiguity prompts.
      *
-     * @param array<int,array<string,mixed>> $docs
+     * @param array $docs
      * @param int $limit
-     * @return array<int,string>
+     * @return array
      */
     public function get_ambiguity_candidates(array $docs, int $limit = 4): array {
         $candidates = [];
@@ -125,7 +125,7 @@ class docs_lookup_service {
     /**
      * Build a concise user-facing explanation from a matched doc.
      *
-     * @param array<string,mixed> $doc
+     * @param array $doc
      * @return string
      */
     public function build_summary(array $doc): string {
@@ -192,8 +192,8 @@ class docs_lookup_service {
     /**
      * Score a doc for a given question.
      *
-     * @param array<string,string> $doc
-     * @param array<int,string> $tokens
+     * @param array $doc
+     * @param array $tokens
      * @param string $question
      * @return int
      */
@@ -235,7 +235,7 @@ class docs_lookup_service {
     /**
      * Detect whether the question explicitly contains the markdown basename.
      *
-     * @param array<string,string> $doc
+     * @param array $doc
      * @param string $question
      * @return bool
      */
@@ -260,7 +260,7 @@ class docs_lookup_service {
      * Extract significant query tokens.
      *
      * @param string $question
-     * @return array<int,string>
+     * @return array
      */
     private function extract_query_tokens(string $question): array {
         $normalized = strtolower($question);

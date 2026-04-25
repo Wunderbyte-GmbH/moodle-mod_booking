@@ -66,7 +66,8 @@ class ai_privacy_precheck extends external_api {
      *
      * @param int $cmid
      * @param string $message
-     * @return array<string,mixed>
+     * @param int $forcenewthread
+     * @return array
      */
     public static function execute(int $cmid, string $message, int $forcenewthread = 0): array {
         global $USER;

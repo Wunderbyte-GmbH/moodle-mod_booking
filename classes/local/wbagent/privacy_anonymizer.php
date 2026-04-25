@@ -104,7 +104,7 @@ class privacy_anonymizer {
      *
      * @param int $threadid
      * @param string $message
-     * @return array<string,mixed>
+     * @return array
      */
     public function precheck_user_message(int $threadid, string $message): array {
         $start = microtime(true);
@@ -148,8 +148,8 @@ class privacy_anonymizer {
      * Replace ANON_USER tokens in command input recursively with original values.
      *
      * @param int $threadid
-     * @param array<string,mixed> $input
-     * @return array<string,mixed>
+     * @param array $input
+     * @return array
      */
     public function deanonymize_command_input(int $threadid, array $input): array {
         if ($this->get_mode() === self::MODE_OFF) {
@@ -171,8 +171,8 @@ class privacy_anonymizer {
      *
      * @param int $cmid
      * @param int $userid
-     * @param array<string,mixed> $input
-     * @return array<string,mixed>
+     * @param array $input
+     * @return array
      */
     public function deanonymize_command_input_for_active_user(int $cmid, int $userid, array $input): array {
         if ($this->get_mode() === self::MODE_OFF || $cmid <= 0 || $userid <= 0) {
@@ -192,7 +192,7 @@ class privacy_anonymizer {
      *
      * @param int $threadid
      * @param string $message
-     * @return array<string,mixed>
+     * @return array
      */
     public function deanonymize_message_for_display(int $threadid, string $message): array {
         if ($message === '' || $this->get_mode() === self::MODE_OFF) {
@@ -274,7 +274,7 @@ class privacy_anonymizer {
      * Recursively de-anonymize all string values in input payload.
      *
      * @param mixed $value
-     * @param array<string,array<string,string>> $entries
+     * @param array $entries
      * @param string $fieldkey
      * @return mixed
      */
@@ -306,7 +306,7 @@ class privacy_anonymizer {
      * Recursively anonymize string values in an arbitrary payload.
      *
      * @param mixed $value
-     * @param array<string,mixed> $tokenmap
+     * @param array $tokenmap
      * @return mixed
      */
     private function anonymize_value_recursive($value, array &$tokenmap) {
@@ -329,7 +329,7 @@ class privacy_anonymizer {
      * Anonymize a free-form string for backend LLM use.
      *
      * @param string $message
-     * @param array<string,mixed> $tokenmap
+     * @param array $tokenmap
      * @return string
      */
     private function anonymize_string_for_llm(string $message, array &$tokenmap): string {
@@ -347,7 +347,7 @@ class privacy_anonymizer {
      * Replace email-like values with ANON tokens.
      *
      * @param string $message
-     * @param array<string,mixed> $tokenmap
+     * @param array $tokenmap
      * @return array{0:string,1:int}
      */
     private function anonymize_emails(string $message, array &$tokenmap): array {
@@ -373,7 +373,7 @@ class privacy_anonymizer {
      * multiple tokens for a single person reference.
      *
      * @param string $message
-     * @param array<string,mixed> $tokenmap
+     * @param array $tokenmap
      * @return array{0:string,1:int}
      */
     private function anonymize_names(string $message, array &$tokenmap): array {
@@ -489,7 +489,7 @@ class privacy_anonymizer {
     /**
      * Build name matching index with user-id links for full/split name decisions.
      *
-     * @return array<string,mixed>
+     * @return array
      */
     private function get_user_name_match_index(): array {
         global $DB;
@@ -561,8 +561,8 @@ class privacy_anonymizer {
     /**
      * Determine whether two user-id maps overlap.
      *
-     * @param array<int,mixed> $left
-     * @param array<int,mixed> $right
+     * @param array $left
+     * @param array $right
      * @return bool
      */
     private function user_sets_intersect(array $left, array $right): bool {
@@ -582,7 +582,7 @@ class privacy_anonymizer {
     /**
      * Load distinct name index from cache or database.
      *
-     * @return array<string,string>
+     * @return array
      */
     private function get_distinct_name_index(): array {
         global $DB;
@@ -646,7 +646,7 @@ class privacy_anonymizer {
      * Load or initialize the thread token map.
      *
      * @param int $threadid
-     * @return array<string,mixed>
+     * @return array
      */
     private function get_token_map(int $threadid): array {
         $map = $this->store->get_thread_metadata_value($threadid, self::TOKEN_MAP_METADATA_KEY);
@@ -670,7 +670,7 @@ class privacy_anonymizer {
      * Persist token map on thread metadata.
      *
      * @param int $threadid
-     * @param array<string,mixed> $map
+     * @param array $map
      * @return void
      */
     private function set_token_map(int $threadid, array $map): void {
@@ -680,7 +680,7 @@ class privacy_anonymizer {
     /**
      * Return existing token for value or create a new token entry.
      *
-     * @param array<string,mixed> $map
+     * @param array $map
      * @param string $type
      * @param string $value
      * @param string $original
@@ -724,7 +724,7 @@ class privacy_anonymizer {
      *
      * For SQL text fields (title/description/search query), always use original literal.
      *
-     * @param array<string,mixed> $entry
+     * @param array $entry
      * @param string $fieldkey
      * @param string $fallback
      * @return string

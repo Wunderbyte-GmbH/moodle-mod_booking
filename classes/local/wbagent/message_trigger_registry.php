@@ -99,7 +99,7 @@ class message_trigger_registry {
     /**
      * Return the allowed trigger ids.
      *
-     * @return array<int,string>
+     * @return array
      */
     public function get_available_trigger_ids(): array {
         $triggers = $this->get_available_triggers();
@@ -110,7 +110,7 @@ class message_trigger_registry {
      * Normalize and allow-list the trigger ids returned by the LLM.
      *
      * @param mixed $usedtriggers
-     * @return array<int,string>
+     * @return array
      */
     public function normalize_used_triggers($usedtriggers): array {
         if (!is_array($usedtriggers)) {

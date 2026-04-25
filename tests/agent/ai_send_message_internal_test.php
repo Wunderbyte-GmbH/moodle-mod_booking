@@ -36,6 +36,7 @@ use mod_booking\local\wbagent\task_registry;
  * Tests for internal ai_send_message helpers used by mixed command handling.
  *
  * @runTestsInSeparateProcesses
+ * @coversNothing
  *
  * @package    mod_booking
  * @category   test
@@ -168,7 +169,7 @@ final class ai_send_message_internal_test extends advanced_testcase {
      *
      * @param string $classname
      * @param string $method
-     * @param array<int,mixed> $args
+     * @param array $args
      * @return mixed
      */
     private function invoke_private_static(string $classname, string $method, array $args) {
@@ -192,27 +193,63 @@ final class ai_send_message_internal_test extends advanced_testcase {
             /** @var bool */
             private bool $readonly;
 
+            /**
+             * Constructor.
+             *
+             * @param string $name
+             * @param bool $readonly
+             */
             public function __construct(string $name, bool $readonly) {
                 $this->name = $name;
                 $this->readonly = $readonly;
             }
 
+            /**
+             * Get task name.
+             *
+             * @return string
+             */
             public function get_name(): string {
                 return $this->name;
             }
 
+            /**
+             * Get task schema.
+             *
+             * @return array
+             */
             public function get_schema(): array {
                 return [];
             }
 
+            /**
+             * Validate task input.
+             *
+             * @param array $input
+             * @param int $cmid
+             * @return array
+             */
             public function validate(array $input, int $cmid): array {
                 return ['valid' => true, 'errors' => [], 'ambiguities' => []];
             }
 
+            /**
+             * Execute task.
+             *
+             * @param array $input
+             * @param int $cmid
+             * @param int $userid
+             * @return array
+             */
             public function execute(array $input, int $cmid, int $userid): array {
                 return ['status' => 'executed', 'detail' => 'ok', 'resultid' => null];
             }
 
+            /**
+             * Whether task is read-only.
+             *
+             * @return bool
+             */
             public function is_read_only(): bool {
                 return $this->readonly;
             }
@@ -236,28 +273,65 @@ final class ai_send_message_internal_test extends advanced_testcase {
             /** @var callable */
             private $validator;
 
+            /**
+             * Constructor.
+             *
+             * @param string $name
+             * @param bool $readonly
+             * @param callable $validator
+             */
             public function __construct(string $name, bool $readonly, callable $validator) {
                 $this->name = $name;
                 $this->readonly = $readonly;
                 $this->validator = $validator;
             }
 
+            /**
+             * Get task name.
+             *
+             * @return string
+             */
             public function get_name(): string {
                 return $this->name;
             }
 
+            /**
+             * Get task schema.
+             *
+             * @return array
+             */
             public function get_schema(): array {
                 return [];
             }
 
+            /**
+             * Validate task input.
+             *
+             * @param array $input
+             * @param int $cmid
+             * @return array
+             */
             public function validate(array $input, int $cmid): array {
                 return ($this->validator)($input);
             }
 
+            /**
+             * Execute task.
+             *
+             * @param array $input
+             * @param int $cmid
+             * @param int $userid
+             * @return array
+             */
             public function execute(array $input, int $cmid, int $userid): array {
                 return ['status' => 'executed', 'detail' => 'ok', 'resultid' => null];
             }
 
+            /**
+             * Whether task is read-only.
+             *
+             * @return bool
+             */
             public function is_read_only(): bool {
                 return $this->readonly;
             }
@@ -268,7 +342,7 @@ final class ai_send_message_internal_test extends advanced_testcase {
      * Create a lightweight provider double.
      *
      * @param string $component
-     * @param array<int,task_interface> $tasks
+     * @param array $tasks
      * @return task_provider_interface
      */
     private function make_provider(string $component, array $tasks): task_provider_interface {
@@ -278,19 +352,40 @@ final class ai_send_message_internal_test extends advanced_testcase {
             /** @var array<int,task_interface> */
             private array $tasks;
 
+            /**
+             * Constructor.
+             *
+             * @param string $component
+             * @param array $tasks
+             */
             public function __construct(string $component, array $tasks) {
                 $this->component = $component;
                 $this->tasks = $tasks;
             }
 
+            /**
+             * Get component name.
+             *
+             * @return string
+             */
             public function get_component(): string {
                 return $this->component;
             }
 
+            /**
+             * Get provided tasks.
+             *
+             * @return array
+             */
             public function get_tasks(): array {
                 return $this->tasks;
             }
 
+            /**
+             * Get contextual prompt packs.
+             *
+             * @return array
+             */
             public function get_contextual_prompt_packs(): array {
                 return [];
             }

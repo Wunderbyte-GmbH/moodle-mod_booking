@@ -56,7 +56,7 @@ abstract class base_booking_task extends base_task {
     /**
      * Return the schema for this task.
      *
-     * @return array<string,mixed>
+     * @return array
      */
     public function get_schema(): array {
         return [
@@ -70,7 +70,7 @@ abstract class base_booking_task extends base_task {
     /**
      * Validate task input.
      *
-     * @param array<string,mixed> $input
+     * @param array $input
      * @param int $cmid
      * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>}
      */
@@ -85,10 +85,10 @@ abstract class base_booking_task extends base_task {
     /**
      * Execute the task.
      *
-     * @param array<string,mixed> $input
+     * @param array $input
      * @param int $cmid
      * @param int $userid
-     * @return array<string,mixed>
+     * @return array
      */
     public function execute(array $input, int $cmid, int $userid): array {
         return $this->support->execute($this->get_name(), $input, $cmid, $userid);
@@ -106,9 +106,9 @@ abstract class base_booking_task extends base_task {
     /**
      * Verify that requested values are visible in persisted option settings.
      *
-     * @param array<string,mixed> $input
+     * @param array $input
      * @param object $settings
-     * @return array<int,string>
+     * @return array
      */
     public function verify_persisted_option_state(array $input, object $settings): array {
         return [];
@@ -118,8 +118,8 @@ abstract class base_booking_task extends base_task {
      * Build a brief technical debug message for a task execution.
      *
      * @param string $taskname
-     * @param array<string,mixed> $input
-     * @param array<int,string> $extra Optional extra lines (e.g. result summary).
+     * @param array $input
+     * @param array $extra Optional extra lines (e.g. result summary).
      * @return string
      */
     protected function build_task_debug_message(string $taskname, array $input, array $extra = []): string {
@@ -147,7 +147,7 @@ abstract class base_booking_task extends base_task {
     /**
      * Resolve preferred output language from task input.
      *
-     * @param array<string,mixed> $input
+     * @param array $input
      * @return string
      */
     protected function get_output_language(array $input): string {

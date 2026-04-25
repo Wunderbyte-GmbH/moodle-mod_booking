@@ -434,7 +434,7 @@ class ai_send_message extends external_api {
     /**
      * Check whether the interpreted response can be auto-executed without confirmation.
      *
-     * @param array<string,mixed> $result
+     * @param array $result
      * @param task_registry $registry
      * @return bool
      */
@@ -465,7 +465,7 @@ class ai_send_message extends external_api {
     /**
      * Check whether a response contains at least one mutating (non-read-only) command.
      *
-     * @param array<string,mixed> $result
+     * @param array $result
      * @param task_registry $registry
      * @return bool
      */
@@ -494,7 +494,7 @@ class ai_send_message extends external_api {
     /**
      * Detect failed read-only execution so dependent mutating commands are not offered for confirmation.
      *
-     * @param array<string,mixed> $execution
+     * @param array $execution
      * @return bool
      */
     private static function execution_result_has_failures(array $execution): bool {
@@ -526,9 +526,9 @@ class ai_send_message extends external_api {
      *
      * Unknown or malformed commands are treated as mutating for safety.
      *
-     * @param array<int,mixed> $commands
+     * @param array $commands
      * @param task_registry $registry
-     * @return array{readonly:array<int,array<string,mixed>>,mutating:array<int,array<string,mixed>>}
+     * @return array
      */
     private static function split_commands_by_mutability(array $commands, task_registry $registry): array {
         $readonly = [];
@@ -558,7 +558,7 @@ class ai_send_message extends external_api {
     /**
      * Check whether a normalized interpreter result includes a specific trigger id.
      *
-     * @param array<string,mixed> $result
+     * @param array $result
      * @param string $triggerid
      * @return bool
      */
@@ -580,11 +580,10 @@ class ai_send_message extends external_api {
     /**
      * Re-validate commands before showing a confirmation button.
      *
-     * @param array<int,mixed> $commands
+     * @param array $commands
      * @param task_registry $registry
      * @param int $cmid
-     * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>,
-     *     ambiguity_options:array<int,array<string,mixed>>,attempted_tasks:array<int,string>,issue_codes:array<int,string>}
+     * @return array
      */
     private static function prevalidate_confirmation_commands(array $commands, task_registry $registry, int $cmid): array {
         $errors = [];
@@ -682,7 +681,7 @@ class ai_send_message extends external_api {
     /**
      * Build user-facing clarification text from pre-confirmation validation result.
      *
-     * @param array<string,mixed> $validation
+     * @param array $validation
      * @param string $outputlang
      * @return string
      */
@@ -709,7 +708,7 @@ class ai_send_message extends external_api {
     /**
      * Execute read-only commands directly and return an execution result payload.
      *
-     * @param array<string,mixed> $result
+     * @param array $result
      * @param task_registry $registry
      * @param conversation_store $store
      * @param authorization_service $authz
@@ -717,7 +716,7 @@ class ai_send_message extends external_api {
      * @param int $cmid
      * @param int $userid
      * @param string $outputlang
-     * @return array<string,mixed>
+     * @return array
      */
     private static function auto_execute_read_only_commands(
         array $result,
@@ -787,7 +786,7 @@ class ai_send_message extends external_api {
     /**
      * Ensure assistant status text follows the user language for command-bearing responses.
      *
-     * @param array<string,mixed> $result
+     * @param array $result
      * @param string $usermessage
      * @param string $outputlang
      * @return string
@@ -805,7 +804,7 @@ class ai_send_message extends external_api {
     /**
      * Build a deterministic fallback message per response/task and language.
      *
-     * @param array<string,mixed> $result
+     * @param array $result
      * @param string $outputlang
      * @return string
      */
@@ -1006,8 +1005,8 @@ class ai_send_message extends external_api {
     /**
      * Ensure create_option commands include duplicate_title override after explicit user confirmation.
      *
-     * @param array<string,mixed> $result
-     * @return array<string,mixed>
+     * @param array $result
+     * @return array
      */
     private static function apply_duplicate_title_override(array $result): array {
         if (!in_array((string)($result['response_type'] ?? ''), ['task_call', 'confirmation_request'], true)) {

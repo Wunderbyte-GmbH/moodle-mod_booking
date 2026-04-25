@@ -54,7 +54,7 @@ class booking_task_support {
     /** @var string Thread metadata key for the last preview option ids. */
     private const LAST_PREVIEW_OPTION_IDS_METADATA_KEY = 'lastpreviewoptionids';
 
-    /** @var array<string, task_interface>|null */
+    /** @var array|null */
     private ?array $taskinstancescache = null;
 
     /**
@@ -72,7 +72,7 @@ class booking_task_support {
     /**
      * Return context-specific prompt packs for this domain provider.
      *
-     * @return array<int,array<string,mixed>>
+     * @return array
      */
     public function get_contextual_prompt_packs(): array {
         $packs = [];
@@ -139,7 +139,7 @@ class booking_task_support {
     /**
      * Return instantiated booking task classes keyed by task name.
      *
-     * @return array<string, task_interface>
+     * @return array
      */
     private function get_task_instances(): array {
         if ($this->taskinstancescache !== null) {
@@ -206,9 +206,9 @@ class booking_task_support {
      * Run task-specific post-apply verification against persisted option settings.
      *
      * @param string $taskname
-     * @param array<string,mixed> $input
+     * @param array $input
      * @param int $optionid
-     * @return array<int,string>
+     * @return array
      */
     private static function verify_persisted_option_state_for_task(string $taskname, array $input, int $optionid): array {
         if ($optionid <= 0) {
@@ -243,7 +243,8 @@ class booking_task_support {
      * Priority: explicit optionids array → optionquery search → apply_to_all (all in instance).
      *
      * @param int $cmid
-     * @param array<string,mixed> $input
+     * @param array $input
+     * @param int $userid
      * @return int[]
      */
     private static function resolve_bulk_option_ids(int $cmid, array $input, int $userid = 0): array {
@@ -300,9 +301,9 @@ class booking_task_support {
     /**
      * Validate whether current user can update requested field groups.
      *
-     * @param array<string,mixed> $input
+     * @param array $input
      * @param int $contextid
-     * @return array{status:string,message?:string}
+     * @return array
      */
     public static function validate_update_field_permissions(array $input, int $contextid): array {
         $required = self::requested_update_field_groups($input);
@@ -339,8 +340,8 @@ class booking_task_support {
     /**
      * Map requested update input keys to option field groups.
      *
-     * @param array<string,mixed> $input
-     * @return array<int,array{fieldid:int,label:string}>
+     * @param array $input
+     * @return array
      */
     private static function requested_update_field_groups(array $input): array {
         $groups = [];
@@ -499,8 +500,8 @@ class booking_task_support {
     /**
      * True if any key from list is present in input.
      *
-     * @param array<string,mixed> $input
-     * @param array<int,string> $keys
+     * @param array $input
+     * @param array $keys
      * @return bool
      */
     private static function has_any_input_key(array $input, array $keys): bool {
@@ -562,7 +563,7 @@ class booking_task_support {
      * - legacy single fields: coursestarttime + courseendtime
      *
      * @param array $input
-     * @return array<int, array<string, int>>
+     * @return array
      */
     public static function extract_optiondates(array $input): array {
         $result = [];
@@ -610,7 +611,7 @@ class booking_task_support {
      * @param string $query
      * @param int $limit
      * @param string $when
-     * @return array<int, array<string, mixed>>
+     * @return array
      */
     private static function search_option_candidates(
         int $cmid,
@@ -713,7 +714,7 @@ class booking_task_support {
      * @param string $query
      * @param int $limit
      * @param string $when
-     * @return array<int, array<string, mixed>>
+     * @return array
      */
     public static function search_option_candidates_for_preview(
         int $cmid,
@@ -729,7 +730,7 @@ class booking_task_support {
      *
      * @param string $query
      * @param int $limit
-     * @return array<int, array<string, mixed>>
+     * @return array
      */
     public static function search_user_candidates_for_preview(string $query, int $limit = 10): array {
         return self::search_user_candidates($query, $limit);
@@ -740,7 +741,7 @@ class booking_task_support {
      *
      * @param string $query
      * @param int $limit
-     * @return array<int, array<string, mixed>>
+     * @return array
      */
     public static function search_course_candidates_for_preview(string $query, int $limit = 10): array {
         return self::search_course_candidates($query, $limit);
@@ -752,7 +753,7 @@ class booking_task_support {
      * @param int $cmid
      * @param string $optionquery
      * @param string $when
-     * @return array<string, mixed>
+     * @return array
      */
     public static function resolve_single_option(int $cmid, string $optionquery, string $when = ''): array {
         $query = trim($optionquery);
@@ -812,7 +813,7 @@ class booking_task_support {
      *
      * @param int $cmid
      * @param string $title
-     * @return array{status:string,optionid?:int,candidates?:string}
+     * @return array
      */
     public static function find_existing_options_by_exact_title(int $cmid, string $title): array {
         $title = trim($title);
@@ -858,7 +859,7 @@ class booking_task_support {
      *
      * @param string $query
      * @param int $limit
-     * @return array<int, array<string, mixed>>
+     * @return array
      */
     private static function search_user_candidates(string $query, int $limit = 10): array {
         $query = trim($query);
@@ -891,7 +892,7 @@ class booking_task_support {
      *
      * @param string $query
      * @param int $limit
-     * @return array<int, array<string, mixed>>
+     * @return array
      */
     private static function search_course_candidates(string $query, int $limit = 10): array {
         $query = trim($query);
@@ -926,7 +927,7 @@ class booking_task_support {
      * Resolve a single user id by query.
      *
      * @param string $query
-     * @return array<string, mixed>
+     * @return array
      */
     public static function resolve_single_user(string $query): array {
         $query = self::sanitize_person_lookup_query($query);
@@ -1000,7 +1001,7 @@ class booking_task_support {
      * Resolve a single course by query.
      *
      * @param string $query
-     * @return array<string, mixed>
+     * @return array
      */
     public static function resolve_single_course(string $query): array {
         $query = trim($query);
@@ -1042,10 +1043,10 @@ class booking_task_support {
      *
      * @param string $rawquery single query or comma-separated list
      * @return array{
-     *   courseids: array<int,int>,
-     *   shortnames: array<int,string>,
-     *   errors: array<int,string>,
-     *   ambiguities: array<int,string>
+     *   courseids: array,
+     *   shortnames: array,
+     *   errors: array,
+     *   ambiguities: array
      * }
      */
     public static function resolve_courses_for_restriction(string $rawquery): array {
@@ -1099,7 +1100,7 @@ class booking_task_support {
      * Split a comma-separated query string.
      *
      * @param string $raw
-     * @return array<int, string>
+     * @return array
      */
     private static function split_query_list(string $raw): array {
         return array_values(array_filter(array_map('trim', explode(',', $raw)), static fn(string $p): bool => $p !== ''));
@@ -1109,7 +1110,7 @@ class booking_task_support {
      * Resolve cohort queries to cohort ids.
      *
      * @param string $rawquery
-     * @return array{cohortids: array<int,int>, errors: array<int,string>, ambiguities: array<int,string>}
+     * @return array
      */
     public static function resolve_cohorts_for_restriction(string $rawquery): array {
         global $DB;
@@ -1163,7 +1164,7 @@ class booking_task_support {
      * Resolve competency queries to competency ids.
      *
      * @param string $rawquery
-     * @return array{competencyids: array<int,int>, errors: array<int,string>, ambiguities: array<int,string>}
+     * @return array
      */
     public static function resolve_competencies_for_restriction(string $rawquery): array {
         global $DB;
@@ -1217,7 +1218,7 @@ class booking_task_support {
      * Resolve user query list to explicit user ids.
      *
      * @param string $rawquery
-     * @return array{userids: array<int,int>, errors: array<int,string>, ambiguities: array<int,string>}
+     * @return array
      */
     public static function resolve_users_for_restriction(string $rawquery): array {
         $parts = self::split_query_list($rawquery);
@@ -1252,7 +1253,7 @@ class booking_task_support {
      * Resolve user query list to bookable users (ids + emails).
      *
      * @param string $rawquery
-     * @return array{userids: array<int,int>, emails: array<int,string>, errors: array<int,string>, ambiguities: array<int,string>}
+     * @return array
      */
     public static function resolve_users_for_booking(string $rawquery): array {
         $parts = self::split_query_list($rawquery);
@@ -1308,9 +1309,9 @@ class booking_task_support {
      * This enforces all existing booking rules and condition checks.
      *
      * @param int $optionid
-     * @param array<int,int> $userids
-     * @param array{completed: bool, updateexisting: bool, timebooked: int|null} $meta
-     * @return array{bookeduserids: array<int,int>, errors: array<int,string>}
+     * @param array $userids
+     * @param array $meta
+     * @return array
      */
     private static function book_users_via_bookit(int $optionid, array $userids, array $meta): array {
         $bookeduserids = [];
@@ -1632,7 +1633,7 @@ class booking_task_support {
      * Validate custom form elements payload from AI input.
      *
      * @param array $elements
-     * @return array{errors: array<int,string>}
+     * @return array
      */
     public static function validate_customform_elements(array $elements): array {
         $errors = [];
@@ -1681,7 +1682,7 @@ class booking_task_support {
      * Normalize custom form elements payload for execute mapping.
      *
      * @param array $elements
-     * @return array<int,array<string,mixed>>
+     * @return array
      */
     private static function normalize_customform_elements(array $elements): array {
         $allowed = [
@@ -1726,7 +1727,7 @@ class booking_task_support {
      * Detect forbidden fields when update_option is used only for booking users.
      *
      * @param array $input
-     * @return array<int,string>
+     * @return array
      */
     public static function detect_forbidden_fields_for_bookusers_update(array $input): array {
         $allowed = [
@@ -1754,7 +1755,7 @@ class booking_task_support {
      * Extract a day-range from natural-language hints like "next monday".
      *
      * @param string $text
-     * @return array<string, int>|null
+     * @return array|null
      */
     private static function extract_time_window_from_text(string $text): ?array {
         $text = trim(strtolower($text));
@@ -1797,7 +1798,7 @@ class booking_task_support {
      * Validate prices payload and category existence.
      *
      * @param array $input
-     * @return array{errors: array, ambiguities: array}
+     * @return array
      */
     public static function validate_prices_input(array $input): array {
         $errors = [];
@@ -1846,7 +1847,7 @@ class booking_task_support {
      * Normalize prices payload to identifier => float map.
      *
      * @param mixed $prices
-     * @return array<string, float>|null
+     * @return array|null
      */
     private static function normalize_prices_input($prices): ?array {
         if ($prices === null) {
@@ -1876,8 +1877,8 @@ class booking_task_support {
      * Merge existing sessions with new sessions for append-style updates.
      *
      * @param int $optionid
-     * @param array<int, array<string, int>> $newdates
-     * @return array<int, array<string, int>>
+     * @param array $newdates
+     * @return array
      */
     private static function merge_existing_optiondates_with_new(int $optionid, array $newdates): array {
         $merged = [];
@@ -1934,7 +1935,7 @@ class booking_task_support {
      * Apply normalized optiondates to booking_option::update() form payload.
      *
      * @param \stdClass $data
-     * @param array<int, array<string, int>> $optiondates
+     * @param array $optiondates
      * @return void
      */
     private static function apply_optiondates_to_update_data(\stdClass $data, array $optiondates): void {
@@ -1956,8 +1957,8 @@ class booking_task_support {
      * - invisible: 0|1|2 (int/string) or bool
      * - visibility: visible|invisible|directlink (plus common aliases)
      *
-     * @param array<string,mixed> $input
-     * @return array{value?:int,error?:string}
+     * @param array $input
+     * @return array
      */
     public static function normalize_visibility_input(array $input): array {
         $frominvisible = null;
@@ -2042,7 +2043,7 @@ class booking_task_support {
     /**
      * Return price categories keyed by lowercase identifier.
      *
-     * @return array<string, \stdClass>
+     * @return array
      */
     private static function get_price_categories_by_identifier(): array {
         global $DB;
@@ -2059,7 +2060,7 @@ class booking_task_support {
     /**
      * Format categories for user-facing messages.
      *
-     * @param array<string, \stdClass> $categories
+     * @param array $categories
      * @return string
      */
     private static function format_price_categories_for_message(array $categories): string {
@@ -2234,7 +2235,7 @@ class booking_task_support {
      *
      * @param int $userid
      * @param int $cmid
-     * @param array<int,int> $optionids
+     * @param array $optionids
      * @return void
      */
     private static function remember_last_preview_options_for_user(int $userid, int $cmid, array $optionids): void {
@@ -2263,7 +2264,7 @@ class booking_task_support {
      *
      * @param int $cmid
      * @param int $userid
-     * @param array<int,int> $requestedids
+     * @param array $requestedids
      * @return int[]
      */
     private static function remap_preview_ordinals_to_option_ids(int $cmid, int $userid, array $requestedids): array {
@@ -2340,7 +2341,7 @@ class booking_task_support {
      * Execute wrapper for price normalization.
      *
      * @param mixed $prices
-     * @return array<string, float>|null
+     * @return array|null
      */
     public static function normalize_prices_input_for_execute($prices): ?array {
         return self::normalize_prices_input($prices);
@@ -2350,7 +2351,7 @@ class booking_task_support {
      * Execute wrapper for customform element normalization.
      *
      * @param array $elements
-     * @return array<int,array<string,mixed>>
+     * @return array
      */
     public static function normalize_customform_elements_for_execute(array $elements): array {
         return self::normalize_customform_elements($elements);
@@ -2360,7 +2361,8 @@ class booking_task_support {
      * Execute wrapper for resolving bulk target ids.
      *
      * @param int $cmid
-     * @param array<string,mixed> $input
+     * @param array $input
+     * @param int $userid
      * @return int[]
      */
     public static function resolve_bulk_option_ids_for_execute(int $cmid, array $input, int $userid = 0): array {
@@ -2401,7 +2403,7 @@ class booking_task_support {
      *
      * @param int $userid
      * @param int $cmid
-     * @param array<int,int> $optionids
+     * @param array $optionids
      * @return void
      */
     public static function remember_last_preview_options_for_user_for_execute(int $userid, int $cmid, array $optionids): void {
@@ -2423,8 +2425,8 @@ class booking_task_support {
      * Execute wrapper for append-date merge.
      *
      * @param int $optionid
-     * @param array<int, array<string, int>> $newdates
-     * @return array<int, array<string, int>>
+     * @param array $newdates
+     * @return array
      */
     public static function merge_existing_optiondates_with_new_for_execute(int $optionid, array $newdates): array {
         return self::merge_existing_optiondates_with_new($optionid, $newdates);
@@ -2434,7 +2436,7 @@ class booking_task_support {
      * Execute wrapper for applying optiondates payload.
      *
      * @param \stdClass $data
-     * @param array<int, array<string, int>> $optiondates
+     * @param array $optiondates
      * @return void
      */
     public static function apply_optiondates_to_update_data_for_execute(\stdClass $data, array $optiondates): void {
@@ -2445,9 +2447,9 @@ class booking_task_support {
      * Execute wrapper for post-apply verification.
      *
      * @param string $taskname
-     * @param array<string,mixed> $input
+     * @param array $input
      * @param int $optionid
-     * @return array<int,string>
+     * @return array
      */
     public static function verify_persisted_option_state_for_task_for_execute(
         string $taskname,
@@ -2461,9 +2463,9 @@ class booking_task_support {
      * Execute wrapper for booking users through booking_bookit.
      *
      * @param int $optionid
-     * @param array<int,int> $userids
-     * @param array{completed: bool, updateexisting: bool, timebooked: int|null} $meta
-     * @return array{bookeduserids: array<int,int>, errors: array<int,string>}
+     * @param array $userids
+     * @param array $meta
+     * @return array
      */
     public static function book_users_via_bookit_for_execute(int $optionid, array $userids, array $meta): array {
         return self::book_users_via_bookit($optionid, $userids, $meta);

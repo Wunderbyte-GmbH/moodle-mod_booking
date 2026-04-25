@@ -50,7 +50,7 @@ class create_option_task extends base_booking_task implements task_trigger_provi
     /**
      * Return task schema.
      *
-     * @return array<string,mixed>
+     * @return array
      */
     public function get_schema(): array {
         return [
@@ -75,7 +75,7 @@ class create_option_task extends base_booking_task implements task_trigger_provi
     /**
      * Return task-specific message triggers.
      *
-     * @return array<int,array<string,mixed>>
+     * @return array
      */
     public function get_message_triggers(): array {
         return [
@@ -101,9 +101,9 @@ class create_option_task extends base_booking_task implements task_trigger_provi
     /**
      * Validate task input.
      *
-     * @param array<string,mixed> $input
+     * @param array $input
      * @param int $cmid
-     * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>,issues?:array<int,array<string,mixed>>}
+     * @return array
      */
     public function validate(array $input, int $cmid): array {
         global $USER;
@@ -270,8 +270,8 @@ class create_option_task extends base_booking_task implements task_trigger_provi
      *
      * @param string $code
      * @param string $question
-     * @param array<int,string> $remedies
-     * @return array<string,mixed>
+     * @param array $remedies
+     * @return array
      */
     private static function build_issue(string $code, string $question, array $remedies = []): array {
         return [
@@ -285,8 +285,8 @@ class create_option_task extends base_booking_task implements task_trigger_provi
     /**
      * Returns true when any of the given keys exists in input.
      *
-     * @param array<string,mixed> $input
-     * @param array<int,string> $keys
+     * @param array $input
+     * @param array $keys
      * @return bool
      */
     private static function has_any_key(array $input, array $keys): bool {
@@ -302,7 +302,7 @@ class create_option_task extends base_booking_task implements task_trigger_provi
     /**
      * Resolve requested booking option type from normalized AI input.
      *
-     * @param array<string,mixed> $input
+     * @param array $input
      * @return string One of normal|selflearning|slotbooking|unknown.
      */
     private static function resolve_requested_option_type(array $input): string {
@@ -357,11 +357,16 @@ class create_option_task extends base_booking_task implements task_trigger_provi
     /**
      * Validate missing required input depending on the selected option type.
      *
-     * @param array<string,mixed> $input
+     * @param array $input
      * @param string $resolvedtype
-     * @return array<int,string>
+     * @param array $overrides
+     * @return array
      */
-    private static function validate_type_specific_required_fields(array $input, string $resolvedtype, array $overrides = []): array {
+    private static function validate_type_specific_required_fields(
+        array $input,
+        string $resolvedtype,
+        array $overrides = []
+    ): array {
         $errors = [];
 
         if ($resolvedtype === 'normal') {
@@ -418,28 +423,33 @@ class create_option_task extends base_booking_task implements task_trigger_provi
 
             if ($slottype === 'userdefined') {
                 if ((int)($input['slot_custom_max_duration'] ?? 0) <= 0) {
-                    $errors[] = 'For custom slot type, please provide the maximum slot duration in seconds (slot_custom_max_duration).';
+                    $errors[] = 'For custom slot type, please provide the maximum slot duration in seconds '
+                        . '(slot_custom_max_duration).';
                 }
             } else {
                 // Required: slot duration (how long is each slot).
                 if (!array_key_exists('slot_duration_minutes', $input)) {
-                    $errors[] = 'For slot booking type, please provide the slot duration in minutes (slot_duration_minutes).';
+                    $errors[] = 'For slot booking type, please provide the slot duration in minutes '
+                        . '(slot_duration_minutes).';
                 }
             }
 
             // Required: max participants per slot.
             if (!array_key_exists('slot_max_participants_per_slot', $input)) {
-                $errors[] = 'For slot booking type, please provide how many people can book each slot (slot_max_participants_per_slot).';
+                $errors[] = 'For slot booking type, please provide how many people can book each slot '
+                    . '(slot_max_participants_per_slot).';
             }
 
             // Required: time window.
             if (!self::has_any_key($input, ['slot_opening_time', 'slot_closing_time'])) {
-                $errors[] = 'For slot booking type, please provide the daily opening and closing time window (slot_opening_time, slot_closing_time).';
+                $errors[] = 'For slot booking type, please provide the daily opening and closing time '
+                    . 'window (slot_opening_time, slot_closing_time).';
             }
 
             // Required: validity date range.
             if (!self::has_any_key($input, ['slot_valid_from', 'slot_valid_until'])) {
-                $errors[] = 'For slot booking type, please provide from when until when slots should be available (slot_valid_from, slot_valid_until).';
+                $errors[] = 'For slot booking type, please provide from when until when slots should '
+                    . 'be available (slot_valid_from, slot_valid_until).';
             }
 
             // Required: at least one weekday must be EXPLICITLY set to true.
@@ -452,7 +462,8 @@ class create_option_task extends base_booking_task implements task_trigger_provi
             }
             if (!$hasactiveday) {
                 $errors[] = 'For slot booking type, please specify on which weekday(s) slots should be offered '
-                    . '(slot_day_1=Monday ... slot_day_7=Sunday). Only set the intended days to true; all others must be false or omitted.';
+                    . '(slot_day_1=Monday ... slot_day_7=Sunday). Only set the intended days '
+                    . 'to true; all others must be false or omitted.';
             }
 
             return $errors;
@@ -465,8 +476,8 @@ class create_option_task extends base_booking_task implements task_trigger_provi
      * Smart sanity check for slotbooking configuration.
      * Only checks things that cannot be expressed as hard validation errors.
      *
-     * @param array<string,mixed> $input
-     * @return array<int,array<string,mixed>> Array of issues.
+     * @param array $input
+     * @return array Array of issues.
      */
     private static function validate_slotbooking_sanity(array $input): array {
         $issues = [];
@@ -515,9 +526,10 @@ class create_option_task extends base_booking_task implements task_trigger_provi
     /**
      * Check for placeholder values (0, empty string, null) and require override confirmation.
      *
-     * @param array<string,mixed> $input
-     * @param array<int|string,mixed> $overrides
-     * @return array<int,string>
+     * @param array $input
+     * @param array $overrides
+     * @param string $resolvedtype
+     * @return array
      */
     private static function check_placeholder_values(array $input, array $overrides, string $resolvedtype = 'normal'): array {
         $errors = [];
@@ -622,8 +634,8 @@ class create_option_task extends base_booking_task implements task_trigger_provi
     /**
      * Normalize override tokens to lowercase, trimmed strings.
      *
-     * @param array<int|string,mixed> $overrides
-     * @return array<int,string>
+     * @param array $overrides
+     * @return array
      */
     private static function normalize_overrides(array $overrides): array {
         $normalized = [];
@@ -645,7 +657,7 @@ class create_option_task extends base_booking_task implements task_trigger_provi
     /**
      * Return contextual guidance packs.
      *
-     * @return array<int,array<string,mixed>>
+     * @return array
      */
     public function get_contextual_prompt_packs(): array {
         return [
@@ -755,9 +767,9 @@ class create_option_task extends base_booking_task implements task_trigger_provi
     /**
      * Verify that relevant fields were persisted as requested.
      *
-     * @param array<string,mixed> $input
+     * @param array $input
      * @param object $settings
-     * @return array<int,string>
+     * @return array
      */
     public function verify_persisted_option_state(array $input, object $settings): array {
         return option_input_verification::verify_common_fields($input, $settings);
@@ -766,10 +778,10 @@ class create_option_task extends base_booking_task implements task_trigger_provi
     /**
      * Execute task.
      *
-     * @param array<string,mixed> $input
+     * @param array $input
      * @param int $cmid
      * @param int $userid
-     * @return array<string,mixed>
+     * @return array
      */
     public function execute(array $input, int $cmid, int $userid): array {
         $service = new booking_task_mutation_execute_service();

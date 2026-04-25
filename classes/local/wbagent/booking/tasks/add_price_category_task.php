@@ -70,7 +70,7 @@ class add_price_category_task extends base_booking_task implements task_trigger_
     /**
      * Return task schema.
      *
-     * @return array<string,mixed>
+     * @return array
      */
     public function get_schema(): array {
         return [
@@ -124,7 +124,7 @@ class add_price_category_task extends base_booking_task implements task_trigger_
     /**
      * Validate task input.
      *
-     * @param array<string,mixed> $input
+     * @param array $input
      * @param int $cmid
      * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>,issues?:array<int,array<string,mixed>>}
      */
@@ -177,10 +177,10 @@ class add_price_category_task extends base_booking_task implements task_trigger_
     /**
      * Execute task.
      *
-     * @param array<string,mixed> $input
+     * @param array $input
      * @param int $cmid
      * @param int $userid
-     * @return array<string,mixed>
+     * @return array
      */
     public function execute(array $input, int $cmid, int $userid): array {
         if (!has_capability('moodle/site:config', context_system::instance())) {

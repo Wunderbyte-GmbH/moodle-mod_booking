@@ -33,6 +33,8 @@ use mod_booking\local\wbagent\task_registry;
 
 /**
  * Contract tests intended to detect unnoticed architecture drift.
+ *
+ * @coversNothing
  */
 final class agent_architecture_contract_test extends advanced_testcase {
     /**

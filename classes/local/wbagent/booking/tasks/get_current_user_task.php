@@ -46,7 +46,7 @@ class get_current_user_task extends base_booking_task {
     /**
      * Return task schema.
      *
-     * @return array<string,mixed>
+     * @return array
      */
     public function get_schema(): array {
         return [
@@ -60,7 +60,7 @@ class get_current_user_task extends base_booking_task {
     /**
      * Validate task input.
      *
-     * @param array<string,mixed> $input
+     * @param array $input
      * @param int $cmid
      * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>}
      */
@@ -75,10 +75,10 @@ class get_current_user_task extends base_booking_task {
     /**
      * Execute task.
      *
-     * @param array<string,mixed> $input
+     * @param array $input
      * @param int $cmid
      * @param int $userid
-     * @return array<string,mixed>
+     * @return array
      */
     public function execute(array $input, int $cmid, int $userid): array {
         global $USER;

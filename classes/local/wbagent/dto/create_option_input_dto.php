@@ -40,7 +40,7 @@ class create_option_input_dto {
     /**
      * Private constructor – use from_array() factory.
      *
-     * @param array<string,mixed> $fields
+     * @param array $fields
      */
     private function __construct(array $fields) {
         $this->fields = $fields;
@@ -49,7 +49,7 @@ class create_option_input_dto {
     /**
      * Create a DTO from a raw input array.
      *
-     * @param array<string,mixed> $data
+     * @param array $data
      * @return self
      * @throws \InvalidArgumentException When required field "text" is missing.
      */
@@ -63,7 +63,7 @@ class create_option_input_dto {
     /**
      * Return all fields as an associative array.
      *
-     * @return array<string,mixed>
+     * @return array
      */
     public function to_array(): array {
         return $this->fields;

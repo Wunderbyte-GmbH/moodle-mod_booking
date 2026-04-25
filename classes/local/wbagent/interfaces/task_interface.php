@@ -35,14 +35,14 @@ interface task_interface {
     /**
      * Return the task schema for prompt embedding.
      *
-     * @return array<string,mixed>
+     * @return array
      */
     public function get_schema(): array;
 
     /**
      * Validate the task input against domain rules.
      *
-     * @param array<string,mixed> $input
+     * @param array $input
      * @param int $cmid
      * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>,
      *     issues?:array<int,array<string,mixed>>}
@@ -52,10 +52,10 @@ interface task_interface {
     /**
      * Execute the task.
      *
-     * @param array<string,mixed> $input
+     * @param array $input
      * @param int $cmid
      * @param int $userid
-     * @return array<string,mixed>
+     * @return array
      */
     public function execute(array $input, int $cmid, int $userid): array;
 

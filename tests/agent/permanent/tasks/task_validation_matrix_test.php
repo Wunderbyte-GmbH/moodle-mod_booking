@@ -30,6 +30,8 @@ use mod_booking\local\wbagent\task_registry;
 
 /**
  * Baseline validation contracts per task.
+ *
+ * @coversNothing
  */
 final class task_validation_matrix_test extends advanced_testcase {
     /** @var int */
@@ -80,7 +82,7 @@ final class task_validation_matrix_test extends advanced_testcase {
      *
      * @dataProvider provide_task_minimal_contract_cases
      * @param string $taskname
-     * @param array<string,mixed> $input
+     * @param array $input
      * @param bool $expectvalid
      */
     public function test_task_minimal_input_contract_matrix(string $taskname, array $input, bool $expectvalid): void {
@@ -94,7 +96,7 @@ final class task_validation_matrix_test extends advanced_testcase {
     /**
      * Minimal contract matrix for core tasks.
      *
-     * @return array<string,array{0:string,1:array<string,mixed>,2:bool}>
+     * @return array
      */
     public static function provide_task_minimal_contract_cases(): array {
         return [

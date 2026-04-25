@@ -32,7 +32,7 @@ class booking_mutation_validation {
     /**
      * Validate common mutating-input rules shared across create/update/bulk tasks.
      *
-     * @param array<string,mixed> $input
+     * @param array $input
      * @param int $cmid
      * @param string $taskname
      * @return array{errors:array<int,string>,ambiguities:array<int,string>}

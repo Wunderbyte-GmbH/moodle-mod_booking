@@ -37,7 +37,7 @@ final class diagnose_booking_issue_task_test extends abstract_agent_testcase {
      * Create a booking option through the plugin generator.
      *
      * @param string $name
-     * @param array<string,mixed> $extra
+     * @param array $extra
      * @return \stdClass
      */
     private function create_generated_option(string $name, array $extra = []): \stdClass {
