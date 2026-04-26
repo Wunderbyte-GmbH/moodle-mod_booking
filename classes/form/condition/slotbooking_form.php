@@ -556,6 +556,8 @@ class slotbooking_form extends dynamic_form {
     /**
      * Return currently open slots with labels and teacher availability.
      *
+     * @param int $optionid
+     * @param int $userid
      * @return array<int, array<string, mixed>>
      */
     private static function get_open_slots(int $optionid, int $userid): array {
@@ -684,6 +686,8 @@ class slotbooking_form extends dynamic_form {
     /**
      * Build available day entries for user-defined slot selection calendar.
      *
+     * @param int $optionid
+     * @param int $userid
      * @return array<int, array<string, mixed>>
      */
     private static function get_custom_open_days(int $optionid, int $userid): array {

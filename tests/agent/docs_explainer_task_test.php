@@ -150,7 +150,11 @@ final class docs_explainer_task_test extends abstract_agent_testcase {
                     /**
                      * Return a synthetic LLM answer and capture the request payload.
                      *
+                     * @param string $question
                      * @param array $docs
+                     * @param string $outputlang
+                     * @param int $cmid
+                     * @param int $userid
                      * @return array
                      */
                     public function answer_question(
@@ -213,7 +217,11 @@ final class docs_explainer_task_test extends abstract_agent_testcase {
                     /**
                      * Always fail to force fallback handling.
                      *
+                     * @param string $question
                      * @param array $docs
+                     * @param string $outputlang
+                     * @param int $cmid
+                     * @param int $userid
                      * @return array
                      */
                     public function answer_question(
@@ -256,7 +264,11 @@ final class docs_explainer_task_test extends abstract_agent_testcase {
                     /**
                      * Return an answer that is intentionally longer than the allowed limit.
                      *
+                     * @param string $question
                      * @param array $docs
+                     * @param string $outputlang
+                     * @param int $cmid
+                     * @param int $userid
                      * @return array
                      */
                     public function answer_question(

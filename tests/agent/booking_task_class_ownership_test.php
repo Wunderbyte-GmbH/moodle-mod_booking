@@ -76,7 +76,7 @@ final class booking_task_class_ownership_test extends advanced_testcase {
      * Task classes should define get_schema() in their own class.
      *
      * @dataProvider schema_owner_provider
-     *  string $classname
+     * @param string $classname
      */
     public function test_task_declares_own_schema_method(string $classname): void {
         $reflection = new \ReflectionClass($classname);
@@ -93,7 +93,7 @@ final class booking_task_class_ownership_test extends advanced_testcase {
      * Task classes should define validate() in their own class.
      *
      * @dataProvider validate_owner_provider
-     *  string $classname
+     * @param string $classname
      */
     public function test_task_declares_own_validate_method(string $classname): void {
         $reflection = new \ReflectionClass($classname);

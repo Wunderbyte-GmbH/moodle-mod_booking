@@ -218,7 +218,7 @@ final class agent_interpreter_test extends advanced_testcase {
                     'ambiguities'      => ['Please select one of the matching topics.'],
                     'ambiguity_options' => [
                         ['id' => 'opt1', 'label' => 'Booking Options Overview', 'query' => 'bookotheroptions'],
-                        ['id' => 'opt2', 'label' => 'Cancel Booking Action',    'query' => 'cancelbooking'],
+                        ['id' => 'opt2', 'label' => 'Cancel Booking Action', 'query' => 'cancelbooking'],
                     ],
                 ];
             }
@@ -245,7 +245,7 @@ final class agent_interpreter_test extends advanced_testcase {
             }
         };
 
-        $fakeprovider = new class($faketask) implements task_provider_interface {
+        $fakeprovider = new class ($faketask) implements task_provider_interface {
             /** @var task_interface */
             private task_interface $task;
 
