@@ -436,6 +436,11 @@ export function bookit(itemid, area, userid, data, clickedFromModal = null) {
 
             const promises = [];
 
+            // Track which replace-target slots have already been handled.
+            // If two duplicate outer wrappers exist for the same (itemid, area, userid),
+            // the first is replaced with fresh markup; subsequent duplicates are removed.
+            const seenReplaceTargets = new Set();
+
             // We run through every button. and render the data.
             buttons.forEach(button => {
                 // Filter buttons based on whether they're in a modal context
@@ -469,6 +474,18 @@ export function bookit(itemid, area, userid, data, clickedFromModal = null) {
                         if (!replacetarget) {
                             return;
                         }
+                        const slotKey = [
+                            replacetarget.dataset.itemid,
+                            replacetarget.dataset.area,
+                            replacetarget.dataset.userid || '',
+                        ].join('|');
+                        if (seenReplaceTargets.has(slotKey)) {
+                            // Duplicate outer wrapper — remove it to prevent the button
+                            // from appearing twice on the page.
+                            replacetarget.remove();
+                            return;
+                        }
+                        seenReplaceTargets.add(slotKey);
                         Templates.replaceNode(replacetarget, html, js);
                         return;
                     };
