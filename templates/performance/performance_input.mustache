@@ -24,7 +24,7 @@
     }
 }}
 <div class="top-section mb-4">
-    <h3>{{title}}</h3>
+    {{#title}}<h3>{{title}}</h3>{{/title}}
     <div class="form-group position-relative">
         <label for="performance-input" class="form-label">
             {{#str}} performanceselectitem, mod_booking {{/str}}
@@ -36,7 +36,7 @@
             name="performance_input"
             placeholder="Start typing..."
             list="performance-autocomplete"
-        />
+        >
         <datalist id="performance-autocomplete">
             {{#autocompleteitems}}
                 <option value="{{.}}"></option>
@@ -54,7 +54,7 @@
             class="form-control"
             name="performance_note"
             placeholder="{{#str}} addingnotehere, mod_booking {{/str}}"
-        />
+        >
     </div>
     <div class="performance-actions d-flex flex-wrap gap-3">
         {{#actions}}
