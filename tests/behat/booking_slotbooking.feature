@@ -24,7 +24,7 @@ Feature: Slot booking option renders fixed calendar slots in student timezone
       | booking  | C1     | BookingSlots  | Booking slot description | teacher1       | Webinar   | All bookings                     |
     And the following "mod_booking > options" exist:
       | booking      | text                | course | description       | optiontype | slot_enabled | slot_type | slot_booking_view_mode | slot_duration_minutes | slot_opening_time | slot_closing_time | slot_valid_from | slot_valid_until | slot_day_1 | slot_day_2 | slot_day_3 | slot_day_4 | slot_day_5 | slot_day_6 | slot_day_7 | slot_max_participants_per_slot | slot_max_slots_per_user |
-      | BookingSlots | Slot booking option | C1     | Slot booking test | 2          | 1            | fixed     | calendar               | 20                    | 09:00             | 11:00             | 2409195600      | 2409627000       | 1          | 0          | 1          | 0          | 0          | 0          | 0          | 10                             | 2                       |
+      | BookingSlots | Slot booking option | C1     | Slot booking test | 2          | 1            | fixed     | calendar               | 20                    | 09:00             | 11:00             | 2409195600      | 2409627000       | 1          | 0          | 1          | 0          | 0          | 0          | 0          | 2                              | 2                       |
     # 20 years in future in America/Chicago:
     # valid range: 6 May 2046 (Sunday 00:00:00) - 10 May 2046 (Thursday EOD)
     # generated fixed slots in Europe/Kyiv should be 5:00 PM-6:00 PM and 6:00 PM-7:00 PM.
@@ -64,3 +64,43 @@ Feature: Slot booking option renders fixed calendar slots in student timezone
     And I follow "Close"
     And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "11" in the ".allbookingoptionstable_r1 .bookings " "css_element"
+    And I should see "Booked slots" in the ".allbookingoptionstable_r1 " "css_element"
+    And I should see "9 May 2046, 4:20 PM - 4:40 PM" in the ".allbookingoptionstable_r1 " "css_element"
+
+  @javascript
+  Scenario: Slotbookig: teacher update slot settings to roling and list view and student book one slot
+    Given I am on the "BookingSlots" Activity page logged in as teacher1
+    And I should see "12" in the ".allbookingoptionstable_r1 .bookings " "css_element"
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I follow "Slot Booking Settings"
+    And I set the field "Slot type" to "Rolling"
+    And I wait "1" seconds
+    And I follow "Slot Booking Settings"
+    And I set the field "Slot booking interface" to "List view"
+    And I set the field "Slot duration (minutes)" to "40"
+    And I set the field "Slot interval (minutes)" to "20"
+    And I press "Save"
+    And I log out
+    And I am on the "BookingSlots" Activity page logged in as student1
+    And I should see "10" in the ".allbookingoptionstable_r1 .bookings " "css_element"
+    When I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait "1" seconds
+    ## Validate correct slots
+    And I should see "10" in the ".allbookingoptionstable_r1 .bookings " "css_element"
+    And I should see "Monday, 7 May 2046 - 4:00 PM - 4:40 PM" in the ".booking-slotbooking-prepage" "css_element"
+    And I should see "Monday, 7 May 2046 - 4:20 PM - 5:00 PM" in the ".booking-slotbooking-prepage" "css_element"
+    And I should see "Monday, 7 May 2046 - 4:40 PM - 5:20 PM" in the ".booking-slotbooking-prepage" "css_element"
+    And I should see "Monday, 7 May 2046 - 5:00 PM - 5:40 PM" in the ".booking-slotbooking-prepage" "css_element"
+    And I should see "Monday, 7 May 2046 - 5:20 PM - 6:00 PM" in the ".booking-slotbooking-prepage" "css_element"
+    And I should see "Wednesday, 9 May 2046 - 4:00 PM - 4:40 PM" in the ".booking-slotbooking-prepage" "css_element"
+    And I should see "Wednesday, 9 May 2046 - 5:20 PM - 6:00 PM" in the ".booking-slotbooking-prepage" "css_element"
+    ## Book slot
+    And I click on "Monday, 7 May 2046 - 5:20 PM - 6:00 PM" "text" in the ".booking-slotbooking-prepage" "css_element"
+    And I follow "Continue"
+    And I should see "Thank you! You have successfully booked" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
+    And I should see "Slot booking option" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
+    And I follow "Close"
+    And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "9" in the ".allbookingoptionstable_r1 .bookings " "css_element"
+    And I should see "Booked slots" in the ".allbookingoptionstable_r1 " "css_element"
+    And I should see "7 May 2046, 5:20 PM - 6:00 PM" in the ".allbookingoptionstable_r1 " "css_element"
