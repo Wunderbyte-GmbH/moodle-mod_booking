@@ -225,6 +225,49 @@ const getVisibleModalBookitButtonSelector = (itemid, area) => {
 };
 
 /**
+ * Resolve a stricter replace target for rendered button markup.
+ *
+ * Some responses render the full outer booking-button-area wrapper. In that case,
+ * replacing only the inner shopping-cart button would create nested wrappers.
+ * We only climb when the DOM matches the exact wrapper chain we expect.
+ *
+ * @param {?HTMLElement} targetbutton
+ * @returns {?HTMLElement}
+ */
+const getReplaceTargetButton = targetbutton => {
+    if (!targetbutton) {
+        return targetbutton;
+    }
+
+    const addtocartarea = targetbutton.parentElement;
+    if (!addtocartarea || !addtocartarea.matches('div.bookit-addtocartbtn-area')) {
+        return targetbutton;
+    }
+
+    const pricecontainer = addtocartarea.parentElement;
+    if (!pricecontainer || !pricecontainer.matches('div.pricecontainer.mb-2.w-100')) {
+        return targetbutton;
+    }
+
+    const outerbuttonarea = pricecontainer.parentElement;
+    if (!outerbuttonarea || !outerbuttonarea.matches(
+        'div.booking-button-area.w-100.d-flex.justify-content-center[data-itemid][data-area][data-componentname="mod_booking"]'
+    )) {
+        return targetbutton;
+    }
+
+    if (
+        outerbuttonarea.dataset.itemid !== targetbutton.dataset.itemid
+        || outerbuttonarea.dataset.area !== targetbutton.dataset.area
+        || outerbuttonarea.dataset.userid !== targetbutton.dataset.userid
+    ) {
+        return targetbutton;
+    }
+
+    return outerbuttonarea;
+};
+
+/**
  * Initializes delegated bookit button handling.
  */
 export const initbookitbutton = () => {
@@ -422,10 +465,11 @@ export function bookit(itemid, area, userid, data, clickedFromModal = null) {
                     const originalbutton = button;
 
                     const replaceButtonNode = (targetbutton, html, js = '') => {
-                        if (!targetbutton) {
+                        const replacetarget = getReplaceTargetButton(targetbutton);
+                        if (!replacetarget) {
                             return;
                         }
-                        Templates.replaceNode(targetbutton, html, js);
+                        Templates.replaceNode(replacetarget, html, js);
                         return;
                     };
 
