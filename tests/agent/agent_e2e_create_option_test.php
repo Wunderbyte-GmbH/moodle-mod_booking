@@ -48,7 +48,11 @@ final class agent_e2e_create_option_test extends abstract_agent_testcase {
      */
     public function test_create_option_creates_db_record(): void {
         $result = $this->exec_command('booking.create_option', [
-            'text' => 'E2E Option Alpha',
+            'text'            => 'E2E Option Alpha',
+            'maxanswers'      => 10,
+            'coursestarttime' => '2045-03-15T09:00:00',
+            'courseendtime'   => '2045-03-15T17:00:00',
+            'teacherquery'    => 'current',
         ]);
 
         $this->assertEquals('executed', $result['status'], $result['detail'] ?? '');
@@ -64,8 +68,11 @@ final class agent_e2e_create_option_test extends abstract_agent_testcase {
      */
     public function test_create_option_with_maxanswers(): void {
         $result = $this->exec_command('booking.create_option', [
-            'text'        => 'Option With Seats',
-            'maxanswers'  => 12,
+            'text'            => 'Option With Seats',
+            'maxanswers'      => 12,
+            'coursestarttime' => '2045-03-15T09:00:00',
+            'courseendtime'   => '2045-03-15T17:00:00',
+            'teacherquery'    => 'current',
         ]);
 
         $this->assertEquals('executed', $result['status'], $result['detail'] ?? '');
@@ -79,9 +86,12 @@ final class agent_e2e_create_option_test extends abstract_agent_testcase {
      */
     public function test_create_option_with_seats_and_waitinglist(): void {
         $result = $this->exec_command('booking.create_option', [
-            'text'           => 'Option With Waitlist',
-            'maxanswers'     => 8,
-            'maxoverbooking' => 3,
+            'text'            => 'Option With Waitlist',
+            'maxanswers'      => 8,
+            'maxoverbooking'  => 3,
+            'coursestarttime' => '2045-03-15T09:00:00',
+            'courseendtime'   => '2045-03-15T17:00:00',
+            'teacherquery'    => 'current',
         ]);
 
         $this->assertEquals('executed', $result['status'], $result['detail'] ?? '');
@@ -95,7 +105,13 @@ final class agent_e2e_create_option_test extends abstract_agent_testcase {
      * Created option has the correct bookingid (foreign key).
      */
     public function test_create_option_has_correct_bookingid(): void {
-        $result = $this->exec_command('booking.create_option', ['text' => 'FK Option']);
+        $result = $this->exec_command('booking.create_option', [
+            'text'            => 'FK Option',
+            'maxanswers'      => 10,
+            'coursestarttime' => '2045-03-15T09:00:00',
+            'courseendtime'   => '2045-03-15T17:00:00',
+            'teacherquery'    => 'current',
+        ]);
         $this->assertEquals('executed', $result['status'], $result['detail'] ?? '');
 
         $option = $this->get_option_from_db((int)$result['resultid']);
@@ -107,8 +123,12 @@ final class agent_e2e_create_option_test extends abstract_agent_testcase {
      */
     public function test_create_option_with_description(): void {
         $result = $this->exec_command('booking.create_option', [
-            'text'        => 'Option With Desc',
-            'description' => 'Full description text.',
+            'text'            => 'Option With Desc',
+            'description'     => 'Full description text.',
+            'maxanswers'      => 10,
+            'coursestarttime' => '2045-03-15T09:00:00',
+            'courseendtime'   => '2045-03-15T17:00:00',
+            'teacherquery'    => 'current',
         ]);
 
         $this->assertEquals('executed', $result['status'], $result['detail'] ?? '');
@@ -124,8 +144,11 @@ final class agent_e2e_create_option_test extends abstract_agent_testcase {
         $this->setUser($this->teacher->id);
 
         $result = $this->exec_command('booking.create_option', [
-            'text' => 'Option With Current Teacher',
-            'teacherquery' => 'current',
+            'text'            => 'Option With Current Teacher',
+            'maxanswers'      => 10,
+            'coursestarttime' => '2045-03-15T09:00:00',
+            'courseendtime'   => '2045-03-15T17:00:00',
+            'teacherquery'    => 'current',
         ]);
 
         $this->assertEquals('executed', $result['status'], $result['detail'] ?? '');
@@ -138,8 +161,10 @@ final class agent_e2e_create_option_test extends abstract_agent_testcase {
     public function test_create_option_with_dates(): void {
         $result = $this->exec_command('booking.create_option', [
             'text'            => 'Option With Dates',
+            'maxanswers'      => 10,
             'coursestarttime' => '2045-03-15T09:00:00',
             'courseendtime'   => '2045-03-15T17:00:00',
+            'teacherquery'    => 'current',
         ]);
 
         $this->assertEquals('executed', $result['status'], $result['detail'] ?? '');
@@ -154,8 +179,14 @@ final class agent_e2e_create_option_test extends abstract_agent_testcase {
      * Creating two options with different names results in two distinct DB records.
      */
     public function test_create_two_options_independently(): void {
-        $r1 = $this->exec_command('booking.create_option', ['text' => 'Alpha']);
-        $r2 = $this->exec_command('booking.create_option', ['text' => 'Beta']);
+        $defaults = [
+            'maxanswers'      => 10,
+            'coursestarttime' => '2045-03-15T09:00:00',
+            'courseendtime'   => '2045-03-15T17:00:00',
+            'teacherquery'    => 'current',
+        ];
+        $r1 = $this->exec_command('booking.create_option', array_merge($defaults, ['text' => 'Alpha']));
+        $r2 = $this->exec_command('booking.create_option', array_merge($defaults, ['text' => 'Beta']));
 
         $this->assertEquals('executed', $r1['status']);
         $this->assertEquals('executed', $r2['status']);
@@ -182,8 +213,11 @@ final class agent_e2e_create_option_test extends abstract_agent_testcase {
      */
     public function test_created_option_visible_in_wbtable(): void {
         $result = $this->exec_command('booking.create_option', [
-            'text'       => 'WbTable Visible Option',
-            'maxanswers' => 5,
+            'text'            => 'WbTable Visible Option',
+            'maxanswers'      => 5,
+            'coursestarttime' => '2045-03-15T09:00:00',
+            'courseendtime'   => '2045-03-15T17:00:00',
+            'teacherquery'    => 'current',
         ]);
 
         $this->assertEquals('executed', $result['status'], $result['detail'] ?? '');

@@ -110,7 +110,13 @@ abstract class abstract_agent_testcase extends advanced_testcase {
      */
     protected function create_option(string $name, array $extra = []): stdClass {
         $result = $this->exec_command('booking.create_option', array_merge(
-            ['text' => $name],
+            [
+                'text'            => $name,
+                'maxanswers'      => 10,
+                'coursestarttime' => '2045-03-15T09:00:00',
+                'courseendtime'   => '2045-03-15T17:00:00',
+                'teacherquery'    => 'current',
+            ],
             $extra
         ));
         if (($result['status'] ?? '') !== 'executed' || empty($result['resultid'])) {

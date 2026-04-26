@@ -28,6 +28,8 @@ namespace mod_booking;
 use advanced_testcase;
 use mod_booking\local\wbagent\booking\tasks\create_option_task;
 use mod_booking\local\wbagent\interpreter;
+use mod_booking\local\wbagent\interfaces\task_interface;
+use mod_booking\local\wbagent\interfaces\task_provider_interface;
 use mod_booking\local\wbagent\task_registry;
 
 /**
@@ -177,23 +179,130 @@ final class agent_interpreter_test extends advanced_testcase {
 
     /**
      * Structured task ambiguity options should be propagated to interpreter output.
+     *
+     * Uses a fake task that returns both ambiguities and ambiguity_options from validate()
+     * to verify the interpreter correctly propagates them to a clarification response.
      */
-    public function test_docs_ambiguity_options_are_propagated(): void {
+    public function test_ambiguity_options_are_propagated_from_task_validation(): void {
+        // Build a fake task whose validate() returns ambiguities + ambiguity_options.
+        $faketask = new class implements task_interface {
+            /**
+             * Get task name.
+             *
+             * @return string
+             */
+            public function get_name(): string {
+                return 'test.ambiguous_docs';
+            }
+
+            /**
+             * Get schema.
+             *
+             * @return array
+             */
+            public function get_schema(): array {
+                return ['name' => 'test.ambiguous_docs', 'description' => 'Fake ambiguous task.', 'input_schema' => []];
+            }
+
+            /**
+             * Validate — always returns ambiguities with structured ambiguity_options.
+             *
+             * @param array $input
+             * @param int $cmid
+             * @return array
+             */
+            public function validate(array $input, int $cmid): array {
+                return [
+                    'valid'            => false,
+                    'errors'           => [],
+                    'ambiguities'      => ['Please select one of the matching topics.'],
+                    'ambiguity_options' => [
+                        ['id' => 'opt1', 'label' => 'Booking Options Overview', 'query' => 'bookotheroptions'],
+                        ['id' => 'opt2', 'label' => 'Cancel Booking Action',    'query' => 'cancelbooking'],
+                    ],
+                ];
+            }
+
+            /**
+             * Execute.
+             *
+             * @param array $input
+             * @param int $cmid
+             * @param int $userid
+             * @return array
+             */
+            public function execute(array $input, int $cmid, int $userid): array {
+                return ['status' => 'executed', 'detail' => '', 'resultid' => null];
+            }
+
+            /**
+             * Is read only.
+             *
+             * @return bool
+             */
+            public function is_read_only(): bool {
+                return true;
+            }
+        };
+
+        $fakeprovider = new class($faketask) implements task_provider_interface {
+            /** @var task_interface */
+            private task_interface $task;
+
+            /**
+             * Constructor.
+             *
+             * @param task_interface $task
+             */
+            public function __construct(task_interface $task) {
+                $this->task = $task;
+            }
+
+            /**
+             * Get component.
+             *
+             * @return string
+             */
+            public function get_component(): string {
+                return 'test_ambiguous_provider';
+            }
+
+            /**
+             * Get tasks.
+             *
+             * @return array
+             */
+            public function get_tasks(): array {
+                return [$this->task];
+            }
+
+            /**
+             * Get contextual prompt packs.
+             *
+             * @return array
+             */
+            public function get_contextual_prompt_packs(): array {
+                return [];
+            }
+        };
+
+        $registry = new task_registry();
+        $registry->register($fakeprovider);
+        $interpreter = new interpreter($registry);
+
         $raw = json_encode([
             'response_type' => 'task_call',
-            'message' => 'Let me check the docs topic.',
-            'commands' => [
+            'message'       => 'Let me check the docs topic.',
+            'commands'      => [
                 [
-                    'task' => 'booking.explain_docs_topic',
+                    'task'    => 'test.ambiguous_docs',
                     'version' => 1,
-                    'input' => [
-                        'question' => 'Explain the actions after booking.',
-                    ],
+                    'input'   => ['question' => 'What is bookotheroptions?'],
                 ],
             ],
         ]);
 
-        $result = $this->interpreter->interpret($raw, $this->cmid, 1);
+        $result = $interpreter->interpret($raw, $this->cmid, 1);
 
         $this->assertEquals('clarification', $result['response_type']);
         $this->assertNotEmpty($result['ambiguities']);
@@ -203,7 +312,7 @@ final class agent_interpreter_test extends advanced_testcase {
         $first = $result['ambiguity_options'][0] ?? [];
         $this->assertNotSame('', trim((string)($first['label'] ?? '')));
         $this->assertNotSame('', trim((string)($first['query'] ?? '')));
-        $this->assertSame('booking.explain_docs_topic', (string)($first['task'] ?? ''));
+        $this->assertSame('test.ambiguous_docs', (string)($first['task'] ?? ''));
     }
 
     /**

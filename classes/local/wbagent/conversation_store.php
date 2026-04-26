@@ -176,7 +176,7 @@ class conversation_store implements agent_conversation_store {
 
         $sql = 'SELECT * FROM {booking_ai_messages}
                 WHERE threadid = :threadid
-                ORDER BY timecreated DESC';
+                ORDER BY timecreated DESC, id DESC';
         $records = $DB->get_records_sql($sql, ['threadid' => $threadid], 0, $limit);
         // Return in chronological order.
         return array_reverse(array_values($records));

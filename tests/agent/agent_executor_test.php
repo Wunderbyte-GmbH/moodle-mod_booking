@@ -171,7 +171,13 @@ final class agent_executor_test extends abstract_agent_testcase {
 
         $results = $exec->execute_commands(
             [
-                ['task' => 'booking.create_option', 'version' => 1, 'input' => ['text' => 'Good Command']],
+                ['task' => 'booking.create_option', 'version' => 1, 'input' => [
+                    'text'            => 'Good Command',
+                    'maxanswers'      => 10,
+                    'coursestarttime' => '2045-03-15T09:00:00',
+                    'courseendtime'   => '2045-03-15T17:00:00',
+                    'teacherquery'    => 'current',
+                ]],
                 ['task' => 'booking.this_is_unknown', 'version' => 1, 'input' => []],
             ],
             $cmid,
