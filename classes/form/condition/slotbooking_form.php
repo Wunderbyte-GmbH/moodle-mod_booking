@@ -355,7 +355,7 @@ class slotbooking_form extends dynamic_form {
 
             foreach ($openslots as $index => $slot) {
                 $fieldname = self::slot_selection_checkbox_name($index);
-                $label = $slot['daylabel'] . ' · ' . $slot['timelabel'];
+                $label = $slot['daylabel'] . ' - ' . $slot['timelabel'];
                 $checkbox = $mform->addElement('advcheckbox', $fieldname, '', $label);
                 $mform->setType($fieldname, PARAM_INT);
                 $checkbox->updateAttributes([
