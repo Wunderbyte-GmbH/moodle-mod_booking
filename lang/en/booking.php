@@ -270,7 +270,11 @@ $string['ai_status_taskcall_entities_search'] = 'Searching matching entities.';
 $string['ai_status_taskcall_shopping_cart_items'] = 'Fetching shopping cart items.';
 $string['ai_status_taskcall_shopping_cart_totals'] = 'Fetching shopping cart totals.';
 $string['ai_thinking'] = 'AI is thinking…';
-$string['ai_trial_token_invalid_message'] = 'Your AI trial token is no longer valid. Please purchase or activate a subscription token to continue.';
+$string['ai_trial_token_invalid_message'] = 'Your AI trial token is no longer valid. Please purchase a subscription to continue — your token will be renewed directly after purchase and you can continue immediately.';
+$string['ai_trial_token_invalid_subscription_message'] = 'Your AI trial token is no longer valid. To continue, purchase a subscription and your token will be renewed immediately so you can keep using the agent right away.
+
+Basic subscription: {$a->basicurl}
+Privacy Plus: {$a->privacyplusurl}';
 $string['ai_trial_token_invalid_title'] = 'Trial token invalid';
 $string['ai_welcome_empty'] = 'Welcome! Would you like me to help you create your first booking option?';
 $string['ai_welcome_with_options'] = 'Welcome! You have {$a->numoptions} booking options here, and {$a->numbooked} people are already booked. How can I help you?';

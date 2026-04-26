@@ -126,12 +126,17 @@ class orchestrator {
             $response = $manager->process_action($action);
 
             if (!$response->get_success()) {
+                $errormessage = $response->get_errormessage() ?? 'Provider returned an error.';
+                $errorcode = (int)$response->get_errorcode();
+                $errorname = (string)$response->get_error();
+                $issuecodes = self::detect_token_issue_codes($errormessage, $errorcode, $errorname);
                 return [
                     'response_type' => 'error',
                     'message'       => get_string('ai_provider_error', 'mod_booking'),
                     'commands'      => [],
                     'ambiguities'   => [],
-                    'errors'        => [$response->get_errormessage() ?? 'Provider returned an error.'],
+                    'errors'        => [$errormessage],
+                    'issue_codes'   => $issuecodes,
                 ];
             }
 
@@ -143,19 +148,93 @@ class orchestrator {
                     'commands'      => [],
                     'ambiguities'   => [],
                     'errors'        => ['Provider returned empty content.'],
+                    'issue_codes'   => [],
                 ];
             }
         } catch (\Throwable $e) {
+            $issuecodes = self::detect_token_issue_codes($e->getMessage(), (int)$e->getCode(), '');
             return [
                 'response_type' => 'error',
                 'message'       => get_string('ai_provider_error', 'mod_booking'),
                 'commands'      => [],
                 'ambiguities'   => [],
                 'errors'        => [$e->getMessage()],
+                'issue_codes'   => $issuecodes,
             ];
         }
 
         return $this->interpreter->interpret($rawtext, $cmid, $userid);
+    }
+
+    /**
+     * Detect whether an error message indicates a token/quota problem and return
+     * the appropriate issue codes for the frontend.
+     *
+     * @param  string $errormessage
+     * @param  int $errorcode
+     * @param  string $errorname
+     * @return array
+     */
+    private static function detect_token_issue_codes(string $errormessage, int $errorcode = 0, string $errorname = ''): array {
+        if ($errorcode === 401) {
+            return ['TRIAL_TOKEN_INVALID'];
+        }
+
+        if ($errorcode === 429) {
+            return ['AI_PROVIDER_QUOTA_EXCEEDED'];
+        }
+
+        $lower = core_text::strtolower($errormessage);
+        $lowername = core_text::strtolower($errorname);
+
+        if ($lowername !== '' && strpos($lowername, 'unauthorized') !== false) {
+            return ['TRIAL_TOKEN_INVALID'];
+        }
+
+        if ($lowername !== '' && strpos($lowername, 'rate limit') !== false) {
+            return ['AI_PROVIDER_QUOTA_EXCEEDED'];
+        }
+
+        $tokenmarkers = [
+            'invalid token',
+            'token is invalid',
+            'token expired',
+            'expired token',
+            'invalid api key',
+            'incorrect api key',
+            'authenticationerror',
+            'authentication_error',
+            'unauthorized',
+            '401',
+        ];
+
+        $quotamarkers = [
+            'rate limit exceeded',
+            'limit type: tokens',
+            'current limit: 0',
+            'remaining: 0',
+            'insufficient_quota',
+            'insufficient quota',
+            'insufficient credits',
+            'max budget',
+            'budget exceeded',
+            'credit balance is too low',
+            '429',
+        ];
+
+        foreach ($tokenmarkers as $marker) {
+            if (strpos($lower, $marker) !== false) {
+                return ['TRIAL_TOKEN_INVALID'];
+            }
+        }
+
+        foreach ($quotamarkers as $marker) {
+            if (strpos($lower, $marker) !== false) {
+                return ['AI_PROVIDER_QUOTA_EXCEEDED'];
+            }
+        }
+
+        return [];
     }
 
     /**

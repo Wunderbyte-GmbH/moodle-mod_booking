@@ -250,7 +250,11 @@ $string['ai_status_taskcall_entities_list_all'] = 'Lade Liste aller Entities.';
 $string['ai_status_taskcall_entities_search'] = 'Suche passende Entities.';
 $string['ai_status_taskcall_shopping_cart_items'] = 'Lade Warenkorbpositionen.';
 $string['ai_status_taskcall_shopping_cart_totals'] = 'Lade Warenkorbsummen.';
-$string['ai_trial_token_invalid_message'] = 'Ihr AI-Trial-Token ist nicht mehr gueltig. Bitte kaufen oder aktivieren Sie ein Abonnement-Token, um fortzufahren.';
+$string['ai_trial_token_invalid_message'] = 'Ihr AI-Trial-Token ist nicht mehr gueltig. Bitte kaufen Sie ein Abonnement, um fortzufahren — Ihr Token wird direkt nach dem Kauf erneuert und Sie koennen sofort weitermachen.';
+$string['ai_trial_token_invalid_subscription_message'] = 'Ihr AI-Trial-Token ist nicht mehr gueltig. Um fortzufahren, kaufen Sie ein Abonnement. Ihr Token wird direkt nach dem Kauf erneuert und Sie koennen den Agenten sofort weiter nutzen.
+
+Basic-Abonnement: {$a->basicurl}
+Privacy Plus: {$a->privacyplusurl}';
 $string['ai_trial_token_invalid_title'] = 'Trial-Token ungueltig';
 $string['ai_welcome_empty'] = 'Willkommen! Möchten Sie, dass ich Ihnen bei der Erstellung Ihrer ersten Buchungsoption helfe?';
 $string['ai_welcome_with_options'] = 'Willkommen! Sie haben hier {$a->numoptions} Buchungsoptionen, und {$a->numbooked} Personen sind bereits gebucht. Wie kann ich Ihnen helfen?';

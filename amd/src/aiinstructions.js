@@ -35,10 +35,7 @@ let privacyCheckRunningLabel = 'Privacy check running...';
 let privacyAnswerNoteLabel = 'Privacy note: personal data in this response was de-anonymized for display.';
 let defaultThinkingLabel = '';
 let forceNewThreadOnFirstMessage = true;
-let trialTokenInvalidAlertShown = false;
-let trialTokenInvalidTitleLabel = '';
 let trialTokenInvalidMessageLabel = '';
-let trialTokenInvalidOkLabel = '';
 
 /** @type {Array<string>} */
 const TRIAL_TOKEN_ISSUE_CODES = [
@@ -243,27 +240,29 @@ const isTrialTokenInvalidError = (response, errors = [], issueCodes = []) => {
 };
 
 /**
- * Show one-time alert when trial token is no longer valid.
+ * Show a chat bubble when the trial token is no longer valid.
+ * Displayed on every message while the token remains invalid.
  *
  * @param {Object|null} response
  * @param {Array<string>} errors
  * @param {Array<string>} issueCodes
  */
 const maybeShowTrialTokenInvalidAlert = (response, errors = [], issueCodes = []) => {
-    if (trialTokenInvalidAlertShown) {
-        return;
-    }
-
     if (!isTrialTokenInvalidError(response, errors, issueCodes)) {
         return;
     }
 
-    trialTokenInvalidAlertShown = true;
-    Notification.alert(
-        trialTokenInvalidTitleLabel,
-        trialTokenInvalidMessageLabel,
-        trialTokenInvalidOkLabel
-    );
+    const messageText = String(
+        (response && (response.displaymessage || response.message))
+        || trialTokenInvalidMessageLabel
+        || ''
+    ).trim();
+
+    if (messageText === '') {
+        return;
+    }
+
+    appendMessageHtml('assistant', `<span>${renderTextWithLinks(messageText)}</span>`);
 };
 
 /**
@@ -1161,7 +1160,10 @@ const sendMessage = (message) => {
             const attemptedTasks = parseJsonList(resp.attemptedtasksjson);
             const errors = parseJsonList(resp.errorsjson);
             const issueCodes = parseJsonList(resp.issuecodesjson);
-            maybeShowTrialTokenInvalidAlert(resp, errors, issueCodes);
+            if (isTrialTokenInvalidError(resp, errors, issueCodes)) {
+                maybeShowTrialTokenInvalidAlert(resp, errors, issueCodes);
+                return resp;
+            }
             const ambiguityOptions = parseJsonObjectList(resp.ambiguityoptionsjson || '[]');
             const messageText = String(resp.displaymessage || resp.message || '');
             const ambiguityOptionsHtml = renderAmbiguityOptionsHtml(ambiguityOptions);
@@ -1495,9 +1497,7 @@ export const init = (config = null) => {
                 wrapper.dataset.privacyAnswerNote
                 || 'Privacy note: personal data in this response was de-anonymized for display.'
             ),
-            trial_token_invalid_title: String(wrapper.dataset.aiTrialTokenInvalidTitle || ''),
             trial_token_invalid_message: String(wrapper.dataset.aiTrialTokenInvalidMessage || ''),
-            trial_token_invalid_ok: String(wrapper.dataset.aiTrialTokenInvalidOk || ''),
         };
     }
 
@@ -1506,9 +1506,7 @@ export const init = (config = null) => {
     debugModeEnabled = Boolean(runtimeConfig.debug_mode);
     privacyCheckRunningLabel = String(runtimeConfig.privacy_check_running || privacyCheckRunningLabel);
     privacyAnswerNoteLabel = String(runtimeConfig.privacy_answer_note || privacyAnswerNoteLabel);
-    trialTokenInvalidTitleLabel = String(runtimeConfig.trial_token_invalid_title || '');
     trialTokenInvalidMessageLabel = String(runtimeConfig.trial_token_invalid_message || '');
-    trialTokenInvalidOkLabel = String(runtimeConfig.trial_token_invalid_ok || '');
 
     const thinking = document.getElementById('booking-ai-thinking');
     if (thinking) {

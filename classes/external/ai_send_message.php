@@ -67,6 +67,23 @@ class ai_send_message extends external_api {
         'DUPLICATE_TITLE_MULTI_CONFIRM_REQUIRED',
     ];
 
+    /** Issue codes that indicate invalid/expired token or required subscription. */
+    private const TOKEN_SUBSCRIPTION_ISSUE_CODES = [
+        'TRIAL_TOKEN_INVALID',
+        'TRIAL_TOKEN_EXPIRED',
+        'SUBSCRIPTION_REQUIRED',
+        'AI_PROVIDER_AUTH_FAILED',
+        'AI_PROVIDER_QUOTA_EXCEEDED',
+    ];
+
+    /** Basic subscription purchase URL. */
+    private const BASIC_SUBSCRIPTION_URL =
+        'https://showroom.wunderbyte.at/mod/booking/optionview.php?optionid=73&cmid=938';
+
+    /** Privacy Plus subscription purchase URL. */
+    private const PRIVACY_PLUS_SUBSCRIPTION_URL =
+        'https://showroom.wunderbyte.at/mod/booking/optionview.php?optionid=74&cmid=938';
+
     /**
      * Describe the parameters.
      *
@@ -152,6 +169,16 @@ class ai_send_message extends external_api {
         }
         $store->set_thread_metadata_value($threadid, 'last_output_lang', $outputlang);
         $result['used_triggers'] = $triggerregistry->normalize_used_triggers($result['used_triggers'] ?? []);
+
+        if (
+            (string)($result['response_type'] ?? '') === 'error'
+            && empty((array)($result['issue_codes'] ?? []))
+        ) {
+            $fallbackissuecodes = self::infer_issue_codes_from_recent_core_ai_failure((int)$USER->id, $cmid);
+            if (!empty($fallbackissuecodes)) {
+                $result['issue_codes'] = $fallbackissuecodes;
+            }
+        }
 
         if ($previewoptionid > 0 && self::result_has_trigger($result, 'core.is_preview_request')) {
             $result = [
@@ -392,6 +419,17 @@ class ai_send_message extends external_api {
         }
 
         $result['message'] = self::normalize_agent_message_language($result, $message, $outputlang);
+        if (self::has_token_subscription_issue((array)($result['issue_codes'] ?? []))) {
+            $result['message'] = self::localized_string(
+                'ai_trial_token_invalid_subscription_message',
+                'mod_booking',
+                (object)[
+                    'basicurl' => self::BASIC_SUBSCRIPTION_URL,
+                    'privacyplusurl' => self::PRIVACY_PLUS_SUBSCRIPTION_URL,
+                ],
+                $outputlang
+            );
+        }
         $displaymessage = (string)($result['message'] ?? '');
         $privacyapplied = 0;
         $displayresult = $anonymizer->deanonymize_message_for_display($threadid, $displaymessage);
@@ -870,6 +908,102 @@ class ai_send_message extends external_api {
         }
 
         return trim((string)($result['message'] ?? ''));
+    }
+
+    /**
+     * Check whether issue codes represent a token/subscription problem.
+     *
+     * @param array $issuecodes
+     * @return bool
+     */
+    private static function has_token_subscription_issue(array $issuecodes): bool {
+        $normalized = array_map(
+            static fn($code): string => trim(core_text::strtoupper((string)$code)),
+            $issuecodes
+        );
+
+        return !empty(array_intersect(self::TOKEN_SUBSCRIPTION_ISSUE_CODES, $normalized));
+    }
+
+    /**
+     * Infer issue codes from the latest core_ai failure in this module context.
+     *
+     * This compensates production mode where core_ai may return generic error text.
+     *
+     * @param int $userid
+     * @param int $cmid
+     * @return array
+     */
+    private static function infer_issue_codes_from_recent_core_ai_failure(int $userid, int $cmid): array {
+        global $DB;
+
+        try {
+            $dbman = $DB->get_manager();
+            if (!$dbman->table_exists('ai_action_register')) {
+                return [];
+            }
+
+            $contextid = (int)context_module::instance($cmid)->id;
+            $records = $DB->get_records_select(
+                'ai_action_register',
+                'userid = :userid AND contextid = :contextid AND actionname = :actionname AND success = :success
+                 AND timecompleted >= :since',
+                [
+                    'userid' => $userid,
+                    'contextid' => $contextid,
+                    'actionname' => 'generate_text',
+                    'success' => 0,
+                    'since' => time() - 600,
+                ],
+                'timecompleted DESC, id DESC',
+                'id, errorcode, errormessage',
+                0,
+                20
+            );
+        } catch (\Throwable $e) {
+            return [];
+        }
+
+        if (empty($records)) {
+            return [];
+        }
+
+        foreach ($records as $record) {
+            $errorcode = (int)($record->errorcode ?? 0);
+            if ($errorcode === 401) {
+                return ['TRIAL_TOKEN_INVALID'];
+            }
+
+            if ($errorcode === 429) {
+                return ['AI_PROVIDER_QUOTA_EXCEEDED'];
+            }
+
+            $combined = core_text::strtolower(trim((string)($record->errormessage ?? '')));
+            if ($combined === '') {
+                continue;
+            }
+
+            if (
+                strpos($combined, 'unauthorized') !== false
+                || strpos($combined, 'invalid token') !== false
+                || strpos($combined, 'token expired') !== false
+                || strpos($combined, 'invalid api key') !== false
+            ) {
+                return ['TRIAL_TOKEN_INVALID'];
+            }
+
+            if (
+                strpos($combined, 'rate limit') !== false
+                || strpos($combined, 'budget has been exceeded') !== false
+                || strpos($combined, 'max budget') !== false
+                || strpos($combined, 'insufficient quota') !== false
+                || strpos($combined, 'insufficient credits') !== false
+            ) {
+                return ['AI_PROVIDER_QUOTA_EXCEEDED'];
+            }
+        }
+
+        return [];
     }
 
     /**
