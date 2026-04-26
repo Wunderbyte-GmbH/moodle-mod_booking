@@ -773,6 +773,9 @@ class booking_option {
                     'waitinglist' => MOD_BOOKING_STATUSPARAM_RESERVED,
                 ]
             );
+            // With this, we make sure that if the user had a reserved booking...
+            // ... this gets deleted and the user gets reactivated on the waiting list if there was one before.
+            $ba->reactivate_latest_previouslybooked($userid);
         } else {
             // Normally, we will have only one record which is not deleted or previously booked.
             // But we still fetch an array to make sure of it.
