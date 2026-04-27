@@ -1095,7 +1095,12 @@ class booking_option {
                 }
 
                 // 3. If users drop out of the waiting list because of changed limits, delete and inform them.
-                while (booking_answers::count_places($usersonwaitinglist) > $settings->maxoverbooking) {
+                // Important: Keep in mind that maxoverbooking "-1" means unlimited waiting list.
+                // So only if maxoverbooking (waiting list) is >= 0, this makes sense.
+                while (
+                    ((int) $settings->maxoverbooking) >= 0
+                    && booking_answers::count_places($usersonwaitinglist) > (int) $settings->maxoverbooking
+                ) {
                     $currentanswer = array_pop($usersonwaitinglist);
                     // The fourth param needs to be false here, so we do not run into a recursion.
                     $this->user_delete_response($currentanswer->userid, false, false, false);
