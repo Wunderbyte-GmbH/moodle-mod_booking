@@ -44,6 +44,12 @@ use moodle_url;
  */
 class optionstoconfirm extends option {
     /**
+     * Scope name.
+     * @var string
+     */
+    public $scope = 'optionstoconfirm';
+
+    /**
      * Render users table based on status param
      *
      * @param string $scope
@@ -194,7 +200,11 @@ class optionstoconfirm extends option {
 
         if ($statusparam != MOD_BOOKING_STATUSPARAM_DELETED) {
             $table->addcheckboxes = true;
-            $table->actionbuttons[] = booked_users::create_delete_button();
+
+            // Only show delete button if user has capability to delete responses.
+            if ($this->has_capability_in_scope($scopeid, 'mod/booking:deleteresponses')) {
+                $table->actionbuttons[] = booked_users::create_delete_button();
+            }
         }
 
         return $table;

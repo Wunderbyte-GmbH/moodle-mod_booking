@@ -41,6 +41,12 @@ use moodle_url;
  */
 class instance extends scope_base_options {
     /**
+     * Scope name.
+     * @var string
+     */
+    public $scope = 'instance';
+
+    /**
      * Returns the sql to fetch booked users with a certain status.
      * Orderd by timemodified, to be able to sort them.
      * @param string $scope option | instance | course | system

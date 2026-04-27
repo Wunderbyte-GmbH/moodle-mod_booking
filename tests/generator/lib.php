@@ -347,6 +347,65 @@ class mod_booking_generator extends testing_module_generator {
     }
 
     /**
+     * Function to create a booking option template.
+     *
+     * Templates are booking options with bookingid = 0. Unlike create_option(),
+     * this method does not require 'text' (defaults to '') and requires 'templatename' instead.
+     * The templatename is stored in the JSON field via the addastemplate field logic.
+     *
+     * @param ?array|stdClass $record Must contain 'bookingid' (for cmid/context) and 'templatename'.
+     * @return stdClass the booking option template object
+     */
+    public function create_template($record = null) {
+
+        $record = (array) $record;
+
+        if (!isset($record['bookingid'])) {
+            throw new coding_exception(
+                'bookingid must be present in mod_booking_generator::create_template() $record'
+            );
+        }
+
+        if (!isset($record['templatename'])) {
+            throw new coding_exception(
+                'templatename must be present in mod_booking_generator::create_template() $record'
+            );
+        }
+
+        // Default text to empty string for templates.
+        if (!isset($record['text'])) {
+            $record['text'] = '';
+        }
+
+        // Set addastemplate flag so that addastemplate::prepare_save_field() sets bookingid=0
+        // and stores templatename in the JSON field.
+        $record['addastemplate'] = 1;
+
+        $booking = singleton_service::get_instance_of_booking_by_bookingid($record['bookingid']);
+
+        $this->bookingoptions++;
+
+        $record = (object) $record;
+
+        $record->id = $record->id ?? 0;
+        $record->optionid = $record->optionid ?? 0;
+        $record->cmid = $booking->cmid;
+        $record->identifier = $record->identifier ?? booking_option::create_truly_unique_option_identifier();
+
+        $context = context_module::instance($record->cmid);
+
+        $record->addtocalendar = 0;
+        $record->maxanswers = !empty($record->maxanswers) ? $record->maxanswers : 0;
+        $record->teachersforoption = [];
+        $record->responsiblecontact = [];
+
+        // Create / save booking option template.
+        $record->id = booking_option::update($record, $context);
+
+        return $record;
+    }
+
+    /**
      * Function to create a dummy student's answer on option.
      *
      * @param ?array|stdClass $record

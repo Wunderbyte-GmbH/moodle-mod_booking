@@ -933,7 +933,7 @@ class dates {
      * @return array
      * @throws coding_exception
      */
-    private static function timestamp_to_array(int $timestamp) {
+    public static function timestamp_to_array(int $timestamp) {
         $time = new DateTime("@$timestamp");
         $time->setTimezone(new DateTimeZone(core_date::get_user_timezone()));
         $datearray = [

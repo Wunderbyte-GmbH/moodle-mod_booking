@@ -88,7 +88,7 @@ class datesandentities extends \mod_booking\placeholders\placeholder_base {
             if (isset(placeholders_info::$placeholders[$cachekey])) {
                 return placeholders_info::$placeholders[$cachekey];
             }
-            /** @var renderer $output*/
+            /** @var \mod_booking\output\renderer $output*/
             $output = $PAGE->get_renderer('mod_booking');
             if ($settings->selflearningcourse == 1) {
                 $ba = singleton_service::get_instance_of_booking_answers($settings);

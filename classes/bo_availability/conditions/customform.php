@@ -831,6 +831,86 @@ class customform implements bo_condition {
     }
 
     /**
+     * Returns a customform answer value for one field.
+     *
+     * For select fields, the stored numeric index is resolved to the configured label.
+     *
+     * @param booking_option_settings $settings
+     * @param stdClass $bookinganswer
+     * @param int $fieldindex 1-based index in formsarray.
+     * @return string|null
+     */
+    public static function get_customform_field_value(
+        booking_option_settings $settings,
+        stdClass $bookinganswer,
+        int $fieldindex
+    ): ?string {
+        if ($fieldindex < 1 || empty($settings->availability) || empty($bookinganswer->json)) {
+            return null;
+        }
+
+        $formelements = self::return_formelements($settings);
+        if (is_object($formelements)) {
+            $formelements = (array)$formelements;
+        }
+        if (!is_array($formelements)) {
+            return null;
+        }
+
+        $fieldkey = array_key_exists($fieldindex, $formelements) ? $fieldindex : (string)$fieldindex;
+        if (!array_key_exists($fieldkey, $formelements)) {
+            return null;
+        }
+
+        $field = $formelements[$fieldkey];
+        $answerjson = json_decode($bookinganswer->json);
+        if (!isset($answerjson->condition_customform)) {
+            return null;
+        }
+
+        $answerkey = 'customform_' . $field->formtype . '_' . $fieldindex;
+        if (!isset($answerjson->condition_customform->{$answerkey})) {
+            return null;
+        }
+
+        $uservalue = $answerjson->condition_customform->{$answerkey};
+        if ($field->formtype !== 'select' || !isset($field->value)) {
+            return (string)$uservalue;
+        }
+
+        $rawoptions = preg_split('/\r\n|\r|\n/', (string)$field->value);
+        $options = [];
+        foreach ($rawoptions as $rawoption) {
+            $rawoption = trim((string)$rawoption);
+            if ($rawoption !== '') {
+                $options[] = $rawoption;
+            }
+        }
+
+        if (isset($options[(int)$uservalue])) {
+            $selectedoption = $options[(int)$uservalue];
+            $uservalue = trim((string)$uservalue);
+            foreach ($options as $option) {
+                if (strpos($option, '=>') !== false) {
+                    $parts = array_map('trim', explode('=>', $option));
+                    $label = $parts[0] ?? '';
+                    $mappedvalue = $parts[1] ?? '';
+                    if ($uservalue === $label || $uservalue === $mappedvalue) {
+                        return $mappedvalue;
+                    }
+                    continue;
+                }
+                if ($uservalue === $option) {
+                    return $option;
+                }
+            }
+            return $selectedoption;
+        }
+
+        return $uservalue;
+    }
+
+    /**
      * This function adds error keys for form validation.
      * @param array $data
      * @param array $files

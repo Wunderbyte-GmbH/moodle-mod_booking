@@ -30,6 +30,12 @@ use local_wunderbyte_table\wunderbyte_table;
  */
 class supervisorteam extends optionstoconfirm {
     /**
+     * Scope name.
+     * @var string
+     */
+    public $scope = 'supervisorteam';
+
+    /**
      * Render users table based on status param
      *
      * @param string $scope

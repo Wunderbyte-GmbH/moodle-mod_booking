@@ -183,7 +183,9 @@ class addtocalendar extends field_base {
         ];
         $mform->addElement('select', 'addtocalendar', get_string('addtocalendar', 'mod_booking'), $caleventtypes);
         $mform->setDefault('addtocalendar', 0);
-        $mform->hideIf('addtocalendar', 'selflearningcourse', 'eq', 1);
+        if ($mform->elementExists('selflearningcourse')) {
+            $mform->hideIf('addtocalendar', 'selflearningcourse', 'eq', 1);
+        }
 
         if (get_config('booking', 'addtocalendar_locked')) {
             // If the setting is locked in settings.php it will be frozen.

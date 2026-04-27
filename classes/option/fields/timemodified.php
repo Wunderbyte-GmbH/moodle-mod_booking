@@ -64,7 +64,7 @@ class timemodified extends field_base {
      * An int value to define if this field is standard or used in a different context.
      * @var array
      */
-    public static $fieldcategories = [MOD_BOOKING_OPTION_FIELD_STANDARD];
+    public static $fieldcategories = [MOD_BOOKING_OPTION_FIELD_NECESSARY];
 
     /**
      * Additionally to the classname, there might be others keys which should instantiate this class.
@@ -124,14 +124,22 @@ class timemodified extends field_base {
         $optionid = $formdata['id'] ?? $formdata['optionid'] ?? 0;
 
         if (!empty($optionid)) {
+            $displaytext = '';
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-            $lasttimemodified = $settings->timemodified;
-            $readabletimemodified = userdate($lasttimemodified, get_string('strftimedaydatetime', 'langconfig'));
+            if (!empty($settings->timemodified)) {
+                $timemodified = $settings->timemodified;
+                $readabletimemodified = userdate($timemodified, get_string('strftimedatetime', 'langconfig'));
+                $displaytext .= $readabletimemodified;
+            }
+            if (!empty($settings->usermodified)) {
+                $user = singleton_service::get_instance_of_user($settings->usermodified);
+                $displaytext .= ' (' . fullname($user) . ')';
+            }
             $mform->addElement(
                 'html',
                 '<div class="bookingoption-form-timemodified text-muted small ms-4 mb-3">'
-                . get_string('timemodified', 'mod_booking') . ": "
-                . $readabletimemodified . '</div>'
+                . get_string('modified', 'mod_booking') . ": "
+                . $displaytext . '</div>'
             );
         }
     }

@@ -94,7 +94,8 @@ class description extends \mod_booking\placeholders\placeholder_base {
             // Loop prevention.
             if (placeholders_info::$placeholders[$cachekey] === 1) {
                 placeholders_info::$placeholders[$cachekey]++;
-                $value = format_string($settings->description);
+                // Important: We need to keep HTML, so use format_text.
+                $value = format_text($settings->description);
 
                 // Save the value to profit from singleton.
                 placeholders_info::$placeholders[$cachekey] = $value;

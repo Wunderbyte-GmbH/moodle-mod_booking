@@ -99,7 +99,7 @@ class placeholders_info {
 
         $namespaces[] = 'mod_booking\placeholders\placeholders\\';
         foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
-                $namespaces[] = "bookingextension_{$plugin->name}\\placeholders\\";
+            $namespaces[] = "bookingextension_{$plugin->name}\\placeholders\\";
         }
 
         foreach ($placeholders as $placeholder) {

@@ -552,8 +552,8 @@ class booking_settings {
                 $this->bookingmanageruser = $dbrecord->bookingmanageruser;
             } else {
                 // Make sure, it's always null if booking manager could not be found.
-                $dbrecord->bookingmanageruser = (object)[];
-                $this->bookingmanageruser = (object)[];
+                $dbrecord->bookingmanageruser = null;
+                $this->bookingmanageruser = null;
             }
 
             return $dbrecord;

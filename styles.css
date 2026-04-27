@@ -589,6 +589,15 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
     background-color: transparent;
 }
 
+#page-mod-booking-report2 #accordion-usertables .card {
+    margin-bottom: 10px;
+}
+
+#page-mod-booking-report2 #accordion-usertables .card,
+#page-mod-booking-report2 #accordion-usertables .card-header {
+    border-radius: 0;
+}
+
 /* Booking config settings. */
 #page-admin-setting-modsettingbooking #admin-selectteacherswithprofilefieldonlyfield,
 #page-admin-setting-modsettingbooking #admin-selectteacherswithprofilefieldonlyvalue {

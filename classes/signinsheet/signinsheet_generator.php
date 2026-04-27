@@ -15,7 +15,6 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace mod_booking\signinsheet;
-
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields\sharedplaces;
 use mod_booking\singleton_service;
@@ -24,6 +23,8 @@ use user_picture;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
+\core_php_time_limit::raise();
+raise_memory_limit(MEMORY_HUGE);
 require_once($CFG->dirroot . '/local/wunderbyte_table/lib/phpwordinit.php');
 /**
  * Class for generating the signin sheet as PDF using TCPDF
@@ -470,6 +471,8 @@ class signinsheet_generator {
 
         // Generate user rows with session columns.
         $userrows = '';
+        // Get all custom user profile fields and add them as placeholders.
+        $customuserfields = $DB->get_records('user_info_field');
         foreach ($users as $user) {
             $row = $usertemplate;
             $replacements = [
@@ -489,8 +492,6 @@ class signinsheet_generator {
                 '[[places]]' => $user->places ?? '',
             ];
 
-            // Get all custom user profile fields and add them as placeholders.
-            $customuserfields = $DB->get_records('user_info_field');
             foreach ($customuserfields as $customuserfield) {
                 $fieldtype = $customuserfield->datatype;
                 $shortname = $customuserfield->shortname;
@@ -504,15 +505,13 @@ class signinsheet_generator {
             }
 
             $userobj = singleton_service::get_instance_of_user($user->id);
-            $userpic = new user_picture($userobj);
-            if (empty($userpic)) {
+            $imagedata = $this->get_user_picture_data($user->id);
+            if ($imagedata === null) {
                 $replacements['[[userpic]]'] = '';
             } else {
-                $userpictureurl = $userpic->get_url($PAGE);
-                $out = $userpictureurl->out();
-                $replacements['[[userpic]]'] = '<img src="' . $out . '"/>';
+                $replacements['[[userpic]]'] = '<img src="data:image/jpeg;base64,' .
+                    base64_encode($imagedata) . '" width="56" height="56"/>';
             }
-
             $sessioncols = str_repeat('<td></td>', count($extrasessioncols));
             foreach ($replacements as $placeholder => $realvalue) {
                 $row = str_replace($placeholder, $realvalue, $row);
@@ -584,7 +583,31 @@ class signinsheet_generator {
         }
     }
 
-
+    /**
+     * Get user profile picture raw binary data directly from Moodle file storage.
+     * Returns null if the user has no custom profile picture (avoids any HTTP call).
+     *
+     * @param int $userid
+     * @return string|null Raw binary image data, or null if no custom picture.
+     */
+    private function get_user_picture_data(int $userid): ?string {
+        if ($userid <= 0) {
+            return null;
+        }
+        $usercontext = \context_user::instance($userid, IGNORE_MISSING);
+        if (!$usercontext) {
+            return null;
+        }
+        $fs = get_file_storage();
+        $files = $fs->get_area_files($usercontext->id, 'user', 'icon', false, 'filesize DESC', false);
+        foreach ($files as $file) {
+            // Note: f1 is the standard-size profile picture stored by Moodle.
+            if (strpos($file->get_filename(), 'f1') === 0 && $file->get_filesize() > 0) {
+                return $file->get_content();
+            }
+        }
+        return null;
+    }
 
     /**
      * Converts HTML content to a Word document and downloads it
@@ -925,42 +948,39 @@ class signinsheet_generator {
                         break;
                     case 'userpic':
                         $name = "";
-                        $userobj = singleton_service::get_instance_of_user($user->id);
-                        if (empty($user->id) || empty($userobj)) {
-                            // In case row is empty. No user given.
-                            // Make sure column with is respected.
+                        if (empty($user->id)) {
                             $w = 20;
                             break;
                         }
-                        $userpic = new user_picture($userobj);
-                        if (empty($userpic)) {
-                            break;
+                        $imagedata = $this->get_user_picture_data($user->id);
+                        if ($imagedata !== null) {
+                            try {
+                                $this->pdf->Image(
+                                    '@' . $imagedata,
+                                    null,
+                                    null,
+                                    0,
+                                    $h,
+                                    '',
+                                    '',
+                                    'T',
+                                    true,
+                                    400,
+                                    '',
+                                    false,
+                                    false,
+                                    1,
+                                    false,
+                                    false,
+                                    false,
+                                );
+                            } catch (\Exception $e) {
+                                debugging(
+                                    'signinsheet: userpic error for user ' . $user->id . ': ' . $e->getMessage(),
+                                    DEBUG_DEVELOPER
+                                );
+                            }
                         }
-                        $userpic->size = 200;
-                        $userpictureurl = $userpic->get_url($PAGE);
-                        $out = $userpictureurl->out();
-                        if (@getimagesize($out)) {
-                            $this->pdf->Image(
-                                $out,
-                                null,
-                                null,
-                                0,
-                                $h,
-                                '',
-                                '',
-                                'T',
-                                true,
-                                400,
-                                '',
-                                false,
-                                false,
-                                1,
-                                false,
-                                false,
-                                false
-                            );
-                        }
-
                         $escape = true;
                         break;
                     case 'timecreated':

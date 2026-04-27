@@ -24,6 +24,7 @@
 
 namespace mod_booking\option\fields;
 
+use mod_booking\local\certificate_conditions\option_conditions_info;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
@@ -150,6 +151,8 @@ class certificate extends field_base {
             };
         }
 
+        option_conditions_info::save_tagged_conditions_from_option_form((array)$formdata);
+
         // We can return an warning message here.
         return ['changes' => $changes];
     }
@@ -172,31 +175,32 @@ class certificate extends field_base {
         $applyheader = true
     ) {
 
-        if (!class_exists('tool_certificate\certificate')) {
+        if (
+            !class_exists('tool_certificate\certificate')
+            || (empty(get_config('booking', 'certificateon')))
+        ) {
             return;
         }
-
+        if ($applyheader) {
+                fields_info::add_header_to_mform($mform, self::$header);
+        }
         // Check if PRO version is activated.
         if (wb_payment::pro_version_is_activated()) {
             global $DB;
+            if (empty(get_config('booking', 'certificateoptions'))) {
+                // Standardfunctionality to add a header to the mform (only if its not yet there).
+                $records = $DB->get_records('tool_certificate_templates', []);
+                $selection = [0 => 'no certificate selected'];
+                foreach ($records as $record) {
+                    $selection[$record->id] = $record->name;
+                }
 
-            // Standardfunctionality to add a header to the mform (only if its not yet there).
-            if ($applyheader) {
-                fields_info::add_header_to_mform($mform, self::$header);
-            }
+                $mform->addElement('autocomplete', 'certificate', get_string('certificate', 'mod_booking'), $selection, []);
+                $mform->setType('certificate', PARAM_INT);
 
-            $records = $DB->get_records('tool_certificate_templates', []);
-            $selection = [0 => 'no certificate selected'];
-            foreach ($records as $record) {
-                $selection[$record->id] = $record->name;
-            }
+                toolCertificate::add_expirydate_to_form($mform);
 
-            $mform->addElement('autocomplete', 'certificate', get_string('certificate', 'mod_booking'), $selection, []);
-            $mform->setType('certificate', PARAM_INT);
-
-            toolCertificate::add_expirydate_to_form($mform);
-
-            $bookingoptions = [
+                $bookingoptions = [
                 'tags' => false,
                 'multiple' => true,
                 'noselectionstring' => get_string('choose...', 'mod_booking'),
@@ -220,38 +224,38 @@ class certificate extends field_base {
                         $details
                     );
                 },
-            ];
+                ];
 
-            $mform->addElement(
-                'autocomplete',
-                'certificaterequiresotheroptions',
-                get_string('certificaterequiresotheroptions', 'mod_booking'),
-                [],
-                $bookingoptions
-            );
-            $mform->addHelpButton('certificaterequiresotheroptions', 'certificaterequiresotheroptions', 'mod_booking');
+                $mform->addElement(
+                    'autocomplete',
+                    'certificaterequiresotheroptions',
+                    get_string('certificaterequiresotheroptions', 'mod_booking'),
+                    [],
+                    $bookingoptions
+                );
+                $mform->addHelpButton('certificaterequiresotheroptions', 'certificaterequiresotheroptions', 'mod_booking');
 
-            $mform->addElement(
-                'advcheckbox',
-                'certificaterequiredoptionsmode',
-                get_string('certificaterequiredoptionsmode', 'mod_booking'),
-                get_string('certificaterequiresone', 'mod_booking'),
-                [],
-                [0, 1]
-            );
-            $mform->addHelpButton(
-                'certificaterequiredoptionsmode',
-                'certificaterequiredoptionsmode',
-                'mod_booking'
-            );
-            $mform->setDefault('certificaterequiredoptionsmode', 0);
-            $mform->hideIf('certificaterequiredoptionsmode', 'certificaterequiresotheroptions', 'eq', '');
+                $mform->addElement(
+                    'advcheckbox',
+                    'certificaterequiredoptionsmode',
+                    get_string('certificaterequiredoptionsmode', 'mod_booking'),
+                    get_string('certificaterequiresone', 'mod_booking'),
+                    [],
+                    [0, 1]
+                );
+                $mform->addHelpButton(
+                    'certificaterequiredoptionsmode',
+                    'certificaterequiredoptionsmode',
+                    'mod_booking'
+                );
+                $mform->setDefault('certificaterequiredoptionsmode', 0);
+                $mform->hideIf('certificaterequiredoptionsmode', 'certificaterequiresotheroptions', 'eq', '');
+            } else {
+                option_conditions_info::add_static_info_to_mform($mform, $formdata);
+            }
         } else {
             // If PRO version is not activated, we don't show the certificate field.
             // We can add a static text to inform the user.
-            if ($applyheader) {
-                fields_info::add_header_to_mform($mform, self::$header);
-            }
             $mform->addElement(
                 'static',
                 'nolicenseforcertificate',
@@ -305,6 +309,12 @@ class certificate extends field_base {
             $data->{$key} = $data->{$key} ?? booking_option::get_value_of_json_by_key((int) $data->id, $key) ?? 0;
         } else {
             $data->{$key} = booking_option::get_value_of_json_by_key((int) $data->id, $key) ?? 0;
+        }
+
+        // Load tagged conditions for the option.
+        if (!empty($data->id)) {
+            $taggedconditionids = option_conditions_info::get_tagged_condition_ids_for_option((int)$data->id);
+            $data->taggedconditions = $taggedconditionids;
         }
     }
 
@@ -368,9 +378,9 @@ class certificate extends field_base {
             $returnarray['info'] = $infotext;
         } else {
             $returnarray = [
-                'oldvalue' => $oldvaluestr,
-                'newvalue' => $newvaluestr,
-                'fieldname' => get_string($changes['fieldname'], 'mod_booking'),
+            'oldvalue' => $oldvaluestr,
+            'newvalue' => $newvaluestr,
+            'fieldname' => get_string($changes['fieldname'], 'mod_booking'),
             ];
         }
 

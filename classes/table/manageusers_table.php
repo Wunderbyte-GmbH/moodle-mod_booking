@@ -25,9 +25,11 @@
 
 namespace mod_booking\table;
 use mod_booking\local\certificateclass;
+use mod_booking\local\certificate_conditions\certificate_conditions;
 use moodle_exception;
 use core_plugin_manager;
 use mod_booking\enrollink;
+use mod_booking\event\bookingoption_completed;
 use mod_booking\event\bookinganswer_confirmed;
 use mod_booking\event\bookinganswer_denied;
 use mod_booking\local\bookingstracker\bookingstracker_helper;
@@ -697,7 +699,7 @@ class manageusers_table extends wunderbyte_table {
      * @return array
      */
     public function action_trigger_certificate_booking_answers(int $id, string $data): array {
-        global $DB;
+        global $DB, $USER;
 
         $failure = [
             'success' => 0,
@@ -723,20 +725,36 @@ class manageusers_table extends wunderbyte_table {
                 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
                 $certificateid = booking_option::get_value_of_json_by_key((int) $settings->id, 'certificate') ?? 0;
-                // Check if certificate is defined.
                 $presenceconfig = get_config('booking', 'presencestatustoissuecertificate');
+
+                // Manually trigger condition-based certificate actions with a synthetic completion event.
+                // This action runs outside the observer flow where bookingoption_completed is usually dispatched.
+                $manualevent = bookingoption_completed::create([
+                    'objectid' => (int)$optionid,
+                    'context' => context_module::instance((int)$settings->cmid),
+                    'userid' => (int)$USER->id,
+                    'relateduserid' => (int)$answerrecord->userid,
+                    'other' => ['cmid' => (int)$settings->cmid],
+                ]);
                 if (
-                    empty($certificateid)
-                    || (!empty($presenceconfig) && $answerrecord->status != $presenceconfig)
-                    || !get_config('booking', 'certificateon')
+                    certificate_conditions::evaluate_certificate_conditions_with_result(
+                        $manualevent,
+                        (int)$answerrecord->userid,
+                        (int)$optionid
+                    )
                 ) {
-                    continue;
+                    $triggered = true;
                 }
-                if (empty($presenceconfig) && $answerrecord->completed == 0) {
-                    continue;
+
+                // Keep legacy trigger behaviour for option-level certificate configuration.
+                if (
+                    !empty($certificateid)
+                    && (empty($presenceconfig) || $answerrecord->status == $presenceconfig)
+                    && (!empty($presenceconfig) || $answerrecord->completed != 0)
+                ) {
+                    $triggered = true;
+                    certificateclass::issue_certificate($optionid, $answerrecord->userid, 0, (int)$certificateid);
                 }
-                $triggered = true;
-                certificateclass::issue_certificate($optionid, $answerrecord->userid);
             } else {
                 throw new moodle_exception(
                     'invalidanswerid',
@@ -772,6 +790,7 @@ class manageusers_table extends wunderbyte_table {
         $optionid = $values->optionid;
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $cmid = $settings->cmid ?? 0;
         $ba = singleton_service::get_instance_of_booking_answers($settings);
         $jsonobject = (!empty($values->json)) ? json_decode($values->json) : null;
 
@@ -887,35 +906,43 @@ class manageusers_table extends wunderbyte_table {
             ];
         }
 
-        // Trash booking button.
-        $data[] = [
-            'title' => get_string('actionbuttondelete', 'mod_booking'), // Name of your action button.
-            'arialabel' => get_string('actionbuttondelete', 'mod_booking'), // Name of your action button.
-            'class' => 'btn btn-nolabel',
-            'href' => '#', // You can either use the link, or JS, or both.
-            'iclass' => 'fa fa-trash', // Add an icon before the label.
-            'id' => $values->id,
-            'name' => $values->id,
-            'methodname' => 'deletebooking', // The method needs to be added to your child of wunderbyte_table class.
-            'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+        // Trash booking button - only add if the user has the capability to delete booking answers.
+        if (
+            !empty($cmid) && has_capability('mod/booking:deleteresponses', context_module::instance($cmid))
+            || has_capability('mod/booking:deleteresponses', context_system::instance())
+        ) {
+            $data[] = [
+                'title' => get_string('actionbuttondelete', 'mod_booking'), // Name of your action button.
+                'arialabel' => get_string('actionbuttondelete', 'mod_booking'), // Name of your action button.
+                'class' => 'btn btn-nolabel',
+                'href' => '#', // You can either use the link, or JS, or both.
+                'iclass' => 'fa fa-trash', // Add an icon before the label.
                 'id' => $values->id,
-                'labelcolumn' => 'username',
-                'titlestring' => 'delete',
-                'bodystring' => 'deletebookinglong',
-                'submitbuttonstring' => 'delete',
-                'component' => 'mod_booking',
-                'optionid' => $values->optionid,
-                'userid' => $values->userid,
-            ],
-        ];
+                'name' => $values->id,
+                'methodname' => 'deletebooking', // The method needs to be added to your child of wunderbyte_table class.
+                'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+                    'id' => $values->id,
+                    'labelcolumn' => 'username',
+                    'titlestring' => 'delete',
+                    'bodystring' => 'deletebookinglong',
+                    'submitbuttonstring' => 'delete',
+                    'component' => 'mod_booking',
+                    'optionid' => $values->optionid,
+                    'userid' => $values->userid,
+                ],
+            ];
+        }
 
         // This transforms the array to make it easier to use in mustache template.
-        table::transform_actionbuttons_array($data);
+        if (!empty($data)) {
+            table::transform_actionbuttons_array($data);
 
-        return $OUTPUT->render_from_template(
-            'local_wunderbyte_table/component_actionbutton',
-            ['showactionbuttons' => $data]
-        );
+            return $OUTPUT->render_from_template(
+                'local_wunderbyte_table/component_actionbutton',
+                ['showactionbuttons' => $data]
+            );
+        }
+        return '';
     }
 
     /**
@@ -928,33 +955,40 @@ class manageusers_table extends wunderbyte_table {
 
         global $OUTPUT;
 
-        $data[] = [
-            'label' => get_string('actionbuttondelete', 'mod_booking'), // Name of your action button.
-            'class' => '',
-            'href' => '#', // You can either use the link, or JS, or both.
-            'iclass' => 'fa fa-trash', // Add an icon before the label.
-            'id' => $values->id,
-            'name' => $values->id,
-            'methodname' => 'deletebooking', // The method needs to be added to your child of wunderbyte_table class.
-            'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid);
+        $cmid = $settings->cmid ?? 0;
+
+        if (!empty($cmid) && has_capability('mod/booking:deleteresponses', context_module::instance($cmid))) {
+            $data[] = [
+                'label' => get_string('actionbuttondelete', 'mod_booking'), // Name of your action button.
+                'class' => '',
+                'href' => '#', // You can either use the link, or JS, or both.
+                'iclass' => 'fa fa-trash', // Add an icon before the label.
                 'id' => $values->id,
-                'labelcolumn' => 'username',
-                'titlestring' => 'delete',
-                'bodystring' => 'deletebookinglong',
-                'submitbuttonstring' => 'delete',
-                'component' => 'mod_booking',
-                'optionid' => $values->optionid,
-                'userid' => $values->userid,
-            ],
-        ];
+                'name' => $values->id,
+                'methodname' => 'deletebooking', // The method needs to be added to your child of wunderbyte_table class.
+                'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+                    'id' => $values->id,
+                    'labelcolumn' => 'username',
+                    'titlestring' => 'delete',
+                    'bodystring' => 'deletebookinglong',
+                    'submitbuttonstring' => 'delete',
+                    'component' => 'mod_booking',
+                    'optionid' => $values->optionid,
+                    'userid' => $values->userid,
+                ],
+            ];
 
-        // This transforms the array to make it easier to use in mustache template.
-        table::transform_actionbuttons_array($data);
+            // This transforms the array to make it easier to use in mustache template.
+            table::transform_actionbuttons_array($data);
 
-        return $OUTPUT->render_from_template(
-            'local_wunderbyte_table/component_actionbutton',
-            ['showactionbuttons' => $data]
-        );
+            return $OUTPUT->render_from_template(
+                'local_wunderbyte_table/component_actionbutton',
+                ['showactionbuttons' => $data]
+            );
+        }
+        // If user has no capability to delete, we return an empty string to not show the button.
+        return '';
     }
 
     /**

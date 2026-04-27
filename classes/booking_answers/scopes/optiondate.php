@@ -42,6 +42,12 @@ use moodle_url;
  */
 class optiondate extends scope_base {
     /**
+     * Scope name.
+     * @var string
+     */
+    public $scope = 'optiondate';
+
+    /**
      * Render users table based on status param
      *
      * @param string $scope

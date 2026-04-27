@@ -1,3 +1,71 @@
+## Version 9.3.0 (2026040800)
+* New feature: Add possibility to save booking option templates without title and use template name instead.
+* New feature: Add possibility for users with addeditownoption capability to actually add and edit their own option. Add new usercreated and usermodified fields to booking options and display them.
+* New feature: Create new setting to issue certificates only manually.
+* Improvement: Treat elements that need special format directly in definition_after_data of template.php.
+* Improvement: Make sure copytotemplate uses set_data of field classes and creates new booking option correctly with the booking_option::update function.
+* Improvement: Move booking option template creation from report.php to optiontemplatesettings.php and add new entry to dropdown menu.
+* Improvement: Make sure addeditownoption is an edit-only capability (wrongly named for legacy reasons). To create booking options we introduce a new mod/booking:adoption capability.
+* Improvement: handle empty teachers.
+* Improvement: adapt certificate shortcode to requirements.
+* Improvement: make editsemesters a capability.
+* Improvement: Updated packages for vue.
+* Improvement: Show real form values instead of just keys for form field selects.
+* Improvement: Show name of booking instance when recreating option dates with change semesters form.
+* Improvement: Better icon in bookings tracker.
+* Improvement: Design improvements of Bookings tracker (report2.php).
+* Improvement: Improve dates placeholders and templates and remove redundancies.
+* Bugfix: Also set 0 value of selflearningcourse in duration class.
+* Bugfix: Fix date_time_selectors in booking option templates.
+* Bugfix: Make sure option dates can also be saved within template.
+* Bugfix: Fix form submission in mobile app.
+* Bugfix: fix empty temp values.
+* Bugfix: delete_conditions_by_context function was never called because of typo.
+* Bugfix: Fixed displaying empty booking option list.
+* Bugfix: Fix NULL useridfrom when booking manager account is missing.
+* Bugfix: Keep HTML in description placeholder by using format_text instead of format_string.
+* Bugfix: Admin & all persons who have alwayscanapprove capability can confirm answers regardless of any other conditions.
+
+## Version 9.2.1 (2026033000)
+* Improvement: Make sure freetobookagain event is also triggered at campaign start/end if there are free places again because of campaign limits. Do this within the purge_campaign_caches task.
+* Bugfix: Make sure specific time mails are not sent incorrectly.
+
+## Version 9.2.0 (2026032700)
+* New feature: Show custom fields of related person (person affected by event) by adding "-related" to the placeholder, e.g. {myuserprofilefield-related}.
+* New feature: New {emailrelated} placeholder to show e-mail of the related user (person affected by event).
+* New feature: Make all conditions skippable and hide or freeze them in form depending on capability.
+* Improvement: Major improvements for field customfield handling and custom field performance.
+* Improvement: Make sure we also add custom fields with empty value to customfieldsfortemplates array.
+* Improvement: Task to check campaign start and end and check if freetobookagain event should be triggered.
+* Improvement: Add certificate conditions.
+* Improvement: Do not show certain buttons in wrong contexts (or when capability is missing).
+* Improvement: Answers can be updated on import.
+* Improvement: Add customfieldshortname-not functionality to shortcodes to exclude customfields.
+* Improvement: Include Cohort and cohort selector into report.
+* Improvement: Add a fallback on optionid when a rule event actually references a different table id.
+* Improvement: When a user has completed a booking option, (s)he cannot cancel anymore.
+* Improvement: Fix hardcoded supervisor logic.
+* Improvement: Created years past filter.
+* Improvement: Created a filter that checks if the value of a profilefield is the current user.
+* Improvement: Divided datasource more broadly into answers and options.
+* Improvement: Remove legacy code with field sport that does not exist in booking.
+* Bugfix: Possibility to use custom user profile field twice for availability condition.
+* Bugfix: Fix permission check in search_users web service.
+* Bugfix: Selflearningcourse element is introduced in duration class, so move hidelf check for enrolmentstatus to duration class.
+* Bugfix: Fix call of get_instance_fields_data (use static function in api).
+* Bugfix: Fix reduced forms if elements depend on other non-present elements.
+* Bugfix: Make sure reduced forms can be saved even if custom fields are missing.
+* Bugfix: Only send reminder mails with correct runtime.
+* Bugfix: Fix unit tests bug when timezone switches to daylight saving time (DST).
+* Bugfix: Fix bug when 'fieldname' key in recurringoptions is not set.
+* Bugfix: Customfield shortnames are not unique.
+* Bugfix: Confirm not showing when user is booked.
+* Bugfix: fix capability check when no shopping cart is used.
+* Bugfix: When a field in a custom form must not be empty we also do not allow blanks.
+* Bugfix: add missing booking instance settings on cancellation to the backup.
+* Bugfix: Fix timezone bug that saved wrong dates when user had a different timezone than server timezone.
+* Bugfix: Do not load any deleted, suspended or unconfirmed users.
+
 ## Version 9.1.6 (2026030900)
 * New feature: Show custom fields of related person (person affected by event) by adding "-related" to the placeholder, e.g. {myuserprofilefield-related}.
 * New feature: New {emailrelated} placeholder to show e-mail of the related user (person affected by event).

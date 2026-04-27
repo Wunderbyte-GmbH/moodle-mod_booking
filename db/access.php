@@ -74,7 +74,17 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
+    // This is ONLY the editing capability, but we kept the name for legacy reasons.
     'mod/booking:addeditownoption' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+    ],
+    // This is the capability to ADD new booking options. It is separate from the editing capability.
+    'mod/booking:addoption' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => [
@@ -290,6 +300,15 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
+    // Capability to administrate certificate conditions.
+    // Has to be assigned via global role!
+    'mod/booking:editcertificateconditions' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ],
+    ],
     // Expert option form capability. Can be configured via settings.
     'mod/booking:expertoptionform' => [
         'captype' => 'write',
@@ -445,6 +464,13 @@ $capabilities = [
         'archetypes' => [
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+    ],
+    'mod/booking:editsemesters' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
             'manager' => CAP_ALLOW,
         ],
     ],

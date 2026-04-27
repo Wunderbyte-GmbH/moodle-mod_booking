@@ -57,21 +57,12 @@ class optiondates_only implements renderable, templatable {
      */
     public function __construct(booking_option_settings $settings) {
 
-        $sessions = dates_handler::return_dates_with_strings($settings, '', true);
+        $sessions = dates_handler::return_dates_with_strings($settings);
 
         $numberofsessions = count($sessions);
 
         $this->onesession = $numberofsessions === 1;
         $this->showsessions = $numberofsessions > 0;
-
-        foreach ($sessions as $session) {
-            $session->datestring = $session->startdatetime;
-
-            if ($session->startdate !== $session->enddate) {
-                $session->datestring .= " - " . $session->enddatetime;
-            }
-        }
-
         $this->sessions = $sessions;
     }
 
@@ -79,16 +70,14 @@ class optiondates_only implements renderable, templatable {
      * Export for template
      *
      * @param renderer_base $output
-     *
-     * @return void
-     *
+     * @return array
      */
     public function export_for_template(renderer_base $output) {
 
         return [
-                'showsessions' => $this->showsessions,
-                'onesession' => $this->onesession,
-                'dates' => $this->sessions,
+            'showsessions' => $this->showsessions,
+            'onesession' => $this->onesession,
+            'dates' => $this->sessions,
         ];
     }
 }

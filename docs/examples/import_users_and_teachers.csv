@@ -1,0 +1,8 @@
+text,identifier,description,location,coursestarttime,courseendtime,maxanswers,teacheremail,useremail,timebooked,completed,waitforconfirmation,enroltocourseshortname
+Introduction to Python,PYTHON-2026-01,Learn the basics of Python programming.,Room 3B,2026-04-15 09:00:00,2026-04-15 11:00:00,20,trainer@example.com,,,,,python-2026
+Introduction to Python,PYTHON-2026-01,,,,,,,alice@example.com,2026-03-10 14:00:00,0,,
+Introduction to Python,PYTHON-2026-01,,,,,,,bob@example.com,2026-03-11 09:30:00,0,,
+Introduction to Python,PYTHON-2026-01,,,,,,,carol@example.com,2026-03-12 16:45:00,1,,
+Advanced Python,PYTHON-2026-02,Decorators and async programming.,Room 3B,2026-05-06 09:00:00,2026-05-06 17:00:00,15,trainer@example.com|secondtrainer@example.com,,,,,python-adv-2026
+Advanced Python,PYTHON-2026-02,,,,,,,alice@example.com,2026-03-15 10:00:00,0,,
+Advanced Python,PYTHON-2026-02,,,,,,,dave@example.com,2026-03-16 11:15:00,0,,

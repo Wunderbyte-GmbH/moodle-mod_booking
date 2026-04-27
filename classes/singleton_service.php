@@ -866,14 +866,16 @@ class singleton_service {
      *
      * @param int $optionid
      * @param int $userid
+     * @param int $conditionid
      *
      * @return void
      *
      */
-    public static function set_temp_values_for_certificates(int $optionid, int $userid) {
+    public static function set_temp_values_for_certificates(int $optionid, int $userid, int $conditionid) {
         $instance = self::get_instance();
         $instance->tempdataforcertificate[] = $userid;
         $instance->tempdataforcertificate[] = $optionid;
+        $instance->tempdataforcertificate[] = $conditionid;
     }
 
     /**
@@ -895,7 +897,7 @@ class singleton_service {
      */
     public static function unset_temp_values_for_certificates() {
         $instance = self::get_instance();
-        unset($instance->kswuserid, $instance->kswoptionid);
+        unset($instance->tempdataforcertificate);
     }
 
     /**

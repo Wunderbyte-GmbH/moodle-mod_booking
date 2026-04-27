@@ -31,6 +31,12 @@ use local_wunderbyte_table\wunderbyte_table;
  */
 class supervisorteamreduced extends supervisorteam {
     /**
+     * Scope name.
+     * @var string
+     */
+    public $scope = 'supervisorteamreduced';
+
+    /**
      * Render users table based on status param
      *
      * @param string $scope

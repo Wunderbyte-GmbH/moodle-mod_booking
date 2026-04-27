@@ -108,6 +108,12 @@ class booking_option_settings {
     /** @var int $timemodified */
     public $timemodified = null;
 
+    /** @var int $usercreated ID of the user who created this booking option. */
+    public $usercreated = 0;
+
+    /** @var int $usermodified ID of the user who last modified this booking option. */
+    public $usermodified = 0;
+
     /** @var int $addtocalendar */
     public $addtocalendar = null;
 
@@ -430,6 +436,8 @@ class booking_option_settings {
             $this->limitanswers = $dbrecord->limitanswers;
             $this->timecreated = $dbrecord->timecreated;
             $this->timemodified = $dbrecord->timemodified;
+            $this->usercreated = $dbrecord->usercreated ?? 0;
+            $this->usermodified = $dbrecord->usermodified ?? 0;
             $this->addtocalendar = $dbrecord->addtocalendar;
             $this->calendarid = $dbrecord->calendarid;
             $this->pollurl = $dbrecord->pollurl;

@@ -356,6 +356,18 @@ class rule_specifictime implements booking_rule {
                 // If we found a matching optiondateid but times don't match,
                 // set to false - maybe rules has changed.
                 $rulestillapplies = false;
+            } else {
+                // If there are no optiondates involved, we just compare the runtimes.
+                if (isset($record->seconds)) {
+                    $this->seconds = (int)$record->seconds;
+                }
+                $oldnextruntime = (int) $record->datefield - (int) $this->seconds;
+                if ($oldnextruntime == $nextruntime) {
+                    $rulestillapplies = true;
+                    break;
+                }
+
+                $rulestillapplies = false;
             }
         }
         return $rulestillapplies;

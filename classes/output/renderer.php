@@ -545,18 +545,6 @@ class renderer extends plugin_renderer_base {
      * @param object $data
      * @return string
      */
-    public function render_optiondates_for_placeholder($data) {
-        $o = '';
-        $data = $data->export_for_template($this);
-        $o .= $this->render_from_template('mod_booking/optiondates_for_placeholder', $data);
-        return $o;
-    }
-
-    /**
-     * Render function to render a simple string of optiondates separated by ", ".
-     * @param object $data
-     * @return string
-     */
     public function render_optiondates_with_entities($data) {
         $o = '';
         $data = $data->export_for_template($this);
@@ -692,6 +680,16 @@ class renderer extends plugin_renderer_base {
     public function render_ruleslist($data) {
         $data = $data->export_for_template($this);
         return $this->render_from_template('mod_booking/ruleslist', $data);
+    }
+
+    /**
+     * Render certificate conditions list
+     * @param object $data
+     * @return string
+     */
+    public function render_certificateconditionslist($data) {
+        $data = $data->export_for_template($this);
+        return $this->render_from_template('mod_booking/certificateconditionslist', $data);
     }
 
     /**

@@ -410,11 +410,14 @@ class message_controller {
 
         $messagedata = new message();
 
-        // If a valid booking manager was set, use booking manager as sender, else global $USER will be set.
-        if (!empty($this->bookingmanager)) {
+        // If a valid booking manager was set, use booking manager as sender.
+        // Fall back to $USER if available (non-cron context), or noreply user (e.g. in adhoc task / cron).
+        if (!empty($this->bookingmanager->id)) {
             $messagedata->userfrom = $this->bookingmanager;
-        } else {
+        } else if (!empty($USER->id)) {
             $messagedata->userfrom = $USER;
+        } else {
+            $messagedata->userfrom = \core_user::get_noreply_user();
         }
         $messagedata->userto = $this->user;
         $messagedata->modulename = 'booking';
@@ -448,11 +451,14 @@ class message_controller {
 
         $messagedata = new stdClass();
 
-        // If a valid booking manager was set, use booking manager as sender, else global $USER will be set.
-        if (!empty($this->bookingmanager)) {
+        // If a valid booking manager was set, use booking manager as sender.
+        // Fall back to $USER if available (non-cron context), or noreply user (e.g. in adhoc task / cron).
+        if (!empty($this->bookingmanager->id)) {
             $messagedata->userfrom = $this->bookingmanager;
-        } else {
+        } else if (!empty($USER->id)) {
             $messagedata->userfrom = $USER;
+        } else {
+            $messagedata->userfrom = \core_user::get_noreply_user();
         }
 
         $messagedata->modulename = 'booking';

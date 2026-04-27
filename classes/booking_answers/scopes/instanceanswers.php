@@ -39,6 +39,12 @@ use moodle_url;
  */
 class instanceanswers extends scope_base_answers {
     /**
+     * Scope name.
+     * @var string
+     */
+    public $scope = 'instanceanswers';
+
+    /**
      * Returns the sql to fetch booked users with a certain status.
      * Orderd by timemodified, to be able to sort them.
      * @param string $scope option | instance | course | system
@@ -140,13 +146,20 @@ class instanceanswers extends scope_base_answers {
         $table->sort_default_column = 'timemodified';
         $table->sort_default_order = SORT_DESC;
 
-        if (!empty($certificatebutton = booked_users::create_certificate_button())) {
+        if (
+            $statusparam == MOD_BOOKING_STATUSPARAM_BOOKED
+            && !empty($certificatebutton = booked_users::create_certificate_button())
+        ) {
             $table->actionbuttons[] = $certificatebutton;
         }
 
         if ($statusparam != MOD_BOOKING_STATUSPARAM_DELETED) {
             $table->addcheckboxes = true;
-            $table->actionbuttons[] = booked_users::create_delete_button();
+
+            // Only show delete button if user has capability to delete responses.
+            if ($this->has_capability_in_scope($scopeid, 'mod/booking:deleteresponses')) {
+                $table->actionbuttons[] = booked_users::create_delete_button();
+            }
         }
 
         return $table;

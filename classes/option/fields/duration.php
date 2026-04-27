@@ -216,6 +216,11 @@ class duration extends field_base {
         $mform->setType('duration', PARAM_INT);
         $mform->setDefault('duration', 2592000); // 30 days.
         $mform->hideIf('duration', 'selflearningcourse', 'neq', 1);
+
+        // Hide enrolmentstatus when selflearningcourse is enabled.
+        if ($mform->elementExists('enrolmentstatus')) {
+            $mform->hideIf('enrolmentstatus', 'selflearningcourse', 'eq', 1);
+        }
     }
 
     /**
@@ -231,24 +236,12 @@ class duration extends field_base {
             $data->selflearningcourse = $data->selflearningcourse
                 ?? $settings->selflearningcourse ?? 0;
         } else {
-            $selflearningcourse = $settings->selflearningcourse;
+            $selflearningcourse = $settings->selflearningcourse ?? 0;
             if (!empty($selflearningcourse)) {
                 $data->selflearningcourse = $selflearningcourse;
+            } else {
+                $data->selflearningcourse = 0;
             }
-        }
-
-        // If it's from a template, we need to convert the seconds to number and unit.
-        if (!empty($data->fromtemplate)) {
-            $durationinseconds = $settings->duration ?? 0;
-            // Instantiate a dummy duration element (required to call the method).
-            $durationelement = new MoodleQuickForm_duration('duration', 'Duration');
-            // Convert the seconds to number and unit using the dummy element.
-            [$number, $timeunit] = $durationelement->seconds_to_unit($durationinseconds);
-            $data->duration = [
-                'number'   => $number,
-                'timeunit' => $timeunit,
-            ];
-            return;
         }
 
         // Normally, we don't call set data after the first time loading.

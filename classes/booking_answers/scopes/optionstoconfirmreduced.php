@@ -39,6 +39,12 @@ use local_wunderbyte_table\wunderbyte_table;
  */
 class optionstoconfirmreduced extends optionstoconfirm {
     /**
+     * Scope name.
+     * @var string
+     */
+    public $scope = 'optionstoconfirmreduced';
+
+    /**
      * Render users table based on status param
      *
      * @param string $scope

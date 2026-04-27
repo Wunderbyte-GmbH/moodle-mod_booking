@@ -25,13 +25,15 @@
 namespace mod_booking;
 
 use coding_exception;
+use mod_booking\bo_availability\conditions\customform;
 use mod_booking\output\report_edit_bookingnotes;
 use html_writer;
 use moodle_url;
 use stdClass;
 use user_picture;
 defined('MOODLE_INTERNAL') || die();
-require_once('../../lib/tablelib.php');
+global $CFG;
+require_once($CFG->libdir . '/tablelib.php');
 
 /**
  * Displays all bookings for a booking option
@@ -386,6 +388,7 @@ class all_userbookings extends \table_sql {
             $ba = singleton_service::get_instance_of_booking_answers($settings);
             $usersonlist = $ba->get_usersonlist();
             $usersonwaitinglist = $ba->get_usersonwaitinglist();
+
             if (
                 $answer = $usersonlist[(int)$value->userid]
                 ?? $usersonwaitinglist[(int)$value->userid]
@@ -393,18 +396,9 @@ class all_userbookings extends \table_sql {
             ) {
                 [$prefix, $counter] = explode('_', $colname);
 
-                if (
-                    isset($answer->json) &&
-                    $jsonobject = json_decode($answer->json)
-                ) {
-                    if (isset($jsonobject->condition_customform)) {
-                        foreach ($jsonobject->condition_customform as $key => $value) {
-                            $array = explode('_', $key);
-                            if (isset($array[2]) &&  $array[2] == $counter) {
-                                return format_string((string)$value);
-                            }
-                        }
-                    }
+                $customformvalue = customform::get_customform_field_value($settings, $answer, (int)$counter);
+                if ($customformvalue !== null) {
+                    return format_string($customformvalue);
                 }
             }
             return '';
@@ -684,6 +678,62 @@ class all_userbookings extends \table_sql {
         echo '<hr>';
     }
     /**
+     * Return certificate issues for the current row, using SQL fallback if aggregated JSON is invalid.
+     *
+     * @param stdClass $values
+     * @return array
+     */
+    private function get_certificates_for_row(stdClass $values): array {
+        global $DB;
+
+        if (!empty($values->certificate)) {
+            $decoded = json_decode($values->certificate);
+            if (is_array($decoded)) {
+                return $decoded;
+            }
+            if (is_object($decoded)) {
+                return (array)$decoded;
+            }
+        }
+
+        if (empty($values->userid) || empty($values->optionid)) {
+            return [];
+        }
+
+        $params = [
+            'userid' => (int)$values->userid,
+            'optionid' => (int)$values->optionid,
+        ];
+        $databasetype = $DB->get_dbfamily();
+
+        switch ($databasetype) {
+            case 'postgres':
+                $sql = "
+                    SELECT id, code, expires, timecreated
+                      FROM {tool_certificate_issues}
+                     WHERE userid = :userid
+                       AND (data::jsonb ->> 'bookingoptionid') ~ '^[0-9]+$'
+                       AND (data::jsonb ->> 'bookingoptionid')::int = :optionid
+                     ORDER BY timecreated, id
+                ";
+                break;
+            case 'mysql':
+                $sql = "
+                    SELECT id, code, expires, timecreated
+                      FROM {tool_certificate_issues}
+                     WHERE userid = :userid
+                       AND CAST(JSON_UNQUOTE(JSON_EXTRACT(data, '$.bookingoptionid')) AS UNSIGNED) = :optionid
+                     ORDER BY timecreated, id
+                ";
+                break;
+            default:
+                return [];
+        }
+
+        return array_values($DB->get_records_sql($sql, $params));
+    }
+
+    /**
      * Column for latest Certificate.
      *
      * @param stdClass $values
@@ -696,16 +746,22 @@ class all_userbookings extends \table_sql {
         $cross = '&#x274C; ';
         $now = time();
 
-        if (!isset($values->certificate)) {
+        $certificates = $this->get_certificates_for_row($values);
+        if (empty($certificates)) {
             return "";
         }
 
-        $certificates = json_decode($values->certificate);
         $expiredates = [];
+        $timecreated = [];
+        $code = [];
         foreach ($certificates as $cert) {
             $expiredates[] = $cert->expires;
             $timecreated[] = $cert->timecreated;
             $code[] = $cert->code;
+        }
+
+        if (empty($timecreated) || empty($code)) {
+            return "";
         }
 
         $lastexpiredate = end($expiredates);
@@ -735,10 +791,10 @@ class all_userbookings extends \table_sql {
     public function col_allusercertificates(stdClass $values) {
         global $OUTPUT;
         static $id = 1;
-        if (empty($values->certificate)) {
+        $certificates = $this->get_certificates_for_row($values);
+        if (empty($certificates)) {
             return "";
         }
-        $certificates = json_decode($values->certificate);
         $certdata = [];
         $fullname = "{$values->firstname} {$values->lastname}";
 

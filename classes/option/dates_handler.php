@@ -894,7 +894,14 @@ class dates_handler {
 
         // Datestring.
         $date->datestring = $date->startdatetime . ($showweekdays ? $h : '');
+
         if ($endtime) {
+            // In case both time stamps are exactly the same, we do not show the end time at all.
+            if ($date->startdatetime === $date->enddatetime) {
+                $date->datestring .= $h;
+                return $date;
+            }
+            // In case both dates are on the same day, we only show the date once and not for the end time.
             $date->datestring .= " - ";
             $date->datestring .= $date->startdate !== $date->enddate
                 ? $date->enddatetime . $h

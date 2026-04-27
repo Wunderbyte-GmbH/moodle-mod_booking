@@ -40,6 +40,12 @@ use moodle_url;
  */
 class alloptions extends option {
     /**
+     * Scope name.
+     * @var string
+     */
+    public $scope = 'alloptions';
+
+    /**
      * Render users table based on status param
      *
      * @param string $scope
