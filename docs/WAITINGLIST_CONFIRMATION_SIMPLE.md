@@ -14,6 +14,8 @@ flowchart TD
     I -->|Yes| J[User is allowed to book]
     I -->|No| F
 
+    F -->|User unsubscribes before confirmation| Q
+
     F --> K{Manual confirmation by admin/manager}
     K -->|Yes| J
 
@@ -27,7 +29,7 @@ flowchart TD
     N -->|Yes| J
     N -->|No – wait for next interval| F
 
-    J --> P{User cancels their waitinglist place}
+    J --> P{User cancels their confirmed WL place}
 
     P -->|No – user keeps their confirmed place| C{Payment required?}
     C -->|No| O[Enrolled immediately]
@@ -40,6 +42,10 @@ flowchart TD
 ```
 
 ## Key points
+
+- **A WL user can unsubscribe at any point – before or after confirmation.**
+  Whether still unconfirmed (`F`) or already confirmed/allowed to book (`J`), withdrawing sets the
+  WL record to `DELETED` and frees the WL slot. In both cases the path leads to `Q`.
 
 - **Cancelling from the waitinglist frees only a WL slot, not a booked slot.**
   The `bookingoption_freetobookagain` event is **not** triggered when a WL user withdraws.
