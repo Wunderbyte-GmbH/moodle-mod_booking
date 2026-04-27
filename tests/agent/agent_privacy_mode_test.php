@@ -50,17 +50,27 @@ final class agent_privacy_mode_test extends abstract_agent_testcase {
      */
     public function test_privacy_soft_mode_anonymizes_names(): void {
         $this->setUser($this->teacher);
+        set_config('aiprivacymode', 'soft', 'booking');
 
-        // Create a conversation store (defaults to MODE_OFF unless configured).
+        // Ensure the anonymizer can deterministically match this full name.
+        $this->getDataGenerator()->create_user([
+            'firstname' => 'John',
+            'lastname' => 'Smith',
+        ]);
+        \cache_helper::purge_by_definition('mod_booking', 'aiprivacynames');
+
+        // Create a conversation store in soft mode.
         $store = new conversation_store();
         $anonymizer = new privacy_anonymizer($store);
+        $this->assertSame('soft', $anonymizer->get_mode());
 
         // Test message with teacher name.
         $message = 'Please assign John Smith as the teacher for this option.';
 
-        // In MODE_OFF, names should pass through unchanged.
+        // In MODE_SOFT, person names should be anonymized for LLM-bound text.
         $resultoff = $anonymizer->precheck_user_message(0, $message);
-        $this->assertStringContainsString('John Smith', $resultoff['sanitizedmessage']);
+        $this->assertStringContainsString('ANON_USER_', $resultoff['sanitizedmessage']);
+        $this->assertStringNotContainsString('John Smith', $resultoff['sanitizedmessage']);
 
         // Verify the function executes without error.
         $this->assertTrue(true, "Privacy precheck executed successfully");

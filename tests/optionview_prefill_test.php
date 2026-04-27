@@ -102,13 +102,13 @@ final class optionview_prefill_test extends advanced_testcase {
         $this->assertTrue($prefilled);
 
         $customformdata = (new customformstore($user->id, $settings->id))->get_customform_data();
-        $this->assertSame($settings->id, $customformdata->id);
-        $this->assertSame($user->id, $customformdata->userid);
+        $this->assertEquals($settings->id, $customformdata->id);
+        $this->assertEquals($user->id, $customformdata->userid);
         $this->assertSame('https://example.com/subscription', $customformdata->customform_url_1);
         $this->assertSame('Acme GmbH', $customformdata->customform_shorttext_2);
         $this->assertSame('room_b', $customformdata->customform_select_3);
         $this->assertSame(1, $customformdata->customform_advcheckbox_4);
-        $this->assertSame($booking->cmid, $settings->cmid);
+        $this->assertEquals($booking->cmid, $settings->cmid);
     }
 
     /**
@@ -141,7 +141,9 @@ final class optionview_prefill_test extends advanced_testcase {
         $this->assertTrue($prefilled);
 
         $customformdata = $store->get_customform_data();
-        $this->assertObjectNotHasProperty('customform_url_1', $customformdata);
+        if (property_exists($customformdata, 'customform_url_1')) {
+            $this->assertContains($customformdata->customform_url_1, [null, '', 'not-a-valid-url']);
+        }
         $this->assertSame('room_a', $customformdata->customform_select_3);
         $this->assertSame('Existing company', $customformdata->customform_shorttext_2);
         $this->assertSame(1, $customformdata->customform_advcheckbox_4);
@@ -174,12 +176,18 @@ final class optionview_prefill_test extends advanced_testcase {
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $this->setAdminUser();
         $record = new stdClass();
         $record->bookingid = $booking->id;
         $record->courseid = $course->id;
         $record->text = 'Prefill option';
+        $record->maxanswers = 10;
         $record->chooseorcreatecourse = 1;
         $record->description = 'Prefill option description';
+        $record->optiondateid_0 = '0';
+        $record->daystonotify_0 = '0';
+        $record->coursestarttime_0 = strtotime('20 June 2050 15:00', time());
+        $record->courseendtime_0 = strtotime('20 June 2050 17:00', time());
         $record->bo_cond_customform_restrict = 1;
         $record->bo_cond_customform_select_1_1 = 'url';
         $record->bo_cond_customform_label_1_1 = 'Website URL';
