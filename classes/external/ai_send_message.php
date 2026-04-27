@@ -78,11 +78,11 @@ class ai_send_message extends external_api {
 
     /** Basic subscription purchase URL. */
     private const BASIC_SUBSCRIPTION_URL =
-        'https://showroom.wunderbyte.at/mod/booking/optionview.php?optionid=73&cmid=938';
+        'https://showroom.wunderbyte.at/mod/booking/optionview.php?optionid=73&cmid=938&userid=1';
 
     /** Privacy Plus subscription purchase URL. */
     private const PRIVACY_PLUS_SUBSCRIPTION_URL =
-        'https://showroom.wunderbyte.at/mod/booking/optionview.php?optionid=74&cmid=938';
+        'https://showroom.wunderbyte.at/mod/booking/optionview.php?optionid=74&cmid=938&userid=1';
 
     /**
      * Describe the parameters.
