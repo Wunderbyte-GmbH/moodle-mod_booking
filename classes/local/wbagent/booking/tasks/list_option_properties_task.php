@@ -17,6 +17,7 @@
 namespace mod_booking\local\wbagent\booking\tasks;
 
 use mod_booking\local\wbagent\booking\booking_task_support;
+use mod_booking\local\wbagent\services\list_option_properties_answering_service;
 use mod_booking\local\wbagent\task_registry;
 
 /**
@@ -57,9 +58,19 @@ class list_option_properties_task extends base_booking_task {
             'description' => 'List booking option properties derived from create/update task schemas.',
             'readonly' => $this->is_read_only(),
             'properties' => [
+                'question' => [
+                    'type' => 'string',
+                    'description' => 'Optional original user question for language detection and phrasing.',
+                    'required' => false,
+                ],
                 'scope' => [
                     'type' => 'string',
                     'description' => 'Filter scope: all (default), create, update, or shared.',
+                    'required' => false,
+                ],
+                'outputlang' => [
+                    'type' => 'string',
+                    'description' => 'Optional language code override for the user-facing summary, e.g. de or en.',
                     'required' => false,
                 ],
             ],
@@ -97,6 +108,8 @@ class list_option_properties_task extends base_booking_task {
      * @return array
      */
     public function execute(array $input, int $cmid, int $userid): array {
+        $question = trim((string)($input['question'] ?? ''));
+        $outputlang = $this->get_output_language($input);
         $registry = task_registry::make_default();
         $createtask = $registry->get_task(create_option_task::TASK_NAME);
         $updatetask = $registry->get_task(update_option_task::TASK_NAME);
@@ -142,16 +155,50 @@ class list_option_properties_task extends base_booking_task {
             ];
         }
 
+        $usermessage = '';
+        $answersource = 'none';
+        try {
+            $answeringresult = $this->create_list_option_properties_answering_service()->answer_question(
+                $question,
+                $scope,
+                $properties,
+                $outputlang,
+                $cmid,
+                $userid
+            );
+            $llmanswer = trim((string)($answeringresult['answer'] ?? ''));
+            if ($llmanswer !== '') {
+                $usermessage = $this->enforce_max_chars($llmanswer, 650);
+                $answersource = 'llm';
+            }
+        } catch (\Throwable $e) {
+            $answersource = 'error';
+        }
+
         return [
             'status' => 'executed',
-            'detail' => '',
+            'detail' => $usermessage,
             'resultid' => null,
+            'summary' => $usermessage,
+            'usermessage' => $usermessage,
             'properties' => $properties,
             'debugmessage' => $this->build_task_debug_message(
                 self::TASK_NAME,
                 $input,
-                ['Properties returned: ' . count($properties)]
+                [
+                    'Properties returned: ' . count($properties),
+                    'Answer source: ' . $answersource,
+                ]
             ),
         ];
+    }
+
+    /**
+     * Create the list-option-properties answering service.
+     *
+     * @return list_option_properties_answering_service
+     */
+    protected function create_list_option_properties_answering_service(): list_option_properties_answering_service {
+        return new list_option_properties_answering_service();
     }
 }

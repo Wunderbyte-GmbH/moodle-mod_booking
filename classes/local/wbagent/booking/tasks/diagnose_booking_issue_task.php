@@ -19,6 +19,7 @@ namespace mod_booking\local\wbagent\booking\tasks;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\local\wbagent\booking\booking_task_support;
 use mod_booking\local\wbagent\interfaces\task_trigger_provider_interface;
+use mod_booking\local\wbagent\services\diagnose_answering_service;
 use mod_booking\singleton_service;
 
 /**
@@ -172,15 +173,15 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
      */
     public function execute(array $input, int $cmid, int $userid): array {
         global $DB;
-        $lang = $this->get_output_language($input);
+        $outputlang = $this->get_output_language($input);
 
         $issuetype = $this->resolve_issue_type($input);
-        $resolvedoption = $this->resolve_option_id($input, $cmid, $userid, $lang);
+        $resolvedoption = $this->resolve_option_id($input, $cmid, $userid, $outputlang);
         if (($resolvedoption['status'] ?? '') !== 'ok') {
             return [
                 'status' => 'error',
                 'detail' => (string)($resolvedoption['message']
-                    ?? $this->localized_string('agent_booking_diagnose_error_option_resolve', null, $lang)),
+                    ?? $this->localized_string('agent_booking_diagnose_error_option_resolve', null, $outputlang)),
                 'resultid' => null,
                 'debugmessage' => $this->build_task_debug_message(self::TASK_NAME, $input, ['Status: error']),
             ];
@@ -194,8 +195,32 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
         $optionstats = $this->collect_option_stats($bookingid, $optionid, $userid, $settings);
 
         $userstatus = (string)$optionstats['userstatus'];
-        $reasons = $this->build_reason_lines($issuetype, $optionstats, $conditionresults, $lang);
-        $usermessage = $this->build_user_message($issuetype, $optionname, $userstatus, $reasons, $lang);
+        $reasons = $this->build_reason_lines($issuetype, $optionstats, $conditionresults);
+
+        $usermessage = '';
+        $answersource = 'none';
+        try {
+            $answeringresult = $this->create_diagnose_answering_service()->answer_question(
+                (string)($input['question'] ?? ''),
+                [
+                    'issuetype' => $issuetype,
+                    'optionname' => $optionname,
+                    'userstatus' => $userstatus,
+                    'reasons' => $reasons,
+                    'stats' => $optionstats,
+                ],
+                $outputlang,
+                $cmid,
+                $userid
+            );
+            $llmanswer = trim((string)($answeringresult['answer'] ?? ''));
+            if ($llmanswer !== '') {
+                $usermessage = $this->enforce_max_chars($llmanswer, 500);
+                $answersource = 'llm';
+            }
+        } catch (\Throwable $e) {
+            $answersource = 'error';
+        }
 
         return [
             'status' => 'executed',
@@ -220,6 +245,7 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
                     'Issue: ' . $issuetype,
                     'User status: ' . $userstatus,
                     'Reasons: ' . count($reasons),
+                    'Answer source: ' . $answersource,
                 ]
             ),
         ];
@@ -440,15 +466,24 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
     }
 
     /**
-     * Build concrete reason lines for the diagnosis.
+     * Create the diagnose answering service.
+     *
+     * @return diagnose_answering_service
+     */
+    protected function create_diagnose_answering_service(): diagnose_answering_service {
+        return new diagnose_answering_service();
+    }
+
+    /**
+     * Build concrete reason lines for the diagnosis (used as input for the LLM prompt).
      *
      * @param string $issuetype
      * @param array $optionstats
      * @param array $conditionresults
-     * @param string $lang
      * @return array
      */
-    private function build_reason_lines(string $issuetype, array $optionstats, array $conditionresults, string $lang = ''): array {
+    private function build_reason_lines(string $issuetype, array $optionstats, array $conditionresults): array {
+        $lang = '';
         $reasons = [];
         $userstatus = (string)($optionstats['userstatus'] ?? 'notbooked');
 
@@ -515,37 +550,5 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
         }
 
         return $reasons;
-    }
-
-    /**
-     * Build a concise user-facing diagnosis text.
-     *
-     * @param string $issuetype
-     * @param string $optionname
-     * @param string $userstatus
-     * @param array $reasons
-     * @param string $lang
-     * @return string
-     */
-    private function build_user_message(
-        string $issuetype,
-        string $optionname,
-        string $userstatus,
-        array $reasons,
-        string $lang = ''
-    ): string {
-        $intro = $this->localized_string('agent_booking_diagnose_intro_checked_option', $optionname, $lang);
-
-        if ($issuetype === 'missing_email') {
-            $intro .= ' ' . $this->localized_string('agent_booking_diagnose_intro_missing_email', null, $lang);
-        } else if ($issuetype === 'cannot_book') {
-            $intro .= ' ' . $this->localized_string('agent_booking_diagnose_intro_cannot_book', null, $lang);
-        } else {
-            $statuslabel = $this->localized_string('agent_booking_diagnose_status_' . $userstatus, null, $lang);
-            $intro .= ' ' . $this->localized_string('agent_booking_diagnose_intro_status', $statuslabel, $lang);
-        }
-
-        $lines = array_map(static fn(string $reason): string => '- ' . $reason, $reasons);
-        return $intro . "\n" . implode("\n", $lines);
     }
 }

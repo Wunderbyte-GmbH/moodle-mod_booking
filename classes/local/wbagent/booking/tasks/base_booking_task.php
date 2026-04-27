@@ -170,4 +170,27 @@ abstract class base_booking_task extends base_task {
 
         return get_string_manager()->get_string($identifier, 'mod_booking', $a, $targetlang);
     }
+
+    /**
+     * Enforce a hard maximum character length on a string.
+     *
+     * @param string $text
+     * @param int $maxchars
+     * @return string
+     */
+    protected function enforce_max_chars(string $text, int $maxchars): string {
+        $normalized = trim(preg_replace('/\s+/', ' ', $text) ?? $text);
+        if ($normalized === '' || $maxchars <= 0) {
+            return '';
+        }
+
+        if (\core_text::strlen($normalized) <= $maxchars) {
+            return $normalized;
+        }
+
+        $ellipsis = '...';
+        $available = max(1, $maxchars - \core_text::strlen($ellipsis));
+        $trimmed = trim(\core_text::substr($normalized, 0, $available));
+        return $trimmed . $ellipsis;
+    }
 }

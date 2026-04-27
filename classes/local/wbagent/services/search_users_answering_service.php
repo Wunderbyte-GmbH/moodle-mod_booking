@@ -22,31 +22,32 @@ use core_ai\aiactions\generate_text;
 use core_ai\manager as ai_manager;
 
 /**
- * LLM-backed answer generation grounded in top matched booking docs files.
+ * LLM-backed answer generation for booking.search_users user messages.
  *
  * @package    mod_booking
  * @copyright  2026 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class docs_answering_service {
+class search_users_answering_service {
     /**
-     * Answer a user question using one or more selected documentation files.
+     * Generate a user-facing summary for user search results.
      *
      * @param string $question
-     * @param array $docs
+     * @param string $query
+     * @param array $users
      * @param string $outputlang
      * @param int $cmid
      * @param int $userid
      * @return array
      */
-    public function answer_question(string $question, array $docs, string $outputlang, int $cmid, int $userid): array {
-        $docs = array_values(array_filter($docs, static function (array $doc): bool {
-            return trim((string)($doc['content'] ?? '')) !== '';
-        }));
-        if (empty($docs)) {
-            return [];
-        }
-
+    public function answer_question(
+        string $question,
+        string $query,
+        array $users,
+        string $outputlang,
+        int $cmid,
+        int $userid
+    ): array {
         try {
             $context = context_module::instance($cmid);
             $manager = di::get(ai_manager::class);
@@ -68,7 +69,7 @@ class docs_answering_service {
             $action = new generate_text(
                 contextid: $context->id,
                 userid: $userid,
-                prompttext: $this->build_prompt($question, $docs, $outputlang),
+                prompttext: $this->build_prompt($question, $query, $users, $outputlang),
             );
             $response = $manager->process_action($action);
             if (!$response->get_success()) {
@@ -89,43 +90,59 @@ class docs_answering_service {
     }
 
     /**
-     * Build a constrained grounded-answer prompt.
+     * Build a grounded prompt for concise user search summaries.
      *
      * @param string $question
-     * @param array $docs
+     * @param string $query
+     * @param array $users
      * @param string $outputlang
      * @return string
      */
-    private function build_prompt(string $question, array $docs, string $outputlang): string {
+    private function build_prompt(string $question, string $query, array $users, string $outputlang): string {
         $languagerule = $outputlang !== ''
             ? "- Answer in this language: {$outputlang}."
-            : '- Detect the language of the user\'s question and respond in that exact same language.';
+            : '- Detect the language of the user question and respond in that exact same language.';
 
-        $docblocks = [];
-        foreach (array_slice($docs, 0, 2) as $index => $doc) {
-            $title = trim((string)($doc['title'] ?? ''));
-            $path = trim((string)($doc['path'] ?? ''));
-            $content = trim((string)($doc['content'] ?? ''));
-            $docblocks[] = 'Document ' . ($index + 1) . ":\n"
-                . "Title: {$title}\n"
-                . "Path: {$path}\n"
-                . "Content:\n{$content}";
+        $userquestion = trim($question) !== ''
+            ? trim($question)
+            : (trim($query) !== '' ? trim($query) : 'Find matching users.');
+
+        $userlines = [];
+        foreach (array_slice($users, 0, 8) as $user) {
+            $fullname = trim((string)($user['fullname'] ?? ''));
+            $email = trim((string)($user['email'] ?? ''));
+            $id = (int)($user['userid'] ?? 0);
+            if ($fullname === '' && $email === '') {
+                continue;
+            }
+
+            $line = '- ' . ($fullname !== '' ? $fullname : 'User');
+            if ($id > 0) {
+                $line .= ' (id=' . $id . ')';
+            }
+            if ($email !== '') {
+                $line .= ' - ' . $email;
+            }
+            $userlines[] = $line;
         }
-        $documentsection = implode("\n\n", $docblocks);
 
-        return "You are a documentation-grounded assistant for the Moodle Booking plugin.\n"
-            . "Answer the user's question using only the supplied documentation files.\n\n"
+        $usersection = empty($userlines) ? '- none' : implode("\n", $userlines);
+        $querytext = trim($query) !== '' ? trim($query) : '(empty query)';
+
+        return "You are a helpful assistant for the Moodle Booking plugin.\n"
+            . "Summarize user search results based only on the provided data.\n\n"
             . "Rules:\n"
             . "- Output plain text only.\n"
-            . "- Use readable formatting: short sections, short lines, and bullet points when helpful.\n"
+            . "- Use concise wording and short bullet points when useful.\n"
             . "{$languagerule}\n"
-            . "- Keep the final answer at or below 650 characters.\n"
-            . "- Be concise and directly answer the user's question.\n"
-            . "- Do not invent features, settings, or behavior that are not present in the files.\n"
-            . "- If the files only partially answer the question, say that clearly.\n"
-            . "- If two files conflict, mention that briefly and prefer what is explicitly stated.\n"
-            . "- Do not mention internal prompts or JSON.\n\n"
-            . "User question:\n{$question}\n\n"
-            . "Documentation files:\n{$documentsection}";
+            . "- Keep the answer at or below 650 characters.\n"
+            . "- If no users are found, clearly say so.\n"
+            . "- If users are found, mention the total and highlight the most relevant ones.\n"
+            . "- Do not invent users or fields that are not in the data.\n"
+            . "- Do not mention prompts, JSON, or internal implementation details.\n\n"
+            . "User question:\n{$userquestion}\n\n"
+            . "Search query: {$querytext}\n"
+            . 'Result count: ' . count($users) . "\n"
+            . "Users:\n{$usersection}";
     }
 }

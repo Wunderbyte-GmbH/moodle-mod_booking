@@ -17,6 +17,7 @@
 namespace mod_booking\local\wbagent\booking\tasks;
 
 use mod_booking\local\wbagent\booking\booking_task_support;
+use mod_booking\local\wbagent\services\list_actions_answering_service;
 use mod_booking\local\wbagent\task_registry;
 
 /**
@@ -57,9 +58,19 @@ class list_actions_task extends base_booking_task {
             'description' => 'List supported booking AI actions/tasks derived from registered task schemas.',
             'readonly' => $this->is_read_only(),
             'properties' => [
+                'question' => [
+                    'type' => 'string',
+                    'description' => 'Optional original user question for language detection and phrasing.',
+                    'required' => false,
+                ],
                 'scope' => [
                     'type' => 'string',
                     'description' => 'Filter scope: all (default), readonly, or mutating.',
+                    'required' => false,
+                ],
+                'outputlang' => [
+                    'type' => 'string',
+                    'description' => 'Optional language code override for the user-facing summary, e.g. de or en.',
                     'required' => false,
                 ],
             ],
@@ -120,6 +131,8 @@ class list_actions_task extends base_booking_task {
      * @return array
      */
     public function execute(array $input, int $cmid, int $userid): array {
+        $question = trim((string)($input['question'] ?? ''));
+        $outputlang = $this->get_output_language($input);
         $scope = strtolower(trim((string)($input['scope'] ?? 'all')));
         $actions = [];
         $selectedtasknames = [];
@@ -149,8 +162,34 @@ class list_actions_task extends base_booking_task {
 
         $available = array_fill_keys($selectedtasknames, true);
         $capabilities = $this->build_user_capabilities($available);
-        $summary = $this->build_user_summary($scope, $capabilities);
-        $debugmessage = $this->build_debug_summary($scope, $actions, $capabilities);
+
+        $summary = '';
+        $answersource = 'none';
+        try {
+            $answeringresult = $this->create_list_actions_answering_service()->answer_question(
+                $question,
+                $scope,
+                $capabilities,
+                $actions,
+                $outputlang,
+                $cmid,
+                $userid
+            );
+            $llmanswer = trim((string)($answeringresult['answer'] ?? ''));
+            if ($llmanswer !== '') {
+                $summary = $this->enforce_max_chars($llmanswer, 650);
+                $answersource = 'llm';
+            }
+        } catch (\Throwable $e) {
+            $answersource = 'error';
+        }
+
+        if ($summary === '') {
+            $summary = $this->build_user_summary($scope, $capabilities);
+            $answersource = $answersource === 'error' ? 'fallback_after_error' : 'fallback';
+        }
+
+        $debugmessage = $this->build_debug_summary($scope, $actions, $capabilities, $answersource);
 
         return [
             'status' => 'executed',
@@ -170,16 +209,27 @@ class list_actions_task extends base_booking_task {
      * @param string $scope
      * @param array $actions
      * @param array $capabilities
+     * @param string $answersource
      * @return string
      */
-    private function build_debug_summary(string $scope, array $actions, array $capabilities): string {
+    private function build_debug_summary(string $scope, array $actions, array $capabilities, string $answersource): string {
         $lines = [
             'Task: ' . self::TASK_NAME,
             'Scope: ' . $scope,
             'Returned actions: ' . count($actions),
             'Derived capabilities: ' . count($capabilities),
+            'Answer source: ' . $answersource,
         ];
         return implode("\n", $lines);
+    }
+
+    /**
+     * Create the list-actions answering service.
+     *
+     * @return list_actions_answering_service
+     */
+    protected function create_list_actions_answering_service(): list_actions_answering_service {
+        return new list_actions_answering_service();
     }
 
     /**

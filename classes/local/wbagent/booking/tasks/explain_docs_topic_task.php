@@ -125,7 +125,7 @@ class explain_docs_topic_task extends base_booking_task implements task_trigger_
     public function validate(array $input, int $cmid): array {
         $errors = [];
         $question = trim((string)($input['question'] ?? ''));
-        $lang = $this->resolve_output_language($input, $question);
+        $lang = $this->get_output_language($input);
 
         if ($question === '') {
             $errors[] = $this->localized_string('ai_docs_explain_required_question', null, $lang);
@@ -148,18 +148,15 @@ class explain_docs_topic_task extends base_booking_task implements task_trigger_
      */
     public function execute(array $input, int $cmid, int $userid): array {
         $question = trim((string)($input['question'] ?? ''));
-        $lang = $this->resolve_output_language($input, $question);
+        $outputlang = $this->get_output_language($input);
 
         $service = $this->create_docs_lookup_service();
         $docs = $service->search($question, 2);
         if (empty($docs)) {
-            $detail = $this->localized_string('ai_docs_explain_no_match', null, $lang);
-            $detail = $this->enforce_max_chars($detail, 650);
             return [
                 'status' => 'executed',
-                'detail' => $detail,
-                'usermessage' => $detail,
-                'summary' => $detail,
+                'detail' => '',
+                'usermessage' => '',
                 'resultid' => null,
                 'docs' => [],
                 'debugmessage' => $this->build_task_debug_message(self::TASK_NAME, $input, ['Docs matched: 0']),
@@ -168,25 +165,25 @@ class explain_docs_topic_task extends base_booking_task implements task_trigger_
 
         $selecteddocs = array_slice($docs, 0, 2);
         $firstdoc = $selecteddocs[0];
-        $summary = $this->localized_string('ai_docs_explain_generation_failed', null, $lang);
-        $answersource = 'fallback';
+
+        $usermessage = '';
+        $answersource = 'none';
         try {
             $answeringresult = $this->create_docs_answering_service()->answer_question(
                 $question,
                 $selecteddocs,
-                $lang,
+                $outputlang,
                 $cmid,
                 $userid
             );
             $llmanswer = trim((string)($answeringresult['answer'] ?? ''));
             if ($llmanswer !== '') {
-                $summary = $llmanswer;
+                $usermessage = $this->enforce_max_chars($llmanswer, 650);
                 $answersource = 'llm';
             }
         } catch (\Throwable $e) {
-            $answersource = 'fallback';
+            $answersource = 'error';
         }
-        $summary = $this->enforce_max_chars($summary, 500);
 
         $structureddocs = [];
         foreach ($selecteddocs as $doc) {
@@ -200,18 +197,17 @@ class explain_docs_topic_task extends base_booking_task implements task_trigger_
 
         return [
             'status' => 'executed',
-            'detail' => $summary,
-            'usermessage' => $summary,
-            'summary' => $summary,
+            'detail' => $usermessage,
+            'usermessage' => $usermessage,
             'resultid' => null,
             'docs' => $structureddocs,
             'debugmessage' => $this->build_task_debug_message(
                 self::TASK_NAME,
                 $input,
                 [
-                    'Answer source: ' . $answersource,
                     'Docs matched: ' . count($selecteddocs),
                     'Top doc: ' . (string)($firstdoc['path'] ?? ''),
+                    'Answer source: ' . $answersource,
                 ]
             ),
         ];
@@ -233,73 +229,5 @@ class explain_docs_topic_task extends base_booking_task implements task_trigger_
      */
     protected function create_docs_answering_service(): docs_answering_service {
         return new docs_answering_service();
-    }
-
-    /**
-     * Resolve output language from input or question text.
-     *
-     * @param array $input
-     * @param string $question
-     * @return string
-     */
-    private function resolve_output_language(array $input, string $question): string {
-        $lang = $this->get_output_language($input);
-        if ($lang !== '') {
-            return $lang;
-        }
-
-        return $this->detect_question_language($question);
-    }
-
-    /**
-     * Detect a best-effort language code from the user question.
-     *
-     * @param string $question
-     * @return string
-     */
-    private function detect_question_language(string $question): string {
-        $text = strtolower(trim($question));
-        if ($text === '') {
-            return 'en';
-        }
-
-        $germanmarkers = [
-            ' was ', ' wie ', ' warum ', ' bedeutet ', ' bitte ', 'erklaer',
-            'funktioniert', 'fuer', ' und ', ' der ', ' die ', ' das ',
-            ' ist ', ' ich ', ' nicht ', ' mit ', ' beim ', ' zur ', ' zum ',
-        ];
-        if (preg_match('/[\x{00E4}\x{00F6}\x{00FC}\x{00DF}]/u', $text) === 1) {
-            return 'de';
-        }
-        foreach ($germanmarkers as $marker) {
-            if (strpos(' ' . $text . ' ', $marker) !== false) {
-                return 'de';
-            }
-        }
-
-        return 'en';
-    }
-
-    /**
-     * Enforce a hard maximum character length.
-     *
-     * @param string $text
-     * @param int $maxchars
-     * @return string
-     */
-    private function enforce_max_chars(string $text, int $maxchars): string {
-        $normalized = trim(preg_replace('/\s+/', ' ', $text) ?? $text);
-        if ($normalized === '' || $maxchars <= 0) {
-            return '';
-        }
-
-        if (\core_text::strlen($normalized) <= $maxchars) {
-            return $normalized;
-        }
-
-        $ellipsis = '...';
-        $available = max(1, $maxchars - \core_text::strlen($ellipsis));
-        $trimmed = trim(\core_text::substr($normalized, 0, $available));
-        return $trimmed . $ellipsis;
     }
 }
