@@ -124,11 +124,11 @@ class option_form_bulk extends dynamic_form {
         }
 
         $mform->addElement('select', 'choosefields', get_string('selectfieldofbookingoption', 'mod_booking'), $options);
-        $mform->registerNoSubmitButton('btn_bookingruletemplates');
+        $mform->registerNoSubmitButton('btn_bookingbulkoperations');
         $mform->addElement(
             'submit',
-            'btn_bookingruletemplates',
-            get_string('bookingruletemplates', 'mod_booking')
+            'btn_bookingbulkoperations',
+            get_string('bulkoperationsbutton', 'mod_booking')
         );
 
         if (isset($submitdata['checkedids'])) {

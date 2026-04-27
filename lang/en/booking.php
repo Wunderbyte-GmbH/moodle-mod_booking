@@ -719,6 +719,7 @@ $string['btncacname'] = 'Name of button: Confirm activity completion';
 $string['btncancelname'] = 'Name of button: Cancel booking';
 $string['btnviewavailable'] = "View available options";
 $string['bulkoperations'] = 'Zeige Liste von Buchungsoptionen um Massenoperationen zu ermöglichen';
+$string['bulkoperationsbutton'] = 'Load field to edit all selected booking options';
 $string['bulkoperationsheader'] = 'Update data for selected bookingoption(s)';
 $string['cachedef_bookedusertable'] = 'Booked users table (cache)';
 $string['cachedef_bookforuser'] = 'Book for user (Cache)';
