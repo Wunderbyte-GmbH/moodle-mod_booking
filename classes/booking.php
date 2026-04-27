@@ -1156,6 +1156,8 @@ class booking {
      * @param string $additionalwhere
      * @param string $innerfrom
      * @param ?wunderbyte_table $tableinstance
+     * @param ?int $assignedteacherid
+     * @param int teacherpagevisibilitymode
      *
      * @return array
      */
