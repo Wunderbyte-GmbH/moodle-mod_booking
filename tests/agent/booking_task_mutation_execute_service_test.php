@@ -51,7 +51,17 @@ final class booking_task_mutation_execute_service_test extends abstract_agent_te
 
         $result = $service->execute(
             'booking.create_option',
-            ['text' => 'Mutation Service Option'],
+            [
+                'text' => 'Mutation Service Option',
+                'maxanswers' => 10,
+                'teacherquery' => 'current',
+                'optiondates' => [
+                    [
+                        'coursestarttime' => '2045-03-15T09:00:00',
+                        'courseendtime' => '2045-03-15T17:00:00',
+                    ],
+                ],
+            ],
             (int)$this->booking->cmid,
             (int)$this->teacher->id,
             $support
