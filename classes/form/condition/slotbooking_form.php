@@ -669,10 +669,11 @@ class slotbooking_form extends dynamic_form {
 
     /**
      * Resolve default custom slot duration in seconds.
-     *
      * @param object|null $config
-     * @param array<int, string> $options
+     * @param array $options
+     *
      * @return int
+     *
      */
     private static function get_default_custom_duration(?object $config, array $options): int {
         $configured = max(1, (int)($config->slot_duration_minutes ?? 30)) * MINSECS;

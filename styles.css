@@ -648,3 +648,196 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
 .condition-bookingpolicy-form .checkbox {
     display: flex;
 }
+
+
+/* AI Instructions chat interface – aiinstructions.mustache */
+#booking-ai-wrapper .booking-ai-onboarding-card {
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+}
+
+#booking-ai-wrapper .booking-ai-intro {
+    background: linear-gradient(135deg, #fff9e6 0%, #ffffff 100%);
+}
+
+#booking-ai-wrapper .booking-ai-body-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 58%) 10px minmax(0, 42%);
+    align-items: stretch;
+}
+
+#booking-ai-wrapper .booking-ai-main-pane {
+    min-width: 0;
+}
+
+#booking-ai-wrapper .booking-ai-splitter {
+    cursor: col-resize;
+    background: #eef1f4;
+    border-left: 1px solid #e1e5ea;
+    border-right: 1px solid #e1e5ea;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    touch-action: none;
+}
+
+#booking-ai-wrapper .booking-ai-splitter-handle {
+    width: 4px;
+    height: 48px;
+    border-radius: 999px;
+    background: #c3cad3;
+}
+
+#booking-ai-wrapper .booking-ai-preview-pane {
+    min-width: 0;
+    background: #fcfcfc;
+}
+
+#booking-ai-wrapper .booking-ai-preview-header {
+    font-weight: 600;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #e9ecef;
+    background: #f8f9fa;
+}
+
+#booking-ai-wrapper .booking-ai-side-preview-content {
+    max-height: 500px;
+    overflow-y: auto;
+    padding: 0.75rem 1rem;
+}
+
+#booking-ai-wrapper .booking-ai-msg-debug {
+    margin-top: 0.25rem;
+    font-size: 0.72rem;
+    line-height: 1.2;
+    color: #6c757d;
+    word-break: break-word;
+    white-space: pre-wrap;
+}
+
+#booking-ai-wrapper .booking-ai-debug-json {
+    margin-top: 0.25rem;
+    font-size: 0.72rem;
+    color: #5f6b77;
+}
+
+#booking-ai-wrapper .booking-ai-debug-json summary {
+    cursor: pointer;
+    user-select: none;
+}
+
+#booking-ai-wrapper .booking-ai-debug-json pre {
+    margin-top: 0.25rem;
+    margin-bottom: 0;
+    background: #f3f6f9;
+    border: 1px solid #dde5ed;
+    border-radius: 6px;
+    padding: 0.45rem 0.6rem;
+    font-size: 0.7rem;
+    line-height: 1.25;
+    max-height: 220px;
+    overflow: auto;
+}
+
+#booking-ai-wrapper .booking-ai-privacy-note {
+    margin: 0.15rem 0 0.4rem;
+    font-size: 0.74rem;
+    line-height: 1.15;
+    color: #7b8794;
+    text-align: left;
+}
+
+#booking-ai-wrapper .booking-ai-privacy-note span {
+    background: #eef5fb;
+    border: 1px solid #d8e6f4;
+    border-radius: 4px;
+    padding: 0.12rem 0.4rem;
+    display: inline-block;
+}
+
+#booking-ai-wrapper .booking-ai-mobile-toggle {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 1px solid #d8dee4;
+    border-right: 0;
+    background: #ffffff;
+    border-top-left-radius: 0.5rem;
+    border-bottom-left-radius: 0.5rem;
+    padding: 0.5rem 0.25rem;
+    min-width: 1.75rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    z-index: 4;
+}
+
+#booking-ai-wrapper .booking-ai-mobile-toggle-label {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+}
+
+#booking-ai-wrapper .booking-ai-messages .booking-ai-msg {
+    margin-bottom: 0.75rem;
+}
+
+#booking-ai-wrapper .booking-ai-messages .booking-ai-msg.user .bubble {
+    background: #d1ecf1;
+    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    display: inline-block;
+    max-width: 80%;
+}
+
+#booking-ai-wrapper .booking-ai-messages .booking-ai-msg.assistant .bubble {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    display: inline-block;
+    max-width: 80%;
+}
+
+#booking-ai-wrapper .booking-ai-messages .booking-ai-msg.user {
+    text-align: right;
+}
+
+#booking-ai-wrapper .booking-ai-messages .booking-ai-msg.assistant {
+    text-align: left;
+}
+
+@media (max-width: 991.98px) {
+    #booking-ai-wrapper .booking-ai-chat-container .card-body {
+        position: relative;
+    }
+
+    #booking-ai-wrapper .booking-ai-body-layout {
+        display: block;
+    }
+
+    #booking-ai-wrapper .booking-ai-main-pane {
+        display: block;
+    }
+
+    #booking-ai-wrapper .booking-ai-body-layout.mobile-preview-active .booking-ai-main-pane {
+        display: none;
+    }
+
+    #booking-ai-wrapper .booking-ai-preview-pane {
+        display: none;
+    }
+
+    #booking-ai-wrapper .booking-ai-body-layout.mobile-preview-active .booking-ai-preview-pane {
+        display: block;
+    }
+
+    #booking-ai-wrapper .booking-ai-splitter {
+        display: none;
+    }
+
+    #booking-ai-wrapper .booking-ai-side-preview-content {
+        max-height: 420px;
+    }
+}
