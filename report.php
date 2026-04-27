@@ -232,6 +232,20 @@ if ($action == 'downloadchecklist') {
     die();
 }
 
+// Handle sync toggle and disable-all actions.
+$synctoggle    = optional_param('synctoggle', 0, PARAM_INT);
+$synctoggleval = optional_param('synctoggleval', -1, PARAM_INT);
+$syncdisableall = optional_param('syncdisableall', 0, PARAM_INT);
+
+if (($synctoggle || $syncdisableall) && has_capability('mod/booking:updatebooking', $context) && confirm_sesskey()) {
+    if ($syncdisableall) {
+        \mod_booking\local\sync\booking_enrolment::disable_rules_for_option($optionid);
+    } else if ($synctoggle && $synctoggleval >= 0) {
+        \mod_booking\local\sync\booking_enrolment::update_rule_settings($synctoggle, ['isenabled' => (int)$synctoggleval]);
+    }
+    redirect(new moodle_url('/mod/booking/report.php', ['id' => $id, 'optionid' => $optionid]));
+}
+
 if (
     $action == 'deletebookingoption' && $confirm == 1 &&
          has_capability('mod/booking:updatebooking', $context) && confirm_sesskey()
@@ -1346,6 +1360,96 @@ if (!$tableallbookings->is_downloading()) {
                 'id' => "collapseDeletedlist",
             ]
         );
+    }
+
+    // ---- Sync management section ----
+    if (has_capability('mod/booking:updatebooking', $context)) {
+        echo html_writer::tag('h4', get_string('syncmanagementheader', 'mod_booking'), ['class' => 'mt-4']);
+
+        $syncrules = \mod_booking\local\sync\booking_enrolment::get_rules_for_option($optionid);
+
+        if (empty($syncrules)) {
+            echo html_writer::tag('p', get_string('syncmanagementempty', 'mod_booking'), ['class' => 'text-muted']);
+        } else {
+            // Bulk disable link.
+            $disableurl = new moodle_url('/mod/booking/report.php', [
+                'id'             => $cm->id,
+                'optionid'       => $optionid,
+                'syncdisableall' => 1,
+                'sesskey'        => sesskey(),
+            ]);
+            echo html_writer::link(
+                $disableurl,
+                get_string('syncdisableallrules', 'mod_booking'),
+                ['class' => 'btn btn-sm btn-warning mb-2']
+            );
+
+            $synctable = new html_table();
+            $synctable->head = [
+                get_string('syncrulesource', 'mod_booking'),
+                get_string('syncenrolaction', 'mod_booking'),
+                get_string('syncunenrolaction', 'mod_booking'),
+                get_string('syncconditionpolicy', 'mod_booking'),
+                get_string('syncruleactive', 'mod_booking'),
+            ];
+            $synctable->data = [];
+            foreach ($syncrules as $rule) {
+                $sourcecell  = $rule->sourcetypelabel . ': ' . s($rule->sourcename);
+                $enrolcell   = $rule->syncenrol   ? '&#10003;' : '&mdash;';
+                $unenrolcell = $rule->syncunenrol ? '&#10003;' : '&mdash;';
+                $policycell  = $rule->conditionpolicy
+                    ? get_string('syncconditionpolicy_override', 'mod_booking')
+                    : get_string('syncconditionpolicy_respect', 'mod_booking');
+                if ($rule->isenabled) {
+                    $toggleurl = new moodle_url('/mod/booking/report.php', [
+                        'id'            => $cm->id,
+                        'optionid'      => $optionid,
+                        'synctoggle'    => $rule->id,
+                        'synctoggleval' => 0,
+                        'sesskey'       => sesskey(),
+                    ]);
+                    $activecell = html_writer::tag('span', get_string('yes'), ['class' => 'badge badge-success'])
+                        . ' ' . html_writer::link($toggleurl, '(' . get_string('disable') . ')', ['class' => 'small']);
+                } else {
+                    $toggleurl = new moodle_url('/mod/booking/report.php', [
+                        'id'            => $cm->id,
+                        'optionid'      => $optionid,
+                        'synctoggle'    => $rule->id,
+                        'synctoggleval' => 1,
+                        'sesskey'       => sesskey(),
+                    ]);
+                    $activecell = html_writer::tag('span', get_string('no'), ['class' => 'badge badge-secondary'])
+                        . ' ' . html_writer::link($toggleurl, '(' . get_string('enable') . ')', ['class' => 'small']);
+                }
+                $synctable->data[] = [$sourcecell, $enrolcell, $unenrolcell, $policycell, $activecell];
+            }
+            echo html_writer::table($synctable);
+        }
+
+        // ---- Sync diagnostics section ----
+        echo html_writer::tag('h4', get_string('syncdiagnosticsheader', 'mod_booking'), ['class' => 'mt-4']);
+        $attempts = \mod_booking\local\sync\booking_enrolment::get_recent_attempts_for_option($optionid, 30);
+        if (empty($attempts)) {
+            echo html_writer::tag('p', get_string('syncmanagementempty', 'mod_booking'), ['class' => 'text-muted']);
+        } else {
+            $attempttable = new html_table();
+            $attempttable->head = [
+                get_string('time'),
+                get_string('user'),
+                get_string('action'),
+                get_string('reason', 'mod_booking'),
+            ];
+            $attempttable->data = [];
+            foreach ($attempts as $attempt) {
+                $attempttable->data[] = [
+                    userdate($attempt->timecreated),
+                    fullname($attempt),
+                    s($attempt->action),
+                    s($attempt->reasoncode) . (empty($attempt->reasonmessage) ? '' : ': ' . s($attempt->reasonmessage)),
+                ];
+            }
+            echo html_writer::table($attempttable);
+        }
     }
 
     echo $OUTPUT->footer();

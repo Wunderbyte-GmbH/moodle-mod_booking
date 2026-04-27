@@ -103,6 +103,14 @@ $observers = [
         'callback' => 'mod_booking_observer::group_membership_changed',
     ],
     [
+        'eventname' => '\core\event\cohort_member_added',
+        'callback' => 'mod_booking_observer::cohort_membership_changed',
+    ],
+    [
+        'eventname' => '\core\event\cohort_member_removed',
+        'callback' => 'mod_booking_observer::cohort_membership_changed',
+    ],
+    [
         'eventname' => '*',
         'callback' => 'mod_booking_observer::execute_rule',
     ],

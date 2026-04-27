@@ -260,6 +260,11 @@ if ($fromform = $mform->get_data()) {
         $result = booking_utils::book_cohort_or_group_members($fromform, $bookingoption, $context);
         $delay = 120;
 
+        // Save sync rules if enabled.
+        if (!empty($fromform->syncenabled)) {
+            \mod_booking\local\sync\booking_enrolment::save_rules_from_form($optionid, $fromform);
+        }
+
         // Generate the notification string and determine the notification color.
         $notificationstring = get_string('resultofcohortorgroupbooking', 'mod_booking', $result);
 
@@ -397,6 +402,35 @@ echo '<br>';
 if (!$fromform = $mform->get_data()) {
     // This branch is executed if the form is submitted but the data doesn't validate and the form should be redisplayed...
     // ... or on the first display of the form.
+
+    // Display existing sync rules for this option.
+    $syncrules = \mod_booking\local\sync\booking_enrolment::get_rules_for_option($optionid);
+    if (!empty($syncrules)) {
+        echo html_writer::tag('h5', get_string('syncrulesconfigured', 'mod_booking'), ['class' => 'mt-4']);
+        $table = new html_table();
+        $table->head = [
+            get_string('syncrulesource', 'mod_booking'),
+            get_string('syncenrolaction', 'mod_booking'),
+            get_string('syncunenrolaction', 'mod_booking'),
+            get_string('syncconditionpolicy', 'mod_booking'),
+            get_string('syncruleactive', 'mod_booking'),
+        ];
+        $table->data = [];
+        foreach ($syncrules as $rule) {
+            $sourcecell = $rule->sourcetypelabel . ': ' . s($rule->sourcename);
+            $enrolcell  = $rule->syncenrol   ? '&#10003;' : '&mdash;';
+            $unenrolcell = $rule->syncunenrol ? '&#10003;' : '&mdash;';
+            $policycell = $rule->conditionpolicy
+                ? get_string('syncconditionpolicy_override', 'mod_booking')
+                : get_string('syncconditionpolicy_respect', 'mod_booking');
+            $activecell = $rule->isenabled
+                ? html_writer::tag('span', get_string('yes'), ['class' => 'badge badge-success'])
+                : html_writer::tag('span', get_string('no'),  ['class' => 'badge badge-secondary']);
+            $table->data[] = [$sourcecell, $enrolcell, $unenrolcell, $policycell, $activecell];
+        }
+        echo html_writer::table($table);
+    }
+
     $mform->display();
 }
 

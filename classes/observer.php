@@ -586,6 +586,31 @@ class mod_booking_observer {
             checkanswers::ACTION_DELETE,
             $event->relateduserid
         );
+
+        // Sync group membership to booking enrolments.
+        $membershipadded = ($event->eventname === '\\core\\event\\group_member_added');
+        \mod_booking\local\sync\booking_enrolment::process_source_membership(
+            'group',
+            (int)$event->objectid,
+            (int)$event->relateduserid,
+            $membershipadded
+        );
+    }
+
+    /**
+     * React on cohort_member_added and cohort_member_removed events.
+     *
+     * @param base $event
+     * @return void
+     */
+    public static function cohort_membership_changed(base $event) {
+        $membershipadded = ($event->eventname === '\\core\\event\\cohort_member_added');
+        \mod_booking\local\sync\booking_enrolment::process_source_membership(
+            'cohort',
+            (int)$event->objectid,
+            (int)$event->relateduserid,
+            $membershipadded
+        );
     }
 
     /**

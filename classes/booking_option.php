@@ -1220,6 +1220,7 @@ class booking_option {
         $erlid = "",
         $timebooked = 0,
         $updateansweronimport = false,
+        int $syncruleid = 0,
     ) {
 
         global $USER;
@@ -1454,7 +1455,8 @@ class booking_option {
             $timecreated,
             $status,
             $erlid,
-            $historystatus ?? 0
+            $historystatus ?? 0,
+            $syncruleid
         );
 
         if (
@@ -1540,7 +1542,8 @@ class booking_option {
         ?int $timecreated = null,
         int $confirmwaitinglist = 0,
         string $erlid = "",
-        int $historystatus = 0
+        int $historystatus = 0,
+        int $syncruleid = 0
     ) {
 
         global $DB, $USER;
@@ -1664,6 +1667,13 @@ class booking_option {
 
         if (isset($currentanswerid)) {
             $newanswer->id = $currentanswerid;
+            // Preserve existing syncruleid when the caller did not explicitly set one.
+            if ($syncruleid === 0) {
+                $existingsyncruleid = $DB->get_field('booking_answers', 'syncruleid', ['id' => $currentanswerid]);
+                $newanswer->syncruleid = (int)($existingsyncruleid ?? 0);
+            } else {
+                $newanswer->syncruleid = $syncruleid;
+            }
             if (!$DB->update_record('booking_answers', $newanswer)) {
                 new moodle_exception("dmlwriteexception");
             }
@@ -1672,6 +1682,7 @@ class booking_option {
             // This is necessary if we import old bookings.
             // It should not ever else play any role.
             $newanswer->timemodified = $newanswer->timecreated;
+            $newanswer->syncruleid = $syncruleid;
 
             if (!$newanswer->id = $DB->insert_record('booking_answers', $newanswer)) {
                 new moodle_exception("dmlwriteexception");
