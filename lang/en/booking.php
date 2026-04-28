@@ -1410,6 +1410,8 @@ $string['error:confirmthatyouaresure'] = 'Please confirm that you are sure.';
 $string['error:coursecategoryvaluemissing'] = 'You need to choose a value here as it is needed as course category
 for the automatically created Moodle course.';
 $string['error:deactivatelegacymailtemplates'] = 'If you want to use this rule you first have to <a href="{$a}" target="_blank">deactivate legacy mail templates</a>.';
+$string['error:enrolusersactionexceedscapacity'] = 'The requested number exceeds available places ({$a} left).';
+$string['error:enrolusersactionnotnumeric'] = 'You have to enter a positive number.';
 $string['error:entervalue'] = 'You have to enter a value here.';
 $string['error:failedtosendconfirmation'] = 'The following user did not receive a confirmation mail
 Booking status: {$a->status}

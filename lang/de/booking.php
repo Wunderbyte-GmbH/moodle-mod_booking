@@ -1373,6 +1373,8 @@ $string['error:confirmthatyouaresure'] = 'Bitte bestätigen Sie, dass Sie wissen
 $string['error:coursecategoryvaluemissing'] = 'Sie müssen hier einen Wert auswählen, da dieser als Kurskategorie für den
 automatisch erstellten Moodle-Kurs benötigt wird.';
 $string['error:deactivatelegacymailtemplates'] = 'Um diese Funktion zu verwenden, müssen Sie die <a href="{$a}" target="_blank">alten E-Mail-Vorlagen deaktivieren</a>.';
+$string['error:enrolusersactionexceedscapacity'] = 'Die gewünschte Anzahl übersteigt die verfügbaren freien Plätze ({$a} frei).';
+$string['error:enrolusersactionnotnumeric'] = 'Sie müssen eine positive Ganzzahl eingeben.';
 $string['error:entervalue'] = 'Sie müssen hier einen Wert eingeben.';
 $string['error:failedtosendconfirmation'] = 'Folgender User hat kein Bestätigungsmail erhalten
 Die Buchung wurde erfolgreich durchgeführt, das Senden des Bestätigungsmails ist aber fehlgeschlagen.

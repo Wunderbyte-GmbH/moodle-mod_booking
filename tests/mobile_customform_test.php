@@ -27,6 +27,7 @@ namespace mod_booking;
 
 use advanced_testcase;
 use mod_booking\local\mobile\customformstore;
+use mod_booking\booking_option;
 use stdClass;
 use tool_mocktesttime\time_mock;
 
@@ -112,7 +113,6 @@ final class mobile_customform_test extends advanced_testcase {
         $user = $this->getDataGenerator()->create_user();
         $this->setUser($user);
 
-        echo "\n=== Testing custom form validation ===\n";
         $customformstore = new customformstore($user->id, $optionid);
         $formdata = (object)[
             'id' => $optionid,
@@ -128,16 +128,370 @@ final class mobile_customform_test extends advanced_testcase {
         $customform = \mod_booking\bo_availability\conditions\customform::return_formelements($settings);
 
         $errors = $customformstore->validation($customform, (array)$formdata);
-        if (empty($errors)) {
-            echo "✓ Form validation passed\n";
-            $this->assertTrue(true);
-        } else {
-            // Print returned validation errors for easier debugging.
-            echo "✗ Validation errors:\n";
-            foreach ($errors as $field => $error) {
-                echo "  - $field: $error\n";
-            }
-            $this->fail("Form validation should pass but got errors: " . implode(", ", $errors));
+        $this->assertEmpty($errors, "Form validation should pass but got errors: " . implode(", ", $errors));
+    }
+
+    /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        parent::tearDown();
+        /** @var \mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $plugingenerator->teardown();
+    }
+
+    /**
+     * Data provider for booking module settings.
+     *
+     * @return array
+     */
+    public static function booking_common_settings_provider(): array {
+        $bdata = [
+            'name' => 'Customform Validation Test',
+            'eventtype' => 'Test',
+            'enablecompletion' => 1,
+            'bookedtext' => ['text' => 'text'],
+            'waitingtext' => ['text' => 'text'],
+            'notifyemail' => ['text' => 'text'],
+            'statuschangetext' => ['text' => 'text'],
+            'deletedtext' => ['text' => 'text'],
+            'pollurltext' => ['text' => 'text'],
+            'pollurlteacherstext' => ['text' => 'text'],
+            'notificationtext' => ['text' => 'text'],
+            'userleave' => ['text' => 'text'],
+            'tags' => '',
+            'completion' => 2,
+            'showviews' => ['mybooking,myoptions,optionsiamresponsiblefor,showall,showactive,myinstitution'],
+        ];
+        return ['bdata' => [$bdata]];
+    }
+
+    /**
+     * Insert a record directly into booking_answers for test setup.
+     *
+     * @param int $bookingid
+     * @param int $optionid
+     * @param int $userid
+     * @param int $waitinglist  0 = booked, 1 = waitinglist, 2 = reserved
+     * @param int $places       Number of places this answer consumes.
+     */
+    private function insert_booking_answer(
+        int $bookingid,
+        int $optionid,
+        int $userid,
+        int $waitinglist,
+        int $places = 1
+    ): void {
+        global $DB;
+        $record = new stdClass();
+        $record->bookingid = $bookingid;
+        $record->userid = $userid;
+        $record->optionid = $optionid;
+        $record->waitinglist = $waitinglist;
+        $record->places = $places;
+        $record->timemodified = time();
+        $record->timecreated = time();
+        $record->completed = 0;
+        $record->frombookingid = 0;
+        $record->numrec = 0;
+        $record->status = 0;
+        $DB->insert_record('booking_answers', $record);
+    }
+
+    /**
+     * Test that enrolusersaction validation rejects zero and non-integer values.
+     *
+     * @covers \mod_booking\local\mobile\customformstore::validation
+     *
+     * @param array $bdata
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_enrolusersaction_validation_invalid_value(array $bdata): void {
+        $this->setAdminUser();
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $bdata['course'] = $course->id;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        /** @var \mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Option invalid value test';
+        $record->maxanswers = 10;
+        $record->bo_cond_customform_restrict = 1;
+        $record->bo_cond_customform_select_1_1 = 'enrolusersaction';
+        $record->bo_cond_customform_label_1_1 = 'Number of users';
+        $record->bo_cond_customform_value_1_1 = 1;
+        $option = $plugingenerator->create_option($record);
+
+        singleton_service::destroy_booking_option_singleton($option->id);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $customform = \mod_booking\bo_availability\conditions\customform::return_formelements($settings);
+
+        $user = $this->getDataGenerator()->create_user();
+        $customformstore = new customformstore($user->id, $option->id);
+
+        // Value 0 → must produce error:chooseint.
+        $data = ['id' => $option->id, 'userid' => $user->id, 'customform_enrolusersaction_1' => 0];
+        $errors = $customformstore->validation($customform, $data);
+        $this->assertArrayHasKey('customform_enrolusersaction_1', $errors);
+        $this->assertEquals(
+            get_string('error:chooseint', 'mod_booking'),
+            $errors['customform_enrolusersaction_1']
+        );
+
+        // Non-numeric string → error:enrolusersactionnotnumeric.
+        $data['customform_enrolusersaction_1'] = 'abc';
+        $errors = $customformstore->validation($customform, $data);
+        $this->assertArrayHasKey('customform_enrolusersaction_1', $errors);
+        $this->assertEquals(
+            get_string('error:enrolusersactionnotnumeric', 'mod_booking'),
+            $errors['customform_enrolusersaction_1']
+        );
+
+        // Decimal with dot → error:enrolusersactionnotnumeric.
+        $data['customform_enrolusersaction_1'] = '1.5';
+        $errors = $customformstore->validation($customform, $data);
+        $this->assertArrayHasKey('customform_enrolusersaction_1', $errors);
+        $this->assertEquals(
+            get_string('error:enrolusersactionnotnumeric', 'mod_booking'),
+            $errors['customform_enrolusersaction_1']
+        );
+
+        // Decimal with comma → error:enrolusersactionnotnumeric.
+        $data['customform_enrolusersaction_1'] = '1,5';
+        $errors = $customformstore->validation($customform, $data);
+        $this->assertArrayHasKey('customform_enrolusersaction_1', $errors);
+        $this->assertEquals(
+            get_string('error:enrolusersactionnotnumeric', 'mod_booking'),
+            $errors['customform_enrolusersaction_1']
+        );
+
+        // Negative value → fails integer-only regex → error:enrolusersactionnotnumeric.
+        $data['customform_enrolusersaction_1'] = '-3';
+        $errors = $customformstore->validation($customform, $data);
+        $this->assertArrayHasKey('customform_enrolusersaction_1', $errors);
+        $this->assertEquals(
+            get_string('error:enrolusersactionnotnumeric', 'mod_booking'),
+            $errors['customform_enrolusersaction_1']
+        );
+    }
+
+    /**
+     * Test that capacity enforcement counts both booked and reserved users.
+     *
+     * Scenario: maxanswers=5, 2 booked + 1 reserved → freeonlist=2.
+     * - value 2 → allowed (exactly at free capacity)
+     * - value 3 → rejected with capacity error mentioning 2 free places
+     *
+     * @covers \mod_booking\local\mobile\customformstore::validation
+     *
+     * @param array $bdata
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_enrolusersaction_validation_capacity_enforcement(array $bdata): void {
+        $this->setAdminUser();
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $bdata['course'] = $course->id;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        /** @var \mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Option capacity enforcement';
+        $record->maxanswers = 5;
+        $record->bo_cond_customform_restrict = 1;
+        $record->bo_cond_customform_select_1_1 = 'enrolusersaction';
+        $record->bo_cond_customform_label_1_1 = 'Number of users';
+        $record->bo_cond_customform_value_1_1 = 1;
+        $option = $plugingenerator->create_option($record);
+
+        // 2 booked + 1 reserved → usersonlist=3, freeonlist = 5 - 3 = 2.
+        $this->insert_booking_answer(
+            $booking->id,
+            $option->id,
+            $this->getDataGenerator()->create_user()->id,
+            MOD_BOOKING_STATUSPARAM_BOOKED
+        );
+        $this->insert_booking_answer(
+            $booking->id,
+            $option->id,
+            $this->getDataGenerator()->create_user()->id,
+            MOD_BOOKING_STATUSPARAM_BOOKED
+        );
+        $this->insert_booking_answer(
+            $booking->id,
+            $option->id,
+            $this->getDataGenerator()->create_user()->id,
+            MOD_BOOKING_STATUSPARAM_RESERVED
+        );
+
+        // Purge cache and PHP singleton so validation reads fresh DB data.
+        booking_option::purge_cache_for_answers($option->id);
+        singleton_service::destroy_instance();
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $customform = \mod_booking\bo_availability\conditions\customform::return_formelements($settings);
+
+        $user = $this->getDataGenerator()->create_user();
+        $customformstore = new customformstore($user->id, $option->id);
+        $basedata = ['id' => $option->id, 'userid' => $user->id];
+
+        // Value 2 = exactly freeonlist → no error.
+        $data = $basedata + ['customform_enrolusersaction_1' => 2];
+        $errors = $customformstore->validation($customform, $data);
+        $this->assertArrayNotHasKey(
+            'customform_enrolusersaction_1',
+            $errors,
+            'Value 2 should be within capacity (freeonlist=2).'
+        );
+
+        // Purge cache and answers singleton so the next validation reads fresh from DB.
+        booking_option::purge_cache_for_answers($option->id);
+        singleton_service::destroy_booking_answers($option->id);
+
+        // Value 3 > freeonlist=2 → must fail.
+        $data = $basedata + ['customform_enrolusersaction_1' => 3];
+        $errors = $customformstore->validation($customform, $data);
+        $this->assertArrayHasKey(
+            'customform_enrolusersaction_1',
+            $errors,
+            'Value 3 should exceed capacity (freeonlist=2).'
+        );
+        $this->assertEquals(
+            get_string('error:enrolusersactionexceedscapacity', 'mod_booking', 2),
+            $errors['customform_enrolusersaction_1'],
+            'Error message should report 2 free places.'
+        );
+    }
+
+    /**
+     * Test that reserved users alone are counted towards capacity.
+     *
+     * Scenario: maxanswers=5, 0 booked + 4 reserved → freeonlist=1.
+     * - value 1 → allowed
+     * - value 2 → rejected (proves reservations are counted, not ignored)
+     *
+     * @covers \mod_booking\local\mobile\customformstore::validation
+     *
+     * @param array $bdata
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_enrolusersaction_validation_reserved_counted(array $bdata): void {
+        $this->setAdminUser();
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $bdata['course'] = $course->id;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        /** @var \mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Option reserved counted';
+        $record->maxanswers = 5;
+        $record->bo_cond_customform_restrict = 1;
+        $record->bo_cond_customform_select_1_1 = 'enrolusersaction';
+        $record->bo_cond_customform_label_1_1 = 'Number of users';
+        $record->bo_cond_customform_value_1_1 = 1;
+        $option = $plugingenerator->create_option($record);
+
+        // 0 booked, 4 reserved → usersonlist=4, freeonlist = 5 - 4 = 1.
+        for ($i = 0; $i < 4; $i++) {
+            $this->insert_booking_answer(
+                $booking->id,
+                $option->id,
+                $this->getDataGenerator()->create_user()->id,
+                MOD_BOOKING_STATUSPARAM_RESERVED
+            );
+        }
+
+        // Purge cache and PHP singleton so validation reads fresh DB data.
+        booking_option::purge_cache_for_answers($option->id);
+        singleton_service::destroy_instance();
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $customform = \mod_booking\bo_availability\conditions\customform::return_formelements($settings);
+
+        $user = $this->getDataGenerator()->create_user();
+        $customformstore = new customformstore($user->id, $option->id);
+        $basedata = ['id' => $option->id, 'userid' => $user->id];
+
+        // Value 1 = freeonlist → no error.
+        $data = $basedata + ['customform_enrolusersaction_1' => 1];
+        $errors = $customformstore->validation($customform, $data);
+        $this->assertArrayNotHasKey(
+            'customform_enrolusersaction_1',
+            $errors,
+            'Value 1 should be within capacity (only 1 place free due to 4 reservations).'
+        );
+
+        booking_option::purge_cache_for_answers($option->id);
+        singleton_service::destroy_booking_answers($option->id);
+
+        // Value 2 > freeonlist=1 → error. Proves reserved users are counted.
+        $data = $basedata + ['customform_enrolusersaction_1' => 2];
+        $errors = $customformstore->validation($customform, $data);
+        $this->assertArrayHasKey(
+            'customform_enrolusersaction_1',
+            $errors,
+            'Value 2 should exceed capacity (only 1 free, 4 reservations not counted would wrongly allow this).'
+        );
+        $this->assertEquals(
+            get_string('error:enrolusersactionexceedscapacity', 'mod_booking', 1),
+            $errors['customform_enrolusersaction_1'],
+            'Error message should report 1 free place left.'
+        );
+    }
+
+    /**
+     * Test that unlimited maxanswers (0) skips capacity check entirely.
+     *
+     * @covers \mod_booking\local\mobile\customformstore::validation
+     *
+     * @param array $bdata
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_enrolusersaction_validation_unlimited_maxanswers(array $bdata): void {
+        $this->setAdminUser();
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $bdata['course'] = $course->id;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        /** @var \mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Option unlimited maxanswers';
+        // maxanswers not set → defaults to 0 (unlimited).
+        $record->bo_cond_customform_restrict = 1;
+        $record->bo_cond_customform_select_1_1 = 'enrolusersaction';
+        $record->bo_cond_customform_label_1_1 = 'Number of users';
+        $record->bo_cond_customform_value_1_1 = 1;
+        $option = $plugingenerator->create_option($record);
+
+        singleton_service::destroy_booking_option_singleton($option->id);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $this->assertEquals(0, $settings->maxanswers, 'maxanswers should be 0 (unlimited).');
+
+        $customform = \mod_booking\bo_availability\conditions\customform::return_formelements($settings);
+
+        $user = $this->getDataGenerator()->create_user();
+        $customformstore = new customformstore($user->id, $option->id);
+        $basedata = ['id' => $option->id, 'userid' => $user->id];
+
+        // Any positive value → no capacity error when maxanswers is unlimited.
+        foreach ([1, 50, 999] as $value) {
+            $data = $basedata + ['customform_enrolusersaction_1' => $value];
+            $errors = $customformstore->validation($customform, $data);
+            $this->assertArrayNotHasKey(
+                'customform_enrolusersaction_1',
+                $errors,
+                "Value $value should be allowed when maxanswers is unlimited (0)."
+            );
         }
     }
 }

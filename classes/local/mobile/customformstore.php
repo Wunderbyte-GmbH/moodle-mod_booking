@@ -27,6 +27,7 @@ namespace mod_booking\local\mobile;
 
 use cache;
 use mod_booking\bo_availability\conditions\customform;
+use mod_booking\booking_answers\booking_answers;
 use mod_booking\singleton_service;
 use stdClass;
 
@@ -140,8 +141,28 @@ class customformstore {
             } else if (
                 $formelement->formtype == 'enrolusersaction'
             ) {
-                if (!(int) $data[$identifier]) {
-                    $errors[$identifier] = get_string('error:chooseint', 'mod_booking');
+                $rawvalue = $data[$identifier];
+                if (!preg_match('/^\d+$/', (string) $rawvalue)) {
+                    $errors[$identifier] = get_string('error:enrolusersactionnotnumeric', 'mod_booking');
+                } else {
+                    $nritems = (int) $rawvalue;
+                    if ($nritems === 0) {
+                        $errors[$identifier] = get_string('error:chooseint', 'mod_booking');
+                    } else {
+                        $settings = singleton_service::get_instance_of_booking_option_settings($data['id']);
+                        if (!empty($settings->maxanswers)) {
+                            $ba = singleton_service::get_instance_of_booking_answers($settings);
+                            // usersonlist already contains both booked and reserved users.
+                            $freeonlist = $settings->maxanswers - booking_answers::count_places($ba->get_usersonlist());
+                            if ($nritems > $freeonlist) {
+                                $errors[$identifier] = get_string(
+                                    'error:enrolusersactionexceedscapacity',
+                                    'mod_booking',
+                                    max(0, $freeonlist)
+                                );
+                            }
+                        }
+                    }
                 }
             }
             if (!empty($formelement->notempty)) {
