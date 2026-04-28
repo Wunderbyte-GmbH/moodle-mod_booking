@@ -86,6 +86,9 @@ abstract class abstract_agent_testcase extends advanced_testcase {
         $this->getDataGenerator()->enrol_user($this->teacher->id, $this->course->id, 'editingteacher');
         $this->getDataGenerator()->enrol_user($this->student->id, $this->course->id, 'student');
 
+        global $PAGE;
+        $PAGE->set_url('/mod/booking/view.php', ['id' => (int)$this->booking->cmid]);
+
         $this->gen = $this->getDataGenerator()->get_plugin_generator('mod_booking');
     }
 
