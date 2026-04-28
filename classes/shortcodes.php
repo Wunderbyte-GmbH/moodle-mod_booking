@@ -1453,7 +1453,7 @@ class shortcodes {
         $table->sort_default_order = SORT_DESC;
 
         $context = context_system::instance();
-        // Templates are excluded here.
+
         [$fields, $from, $where, $params, $filter] =
             booking::get_options_filter_sql(
                 0,
@@ -1465,7 +1465,7 @@ class shortcodes {
                 [],
                 null,
                 [],
-                ' bookingid > 0',
+                '',
                 '',
                 $table
             );
@@ -1768,6 +1768,7 @@ class shortcodes {
         }
 
         $instancefilter = new standardfilter('bookingid', get_string('bookingidfilter', 'mod_booking'));
+        $filterarray[0] = get_string('optiontemplates', 'mod_booking');
         $instancefilter->add_options($filterarray);
         $table->add_filter($instancefilter);
     }

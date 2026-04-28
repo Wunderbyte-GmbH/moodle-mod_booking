@@ -2114,7 +2114,8 @@ $string['optionstoconfirm'] = 'Options to confirm';
 $string['optiontemplate'] = 'Option template';
 $string['optiontemplatename'] = 'Option template name';
 $string['optiontemplatenotsavednovalidlicense'] = 'Booking option template could not be saved as template.
-                                                  Upgrade to PRO version to save an unlimited number of templates.';
+Upgrade to PRO version to save an unlimited number of templates.';
+$string['optiontemplates'] = 'Booking option templates';
 $string['optiontemplatessettings'] = 'Booking option templates';
 $string['optiontypefilternormal'] = 'Normal';
 $string['optionviewcustomfields'] = 'Show customfields on detail page';
@@ -2125,7 +2126,7 @@ $string['optionvisible'] = 'Visible to everyone (default)';
 $string['optionvisibledirectlink'] = 'Normal users can only see this option with a direct link';
 $string['organizatorname'] = 'Organizer name';
 $string['organizatorname_help'] = 'You can either enter the organizer name manually or choose from a list of previous organizers.
-                                    You can choose one organizer only. Once you save, the organizer will be added to the list.';
+You can choose one organizer only. Once you save, the organizer will be added to the list.';
 $string['orotherfield'] = 'OR additional field';
 $string['otherbookingaddrule'] = 'Add new rule';
 $string['otherbookinglimit'] = "Limit";
