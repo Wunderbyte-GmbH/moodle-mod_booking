@@ -265,7 +265,14 @@ class view implements renderable, templatable {
                 break;
         }
 
-        if (!empty($bookingsettings->iselective)) {
+        // Special case: Elective table. This is only shown when the elective feature is enabled...
+        // ... and the user is logged in (and not a guest).
+        // When the elective table is active, no other tab is shown.
+        if (
+            isloggedin()
+            && !isguestuser()
+            && !empty($bookingsettings->iselective)
+        ) {
             [$tablestring, $rawdata] = $this->get_rendered_elective_table();
 
             $this->renderelectivetable = $tablestring;
@@ -281,14 +288,19 @@ class view implements renderable, templatable {
 
             $PAGE->requires->js_call_amd('mod_booking/elective-sorting', 'electiveSorting');
 
-            return;
+            return; // Elective tab only.
         }
 
-        // All options.
+        // All options (also shown to guest users).
         if (in_array('showall', $showviews)) {
             // If we show this table first, we don't load it lazy.
             $lazy = $whichview !== 'showall';
             $this->renderedalloptionstable = $this->get_rendered_all_options_table($lazy);
+        }
+
+        // The following tables must only be shown to users who are logged in. Not to guests.
+        if (isguestuser() || !isloggedin()) {
+            return;
         }
 
         // Active options.
