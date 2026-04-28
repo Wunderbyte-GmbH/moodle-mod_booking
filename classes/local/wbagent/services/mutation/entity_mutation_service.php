@@ -24,7 +24,7 @@
 
 declare(strict_types=1);
 
-namespace mod_booking\local\wbagent\services;
+namespace mod_booking\local\wbagent\services\mutation;
 
 use mod_booking\local\wbagent\dto\create_entity_input_dto;
 use mod_booking\local\wbagent\dto\mutation_result_dto;

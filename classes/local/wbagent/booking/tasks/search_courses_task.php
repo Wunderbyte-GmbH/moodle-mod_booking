@@ -18,7 +18,7 @@ namespace mod_booking\local\wbagent\booking\tasks;
 
 use mod_booking\local\wbagent\booking\booking_task_support;
 use mod_booking\local\wbagent\interfaces\task_trigger_provider_interface;
-use mod_booking\local\wbagent\services\search_courses_answering_service;
+use mod_booking\local\wbagent\services\answering\search_courses_answering_service;
 
 /**
  * Task definition for booking.search_courses.
@@ -147,6 +147,7 @@ class search_courses_task extends base_booking_task implements task_trigger_prov
      */
     public function execute(array $input, int $cmid, int $userid): array {
         $query = trim((string)($input['query'] ?? ''));
+        $question = trim((string)($input['question'] ?? ''));
         $outputlang = $this->get_output_language($input);
         $limit = isset($input['limit']) ? max(1, (int)$input['limit']) : 10;
 
@@ -158,7 +159,7 @@ class search_courses_task extends base_booking_task implements task_trigger_prov
 
         $courses = booking_task_support::search_course_candidates_for_preview($query, $limit);
         if (empty($courses)) {
-            $messagedata = $this->generate_user_message($query, $query, [], $outputlang, $cmid, $userid);
+            $messagedata = $this->generate_user_message($question, $query, [], $outputlang, $cmid, $userid);
             return [
                 'status' => 'executed',
                 'detail' => $messagedata['message'],
@@ -172,7 +173,7 @@ class search_courses_task extends base_booking_task implements task_trigger_prov
             ];
         }
 
-        $messagedata = $this->generate_user_message($query, $query, $courses, $outputlang, $cmid, $userid);
+        $messagedata = $this->generate_user_message($question, $query, $courses, $outputlang, $cmid, $userid);
 
         return [
             'status' => 'executed',

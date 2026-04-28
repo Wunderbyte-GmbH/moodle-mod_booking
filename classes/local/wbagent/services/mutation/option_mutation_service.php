@@ -24,7 +24,7 @@
 
 declare(strict_types=1);
 
-namespace mod_booking\local\wbagent\services;
+namespace mod_booking\local\wbagent\services\mutation;
 
 use mod_booking\local\wbagent\booking\booking_task_support;
 use mod_booking\local\wbagent\booking\tasks\create_option_task;

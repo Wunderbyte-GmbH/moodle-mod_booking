@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace mod_booking\local\wbagent\services;
+namespace mod_booking\local\wbagent\services\lookup;
 
 /**
  * Deterministic lookup over booking/docs markdown files.

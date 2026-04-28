@@ -19,7 +19,7 @@ namespace mod_booking\local\wbagent\booking\tasks;
 use core_text;
 use mod_booking\local\wbagent\booking\booking_task_support;
 use mod_booking\local\wbagent\interfaces\task_trigger_provider_interface;
-use mod_booking\local\wbagent\services\search_options_answering_service;
+use mod_booking\local\wbagent\services\answering\search_options_answering_service;
 
 /**
  * Task definition for booking.search_options.
@@ -157,6 +157,7 @@ class search_options_task extends base_booking_task implements task_trigger_prov
         global $DB;
 
         $query = trim((string)($input['query'] ?? ''));
+        $question = trim((string)($input['question'] ?? ''));
         $when = trim((string)($input['when'] ?? ''));
         $outputlang = $this->get_output_language($input);
         $limit = isset($input['limit']) ? max(1, (int)$input['limit']) : ($query === '' ? 50 : 10);
@@ -181,7 +182,7 @@ class search_options_task extends base_booking_task implements task_trigger_prov
                         'link' => $link,
                     ]];
                     $messagedata = $this->generate_user_message(
-                        $query,
+                        $question,
                         $query,
                         $when,
                         $structuredoptions,
@@ -216,7 +217,7 @@ class search_options_task extends base_booking_task implements task_trigger_prov
 
         if (empty($rows)) {
             $messagedata = $this->generate_user_message(
-                $query,
+                $question,
                 $effectivequery,
                 $when,
                 [],
@@ -250,7 +251,7 @@ class search_options_task extends base_booking_task implements task_trigger_prov
         }
 
         $messagedata = $this->generate_user_message(
-            $query,
+            $question,
             $effectivequery,
             $when,
             $structuredoptions,

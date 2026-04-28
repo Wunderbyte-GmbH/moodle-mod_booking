@@ -14,12 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace mod_booking\local\wbagent\services;
-
-use context_module;
-use core\di;
-use core_ai\aiactions\generate_text;
-use core_ai\manager as ai_manager;
+namespace mod_booking\local\wbagent\services\answering;
 
 /**
  * LLM-backed answer generation for booking.list_option_properties user messages.
@@ -28,7 +23,7 @@ use core_ai\manager as ai_manager;
  * @copyright  2026 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class list_option_properties_answering_service {
+class list_option_properties_answering_service extends base_answering_service {
     /**
      * Generate a user-facing summary for option properties.
      *
@@ -48,45 +43,11 @@ class list_option_properties_answering_service {
         int $cmid,
         int $userid
     ): array {
-        try {
-            $context = context_module::instance($cmid);
-            $manager = di::get(ai_manager::class);
-            if (!$manager->is_action_available(generate_text::class)) {
-                return [];
-            }
-
-            if (method_exists($manager, 'is_action_enabled_in_context')) {
-                $actionenabledincontext = (bool)call_user_func(
-                    [$manager, 'is_action_enabled_in_context'],
-                    $context,
-                    generate_text::class
-                );
-                if (!$actionenabledincontext) {
-                    return [];
-                }
-            }
-
-            $action = new generate_text(
-                contextid: $context->id,
-                userid: $userid,
-                prompttext: $this->build_prompt($question, $scope, $properties, $outputlang),
-            );
-            $response = $manager->process_action($action);
-            if (!$response->get_success()) {
-                return [];
-            }
-
-            $answer = trim((string)($response->get_response_data()['generatedcontent'] ?? ''));
-            if ($answer === '') {
-                return [];
-            }
-
-            return [
-                'answer' => $answer,
-            ];
-        } catch (\Throwable $e) {
-            return [];
-        }
+        return $this->generate_answer(
+            $this->build_prompt($question, $scope, $properties, $outputlang),
+            $cmid,
+            $userid
+        );
     }
 
     /**

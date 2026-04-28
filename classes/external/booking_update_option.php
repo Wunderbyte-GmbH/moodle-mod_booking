@@ -34,7 +34,7 @@ use external_single_structure;
 use external_value;
 use mod_booking\local\wbagent\authorization_service;
 use mod_booking\local\wbagent\dto\update_option_input_dto;
-use mod_booking\local\wbagent\services\option_mutation_service;
+use mod_booking\local\wbagent\services\mutation\option_mutation_service;
 
 defined('MOODLE_INTERNAL') || die();
 

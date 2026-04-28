@@ -16,7 +16,7 @@
 
 namespace mod_booking\local\wbagent\booking\tasks;
 use mod_booking\local\wbagent\interfaces\task_trigger_provider_interface;
-use mod_booking\local\wbagent\services\get_current_user_answering_service;
+use mod_booking\local\wbagent\services\answering\get_current_user_answering_service;
 
 /**
  * Task definition for booking.get_current_user.

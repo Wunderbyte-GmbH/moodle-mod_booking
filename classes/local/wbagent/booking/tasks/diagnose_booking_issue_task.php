@@ -19,7 +19,7 @@ namespace mod_booking\local\wbagent\booking\tasks;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\local\wbagent\booking\booking_task_support;
 use mod_booking\local\wbagent\interfaces\task_trigger_provider_interface;
-use mod_booking\local\wbagent\services\diagnose_answering_service;
+use mod_booking\local\wbagent\services\answering\diagnose_answering_service;
 use mod_booking\singleton_service;
 
 /**

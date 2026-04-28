@@ -17,8 +17,8 @@
 namespace mod_booking\local\wbagent\booking\tasks;
 
 use mod_booking\local\wbagent\interfaces\task_trigger_provider_interface;
-use mod_booking\local\wbagent\services\docs_answering_service;
-use mod_booking\local\wbagent\services\docs_lookup_service;
+use mod_booking\local\wbagent\services\answering\docs_answering_service;
+use mod_booking\local\wbagent\services\lookup\docs_lookup_service;
 
 /**
  * Task definition for booking.explain_docs_topic.

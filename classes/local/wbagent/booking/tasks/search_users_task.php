@@ -18,7 +18,7 @@ namespace mod_booking\local\wbagent\booking\tasks;
 
 use mod_booking\local\wbagent\booking\booking_task_support;
 use mod_booking\local\wbagent\interfaces\task_trigger_provider_interface;
-use mod_booking\local\wbagent\services\search_users_answering_service;
+use mod_booking\local\wbagent\services\answering\search_users_answering_service;
 
 /**
  * Task definition for booking.search_users.
@@ -148,6 +148,7 @@ class search_users_task extends base_booking_task implements task_trigger_provid
      */
     public function execute(array $input, int $cmid, int $userid): array {
         $query = trim((string)($input['query'] ?? ''));
+        $question = trim((string)($input['question'] ?? ''));
         $outputlang = $this->get_output_language($input);
         $limit = isset($input['limit']) ? max(1, (int)$input['limit']) : 10;
 
@@ -163,7 +164,7 @@ class search_users_task extends base_booking_task implements task_trigger_provid
 
         $users = booking_task_support::search_user_candidates_for_preview($query, $limit);
         if (empty($users)) {
-            $messagedata = $this->generate_user_message($query, $query, [], $outputlang, $cmid, $userid);
+            $messagedata = $this->generate_user_message($question, $query, [], $outputlang, $cmid, $userid);
             return [
                 'status' => 'executed',
                 'detail' => $messagedata['message'],
@@ -177,7 +178,7 @@ class search_users_task extends base_booking_task implements task_trigger_provid
             ];
         }
 
-        $messagedata = $this->generate_user_message($query, $query, $users, $outputlang, $cmid, $userid);
+            $messagedata = $this->generate_user_message($question, $query, $users, $outputlang, $cmid, $userid);
 
         $previewids = array_values(array_map(static fn(array $u): int => (int)($u['userid'] ?? 0), $users));
         $debugextra = [

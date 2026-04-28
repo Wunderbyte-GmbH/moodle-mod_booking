@@ -18,7 +18,7 @@ namespace mod_booking\local\wbagent\booking\tasks;
 
 use mod_booking\local\wbagent\booking\booking_task_support;
 use mod_booking\local\wbagent\interfaces\task_trigger_provider_interface;
-use mod_booking\local\wbagent\services\list_actions_answering_service;
+use mod_booking\local\wbagent\services\answering\list_actions_answering_service;
 use mod_booking\local\wbagent\task_registry;
 
 /**

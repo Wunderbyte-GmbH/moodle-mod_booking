@@ -241,7 +241,7 @@ class bulk_update_options_task extends base_booking_task implements task_trigger
      * @return object|null
      */
     protected function create_bulk_update_options_answering_service(): ?object {
-        $classname = '\\mod_booking\\local\\wbagent\\services\\bulk_update_options_answering_service';
+        $classname = '\\mod_booking\\local\\wbagent\\services\\answering\\bulk_update_options_answering_service';
         if (class_exists($classname)) {
             return new $classname();
         }
