@@ -29,6 +29,7 @@ use local_shopping_cart\local\entities\cartitem;
 use local_shopping_cart\shopping_cart;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking;
+use mod_booking\booking_answers\booking_answers;
 use mod_booking\booking_bookit;
 use mod_booking\booking_option;
 use mod_booking\enrollink;
@@ -554,19 +555,19 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             $ba = singleton_service::get_instance_of_booking_answers($settings);
 
             $users = $ba->get_usersreserved();
-            if ($answer = $users[$userid]) {
-                $currentlybooked = enrollink::return_number_of_booked_licenses_from_booking_answer((object)$answer);
-                $bookinginformation = $ba->return_all_booking_information($userid);
-                if (
-                    !isset($bookinginformation['freeonlist'])
-                    || $nritems < $bookinginformation['freeonlist']
-                ) {
-                    // Adjust the number of items in the booking answer.
-                    enrollink::update_number_of_booked_licenses_for_booking_answer($answer, $nritems);
+            if ($answer = $users[$userid] ?? null) {
+                if (!empty($settings->maxanswers)) {
+                    $currentlybooked = enrollink::return_number_of_booked_licenses_from_booking_answer((object)$answer);
+                    $freeonlist = $settings->maxanswers - booking_answers::count_places($ba->get_usersonlist());
+                    // User may adjust up to what's free plus what they already hold.
+                    if ($nritems > $freeonlist + $currentlybooked) {
+                        return false;
+                    }
                 }
+                // Adjust the number of items in the booking answer.
+                enrollink::update_number_of_booked_licenses_for_booking_answer($answer, $nritems);
             }
         }
-
         return true;
     }
 }

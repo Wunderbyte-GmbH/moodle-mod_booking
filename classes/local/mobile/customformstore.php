@@ -152,7 +152,7 @@ class customformstore {
                         $settings = singleton_service::get_instance_of_booking_option_settings($data['id']);
                         if (!empty($settings->maxanswers)) {
                             $ba = singleton_service::get_instance_of_booking_answers($settings);
-                            // usersonlist already contains both booked and reserved users.
+                            // Usersonlist already contains both booked and reserved users.
                             $freeonlist = $settings->maxanswers - booking_answers::count_places($ba->get_usersonlist());
                             if ($nritems > $freeonlist) {
                                 $errors[$identifier] = get_string(

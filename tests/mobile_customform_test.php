@@ -466,7 +466,7 @@ final class mobile_customform_test extends advanced_testcase {
         $record = new stdClass();
         $record->bookingid = $booking->id;
         $record->text = 'Option unlimited maxanswers';
-        // maxanswers not set → defaults to 0 (unlimited).
+        // Maxanswers not set, defaults to 0 (unlimited).
         $record->bo_cond_customform_restrict = 1;
         $record->bo_cond_customform_select_1_1 = 'enrolusersaction';
         $record->bo_cond_customform_label_1_1 = 'Number of users';

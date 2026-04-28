@@ -28,6 +28,7 @@ namespace mod_booking;
 
 use advanced_testcase;
 use coding_exception;
+use mod_booking\booking_option;
 use mod_booking\price;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
@@ -35,6 +36,7 @@ use local_shopping_cart\shopping_cart;
 use mod_booking\local\mobile\customformstore;
 use local_shopping_cart\local\cartstore;
 use local_shopping_cart_generator;
+use mod_booking\shopping_cart\service_provider;
 use stdClass;
 use tool_mocktesttime\time_mock;
 use mod_booking\booking_rules\booking_rules;
@@ -421,6 +423,137 @@ final class shopping_cart_test extends advanced_testcase {
         // Validate that already booked.
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+    }
+
+    /**
+     * Test that adjust_number_of_items enforces capacity and respects currently held places.
+     *
+     * Scenario: maxanswers=5, 2 users booked (1 place each), 1 user reserved with 2 places.
+     * usersonlist = 2+2 = 4, freeonlist = 5-4 = 1.
+     * The reserved user currently holds 2 places, so they may adjust up to 1+2=3.
+     * - nritems=3 → allowed (exactly at limit)
+     * - nritems=4 → blocked (exceeds limit)
+     * Also: maxanswers=0 (unlimited) → any value allowed.
+     *
+     * @covers \mod_booking\shopping_cart\service_provider::adjust_number_of_items
+     *
+     * @param array $bdata
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_adjust_number_of_items_capacity_enforcement(array $bdata): void {
+        global $DB;
+
+        $this->setAdminUser();
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $bdata['booking']['course'] = $course->id;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata['booking']);
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Option adjust_number_of_items test';
+        $record->maxanswers = 5;
+        $record->bo_cond_customform_restrict = 1;
+        $record->bo_cond_customform_select_1_1 = 'enrolusersaction';
+        $record->bo_cond_customform_label_1_1 = 'Number of users';
+        $record->bo_cond_customform_value_1_1 = 1;
+        $option = $plugingenerator->create_option($record);
+
+        // Two booked users (1 place each).
+        $bookeduser1 = $this->getDataGenerator()->create_user();
+        $bookeduser2 = $this->getDataGenerator()->create_user();
+        $DB->insert_record('booking_answers', (object)[
+            'bookingid' => $booking->id, 'optionid' => $option->id,
+            'userid' => $bookeduser1->id, 'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
+            'places' => 1, 'timemodified' => time(), 'timecreated' => time(),
+            'completed' => 0, 'frombookingid' => 0, 'numrec' => 0, 'status' => 0,
+        ]);
+        $DB->insert_record('booking_answers', (object)[
+            'bookingid' => $booking->id, 'optionid' => $option->id,
+            'userid' => $bookeduser2->id, 'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
+            'places' => 1, 'timemodified' => time(), 'timecreated' => time(),
+            'completed' => 0, 'frombookingid' => 0, 'numrec' => 0, 'status' => 0,
+        ]);
+
+        // Reserved user holds 2 places (already counted in usersonlist).
+        $reserveduser = $this->getDataGenerator()->create_user();
+        $reservedjson = json_encode(['condition_customform' => ['customform_enrolusersaction_1' => '2']]);
+        $DB->insert_record('booking_answers', (object)[
+            'bookingid' => $booking->id, 'optionid' => $option->id,
+            'userid' => $reserveduser->id, 'waitinglist' => MOD_BOOKING_STATUSPARAM_RESERVED,
+            'places' => 2, 'json' => $reservedjson,
+            'timemodified' => time(), 'timecreated' => time(),
+            'completed' => 0, 'frombookingid' => 0, 'numrec' => 0, 'status' => 0,
+        ]);
+
+        // Purge cache so adjust_number_of_items reads fresh DB data.
+        booking_option::purge_cache_for_answers($option->id);
+        singleton_service::destroy_instance();
+
+        // Usersonlist=4 (2 booked + reserved user with 2 places), freeonlist=1, currentlybooked=2. Max allowed = 1+2 = 3.
+        $result = service_provider::adjust_number_of_items('option', $option->id, 3, $reserveduser->id);
+        $this->assertTrue($result, 'nritems=3 should be within limit (freeonlist=1, currently holds 2, max 3).');
+
+        booking_option::purge_cache_for_answers($option->id);
+        singleton_service::destroy_booking_answers($option->id);
+
+        $result = service_provider::adjust_number_of_items('option', $option->id, 4, $reserveduser->id);
+        $this->assertFalse($result, 'nritems=4 should exceed limit (max allowed is 3).');
+    }
+
+    /**
+     * Test that adjust_number_of_items allows any value when maxanswers is unlimited (0).
+     *
+     * @covers \mod_booking\shopping_cart\service_provider::adjust_number_of_items
+     *
+     * @param array $bdata
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_adjust_number_of_items_unlimited_capacity(array $bdata): void {
+        global $DB;
+
+        $this->setAdminUser();
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $bdata['booking']['course'] = $course->id;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata['booking']);
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Option unlimited capacity test';
+        // Maxanswers not set, defaults to 0 (unlimited).
+        $record->bo_cond_customform_restrict = 1;
+        $record->bo_cond_customform_select_1_1 = 'enrolusersaction';
+        $record->bo_cond_customform_label_1_1 = 'Number of users';
+        $record->bo_cond_customform_value_1_1 = 1;
+        $option = $plugingenerator->create_option($record);
+
+        $reserveduser = $this->getDataGenerator()->create_user();
+        $reservedjson = json_encode(['condition_customform' => ['customform_enrolusersaction_1' => '1']]);
+        $DB->insert_record('booking_answers', (object)[
+            'bookingid' => $booking->id, 'optionid' => $option->id,
+            'userid' => $reserveduser->id, 'waitinglist' => MOD_BOOKING_STATUSPARAM_RESERVED,
+            'places' => 1, 'json' => $reservedjson,
+            'timemodified' => time(), 'timecreated' => time(),
+            'completed' => 0, 'frombookingid' => 0, 'numrec' => 0, 'status' => 0,
+        ]);
+
+        booking_option::purge_cache_for_answers($option->id);
+        singleton_service::destroy_instance();
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $this->assertEquals(0, $settings->maxanswers, 'maxanswers should be 0 (unlimited).');
+
+        foreach ([1, 50, 999] as $value) {
+            booking_option::purge_cache_for_answers($option->id);
+            singleton_service::destroy_booking_answers($option->id);
+            $result = service_provider::adjust_number_of_items('option', $option->id, $value, $reserveduser->id);
+            $this->assertTrue($result, "nritems=$value should always be allowed when maxanswers is unlimited.");
+        }
     }
 
     /**
