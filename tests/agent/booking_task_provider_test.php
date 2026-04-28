@@ -45,6 +45,26 @@ final class booking_task_provider_test extends advanced_testcase {
     private $booking;
 
     /**
+     * Build a minimal valid create_option payload for provider validation.
+     *
+     * @param array $overrides
+     * @return array
+     */
+    private function create_option_payload(array $overrides = []): array {
+        return array_merge([
+            'text' => 'My Option ' . uniqid('', true),
+            'maxanswers' => 10,
+            'teacherquery' => 'current',
+            'optiondates' => [
+                [
+                    'coursestarttime' => '2036-06-01T09:00:00',
+                    'courseendtime' => '2036-06-01T17:00:00',
+                ],
+            ],
+        ], $overrides);
+    }
+
+    /**
      * Set up test provider.
      */
     protected function setUp(): void {
@@ -59,6 +79,9 @@ final class booking_task_provider_test extends advanced_testcase {
             'eventtype' => 'Webinar',
             'bookingmanager' => 'admin',
         ]);
+
+        global $PAGE;
+        $PAGE->set_url('/mod/booking/view.php', ['id' => (int)$this->booking->cmid]);
 
         $this->provider = new booking_task_provider();
     }
@@ -103,12 +126,14 @@ final class booking_task_provider_test extends advanced_testcase {
     }
 
     /**
-     * Test create_option validation passes with text.
+     * Test create_option validation passes with the minimal required payload.
      */
-    public function test_create_option_validation_passes_with_text(): void {
-        $result = $this->provider->validate('booking.create_option', [
-            'text' => 'My Option ' . uniqid('', true),
-        ], (int)$this->booking->cmid);
+    public function test_create_option_validation_passes_with_required_fields(): void {
+        $result = $this->provider->validate(
+            'booking.create_option',
+            $this->create_option_payload(),
+            (int)$this->booking->cmid
+        );
         $this->assertTrue($result['valid']);
         $this->assertEmpty($result['errors']);
         $this->assertEmpty($result['ambiguities']);
@@ -127,10 +152,18 @@ final class booking_task_provider_test extends advanced_testcase {
      * Test that invalid datetime produces an error.
      */
     public function test_invalid_datetime_produces_error(): void {
-        $result = $this->provider->validate('booking.create_option', [
-            'text'            => 'Test',
-            'coursestarttime' => 'not-a-date',
-        ], (int)$this->booking->cmid);
+        $result = $this->provider->validate(
+            'booking.create_option',
+            $this->create_option_payload([
+                'optiondates' => [
+                    [
+                        'coursestarttime' => 'not-a-date',
+                        'courseendtime' => '2036-06-01T17:00:00',
+                    ],
+                ],
+            ]),
+            (int)$this->booking->cmid
+        );
         $this->assertFalse($result['valid']);
         $this->assertNotEmpty($result['errors']);
     }
@@ -139,11 +172,11 @@ final class booking_task_provider_test extends advanced_testcase {
      * Test that valid ISO 8601 datetime passes validation.
      */
     public function test_valid_iso_datetime_passes(): void {
-        $result = $this->provider->validate('booking.create_option', [
-            'text'            => 'Test',
-            'coursestarttime' => '2036-06-01T09:00:00',
-            'courseendtime'   => '2036-06-01T17:00:00',
-        ], (int)$this->booking->cmid);
+        $result = $this->provider->validate(
+            'booking.create_option',
+            $this->create_option_payload(),
+            (int)$this->booking->cmid
+        );
         $this->assertTrue($result['valid']);
     }
 
