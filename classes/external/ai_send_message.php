@@ -181,16 +181,20 @@ class ai_send_message extends external_api {
         }
 
         if ($previewoptionid > 0 && self::result_has_trigger($result, 'core.is_preview_request')) {
+            $olderrors = (array)($result['errors'] ?? []);
+            $oldambiguities = (array)($result['ambiguities'] ?? []);
+            $oldissuecodes = (array)($result['issue_codes'] ?? []);
+
             $result = [
                 'response_type' => 'clarification',
                 'message' => self::localized_string('ai_preview_latest_option', 'mod_booking', null, $outputlang),
                 'used_triggers' => $result['used_triggers'] ?? [],
                 'commands' => [],
-                'ambiguities' => [],
+                'ambiguities' => array_values(array_unique(array_merge($oldambiguities, []))),
                 'ambiguity_options' => [],
-                'errors' => [],
+                'errors' => array_values(array_unique($olderrors)),
                 'attempted_tasks' => [],
-                'issue_codes' => [],
+                'issue_codes' => array_values(array_unique($oldissuecodes)),
                 'pending_confirmation_code' => '',
             ];
         }
@@ -303,14 +307,18 @@ class ai_send_message extends external_api {
         $isconfirmationrequest = (($result['response_type'] ?? '') === 'confirmation_request');
         $hasmutatingcommands = self::has_mutating_commands($result, $registry);
         if ($islookuprequest && $isconfirmationrequest && $hasmutatingcommands) {
+            $olderrors = (array)($result['errors'] ?? []);
+            $oldambiguities = (array)($result['ambiguities'] ?? []);
+            $oldissuecodes = (array)($result['issue_codes'] ?? []);
+
             $result = [
                 'response_type' => 'clarification',
                 'message' => self::localized_string('ai_lookup_detected_blocked_mutation', 'mod_booking', null, $outputlang),
                 'commands' => [],
-                'ambiguities' => [],
-                'errors' => [],
+                'ambiguities' => array_values(array_unique($oldambiguities)),
+                'errors' => array_values(array_unique($olderrors)),
                 'attempted_tasks' => $result['attempted_tasks'] ?? [],
-                'issue_codes' => $result['issue_codes'] ?? [],
+                'issue_codes' => array_values(array_unique($oldissuecodes)),
             ];
         }
 
@@ -353,17 +361,22 @@ class ai_send_message extends external_api {
 
                     if (is_array($readonlyexecution)) {
                         if (self::execution_result_has_failures($readonlyexecution)) {
-                            $result = [
-                                'response_type' => 'clarification',
-                                'message' => trim((string)($readonlyexecution['message'] ?? '')),
-                                'commands' => [],
-                                'ambiguities' => [],
-                                'errors' => (array)($readonlyexecution['errors'] ?? []),
-                                'runid' => (int)($readonlyexecution['runid'] ?? 0),
-                                'results' => is_array($readonlyexecution['results'] ?? null)
-                                    ? $readonlyexecution['results']
-                                    : [],
-                            ];
+                                $olderrors = (array)($result['errors'] ?? []);
+                                $oldambiguities = (array)($result['ambiguities'] ?? []);
+                                $oldissuecodes = (array)($result['issue_codes'] ?? []);
+
+                                $result = [
+                                    'response_type' => 'clarification',
+                                    'message' => trim((string)($readonlyexecution['message'] ?? '')),
+                                    'commands' => [],
+                                    'ambiguities' => array_values(array_unique(array_merge($oldambiguities, []))),
+                                    'errors' => array_values(array_unique(array_merge($olderrors, (array)($readonlyexecution['errors'] ?? [])))),
+                                    'runid' => (int)($readonlyexecution['runid'] ?? 0),
+                                    'results' => is_array($readonlyexecution['results'] ?? null)
+                                        ? $readonlyexecution['results']
+                                        : [],
+                                    'issue_codes' => array_values(array_unique($oldissuecodes)),
+                                ];
                         } else {
                             $readonlymessage = trim((string)($readonlyexecution['message'] ?? ''));
                             if ($readonlymessage !== '') {

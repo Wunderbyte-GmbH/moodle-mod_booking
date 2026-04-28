@@ -80,6 +80,11 @@ class update_option_task extends base_booking_task implements task_trigger_provi
                     'description' => 'Optional temporal hint for disambiguation (e.g. "next monday").',
                     'required' => false,
                 ],
+                'outputlang' => [
+                    'type' => 'string',
+                    'description' => 'Optional language code override for the user-facing summary, e.g. de or en.',
+                    'required' => false,
+                ],
             ], option_schema_definition::common_properties()),
         ];
     }
@@ -153,6 +158,8 @@ class update_option_task extends base_booking_task implements task_trigger_provi
         global $USER;
         global $DB;
 
+        $lang = $this->get_output_language($input);
+
         if (!empty($USER->id) && (int)$USER->id > 0) {
             $anonymizer = new privacy_anonymizer(new conversation_store());
             $input = $anonymizer->deanonymize_command_input_for_active_user($cmid, (int)$USER->id, $input);
@@ -164,11 +171,11 @@ class update_option_task extends base_booking_task implements task_trigger_provi
 
         if (empty($input['optionid'])) {
             if (empty($input['optionquery'])) {
-                $ambiguities[] = 'Which booking option should be updated? Provide optionid or optionquery.';
+                $ambiguities[] = $this->localized_string('agent_booking_update_option_missing_target', null, $lang);
                 $issues[] = [
                     'code' => 'MISSING_TARGET_OPTION',
                     'severity' => 'needs_clarification',
-                    'user_question' => 'Which booking option should I update?',
+                    'user_question' => $this->localized_string('agent_booking_update_option_which_option_question', null, $lang),
                     'remedy_options' => ['PROVIDE_OPTIONQUERY', 'PROVIDE_OPTIONID'],
                 ];
             } else if (booking_task_support::is_last_preview_selection_reference((string)$input['optionquery'])) {
@@ -177,11 +184,11 @@ class update_option_task extends base_booking_task implements task_trigger_provi
                     (int)($USER->id ?? 0)
                 );
                 if (empty($previewids)) {
-                    $errors[] = 'No recently previewed booking options are available for this follow-up request.';
+                    $errors[] = $this->localized_string('agent_booking_update_option_missing_preview_context', null, $lang);
                     $issues[] = [
                         'code' => 'MISSING_PREVIEW_CONTEXT',
                         'severity' => 'needs_clarification',
-                        'user_question' => 'I could not find recently shown options. Which option(s) should I update?',
+                        'user_question' => $this->localized_string('agent_booking_update_option_missing_preview_question', null, $lang),
                         'remedy_options' => ['PROVIDE_OPTIONQUERY', 'PROVIDE_OPTIONID'],
                     ];
                 }
@@ -196,7 +203,7 @@ class update_option_task extends base_booking_task implements task_trigger_provi
                     $issues[] = [
                         'code' => 'OPTION_RESOLUTION_FAILED',
                         'severity' => 'needs_clarification',
-                        'user_question' => 'I could not uniquely find the option to update. Please specify it more precisely.',
+                        'user_question' => $this->localized_string('agent_booking_update_option_resolution_failed_question', null, $lang),
                         'remedy_options' => ['PROVIDE_MORE_SPECIFIC_OPTIONQUERY', 'PROVIDE_OPTIONID'],
                     ];
                 } else if ($result['status'] === 'ambiguity') {
@@ -204,7 +211,7 @@ class update_option_task extends base_booking_task implements task_trigger_provi
                     $issues[] = [
                         'code' => 'OPTION_RESOLUTION_AMBIGUOUS',
                         'severity' => 'needs_clarification',
-                        'user_question' => 'Multiple options match. Which one should I update?',
+                        'user_question' => $this->localized_string('agent_booking_update_option_resolution_ambiguous_question', null, $lang),
                         'remedy_options' => ['SELECT_EXACT_OPTION', 'PROVIDE_OPTIONID'],
                     ];
                 }
@@ -218,12 +225,11 @@ class update_option_task extends base_booking_task implements task_trigger_provi
                     'bookingid' => $cm->instance,
                 ])
             ) {
-                $errors[] = 'Booking option with id ' . (int)$input['optionid']
-                    . ' does not exist in this booking instance.';
+                $errors[] = $this->localized_string('agent_booking_update_option_invalid_optionid', (int)$input['optionid'], $lang);
                 $issues[] = [
                     'code' => 'INVALID_OPTIONID',
                     'severity' => 'needs_clarification',
-                    'user_question' => 'The selected option id does not exist here. Please provide a valid option.',
+                    'user_question' => $this->localized_string('agent_booking_update_option_invalid_optionid_question', (int)$input['optionid'], $lang),
                     'remedy_options' => ['PROVIDE_VALID_OPTIONID', 'PROVIDE_OPTIONQUERY'],
                 ];
             }

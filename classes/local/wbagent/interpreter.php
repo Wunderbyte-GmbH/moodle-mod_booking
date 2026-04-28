@@ -153,6 +153,24 @@ class interpreter implements agent_interpreter {
 
         // Stage 5: Any ambiguity from backend validation stops execution and forces clarification.
         // The confirm button must NEVER appear when unresolved questions remain.
+
+        if (!empty($errors)) {
+            $validationmessage = $this->user_facing_validation_message($errors, $lang);
+            $recoverableinputerror = $this->is_recoverable_input_validation_error($errors);
+            return [
+                'response_type' => $recoverableinputerror ? 'clarification' : 'error',
+                'lang'          => $lang,
+                'message'       => $validationmessage,
+                'used_triggers' => $usedtriggers,
+                'commands'      => [],
+                'ambiguities'   => [],
+                'ambiguity_options' => [],
+                'errors'        => $errors,
+                'attempted_tasks' => $attemptedtasks,
+                'issue_codes'   => $issuecodes,
+            ];
+        }
+
         if (!empty($ambiguities)) {
             if (empty($errors) && !empty($confirmablecommands)) {
                 return [
@@ -178,23 +196,6 @@ class interpreter implements agent_interpreter {
                 'ambiguities'   => $ambiguities,
                 'ambiguity_options' => $ambiguityoptions,
                 'errors'        => [],
-                'attempted_tasks' => $attemptedtasks,
-                'issue_codes'   => $issuecodes,
-            ];
-        }
-
-        if (!empty($errors)) {
-            $validationmessage = $this->user_facing_validation_message($errors, $lang);
-            $recoverableinputerror = $this->is_recoverable_input_validation_error($errors);
-            return [
-                'response_type' => $recoverableinputerror ? 'clarification' : 'error',
-                'lang'          => $lang,
-                'message'       => $validationmessage,
-                'used_triggers' => $usedtriggers,
-                'commands'      => [],
-                'ambiguities'   => [],
-                'ambiguity_options' => [],
-                'errors'        => $errors,
                 'attempted_tasks' => $attemptedtasks,
                 'issue_codes'   => $issuecodes,
             ];
@@ -362,6 +363,12 @@ class interpreter implements agent_interpreter {
 
             // Domain + semantic validation.
             $result = $task->validate($input, $cmid);
+            if (!empty($result['errors'])) {
+                foreach ($result['errors'] as $e) {
+                    $errors[] = "$label: $e";
+                }
+            }
+
             if (!empty($result['issues']) && is_array($result['issues'])) {
                 foreach ($result['issues'] as $issue) {
                     if (!is_array($issue)) {
@@ -416,12 +423,6 @@ class interpreter implements agent_interpreter {
                 }
             }
 
-            if (!empty($result['errors'])) {
-                foreach ($result['errors'] as $e) {
-                    $errors[] = "$label: $e";
-                }
-                continue;
-            }
             if (!empty($result['ambiguities'])) {
                 foreach ($result['ambiguities'] as $a) {
                     $ambiguities[] = "$label: $a";

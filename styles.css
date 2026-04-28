@@ -800,6 +800,12 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
     max-width: 80%;
 }
 
+#booking-ai-wrapper .booking-ai-messages .booking-ai-msg.assistant.error .bubble {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
 #booking-ai-wrapper .booking-ai-messages .booking-ai-msg.user {
     text-align: right;
 }

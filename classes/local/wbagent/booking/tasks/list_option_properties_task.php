@@ -19,6 +19,7 @@ namespace mod_booking\local\wbagent\booking\tasks;
 use mod_booking\local\wbagent\booking\booking_task_support;
 use mod_booking\local\wbagent\services\list_option_properties_answering_service;
 use mod_booking\local\wbagent\task_registry;
+use mod_booking\local\wbagent\interfaces\task_trigger_provider_interface;
 
 /**
  * Task definition for booking.list_option_properties.
@@ -27,7 +28,7 @@ use mod_booking\local\wbagent\task_registry;
  * @copyright  2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class list_option_properties_task extends base_booking_task {
+class list_option_properties_task extends base_booking_task implements task_trigger_provider_interface {
     /** Task name constant. */
     public const TASK_NAME = 'booking.list_option_properties';
 
@@ -78,6 +79,45 @@ class list_option_properties_task extends base_booking_task {
     }
 
     /**
+     * Return task-specific message triggers.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function get_message_triggers(): array {
+        return [
+            [
+                'id' => 'booking.list_option_properties_request',
+                'description' => 'User asks for a list of option properties or field definitions.',
+                'examples' => [
+                    'What properties can an option have?',
+                    'List fields for creating an option',
+                    'Welche Felder hat eine Option?',
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Return contextual guidance packs.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function get_contextual_prompt_packs(): array {
+        return [
+            [
+                'id' => 'booking.list_option_properties',
+                'triggers' => [
+                    'list properties', 'option properties', 'which fields', 'option fields', 'felder option',
+                ],
+                'guidance' => [
+                    '- Use booking.list_option_properties when the user asks about available option fields.',
+                    '- Return a concise structured list of property `name`, `label`, `type` and `description`.',
+                ],
+            ],
+        ];
+    }
+
+    /**
      * Validate task input.
      *
      * @param array $input
@@ -89,7 +129,7 @@ class list_option_properties_task extends base_booking_task {
         $scope = strtolower(trim((string)($input['scope'] ?? 'all')));
         $allowed = ['all', 'create', 'update', 'shared'];
         if (!in_array($scope, $allowed, true)) {
-            $errors[] = 'Field "scope" must be one of: all, create, update, shared.';
+            $errors[] = $this->localized_string('agent_booking_list_option_properties_invalid_scope', null, $this->get_output_language($input));
         }
 
         return [
@@ -115,7 +155,11 @@ class list_option_properties_task extends base_booking_task {
         $updatetask = $registry->get_task(update_option_task::TASK_NAME);
 
         if (!$createtask || !$updatetask) {
-            return ['status' => 'error', 'detail' => 'Required task schemas are unavailable.', 'resultid' => null];
+            return [
+                'status' => 'error',
+                'detail' => $this->localized_string('agent_booking_list_option_properties_required_schemas_unavailable', null, $this->get_output_language($input)),
+                'resultid' => null,
+            ];
         }
 
         $createschema = $createtask->get_schema();
@@ -175,6 +219,12 @@ class list_option_properties_task extends base_booking_task {
             $answersource = 'error';
         }
 
+        $debugextra = [
+            'Properties returned: ' . count($properties),
+            'Answer source: ' . $answersource,
+            'Top property: ' . ($properties[0]['name'] ?? ''),
+        ];
+
         return [
             'status' => 'executed',
             'detail' => $usermessage,
@@ -185,10 +235,7 @@ class list_option_properties_task extends base_booking_task {
             'debugmessage' => $this->build_task_debug_message(
                 self::TASK_NAME,
                 $input,
-                [
-                    'Properties returned: ' . count($properties),
-                    'Answer source: ' . $answersource,
-                ]
+                $debugextra
             ),
         ];
     }

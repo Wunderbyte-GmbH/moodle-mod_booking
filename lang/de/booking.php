@@ -96,6 +96,26 @@ $string['agent_booking_create_option_exists_multiple'] =
     'Eine oder mehrere Buchungsoptionen mit exakt diesem Titel existieren bereits: {$a}. Moechten Sie stattdessen eine davon aktualisieren?';
 $string['agent_booking_create_option_exists_single'] =
     'Eine Buchungsoption mit exakt diesem Titel existiert bereits (id={$a}). Moechten Sie diese Option statt einer Neuanlage aktualisieren?';
+$string['agent_booking_create_option_missing_title'] =
+    'Bitte geben Sie einen Titel für die Buchungsoption an.';
+$string['agent_booking_create_option_which_title_question'] =
+    'Welchen Titel soll die neue Buchungsoption haben?';
+$string['agent_booking_create_option_confirm_without_location'] =
+    'Bitte bestätigen Sie, dass Sie diese Buchungsoption ohne Angabe von Ort/Adresse erstellen möchten.';
+$string['agent_booking_create_option_missing_required_fields'] =
+    'Bitte geben Sie die fehlenden Details für den gewählten Buchungstyp an.';
+$string['agent_booking_create_option_confirm_missing_values'] =
+    'Bitte bestätigen Sie, dass fehlende Werte leer/Standard bleiben dürfen, oder geben Sie Overrides an, um fortzufahren.';
+$string['agent_booking_create_option_location_not_found_question'] =
+    'Wenn dieser Ort nicht aufgelöst werden kann, soll ich ihn anlegen und dann mit der Erstellung der Buchungsoption fortfahren?';
+$string['agent_booking_create_option_duplicate_exists_single_question'] =
+    'Eine Buchungsoption mit diesem Titel existiert bereits (id={$a}). Möchten Sie eine weitere mit demselben Titel erstellen?';
+$string['agent_booking_create_option_duplicate_exists_multiple_question'] =
+    'Mehrere Optionen mit diesem Titelmuster existieren. Möchten Sie trotzdem eine neue mit demselben Titel erstellen?';
+$string['agent_booking_create_option_placeholder_override_required_single'] =
+    'Das Feld "{$a->label}" ist leer. Um fortzufahren, fügen Sie bitte das Override ["{$a->field}"] in den Befehl ein.';
+$string['agent_booking_create_option_placeholder_override_required'] =
+    'Die Felder "{$a->labels}" sind leer. Um fortzufahren, fügen Sie bitte die Overrides ["{$a->fields}"] in den Befehl ein.';
 $string['agent_booking_bulk_update_missing_target'] =
     'Bitte geben Sie optionids (Array), optionquery (String) an oder setzen Sie apply_to_all=true, um anzugeben, welche Optionen aktualisiert werden sollen.';
 $string['agent_booking_bulk_update_issue_user_question'] =
@@ -263,6 +283,13 @@ $string['ai_status_taskcall_entities_list_all'] = 'Lade Liste aller Entities.';
 $string['ai_status_taskcall_entities_search'] = 'Suche passende Entities.';
 $string['ai_status_taskcall_shopping_cart_items'] = 'Lade Warenkorbpositionen.';
 $string['ai_status_taskcall_shopping_cart_totals'] = 'Lade Warenkorbsummen.';
+$string['agent_booking_pricecat_created'] = 'Preiskategorie "{$a}" wurde erstellt.';
+$string['agent_booking_pricecat_defaultvalue_nonnegative'] = 'Der Standardwert darf nicht negativ sein.';
+$string['agent_booking_pricecat_defaultvalue_numeric'] = 'Der Standardwert muss eine Zahl sein.';
+$string['agent_booking_pricecat_duplicate_exists'] = 'Eine Preiskategorie mit dem Bezeichner "{$a}" existiert bereits.';
+$string['agent_booking_pricecat_duplicate_user_question'] = 'Eine Preiskategorie mit diesem Bezeichner existiert bereits. Möchten Sie trotzdem eine weitere mit demselben Bezeichner anlegen?';
+$string['agent_booking_pricecat_identifier_invalid'] = 'Der Bezeichner darf nur Buchstaben, Zahlen, Bindestriche oder Unterstriche enthalten.';
+$string['agent_booking_pricecat_identifier_required'] = 'Bitte geben Sie einen eindeutigen Bezeichner für die Preiskategorie an.';
 $string['ai_trial_token_invalid_message'] = 'Ihr AI-Trial-Token ist nicht mehr gueltig. Bitte kaufen Sie ein Abonnement, um fortzufahren — Ihr Token wird direkt nach dem Kauf erneuert und Sie koennen sofort weitermachen.';
 $string['ai_trial_token_invalid_subscription_message'] = 'Ihr AI-Trial-Token ist nicht mehr gueltig. Um fortzufahren, kaufen Sie ein Abonnement. Ihr Token wird direkt nach dem Kauf erneuert und Sie koennen den Agenten sofort weiter nutzen.
 
@@ -2805,6 +2832,8 @@ $string['sessionremindermailsubject'] = 'Erinnerung: Sie haben demnächst einen 
 $string['sessionremindershint'] = 'Mit <a href="{$a}" target="_blank">Buchungsregeln</a> können Sie Benachrichtigungen für Termine einrichten';
 $string['sessionremindersruleexists'] = 'Es gibt mindestens eine Buchungsregel, die für diesen Termin angewendet wird.';
 $string['sessions'] = 'Termin(e)';
+$string['searchoptionsfound'] = '{$a} Option(en) gefunden.';
+$string['searchoptionsnotfound'] = 'Keine passenden Buchungsoptionen gefunden.';
 $string['sharedplacenoselect'] = 'Geteilt mit <a href="{$a->url}">{$a->text}</a>';
 $string['sharedplaces'] = 'Geteilte Plätze';
 $string['sharedplaces_help'] = 'Gebuchte Plätze einer anderen Buchungsoption werden addiert. Haben beide Optionen 10 verfügbare Plätze und nur eine wird gebucht, bleiben nur noch 9 Plätze in beiden.';

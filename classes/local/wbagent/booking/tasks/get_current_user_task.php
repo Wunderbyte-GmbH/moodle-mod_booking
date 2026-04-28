@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace mod_booking\local\wbagent\booking\tasks;
+use mod_booking\local\wbagent\interfaces\task_trigger_provider_interface;
+use mod_booking\local\wbagent\services\get_current_user_answering_service;
 
 /**
  * Task definition for booking.get_current_user.
@@ -23,7 +25,7 @@ namespace mod_booking\local\wbagent\booking\tasks;
  * @copyright  2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class get_current_user_task extends base_booking_task {
+class get_current_user_task extends base_booking_task implements task_trigger_provider_interface {
     /** Task name constant. */
     public const TASK_NAME = 'booking.get_current_user';
 
@@ -79,6 +81,45 @@ class get_current_user_task extends base_booking_task {
     }
 
     /**
+     * Return task-specific message triggers.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function get_message_triggers(): array {
+        return [
+            [
+                'id' => 'booking.get_current_user_request',
+                'description' => 'User asks about their current account or profile information.',
+                'examples' => [
+                    'Who am I?',
+                    'Show my profile',
+                    'Zeige meinen Benutzernamen',
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Return contextual guidance packs.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function get_contextual_prompt_packs(): array {
+        return [
+            [
+                'id' => 'booking.get_current_user',
+                'triggers' => [
+                    'who am i', 'show my profile', 'wer bin ich', 'zeige mein profil', 'my account',
+                ],
+                'guidance' => [
+                    '- Use booking.get_current_user when the user asks about their own account.',
+                    '- Provide a short summary with userid, fullname and email.',
+                ],
+            ],
+        ];
+    }
+
+    /**
      * Execute task.
      *
      * @param array $input
@@ -97,39 +138,42 @@ class get_current_user_task extends base_booking_task {
             'email' => (string)$user->email,
         ];
 
-        // LLM-Antwort generieren lassen.
+        // LLM-Antwort generieren lassen via Factory.
         $usermessage = '';
         $outputlang = $this->get_output_language($input);
         $answersource = 'none';
         try {
-            $llmserviceclass = '\\mod_booking\\local\\wbagent\\services\\get_current_user_answering_service';
-            if (class_exists($llmserviceclass)) {
-                $llmservice = new $llmserviceclass();
+            $llmservice = $this->create_get_current_user_answering_service();
+            if ($llmservice !== null) {
                 $llmresult = $llmservice->answer_question(
-                    $input['question'] ?? '',
+                    (string)($input['question'] ?? ''),
                     $userdata,
                     $outputlang,
                     $cmid,
                     $userid
                 );
-                if (!empty($llmresult['usermessage'])) {
-                    $usermessage = $llmresult['usermessage'];
+                $usermessage = trim((string)($llmresult['usermessage'] ?? ''));
+                if ($usermessage !== '') {
                     $answersource = 'llm';
                 }
             }
         } catch (\Throwable $e) {
-            // Preserve task-side debug/fallback behavior. Do not expose LLM errors to users.
             $answersource = 'error';
         }
-        if (empty($usermessage)) {
-            // Fallback: einfache Standardantwort.
-            $usermessage = 'Benutzer: ' . $fullname . ' (' . $user->email . ')';
-            $answersource = 'fallback';
+
+        if ($usermessage === '') {
+            // Fallback: lokale, lokalisierbare Standardantwort.
+            $usermessage = $this->localized_string(
+                'agent_booking_get_current_user_fallback',
+                (object)['fullname' => $fullname, 'email' => $user->email],
+                $outputlang
+            );
+            $answersource = $answersource === 'error' ? 'fallback_after_error' : 'fallback';
         }
 
         return [
             'status' => 'executed',
-            'detail' => 'Current user identified.',
+            'detail' => $this->localized_string('agent_booking_get_current_user_identified', null, $outputlang),
             'resultid' => (int)$user->id,
             'userid' => (int)$user->id,
             'email' => (string)$user->email,
@@ -146,5 +190,17 @@ class get_current_user_task extends base_booking_task {
                 ]
             ),
         ];
+    }
+
+    /**
+     * Create the answering service for get_current_user.
+     *
+     * @return get_current_user_answering_service|null
+     */
+    protected function create_get_current_user_answering_service(): ?get_current_user_answering_service {
+        if (class_exists(get_current_user_answering_service::class)) {
+            return new get_current_user_answering_service();
+        }
+        return null;
     }
 }

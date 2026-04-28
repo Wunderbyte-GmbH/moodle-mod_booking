@@ -236,6 +236,19 @@ class bulk_update_options_task extends base_booking_task implements task_trigger
     }
 
     /**
+     * Factory to create the answering service instance for this task.
+     *
+     * @return object|null
+     */
+    protected function create_bulk_update_options_answering_service(): ?object {
+        $classname = '\\mod_booking\\local\\wbagent\\services\\bulk_update_options_answering_service';
+        if (class_exists($classname)) {
+            return new $classname();
+        }
+        return null;
+    }
+
+    /**
      * Execute task.
      *
      * @param array $input
@@ -253,9 +266,8 @@ class bulk_update_options_task extends base_booking_task implements task_trigger
         if (is_array($result)) {
             // LLM-Antwort generieren lassen.
             try {
-                $llmserviceclass = '\\mod_booking\\local\\wbagent\\services\\bulk_update_options_answering_service';
-                if (class_exists($llmserviceclass)) {
-                    $llmservice = new $llmserviceclass();
+                $llmservice = $this->create_bulk_update_options_answering_service();
+                if ($llmservice !== null) {
                     $llmresult = $llmservice->answer_question(
                         $input['question'] ?? '',
                         $result,

@@ -17,6 +17,7 @@
 namespace mod_booking\local\wbagent\booking\tasks;
 
 use mod_booking\local\wbagent\booking\booking_task_support;
+use mod_booking\local\wbagent\interfaces\task_trigger_provider_interface;
 use mod_booking\local\wbagent\services\list_actions_answering_service;
 use mod_booking\local\wbagent\task_registry;
 
@@ -27,7 +28,7 @@ use mod_booking\local\wbagent\task_registry;
  * @copyright  2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class list_actions_task extends base_booking_task {
+class list_actions_task extends base_booking_task implements task_trigger_provider_interface {
     /** Task name constant. */
     public const TASK_NAME = 'booking.list_actions';
 
@@ -73,6 +74,24 @@ class list_actions_task extends base_booking_task {
                     'description' => 'Optional language code override for the user-facing summary, e.g. de or en.',
                     'required' => false,
                 ],
+            ],
+        ];
+    }
+
+    /**
+     * Return task-specific message triggers.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function get_message_triggers(): array {
+        return [
+            [
+                'id' => 'booking.list_actions_request',
+                'description' => 'User asks which actions/tasks the booking agent can perform.',
+            ],
+            [
+                'id' => 'booking.list_actions_scope_filter',
+                'description' => 'User asks for only readonly or only mutating actions.',
             ],
         ];
     }

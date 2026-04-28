@@ -17,6 +17,7 @@
 namespace mod_booking\local\wbagent\booking\tasks;
 
 use mod_booking\local\wbagent\booking\booking_task_support;
+use mod_booking\local\wbagent\interfaces\task_trigger_provider_interface;
 use mod_booking\local\wbagent\services\search_users_answering_service;
 
 /**
@@ -26,7 +27,7 @@ use mod_booking\local\wbagent\services\search_users_answering_service;
  * @copyright  2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class search_users_task extends base_booking_task {
+class search_users_task extends base_booking_task implements task_trigger_provider_interface {
     /** Task name constant. */
     public const TASK_NAME = 'booking.search_users';
 
@@ -77,6 +78,46 @@ class search_users_task extends base_booking_task {
     }
 
     /**
+     * Return task-specific message triggers.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function get_message_triggers(): array {
+        return [
+            [
+                'id' => 'booking.search_users_request',
+                'description' => 'User asks to find users by name, email or id.',
+                'examples' => [
+                    'Find users called John',
+                    'Suche Benutzer nach E‑Mail',
+                    'Find user with id 42',
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Return contextual guidance packs.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function get_contextual_prompt_packs(): array {
+        return [
+            [
+                'id' => 'booking.search_users',
+                'triggers' => [
+                    'find user', 'search user', 'suche benutzer', 'suche nutzer', 'finde benutzer',
+                    'find users', 'search users', 'finde nutzer', 'user lookup',
+                ],
+                'guidance' => [
+                    '- Use booking.search_users for queries that look for people by name, email or id.',
+                    '- Return a short preview list of matching users, including userid and fullname.',
+                ],
+            ],
+        ];
+    }
+
+    /**
      * Validate task input.
      *
      * @param array $input
@@ -85,8 +126,9 @@ class search_users_task extends base_booking_task {
      */
     public function validate(array $input, int $cmid): array {
         $errors = [];
+        $lang = $this->get_output_language($input);
         if (empty($input['query']) || !is_string($input['query'])) {
-            $errors[] = 'Field "query" is required for search_users.';
+            $errors[] = $this->localized_string('agent_booking_search_users_required_query', null, $lang);
         }
 
         return [
@@ -110,7 +152,11 @@ class search_users_task extends base_booking_task {
         $limit = isset($input['limit']) ? max(1, (int)$input['limit']) : 10;
 
         if ($query === '') {
-            return ['status' => 'error', 'detail' => 'Field "query" is required.', 'resultid' => null];
+            return [
+                'status' => 'error',
+                'detail' => $this->localized_string('agent_booking_search_users_required_query', null, $outputlang),
+                'resultid' => null,
+            ];
         }
 
         $debugbase = $this->build_task_debug_message(self::TASK_NAME, $input);
@@ -133,6 +179,14 @@ class search_users_task extends base_booking_task {
 
         $messagedata = $this->generate_user_message($query, $query, $users, $outputlang, $cmid, $userid);
 
+        $previewids = array_values(array_map(static fn(array $u): int => (int)($u['userid'] ?? 0), $users));
+        $debugextra = [
+            'Results: ' . count($users),
+            'Answer source: ' . $messagedata['source'],
+            'Top user: ' . ((string)($users[0]['fullname'] ?? '') ?: (string)($users[0]['username'] ?? '')) . ' ',
+            'Preview user ids: ' . implode(', ', $previewids),
+        ];
+
         return [
             'status' => 'executed',
             'detail' => $messagedata['message'],
@@ -140,9 +194,9 @@ class search_users_task extends base_booking_task {
             'usermessage' => $messagedata['message'],
             'resultid' => (int)($users[0]['userid'] ?? 0),
             'users' => $users,
+            'previewuserids' => $previewids,
             'debugmessage' => $debugbase
-                . "\nResults: " . count($users)
-                . "\nAnswer source: " . $messagedata['source'],
+                . "\n" . implode("\n", $debugextra),
         ];
     }
 
@@ -185,27 +239,7 @@ class search_users_task extends base_booking_task {
             $source = 'error';
         }
 
-        if ($message === '') {
-            $message = $this->build_fallback_user_message($users);
-            $source = $source === 'error' ? 'fallback_after_error' : 'fallback';
-        }
-
         return ['message' => $message, 'source' => $source];
-    }
-
-    /**
-     * Build deterministic fallback text when LLM output is unavailable.
-     *
-     * @param array $users
-     * @return string
-     */
-    private function build_fallback_user_message(array $users): string {
-        $count = count($users);
-        if ($count === 0) {
-            return 'No matching users found.';
-        }
-
-        return 'Found ' . $count . ' matching user(s).';
     }
 
     /**

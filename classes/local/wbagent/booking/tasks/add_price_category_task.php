@@ -23,6 +23,7 @@ use mod_booking\local\wbagent\interfaces\task_trigger_provider_interface;
 /**
  * Task definition for booking.add_price_category.
  *
+ * @package    mod_booking
  * @copyright  2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -122,6 +123,19 @@ class add_price_category_task extends base_booking_task implements task_trigger_
     }
 
     /**
+     * Factory to create the answering service instance for this task.
+     *
+     * @return object|null
+     */
+    protected function create_add_price_category_answering_service(): ?object {
+        $classname = '\\mod_booking\\local\\wbagent\\services\\add_price_category_answering_service';
+        if (class_exists($classname)) {
+            return new $classname();
+        }
+        return null;
+    }
+
+    /**
      * Validate task input.
      *
      * @param array $input
@@ -131,20 +145,22 @@ class add_price_category_task extends base_booking_task implements task_trigger_
     public function validate(array $input, int $cmid): array {
         $errors = [];
         $ambiguities = [];
-                $issues = [];
-                $overrides = is_array($input['override'] ?? null) ? $input['override'] : [];
+        $issues = [];
+        $overrides = is_array($input['override'] ?? null) ? $input['override'] : [];
+
+        $lang = $this->get_output_language($input);
 
         $identifier = trim((string)($input['identifier'] ?? ''));
         if ($identifier === '') {
-            $errors[] = 'Field "identifier" is required for add_price_category.';
+            $errors[] = $this->localized_string('agent_booking_pricecat_identifier_required', null, $lang);
         } else if (!preg_match('/^[a-z0-9_-]+$/i', $identifier)) {
-            $errors[] = 'Field "identifier" may only contain letters, numbers, underscore and dash.';
+            $errors[] = $this->localized_string('agent_booking_pricecat_identifier_invalid', null, $lang);
         }
 
         if (isset($input['defaultvalue']) && !is_numeric($input['defaultvalue'])) {
-            $errors[] = 'Field "defaultvalue" must be numeric.';
+            $errors[] = $this->localized_string('agent_booking_pricecat_defaultvalue_numeric', null, $lang);
         } else if (isset($input['defaultvalue']) && (float)$input['defaultvalue'] < 0) {
-            $errors[] = 'Field "defaultvalue" must be non-negative.';
+            $errors[] = $this->localized_string('agent_booking_pricecat_defaultvalue_nonnegative', null, $lang);
         }
 
         $handler = new pricecategories_handler();
@@ -154,16 +170,13 @@ class add_price_category_task extends base_booking_task implements task_trigger_
             && isset($existing[strtolower($identifier)])
             && (int)$existing[strtolower($identifier)]->disabled === 0
         ) {
-            if (!in_array('duplicate_identifier', $overrides, true)) {
-                $errors[] = 'Price category "' . $identifier . '" already exists. '
-                    . 'To proceed anyway, add override: ["duplicate_identifier"].';
-                $issues[] = [
-                    'code' => 'DUPLICATE_PRICE_CATEGORY_CONFIRM_REQUIRED',
-                    'severity' => 'needs_confirmation',
-                    'user_question' => 'This price category already exists. Do you want to continue anyway?',
-                    'remedy_options' => ['CONFIRM_DUPLICATE_IDENTIFIER', 'USE_DIFFERENT_IDENTIFIER'],
-                ];
-            }
+            $errors[] = $this->localized_string('agent_booking_pricecat_duplicate_exists', $identifier, $lang);
+            $issues[] = [
+                'code' => 'DUPLICATE_PRICE_CATEGORY_CONFIRM_REQUIRED',
+                'severity' => 'needs_confirmation',
+                'user_question' => $this->localized_string('agent_booking_pricecat_duplicate_user_question', $identifier, $lang),
+                'remedy_options' => ['CONFIRM_DUPLICATE_IDENTIFIER', 'USE_DIFFERENT_IDENTIFIER'],
+            ];
         }
 
         return [
@@ -205,13 +218,49 @@ class add_price_category_task extends base_booking_task implements task_trigger_
             $defaultvalue,
             isset($input['pricecatsortorder']) ? (int)$input['pricecatsortorder'] : null
         );
+
+        $outputlang = $this->get_output_language($input);
+        $answersource = 'none';
         if (is_array($result)) {
+            try {
+                $llmservice = $this->create_add_price_category_answering_service();
+                if ($llmservice !== null) {
+                    $llmresult = $llmservice->answer_question(
+                        $input['question'] ?? '',
+                        $result,
+                        $outputlang,
+                        $cmid,
+                        $userid
+                    );
+                    if (!empty($llmresult['usermessage'])) {
+                        $result['usermessage'] = (string)$llmresult['usermessage'];
+                        $outputlang = (string)($llmresult['outputlang'] ?? $outputlang);
+                        $answersource = 'llm';
+                    }
+                }
+            } catch (\Throwable $e) {
+                $answersource = 'error';
+            }
+
+            if (empty($result['usermessage'])) {
+                $result['usermessage'] = $this->localized_string(
+                    'agent_booking_pricecat_created',
+                    $identifier,
+                    $outputlang
+                );
+            }
+
+            $result['outputlang'] = $outputlang;
             $result['debugmessage'] = $this->build_task_debug_message(
                 self::TASK_NAME,
                 $input,
-                ['Status: ' . ($result['status'] ?? 'unknown')]
+                [
+                    'Status: ' . ($result['status'] ?? 'unknown'),
+                    'Answer source: ' . $answersource,
+                ]
             );
         }
+
         return $result;
     }
 }

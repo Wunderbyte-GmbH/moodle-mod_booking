@@ -103,6 +103,28 @@ class search_options_task extends base_booking_task implements task_trigger_prov
     }
 
     /**
+     * Return contextual guidance packs.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function get_contextual_prompt_packs(): array {
+        return [
+            [
+                'id' => 'booking.search_options',
+                'triggers' => [
+                    'search', 'find options', 'show options', 'which options',
+                    'suche', 'optionen', 'zeige optionen', 'wo finde', 'finde option',
+                ],
+                'guidance' => [
+                    '- If the user asks to find booking options, use booking.search_options.',
+                    '- Prefer exact title matches when the user mentions a quoted title or the word "title"/"titel".',
+                    '- Return a short structured list with `id`, `name` and `link` for preview.',
+                ],
+            ],
+        ];
+    }
+
+    /**
      * Validate task input.
      *
      * @param array $input
@@ -111,8 +133,9 @@ class search_options_task extends base_booking_task implements task_trigger_prov
      */
     public function validate(array $input, int $cmid): array {
         $errors = [];
+        $lang = $this->get_output_language($input);
         if (isset($input['query']) && !is_string($input['query'])) {
-            $errors[] = 'Field "query" must be a string when provided for search_options.';
+            $errors[] = $this->localized_string('agent_booking_search_options_query_must_be_string', null, $lang);
         }
 
         return [
@@ -236,20 +259,28 @@ class search_options_task extends base_booking_task implements task_trigger_prov
             $userid
         );
 
+        $previewids = array_values(array_map(
+            static fn(array $row): int => (int)($row['optionid'] ?? 0),
+            $rows
+        ));
+
+        $debugextra = [
+            'Results: ' . count($structuredoptions),
+            'Answer source: ' . $messagedata['source'],
+            'Top option: ' . (string)($structuredoptions[0]['name'] ?? ''),
+            'Preview option ids: ' . implode(', ', $previewids),
+        ];
+
         return [
             'status' => 'executed',
             'detail' => $messagedata['message'],
             'summary' => $messagedata['message'],
             'usermessage' => $messagedata['message'],
             'resultid' => (int)($rows[0]['optionid'] ?? 0),
-            'previewoptionids' => array_values(array_map(
-                static fn(array $row): int => (int)($row['optionid'] ?? 0),
-                $rows
-            )),
+            'previewoptionids' => $previewids,
             'options' => $structuredoptions,
             'debugmessage' => $debugbase
-                . "\nResults: " . count($structuredoptions)
-                . "\nAnswer source: " . $messagedata['source'],
+                . "\n" . implode("\n", $debugextra),
         ];
     }
 
@@ -312,10 +343,10 @@ class search_options_task extends base_booking_task implements task_trigger_prov
     private function build_fallback_user_message(array $options): string {
         $count = count($options);
         if ($count === 0) {
-            return 'No matching booking options found.';
+            return get_string('searchoptionsnotfound', 'mod_booking');
         }
 
-        return 'Found ' . $count . ' option(s).';
+        return get_string('searchoptionsfound', 'mod_booking', $count);
     }
 
     /**

@@ -100,6 +100,26 @@ $string['agent_booking_create_option_exists_multiple'] =
     'One or more booking options with this exact title already exist: {$a}. Do you want to update one of them instead of creating a new option?';
 $string['agent_booking_create_option_exists_single'] =
     'A booking option with this exact title already exists (id={$a}). Do you want to update this option instead of creating a new one?';
+$string['agent_booking_create_option_missing_title'] =
+    'Please provide a title for the booking option.';
+$string['agent_booking_create_option_which_title_question'] =
+    'What title should the new booking option have?';
+$string['agent_booking_create_option_confirm_without_location'] =
+    'Please confirm you want to create this booking option without specifying a location or address.';
+$string['agent_booking_create_option_missing_required_fields'] =
+    'Please provide the missing details for the selected booking type.';
+$string['agent_booking_create_option_confirm_missing_values'] =
+    'Please confirm that missing values may remain empty/default, or provide overrides to proceed.';
+$string['agent_booking_create_option_location_not_found_question'] =
+    'If this location cannot be resolved, should I create it and then continue creating the booking option?';
+$string['agent_booking_create_option_duplicate_exists_single_question'] =
+    'A booking option with this title already exists (id={$a}). Do you want to create another one with the same title?';
+$string['agent_booking_create_option_duplicate_exists_multiple_question'] =
+    'Multiple options with this title pattern already exist. Do you still want to create a new one with the same title?';
+$string['agent_booking_create_option_placeholder_override_required_single'] =
+    'The field "{$a->label}" appears empty. To proceed, add override: ["{$a->field}"] in the command.';
+$string['agent_booking_create_option_placeholder_override_required'] =
+    'The fields "{$a->labels}" appear empty. To proceed, add override: ["{$a->fields}"] in the command.';
 $string['agent_booking_bulk_update_missing_target'] =
     'Provide optionids (array), optionquery (string), or set apply_to_all=true to specify which options should be updated.';
 $string['agent_booking_bulk_update_issue_user_question'] =
@@ -124,6 +144,13 @@ $string['agent_booking_diagnose_error_last_preview_none'] =
     'There is no recent previewed option to refer to.';
 $string['agent_booking_diagnose_error_option_not_in_instance'] =
     'The provided optionid does not belong to this booking instance.';
+$string['agent_booking_pricecat_identifier_required'] = 'Please provide a unique identifier for the price category.';
+$string['agent_booking_pricecat_identifier_invalid'] = 'The identifier may only contain letters, numbers, hyphens, or underscores.';
+$string['agent_booking_pricecat_defaultvalue_numeric'] = 'The default value must be a number.';
+$string['agent_booking_pricecat_defaultvalue_nonnegative'] = 'The default value must not be negative.';
+$string['agent_booking_pricecat_duplicate_exists'] = 'A price category with the identifier "{$a}" already exists.';
+$string['agent_booking_pricecat_duplicate_user_question'] = 'A price category with this identifier already exists. Do you want to create another one with the same identifier?';
+$string['agent_booking_pricecat_created'] = 'Price category "{$a}" was created.';
 $string['agent_booking_diagnose_error_option_resolve'] = 'Could not resolve booking option.';
 $string['agent_booking_diagnose_intro_cannot_book'] = 'Here is why booking may currently fail:';
 $string['agent_booking_diagnose_intro_checked_option'] = 'I checked your booking situation for "{$a}".';
@@ -3402,6 +3429,8 @@ $string['templatefile'] = 'Template file';
 $string['templatesuccessfullysaved'] = 'Template was saved.';
 $string['terminated'] = "Terminated";
 $string['text'] = 'Title';
+$string['searchoptionsfound'] = '{$a} option(s) found.';
+$string['searchoptionsnotfound'] = 'No matching booking options found.';
 $string['textarea'] = "Textarea";
 $string['textdependingonstatus'] = "Text depending on booking status ";
 $string['textfield'] = 'Single line text input';

@@ -68,6 +68,11 @@ class create_option_task extends base_booking_task implements task_trigger_provi
                     'description' => 'Explicit override tokens for confirmed exceptions (e.g. duplicate_title).',
                     'required' => false,
                 ],
+                'outputlang' => [
+                    'type' => 'string',
+                    'description' => 'Optional language code override for the user-facing summary, e.g. de or en.',
+                    'required' => false,
+                ],
             ], option_schema_definition::common_properties()),
         ];
     }
@@ -111,13 +116,14 @@ class create_option_task extends base_booking_task implements task_trigger_provi
         $errors = [];
         $ambiguities = [];
         $issues = [];
+        $lang = $this->get_output_language($input);
 
         // STEP 1: Text/Title is always required first.
         if (empty($input['text'])) {
-            $errors[] = 'Please provide a title for the booking option.';
+            $errors[] = $this->localized_string('agent_booking_create_option_missing_title', null, $lang);
             $issues[] = self::build_issue(
                 'MISSING_TITLE',
-                'Please provide a title for the booking option.',
+                $this->localized_string('agent_booking_create_option_which_title_question', null, $lang),
                 ['ASK_TITLE']
             );
             return [
@@ -142,7 +148,7 @@ class create_option_task extends base_booking_task implements task_trigger_provi
             );
             $issues[] = self::build_issue(
                 'DUPLICATE_TITLE_CONFIRM_REQUIRED',
-                'A booking option with this title already exists. Do you want to create another one with the same title?',
+                $this->localized_string('agent_booking_create_option_duplicate_exists_single_question', null, $lang),
                 ['CONFIRM_CREATE_WITH_DUPLICATE_TITLE', 'UPDATE_EXISTING_INSTEAD']
             );
             return [
@@ -159,8 +165,7 @@ class create_option_task extends base_booking_task implements task_trigger_provi
             );
             $issues[] = self::build_issue(
                 'DUPLICATE_TITLE_MULTI_CONFIRM_REQUIRED',
-                'Multiple options with this title pattern already exist. '
-                    . 'Do you still want to create a new one with the same title?',
+                $this->localized_string('agent_booking_create_option_duplicate_exists_multiple_question', null, $lang),
                 ['CONFIRM_CREATE_WITH_DUPLICATE_TITLE', 'SELECT_EXISTING_OPTION_TO_UPDATE']
             );
             return [
@@ -230,12 +235,12 @@ class create_option_task extends base_booking_task implements task_trigger_provi
         }
 
         // STEP 4: Only check placeholder values if all keys are present.
-        $placeholderfields = self::check_placeholder_values($input, $overrides, $resolvedtype);
+        $placeholderfields = self::check_placeholder_values($input, $overrides, $resolvedtype, $lang);
         $errors = array_merge($errors, $placeholderfields);
         if (!empty($placeholderfields)) {
             $issues[] = self::build_issue(
                 'CONFIRMATION_REQUIRED',
-                'Please confirm that missing values should stay empty/default and then retry with the required override fields.',
+                $this->localized_string('agent_booking_create_option_confirm_missing_values', null, $lang),
                 ['ADD_OVERRIDE_AND_RETRY']
             );
         }
@@ -243,7 +248,7 @@ class create_option_task extends base_booking_task implements task_trigger_provi
         if (isset($input['location']) && trim((string)$input['location']) !== '') {
             $issues[] = self::build_issue(
                 'LOCATION_NOT_FOUND_POSSIBLE',
-                'If this location cannot be resolved, should I create it and then continue creating the booking option?',
+                $this->localized_string('agent_booking_create_option_location_not_found_question', null, $lang),
                 ['CREATE_LOCATION_THEN_CREATE_OPTION', 'ASK_FOR_DIFFERENT_LOCATION']
             );
         }
@@ -334,9 +339,7 @@ class create_option_task extends base_booking_task implements task_trigger_provi
         ]))));
         if ($combinedtext !== '') {
             $normalized = strtolower($combinedtext);
-            $slotintentpattern = '/\b('
-                . 'slot|sprechstunde|timeslot|time slot|termin(?:e)?\s+(?:vereinbaren|buchen)|appointment'
-                . ')\b/u';
+            $slotintentpattern = '/\b(slot|sprechstunde|timeslot|time slot|termin(?:e)?\s+(?:vereinbaren|buchen)|appointment)\b/u';
             if (preg_match($slotintentpattern, $normalized)) {
                 return 'slotbooking';
             }
@@ -531,7 +534,7 @@ class create_option_task extends base_booking_task implements task_trigger_provi
      * @param string $resolvedtype
      * @return array
      */
-    private static function check_placeholder_values(array $input, array $overrides, string $resolvedtype = 'normal'): array {
+    private static function check_placeholder_values(array $input, array $overrides, string $resolvedtype = 'normal', string $lang = ''): array {
         $errors = [];
 
         // Define field pairs where at least one should have a real value.
@@ -567,8 +570,12 @@ class create_option_task extends base_booking_task implements task_trigger_provi
                     if (self::is_placeholder_value($val)) {
                         if (!in_array($pair, $overrides, true)) {
                             $label = $labels[$pair] ?? $pair;
-                            $errors[] = 'User confirmed empty ' . $label . ' is acceptable. '
-                                . 'To proceed, add override: ["' . $pair . '"] in the command.';
+                            $errors[] = get_string_manager()->get_string(
+                                'agent_booking_create_option_placeholder_override_required_single',
+                                'booking',
+                                (object)['label' => $label, 'field' => $pair],
+                                $lang
+                            );
                         }
                     }
                 }
@@ -610,8 +617,12 @@ class create_option_task extends base_booking_task implements task_trigger_provi
                         if (!empty($needsoverride)) {
                             $desc = implode(' or ', $labelssubset);
                             $fieldlist = implode('", "', $needsoverride);
-                            $errors[] = 'User confirmed empty ' . $desc . ' is acceptable. '
-                                . 'To proceed, add override: ["' . $fieldlist . '"] in the command.';
+                            $errors[] = get_string_manager()->get_string(
+                                'agent_booking_create_option_placeholder_override_required',
+                                'booking',
+                                (object)['labels' => $desc, 'fields' => $fieldlist],
+                                $lang
+                            );
                         }
                     }
                 }

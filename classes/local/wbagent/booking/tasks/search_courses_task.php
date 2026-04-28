@@ -17,6 +17,7 @@
 namespace mod_booking\local\wbagent\booking\tasks;
 
 use mod_booking\local\wbagent\booking\booking_task_support;
+use mod_booking\local\wbagent\interfaces\task_trigger_provider_interface;
 use mod_booking\local\wbagent\services\search_courses_answering_service;
 
 /**
@@ -26,7 +27,7 @@ use mod_booking\local\wbagent\services\search_courses_answering_service;
  * @copyright  2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class search_courses_task extends base_booking_task {
+class search_courses_task extends base_booking_task implements task_trigger_provider_interface {
     /** Task name constant. */
     public const TASK_NAME = 'booking.search_courses';
 
@@ -71,6 +72,46 @@ class search_courses_task extends base_booking_task {
                     'type' => 'integer',
                     'description' => 'Maximum number of courses to return (default 10).',
                     'required' => false,
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Return task-specific message triggers.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function get_message_triggers(): array {
+        return [
+            [
+                'id' => 'booking.search_courses_request',
+                'description' => 'User asks to find/search courses by name, shortname or id.',
+            ],
+            [
+                'id' => 'booking.search_courses_limit_request',
+                'description' => 'User asks for a limited number of returned courses.',
+            ],
+        ];
+    }
+
+    /**
+     * Return contextual guidance packs.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function get_contextual_prompt_packs(): array {
+        return [
+            [
+                'id' => 'booking.search_courses',
+                'triggers' => [
+                    'search courses', 'find course', 'find courses', 'course id',
+                    'suche kurs', 'suche kurse', 'finde kurs', 'kurs finden',
+                ],
+                'guidance' => [
+                    '- If the user asks to find courses, use booking.search_courses.',
+                    '- Use input.query for the course term and optionally input.limit for result size.',
+                    '- Return short course candidates suitable for follow-up selection.',
                 ],
             ],
         ];

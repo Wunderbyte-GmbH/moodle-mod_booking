@@ -191,6 +191,23 @@ const parseJsonObjectList = (raw) => {
 };
 
 /**
+ * Force error bubble colors as runtime fallback when theme/CSS cache overrides occur.
+ *
+ * @param {HTMLElement|null} bubble
+ */
+const enforceErrorBubbleStyleFallback = (bubble) => {
+    if (!bubble) {
+        return;
+    }
+
+    bubble.style.backgroundColor = '#f8d7da';
+    bubble.style.color = '#721c24';
+    bubble.style.borderColor = '#f5c6cb';
+    bubble.style.borderStyle = 'solid';
+    bubble.style.borderWidth = '1px';
+};
+
+/**
  * Detect whether an AI error indicates an invalid/expired trial token.
  *
  * @param {Object|null} response
@@ -895,9 +912,6 @@ const hideConfirmPanel = () => {
  * @param {Array} results Optional structured per-command results.
  */
 const showRunStatus = (status, message, results = []) => {
-    // eslint-disable-next-line no-console
-    console.log('[AI Debug] showRunStatus called', {status, message, results});
-
     // Notify the page that AI has finished so other components (e.g. booking list) can reload.
     if (status === 'completed') {
         document.dispatchEvent(new CustomEvent('mod_booking_ai_run_completed', {bubbles: true}));
@@ -1047,9 +1061,6 @@ const pollRunStatus = (runid, cmid) => {
                 } catch (e) {
                     // Keep empty results on parse errors.
                 }
-                // eslint-disable-next-line no-console
-                console.log('[AI Debug] pollRunStatus resp', resp, 'parsed results', results);
-
                 appendAssistantPrivacyNote(resp, 'ai_poll_run_status');
                 showRunStatus(resp.status, resp.displaymessage || resp.message || resp.status, results);
 
@@ -1187,7 +1198,9 @@ const sendMessage = (message) => {
                 return resp;
             }
 
-            appendMessage('assistant', resp.displaymessage || resp.message, {
+            const hasErrors = errors.length > 0;
+            const isError = resp.response_type === 'error' || hasErrors;
+            const meta = {
                 response_type: resp.response_type || '',
                 threadid: Number(resp.threadid || currentThreadId || 0),
                 runid: Number(resp.runid || 0),
@@ -1197,7 +1210,21 @@ const sendMessage = (message) => {
                 errors: errors.join(' || '),
                 source: 'ai_send_message',
                 time: (new Date()).toISOString(),
-            });
+            };
+            const list = document.getElementById('booking-ai-messages');
+            if (isError && list) {
+                const div = document.createElement('div');
+                div.classList.add('booking-ai-msg', 'assistant', 'error');
+                div.innerHTML = `<span class="bubble">${renderTextWithLinks(resp.displaymessage || resp.message)}</span>`
+                    + `${renderMessageDebugMeta(meta)}${renderMessageDebugJson(meta)}`;
+                list.appendChild(div);
+                list.scrollTop = list.scrollHeight;
+
+                const bubble = div.querySelector('.bubble');
+                enforceErrorBubbleStyleFallback(bubble);
+            } else {
+                appendMessage('assistant', resp.displaymessage || resp.message, meta);
+            }
         } else if (resp.response_type === 'execution_result') {
             appendAssistantPrivacyNote(resp, 'ai_send_message');
             let results = [];
@@ -1206,8 +1233,6 @@ const sendMessage = (message) => {
             } catch (e) {
                 // Keep empty results on parse errors.
             }
-            // eslint-disable-next-line no-console
-            console.log('[AI Debug] execution_result resp', resp, 'parsed results', results);
             showRunStatus(resp.status || 'completed', resp.displaymessage || resp.message || '', results);
 
             const optionIds = extractPreviewOptionIds(results);
