@@ -1205,36 +1205,39 @@ class view implements renderable, templatable {
                 $bowbtable->add_filter($datepicker);
             }
 
-            $url = $PAGE->url ?? false;
+            $url = ($PAGE->has_set_url()) ? $PAGE->url : false;
             if (
                 $url
                 && !empty($path = $url->get_path(true))
                 && strpos($path, 'mod/booking/view.php') !== false
             ) {
-                $cmid = optional_param('id', 0, PARAM_INT) ?? 0;
-                $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
-                $jsonsettings = $bookingsettings->jsonobject ?? [];
-                if (!empty($jsonsettings->customfieldsforfilter)) {
-                    // Fetch customs fileds with their ID from database.
-                    $shortnames = array_keys(get_object_vars($jsonsettings->customfieldsforfilter));
+                $requestcmid = optional_param('id', 0, PARAM_INT) ?? 0;
+                $resolvedcmid = !empty($cmid) ? (int)$cmid : (int)$requestcmid;
+                if (!empty($resolvedcmid)) {
+                    $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($resolvedcmid);
+                    $jsonsettings = $bookingsettings->jsonobject ?? [];
+                    if (!empty($jsonsettings->customfieldsforfilter)) {
+                        // Fetch customs fileds with their ID from database.
+                        $shortnames = array_keys(get_object_vars($jsonsettings->customfieldsforfilter));
 
-                    [$insql, $params] = $DB->get_in_or_equal($shortnames, SQL_PARAMS_NAMED);
-                    $sql = "SELECT cf.id, cf.shortname
+                        [$insql, $params] = $DB->get_in_or_equal($shortnames, SQL_PARAMS_NAMED);
+                        $sql = "SELECT cf.id, cf.shortname
                               FROM {customfield_field} cf
                               JOIN {customfield_category} cc ON cf.categoryid = cc.id
                              WHERE cf.shortname $insql
                                AND cc.component = 'mod_booking'
                                AND cc.area = 'booking'";
-                    $records = $DB->get_records_sql($sql, $params);
-                    $shortnamesid = [];
-                    foreach ($records as $record) {
-                        $shortnamesid[$record->shortname] = (int)$record->id;
-                    }
-                    foreach ($jsonsettings->customfieldsforfilter as $shortname => $localizedname) {
-                        $localizedname = format_string($localizedname);
-                        $customfieldfilter = new customfieldfilter($shortname, $localizedname);
-                        $customfieldfilter->set_sql_for_fieldid($shortnamesid[$shortname]);
-                        $bowbtable->add_filter($customfieldfilter);
+                        $records = $DB->get_records_sql($sql, $params);
+                        $shortnamesid = [];
+                        foreach ($records as $record) {
+                            $shortnamesid[$record->shortname] = (int)$record->id;
+                        }
+                        foreach ($jsonsettings->customfieldsforfilter as $shortname => $localizedname) {
+                            $localizedname = format_string($localizedname);
+                            $customfieldfilter = new customfieldfilter($shortname, $localizedname);
+                            $customfieldfilter->set_sql_for_fieldid($shortnamesid[$shortname]);
+                            $bowbtable->add_filter($customfieldfilter);
+                        }
                     }
                 }
             }
