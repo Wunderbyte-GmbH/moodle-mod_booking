@@ -96,6 +96,19 @@ $string['agent_booking_create_option_exists_multiple'] =
     'Eine oder mehrere Buchungsoptionen mit exakt diesem Titel existieren bereits: {$a}. Moechten Sie stattdessen eine davon aktualisieren?';
 $string['agent_booking_create_option_exists_single'] =
     'Eine Buchungsoption mit exakt diesem Titel existiert bereits (id={$a}). Moechten Sie diese Option statt einer Neuanlage aktualisieren?';
+$string['agent_booking_bulk_update_missing_target'] =
+    'Bitte geben Sie optionids (Array), optionquery (String) an oder setzen Sie apply_to_all=true, um anzugeben, welche Optionen aktualisiert werden sollen.';
+$string['agent_booking_bulk_update_issue_user_question'] =
+    'Welche Optionen soll ich aktualisieren: alle Optionen, eine Auswahl per Abfrage, oder explizite Option-IDs?';
+$string['agent_booking_bulk_update_option_not_in_instance'] =
+    'Option id {$a} existiert nicht in dieser Buchungsinstanz.';
+$string['agent_booking_bulk_update_no_preview'] =
+    'Es stehen keine kuerzlich vorgeschauten Buchungsoptionen fuer diese Folgeanfrage zur Verfuegung.';
+$string['agent_booking_bulk_update_bookusersquery_unsupported'] =
+    'Feld "bookusersquery" wird fuer booking.bulk_update_options nicht unterstuetzt. Verwenden Sie booking.update_option fuer pro-Option Nutzerbuchungen.';
+$string['agent_booking_bulk_update_completed'] =
+    'Massenaktualisierung abgeschlossen. Status: {$a}';
+$string['agent_booking_bulk_update_failed'] = 'Massenaktualisierung fehlgeschlagen.';
 $string['agent_booking_diagnose_ambiguity_last_preview_multiple'] =
     'Ihre letzte Vorschau enthaelt mehrere Optionen. Bitte sagen Sie mir, welche Sie meinen.';
 $string['agent_booking_diagnose_ambiguity_option_required'] =

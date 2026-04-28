@@ -53,7 +53,13 @@ class get_current_user_task extends base_booking_task {
             'version' => 1,
             'description' => 'Get information about the current executor user.',
             'readonly' => $this->is_read_only(),
-            'properties' => [],
+            'properties' => [
+                'outputlang' => [
+                    'type' => 'string',
+                    'description' => 'Optional language code for task-authored wrapper strings, e.g. de or en.',
+                    'required' => false,
+                ],
+            ],
         ];
     }
 
@@ -85,6 +91,41 @@ class get_current_user_task extends base_booking_task {
 
         $user = $USER;
         $fullname = trim((string)$user->firstname . ' ' . (string)$user->lastname);
+        $userdata = [
+            'userid' => (int)$user->id,
+            'fullname' => $fullname,
+            'email' => (string)$user->email,
+        ];
+
+        // LLM-Antwort generieren lassen.
+        $usermessage = '';
+        $outputlang = $this->get_output_language($input);
+        $answersource = 'none';
+        try {
+            $llmserviceclass = '\\mod_booking\\local\\wbagent\\services\\get_current_user_answering_service';
+            if (class_exists($llmserviceclass)) {
+                $llmservice = new $llmserviceclass();
+                $llmresult = $llmservice->answer_question(
+                    $input['question'] ?? '',
+                    $userdata,
+                    $outputlang,
+                    $cmid,
+                    $userid
+                );
+                if (!empty($llmresult['usermessage'])) {
+                    $usermessage = $llmresult['usermessage'];
+                    $answersource = 'llm';
+                }
+            }
+        } catch (\Throwable $e) {
+            // Preserve task-side debug/fallback behavior. Do not expose LLM errors to users.
+            $answersource = 'error';
+        }
+        if (empty($usermessage)) {
+            // Fallback: einfache Standardantwort.
+            $usermessage = 'Benutzer: ' . $fullname . ' (' . $user->email . ')';
+            $answersource = 'fallback';
+        }
 
         return [
             'status' => 'executed',
@@ -94,15 +135,15 @@ class get_current_user_task extends base_booking_task {
             'email' => (string)$user->email,
             'fullname' => $fullname,
             'previewmode' => 'user_profile',
-            'previewdata' => [
-                'userid' => (int)$user->id,
-                'fullname' => $fullname,
-                'email' => (string)$user->email,
-            ],
+            'previewdata' => $userdata,
+            'usermessage' => $usermessage,
             'debugmessage' => $this->build_task_debug_message(
                 self::TASK_NAME,
                 $input,
-                ['Resolved user: ' . $fullname . ' (id=' . $user->id . ')']
+                [
+                    'Resolved user: ' . $fullname . ' (id=' . $user->id . ')',
+                    'Answer source: ' . $answersource,
+                ]
             ),
         ];
     }

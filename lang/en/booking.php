@@ -100,6 +100,19 @@ $string['agent_booking_create_option_exists_multiple'] =
     'One or more booking options with this exact title already exist: {$a}. Do you want to update one of them instead of creating a new option?';
 $string['agent_booking_create_option_exists_single'] =
     'A booking option with this exact title already exists (id={$a}). Do you want to update this option instead of creating a new one?';
+$string['agent_booking_bulk_update_missing_target'] =
+    'Provide optionids (array), optionquery (string), or set apply_to_all=true to specify which options should be updated.';
+$string['agent_booking_bulk_update_issue_user_question'] =
+    'Which options should I update: all options, a query subset, or explicit option ids?';
+$string['agent_booking_bulk_update_option_not_in_instance'] =
+    'Option id {$a} does not exist in this booking instance.';
+$string['agent_booking_bulk_update_no_preview'] =
+    'No recently previewed booking options are available for this follow-up request.';
+$string['agent_booking_bulk_update_bookusersquery_unsupported'] =
+    'Field "bookusersquery" is not supported for booking.bulk_update_options. Use booking.update_option for per-option user booking.';
+$string['agent_booking_bulk_update_completed'] =
+    'Bulk update completed. Status: {$a}';
+$string['agent_booking_bulk_update_failed'] = 'Bulk update failed.';
 $string['agent_booking_diagnose_ambiguity_last_preview_multiple'] =
     'Your last preview contains multiple options. Please tell me which one you mean.';
 $string['agent_booking_diagnose_ambiguity_option_required'] =

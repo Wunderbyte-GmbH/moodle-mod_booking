@@ -78,6 +78,11 @@ class bulk_update_options_task extends base_booking_task implements task_trigger
                         . 'Must be set when neither optionids nor optionquery is provided.',
                     'required' => false,
                 ],
+                'outputlang' => [
+                    'type' => 'string',
+                    'description' => 'Optional language code for task-authored wrapper strings, e.g. de or en.',
+                    'required' => false,
+                ],
             ], option_schema_definition::common_properties()),
         ];
     }
@@ -120,6 +125,8 @@ class bulk_update_options_task extends base_booking_task implements task_trigger
             $input = $anonymizer->deanonymize_command_input_for_active_user($cmid, (int)$USER->id, $input);
         }
 
+        $lang = $this->get_output_language($input);
+
         $errors = [];
         $ambiguities = [];
                 $issues = [];
@@ -135,12 +142,11 @@ class bulk_update_options_task extends base_booking_task implements task_trigger
         );
 
         if (!$hasids && !$hasquery && !$applytoall && empty($previewfallbackids)) {
-            $errors[] = 'Provide optionids (array), optionquery (string), or set apply_to_all=true '
-                . 'to specify which options should be updated.';
+            $errors[] = $this->localized_string('agent_booking_bulk_update_missing_target', null, $lang);
             $issues[] = [
                 'code' => 'MISSING_BULK_TARGET_SELECTION',
                 'severity' => 'needs_clarification',
-                'user_question' => 'Which options should I update: all options, a query subset, or explicit option ids?',
+                'user_question' => $this->localized_string('agent_booking_bulk_update_issue_user_question', null, $lang),
                 'remedy_options' => ['SET_APPLY_TO_ALL', 'PROVIDE_OPTIONQUERY', 'PROVIDE_OPTIONIDS'],
             ];
         }
@@ -160,8 +166,11 @@ class bulk_update_options_task extends base_booking_task implements task_trigger
                             'bookingid' => (int)$cm->instance,
                         ])
                     ) {
-                        $errors[] = 'Option id ' . (int)$optid
-                            . ' does not exist in this booking instance.';
+                        $errors[] = $this->localized_string(
+                            'agent_booking_bulk_update_option_not_in_instance',
+                            (int)$optid,
+                            $lang
+                        );
                     }
                 }
             }
@@ -173,13 +182,12 @@ class bulk_update_options_task extends base_booking_task implements task_trigger
                 (int)($USER->id ?? 0)
             );
             if (empty($previewids)) {
-                $errors[] = 'No recently previewed booking options are available for this follow-up request.';
+                $errors[] = $this->localized_string('agent_booking_bulk_update_no_preview', null, $lang);
             }
         }
 
         if (!empty($input['bookusersquery'])) {
-            $errors[] = 'Field "bookusersquery" is not supported for booking.bulk_update_options. '
-                . 'Use booking.update_option for per-option user booking.';
+            $errors[] = $this->localized_string('agent_booking_bulk_update_bookusersquery_unsupported', null, $lang);
         }
 
         $preflight = (new booking_task_mutation_execute_service())->preflight_validate(
@@ -238,11 +246,50 @@ class bulk_update_options_task extends base_booking_task implements task_trigger
     public function execute(array $input, int $cmid, int $userid): array {
         $service = new booking_task_mutation_execute_service();
         $result = $service->execute(self::TASK_NAME, $input, $cmid, $userid, $this->support);
+
+        $usermessage = '';
+        $outputlang = $this->get_output_language($input);
+        $answersource = 'none';
         if (is_array($result)) {
+            // LLM-Antwort generieren lassen.
+            try {
+                $llmserviceclass = '\\mod_booking\\local\\wbagent\\services\\bulk_update_options_answering_service';
+                if (class_exists($llmserviceclass)) {
+                    $llmservice = new $llmserviceclass();
+                    $llmresult = $llmservice->answer_question(
+                        $input['question'] ?? '',
+                        $result,
+                        $outputlang,
+                        $cmid,
+                        $userid
+                    );
+                    if (!empty($llmresult['usermessage'])) {
+                        $usermessage = (string)$llmresult['usermessage'];
+                        $outputlang = (string)($llmresult['outputlang'] ?? $outputlang);
+                        $answersource = 'llm';
+                    }
+                }
+            } catch (\Throwable $e) {
+                // Preserve task-side debug/fallback behavior. Do not expose LLM errors to users.
+                $answersource = 'error';
+            }
+            if (empty($usermessage)) {
+                // Fallback: einfache Standardantwort.
+                $usermessage = $this->localized_string(
+                    'agent_booking_bulk_update_completed',
+                    ($result['status'] ?? 'unknown'),
+                    $outputlang
+                );
+            }
+            $result['usermessage'] = $usermessage;
+            $result['outputlang'] = $outputlang;
             $result['debugmessage'] = $this->build_task_debug_message(
                 self::TASK_NAME,
                 $input,
-                ['Status: ' . ($result['status'] ?? 'unknown')]
+                [
+                    'Status: ' . ($result['status'] ?? 'unknown'),
+                    'Answer source: ' . $answersource,
+                ]
             );
             return $result;
         }
@@ -251,6 +298,8 @@ class bulk_update_options_task extends base_booking_task implements task_trigger
             'status' => 'error',
             'detail' => 'Unknown booking task: ' . self::TASK_NAME,
             'resultid' => null,
+            'usermessage' => $this->localized_string('agent_booking_bulk_update_failed', null, $outputlang),
+            'outputlang' => $outputlang,
             'debugmessage' => $this->build_task_debug_message(self::TASK_NAME, $input, ['Status: error']),
         ];
     }
