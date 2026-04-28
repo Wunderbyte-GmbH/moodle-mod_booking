@@ -2078,8 +2078,8 @@ $string['optionstoconfirm'] = 'Zu bestätigende Buchungen';
 $string['optiontemplate'] = 'Option template';
 $string['optiontemplatename'] = 'Vorlagenname der Buchungsoption';
 $string['optiontemplatenotsavednovalidlicense'] = 'Buchungsoption konnte nicht als Vorlage gespeichert werden.
-                                                  Holen Sie sich die PRO-Version, um beliebig viele Vorlagen erstellen
-                                                  zu können.';
+Holen Sie sich die PRO-Version, um beliebig viele Vorlagen erstellen zu können.';
+$string['optiontemplates'] = 'Buchungsoptionsvorlagen';
 $string['optiontemplatessettings'] = 'Buchungsoptionsvorlagen';
 $string['optiontypefilternormal'] = 'Normal';
 $string['optionviewcustomfields'] = 'Benutzerdefinierte Felder auf Detailseite anzeigen';
@@ -2090,8 +2090,8 @@ $string['optionvisible'] = 'Für alle sichtbar (Standard)';
 $string['optionvisibledirectlink'] = 'Für nicht berechtigte Personen nur mit direktem Link sichtbar';
 $string['organizatorname'] = 'Name des Organisators';
 $string['organizatorname_help'] = 'Sie können den Namen des Organisators/der Organisatorin manuell eingeben oder aus einer Liste von
-                                    früheren Organisator:innen auswählen. Sie können nur eine/n Organisator/in angeben. Sobald
-                                    Sie speichern, wird der/die Organisator/in zur Liste hinzugefügt.';
+früheren Organisator:innen auswählen. Sie können nur eine/n Organisator/in angeben. Sobald
+Sie speichern, wird der/die Organisator/in zur Liste hinzugefügt.';
 $string['orotherfield'] = 'ODER weiteres Feld';
 $string['otherbookingaddrule'] = 'Neue Buchungsoption hinzufügen';
 $string['otherbookinglimit'] = "Limit";
