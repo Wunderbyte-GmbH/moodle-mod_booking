@@ -152,7 +152,7 @@ Beide Verwaltungsseiten nutzen die URL `/mod/booking/edit_certificateconditions.
 | **Name** | Frei wählbarer Name für die Bedingung |
 | **Aktiv** | Schalter, ob die Bedingung ausgewertet wird |
 | **Filter (optional)** | Schränkt ein, *für wen* die Bedingung gilt (z. B. nach Nutzerprofilfeld) |
-| **Bedingung (Logik)** | Definiert *wann* die Bedingung erfüllt ist (z. B. nach Abschluss einer Buchungsoption) |
+| **Bedingung (Logik)** | Definiert *wie* die Bedingung definiert ist und wann sie erfüllt ist|
 | **Aktion** | Was passiert, wenn die Bedingung erfüllt ist (z. B. Zertifikat ausstellen) |
 
 ### 6.3 Verfügbare Filter
@@ -213,7 +213,7 @@ Die folgende Tabelle zeigt, durch welches Ereignis ein Zertifikat ausgestellt wi
 
 ### Anwesenheitsstatus „Teilgenommen"
 
-Der Status **„Teilgenommen"** entspricht dem internen Wert `MOD_BOOKING_PRESENCE_STATUS_ATTENDING` (Wert: `6`). Er wird im Dropdown-Menü des Anwesenheitsstatus als „Teilgenommen" angezeigt.
+Der Status **„Teilgenommen"** entspricht dem internen Wert `MOD_BOOKING_PRESENCE_STATUS_ATTENDING`. Er wird im Dropdown-Menü des Anwesenheitsstatus als „Teilgenommen" angezeigt.
 
 Weitere verfügbare Anwesenheitsstatus:
 
@@ -236,20 +236,14 @@ In der globalen Einstellung **„Zertifikatsausstellung mit Anwesenheitsstatus"*
 
 ### 8.1 Download durch Nutzer\*innen
 
-Ausgestellte Zertifikate werden als **PDF-Dateien** im Moodle-Dateisystem gespeichert (unter `tool_certificate/issues`). Nutzer\*innen können ihr Zertifikat über folgende Wege herunterladen:
+Ausgestellte Zertifikate werden als **PDF-Dateien** im Moodle-Dateisystem gespeichert. Nutzer\*innen können ihr Zertifikat über folgende Wege herunterladen:
 
-1. **Eigene Buchungsübersicht** (`/mod/booking/view.php`)  
-   In der Spalte „Aktuellstes Zertifikat" erscheint ein Link bzw. eine Schaltfläche „Zertifikate anzeigen". Ein modales Fenster zeigt alle ausgestellten Zertifikate mit Ausstelldatum, Ablaufdatum und einem direkten Download-Link (PDF).
+1. **Im eigenen Profil**
+   Es gibt eine eigene Ansicht mit "Meine Zertifikate" wo die Zertifikate einsehbar und als PDF downloadbar sind.
 
-2. **Direkt-URL**  
-   Das PDF ist über eine URL im Format  
-   ```
-   /pluginfile.php/1/tool_certificate/issues/<timecreated>/<code>.pdf
-   ```
-   erreichbar. Diese URL wird in der Spalte angezeigt und kann direkt angesteuert werden.
 
-3. **Per E-Mail-Link** (über Buchungsregeln)  
-   Über den Platzhalter `{certificateurl}` in einer Buchungsregel kann dem Nutzer / der Nutzerin automatisch eine E-Mail mit dem Download-Link zugesandt werden (z. B. beim Ereignis `bookingoption_completed`).
+2. **Per E-Mail-Link** (über Buchungsregeln)
+   Über den Platzhalter `{certificateurl}` in einer Buchungsregel kann dem Nutzer / der Nutzerin automatisch eine E-Mail mit dem Download-Link zugesandt werden (z. B. beim Ereignis `certificate_issued`).
 
 ### 8.2 Download und Verwaltung durch Lehrende / Admins
 
@@ -285,20 +279,20 @@ In diesem Fall können Trainer\*innen oder Admins in der **Teilnehmerliste** der
 
 ## 11. Häufige Fragen (FAQ)
 
-**F: Kein Zertifikats-Feld erscheint in der Buchungsoption – was tun?**  
+**F: Kein Zertifikats-Feld erscheint in der Buchungsoption – was tun?**
 A: Prüfen Sie, ob (1) `tool_certificate` installiert ist, (2) die PRO-Lizenz aktiv ist und (3) in den globalen Einstellungen „Zertifikatserstellung aktivieren" gesetzt ist.
 
-**F: Das Zertifikat wird nicht automatisch ausgestellt, obwohl alles konfiguriert ist.**  
+**F: Das Zertifikat wird nicht automatisch ausgestellt, obwohl alles konfiguriert ist.**
 A: Überprüfen Sie, ob `certificatemanualtrigger` aktiviert ist – dann erfolgt die Ausstellung nur manuell. Prüfen Sie außerdem, ob eine `presencestatustoissuecertificate`-Einstellung gesetzt ist und der entsprechende Status tatsächlich gesetzt wurde.
 
-**F: Kann ein Nutzer / eine Nutzerin mehrere Zertifikate für dieselbe Buchungsoption erhalten?**  
+**F: Kann ein Nutzer / eine Nutzerin mehrere Zertifikate für dieselbe Buchungsoption erhalten?**
 A: Nur wenn im Modus *Zertifikatsbedingungen* die Einstellung **„Mehrere Zertifikate ausstellen"** (`issuemultiplecertificates`) aktiviert ist. Im Standardmodus wird pro Bedingung nur ein Zertifikat ausgestellt.
 
-**F: Wie kann ich im PDF-Zertifikat den Vor- und Nachnamen des Nutzers / der Nutzerin anzeigen?**  
+**F: Wie kann ich im PDF-Zertifikat den Vor- und Nachnamen des Nutzers / der Nutzerin anzeigen?**
 A: `tool_certificate` stellt nutzerspezifische Felder wie Vor- und Nachname über die standardmäßigen Felder der Vorlage zur Verfügung (nicht über `mod_booking`-Platzhalter). Fügen Sie in der Vorlage ein „Nutzerfeld"-Element hinzu und wählen Sie „Vorname" / „Nachname".
 
-**F: Wie kann ich das Zertifikat in einer automatischen E-Mail versenden?**  
+**F: Wie kann ich das Zertifikat in einer automatischen E-Mail versenden?**
 A: Erstellen Sie eine **Buchungsregel** mit dem Ereignis `bookingoption_completed`. Verwenden Sie in der E-Mail-Vorlage den Platzhalter `{certificateurl}`, der die direkte Download-URL des PDFs enthält.
 
-**F: Was bedeutet „getaggte Optionen" bei den Zertifikatsbedingungen?**  
+**F: Was bedeutet „getaggte Optionen" bei den Zertifikatsbedingungen?**
 A: Beim Typ `taggedoptions` werden die Buchungsoptionen nicht in der Bedingung selbst hinterlegt, sondern umgekehrt: Im Formular jeder Buchungsoption wählt man, welchen Bedingungen diese Option zugeordnet ist. So kann eine Bedingung von beliebig vielen Optionen ausgelöst werden, ohne die Bedingung selbst anpassen zu müssen.
