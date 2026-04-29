@@ -21,7 +21,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/abstract_agent_testcase.php');
 
 use mod_booking\local\wbagent\booking\tasks\explain_docs_topic_task;
-use mod_booking\local\wbagent\services\docs_answering_service;
+use mod_booking\local\wbagent\services\answering\docs_answering_service;
 use mod_booking\local\wbagent\task_registry;
 
 /**
