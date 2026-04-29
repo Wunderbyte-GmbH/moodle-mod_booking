@@ -124,12 +124,23 @@ abstract class base_booking_task extends base_task {
      */
     protected function build_task_debug_message(string $taskname, array $input, array $extra = []): string {
         $parts = [];
+
+        // Recursively flatten complex nested arrays for display.
+        $flatten = static function ($item) use (&$flatten) {
+            if (is_array($item)) {
+                $subsliced = array_slice($item, 0, 5);
+                return '[' . implode(', ', array_map($flatten, $subsliced)) . ']';
+            }
+            return (string)$item;
+        };
+
         foreach ($input as $key => $value) {
             if ($value === null || $value === '') {
                 continue;
             }
             if (is_array($value)) {
-                $parts[] = $key . '=[' . implode(', ', array_slice($value, 0, 5)) . ']';
+                $sliced = array_slice($value, 0, 5);
+                $parts[] = $key . '=' . $flatten($sliced);
             } else {
                 $parts[] = $key . '=' . $value;
             }
