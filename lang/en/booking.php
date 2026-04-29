@@ -207,6 +207,12 @@ $string['agent_booking_get_current_user_fallback'] =
     'You are currently signed in as {$a->fullname} ({$a->email}).';
 $string['agent_booking_get_current_user_identified'] =
     'Current user identified successfully.';
+$string['booking:useaiinstructions'] =
+    'Use AI instructions';
+$string['agent_booking_update_option_invalid_optionid'] =
+    'The provided option id {$a} does not belong to this booking instance.';
+$string['agent_booking_update_option_invalid_optionid_question'] =
+    'The option id {$a} is not valid. Please provide a different option id or an option title.';
 $string['agent_booking_update_permission_check_failed'] =
     'Could not validate update permissions for this booking context.';
 $string['agent_booking_update_permission_denied_generic'] = 'You cannot update one or more requested fields.';

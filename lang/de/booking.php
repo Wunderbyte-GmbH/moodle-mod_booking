@@ -210,6 +210,12 @@ $string['agent_booking_get_current_user_fallback'] =
     'Sie sind derzeit als {$a->fullname} ({$a->email}) angemeldet.';
 $string['agent_booking_get_current_user_identified'] =
     'Aktueller Benutzer wurde erfolgreich identifiziert.';
+$string['booking:useaiinstructions'] =
+    'KI-Anweisungen verwenden';
+$string['agent_booking_update_option_invalid_optionid'] =
+    'Die angegebene Options-ID {$a} gehoert nicht zu dieser Buchungsinstanz.';
+$string['agent_booking_update_option_invalid_optionid_question'] =
+    'Die Options-ID {$a} ist nicht gueltig. Bitte geben Sie eine andere Options-ID oder einen Optionstitel an.';
 $string['agent_booking_update_permission_check_failed'] =
     'Die Berechtigung fuer dieses Update konnte im aktuellen Buchungskontext nicht geprueft werden.';
 $string['agent_booking_update_permission_denied_generic'] =

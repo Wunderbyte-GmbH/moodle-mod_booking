@@ -51,6 +51,10 @@ final class task_registry_test extends advanced_testcase {
 
         $registry->register($this->make_provider('local_first', [$firsttask]));
         $registry->register($this->make_provider('local_second', [$secondtask]));
+        $this->assertDebuggingCalled(
+            'Duplicate AI task name detected: booking.duplicate_task (component: local_second). Keeping first registered task.',
+            DEBUG_DEVELOPER
+        );
 
         $resolved = $registry->get_task('booking.duplicate_task');
         $this->assertSame($firsttask, $resolved);
@@ -67,6 +71,10 @@ final class task_registry_test extends advanced_testcase {
             $this->make_task('', true),
             $this->make_task('booking.valid_task', true),
         ]));
+        $this->assertDebuggingCalled(
+            'Ignoring AI task with empty name from component local_empty',
+            DEBUG_DEVELOPER
+        );
 
         $this->assertNull($registry->get_task(''));
         $this->assertNotNull($registry->get_task('booking.valid_task'));

@@ -128,7 +128,6 @@ final class mobile_customform_test extends advanced_testcase {
 
         $errors = $customformstore->validation($customform, (array)$formdata);
         if (empty($errors)) {
-            echo "✓ Form validation passed\n";
             $this->assertTrue(true);
         } else {
             // Print returned validation errors for easier debugging.
