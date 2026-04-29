@@ -1278,4 +1278,11 @@ class slot_availability {
 
         return core_text::strtoupper(core_text::substr($fallback, 0, 1));
     }
+
+    /**
+     * Reset static caches (call from tests teardown).
+     */
+    public static function reset_caches(): void {
+        self::$bookedslotrangecache = [];
+    }
 }

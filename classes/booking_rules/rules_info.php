@@ -580,6 +580,7 @@ class rules_info {
      */
     public static function destroy_singletons() {
         self::$rulestoexecute = [];
+        self::$rulestocancel = [];
         self::$eventstoexecute = [];
     }
 }
