@@ -439,4 +439,13 @@ class slot_rules {
 
         return ($hours * HOURSECS) + ($minutes * MINSECS);
     }
+
+    /**
+     * Reset static caches (call from tests teardown).
+     */
+    public static function reset_caches(): void {
+        self::$requestrulescache = [];
+        self::$requestpricerulescache = [];
+        self::$hastables = null;
+    }
 }

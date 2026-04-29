@@ -128,4 +128,12 @@ class competencies_handler {
         $competencyids = self::get_user_competency_ids($userid, $timestamp);
         return in_array($competencyid, $competencyids);
     }
+
+    /**
+     * Reset static caches (call from tests teardown).
+     */
+    public static function reset_caches(): void {
+        self::$usercompetencies = [];
+        self::$competencyshortnames = [];
+    }
 }
