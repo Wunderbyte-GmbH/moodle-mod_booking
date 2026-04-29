@@ -42,8 +42,14 @@ flowchart TD
     R --> S[booking_task_support / services / DB updates]
     S --> T[run status + results speichern]
     T --> U[assistant result message speichern]
+    T --> U1{repair moeglich?}
+    U1 -->|ja| U2[execution_repair_service analyze]
+    U2 --> U3[pending intent fuer repair speichern]
+    U3 --> U4[assistant confirmation_request speichern]
+    U1 -->|nein| U
 
     U --> V[UI zeigt Antwortblase]
+    U4 --> V
     N --> W[WS mod_booking_ai_render_command_preview]
     W --> V
     O --> X[WS mod_booking_ai_poll_run_status]
@@ -64,7 +70,17 @@ flowchart TD
 5. Bei reinen Read-only-Commands wird sofort ausgefuehrt.
 6. Bei mutierenden Commands kommt confirmation_request; Ausfuehrung erst nach Confirm.
 7. Die Ausfuehrung passiert im Executor ueber task_registry auf konkrete Tasks.
-8. Tasks delegieren Fachlogik (z.B. booking_task_support / mutation services), schreiben Resultate, und das UI pollt den Status.
+8. Nach Execute kann optional ein Repair-Plan erzeugt werden (execution_repair_service).
+9. Wenn Repair moeglich ist, wird ein neues pending intent + confirmation_request gespeichert (zweite Confirmation).
+10. Tasks delegieren Fachlogik (z.B. booking_task_support / mutation services), schreiben Resultate, und das UI pollt den Status.
+
+## Zweite Confirmation nach Ausfuehrungsfehler
+
+- Die zweite Confirmation entsteht nicht im Erst-Interpreterlauf, sondern nach einem Execute-Fehler in mod_booking_ai_confirm_run.
+- Voraussetzung: execution_repair_service liefert can_repair=true und repaired_commands.
+- ai_poll_run_status liefert dann followupconfirmation/followupcommandsjson.
+- aiinstructions.js zeigt daraus ein zweites showConfirmPanel.
+- Wenn dieser Repair-Zweig entfernt wird, gibt es trotz Fehlerausgabe keine zweite Confirmation mehr.
 
 ## Welche Webservices werden verwendet?
 

@@ -1,6 +1,6 @@
 # Agent Workflow
 
-Dieses Diagramm beschreibt den geplanten Ablauf fuer mutierende Agent-Tasks mit selbststaendiger Fehlerkorrektur und iterativer Neuplanung (mehrere Replan-Zyklen mit erneuter Bestaetigung je Zyklus).
+Dieses Diagramm beschreibt den aktuell implementierten Ablauf fuer mutierende Agent-Tasks mit optionaler Fehlerkorrektur und erneuter Bestaetigung pro Repair-Zyklus.
 
 ```mermaid
 %%{init: {
@@ -32,7 +32,7 @@ sequenceDiagram
     participant ACR as ai_confirm_run
     participant EX as Executor
     participant PRE as Preflight/Validation
-    participant RP as Retry Planner
+    participant RPS as execution_repair_service
 
     rect rgb(245, 249, 255)
         Note over U,UI: Initiale Planphase (blau)
@@ -61,30 +61,33 @@ sequenceDiagram
         end
     else Fehler bei mutierendem Task
         rect rgb(255, 245, 246)
-            Note over EX,RP: Fehleranalyse (rot)
+            Note over EX,RPS: Fehleranalyse (rot)
             EX-->>ACR: execution_result(error details)
-            ACR->>RP: plan_repair(original_commands, error)
+            ACR->>RPS: analyze(original_commands, error, maxrepairs)
         end
 
         alt Fehler ist auto-korrigierbar
             rect rgb(249, 243, 252)
-                Note over RP,UI: Auto-Reparatur + erneute Confirmation (violett)
-                RP-->>ACR: repaired_commands + summary
+                Note over RPS,UI: Auto-Reparatur + erneute Confirmation (violett)
+                RPS-->>ACR: repaired_commands + summary
                 ACR->>CS: set_pending_intent(repaired_commands)
-                ACR-->>UI: confirmation_request (naechster Zyklus)
+                ACR-->>UI: execution_result + confirmation_request speichern
+                UI->>ACR: poll_run_status(runid)
+                ACR-->>UI: followupconfirmation + followupcommandsjson
+                UI-->>U: Confirmation #2 anzeigen
 
                 U->>UI: Confirm & Execute (retry)
                 UI->>ACR: confirm_run(thread, repaired_commands)
                 ACR->>CS: consume_pending_intent()
                 ACR->>EX: execute_commands(repaired_commands)
                 EX-->>ACR: execution_result
-                Note over ACR,RP: Bei neuem Fehler wird erneut plan_repair berechnet
+                Note over ACR,RPS: Bei neuem Fehler wird erneut analyze berechnet
                 ACR-->>UI: completion ODER neuer confirmation_request
             end
         else Nicht auto-korrigierbar
             rect rgb(255, 252, 233)
-                Note over RP,UI: Kein Auto-Fix moeglich (gelb)
-                RP-->>ACR: no_repair + clarification
+                Note over RPS,UI: Kein Auto-Fix moeglich (gelb)
+                RPS-->>ACR: no_repair + clarification
                 ACR-->>UI: clarification/error with next action for user
             end
         end
@@ -111,18 +114,18 @@ flowchart TD
     C -->|Ja| D[Execute Commands]
     D --> E{Ausfuehrung erfolgreich?}
     E -->|Ja| F[Final Completion]
-    E -->|Nein| G[Retry Planner analysiert Fehler]
-    G --> H{Auto-korrigierbar?}
+    E -->|Nein| G[execution_repair_service analysiert Fehler]
+    G --> H{Auto-korrigierbar und unter maxrepairs?}
     H -->|Nein| I[Clarification / Error fuer User]
     H -->|Ja| J[Repaired Plan erzeugen]
-    J --> K[Confirmation Request #2]
+    J --> K[Follow-up Confirmation #2]
     K --> L{User bestaetigt Retry?}
     L -->|Nein| L1[Abbruch / Manueller Follow-up]
     L -->|Ja| M[Execute Repaired Commands]
     M --> N{Ausfuehrung erfolgreich?}
     N -->|Ja| O[Final Completion]
-    N -->|Nein| P[Retry Planner berechnet neuen Workflow]
-    P --> Q{Auto-korrigierbar?}
+    N -->|Nein| P[Neuer Repair-Zyklus]
+    P --> Q{Auto-korrigierbar und unter maxrepairs?}
     Q -->|Ja| K
     Q -->|Nein| I
 
@@ -154,19 +157,20 @@ Legende:
 ## Workflow-Regeln
 
 - Mutierende Aktionen laufen immer erst ueber `confirmation_request`.
-- Bei Fehlern wird nur fuer whitelisted, deterministische Fehlerarten eine Auto-Reparatur versucht.
+- Bei Fehlern kann optional ein LLM-basierter Repair-Plan erzeugt werden (`execution_repair_service`).
 - Jeder geaenderte Plan benoetigt zwingend eine neue Bestaetigung durch den User.
 - In der Reparaturphase werden keine schreibenden Tasks ohne erneute Confirmation ausgefuehrt.
-- Der Workflow kann mehrfach neu berechnet werden, solange die Fehler als auto-korrigierbar klassifiziert sind und jeder neue Plan erneut bestaetigt wird.
-- Terminierung erfolgt, wenn: Erfolg erreicht, Fehler nicht auto-korrigierbar, User nicht bestaetigt, oder Sicherheitsgrenzen verletzt werden (z.B. kein Fortschritt zwischen Zyklen, identischer Plan ohne Aenderung).
+- Follow-up Confirmation wird ueber `ai_poll_run_status` an das UI geliefert (`followupconfirmation`, `followupcommandsjson`).
+- Der Workflow kann mehrfach neu berechnet werden, solange `airepairmax` nicht erreicht ist und jeder neue Plan erneut bestaetigt wird.
+- Terminierung erfolgt, wenn: Erfolg erreicht, Fehler nicht auto-korrigierbar, User nicht bestaetigt, `airepairmax` erreicht, oder kein valider Repair-Plan erzeugt werden kann.
 
 ## Test-Strategie (verpflichtend)
 
 Alle neuen Funktionen in diesem Ablauf muessen durch Tests abgedeckt werden:
 
-- Unit-Tests fuer Retry-Entscheidungslogik (repairable vs non-repairable).
+- Unit-Tests fuer Repair-Entscheidungslogik (repairable vs non-repairable).
 - Unit-Tests fuer Command-Patching (z.B. teacherquery -> teacheremail).
-- Integrationstests fuer Confirmation #1 -> Fehler -> Confirmation #2 -> Retry mit mehreren aufeinanderfolgenden Replan-Zyklen.
+- Integrationstests fuer Confirmation #1 -> Fehler -> Follow-up Confirmation #2 -> Retry.
 - Negativtests fuer Tamper/Mismatch und fehlende pending intents.
 - Regressionstests, dass nicht-korrigierbare Fehler weiterhin in clarification/error enden.
-- Guardrail-Tests fuer Abbruch bei fehlendem Fortschritt (z.B. gleicher Fehler + unveraenderter Plan).
+- Guardrail-Tests fuer Abbruch bei erreichtem `airepairmax`.

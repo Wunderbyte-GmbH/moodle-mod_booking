@@ -9,9 +9,13 @@ Ziel dieser Datei:
 1. Standardfall: Nur Task-Klassen und Task-nahe Tests aendern.
 2. Nicht aendern ohne expliziten Auftrag:
    - external/ai_send_message.php
+   - external/ai_confirm_run.php
+   - external/ai_poll_run_status.php
+   - amd/src/aiinstructions.js
    - local/wbagent/orchestrator.php
    - local/wbagent/interpreter.php
    - local/wbagent/task_registry.php
+   - local/wbagent/booking/support/execution_repair_service.php
    - Prompt-Framework-Dateien unter local/wbagent/prompts/
 3. Trigger- und Intent-Logik NICHT ueber sprachabhaengige Textlisten im Framework loesen.
 4. Domainenregeln gehoeren in Task-Klassen (validate/issues/schema), nicht in globale Flow-Hacks.
@@ -26,6 +30,21 @@ Neue Task anlegen, wenn mindestens einer der Punkte zutrifft:
 Keine neue Task anlegen, wenn:
 - Es nur ein kleiner Parameter im bestehenden Task-Schema ist.
 - Es nur Prompt-Formulierung betrifft, aber keine neue Fachlogik.
+
+## Wann MUSS ausnahmsweise auch der Workflow geaendert werden?
+
+Wenn eine Aenderung den bestaetigungsbasierten Lauf nach execute betrifft, reichen reine Task-Aenderungen nicht aus.
+Typische Beispiele:
+- Zweite Confirmation nach Ausfuehrungsfehler fehlt.
+- Repair-Plan soll erzeugt oder abgeschaltet werden.
+- Follow-up Confirmation wird im UI nicht angezeigt.
+
+Dann muessen die drei Ebenen konsistent sein:
+1. Producer: external/ai_confirm_run.php (setzt pending intent nach Repair).
+2. Transport: external/ai_poll_run_status.php (liefert followup*-Felder).
+3. Consumer: amd/src/aiinstructions.js (zeigt showConfirmPanel fuer Follow-up).
+
+Hinweis: issue_codes bleiben task-nahe und in ai_send_message relevant, steuern aber die zweite Confirmation nach Execute-Fehler nicht alleine.
 
 ## Schritt-fuer-Schritt: Neue Task hinzufuegen
 
@@ -94,3 +113,4 @@ Eine Task-Erweiterung ist fertig, wenn:
 - Keine sprachabhaengigen Trigger-Textlisten im Framework noetig sind.
 - Tests die neuen Regeln und Trigger abdecken.
 - Aenderungen auf Task-Ebene bleiben (ausser explizit anders beauftragt).
+- Bei Repair-/Follow-up-Features sind Producer, Transport und Consumer gemeinsam getestet.
