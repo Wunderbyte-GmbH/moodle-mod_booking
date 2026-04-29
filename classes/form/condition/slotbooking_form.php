@@ -705,10 +705,10 @@ class slotbooking_form extends dynamic_form {
         }
 
         $rangestart = time();
-        $rangeend = strtotime('+90 days', $rangestart);
         if (!empty($config->valid_from)) {
             $rangestart = max($rangestart, (int)$config->valid_from);
         }
+        $rangeend = strtotime('+90 days', $rangestart);
         if (!empty($config->valid_until)) {
             $rangeend = min($rangeend, (int)$config->valid_until + DAYSECS);
         }

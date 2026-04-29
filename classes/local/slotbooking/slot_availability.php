@@ -802,6 +802,26 @@ class slot_availability {
     private static function get_default_slot_range(int $optionid): array {
         $config = self::get_slot_config($optionid);
 
+        // For session-type slots derive the range from the actual option sessions so
+        // that sessions set far in the future are not cut off by the fixed +365-day window.
+        if ((string)($config->slot_type ?? 'fixed') === 'session') {
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+            $sessions = (array)($settings->sessions ?? []);
+            if (!empty($sessions)) {
+                $starts = array_map(static function ($s): int {
+                    return (int)($s->coursestarttime ?? 0);
+                }, $sessions);
+                $ends = array_map(static function ($s): int {
+                    return (int)($s->courseendtime ?? 0);
+                }, $sessions);
+                $minsession = min($starts);
+                $maxsession = max($ends);
+                if ($minsession > 0 && $maxsession > $minsession) {
+                    return [$minsession, $maxsession];
+                }
+            }
+        }
+
         $rangestart = time();
         $rangeend = strtotime('+365 days', $rangestart);
 
