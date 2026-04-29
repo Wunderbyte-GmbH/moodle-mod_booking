@@ -33,6 +33,7 @@ use external_function_parameters;
 use external_single_structure;
 use external_value;
 use mod_booking\local\wbagent\authorization_service;
+use mod_booking\local\wbagent\booking\support\execution_repair_service;
 use mod_booking\local\wbagent\conversation_store;
 use mod_booking\local\wbagent\execution_feedback_service;
 use mod_booking\local\wbagent\executor;
@@ -186,6 +187,78 @@ class ai_confirm_run extends external_api {
                 'status' => 'completed',
                 'results' => $results,
             ]);
+
+            // LLM-based repair loop for stale executor failures.
+            $maxrepairs = max(0, (int)(get_config('booking', 'airepairmax') ?? 1));
+            if ($maxrepairs > 0) {
+                $repairattempts = (int)($store->get_thread_metadata_value(
+                    (int)$params['threadid'],
+                    'repair_attempt_count'
+                ) ?? 0);
+                $repairservice = new execution_repair_service();
+                $repair = $repairservice->analyze(
+                    $cmdsarray,
+                    $rawresults,
+                    $repairattempts,
+                    $maxrepairs,
+                    (int)$params['threadid'],
+                    (int)$params['cmid'],
+                    (int)$USER->id,
+                    $outputlang,
+                    $registry,
+                    $store
+                );
+                if ($repair['can_repair']) {
+                    $store->set_thread_metadata_value(
+                        (int)$params['threadid'],
+                        'repair_attempt_count',
+                        $repairattempts + 1
+                    );
+                    $repairedcmds = (array)$repair['repaired_commands'];
+                    $intentkey = hash('sha256', (string)$USER->id . ':' . (string)$params['cmid'] . ':'
+                        . (string)$params['threadid'] . ':' . json_encode($repairedcmds));
+                    $store->set_pending_intent(
+                        (int)$params['threadid'],
+                        $repairedcmds,
+                        $intentkey,
+                        (int)$USER->id,
+                        (int)$params['cmid']
+                    );
+                    $pending = $store->get_pending_intent((int)$params['threadid']);
+                    $pendingcode = (string)($pending['confirmationcode'] ?? '');
+                    $store->add_message(
+                        (int)$params['threadid'],
+                        'assistant',
+                        (string)($repair['user_message'] ?? get_string('ai_repair_proposal_message', 'mod_booking')),
+                        [
+                            'response_type' => 'confirmation_request',
+                            'commands' => $repairedcmds,
+                            'ambiguities' => [],
+                            'errors' => [],
+                            'issue_codes' => [],
+                            'attempted_tasks' => array_values(array_unique(array_column($repairedcmds, 'task'))),
+                            'pending_confirmation_code' => $pendingcode,
+                        ]
+                    );
+                    return [
+                        'success' => true,
+                        'runid'   => $runid,
+                        'message' => (string)($repair['user_message'] ?? get_string('ai_repair_proposal_message', 'mod_booking')),
+                    ];
+                }
+
+                $usermessage = trim((string)($repair['user_message'] ?? ''));
+                if ($usermessage !== '') {
+                    $store->add_message((int)$params['threadid'], 'assistant', $usermessage, [
+                        'response_type' => 'clarification',
+                        'commands' => [],
+                        'ambiguities' => [],
+                        'errors' => [],
+                        'attempted_tasks' => [],
+                        'issue_codes' => [],
+                    ]);
+                }
+            }
 
             return [
                 'success' => true,

@@ -157,6 +157,20 @@ class interpreter implements agent_interpreter {
         if (!empty($errors)) {
             $validationmessage = $this->user_facing_validation_message($errors, $lang);
             $recoverableinputerror = $this->is_recoverable_input_validation_error($errors);
+            if (!empty($confirmablecommands)) {
+                return [
+                    'response_type' => 'confirmation_request',
+                    'lang'          => $lang,
+                    'message'       => $validationmessage,
+                    'used_triggers' => $usedtriggers,
+                    'commands'      => $confirmablecommands,
+                    'ambiguities'   => [],
+                    'ambiguity_options' => $ambiguityoptions,
+                    'errors'        => $errors,
+                    'attempted_tasks' => $attemptedtasks,
+                    'issue_codes'   => $issuecodes,
+                ];
+            }
             return [
                 'response_type' => $recoverableinputerror ? 'clarification' : 'error',
                 'lang'          => $lang,

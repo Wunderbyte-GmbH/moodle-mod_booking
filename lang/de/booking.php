@@ -16,12 +16,14 @@
 
 /**
  * German translation of the booking module
- *
- * @package mod_booking
- * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+*
+* @package mod_booking
+* @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+* @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+*/
 
+$string['airepairmax'] = 'KI-Reparaturversuche';
+$string['airepairmax_desc'] = 'Maximale Anzahl automatischer Reparaturversuche, wenn ein KI-Befehl zur Ausführungszeit fehlschlägt (z.B. Trainer-Benutzer nicht gefunden). 0 deaktiviert die automatische Reparatur.';
 $string['aboutmodaloptiondateform'] = 'Hier können Sie benutzerdefinierte Termine anlegen
 (z.B. bei Block-Veranstaltungen oder wenn einzelne Termine von der Terminserie abweichen).';
 $string['accept'] = 'Akzeptieren';
@@ -204,6 +206,7 @@ $string['agent_booking_update_permission_denied_groups'] =
     'Sie duerfen diese Feldgruppen in diesem Buchungskontext nicht bearbeiten: {$a}.';
 $string['ai_action_add_price_category'] = 'Preiskategorie anlegen';
 $string['ai_action_create_option'] = 'Buchungsoption erstellen';
+$string['ai_action_create_user'] = 'Benutzer erstellen';
 $string['ai_action_get_current_user'] = 'Aktuellen Benutzer abrufen';
 $string['ai_action_list_actions'] = 'Unterstuetzte Aktionen auflisten';
 $string['ai_action_list_option_properties'] = 'Bearbeitbare Eigenschaften von Buchungsoptionen auflisten';
@@ -211,6 +214,9 @@ $string['ai_action_search_courses'] = 'Kurse suchen';
 $string['ai_action_search_options'] = 'Buchungsoptionen suchen';
 $string['ai_action_search_users'] = 'Nutzer:innen suchen';
 $string['ai_action_update_option'] = 'Buchungsoption aktualisieren';
+$string['ai_confirm_missing_teacher_user_create_option'] = 'Benutzer "{$a->userquery}" wurde nicht gefunden. Um diesen Auftrag auszufuehren, muss dieser Benutzer zusaetzlich erstellt werden. Soll ich Benutzer und Buchungsoption erstellen?';
+$string['ai_repair_proposal_message'] = 'Die vorherige Ausführung ist fehlgeschlagen, weil benötigte Daten nicht aufgelöst werden konnten. Ich habe einen aktualisierten Plan vorbereitet, der zuerst die fehlende Voraussetzung behebt und danach Ihre ursprüngliche Aktion erneut ausführt. Bitte prüfen und bestätigen Sie die aktualisierte Befehlsliste.';
+$string['ai_repair_no_solution_message'] = 'Für diesen Ausführungsfehler konnte ich keinen sicheren automatischen Reparaturplan erstellen. Bitte präzisieren Sie die Angaben und versuchen Sie es erneut.';
 $string['ai_docs_explain_ambiguity_candidates'] =
     'Ich habe mehrere passende Dokumentationsthemen gefunden. Bitte praezisieren Sie, welches Sie meinen: {$a}.';
 $string['ai_docs_explain_followup_query'] = 'Bitte erklaeren Sie dieses Dokumentationsthema: {$a}';

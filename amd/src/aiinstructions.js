@@ -1064,6 +1064,21 @@ const pollRunStatus = (runid, cmid) => {
                 appendAssistantPrivacyNote(resp, 'ai_poll_run_status');
                 showRunStatus(resp.status, resp.displaymessage || resp.message || resp.status, results);
 
+                if (Number(resp.followupconfirmation || 0) === 1) {
+                    let followupCommands = [];
+                    try {
+                        const parsedFollowup = JSON.parse(resp.followupcommandsjson || '[]');
+                        followupCommands = Array.isArray(parsedFollowup) ? parsedFollowup : [];
+                    } catch (e) {
+                        followupCommands = [];
+                    }
+
+                    const followupMessage = String(resp.followupdisplaymessage || resp.followupmessage || '').trim();
+                    if (followupCommands.length > 0) {
+                        showConfirmPanel(followupMessage || 'Please confirm the updated command plan.', followupCommands);
+                    }
+                }
+
                 if (resp.status === 'completed') {
                     const optionIds = extractPreviewOptionIds(results);
                     if (optionIds.length > 0) {
@@ -1326,7 +1341,6 @@ const confirmRun = () => {
         },
     }])[0].then((resp) => {
         if (resp.success) {
-            showRunStatus('queued', resp.message);
             pollRunStatus(resp.runid, currentCmid);
         } else {
             showRunStatus('failed', resp.message);

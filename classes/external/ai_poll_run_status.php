@@ -87,6 +87,10 @@ class ai_poll_run_status extends external_api {
                 'message'    => '',
                 'displaymessage' => '',
                 'privacyapplied' => 0,
+                'followupconfirmation' => 0,
+                'followupmessage' => '',
+                'followupdisplaymessage' => '',
+                'followupcommandsjson' => '[]',
                 'resultsjson' => '[]',
             ];
         }
@@ -94,6 +98,10 @@ class ai_poll_run_status extends external_api {
         $message = '';
         $displaymessage = '';
         $privacyapplied = 0;
+        $followupconfirmation = 0;
+        $followupmessage = '';
+        $followupdisplaymessage = '';
+        $followupcommandsjson = '[]';
         $executionmessage = $store->get_latest_execution_result_message_for_run((int)$run->threadid, (int)$run->id);
         if ($executionmessage) {
             $message = (string)($executionmessage->content ?? '');
@@ -102,6 +110,46 @@ class ai_poll_run_status extends external_api {
             $display = $anonymizer->deanonymize_message_for_display((int)$run->threadid, $message);
             $displaymessage = (string)($display['message'] ?? $message);
             $privacyapplied = (int)(!empty($display['replacedcount']));
+
+            // If execution produced a repair suggestion, expose it to the frontend so it can
+            // render a second confirmation panel directly below the error/result output.
+            $pending = $store->get_pending_intent((int)$run->threadid);
+            if (is_array($pending) && !empty($pending['commands']) && is_array($pending['commands'])) {
+                $followupconfirmation = 1;
+                $followupcommandsjson = json_encode((array)$pending['commands']);
+                $pendingcode = trim((string)($pending['confirmationcode'] ?? ''));
+
+                $recent = $store->get_recent_messages((int)$run->threadid, 30);
+                for ($i = count($recent) - 1; $i >= 0; $i--) {
+                    $candidate = $recent[$i] ?? null;
+                    if (!is_object($candidate) || (string)($candidate->role ?? '') !== 'assistant') {
+                        continue;
+                    }
+
+                    $structured = json_decode((string)($candidate->structuredjson ?? ''), true);
+                    if (!is_array($structured)) {
+                        continue;
+                    }
+                    if ((string)($structured['response_type'] ?? '') !== 'confirmation_request') {
+                        continue;
+                    }
+
+                    $candidatecode = trim((string)($structured['pending_confirmation_code'] ?? ''));
+                    if ($pendingcode !== '' && $candidatecode !== '' && $candidatecode !== $pendingcode) {
+                        continue;
+                    }
+
+                    $followupmessage = trim((string)($candidate->content ?? ''));
+                    break;
+                }
+
+                if ($followupmessage === '') {
+                    $followupmessage = get_string('ai_repair_proposal_message', 'mod_booking');
+                }
+
+                $followupdisplay = $anonymizer->deanonymize_message_for_display((int)$run->threadid, $followupmessage);
+                $followupdisplaymessage = (string)($followupdisplay['message'] ?? $followupmessage);
+            }
         }
 
         return [
@@ -110,6 +158,10 @@ class ai_poll_run_status extends external_api {
             'message'     => $message,
             'displaymessage' => $displaymessage,
             'privacyapplied' => $privacyapplied,
+            'followupconfirmation' => $followupconfirmation,
+            'followupmessage' => $followupmessage,
+            'followupdisplaymessage' => $followupdisplaymessage,
+            'followupcommandsjson' => $followupcommandsjson,
             'resultsjson' => $run->resultsjson ?? '[]',
         ];
     }
@@ -126,6 +178,10 @@ class ai_poll_run_status extends external_api {
             'message'     => new external_value(PARAM_RAW, 'Assistant message stored for this run.'),
             'displaymessage' => new external_value(PARAM_RAW, 'Display message for this run.'),
             'privacyapplied' => new external_value(PARAM_INT, 'Whether de-masking was applied for display.'),
+            'followupconfirmation' => new external_value(PARAM_INT, 'Whether a follow-up confirmation is available.'),
+            'followupmessage' => new external_value(PARAM_RAW, 'Follow-up assistant confirmation message.'),
+            'followupdisplaymessage' => new external_value(PARAM_RAW, 'Display message for the follow-up confirmation.'),
+            'followupcommandsjson' => new external_value(PARAM_RAW, 'JSON-encoded follow-up commands.'),
             'resultsjson' => new external_value(PARAM_RAW, 'JSON-encoded per-command results.'),
         ]);
     }

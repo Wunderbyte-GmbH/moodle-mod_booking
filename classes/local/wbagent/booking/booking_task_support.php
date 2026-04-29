@@ -30,6 +30,7 @@ use mod_booking\local\wbagent\interfaces\task_interface;
 use mod_booking\local\wbagent\booking\tasks\add_price_category_task;
 use mod_booking\local\wbagent\booking\tasks\base_booking_task;
 use mod_booking\local\wbagent\booking\tasks\create_option_task;
+use mod_booking\local\wbagent\booking\tasks\create_user_task;
 use mod_booking\local\wbagent\booking\tasks\list_actions_task;
 use mod_booking\local\wbagent\booking\tasks\list_option_properties_task;
 use mod_booking\local\wbagent\booking\tasks\search_courses_task;
@@ -1540,6 +1541,7 @@ class booking_task_support {
     private static function get_localized_action_label(string $taskname): string {
         $map = [
             create_option_task::TASK_NAME => 'ai_action_create_option',
+            create_user_task::TASK_NAME => 'ai_action_create_user',
             update_option_task::TASK_NAME => 'ai_action_update_option',
             search_options_task::TASK_NAME => 'ai_action_search_options',
             search_users_task::TASK_NAME => 'ai_action_search_users',

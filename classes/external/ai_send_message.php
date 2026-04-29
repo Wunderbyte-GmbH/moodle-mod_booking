@@ -76,6 +76,17 @@ class ai_send_message extends external_api {
         'AI_PROVIDER_QUOTA_EXCEEDED',
     ];
 
+    /** Issue codes that may remain confirmation-gated despite prevalidation errors. */
+    private const PREVALIDATION_CONFIRMABLE_ISSUE_CODES = [
+        'DUPLICATE_TITLE_CONFIRM_REQUIRED',
+        'DUPLICATE_TITLE_MULTI_CONFIRM_REQUIRED',
+        'CONFIRMATION_REQUIRED',
+        'MISSING_LOCATION_CONFIRM_REQUIRED',
+        'LOCATION_NOT_FOUND_POSSIBLE',
+        'SLOTBOOKING_DURATION_EQUALS_WINDOW',
+        'TEACHER_USER_NOT_FOUND',
+    ];
+
     /** Basic subscription purchase URL. */
     private const BASIC_SUBSCRIPTION_URL =
         'https://showroom.wunderbyte.at/mod/booking/optionview.php?optionid=73&cmid=938&userid=1';
@@ -405,17 +416,32 @@ class ai_send_message extends external_api {
                 $cmid
             );
             if (!$confirmationvalidation['valid']) {
-                $result = [
-                    'response_type' => 'clarification',
-                    'message' => self::build_confirmation_validation_message($confirmationvalidation, $outputlang),
-                    'commands' => [],
-                    'ambiguities' => (array)($confirmationvalidation['ambiguities'] ?? []),
-                    'errors' => (array)($confirmationvalidation['errors'] ?? []),
-                    'attempted_tasks' => (array)($confirmationvalidation['attempted_tasks'] ?? []),
-                    'issue_codes' => (array)($confirmationvalidation['issue_codes'] ?? []),
-                ];
+                $validationissuecodes = (array)($confirmationvalidation['issue_codes'] ?? []);
+                if (self::has_confirmable_prevalidation_issues($validationissuecodes)) {
+                    $result = [
+                        'response_type' => 'confirmation_request',
+                        'message' => self::build_confirmation_validation_message($confirmationvalidation, $outputlang),
+                        'commands' => (array)$result['commands'],
+                        'ambiguities' => [],
+                        'errors' => (array)($confirmationvalidation['errors'] ?? []),
+                        'attempted_tasks' => (array)($confirmationvalidation['attempted_tasks'] ?? []),
+                        'issue_codes' => $validationissuecodes,
+                    ];
+                } else {
+                    $result = [
+                        'response_type' => 'clarification',
+                        'message' => self::build_confirmation_validation_message($confirmationvalidation, $outputlang),
+                        'commands' => [],
+                        'ambiguities' => (array)($confirmationvalidation['ambiguities'] ?? []),
+                        'errors' => (array)($confirmationvalidation['errors'] ?? []),
+                        'attempted_tasks' => (array)($confirmationvalidation['attempted_tasks'] ?? []),
+                        'issue_codes' => $validationissuecodes,
+                    ];
+                }
             }
         }
+
+        $result = self::augment_missing_teacher_autocreate_confirmation($result, $message, $registry, $outputlang);
 
         // Store mutating confirmation_request responses as pending intent so the LLM
         // can return confirm_pending on the next user message.
@@ -717,6 +743,22 @@ class ai_send_message extends external_api {
                     }
                 }
             }
+
+            // Some task validators return human-readable errors without structured issue codes.
+            // Infer stable issue codes for known prevalidation patterns.
+            foreach ((array)($validation['errors'] ?? []) as $error) {
+                $normalizederror = core_text::strtolower(trim((string)$error));
+                if ($normalizederror === '') {
+                    continue;
+                }
+
+                if (
+                    str_contains($normalizederror, 'no user matched user query')
+                    || str_contains($normalizederror, 'keine nutzerin/kein nutzer passt zur nutzerabfrage')
+                ) {
+                    $issuecodes[] = 'TEACHER_USER_NOT_FOUND';
+                }
+            }
         }
 
         return [
@@ -739,6 +781,32 @@ class ai_send_message extends external_api {
     private static function build_confirmation_validation_message(array $validation, string $outputlang): string {
         $errors = (array)($validation['errors'] ?? []);
         $ambiguities = (array)($validation['ambiguities'] ?? []);
+        $attemptedtasks = array_map(
+            static fn($task): string => trim((string)$task),
+            (array)($validation['attempted_tasks'] ?? [])
+        );
+        $issuecodes = array_map(
+            static fn($code): string => trim(core_text::strtoupper((string)$code)),
+            (array)($validation['issue_codes'] ?? [])
+        );
+
+        if (
+            in_array('TEACHER_USER_NOT_FOUND', $issuecodes, true)
+            && in_array('booking.create_option', $attemptedtasks, true)
+            && self::has_confirmable_prevalidation_issues($issuecodes)
+        ) {
+            $teacherquery = self::extract_teacher_query_from_validation_errors($errors);
+            if ($teacherquery === '') {
+                $teacherquery = self::localized_string('ai_property_teacherquery', 'mod_booking', null, $outputlang);
+            }
+
+            return self::localized_string(
+                'ai_confirm_missing_teacher_user_create_option',
+                'mod_booking',
+                (object)['userquery' => $teacherquery],
+                $outputlang
+            );
+        }
 
         $parts = [];
         if (!empty($errors)) {
@@ -754,6 +822,27 @@ class ai_send_message extends external_api {
         }
 
         return self::localized_string('ai_no_pending_intent', 'mod_booking', null, $outputlang);
+    }
+
+    /**
+     * Extract teacher query value from validation error text when available.
+     *
+     * @param array $errors
+     * @return string
+     */
+    private static function extract_teacher_query_from_validation_errors(array $errors): string {
+        foreach ($errors as $error) {
+            $text = trim((string)$error);
+            if ($text === '') {
+                continue;
+            }
+
+            if (preg_match('/"([^"]+)"/', $text, $matches) === 1) {
+                return trim((string)($matches[1] ?? ''));
+            }
+        }
+
+        return '';
     }
 
     /**
@@ -936,6 +1025,136 @@ class ai_send_message extends external_api {
         );
 
         return !empty(array_intersect(self::TOKEN_SUBSCRIPTION_ISSUE_CODES, $normalized));
+    }
+
+    /**
+     * Check whether prevalidation issue codes support keeping confirmation flow.
+     *
+     * @param array $issuecodes
+     * @return bool
+     */
+    private static function has_confirmable_prevalidation_issues(array $issuecodes): bool {
+        $normalized = array_map(
+            static fn($code): string => trim(core_text::strtoupper((string)$code)),
+            $issuecodes
+        );
+
+        return !empty(array_intersect(self::PREVALIDATION_CONFIRMABLE_ISSUE_CODES, $normalized));
+    }
+
+    /**
+     * Prepend booking.create_user when user explicitly allows creating missing teacher accounts.
+     *
+     * @param array $result
+     * @param string $usermessage
+     * @param task_registry $registry
+     * @param string $outputlang
+     * @return array
+     */
+    private static function augment_missing_teacher_autocreate_confirmation(
+        array $result,
+        string $usermessage,
+        task_registry $registry,
+        string $outputlang = ''
+    ): array {
+        if ((string)($result['response_type'] ?? '') !== 'confirmation_request') {
+            return $result;
+        }
+
+        if ($registry->get_task('booking.create_user') === null) {
+            return $result;
+        }
+
+        if (!self::user_allows_missing_user_autocreate($usermessage)) {
+            return $result;
+        }
+
+        $issuecodes = array_map(
+            static fn($code): string => trim(core_text::strtoupper((string)$code)),
+            (array)($result['issue_codes'] ?? [])
+        );
+        $errors = array_map(
+            static fn($error): string => core_text::strtolower(trim((string)$error)),
+            (array)($result['errors'] ?? [])
+        );
+        $hasteachernotfounderror = false;
+        foreach ($errors as $error) {
+            if (
+                $error !== ''
+                && (
+                    str_contains($error, 'no user matched user query')
+                    || str_contains($error, 'keine nutzerin/kein nutzer passt zur nutzerabfrage')
+                )
+            ) {
+                $hasteachernotfounderror = true;
+                break;
+            }
+        }
+
+        if (!in_array('TEACHER_USER_NOT_FOUND', $issuecodes, true) && !$hasteachernotfounderror) {
+            return $result;
+        }
+
+        $commands = is_array($result['commands'] ?? null) ? (array)$result['commands'] : [];
+        if (empty($commands)) {
+            return $result;
+        }
+
+        foreach ($commands as $command) {
+            if (!is_array($command)) {
+                continue;
+            }
+            if ((string)($command['task'] ?? '') === 'booking.create_user') {
+                return $result;
+            }
+        }
+
+        $teacherquery = '';
+        foreach ($commands as $command) {
+            if (!is_array($command) || (string)($command['task'] ?? '') !== 'booking.create_option') {
+                continue;
+            }
+            $input = is_array($command['input'] ?? null) ? (array)$command['input'] : [];
+            $candidate = trim((string)($input['teacherquery'] ?? ''));
+            if ($candidate !== '') {
+                $teacherquery = $candidate;
+                break;
+            }
+        }
+
+        if ($teacherquery === '') {
+            return $result;
+        }
+
+        array_unshift($commands, [
+            'task' => 'booking.create_user',
+            'version' => 1,
+            'input' => [
+                'userquery' => $teacherquery,
+                'outputlang' => $outputlang,
+            ],
+        ]);
+
+        $result['commands'] = array_values($commands);
+        return $result;
+    }
+
+    /**
+     * Detect user intent that permits creating missing users.
+     *
+     * @param string $usermessage
+     * @return bool
+     */
+    private static function user_allows_missing_user_autocreate(string $usermessage): bool {
+        $normalized = core_text::strtolower(trim(preg_replace('/\s+/', ' ', $usermessage) ?? $usermessage));
+        if ($normalized === '') {
+            return false;
+        }
+
+        return (bool)preg_match(
+            '/(auch\s+wenn\s+.*benutzer.*nicht\s+existiert|if\s+.*user.*does\s+not\s+exist|even\s+if\s+.*user.*does\s+not\s+exist)/u',
+            $normalized
+        );
     }
 
     /**

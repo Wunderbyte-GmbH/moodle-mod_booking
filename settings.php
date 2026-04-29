@@ -301,6 +301,16 @@ if ($ADMIN->fulltree) {
         )
     );
 
+    $settings->add(
+        new admin_setting_configtext(
+            'booking/airepairmax',
+            get_string('airepairmax', 'mod_booking'),
+            get_string('airepairmax_desc', 'mod_booking'),
+            1,
+            PARAM_INT
+        )
+    );
+
     // PRO feature: Appearance settings.
     if ($proversion) {
         $settings->add(
