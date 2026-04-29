@@ -112,7 +112,6 @@ final class mobile_customform_test extends advanced_testcase {
         $user = $this->getDataGenerator()->create_user();
         $this->setUser($user);
 
-        echo "\n=== Testing custom form validation ===\n";
         $customformstore = new customformstore($user->id, $optionid);
         $formdata = (object)[
             'id' => $optionid,

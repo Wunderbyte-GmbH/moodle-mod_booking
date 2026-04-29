@@ -198,6 +198,18 @@ $string['agent_booking_resolve_user_no_match'] =
     'Keine Nutzerin/kein Nutzer passt zur Nutzerabfrage "{$a}".';
 $string['agent_booking_resolve_user_query_required'] =
     'Bitte geben Sie eine Nutzerabfrage zur Identifikation der Person an.';
+$string['agent_booking_update_option_missing_target'] =
+    'Bitte geben Sie an, welche Buchungsoption aktualisiert werden soll.';
+$string['agent_booking_update_option_which_option_question'] =
+    'Welche Buchungsoption soll ich aktualisieren? Bitte geben Sie Optionstitel oder Options-ID an.';
+$string['agent_booking_search_users_required_query'] =
+    'Bitte geben Sie eine Suchanfrage fuer Benutzer an.';
+$string['agent_booking_list_option_properties_invalid_scope'] =
+    'Ungueltiger Scope. Erlaubte Werte sind: all, create, update, shared.';
+$string['agent_booking_get_current_user_fallback'] =
+    'Sie sind derzeit als {$a->fullname} ({$a->email}) angemeldet.';
+$string['agent_booking_get_current_user_identified'] =
+    'Aktueller Benutzer wurde erfolgreich identifiziert.';
 $string['agent_booking_update_permission_check_failed'] =
     'Die Berechtigung fuer dieses Update konnte im aktuellen Buchungskontext nicht geprueft werden.';
 $string['agent_booking_update_permission_denied_generic'] =

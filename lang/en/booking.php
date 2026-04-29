@@ -195,6 +195,18 @@ $string['agent_booking_resolve_user_ambiguous'] =
     'Multiple users matched: {$a}. Please provide a more specific user query (for example with e-mail or user id).';
 $string['agent_booking_resolve_user_no_match'] = 'No user matched user query "{$a}".';
 $string['agent_booking_resolve_user_query_required'] = 'Please provide a user query to identify the user.';
+$string['agent_booking_update_option_missing_target'] =
+    'Please specify which booking option should be updated.';
+$string['agent_booking_update_option_which_option_question'] =
+    'Which booking option should I update? Please provide option title or option id.';
+$string['agent_booking_search_users_required_query'] =
+    'Please provide a user search query.';
+$string['agent_booking_list_option_properties_invalid_scope'] =
+    'Invalid scope. Allowed values are: all, create, update, shared.';
+$string['agent_booking_get_current_user_fallback'] =
+    'You are currently signed in as {$a->fullname} ({$a->email}).';
+$string['agent_booking_get_current_user_identified'] =
+    'Current user identified successfully.';
 $string['agent_booking_update_permission_check_failed'] =
     'Could not validate update permissions for this booking context.';
 $string['agent_booking_update_permission_denied_generic'] = 'You cannot update one or more requested fields.';
