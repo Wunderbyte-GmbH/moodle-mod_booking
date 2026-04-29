@@ -381,7 +381,9 @@ class ai_send_message extends external_api {
                                     'message' => trim((string)($readonlyexecution['message'] ?? '')),
                                     'commands' => [],
                                     'ambiguities' => array_values(array_unique(array_merge($oldambiguities, []))),
-                                    'errors' => array_values(array_unique(array_merge($olderrors, (array)($readonlyexecution['errors'] ?? [])))),
+                                    'errors' => array_values(
+                                        array_unique(array_merge($olderrors, (array)($readonlyexecution['errors'] ?? [])))
+                                    ),
                                     'runid' => (int)($readonlyexecution['runid'] ?? 0),
                                     'results' => is_array($readonlyexecution['results'] ?? null)
                                         ? $readonlyexecution['results']
@@ -1152,7 +1154,11 @@ class ai_send_message extends external_api {
         }
 
         return (bool)preg_match(
-            '/(auch\s+wenn\s+.*benutzer.*nicht\s+existiert|if\s+.*user.*does\s+not\s+exist|even\s+if\s+.*user.*does\s+not\s+exist)/u',
+            '/('
+            . 'auch\s+wenn\s+.*benutzer.*nicht\s+existiert|'
+            . 'if\s+.*user.*does\s+not\s+exist|'
+            . 'even\s+if\s+.*user.*does\s+not\s+exist'
+            . ')/u',
             $normalized
         );
     }
