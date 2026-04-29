@@ -65,7 +65,7 @@ class execution_repair_service {
      * @param int $threadid
      * @param int $cmid
      * @param int $userid
-    * @param string $outputlang
+     * @param string $outputlang
      * @param task_registry $registry
      * @param conversation_store $store
      * @return array{can_repair: bool, repaired_commands: array, reason: string, user_message: string}
@@ -103,10 +103,16 @@ class execution_repair_service {
 
         $anonymizer = new privacy_anonymizer($store);
         $lastusermessage = $this->extract_last_user_message($store->get_recent_messages($threadid, 20));
-        $displayusermessage = (string)($anonymizer->deanonymize_message_for_display($threadid, $lastusermessage)['message'] ?? $lastusermessage);
+        $displayusermessage = (string)(
+            $anonymizer->deanonymize_message_for_display($threadid, $lastusermessage)['message']
+            ?? $lastusermessage
+        );
         $displayerrors = [];
         foreach ($failedindexes as $idx => $detail) {
-            $displayerrors[$idx] = (string)($anonymizer->deanonymize_message_for_display($threadid, (string)$detail)['message'] ?? $detail);
+            $displayerrors[$idx] = (string)(
+                $anonymizer->deanonymize_message_for_display($threadid, (string)$detail)['message']
+                ?? $detail
+            );
         }
         $displaycommands = $this->deanonymize_commands_for_prompt($commands, $threadid, $anonymizer);
 
@@ -231,7 +237,8 @@ class execution_repair_service {
 
         return implode("\n", [
             'You are a repair-planner for booking task execution.',
-            'Given executor errors, the original user intent, and available task schemas, decide if a repair command list is possible.',
+            'Given executor errors, the original user intent, and available task schemas,',
+            'decide if a repair command list is possible.',
             'Primary objective: return executable repaired commands whenever a safe repair path exists.',
             'Rules:',
             '1) Use ONLY tasks from available_tasks.',
@@ -239,9 +246,12 @@ class execution_repair_service {
             '3) If no repair is possible, return response_type="clarification" with a short user-friendly message.',
             '4) Return ONLY valid JSON. No markdown.',
             '5) Prefer a repair plan over asking the user again if any available task can resolve the error.',
-            '6) Typical example: if a create_option command fails because teacher/user is not found and booking.create_user exists, return two commands in order: booking.create_user then booking.create_option.',
+            '6) Typical example: if a create_option command fails because teacher/user is not found',
+            'and booking.create_user exists, return two commands in order:',
+            'booking.create_user then booking.create_option.',
             '7) The message field MUST be written in the same language as the last_user_message.',
-            '8) If you propose a repair plan, message must briefly explain WHY the first run failed and WHAT the updated command plan will do.',
+            '8) If you propose a repair plan, message must briefly explain WHY the first run',
+            'failed and WHAT the updated command plan will do.',
             'Required JSON shape:',
             '{"response_type":"confirmation_request|clarification","message":"...","commands":[...]}',
             'Input payload:',

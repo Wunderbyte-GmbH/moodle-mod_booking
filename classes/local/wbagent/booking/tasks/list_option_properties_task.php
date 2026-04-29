@@ -111,7 +111,7 @@ class list_option_properties_task extends base_booking_task implements task_trig
                 ],
                 'guidance' => [
                     '- Use booking.list_option_properties when the user asks about available option fields.',
-                    '- Return a concise structured list of property `name`, `label`, `type` and `description`.',
+                    '- Return a concise structured list of property name, label, type and description.',
                 ],
             ],
         ];
@@ -129,7 +129,11 @@ class list_option_properties_task extends base_booking_task implements task_trig
         $scope = strtolower(trim((string)($input['scope'] ?? 'all')));
         $allowed = ['all', 'create', 'update', 'shared'];
         if (!in_array($scope, $allowed, true)) {
-            $errors[] = $this->localized_string('agent_booking_list_option_properties_invalid_scope', null, $this->get_output_language($input));
+            $errors[] = $this->localized_string(
+                'agent_booking_list_option_properties_invalid_scope',
+                null,
+                $this->get_output_language($input)
+            );
         }
 
         return [
@@ -157,7 +161,11 @@ class list_option_properties_task extends base_booking_task implements task_trig
         if (!$createtask || !$updatetask) {
             return [
                 'status' => 'error',
-                'detail' => $this->localized_string('agent_booking_list_option_properties_required_schemas_unavailable', null, $this->get_output_language($input)),
+                'detail' => $this->localized_string(
+                    'agent_booking_list_option_properties_required_schemas_unavailable',
+                    null,
+                    $this->get_output_language($input)
+                ),
                 'resultid' => null,
             ];
         }

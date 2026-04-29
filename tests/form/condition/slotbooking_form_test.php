@@ -34,6 +34,8 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
  * PHPUnit tests for slotbooking_form.
+ *
+ * @covers \mod_booking\form\condition\slotbooking_form
  */
 final class slotbooking_form_test extends advanced_testcase {
     /**

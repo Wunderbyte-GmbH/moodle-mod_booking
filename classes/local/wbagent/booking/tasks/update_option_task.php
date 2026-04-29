@@ -188,7 +188,11 @@ class update_option_task extends base_booking_task implements task_trigger_provi
                     $issues[] = [
                         'code' => 'MISSING_PREVIEW_CONTEXT',
                         'severity' => 'needs_clarification',
-                        'user_question' => $this->localized_string('agent_booking_update_option_missing_preview_question', null, $lang),
+                        'user_question' => $this->localized_string(
+                            'agent_booking_update_option_missing_preview_question',
+                            null,
+                            $lang
+                        ),
                         'remedy_options' => ['PROVIDE_OPTIONQUERY', 'PROVIDE_OPTIONID'],
                     ];
                 }
@@ -203,7 +207,11 @@ class update_option_task extends base_booking_task implements task_trigger_provi
                     $issues[] = [
                         'code' => 'OPTION_RESOLUTION_FAILED',
                         'severity' => 'needs_clarification',
-                        'user_question' => $this->localized_string('agent_booking_update_option_resolution_failed_question', null, $lang),
+                        'user_question' => $this->localized_string(
+                            'agent_booking_update_option_resolution_failed_question',
+                            null,
+                            $lang
+                        ),
                         'remedy_options' => ['PROVIDE_MORE_SPECIFIC_OPTIONQUERY', 'PROVIDE_OPTIONID'],
                     ];
                 } else if ($result['status'] === 'ambiguity') {
@@ -211,7 +219,11 @@ class update_option_task extends base_booking_task implements task_trigger_provi
                     $issues[] = [
                         'code' => 'OPTION_RESOLUTION_AMBIGUOUS',
                         'severity' => 'needs_clarification',
-                        'user_question' => $this->localized_string('agent_booking_update_option_resolution_ambiguous_question', null, $lang),
+                        'user_question' => $this->localized_string(
+                            'agent_booking_update_option_resolution_ambiguous_question',
+                            null,
+                            $lang
+                        ),
                         'remedy_options' => ['SELECT_EXACT_OPTION', 'PROVIDE_OPTIONID'],
                     ];
                 }
@@ -229,7 +241,11 @@ class update_option_task extends base_booking_task implements task_trigger_provi
                 $issues[] = [
                     'code' => 'INVALID_OPTIONID',
                     'severity' => 'needs_clarification',
-                    'user_question' => $this->localized_string('agent_booking_update_option_invalid_optionid_question', (int)$input['optionid'], $lang),
+                    'user_question' => $this->localized_string(
+                        'agent_booking_update_option_invalid_optionid_question',
+                        (int)$input['optionid'],
+                        $lang
+                    ),
                     'remedy_options' => ['PROVIDE_VALID_OPTIONID', 'PROVIDE_OPTIONQUERY'],
                 ];
             }

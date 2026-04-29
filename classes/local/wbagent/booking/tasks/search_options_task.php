@@ -118,7 +118,7 @@ class search_options_task extends base_booking_task implements task_trigger_prov
                 'guidance' => [
                     '- If the user asks to find booking options, use booking.search_options.',
                     '- Prefer exact title matches when the user mentions a quoted title or the word "title"/"titel".',
-                    '- Return a short structured list with `id`, `name` and `link` for preview.',
+                    '- Return a short structured list with id, name and link for preview.',
                 ],
             ],
         ];

@@ -532,9 +532,17 @@ class create_option_task extends base_booking_task implements task_trigger_provi
      * @param array $input
      * @param array $overrides
      * @param string $resolvedtype
+     * @param string $lang
+     *
      * @return array
+     *
      */
-    private static function check_placeholder_values(array $input, array $overrides, string $resolvedtype = 'normal', string $lang = ''): array {
+    private static function check_placeholder_values(
+        array $input,
+        array $overrides,
+        string $resolvedtype = 'normal',
+        string $lang = ''
+    ): array {
         $errors = [];
 
         // Define field pairs where at least one should have a real value.

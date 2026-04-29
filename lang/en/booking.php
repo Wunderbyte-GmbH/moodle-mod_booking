@@ -96,43 +96,43 @@ $string['agent_booking_blocker_followup_customform_bookingpolicy'] =
     'Please provide the custom form values and confirm how booking policy consent should be transmitted.';
 $string['agent_booking_blocker_followup_generic'] =
     'Please provide the required information to satisfy the blocking condition(s).';
-$string['agent_booking_create_option_exists_multiple'] =
-    'One or more booking options with this exact title already exist: {$a}. Do you want to update one of them instead of creating a new option?';
-$string['agent_booking_create_option_exists_single'] =
-    'A booking option with this exact title already exists (id={$a}). Do you want to update this option instead of creating a new one?';
-$string['agent_booking_create_option_missing_title'] =
-    'Please provide a title for the booking option.';
-$string['agent_booking_create_option_which_title_question'] =
-    'What title should the new booking option have?';
-$string['agent_booking_create_option_confirm_without_location'] =
-    'Please confirm you want to create this booking option without specifying a location or address.';
-$string['agent_booking_create_option_missing_required_fields'] =
-    'Please provide the missing details for the selected booking type.';
-$string['agent_booking_create_option_confirm_missing_values'] =
-    'Please confirm that missing values may remain empty/default, or provide overrides to proceed.';
-$string['agent_booking_create_option_location_not_found_question'] =
-    'If this location cannot be resolved, should I create it and then continue creating the booking option?';
-$string['agent_booking_create_option_duplicate_exists_single_question'] =
-    'A booking option with this title already exists (id={$a}). Do you want to create another one with the same title?';
-$string['agent_booking_create_option_duplicate_exists_multiple_question'] =
-    'Multiple options with this title pattern already exist. Do you still want to create a new one with the same title?';
-$string['agent_booking_create_option_placeholder_override_required_single'] =
-    'The field "{$a->label}" appears empty. To proceed, add override: ["{$a->field}"] in the command.';
-$string['agent_booking_create_option_placeholder_override_required'] =
-    'The fields "{$a->labels}" appear empty. To proceed, add override: ["{$a->fields}"] in the command.';
-$string['agent_booking_bulk_update_missing_target'] =
-    'Provide optionids (array), optionquery (string), or set apply_to_all=true to specify which options should be updated.';
-$string['agent_booking_bulk_update_issue_user_question'] =
-    'Which options should I update: all options, a query subset, or explicit option ids?';
-$string['agent_booking_bulk_update_option_not_in_instance'] =
-    'Option id {$a} does not exist in this booking instance.';
-$string['agent_booking_bulk_update_no_preview'] =
-    'No recently previewed booking options are available for this follow-up request.';
 $string['agent_booking_bulk_update_bookusersquery_unsupported'] =
     'Field "bookusersquery" is not supported for booking.bulk_update_options. Use booking.update_option for per-option user booking.';
 $string['agent_booking_bulk_update_completed'] =
     'Bulk update completed. Status: {$a}';
 $string['agent_booking_bulk_update_failed'] = 'Bulk update failed.';
+$string['agent_booking_bulk_update_issue_user_question'] =
+    'Which options should I update: all options, a query subset, or explicit option ids?';
+$string['agent_booking_bulk_update_missing_target'] =
+    'Provide optionids (array), optionquery (string), or set apply_to_all=true to specify which options should be updated.';
+$string['agent_booking_bulk_update_no_preview'] =
+    'No recently previewed booking options are available for this follow-up request.';
+$string['agent_booking_bulk_update_option_not_in_instance'] =
+    'Option id {$a} does not exist in this booking instance.';
+$string['agent_booking_create_option_confirm_missing_values'] =
+    'Please confirm that missing values may remain empty/default, or provide overrides to proceed.';
+$string['agent_booking_create_option_confirm_without_location'] =
+    'Please confirm you want to create this booking option without specifying a location or address.';
+$string['agent_booking_create_option_duplicate_exists_multiple_question'] =
+    'Multiple options with this title pattern already exist. Do you still want to create a new one with the same title?';
+$string['agent_booking_create_option_duplicate_exists_single_question'] =
+    'A booking option with this title already exists (id={$a}). Do you want to create another one with the same title?';
+$string['agent_booking_create_option_exists_multiple'] =
+    'One or more booking options with this exact title already exist: {$a}. Do you want to update one of them instead of creating a new option?';
+$string['agent_booking_create_option_exists_single'] =
+    'A booking option with this exact title already exists (id={$a}). Do you want to update this option instead of creating a new one?';
+$string['agent_booking_create_option_location_not_found_question'] =
+    'If this location cannot be resolved, should I create it and then continue creating the booking option?';
+$string['agent_booking_create_option_missing_required_fields'] =
+    'Please provide the missing details for the selected booking type.';
+$string['agent_booking_create_option_missing_title'] =
+    'Please provide a title for the booking option.';
+$string['agent_booking_create_option_placeholder_override_required'] =
+    'The fields "{$a->labels}" appear empty. To proceed, add override: ["{$a->fields}"] in the command.';
+$string['agent_booking_create_option_placeholder_override_required_single'] =
+    'The field "{$a->label}" appears empty. To proceed, add override: ["{$a->field}"] in the command.';
+$string['agent_booking_create_option_which_title_question'] =
+    'What title should the new booking option have?';
 $string['agent_booking_diagnose_ambiguity_last_preview_multiple'] =
     'Your last preview contains multiple options. Please tell me which one you mean.';
 $string['agent_booking_diagnose_ambiguity_option_required'] =
@@ -144,13 +144,6 @@ $string['agent_booking_diagnose_error_last_preview_none'] =
     'There is no recent previewed option to refer to.';
 $string['agent_booking_diagnose_error_option_not_in_instance'] =
     'The provided optionid does not belong to this booking instance.';
-$string['agent_booking_pricecat_identifier_required'] = 'Please provide a unique identifier for the price category.';
-$string['agent_booking_pricecat_identifier_invalid'] = 'The identifier may only contain letters, numbers, hyphens, or underscores.';
-$string['agent_booking_pricecat_defaultvalue_numeric'] = 'The default value must be a number.';
-$string['agent_booking_pricecat_defaultvalue_nonnegative'] = 'The default value must not be negative.';
-$string['agent_booking_pricecat_duplicate_exists'] = 'A price category with the identifier "{$a}" already exists.';
-$string['agent_booking_pricecat_duplicate_user_question'] = 'A price category with this identifier already exists. Do you want to create another one with the same identifier?';
-$string['agent_booking_pricecat_created'] = 'Price category "{$a}" was created.';
 $string['agent_booking_diagnose_error_option_resolve'] = 'Could not resolve booking option.';
 $string['agent_booking_diagnose_intro_cannot_book'] = 'Here is why booking may currently fail:';
 $string['agent_booking_diagnose_intro_checked_option'] = 'I checked your booking situation for "{$a}".';
@@ -191,28 +184,33 @@ $string['agent_booking_diagnose_status_notbooked'] = 'not booked';
 $string['agent_booking_diagnose_status_notifylist'] = 'notify list';
 $string['agent_booking_diagnose_status_reserved'] = 'reserved';
 $string['agent_booking_diagnose_status_waitinglist'] = 'waiting list';
-$string['agent_booking_resolve_user_ambiguous'] =
-    'Multiple users matched: {$a}. Please provide a more specific user query (for example with e-mail or user id).';
-$string['agent_booking_resolve_user_no_match'] = 'No user matched user query "{$a}".';
-$string['agent_booking_resolve_user_query_required'] = 'Please provide a user query to identify the user.';
-$string['agent_booking_update_option_missing_target'] =
-    'Please specify which booking option should be updated.';
-$string['agent_booking_update_option_which_option_question'] =
-    'Which booking option should I update? Please provide option title or option id.';
-$string['agent_booking_search_users_required_query'] =
-    'Please provide a user search query.';
-$string['agent_booking_list_option_properties_invalid_scope'] =
-    'Invalid scope. Allowed values are: all, create, update, shared.';
 $string['agent_booking_get_current_user_fallback'] =
     'You are currently signed in as {$a->fullname} ({$a->email}).';
 $string['agent_booking_get_current_user_identified'] =
     'Current user identified successfully.';
-$string['booking:useaiinstructions'] =
-    'Use AI instructions';
+$string['agent_booking_list_option_properties_invalid_scope'] =
+    'Invalid scope. Allowed values are: all, create, update, shared.';
+$string['agent_booking_pricecat_created'] = 'Price category "{$a}" was created.';
+$string['agent_booking_pricecat_defaultvalue_nonnegative'] = 'The default value must not be negative.';
+$string['agent_booking_pricecat_defaultvalue_numeric'] = 'The default value must be a number.';
+$string['agent_booking_pricecat_duplicate_exists'] = 'A price category with the identifier "{$a}" already exists.';
+$string['agent_booking_pricecat_duplicate_user_question'] = 'A price category with this identifier already exists. Do you want to create another one with the same identifier?';
+$string['agent_booking_pricecat_identifier_invalid'] = 'The identifier may only contain letters, numbers, hyphens, or underscores.';
+$string['agent_booking_pricecat_identifier_required'] = 'Please provide a unique identifier for the price category.';
+$string['agent_booking_resolve_user_ambiguous'] =
+    'Multiple users matched: {$a}. Please provide a more specific user query (for example with e-mail or user id).';
+$string['agent_booking_resolve_user_no_match'] = 'No user matched user query "{$a}".';
+$string['agent_booking_resolve_user_query_required'] = 'Please provide a user query to identify the user.';
+$string['agent_booking_search_users_required_query'] =
+    'Please provide a user search query.';
 $string['agent_booking_update_option_invalid_optionid'] =
     'The provided option id {$a} does not belong to this booking instance.';
 $string['agent_booking_update_option_invalid_optionid_question'] =
     'The option id {$a} is not valid. Please provide a different option id or an option title.';
+$string['agent_booking_update_option_missing_target'] =
+    'Please specify which booking option should be updated.';
+$string['agent_booking_update_option_which_option_question'] =
+    'Which booking option should I update? Please provide option title or option id.';
 $string['agent_booking_update_permission_check_failed'] =
     'Could not validate update permissions for this booking context.';
 $string['agent_booking_update_permission_denied_generic'] = 'You cannot update one or more requested fields.';
@@ -244,8 +242,8 @@ $string['ai_capability_search_people_courses_title'] = 'Find related users and c
 $string['ai_capability_user_context_desc'] = 'I can resolve your current user context when actions depend on your account details.';
 $string['ai_capability_user_context_title'] = 'Use your current user context';
 $string['ai_confirm_heading'] = 'Review proposed changes';
-$string['ai_confirm_pending_intent'] = 'I have re-applied your previous confirmation request. Please confirm to proceed.';
 $string['ai_confirm_missing_teacher_user_create_option'] = 'User "{$a->userquery}" was not found. To execute this request, this user must be created as well. Should I create both the user and the booking option?';
+$string['ai_confirm_pending_intent'] = 'I have re-applied your previous confirmation request. Please confirm to proceed.';
 $string['ai_docs_explain_ambiguity_candidates'] =
     'I found multiple relevant documentation topics. Please specify which one you mean: {$a}.';
 $string['ai_docs_explain_followup_query'] = 'Please explain this documentation topic: {$a}';
@@ -310,10 +308,10 @@ $string['ai_provider_active'] = 'AI provider active';
 $string['ai_provider_error'] = 'The AI provider returned an error. Please try again later.';
 $string['ai_provider_not_configured'] = 'No AI provider configured';
 $string['ai_provider_not_configured_desc'] = 'Please ask your Moodle administrator to configure a core AI provider before using this feature.';
+$string['ai_repair_no_solution_message'] = 'I could not build a safe automatic repair plan for this execution error. Please adjust the request details and try again.';
+$string['ai_repair_proposal_message'] = 'The previous execution failed because required data could not be resolved. I prepared an updated plan that first fixes the missing prerequisite and then retries your original action. Please review and confirm the updated command list.';
 $string['ai_run_executed'] = 'Your request has been executed.';
 $string['ai_run_queued'] = 'Your request has been queued for processing.';
-$string['ai_repair_proposal_message'] = 'The previous execution failed because required data could not be resolved. I prepared an updated plan that first fixes the missing prerequisite and then retries your original action. Please review and confirm the updated command list.';
-$string['ai_repair_no_solution_message'] = 'I could not build a safe automatic repair plan for this execution error. Please adjust the request details and try again.';
 $string['ai_status_confirm_booking_bulk_update_options'] = 'I will update multiple booking options at once. Should I proceed?';
 $string['ai_status_confirm_booking_create_option'] = 'I will create a new booking option.';
 $string['ai_status_confirm_booking_search_options'] = 'I will list the booking options.';
@@ -344,8 +342,6 @@ $string['aiexecutionmode'] = 'AI execution mode';
 $string['aiexecutionmode_adhoc'] = 'Queued via cron (adhoc task)';
 $string['aiexecutionmode_desc'] = 'Choose whether AI actions are executed immediately or queued for cron processing.';
 $string['aiexecutionmode_direct'] = 'Direct (execute immediately)';
-$string['airepairmax'] = 'AI repair attempts';
-$string['airepairmax_desc'] = 'Maximum number of automatic repair attempts when an AI command fails at execution time with a stale validation error (e.g. teacher user not found). Set to 0 to disable automatic repair.';
 $string['aiinitialprompt'] = 'AI initial system prompt';
 $string['aiinitialprompt_desc'] = 'Editable base prompt for the booking AI assistant. Supported placeholders: {{bookingname}}, {{timezonename}}, {{nowiso}}, {{tasklist}}, {{schemajson}}.';
 $string['aiinstructions'] = 'AI Instructions';
@@ -378,6 +374,8 @@ $string['aiready_intro_heading'] = 'Hi, I am your booking agent.';
 $string['aiready_intro_text'] = 'I can create new booking options, help you understand the full power of Booking and help you configure your platform. To do this, you need to activate AI on this platform.';
 $string['aiready_nonadmin_text'] = 'Only an Admin can allow the AI features on this platform. If you want to use this, tell your Admin to visit this page.';
 $string['aiready_setup_required'] = 'Setup required';
+$string['airepairmax'] = 'AI repair attempts';
+$string['airepairmax_desc'] = 'Maximum number of automatic repair attempts when an AI command fails at execution time with a stale validation error (e.g. teacher user not found). Set to 0 to disable automatic repair.';
 $string['aisettings'] = 'AI settings';
 $string['aisettings_desc'] = 'Configure AI execution behaviour for booking assistant runs.';
 $string['aitrial_activate_now'] = 'Yes, activate AI for this course and this course module now';
@@ -827,6 +825,8 @@ $string['booking:sendpollurltoteachers'] = 'Send poll url to teachers';
 $string['booking:subscribeusers'] = 'Make bookings for other users';
 $string['booking:updatebooking'] = 'Manage booking options';
 $string['booking:updatenotes'] = 'Edit booking notes';
+$string['booking:useaiinstructions'] =
+    'Use AI instructions';
 $string['booking:view'] = 'View booking instances';
 $string['booking:viewallratings'] = 'View all raw ratings given by individuals';
 $string['booking:viewanyrating'] = 'View total ratings that anyone received';
@@ -2930,6 +2930,8 @@ $string['screstoreitemfromreserved_desc'] = 'This setting will put back items in
 $string['search'] = 'Search...';
 $string['searchdate'] = 'Date';
 $string['searchname'] = 'First name';
+$string['searchoptionsfound'] = '{$a} option(s) found.';
+$string['searchoptionsnotfound'] = 'No matching booking options found.';
 $string['searchsurname'] = 'Last name';
 $string['searchtag'] = 'Search tags';
 $string['searchwaitinglist'] = 'On waiting list';
@@ -3453,8 +3455,6 @@ $string['templatefile'] = 'Template file';
 $string['templatesuccessfullysaved'] = 'Template was saved.';
 $string['terminated'] = "Terminated";
 $string['text'] = 'Title';
-$string['searchoptionsfound'] = '{$a} option(s) found.';
-$string['searchoptionsnotfound'] = 'No matching booking options found.';
 $string['textarea'] = "Textarea";
 $string['textdependingonstatus'] = "Text depending on booking status ";
 $string['textfield'] = 'Single line text input';

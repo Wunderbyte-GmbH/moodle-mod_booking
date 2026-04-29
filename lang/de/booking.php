@@ -16,14 +16,12 @@
 
 /**
  * German translation of the booking module
-*
-* @package mod_booking
-* @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
-* @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-*/
+ *
+ * @package mod_booking
+ * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
-$string['airepairmax'] = 'KI-Reparaturversuche';
-$string['airepairmax_desc'] = 'Maximale Anzahl automatischer Reparaturversuche, wenn ein KI-Befehl zur Ausführungszeit fehlschlägt (z.B. Trainer-Benutzer nicht gefunden). 0 deaktiviert die automatische Reparatur.';
 $string['aboutmodaloptiondateform'] = 'Hier können Sie benutzerdefinierte Termine anlegen
 (z.B. bei Block-Veranstaltungen oder wenn einzelne Termine von der Terminserie abweichen).';
 $string['accept'] = 'Akzeptieren';
@@ -94,43 +92,43 @@ $string['agent_booking_blocker_followup_customform_bookingpolicy'] =
     'Bitte geben Sie die Werte fuer das benutzerdefinierte Formular an und bestaetigen Sie, wie die Zustimmung zur Buchungsrichtlinie uebermittelt werden soll.';
 $string['agent_booking_blocker_followup_generic'] =
     'Bitte geben Sie die erforderlichen Informationen an, um die blockierende(n) Bedingung(en) zu erfuellen.';
-$string['agent_booking_create_option_exists_multiple'] =
-    'Eine oder mehrere Buchungsoptionen mit exakt diesem Titel existieren bereits: {$a}. Moechten Sie stattdessen eine davon aktualisieren?';
-$string['agent_booking_create_option_exists_single'] =
-    'Eine Buchungsoption mit exakt diesem Titel existiert bereits (id={$a}). Moechten Sie diese Option statt einer Neuanlage aktualisieren?';
-$string['agent_booking_create_option_missing_title'] =
-    'Bitte geben Sie einen Titel für die Buchungsoption an.';
-$string['agent_booking_create_option_which_title_question'] =
-    'Welchen Titel soll die neue Buchungsoption haben?';
-$string['agent_booking_create_option_confirm_without_location'] =
-    'Bitte bestätigen Sie, dass Sie diese Buchungsoption ohne Angabe von Ort/Adresse erstellen möchten.';
-$string['agent_booking_create_option_missing_required_fields'] =
-    'Bitte geben Sie die fehlenden Details für den gewählten Buchungstyp an.';
-$string['agent_booking_create_option_confirm_missing_values'] =
-    'Bitte bestätigen Sie, dass fehlende Werte leer/Standard bleiben dürfen, oder geben Sie Overrides an, um fortzufahren.';
-$string['agent_booking_create_option_location_not_found_question'] =
-    'Wenn dieser Ort nicht aufgelöst werden kann, soll ich ihn anlegen und dann mit der Erstellung der Buchungsoption fortfahren?';
-$string['agent_booking_create_option_duplicate_exists_single_question'] =
-    'Eine Buchungsoption mit diesem Titel existiert bereits (id={$a}). Möchten Sie eine weitere mit demselben Titel erstellen?';
-$string['agent_booking_create_option_duplicate_exists_multiple_question'] =
-    'Mehrere Optionen mit diesem Titelmuster existieren. Möchten Sie trotzdem eine neue mit demselben Titel erstellen?';
-$string['agent_booking_create_option_placeholder_override_required_single'] =
-    'Das Feld "{$a->label}" ist leer. Um fortzufahren, fügen Sie bitte das Override ["{$a->field}"] in den Befehl ein.';
-$string['agent_booking_create_option_placeholder_override_required'] =
-    'Die Felder "{$a->labels}" sind leer. Um fortzufahren, fügen Sie bitte die Overrides ["{$a->fields}"] in den Befehl ein.';
-$string['agent_booking_bulk_update_missing_target'] =
-    'Bitte geben Sie optionids (Array), optionquery (String) an oder setzen Sie apply_to_all=true, um anzugeben, welche Optionen aktualisiert werden sollen.';
-$string['agent_booking_bulk_update_issue_user_question'] =
-    'Welche Optionen soll ich aktualisieren: alle Optionen, eine Auswahl per Abfrage, oder explizite Option-IDs?';
-$string['agent_booking_bulk_update_option_not_in_instance'] =
-    'Option id {$a} existiert nicht in dieser Buchungsinstanz.';
-$string['agent_booking_bulk_update_no_preview'] =
-    'Es stehen keine kuerzlich vorgeschauten Buchungsoptionen fuer diese Folgeanfrage zur Verfuegung.';
 $string['agent_booking_bulk_update_bookusersquery_unsupported'] =
     'Feld "bookusersquery" wird fuer booking.bulk_update_options nicht unterstuetzt. Verwenden Sie booking.update_option fuer pro-Option Nutzerbuchungen.';
 $string['agent_booking_bulk_update_completed'] =
     'Massenaktualisierung abgeschlossen. Status: {$a}';
 $string['agent_booking_bulk_update_failed'] = 'Massenaktualisierung fehlgeschlagen.';
+$string['agent_booking_bulk_update_issue_user_question'] =
+    'Welche Optionen soll ich aktualisieren: alle Optionen, eine Auswahl per Abfrage, oder explizite Option-IDs?';
+$string['agent_booking_bulk_update_missing_target'] =
+    'Bitte geben Sie optionids (Array), optionquery (String) an oder setzen Sie apply_to_all=true, um anzugeben, welche Optionen aktualisiert werden sollen.';
+$string['agent_booking_bulk_update_no_preview'] =
+    'Es stehen keine kuerzlich vorgeschauten Buchungsoptionen fuer diese Folgeanfrage zur Verfuegung.';
+$string['agent_booking_bulk_update_option_not_in_instance'] =
+    'Option id {$a} existiert nicht in dieser Buchungsinstanz.';
+$string['agent_booking_create_option_confirm_missing_values'] =
+    'Bitte bestätigen Sie, dass fehlende Werte leer/Standard bleiben dürfen, oder geben Sie Overrides an, um fortzufahren.';
+$string['agent_booking_create_option_confirm_without_location'] =
+    'Bitte bestätigen Sie, dass Sie diese Buchungsoption ohne Angabe von Ort/Adresse erstellen möchten.';
+$string['agent_booking_create_option_duplicate_exists_multiple_question'] =
+    'Mehrere Optionen mit diesem Titelmuster existieren. Möchten Sie trotzdem eine neue mit demselben Titel erstellen?';
+$string['agent_booking_create_option_duplicate_exists_single_question'] =
+    'Eine Buchungsoption mit diesem Titel existiert bereits (id={$a}). Möchten Sie eine weitere mit demselben Titel erstellen?';
+$string['agent_booking_create_option_exists_multiple'] =
+    'Eine oder mehrere Buchungsoptionen mit exakt diesem Titel existieren bereits: {$a}. Moechten Sie stattdessen eine davon aktualisieren?';
+$string['agent_booking_create_option_exists_single'] =
+    'Eine Buchungsoption mit exakt diesem Titel existiert bereits (id={$a}). Moechten Sie diese Option statt einer Neuanlage aktualisieren?';
+$string['agent_booking_create_option_location_not_found_question'] =
+    'Wenn dieser Ort nicht aufgelöst werden kann, soll ich ihn anlegen und dann mit der Erstellung der Buchungsoption fortfahren?';
+$string['agent_booking_create_option_missing_required_fields'] =
+    'Bitte geben Sie die fehlenden Details für den gewählten Buchungstyp an.';
+$string['agent_booking_create_option_missing_title'] =
+    'Bitte geben Sie einen Titel für die Buchungsoption an.';
+$string['agent_booking_create_option_placeholder_override_required'] =
+    'Die Felder "{$a->labels}" sind leer. Um fortzufahren, fügen Sie bitte die Overrides ["{$a->fields}"] in den Befehl ein.';
+$string['agent_booking_create_option_placeholder_override_required_single'] =
+    'Das Feld "{$a->label}" ist leer. Um fortzufahren, fügen Sie bitte das Override ["{$a->field}"] in den Befehl ein.';
+$string['agent_booking_create_option_which_title_question'] =
+    'Welchen Titel soll die neue Buchungsoption haben?';
 $string['agent_booking_diagnose_ambiguity_last_preview_multiple'] =
     'Ihre letzte Vorschau enthaelt mehrere Optionen. Bitte sagen Sie mir, welche Sie meinen.';
 $string['agent_booking_diagnose_ambiguity_option_required'] =
@@ -192,30 +190,35 @@ $string['agent_booking_diagnose_status_notbooked'] = 'nicht gebucht';
 $string['agent_booking_diagnose_status_notifylist'] = 'Benachrichtigungsliste';
 $string['agent_booking_diagnose_status_reserved'] = 'reserviert';
 $string['agent_booking_diagnose_status_waitinglist'] = 'Warteliste';
+$string['agent_booking_get_current_user_fallback'] =
+    'Sie sind derzeit als {$a->fullname} ({$a->email}) angemeldet.';
+$string['agent_booking_get_current_user_identified'] =
+    'Aktueller Benutzer wurde erfolgreich identifiziert.';
+$string['agent_booking_list_option_properties_invalid_scope'] =
+    'Ungueltiger Scope. Erlaubte Werte sind: all, create, update, shared.';
+$string['agent_booking_pricecat_created'] = 'Preiskategorie "{$a}" wurde erstellt.';
+$string['agent_booking_pricecat_defaultvalue_nonnegative'] = 'Der Standardwert darf nicht negativ sein.';
+$string['agent_booking_pricecat_defaultvalue_numeric'] = 'Der Standardwert muss eine Zahl sein.';
+$string['agent_booking_pricecat_duplicate_exists'] = 'Eine Preiskategorie mit dem Bezeichner "{$a}" existiert bereits.';
+$string['agent_booking_pricecat_duplicate_user_question'] = 'Eine Preiskategorie mit diesem Bezeichner existiert bereits. Möchten Sie trotzdem eine weitere mit demselben Bezeichner anlegen?';
+$string['agent_booking_pricecat_identifier_invalid'] = 'Der Bezeichner darf nur Buchstaben, Zahlen, Bindestriche oder Unterstriche enthalten.';
+$string['agent_booking_pricecat_identifier_required'] = 'Bitte geben Sie einen eindeutigen Bezeichner für die Preiskategorie an.';
 $string['agent_booking_resolve_user_ambiguous'] =
     'Mehrere Nutzer:innen wurden gefunden: {$a}. Bitte geben Sie eine spezifischere Nutzerabfrage an (z. B. mit E-Mail oder Nutzer-ID).';
 $string['agent_booking_resolve_user_no_match'] =
     'Keine Nutzerin/kein Nutzer passt zur Nutzerabfrage "{$a}".';
 $string['agent_booking_resolve_user_query_required'] =
     'Bitte geben Sie eine Nutzerabfrage zur Identifikation der Person an.';
-$string['agent_booking_update_option_missing_target'] =
-    'Bitte geben Sie an, welche Buchungsoption aktualisiert werden soll.';
-$string['agent_booking_update_option_which_option_question'] =
-    'Welche Buchungsoption soll ich aktualisieren? Bitte geben Sie Optionstitel oder Options-ID an.';
 $string['agent_booking_search_users_required_query'] =
     'Bitte geben Sie eine Suchanfrage fuer Benutzer an.';
-$string['agent_booking_list_option_properties_invalid_scope'] =
-    'Ungueltiger Scope. Erlaubte Werte sind: all, create, update, shared.';
-$string['agent_booking_get_current_user_fallback'] =
-    'Sie sind derzeit als {$a->fullname} ({$a->email}) angemeldet.';
-$string['agent_booking_get_current_user_identified'] =
-    'Aktueller Benutzer wurde erfolgreich identifiziert.';
-$string['booking:useaiinstructions'] =
-    'KI-Anweisungen verwenden';
 $string['agent_booking_update_option_invalid_optionid'] =
     'Die angegebene Options-ID {$a} gehoert nicht zu dieser Buchungsinstanz.';
 $string['agent_booking_update_option_invalid_optionid_question'] =
     'Die Options-ID {$a} ist nicht gueltig. Bitte geben Sie eine andere Options-ID oder einen Optionstitel an.';
+$string['agent_booking_update_option_missing_target'] =
+    'Bitte geben Sie an, welche Buchungsoption aktualisiert werden soll.';
+$string['agent_booking_update_option_which_option_question'] =
+    'Welche Buchungsoption soll ich aktualisieren? Bitte geben Sie Optionstitel oder Options-ID an.';
 $string['agent_booking_update_permission_check_failed'] =
     'Die Berechtigung fuer dieses Update konnte im aktuellen Buchungskontext nicht geprueft werden.';
 $string['agent_booking_update_permission_denied_generic'] =
@@ -233,8 +236,6 @@ $string['ai_action_search_options'] = 'Buchungsoptionen suchen';
 $string['ai_action_search_users'] = 'Nutzer:innen suchen';
 $string['ai_action_update_option'] = 'Buchungsoption aktualisieren';
 $string['ai_confirm_missing_teacher_user_create_option'] = 'Benutzer "{$a->userquery}" wurde nicht gefunden. Um diesen Auftrag auszufuehren, muss dieser Benutzer zusaetzlich erstellt werden. Soll ich Benutzer und Buchungsoption erstellen?';
-$string['ai_repair_proposal_message'] = 'Die vorherige Ausführung ist fehlgeschlagen, weil benötigte Daten nicht aufgelöst werden konnten. Ich habe einen aktualisierten Plan vorbereitet, der zuerst die fehlende Voraussetzung behebt und danach Ihre ursprüngliche Aktion erneut ausführt. Bitte prüfen und bestätigen Sie die aktualisierte Befehlsliste.';
-$string['ai_repair_no_solution_message'] = 'Für diesen Ausführungsfehler konnte ich keinen sicheren automatischen Reparaturplan erstellen. Bitte präzisieren Sie die Angaben und versuchen Sie es erneut.';
 $string['ai_docs_explain_ambiguity_candidates'] =
     'Ich habe mehrere passende Dokumentationsthemen gefunden. Bitte praezisieren Sie, welches Sie meinen: {$a}.';
 $string['ai_docs_explain_followup_query'] = 'Bitte erklaeren Sie dieses Dokumentationsthema: {$a}';
@@ -290,6 +291,8 @@ $string['ai_property_teacheremail'] = 'E-Mail der Lehrperson';
 $string['ai_property_teacherquery'] = 'Lehrperson';
 $string['ai_property_userprofilecustom'] = 'Bedingung benutzerdefiniertes Profilfeld';
 $string['ai_property_userprofilestandard'] = 'Bedingung Standard-Profilfeld';
+$string['ai_repair_no_solution_message'] = 'Für diesen Ausführungsfehler konnte ich keinen sicheren automatischen Reparaturplan erstellen. Bitte präzisieren Sie die Angaben und versuchen Sie es erneut.';
+$string['ai_repair_proposal_message'] = 'Die vorherige Ausführung ist fehlgeschlagen, weil benötigte Daten nicht aufgelöst werden konnten. Ich habe einen aktualisierten Plan vorbereitet, der zuerst die fehlende Voraussetzung behebt und danach Ihre ursprüngliche Aktion erneut ausführt. Bitte prüfen und bestätigen Sie die aktualisierte Befehlsliste.';
 $string['ai_status_confirm_booking_bulk_update_options'] = 'Ich werde mehrere Buchungsoptionen auf einmal aktualisieren. Soll ich fortfahren?';
 $string['ai_status_confirm_booking_create_option'] = 'Ich werde eine neue Buchungsoption erstellen.';
 $string['ai_status_confirm_booking_search_options'] = 'Ich werde die Buchungsoptionen auflisten.';
@@ -307,13 +310,6 @@ $string['ai_status_taskcall_entities_list_all'] = 'Lade Liste aller Entities.';
 $string['ai_status_taskcall_entities_search'] = 'Suche passende Entities.';
 $string['ai_status_taskcall_shopping_cart_items'] = 'Lade Warenkorbpositionen.';
 $string['ai_status_taskcall_shopping_cart_totals'] = 'Lade Warenkorbsummen.';
-$string['agent_booking_pricecat_created'] = 'Preiskategorie "{$a}" wurde erstellt.';
-$string['agent_booking_pricecat_defaultvalue_nonnegative'] = 'Der Standardwert darf nicht negativ sein.';
-$string['agent_booking_pricecat_defaultvalue_numeric'] = 'Der Standardwert muss eine Zahl sein.';
-$string['agent_booking_pricecat_duplicate_exists'] = 'Eine Preiskategorie mit dem Bezeichner "{$a}" existiert bereits.';
-$string['agent_booking_pricecat_duplicate_user_question'] = 'Eine Preiskategorie mit diesem Bezeichner existiert bereits. Möchten Sie trotzdem eine weitere mit demselben Bezeichner anlegen?';
-$string['agent_booking_pricecat_identifier_invalid'] = 'Der Bezeichner darf nur Buchstaben, Zahlen, Bindestriche oder Unterstriche enthalten.';
-$string['agent_booking_pricecat_identifier_required'] = 'Bitte geben Sie einen eindeutigen Bezeichner für die Preiskategorie an.';
 $string['ai_trial_token_invalid_message'] = 'Ihr AI-Trial-Token ist nicht mehr gueltig. Bitte kaufen Sie ein Abonnement, um fortzufahren — Ihr Token wird direkt nach dem Kauf erneuert und Sie koennen sofort weitermachen.';
 $string['ai_trial_token_invalid_subscription_message'] = 'Ihr AI-Trial-Token ist nicht mehr gueltig. Um fortzufahren, kaufen Sie ein Abonnement. Ihr Token wird direkt nach dem Kauf erneuert und Sie koennen den Agenten sofort weiter nutzen.
 
@@ -351,6 +347,8 @@ $string['aiready_intro_heading'] = 'Hi, ich bin Ihr Booking-Agent.';
 $string['aiready_intro_text'] = 'Ich kann neue Buchungsoptionen erstellen, Ihnen die volle Leistungsfaehigkeit von Booking erklaeren und bei der Konfiguration Ihrer Plattform helfen. Dafuer muessen Sie AI auf dieser Plattform aktivieren.';
 $string['aiready_nonadmin_text'] = 'Nur ein Admin kann AI-Funktionen auf dieser Plattform freischalten. Wenn Sie das nutzen moechten, bitten Sie Ihren Admin, diese Seite zu besuchen.';
 $string['aiready_setup_required'] = 'Setup erforderlich';
+$string['airepairmax'] = 'KI-Reparaturversuche';
+$string['airepairmax_desc'] = 'Maximale Anzahl automatischer Reparaturversuche, wenn ein KI-Befehl zur Ausführungszeit fehlschlägt (z.B. Trainer-Benutzer nicht gefunden). 0 deaktiviert die automatische Reparatur.';
 $string['aitrial_activate_now'] = 'Ja, AI jetzt fuer diesen Kurs und dieses Kursmodul aktivieren';
 $string['aitrial_activate_success'] = 'Willkommen. AI ist jetzt fuer diesen Kurs und dieses Kursmodul aktiviert. Fuer einen schnellen Test sagen Sie zur LLM: "Say welcome".';
 $string['aitrial_activating'] = 'Aktivierung laeuft...';
@@ -783,6 +781,8 @@ $string['booking:sendpollurltoteachers'] = 'Umfragelink and Trainer:innen senden
 $string['booking:subscribeusers'] = 'Für andere Teilnehmer:innen Buchungen durchführen';
 $string['booking:updatebooking'] = 'Buchungen verwalten';
 $string['booking:updatenotes'] = 'Buchungsnotizen bearbeiten';
+$string['booking:useaiinstructions'] =
+    'KI-Anweisungen verwenden';
 $string['booking:view'] = 'Darf Buchungsinstanzen sehen';
 $string['booking:viewallratings'] = 'Alle Bewertungen sehen';
 $string['booking:viewanyrating'] = 'Alle Bewertungen sehen';
@@ -2756,6 +2756,8 @@ $string['screstoreitemfromreserved_desc'] = 'Dadurch werden Artikel nach dem Lö
 $string['search'] = 'Suche...';
 $string['searchdate'] = 'Datum';
 $string['searchname'] = 'Vorname';
+$string['searchoptionsfound'] = '{$a} Option(en) gefunden.';
+$string['searchoptionsnotfound'] = 'Keine passenden Buchungsoptionen gefunden.';
 $string['searchsurname'] = 'Nachname';
 $string['searchtag'] = 'Schlagwortsuche';
 $string['select'] = "DropDown Menü";
@@ -2856,8 +2858,6 @@ $string['sessionremindermailsubject'] = 'Erinnerung: Sie haben demnächst einen 
 $string['sessionremindershint'] = 'Mit <a href="{$a}" target="_blank">Buchungsregeln</a> können Sie Benachrichtigungen für Termine einrichten';
 $string['sessionremindersruleexists'] = 'Es gibt mindestens eine Buchungsregel, die für diesen Termin angewendet wird.';
 $string['sessions'] = 'Termin(e)';
-$string['searchoptionsfound'] = '{$a} Option(en) gefunden.';
-$string['searchoptionsnotfound'] = 'Keine passenden Buchungsoptionen gefunden.';
 $string['sharedplacenoselect'] = 'Geteilt mit <a href="{$a->url}">{$a->text}</a>';
 $string['sharedplaces'] = 'Geteilte Plätze';
 $string['sharedplaces_help'] = 'Gebuchte Plätze einer anderen Buchungsoption werden addiert. Haben beide Optionen 10 verfügbare Plätze und nur eine wird gebucht, bleiben nur noch 9 Plätze in beiden.';
