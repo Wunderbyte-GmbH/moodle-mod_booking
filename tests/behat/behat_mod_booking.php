@@ -33,11 +33,26 @@ use mod_booking\booking_rules\booking_rules;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\bo_availability\conditions\maxoptionsfromcategory;
 use Behat\Gherkin\Node\TableNode;
+use Moodle\BehatExtension\Exception\SkippedException;
 
 /**
  * To create booking specific behat scearios.
  */
 class behat_mod_booking extends behat_base {
+    /**
+     * Skip opt-in real LLM scenarios unless explicitly enabled.
+     *
+     * @Given /^real LLM mode is enabled$/
+     * @return void
+     */
+    public function real_llm_mode_is_enabled(): void {
+        if ((string)getenv('BOOKING_AI_REAL_LLM') !== '1') {
+            throw new SkippedException(
+                'Skipping real LLM Behat scenario because BOOKING_AI_REAL_LLM=1 is not set.'
+            );
+        }
+    }
+
     /**
      * Create booking option in booking instance
      * @Given /^I create booking option "(?P<optionname_string>(?:[^"]|\\")*)" in "(?P<instancename_string>(?:[^"]|\\")*)"$/

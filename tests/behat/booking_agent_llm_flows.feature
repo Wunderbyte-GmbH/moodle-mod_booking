@@ -55,7 +55,8 @@ Feature: Booking agent LLM integration workflows via AI chat
 
   @javascript @real_llm
   Scenario: Teacher creates a Yoga booking option via natural language and it appears in the activity
-    Given I am on the AI instructions page for booking "LLM Booking" logged in as teacher1
+    Given real LLM mode is enabled
+    And I am on the AI instructions page for booking "LLM Booking" logged in as teacher1
     When I send the AI message "Erstelle eine neue Yoga-Klasse für Anfänger mit maximal 15 Teilnehmern. Mittwochs um 18:00 Uhr, Dauer 90 Minuten."
     And I wait for the AI response
     ## LLM should propose a create_option command → confirm panel becomes visible.
@@ -78,6 +79,7 @@ Feature: Booking agent LLM integration workflows via AI chat
       | LLM Booking  | Test Pilates Session 0 | Test Pilates Session 0 descr | C1     | 10         | 0              | ## +10 days ##    | ## +11 days ##  |
       | LLM Booking  | Test Pilates Session 1 | Test Pilates Session 1 descr | C1     | 11         | 0              | ## +12 days ##    | ## +13 days ##  |
       | LLM Booking  | Test Pilates Session 2 | Test Pilates Session 2 descr | C1     | 12         | 0              | ## +14 days ##    | ## +15 days ##  |
+    And real LLM mode is enabled
     And I am on the AI instructions page for booking "LLM Booking" logged in as teacher1
     When I send the AI message "Zeige mir alle Pilates Kurse an"
     And I wait for the AI response
@@ -94,6 +96,7 @@ Feature: Booking agent LLM integration workflows via AI chat
     Given the following "mod_booking > options" exist:
       | booking      | text                 | description                  | course | maxanswers | optiondateid_0 | coursestarttime_0 | courseendtime_0 |
       | LLM Booking  | LLM Workflow Option  | LLM Workflow Option descr    | C1     | 5          | 0              | ## +10 days ##    | ## +11 days ##  |
+    And real LLM mode is enabled
     And I am on the AI instructions page for booking "LLM Booking" logged in as teacher1
     ## Step 1: Ask LLM to increase capacity of the existing option.
     When I send the AI message "Erhöhe die Kapazität des Kurses 'LLM Workflow Option' auf 20 Teilnehmer"
@@ -116,6 +119,7 @@ Feature: Booking agent LLM integration workflows via AI chat
     Given the following "mod_booking > options" exist:
       | booking      | text              | description              | course | maxanswers | optiondateid_0 | coursestarttime_0 | courseendtime_0 |
       | LLM Booking  | Unchanged Option  | Unchanged Option descr   | C1     | 5          | 0              | ## +10 days ##    | ## +11 days ##  |
+    And real LLM mode is enabled
     And I am on the AI instructions page for booking "LLM Booking" logged in as teacher1
     When I send the AI message "Ändere die maximale Teilnehmerzahl der Option 'Unchanged Option' auf 99"
     And I wait for the AI response

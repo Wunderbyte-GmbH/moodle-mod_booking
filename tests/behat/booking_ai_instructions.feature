@@ -61,6 +61,7 @@ Feature: AI instructions chat interface for booking managers
     Given the following "mod_booking > options" exist:
       | booking     | text        | description      | course | maxanswers |
       | AI Booking  | Existing 1  | Existing 1 descr | C1     | 5          |
+    And real LLM mode is enabled
     And I am on the AI instructions page for booking "AI Booking" logged in as teacher1
     And I wait "55" seconds
     When I send the AI message "Erstelle eine neue Buchungsoption namens KI-Test mit 10 Plätzen"
@@ -79,6 +80,7 @@ Feature: AI instructions chat interface for booking managers
       | booking    | text      | description    | course | maxanswers |
       | AI Booking | Option A  | Option A descr | C1     | 1          |
       | AI Booking | Option B  | Option B descr | C1     | 1          |
+    And real LLM mode is enabled
     And I am on the AI instructions page for booking "AI Booking" logged in as teacher1
     When I send the AI message "Setze für alle Buchungsoptionen 8 buchbare Plätze und 3 Wartelistenplätze"
     And I wait for the AI response
@@ -94,6 +96,7 @@ Feature: AI instructions chat interface for booking managers
     Given the following "mod_booking > options" exist:
       | booking    | text        | description     | course | maxanswers |
       | AI Booking | No Change   | No Change descr | C1     | 5          |
+    And real LLM mode is enabled
     And I am on the AI instructions page for booking "AI Booking" logged in as teacher1
     When I send the AI message "Ändere bei allen Optionen die maximale Teilnehmerzahl auf 99"
     And I wait for the AI response
@@ -110,6 +113,7 @@ Feature: AI instructions chat interface for booking managers
     Given the following "mod_booking > options" exist:
       | booking    | text       | description      | course | maxanswers |
       | AI Booking | AutoSearch | AutoSearch descr | C1     | 5          |
+    And real LLM mode is enabled
     And I am on the AI instructions page for booking "AI Booking" logged in as teacher1
     When I send the AI message "Zeige mir alle vorhandenen Buchungsoptionen"
     And I wait for the AI response
