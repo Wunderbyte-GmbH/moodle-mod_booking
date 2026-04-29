@@ -33,7 +33,7 @@ class docs_lookup_service {
      * @param string|null $docsroot
      */
     public function __construct(?string $docsroot = null) {
-        $this->docsroot = $docsroot ?? dirname(__DIR__, 4) . '/docs';
+        $this->docsroot = $docsroot ?? dirname(__DIR__, 5) . '/docs';
     }
 
     /**

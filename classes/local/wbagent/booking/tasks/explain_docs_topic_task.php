@@ -153,10 +153,11 @@ class explain_docs_topic_task extends base_booking_task implements task_trigger_
         $service = $this->create_docs_lookup_service();
         $docs = $service->search($question, 2);
         if (empty($docs)) {
+            $nomatch = $this->localized_string('ai_docs_explain_no_match', null, $outputlang);
             return [
                 'status' => 'executed',
-                'detail' => '',
-                'usermessage' => '',
+                'detail' => $nomatch,
+                'usermessage' => $nomatch,
                 'resultid' => null,
                 'docs' => [],
                 'debugmessage' => $this->build_task_debug_message(self::TASK_NAME, $input, ['Docs matched: 0']),
@@ -183,7 +184,14 @@ class explain_docs_topic_task extends base_booking_task implements task_trigger_
             }
         } catch (\Throwable $e) {
             $answersource = 'error';
+            $usermessage = $this->localized_string('ai_docs_explain_generation_failed', null, $outputlang);
         }
+
+        if ($usermessage === '') {
+            $usermessage = $service->build_summary($firstdoc);
+        }
+
+        $usermessage = $this->enforce_max_chars($usermessage, 500);
 
         $structureddocs = [];
         foreach ($selecteddocs as $doc) {
