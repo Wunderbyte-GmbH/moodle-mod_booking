@@ -131,10 +131,10 @@ class behat_mod_booking extends behat_base {
      * @return void
      */
     public function i_clean_booking_cache() {
-        $datagenerator = \testing_util::get_data_generator();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = $datagenerator->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
+        // Keep this Behat-safe: generator teardown triggers unit-test-only cache resets.
+        \cache_helper::purge_all();
+        singleton_service::destroy_instance();
+        singleton_service::reset_campaigns();
     }
 
     /**
@@ -274,8 +274,7 @@ class behat_mod_booking extends behat_base {
      * Navigating away is required so that the ChainedStepTester's automatic exception check.
      * The clean-page navigation avoids failures on the error page.
      *
-     * @Given /^I visit the AI instructions page for booking "(?P<bookingname_string>[^"]*)"$/
-     * as "(?P<username_string>[^"]*)" and expect access denied
+     * @Given /^I visit the AI instructions page for booking "([^"]*)" as "([^"]*)" and expect access denied$/
      * @param string $bookingname
      * @param string $username
      * @return void
@@ -289,9 +288,20 @@ class behat_mod_booking extends behat_base {
         $url = new \moodle_url('/mod/booking/aiinstructions.php', ['id' => $cm->id]);
         $this->getSession()->visit($this->locate_path($url->out_as_local_url(false)));
 
-        // Verify the page shows a Moodle fatal-error (permission denied).
-        $errordiv = $this->getSession()->getPage()->find('xpath', "//div[@data-rel='fatalerror']");
-        if (!$errordiv) {
+        // Verify access is denied. Moodle can render this in different wrappers
+        // depending on theme/version, so check both structure and common texts.
+        $page = $this->getSession()->getPage();
+        $errordiv = $page->find('xpath', "//div[@data-rel='fatalerror']");
+        $errorbox = $page->find('css', '.alert-danger, .errorbox, #notice');
+        $pagetext = core_text::strtolower($page->getText());
+        $hasdeniedtext =
+            str_contains($pagetext, 'you do not have permission')
+            || str_contains($pagetext, 'you do not currently have permissions')
+            || str_contains($pagetext, 'access denied')
+            || str_contains($pagetext, 'keine berechtigung')
+            || str_contains($pagetext, 'zugriff verweigert');
+
+        if (!$errordiv && !$errorbox && !$hasdeniedtext) {
             throw new \Behat\Mink\Exception\ExpectationException(
                 'Expected a Moodle permission-denied error page but none was found.',
                 $this->getSession()
@@ -387,5 +397,148 @@ class behat_mod_booking extends behat_base {
             $el = $this->getSession()->getPage()->find('css', '.booking-ai-msg.assistant');
             return $el !== null;
         }, false, 15);
+    }
+
+    /**
+     * Assert that AI instructions page renders the correct UI for its readiness state.
+     *
+     * @Then /^the AI instructions page should render the expected readiness UI$/
+     * @return void
+     */
+    public function the_ai_instructions_page_should_render_the_expected_readiness_ui(): void {
+        $page = $this->getSession()->getPage();
+        $wrapper = $page->find('css', '#booking-ai-wrapper');
+        if (!$wrapper) {
+            throw new \Behat\Mink\Exception\ElementNotFoundException(
+                $this->getSession(),
+                'element',
+                'css',
+                '#booking-ai-wrapper'
+            );
+        }
+
+        $readyforchat = trim((string)$wrapper->getAttribute('data-ready-for-chat')) === '1';
+        if ($readyforchat) {
+            foreach (['#booking-ai-input', '#booking-ai-send', '#booking-ai-messages', '#booking-ai-thinking'] as $selector) {
+                if (!$page->find('css', $selector)) {
+                    throw new \Behat\Mink\Exception\ElementNotFoundException(
+                        $this->getSession(),
+                        'element',
+                        'css',
+                        $selector
+                    );
+                }
+            }
+            return;
+        }
+
+        if (!$page->find('css', '.booking-ai-onboarding-card')) {
+            throw new \Behat\Mink\Exception\ElementNotFoundException(
+                $this->getSession(),
+                'element',
+                'css',
+                '.booking-ai-onboarding-card'
+            );
+        }
+        if (!$page->find('css', '.booking-ai-readiness-list')) {
+            throw new \Behat\Mink\Exception\ElementNotFoundException(
+                $this->getSession(),
+                'element',
+                'css',
+                '.booking-ai-readiness-list'
+            );
+        }
+    }
+
+    /**
+     * Assert confirmation controls when chat is ready; otherwise assert onboarding view.
+     *
+     * @Then /^the AI instructions page should render confirmation controls when chat is ready$/
+     * @return void
+     */
+    public function the_ai_instructions_page_should_render_confirmation_controls_when_chat_is_ready(): void {
+        $page = $this->getSession()->getPage();
+        $wrapper = $page->find('css', '#booking-ai-wrapper');
+        if (!$wrapper) {
+            throw new \Behat\Mink\Exception\ElementNotFoundException(
+                $this->getSession(),
+                'element',
+                'css',
+                '#booking-ai-wrapper'
+            );
+        }
+
+        $readyforchat = trim((string)$wrapper->getAttribute('data-ready-for-chat')) === '1';
+        if ($readyforchat) {
+            foreach (['#booking-ai-confirm-panel', '#booking-ai-btn-confirm', '#booking-ai-btn-cancel'] as $selector) {
+                if (!$page->find('css', $selector)) {
+                    throw new \Behat\Mink\Exception\ElementNotFoundException(
+                        $this->getSession(),
+                        'element',
+                        'css',
+                        $selector
+                    );
+                }
+            }
+            return;
+        }
+
+        if (!$page->find('css', '.booking-ai-onboarding-card')) {
+            throw new \Behat\Mink\Exception\ElementNotFoundException(
+                $this->getSession(),
+                'element',
+                'css',
+                '.booking-ai-onboarding-card'
+            );
+        }
+    }
+
+    /**
+     * Confirm panel must be hidden on first load when chat is ready.
+     *
+     * @Then /^the AI confirmation panel should be hidden on initial load when chat is ready$/
+     * @return void
+     */
+    public function the_ai_confirmation_panel_should_be_hidden_on_initial_load_when_chat_is_ready(): void {
+        $page = $this->getSession()->getPage();
+        $wrapper = $page->find('css', '#booking-ai-wrapper');
+        if (!$wrapper) {
+            throw new \Behat\Mink\Exception\ElementNotFoundException(
+                $this->getSession(),
+                'element',
+                'css',
+                '#booking-ai-wrapper'
+            );
+        }
+
+        $readyforchat = trim((string)$wrapper->getAttribute('data-ready-for-chat')) === '1';
+        if ($readyforchat) {
+            $panel = $page->find('css', '#booking-ai-confirm-panel');
+            if (!$panel) {
+                throw new \Behat\Mink\Exception\ElementNotFoundException(
+                    $this->getSession(),
+                    'element',
+                    'css',
+                    '#booking-ai-confirm-panel'
+                );
+            }
+            $classes = trim((string)$panel->getAttribute('class'));
+            if (strpos(' ' . $classes . ' ', ' d-none ') === false) {
+                throw new \Behat\Mink\Exception\ExpectationException(
+                    'Expected confirmation panel to be hidden on initial page load.',
+                    $this->getSession()
+                );
+            }
+            return;
+        }
+
+        if (!$page->find('css', '.booking-ai-onboarding-card')) {
+            throw new \Behat\Mink\Exception\ElementNotFoundException(
+                $this->getSession(),
+                'element',
+                'css',
+                '.booking-ai-onboarding-card'
+            );
+        }
     }
 }

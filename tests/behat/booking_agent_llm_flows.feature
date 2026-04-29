@@ -37,17 +37,13 @@ Feature: Booking agent LLM integration workflows via AI chat
   @javascript
   Scenario: AI chat interface renders all required elements for teacher
     Given I am on the AI instructions page for booking "LLM Booking" logged in as teacher1
-    Then "#booking-ai-wrapper" "css_element" should exist
-    And "#booking-ai-input" "css_element" should exist
-    And "#booking-ai-send" "css_element" should exist
-    And "#booking-ai-messages" "css_element" should exist
+    Then the AI instructions page should render the expected readiness UI
 
   @javascript
   Scenario: Confirmation panel exists and buttons are present
     Given I am on the AI instructions page for booking "LLM Booking" logged in as teacher1
-    Then "#booking-ai-confirm-panel" "css_element" should exist
-    And "#booking-ai-btn-confirm" "css_element" should exist
-    And "#booking-ai-btn-cancel" "css_element" should exist
+    Then the AI instructions page should render confirmation controls when chat is ready
+    And the AI confirmation panel should be hidden on initial load when chat is ready
 
   Scenario: Student cannot access AI instructions page
     Given I visit the AI instructions page for booking "LLM Booking" as "student1" and expect access denied

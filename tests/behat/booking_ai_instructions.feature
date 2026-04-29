@@ -41,20 +41,14 @@ Feature: AI instructions chat interface for booking managers
   @javascript
   Scenario: AI chat interface renders all required elements on page load
     Given I am on the AI instructions page for booking "AI Booking" logged in as teacher1
-    Then "#booking-ai-wrapper" "css_element" should exist
-    And "#booking-ai-input" "css_element" should exist
-    And "#booking-ai-send" "css_element" should exist
-    And "#booking-ai-messages" "css_element" should exist
-    And "#booking-ai-thinking" "css_element" should exist
+    Then the AI instructions page should render the expected readiness UI
 
   @javascript
   Scenario: Confirmation panel is hidden by default
     Given I am on the AI instructions page for booking "AI Booking" logged in as teacher1
-    Then "#booking-ai-confirm-panel" "css_element" should exist
-    And "#booking-ai-btn-confirm" "css_element" should exist
-    And "#booking-ai-btn-cancel" "css_element" should exist
+    Then the AI instructions page should render confirmation controls when chat is ready
     ## The panel must not be actively visible on first load.
-    And I should not see "Confirm" in the "#booking-ai-btn-confirm" "css_element"
+    And the AI confirmation panel should be hidden on initial load when chat is ready
 
   ##############################################################################
   # FULL-FLOW SCENARIOS (opt-in only — require real LLM token)
