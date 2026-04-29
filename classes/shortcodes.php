@@ -749,6 +749,8 @@ class shortcodes {
      */
     public static function linkbacktocourse($shortcode, $args, $content, $env, $next) {
 
+        global $DB, $COURSE, $PAGE, $USER;
+
         // Get rid of quotation marks.
         self::fix_args($args);
 
