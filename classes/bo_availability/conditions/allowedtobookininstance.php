@@ -94,7 +94,7 @@ class allowedtobookininstance implements bo_condition {
      * @return bool
      */
     public function is_skippable(): bool {
-        return true;
+        return false;
     }
 
     /**

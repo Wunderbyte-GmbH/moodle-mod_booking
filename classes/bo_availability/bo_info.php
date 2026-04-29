@@ -77,6 +77,30 @@ class bo_info {
     /** @var int userid for a given user */
     protected $userid;
 
+    /** @var bool Whether the current booking is triggered via an enrollink. */
+    private static bool $isenrollinkcontext = false;
+
+    /**
+     * Sets the enrollink context for the current booking request.
+     *
+     * @param bool $active
+     * @return void
+     */
+    public static function set_enrollink_context(bool $active): void {
+        self::$isenrollinkcontext = $active;
+    }
+
+    /**
+     * Returns whether the current booking request is triggered via an enrollink.
+     * Conditions that must never block enrollink users (e.g. customform, capbookingchoose)
+     * call this to return true early from their is_available() method.
+     *
+     * @return bool
+     */
+    public static function is_enrollink_context(): bool {
+        return self::$isenrollinkcontext;
+    }
+
     /**
      * Constructs with item details.
      *
@@ -1508,6 +1532,7 @@ class bo_info {
         );
         return $classes;
     }
+
     /**
      * Helperfunction to exclude conditions which are set as excluded in the config from the array of conditions.
      *
@@ -1519,6 +1544,14 @@ class bo_info {
     private static function exclude_conditions(array &$conditions) {
         $excludedcondition = get_config('booking', 'skippableconditions');
         $excludedconditionarray = !empty($excludedcondition) ? explode(',', $excludedcondition) : [];
+        // When using an enrollink, we need to check if there are conditions to skip (setting 'enrollinkskipconditions').
+        if (self::$isenrollinkcontext) {
+            $enrollinkexcluded = get_config('booking', 'enrollinkskipconditions');
+            if (!empty($enrollinkexcluded)) {
+                $excludedconditionarray = array_merge($excludedconditionarray, explode(',', $enrollinkexcluded));
+            }
+        }
+        // This is where the conditions are actually skipped (excluded).
         foreach ($conditions as $key => $condition) {
             if (in_array($condition->id, $excludedconditionarray)) {
                 unset($conditions[$key]);

@@ -1232,7 +1232,9 @@ class booking_option {
             return false;
         }
 
+        bo_info::set_enrollink_context(!empty($erlid));
         $isavailable = self::option_allows_booking_for_user($this->optionid, $user->id);
+        bo_info::set_enrollink_context(false);
         switch ($status) {
             case MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE:
                 $waitinglist = MOD_BOOKING_STATUSPARAM_BOOKED;
@@ -1261,6 +1263,15 @@ class booking_option {
         if ($waitinglist === false && $status != MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION) {
             // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
             /* echo "Couldn't subscribe user $user->id because of full waitinglist <br>";*/
+            return false;
+        }
+
+        // For enrollink bookings, check_if_limit() only respects $isavailable when the option is full.
+        // When slots are free it always returns BOOKED, bypassing hard-blocking conditions like selectusers.
+        // If a real condition blocks (i.e. not just the book-it-button or price), we must enforce that here.
+        // Conditions listed in enrollinkskipconditions are already excluded via exclude_conditions(), so they
+        // will not affect $isavailable and the booking proceeds as intended.
+        if (!empty($erlid) && !$isavailable) {
             return false;
         }
 

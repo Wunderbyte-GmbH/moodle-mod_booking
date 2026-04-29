@@ -813,6 +813,17 @@ if ($ADMIN->fulltree) {
             )
         );
 
+        // Enrollink skippable conditions setting.
+        $settings->add(
+            new admin_setting_configmultiselect(
+                'booking/enrollinkskipconditions',
+                get_string('enrollinkskipconditions', 'mod_booking'),
+                get_string('enrollinkskipconditions_desc', 'mod_booking'),
+                [MOD_BOOKING_BO_COND_BOOKING_TIME],
+                $skippableconditions
+            )
+        );
+
         $defaultnooverlappingoptions = [
             MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY => get_string('defaultnooverlappingoncreate:disabled', 'mod_booking'),
             MOD_BOOKING_COND_OVERLAPPING_HANDLING_WARN  => get_string('defaultnooverlappingoncreate:warning', 'mod_booking'),

@@ -19,6 +19,7 @@ namespace mod_booking;
 use context_course;
 use context_module;
 use html_writer;
+use mod_booking\bo_availability\bo_info;
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\event\enrollink_triggered;
 use moodle_url;
@@ -168,7 +169,7 @@ class enrollink {
                 return MOD_BOOKING_AUTOENROL_STATUS_EXCEPTION;
             }
             // Enrol to bookingoption and reduce places in bookinganswer.
-            $bo->user_submit_response(
+            $result = $bo->user_submit_response(
                 $user,
                 $booking->id,
                 1,
@@ -176,6 +177,9 @@ class enrollink {
                 MOD_BOOKING_VERIFIED,
                 $this->erlid
             );
+            if ($result === false) {
+                return MOD_BOOKING_AUTOENROL_STATUS_BLOCKED_BY_CONDITION;
+            }
             // Change answer if user was enrolled only to waitinglist.
             if ($this->enrolmentstatus_waitinglist($bo->settings)) {
                 $courseenrolmentstatus = MOD_BOOKING_AUTOENROL_STATUS_WAITINGLIST;
@@ -362,6 +366,23 @@ class enrollink {
     public function get_readable_info($info): string {
         $string = get_string('enrollink:' . $info, 'mod_booking');
         return $string;
+    }
+
+    /**
+     * Returns the description of the first blocking booking condition for the given user.
+     * Used to display the specific reason why enrolment was prevented.
+     *
+     * @param int $userid
+     * @return string HTML description from the blocking condition
+     */
+    public function get_condition_block_description(int $userid): string {
+        $optionid = $this->bundle->optionid;
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $boinfo = new bo_info($settings);
+        bo_info::set_enrollink_context(true);
+        [, , $description] = $boinfo->is_available($optionid, $userid, false);
+        bo_info::set_enrollink_context(false);
+        return $description ?? '';
     }
 
     /**

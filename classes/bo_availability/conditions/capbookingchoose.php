@@ -105,8 +105,13 @@ class capbookingchoose implements bo_condition {
      */
     public function is_available(booking_option_settings $settings, int $userid, bool $not = false): bool {
         global $DB;
+        // Users enrolling via an enrollink bypass this check...
+        // ...because they already arrive with an authorized link.
+        if (bo_info::is_enrollink_context()) {
+            return true;
+        }
         // This check can be overridden by a json condition.
-        // Therefore, we use it's logic.
+        // Therefore, we use its logic.
         $allowedtobookininstance = allowedtobookininstance::instance($settings->id);
         $allowedtobookininstance->apply_customdata($settings);
         return $allowedtobookininstance->is_available($settings, $userid, $not);
@@ -115,7 +120,7 @@ class capbookingchoose implements bo_condition {
     /**
      * Each function can return additional sql.
      * This will be used if the conditions should not only block booking...
-     * ... but actually hide the conditons alltogether.
+     * ... but actually hide the conditions altogether.
      * @param int $userid
      * @param array $params This is the array with parameters for the sql query.
      * @return array
