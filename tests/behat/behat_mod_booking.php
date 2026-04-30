@@ -96,6 +96,57 @@ class behat_mod_booking extends behat_base {
     }
 
     /**
+     * Open the edit page for a booking option identified by option text and booking name.
+     *
+     * @Given /^I open the edit booking option page for option "([^"]*)" in booking "([^"]*)"$/
+     * @param string $optiontext
+     * @param string $bookingname
+     * @return void
+     */
+    public function i_open_the_edit_booking_option_page_for_option_in_booking(
+        string $optiontext,
+        string $bookingname
+    ): void {
+        global $DB;
+
+        $booking = $DB->get_record('booking', ['name' => $bookingname], '*', IGNORE_MISSING);
+        if (!$booking) {
+            throw new \dml_missing_record_exception('booking', ['name' => $bookingname]);
+        }
+
+        // Name collisions can happen across sequential scenarios; prefer the newest instance.
+        $booking = $DB->get_records('booking', ['name' => $bookingname], 'id DESC', '*', 0, 1);
+        $booking = reset($booking);
+        $cm = get_coursemodule_from_instance('booking', (int)$booking->id, (int)$booking->course, false, MUST_EXIST);
+        $option = $DB->get_record('booking_options', [
+            'bookingid' => $booking->id,
+            'text' => $optiontext,
+        ], '*', MUST_EXIST);
+
+        $url = new \moodle_url('/mod/booking/editoptions.php', [
+            'id' => (int)$cm->id,
+            'optionid' => (int)$option->id,
+        ]);
+        $this->getSession()->visit($this->locate_path($url->out_as_local_url(false)));
+    }
+
+    /**
+     * Open the "new booking option" form page for a booking instance by name.
+     *
+     * @Given /^I open the new booking option page for booking "([^"]*)"$/
+     * @param string $bookingname
+     * @return void
+     */
+    public function i_open_the_new_booking_option_page_for_booking(string $bookingname): void {
+        $cm = $this->get_cm_by_booking_name($bookingname);
+        $url = new \moodle_url('/mod/booking/editoptions.php', [
+            'id' => (int)$cm->id,
+            'optionid' => 0,
+        ]);
+        $this->getSession()->visit($this->locate_path($url->out_as_local_url(false)));
+    }
+
+    /**
      * Fill specified HTMLQuickForm element by its number under given xpath with a value.
      * @When /^I click on the element with the number "([^"]*)" with the dynamic identifier "([^"]*)" and action "([^"]*)"$/
      * @param mixed $numberofitem
@@ -237,4 +288,5 @@ class behat_mod_booking extends behat_base {
         ];
         $pg->create_instance($page);
     }
+
 }
