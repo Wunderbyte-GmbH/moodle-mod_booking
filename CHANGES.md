@@ -1,3 +1,17 @@
+## Version 9.3.2 (2026043000)
+* New feature: Add direct messaging with attachments to bookings tracker.
+* Improvement: Show info texts on shortcode myfavorites if PRO license or setting not enabled.
+* Improvement: Add German certificate documentation (CERTIFICATES_DE.md)
+* Improvement: Check conditions for enrollinks and add possibility to skip them.
+* Improvement: When booking via enrollink always skip some conditions, improve defaults.
+* Improvement: Add bookingstracker URL to booking option settings.
+* Bugfix: Fix exception when waiting list was set to unlimited ("-1").
+* Bugfix: Fix some strings and wrong naming of bulk operations button.
+* Bugfix: Fix string in unit test.
+* Bugfix: Guests should not see "my booked options" in booking instance.
+* Bugfix: Make sure that enrolmultipleusers checks booking limits and improve validation and tests.
+* Bugfix: On enrolmultipleusers via form, make sure it's not possible to increase in shopping cart to a number higher than the available free places.
+
 ## Version 9.3.1 (2026042400)
 * New feature: My favorites (added possibility to mark booking option as favorites)
 * New feature: Add setting to choose default behavior of enrolmultipleusers, improve strings and add tests
