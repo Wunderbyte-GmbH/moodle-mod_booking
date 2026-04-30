@@ -219,6 +219,9 @@ class booking_option_settings {
     /** @var string $manageresponsesurl */
     public $manageresponsesurl = null;
 
+    /** @var string $bookingstrackerurl */
+    public $bookingstrackerurl = null;
+
     /** @var string $optiondatesteachersurl */
     public $optiondatesteachersurl = null;
 
@@ -563,6 +566,14 @@ class booking_option_settings {
                 $this->manageresponsesurl = $dbrecord->manageresponsesurl;
             }
 
+            // If the key "bookingstrackerurl" is not yet set, we need to generate it.
+            if (!isset($dbrecord->bookingstrackerurl)) {
+                $this->generate_bookingstracker_url($optionid);
+                $dbrecord->bookingstrackerurl = $this->bookingstrackerurl;
+            } else {
+                $this->bookingstrackerurl = $dbrecord->bookingstrackerurl;
+            }
+
             // If the key "optiondatesteachersurl" is not yet set, we need to generate it.
             if (!isset($dbrecord->optiondatesteachersurl)) {
                 $this->generate_optiondatesteachers_url($optionid);
@@ -893,22 +904,27 @@ class booking_option_settings {
      * @param int $optionid
      */
     private function generate_manageresponses_url(int $optionid) {
-        global $CFG;
-
         if (!empty($this->cmid) && !empty($optionid)) {
             $manageresponsesmoodleurl = new moodle_url(
                 '/mod/booking/report.php',
                 ['id' => $this->cmid, 'optionid' => $optionid]
             );
+            $this->manageresponsesurl = html_entity_decode($manageresponsesmoodleurl->out(), ENT_QUOTES);
+        }
+    }
 
-            // Use html_entity_decode to convert "&amp;" to a simple "&" character.
-            if ($CFG->version >= 2023042400) {
-                // Moodle 4.2 needs second param.
-                $this->manageresponsesurl = html_entity_decode($manageresponsesmoodleurl->out(), ENT_QUOTES);
-            } else {
-                // Moodle 4.1 and older.
-                $this->manageresponsesurl = html_entity_decode($manageresponsesmoodleurl->out(), ENT_COMPAT);
-            }
+    /**
+     * Function to generate the bookingstracker URL (to report2.php) to track responses (answers) for an option.
+     *
+     * @param int $optionid
+     */
+    private function generate_bookingstracker_url(int $optionid) {
+        if (!empty($this->cmid) && !empty($optionid)) {
+            $bookingstrackermoodleurl = new moodle_url(
+                '/mod/booking/report2.php',
+                ['cmid' => $this->cmid, 'optionid' => $optionid]
+            );
+            $this->bookingstrackerurl = html_entity_decode($bookingstrackermoodleurl->out(), ENT_QUOTES);
         }
     }
 

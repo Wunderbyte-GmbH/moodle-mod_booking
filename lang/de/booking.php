@@ -2039,7 +2039,7 @@ Wenn Sie ein Buchungsoptionsfeld auswählen, wird die Kampagne nur für jede Buc
 <span> Achtung: Entsprechend Ihrer Einstellungen kann diese Kampagne die Verfügbarkeit von sehr vielen Buchungsoptionen blockieren.</span>
 </div>
 Wenn Sie auch ein Benutzerdefiniertes User Profilfeld wählen, wird der Preis nur dann geändert, wenn BEIDE Anforderungen erfüllt sind.';
-$string['optionstoconfirm'] = 'Optionen zur Bestätigung';
+$string['optionstoconfirm'] = 'Zu bestätigende Buchungen';
 $string['optiontemplate'] = 'Option template';
 $string['optiontemplatename'] = 'Vorlagenname der Buchungsoption';
 $string['optiontemplatenotsavednovalidlicense'] = 'Buchungsoption konnte nicht als Vorlage gespeichert werden.

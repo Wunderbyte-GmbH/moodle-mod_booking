@@ -334,6 +334,7 @@ final class backup_restore_test extends advanced_testcase {
                     $optiondiff['timemodified'],
                     $optiondiff['editoptionurl'],
                     $optiondiff['manageresponsesurl'],
+                    $optiondiff['bookingstrackerurl'],
                     $optiondiff['optiondatesteachersurl']
                 );
                 $this->assertEmpty(

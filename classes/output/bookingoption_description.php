@@ -366,14 +366,7 @@ class bookingoption_description implements renderable, templatable {
                 'id' => $cmid,
                 'optionid' => $optionid,
             ]);
-            // Use html_entity_decode to convert "&amp;" to a simple "&" character.
-            if ($CFG->version >= 2023042400) {
-                // Moodle 4.2 needs second param.
-                $this->manageresponsesurl = html_entity_decode($link->out(), ENT_QUOTES);
-            } else {
-                // Moodle 4.1 and older.
-                $this->manageresponsesurl = html_entity_decode($link->out(), ENT_COMPAT);
-            }
+            $this->manageresponsesurl = html_entity_decode($link->out(), ENT_QUOTES);
         }
 
         if (has_capability('mod/booking:downloadchecklist', $modcontext) && get_config('booking', 'showchecklistdownloadbutton')) {
