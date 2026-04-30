@@ -1021,7 +1021,6 @@ $string['cachedef_slotrulesbyoption'] = 'Slot-Regeln pro Option (Cache)';
 $string['cachedef_subbookingforms'] = 'Subbooking Forms (Cache)';
 $string['cachedef_trialnonce'] = 'Test-Nonce (Cache)';
 $string['cachedef_usercompetenciescache'] = 'Kompetenzen von Nutzer:innen (Cache)';
-$string['cachedef_aiprivacynames'] = 'KI-Datenschutznamen (Cache)';
 $string['cachesettings'] = 'Cache Einstellungen';
 $string['cachesettings_desc'] = 'Diese Änderungen haben massive Auswirkungen auf die Performance. Bitte ändern Sie hier nur etwas, wenn Sie genau wissen, was Sie tun.';
 $string['cacheturnoffforbookinganswers'] = 'Caching der Antworten (der Buchungen durch Nutzer:innen) abschalten';
