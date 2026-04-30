@@ -91,17 +91,6 @@ class bo_info {
     }
 
     /**
-     * Returns whether the current booking request is triggered via an enrollink.
-     * Conditions that must never block enrollink users (e.g. customform, capbookingchoose)
-     * call this to return true early from their is_available() method.
-     *
-     * @return bool
-     */
-    public static function is_enrollink_context(): bool {
-        return self::$isenrollinkcontext;
-    }
-
-    /**
      * Constructs with item details.
      *
      * @param booking_option_settings $settings
@@ -1550,6 +1539,14 @@ class bo_info {
             if (!empty($enrollinkexcluded)) {
                 $excludedconditionarray = array_merge($excludedconditionarray, explode(',', $enrollinkexcluded));
             }
+            // We always skip the following conditions in the enrollink context, as they don't make sense there.
+            $excludedconditionarray = array_merge($excludedconditionarray, [
+                // Should be only checked for the booker, not the ones who receive the enrollink.
+                MOD_BOOKING_BO_COND_CAPBOOKINGCHOOSE,
+                MOD_BOOKING_BO_COND_JSON_ALLOWEDTOBOOKININSTANCE,
+                // Customform is only displayed to the booker, not the ones who receive the enrollink.
+                MOD_BOOKING_BO_COND_JSON_CUSTOMFORM,
+            ]);
         }
         // This is where the conditions are actually skipped (excluded).
         foreach ($conditions as $key => $condition) {
@@ -1557,5 +1554,15 @@ class bo_info {
                 unset($conditions[$key]);
             }
         }
+    }
+
+    /**
+     * Destroy all singletons.
+     *
+     * @return void
+     *
+     */
+    public static function destroy_singletons() {
+        self::$isenrollinkcontext = false;
     }
 }

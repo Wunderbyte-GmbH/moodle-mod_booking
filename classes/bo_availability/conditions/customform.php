@@ -146,7 +146,7 @@ class customform implements bo_condition {
      * @return bool
      */
     public function is_skippable(): bool {
-        return false;
+        return true;
     }
 
     /**
@@ -158,12 +158,6 @@ class customform implements bo_condition {
      * @return bool True if available
      */
     public function is_available(booking_option_settings $settings, int $userid, bool $not = false): bool {
-
-        // Users enrolling via an enrollink never see the form, so the condition must never block them.
-        if (bo_info::is_enrollink_context()) {
-            return true;
-        }
-
         // This is the return value. Not available to begin with.
         $isavailable = false;
 

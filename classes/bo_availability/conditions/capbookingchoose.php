@@ -92,7 +92,7 @@ class capbookingchoose implements bo_condition {
      * @return bool
      */
     public function is_skippable(): bool {
-        return false;
+        return true;
     }
 
     /**
@@ -104,12 +104,6 @@ class capbookingchoose implements bo_condition {
      * @return bool True if available
      */
     public function is_available(booking_option_settings $settings, int $userid, bool $not = false): bool {
-        global $DB;
-        // Users enrolling via an enrollink bypass this check...
-        // ...because they already arrive with an authorized link.
-        if (bo_info::is_enrollink_context()) {
-            return true;
-        }
         // This check can be overridden by a json condition.
         // Therefore, we use its logic.
         $allowedtobookininstance = allowedtobookininstance::instance($settings->id);
