@@ -1531,16 +1531,16 @@ class bo_info {
      *
      */
     private static function exclude_conditions(array &$conditions) {
-        $excludedcondition = get_config('booking', 'skippableconditions');
-        $excludedconditionarray = !empty($excludedcondition) ? explode(',', $excludedcondition) : [];
+        $excludedconditions = get_config('booking', 'skipableconditions');
+        $excludedconditionsarray = !empty($excludedconditions) ? explode(',', $excludedconditions) : [];
         // When using an enrollink, we need to check if there are conditions to skip (setting 'enrollinkskipconditions').
         if (self::$isenrollinkcontext) {
             $enrollinkexcluded = get_config('booking', 'enrollinkskipconditions');
             if (!empty($enrollinkexcluded)) {
-                $excludedconditionarray = array_merge($excludedconditionarray, explode(',', $enrollinkexcluded));
+                $excludedconditionsarray = array_merge($excludedconditionsarray, explode(',', $enrollinkexcluded));
             }
             // We always skip the following conditions in the enrollink context, as they don't make sense there.
-            $excludedconditionarray = array_merge($excludedconditionarray, [
+            $excludedconditionsarray = array_merge($excludedconditionsarray, [
                 // Should be only checked for the booker, not the ones who receive the enrollink.
                 MOD_BOOKING_BO_COND_CAPBOOKINGCHOOSE,
                 MOD_BOOKING_BO_COND_JSON_ALLOWEDTOBOOKININSTANCE,
@@ -1550,7 +1550,7 @@ class bo_info {
         }
         // This is where the conditions are actually skipped (excluded).
         foreach ($conditions as $key => $condition) {
-            if (in_array($condition->id, $excludedconditionarray)) {
+            if (in_array($condition->id, $excludedconditionsarray)) {
                 unset($conditions[$key]);
             }
         }
