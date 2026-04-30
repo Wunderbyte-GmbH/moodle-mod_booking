@@ -19,6 +19,7 @@ namespace mod_booking\local\wbagent\interfaces;
 /**
  * Optional interface for tasks that contribute message trigger definitions.
  *
+ * @package    mod_booking
  * @copyright  2026 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

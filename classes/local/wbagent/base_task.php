@@ -21,6 +21,7 @@ use mod_booking\local\wbagent\interfaces\task_interface;
 /**
  * Base class for AI tasks.
  *
+ * @package    mod_booking
  * @copyright  2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

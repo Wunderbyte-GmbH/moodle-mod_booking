@@ -44,6 +44,7 @@ $PAGE->activityheader->disable();
 // Authorization.
 $authz = new authorization_service();
 $authz->require_valid_context($cmid);
+$authz->require_use_capability((int)$USER->id, $cmid);
 
 $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
 

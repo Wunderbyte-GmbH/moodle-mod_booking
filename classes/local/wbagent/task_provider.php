@@ -23,6 +23,7 @@ use mod_booking\local\wbagent\interfaces\task_provider_interface;
 /**
  * mod_booking task provider entrypoint.
  *
+ * @package    mod_booking
  * @copyright  2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
