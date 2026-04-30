@@ -84,7 +84,7 @@ class placeholders_info {
         global $USER;
 
         // First, identify all the placeholders.
-        preg_match_all('/{(.*?)}/', $text, $matches);
+        preg_match_all('/{(?!mlang\b)(?!mlang\s)(.*?)}/', $text, $matches);
         $placeholders = $matches[1];
 
         if (empty($userid)) {
