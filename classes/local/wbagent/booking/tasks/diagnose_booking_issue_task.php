@@ -192,11 +192,12 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
         $conditionresults = bo_info::get_condition_results($optionid, $userid);
         $optionname = (string)$DB->get_field('booking_options', 'text', ['id' => $optionid]) ?: ('Option #' . $optionid);
         $bookingid = (int)$DB->get_field('booking_options', 'bookingid', ['id' => $optionid]);
-        $optionstats = $this->collect_option_stats($bookingid, $optionid, $userid, $settings);
-
-        $userstatus = (string)$optionstats['userstatus'];
+        $ba = singleton_service::get_instance_of_booking_answers($settings);
+        $optionstats = $ba->return_all_booking_information($userid);
+        $userstatus = (string)$ba->user_status_as_string($userid);
+        $optionstats['userstatus'] = $userstatus;
+        $optionstats['settings'] = $settings;
         $reasons = $this->build_reason_lines($issuetype, $optionstats, $conditionresults);
-
         $usermessage = '';
         $answersource = 'none';
         try {
@@ -397,75 +398,6 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
     }
 
     /**
-     * Extract normalized user status key from booking information.
-     *
-     * @param int $bookingid
-     * @param int $optionid
-     * @param int $userid
-     * @param object $settings
-     * @return array
-     */
-    private function collect_option_stats(int $bookingid, int $optionid, int $userid, object $settings): array {
-        global $DB;
-
-        $records = $DB->get_records('booking_answers', [
-            'bookingid' => $bookingid,
-            'optionid' => $optionid,
-        ], 'timemodified DESC, id DESC', 'id, userid, waitinglist, places');
-
-        $userstatus = 'notbooked';
-        $bookedplaces = 0;
-        $waitingplaces = 0;
-        $notifylist = false;
-
-        foreach ($records as $record) {
-            $places = max(1, (int)($record->places ?? 1));
-            $waitinglist = (int)($record->waitinglist ?? MOD_BOOKING_STATUSPARAM_NOTBOOKED);
-
-            if ($waitinglist === MOD_BOOKING_STATUSPARAM_BOOKED) {
-                $bookedplaces += $places;
-            } else if ($waitinglist === MOD_BOOKING_STATUSPARAM_WAITINGLIST) {
-                $waitingplaces += $places;
-            }
-
-            if ((int)$record->userid !== $userid) {
-                continue;
-            }
-
-            if ($waitinglist === MOD_BOOKING_STATUSPARAM_BOOKED) {
-                $userstatus = 'booked';
-                continue;
-            }
-            if ($waitinglist === MOD_BOOKING_STATUSPARAM_WAITINGLIST && $userstatus !== 'booked') {
-                $userstatus = 'waitinglist';
-                continue;
-            }
-            if ($waitinglist === MOD_BOOKING_STATUSPARAM_RESERVED && !in_array($userstatus, ['booked', 'waitinglist'], true)) {
-                $userstatus = 'reserved';
-                continue;
-            }
-            if ($waitinglist === MOD_BOOKING_STATUSPARAM_NOTIFYMELIST && $userstatus === 'notbooked') {
-                $userstatus = 'notifylist';
-                $notifylist = true;
-            }
-        }
-
-        $maxanswers = (int)($settings->maxanswers ?? 0);
-        $maxoverbooking = (int)($settings->maxoverbooking ?? 0);
-
-        return [
-            'userstatus' => $userstatus,
-            'bookedplaces' => $bookedplaces,
-            'waitingplaces' => $waitingplaces,
-            'notifylist' => $notifylist,
-            'maxanswers' => $maxanswers,
-            'maxoverbooking' => $maxoverbooking,
-            'fullybooked' => $maxanswers > 0 ? $bookedplaces >= $maxanswers : false,
-            'waitinglistfull' => $maxoverbooking > 0 ? $waitingplaces >= $maxoverbooking : false,
-        ];
-    }
-
-    /**
      * Create the diagnose answering service.
      *
      * @return diagnose_answering_service
@@ -525,9 +457,20 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
             }
 
             foreach ($conditionresults as $condition) {
-                $description = trim(strip_tags((string)($condition['description'] ?? '')));
+                try {
+                    $class = $condition['classname']::instance();
+                } catch (\Throwable $e) {
+                    $class = new $condition['classname']();
+                }
+
+                if (method_exists($class, 'get_description_string')) {
+                    $description = $class->get_description_string(false, true, $optionstats['settings']);
+                } else {
+                    $description = $condition["description"] ?? '';
+                }
+                $description = trim(strip_tags((string)($description)));
                 if ($description !== '' && strtolower($description) !== 'book now') {
-                    $reasons[] = $description;
+                    $reasons[] = $description . ' Blocking class: ' .  $condition["classname"];
                 }
             }
         }
