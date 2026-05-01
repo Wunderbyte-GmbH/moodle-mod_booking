@@ -208,7 +208,7 @@ class priceisset implements bo_subcondition {
      * @param bool $full
      * @return string
      */
-    private function get_description_string($isavailable, $full) {
+    public function get_description_string($isavailable, $full) {
         if ($isavailable) {
             $description = $full ? get_string('bocondpriceissetfullavailable', 'mod_booking') :
                 get_string('bocondpriceissetavailable', 'mod_booking');

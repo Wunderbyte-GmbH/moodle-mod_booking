@@ -220,7 +220,7 @@ class alreadybooked implements bo_subcondition {
      * @param booking_option_settings $settings
      * @return string
      */
-    private function get_description_string($isavailable, $full, $settings) {
+    public function get_description_string($isavailable, $full, $settings) {
         if ($isavailable) {
             $description = $full ? get_string('bocondalreadybookedfullavailable', 'mod_booking') :
                 get_string('bocondalreadybookedavailable', 'mod_booking');

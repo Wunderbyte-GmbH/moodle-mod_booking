@@ -372,7 +372,7 @@ class nooverlappingproxy implements bo_condition {
      * @param int $userid
      * @return string
      */
-    private function get_description_string(
+    public function get_description_string(
         bool $isavailable,
         bool $full,
         booking_option_settings $settings,

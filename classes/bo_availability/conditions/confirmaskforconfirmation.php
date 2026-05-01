@@ -272,7 +272,7 @@ class confirmaskforconfirmation implements bo_condition {
      *
      * @return string
      */
-    private function get_description_string() {
+    public function get_description_string() {
         // Don't trigger billboard here.
 
         return get_string('areyousure:bookconfirmation', 'mod_booking');

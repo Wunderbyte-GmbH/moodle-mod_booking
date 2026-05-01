@@ -277,7 +277,7 @@ class confirmbookwithcredits implements bo_condition {
      *
      * @return string
      */
-    private function get_description_string() {
+    public function get_description_string() {
 
         // Don't trigger billboard here.
         return get_string('areyousure:book', 'mod_booking');
