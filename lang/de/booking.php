@@ -137,6 +137,46 @@ $string['agent_booking_diagnose_ambiguity_option_specify'] =
     'Bitte praezisieren Sie die Buchungsoption.';
 $string['agent_booking_diagnose_ambiguity_option_title_or_id'] =
     'Bitte geben Sie den Titel oder die ID der Buchungsoption an.';
+$string['agent_booking_diagnose_cancel_other_user_permission_denied'] =
+    'Sie duerfen keine Stornodiagnose fuer andere Nutzer:innen ausfuehren.';
+$string['agent_booking_diagnose_cancel_reason_activity_completed'] =
+    'Stornieren ist nicht moeglich, weil diese Buchungsaktivitaet fuer Sie bereits abgeschlossen ist.';
+$string['agent_booking_diagnose_cancel_reason_blocked_by_higher_condition'] =
+    'Der Stornieren-Button erscheint nur, wenn cancelmyself (id=105) die hoechste blockierende Condition ist. Aktuell blockiert eine hoehere Condition.';
+$string['agent_booking_diagnose_cancel_reason_cancel_button_available'] =
+    'cancelmyself (id=105) ist aktuell die hoechste blockierende Condition, daher sollte der Stornoablauf verfuegbar sein.';
+$string['agent_booking_diagnose_cancel_reason_coolingoff_active'] =
+    'Eine Cooling-off-Phase ist aktiv ({$a} Sekunden), daher ist Stornieren voruebergehend blockiert.';
+$string['agent_booking_diagnose_cancel_reason_effective_canceluntil_passed'] =
+    'Die wirksame Stornofrist ist abgelaufen (bis {$a}).';
+$string['agent_booking_diagnose_cancel_reason_elective_reservation'] =
+    'Sie haben aktuell nur eine Reservierung im Wahlkontext; in diesem Zustand ist Selbststorno nicht moeglich.';
+$string['agent_booking_diagnose_cancel_reason_highest_blocking_condition'] =
+    'Hoechste blockierende Condition: id={$a->id}, Klasse={$a->classname}, Beschreibung="{$a->description}".';
+$string['agent_booking_diagnose_cancel_reason_instance_cancancelbook_disabled'] =
+    'Selbststorno ist in dieser Buchungsinstanz deaktiviert (cancancelbook ist nicht aktiv).';
+$string['agent_booking_diagnose_cancel_reason_instance_disablecancel'] =
+    'Stornieren ist fuer die gesamte Buchungsinstanz deaktiviert.';
+$string['agent_booking_diagnose_cancel_reason_none'] =
+    'Aus dem aktuellen Zustand konnte kein konkreter Storno-Blocker abgeleitet werden.';
+$string['agent_booking_diagnose_cancel_reason_not_booked'] =
+    'Sie sind fuer diese Option aktuell nicht gebucht.';
+$string['agent_booking_diagnose_cancel_reason_option_canceluntil_passed'] =
+    'Diese Option hat eine eigene Stornofrist, und diese ist bereits abgelaufen (bis {$a}).';
+$string['agent_booking_diagnose_cancel_reason_option_disablecancel'] =
+    'Stornieren ist direkt in dieser Buchungsoption deaktiviert.';
+$string['agent_booking_diagnose_cancel_reason_price_without_shopping_cart'] =
+    'Diese Option verwendet Preise, aber local_shopping_cart ist nicht verfuegbar; dadurch ist Stornieren deaktiviert.';
+$string['agent_booking_diagnose_cancel_reason_reserved_state'] =
+    'Sie haben derzeit nur einen Reservierungsstatus; dieser Stornoablauf ist damit nicht verfuegbar.';
+$string['agent_booking_diagnose_cancel_reason_shopping_cart_denies_cancel'] =
+    'Shopping-Cart-Regeln blockieren die Stornierung fuer diese Option.';
+$string['agent_booking_diagnose_cancel_reason_waitinglist_confirmation_pending'] =
+    'Sie stehen auf der Warteliste mit bestaetigungsbezogenem Wartelistenstatus; dadurch ist Stornieren blockiert.';
+$string['agent_booking_diagnose_cancel_reason_waitinglist_no_confirmation_flow'] =
+    'Sie stehen auf der Warteliste ohne Bestaetigungsablauf und die Option ist nicht voll; dadurch ist diese Stornoaktion blockiert.';
+$string['agent_booking_diagnose_cancel_required_question'] =
+    'Das Feld "question" ist fuer diagnose_cancellation_issue erforderlich.';
 $string['agent_booking_diagnose_error_last_preview_none'] =
     'Es gibt keine kuerzlich vorgeschlagene Option, auf die verwiesen werden kann.';
 $string['agent_booking_diagnose_error_option_not_in_instance'] =
@@ -228,6 +268,7 @@ $string['agent_booking_update_permission_denied_groups'] =
 $string['ai_action_add_price_category'] = 'Preiskategorie anlegen';
 $string['ai_action_create_option'] = 'Buchungsoption erstellen';
 $string['ai_action_create_user'] = 'Benutzer erstellen';
+$string['ai_action_diagnose_cancellation_issue'] = 'Stornoproblem analysieren';
 $string['ai_action_get_current_user'] = 'Aktuellen Benutzer abrufen';
 $string['ai_action_list_actions'] = 'Unterstuetzte Aktionen auflisten';
 $string['ai_action_list_option_properties'] = 'Bearbeitbare Eigenschaften von Buchungsoptionen auflisten';

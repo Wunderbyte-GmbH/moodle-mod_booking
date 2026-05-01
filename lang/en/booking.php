@@ -140,6 +140,46 @@ $string['agent_booking_diagnose_ambiguity_option_required'] =
 $string['agent_booking_diagnose_ambiguity_option_specify'] = 'Please specify the option more precisely.';
 $string['agent_booking_diagnose_ambiguity_option_title_or_id'] =
     'Please provide the booking option title or id.';
+$string['agent_booking_diagnose_cancel_other_user_permission_denied'] =
+    'You are not allowed to run cancellation diagnostics for other users.';
+$string['agent_booking_diagnose_cancel_reason_activity_completed'] =
+    'Cancellation is disabled because this booking activity is already completed for you.';
+$string['agent_booking_diagnose_cancel_reason_blocked_by_higher_condition'] =
+    'The cancel button can only appear when cancelmyself (id=105) is the highest blocking condition. A higher blocking condition currently takes precedence.';
+$string['agent_booking_diagnose_cancel_reason_cancel_button_available'] =
+    'cancelmyself (id=105) is currently the highest blocking condition, so the cancel flow should be available.';
+$string['agent_booking_diagnose_cancel_reason_coolingoff_active'] =
+    'A cooling-off period is active ({$a} seconds), so cancellation is temporarily blocked.';
+$string['agent_booking_diagnose_cancel_reason_effective_canceluntil_passed'] =
+    'The effective cancellation deadline has passed (until {$a}).';
+$string['agent_booking_diagnose_cancel_reason_elective_reservation'] =
+    'You currently only have a reservation in an elective context, and this state does not allow self-cancellation.';
+$string['agent_booking_diagnose_cancel_reason_highest_blocking_condition'] =
+    'Highest blocking condition: id={$a->id}, class={$a->classname}, description="{$a->description}".';
+$string['agent_booking_diagnose_cancel_reason_instance_cancancelbook_disabled'] =
+    'Self-cancellation is disabled in this booking instance (cancancelbook is not enabled).';
+$string['agent_booking_diagnose_cancel_reason_instance_disablecancel'] =
+    'Cancellation is disabled for the whole booking instance.';
+$string['agent_booking_diagnose_cancel_reason_none'] =
+    'No specific cancellation blocker could be derived from the current state.';
+$string['agent_booking_diagnose_cancel_reason_not_booked'] =
+    'You are currently not booked for this option.';
+$string['agent_booking_diagnose_cancel_reason_option_canceluntil_passed'] =
+    'This option has its own cancellation deadline, and it has already passed (until {$a}).';
+$string['agent_booking_diagnose_cancel_reason_option_disablecancel'] =
+    'Cancellation is disabled directly on this booking option.';
+$string['agent_booking_diagnose_cancel_reason_price_without_shopping_cart'] =
+    'This option uses pricing, but local_shopping_cart is not available, so cancellation is disabled.';
+$string['agent_booking_diagnose_cancel_reason_reserved_state'] =
+    'You currently only have a reservation state, which does not allow this cancellation flow.';
+$string['agent_booking_diagnose_cancel_reason_shopping_cart_denies_cancel'] =
+    'Shopping cart rules currently block cancellation for this option.';
+$string['agent_booking_diagnose_cancel_reason_waitinglist_confirmation_pending'] =
+    'You are on the waiting list with a pending/confirmed waiting-list confirmation state that blocks cancellation.';
+$string['agent_booking_diagnose_cancel_reason_waitinglist_no_confirmation_flow'] =
+    'You are on the waiting list without confirmation flow and the option is not fully booked, so this cancellation action is blocked.';
+$string['agent_booking_diagnose_cancel_required_question'] =
+    'Field "question" is required for diagnose_cancellation_issue.';
 $string['agent_booking_diagnose_error_last_preview_none'] =
     'There is no recent previewed option to refer to.';
 $string['agent_booking_diagnose_error_option_not_in_instance'] =
@@ -219,6 +259,7 @@ $string['agent_booking_update_permission_denied_groups'] =
 $string['ai_action_add_price_category'] = 'Create price category';
 $string['ai_action_create_option'] = 'Create booking option';
 $string['ai_action_create_user'] = 'Create user';
+$string['ai_action_diagnose_cancellation_issue'] = 'Diagnose cancellation issue';
 $string['ai_action_get_current_user'] = 'Get current user';
 $string['ai_action_list_actions'] = 'List supported actions';
 $string['ai_action_list_option_properties'] = 'List editable booking option properties';
