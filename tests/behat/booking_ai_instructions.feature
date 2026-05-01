@@ -123,7 +123,7 @@ Feature: AI instructions chat interface for booking managers
     And I should see "AutoSearch" in the "#booking-ai-messages" "css_element"
 
   @javascript @real_llm
-  Scenario: Cancellation diagnosis runs as read-only and does not require confirmation
+  Scenario: Cancellation diagnosis via chat with active LLM returns actionable blocker and stays read-only
     Given the following "activities" exist:
       | activity | course | name              | intro                               | bookingmanager | eventtype | cancancelbook |
       | booking  | C1     | AI Booking Locked | AI Booking Locked description       | teacher1       | Webinar   | 0             |
@@ -137,7 +137,22 @@ Feature: AI instructions chat interface for booking managers
     And I am on the AI instructions page for booking "AI Booking Locked" logged in as teacher1
     When I send the AI message "Why can I not cancel my booking for Cancel Check?"
     And I wait for the AI response
-    ## Diagnose cancellation is a read-only task and should not open confirmation controls.
+    ## Diagnose cancellation is read-only and should not open confirmation controls.
     Then "#booking-ai-confirm-panel" "css_element" should not be visible
-    ## Response should include the concrete blocker reason from booking settings.
+    ## LLM response should contain an actionable blocker hint from settings.
     And I should see "cancancelbook" in the "#booking-ai-messages" "css_element"
+
+  Scenario: Cancellation diagnosis task without active LLM still returns concrete blockers
+    Given real LLM mode is disabled
+    And the following "activities" exist:
+      | activity | course | name                    | intro                                 | bookingmanager | eventtype | cancancelbook |
+      | booking  | C1     | AI Booking Locked Local | AI Booking Locked Local description   | teacher1       | Webinar   | 0             |
+    And the following "mod_booking > options" exist:
+      | booking                  | text                | description                 | course | maxanswers |
+      | AI Booking Locked Local  | Cancel Check Local  | Cancel Check Local descr    | C1     | 10         |
+    And the following "mod_booking > answers" exist:
+      | booking                  | option              | user     |
+      | AI Booking Locked Local  | Cancel Check Local  | teacher1 |
+    And I log in as "teacher1"
+    When I run cancellation diagnosis task in booking "AI Booking Locked Local" for option "Cancel Check Local" with question "Why can I not cancel my booking for Cancel Check Local?"
+    Then the cancellation diagnosis result should report issue "cannot_cancel" and reason containing "booking.cancancelbook"

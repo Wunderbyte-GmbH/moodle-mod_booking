@@ -32,6 +32,7 @@ use mod_booking\singleton_service;
 use mod_booking\booking_rules\booking_rules;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\bo_availability\conditions\maxoptionsfromcategory;
+use mod_booking\local\wbagent\booking\tasks\diagnose_cancellation_issue_task;
 use Behat\Gherkin\Node\TableNode;
 use Moodle\BehatExtension\Exception\SkippedException;
 
@@ -39,6 +40,9 @@ use Moodle\BehatExtension\Exception\SkippedException;
  * To create booking specific behat scearios.
  */
 class behat_mod_booking extends behat_base {
+    /** @var array Last direct cancellation diagnosis task result. */
+    private array $lastdiagnosecancellationresult = [];
+
     /**
      * Skip opt-in real LLM scenarios unless explicitly enabled.
      *
@@ -49,6 +53,20 @@ class behat_mod_booking extends behat_base {
         if ((string)getenv('BOOKING_AI_REAL_LLM') !== '1') {
             throw new SkippedException(
                 'Skipping real LLM Behat scenario because BOOKING_AI_REAL_LLM=1 is not set.'
+            );
+        }
+    }
+
+    /**
+     * Ensure non-real-LLM scenario runs only when real LLM mode is not requested.
+     *
+     * @Given /^real LLM mode is disabled$/
+     * @return void
+     */
+    public function real_llm_mode_is_disabled(): void {
+        if ((string)getenv('BOOKING_AI_REAL_LLM') === '1') {
+            throw new SkippedException(
+                'Skipping non-real-LLM Behat scenario because BOOKING_AI_REAL_LLM=1 is enabled.'
             );
         }
     }
@@ -463,6 +481,75 @@ class behat_mod_booking extends behat_base {
             $el = $this->getSession()->getPage()->find('css', '.booking-ai-msg.assistant');
             return $el !== null;
         }, false, 15);
+    }
+
+    /**
+     * Execute cancellation diagnosis task directly for deterministic non-real-LLM validation.
+     *
+     * @When /^I run cancellation diagnosis task in booking "([^"]*)" for option "([^"]*)" with question "([^"]*)"$/
+     * @param string $bookingname
+     * @param string $optionquery
+     * @param string $question
+     * @return void
+     */
+    public function i_run_cancellation_diagnosis_task_in_booking_for_option_with_question(
+        string $bookingname,
+        string $optionquery,
+        string $question
+    ): void {
+        global $USER;
+
+        $cm = $this->get_cm_by_booking_name($bookingname);
+        $task = new diagnose_cancellation_issue_task();
+        $this->lastdiagnosecancellationresult = $task->execute([
+            'question' => $question,
+            'optionquery' => $optionquery,
+        ], (int)$cm->id, (int)$USER->id);
+    }
+
+    /**
+     * Assert direct cancellation diagnosis reports expected issue and concrete reason marker.
+     *
+     * @Then /^the cancellation diagnosis result should report issue "([^"]*)" and reason containing "([^"]*)"$/
+     * @param string $expectedissue
+     * @param string $reasonneedle
+     * @return void
+     */
+    public function the_cancellation_diagnosis_result_should_report_issue_and_reason_containing(
+        string $expectedissue,
+        string $reasonneedle
+    ): void {
+        $result = $this->lastdiagnosecancellationresult;
+        if (empty($result)) {
+            throw new \Behat\Mink\Exception\ExpectationException(
+                'No cancellation diagnosis result is available. Run the diagnosis step first.',
+                $this->getSession()
+            );
+        }
+
+        if ((string)($result['status'] ?? '') !== 'executed') {
+            throw new \Behat\Mink\Exception\ExpectationException(
+                'Expected diagnosis status "executed", got: ' . (string)($result['status'] ?? '(missing)'),
+                $this->getSession()
+            );
+        }
+
+        $actualissue = (string)($result['diagnosis']['issue'] ?? '');
+        if ($actualissue !== $expectedissue) {
+            throw new \Behat\Mink\Exception\ExpectationException(
+                'Expected diagnosis issue "' . $expectedissue . '", got: "' . $actualissue . '".',
+                $this->getSession()
+            );
+        }
+
+        $reasons = (array)($result['diagnosis']['reasons'] ?? []);
+        $reasonstext = implode("\n", $reasons);
+        if (strpos($reasonstext, $reasonneedle) === false) {
+            throw new \Behat\Mink\Exception\ExpectationException(
+                'Expected diagnosis reasons to contain "' . $reasonneedle . '", got: ' . $reasonstext,
+                $this->getSession()
+            );
+        }
     }
 
     /**
