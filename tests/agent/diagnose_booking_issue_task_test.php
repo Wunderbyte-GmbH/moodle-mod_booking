@@ -56,6 +56,23 @@ final class diagnose_booking_issue_task_test extends abstract_agent_testcase {
     }
 
     /**
+     * Book a user into an option using the plugin generator.
+     *
+     * @param int $userid
+     * @param int $optionid
+     * @return void
+     */
+    private function book_user_in_option(int $userid, int $optionid): void {
+        $result = $this->gen->create_answer([
+            'optionid' => $optionid,
+            'userid' => $userid,
+        ]);
+        $this->assertSame(MOD_BOOKING_BO_COND_ALREADYBOOKED, $result);
+        singleton_service::destroy_booking_answers($optionid);
+        singleton_service::destroy_instance();
+    }
+
+    /**
      * Validate asks follow-up question when option is missing.
      */
     public function test_validate_requests_option_reference(): void {
@@ -255,5 +272,49 @@ final class diagnose_booking_issue_task_test extends abstract_agent_testcase {
         );
         $this->assertNotEmpty($expectedintro);
         $this->assertIsString((string)($result['detail'] ?? ''));
+    }
+
+    /**
+     * Cross-user diagnosis is denied when caller lacks bookforothers capability.
+     */
+    public function test_cross_user_diagnosis_denied_without_capability(): void {
+        $option = $this->create_generated_option('Cross User Booking Denied Option');
+        $this->setUser($this->student);
+        $task = new diagnose_booking_issue_task();
+
+        $result = $task->execute([
+            'question' => 'Kann Maxima in "Cross User Booking Denied Option" buchen?',
+            'optionquery' => 'Cross User Booking Denied Option',
+            'targetuserid' => (int)$this->teacher->id,
+        ], (int)$this->booking->cmid, (int)$this->student->id);
+
+        $this->assertSame('error', $result['status']);
+        $this->assertSame(
+            get_string('agent_booking_diagnose_other_user_permission_denied', 'mod_booking'),
+            (string)($result['detail'] ?? '')
+        );
+    }
+
+    /**
+     * Cross-user diagnosis succeeds for privileged users and uses the requested target user.
+     */
+    public function test_cross_user_diagnosis_uses_target_user_when_allowed(): void {
+        $option = $this->create_generated_option('Cross User Booking Allowed Option');
+        $target = $this->getDataGenerator()->create_user([
+            'firstname' => 'Maxima',
+            'lastname' => 'Allowed',
+            'email' => 'maxima.allowed@example.com',
+        ]);
+        $this->getDataGenerator()->enrol_user($target->id, $this->course->id, 'student');
+
+        $result = $this->exec_command('booking.diagnose_booking_issue', [
+            'question' => 'Kann Maxima Allowed in "Cross User Booking Allowed Option" buchen?',
+            'optionquery' => 'Cross User Booking Allowed Option',
+            'targetuserid' => (int)$target->id,
+        ]);
+
+        $this->assertSame('executed', $result['status']);
+        $this->assertSame((int)$target->id, (int)($result['diagnosis']['userid'] ?? 0));
+        $this->assertSame((int)$option->id, (int)$result['resultid']);
     }
 }
