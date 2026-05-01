@@ -505,6 +505,33 @@ class booking_answers {
 
     /**
      * Checks booking status of $userid for this booking option. If no $userid is given $USER is used (logged in user)
+     * The return value of this function is not equal to the former user_status in booking_option.
+     *
+     * @param int $userid
+     * @return string 'reserved', 'notifyme', 'waitinglist', 'booked', 'notbooked' for booking status.
+     */
+    public function user_status_as_string(int $userid = 0) {
+        global $USER;
+
+        if ($userid == 0) {
+            $userid = $USER->id;
+        }
+
+        if (isset($this->usersreserved[$userid])) {
+            return 'reserved';
+        } else if (isset($this->userstonotify[$userid])) {
+            return 'notifyme';
+        } else if (isset($this->usersonwaitinglist[$userid])) {
+            return 'waitinglist';
+        } else if (isset($this->usersonlist[$userid])) {
+            return 'booked';
+        } else {
+            return 'notbooked';
+        }
+    }
+
+    /**
+     * Checks booking status of $userid for this booking option. If no $userid is given $USER is used (logged in user)
      *
      * @param int $userid
      * @return int status 0 = activity not completed, 1 = activity completed
