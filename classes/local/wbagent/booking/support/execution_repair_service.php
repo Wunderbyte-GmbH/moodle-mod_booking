@@ -103,23 +103,17 @@ class execution_repair_service {
 
         $anonymizer = new privacy_anonymizer($store);
         $lastusermessage = $this->extract_last_user_message($store->get_recent_messages($threadid, 20));
-        $displayusermessage = (string)(
-            $anonymizer->deanonymize_message_for_display($threadid, $lastusermessage)['message']
-            ?? $lastusermessage
-        );
-        $displayerrors = [];
+        $promptusermessage = (string)$anonymizer->anonymize_value_for_llm($threadid, $lastusermessage);
+        $prompterrors = [];
         foreach ($failedindexes as $idx => $detail) {
-            $displayerrors[$idx] = (string)(
-                $anonymizer->deanonymize_message_for_display($threadid, (string)$detail)['message']
-                ?? $detail
-            );
+            $prompterrors[$idx] = (string)$anonymizer->anonymize_value_for_llm($threadid, (string)$detail);
         }
-        $displaycommands = $this->deanonymize_commands_for_prompt($commands, $threadid, $anonymizer);
+        $promptcommands = $this->anonymize_commands_for_prompt($commands, $threadid, $anonymizer);
 
         $prompt = $this->build_repair_prompt(
-            $displaycommands,
-            $displayerrors,
-            $displayusermessage,
+            $promptcommands,
+            $prompterrors,
+            $promptusermessage,
             $registry->get_all_schemas()
         );
 
@@ -279,7 +273,7 @@ class execution_repair_service {
      * @param privacy_anonymizer $anonymizer
      * @return array
      */
-    private function deanonymize_commands_for_prompt(array $commands, int $threadid, privacy_anonymizer $anonymizer): array {
+    private function anonymize_commands_for_prompt(array $commands, int $threadid, privacy_anonymizer $anonymizer): array {
         $result = [];
         foreach ($commands as $command) {
             if (!is_array($command)) {
@@ -288,7 +282,7 @@ class execution_repair_service {
             $copy = $command;
             $input = $copy['input'] ?? [];
             if (is_array($input)) {
-                $copy['input'] = $anonymizer->deanonymize_command_input($threadid, $input);
+                $copy['input'] = $anonymizer->anonymize_value_for_llm($threadid, $input);
             }
             $result[] = $copy;
         }

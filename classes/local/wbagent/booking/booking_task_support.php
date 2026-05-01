@@ -620,6 +620,7 @@ class booking_task_support {
         int $limit = 10,
         string $when = ''
     ): array {
+        $query = self::sanitize_person_lookup_query($query);
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
 
@@ -757,7 +758,7 @@ class booking_task_support {
      * @return array
      */
     public static function resolve_single_option(int $cmid, string $optionquery, string $when = ''): array {
-        $query = trim($optionquery);
+        $query = self::sanitize_person_lookup_query($optionquery);
         if ($query === '') {
             return ['status' => 'ambiguity', 'message' => 'Please provide optionquery to identify the option.'];
         }
@@ -817,7 +818,7 @@ class booking_task_support {
      * @return array
      */
     public static function find_existing_options_by_exact_title(int $cmid, string $title): array {
-        $title = trim($title);
+        $title = self::sanitize_person_lookup_query($title);
         if ($title === '') {
             return ['status' => 'none'];
         }

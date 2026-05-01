@@ -16,6 +16,8 @@
 
 namespace mod_booking\local\wbagent\services\answering;
 
+use mod_booking\local\wbagent\conversation_store;
+use mod_booking\local\wbagent\privacy_anonymizer;
 use context_module;
 use core\di;
 use core_ai\aiactions\generate_text;
@@ -35,11 +37,22 @@ abstract class base_answering_service {
      * @param string $prompt
      * @param int $cmid
      * @param int $userid
-     * @return array{answer:string}|array<empty>
+     * @return array{answer:string}|array
      */
     protected function generate_answer(string $prompt, int $cmid, int $userid): array {
         try {
             $context = context_module::instance($cmid);
+            $promptforllm = $prompt;
+
+            // Task-level LLM prompts must follow the same privacy guarantees as the
+            // main orchestrator path when privacy mode is enabled.
+            $store = new conversation_store();
+            $thread = $store->get_active_thread($userid, $cmid);
+            if ($thread && !empty($thread->id)) {
+                $anonymizer = new privacy_anonymizer($store);
+                $promptforllm = (string)$anonymizer->anonymize_value_for_llm((int)$thread->id, $promptforllm);
+            }
+
             $manager = di::get(ai_manager::class);
             if (!$manager->is_action_available(generate_text::class)) {
                 return [];
@@ -59,7 +72,7 @@ abstract class base_answering_service {
             $action = new generate_text(
                 contextid: $context->id,
                 userid: $userid,
-                prompttext: $prompt,
+                prompttext: $promptforllm,
             );
             $response = $manager->process_action($action);
             if (!$response->get_success()) {

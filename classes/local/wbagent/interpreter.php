@@ -149,7 +149,7 @@ class interpreter implements agent_interpreter {
         }
 
         [$validatedcommands, $errors, $ambiguities, $ambiguityoptions, $attemptedtasks, $issuecodes, $confirmablecommands] =
-            $this->validate_commands($commands, $cmid);
+            $this->validate_commands($commands, $cmid, $userid);
 
         // Stage 5: Any ambiguity from backend validation stops execution and forces clarification.
         // The confirm button must NEVER appear when unresolved questions remain.
@@ -316,11 +316,8 @@ class interpreter implements agent_interpreter {
 
     /**
      * Validate all commands and return [validated, errors, ambiguities].
-     *
-     * @param  array $commands
-     * @param  int   $cmid
      */
-    private function validate_commands(array $commands, int $cmid): array {
+    private function validate_commands(array $commands, int $cmid, int $userid): array {
         $validated = [];
         $errors = [];
         $ambiguities = [];
@@ -369,6 +366,11 @@ class interpreter implements agent_interpreter {
 
             $input = $this->normalize_self_user_references($input);
             $input = $this->canonicalize_command_input((string)$taskname, $input);
+            // Privacy precheck can cause ANON_USER tokens in LLM task input.
+            // Resolve them before preflight validation so lookups (e.g. optionquery)
+            // use original values consistently.
+            $anonymizer = new privacy_anonymizer(new conversation_store());
+            $input = $anonymizer->deanonymize_command_input_for_active_user($cmid, $userid, $input);
             $candidatecommand = [
                 'task'    => $taskname,
                 'version' => $cmd['version'] ?? 1,
