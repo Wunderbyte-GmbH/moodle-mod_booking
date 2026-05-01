@@ -134,7 +134,7 @@ class ai_send_message extends external_api {
                     'commands' => '[]', 'ambiguities' => '[]', 'errorsjson' => '[]',
                     'ambiguityoptionsjson' => '[]',
                     'attemptedtasksjson' => '[]', 'issuecodesjson' => '[]', 'pendingconfirmationcode' => '',
-                    'threadid' => 0, 'runid' => 0, 'previewoptionid' => 0];
+                    'threadid' => 0, 'runid' => 0, 'resultsjson' => '[]', 'previewoptionid' => 0];
         }
 
         $cm = get_coursemodule_from_id('booking', $cmid, 0, false, MUST_EXIST);
@@ -158,6 +158,7 @@ class ai_send_message extends external_api {
                 'pendingconfirmationcode' => '',
                 'threadid'      => 0,
                 'runid'         => 0,
+                'resultsjson'   => '[]',
                 'previewoptionid' => 0,
             ];
         }
