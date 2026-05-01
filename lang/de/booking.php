@@ -139,6 +139,8 @@ $string['agent_booking_diagnose_ambiguity_option_title_or_id'] =
     'Bitte geben Sie den Titel oder die ID der Buchungsoption an.';
 $string['agent_booking_diagnose_cancel_other_user_permission_denied'] =
     'Sie duerfen keine Stornodiagnose fuer andere Nutzer:innen ausfuehren.';
+$string['agent_booking_diagnose_other_user_permission_denied'] =
+    'Sie duerfen keine Buchungsdiagnose fuer andere Nutzer:innen ausfuehren.';
 $string['agent_booking_diagnose_cancel_reason_activity_completed'] =
     'Stornieren ist nicht moeglich, weil diese Buchungsaktivitaet fuer Sie bereits abgeschlossen ist.';
 $string['agent_booking_diagnose_cancel_reason_blocked_by_higher_condition'] =

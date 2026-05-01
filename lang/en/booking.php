@@ -142,6 +142,8 @@ $string['agent_booking_diagnose_ambiguity_option_title_or_id'] =
     'Please provide the booking option title or id.';
 $string['agent_booking_diagnose_cancel_other_user_permission_denied'] =
     'You are not allowed to run cancellation diagnostics for other users.';
+$string['agent_booking_diagnose_other_user_permission_denied'] =
+    'You are not allowed to run booking diagnostics for other users.';
 $string['agent_booking_diagnose_cancel_reason_activity_completed'] =
     'Cancellation is disabled because this booking activity is already completed for you.';
 $string['agent_booking_diagnose_cancel_reason_blocked_by_higher_condition'] =

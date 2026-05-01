@@ -58,7 +58,7 @@ Feature: AI instructions chat interface for booking managers
 
   @javascript @real_llm
   Scenario: Teacher sends create instruction, confirms, option appears in activity
-    Given the following "mod_booking > options" exist:
+    And the following "mod_booking > options" exist:
       | booking     | text        | description      | course | maxanswers |
       | AI Booking  | Existing 1  | Existing 1 descr | C1     | 5          |
     And real LLM mode is enabled
@@ -121,3 +121,23 @@ Feature: AI instructions chat interface for booking managers
     Then "#booking-ai-confirm-panel" "css_element" should not be visible
     ## The option name should appear in the AI response message.
     And I should see "AutoSearch" in the "#booking-ai-messages" "css_element"
+
+  @javascript @real_llm
+  Scenario: Cancellation diagnosis runs as read-only and does not require confirmation
+    Given the following "activities" exist:
+      | activity | course | name              | intro                               | bookingmanager | eventtype | cancancelbook |
+      | booking  | C1     | AI Booking Locked | AI Booking Locked description       | teacher1       | Webinar   | 0             |
+    Given the following "mod_booking > options" exist:
+      | booking            | text          | description             | course | maxanswers |
+      | AI Booking Locked  | Cancel Check  | Cancel Check descr      | C1     | 10         |
+    And the following "mod_booking > answers" exist:
+      | booking            | option        | user     |
+      | AI Booking Locked  | Cancel Check  | teacher1 |
+    And real LLM mode is enabled
+    And I am on the AI instructions page for booking "AI Booking Locked" logged in as teacher1
+    When I send the AI message "Why can I not cancel my booking for Cancel Check?"
+    And I wait for the AI response
+    ## Diagnose cancellation is a read-only task and should not open confirmation controls.
+    Then "#booking-ai-confirm-panel" "css_element" should not be visible
+    ## Response should include the concrete blocker reason from booking settings.
+    And I should see "cancancelbook" in the "#booking-ai-messages" "css_element"
