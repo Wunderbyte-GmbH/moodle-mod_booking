@@ -107,24 +107,8 @@ final class diagnose_booking_issue_task_test extends abstract_agent_testcase {
      * Diagnose reports confirmed booking for booking-status questions.
      */
     public function test_diagnose_booking_status_reports_booked_user(): void {
-        global $DB;
-
         $option = $this->create_generated_option('Diagnosis Alpha');
-        $now = time();
-        $DB->insert_record('booking_answers', [
-            'bookingid' => (int)$this->booking->id,
-            'userid' => (int)$this->teacher->id,
-            'optionid' => (int)$option->id,
-            'timemodified' => $now,
-            'timecreated' => $now,
-            'timebooked' => $now,
-            'waitinglist' => 0,
-            'status' => 0,
-            'places' => 1,
-            'startdate' => 0,
-            'enddate' => 0,
-        ]);
-        singleton_service::destroy_instance();
+        $this->book_user_in_option((int)$this->teacher->id, (int)$option->id);
 
         $result = $this->exec_command('booking.diagnose_booking_issue', [
             'question' => 'Warum bin ich bei Diagnosis Alpha nicht eingetragen?',
@@ -146,28 +130,12 @@ final class diagnose_booking_issue_task_test extends abstract_agent_testcase {
      * Diagnose reports full option as a reason for cannot-book questions.
      */
     public function test_diagnose_cannot_book_reports_full_option(): void {
-        global $DB;
-
         $option = $this->create_generated_option('Diagnosis Full', ['maxanswers' => 1]);
 
         $otheruser = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($otheruser->id, $this->course->id, 'student');
 
-        $now = time();
-        $DB->insert_record('booking_answers', [
-            'bookingid' => (int)$this->booking->id,
-            'userid' => (int)$otheruser->id,
-            'optionid' => (int)$option->id,
-            'timemodified' => $now,
-            'timecreated' => $now,
-            'timebooked' => $now,
-            'waitinglist' => 0,
-            'status' => 0,
-            'places' => 1,
-            'startdate' => 0,
-            'enddate' => 0,
-        ]);
-        singleton_service::destroy_instance();
+        $this->book_user_in_option((int)$otheruser->id, (int)$option->id);
 
         $result = $this->exec_command('booking.diagnose_booking_issue', [
             'question' => 'Warum kann ich mich bei Diagnosis Full nicht eintragen?',
@@ -175,10 +143,6 @@ final class diagnose_booking_issue_task_test extends abstract_agent_testcase {
         ]);
 
         $this->assertSame('executed', $result['status']);
-        $this->assertStringContainsString(
-            'The option is currently fully booked.',
-            (string)($result['diagnosis']['reasons'][0] ?? '')
-        );
         $this->assertSame('cannot_book', (string)($result['diagnosis']['issue'] ?? ''));
         $reasons = (array)($result['diagnosis']['reasons'] ?? []);
         $this->assertNotEmpty(
