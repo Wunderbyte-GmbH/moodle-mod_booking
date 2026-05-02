@@ -53,27 +53,33 @@ class create_option_task extends base_booking_task implements task_trigger_provi
      * @return array
      */
     public function get_schema(): array {
+        $properties = array_merge([
+            'text' => [
+                'type' => 'string',
+                'description' => 'Title of the new booking option.',
+                'required' => true,
+            ],
+            'override' => [
+                'type' => 'array',
+                'description' => 'Explicit override tokens for confirmed exceptions (e.g. duplicate_title).',
+                'required' => false,
+            ],
+            'outputlang' => [
+                'type' => 'string',
+                'description' => 'Optional language code override for the user-facing summary, e.g. de or en.',
+                'required' => false,
+            ],
+        ], option_schema_definition::common_properties());
+
+        // New options are always created hidden. Visibility can be changed later via booking.update_option only.
+        unset($properties['invisible'], $properties['visibility']);
+
         return [
             'version' => 1,
-            'description' => 'Create a new booking option inside the current booking instance.',
+            'description' => 'Create a new booking option inside the current booking instance. '
+                . 'New options are always created as invisible.',
             'readonly' => $this->is_read_only(),
-            'properties' => array_merge([
-                'text' => [
-                    'type' => 'string',
-                    'description' => 'Title of the new booking option.',
-                    'required' => true,
-                ],
-                'override' => [
-                    'type' => 'array',
-                    'description' => 'Explicit override tokens for confirmed exceptions (e.g. duplicate_title).',
-                    'required' => false,
-                ],
-                'outputlang' => [
-                    'type' => 'string',
-                    'description' => 'Optional language code override for the user-facing summary, e.g. de or en.',
-                    'required' => false,
-                ],
-            ], option_schema_definition::common_properties()),
+            'properties' => $properties,
         ];
     }
 
@@ -689,6 +695,9 @@ class create_option_task extends base_booking_task implements task_trigger_provi
                 ],
                 'guidance' => [
                     '- For mutating intent, prepare booking.create_option and use confirmation_request first.',
+                    '- booking.create_option always creates options as invisible.',
+                    '- If the user explicitly wants the option visible, first create it, then run booking.update_option '
+                        . 'to set visibility/invisible.',
                     '- For create requests, set optiontype explicitly whenever possible: normal|selflearning|slotbooking.',
                     '- Do not ask end users for internal type names; infer the best type from intent and phrasing.',
                     '- If type is still unclear, ask behavior-focused questions (e.g. fixed dates, self-paced, or bookable slots),'

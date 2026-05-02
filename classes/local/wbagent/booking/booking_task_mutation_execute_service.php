@@ -229,7 +229,10 @@ class booking_task_mutation_execute_service {
         }
 
         $normalizedvisibility = booking_task_support::normalize_visibility_input($input);
-        if (isset($normalizedvisibility['value'])) {
+        if ($taskname === create_option_task::TASK_NAME) {
+            // Create flow always starts hidden. Visibility changes must happen via update flow.
+            $data->invisible = MOD_BOOKING_OPTION_INVISIBLE;
+        } else if (isset($normalizedvisibility['value'])) {
             $data->invisible = (int)$normalizedvisibility['value'];
         }
 
