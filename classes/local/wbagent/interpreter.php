@@ -80,7 +80,7 @@ class interpreter implements agent_interpreter {
      * @param int    $userid
      * @return array
      */
-    public function interpret(string $rawresponse, int $cmid, int $userid): array {
+    public function interpret(string $rawresponse, int $cmid, int $userid, string $lastusermessage = ''): array {
         // Stage 1: Parse.
         $parsed = $this->parse($rawresponse);
         if ($parsed === null) {
@@ -90,7 +90,7 @@ class interpreter implements agent_interpreter {
         // Stage 2: Classify response type.
         $responsetype = $parsed['response_type'] ?? null;
         if (!in_array($responsetype, self::ALLOWED_RESPONSE_TYPES, true)) {
-            $normalized = $this->normalize_task_like_response($parsed);
+            $normalized = $this->normalize_task_like_response($parsed, $lastusermessage);
             if ($normalized !== null) {
                 $parsed = $normalized;
                 $responsetype = $parsed['response_type'];
@@ -235,14 +235,17 @@ class interpreter implements agent_interpreter {
     /**
      * Normalize common task-like malformed outputs into canonical task_call payload.
      *
-     * @param array $parsed
+     * @param array  $parsed
+     * @param string $lastusermessage  Latest user message text, used as question-field fallback.
      * @return array|null
      */
-    private function normalize_task_like_response(array $parsed): ?array {
+    private function normalize_task_like_response(array $parsed, string $lastusermessage = ''): ?array {
         $allowedtasks = $this->registry->get_task_names();
 
         $responsetype = (string)($parsed['response_type'] ?? '');
         if ($responsetype !== '' && in_array($responsetype, $allowedtasks, true)) {
+            $input = is_array($parsed['input'] ?? null) ? $parsed['input'] : [];
+            $input = $this->hydrate_question_field($responsetype, $input, $lastusermessage);
             return [
                 'response_type' => 'task_call',
                 'message' => $this->safe_string($parsed['message'] ?? 'Executing.'),
@@ -250,14 +253,39 @@ class interpreter implements agent_interpreter {
                     [
                         'task' => $responsetype,
                         'version' => (int)($parsed['version'] ?? 1),
-                        'input' => is_array($parsed['input'] ?? null) ? $parsed['input'] : [],
+                        'input' => $input,
                     ],
                 ],
             ];
         }
 
+        // LLM returned a trigger ID as response_type — map it back to the corresponding task name.
+        if ($responsetype !== '') {
+            $triggermap = $this->registry->get_trigger_id_to_task_name_map();
+            if (isset($triggermap[$responsetype])) {
+                $taskname = $triggermap[$responsetype];
+                $input = is_array($parsed['input'] ?? null) ? $parsed['input'] : [];
+                $input = $this->hydrate_question_field($taskname, $input, $lastusermessage);
+                return [
+                    'response_type' => 'task_call',
+                    'lang' => $this->safe_string($parsed['lang'] ?? ''),
+                    'used_triggers' => [$responsetype],
+                    'message' => $this->safe_string($parsed['message'] ?? 'Executing.'),
+                    'commands' => [
+                        [
+                            'task' => $taskname,
+                            'version' => (int)($parsed['version'] ?? 1),
+                            'input' => $input,
+                        ],
+                    ],
+                ];
+            }
+        }
+
         $task = (string)($parsed['task'] ?? '');
         if ($task !== '' && in_array($task, $allowedtasks, true)) {
+            $input = is_array($parsed['input'] ?? null) ? $parsed['input'] : [];
+            $input = $this->hydrate_question_field($task, $input, $lastusermessage);
             return [
                 'response_type' => 'task_call',
                 'message' => $this->safe_string($parsed['message'] ?? 'Executing.'),
@@ -265,13 +293,40 @@ class interpreter implements agent_interpreter {
                     [
                         'task' => $task,
                         'version' => (int)($parsed['version'] ?? 1),
-                        'input' => is_array($parsed['input'] ?? null) ? $parsed['input'] : [],
+                        'input' => $input,
                     ],
                 ],
             ];
         }
 
         return null;
+    }
+
+    /**
+     * If a task expects a 'question' field and it is missing/empty, fill it from lastusermessage.
+     *
+     * @param string $taskname
+     * @param array  $input
+     * @param string $lastusermessage
+     * @return array
+     */
+    private function hydrate_question_field(string $taskname, array $input, string $lastusermessage): array {
+        if ($lastusermessage === '' || trim((string)($input['question'] ?? '')) !== '') {
+            return $input;
+        }
+
+        $task = $this->registry->get_task($taskname);
+        if ($task === null) {
+            return $input;
+        }
+
+        $schema = $task->get_schema();
+        $props  = $schema['properties'] ?? [];
+        if (isset($props['question'])) {
+            $input['question'] = $lastusermessage;
+        }
+
+        return $input;
     }
 
     /**

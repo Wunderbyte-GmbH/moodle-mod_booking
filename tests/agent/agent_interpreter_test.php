@@ -178,6 +178,34 @@ final class agent_interpreter_test extends advanced_testcase {
     }
 
     /**
+     * explain_docs_topic should hydrate missing question from parsed message heuristics.
+     */
+    public function test_explain_docs_topic_hydrates_missing_question_from_message(): void {
+        // LLM returns a trigger-ID as response_type (a known LLM misbehavior) with no input.
+        // The orchestrator passes the last user message text as the 4th parameter.
+        // The interpreter must: (a) map the trigger-ID to the correct task name, and
+        // (b) hydrate the missing 'question' field from the user message.
+        $raw = json_encode([
+            'response_type' => 'booking.explain_docs_topic_feature_help',
+            'lang' => 'en',
+            'used_triggers' => ['booking.explain_docs_topic_feature_help'],
+            'message' => 'Executing.',
+            'input' => [],
+        ]);
+
+        $lastusermessage = 'How do I send messages in the booking assistant?';
+        $result = $this->interpreter->interpret($raw, $this->cmid, 1, $lastusermessage);
+
+        $this->assertSame('task_call', $result['response_type']);
+        $this->assertNotEmpty($result['commands']);
+        $this->assertSame('booking.explain_docs_topic', (string)($result['commands'][0]['task'] ?? ''));
+        $this->assertSame(
+            $lastusermessage,
+            (string)($result['commands'][0]['input']['question'] ?? '')
+        );
+    }
+
+    /**
      * Structured task ambiguity options should be propagated to interpreter output.
      *
      * Uses a fake task that returns both ambiguities and ambiguity_options from validate()

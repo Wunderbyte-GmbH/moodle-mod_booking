@@ -236,7 +236,7 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
         $optionstats = $ba->return_all_booking_information($diagnosticuserid);
         $userstatus = (string)$ba->user_status_as_string($diagnosticuserid);
         $optionstats['userstatus'] = $userstatus;
-        $reasons = $this->build_reason_lines($issuetype, $optionstats, $conditionresults, $settings);
+        $reasons = $this->build_reason_lines($issuetype, $optionstats, $conditionresults);
         try {
             $answeringresult = $this->create_diagnose_answering_service()->answer_question(
                 (string)($input['question'] ?? ''),
@@ -531,10 +531,9 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
      * @param string $issuetype
      * @param array $optionstats
      * @param array $conditionresults
-     * @param object $settings
      * @return array
      */
-    private function build_reason_lines(string $issuetype, array $optionstats, array $conditionresults, object $settings): array {
+    private function build_reason_lines(string $issuetype, array $optionstats, array $conditionresults): array {
         $lang = '';
         $reasons = [];
         $userstatus = (string)($optionstats['userstatus'] ?? 'notbooked');
@@ -584,7 +583,7 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
                 }
 
                 if (method_exists($class, 'get_description_string')) {
-                    $description = $class->get_description_string(false, true, $settings);
+                    $description = $class->get_description_string(false, true, $optionstats['settings']);
                 } else {
                     $description = $condition["description"] ?? '';
                 }

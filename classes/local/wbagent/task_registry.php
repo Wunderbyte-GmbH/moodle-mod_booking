@@ -202,6 +202,28 @@ class task_registry {
     }
 
     /**
+     * Return a map of trigger-id → task-name for all registered trigger-providing tasks.
+     *
+     * @return array<string,string>  e.g. ['booking.explain_docs_topic_feature_help' => 'booking.explain_docs_topic']
+     */
+    public function get_trigger_id_to_task_name_map(): array {
+        $map = [];
+        foreach ($this->tasks as $task) {
+            if (!$task instanceof task_trigger_provider_interface) {
+                continue;
+            }
+            $taskname = $task->get_name();
+            foreach ($task->get_message_triggers() as $trigger) {
+                $id = trim((string)($trigger['id'] ?? ''));
+                if ($id !== '') {
+                    $map[$id] = $taskname;
+                }
+            }
+        }
+        return $map;
+    }
+
+    /**
      * Build and return the default registry loaded with all booking task providers.
      *
      * @return self

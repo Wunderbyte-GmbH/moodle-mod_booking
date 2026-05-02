@@ -123,6 +123,40 @@ class docs_lookup_service {
     }
 
     /**
+     * Return a lightweight index of all docs (path, title, excerpt) for LLM-based selection.
+     *
+     * @return array<int,array{path:string,title:string,excerpt:string}>
+     */
+    public function get_all_doc_index(): array {
+        $index = [];
+        foreach ($this->load_docs() as $doc) {
+            $index[] = [
+                'path'    => (string)($doc['path'] ?? ''),
+                'title'   => (string)($doc['title'] ?? ''),
+                'excerpt' => (string)($doc['excerpt'] ?? ''),
+            ];
+        }
+        return $index;
+    }
+
+    /**
+     * Load the full content of specific docs by path.
+     *
+     * @param array<int,string> $paths Relative paths as returned by get_all_doc_index()
+     * @return array<int,array<string,mixed>>
+     */
+    public function load_docs_by_paths(array $paths): array {
+        $pathmap = array_fill_keys($paths, true);
+        $result = [];
+        foreach ($this->load_docs() as $doc) {
+            if (isset($pathmap[(string)($doc['path'] ?? '')])) {
+                $result[] = $doc;
+            }
+        }
+        return $result;
+    }
+
+    /**
      * Build a concise user-facing explanation from a matched doc.
      *
      * @param array $doc

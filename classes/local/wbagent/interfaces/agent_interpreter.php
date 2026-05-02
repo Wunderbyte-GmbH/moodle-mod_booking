@@ -45,9 +45,11 @@ interface agent_interpreter {
      *  - 'task_call'            – Validated, ready-to-execute commands (set after confirmation).
      *  - 'error'                – Unrecoverable parse or schema error.
      *
-     * @param string $rawresponse  Raw text output from the LLM.
-     * @param int    $cmid         Course-module id for context/domain scoping.
-     * @param int    $userid       User id.
+     * @param string $rawresponse      Raw text output from the LLM.
+     * @param int    $cmid             Course-module id for context/domain scoping.
+     * @param int    $userid           User id.
+     * @param string $lastusermessage  Optional: the latest user message text, used as fallback
+     *                                 when the LLM omits a required 'question' field.
      * @return array [
      *     'response_type' => string,
      *     'message'       => string,          // Human-readable message for the UI.
@@ -56,5 +58,5 @@ interface agent_interpreter {
      *     'errors'        => string[],        // Validation error strings.
      * ]
      */
-    public function interpret(string $rawresponse, int $cmid, int $userid): array;
+    public function interpret(string $rawresponse, int $cmid, int $userid, string $lastusermessage = ''): array;
 }

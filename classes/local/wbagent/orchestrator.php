@@ -163,7 +163,15 @@ class orchestrator {
             ];
         }
 
-        return $this->interpreter->interpret($rawtext, $cmid, $userid);
+        $lastusermessage = '';
+        foreach (array_reverse($messages) as $msg) {
+            if (($msg->role ?? '') === 'user') {
+                $lastusermessage = trim((string)($msg->content ?? ''));
+                break;
+            }
+        }
+
+        return $this->interpreter->interpret($rawtext, $cmid, $userid, $lastusermessage);
     }
 
     /**
