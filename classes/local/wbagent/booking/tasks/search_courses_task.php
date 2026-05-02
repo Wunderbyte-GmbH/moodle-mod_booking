@@ -18,7 +18,6 @@ namespace mod_booking\local\wbagent\booking\tasks;
 
 use mod_booking\local\wbagent\booking\booking_task_support;
 use mod_booking\local\wbagent\interfaces\task_trigger_provider_interface;
-use mod_booking\local\wbagent\services\answering\search_courses_answering_service;
 
 /**
  * Task definition for booking.search_courses.
@@ -57,6 +56,7 @@ class search_courses_task extends base_booking_task implements task_trigger_prov
             'version' => 1,
             'description' => 'Search courses via mod_booking external search_courses functionality.',
             'readonly' => $this->is_read_only(),
+            'fallback_taskcall_string_key' => 'ai_status_taskcall_booking_search_courses',
             'properties' => [
                 'query' => [
                     'type' => 'string',
@@ -159,103 +159,31 @@ class search_courses_task extends base_booking_task implements task_trigger_prov
 
         $courses = booking_task_support::search_course_candidates_for_preview($query, $limit);
         if (empty($courses)) {
-            $messagedata = $this->generate_user_message($question, $query, [], $outputlang, $cmid, $userid);
+            $usermessage = $this->localized_string('agent_booking_search_courses_no_results', null, $outputlang);
             return [
                 'status' => 'executed',
-                'detail' => $messagedata['message'],
-                'summary' => $messagedata['message'],
-                'usermessage' => $messagedata['message'],
+                'detail' => $usermessage,
+                'usermessage' => $usermessage,
                 'resultid' => null,
                 'courses' => [],
-                'debugmessage' => $debugbase
-                    . "\nResults: 0"
-                    . "\nAnswer source: " . $messagedata['source'],
+                'debugmessage' => $debugbase . "\nResults: 0",
             ];
         }
 
-        $messagedata = $this->generate_user_message($question, $query, $courses, $outputlang, $cmid, $userid);
+        $usermessage = $this->localized_string(
+            'agent_booking_search_courses_found',
+            count($courses),
+            $outputlang
+        );
 
         return [
             'status' => 'executed',
-            'detail' => $messagedata['message'],
-            'summary' => $messagedata['message'],
-            'usermessage' => $messagedata['message'],
+            'detail' => $usermessage,
+            'usermessage' => $usermessage,
             'resultid' => (int)($courses[0]['courseid'] ?? 0),
             'courses' => $courses,
             'debugmessage' => $debugbase
-                . "\nResults: " . count($courses)
-                . "\nAnswer source: " . $messagedata['source'],
+                . "\nResults: " . count($courses),
         ];
-    }
-
-    /**
-     * Generate user-facing message via LLM with deterministic fallback.
-     *
-     * @param string $question
-     * @param string $query
-     * @param array $courses
-     * @param string $outputlang
-     * @param int $cmid
-     * @param int $userid
-     * @return array{message:string,source:string}
-     */
-    private function generate_user_message(
-        string $question,
-        string $query,
-        array $courses,
-        string $outputlang,
-        int $cmid,
-        int $userid
-    ): array {
-        $message = '';
-        $source = 'none';
-        try {
-            $answeringresult = $this->create_search_courses_answering_service()->answer_question(
-                $question,
-                $query,
-                $courses,
-                $outputlang,
-                $cmid,
-                $userid
-            );
-            $llmanswer = trim((string)($answeringresult['answer'] ?? ''));
-            if ($llmanswer !== '') {
-                $message = $this->enforce_max_chars($llmanswer, 650);
-                $source = 'llm';
-            }
-        } catch (\Throwable $e) {
-            $source = 'error';
-        }
-
-        if ($message === '') {
-            $message = $this->build_fallback_user_message($courses);
-            $source = $source === 'error' ? 'fallback_after_error' : 'fallback';
-        }
-
-        return ['message' => $message, 'source' => $source];
-    }
-
-    /**
-     * Build deterministic fallback text when LLM output is unavailable.
-     *
-     * @param array $courses
-     * @return string
-     */
-    private function build_fallback_user_message(array $courses): string {
-        $count = count($courses);
-        if ($count === 0) {
-            return 'No matching courses found.';
-        }
-
-        return 'Found ' . $count . ' matching course(s).';
-    }
-
-    /**
-     * Create the search-courses answering service.
-     *
-     * @return search_courses_answering_service
-     */
-    protected function create_search_courses_answering_service(): search_courses_answering_service {
-        return new search_courses_answering_service();
     }
 }

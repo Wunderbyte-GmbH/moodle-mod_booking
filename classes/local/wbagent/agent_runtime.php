@@ -1123,6 +1123,13 @@ class agent_runtime {
     /**
      * Build a deterministic fallback message per response/task and language.
      *
+     * Each booking task declares its own fallback string keys via get_schema():
+     *   - 'fallback_confirm_string_key' for confirmation_request responses
+     *   - 'fallback_taskcall_string_key' for task_call responses
+     *
+     * Cross-plugin tasks (entities.*, shopping_cart.*) are not in the registry, so
+     * their strings remain hardcoded here as a last resort.
+     *
      * @param  array  $result
      * @param  string $outputlang
      * @return string
@@ -1136,30 +1143,29 @@ class agent_runtime {
         }
 
         if ($responsetype === 'confirmation_request') {
-            if ($firsttask === 'booking.search_options') {
-                return $this->localized_string('ai_status_confirm_booking_search_options', 'mod_booking', null, $outputlang);
-            }
-            if ($firsttask === 'booking.update_option') {
-                return $this->localized_string('ai_status_confirm_booking_update_option', 'mod_booking', null, $outputlang);
-            }
-            if ($firsttask === 'booking.bulk_update_options') {
-                return $this->localized_string(
-                    'ai_status_confirm_booking_bulk_update_options',
-                    'mod_booking',
-                    null,
-                    $outputlang
-                );
-            }
-            if ($firsttask === 'booking.create_option') {
-                return $this->localized_string('ai_status_confirm_booking_create_option', 'mod_booking', null, $outputlang);
+            if ($firsttask !== '') {
+                $task = $this->registry->get_task($firsttask);
+                if ($task !== null) {
+                    $key = (string)($task->get_schema()['fallback_confirm_string_key'] ?? '');
+                    if ($key !== '') {
+                        return $this->localized_string($key, 'mod_booking', null, $outputlang);
+                    }
+                }
             }
             return $this->localized_string('ai_status_confirm_default', 'mod_booking', null, $outputlang);
         }
 
         if ($responsetype === 'task_call') {
-            if ($firsttask === 'booking.search_options') {
-                return $this->localized_string('ai_status_taskcall_booking_search_options', 'mod_booking', null, $outputlang);
+            if ($firsttask !== '') {
+                $task = $this->registry->get_task($firsttask);
+                if ($task !== null) {
+                    $key = (string)($task->get_schema()['fallback_taskcall_string_key'] ?? '');
+                    if ($key !== '') {
+                        return $this->localized_string($key, 'mod_booking', null, $outputlang);
+                    }
+                }
             }
+            // Cross-plugin task fallbacks (entities, shopping_cart – not in the booking registry).
             if ($firsttask === 'entities.list_all_entities') {
                 return $this->localized_string('ai_status_taskcall_entities_list_all', 'mod_booking', null, $outputlang);
             }
@@ -1174,26 +1180,6 @@ class agent_runtime {
             }
             if ($firsttask === 'shopping_cart.get_totals') {
                 return $this->localized_string('ai_status_taskcall_shopping_cart_totals', 'mod_booking', null, $outputlang);
-            }
-            if ($firsttask === 'booking.search_users') {
-                return $this->localized_string('ai_status_taskcall_booking_search_users', 'mod_booking', null, $outputlang);
-            }
-            if ($firsttask === 'booking.search_courses') {
-                return $this->localized_string('ai_status_taskcall_booking_search_courses', 'mod_booking', null, $outputlang);
-            }
-            if ($firsttask === 'booking.update_option') {
-                return $this->localized_string('ai_status_taskcall_booking_update_option', 'mod_booking', null, $outputlang);
-            }
-            if ($firsttask === 'booking.bulk_update_options') {
-                return $this->localized_string(
-                    'ai_status_taskcall_booking_bulk_update_options',
-                    'mod_booking',
-                    null,
-                    $outputlang
-                );
-            }
-            if ($firsttask === 'booking.create_option') {
-                return $this->localized_string('ai_status_taskcall_booking_create_option', 'mod_booking', null, $outputlang);
             }
             return $this->localized_string('ai_status_taskcall_default', 'mod_booking', null, $outputlang);
         }

@@ -238,6 +238,7 @@ $string['agent_booking_get_current_user_identified'] =
     'Aktueller Benutzer wurde erfolgreich identifiziert.';
 $string['agent_booking_list_option_properties_invalid_scope'] =
     'Ungueltiger Scope. Erlaubte Werte sind: all, create, update, shared.';
+$string['agent_booking_list_option_properties_found'] = '{$a} Buchungsoptions-Eigenschaft(en) gefunden.';
 $string['agent_booking_pricecat_created'] = 'Preiskategorie "{$a}" wurde erstellt.';
 $string['agent_booking_pricecat_defaultvalue_nonnegative'] = 'Der Standardwert darf nicht negativ sein.';
 $string['agent_booking_pricecat_defaultvalue_numeric'] = 'Der Standardwert muss eine Zahl sein.';
@@ -253,6 +254,10 @@ $string['agent_booking_resolve_user_query_required'] =
     'Bitte geben Sie eine Nutzerabfrage zur Identifikation der Person an.';
 $string['agent_booking_search_users_required_query'] =
     'Bitte geben Sie eine Suchanfrage fuer Benutzer an.';
+$string['agent_booking_search_users_no_results'] = 'Keine passenden Nutzer gefunden.';
+$string['agent_booking_search_users_found'] = '{$a} passende(r) Nutzer gefunden.';
+$string['agent_booking_search_courses_no_results'] = 'Keine passenden Kurse gefunden.';
+$string['agent_booking_search_courses_found'] = '{$a} passende(r) Kurs(e) gefunden.';
 $string['agent_booking_update_option_invalid_optionid'] =
     'Die angegebene Options-ID {$a} gehoert nicht zu dieser Buchungsinstanz.';
 $string['agent_booking_update_option_invalid_optionid_question'] =

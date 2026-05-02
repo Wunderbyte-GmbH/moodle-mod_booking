@@ -17,7 +17,6 @@
 namespace mod_booking\local\wbagent\booking\tasks;
 
 use mod_booking\local\wbagent\booking\booking_task_support;
-use mod_booking\local\wbagent\services\answering\list_option_properties_answering_service;
 use mod_booking\local\wbagent\task_registry;
 use mod_booking\local\wbagent\interfaces\task_trigger_provider_interface;
 
@@ -207,29 +206,14 @@ class list_option_properties_task extends base_booking_task implements task_trig
             ];
         }
 
-        $usermessage = '';
-        $answersource = 'none';
-        try {
-            $answeringresult = $this->create_list_option_properties_answering_service()->answer_question(
-                $question,
-                $scope,
-                $properties,
-                $outputlang,
-                $cmid,
-                $userid
-            );
-            $llmanswer = trim((string)($answeringresult['answer'] ?? ''));
-            if ($llmanswer !== '') {
-                $usermessage = $this->enforce_max_chars($llmanswer, 650);
-                $answersource = 'llm';
-            }
-        } catch (\Throwable $e) {
-            $answersource = 'error';
-        }
+        $usermessage = $this->localized_string(
+            'agent_booking_list_option_properties_found',
+            count($properties),
+            $outputlang
+        );
 
         $debugextra = [
             'Properties returned: ' . count($properties),
-            'Answer source: ' . $answersource,
             'Top property: ' . ($properties[0]['name'] ?? ''),
         ];
 
@@ -237,7 +221,6 @@ class list_option_properties_task extends base_booking_task implements task_trig
             'status' => 'executed',
             'detail' => $usermessage,
             'resultid' => null,
-            'summary' => $usermessage,
             'usermessage' => $usermessage,
             'properties' => $properties,
             'debugmessage' => $this->build_task_debug_message(
@@ -246,14 +229,5 @@ class list_option_properties_task extends base_booking_task implements task_trig
                 $debugextra
             ),
         ];
-    }
-
-    /**
-     * Create the list-option-properties answering service.
-     *
-     * @return list_option_properties_answering_service
-     */
-    protected function create_list_option_properties_answering_service(): list_option_properties_answering_service {
-        return new list_option_properties_answering_service();
     }
 }

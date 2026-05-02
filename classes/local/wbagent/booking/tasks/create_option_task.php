@@ -79,6 +79,8 @@ class create_option_task extends base_booking_task implements task_trigger_provi
             'description' => 'Create a new booking option inside the current booking instance. '
                 . 'New options are always created as invisible.',
             'readonly' => $this->is_read_only(),
+            'fallback_confirm_string_key' => 'ai_status_confirm_booking_create_option',
+            'fallback_taskcall_string_key' => 'ai_status_taskcall_booking_create_option',
             'properties' => $properties,
         ];
     }

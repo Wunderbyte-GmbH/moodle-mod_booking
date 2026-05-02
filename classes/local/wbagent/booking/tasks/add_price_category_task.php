@@ -123,19 +123,6 @@ class add_price_category_task extends base_booking_task implements task_trigger_
     }
 
     /**
-     * Factory to create the answering service instance for this task.
-     *
-     * @return object|null
-     */
-    protected function create_add_price_category_answering_service(): ?object {
-        $classname = '\\mod_booking\\local\\wbagent\\services\\add_price_category_answering_service';
-        if (class_exists($classname)) {
-            return new $classname();
-        }
-        return null;
-    }
-
-    /**
      * Validate task input.
      *
      * @param array $input
@@ -146,7 +133,6 @@ class add_price_category_task extends base_booking_task implements task_trigger_
         $errors = [];
         $ambiguities = [];
         $issues = [];
-        $overrides = is_array($input['override'] ?? null) ? $input['override'] : [];
 
         $lang = $this->get_output_language($input);
 
@@ -220,44 +206,17 @@ class add_price_category_task extends base_booking_task implements task_trigger_
         );
 
         $outputlang = $this->get_output_language($input);
-        $answersource = 'none';
         if (is_array($result)) {
-            try {
-                $llmservice = $this->create_add_price_category_answering_service();
-                if ($llmservice !== null) {
-                    $llmresult = $llmservice->answer_question(
-                        $input['question'] ?? '',
-                        $result,
-                        $outputlang,
-                        $cmid,
-                        $userid
-                    );
-                    if (!empty($llmresult['usermessage'])) {
-                        $result['usermessage'] = (string)$llmresult['usermessage'];
-                        $outputlang = (string)($llmresult['outputlang'] ?? $outputlang);
-                        $answersource = 'llm';
-                    }
-                }
-            } catch (\Throwable $e) {
-                $answersource = 'error';
-            }
-
-            if (empty($result['usermessage'])) {
-                $result['usermessage'] = $this->localized_string(
-                    'agent_booking_pricecat_created',
-                    $identifier,
-                    $outputlang
-                );
-            }
-
+            $result['usermessage'] = $this->localized_string(
+                'agent_booking_pricecat_created',
+                $identifier,
+                $outputlang
+            );
             $result['outputlang'] = $outputlang;
             $result['debugmessage'] = $this->build_task_debug_message(
                 self::TASK_NAME,
                 $input,
-                [
-                    'Status: ' . ($result['status'] ?? 'unknown'),
-                    'Answer source: ' . $answersource,
-                ]
+                ['Status: ' . ($result['status'] ?? 'unknown')]
             );
         }
 

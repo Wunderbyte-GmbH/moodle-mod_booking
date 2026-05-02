@@ -22,7 +22,6 @@ use mod_booking\booking;
 use mod_booking\booking_option;
 use mod_booking\local\wbagent\booking\booking_task_support;
 use mod_booking\local\wbagent\interfaces\task_trigger_provider_interface;
-use mod_booking\local\wbagent\services\answering\diagnose_answering_service;
 use mod_booking\singleton_service;
 
 /**
@@ -277,55 +276,15 @@ class diagnose_cancellation_issue_task extends base_booking_task implements task
             'reply_requirements' => 'Mention exact setting keys and concrete admin changes.',
         ];
 
-        try {
-            $answerquestion = trim((string)($input['question'] ?? ''));
-            $answerquestion .= "\n\n"
-                . 'Answer requirements: mention exact setting keys and provide a concrete admin action for each blocker.';
-
-            $answeringresult = $this->create_diagnose_answering_service()->answer_question(
-                $answerquestion,
-                [
-                    'issuetype' => 'cannot_cancel',
-                    'optionname' => $optionname,
-                    'userstatus' => $userstatus,
-                    'reasons' => $reasons,
-                    'stats' => $stats,
-                ],
-                $outputlang,
-                $cmid,
-                $userid
-            );
-            $llmanswer = trim((string)($answeringresult['answer'] ?? ''));
-            if ($llmanswer === '') {
-                return [
-                    'status' => 'error',
-                    'detail' => $this->localized_string('agent_booking_diagnose_error_no_answer', null, $outputlang),
-                    'resultid' => null,
-                    'debugmessage' => $this->build_task_debug_message(
-                        self::TASK_NAME,
-                        $input,
-                        ['Answer service returned empty answer']
-                    ),
-                ];
-            }
-            $usermessage = $this->enforce_max_chars($llmanswer, 500);
-        } catch (\Throwable $e) {
-            return [
-                'status' => 'error',
-                'detail' => $this->localized_string('agent_booking_diagnose_error_answering_service', null, $outputlang),
-                'resultid' => null,
-                'debugmessage' => $this->build_task_debug_message(
-                    self::TASK_NAME,
-                    $input,
-                    ['Answer service exception: ' . $e->getMessage()]
-                ),
-            ];
-        }
+        $usermessage = $this->localized_string(
+            'agent_booking_diagnose_intro_checked_option',
+            $optionname,
+            $outputlang
+        );
 
         return [
             'status' => 'executed',
             'detail' => $usermessage,
-            'summary' => $usermessage,
             'usermessage' => $usermessage,
             'resultid' => $optionid,
             'previewoptionids' => [$optionid],
@@ -711,12 +670,4 @@ class diagnose_cancellation_issue_task extends base_booking_task implements task
         return booking_task_support::resolve_single_option($cmid, $optionquery, '');
     }
 
-    /**
-     * Create the diagnose answering service.
-     *
-     * @return diagnose_answering_service
-     */
-    protected function create_diagnose_answering_service(): diagnose_answering_service {
-        return new diagnose_answering_service();
-    }
 }

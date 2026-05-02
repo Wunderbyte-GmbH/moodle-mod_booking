@@ -17,8 +17,6 @@
 namespace mod_booking\local\wbagent\booking\tasks;
 
 use mod_booking\local\wbagent\interfaces\task_trigger_provider_interface;
-use mod_booking\local\wbagent\services\answering\docs_answering_service;
-use mod_booking\local\wbagent\services\answering\docs_selection_service;
 use mod_booking\local\wbagent\services\lookup\docs_lookup_service;
 
 /**
@@ -153,23 +151,6 @@ class explain_docs_topic_task extends base_booking_task implements task_trigger_
 
         $service = $this->create_docs_lookup_service();
         $docs = $service->search($question, 2);
-        $selectionmethod = 'keyword';
-
-        // Keyword search found nothing → ask LLM to select from the full index.
-        if (empty($docs)) {
-            $docindex = $service->get_all_doc_index();
-            $selectedpaths = $this->create_docs_selection_service()->select_docs(
-                $question,
-                $docindex,
-                2,
-                $cmid,
-                $userid
-            );
-            if (!empty($selectedpaths)) {
-                $docs = $service->load_docs_by_paths($selectedpaths);
-                $selectionmethod = 'llm_index';
-            }
-        }
 
         if (empty($docs)) {
             $nomatch = $this->localized_string('ai_docs_explain_no_match', null, $outputlang);
@@ -186,30 +167,7 @@ class explain_docs_topic_task extends base_booking_task implements task_trigger_
         $selecteddocs = array_slice($docs, 0, 2);
         $firstdoc = $selecteddocs[0];
 
-        $usermessage = '';
-        $answersource = 'none';
-        try {
-            $answeringresult = $this->create_docs_answering_service()->answer_question(
-                $question,
-                $selecteddocs,
-                $outputlang,
-                $cmid,
-                $userid
-            );
-            $llmanswer = trim((string)($answeringresult['answer'] ?? ''));
-            if ($llmanswer !== '') {
-                $usermessage = $this->enforce_max_chars($llmanswer, 650);
-                $answersource = 'llm';
-            }
-        } catch (\Throwable $e) {
-            $answersource = 'error';
-            $usermessage = $this->localized_string('ai_docs_explain_generation_failed', null, $outputlang);
-        }
-
-        if ($usermessage === '') {
-            $usermessage = $service->build_summary($firstdoc);
-        }
-
+        $usermessage = $service->build_summary($firstdoc);
         $usermessage = $this->enforce_max_chars($usermessage, 500);
 
         $structureddocs = [];
@@ -234,8 +192,6 @@ class explain_docs_topic_task extends base_booking_task implements task_trigger_
                 [
                     'Docs matched: ' . count($selecteddocs),
                     'Top doc: ' . (string)($firstdoc['path'] ?? ''),
-                    'Answer source: ' . $answersource,
-                    'Selection method: ' . $selectionmethod,
                 ]
             ),
         ];
@@ -248,23 +204,5 @@ class explain_docs_topic_task extends base_booking_task implements task_trigger_
      */
     protected function create_docs_lookup_service(): docs_lookup_service {
         return new docs_lookup_service();
-    }
-
-    /**
-     * Create the docs selection service.
-     *
-     * @return docs_selection_service
-     */
-    protected function create_docs_selection_service(): docs_selection_service {
-        return new docs_selection_service();
-    }
-
-    /**
-     * Create the docs answering service.
-     *
-     * @return docs_answering_service
-     */
-    protected function create_docs_answering_service(): docs_answering_service {
-        return new docs_answering_service();
     }
 }

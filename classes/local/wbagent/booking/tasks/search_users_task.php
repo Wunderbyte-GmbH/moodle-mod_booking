@@ -18,7 +18,6 @@ namespace mod_booking\local\wbagent\booking\tasks;
 
 use mod_booking\local\wbagent\booking\booking_task_support;
 use mod_booking\local\wbagent\interfaces\task_trigger_provider_interface;
-use mod_booking\local\wbagent\services\answering\search_users_answering_service;
 
 /**
  * Task definition for booking.search_users.
@@ -57,6 +56,7 @@ class search_users_task extends base_booking_task implements task_trigger_provid
             'version' => 1,
             'description' => 'Search users via mod_booking external search_users functionality.',
             'readonly' => $this->is_read_only(),
+            'fallback_taskcall_string_key' => 'ai_status_taskcall_booking_search_users',
             'properties' => [
                 'query' => [
                     'type' => 'string',
@@ -164,91 +164,37 @@ class search_users_task extends base_booking_task implements task_trigger_provid
 
         $users = booking_task_support::search_user_candidates_for_preview($query, $limit);
         if (empty($users)) {
-            $messagedata = $this->generate_user_message($question, $query, [], $outputlang, $cmid, $userid);
+            $usermessage = $this->localized_string('agent_booking_search_users_no_results', null, $outputlang);
             return [
                 'status' => 'executed',
-                'detail' => $messagedata['message'],
-                'summary' => $messagedata['message'],
-                'usermessage' => $messagedata['message'],
+                'detail' => $usermessage,
+                'usermessage' => $usermessage,
                 'resultid' => null,
                 'users' => [],
-                'debugmessage' => $debugbase
-                    . "\nResults: 0"
-                    . "\nAnswer source: " . $messagedata['source'],
+                'debugmessage' => $debugbase . "\nResults: 0",
             ];
         }
 
-            $messagedata = $this->generate_user_message($question, $query, $users, $outputlang, $cmid, $userid);
-
+        $usermessage = $this->localized_string(
+            'agent_booking_search_users_found',
+            count($users),
+            $outputlang
+        );
         $previewids = array_values(array_map(static fn(array $u): int => (int)($u['userid'] ?? 0), $users));
         $debugextra = [
             'Results: ' . count($users),
-            'Answer source: ' . $messagedata['source'],
             'Top user: ' . ((string)($users[0]['fullname'] ?? '') ?: (string)($users[0]['username'] ?? '')) . ' ',
             'Preview user ids: ' . implode(', ', $previewids),
         ];
 
         return [
             'status' => 'executed',
-            'detail' => $messagedata['message'],
-            'summary' => $messagedata['message'],
-            'usermessage' => $messagedata['message'],
+            'detail' => $usermessage,
+            'usermessage' => $usermessage,
             'resultid' => (int)($users[0]['userid'] ?? 0),
             'users' => $users,
             'previewuserids' => $previewids,
-            'debugmessage' => $debugbase
-                . "\n" . implode("\n", $debugextra),
+            'debugmessage' => $debugbase . "\n" . implode("\n", $debugextra),
         ];
-    }
-
-    /**
-     * Generate user-facing message via LLM with deterministic fallback.
-     *
-     * @param string $question
-     * @param string $query
-     * @param array $users
-     * @param string $outputlang
-     * @param int $cmid
-     * @param int $userid
-     * @return array{message:string,source:string}
-     */
-    private function generate_user_message(
-        string $question,
-        string $query,
-        array $users,
-        string $outputlang,
-        int $cmid,
-        int $userid
-    ): array {
-        $message = '';
-        $source = 'none';
-        try {
-            $answeringresult = $this->create_search_users_answering_service()->answer_question(
-                $question,
-                $query,
-                $users,
-                $outputlang,
-                $cmid,
-                $userid
-            );
-            $llmanswer = trim((string)($answeringresult['answer'] ?? ''));
-            if ($llmanswer !== '') {
-                $message = $this->enforce_max_chars($llmanswer, 650);
-                $source = 'llm';
-            }
-        } catch (\Throwable $e) {
-            $source = 'error';
-        }
-
-        return ['message' => $message, 'source' => $source];
-    }
-
-    /**
-     * Create the search-users answering service.
-     *
-     * @return search_users_answering_service
-     */
-    protected function create_search_users_answering_service(): search_users_answering_service {
-        return new search_users_answering_service();
     }
 }

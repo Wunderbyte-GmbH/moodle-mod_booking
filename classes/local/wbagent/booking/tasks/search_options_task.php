@@ -19,7 +19,6 @@ namespace mod_booking\local\wbagent\booking\tasks;
 use core_text;
 use mod_booking\local\wbagent\booking\booking_task_support;
 use mod_booking\local\wbagent\interfaces\task_trigger_provider_interface;
-use mod_booking\local\wbagent\services\answering\search_options_answering_service;
 
 /**
  * Task definition for booking.search_options.
@@ -58,6 +57,8 @@ class search_options_task extends base_booking_task implements task_trigger_prov
             'version' => 1,
             'description' => 'Search booking options via the existing booking table fulltext/filter pipeline.',
             'readonly' => $this->is_read_only(),
+            'fallback_confirm_string_key' => 'ai_status_confirm_booking_search_options',
+            'fallback_taskcall_string_key' => 'ai_status_taskcall_booking_search_options',
             'properties' => [
                 'query' => [
                     'type' => 'string',
@@ -181,27 +182,16 @@ class search_options_task extends base_booking_task implements task_trigger_prov
                         'name' => $title,
                         'link' => $link,
                     ]];
-                    $messagedata = $this->generate_user_message(
-                        $question,
-                        $query,
-                        $when,
-                        $structuredoptions,
-                        $outputlang,
-                        $cmid,
-                        $userid
-                    );
+                    $usermessage = get_string('searchoptionsfound', 'mod_booking', 1);
 
                     return [
                         'status' => 'executed',
-                        'detail' => $messagedata['message'],
-                        'summary' => $messagedata['message'],
-                        'usermessage' => $messagedata['message'],
+                        'detail' => $usermessage,
+                        'usermessage' => $usermessage,
                         'resultid' => $optionid,
                         'previewoptionids' => [$optionid],
                         'options' => $structuredoptions,
-                        'debugmessage' => $debugbase
-                            . "\nResults: 1 (exact title match)"
-                            . "\nAnswer source: " . $messagedata['source'],
+                        'debugmessage' => $debugbase . "\nResults: 1 (exact title match)",
                     ];
                 }
             }
@@ -216,25 +206,14 @@ class search_options_task extends base_booking_task implements task_trigger_prov
         }
 
         if (empty($rows)) {
-            $messagedata = $this->generate_user_message(
-                $question,
-                $effectivequery,
-                $when,
-                [],
-                $outputlang,
-                $cmid,
-                $userid
-            );
+            $usermessage = get_string('searchoptionsnotfound', 'mod_booking');
             return [
                 'status' => 'executed',
-                'detail' => $messagedata['message'],
-                'summary' => $messagedata['message'],
-                'usermessage' => $messagedata['message'],
+                'detail' => $usermessage,
+                'usermessage' => $usermessage,
                 'resultid' => null,
                 'options' => [],
-                'debugmessage' => $debugbase
-                    . "\nResults: 0"
-                    . "\nAnswer source: " . $messagedata['source'],
+                'debugmessage' => $debugbase . "\nResults: 0",
             ];
         }
 
@@ -250,15 +229,7 @@ class search_options_task extends base_booking_task implements task_trigger_prov
             ];
         }
 
-        $messagedata = $this->generate_user_message(
-            $question,
-            $effectivequery,
-            $when,
-            $structuredoptions,
-            $outputlang,
-            $cmid,
-            $userid
-        );
+        $usermessage = get_string('searchoptionsfound', 'mod_booking', count($structuredoptions));
 
         $previewids = array_values(array_map(
             static fn(array $row): int => (int)($row['optionid'] ?? 0),
@@ -267,96 +238,19 @@ class search_options_task extends base_booking_task implements task_trigger_prov
 
         $debugextra = [
             'Results: ' . count($structuredoptions),
-            'Answer source: ' . $messagedata['source'],
             'Top option: ' . (string)($structuredoptions[0]['name'] ?? ''),
             'Preview option ids: ' . implode(', ', $previewids),
         ];
 
         return [
             'status' => 'executed',
-            'detail' => $messagedata['message'],
-            'summary' => $messagedata['message'],
-            'usermessage' => $messagedata['message'],
+            'detail' => $usermessage,
+            'usermessage' => $usermessage,
             'resultid' => (int)($rows[0]['optionid'] ?? 0),
             'previewoptionids' => $previewids,
             'options' => $structuredoptions,
-            'debugmessage' => $debugbase
-                . "\n" . implode("\n", $debugextra),
+            'debugmessage' => $debugbase . "\n" . implode("\n", $debugextra),
         ];
-    }
-
-    /**
-     * Generate user-facing message via LLM with deterministic fallback.
-     *
-     * @param string $question
-     * @param string $query
-     * @param string $when
-     * @param array $options
-     * @param string $outputlang
-     * @param int $cmid
-     * @param int $userid
-     * @return array{message:string,source:string}
-     */
-    private function generate_user_message(
-        string $question,
-        string $query,
-        string $when,
-        array $options,
-        string $outputlang,
-        int $cmid,
-        int $userid
-    ): array {
-        $message = '';
-        $source = 'none';
-        try {
-            $answeringresult = $this->create_search_options_answering_service()->answer_question(
-                $question,
-                $query,
-                $when,
-                $options,
-                $outputlang,
-                $cmid,
-                $userid
-            );
-            $llmanswer = trim((string)($answeringresult['answer'] ?? ''));
-            if ($llmanswer !== '') {
-                $message = $this->enforce_max_chars($llmanswer, 650);
-                $source = 'llm';
-            }
-        } catch (\Throwable $e) {
-            $source = 'error';
-        }
-
-        if ($message === '') {
-            $message = $this->build_fallback_user_message($options);
-            $source = $source === 'error' ? 'fallback_after_error' : 'fallback';
-        }
-
-        return ['message' => $message, 'source' => $source];
-    }
-
-    /**
-     * Build deterministic fallback text when LLM output is unavailable.
-     *
-     * @param array $options
-     * @return string
-     */
-    private function build_fallback_user_message(array $options): string {
-        $count = count($options);
-        if ($count === 0) {
-            return get_string('searchoptionsnotfound', 'mod_booking');
-        }
-
-        return get_string('searchoptionsfound', 'mod_booking', $count);
-    }
-
-    /**
-     * Create the search-options answering service.
-     *
-     * @return search_options_answering_service
-     */
-    protected function create_search_options_answering_service(): search_options_answering_service {
-        return new search_options_answering_service();
     }
 
     /**

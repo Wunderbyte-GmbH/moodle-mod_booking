@@ -18,7 +18,6 @@ namespace mod_booking\local\wbagent\booking\tasks;
 
 use mod_booking\local\wbagent\booking\booking_task_support;
 use mod_booking\local\wbagent\interfaces\task_trigger_provider_interface;
-use mod_booking\local\wbagent\services\answering\list_actions_answering_service;
 use mod_booking\local\wbagent\task_registry;
 
 /**
@@ -182,42 +181,14 @@ class list_actions_task extends base_booking_task implements task_trigger_provid
         $available = array_fill_keys($selectedtasknames, true);
         $capabilities = $this->build_user_capabilities($available);
 
-        $summary = '';
-        $answersource = 'none';
-        try {
-            $answeringresult = $this->create_list_actions_answering_service()->answer_question(
-                $question,
-                $scope,
-                $capabilities,
-                $actions,
-                $outputlang,
-                $cmid,
-                $userid
-            );
-            $llmanswer = trim((string)($answeringresult['answer'] ?? ''));
-            if ($llmanswer !== '') {
-                $summary = $this->sanitize_user_summary($this->enforce_max_chars($llmanswer, 650));
-                $answersource = 'llm';
-                if ($summary === '') {
-                    $answersource = 'llm_sanitized_empty';
-                }
-            }
-        } catch (\Throwable $e) {
-            $answersource = 'error';
-        }
+        $summary = $this->build_user_summary($scope, $capabilities);
 
-        if ($summary === '') {
-            $summary = $this->build_user_summary($scope, $capabilities);
-            $answersource = $answersource === 'error' ? 'fallback_after_error' : 'fallback';
-        }
-
-        $debugmessage = $this->build_debug_summary($scope, $actions, $capabilities, $answersource);
+        $debugmessage = $this->build_debug_summary($scope, $actions, $capabilities);
 
         return [
             'status' => 'executed',
             'detail' => $summary,
             'resultid' => null,
-            'summary' => $summary,
             'usermessage' => $summary,
             'debugmessage' => $debugmessage,
             'capabilities' => $capabilities,
@@ -226,49 +197,21 @@ class list_actions_task extends base_booking_task implements task_trigger_provid
     }
 
     /**
-     * Keep user-facing summary free of technical task identifiers.
-     *
-     * @param string $summary
-     * @return string
-     */
-    private function sanitize_user_summary(string $summary): string {
-        if ($summary === '') {
-            return '';
-        }
-
-        $sanitized = preg_replace('/\bbooking\.[a-z0-9_]+\b/i', 'this action', $summary);
-        $sanitized = preg_replace('/\b[a-z0-9_]+_task\b/i', 'task', (string)$sanitized);
-
-        return trim((string)$sanitized);
-    }
-
-    /**
      * Build a technical debug summary for developers.
      *
      * @param string $scope
      * @param array $actions
      * @param array $capabilities
-     * @param string $answersource
      * @return string
      */
-    private function build_debug_summary(string $scope, array $actions, array $capabilities, string $answersource): string {
+    private function build_debug_summary(string $scope, array $actions, array $capabilities): string {
         $lines = [
             'Task: ' . self::TASK_NAME,
             'Scope: ' . $scope,
             'Returned actions: ' . count($actions),
             'Derived capabilities: ' . count($capabilities),
-            'Answer source: ' . $answersource,
         ];
         return implode("\n", $lines);
-    }
-
-    /**
-     * Create the list-actions answering service.
-     *
-     * @return list_actions_answering_service
-     */
-    protected function create_list_actions_answering_service(): list_actions_answering_service {
-        return new list_actions_answering_service();
     }
 
     /**

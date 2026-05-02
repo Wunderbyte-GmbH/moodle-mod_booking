@@ -60,6 +60,8 @@ class bulk_update_options_task extends base_booking_task implements task_trigger
             'description' => 'Update multiple booking options at once. All provided fields are applied to every '
                 . 'matched option. Requires optionids, optionquery, or apply_to_all=true to select targets.',
             'readonly' => $this->is_read_only(),
+            'fallback_confirm_string_key' => 'ai_status_confirm_booking_bulk_update_options',
+            'fallback_taskcall_string_key' => 'ai_status_taskcall_booking_bulk_update_options',
             'properties' => array_merge([
                 'optionids' => [
                     'type' => 'array',
@@ -236,19 +238,6 @@ class bulk_update_options_task extends base_booking_task implements task_trigger
     }
 
     /**
-     * Factory to create the answering service instance for this task.
-     *
-     * @return object|null
-     */
-    protected function create_bulk_update_options_answering_service(): ?object {
-        $classname = '\\mod_booking\\local\\wbagent\\services\\answering\\bulk_update_options_answering_service';
-        if (class_exists($classname)) {
-            return new $classname();
-        }
-        return null;
-    }
-
-    /**
      * Execute task.
      *
      * @param array $input
@@ -260,48 +249,19 @@ class bulk_update_options_task extends base_booking_task implements task_trigger
         $service = new booking_task_mutation_execute_service();
         $result = $service->execute(self::TASK_NAME, $input, $cmid, $userid, $this->support);
 
-        $usermessage = '';
         $outputlang = $this->get_output_language($input);
-        $answersource = 'none';
         if (is_array($result)) {
-            // LLM-Antwort generieren lassen.
-            try {
-                $llmservice = $this->create_bulk_update_options_answering_service();
-                if ($llmservice !== null) {
-                    $llmresult = $llmservice->answer_question(
-                        $input['question'] ?? '',
-                        $result,
-                        $outputlang,
-                        $cmid,
-                        $userid
-                    );
-                    if (!empty($llmresult['usermessage'])) {
-                        $usermessage = (string)$llmresult['usermessage'];
-                        $outputlang = (string)($llmresult['outputlang'] ?? $outputlang);
-                        $answersource = 'llm';
-                    }
-                }
-            } catch (\Throwable $e) {
-                // Preserve task-side debug/fallback behavior. Do not expose LLM errors to users.
-                $answersource = 'error';
-            }
-            if (empty($usermessage)) {
-                // Fallback: einfache Standardantwort.
-                $usermessage = $this->localized_string(
-                    'agent_booking_bulk_update_completed',
-                    ($result['status'] ?? 'unknown'),
-                    $outputlang
-                );
-            }
+            $usermessage = $this->localized_string(
+                'agent_booking_bulk_update_completed',
+                ($result['status'] ?? 'unknown'),
+                $outputlang
+            );
             $result['usermessage'] = $usermessage;
             $result['outputlang'] = $outputlang;
             $result['debugmessage'] = $this->build_task_debug_message(
                 self::TASK_NAME,
                 $input,
-                [
-                    'Status: ' . ($result['status'] ?? 'unknown'),
-                    'Answer source: ' . $answersource,
-                ]
+                ['Status: ' . ($result['status'] ?? 'unknown')]
             );
             return $result;
         }

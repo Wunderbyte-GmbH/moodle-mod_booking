@@ -21,7 +21,6 @@ defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/abstract_agent_testcase.php');
 
 use mod_booking\local\wbagent\booking\tasks\explain_docs_topic_task;
-use mod_booking\local\wbagent\services\answering\docs_answering_service;
 use mod_booking\local\wbagent\task_registry;
 
 /**
@@ -89,7 +88,6 @@ final class docs_explainer_task_test extends abstract_agent_testcase {
         $summary = (string)($result['usermessage'] ?? $result['detail'] ?? '');
 
         $this->assertNotSame('', trim($summary));
-        $this->assertStringNotContainsString(str_repeat(chr(96), 3), $summary);
         $this->assertStringContainsString('book', strtolower($summary));
         $this->assertStringContainsString('other option', strtolower($summary));
     }
@@ -110,186 +108,32 @@ final class docs_explainer_task_test extends abstract_agent_testcase {
     }
 
     /**
-     * Clear doc hits should use the answering service and forward outputlang.
+     * Task does not call any answering service internally.
+     * The returned docs provide raw context for agent-layer LLM narration.
      */
-    public function test_docs_explain_task_uses_answering_service_for_clear_match(): void {
-        $captured = [];
-        $task = new class ($captured) extends explain_docs_topic_task {
-            /** @var array */
-            private array $captured;
-
-            /**
-             * Create the fake explain task.
-             *
-             * @param array $captured
-             */
-            public function __construct(array &$captured) {
-                parent::__construct();
-                $this->captured = &$captured;
-            }
-
-            /**
-             * Create a fake answering service for the test.
-             *
-             * @return docs_answering_service
-             */
-            protected function create_docs_answering_service(): docs_answering_service {
-                return new class ($this->captured) extends docs_answering_service {
-                    /** @var array */
-                    private array $captured;
-
-                    /**
-                     * Create the fake answering service.
-                     *
-                     * @param array $captured
-                     */
-                    public function __construct(array &$captured) {
-                        $this->captured = &$captured;
-                    }
-
-                    /**
-                     * Return a synthetic LLM answer and capture the request payload.
-                     *
-                     * @param string $question
-                     * @param array $docs
-                     * @param string $outputlang
-                     * @param int $cmid
-                     * @param int $userid
-                     * @return array
-                     */
-                    public function answer_question(
-                        string $question,
-                        array $docs,
-                        string $outputlang,
-                        int $cmid,
-                        int $userid
-                    ): array {
-                        $docpaths = [];
-                        foreach ($docs as $doc) {
-                            $docpaths[] = (string)($doc['path'] ?? '');
-                        }
-
-                        $this->captured = [
-                            'question' => $question,
-                            'docpaths' => $docpaths,
-                            'outputlang' => $outputlang,
-                            'cmid' => $cmid,
-                            'userid' => $userid,
-                        ];
-                        return [
-                            'answer' => 'LLM says: Book Other Options automatically books related options for the same user.',
-                        ];
-                    }
-                };
-            }
-        };
-
-        $result = $task->execute([
+    public function test_docs_explain_task_returns_raw_docs_without_llm_call(): void {
+        $result = $this->exec_command('booking.explain_docs_topic', [
             'question' => 'Was bedeutet bookotheroptions?',
             'outputlang' => 'de',
-        ], (int)$this->booking->cmid, (int)$this->teacher->id);
+        ]);
 
         $this->assertSame('executed', $result['status'], (string)($result['detail'] ?? ''));
-        $this->assertSame(
-            'LLM says: Book Other Options automatically books related options for the same user.',
-            (string)($result['usermessage'] ?? '')
-        );
-        $this->assertSame('Was bedeutet bookotheroptions?', (string)($captured['question'] ?? ''));
-        $docpaths = (array)($captured['docpaths'] ?? []);
-        $this->assertNotEmpty($docpaths);
-        $this->assertLessThanOrEqual(2, count($docpaths));
-        $this->assertContains('actions_after_booking/bookotheroptions.md', $docpaths);
-        $this->assertSame('de', (string)($captured['outputlang'] ?? ''));
+        $this->assertArrayHasKey('docs', $result);
+        $this->assertNotEmpty($result['docs']);
+        // The task-authored usermessage must be a deterministic summary, not an LLM answer.
+        $usermessage = trim((string)($result['usermessage'] ?? ''));
+        $this->assertNotSame('', $usermessage);
+        $this->assertLessThanOrEqual(500, \core_text::strlen($usermessage));
     }
 
     /**
-     * If the answering service fails, the task should fall back to a localized safe message.
-     */
-    public function test_docs_explain_task_falls_back_when_answering_service_fails(): void {
-        $task = new class extends explain_docs_topic_task {
-            /**
-             * Create a failing fake answering service for the test.
-             *
-             * @return docs_answering_service
-             */
-            protected function create_docs_answering_service(): docs_answering_service {
-                return new class extends docs_answering_service {
-                    /**
-                     * Always fail to force fallback handling.
-                     *
-                     * @param string $question
-                     * @param array $docs
-                     * @param string $outputlang
-                     * @param int $cmid
-                     * @param int $userid
-                     * @return array
-                     */
-                    public function answer_question(
-                        string $question,
-                        array $docs,
-                        string $outputlang,
-                        int $cmid,
-                        int $userid
-                    ): array {
-                        throw new \RuntimeException('Synthetic answering failure');
-                    }
-                };
-            }
-        };
-
-        $result = $task->execute([
-            'question' => 'Explain bookotheroptions briefly.',
-            'outputlang' => 'en',
-        ], (int)$this->booking->cmid, (int)$this->teacher->id);
-
-        $this->assertSame('executed', $result['status'], (string)($result['detail'] ?? ''));
-        $summary = (string)($result['usermessage'] ?? '');
-        $this->assertNotSame('', trim($summary));
-        $this->assertStringContainsString('could not generate', strtolower($summary));
-        $this->assertStringNotContainsString('synthetic answering failure', $summary);
-    }
-
-    /**
-     * Docs explain task enforces a hard maximum of 500 characters for the user message.
+     * Task-authored user message stays within 500 characters without any LLM call.
      */
     public function test_docs_explain_task_limits_answer_to_500_characters(): void {
-        $task = new class extends explain_docs_topic_task {
-            /**
-             * Create a fake answering service that returns an overly long answer.
-             *
-             * @return docs_answering_service
-             */
-            protected function create_docs_answering_service(): docs_answering_service {
-                return new class extends docs_answering_service {
-                    /**
-                     * Return an answer that is intentionally longer than the allowed limit.
-                     *
-                     * @param string $question
-                     * @param array $docs
-                     * @param string $outputlang
-                     * @param int $cmid
-                     * @param int $userid
-                     * @return array
-                     */
-                    public function answer_question(
-                        string $question,
-                        array $docs,
-                        string $outputlang,
-                        int $cmid,
-                        int $userid
-                    ): array {
-                        return [
-                            'answer' => str_repeat('A', 650),
-                        ];
-                    }
-                };
-            }
-        };
-
-        $result = $task->execute([
+        $result = $this->exec_command('booking.explain_docs_topic', [
             'question' => 'What does bookotheroptions do?',
             'outputlang' => 'en',
-        ], (int)$this->booking->cmid, (int)$this->teacher->id);
+        ]);
 
         $this->assertSame('executed', $result['status'], (string)($result['detail'] ?? ''));
         $summary = (string)($result['usermessage'] ?? '');

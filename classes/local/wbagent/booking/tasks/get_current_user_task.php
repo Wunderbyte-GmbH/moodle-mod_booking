@@ -16,7 +16,6 @@
 
 namespace mod_booking\local\wbagent\booking\tasks;
 use mod_booking\local\wbagent\interfaces\task_trigger_provider_interface;
-use mod_booking\local\wbagent\services\answering\get_current_user_answering_service;
 
 /**
  * Task definition for booking.get_current_user.
@@ -138,38 +137,12 @@ class get_current_user_task extends base_booking_task implements task_trigger_pr
             'email' => (string)$user->email,
         ];
 
-        // LLM-Antwort generieren lassen via Factory.
-        $usermessage = '';
         $outputlang = $this->get_output_language($input);
-        $answersource = 'none';
-        try {
-            $llmservice = $this->create_get_current_user_answering_service();
-            if ($llmservice !== null) {
-                $llmresult = $llmservice->answer_question(
-                    (string)($input['question'] ?? ''),
-                    $userdata,
-                    $outputlang,
-                    $cmid,
-                    $userid
-                );
-                $usermessage = trim((string)($llmresult['usermessage'] ?? ''));
-                if ($usermessage !== '') {
-                    $answersource = 'llm';
-                }
-            }
-        } catch (\Throwable $e) {
-            $answersource = 'error';
-        }
-
-        if ($usermessage === '') {
-            // Fallback: lokale, lokalisierbare Standardantwort.
-            $usermessage = $this->localized_string(
-                'agent_booking_get_current_user_fallback',
-                (object)['fullname' => $fullname, 'email' => $user->email],
-                $outputlang
-            );
-            $answersource = $answersource === 'error' ? 'fallback_after_error' : 'fallback';
-        }
+        $usermessage = $this->localized_string(
+            'agent_booking_get_current_user_fallback',
+            (object)['fullname' => $fullname, 'email' => $user->email],
+            $outputlang
+        );
 
         return [
             'status' => 'executed',
@@ -184,23 +157,8 @@ class get_current_user_task extends base_booking_task implements task_trigger_pr
             'debugmessage' => $this->build_task_debug_message(
                 self::TASK_NAME,
                 $input,
-                [
-                    'Resolved user: ' . $fullname . ' (id=' . $user->id . ')',
-                    'Answer source: ' . $answersource,
-                ]
+                ['Resolved user: ' . $fullname . ' (id=' . $user->id . ')']
             ),
         ];
-    }
-
-    /**
-     * Create the answering service for get_current_user.
-     *
-     * @return get_current_user_answering_service|null
-     */
-    protected function create_get_current_user_answering_service(): ?get_current_user_answering_service {
-        if (class_exists(get_current_user_answering_service::class)) {
-            return new get_current_user_answering_service();
-        }
-        return null;
     }
 }

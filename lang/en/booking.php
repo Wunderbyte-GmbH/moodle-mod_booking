@@ -236,6 +236,7 @@ $string['agent_booking_get_current_user_identified'] =
     'Current user identified successfully.';
 $string['agent_booking_list_option_properties_invalid_scope'] =
     'Invalid scope. Allowed values are: all, create, update, shared.';
+$string['agent_booking_list_option_properties_found'] = '{$a} booking option property/properties found.';
 $string['agent_booking_pricecat_created'] = 'Price category "{$a}" was created.';
 $string['agent_booking_pricecat_defaultvalue_nonnegative'] = 'The default value must not be negative.';
 $string['agent_booking_pricecat_defaultvalue_numeric'] = 'The default value must be a number.';
@@ -249,6 +250,10 @@ $string['agent_booking_resolve_user_no_match'] = 'No user matched user query "{$
 $string['agent_booking_resolve_user_query_required'] = 'Please provide a user query to identify the user.';
 $string['agent_booking_search_users_required_query'] =
     'Please provide a user search query.';
+$string['agent_booking_search_users_no_results'] = 'No matching users found.';
+$string['agent_booking_search_users_found'] = '{$a} matching user(s) found.';
+$string['agent_booking_search_courses_no_results'] = 'No matching courses found.';
+$string['agent_booking_search_courses_found'] = '{$a} matching course(s) found.';
 $string['agent_booking_update_option_invalid_optionid'] =
     'The provided option id {$a} does not belong to this booking instance.';
 $string['agent_booking_update_option_invalid_optionid_question'] =

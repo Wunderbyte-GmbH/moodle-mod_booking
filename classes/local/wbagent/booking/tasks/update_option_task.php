@@ -59,6 +59,8 @@ class update_option_task extends base_booking_task implements task_trigger_provi
             'version' => 1,
             'description' => 'Update an existing booking option in the current booking instance.',
             'readonly' => $this->is_read_only(),
+            'fallback_confirm_string_key' => 'ai_status_confirm_booking_update_option',
+            'fallback_taskcall_string_key' => 'ai_status_taskcall_booking_update_option',
             'properties' => array_merge([
                 'text' => [
                     'type' => 'string',
