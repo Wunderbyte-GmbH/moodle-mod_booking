@@ -1309,13 +1309,15 @@ class booking_task_support {
      * Book users for an option through the standard booking_bookit flow.
      *
      * This enforces all existing booking rules and condition checks.
+     * Confirmation-flow conditions (id <= 1) are not treated as hard blockers;
+     * bookit is called twice when needed to progress through them.
      *
      * @param int $optionid
      * @param array $userids
      * @param array $meta
-     * @return array
+     * @return array{bookeduserids: array, errors: array}
      */
-    private static function book_users_via_bookit(int $optionid, array $userids, array $meta): array {
+    public static function book_users_for_option(int $optionid, array $userids, array $meta): array {
         $bookeduserids = [];
         $errors = [];
 
@@ -1333,16 +1335,23 @@ class booking_task_support {
                 continue;
             }
 
-            // Explicit pre-check requested by product requirement: only hard blockers.
+            // Pre-check: only hard blockers that are not confirmation flow steps.
+            // Confirmation conditions (confirmbookit, confirmation, confirmaskforconfirmation, etc.)
+            // have IDs <= 1 and represent "please confirm" pages, not real blockers.
+            // Bookit needs to be called (twice) to progress through them.
             $results = bo_info::get_condition_results((int)$settings->id, $targetuserid, true);
-            if (!empty($results)) {
-                $blockersummary = self::summarize_condition_blockers($results);
-                $followup = self::blocking_followup_question($results);
+            $hardresults = array_filter($results, function ($r) {
+                return (int)($r['id'] ?? 0) > 1;
+            });
+            if (!empty($hardresults)) {
+                $blockersummary = self::summarize_condition_blockers($hardresults);
+                $followup = self::blocking_followup_question($hardresults);
                 $errors[] = 'User ' . $targetuserid . ' cannot be booked due to blocking conditions '
                     . ': ' . $blockersummary . ' ' . $followup;
                 continue;
             }
 
+            // Let bookit handle confirmation flows. Call twice if needed.
             $first = booking_bookit::bookit('option', (int)$settings->id, $targetuserid);
             $response = $first;
 
@@ -2471,6 +2480,6 @@ class booking_task_support {
      * @return array
      */
     public static function book_users_via_bookit_for_execute(int $optionid, array $userids, array $meta): array {
-        return self::book_users_via_bookit($optionid, $userids, $meta);
+        return self::book_users_for_option($optionid, $userids, $meta);
     }
 }

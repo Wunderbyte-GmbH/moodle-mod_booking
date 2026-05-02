@@ -57,6 +57,7 @@ class interpreter implements agent_interpreter {
         'MISSING_LOCATION_CONFIRM_REQUIRED',
         'LOCATION_NOT_FOUND_POSSIBLE',
         'SLOTBOOKING_DURATION_EQUALS_WINDOW',
+        'SOFT_BOOKING_OVERRIDE_CONFIRM_REQUIRED',
     ];
 
     /** @var task_registry */
@@ -190,7 +191,9 @@ class interpreter implements agent_interpreter {
                 return [
                     'response_type' => 'confirmation_request',
                     'lang'          => $lang,
-                    'message'       => $this->clarification_message($parsed, $ambiguities),
+                    // For backend-driven confirmable issues, prefer task-validator wording
+                    // over generic LLM confirmation text so the user sees the real reason.
+                    'message'       => $this->confirmation_message_from_ambiguities($ambiguities),
                     'used_triggers' => $usedtriggers,
                     'commands'      => $confirmablecommands,
                     'ambiguities'   => [],
@@ -405,7 +408,6 @@ class interpreter implements agent_interpreter {
                     $severity = trim((string)($issue['severity'] ?? ''));
                     if (
                         $severity === 'needs_confirmation'
-                        && $taskname === 'booking.create_option'
                         && in_array($code, self::CONFIRMABLE_ISSUE_CODES, true)
                     ) {
                         $confirmcommand = $candidatecommand;
@@ -419,6 +421,10 @@ class interpreter implements agent_interpreter {
                                 static fn($token): string => strtolower(trim((string)$token)),
                                 $overrides
                             )));
+                        }
+                        if ($code === 'SOFT_BOOKING_OVERRIDE_CONFIRM_REQUIRED') {
+                            // Second-stage confirmed execution for admin-overridable blockers (e.g. selectuser).
+                            $confirmcommand['input']['confirmed'] = true;
                         }
                         $confirmablecommands[] = $confirmcommand;
                     }
@@ -875,6 +881,26 @@ class interpreter implements agent_interpreter {
         }
 
         return $this->strip_command_prefix($message);
+    }
+
+    /**
+     * Build a confirmation message from validator-provided ambiguity lines.
+     *
+     * This is used for confirmable backend issues to avoid generic LLM text
+     * like "Moechten Sie ... buchen?" hiding the actual reason.
+     *
+     * @param array $ambiguities
+     * @return string
+     */
+    private function confirmation_message_from_ambiguities(array $ambiguities): string {
+        $cleanambiguities = array_map(fn(string $line): string => $this->strip_command_prefix($line), $ambiguities);
+        $cleanambiguities = array_values(array_filter($cleanambiguities, static fn(string $line): bool => trim($line) !== ''));
+
+        if (!empty($cleanambiguities)) {
+            return $this->safe_string(implode(' ', $cleanambiguities));
+        }
+
+        return '';
     }
 
     /**
