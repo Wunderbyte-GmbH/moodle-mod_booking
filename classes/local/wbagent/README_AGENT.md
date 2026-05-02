@@ -82,6 +82,24 @@ flowchart TD
 - aiinstructions.js zeigt daraus ein zweites showConfirmPanel.
 - Wenn dieser Repair-Zweig entfernt wird, gibt es trotz Fehlerausgabe keine zweite Confirmation mehr.
 
+## Erste Confirmation: Soft-Override-Bedingungen
+
+Manche Tasks (z.B. `booking.book_users`) koennen bereits in `validate()` eine strukturierte Confirmation ausloesen,
+bevor execute() laeuft. Das ist der Soft-Override-Confirmation-Pfad:
+
+1. `validate()` gibt ein Issue mit `code=SOFT_BOOKING_OVERRIDE_CONFIRM_REQUIRED`, `severity=needs_confirmation` zurueck.
+2. `interpreter.php::validate_commands()` erkennt den Code in `CONFIRMABLE_ISSUE_CODES` und:
+   - Baut ein `$confirmcommand` mit `input['confirmed'] = true`.
+   - Fuegt es zu `$confirmablecommands` hinzu.
+3. Der Interpreter liefert `confirmation_request` mit pending intent (inkl. confirmed=true im Command).
+4. Der Nutzer bestaetigt → `ai_send_message` fuehrt das gespeicherte Command mit confirmed=true aus.
+5. `validate()` sieht `confirmed=true` und ueberspringt den Soft-Blocker-Check → execute() laeuft durch.
+
+Wichtig: Ohne Schritt 2 (CONFIRMABLE_ISSUE_CODES-Eintrag) wuerde der Flow mit "nothing pending to confirm" enden.
+Ohne `confirmed=true`-Injektion wuerde der zweite Durchlauf dieselbe Rueckfrage stellen.
+
+Details und Erweiterungsanleitung: `booking/tasks/README_AGENT_TASKS.md` (Abschnitt Zweistufige Bedingungspruefung).
+
 ## Welche Webservices werden verwendet?
 
 ### Vom Chat-UI genutzte mod_booking Webservice-Funktionen

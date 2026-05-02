@@ -95,6 +95,59 @@ Namenskonvention:
   - remedy_options: klare naechste Optionen
 - Nutze override-Tokens nur explizit und nachvollziehbar.
 
+## Zweistufige Bedingungspruefung (Soft-Override-Pattern)
+
+Manche Buchungsbedingungen sind nur fuer den buchenden Nutzer selbst bindend ("soft blockers"),
+koennen aber von einem Admin/Manager im Namen des Nutzers uebergangen werden.
+Typische Beispiele: `selectuser` (Option nur fuer ausgewaehlte Nutzer buchbar).
+
+### Unterschied hard vs. soft blocker
+
+`bo_info::get_condition_results($optionid, $userid, $onlyhardblock)`:
+- `false` (zweites Argument) = alle Blocker (soft + hard)
+- `true`                    = nur echte Hard-Blocker (`hard_block()` der Bedingungsklasse muss `true` liefern)
+
+Selectuser z.B. liefert `hard_block() = false` → erscheint nur im Soft-Scan.
+
+### Ablauf in book_users_task
+
+1. validate() laeuft mit `$onlyhardblock=false` → alle Blocker.
+2. Gibt es Blocker: validate() laeuft erneut mit `$onlyhardblock=true` → nur Hard-Blocker.
+3. Ergebnis:
+   - Keine Blocker (Schritt 1) → direkt ausloesen.
+   - Nur Soft-Blocker (Schritt 1 hat Blocker, Schritt 2 nicht) → Issue `SOFT_BOOKING_OVERRIDE_CONFIRM_REQUIRED` mit `severity=needs_confirmation`.
+   - Hard-Blocker vorhanden → Fehler, keine Ausfuehrung.
+
+### Issue Code und Confirmation Flow
+
+Issue code: `SOFT_BOOKING_OVERRIDE_CONFIRM_REQUIRED`
+
+Dieser Code ist in `interpreter.php::CONFIRMABLE_ISSUE_CODES` registriert.
+Der Interpreter:
+1. Erkennt den Code als confirmable → erzeugt `confirmation_request` mit pending intent.
+2. Injiziert automatisch `confirmed=true` in das gespeicherte Command (zweiter Durchlauf soll nicht erneut fragen).
+3. Bevorzugt den Validator-Text des Tasks als Bestaetigungsnachricht (statt generischem LLM-Text).
+
+Ergebnis: Der Nutzer sieht die konkrete Warnung (z.B. "Option nur fuer ausgewaehlte Nutzer"), bestaetigt,
+und der naechste Durchlauf (confirmed=true) fuehrt direkt aus.
+
+### Wenn ein neuer Issue Code dieses Musters benoetigt wird
+
+1. In der Task-validate()-Methode: Issue mit `code=MEIN_CODE`, `severity=needs_confirmation` zurueckgeben.
+2. In `interpreter.php`: Code zu `CONFIRMABLE_ISSUE_CODES` hinzufuegen.
+3. Falls das zugehoerige Input-Feld gesetzt werden muss (z.B. `confirmed=true`): Im `validate_commands()`-Block
+   nach `if ($code === 'MEIN_CODE')` die Injektion ergaenzen (analog zu `SOFT_BOOKING_OVERRIDE_CONFIRM_REQUIRED`).
+4. Test: Bestaetigungsflow-Test ergaenzen (siehe Abschnitt Test-Checkliste).
+
+### booking_task_support::book_users_for_option
+
+`booking_task_support::book_users_for_option(int $optionid, array $userids, array $meta): array`
+
+Oeffentliche statische Methode fuer den zweistufigen Bookit-Ablauf.
+Wird von `book_users_task::execute()` aufgerufen.
+Der interne Pre-Check filtert Confirmation-Flow-Bedingungen (id ≤ 1) heraus und
+blockt nur bei echten Hard-Blockern (id > 1).
+
 ## Test-Checkliste
 
 Mindestens diese Tests ergaenzen/aktualisieren:
