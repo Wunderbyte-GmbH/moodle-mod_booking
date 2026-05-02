@@ -277,8 +277,6 @@ class diagnose_cancellation_issue_task extends base_booking_task implements task
             'reply_requirements' => 'Mention exact setting keys and concrete admin changes.',
         ];
 
-        $usermessage = '';
-        $answersource = 'none';
         try {
             $answerquestion = trim((string)($input['question'] ?? ''));
             $answerquestion .= "\n\n"
@@ -298,12 +296,30 @@ class diagnose_cancellation_issue_task extends base_booking_task implements task
                 $userid
             );
             $llmanswer = trim((string)($answeringresult['answer'] ?? ''));
-            if ($llmanswer !== '') {
-                $usermessage = $this->enforce_max_chars($llmanswer, 500);
-                $answersource = 'llm';
+            if ($llmanswer === '') {
+                return [
+                    'status' => 'error',
+                    'detail' => $this->localized_string('agent_booking_diagnose_error_no_answer', null, $outputlang),
+                    'resultid' => null,
+                    'debugmessage' => $this->build_task_debug_message(
+                        self::TASK_NAME,
+                        $input,
+                        ['Answer service returned empty answer']
+                    ),
+                ];
             }
+            $usermessage = $this->enforce_max_chars($llmanswer, 500);
         } catch (\Throwable $e) {
-            $answersource = 'error';
+            return [
+                'status' => 'error',
+                'detail' => $this->localized_string('agent_booking_diagnose_error_answering_service', null, $outputlang),
+                'resultid' => null,
+                'debugmessage' => $this->build_task_debug_message(
+                    self::TASK_NAME,
+                    $input,
+                    ['Answer service exception: ' . $e->getMessage()]
+                ),
+            ];
         }
 
         return [
@@ -332,7 +348,6 @@ class diagnose_cancellation_issue_task extends base_booking_task implements task
                     'User status: ' . $userstatus,
                     'Highest blocker id: ' . (int)($highestblocker['id'] ?? 0),
                     'Reasons: ' . count($reasons),
-                    'Answer source: ' . $answersource,
                 ]
             ),
         ];
