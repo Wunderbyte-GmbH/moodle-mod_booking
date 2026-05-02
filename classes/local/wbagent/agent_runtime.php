@@ -28,6 +28,7 @@ namespace mod_booking\local\wbagent;
 
 use context_module;
 use core_text;
+use mod_booking\local\wbagent\agent_state;
 
 /**
  * Owns the complete agent execution loop: plan → execute → observe → decide.
@@ -155,11 +156,93 @@ class agent_runtime {
      * @return array
      */
     public function run(int $threadid, int $cmid, int $userid): array {
+        $result = $this->run_internal($threadid, $cmid, $userid, []);
+        $this->persist_assistant_message($threadid, $result);
+        return $result;
+    }
+
+    /**
+     * Multi-step agent loop entry point.
+     *
+     * Implements a true internal agent loop: the LLM plans, tools execute,
+     * observations are accumulated, and the next LLM call receives those
+     * observations as structured context — all within a single request.
+     *
+     * Loop contract:
+     * - Internal steps (execution_result) do NOT persist messages.
+     * - Only the final step that requires user interaction persists ONE message.
+     * - Observations from each step are fed back to the LLM via the orchestrator,
+     *   never stored in the conversation DB.
+     * - Mutating commands are never auto-executed; they always stop the loop for
+     *   user confirmation.
+     *
+     * @param  int $threadid
+     * @param  int $cmid
+     * @param  int $userid
+     * @param  int $maxsteps Override for MAX_LOOP_STEPS (0 = use constant).
+     * @return array Final normalized result (one persistent assistant message written).
+     */
+    public function run_loop(int $threadid, int $cmid, int $userid, int $maxsteps = 0): array {
+        $limit = ($maxsteps > 0) ? $maxsteps : self::MAX_LOOP_STEPS;
+        $state = agent_state::make($limit);
+
+        for ($step = 0; $step < $limit; $step++) {
+            $state->current_step = $step + 1;
+
+            // Plan + route — does NOT persist anything.
+            $result = $this->run_internal($threadid, $cmid, $userid, $state->get_observations());
+
+            $result['loop_step']      = $step + 1;
+            $result['loop_max_steps'] = $limit;
+
+            // If the step executed read-only tools successfully, record the observation
+            // and continue the internal loop — the LLM will see the results next step.
+            if ((string)($result['response_type'] ?? '') === 'execution_result') {
+                $observation = $this->build_observation_from_result($result, $step + 1);
+                $state->record_step(
+                    $result['commands'] ?? [],
+                    $result['results'] ?? [],
+                    $observation
+                );
+                // Do NOT persist — continue to next internal step.
+                continue;
+            }
+
+            // Any other response type requires user interaction or signals completion.
+            // Persist the SINGLE final assistant message and return.
+            $this->persist_assistant_message($threadid, $result);
+            return $result;
+        }
+
+        // Maximum steps reached without a user-interaction response.
+        $result = $this->max_steps_exceeded_result(current_language(), $limit);
+        $this->persist_assistant_message($threadid, $result);
+        return $result;
+    }
+
+    // -------------------------------------------------------------------------
+    // Private: loop helpers.
+
+    /**
+     * Execute one internal agent step: plan (LLM) + decide (routing), with NO persistence.
+     *
+     * Unlike run(), this method never writes an assistant message to the DB.
+     * It is the building block for run_loop() and is also used by run() (which
+     * adds the single persistence call afterwards).
+     *
+     * @param  int      $threadid     Thread id.
+     * @param  int      $cmid         Course-module id.
+     * @param  int      $userid       User id.
+     * @param  string[] $observations Structured observation strings from prior internal steps.
+     *                                Injected into the LLM prompt — never stored in the DB.
+     * @return array Normalized result (not yet persisted).
+     */
+    private function run_internal(int $threadid, int $cmid, int $userid, array $observations): array {
         $previewoptionid = $this->resolve_preview_option_id($threadid, $cmid);
         $triggerregistry = new message_trigger_registry($this->registry);
 
-        // Plan: call the LLM once.
-        $result = $this->orchestrator->process($threadid, $cmid, $userid);
+        // Plan: call the LLM once, passing any accumulated observations.
+        $result = $this->orchestrator->process($threadid, $cmid, $userid, $observations);
 
         $outputlang = trim((string)($result['lang'] ?? ''));
         if ($outputlang === '') {
@@ -196,7 +279,20 @@ class agent_runtime {
             );
         }
 
-        // Persist the assistant message.
+        return $result;
+    }
+
+    /**
+     * Persist the final assistant message to the conversation store.
+     *
+     * Called exactly ONCE per user-visible turn — either by run() directly
+     * or by run_loop() when the loop terminates with a final response.
+     *
+     * @param  int   $threadid
+     * @param  array $result
+     * @return void
+     */
+    private function persist_assistant_message(int $threadid, array $result): void {
         $this->store->add_message($threadid, 'assistant', $result['message'] ?? '', [
             'response_type'            => $result['response_type'],
             'used_triggers'            => $result['used_triggers'] ?? [],
@@ -208,77 +304,118 @@ class agent_runtime {
             'issue_codes'              => $result['issue_codes'] ?? [],
             'pending_confirmation_code' => $result['pending_confirmation_code'] ?? '',
         ]);
-
-        return $result;
     }
 
     /**
-     * Multi-step agent loop entry point.
+     * Build a plain-text observation summary from an execution_result payload.
      *
-     * Iterates plan → execute (read-only) → observe → plan until the LLM
-     * produces a response that requires user interaction (clarification,
-     * confirmation) or the step limit is reached.
+     * The observation is injected into the next LLM call so the model can
+     * reason about what the tools returned.  It must be concise, deterministic,
+     * and never contain raw DB ids or sensitive fields.
      *
-     * This replaces the single-shot + repair-hack pattern. Mutating commands
-     * are never executed automatically — they are confirmation-gated.
-     *
-     * @param  int $threadid
-     * @param  int $cmid
-     * @param  int $userid
-     * @param  int $maxsteps Override for MAX_LOOP_STEPS (0 = use constant).
-     * @return array Final normalized result.
+     * @param  array $result  execution_result payload from auto_execute_read_only_commands().
+     * @param  int   $step    1-based loop step number (used as prefix label).
+     * @return string
      */
-    public function run_loop(int $threadid, int $cmid, int $userid, int $maxsteps = 0): array {
-        $limit = ($maxsteps > 0) ? $maxsteps : self::MAX_LOOP_STEPS;
+    private function build_observation_from_result(array $result, int $step): string {
+        $parts = [];
+        $rawresults = is_array($result['results'] ?? null) ? $result['results'] : [];
 
-        for ($step = 0; $step < $limit; $step++) {
-            $result = $this->run_single_step($threadid, $cmid, $userid);
-
-            // Store step metadata for observability.
-            $result['loop_step'] = $step + 1;
-            $result['loop_max_steps'] = $limit;
-
-            // Stop looping when the result requires user interaction.
-            if ($this->should_stop_loop($result)) {
-                return $result;
+        foreach ($rawresults as $entry) {
+            if (!is_array($entry)) {
+                continue;
             }
 
-            // Read-only results are already observed and stored; loop continues.
+            // Booking options list (booking.search_options / booking.list_option_properties).
+            if (!empty($entry['options']) && is_array($entry['options'])) {
+                $count  = count($entry['options']);
+                $titles = array_slice(
+                    array_filter(array_map(
+                        static fn($o): string => trim((string)($o['name'] ?? $o['text'] ?? '')),
+                        $entry['options']
+                    )),
+                    0,
+                    5
+                );
+                $summary = "Found {$count} booking option(s)";
+                if (!empty($titles)) {
+                    $summary .= ': ' . implode(', ', $titles);
+                }
+                $parts[] = $summary . '.';
+                continue;
+            }
+
+            // Users list (booking.search_users / booking.get_current_user).
+            if (!empty($entry['users']) && is_array($entry['users'])) {
+                $count   = count($entry['users']);
+                $parts[] = "Found {$count} user(s).";
+                continue;
+            }
+
+            // Courses list (booking.search_courses).
+            if (!empty($entry['courses']) && is_array($entry['courses'])) {
+                $count   = count($entry['courses']);
+                $parts[] = "Found {$count} course(s).";
+                continue;
+            }
+
+            // Documentation excerpts (booking.explain_docs_topic).
+            if (!empty($entry['docs']) && is_array($entry['docs'])) {
+                $count = count($entry['docs']);
+                $title = trim((string)($entry['docs'][0]['title'] ?? ''));
+                $summary = "Retrieved {$count} documentation excerpt(s)";
+                if ($title !== '') {
+                    $summary .= " (top: \"{$title}\")";
+                }
+                $parts[] = $summary . '.';
+                continue;
+            }
+
+            // Booking diagnosis (booking.diagnose_booking_issue / booking.diagnose_cancellation_issue).
+            if (!empty($entry['diagnosis']) && is_array($entry['diagnosis'])) {
+                $optname = trim((string)($entry['diagnosis']['optionname'] ?? ''));
+                $summary = 'Diagnosis completed';
+                if ($optname !== '') {
+                    $summary .= " for option \"{$optname}\"";
+                }
+                $parts[] = $summary . '.';
+                continue;
+            }
+
+            // Capabilities / actions list (booking.list_actions / booking.list_option_properties).
+            if (!empty($entry['capabilities']) && is_array($entry['capabilities'])) {
+                $count   = count($entry['capabilities']);
+                $parts[] = "Listed {$count} capability/action item(s).";
+                continue;
+            }
+
+            // Current user info (booking.get_current_user).
+            if (array_key_exists('fullname', $entry) || array_key_exists('email', $entry)) {
+                $name    = trim((string)($entry['fullname'] ?? ''));
+                $parts[] = 'Current user identified' . ($name !== '' ? ": {$name}" : '') . '.';
+                continue;
+            }
+
+            // Fallback: use task-authored user message or detail string.
+            $fallback = trim((string)($entry['usermessage'] ?? $entry['detail'] ?? ''));
+            if ($fallback !== '') {
+                $parts[] = $fallback;
+            }
         }
 
-        // Fell through without a user-interaction response: emit a graceful message.
-        return $this->max_steps_exceeded_result(current_language(), $limit);
-    }
+        if (empty($parts)) {
+            return "Step {$step}: Tool executed successfully.";
+        }
 
-    // -------------------------------------------------------------------------
-    // Private: loop helpers.
-
-    /**
-     * Execute one agent step: plan (LLM) + observe (if read-only results).
-     *
-     * Unlike run(), this does NOT persist the assistant message yet — that is
-     * done once the loop exits. Observation feedback is appended to the thread
-     * so the LLM sees it on the next step.
-     *
-     * @param  int $threadid
-     * @param  int $cmid
-     * @param  int $userid
-     * @return array
-     */
-    private function run_single_step(int $threadid, int $cmid, int $userid): array {
-        // Same single-step logic, but we let run() handle persistence.
-        return $this->run($threadid, $cmid, $userid);
+        return "Step {$step}: " . implode(' ', $parts);
     }
 
     /**
      * Decide whether the loop should stop on this result.
      *
-     * The loop continues only when read-only tools were executed and the result
-     * was an execution_result (the LLM can then make further decisions with the
-     * observation data). All other response types stop the loop.
-     *
      * @param  array $result
      * @return bool
+     * @deprecated Only retained for backward-compatibility reference; run_loop() no longer calls it.
      */
     private function should_stop_loop(array $result): bool {
         $type = (string)($result['response_type'] ?? '');

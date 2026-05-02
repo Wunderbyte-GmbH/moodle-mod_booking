@@ -104,17 +104,20 @@ class orchestrator {
     /**
      * Process a user message: call the LLM and interpret the response.
      *
-     * @param  int    $threadid  Thread id.
-     * @param  int    $cmid      Course-module id.
-     * @param  int    $userid    User id.
+     * @param  int      $threadid     Thread id.
+     * @param  int      $cmid         Course-module id.
+     * @param  int      $userid       User id.
+     * @param  string[] $observations Optional structured observation strings from prior internal loop steps.
+     *                                Injected into the prompt so the LLM can reason about tool results
+     *                                before producing its next response.  Never persisted to the DB.
      * @return array  Interpreter result.
      */
-    public function process(int $threadid, int $cmid, int $userid): array {
+    public function process(int $threadid, int $cmid, int $userid, array $observations = []): array {
         $context = context_module::instance($cmid);
 
         $systemprompt = $this->build_system_prompt($cmid);
         $messages     = $this->store->get_recent_messages($threadid, self::MAX_HISTORY_MESSAGES);
-        $prompt       = $this->build_prompt($systemprompt, $messages);
+        $prompt       = $this->build_prompt($systemprompt, $messages, $observations);
 
         try {
             $action   = new generate_text(
@@ -342,13 +345,19 @@ class orchestrator {
     }
 
     /**
-     * Build the full prompt string from system prompt + message history.
+     * Build the full prompt string from system prompt + message history + observations.
+     *
+     * Observations (from prior internal loop tool executions) are injected after the
+     * conversation history and before the [ASSISTANT] marker so the LLM can incorporate
+     * tool results into its next decision without those results ever being stored as
+     * conversation messages.
      *
      * @param  string      $systemprompt
      * @param  \stdClass[] $messages
+     * @param  string[]    $observations  Structured observation strings (may be empty).
      * @return string
      */
-    private function build_prompt(string $systemprompt, array $messages): string {
+    private function build_prompt(string $systemprompt, array $messages, array $observations = []): string {
         $contextualguidance = $this->build_contextual_guidance($messages);
         if ($contextualguidance !== '') {
             $systemprompt .= "\n\nCONTEXT-SPECIFIC GUIDANCE:\n" . $contextualguidance;
@@ -360,6 +369,13 @@ class orchestrator {
             $role    = strtoupper($msg->role ?? 'user');
             $content = $msg->content ?? '';
             $parts[] = "[{$role}]\n{$content}";
+        }
+
+        // Inject tool observations from prior internal loop steps.
+        // These are ephemeral — they are NOT stored in the conversation history.
+        foreach ($observations as $idx => $observation) {
+            $num = $idx + 1;
+            $parts[] = "[OBSERVATION {$num}]\n{$observation}";
         }
 
         $parts[] = '[ASSISTANT]';
