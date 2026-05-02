@@ -81,7 +81,8 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
                 ],
                 'userquery' => [
                     'type' => 'string',
-                    'description' => 'Optional user reference (name/email/id text) when diagnosing another person.',
+                    'description' => 'User reference (name, email, id-like text) when diagnosing for another person. '
+                        . 'Omit if diagnosing for the current user (self-service).',
                     'required' => false,
                 ],
                 'targetuserid' => [
@@ -141,7 +142,8 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
                 'guidance' => [
                     '- Use booking.diagnose_booking_issue for self-help questions about one booking option.',
                     '- Pass the original user wording as question so the task can classify the issue type.',
-                    '- If the question is about another person, pass userquery or targetuserid explicitly.',
+                    '- If the question is about another person, pass userquery (e.g. "Maxima Müller") or targetuserid explicitly.',
+                    '- Do NOT infer userquery from question text; extract it semantically and pass it as a field.',
                     '- Pass optionquery when the option title/reference is available; '
                         . 'otherwise the task will ask a follow-up question.',
                 ],
@@ -346,7 +348,10 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
     }
 
     /**
-     * Resolve diagnostic target user from explicit input or question fallback.
+     * Resolve diagnostic target user from explicit LLM input.
+     *
+     * The LLM must provide either targetuserid or userquery explicitly.
+     * If neither is provided, defaults to the current user.
      *
      * @param array $input
      * @param int $currentuserid
@@ -356,6 +361,7 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
     private function resolve_diagnostic_user(array $input, int $currentuserid, string $lang = ''): array {
         global $DB;
 
+        // Explicit user ID takes precedence.
         $targetuserid = (int)($input['targetuserid'] ?? 0);
         if ($targetuserid > 0) {
             if (!$DB->record_exists('user', ['id' => $targetuserid, 'deleted' => 0])) {
@@ -367,66 +373,20 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
             return ['status' => 'ok', 'userid' => $targetuserid];
         }
 
-        $question = trim((string)($input['question'] ?? ''));
+        // LLM must provide userquery if diagnosing another user.
         $userquery = trim((string)($input['userquery'] ?? ''));
-
-        $candidatequeries = [];
-        if ($userquery !== '') {
-            $candidatequeries[] = $userquery;
-        }
-
-        $inferredquery = $this->infer_user_query_from_question($question);
-        if ($inferredquery !== '' && !in_array($inferredquery, $candidatequeries, true)) {
-            $candidatequeries[] = $inferredquery;
-        }
-
-        if (empty($candidatequeries)) {
+        if ($userquery === '') {
+            // No user reference provided → diagnose for current user.
             return ['status' => 'ok', 'userid' => $currentuserid];
         }
 
-        $lastresolved = [
-            'status' => 'error',
-            'message' => $this->localized_string('agent_booking_resolve_user_query_required', null, $lang),
-        ];
-
-        foreach ($candidatequeries as $candidatequery) {
-            $resolved = booking_task_support::resolve_single_user($candidatequery);
-            if (($resolved['status'] ?? '') === 'ok') {
-                return ['status' => 'ok', 'userid' => (int)($resolved['userid'] ?? $currentuserid)];
-            }
-
-            $lastresolved = $resolved;
+        // Attempt to resolve the user query.
+        $resolved = booking_task_support::resolve_single_user($userquery);
+        if (($resolved['status'] ?? '') === 'ok') {
+            return ['status' => 'ok', 'userid' => (int)($resolved['userid'] ?? $currentuserid)];
         }
 
-        return $lastresolved;
-    }
-
-    /**
-     * Best-effort extraction of a person reference from question text.
-     *
-     * @param string $question
-     * @return string
-     */
-    private function infer_user_query_from_question(string $question): string {
-        $question = trim($question);
-        if ($question === '') {
-            return '';
-        }
-
-        $patterns = [
-            '/\b([\p{L}\p{M}\-]+\s+[\p{L}\p{M}\-]+)\s+is\s+booked\b/ui',
-            '/\bfor\s+([\p{L}\p{M}\-]+\s+[\p{L}\p{M}\-]+)\b/ui',
-            '/\bkann\s+([\p{L}\p{M}\-]+(?:\s+[\p{L}\p{M}\-]+)?)\s+in\b/ui',
-            '/\bcan\s+([\p{L}\p{M}\-]+(?:\s+[\p{L}\p{M}\-]+)?)\s+book\b/ui',
-        ];
-
-        foreach ($patterns as $pattern) {
-            if (preg_match($pattern, $question, $matches) && !empty($matches[1])) {
-                return trim((string)$matches[1]);
-            }
-        }
-
-        return '';
+        return $resolved;
     }
 
     /**
