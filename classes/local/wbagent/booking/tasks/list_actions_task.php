@@ -196,8 +196,11 @@ class list_actions_task extends base_booking_task implements task_trigger_provid
             );
             $llmanswer = trim((string)($answeringresult['answer'] ?? ''));
             if ($llmanswer !== '') {
-                $summary = $this->enforce_max_chars($llmanswer, 650);
+                $summary = $this->sanitize_user_summary($this->enforce_max_chars($llmanswer, 650));
                 $answersource = 'llm';
+                if ($summary === '') {
+                    $answersource = 'llm_sanitized_empty';
+                }
             }
         } catch (\Throwable $e) {
             $answersource = 'error';
@@ -220,6 +223,23 @@ class list_actions_task extends base_booking_task implements task_trigger_provid
             'capabilities' => $capabilities,
             'actions' => $actions,
         ];
+    }
+
+    /**
+     * Keep user-facing summary free of technical task identifiers.
+     *
+     * @param string $summary
+     * @return string
+     */
+    private function sanitize_user_summary(string $summary): string {
+        if ($summary === '') {
+            return '';
+        }
+
+        $sanitized = preg_replace('/\bbooking\.[a-z0-9_]+\b/i', 'this action', $summary);
+        $sanitized = preg_replace('/\b[a-z0-9_]+_task\b/i', 'task', (string)$sanitized);
+
+        return trim((string)$sanitized);
     }
 
     /**

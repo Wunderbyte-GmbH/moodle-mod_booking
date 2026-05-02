@@ -62,24 +62,25 @@ abstract class abstract_agent_testcase extends advanced_testcase {
     /** @var \mod_booking_generator */
     protected $gen;
 
-    /**
-     * Whether a real LLM provider was registered for this test run.
-     * Set to true when BOOKING_TEST_AI_KEY, BOOKING_TEST_AI_MODEL and
-     * BOOKING_TEST_AI_ENDPOINT are all provided as environment variables.
-     *
-     * @var bool
-     */
+     /**
+      * Whether a real LLM provider was registered for this test run.
+      * Set to true when BOOKING_TEST_AI_KEY,
+      * BOOKING_TEST_AI_MODEL and BOOKING_TEST_AI_ENDPOINT
+      * are fully provided.
+      *
+      * @var bool
+      */
     protected bool $hasliveprovider = false;
 
     // -------------------------------------------------------------------------
     // Life-cycle.
 
-    /**
-     * Shared setup: course, booking instance, teacher, student.
-     * Also registers a live AI provider when the three environment variables
-     * BOOKING_TEST_AI_KEY, BOOKING_TEST_AI_MODEL and BOOKING_TEST_AI_ENDPOINT
-     * are set.
-     */
+     /**
+      * Shared setup: course, booking instance, teacher, student.
+      * Also registers a live AI provider when the three environment variables
+      * BOOKING_TEST_AI_KEY, BOOKING_TEST_AI_MODEL and
+      * BOOKING_TEST_AI_ENDPOINT are set.
+      */
     protected function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
@@ -119,31 +120,39 @@ abstract class abstract_agent_testcase extends advanced_testcase {
     // -------------------------------------------------------------------------
     // AI provider registration.
 
-    /**
-     * Register a live OpenAI-compatible provider when the three environment
-     * variables are present:
-     *
-     *   BOOKING_TEST_AI_KEY       – API key / Bearer token
-     *   BOOKING_TEST_AI_MODEL     – Model name, e.g. "gpt-4o-mini"
-     *   BOOKING_TEST_AI_ENDPOINT  – Full endpoint URL, e.g.
-     *                               "https://api.openai.com/v1/chat/completions"
-     *
-     * When all three are set the provider is created and enabled so that every
-     * core_ai generate_text call inside the test actually hits the real API.
-     * $this->hasliveprovider is set to true so individual tests can skip or
-     * adjust assertions accordingly.
-     *
-     * If any variable is missing the method does nothing and the provider stays
-     * unconfigured (tests that depend on LLM output will receive status=error
-     * from the answering service – that is expected).
-     */
+     /**
+      * Register a live OpenAI-compatible provider when the three environment
+      * variables are present:
+      *
+      *   BOOKING_TEST_AI_KEY
+      *   BOOKING_TEST_AI_MODEL
+      *   BOOKING_TEST_AI_ENDPOINT
+      *
+      * Endpoint values may be either a full chat-completions URL or a base URL.
+      * When only a base URL is given, "/v1/chat/completions" is appended.
+      *
+      * When all three are set the provider is created and enabled so that every
+      * core_ai generate_text call inside the test actually hits the real API.
+      * $this->hasliveprovider is set to true so individual tests can skip or
+      * adjust assertions accordingly.
+      *
+      * If any variable is missing the method does nothing and the provider stays
+      * unconfigured (tests that depend on LLM output will receive status=error
+      * from the answering service – that is expected).
+      */
     protected function maybe_register_live_ai_provider(): void {
-        $apikey   = (string)(getenv('BOOKING_TEST_AI_KEY')      ?: '');
-        $model    = (string)(getenv('BOOKING_TEST_AI_MODEL')    ?: '');
-        $endpoint = (string)(getenv('BOOKING_TEST_AI_ENDPOINT') ?: '');
+        $apikey = (string)(getenv('BOOKING_TEST_AI_KEY') ?: '');
+        $model = (string)(getenv('BOOKING_TEST_AI_MODEL') ?: '');
+        $endpoint = trim((string)(getenv('BOOKING_TEST_AI_ENDPOINT') ?: ''));
 
         if ($apikey === '' || $model === '' || $endpoint === '') {
             return;
+        }
+
+        $parsedendpoint = parse_url($endpoint);
+        $path = (string)($parsedendpoint['path'] ?? '');
+        if ($path === '' || $path === '/') {
+            $endpoint = rtrim($endpoint, '/') . '/v1/chat/completions';
         }
 
         $manager = \core\di::get(\core_ai\manager::class);

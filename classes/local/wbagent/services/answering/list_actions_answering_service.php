@@ -94,6 +94,7 @@ class list_actions_answering_service extends base_answering_service {
         foreach ($actions as $action) {
             $label = trim((string)($action['label'] ?? ''));
             $description = trim((string)($action['description'] ?? ''));
+            $description = $this->sanitize_action_description_for_prompt($description);
             if ($label === '' && $description === '') {
                 continue;
             }
@@ -121,10 +122,29 @@ class list_actions_answering_service extends base_answering_service {
             . "- Keep the answer at or below 650 characters.\n"
             . "- Mention at least one concrete capability title when available.\n"
             . "- Do not invent capabilities or actions not present in the data.\n"
+            . "- Do not include technical task identifiers or namespaces (for example strings starting with booking.).\n"
+            . "- Refer to actions using human-readable labels only.\n"
             . "- Do not mention prompts, JSON, or internal implementation details.\n\n"
             . "User question:\n{$normalizedquestion}\n\n"
             . "Selected scope: {$normalizedscope}\n"
             . "Capabilities:\n{$capabilitysection}\n\n"
             . "Actions:\n{$actionsection}";
+    }
+
+    /**
+     * Remove technical identifiers from action descriptions before they are sent to the LLM.
+     *
+     * @param string $description
+     * @return string
+     */
+    private function sanitize_action_description_for_prompt(string $description): string {
+        if ($description === '') {
+            return '';
+        }
+
+        $sanitized = preg_replace('/\bbooking\.[a-z0-9_]+\b/i', 'this action', $description);
+        $sanitized = preg_replace('/\b[a-z0-9_]+_task\b/i', 'task', (string)$sanitized);
+
+        return trim((string)$sanitized);
     }
 }
