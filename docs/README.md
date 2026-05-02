@@ -10,9 +10,9 @@ This `docs/` directory is the central reference for administrators, teachers, an
 
 | I want to… | Go to… |
 |------------|--------|
-| Send a reminder email before a course starts | [Booking rules](booking_rules/README.md) |
+| Send any kind of messages and reminders in relation to booking events or course start etc. | [Booking rules](booking_rules/README.md) |
 | Restrict who can book an option | [Booking conditions](booking_conditions/README.md) |
-| Create or configure a booking option | [Booking option form](booking-option/README.md) |
+| Adapt booking forms depending on capabilities of users | [Booking option form](booking-option/README.md) |
 | Customise notification emails with dynamic text | [Placeholders](placeholders/README.md) |
 | Embed a booking list on a Moodle page | [Shortcodes](shortcodes/README.md) |
 | Set up user roles and permissions | [Capabilities](capabilities/README.md) |
