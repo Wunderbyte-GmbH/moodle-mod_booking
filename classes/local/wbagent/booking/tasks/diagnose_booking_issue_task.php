@@ -481,7 +481,7 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
     }
 
     /**
-     * Build concrete reason lines for the diagnosis (used as input for the LLM prompt).
+     * Build concrete reason lines for the diagnosis (returned as structured data for agent-layer narration).
      *
      * @param string $issuetype
      * @param array $optionstats
