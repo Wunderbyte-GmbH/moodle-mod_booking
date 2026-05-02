@@ -75,7 +75,7 @@ class diagnose_answering_service extends base_answering_service {
                 if (is_bool($value)) {
                     $statparts[] = $key . ': ' . ($value ? 'yes' : 'no');
                 } else {
-                    $statparts[] = $key . ': ' . $value;
+                    $statparts[] = $key . ': ' . (is_array($value) ? implode(', ', $value) : $value);
                 }
             }
             $statslines = implode(', ', $statparts);

@@ -165,7 +165,7 @@ class book_users_task extends base_booking_task implements task_trigger_provider
      *   2. get_condition_results(..., true)  - only true hard blockers
      *
      * When only soft blockers exist (e.g. selectuser), the current admin actor can still
-    * book on behalf of the user. In that case a structured confirmation issue is returned
+     * book on behalf of the user. In that case a structured confirmation issue is returned
      * for explicit confirmation (confirmed=true) before execute() is called.
      *
      * @param array $input
@@ -220,13 +220,13 @@ class book_users_task extends base_booking_task implements task_trigger_provider
         // Condition pre-check: detect soft-only blockers that an admin can override.
         //
         // Logic:
-        //   - get_condition_results(..., false) returns ALL blocking conditions.
-        //   - get_condition_results(..., true)  rechecks each blocker via hard_block():
-        //     conditions like selectuser that are admin-overridable become isavailable=true.
-        //   - If allblockers is non-empty but hardblockers is empty -> soft override scenario.
-        //     The target user cannot book themselves but the current actor can book for them.
-        //     We return a structured confirmation issue so the existing confirm-button flow is used.
-        //   - If hardblockers is non-empty -> real hard block, nobody can book -> error.
+        // - get_condition_results(..., false) returns ALL blocking conditions.
+        // - get_condition_results(..., true)  rechecks each blocker via hard_block():
+        // conditions like selectuser that are admin-overridable become isavailable=true.
+        // - If allblockers is non-empty but hardblockers is empty -> soft override scenario.
+        // The target user cannot book themselves but the current actor can book for them.
+        // We return a structured confirmation issue so the existing confirm-button flow is used.
+        // - If hardblockers is non-empty -> real hard block, nobody can book -> error.
         //
         // Skip the check when the caller already confirmed (confirmed=true).
         $confirmed = !empty($input['confirmed']);

@@ -26,6 +26,7 @@
 namespace mod_booking;
 
 use advanced_testcase;
+use core_ai\aiactions\generate_text;
 use mod_booking\local\wbagent\authorization_service;
 use mod_booking\local\wbagent\conversation_store;
 use mod_booking\local\wbagent\executor;
@@ -61,11 +62,23 @@ abstract class abstract_agent_testcase extends advanced_testcase {
     /** @var \mod_booking_generator */
     protected $gen;
 
+    /**
+     * Whether a real LLM provider was registered for this test run.
+     * Set to true when BOOKING_TEST_AI_KEY, BOOKING_TEST_AI_MODEL and
+     * BOOKING_TEST_AI_ENDPOINT are all provided as environment variables.
+     *
+     * @var bool
+     */
+    protected bool $hasliveprovider = false;
+
     // -------------------------------------------------------------------------
     // Life-cycle.
 
     /**
      * Shared setup: course, booking instance, teacher, student.
+     * Also registers a live AI provider when the three environment variables
+     * BOOKING_TEST_AI_KEY, BOOKING_TEST_AI_MODEL and BOOKING_TEST_AI_ENDPOINT
+     * are set.
      */
     protected function setUp(): void {
         parent::setUp();
@@ -90,6 +103,8 @@ abstract class abstract_agent_testcase extends advanced_testcase {
         $PAGE->set_url('/mod/booking/view.php', ['id' => (int)$this->booking->cmid]);
 
         $this->gen = $this->getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $this->maybe_register_live_ai_provider();
     }
 
     /**
@@ -99,6 +114,57 @@ abstract class abstract_agent_testcase extends advanced_testcase {
         parent::tearDown();
         $this->gen->teardown();
         singleton_service::destroy_instance();
+    }
+
+    // -------------------------------------------------------------------------
+    // AI provider registration.
+
+    /**
+     * Register a live OpenAI-compatible provider when the three environment
+     * variables are present:
+     *
+     *   BOOKING_TEST_AI_KEY       – API key / Bearer token
+     *   BOOKING_TEST_AI_MODEL     – Model name, e.g. "gpt-4o-mini"
+     *   BOOKING_TEST_AI_ENDPOINT  – Full endpoint URL, e.g.
+     *                               "https://api.openai.com/v1/chat/completions"
+     *
+     * When all three are set the provider is created and enabled so that every
+     * core_ai generate_text call inside the test actually hits the real API.
+     * $this->hasliveprovider is set to true so individual tests can skip or
+     * adjust assertions accordingly.
+     *
+     * If any variable is missing the method does nothing and the provider stays
+     * unconfigured (tests that depend on LLM output will receive status=error
+     * from the answering service – that is expected).
+     */
+    protected function maybe_register_live_ai_provider(): void {
+        $apikey   = (string)(getenv('BOOKING_TEST_AI_KEY')      ?: '');
+        $model    = (string)(getenv('BOOKING_TEST_AI_MODEL')    ?: '');
+        $endpoint = (string)(getenv('BOOKING_TEST_AI_ENDPOINT') ?: '');
+
+        if ($apikey === '' || $model === '' || $endpoint === '') {
+            return;
+        }
+
+        $manager = \core\di::get(\core_ai\manager::class);
+        $manager->create_provider_instance(
+            classname: '\aiprovider_openai\provider',
+            name: 'booking-test-provider',
+            enabled: true,
+            config: ['apikey' => $apikey],
+            actionconfig: [
+                generate_text::class => [
+                    'enabled'  => true,
+                    'settings' => [
+                        'model'             => $model,
+                        'endpoint'          => $endpoint,
+                        'systeminstruction' => '',
+                    ],
+                ],
+            ],
+        );
+
+        $this->hasliveprovider = true;
     }
 
     // -------------------------------------------------------------------------

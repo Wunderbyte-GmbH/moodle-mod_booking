@@ -182,8 +182,12 @@ $string['agent_booking_diagnose_cancel_reason_waitinglist_no_confirmation_flow']
     'You are on the waiting list without confirmation flow and the option is not fully booked, so this cancellation action is blocked.';
 $string['agent_booking_diagnose_cancel_required_question'] =
     'Field "question" is required for diagnose_cancellation_issue.';
+$string['agent_booking_book_users_required_bookusersquery'] =
+    'No users could be resolved from the provided query. Please specify at least one user by name, e-mail, or id.';
 $string['agent_booking_diagnose_error_last_preview_none'] =
     'There is no recent previewed option to refer to.';
+$string['agent_booking_diagnose_error_no_answer'] =
+    'The diagnostic service returned an empty answer. Please try again.';
 $string['agent_booking_diagnose_error_option_not_in_instance'] =
     'The provided optionid does not belong to this booking instance.';
 $string['agent_booking_diagnose_error_option_resolve'] = 'Could not resolve booking option.';
