@@ -50,6 +50,12 @@ class execution_repair_service {
      *
      * @param callable|null $llmresolver Optional callable for tests.
      * Signature: fn(string $prompt, int $cmid, int $userid): string
+     *
+     * Phase 4 note: this service still calls the LLM and the interpreter
+     * internally. A future refactor should make AgentRuntime own all LLM
+     * interaction and inject the interpreter here so it can be tested without
+     * a real API key. The $llmresolver parameter already provides a seam for
+     * testing the LLM call path.
      */
     public function __construct(?callable $llmresolver = null) {
         $this->llmresolver = $llmresolver;
