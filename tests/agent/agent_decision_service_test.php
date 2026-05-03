@@ -45,7 +45,9 @@ use mod_booking\local\wbagent\result_payload_summarizer;
  *
  * @group mod_booking
  * @group mod_booking_agent
- * @coversNothing
+ * @covers \mod_booking\local\wbagent\ai_error_classifier
+ * @covers \mod_booking\local\wbagent\result_payload_summarizer
+ * @covers \mod_booking\local\wbagent\privacy_anonymizer
  */
 final class agent_decision_service_test extends advanced_testcase {
 
