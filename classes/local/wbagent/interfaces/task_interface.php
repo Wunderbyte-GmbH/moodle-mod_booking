@@ -96,21 +96,6 @@ interface task_interface {
     public function execute(array $preparedinput, int $cmid, int $userid): array;
 
     /**
-     * Legacy combined validation (deprecated).
-     *
-     * Kept for backward-compatibility with the executor's stale-state guard
-     * and any callers that have not yet migrated to preflight().
-     * New tasks SHOULD implement check_structure() + preflight() instead.
-     *
-     * @param  array $input
-     * @param  int   $cmid
-     * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>,
-     *     issues?:array<int,array<string,mixed>>}
-     * @deprecated since 2026 — implement check_structure() + preflight() instead.
-     */
-    public function validate(array $input, int $cmid): array;
-
-    /**
      * Whether the task is read-only and can be auto-executed.
      *
      * @return bool

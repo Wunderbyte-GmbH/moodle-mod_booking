@@ -26,6 +26,8 @@ declare(strict_types=1);
 
 namespace mod_booking\local\wbagent;
 
+use mod_booking\local\wbagent\result_payload_summarizer;
+
 /**
  * Generates post-execution feedback and client-safe run results.
  */
@@ -167,63 +169,54 @@ class execution_feedback_service {
      * @return string
      */
     private function sanitize_result_detail(array $result, string $outputlang = ''): string {
-        $isgerman = strpos(strtolower($outputlang), 'de') === 0;
+        // Diagnosis result: use localized string with option name when available.
+        $category = result_payload_summarizer::detect_result_category($result);
 
-        if (isset($result['diagnosis']) && is_array($result['diagnosis'])) {
+        if ($category === 'diagnosis') {
             $optionname = trim((string)($result['diagnosis']['optionname'] ?? ''));
             if ($optionname !== '') {
-                return $isgerman
-                    ? ('Ich habe die Situation fuer die Buchungsoption "' . $optionname . '" analysiert.')
-                    : ('I analyzed the situation for booking option "' . $optionname . '".');
+                return $this->localized_string('ai_result_detail_diagnosis_with_option', $optionname, $outputlang);
             }
-
-            return $isgerman
-                ? 'Ich habe die Buchungssituation analysiert.'
-                : 'I analyzed the booking situation.';
+            return $this->localized_string('ai_result_detail_diagnosis_generic', null, $outputlang);
         }
 
+        // Pass through task-authored user message when no output-language override is active.
         $usermessage = trim((string)($result['usermessage'] ?? ''));
         if ($usermessage !== '' && $outputlang === '') {
             return $usermessage;
         }
 
-        if (isset($result['users']) && is_array($result['users'])) {
+        if ($category === 'users') {
             $count = count($result['users']);
             if ($count === 0) {
-                return $isgerman ? 'Keine passenden Nutzer gefunden.' : 'No matching users found.';
+                return $this->localized_string('ai_result_detail_users_none', null, $outputlang);
             }
-            return $isgerman
-                ? ('Es wurden ' . $count . ' passende Nutzer gefunden.')
-                : ('Found ' . $count . ' matching user(s).');
+            return $this->localized_string('ai_result_detail_users_found', $count, $outputlang);
         }
 
-        if (isset($result['courses']) && is_array($result['courses'])) {
+        if ($category === 'courses') {
             $count = count($result['courses']);
             if ($count === 0) {
-                return $isgerman ? 'Keine passenden Kurse gefunden.' : 'No matching courses found.';
+                return $this->localized_string('ai_result_detail_courses_none', null, $outputlang);
             }
-            return $isgerman
-                ? ('Es wurden ' . $count . ' passende Kurse gefunden.')
-                : ('Found ' . $count . ' matching course(s).');
+            return $this->localized_string('ai_result_detail_courses_found', $count, $outputlang);
         }
 
-        if (isset($result['options']) && is_array($result['options'])) {
+        if ($category === 'options') {
             $count = count($result['options']);
             if ($count === 0) {
-                return $isgerman ? 'Keine passende Buchungsoption gefunden.' : 'No matching booking options found.';
+                return $this->localized_string('ai_result_detail_options_none', null, $outputlang);
             }
-            return $isgerman
-                ? ('Es wurden ' . $count . ' Buchungsoption(en) gefunden.')
-                : ('Found ' . $count . ' option(s).');
+            return $this->localized_string('ai_result_detail_options_found', $count, $outputlang);
         }
 
-        if (array_key_exists('fullname', $result) || array_key_exists('email', $result)) {
-            return $isgerman ? 'Aktueller Nutzer identifiziert.' : 'Current user identified.';
+        if ($category === 'current_user') {
+            return $this->localized_string('ai_result_detail_current_user', null, $outputlang);
         }
 
-        if (!empty($result['capabilities']) && is_array($result['capabilities'])) {
+        if ($category === 'capabilities') {
             $summary = trim((string)($result['summary'] ?? ''));
-            if ($summary !== '') {
+            if ($summary !== '' && $outputlang === '') {
                 return $summary;
             }
         }
@@ -233,11 +226,7 @@ class execution_feedback_service {
             return $detail;
         }
 
-        if ($detail !== '' && $outputlang !== '') {
-            return $isgerman ? 'Die Aktion wurde ausgefuehrt.' : 'The action was executed.';
-        }
-
-        return $isgerman ? 'Die Aktion wurde ausgefuehrt.' : 'The action was executed.';
+        return $this->localized_string('ai_result_detail_action_executed', null, $outputlang);
     }
 
     /**
@@ -248,55 +237,43 @@ class execution_feedback_service {
      * @return string
      */
     private function fallback_message_for_results(array $results, string $outputlang): string {
-        $isgerman = strpos(strtolower($outputlang), 'de') === 0;
         if (empty($results)) {
-            return $isgerman ? 'Die Ausführung ist abgeschlossen.' : 'The action is complete.';
+            return $this->localized_string('ai_result_feedback_complete', null, $outputlang);
         }
 
         $first = $results[0] ?? [];
         if (!is_array($first)) {
-            return $isgerman ? 'Die Ausführung ist abgeschlossen.' : 'The action is complete.';
+            return $this->localized_string('ai_result_feedback_complete', null, $outputlang);
         }
 
-        if (isset($first['users']) && is_array($first['users'])) {
+        $category = result_payload_summarizer::detect_result_category($first);
+
+        if ($category === 'users') {
             $count = count($first['users']);
             if ($count === 0) {
-                return $isgerman ? 'Ich habe keine passenden Nutzer gefunden.' : 'I could not find any matching users.';
+                return $this->localized_string('ai_result_feedback_users_none', null, $outputlang);
             }
-            return $isgerman
-                ? 'Ich habe ' . $count . ' passende Nutzer gefunden.'
-                : 'I found ' . $count . ' matching users.';
+            return $this->localized_string('ai_result_feedback_users_found', $count, $outputlang);
         }
 
-        if (isset($first['courses']) && is_array($first['courses'])) {
+        if ($category === 'courses') {
             $count = count($first['courses']);
             if ($count === 0) {
-                return $isgerman ? 'Ich habe keine passenden Kurse gefunden.' : 'I could not find any matching courses.';
+                return $this->localized_string('ai_result_feedback_courses_none', null, $outputlang);
             }
-            return $isgerman
-                ? 'Ich habe ' . $count . ' passende Kurse gefunden.'
-                : 'I found ' . $count . ' matching courses.';
+            return $this->localized_string('ai_result_feedback_courses_found', $count, $outputlang);
         }
 
-        if (isset($first['options']) && is_array($first['options'])) {
+        if ($category === 'options') {
             $count = count($first['options']);
             if ($count === 0) {
-                $nomatches = $isgerman
-                    ? 'Ich habe keine passende Buchungsoption gefunden.'
-                    : 'I could not find a matching booking option.';
-                return $nomatches;
+                return $this->localized_string('ai_result_feedback_options_none', null, $outputlang);
             }
-            $foundmessage = $isgerman
-                ? 'Ich habe ' . $count . ' passende Buchungsoption(en) gefunden.'
-                : 'I found ' . $count . ' matching booking option(s).';
-            return $foundmessage;
+            return $this->localized_string('ai_result_feedback_options_found', $count, $outputlang);
         }
 
-        if (
-            array_key_exists('fullname', $first)
-            || array_key_exists('email', $first)
-        ) {
-            return $isgerman ? 'Ich habe dein Benutzerkonto gefunden.' : 'I identified your user account.';
+        if ($category === 'current_user') {
+            return $this->localized_string('ai_result_feedback_current_user', null, $outputlang);
         }
 
         $detail = trim((string)($first['detail'] ?? ''));
@@ -304,7 +281,22 @@ class execution_feedback_service {
             return $detail;
         }
 
-        $defaultmessage = $isgerman ? 'Die Ausführung ist abgeschlossen.' : 'The action is complete.';
-        return $defaultmessage;
+        return $this->localized_string('ai_result_feedback_complete', null, $outputlang);
+    }
+
+    /**
+     * Return a localized string, optionally forcing a specific output language.
+     *
+     * @param string $identifier  Lang string key in mod_booking.
+     * @param mixed  $a           Optional substitution parameter.
+     * @param string $lang        Target language code (empty = current session language).
+     * @return string
+     */
+    private function localized_string(string $identifier, $a = null, string $lang = ''): string {
+        $targetlang = trim($lang);
+        if ($targetlang === '') {
+            return get_string($identifier, 'mod_booking', $a);
+        }
+        return get_string_manager()->get_string($identifier, 'mod_booking', $a, $targetlang);
     }
 }

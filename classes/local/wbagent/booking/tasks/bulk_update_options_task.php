@@ -218,7 +218,7 @@ class bulk_update_options_task extends base_booking_task implements task_trigger
             $preparedinput['optionids'] = array_values(array_map('intval', $previewfallbackids));
         }
 
-        // bookusersquery is not supported on bulk update.
+        // Bookusersquery is not supported on bulk update.
         if (!empty($input['bookusersquery'])) {
             $issues[] = [
                 'code'     => 'BOOKUSERSQUERY_UNSUPPORTED',
@@ -228,24 +228,8 @@ class bulk_update_options_task extends base_booking_task implements task_trigger
             return task_preflight_result::invalid($issues);
         }
 
-        // Service-level preflight (teacher resolution, dates, etc.).
-        $service = new booking_task_mutation_execute_service();
-        $servicepreflight = $service->preflight_validate(self::TASK_NAME, $preparedinput, $cmid, $userid);
-        if (!empty($servicepreflight['errors']) || !empty($servicepreflight['ambiguities'])) {
-            foreach ((array)($servicepreflight['errors'] ?? []) as $err) {
-                $issues[] = ['code' => 'PREFLIGHT_ERROR', 'severity' => 'needs_clarification', 'message' => (string)$err];
-            }
-            foreach ((array)($servicepreflight['ambiguities'] ?? []) as $amb) {
-                $issues[] = ['code' => 'PREFLIGHT_AMBIGUITY', 'severity' => 'needs_clarification', 'message' => (string)$amb];
-            }
-            return task_preflight_result::invalid($issues);
-        }
-
-        if (is_array($servicepreflight['normalized_input'] ?? null)) {
-            $preparedinput = (array)$servicepreflight['normalized_input'];
-        }
-
-        return task_preflight_result::ok($preparedinput);
+        // Run service-level preflight (teacher resolution, dates, etc.) and enrich prepared_input.
+        return $this->apply_service_preflight(self::TASK_NAME, $preparedinput, $cmid, $userid, $issues, $lang);
     }
 
     /**

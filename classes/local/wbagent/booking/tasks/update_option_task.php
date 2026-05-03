@@ -209,7 +209,6 @@ class update_option_task extends base_booking_task implements task_trigger_provi
                     'remedy_options' => ['PROVIDE_OPTIONQUERY', 'PROVIDE_OPTIONID'],
                 ];
                 return task_preflight_result::invalid($issues);
-
             } else if (booking_task_support::is_last_preview_selection_reference((string)$input['optionquery'])) {
                 $previewids = booking_task_support::resolve_last_preview_option_ids_for_user_for_execute(
                     $cmid,
@@ -239,7 +238,6 @@ class update_option_task extends base_booking_task implements task_trigger_provi
                 } else {
                     $preparedinput['optionids'] = array_values(array_map('intval', $previewids));
                 }
-
             } else if (!booking_task_support::is_last_option_reference((string)$input['optionquery'])) {
                 $result = booking_task_support::resolve_single_option(
                     $cmid,
@@ -307,32 +305,7 @@ class update_option_task extends base_booking_task implements task_trigger_provi
         }
 
         // Run service-level preflight (teacher resolution, dates, etc.) and enrich prepared_input.
-        $service = new booking_task_mutation_execute_service();
-        $servicepreflight = $service->preflight_validate(self::TASK_NAME, $preparedinput, $cmid, $userid);
-        if (!empty($servicepreflight['errors']) || !empty($servicepreflight['ambiguities'])) {
-            foreach ((array)($servicepreflight['errors'] ?? []) as $err) {
-                $issues[] = [
-                    'code'     => 'PREFLIGHT_ERROR',
-                    'severity' => 'needs_clarification',
-                    'message'  => (string)$err,
-                ];
-            }
-            foreach ((array)($servicepreflight['ambiguities'] ?? []) as $amb) {
-                $issues[] = [
-                    'code'     => 'PREFLIGHT_AMBIGUITY',
-                    'severity' => 'needs_clarification',
-                    'message'  => (string)$amb,
-                ];
-            }
-            return task_preflight_result::invalid($issues);
-        }
-
-        // Use enriched input (e.g. optionid resolved from query by the service).
-        if (is_array($servicepreflight['normalized_input'] ?? null)) {
-            $preparedinput = (array)$servicepreflight['normalized_input'];
-        }
-
-        return task_preflight_result::ok($preparedinput);
+        return $this->apply_service_preflight(self::TASK_NAME, $preparedinput, $cmid, $userid, $issues, $lang);
     }
 
     /**

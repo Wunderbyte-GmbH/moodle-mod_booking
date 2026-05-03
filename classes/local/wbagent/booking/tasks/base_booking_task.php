@@ -17,7 +17,9 @@
 namespace mod_booking\local\wbagent\booking\tasks;
 
 use mod_booking\local\wbagent\base_task;
+use mod_booking\local\wbagent\booking\booking_task_mutation_execute_service;
 use mod_booking\local\wbagent\booking\booking_task_support;
+use mod_booking\local\wbagent\task_preflight_result;
 
 /**
  * Base task delegating schema, validation and execution to booking support logic.
@@ -112,6 +114,59 @@ abstract class base_booking_task extends base_task {
      */
     public function verify_persisted_option_state(array $input, object $settings): array {
         return [];
+    }
+
+    /**
+     * Run service-level preflight validation and return an enriched task_preflight_result.
+     *
+     * Centralises the repeated pattern across mutation tasks:
+     *  1. Call booking_task_mutation_execute_service::preflight_validate().
+     *  2. On errors/ambiguities: append them to $existingissues and return invalid().
+     *  3. On success: apply normalized_input and return ok().
+     *
+     * @param  string $taskname       Fully-qualified task name (e.g. booking.update_option).
+     * @param  array  $preparedinput  Input with local resolution already applied.
+     * @param  int    $cmid
+     * @param  int    $userid
+     * @param  array  $existingissues Issues already collected before calling this helper.
+     * @param  string $lang           Output language code (may be empty).
+     * @return task_preflight_result
+     */
+    protected function apply_service_preflight(
+        string $taskname,
+        array $preparedinput,
+        int $cmid,
+        int $userid,
+        array $existingissues = [],
+        string $lang = ''
+    ): task_preflight_result {
+        $service = new booking_task_mutation_execute_service();
+        $servicepreflight = $service->preflight_validate($taskname, $preparedinput, $cmid, $userid);
+
+        $issues = $existingissues;
+        if (!empty($servicepreflight['errors']) || !empty($servicepreflight['ambiguities'])) {
+            foreach ((array)($servicepreflight['errors'] ?? []) as $err) {
+                $issues[] = [
+                    'code'     => 'PREFLIGHT_ERROR',
+                    'severity' => 'needs_clarification',
+                    'message'  => (string)$err,
+                ];
+            }
+            foreach ((array)($servicepreflight['ambiguities'] ?? []) as $amb) {
+                $issues[] = [
+                    'code'     => 'PREFLIGHT_AMBIGUITY',
+                    'severity' => 'needs_clarification',
+                    'message'  => (string)$amb,
+                ];
+            }
+            return task_preflight_result::invalid($issues);
+        }
+
+        if (is_array($servicepreflight['normalized_input'] ?? null)) {
+            $preparedinput = (array)$servicepreflight['normalized_input'];
+        }
+
+        return task_preflight_result::ok($preparedinput);
     }
 
     /**

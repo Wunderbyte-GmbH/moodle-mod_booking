@@ -126,4 +126,25 @@ abstract class base_task implements task_interface {
 
         return task_preflight_result::ok($input);
     }
+
+    /**
+     * Legacy combined validation.
+     *
+     * This method is no longer part of task_interface but is kept here as a
+     * concrete default so that existing tasks that have not yet been migrated
+     * to check_structure() + preflight() continue to work.  It is also called
+     * by base_task::preflight() as a compatibility shim.
+     *
+     * New tasks MUST NOT override this method — implement check_structure() and
+     * preflight() instead.
+     *
+     * @param  array $input
+     * @param  int   $cmid
+     * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>,
+     *     issues?:array<int,array<string,mixed>>}
+     * @deprecated since 2026 — implement check_structure() + preflight() instead.
+     */
+    public function validate(array $input, int $cmid): array {
+        return ['valid' => true, 'errors' => [], 'ambiguities' => []];
+    }
 }

@@ -50,7 +50,6 @@ use core_text;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class agent_decision_service {
-
     /** Issue codes indicating a duplicate-title confirmation context. */
     public const DUPLICATE_TITLE_ISSUE_CODES = [
         'DUPLICATE_TITLE_CONFIRM_REQUIRED',
@@ -124,7 +123,10 @@ class agent_decision_service {
             return [
                 'response_type'             => 'clarification',
                 'message'                   => $this->localized_string(
-                    'ai_preview_latest_option', 'mod_booking', null, $outputlang
+                    'ai_preview_latest_option',
+                    'mod_booking',
+                    null,
+                    $outputlang
                 ),
                 'used_triggers'             => $result['used_triggers'] ?? [],
                 'commands'                  => [],
@@ -167,7 +169,10 @@ class agent_decision_service {
             return [
                 'response_type'   => 'clarification',
                 'message'         => $this->localized_string(
-                    'ai_lookup_detected_blocked_mutation', 'mod_booking', null, $outputlang
+                    'ai_lookup_detected_blocked_mutation',
+                    'mod_booking',
+                    null,
+                    $outputlang
                 ),
                 'commands'        => [],
                 'ambiguities'     => array_values(array_unique((array)($result['ambiguities'] ?? []))),
@@ -192,7 +197,7 @@ class agent_decision_service {
         }
 
         // 8. Run preflight on confirmation commands: resolve entities, detect conflicts,
-        //    update commands to carry prepared_input, route based on preflight result.
+        // update commands to carry prepared_input, route based on preflight result.
         if (($result['response_type'] ?? '') === 'confirmation_request' && !empty($result['commands'])) {
             $result = $this->handle_preflight($result, $threadid, $cmid, $userid, $outputlang);
         }
@@ -229,8 +234,8 @@ class agent_decision_service {
      *   - 'fallback_confirm_string_key'  for confirmation_request responses
      *   - 'fallback_taskcall_string_key' for task_call responses
      *
-     * Cross-plugin tasks (entities.*, shopping_cart.*) are not in the registry, so
-     * their strings remain hardcoded here as a last resort.
+     * Tasks that are not registered in the booking registry (e.g. cross-plugin
+     * tasks) receive the generic default fallback string.
      *
      * @param  array  $result
      * @param  string $outputlang
@@ -267,22 +272,8 @@ class agent_decision_service {
                     }
                 }
             }
-            // Cross-plugin task fallbacks (entities, shopping_cart — not in the booking registry).
-            if ($firsttask === 'entities.list_all_entities') {
-                return $this->localized_string('ai_status_taskcall_entities_list_all', 'mod_booking', null, $outputlang);
-            }
-            if ($firsttask === 'entities.search') {
-                return $this->localized_string('ai_status_taskcall_entities_search', 'mod_booking', null, $outputlang);
-            }
-            if ($firsttask === 'entities.create_entity') {
-                return $this->localized_string('ai_status_taskcall_entities_create', 'mod_booking', null, $outputlang);
-            }
-            if ($firsttask === 'shopping_cart.get_items') {
-                return $this->localized_string('ai_status_taskcall_shopping_cart_items', 'mod_booking', null, $outputlang);
-            }
-            if ($firsttask === 'shopping_cart.get_totals') {
-                return $this->localized_string('ai_status_taskcall_shopping_cart_totals', 'mod_booking', null, $outputlang);
-            }
+            // Any task not registered in the booking registry (e.g. cross-plugin tasks)
+            // falls back to the generic default string.
             return $this->localized_string('ai_status_taskcall_default', 'mod_booking', null, $outputlang);
         }
 

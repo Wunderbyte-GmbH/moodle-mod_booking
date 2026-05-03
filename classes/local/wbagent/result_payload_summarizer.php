@@ -40,7 +40,6 @@ namespace mod_booking\local\wbagent;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class result_payload_summarizer {
-
     /**
      * Build a concise observation string for the LLM loop.
      *
@@ -74,73 +73,108 @@ class result_payload_summarizer {
     }
 
     /**
+     * Classify a single result entry into a named category.
+     *
+     * Used by both for_observation() and execution_feedback_service to avoid
+     * duplicating the structural type-detection logic across two classes.
+     *
+     * Possible return values:
+     *  'options'      — entry contains a booking-options array
+     *  'users'        — entry contains a users array
+     *  'courses'      — entry contains a courses array
+     *  'docs'         — entry contains a docs/documentation array
+     *  'diagnosis'    — entry contains a diagnosis object
+     *  'capabilities' — entry contains a capabilities array
+     *  'current_user' — entry has fullname or email keys (get_current_user result)
+     *  'generic'      — none of the above
+     *
+     * @param  array $entry  A single raw task result payload.
+     * @return string        Category identifier.
+     */
+    public static function detect_result_category(array $entry): string {
+        if (!empty($entry['options']) && is_array($entry['options'])) {
+            return 'options';
+        }
+        if (!empty($entry['users']) && is_array($entry['users'])) {
+            return 'users';
+        }
+        if (!empty($entry['courses']) && is_array($entry['courses'])) {
+            return 'courses';
+        }
+        if (!empty($entry['docs']) && is_array($entry['docs'])) {
+            return 'docs';
+        }
+        if (!empty($entry['diagnosis']) && is_array($entry['diagnosis'])) {
+            return 'diagnosis';
+        }
+        if (!empty($entry['capabilities']) && is_array($entry['capabilities'])) {
+            return 'capabilities';
+        }
+        if (array_key_exists('fullname', $entry) || array_key_exists('email', $entry)) {
+            return 'current_user';
+        }
+        return 'generic';
+    }
+
+    /**
      * Describe a single result entry as an observation string.
      *
      * @param  array $entry
      * @return string
      */
     private static function describe_entry(array $entry): string {
-        // Booking options list (booking.search_options / booking.list_option_properties).
-        if (!empty($entry['options']) && is_array($entry['options'])) {
-            $count  = count($entry['options']);
-            $titles = array_slice(
-                array_filter(array_map(
-                    static fn($o): string => trim((string)($o['name'] ?? $o['text'] ?? '')),
-                    $entry['options']
-                )),
-                0,
-                5
-            );
-            $summary = "Found {$count} booking option(s)";
-            if (!empty($titles)) {
-                $summary .= ': ' . implode(', ', $titles);
-            }
-            return $summary . '.';
-        }
+        $category = self::detect_result_category($entry);
 
-        // Users list (booking.search_users / booking.get_current_user).
-        if (!empty($entry['users']) && is_array($entry['users'])) {
-            return 'Found ' . count($entry['users']) . ' user(s).';
-        }
+        switch ($category) {
+            case 'options':
+                $count  = count($entry['options']);
+                $titles = array_slice(
+                    array_filter(array_map(
+                        static fn($o): string => trim((string)($o['name'] ?? $o['text'] ?? '')),
+                        $entry['options']
+                    )),
+                    0,
+                    5
+                );
+                $summary = "Found {$count} booking option(s)";
+                if (!empty($titles)) {
+                    $summary .= ': ' . implode(', ', $titles);
+                }
+                return $summary . '.';
 
-        // Courses list (booking.search_courses).
-        if (!empty($entry['courses']) && is_array($entry['courses'])) {
-            return 'Found ' . count($entry['courses']) . ' course(s).';
-        }
+            case 'users':
+                return 'Found ' . count($entry['users']) . ' user(s).';
 
-        // Documentation excerpts (booking.explain_docs_topic).
-        if (!empty($entry['docs']) && is_array($entry['docs'])) {
-            $count = count($entry['docs']);
-            $title = trim((string)($entry['docs'][0]['title'] ?? ''));
-            $summary = "Retrieved {$count} documentation excerpt(s)";
-            if ($title !== '') {
-                $summary .= " (top: \"{$title}\")";
-            }
-            return $summary . '.';
-        }
+            case 'courses':
+                return 'Found ' . count($entry['courses']) . ' course(s).';
 
-        // Booking diagnosis (booking.diagnose_booking_issue / booking.diagnose_cancellation_issue).
-        if (!empty($entry['diagnosis']) && is_array($entry['diagnosis'])) {
-            $optname = trim((string)($entry['diagnosis']['optionname'] ?? ''));
-            $summary = 'Diagnosis completed';
-            if ($optname !== '') {
-                $summary .= " for option \"{$optname}\"";
-            }
-            return $summary . '.';
-        }
+            case 'docs':
+                $count = count($entry['docs']);
+                $title = trim((string)($entry['docs'][0]['title'] ?? ''));
+                $summary = "Retrieved {$count} documentation excerpt(s)";
+                if ($title !== '') {
+                    $summary .= " (top: \"{$title}\")";
+                }
+                return $summary . '.';
 
-        // Capabilities / actions list (booking.list_actions / booking.list_option_properties).
-        if (!empty($entry['capabilities']) && is_array($entry['capabilities'])) {
-            return 'Listed ' . count($entry['capabilities']) . ' capability/action item(s).';
-        }
+            case 'diagnosis':
+                $optname = trim((string)($entry['diagnosis']['optionname'] ?? ''));
+                $summary = 'Diagnosis completed';
+                if ($optname !== '') {
+                    $summary .= " for option \"{$optname}\"";
+                }
+                return $summary . '.';
 
-        // Current user info (booking.get_current_user).
-        if (array_key_exists('fullname', $entry) || array_key_exists('email', $entry)) {
-            $name = trim((string)($entry['fullname'] ?? ''));
-            return 'Current user identified' . ($name !== '' ? ": {$name}" : '') . '.';
-        }
+            case 'capabilities':
+                return 'Listed ' . count($entry['capabilities']) . ' capability/action item(s).';
 
-        // Fallback: use task-authored user message or detail string.
-        return trim((string)($entry['usermessage'] ?? $entry['detail'] ?? ''));
+            case 'current_user':
+                $name = trim((string)($entry['fullname'] ?? ''));
+                return 'Current user identified' . ($name !== '' ? ": {$name}" : '') . '.';
+
+            default:
+                // Fallback: use task-authored user message or detail string.
+                return trim((string)($entry['usermessage'] ?? $entry['detail'] ?? ''));
+        }
     }
 }
