@@ -18,8 +18,6 @@ namespace mod_booking\local\wbagent\booking;
 
 use context_module;
 use mod_booking\booking_option;
-use mod_booking\local\wbagent\conversation_store;
-use mod_booking\local\wbagent\privacy_anonymizer;
 use mod_booking\local\wbagent\booking\support\booking_mutation_validation;
 use mod_booking\local\wbagent\booking\tasks\bulk_update_options_task;
 use mod_booking\local\wbagent\booking\tasks\create_option_task;
@@ -796,11 +794,12 @@ class booking_task_mutation_execute_service {
     /**
      * Shared preflight validation for mutating tasks.
      *
-     * This method is intentionally side-effect free and can be reused from task::validate
-     * and from execute() so both stages use the same checks.
+     * This method is intentionally side-effect free.  The input is expected to
+     * have already been deanonymized by the caller (agent_decision_service or the
+     * task's own preflight() method).
      *
      * @param string $taskname
-     * @param array $input
+     * @param array $input  Already-deanonymized input.
      * @param int $cmid
      * @param int $userid
      * @return array{errors:array<int,string>,ambiguities:array<int,string>,normalized_input:array<string,mixed>}
@@ -811,11 +810,6 @@ class booking_task_mutation_execute_service {
         $errors = [];
         $ambiguities = [];
         $normalizedinput = $input;
-
-        // Resolve ANON_USER tokens before semantic validation to avoid false user lookup misses.
-        $anonymizer = new privacy_anonymizer(new conversation_store());
-        $activeuserid = $userid > 0 ? $userid : (int)($USER->id ?? 0);
-        $normalizedinput = $anonymizer->deanonymize_command_input_for_active_user($cmid, $activeuserid, $normalizedinput);
 
         $cm = get_coursemodule_from_id('booking', $cmid);
         if (!$cm) {

@@ -33,11 +33,13 @@ use mod_booking\local\wbagent\interfaces\agent_interpreter;
  * Pipeline stages:
  *  1. JSON/structure parsing
  *  2. Response-type classification (allow-list)
- *  3. Schema validation for task_call / confirmation_request
- *  4. Domain / semantic validation via the task registry
- *  5. Ambiguity detection – any ambiguity stops execution and asks the user
- *  6. Normalisation (dates, IDs)
- *  7. Emission of execution-safe command objects
+ *  3. Structural validation for task_call / confirmation_request (check_structure() — pure, no DB)
+ *  4. Normalisation (dates, IDs)
+ *  5. Emission of structurally-valid command objects for routing
+ *
+ * Deep validation (DB lookups, entity resolution, conflict detection) is NOT
+ * performed here.  It is delegated to agent_decision_service via task->preflight()
+ * during the routing phase.
  *
  * @package    mod_booking
  * @copyright  2025 Wunderbyte GmbH <info@wunderbyte.at>
@@ -49,17 +51,6 @@ class interpreter implements agent_interpreter {
 
     /** Canonical token representing the current executor user. */
     private const CURRENT_USER_TOKEN = '__current_user__';
-
-    /** Issue codes that should produce a confirmation_request with pending intent. */
-    private const CONFIRMABLE_ISSUE_CODES = [
-        'DUPLICATE_TITLE_CONFIRM_REQUIRED',
-        'DUPLICATE_TITLE_MULTI_CONFIRM_REQUIRED',
-        'CONFIRMATION_REQUIRED',
-        'MISSING_LOCATION_CONFIRM_REQUIRED',
-        'LOCATION_NOT_FOUND_POSSIBLE',
-        'SLOTBOOKING_DURATION_EQUALS_WINDOW',
-        'SOFT_BOOKING_OVERRIDE_CONFIRM_REQUIRED',
-    ];
 
     /** @var task_registry */
     private task_registry $registry;
@@ -378,14 +369,24 @@ class interpreter implements agent_interpreter {
     }
 
     /**
-     * Validate all commands and return [validated, errors, ambiguities].
+     * Validate all commands using structural (pure) checks only.
+     *
+     * This method MUST NOT:
+     *  - call task->validate()
+     *  - perform any DB lookups
+     *  - resolve entity IDs
+     *
+     * Deep validation (DB lookups, entity resolution, conflict detection) is
+     * delegated to agent_decision_service via task->preflight().
+     *
+     * Returns [validated, errors, ambiguities, ambiguityoptions, attemptedtasks, issuecodes, confirmablecommands].
      */
     private function validate_commands(array $commands, int $cmid, int $userid): array {
         $validated = [];
         $errors = [];
         $ambiguities = [];
-                $ambiguityoptions = [];
-                $attemptedtasks = [];
+        $ambiguityoptions = [];
+        $attemptedtasks = [];
         $issuecodes = [];
         $confirmablecommands = [];
 
@@ -429,91 +430,14 @@ class interpreter implements agent_interpreter {
 
             $input = $this->normalize_self_user_references($input);
             $input = $this->canonicalize_command_input((string)$taskname, $input);
-            // Privacy precheck can cause ANON_USER tokens in LLM task input.
-            // Resolve them before preflight validation so lookups (e.g. optionquery)
-            // use original values consistently.
-            $anonymizer = new privacy_anonymizer(new conversation_store());
-            $input = $anonymizer->deanonymize_command_input_for_active_user($cmid, $userid, $input);
-            $candidatecommand = [
-                'task'    => $taskname,
-                'version' => $cmd['version'] ?? 1,
-                'input'   => $input,
-            ];
 
-            // Domain + semantic validation.
-            $result = $task->validate($input, $cmid);
-            if (!empty($result['errors'])) {
-                foreach ($result['errors'] as $e) {
+            // Stage 3: Pure structural validation only — no DB access here.
+            // Deep validation (option resolution, duplicate-title checks, etc.) is
+            // handled by agent_decision_service::preflight() during routing.
+            $structural = $task->check_structure($input);
+            if (!($structural['valid'] ?? true)) {
+                foreach ((array)($structural['errors'] ?? []) as $e) {
                     $errors[] = "$label: $e";
-                }
-            }
-
-            if (!empty($result['issues']) && is_array($result['issues'])) {
-                foreach ($result['issues'] as $issue) {
-                    if (!is_array($issue)) {
-                        continue;
-                    }
-
-                    $code = trim((string)($issue['code'] ?? ''));
-                    if ($code !== '') {
-                        $issuecodes[] = $code;
-                    }
-
-                    // Missing required fields should be surfaced via concrete validation errors,
-                    // not as a generic confirmation-style ambiguity.
-                    if ($code === 'MISSING_REQUIRED_FIELDS') {
-                        continue;
-                    }
-
-                    $severity = trim((string)($issue['severity'] ?? ''));
-                    if (
-                        $severity === 'needs_confirmation'
-                        && in_array($code, self::CONFIRMABLE_ISSUE_CODES, true)
-                    ) {
-                        $confirmcommand = $candidatecommand;
-                        if ($code === 'MISSING_LOCATION_CONFIRM_REQUIRED') {
-                            $overrides = is_array($confirmcommand['input']['override'] ?? null)
-                                ? $confirmcommand['input']['override']
-                                : [];
-                            $overrides[] = 'location';
-                            $overrides[] = 'address';
-                            $confirmcommand['input']['override'] = array_values(array_unique(array_map(
-                                static fn($token): string => strtolower(trim((string)$token)),
-                                $overrides
-                            )));
-                        }
-                        if ($code === 'SOFT_BOOKING_OVERRIDE_CONFIRM_REQUIRED') {
-                            // Second-stage confirmed execution for admin-overridable blockers (e.g. selectuser).
-                            $confirmcommand['input']['confirmed'] = true;
-                        }
-                        $confirmablecommands[] = $confirmcommand;
-                    }
-
-                    $question = trim((string)($issue['user_question'] ?? ''));
-                    if ($question !== '') {
-                        $ambiguities[] = "$label: $question";
-                        continue;
-                    }
-
-                    if ($code !== '') {
-                        $ambiguities[] = "$label: Please confirm how to proceed ($code).";
-                    }
-                }
-
-                if (!empty($ambiguities)) {
-                    continue;
-                }
-            }
-
-            if (!empty($result['ambiguities'])) {
-                foreach ($result['ambiguities'] as $a) {
-                    $ambiguities[] = "$label: $a";
-                }
-                if (!empty($result['ambiguity_options']) && is_array($result['ambiguity_options'])) {
-                    $ambiguityoptions = array_merge(
-                        $ambiguityoptions,
-                        $this->normalize_ambiguity_options($result['ambiguity_options'], $label, (string)$taskname)
-                    );
                 }
                 continue;
             }
@@ -532,7 +456,7 @@ class interpreter implements agent_interpreter {
                 }
             }
 
-            // Stage 7: Emit execution-safe command.
+            // Stage 7: Emit structurally-valid command.
             $validated[] = [
                 'task'    => $taskname,
                 'version' => $cmd['version'] ?? 1,

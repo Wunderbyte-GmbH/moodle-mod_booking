@@ -16,10 +16,11 @@
 
 namespace mod_booking\local\wbagent\booking\tasks;
 
-use mod_booking\local\wbagent\privacy_anonymizer;
 use mod_booking\local\wbagent\booking\booking_task_mutation_execute_service;
 use mod_booking\local\wbagent\booking\booking_task_support;
 use mod_booking\local\wbagent\interfaces\task_trigger_provider_interface;
+use mod_booking\local\wbagent\privacy_anonymizer;
+use mod_booking\local\wbagent\task_preflight_result;
 
 /**
  * Task definition for booking.update_option.
@@ -149,47 +150,80 @@ class update_option_task extends base_booking_task implements task_trigger_provi
     }
 
     /**
-     * Validate task input.
+     * Structural validation — pure, no DB access.
      *
-     * @param array $input
-     * @param int $cmid
-     * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>,issues?:array<int,array<string,mixed>>}
+     * Checks that at least one option-target field is present.
+     *
+     * @param  array $input
+     * @return array{valid:bool,errors:array<int,string>}
      */
-    public function validate(array $input, int $cmid): array {
-        global $USER;
+    public function check_structure(array $input): array {
+        if (empty($input['optionid']) && empty($input['optionquery'])) {
+            return [
+                'valid'  => false,
+                'errors' => [get_string('agent_booking_update_option_missing_target', 'mod_booking')],
+            ];
+        }
+        return ['valid' => true, 'errors' => []];
+    }
+
+    /**
+     * Deep preflight validation — DB lookups, option resolution, conflict detection.
+     *
+     * Returns prepared_input with 'optionid' resolved so execute() needs no
+     * further lookup.  Does NOT perform writes.
+     *
+     * @param  array $input
+     * @param  int   $cmid
+     * @param  int   $userid
+     * @return task_preflight_result
+     */
+    public function preflight(array $input, int $cmid, int $userid): task_preflight_result {
         global $DB;
 
         $lang = $this->get_output_language($input);
+        $issues = [];
 
-        $errors = [];
-        $ambiguities = [];
-                $issues = [];
-
-        // If optionquery is an anonymized token, skip semantic resolution.
-        // Real deanonymization and option resolution happen at execution time via the executor.
-        if (!empty($input['optionquery']) && privacy_anonymizer::looks_like_anon_token((string)$input['optionquery'])) {
-            return ['valid' => true, 'errors' => [], 'ambiguities' => [], 'issues' => []];
+        // If optionquery is an anonymized token, skip semantic resolution here —
+        // the executor will handle real deanonymization.
+        if (
+            !empty($input['optionquery'])
+            && privacy_anonymizer::looks_like_anon_token((string)$input['optionquery'])
+        ) {
+            return task_preflight_result::ok($input);
         }
+
+        $preparedinput = $input;
 
         if (empty($input['optionid'])) {
             if (empty($input['optionquery'])) {
-                $ambiguities[] = $this->localized_string('agent_booking_update_option_missing_target', null, $lang);
                 $issues[] = [
-                    'code' => 'MISSING_TARGET_OPTION',
-                    'severity' => 'needs_clarification',
-                    'user_question' => $this->localized_string('agent_booking_update_option_which_option_question', null, $lang),
+                    'code'          => 'MISSING_TARGET_OPTION',
+                    'severity'      => 'needs_clarification',
+                    'message'       => $this->localized_string('agent_booking_update_option_missing_target', null, $lang),
+                    'user_question' => $this->localized_string(
+                        'agent_booking_update_option_which_option_question',
+                        null,
+                        $lang
+                    ),
                     'remedy_options' => ['PROVIDE_OPTIONQUERY', 'PROVIDE_OPTIONID'],
                 ];
+                return task_preflight_result::invalid($issues);
+
             } else if (booking_task_support::is_last_preview_selection_reference((string)$input['optionquery'])) {
                 $previewids = booking_task_support::resolve_last_preview_option_ids_for_user_for_execute(
                     $cmid,
-                    (int)($USER->id ?? 0)
+                    $userid
                 );
                 if (empty($previewids)) {
-                    $errors[] = $this->localized_string('agent_booking_update_option_missing_preview_context', null, $lang);
                     $issues[] = [
-                        'code' => 'MISSING_PREVIEW_CONTEXT',
-                        'severity' => 'needs_clarification',
+                        'code'          => 'MISSING_PREVIEW_CONTEXT',
+                        'severity'      => 'needs_clarification',
+                        'message'       => $this->localized_string(
+                            'agent_booking_update_option_missing_preview_context',
+                            null,
+                            $lang
+                        ),
                         'user_question' => $this->localized_string(
                             'agent_booking_update_option_missing_preview_question',
                             null,
@@ -197,7 +231,15 @@ class update_option_task extends base_booking_task implements task_trigger_provi
                         ),
                         'remedy_options' => ['PROVIDE_OPTIONQUERY', 'PROVIDE_OPTIONID'],
                     ];
+                    return task_preflight_result::invalid($issues);
                 }
+                // Resolve preview IDs into prepared_input.
+                if (count($previewids) === 1) {
+                    $preparedinput['optionid'] = (int)reset($previewids);
+                } else {
+                    $preparedinput['optionids'] = array_values(array_map('intval', $previewids));
+                }
+
             } else if (!booking_task_support::is_last_option_reference((string)$input['optionquery'])) {
                 $result = booking_task_support::resolve_single_option(
                     $cmid,
@@ -205,10 +247,10 @@ class update_option_task extends base_booking_task implements task_trigger_provi
                     (string)($input['optionwhen'] ?? '')
                 );
                 if ($result['status'] === 'error') {
-                    $errors[] = (string)$result['message'];
                     $issues[] = [
-                        'code' => 'OPTION_RESOLUTION_FAILED',
-                        'severity' => 'needs_clarification',
+                        'code'          => 'OPTION_RESOLUTION_FAILED',
+                        'severity'      => 'needs_clarification',
+                        'message'       => (string)$result['message'],
                         'user_question' => $this->localized_string(
                             'agent_booking_update_option_resolution_failed_question',
                             null,
@@ -216,11 +258,12 @@ class update_option_task extends base_booking_task implements task_trigger_provi
                         ),
                         'remedy_options' => ['PROVIDE_MORE_SPECIFIC_OPTIONQUERY', 'PROVIDE_OPTIONID'],
                     ];
+                    return task_preflight_result::invalid($issues);
                 } else if ($result['status'] === 'ambiguity') {
-                    $ambiguities[] = (string)$result['message'];
                     $issues[] = [
-                        'code' => 'OPTION_RESOLUTION_AMBIGUOUS',
-                        'severity' => 'needs_clarification',
+                        'code'          => 'OPTION_RESOLUTION_AMBIGUOUS',
+                        'severity'      => 'needs_clarification',
+                        'message'       => (string)$result['message'],
                         'user_question' => $this->localized_string(
                             'agent_booking_update_option_resolution_ambiguous_question',
                             null,
@@ -228,21 +271,30 @@ class update_option_task extends base_booking_task implements task_trigger_provi
                         ),
                         'remedy_options' => ['SELECT_EXACT_OPTION', 'PROVIDE_OPTIONID'],
                     ];
+                    return task_preflight_result::invalid($issues);
+                } else if ($result['status'] === 'ok') {
+                    // Store resolved ID in prepared_input.
+                    $preparedinput['optionid'] = (int)$result['optionid'];
                 }
             }
         } else {
+            // Verify explicit optionid belongs to this booking instance.
             $cm = get_coursemodule_from_id('booking', $cmid);
             if (
                 !$cm
                 || !$DB->record_exists('booking_options', [
-                    'id' => (int)$input['optionid'],
+                    'id'        => (int)$input['optionid'],
                     'bookingid' => $cm->instance,
                 ])
             ) {
-                $errors[] = $this->localized_string('agent_booking_update_option_invalid_optionid', (int)$input['optionid'], $lang);
                 $issues[] = [
-                    'code' => 'INVALID_OPTIONID',
-                    'severity' => 'needs_clarification',
+                    'code'          => 'INVALID_OPTIONID',
+                    'severity'      => 'needs_clarification',
+                    'message'       => $this->localized_string(
+                        'agent_booking_update_option_invalid_optionid',
+                        (int)$input['optionid'],
+                        $lang
+                    ),
                     'user_question' => $this->localized_string(
                         'agent_booking_update_option_invalid_optionid_question',
                         (int)$input['optionid'],
@@ -250,23 +302,71 @@ class update_option_task extends base_booking_task implements task_trigger_provi
                     ),
                     'remedy_options' => ['PROVIDE_VALID_OPTIONID', 'PROVIDE_OPTIONQUERY'],
                 ];
+                return task_preflight_result::invalid($issues);
             }
         }
 
-        $preflight = (new booking_task_mutation_execute_service())->preflight_validate(
-            self::TASK_NAME,
-            $input,
-            $cmid,
-            (int)($USER->id ?? 0)
-        );
-        $errors = array_merge($errors, (array)($preflight['errors'] ?? []));
-        $ambiguities = array_merge($ambiguities, (array)($preflight['ambiguities'] ?? []));
+        // Run service-level preflight (teacher resolution, dates, etc.) and enrich prepared_input.
+        $service = new booking_task_mutation_execute_service();
+        $servicepreflight = $service->preflight_validate(self::TASK_NAME, $preparedinput, $cmid, $userid);
+        if (!empty($servicepreflight['errors']) || !empty($servicepreflight['ambiguities'])) {
+            foreach ((array)($servicepreflight['errors'] ?? []) as $err) {
+                $issues[] = [
+                    'code'     => 'PREFLIGHT_ERROR',
+                    'severity' => 'needs_clarification',
+                    'message'  => (string)$err,
+                ];
+            }
+            foreach ((array)($servicepreflight['ambiguities'] ?? []) as $amb) {
+                $issues[] = [
+                    'code'     => 'PREFLIGHT_AMBIGUITY',
+                    'severity' => 'needs_clarification',
+                    'message'  => (string)$amb,
+                ];
+            }
+            return task_preflight_result::invalid($issues);
+        }
+
+        // Use enriched input (e.g. optionid resolved from query by the service).
+        if (is_array($servicepreflight['normalized_input'] ?? null)) {
+            $preparedinput = (array)$servicepreflight['normalized_input'];
+        }
+
+        return task_preflight_result::ok($preparedinput);
+    }
+
+    /**
+     * Legacy validate — delegates to preflight() for backward-compatibility.
+     *
+     * Called only by the executor's stale-state guard.  New callers should
+     * use preflight() directly.
+     *
+     * @param  array $input
+     * @param  int   $cmid
+     * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>,issues:array}
+     * @deprecated since 2026 — use preflight() instead.
+     */
+    public function validate(array $input, int $cmid): array {
+        global $USER;
+        $result = $this->preflight($input, $cmid, (int)($USER->id ?? 0));
+
+        $errors = [];
+        $ambiguities = [];
+        foreach ($result->issues as $issue) {
+            $msg = (string)($issue['message'] ?? '');
+            if ($msg === '') {
+                continue;
+            }
+            if (($issue['severity'] ?? '') === 'needs_clarification') {
+                $errors[] = $msg;
+            }
+        }
 
         return [
-            'valid' => empty($errors) && empty($ambiguities),
-            'errors' => $errors,
+            'valid'       => $result->is_valid,
+            'errors'      => $errors,
             'ambiguities' => $ambiguities,
-            'issues' => $issues,
+            'issues'      => $result->issues,
         ];
     }
 
@@ -282,20 +382,23 @@ class update_option_task extends base_booking_task implements task_trigger_provi
     }
 
     /**
-     * Execute task.
+     * Execute task using prepared_input from preflight().
      *
-     * @param array $input
-     * @param int $cmid
-     * @param int $userid
+     * prepared_input already contains a resolved 'optionid' (or 'optionids' for
+     * multi-preview cases) so the mutation service needs no further resolution.
+     *
+     * @param  array $preparedinput  Resolved input from preflight().
+     * @param  int   $cmid
+     * @param  int   $userid
      * @return array
      */
-    public function execute(array $input, int $cmid, int $userid): array {
+    public function execute(array $preparedinput, int $cmid, int $userid): array {
         $service = new booking_task_mutation_execute_service();
-        $result = $service->execute(self::TASK_NAME, $input, $cmid, $userid, $this->support);
+        $result = $service->execute(self::TASK_NAME, $preparedinput, $cmid, $userid, $this->support);
         if (is_array($result)) {
             $result['debugmessage'] = $this->build_task_debug_message(
                 self::TASK_NAME,
-                $input,
+                $preparedinput,
                 ['Status: ' . ($result['status'] ?? 'unknown')]
             );
             return $result;
@@ -305,7 +408,7 @@ class update_option_task extends base_booking_task implements task_trigger_provi
             'status' => 'error',
             'detail' => 'Unknown booking task: ' . self::TASK_NAME,
             'resultid' => null,
-            'debugmessage' => $this->build_task_debug_message(self::TASK_NAME, $input, ['Status: error']),
+            'debugmessage' => $this->build_task_debug_message(self::TASK_NAME, $preparedinput, ['Status: error']),
         ];
     }
 }

@@ -83,8 +83,9 @@ final class diagnose_booking_issue_task_test extends abstract_agent_testcase {
         ], (int)$this->booking->cmid);
 
         $this->assertFalse($result['valid']);
-        $this->assertNotEmpty($result['ambiguities']);
-        $this->assertStringContainsString('Which booking option do you mean?', (string)$result['ambiguities'][0]);
+        // OPTION_REFERENCE_REQUIRED is needs_clarification → surfaced in errors (not ambiguities).
+        $this->assertNotEmpty($result['errors']);
+        $this->assertStringContainsString('Which booking option do you mean?', (string)$result['errors'][0]);
     }
 
     /**
@@ -194,7 +195,7 @@ final class diagnose_booking_issue_task_test extends abstract_agent_testcase {
     }
 
     /**
-     * Validation ambiguity is localized to German when current language is de.
+     * Validation error message is localized to German when current language is de.
      */
     public function test_validate_ambiguity_is_localized_for_german(): void {
         $task = new diagnose_booking_issue_task();
@@ -205,14 +206,15 @@ final class diagnose_booking_issue_task_test extends abstract_agent_testcase {
         ], (int)$this->booking->cmid);
 
         $this->assertFalse($result['valid']);
-        $this->assertNotEmpty($result['ambiguities']);
-        $expectedambiguity = get_string_manager()->get_string(
+        // OPTION_REFERENCE_REQUIRED is needs_clarification → surfaced in errors (not ambiguities).
+        $this->assertNotEmpty($result['errors']);
+        $expectedmessage = get_string_manager()->get_string(
             'agent_booking_diagnose_ambiguity_option_required',
             'mod_booking',
             null,
             'de'
         );
-        $this->assertSame($expectedambiguity, (string)$result['ambiguities'][0]);
+        $this->assertSame($expectedmessage, (string)$result['errors'][0]);
     }
 
     /**

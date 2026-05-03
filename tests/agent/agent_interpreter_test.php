@@ -206,13 +206,16 @@ final class agent_interpreter_test extends advanced_testcase {
     }
 
     /**
-     * Structured task ambiguity options should be propagated to interpreter output.
+     * Structural check_structure() errors should block a task_call command in the interpreter.
      *
-     * Uses a fake task that returns both ambiguities and ambiguity_options from validate()
-     * to verify the interpreter correctly propagates them to a clarification response.
+     * Uses a fake task that returns errors from check_structure() to verify the
+     * interpreter correctly rejects the command and returns a clarification response.
+     *
+     * Note: ambiguity_options (for option disambiguation) are NOT handled here.
+     * They are produced by task->preflight() in agent_decision_service.
      */
     public function test_ambiguity_options_are_propagated_from_task_validation(): void {
-        // Build a fake task whose validate() returns ambiguities + ambiguity_options.
+        // Build a fake task whose check_structure() returns a structural error.
         $faketask = new class implements task_interface {
             /**
              * Get task name.
@@ -233,22 +236,43 @@ final class agent_interpreter_test extends advanced_testcase {
             }
 
             /**
-             * Validate — always returns ambiguities with structured ambiguity_options.
+             * check_structure — returns a structural error when 'question' is missing.
+             *
+             * @param array $input
+             * @return array
+             */
+            public function check_structure(array $input): array {
+                if (empty($input['question'])) {
+                    return ['valid' => false, 'errors' => ['Field "question" is required.']];
+                }
+                return ['valid' => true, 'errors' => []];
+            }
+
+            /**
+             * preflight — default pass-through.
+             *
+             * @param array $input
+             * @param int $cmid
+             * @param int $userid
+             * @return \mod_booking\local\wbagent\task_preflight_result
+             */
+            public function preflight(
+                array $input,
+                int $cmid,
+                int $userid
+            ): \mod_booking\local\wbagent\task_preflight_result {
+                return \mod_booking\local\wbagent\task_preflight_result::ok($input);
+            }
+
+            /**
+             * validate — legacy shim.
              *
              * @param array $input
              * @param int $cmid
              * @return array
              */
             public function validate(array $input, int $cmid): array {
-                return [
-                    'valid'            => false,
-                    'errors'           => [],
-                    'ambiguities'      => ['Please select one of the matching topics.'],
-                    'ambiguity_options' => [
-                        ['id' => 'opt1', 'label' => 'Booking Options Overview', 'query' => 'bookotheroptions'],
-                        ['id' => 'opt2', 'label' => 'Cancel Booking Action', 'query' => 'cancelbooking'],
-                    ],
-                ];
+                return ['valid' => true, 'errors' => [], 'ambiguities' => []];
             }
 
             /**
@@ -318,6 +342,7 @@ final class agent_interpreter_test extends advanced_testcase {
         $registry->register($fakeprovider);
         $interpreter = new interpreter($registry);
 
+        // Input with 'question' missing — triggers structural check_structure() error.
         $raw = json_encode([
             'response_type' => 'task_call',
             'message'       => 'Let me check the docs topic.',
@@ -325,22 +350,16 @@ final class agent_interpreter_test extends advanced_testcase {
                 [
                     'task'    => 'test.ambiguous_docs',
                     'version' => 1,
-                    'input'   => ['question' => 'What is bookotheroptions?'],
+                    'input'   => [],   // no 'question' field
                 ],
             ],
         ]);
 
         $result = $interpreter->interpret($raw, $this->cmid, 1);
 
+        // Structural check_structure() errors block the command and return clarification.
         $this->assertEquals('clarification', $result['response_type']);
-        $this->assertNotEmpty($result['ambiguities']);
-        $this->assertArrayHasKey('ambiguity_options', $result);
-        $this->assertNotEmpty($result['ambiguity_options']);
-
-        $first = $result['ambiguity_options'][0] ?? [];
-        $this->assertNotSame('', trim((string)($first['label'] ?? '')));
-        $this->assertNotSame('', trim((string)($first['query'] ?? '')));
-        $this->assertSame('test.ambiguous_docs', (string)($first['task'] ?? ''));
+        $this->assertNotEmpty($result['errors']);
     }
 
     /**
@@ -427,7 +446,9 @@ final class agent_interpreter_test extends advanced_testcase {
     }
 
     /**
-     * Missing location should become a confirmation_request with location/address overrides.
+     * Missing location: interpreter passes command through (structural check passes);
+     * the 'location'/'address' override injection happens later in agent_decision_service
+     * when task->preflight() returns MISSING_LOCATION_CONFIRM_REQUIRED.
      */
     public function test_missing_location_becomes_confirmable_with_override(): void {
         $raw = json_encode([
@@ -450,11 +471,12 @@ final class agent_interpreter_test extends advanced_testcase {
 
         $result = $this->interpreter->interpret($raw, $this->cmid, 1);
 
+        // Structural check_structure() passes (title is present).
+        // The command passes through the interpreter; override injection happens
+        // in agent_decision_service::apply_confirmable_overrides() after preflight().
         $this->assertEquals('confirmation_request', $result['response_type']);
         $this->assertCount(1, $result['commands']);
-        $overrides = $result['commands'][0]['input']['override'] ?? [];
-        $this->assertContains('location', $overrides);
-        $this->assertContains('address', $overrides);
+        $this->assertEquals('booking.create_option', $result['commands'][0]['task'] ?? '');
     }
 
     /**

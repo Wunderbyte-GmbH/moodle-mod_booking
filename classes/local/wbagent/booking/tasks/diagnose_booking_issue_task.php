@@ -19,6 +19,7 @@ namespace mod_booking\local\wbagent\booking\tasks;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\local\wbagent\booking\booking_task_support;
 use mod_booking\local\wbagent\interfaces\task_trigger_provider_interface;
+use mod_booking\local\wbagent\task_preflight_result;
 use mod_booking\singleton_service;
 
 /**
@@ -151,53 +152,148 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
     }
 
     /**
-     * Validate task input.
+     * Structural validation — pure, no DB access.
      *
-     * @param array $input
-     * @param int $cmid
-     * @return array
+     * Checks that the 'question' field is present.
+     *
+     * @param  array $input
+     * @return array{valid:bool,errors:array<int,string>}
      */
-    public function validate(array $input, int $cmid): array {
-        $errors = [];
-        $ambiguities = [];
-        $lang = $this->get_output_language($input);
+    public function check_structure(array $input): array {
+        if (trim((string)($input['question'] ?? '')) === '') {
+            return [
+                'valid'  => false,
+                'errors' => [get_string('agent_booking_diagnose_required_question', 'mod_booking')],
+            ];
+        }
+        return ['valid' => true, 'errors' => []];
+    }
 
+    /**
+     * Deep preflight validation — option resolution and user resolution.
+     *
+     * Returns prepared_input with 'optionid' resolved so execute() never has
+     * to perform another DB lookup.
+     *
+     * @param  array $input
+     * @param  int   $cmid
+     * @param  int   $userid
+     * @return task_preflight_result
+     */
+    public function preflight(array $input, int $cmid, int $userid): task_preflight_result {
+        $lang = $this->get_output_language($input);
+        $issues = [];
+
+        // Question is required.
         $question = trim((string)($input['question'] ?? ''));
         if ($question === '') {
-            $errors[] = $this->localized_string('agent_booking_diagnose_required_question', null, $lang);
+            $issues[] = [
+                'code'     => 'MISSING_QUESTION',
+                'severity' => 'needs_clarification',
+                'message'  => $this->localized_string('agent_booking_diagnose_required_question', null, $lang),
+            ];
+            return task_preflight_result::invalid($issues);
         }
 
-        $optionvalidation = $this->validate_option_reference($input, $cmid, $lang);
-        $errors = array_merge($errors, $optionvalidation['errors']);
-        $ambiguities = array_merge($ambiguities, $optionvalidation['ambiguities']);
+        $preparedinput = $input;
+
+        // Resolve option reference.
+        $optionid = (int)($input['optionid'] ?? 0);
+        $optionquery = trim((string)($input['optionquery'] ?? ''));
+
+        if ($optionid <= 0 && $optionquery === '') {
+            $issues[] = [
+                'code'     => 'OPTION_REFERENCE_REQUIRED',
+                'severity' => 'needs_clarification',
+                'message'  => $this->localized_string('agent_booking_diagnose_ambiguity_option_required', null, $lang),
+            ];
+            return task_preflight_result::invalid($issues);
+        }
+
+        if ($optionid <= 0 && $optionquery !== '') {
+            if (!booking_task_support::is_last_option_reference($optionquery)) {
+                $resolved = booking_task_support::resolve_single_option($cmid, $optionquery, '');
+                if (($resolved['status'] ?? '') === 'ambiguity') {
+                    $issues[] = [
+                        'code'     => 'OPTION_RESOLUTION_AMBIGUOUS',
+                        'severity' => 'needs_clarification',
+                        'message'  => (string)($resolved['message']
+                            ?? $this->localized_string('agent_booking_diagnose_ambiguity_option_specify', null, $lang)),
+                    ];
+                    return task_preflight_result::invalid($issues);
+                } else if (($resolved['status'] ?? '') === 'error') {
+                    $issues[] = [
+                        'code'     => 'OPTION_RESOLUTION_FAILED',
+                        'severity' => 'needs_clarification',
+                        'message'  => (string)($resolved['message']
+                            ?? $this->localized_string('agent_booking_diagnose_error_option_resolve', null, $lang)),
+                    ];
+                    return task_preflight_result::invalid($issues);
+                } else if (($resolved['status'] ?? '') === 'ok') {
+                    $preparedinput['optionid'] = (int)($resolved['optionid'] ?? 0);
+                }
+            }
+            // is_last_option_reference is handled at execute() time using user-session data.
+        }
+
+        return task_preflight_result::ok($preparedinput);
+    }
+
+    /**
+     * Legacy validate — delegates to preflight() for backward-compatibility.
+     *
+     * @param  array $input
+     * @param  int   $cmid
+     * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>}
+     * @deprecated since 2026 — use preflight() instead.
+     */
+    public function validate(array $input, int $cmid): array {
+        global $USER;
+        $result = $this->preflight($input, $cmid, (int)($USER->id ?? 0));
+
+        $errors = [];
+        $ambiguities = [];
+        foreach ($result->issues as $issue) {
+            $msg = (string)($issue['message'] ?? '');
+            if ($msg === '') {
+                continue;
+            }
+            if (($issue['severity'] ?? '') === 'needs_clarification') {
+                $errors[] = $msg;
+            }
+        }
 
         return [
-            'valid' => empty($errors) && empty($ambiguities),
-            'errors' => $errors,
+            'valid'       => $result->is_valid,
+            'errors'      => $errors,
             'ambiguities' => $ambiguities,
         ];
     }
 
     /**
-     * Execute task.
+     * Execute task using prepared_input from preflight().
      *
-     * @param array $input
-     * @param int $cmid
-     * @param int $userid
+     * prepared_input already contains a resolved 'optionid' when the option was
+     * identified during preflight().  Only 'last option' references need runtime
+     * resolution here (they depend on live session state, not static DB data).
+     *
+     * @param  array $preparedinput  Resolved input from preflight().
+     * @param  int   $cmid
+     * @param  int   $userid
      * @return array
      */
-    public function execute(array $input, int $cmid, int $userid): array {
+    public function execute(array $preparedinput, int $cmid, int $userid): array {
         global $DB;
-        $outputlang = $this->get_output_language($input);
+        $outputlang = $this->get_output_language($preparedinput);
 
-        $resolveduser = $this->resolve_diagnostic_user($input, $userid, $outputlang);
+        $resolveduser = $this->resolve_diagnostic_user($preparedinput, $userid, $outputlang);
         if (($resolveduser['status'] ?? '') !== 'ok') {
             return [
                 'status' => 'error',
                 'detail' => (string)($resolveduser['message']
                     ?? $this->localized_string('agent_booking_resolve_user_query_required', null, $outputlang)),
                 'resultid' => null,
-                'debugmessage' => $this->build_task_debug_message(self::TASK_NAME, $input, ['Status: error']),
+                'debugmessage' => $this->build_task_debug_message(self::TASK_NAME, $preparedinput, ['Status: error']),
             ];
         }
         $diagnosticuserid = (int)($resolveduser['userid'] ?? $userid);
@@ -209,21 +305,21 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
                 'resultid' => null,
                 'debugmessage' => $this->build_task_debug_message(
                     self::TASK_NAME,
-                    $input,
+                    $preparedinput,
                     ['Status: error', 'Reason: missing permission for cross-user diagnosis']
                 ),
             ];
         }
 
-        $issuetype = $this->resolve_issue_type($input);
-        $resolvedoption = $this->resolve_option_id($input, $cmid, $userid, $outputlang);
+        $issuetype = $this->resolve_issue_type($preparedinput);
+        $resolvedoption = $this->resolve_option_id($preparedinput, $cmid, $userid, $outputlang);
         if (($resolvedoption['status'] ?? '') !== 'ok') {
             return [
                 'status' => 'error',
                 'detail' => (string)($resolvedoption['message']
                     ?? $this->localized_string('agent_booking_diagnose_error_option_resolve', null, $outputlang)),
                 'resultid' => null,
-                'debugmessage' => $this->build_task_debug_message(self::TASK_NAME, $input, ['Status: error']),
+                'debugmessage' => $this->build_task_debug_message(self::TASK_NAME, $preparedinput, ['Status: error']),
             ];
         }
 
@@ -260,7 +356,7 @@ class diagnose_booking_issue_task extends base_booking_task implements task_trig
             ],
             'debugmessage' => $this->build_task_debug_message(
                 self::TASK_NAME,
-                $input,
+                $preparedinput,
                 [
                     'Resolved option: ' . $optionname . ' (id=' . $optionid . ')',
                     'Diagnostic user id: ' . $diagnosticuserid,

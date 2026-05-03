@@ -19,6 +19,7 @@ namespace mod_booking\local\wbagent\booking\tasks;
 use mod_booking\local\wbagent\booking\booking_task_mutation_execute_service;
 use mod_booking\local\wbagent\booking\booking_task_support;
 use mod_booking\local\wbagent\interfaces\task_trigger_provider_interface;
+use mod_booking\local\wbagent\task_preflight_result;
 
 /**
  * Task definition for booking.create_option.
@@ -112,86 +113,87 @@ class create_option_task extends base_booking_task implements task_trigger_provi
     }
 
     /**
-     * Validate task input.
+     * Structural validation — pure, no DB access.
      *
-     * @param array $input
-     * @param int $cmid
-     * @return array
+     * Checks that the required 'text' (title) field is present.
+     *
+     * @param  array $input
+     * @return array{valid:bool,errors:array<int,string>}
      */
-    public function validate(array $input, int $cmid): array {
-        global $USER;
-
-        $errors = [];
-        $ambiguities = [];
-        $issues = [];
-        $lang = $this->get_output_language($input);
-
-        // STEP 1: Text/Title is always required first.
+    public function check_structure(array $input): array {
         if (empty($input['text'])) {
-            $errors[] = $this->localized_string('agent_booking_create_option_missing_title', null, $lang);
-            $issues[] = self::build_issue(
-                'MISSING_TITLE',
-                $this->localized_string('agent_booking_create_option_which_title_question', null, $lang),
-                ['ASK_TITLE']
-            );
             return [
-                'valid' => false,
-                'errors' => $errors,
-                'ambiguities' => $ambiguities,
-                'issues' => $issues,
+                'valid'  => false,
+                'errors' => [get_string('agent_booking_create_option_missing_title', 'mod_booking')],
             ];
+        }
+        return ['valid' => true, 'errors' => []];
+    }
+
+    /**
+     * Deep preflight validation — duplicate-title check, type-specific fields, slot sanity.
+     *
+     * Returns prepared_input ready for execute() with normalised overrides applied.
+     * Does NOT perform writes.
+     *
+     * @param  array $input
+     * @param  int   $cmid
+     * @param  int   $userid
+     * @return task_preflight_result
+     */
+    public function preflight(array $input, int $cmid, int $userid): task_preflight_result {
+        $lang = $this->get_output_language($input);
+        $issues = [];
+        $errors = [];
+
+        // Title is required (structural, but re-check for safety).
+        if (empty($input['text'])) {
+            $issues[] = [
+                'code'           => 'MISSING_TITLE',
+                'severity'       => 'needs_clarification',
+                'message'        => $this->localized_string('agent_booking_create_option_missing_title', null, $lang),
+                'user_question'  => $this->localized_string('agent_booking_create_option_which_title_question', null, $lang),
+                'remedy_options' => ['ASK_TITLE'],
+            ];
+            return task_preflight_result::invalid($issues);
         }
 
         $overrides = self::normalize_overrides(is_array($input['override'] ?? null) ? $input['override'] : []);
 
-        // STEP 2: Check for duplicates and require explicit override when user wants same title again.
+        // Duplicate-title check.
         $duplicatecheck = booking_task_support::find_existing_options_by_exact_title($cmid, (string)$input['text']);
         $allowduplicatetitle = in_array('duplicate_title', $overrides, true);
         if (!$allowduplicatetitle && ($duplicatecheck['status'] ?? '') === 'single') {
             $existingid = (int)($duplicatecheck['optionid'] ?? 0);
-            $errors[] = get_string(
-                'agent_booking_create_option_exists_single',
-                'booking',
-                $existingid
-            );
-            $issues[] = self::build_issue(
-                'DUPLICATE_TITLE_CONFIRM_REQUIRED',
-                $this->localized_string('agent_booking_create_option_duplicate_exists_single_question', null, $lang),
-                ['CONFIRM_CREATE_WITH_DUPLICATE_TITLE', 'UPDATE_EXISTING_INSTEAD']
-            );
-            return [
-                'valid' => false,
-                'errors' => $errors,
-                'ambiguities' => $ambiguities,
-                'issues' => $issues,
+            $issues[] = [
+                'code'           => 'DUPLICATE_TITLE_CONFIRM_REQUIRED',
+                'severity'       => 'needs_confirmation',
+                'message'        => get_string('agent_booking_create_option_exists_single', 'booking', $existingid),
+                'user_question'  => $this->localized_string(
+                    'agent_booking_create_option_duplicate_exists_single_question',
+                    null,
+                    $lang
+                ),
+                'remedy_options' => ['CONFIRM_CREATE_WITH_DUPLICATE_TITLE', 'UPDATE_EXISTING_INSTEAD'],
             ];
+            return task_preflight_result::invalid($issues);
         } else if (!$allowduplicatetitle && ($duplicatecheck['status'] ?? '') === 'multiple') {
-            $errors[] = get_string(
-                'agent_booking_create_option_exists_multiple',
-                'booking',
-                (string)($duplicatecheck['candidates'] ?? '')
-            );
-            $issues[] = self::build_issue(
-                'DUPLICATE_TITLE_MULTI_CONFIRM_REQUIRED',
-                $this->localized_string('agent_booking_create_option_duplicate_exists_multiple_question', null, $lang),
-                ['CONFIRM_CREATE_WITH_DUPLICATE_TITLE', 'SELECT_EXISTING_OPTION_TO_UPDATE']
-            );
-            return [
-                'valid' => false,
-                'errors' => $errors,
-                'ambiguities' => $ambiguities,
-                'issues' => $issues,
+            $issues[] = [
+                'code'           => 'DUPLICATE_TITLE_MULTI_CONFIRM_REQUIRED',
+                'severity'       => 'needs_confirmation',
+                'message'        => get_string(
+                    'agent_booking_create_option_exists_multiple',
+                    'booking',
+                    (string)($duplicatecheck['candidates'] ?? '')
+                ),
+                'user_question'  => $this->localized_string(
+                    'agent_booking_create_option_duplicate_exists_multiple_question',
+                    null,
+                    $lang
+                ),
+                'remedy_options' => ['CONFIRM_CREATE_WITH_DUPLICATE_TITLE', 'SELECT_EXISTING_OPTION_TO_UPDATE'],
             ];
-        }
-
-        // STEP 3: Check for required keys (only if title is good and no ambiguities).
-        if (!empty($ambiguities)) {
-            return [
-                'valid' => false,
-                'errors' => $errors,
-                'ambiguities' => $ambiguities,
-                'issues' => $issues,
-            ];
+            return task_preflight_result::invalid($issues);
         }
 
         $resolvedtype = self::resolve_requested_option_type($input);
@@ -199,8 +201,10 @@ class create_option_task extends base_booking_task implements task_trigger_provi
             $resolvedtype = 'normal';
         }
 
+        // Type-specific required field validation.
         $errors = array_merge($errors, self::validate_type_specific_required_fields($input, $resolvedtype, $overrides));
 
+        // Missing-location soft confirmation.
         if (
             $resolvedtype === 'normal'
             && !in_array('location', $overrides, true)
@@ -209,32 +213,37 @@ class create_option_task extends base_booking_task implements task_trigger_provi
         ) {
             $errors = array_values(array_filter(
                 $errors,
-                static fn(string $error): bool => $error !== 'For normal booking type, please provide a location or address.'
+                static fn(string $e): bool => $e !== 'For normal booking type, please provide a location or address.'
             ));
-
-            $issues[] = self::build_issue(
-                'MISSING_LOCATION_CONFIRM_REQUIRED',
-                'Please confirm that you want to create this booking option without specifying a location/address.',
-                ['CONFIRM_CREATE_WITHOUT_LOCATION', 'PROVIDE_LOCATION']
-            );
-        }
-
-        // If keys are missing, return now (don't check placeholders yet).
-        if (!empty($errors)) {
-            $issues[] = self::build_issue(
-                'MISSING_REQUIRED_FIELDS',
-                'Please provide the missing details for the selected booking type.',
-                ['PROVIDE_FIELDS', 'CONFIRM_EMPTY_DEFAULTS']
-            );
-            return [
-                'valid' => false,
-                'errors' => $errors,
-                'ambiguities' => $ambiguities,
-                'issues' => $issues,
+            $issues[] = [
+                'code'           => 'MISSING_LOCATION_CONFIRM_REQUIRED',
+                'severity'       => 'needs_confirmation',
+                'message'        => 'Please confirm that you want to create this booking option without specifying a location/address.',
+                'user_question'  => 'Please confirm that you want to create this booking option without specifying a location/address.',
+                'remedy_options' => ['CONFIRM_CREATE_WITHOUT_LOCATION', 'PROVIDE_LOCATION'],
             ];
         }
 
-        // STEP 3.5: Smart validation for slot bookings before placeholders.
+        if (!empty($errors)) {
+            $issues[] = [
+                'code'           => 'MISSING_REQUIRED_FIELDS',
+                'severity'       => 'needs_clarification',
+                'message'        => 'Please provide the missing details for the selected booking type.',
+                'user_question'  => 'Please provide the missing details for the selected booking type.',
+                'remedy_options' => ['PROVIDE_FIELDS', 'CONFIRM_EMPTY_DEFAULTS'],
+            ];
+            // Surface individual errors as separate issues so caller can display them.
+            foreach ($errors as $err) {
+                $issues[] = [
+                    'code'     => 'VALIDATION_ERROR',
+                    'severity' => 'needs_clarification',
+                    'message'  => $err,
+                ];
+            }
+            return task_preflight_result::invalid($issues);
+        }
+
+        // Slot-booking sanity (soft issues only).
         if ($resolvedtype === 'slotbooking') {
             $slotissues = self::validate_slotbooking_sanity($input);
             if (!empty($slotissues)) {
@@ -242,39 +251,103 @@ class create_option_task extends base_booking_task implements task_trigger_provi
             }
         }
 
-        // STEP 4: Only check placeholder values if all keys are present.
+        // Placeholder value check.
         $placeholderfields = self::check_placeholder_values($input, $overrides, $resolvedtype, $lang);
-        $errors = array_merge($errors, $placeholderfields);
         if (!empty($placeholderfields)) {
-            $issues[] = self::build_issue(
-                'CONFIRMATION_REQUIRED',
-                $this->localized_string('agent_booking_create_option_confirm_missing_values', null, $lang),
-                ['ADD_OVERRIDE_AND_RETRY']
-            );
+            $issues[] = [
+                'code'           => 'CONFIRMATION_REQUIRED',
+                'severity'       => 'needs_confirmation',
+                'message'        => $this->localized_string('agent_booking_create_option_confirm_missing_values', null, $lang),
+                'user_question'  => $this->localized_string('agent_booking_create_option_confirm_missing_values', null, $lang),
+                'remedy_options' => ['ADD_OVERRIDE_AND_RETRY'],
+            ];
+            foreach ($placeholderfields as $err) {
+                $issues[] = ['code' => 'PLACEHOLDER_VALUE', 'severity' => 'needs_clarification', 'message' => $err];
+            }
         }
 
+        // Location soft-confirmation.
         if (isset($input['location']) && trim((string)$input['location']) !== '') {
-            $issues[] = self::build_issue(
-                'LOCATION_NOT_FOUND_POSSIBLE',
-                $this->localized_string('agent_booking_create_option_location_not_found_question', null, $lang),
-                ['CREATE_LOCATION_THEN_CREATE_OPTION', 'ASK_FOR_DIFFERENT_LOCATION']
-            );
+            $issues[] = [
+                'code'           => 'LOCATION_NOT_FOUND_POSSIBLE',
+                'severity'       => 'needs_confirmation',
+                'message'        => $this->localized_string(
+                    'agent_booking_create_option_location_not_found_question',
+                    null,
+                    $lang
+                ),
+                'user_question'  => $this->localized_string(
+                    'agent_booking_create_option_location_not_found_question',
+                    null,
+                    $lang
+                ),
+                'remedy_options' => ['CREATE_LOCATION_THEN_CREATE_OPTION', 'ASK_FOR_DIFFERENT_LOCATION'],
+            ];
         }
 
-        $preflight = (new booking_task_mutation_execute_service())->preflight_validate(
-            self::TASK_NAME,
-            $input,
-            $cmid,
-            (int)($USER->id ?? 0)
+        // Service-level preflight (teacher resolution, date normalization, etc.).
+        $service = new booking_task_mutation_execute_service();
+        $servicepreflight = $service->preflight_validate(self::TASK_NAME, $input, $cmid, $userid);
+        if (!empty($servicepreflight['errors']) || !empty($servicepreflight['ambiguities'])) {
+            foreach ((array)($servicepreflight['errors'] ?? []) as $err) {
+                $issues[] = ['code' => 'PREFLIGHT_ERROR', 'severity' => 'needs_clarification', 'message' => (string)$err];
+            }
+            foreach ((array)($servicepreflight['ambiguities'] ?? []) as $amb) {
+                $issues[] = ['code' => 'PREFLIGHT_AMBIGUITY', 'severity' => 'needs_clarification', 'message' => (string)$amb];
+            }
+            return task_preflight_result::invalid($issues);
+        }
+
+        $preparedinput = is_array($servicepreflight['normalized_input'] ?? null)
+            ? (array)$servicepreflight['normalized_input']
+            : $input;
+
+        // If there are only confirmable issues (no blocking ones), use confirmable().
+        $blockingissues = array_filter(
+            $issues,
+            static fn(array $i): bool => ($i['severity'] ?? '') === 'needs_clarification'
         );
-        $errors = array_merge($errors, (array)($preflight['errors'] ?? []));
-        $ambiguities = array_merge($ambiguities, (array)($preflight['ambiguities'] ?? []));
+        if (!empty($blockingissues)) {
+            return task_preflight_result::invalid($issues);
+        }
+        if (!empty($issues)) {
+            return task_preflight_result::confirmable($preparedinput, $issues);
+        }
+
+        return task_preflight_result::ok($preparedinput);
+    }
+
+    /**
+     * Legacy validate — delegates to preflight() for backward-compatibility.
+     *
+     * @param  array $input
+     * @param  int   $cmid
+     * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>,issues:array}
+     * @deprecated since 2026 — use preflight() instead.
+     */
+    public function validate(array $input, int $cmid): array {
+        global $USER;
+        $result = $this->preflight($input, $cmid, (int)($USER->id ?? 0));
+
+        $errors = [];
+        $ambiguities = [];
+        foreach ($result->issues as $issue) {
+            $msg = (string)($issue['message'] ?? '');
+            if ($msg === '') {
+                continue;
+            }
+            if (($issue['severity'] ?? '') === 'needs_clarification') {
+                $errors[] = $msg;
+            } else if (($issue['severity'] ?? '') === 'needs_confirmation') {
+                $ambiguities[] = $msg;
+            }
+        }
 
         return [
-            'valid' => empty($errors) && empty($ambiguities),
-            'errors' => $errors,
+            'valid'       => $result->is_valid,
+            'errors'      => $errors,
             'ambiguities' => $ambiguities,
-            'issues' => $issues,
+            'issues'      => $result->issues,
         ];
     }
 
@@ -806,20 +879,20 @@ class create_option_task extends base_booking_task implements task_trigger_provi
     }
 
     /**
-     * Execute task.
+     * Execute task using prepared_input from preflight().
      *
-     * @param array $input
-     * @param int $cmid
-     * @param int $userid
+     * @param  array $preparedinput  Resolved input from preflight().
+     * @param  int   $cmid
+     * @param  int   $userid
      * @return array
      */
-    public function execute(array $input, int $cmid, int $userid): array {
+    public function execute(array $preparedinput, int $cmid, int $userid): array {
         $service = new booking_task_mutation_execute_service();
-        $result = $service->execute(self::TASK_NAME, $input, $cmid, $userid, $this->support);
+        $result = $service->execute(self::TASK_NAME, $preparedinput, $cmid, $userid, $this->support);
         if (is_array($result)) {
             $result['debugmessage'] = $this->build_task_debug_message(
                 self::TASK_NAME,
-                $input,
+                $preparedinput,
                 ['Status: ' . ($result['status'] ?? 'unknown')]
             );
             return $result;
@@ -829,7 +902,7 @@ class create_option_task extends base_booking_task implements task_trigger_provi
             'status' => 'error',
             'detail' => 'Unknown booking task: ' . self::TASK_NAME,
             'resultid' => null,
-            'debugmessage' => $this->build_task_debug_message(self::TASK_NAME, $input, ['Status: error']),
+            'debugmessage' => $this->build_task_debug_message(self::TASK_NAME, $preparedinput, ['Status: error']),
         ];
     }
 }

@@ -16,11 +16,11 @@
 
 namespace mod_booking\local\wbagent\booking\tasks;
 
-use mod_booking\local\wbagent\conversation_store;
 use mod_booking\local\wbagent\booking\booking_task_mutation_execute_service;
 use mod_booking\local\wbagent\booking\booking_task_support;
 use mod_booking\local\wbagent\interfaces\task_trigger_provider_interface;
 use mod_booking\local\wbagent\privacy_anonymizer;
+use mod_booking\local\wbagent\task_preflight_result;
 
 /**
  * Task definition for booking.bulk_update_options.
@@ -112,100 +112,171 @@ class bulk_update_options_task extends base_booking_task implements task_trigger
     }
 
     /**
-     * Validate task input.
+     * Structural validation — pure, no DB access.
      *
-     * @param array $input
-     * @param int $cmid
-     * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>,issues?:array<int,array<string,mixed>>}
+     * Checks that at least one target-selection mechanism is present.
+     *
+     * @param  array $input
+     * @return array{valid:bool,errors:array<int,string>}
      */
-    public function validate(array $input, int $cmid): array {
-        global $DB;
-        global $USER;
+    public function check_structure(array $input): array {
+        $hasids   = !empty($input['optionids']) && is_array($input['optionids'])
+            && count($input['optionids']) > 0;
+        $hasquery = !empty($input['optionquery']) && trim((string)$input['optionquery']) !== '';
+        $applyall = !empty($input['apply_to_all']);
 
-        if (!empty($USER->id) && (int)$USER->id > 0) {
-            $anonymizer = new privacy_anonymizer(new conversation_store());
-            $input = $anonymizer->deanonymize_command_input_for_active_user($cmid, (int)$USER->id, $input);
+        if (!$hasids && !$hasquery && !$applyall) {
+            return [
+                'valid'  => false,
+                'errors' => [get_string('agent_booking_bulk_update_missing_target', 'mod_booking')],
+            ];
         }
+        return ['valid' => true, 'errors' => []];
+    }
+
+    /**
+     * Deep preflight validation — DB lookups, bulk option resolution.
+     *
+     * Returns prepared_input with 'optionids' populated (resolved) so that
+     * execute() never has to re-run bulk resolution logic.
+     *
+     * @param  array $input
+     * @param  int   $cmid
+     * @param  int   $userid
+     * @return task_preflight_result
+     */
+    public function preflight(array $input, int $cmid, int $userid): task_preflight_result {
+        global $DB;
 
         $lang = $this->get_output_language($input);
+        $issues = [];
+        $preparedinput = $input;
+
+        $hasids   = !empty($input['optionids']) && is_array($input['optionids'])
+            && count($input['optionids']) > 0;
+        $hasquery = !empty($input['optionquery']) && trim((string)$input['optionquery']) !== '';
+        $applyall = !empty($input['apply_to_all']);
+
+        // Resolve preview-fallback IDs.
+        $previewfallbackids = booking_task_support::resolve_last_preview_option_ids_for_user_for_execute($cmid, $userid);
+
+        if (!$hasids && !$hasquery && !$applyall && empty($previewfallbackids)) {
+            $issues[] = [
+                'code'           => 'MISSING_BULK_TARGET_SELECTION',
+                'severity'       => 'needs_clarification',
+                'message'        => $this->localized_string('agent_booking_bulk_update_missing_target', null, $lang),
+                'user_question'  => $this->localized_string('agent_booking_bulk_update_issue_user_question', null, $lang),
+                'remedy_options' => ['SET_APPLY_TO_ALL', 'PROVIDE_OPTIONQUERY', 'PROVIDE_OPTIONIDS'],
+            ];
+            return task_preflight_result::invalid($issues);
+        }
+
+        // Validate and resolve explicit optionids.
+        if ($hasids) {
+            $resolvedids = booking_task_support::resolve_bulk_option_ids_for_execute(
+                $cmid,
+                ['optionids' => $input['optionids']],
+                $userid
+            );
+            $cm = get_coursemodule_from_id('booking', $cmid);
+            if ($cm && empty($resolvedids)) {
+                foreach ($input['optionids'] as $optid) {
+                    if (!$DB->record_exists('booking_options', ['id' => (int)$optid, 'bookingid' => (int)$cm->instance])) {
+                        $issues[] = [
+                            'code'     => 'INVALID_OPTION_ID',
+                            'severity' => 'needs_clarification',
+                            'message'  => $this->localized_string(
+                                'agent_booking_bulk_update_option_not_in_instance',
+                                (int)$optid,
+                                $lang
+                            ),
+                        ];
+                    }
+                }
+                if (!empty($issues)) {
+                    return task_preflight_result::invalid($issues);
+                }
+            }
+            // Store fully resolved IDs in prepared_input.
+            if (!empty($resolvedids)) {
+                $preparedinput['optionids'] = array_values(array_map('intval', $resolvedids));
+            }
+        }
+
+        // Validate preview-based query references.
+        if (!$hasids && $hasquery && booking_task_support::is_last_preview_selection_reference((string)$input['optionquery'])) {
+            if (empty($previewfallbackids)) {
+                $issues[] = [
+                    'code'     => 'MISSING_PREVIEW_CONTEXT',
+                    'severity' => 'needs_clarification',
+                    'message'  => $this->localized_string('agent_booking_bulk_update_no_preview', null, $lang),
+                ];
+                return task_preflight_result::invalid($issues);
+            }
+            // Swap query reference for resolved IDs.
+            unset($preparedinput['optionquery']);
+            $preparedinput['optionids'] = array_values(array_map('intval', $previewfallbackids));
+        }
+
+        // bookusersquery is not supported on bulk update.
+        if (!empty($input['bookusersquery'])) {
+            $issues[] = [
+                'code'     => 'BOOKUSERSQUERY_UNSUPPORTED',
+                'severity' => 'needs_clarification',
+                'message'  => $this->localized_string('agent_booking_bulk_update_bookusersquery_unsupported', null, $lang),
+            ];
+            return task_preflight_result::invalid($issues);
+        }
+
+        // Service-level preflight (teacher resolution, dates, etc.).
+        $service = new booking_task_mutation_execute_service();
+        $servicepreflight = $service->preflight_validate(self::TASK_NAME, $preparedinput, $cmid, $userid);
+        if (!empty($servicepreflight['errors']) || !empty($servicepreflight['ambiguities'])) {
+            foreach ((array)($servicepreflight['errors'] ?? []) as $err) {
+                $issues[] = ['code' => 'PREFLIGHT_ERROR', 'severity' => 'needs_clarification', 'message' => (string)$err];
+            }
+            foreach ((array)($servicepreflight['ambiguities'] ?? []) as $amb) {
+                $issues[] = ['code' => 'PREFLIGHT_AMBIGUITY', 'severity' => 'needs_clarification', 'message' => (string)$amb];
+            }
+            return task_preflight_result::invalid($issues);
+        }
+
+        if (is_array($servicepreflight['normalized_input'] ?? null)) {
+            $preparedinput = (array)$servicepreflight['normalized_input'];
+        }
+
+        return task_preflight_result::ok($preparedinput);
+    }
+
+    /**
+     * Legacy validate — delegates to preflight() for backward-compatibility.
+     *
+     * @param  array $input
+     * @param  int   $cmid
+     * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>,issues:array}
+     * @deprecated since 2026 — use preflight() instead.
+     */
+    public function validate(array $input, int $cmid): array {
+        global $USER;
+        $result = $this->preflight($input, $cmid, (int)($USER->id ?? 0));
 
         $errors = [];
         $ambiguities = [];
-                $issues = [];
-
-        $hasids = !empty($input['optionids']) && is_array($input['optionids'])
-            && count($input['optionids']) > 0;
-        $hasquery = !empty($input['optionquery']) && is_string($input['optionquery'])
-            && trim((string)$input['optionquery']) !== '';
-        $applytoall = !empty($input['apply_to_all']);
-        $previewfallbackids = booking_task_support::resolve_last_preview_option_ids_for_user_for_execute(
-            $cmid,
-            (int)($USER->id ?? 0)
-        );
-
-        if (!$hasids && !$hasquery && !$applytoall && empty($previewfallbackids)) {
-            $errors[] = $this->localized_string('agent_booking_bulk_update_missing_target', null, $lang);
-            $issues[] = [
-                'code' => 'MISSING_BULK_TARGET_SELECTION',
-                'severity' => 'needs_clarification',
-                'user_question' => $this->localized_string('agent_booking_bulk_update_issue_user_question', null, $lang),
-                'remedy_options' => ['SET_APPLY_TO_ALL', 'PROVIDE_OPTIONQUERY', 'PROVIDE_OPTIONIDS'],
-            ];
-        }
-
-        if ($hasids) {
-            $normalizedoptionids = booking_task_support::resolve_bulk_option_ids_for_execute(
-                $cmid,
-                ['optionids' => $input['optionids']],
-                (int)($USER->id ?? 0)
-            );
-            $cm = get_coursemodule_from_id('booking', $cmid);
-            if ($cm && empty($normalizedoptionids)) {
-                foreach ($input['optionids'] as $optid) {
-                    if (
-                        !$DB->record_exists('booking_options', [
-                            'id' => (int)$optid,
-                            'bookingid' => (int)$cm->instance,
-                        ])
-                    ) {
-                        $errors[] = $this->localized_string(
-                            'agent_booking_bulk_update_option_not_in_instance',
-                            (int)$optid,
-                            $lang
-                        );
-                    }
-                }
+        foreach ($result->issues as $issue) {
+            $msg = (string)($issue['message'] ?? '');
+            if ($msg === '') {
+                continue;
+            }
+            if (($issue['severity'] ?? '') === 'needs_clarification') {
+                $errors[] = $msg;
             }
         }
-
-        if (!$hasids && $hasquery && booking_task_support::is_last_preview_selection_reference((string)$input['optionquery'])) {
-            $previewids = booking_task_support::resolve_last_preview_option_ids_for_user_for_execute(
-                $cmid,
-                (int)($USER->id ?? 0)
-            );
-            if (empty($previewids)) {
-                $errors[] = $this->localized_string('agent_booking_bulk_update_no_preview', null, $lang);
-            }
-        }
-
-        if (!empty($input['bookusersquery'])) {
-            $errors[] = $this->localized_string('agent_booking_bulk_update_bookusersquery_unsupported', null, $lang);
-        }
-
-        $preflight = (new booking_task_mutation_execute_service())->preflight_validate(
-            self::TASK_NAME,
-            $input,
-            $cmid,
-            (int)($USER->id ?? 0)
-        );
-        $errors = array_merge($errors, (array)($preflight['errors'] ?? []));
-        $ambiguities = array_merge($ambiguities, (array)($preflight['ambiguities'] ?? []));
 
         return [
-            'valid' => empty($errors) && empty($ambiguities),
-            'errors' => $errors,
+            'valid'       => $result->is_valid,
+            'errors'      => $errors,
             'ambiguities' => $ambiguities,
-            'issues' => $issues,
+            'issues'      => $result->issues,
         ];
     }
 
@@ -238,18 +309,21 @@ class bulk_update_options_task extends base_booking_task implements task_trigger
     }
 
     /**
-     * Execute task.
+     * Execute task using prepared_input from preflight().
      *
-     * @param array $input
-     * @param int $cmid
-     * @param int $userid
+     * prepared_input already contains resolved 'optionids' so the mutation
+     * service needs no further bulk resolution.
+     *
+     * @param  array $preparedinput  Resolved input from preflight().
+     * @param  int   $cmid
+     * @param  int   $userid
      * @return array
      */
-    public function execute(array $input, int $cmid, int $userid): array {
+    public function execute(array $preparedinput, int $cmid, int $userid): array {
         $service = new booking_task_mutation_execute_service();
-        $result = $service->execute(self::TASK_NAME, $input, $cmid, $userid, $this->support);
+        $result = $service->execute(self::TASK_NAME, $preparedinput, $cmid, $userid, $this->support);
 
-        $outputlang = $this->get_output_language($input);
+        $outputlang = $this->get_output_language($preparedinput);
         if (is_array($result)) {
             $usermessage = $this->localized_string(
                 'agent_booking_bulk_update_completed',
@@ -260,7 +334,7 @@ class bulk_update_options_task extends base_booking_task implements task_trigger
             $result['outputlang'] = $outputlang;
             $result['debugmessage'] = $this->build_task_debug_message(
                 self::TASK_NAME,
-                $input,
+                $preparedinput,
                 ['Status: ' . ($result['status'] ?? 'unknown')]
             );
             return $result;
@@ -272,7 +346,7 @@ class bulk_update_options_task extends base_booking_task implements task_trigger
             'resultid' => null,
             'usermessage' => $this->localized_string('agent_booking_bulk_update_failed', null, $outputlang),
             'outputlang' => $outputlang,
-            'debugmessage' => $this->build_task_debug_message(self::TASK_NAME, $input, ['Status: error']),
+            'debugmessage' => $this->build_task_debug_message(self::TASK_NAME, $preparedinput, ['Status: error']),
         ];
     }
 }

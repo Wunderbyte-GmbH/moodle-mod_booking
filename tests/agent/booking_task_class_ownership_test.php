@@ -105,4 +105,64 @@ final class booking_task_class_ownership_test extends advanced_testcase {
             'Expected validate() to be declared on task class itself for ' . $classname
         );
     }
+
+    /**
+     * Data provider for tasks expected to declare check_structure().
+     *
+     * @return array
+     */
+    public static function check_structure_owner_provider(): array {
+        return [
+            [create_option_task::class],
+            [update_option_task::class],
+            [bulk_update_options_task::class],
+        ];
+    }
+
+    /**
+     * Mutating task classes should define check_structure() in their own class.
+     *
+     * @dataProvider check_structure_owner_provider
+     * @param string $classname
+     */
+    public function test_mutating_task_declares_own_check_structure_method(string $classname): void {
+        $reflection = new \ReflectionClass($classname);
+        $method = $reflection->getMethod('check_structure');
+
+        $this->assertSame(
+            $classname,
+            $method->getDeclaringClass()->getName(),
+            'Expected check_structure() to be declared on task class itself for ' . $classname
+        );
+    }
+
+    /**
+     * Data provider for tasks expected to declare preflight().
+     *
+     * @return array
+     */
+    public static function preflight_owner_provider(): array {
+        return [
+            [create_option_task::class],
+            [update_option_task::class],
+            [bulk_update_options_task::class],
+        ];
+    }
+
+    /**
+     * Mutating task classes should define preflight() in their own class.
+     *
+     * @dataProvider preflight_owner_provider
+     * @param string $classname
+     */
+    public function test_mutating_task_declares_own_preflight_method(string $classname): void {
+        $reflection = new \ReflectionClass($classname);
+        $method = $reflection->getMethod('preflight');
+
+        $this->assertSame(
+            $classname,
+            $method->getDeclaringClass()->getName(),
+            'Expected preflight() to be declared on task class itself for ' . $classname
+        );
+    }
 }

@@ -16,10 +16,25 @@
 
 namespace mod_booking\local\wbagent\interfaces;
 
+use mod_booking\local\wbagent\task_preflight_result;
+
 /**
  * Structured AI task interface.
  *
  * A task encapsulates its schema, validation, execution, and read-only flag.
+ *
+ * Validation is split into two explicit phases:
+ *
+ *  1. check_structure() — pure, no DB access; used by interpreter only.
+ *  2. preflight()       — DB lookups, entity resolution, conflict detection;
+ *                         used by agent_decision_service during routing.
+ *
+ * execute() receives the prepared_input from task_preflight_result and must
+ * NOT repeat heavy resolution logic already done in preflight().
+ *
+ * The legacy validate() method is kept for backward-compatibility but
+ * SHOULD NOT be overridden in new tasks.  It is called only by the
+ * executor's stale-state guard and by legacy callers.
  *
  * @package    mod_booking
  * @copyright  2025 Wunderbyte GmbH <info@wunderbyte.at>
@@ -41,24 +56,59 @@ interface task_interface {
     public function get_schema(): array;
 
     /**
-     * Validate the task input against domain rules.
+     * Structural (pure) validation — no DB access, no side-effects.
      *
-     * @param array $input
-     * @param int $cmid
-     * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>,
-     *     issues?:array<int,array<string,mixed>>}
+     * Called by the interpreter immediately after JSON parsing to verify that
+     * the required top-level fields are present and have the expected types.
+     * MUST NOT perform DB lookups or any I/O.
+     *
+     * @param  array $input  Raw command input from the LLM.
+     * @return array{valid:bool,errors:array<int,string>}
      */
-    public function validate(array $input, int $cmid): array;
+    public function check_structure(array $input): array;
+
+    /**
+     * Deep preflight validation — DB lookups, entity resolution, conflict detection.
+     *
+     * Called by agent_decision_service after structural validation passes.
+     * MUST NOT perform writes.  Returns a task_preflight_result whose
+     * prepared_input carries resolved IDs and normalised values ready for execute().
+     *
+     * @param  array $input   Input that has already passed check_structure().
+     * @param  int   $cmid    Course-module ID.
+     * @param  int   $userid  Executing user ID.
+     * @return task_preflight_result
+     */
+    public function preflight(array $input, int $cmid, int $userid): task_preflight_result;
 
     /**
      * Execute the task.
      *
-     * @param array $input
-     * @param int $cmid
-     * @param int $userid
+     * Receives prepared_input from the stored pending intent (i.e. the
+     * prepared_input produced by preflight()).  MUST NOT repeat heavy
+     * resolution logic already done in preflight().
+     *
+     * @param  array $preparedinput  Resolved, normalised input from preflight().
+     * @param  int   $cmid
+     * @param  int   $userid
      * @return array
      */
-    public function execute(array $input, int $cmid, int $userid): array;
+    public function execute(array $preparedinput, int $cmid, int $userid): array;
+
+    /**
+     * Legacy combined validation (deprecated).
+     *
+     * Kept for backward-compatibility with the executor's stale-state guard
+     * and any callers that have not yet migrated to preflight().
+     * New tasks SHOULD implement check_structure() + preflight() instead.
+     *
+     * @param  array $input
+     * @param  int   $cmid
+     * @return array{valid:bool,errors:array<int,string>,ambiguities:array<int,string>,
+     *     issues?:array<int,array<string,mixed>>}
+     * @deprecated since 2026 — implement check_structure() + preflight() instead.
+     */
+    public function validate(array $input, int $cmid): array;
 
     /**
      * Whether the task is read-only and can be auto-executed.

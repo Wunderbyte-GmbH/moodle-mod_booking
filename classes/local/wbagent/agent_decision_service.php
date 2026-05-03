@@ -191,9 +191,10 @@ class agent_decision_service {
             $result = $this->handle_command_routing($result, $threadid, $cmid, $userid, $outputlang);
         }
 
-        // 8. Pre-validate confirmation commands.
+        // 8. Run preflight on confirmation commands: resolve entities, detect conflicts,
+        //    update commands to carry prepared_input, route based on preflight result.
         if (($result['response_type'] ?? '') === 'confirmation_request' && !empty($result['commands'])) {
-            $result = $this->handle_prevalidation($result, $threadid, $cmid, $userid, $outputlang);
+            $result = $this->handle_preflight($result, $threadid, $cmid, $userid, $outputlang);
         }
 
         // 9. Augment teacher autocreate when user allows it.
@@ -292,7 +293,7 @@ class agent_decision_service {
     // Private: confirmation flow.
 
     /**
-     * Handle a confirm_pending response: re-validate and propagate the stored intent.
+     * Handle a confirm_pending response: run preflight on stored commands and propagate the intent.
      *
      * @param  array  $result
      * @param  int    $threadid
@@ -323,18 +324,20 @@ class agent_decision_service {
             );
         }
 
-        $validation = $this->prevalidate_confirmation_commands($confirmcommands, $threadid, $cmid, $userid);
-        if (!$validation['valid']) {
-            $invalidmessage = $this->build_confirmation_validation_message($validation, $outputlang);
+        // Re-run preflight so that prepared_input is refreshed for the executor.
+        $preflightresult = $this->run_preflight_on_commands($confirmcommands, $threadid, $cmid, $userid);
+        if (!$preflightresult['valid']) {
+            $invalidmessage = implode(' ', array_values(array_unique(array_filter((array)($preflightresult['errors'] ?? [])))));
             return [
                 'response_type'             => 'clarification',
-                'message'                   => $invalidmessage,
+                'message'                   => $invalidmessage !== '' ? $invalidmessage
+                    : $this->localized_string('ai_no_pending_intent', 'mod_booking', null, $outputlang),
                 'commands'                  => [],
-                'ambiguities'               => $validation['ambiguities'] ?? [],
-                'ambiguity_options'         => $validation['ambiguity_options'] ?? [],
-                'errors'                    => $validation['errors'] ?? [],
-                'attempted_tasks'           => $validation['attempted_tasks'] ?? [],
-                'issue_codes'               => $validation['issue_codes'] ?? [],
+                'ambiguities'               => [],
+                'ambiguity_options'         => [],
+                'errors'                    => $preflightresult['errors'] ?? [],
+                'attempted_tasks'           => $preflightresult['attempted_tasks'] ?? [],
+                'issue_codes'               => $preflightresult['issue_codes'] ?? [],
                 'pending_confirmation_code' => '',
                 'used_triggers'             => $result['used_triggers'] ?? [],
                 'runid'                     => 0,
@@ -342,16 +345,19 @@ class agent_decision_service {
             ];
         }
 
+        // Use the prepared commands (with resolved inputs) for the pending intent.
+        $preparedcommands = $preflightresult['prepared_commands'];
+
         $confirmmessage = $this->localized_string('ai_confirm_pending_intent', 'mod_booking', null, $outputlang);
-        $intentkey = hash('sha256', (string)$userid . ':' . $threadid . '::' . json_encode($confirmcommands));
-        $this->store->set_pending_intent($threadid, $confirmcommands, $intentkey, $userid, $cmid);
+        $intentkey = hash('sha256', (string)$userid . ':' . $threadid . '::' . json_encode($preparedcommands));
+        $this->store->set_pending_intent($threadid, $preparedcommands, $intentkey, $userid, $cmid);
         $updatedpending = $this->store->get_pending_intent($threadid);
         $confirmationcode = (string)($updatedpending['confirmationcode'] ?? '');
 
         return [
             'response_type'             => 'confirmation_request',
             'message'                   => $confirmmessage,
-            'commands'                  => $confirmcommands,
+            'commands'                  => $preparedcommands,
             'ambiguities'               => [],
             'ambiguity_options'         => [],
             'errors'                    => [],
@@ -452,7 +458,19 @@ class agent_decision_service {
     }
 
     /**
-     * Pre-validate confirmation commands and downgrade to clarification if invalid.
+     * Run preflight validation on confirmation commands.
+     *
+     * Calls task->preflight() for each command, which:
+     *  - resolves entity IDs (options, users, etc.)
+     *  - detects conflicts (duplicate titles, missing fields, etc.)
+     *  - normalises input
+     *  - does NOT perform writes
+     *
+     * On success: updates each command's 'input' to prepared_input so the
+     * executor never has to re-resolve anything.
+     *
+     * On failure: routes to confirmation_request (if confirmable soft issues) or
+     * clarification (if hard blocking issues).
      *
      * @param  array  $result
      * @param  int    $threadid
@@ -461,47 +479,200 @@ class agent_decision_service {
      * @param  string $outputlang
      * @return array
      */
-    private function handle_prevalidation(
+    private function handle_preflight(
         array $result,
         int $threadid,
         int $cmid,
         int $userid,
         string $outputlang
     ): array {
-        $validation = $this->prevalidate_confirmation_commands(
-            (array)$result['commands'],
-            $threadid,
-            $cmid,
-            $userid
-        );
-        if ($validation['valid']) {
-            return $result;
+        $commands = (array)($result['commands'] ?? []);
+        $anonymizer = new privacy_anonymizer($this->store);
+        $updatedcommands = [];
+        $allissuecodes = [];
+        $allissues = [];
+        $blockingerrors = [];
+        $attemptedtasks = [];
+
+        foreach ($commands as $idx => $command) {
+            if (!is_array($command)) {
+                $blockingerrors[] = 'Command #' . ($idx + 1) . ': malformed.';
+                continue;
+            }
+
+            $taskname = trim((string)($command['task'] ?? ''));
+            if ($taskname === '') {
+                $blockingerrors[] = 'Command #' . ($idx + 1) . ': missing task.';
+                continue;
+            }
+            $attemptedtasks[] = $taskname;
+
+            $task = $this->registry->get_task($taskname);
+            if ($task === null) {
+                $blockingerrors[] = 'Command #' . ($idx + 1) . ': task ' . $taskname . ' is not registered.';
+                continue;
+            }
+
+            $input = is_array($command['input'] ?? null) ? (array)$command['input'] : [];
+
+            // Deanonymize before preflight so task sees real values.
+            if ($threadid > 0 && $userid > 0) {
+                $input = $anonymizer->deanonymize_command_input_for_active_user($cmid, $userid, $input);
+            }
+
+            $preflightresult = $task->preflight($input, $cmid, $userid);
+
+            // Collect issue codes.
+            foreach ($preflightresult->get_issue_codes() as $code) {
+                if ($code !== '') {
+                    $allissuecodes[] = $code;
+                }
+            }
+            $allissues = array_merge($allissues, $preflightresult->issues);
+
+            if (!$preflightresult->is_valid) {
+                // Collect blocking issues.
+                foreach ($preflightresult->get_issues_by_severity('needs_clarification') as $issue) {
+                    $msg = trim((string)($issue['message'] ?? ''));
+                    if ($msg !== '') {
+                        $blockingerrors[] = $msg;
+                    }
+                }
+                // Confirmable issues from an invalid preflight result are still blocking
+                // at this point — they were not confirmed yet.
+                foreach ($preflightresult->get_issues_by_severity('needs_confirmation') as $issue) {
+                    $msg = trim((string)($issue['message'] ?? ''));
+                    if ($msg !== '') {
+                        $blockingerrors[] = $msg;
+                    }
+                }
+                continue;
+            }
+
+            // Preflight succeeded: store prepared_input so executor never re-resolves.
+            $updatedcommand = $command;
+            $updatedcommand['input'] = $preflightresult->prepared_input;
+            $updatedcommands[] = $updatedcommand;
         }
 
-        $validationissuecodes = (array)($validation['issue_codes'] ?? []);
-        if ($this->has_confirmable_prevalidation_issues($validationissuecodes)) {
+        $allissuecodes = array_values(array_unique($allissuecodes));
+        $attemptedtasks = array_values(array_unique($attemptedtasks));
+
+        // If there were blocking errors, decide whether to allow confirmable continuation.
+        if (!empty($blockingerrors)) {
+            $validationmessage = trim(implode(' ', $blockingerrors));
+
+            if ($this->has_confirmable_prevalidation_issues($allissuecodes) && !empty($result['commands'])) {
+                // Soft-confirmable: show confirmation_request with augmented message.
+                return [
+                    'response_type'   => 'confirmation_request',
+                    'message'         => $validationmessage !== '' ? $validationmessage : $result['message'],
+                    'commands'        => (array)$result['commands'],
+                    'ambiguities'     => [],
+                    'errors'          => $blockingerrors,
+                    'attempted_tasks' => $attemptedtasks,
+                    'issue_codes'     => $allissuecodes,
+                    'used_triggers'   => $result['used_triggers'] ?? [],
+                ];
+            }
+
             return [
-                'response_type'   => 'confirmation_request',
-                'message'         => $this->build_confirmation_validation_message($validation, $outputlang),
-                'commands'        => (array)$result['commands'],
+                'response_type'   => 'clarification',
+                'message'         => $validationmessage !== '' ? $validationmessage : $this->localized_string(
+                    'ai_no_pending_intent',
+                    'mod_booking',
+                    null,
+                    $outputlang
+                ),
+                'commands'        => [],
                 'ambiguities'     => [],
-                'errors'          => (array)($validation['errors'] ?? []),
-                'attempted_tasks' => (array)($validation['attempted_tasks'] ?? []),
-                'issue_codes'     => $validationissuecodes,
+                'errors'          => $blockingerrors,
+                'attempted_tasks' => $attemptedtasks,
+                'issue_codes'     => $allissuecodes,
                 'used_triggers'   => $result['used_triggers'] ?? [],
             ];
         }
 
-        return [
-            'response_type'   => 'clarification',
-            'message'         => $this->build_confirmation_validation_message($validation, $outputlang),
-            'commands'        => [],
-            'ambiguities'     => (array)($validation['ambiguities'] ?? []),
-            'errors'          => (array)($validation['errors'] ?? []),
-            'attempted_tasks' => (array)($validation['attempted_tasks'] ?? []),
-            'issue_codes'     => $validationissuecodes,
-            'used_triggers'   => $result['used_triggers'] ?? [],
-        ];
+        // All commands passed preflight.  Swap raw commands for prepared-input versions.
+        $result['commands']      = $updatedcommands;
+        $result['issue_codes']   = array_values(array_unique(array_merge(
+            (array)($result['issue_codes'] ?? []),
+            $allissuecodes
+        )));
+        $result['attempted_tasks'] = $attemptedtasks;
+
+        // If preflight returned confirmable issues (but is_valid=true), surface them.
+        $confirmableissues = array_filter(
+            $allissues,
+            static fn(array $i): bool => ($i['severity'] ?? '') === 'needs_confirmation'
+        );
+        if (!empty($confirmableissues)) {
+            $confirmationmessage = trim((string)($result['message'] ?? ''));
+            if ($confirmationmessage === '') {
+                $parts = [];
+                foreach ($confirmableissues as $issue) {
+                    $q = trim((string)($issue['user_question'] ?? $issue['message'] ?? ''));
+                    if ($q !== '') {
+                        $parts[] = $q;
+                    }
+                }
+                $confirmationmessage = implode(' ', $parts);
+            }
+            $result['message'] = $confirmationmessage;
+
+            // Augment commands with issue-specific override tokens.
+            $result['commands'] = $this->apply_confirmable_overrides($result['commands'], $confirmableissues);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Apply override tokens to commands based on confirmable issue codes.
+     *
+     * When a confirmable issue is known to require an override token in the
+     * command input (e.g. MISSING_LOCATION_CONFIRM_REQUIRED → override=location),
+     * this method mutates the commands array so that execute() sees the right
+     * override flags.
+     *
+     * @param  array $commands
+     * @param  array $confirmableissues
+     * @return array
+     */
+    private function apply_confirmable_overrides(array $commands, array $confirmableissues): array {
+        $codeset = [];
+        foreach ($confirmableissues as $issue) {
+            $code = trim((string)($issue['code'] ?? ''));
+            if ($code !== '') {
+                $codeset[$code] = true;
+            }
+        }
+
+        foreach ($commands as &$command) {
+            if (!is_array($command)) {
+                continue;
+            }
+            if (!is_array($command['input'] ?? null)) {
+                $command['input'] = [];
+            }
+            if (isset($codeset['MISSING_LOCATION_CONFIRM_REQUIRED'])) {
+                $overrides = is_array($command['input']['override'] ?? null)
+                    ? $command['input']['override']
+                    : [];
+                $overrides[] = 'location';
+                $overrides[] = 'address';
+                $command['input']['override'] = array_values(array_unique(array_map(
+                    static fn($t): string => strtolower(trim((string)$t)),
+                    $overrides
+                )));
+            }
+            if (isset($codeset['SOFT_BOOKING_OVERRIDE_CONFIRM_REQUIRED'])) {
+                $command['input']['confirmed'] = true;
+            }
+        }
+        unset($command);
+
+        return $commands;
     }
 
     // -------------------------------------------------------------------------
@@ -580,29 +751,33 @@ class agent_decision_service {
     }
 
     // -------------------------------------------------------------------------
-    // Private: validation.
+    // Private: preflight helpers.
 
     /**
-     * Pre-validate commands before showing a confirmation button.
+     * Run preflight validation on a list of commands.
      *
-     * Deanonymizes inputs before calling task validators so that anonymized
-     * tokens (from privacy mode) do not cause false validation failures.
+     * Calls task->preflight() for each command (with deanonymization) and
+     * returns:
+     *   valid             — bool: whether all commands passed
+     *   prepared_commands — the commands with input replaced by prepared_input
+     *   errors            — human-readable error messages (blocking)
+     *   attempted_tasks   — list of task names
+     *   issue_codes       — all issue codes from all commands
      *
      * @param  array $commands
      * @param  int   $threadid
      * @param  int   $cmid
      * @param  int   $userid
-     * @return array{valid:bool,errors:array,ambiguities:array,ambiguity_options:array,attempted_tasks:array,issue_codes:array}
+     * @return array{valid:bool,prepared_commands:array,errors:array,attempted_tasks:array,issue_codes:array}
      */
-    private function prevalidate_confirmation_commands(
+    private function run_preflight_on_commands(
         array $commands,
         int $threadid,
         int $cmid,
         int $userid
     ): array {
+        $preparedcommands = [];
         $errors = [];
-        $ambiguities = [];
-        $ambiguityoptions = [];
         $attemptedtasks = [];
         $issuecodes = [];
 
@@ -628,84 +803,52 @@ class agent_decision_service {
                 continue;
             }
 
-            $input = $command['input'] ?? [];
-            if (!is_array($input)) {
-                $errors[] = $label . ': input must be an object/array.';
-                continue;
-            }
+            $input = is_array($command['input'] ?? null) ? (array)$command['input'] : [];
 
-            // Deanonymize before validation so task validators see real values.
+            // Deanonymize before preflight so task sees real values.
             if ($threadid > 0 && $userid > 0) {
                 $input = $anonymizer->deanonymize_command_input_for_active_user($cmid, $userid, $input);
             }
 
-            $validation = $task->validate($input, $cmid);
-            foreach ((array)($validation['errors'] ?? []) as $error) {
-                $msg = trim((string)$error);
-                if ($msg !== '') {
-                    $errors[] = $msg;
-                }
-            }
-            foreach ((array)($validation['ambiguities'] ?? []) as $ambiguity) {
-                $msg = trim((string)$ambiguity);
-                if ($msg !== '') {
-                    $ambiguities[] = $msg;
-                }
-            }
-            if (!empty($validation['ambiguity_options']) && is_array($validation['ambiguity_options'])) {
-                foreach ((array)$validation['ambiguity_options'] as $option) {
-                    if (!is_array($option)) {
-                        continue;
-                    }
-                    $optlabel = trim((string)($option['label'] ?? ''));
-                    $optquery = trim((string)($option['query'] ?? ''));
-                    if ($optlabel === '' && $optquery === '') {
-                        continue;
-                    }
-                    $ambiguityoptions[] = [
-                        'id'    => trim((string)($option['id'] ?? '')),
-                        'label' => $optlabel,
-                        'query' => $optquery,
-                        'path'  => trim((string)($option['path'] ?? '')),
-                        'title' => trim((string)($option['title'] ?? '')),
-                        'task'  => $taskname,
-                    ];
+            $preflightresult = $task->preflight($input, $cmid, $userid);
+
+            foreach ($preflightresult->get_issue_codes() as $code) {
+                if ($code !== '') {
+                    $issuecodes[] = $code;
                 }
             }
 
-            $issues = $validation['issues'] ?? [];
-            if (is_array($issues)) {
-                foreach ($issues as $issue) {
-                    if (!is_array($issue)) {
-                        continue;
-                    }
-                    $code = trim((string)($issue['code'] ?? ''));
-                    if ($code !== '') {
-                        $issuecodes[] = $code;
+            if (!$preflightresult->is_valid) {
+                foreach ($preflightresult->issues as $issue) {
+                    $msg = trim((string)($issue['message'] ?? ''));
+                    if ($msg !== '') {
+                        $errors[] = $msg;
                     }
                 }
+                // Infer TEACHER_USER_NOT_FOUND from message text for backward-compatible
+                // fallback-message generation in build_confirmation_validation_message().
+                foreach ($errors as $error) {
+                    $normalizederror = core_text::strtolower(trim((string)$error));
+                    if (
+                        str_contains($normalizederror, 'no user matched user query')
+                        || str_contains($normalizederror, 'keine nutzerin/kein nutzer passt zur nutzerabfrage')
+                    ) {
+                        $issuecodes[] = 'TEACHER_USER_NOT_FOUND';
+                    }
+                }
+                continue;
             }
 
-            // Infer stable issue codes from human-readable validation errors.
-            foreach ((array)($validation['errors'] ?? []) as $error) {
-                $normalizederror = core_text::strtolower(trim((string)$error));
-                if ($normalizederror === '') {
-                    continue;
-                }
-                if (
-                    str_contains($normalizederror, 'no user matched user query')
-                    || str_contains($normalizederror, 'keine nutzerin/kein nutzer passt zur nutzerabfrage')
-                ) {
-                    $issuecodes[] = 'TEACHER_USER_NOT_FOUND';
-                }
-            }
+            // Preflight passed: update command input with resolved prepared_input.
+            $updatedcommand = $command;
+            $updatedcommand['input'] = $preflightresult->prepared_input;
+            $preparedcommands[] = $updatedcommand;
         }
 
         return [
-            'valid'             => empty($errors) && empty($ambiguities),
+            'valid'             => empty($errors),
+            'prepared_commands' => $preparedcommands,
             'errors'            => array_values(array_unique($errors)),
-            'ambiguities'       => array_values(array_unique($ambiguities)),
-            'ambiguity_options' => array_values($ambiguityoptions),
             'attempted_tasks'   => array_values(array_unique($attemptedtasks)),
             'issue_codes'       => array_values(array_unique($issuecodes)),
         ];
