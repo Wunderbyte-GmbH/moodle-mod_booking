@@ -12,6 +12,8 @@ amd/package-lock.json
 amd/node_modules
 vue3/node_modules
 .vscode/launch.json
+/vendor/
+/composer.lock
 
 # Ignore everything in bookingextension subfolders
 bookingextension/*/
