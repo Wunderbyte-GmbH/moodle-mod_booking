@@ -496,20 +496,23 @@ class agent_decision_service {
 
         foreach ($commands as $idx => $command) {
             if (!is_array($command)) {
-                $blockingerrors[] = 'Command #' . ($idx + 1) . ': malformed.';
+                $blockingerrors[] = get_string('agent_decision_command_malformed', 'mod_booking', $idx + 1);
                 continue;
             }
 
             $taskname = trim((string)($command['task'] ?? ''));
             if ($taskname === '') {
-                $blockingerrors[] = 'Command #' . ($idx + 1) . ': missing task.';
+                $blockingerrors[] = get_string('agent_decision_command_missing_task', 'mod_booking', $idx + 1);
                 continue;
             }
             $attemptedtasks[] = $taskname;
 
             $task = $this->registry->get_task($taskname);
             if ($task === null) {
-                $blockingerrors[] = 'Command #' . ($idx + 1) . ': task ' . $taskname . ' is not registered.';
+                $blockingerrors[] = get_string('agent_decision_command_task_not_registered', 'mod_booking', (object)[
+                    'idx' => $idx + 1,
+                    'task' => $taskname,
+                ]);
                 continue;
             }
 

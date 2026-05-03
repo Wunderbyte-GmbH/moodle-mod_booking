@@ -406,7 +406,7 @@ class update_option_task extends base_booking_task implements task_trigger_provi
 
         return [
             'status' => 'error',
-            'detail' => 'Unknown booking task: ' . self::TASK_NAME,
+            'detail' => $this->localized_string('agent_booking_unknown_task', self::TASK_NAME),
             'resultid' => null,
             'debugmessage' => $this->build_task_debug_message(self::TASK_NAME, $preparedinput, ['Status: error']),
         ];

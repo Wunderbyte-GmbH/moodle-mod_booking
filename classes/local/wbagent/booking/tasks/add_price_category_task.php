@@ -185,7 +185,7 @@ class add_price_category_task extends base_booking_task implements task_trigger_
         if (!has_capability('moodle/site:config', context_system::instance())) {
             return [
                 'status' => 'error',
-                'detail' => 'Adding price categories requires moodle/site:config capability.',
+                'detail' => get_string('agent_booking_add_pricecat_capability_required', 'mod_booking'),
                 'resultid' => null,
             ];
         }

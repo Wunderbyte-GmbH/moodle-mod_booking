@@ -84,7 +84,7 @@ class booking_mutation_validation {
         if (array_key_exists('optiondatesmode', $input)) {
             $mode = strtolower(trim((string)$input['optiondatesmode']));
             if (!in_array($mode, ['append', 'replace'], true)) {
-                $errors[] = 'Field "optiondatesmode" must be either "append" or "replace".';
+                $errors[] = get_string('agent_validation_optiondatesmode_invalid', 'mod_booking');
             }
         }
 
@@ -103,7 +103,7 @@ class booking_mutation_validation {
 
             $operator = strtoupper(trim((string)($input['enrolledincourseoperator'] ?? 'OR')));
             if (!in_array($operator, ['OR', 'AND'], true)) {
-                $errors[] = 'Field "enrolledincourseoperator" must be either "OR" or "AND".';
+                $errors[] = get_string('agent_validation_enrolledincourseoperator_invalid', 'mod_booking');
             }
         }
 
@@ -112,7 +112,7 @@ class booking_mutation_validation {
             && empty($input['enrolledincourseenabled'])
             && !empty($input['enrolledincoursequery'])
         ) {
-            $errors[] = 'Cannot provide enrolledincoursequery when enrolledincourseenabled is false.';
+            $errors[] = get_string('agent_validation_enrolledincourseenabled_disabled', 'mod_booking');
         }
 
         $parsedoptiondates = booking_task_support::extract_optiondates($input);
@@ -126,7 +126,7 @@ class booking_mutation_validation {
             $isplaceholder = $val === 0 || $val === '0' || $val === '' || $val === null;
             if (!$isplaceholder || !in_array('coursestarttime', $overrides, true)) {
                 if (!booking_task_support::parse_datetime($val)) {
-                    $errors[] = 'Field "coursestarttime" must be a valid ISO 8601 date-time string or Unix timestamp.';
+                    $errors[] = get_string('agent_validation_coursestarttime_invalid', 'mod_booking');
                 }
             }
         }
@@ -135,7 +135,7 @@ class booking_mutation_validation {
             $isplaceholder = $val === 0 || $val === '0' || $val === '' || $val === null;
             if (!$isplaceholder || !in_array('courseendtime', $overrides, true)) {
                 if (!booking_task_support::parse_datetime($val)) {
-                    $errors[] = 'Field "courseendtime" must be a valid ISO 8601 date-time string or Unix timestamp.';
+                    $errors[] = get_string('agent_validation_courseendtime_invalid', 'mod_booking');
                 }
             }
         }
@@ -144,7 +144,7 @@ class booking_mutation_validation {
             $isplaceholder = $val === 0 || $val === '0' || $val === '' || $val === null;
             if (!$isplaceholder || !in_array('bookingopeningtime', $overrides, true)) {
                 if (!booking_task_support::parse_datetime($val)) {
-                    $errors[] = 'Field "bookingopeningtime" must be a valid ISO 8601 date-time string or Unix timestamp.';
+                    $errors[] = get_string('agent_validation_bookingopeningtime_invalid', 'mod_booking');
                 }
             }
         }
@@ -153,33 +153,33 @@ class booking_mutation_validation {
             $isplaceholder = $val === 0 || $val === '0' || $val === '' || $val === null;
             if (!$isplaceholder || !in_array('bookingclosingtime', $overrides, true)) {
                 if (!booking_task_support::parse_datetime($val)) {
-                    $errors[] = 'Field "bookingclosingtime" must be a valid ISO 8601 date-time string or Unix timestamp.';
+                    $errors[] = get_string('agent_validation_bookingclosingtime_invalid', 'mod_booking');
                 }
             }
         }
 
         if (!empty($input['optiondates']) && empty($parsedoptiondates)) {
-            $errors[] = 'Field "optiondates" must contain at least one valid date range.';
+            $errors[] = get_string('agent_validation_optiondates_invalid', 'mod_booking');
         }
 
         if ($taskname === create_option_task::TASK_NAME) {
             foreach ($parsedoptiondates as $idx => $date) {
                 $startts = $date['coursestarttime'];
                 $endts = $date['courseendtime'];
-                $label = count($parsedoptiondates) > 1 ? 'Date range #' . ($idx + 1) . ': ' : '';
+                $label = count($parsedoptiondates) > 1
+                    ? get_string('agent_validation_date_range_label', 'mod_booking', $idx + 1)
+                    : '';
 
                 if ($startts < (time() - DAYSECS)) {
                     $ambiguities[] = $label
-                        . 'The provided start time appears to be in the past. '
-                        . 'Please confirm the intended date/time.';
+                        . get_string('agent_validation_date_start_in_past', 'mod_booking');
                 }
                 if ($endts < (time() - DAYSECS)) {
                     $ambiguities[] = $label
-                        . 'The provided end time appears to be in the past. '
-                        . 'Please confirm the intended date/time.';
+                        . get_string('agent_validation_date_end_in_past', 'mod_booking');
                 }
                 if ($endts <= $startts) {
-                    $errors[] = $label . '"courseendtime" must be later than "coursestarttime".';
+                    $errors[] = $label . get_string('agent_validation_courseendtime_before_starttime', 'mod_booking');
                 }
             }
         }
@@ -194,7 +194,7 @@ class booking_mutation_validation {
             }
             $operator = strtoupper(trim((string)($input['enrolledincohortoperator'] ?? 'OR')));
             if (!in_array($operator, ['OR', 'AND'], true)) {
-                $errors[] = 'Field "enrolledincohortoperator" must be either "OR" or "AND".';
+                $errors[] = get_string('agent_validation_enrolledincohortoperator_invalid', 'mod_booking');
             }
         }
 
@@ -203,7 +203,7 @@ class booking_mutation_validation {
             && empty($input['enrolledincohortenabled'])
             && !empty($input['enrolledincohortquery'])
         ) {
-            $errors[] = 'Cannot provide enrolledincohortquery when enrolledincohortenabled is false.';
+            $errors[] = get_string('agent_validation_enrolledincohortenabled_disabled', 'mod_booking');
         }
 
         if (!empty($input['hascompetencyquery'])) {
@@ -216,7 +216,7 @@ class booking_mutation_validation {
             }
             $operator = strtoupper(trim((string)($input['hascompetencyoperator'] ?? 'AND')));
             if (!in_array($operator, ['OR', 'AND'], true)) {
-                $errors[] = 'Field "hascompetencyoperator" must be either "OR" or "AND".';
+                $errors[] = get_string('agent_validation_hascompetencyoperator_invalid', 'mod_booking');
             }
         }
 
@@ -225,7 +225,7 @@ class booking_mutation_validation {
             && empty($input['hascompetencyenabled'])
             && !empty($input['hascompetencyquery'])
         ) {
-            $errors[] = 'Cannot provide hascompetencyquery when hascompetencyenabled is false.';
+            $errors[] = get_string('agent_validation_hascompetencyenabled_disabled', 'mod_booking');
         }
 
         if (!empty($input['previouslybookedquery'])) {
@@ -242,7 +242,7 @@ class booking_mutation_validation {
             && empty($input['previouslybookedenabled'])
             && !empty($input['previouslybookedquery'])
         ) {
-            $errors[] = 'Cannot provide previouslybookedquery when previouslybookedenabled is false.';
+            $errors[] = get_string('agent_validation_previouslybookedenabled_disabled', 'mod_booking');
         }
 
         if (!empty($input['selectusersquery'])) {
@@ -260,7 +260,7 @@ class booking_mutation_validation {
             && empty($input['selectusersenabled'])
             && !empty($input['selectusersquery'])
         ) {
-            $errors[] = 'Cannot provide selectusersquery when selectusersenabled is false.';
+            $errors[] = get_string('agent_validation_selectusersenabled_disabled', 'mod_booking');
         }
 
         if (
@@ -279,32 +279,34 @@ class booking_mutation_validation {
         if ($taskname === update_option_task::TASK_NAME && !empty($input['bookusersquery'])) {
             $forbidden = booking_task_support::detect_forbidden_fields_for_bookusers_update($input);
             if (!empty($forbidden)) {
-                $errors[] = 'When using "bookusersquery" in booking.update_option, '
-                    . 'no option updates are allowed in the same command. '
-                    . 'Remove these fields: ' . implode(', ', $forbidden) . '.';
+                $errors[] = get_string(
+                    'agent_validation_bookusersquery_exclusive',
+                    'mod_booking',
+                    implode(', ', $forbidden)
+                );
             }
         }
 
         if (isset($input['bookuserstimebooked']) && !booking_task_support::parse_datetime($input['bookuserstimebooked'])) {
-            $errors[] = 'Field "bookuserstimebooked" must be a valid ISO 8601 date-time string or Unix timestamp.';
+            $errors[] = get_string('agent_validation_bookuserstimebooked_invalid', 'mod_booking');
         }
 
         if (!empty($input['nooverlappingmode'])) {
             $mode = strtolower(trim((string)$input['nooverlappingmode']));
             if (!in_array($mode, ['block', 'warn'], true)) {
-                $errors[] = 'Field "nooverlappingmode" must be "block" or "warn".';
+                $errors[] = get_string('agent_validation_nooverlappingmode_invalid', 'mod_booking');
             }
         }
 
         if (!empty($input['userprofilestandardfield']) || !empty($input['userprofilestandardoperator'])) {
             if (empty($input['userprofilestandardfield']) || empty($input['userprofilestandardoperator'])) {
-                $errors[] = 'For standard profile condition, provide userprofilestandardfield and userprofilestandardoperator.';
+                $errors[] = get_string('agent_validation_userprofile_standard_incomplete', 'mod_booking');
             }
         }
 
         if (!empty($input['userprofilecustomfield']) || !empty($input['userprofilecustomoperator'])) {
             if (empty($input['userprofilecustomfield']) || empty($input['userprofilecustomoperator'])) {
-                $errors[] = 'For custom profile condition, provide userprofilecustomfield and userprofilecustomoperator.';
+                $errors[] = get_string('agent_validation_userprofile_custom_incomplete', 'mod_booking');
             }
         }
 
@@ -321,17 +323,17 @@ class booking_mutation_validation {
             if (isset($input[$overrideoperatorfield])) {
                 $op = strtoupper(trim((string)$input[$overrideoperatorfield]));
                 if (!in_array($op, ['OR', 'AND'], true)) {
-                    $errors[] = 'Field "' . $overrideoperatorfield . '" must be "OR" or "AND".';
+                    $errors[] = get_string('agent_validation_overrideoperator_invalid', 'mod_booking', $overrideoperatorfield);
                 }
             }
         }
 
         if (isset($input['userprofilecustomfield2']) && empty($input['userprofilecustomoperator2'])) {
-            $errors[] = 'Field "userprofilecustomoperator2" is required when "userprofilecustomfield2" is provided.';
+            $errors[] = get_string('agent_validation_userprofilecustomoperator2_required', 'mod_booking');
         }
 
         if (!empty($input['duration']) && (int)$input['duration'] <= 0) {
-            $errors[] = 'Field "duration" must be a positive integer (seconds).';
+            $errors[] = get_string('agent_validation_duration_invalid', 'mod_booking');
         }
 
         if (
@@ -339,12 +341,12 @@ class booking_mutation_validation {
             && empty($input['customformenabled'])
             && (!empty($input['customformjson']) || !empty($input['customformelements']))
         ) {
-            $errors[] = 'Cannot provide custom form content when customformenabled is false.';
+            $errors[] = get_string('agent_validation_customformenabled_disabled', 'mod_booking');
         }
 
         if (array_key_exists('customformelements', $input)) {
             if (!is_array($input['customformelements'])) {
-                $errors[] = 'Field "customformelements" must be an array.';
+                $errors[] = get_string('agent_validation_customformelements_not_array', 'mod_booking');
             } else {
                 $validation = booking_task_support::validate_customform_elements($input['customformelements']);
                 foreach ($validation['errors'] as $error) {

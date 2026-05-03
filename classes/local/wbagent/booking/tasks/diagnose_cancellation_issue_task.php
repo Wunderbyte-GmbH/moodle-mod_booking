@@ -192,7 +192,7 @@ class diagnose_cancellation_issue_task extends base_booking_task implements task
         if (($resolveduser['status'] ?? '') !== 'ok') {
             return [
                 'status' => 'error',
-                'detail' => (string)($resolveduser['message'] ?? 'Could not resolve target user.'),
+                'detail' => (string)($resolveduser['message'] ?? get_string('agent_booking_diagnose_cancellation_user_resolve_failed', 'mod_booking')),
                 'resultid' => null,
                 'debugmessage' => $this->build_task_debug_message(self::TASK_NAME, $input, ['Status: error']),
             ];

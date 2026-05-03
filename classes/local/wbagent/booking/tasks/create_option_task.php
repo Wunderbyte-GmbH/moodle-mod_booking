@@ -201,25 +201,29 @@ class create_option_task extends base_booking_task implements task_trigger_provi
             $resolvedtype = 'normal';
         }
 
-        // Type-specific required field validation.
-        $errors = array_merge($errors, self::validate_type_specific_required_fields($input, $resolvedtype, $overrides));
-
-        // Missing-location soft confirmation.
-        if (
+        // Missing-location soft confirmation: handle before type validation to suppress the location error.
+        $missinglocationconfirm = (
             $resolvedtype === 'normal'
             && !in_array('location', $overrides, true)
             && !in_array('address', $overrides, true)
             && !self::has_any_key($input, ['location', 'address'])
-        ) {
-            $errors = array_values(array_filter(
-                $errors,
-                static fn(string $e): bool => $e !== 'For normal booking type, please provide a location or address.'
-            ));
+        );
+
+        // Pass synthetic overrides so validate_type_specific does not add the location error
+        // when we are converting it to a soft-confirmation issue below.
+        $typeoverrides = $missinglocationconfirm
+            ? array_merge($overrides, ['location', 'address'])
+            : $overrides;
+
+        // Type-specific required field validation.
+        $errors = array_merge($errors, self::validate_type_specific_required_fields($input, $resolvedtype, $typeoverrides));
+
+        if ($missinglocationconfirm) {
             $issues[] = [
                 'code'           => 'MISSING_LOCATION_CONFIRM_REQUIRED',
                 'severity'       => 'needs_confirmation',
-                'message'        => 'Please confirm that you want to create this booking option without specifying a location/address.',
-                'user_question'  => 'Please confirm that you want to create this booking option without specifying a location/address.',
+                'message'        => get_string('agent_booking_create_confirm_without_location', 'mod_booking'),
+                'user_question'  => get_string('agent_booking_create_confirm_without_location', 'mod_booking'),
                 'remedy_options' => ['CONFIRM_CREATE_WITHOUT_LOCATION', 'PROVIDE_LOCATION'],
             ];
         }
@@ -228,8 +232,8 @@ class create_option_task extends base_booking_task implements task_trigger_provi
             $issues[] = [
                 'code'           => 'MISSING_REQUIRED_FIELDS',
                 'severity'       => 'needs_clarification',
-                'message'        => 'Please provide the missing details for the selected booking type.',
-                'user_question'  => 'Please provide the missing details for the selected booking type.',
+                'message'        => get_string('agent_booking_create_missing_required_fields', 'mod_booking'),
+                'user_question'  => get_string('agent_booking_create_missing_required_fields', 'mod_booking'),
                 'remedy_options' => ['PROVIDE_FIELDS', 'CONFIRM_EMPTY_DEFAULTS'],
             ];
             // Surface individual errors as separate issues so caller can display them.
@@ -455,28 +459,28 @@ class create_option_task extends base_booking_task implements task_trigger_provi
 
         if ($resolvedtype === 'normal') {
             if (!array_key_exists('maxanswers', $input)) {
-                $errors[] = 'For normal booking type, please provide the maximum number of participants.';
+                $errors[] = get_string('agent_booking_create_normal_missing_maxanswers', 'mod_booking');
             }
 
             $hasoptiondates = self::has_any_key($input, ['optiondates']);
             $hassinglestart = self::has_any_key($input, ['coursestarttime']);
 
             if (!$hasoptiondates && !$hassinglestart) {
-                $errors[] = 'For normal booking type, please provide a start date/time or date ranges.';
+                $errors[] = get_string('agent_booking_create_normal_missing_startdate', 'mod_booking');
             }
 
             if (!$hasoptiondates && !self::has_any_key($input, ['duration', 'courseendtime'])) {
-                $errors[] = 'For normal booking type, please provide a duration or end date/time.';
+                $errors[] = get_string('agent_booking_create_normal_missing_duration', 'mod_booking');
             }
 
             $allowemptylocation = in_array('location', $overrides, true) || in_array('address', $overrides, true);
             if (!$allowemptylocation && !self::has_any_key($input, ['location', 'address'])) {
-                $errors[] = 'For normal booking type, please provide a location or address.';
+                $errors[] = get_string('agent_booking_create_normal_missing_location', 'mod_booking');
             }
 
             $allowemptyteacher = in_array('teacherquery', $overrides, true) || in_array('teacheremail', $overrides, true);
             if (!$allowemptyteacher && !self::has_any_key($input, ['teacherquery', 'teacheremail'])) {
-                $errors[] = 'For normal booking type, please provide a teacher or teacher email.';
+                $errors[] = get_string('agent_booking_create_normal_missing_teacher', 'mod_booking');
             }
 
             return $errors;
@@ -484,15 +488,15 @@ class create_option_task extends base_booking_task implements task_trigger_provi
 
         if ($resolvedtype === 'selflearning') {
             if (!array_key_exists('maxanswers', $input)) {
-                $errors[] = 'For self-learning type, please provide the maximum number of participants.';
+                $errors[] = get_string('agent_booking_create_selflearning_missing_maxanswers', 'mod_booking');
             }
 
             if (!array_key_exists('duration', $input)) {
-                $errors[] = 'For self-learning type, please provide a duration (in seconds).';
+                $errors[] = get_string('agent_booking_create_selflearning_missing_duration', 'mod_booking');
             }
 
             if (!self::has_any_key($input, ['teacherquery', 'teacheremail'])) {
-                $errors[] = 'For self-learning type, please provide a teacher or teacher email.';
+                $errors[] = get_string('agent_booking_create_selflearning_missing_teacher', 'mod_booking');
             }
 
             return $errors;
@@ -507,33 +511,28 @@ class create_option_task extends base_booking_task implements task_trigger_provi
 
             if ($slottype === 'userdefined') {
                 if ((int)($input['slot_custom_max_duration'] ?? 0) <= 0) {
-                    $errors[] = 'For custom slot type, please provide the maximum slot duration in seconds '
-                        . '(slot_custom_max_duration).';
+                    $errors[] = get_string('agent_booking_create_slotbooking_missing_custom_duration', 'mod_booking');
                 }
             } else {
                 // Required: slot duration (how long is each slot).
                 if (!array_key_exists('slot_duration_minutes', $input)) {
-                    $errors[] = 'For slot booking type, please provide the slot duration in minutes '
-                        . '(slot_duration_minutes).';
+                    $errors[] = get_string('agent_booking_create_slotbooking_missing_duration', 'mod_booking');
                 }
             }
 
             // Required: max participants per slot.
             if (!array_key_exists('slot_max_participants_per_slot', $input)) {
-                $errors[] = 'For slot booking type, please provide how many people can book each slot '
-                    . '(slot_max_participants_per_slot).';
+                $errors[] = get_string('agent_booking_create_slotbooking_missing_participants', 'mod_booking');
             }
 
             // Required: time window.
             if (!self::has_any_key($input, ['slot_opening_time', 'slot_closing_time'])) {
-                $errors[] = 'For slot booking type, please provide the daily opening and closing time '
-                    . 'window (slot_opening_time, slot_closing_time).';
+                $errors[] = get_string('agent_booking_create_slotbooking_missing_timewindow', 'mod_booking');
             }
 
             // Required: validity date range.
             if (!self::has_any_key($input, ['slot_valid_from', 'slot_valid_until'])) {
-                $errors[] = 'For slot booking type, please provide from when until when slots should '
-                    . 'be available (slot_valid_from, slot_valid_until).';
+                $errors[] = get_string('agent_booking_create_slotbooking_missing_validity', 'mod_booking');
             }
 
             // Required: at least one weekday must be EXPLICITLY set to true.
@@ -545,9 +544,7 @@ class create_option_task extends base_booking_task implements task_trigger_provi
                 }
             }
             if (!$hasactiveday) {
-                $errors[] = 'For slot booking type, please specify on which weekday(s) slots should be offered '
-                    . '(slot_day_1=Monday ... slot_day_7=Sunday). Only set the intended days '
-                    . 'to true; all others must be false or omitted.';
+                $errors[] = get_string('agent_booking_create_slotbooking_missing_weekday', 'mod_booking');
             }
 
             return $errors;
@@ -900,7 +897,7 @@ class create_option_task extends base_booking_task implements task_trigger_provi
 
         return [
             'status' => 'error',
-            'detail' => 'Unknown booking task: ' . self::TASK_NAME,
+            'detail' => $this->localized_string('agent_booking_unknown_task', self::TASK_NAME),
             'resultid' => null,
             'debugmessage' => $this->build_task_debug_message(self::TASK_NAME, $preparedinput, ['Status: error']),
         ];

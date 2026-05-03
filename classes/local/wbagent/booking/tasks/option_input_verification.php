@@ -40,8 +40,10 @@ class option_input_verification {
             $requested = trim((string)$input['text']);
             $actual = trim((string)($settings->text ?? ''));
             if ($requested !== '' && !self::equals_ci($requested, $actual)) {
-                $warnings[] = 'Field "text" could not be confirmed after save. '
-                    . 'Requested "' . $requested . '", stored "' . $actual . '".';
+                $warnings[] = get_string('agent_booking_verify_field_text_failed', 'mod_booking', (object)[
+                    'requested' => $requested,
+                    'actual' => $actual,
+                ]);
             }
         }
 
@@ -53,10 +55,10 @@ class option_input_verification {
             if ($requested !== '') {
                 $matched = self::equals_ci($requested, $actual) || self::equals_ci($requested, $entityname);
                 if (!$matched) {
-                    $warnings[] = 'Field "location" could not be confirmed after save. '
-                        . 'Requested "' . $requested . '", stored "' . $actual . '". '
-                        . 'If local_entities is active, this usually means no matching entity exists yet. '
-                        . 'If you want, create the entity first and run booking.update_option again with the same location.';
+                    $warnings[] = get_string('agent_booking_verify_field_location_failed', 'mod_booking', (object)[
+                        'requested' => $requested,
+                        'actual' => $actual,
+                    ]);
                 }
             }
         }
@@ -65,8 +67,10 @@ class option_input_verification {
             $requested = trim((string)$input['address']);
             $actual = trim((string)($settings->address ?? ''));
             if ($requested !== '' && !self::equals_ci($requested, $actual)) {
-                $warnings[] = 'Field "address" could not be confirmed after save. '
-                    . 'Requested "' . $requested . '", stored "' . $actual . '".';
+                $warnings[] = get_string('agent_booking_verify_field_address_failed', 'mod_booking', (object)[
+                    'requested' => $requested,
+                    'actual' => $actual,
+                ]);
             }
         }
 
@@ -74,8 +78,7 @@ class option_input_verification {
             $requested = trim((string)$input['description']);
             $actual = trim(strip_tags((string)($settings->description ?? '')));
             if ($requested !== '' && stripos($actual, $requested) === false) {
-                $warnings[] = 'Field "description" could not be confirmed after save. '
-                    . 'Requested text was not found in stored description.';
+                $warnings[] = get_string('agent_booking_verify_field_description_failed', 'mod_booking');
             }
         }
 
@@ -83,8 +86,10 @@ class option_input_verification {
             $requested = (int)$input['maxanswers'];
             $actual = (int)($settings->maxanswers ?? 0);
             if ($requested !== $actual) {
-                $warnings[] = 'Field "maxanswers" could not be confirmed after save. '
-                    . 'Requested "' . $requested . '", stored "' . $actual . '".';
+                $warnings[] = get_string('agent_booking_verify_field_maxanswers_failed', 'mod_booking', (object)[
+                    'requested' => $requested,
+                    'actual' => $actual,
+                ]);
             }
         }
 
@@ -92,8 +97,10 @@ class option_input_verification {
             $requested = (int)$input['maxoverbooking'];
             $actual = (int)($settings->maxoverbooking ?? 0);
             if ($requested !== $actual) {
-                $warnings[] = 'Field "maxoverbooking" could not be confirmed after save. '
-                    . 'Requested "' . $requested . '", stored "' . $actual . '".';
+                $warnings[] = get_string('agent_booking_verify_field_maxoverbooking_failed', 'mod_booking', (object)[
+                    'requested' => $requested,
+                    'actual' => $actual,
+                ]);
             }
         }
 

@@ -129,13 +129,13 @@ class create_user_task extends base_booking_task implements task_trigger_provide
 
         $userquery = trim((string)($input['userquery'] ?? ''));
         if ($userquery === '') {
-            $errors[] = 'Field "userquery" is required for booking.create_user.';
+            $errors[] = get_string('agent_booking_create_user_query_required', 'mod_booking');
         }
 
         if (isset($input['email']) && trim((string)$input['email']) !== '') {
             $email = trim((string)$input['email']);
             if (!validate_email($email)) {
-                $errors[] = 'Field "email" must be a valid e-mail address.';
+                $errors[] = get_string('agent_booking_create_user_email_invalid', 'mod_booking');
             }
         }
 
@@ -160,7 +160,7 @@ class create_user_task extends base_booking_task implements task_trigger_provide
         if (!has_capability('moodle/user:create', context_system::instance())) {
             return [
                 'status' => 'error',
-                'detail' => 'Creating users requires moodle/user:create capability.',
+                'detail' => get_string('agent_booking_create_user_capability_required', 'mod_booking'),
                 'resultid' => null,
             ];
         }
@@ -169,7 +169,7 @@ class create_user_task extends base_booking_task implements task_trigger_provide
         if ($userquery === '') {
             return [
                 'status' => 'error',
-                'detail' => 'Missing required userquery.',
+                'detail' => get_string('agent_booking_create_user_missing_userquery', 'mod_booking'),
                 'resultid' => null,
             ];
         }
@@ -178,7 +178,7 @@ class create_user_task extends base_booking_task implements task_trigger_provide
         if (($resolved['status'] ?? '') === 'ok') {
             return [
                 'status' => 'executed',
-                'detail' => 'User already exists.',
+                'detail' => get_string('agent_booking_user_exists', 'mod_booking'),
                 'resultid' => (int)($resolved['userid'] ?? 0),
                 'userid' => (int)($resolved['userid'] ?? 0),
                 'email' => (string)($resolved['email'] ?? ''),
@@ -189,7 +189,7 @@ class create_user_task extends base_booking_task implements task_trigger_provide
         if (($resolved['status'] ?? '') === 'ambiguity') {
             return [
                 'status' => 'error',
-                'detail' => (string)($resolved['message'] ?? 'User query is ambiguous.'),
+                'detail' => (string)($resolved['message'] ?? get_string('agent_booking_create_user_ambiguous', 'mod_booking')),
                 'resultid' => null,
             ];
         }
@@ -231,7 +231,7 @@ class create_user_task extends base_booking_task implements task_trigger_provide
         } catch (\Throwable $e) {
             return [
                 'status' => 'error',
-                'detail' => 'Could not create user: ' . $e->getMessage(),
+                'detail' => get_string('agent_booking_create_user_failed', 'mod_booking', $e->getMessage()),
                 'resultid' => null,
             ];
         }
@@ -240,7 +240,7 @@ class create_user_task extends base_booking_task implements task_trigger_provide
 
         return [
             'status' => 'executed',
-            'detail' => 'User created.',
+            'detail' => get_string('agent_booking_create_user_created', 'mod_booking'),
             'resultid' => (int)$created->id,
             'userid' => (int)$created->id,
             'username' => (string)$created->username,

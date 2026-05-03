@@ -107,7 +107,7 @@ class list_actions_task extends base_booking_task implements task_trigger_provid
         $scope = strtolower(trim((string)($input['scope'] ?? 'all')));
         $allowed = ['all', 'readonly', 'mutating'];
         if (!in_array($scope, $allowed, true)) {
-            $errors[] = 'Field "scope" must be one of: all, readonly, mutating.';
+            $errors[] = get_string('agent_booking_list_actions_scope_invalid', 'mod_booking');
         }
 
         return [

@@ -342,7 +342,7 @@ class bulk_update_options_task extends base_booking_task implements task_trigger
 
         return [
             'status' => 'error',
-            'detail' => 'Unknown booking task: ' . self::TASK_NAME,
+            'detail' => $this->localized_string('agent_booking_unknown_task', self::TASK_NAME, $outputlang),
             'resultid' => null,
             'usermessage' => $this->localized_string('agent_booking_bulk_update_failed', null, $outputlang),
             'outputlang' => $outputlang,
