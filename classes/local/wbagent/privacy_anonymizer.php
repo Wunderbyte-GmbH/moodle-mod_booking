@@ -82,6 +82,20 @@ class privacy_anonymizer {
     }
 
     /**
+     * Return true if the given string value looks like an ANON token.
+     *
+     * Tasks call this static helper to skip semantic validation on values that
+     * are anonymized placeholders.  No infrastructure is required — the check
+     * is a pure string test.
+     *
+     * @param  string $value
+     * @return bool
+     */
+    public static function looks_like_anon_token(string $value): bool {
+        return (bool)preg_match('/\bANON_USER_\d+\b/', $value);
+    }
+
+    /**
      * Whether strict pre-LLM anonymization of user input is required.
      *
      * @return bool

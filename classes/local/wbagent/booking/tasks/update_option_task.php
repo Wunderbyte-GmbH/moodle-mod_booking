@@ -16,7 +16,6 @@
 
 namespace mod_booking\local\wbagent\booking\tasks;
 
-use mod_booking\local\wbagent\conversation_store;
 use mod_booking\local\wbagent\privacy_anonymizer;
 use mod_booking\local\wbagent\booking\booking_task_mutation_execute_service;
 use mod_booking\local\wbagent\booking\booking_task_support;
@@ -162,14 +161,15 @@ class update_option_task extends base_booking_task implements task_trigger_provi
 
         $lang = $this->get_output_language($input);
 
-        if (!empty($USER->id) && (int)$USER->id > 0) {
-            $anonymizer = new privacy_anonymizer(new conversation_store());
-            $input = $anonymizer->deanonymize_command_input_for_active_user($cmid, (int)$USER->id, $input);
-        }
-
         $errors = [];
         $ambiguities = [];
                 $issues = [];
+
+        // If optionquery is an anonymized token, skip semantic resolution.
+        // Real deanonymization and option resolution happen at execution time via the executor.
+        if (!empty($input['optionquery']) && privacy_anonymizer::looks_like_anon_token((string)$input['optionquery'])) {
+            return ['valid' => true, 'errors' => [], 'ambiguities' => [], 'issues' => []];
+        }
 
         if (empty($input['optionid'])) {
             if (empty($input['optionquery'])) {
