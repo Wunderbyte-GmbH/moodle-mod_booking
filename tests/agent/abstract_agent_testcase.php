@@ -27,9 +27,13 @@ namespace mod_booking;
 
 use advanced_testcase;
 use core_ai\aiactions\generate_text;
+use mod_booking\local\wbagent\agent_runtime;
 use mod_booking\local\wbagent\authorization_service;
 use mod_booking\local\wbagent\conversation_store;
 use mod_booking\local\wbagent\executor;
+use mod_booking\local\wbagent\interpreter;
+use mod_booking\local\wbagent\orchestrator;
+use mod_booking\local\wbagent\privacy_anonymizer;
 use mod_booking\local\wbagent\task_registry;
 use mod_booking\singleton_service;
 use stdClass;
@@ -279,5 +283,146 @@ abstract class abstract_agent_testcase extends advanced_testcase {
     protected function get_all_options(): array {
         global $DB;
         return $DB->get_records('booking_options', ['bookingid' => $this->booking->id]);
+    }
+
+    // -------------------------------------------------------------------------
+    // Real-LLM runtime helpers (used by per-task real-LLM test classes).
+
+    /**
+     * Skip the current test unless the real-LLM environment is fully configured.
+     *
+     * Required env-vars:
+     *   BOOKING_AI_REAL_LLM=1
+     *   BOOKING_TEST_AI_KEY, BOOKING_TEST_AI_MODEL, BOOKING_TEST_AI_ENDPOINT
+     */
+    protected function require_real_llm(): void {
+        if ((string)getenv('BOOKING_AI_REAL_LLM') !== '1') {
+            $this->markTestSkipped('Set BOOKING_AI_REAL_LLM=1 to run real-LLM tests.');
+        }
+        if (!$this->hasliveprovider) {
+            $this->markTestSkipped(
+                'Set BOOKING_TEST_AI_KEY + BOOKING_TEST_AI_MODEL + BOOKING_TEST_AI_ENDPOINT to run real-LLM tests.'
+            );
+        }
+    }
+
+    /**
+     * Build a fresh AgentRuntime, conversation store and thread for the teacher user.
+     *
+     * Returns [store, runtime, threadid].
+     *
+     * @return array{0: conversation_store, 1: agent_runtime, 2: int}
+     */
+    protected function build_runtime(): array {
+        $store    = new conversation_store();
+        $registry = task_registry::make_default();
+        $orc      = new orchestrator($registry, new interpreter($registry), $store);
+        $authz    = new authorization_service();
+        $runtime  = new agent_runtime($registry, $orc, $store, $authz);
+        $thread   = $store->get_or_create_thread(
+            (int)$this->teacher->id,
+            (int)$this->booking->cmid,
+            (int)$this->booking->id
+        );
+        return [$store, $runtime, (int)$thread->id];
+    }
+
+    /**
+     * Anonymize, store and process one user message through the AgentRuntime.
+     *
+     * This mirrors what the real HTTP endpoint does on each user turn.
+     *
+     * @param string             $message  Natural-language input.
+     * @param int                $threadid Conversation thread.
+     * @param conversation_store $store
+     * @param agent_runtime      $runtime
+     * @return array AgentRuntime result array.
+     */
+    protected function chat(
+        string $message,
+        int $threadid,
+        conversation_store $store,
+        agent_runtime $runtime
+    ): array {
+        $anon     = new privacy_anonymizer($store);
+        $precheck = $anon->precheck_user_message($threadid, $message);
+        $store->add_message($threadid, 'user', (string)($precheck['sanitizedmessage'] ?? $message));
+        return $runtime->run($threadid, (int)$this->booking->cmid, (int)$this->teacher->id);
+    }
+
+    /**
+     * Extract the first command of a given task name from an AgentRuntime result.
+     *
+     * @param array  $result   AgentRuntime result.
+     * @param string $taskname e.g. 'booking.create_option'.
+     * @return array|null
+     */
+    protected function extract_command(array $result, string $taskname): ?array {
+        foreach ((array)($result['commands'] ?? []) as $cmd) {
+            if (is_array($cmd) && (string)($cmd['task'] ?? '') === $taskname) {
+                return $cmd;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Extract the first execution-result entry by task name (execution_result responses).
+     *
+     * @param array  $result   AgentRuntime result.
+     * @param string $taskname e.g. 'booking.diagnose_booking_issue'.
+     * @return array|null
+     */
+    protected function extract_task_result(array $result, string $taskname): ?array {
+        foreach ((array)($result['results'] ?? []) as $entry) {
+            if (is_array($entry) && (string)($entry['task'] ?? '') === $taskname) {
+                return $entry;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Execute a single confirmed command via the executor and return the first result.
+     *
+     * @param array $command Command array (must have 'task' and 'input' keys; 'version' defaults to 1).
+     * @return array Executor result for this command.
+     */
+    protected function execute_command(array $command): array {
+        $command['version'] = $command['version'] ?? 1;
+        $key     = hash('sha256', 'test:exec:' . serialize($command) . ':' . uniqid('', true));
+        $results = $this->make_executor()->execute_commands(
+            [$command],
+            (int)$this->booking->cmid,
+            (int)$this->teacher->id,
+            $key,
+            0
+        );
+        return reset($results);
+    }
+
+    /**
+     * Execute all confirmed commands from an AgentRuntime result and return all executor results.
+     *
+     * @param array $result AgentRuntime result (confirmation_request).
+     * @return array[] Array of executor results.
+     */
+    protected function execute_all_commands(array $result): array {
+        $commands = (array)($result['commands'] ?? []);
+        if (empty($commands)) {
+            return [];
+        }
+        foreach ($commands as &$cmd) {
+            $cmd['version'] = $cmd['version'] ?? 1;
+        }
+        unset($cmd);
+        $key = hash('sha256', 'test:bulk:' . uniqid('', true));
+        return $this->make_executor()->execute_commands(
+            $commands,
+            (int)$this->booking->cmid,
+            (int)$this->teacher->id,
+            $key,
+            0
+        );
     }
 }
