@@ -449,13 +449,42 @@ class booking_enrolment {
             // Respect mode: check availability first.
             $isavailable = \mod_booking\booking_option::option_allows_booking_for_user((int)$rule->bookingoptionid, $userid);
             if (!$isavailable) {
+                $reasoncode = self::REASON_BLOCKED_CONDITION;
+                $reasonmessage = 'Availability condition blocked enrolment';
+
+                $settings = singleton_service::get_instance_of_booking_option_settings((int)$rule->bookingoptionid);
+                if (!empty($settings)) {
+                    $boinfo = new bo_info($settings);
+                    $results = bo_info::get_condition_results((int)$settings->id, $userid, true);
+                    [$conditionid, $availability, $description] = $boinfo->is_available((int)$settings->id, $userid, true);
+
+                    if (!$availability) {
+                        $blockingids = array_values(array_unique(array_map('intval', array_keys($results))));
+                        sort($blockingids, SORT_NUMERIC);
+
+                        if (!empty($blockingids)) {
+                            $idscsv = implode(',', $blockingids);
+                            $reasoncode = self::REASON_BLOCKED_CONDITION . '_' . $idscsv;
+                            $reasoncode = substr($reasoncode, 0, 50);
+                            $reasonmessage = 'Condition ids [' . $idscsv . ']';
+                        } else if (!empty($conditionid)) {
+                            $reasoncode = self::REASON_BLOCKED_CONDITION . '_' . (int)$conditionid;
+                            $reasonmessage = 'Condition id ' . (int)$conditionid;
+                        }
+
+                        if (!empty($description)) {
+                            $reasonmessage .= ': ' . trim(strip_tags((string)$description));
+                        }
+                    }
+                }
+
                 self::log_attempt(
                     (int)$rule->id,
                     (int)$rule->bookingoptionid,
                     $userid,
                     self::ACTION_ENROL,
-                    self::REASON_BLOCKED_CONDITION,
-                    'Availability condition blocked enrolment'
+                    $reasoncode,
+                    $reasonmessage
                 );
                 return;
             }
