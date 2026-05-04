@@ -46,6 +46,9 @@ $subscribe = optional_param('subscribe', false, PARAM_BOOL);
 $unsubscribe = optional_param('unsubscribe', false, PARAM_BOOL);
 $agree = optional_param('agree', false, PARAM_BOOL);
 $bookanyone = optional_param('bookanyone', false, PARAM_BOOL);
+$synctoggle = optional_param('synctoggle', 0, PARAM_INT);
+$synctoggleval = optional_param('synctoggleval', -1, PARAM_INT);
+$syncdisableall = optional_param('syncdisableall', 0, PARAM_INT);
 
 if (get_config('booking', 'alwaysbookanyone')) {
     $bookanyone = true;
@@ -89,6 +92,15 @@ if (!booking_check_if_teacher($bookingoption->option)) {
     if (!(has_capability('mod/booking:subscribeusers', $context) || has_capability('moodle/site:accessallgroups', $context))) {
         throw new moodle_exception('nopermissions', 'core', $errorurl, get_string('bookotherusers', 'mod_booking'));
     }
+}
+
+if (($synctoggle || $syncdisableall) && has_capability('mod/booking:updatebooking', $context) && confirm_sesskey()) {
+    if ($syncdisableall) {
+        \mod_booking\local\sync\booking_enrolment::disable_rules_for_option($optionid);
+    } else if ($synctoggle && $synctoggleval >= 0) {
+        \mod_booking\local\sync\booking_enrolment::update_rule_settings($synctoggle, ['isenabled' => (int)$synctoggleval]);
+    }
+    redirect(new moodle_url('/mod/booking/subscribeusers.php', ['id' => $id, 'optionid' => $optionid, 'agree' => $agree]));
 }
 
 $bookingoption->update_booked_users();
@@ -260,11 +272,6 @@ if ($fromform = $mform->get_data()) {
         $result = booking_utils::book_cohort_or_group_members($fromform, $bookingoption, $context);
         $delay = 120;
 
-        // Save sync rules if enabled.
-        if (!empty($fromform->syncenabled)) {
-            \mod_booking\local\sync\booking_enrolment::save_rules_from_form($optionid, $fromform);
-        }
-
         // Generate the notification string and determine the notification color.
         $notificationstring = get_string('resultofcohortorgroupbooking', 'mod_booking', $result);
 
@@ -403,32 +410,128 @@ if (!$fromform = $mform->get_data()) {
     // This branch is executed if the form is submitted but the data doesn't validate and the form should be redisplayed...
     // ... or on the first display of the form.
 
-    // Display existing sync rules for this option.
-    $syncrules = \mod_booking\local\sync\booking_enrolment::get_rules_for_option($optionid);
-    if (!empty($syncrules)) {
-        echo html_writer::tag('h5', get_string('syncrulesconfigured', 'mod_booking'), ['class' => 'mt-4']);
-        $table = new html_table();
-        $table->head = [
-            get_string('syncrulesource', 'mod_booking'),
-            get_string('syncenrolaction', 'mod_booking'),
-            get_string('syncunenrolaction', 'mod_booking'),
-            get_string('syncconditionpolicy', 'mod_booking'),
-            get_string('syncruleactive', 'mod_booking'),
+    if (has_capability('mod/booking:updatebooking', $context)) {
+        echo html_writer::tag('h5', get_string('syncmanagementheader', 'mod_booking'), ['class' => 'mt-4']);
+
+        $addbuttonattributes = [
+            'class' => 'btn btn-primary btn-sm mb-2',
+            'id' => 'booking-sync-add-rule-btn',
         ];
-        $table->data = [];
-        foreach ($syncrules as $rule) {
-            $sourcecell = $rule->sourcetypelabel . ': ' . s($rule->sourcename);
-            $enrolcell  = $rule->syncenrol   ? '&#10003;' : '&mdash;';
-            $unenrolcell = $rule->syncunenrol ? '&#10003;' : '&mdash;';
-            $policycell = $rule->conditionpolicy
-                ? get_string('syncconditionpolicy_override', 'mod_booking')
-                : get_string('syncconditionpolicy_respect', 'mod_booking');
-            $activecell = $rule->isenabled
-                ? html_writer::tag('span', get_string('yes'), ['class' => 'badge badge-success'])
-                : html_writer::tag('span', get_string('no'),  ['class' => 'badge badge-secondary']);
-            $table->data[] = [$sourcecell, $enrolcell, $unenrolcell, $policycell, $activecell];
+        echo html_writer::tag('button', get_string('syncaddrule', 'mod_booking'), $addbuttonattributes);
+
+        $disableurl = new moodle_url('/mod/booking/subscribeusers.php', [
+            'id' => $id,
+            'optionid' => $optionid,
+            'agree' => $agree,
+            'syncdisableall' => 1,
+            'sesskey' => sesskey(),
+        ]);
+        echo ' ' . html_writer::link($disableurl, get_string('syncdisableallrules', 'mod_booking'), [
+            'class' => 'btn btn-warning btn-sm mb-2',
+        ]);
+
+        $syncrules = \mod_booking\local\sync\booking_enrolment::get_rules_for_option($optionid);
+        if (empty($syncrules)) {
+            echo html_writer::tag('p', get_string('syncmanagementempty', 'mod_booking'), ['class' => 'text-muted']);
+        } else {
+            $table = new html_table();
+            $table->head = [
+                get_string('syncrulesource', 'mod_booking'),
+                get_string('syncenrolaction', 'mod_booking'),
+                get_string('syncunenrolaction', 'mod_booking'),
+                get_string('syncconditionpolicy', 'mod_booking'),
+                get_string('syncruleactive', 'mod_booking'),
+            ];
+            $table->data = [];
+            foreach ($syncrules as $rule) {
+                $sourcecell = $rule->sourcetypelabel . ': ' . s($rule->sourcename);
+                $enrolcell  = $rule->syncenrol ? '&#10003;' : '&mdash;';
+                $unenrolcell = $rule->syncunenrol ? '&#10003;' : '&mdash;';
+                $policycell = $rule->conditionpolicy
+                    ? get_string('syncconditionpolicy_override', 'mod_booking')
+                    : get_string('syncconditionpolicy_respect', 'mod_booking');
+                if ($rule->isenabled) {
+                    $toggleurl = new moodle_url('/mod/booking/subscribeusers.php', [
+                        'id' => $id,
+                        'optionid' => $optionid,
+                        'agree' => $agree,
+                        'synctoggle' => $rule->id,
+                        'synctoggleval' => 0,
+                        'sesskey' => sesskey(),
+                    ]);
+                    $activecell = html_writer::tag('span', get_string('yes'), ['class' => 'badge badge-success'])
+                        . ' ' . html_writer::link($toggleurl, '(' . get_string('disable') . ')', ['class' => 'small']);
+                } else {
+                    $toggleurl = new moodle_url('/mod/booking/subscribeusers.php', [
+                        'id' => $id,
+                        'optionid' => $optionid,
+                        'agree' => $agree,
+                        'synctoggle' => $rule->id,
+                        'synctoggleval' => 1,
+                        'sesskey' => sesskey(),
+                    ]);
+                    $activecell = html_writer::tag('span', get_string('no'), ['class' => 'badge badge-secondary'])
+                        . ' ' . html_writer::link($toggleurl, '(' . get_string('enable') . ')', ['class' => 'small']);
+                }
+                $table->data[] = [$sourcecell, $enrolcell, $unenrolcell, $policycell, $activecell];
+            }
+            echo html_writer::table($table);
         }
-        echo html_writer::table($table);
+
+        $PAGE->requires->js_call_amd('mod_booking/sync_rule_modal', 'init', [
+            '#booking-sync-add-rule-btn',
+            (int)$cm->id,
+            (int)$optionid,
+            get_string('syncaddrule', 'mod_booking'),
+        ]);
+
+        $diagnosticsbutton = html_writer::tag(
+            'button',
+            get_string('syncdiagnosticsheader', 'mod_booking'),
+            [
+                'type' => 'button',
+                'class' => 'btn btn-link px-0 mt-2',
+                'data-toggle' => 'collapse',
+                'data-target' => '#booking-sync-diagnostics',
+                'data-bs-toggle' => 'collapse',
+                'data-bs-target' => '#booking-sync-diagnostics',
+                'aria-expanded' => 'false',
+                'aria-controls' => 'booking-sync-diagnostics',
+            ]
+        );
+        echo html_writer::tag('div', $diagnosticsbutton);
+
+        $attempts = \mod_booking\local\sync\booking_enrolment::get_recent_attempts_for_option($optionid, 30);
+        if (empty($attempts)) {
+            $diagnosticscontent = html_writer::tag(
+                'p',
+                get_string('syncmanagementempty', 'mod_booking'),
+                ['class' => 'text-muted']
+            );
+        } else {
+            $attempttable = new html_table();
+            $attempttable->head = [
+                get_string('time'),
+                get_string('user'),
+                get_string('action'),
+                get_string('reason', 'mod_booking'),
+            ];
+            $attempttable->data = [];
+            foreach ($attempts as $attempt) {
+                $attempttable->data[] = [
+                    userdate($attempt->timecreated),
+                    fullname($attempt),
+                    s($attempt->action),
+                    s($attempt->reasoncode) . (empty($attempt->reasonmessage) ? '' : ': ' . s($attempt->reasonmessage)),
+                ];
+            }
+            $diagnosticscontent = html_writer::table($attempttable);
+        }
+
+        echo html_writer::tag('div', $diagnosticscontent, [
+            'class' => 'collapse',
+            'id' => 'booking-sync-diagnostics',
+        ]);
     }
 
     $mform->display();
