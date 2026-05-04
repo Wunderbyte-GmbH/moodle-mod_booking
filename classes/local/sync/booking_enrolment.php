@@ -608,12 +608,38 @@ class booking_enrolment {
     public static function get_recent_attempts_for_option(int $optionid, int $limit = 20): array {
         global $DB;
 
-        $sql = "SELECT a.*, u.firstname, u.lastname, u.email
+        $sql = "SELECT a.*, u.firstname, u.lastname, u.email,
+                       r.id AS ruleid, r.sourcetype, r.sourceid,
+                       c.name AS cohortname, g.name AS groupname
                   FROM {booking_sync_attempts} a
                   JOIN {user} u ON u.id = a.userid
+             LEFT JOIN {booking_sync_rules} r ON r.id = a.syncruleid
+             LEFT JOIN {cohort} c ON c.id = r.sourceid AND r.sourcetype = 'cohort'
+             LEFT JOIN {groups} g ON g.id = r.sourceid AND r.sourcetype = 'group'
                  WHERE a.bookingoptionid = :optionid
                  ORDER BY a.timecreated DESC";
+        $attempts = array_values($DB->get_records_sql($sql, ['optionid' => $optionid], 0, $limit));
 
-        return array_values($DB->get_records_sql($sql, ['optionid' => $optionid], 0, $limit));
+        foreach ($attempts as $attempt) {
+            $ruleref = '#' . (int)$attempt->syncruleid;
+            if (empty($attempt->ruleid)) {
+                $attempt->rulesource = $ruleref;
+                continue;
+            }
+
+            if ($attempt->sourcetype === 'cohort') {
+                $attempt->rulesource = $ruleref . ' - '
+                    . get_string('syncsourcetypecohort', 'mod_booking') . ': '
+                    . ($attempt->cohortname ?? '?');
+            } else if ($attempt->sourcetype === 'group') {
+                $attempt->rulesource = $ruleref . ' - '
+                    . get_string('syncsourcetypegroup', 'mod_booking') . ': '
+                    . ($attempt->groupname ?? '?');
+            } else {
+                $attempt->rulesource = $ruleref;
+            }
+        }
+
+        return $attempts;
     }
 }
