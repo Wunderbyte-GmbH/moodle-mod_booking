@@ -142,6 +142,13 @@ $functions = [
         'capabilities' => '',
         'ajax' => 1,
     ],
+    'mod_booking_search_sync_sources' => [
+        'classname' => 'mod_booking\external\search_sync_sources',
+        'description' => 'Search cohorts or groups for sync rule creation',
+        'type' => 'read',
+        'capabilities' => 'mod/booking:bookforothers',
+        'ajax' => 1,
+    ],
     'mod_booking_allow_add_item_to_cart' => [
         'classname' => 'mod_booking\external\allow_add_item_to_cart',
         'description' => 'Check if item can be added to cart',

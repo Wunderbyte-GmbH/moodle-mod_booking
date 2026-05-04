@@ -27,7 +27,6 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class booking_enrolment {
-
     /** Respect availability conditions — skip blocked users. */
     const CONDITION_POLICY_RESPECT = 0;
 
@@ -103,8 +102,8 @@ class booking_enrolment {
             ]);
 
             if ($existing) {
-                $existing->syncenrol        = empty($fromform->syncenrolaction)    ? 0 : 1;
-                $existing->syncunenrol      = empty($fromform->syncunenrolaction)  ? 0 : 1;
+                $existing->syncenrol        = empty($fromform->syncenrolaction) ? 0 : 1;
+                $existing->syncunenrol      = empty($fromform->syncunenrolaction) ? 0 : 1;
                 $existing->conditionpolicy  = (int)($fromform->syncconditionpolicy ?? self::CONDITION_POLICY_RESPECT);
                 $existing->isenabled        = 1;
                 $existing->timemodified     = $now;
@@ -115,7 +114,7 @@ class booking_enrolment {
                 $rule->bookingoptionid  = $optionid;
                 $rule->sourcetype       = $sourcetype;
                 $rule->sourceid         = $sourceid;
-                $rule->syncenrol        = empty($fromform->syncenrolaction)   ? 0 : 1;
+                $rule->syncenrol        = empty($fromform->syncenrolaction) ? 0 : 1;
                 $rule->syncunenrol      = empty($fromform->syncunenrolaction) ? 0 : 1;
                 $rule->conditionpolicy  = (int)($fromform->syncconditionpolicy ?? self::CONDITION_POLICY_RESPECT);
                 $rule->isenabled        = 1;
@@ -129,6 +128,153 @@ class booking_enrolment {
         }
 
         return $saved;
+    }
+
+    /**
+     * Save or update one sync rule and return the saved rule id.
+     *
+     * @param int      $optionid Booking option ID.
+     * @param stdClass $data     Rule payload.
+     * @return int Saved rule id.
+     */
+    public static function save_single_rule(int $optionid, stdClass $data): int {
+        global $DB, $USER;
+
+        $sourcetype = (string)($data->sourcetype ?? '');
+        $sourceid = (int)($data->sourceid ?? 0);
+        if (!in_array($sourcetype, ['cohort', 'group']) || $sourceid <= 0) {
+            throw new \moodle_exception('invalidparameter', 'error');
+        }
+
+        $synccheckenrol = !empty($data->syncenrolaction);
+        $synccheckunenrol = !empty($data->syncunenrolaction);
+        if (!$synccheckenrol && !$synccheckunenrol) {
+            throw new \moodle_exception('invalidparameter', 'error');
+        }
+
+        if (!self::source_exists($sourcetype, $sourceid)) {
+            throw new \moodle_exception('invalidparameter', 'error');
+        }
+
+        $now = time();
+        $existing = $DB->get_record('booking_sync_rules', [
+            'bookingoptionid' => $optionid,
+            'sourcetype'      => $sourcetype,
+            'sourceid'        => $sourceid,
+        ]);
+
+        if ($existing) {
+            $existing->syncenrol = $synccheckenrol ? 1 : 0;
+            $existing->syncunenrol = $synccheckunenrol ? 1 : 0;
+            $existing->conditionpolicy = (int)($data->syncconditionpolicy ?? self::CONDITION_POLICY_RESPECT);
+            $existing->isenabled = 1;
+            $existing->timemodified = $now;
+            $existing->usermodified = $USER->id;
+            $DB->update_record('booking_sync_rules', $existing);
+            return (int)$existing->id;
+        }
+
+        $rule = new stdClass();
+        $rule->bookingoptionid = $optionid;
+        $rule->sourcetype = $sourcetype;
+        $rule->sourceid = $sourceid;
+        $rule->syncenrol = $synccheckenrol ? 1 : 0;
+        $rule->syncunenrol = $synccheckunenrol ? 1 : 0;
+        $rule->conditionpolicy = (int)($data->syncconditionpolicy ?? self::CONDITION_POLICY_RESPECT);
+        $rule->isenabled = 1;
+        $rule->timecreated = $now;
+        $rule->timemodified = $now;
+        $rule->usercreated = $USER->id;
+        $rule->usermodified = $USER->id;
+        return (int)$DB->insert_record('booking_sync_rules', $rule);
+    }
+
+    /**
+     * Apply one rule against current source membership.
+     *
+     * @param int $ruleid Sync rule id.
+     * @return array{enrolattempted:int, unenrolattempted:int}
+     */
+    public static function apply_rule_to_current_members(int $ruleid): array {
+        global $DB;
+
+        $rule = $DB->get_record('booking_sync_rules', ['id' => $ruleid, 'isenabled' => 1]);
+        if (!$rule) {
+            return ['enrolattempted' => 0, 'unenrolattempted' => 0];
+        }
+
+        $memberids = self::get_source_member_ids((string)$rule->sourcetype, (int)$rule->sourceid);
+        $membermap = array_fill_keys($memberids, true);
+
+        $enrolattempted = 0;
+        $unenrolattempted = 0;
+
+        if (!empty($rule->syncenrol)) {
+            foreach ($memberids as $userid) {
+                $enrolattempted++;
+                self::enrol_user_by_rule($rule, (int)$userid);
+            }
+        }
+
+        if (!empty($rule->syncunenrol)) {
+            $ownedanswers = $DB->get_records('booking_answers', [
+                'optionid' => (int)$rule->bookingoptionid,
+                'syncruleid' => (int)$rule->id,
+            ], '', 'id,userid');
+
+            foreach ($ownedanswers as $answer) {
+                if (!isset($membermap[(int)$answer->userid])) {
+                    $unenrolattempted++;
+                    self::unenrol_user_by_rule($rule, (int)$answer->userid);
+                }
+            }
+        }
+
+        return ['enrolattempted' => $enrolattempted, 'unenrolattempted' => $unenrolattempted];
+    }
+
+    /**
+     * Check if a sync source exists.
+     *
+     * @param string $sourcetype Source type.
+     * @param int $sourceid Source id.
+     * @return bool
+     */
+    public static function source_exists(string $sourcetype, int $sourceid): bool {
+        global $DB;
+
+        if ($sourcetype === 'cohort') {
+            return $DB->record_exists('cohort', ['id' => $sourceid]);
+        }
+
+        if ($sourcetype === 'group') {
+            return $DB->record_exists('groups', ['id' => $sourceid]);
+        }
+
+        return false;
+    }
+
+    /**
+     * Return all member user ids for one source.
+     *
+     * @param string $sourcetype Source type.
+     * @param int $sourceid Source id.
+     * @return int[]
+     */
+    public static function get_source_member_ids(string $sourcetype, int $sourceid): array {
+        global $DB;
+
+        if ($sourcetype === 'cohort') {
+            $ids = $DB->get_fieldset_select('cohort_members', 'userid', 'cohortid = :sourceid', ['sourceid' => $sourceid]);
+            return array_map('intval', $ids);
+        }
+
+        if ($sourcetype === 'group') {
+            $ids = $DB->get_fieldset_select('groups_members', 'userid', 'groupid = :sourceid', ['sourceid' => $sourceid]);
+            return array_map('intval', $ids);
+        }
+
+        return [];
     }
 
     /**

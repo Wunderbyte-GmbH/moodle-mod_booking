@@ -97,31 +97,6 @@ class subscribe_cohort_or_group_form extends moodleform {
         $mform->addRule('groupids', null, 'required');
         $mform->setDefault('groupids', null);
 
-        // Sync settings header.
-        $mform->addElement('header', 'scgfsyncheader', get_string('scgfsyncheader', 'mod_booking'));
-        $mform->setExpanded('scgfsyncheader', false);
-
-        $mform->addElement('advcheckbox', 'syncenabled', get_string('syncenabled', 'mod_booking'));
-        $mform->setDefault('syncenabled', 0);
-
-        $mform->addElement('advcheckbox', 'syncenrolaction', get_string('syncenrolaction', 'mod_booking'));
-        $mform->setDefault('syncenrolaction', 1);
-        $mform->disabledIf('syncenrolaction', 'syncenabled', 'notchecked');
-
-        $mform->addElement('advcheckbox', 'syncunenrolaction', get_string('syncunenrolaction', 'mod_booking'));
-        $mform->setDefault('syncunenrolaction', 0);
-        $mform->disabledIf('syncunenrolaction', 'syncenabled', 'notchecked');
-
-        $conditionpolicyoptions = [
-            \mod_booking\local\sync\booking_enrolment::CONDITION_POLICY_RESPECT =>
-                get_string('syncconditionpolicy_respect', 'mod_booking'),
-            \mod_booking\local\sync\booking_enrolment::CONDITION_POLICY_OVERRIDE =>
-                get_string('syncconditionpolicy_override', 'mod_booking'),
-        ];
-        $mform->addElement('select', 'syncconditionpolicy', get_string('syncconditionpolicy', 'mod_booking'), $conditionpolicyoptions);
-        $mform->setDefault('syncconditionpolicy', \mod_booking\local\sync\booking_enrolment::CONDITION_POLICY_RESPECT);
-        $mform->disabledIf('syncconditionpolicy', 'syncenabled', 'notchecked');
-
         $this->add_action_buttons(false, get_string('scgfbookgroupscohorts', 'booking'));
     }
 
