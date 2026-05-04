@@ -489,6 +489,7 @@ if (!$fromform = $mform->get_data()) {
             'button',
             get_string('syncdiagnosticsheader', 'mod_booking'),
             [
+                'id' => 'booking-sync-diagnostics-trigger',
                 'type' => 'button',
                 'class' => 'btn btn-link px-0 mt-2',
                 'data-toggle' => 'collapse',
@@ -501,36 +502,25 @@ if (!$fromform = $mform->get_data()) {
         );
         echo html_writer::tag('div', $diagnosticsbutton);
 
-        $attempts = \mod_booking\local\sync\booking_enrolment::get_recent_attempts_for_option($optionid, 30);
-        if (empty($attempts)) {
-            $diagnosticscontent = html_writer::tag(
-                'p',
-                get_string('syncmanagementempty', 'mod_booking'),
-                ['class' => 'text-muted']
-            );
-        } else {
-            $attempttable = new html_table();
-            $attempttable->head = [
-                get_string('time'),
-                get_string('user'),
-                get_string('action'),
-                get_string('reason', 'mod_booking'),
-            ];
-            $attempttable->data = [];
-            foreach ($attempts as $attempt) {
-                $attempttable->data[] = [
-                    userdate($attempt->timecreated),
-                    fullname($attempt),
-                    s($attempt->action),
-                    s($attempt->reasoncode) . (empty($attempt->reasonmessage) ? '' : ': ' . s($attempt->reasonmessage)),
-                ];
-            }
-            $diagnosticscontent = html_writer::table($attempttable);
-        }
+        $diagnosticscontent = html_writer::tag(
+            'p',
+            get_string('loading', 'moodle'),
+            ['class' => 'text-muted mb-0', 'id' => 'booking-sync-diagnostics-content']
+        );
 
         echo html_writer::tag('div', $diagnosticscontent, [
             'class' => 'collapse',
             'id' => 'booking-sync-diagnostics',
+        ]);
+
+        $PAGE->requires->js_call_amd('mod_booking/sync_diagnostics', 'init', [
+            '#booking-sync-diagnostics-trigger',
+            '#booking-sync-diagnostics-content',
+            (int)$cm->id,
+            (int)$optionid,
+            30,
+            get_string('loading', 'moodle'),
+            get_string('error', 'moodle'),
         ]);
     }
 
