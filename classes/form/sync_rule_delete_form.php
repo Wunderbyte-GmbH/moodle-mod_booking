@@ -33,19 +33,63 @@ class sync_rule_delete_form extends dynamic_form {
      * Define form fields.
      */
     public function definition() {
+        global $DB;
+
         $mform = $this->_form;
         $formdata = $this->_customdata ?? $this->_ajaxformdata;
 
-        $mform->addElement('hidden', 'optionid', (int)($formdata['optionid'] ?? 0));
+        $optionid = (int)($formdata['optionid'] ?? 0);
+        $cmid     = (int)($formdata['cmid'] ?? 0);
+        $ruleid   = (int)($formdata['ruleid'] ?? 0);
+
+        $mform->addElement('hidden', 'optionid', $optionid);
         $mform->setType('optionid', PARAM_INT);
 
-        $mform->addElement('hidden', 'cmid', (int)($formdata['cmid'] ?? 0));
+        $mform->addElement('hidden', 'cmid', $cmid);
         $mform->setType('cmid', PARAM_INT);
 
-        $mform->addElement('hidden', 'ruleid', (int)($formdata['ruleid'] ?? 0));
+        $mform->addElement('hidden', 'ruleid', $ruleid);
         $mform->setType('ruleid', PARAM_INT);
 
-        $mform->addElement('static', 'confirmtext', '', get_string('syncruledeleteconfirm', 'mod_booking'));
+        $mform->addElement('static', 'confirmtext', '',
+            get_string('syncruledeleteconfirm', 'mod_booking'));
+
+        // Show how many active booking answers are owned by this rule.
+        if ($ruleid > 0) {
+            $count = $DB->count_records('booking_answers', [
+                'optionid'   => $optionid,
+                'syncruleid' => $ruleid,
+            ]);
+            $mform->addElement(
+                'static',
+                'impacttext',
+                '',
+                '<div class="alert alert-info mb-2">' .
+                    get_string('syncruledeleteimpact', 'mod_booking', $count) .
+                '</div>'
+            );
+        }
+
+        // Delete mode selector.
+        $modes = [
+            \mod_booking\local\sync\booking_enrolment::DELETE_MODE_MANUALIZE =>
+                get_string('syncdeletemodemanual', 'mod_booking'),
+            \mod_booking\local\sync\booking_enrolment::DELETE_MODE_KEEP_ORPHAN =>
+                get_string('syncdeletemodeorphan', 'mod_booking'),
+            \mod_booking\local\sync\booking_enrolment::DELETE_MODE_UNENROL_SOFT_DELETE =>
+                get_string('syncdeletemodeunenrol', 'mod_booking'),
+        ];
+        $mform->addElement(
+            'select',
+            'deletemode',
+            get_string('syncruledeletemode', 'mod_booking'),
+            $modes
+        );
+        $mform->addRule('deletemode', null, 'required', null, 'client');
+        $mform->setDefault(
+            'deletemode',
+            \mod_booking\local\sync\booking_enrolment::DELETE_MODE_MANUALIZE
+        );
     }
 
     /**
@@ -56,8 +100,13 @@ class sync_rule_delete_form extends dynamic_form {
     public function process_dynamic_submission() {
         $data = parent::get_data();
 
-        $result = \mod_booking\local\sync\booking_enrolment::delete_rule((int)$data->optionid, (int)$data->ruleid);
-        $data->feedbackmessage = get_string('syncruledeleted', 'mod_booking', (int)$result['deletedanswers']);
+        $mode = $data->deletemode ?? \mod_booking\local\sync\booking_enrolment::DELETE_MODE_MANUALIZE;
+        $result = \mod_booking\local\sync\booking_enrolment::delete_rule(
+            (int)$data->optionid,
+            (int)$data->ruleid,
+            $mode
+        );
+        $data->feedbackmessage = get_string('syncruledeleted', 'mod_booking', (int)$result['affected']);
 
         return $data;
     }
@@ -78,7 +127,16 @@ class sync_rule_delete_form extends dynamic_form {
      * @return array
      */
     public function validation($data, $files) {
-        return [];
+        $errors = [];
+        $valid = [
+            \mod_booking\local\sync\booking_enrolment::DELETE_MODE_MANUALIZE,
+            \mod_booking\local\sync\booking_enrolment::DELETE_MODE_KEEP_ORPHAN,
+            \mod_booking\local\sync\booking_enrolment::DELETE_MODE_UNENROL_SOFT_DELETE,
+        ];
+        if (empty($data['deletemode']) || !in_array($data['deletemode'], $valid, true)) {
+            $errors['deletemode'] = get_string('required');
+        }
+        return $errors;
     }
 
     /**

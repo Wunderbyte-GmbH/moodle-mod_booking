@@ -55,6 +55,15 @@ class booking_enrolment {
     /** Reason code: user's booking answer is not owned by this sync rule (so safe-unenrol is prevented). */
     const REASON_BLOCKED_NOT_SYNC_OWNED = 'blocked_not_sync_owned';
 
+    /** Delete mode: reset syncruleid to 0 — answer ownership becomes manual. */
+    const DELETE_MODE_MANUALIZE = 'manualize';
+
+    /** Delete mode: leave syncruleid unchanged on answers (orphan reference). */
+    const DELETE_MODE_KEEP_ORPHAN = 'keeporphanruleid';
+
+    /** Delete mode: unenrol affected users and soft-delete their booking answers. */
+    const DELETE_MODE_UNENROL_SOFT_DELETE = 'unenrolsoftdelete';
+
     /**
      * Save or update sync rules derived from a subscription form submission.
      *
@@ -249,14 +258,28 @@ class booking_enrolment {
     }
 
     /**
-     * Delete a rule and cleanup ownership links in booking answers.
+     * Delete a rule and handle existing rule-owned booking answers according to the chosen mode.
      *
-     * @param int $optionid Booking option id.
-     * @param int $ruleid Rule id.
-     * @return array{deletedanswers:int}
+     * Modes:
+     *  - DELETE_MODE_MANUALIZE      : reset syncruleid=0 on answers, keep status unchanged.
+     *  - DELETE_MODE_KEEP_ORPHAN    : leave answers completely untouched (orphan rule id).
+     *  - DELETE_MODE_UNENROL_SOFT_DELETE : unenrol each affected user; user_delete_response() soft-
+     *                                     deletes the answer (waitinglist=DELETED) and writes
+     *                                     booking_history automatically.
+     *
+     * booking_sync_attempts rows are never touched.
+     *
+     * @param int    $optionid Booking option id.
+     * @param int    $ruleid   Rule id.
+     * @param string $mode     One of the DELETE_MODE_* constants.
+     * @return array{affected:int}
      */
-    public static function delete_rule(int $optionid, int $ruleid): array {
-        global $DB;
+    public static function delete_rule(
+        int $optionid,
+        int $ruleid,
+        string $mode = self::DELETE_MODE_MANUALIZE
+    ): array {
+        global $DB, $USER;
 
         $rule = $DB->get_record('booking_sync_rules', [
             'id' => $ruleid,
@@ -266,20 +289,77 @@ class booking_enrolment {
             throw new \moodle_exception('invalidrecord', 'error');
         }
 
-        $answers = $DB->get_records('booking_answers', [
-            'optionid' => $optionid,
-            'syncruleid' => $ruleid,
-        ], '', 'id,syncruleid');
+        $answers = $DB->get_records(
+            'booking_answers',
+            ['optionid' => $optionid, 'syncruleid' => $ruleid],
+            '',
+            'id,userid,waitinglist,bookingid,syncruleid'
+        );
 
+        $now = time();
         $transaction = $DB->start_delegated_transaction();
-        foreach ($answers as $answer) {
-            $answer->syncruleid = 0;
-            $DB->update_record('booking_answers', $answer);
+
+        switch ($mode) {
+            case self::DELETE_MODE_MANUALIZE:
+                foreach ($answers as $answer) {
+                    $update = new \stdClass();
+                    $update->id = $answer->id;
+                    $update->syncruleid = 0;
+                    $update->timemodified = $now;
+                    $DB->update_record('booking_answers', $update);
+                    \mod_booking\booking_option::booking_history_insert(
+                        (int)$answer->waitinglist,
+                        (int)$answer->id,
+                        $optionid,
+                        (int)$answer->bookingid,
+                        (int)$answer->userid,
+                        ['syncruleid' => $ruleid, 'syncaction' => 'rule_deleted_manualize']
+                    );
+                }
+                break;
+
+            case self::DELETE_MODE_KEEP_ORPHAN:
+                foreach ($answers as $answer) {
+                    \mod_booking\booking_option::booking_history_insert(
+                        (int)$answer->waitinglist,
+                        (int)$answer->id,
+                        $optionid,
+                        (int)$answer->bookingid,
+                        (int)$answer->userid,
+                        ['syncruleid' => $ruleid, 'syncaction' => 'rule_deleted_orphan']
+                    );
+                }
+                break;
+
+            case self::DELETE_MODE_UNENROL_SOFT_DELETE:
+                $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+                if ($settings && !empty($settings->cmid)) {
+                    $option = singleton_service::get_instance_of_booking_option(
+                        (int)$settings->cmid, $optionid
+                    );
+                    if ($option) {
+                        foreach ($answers as $answer) {
+                            // user_delete_response() soft-deletes (waitinglist=DELETED, row kept)
+                            // and writes booking_history automatically.
+                            $option->user_delete_response((int)$answer->userid);
+                            self::log_attempt(
+                                $ruleid,
+                                $optionid,
+                                (int)$answer->userid,
+                                self::ACTION_UNENROL,
+                                self::REASON_OK,
+                                'Soft-deleted via rule deletion mode unenrolsoftdelete'
+                            );
+                        }
+                    }
+                }
+                break;
         }
+
         $DB->delete_records('booking_sync_rules', ['id' => $ruleid]);
         $transaction->allow_commit();
 
-        return ['deletedanswers' => count($answers)];
+        return ['affected' => count($answers)];
     }
 
     /**
@@ -611,6 +691,24 @@ class booking_enrolment {
                 self::ACTION_ENROL,
                 self::REASON_OK
             );
+            // Write sync-origin entry to booking_history so the operation is auditable.
+            global $DB;
+            $bookedanswer = $DB->get_record(
+                'booking_answers',
+                ['optionid' => (int)$rule->bookingoptionid, 'userid' => $userid, 'syncruleid' => (int)$rule->id],
+                'id,bookingid,waitinglist',
+                IGNORE_MULTIPLE
+            );
+            if ($bookedanswer) {
+                \mod_booking\booking_option::booking_history_insert(
+                    (int)$bookedanswer->waitinglist,
+                    (int)$bookedanswer->id,
+                    (int)$rule->bookingoptionid,
+                    (int)$bookedanswer->bookingid,
+                    $userid,
+                    ['syncruleid' => (int)$rule->id, 'syncaction' => self::ACTION_ENROL]
+                );
+            }
         }
     }
 
@@ -660,6 +758,31 @@ class booking_enrolment {
         }
 
         $option->user_delete_response($userid);
+
+        // Write sync-origin entry to booking_history. user_delete_response() already wrote one
+        // entry with the standard delete status; we add a second with syncaction metadata so the
+        // rule id is traceable in history queries.
+        global $DB;
+        $deletedanswer = $DB->get_record_sql(
+            "SELECT id, bookingid FROM {booking_answers}
+              WHERE optionid = :optionid AND userid = :userid AND waitinglist = :status",
+            [
+                'optionid' => (int)$rule->bookingoptionid,
+                'userid'   => $userid,
+                'status'   => MOD_BOOKING_STATUSPARAM_DELETED,
+            ],
+            IGNORE_MULTIPLE
+        );
+        if ($deletedanswer) {
+            \mod_booking\booking_option::booking_history_insert(
+                MOD_BOOKING_STATUSPARAM_DELETED,
+                (int)$deletedanswer->id,
+                (int)$rule->bookingoptionid,
+                (int)$deletedanswer->bookingid,
+                $userid,
+                ['syncruleid' => (int)$rule->id, 'syncaction' => self::ACTION_UNENROL]
+            );
+        }
 
         self::log_attempt(
             (int)$rule->id,
