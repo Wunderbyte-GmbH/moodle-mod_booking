@@ -35,9 +35,9 @@ Feature: Teacher profile option visibility follows visibility mode setting
     Given the following config values are set as admin:
       | config                    | value | plugin  |
       | teacherpagevisibilitymode | 0     | booking |
-    And I log in as "admin"
+    And I log in as "teacher1"
     When I visit "/mod/booking/teachers.php"
-    And I follow "Teacher One"
+    And I click on "One Teacher" "text" in the "#region-main .row" "css_element"
     Then I should see "Visible assigned option" in the "#region-main" "css_element"
     And I should not see "Hidden assigned option" in the "#region-main" "css_element"
     And I should not see "Direct assigned option" in the "#region-main" "css_element"
@@ -48,9 +48,9 @@ Feature: Teacher profile option visibility follows visibility mode setting
     Given the following config values are set as admin:
       | config                    | value | plugin  |
       | teacherpagevisibilitymode | 1     | booking |
-    And I log in as "admin"
+    And I log in as "teacher1"
     When I visit "/mod/booking/teachers.php"
-    And I follow "Teacher One"
+    And I click on "One Teacher" "text" in the "#region-main .row" "css_element"
     Then I should see "Visible assigned option" in the "#region-main" "css_element"
     And I should see "Hidden assigned option" in the "#region-main" "css_element"
     And I should not see "Direct assigned option" in the "#region-main" "css_element"
@@ -61,9 +61,9 @@ Feature: Teacher profile option visibility follows visibility mode setting
     Given the following config values are set as admin:
       | config                    | value | plugin  |
       | teacherpagevisibilitymode | 2     | booking |
-    And I log in as "admin"
+    And I log in as "teacher1"
     When I visit "/mod/booking/teachers.php"
-    And I follow "Teacher One"
+    And I click on "One Teacher" "text" in the "#region-main .row" "css_element"
     Then I should see "Visible assigned option" in the "#region-main" "css_element"
     And I should not see "Hidden assigned option" in the "#region-main" "css_element"
     And I should see "Direct assigned option" in the "#region-main" "css_element"
@@ -74,9 +74,9 @@ Feature: Teacher profile option visibility follows visibility mode setting
     Given the following config values are set as admin:
       | config                    | value | plugin  |
       | teacherpagevisibilitymode | 3     | booking |
-    And I log in as "admin"
+    And I log in as "teacher1"
     When I visit "/mod/booking/teachers.php"
-    And I follow "Teacher One"
+    And I click on "One Teacher" "text" in the "#region-main .row" "css_element"
     Then I should see "Visible assigned option" in the "#region-main" "css_element"
     And I should see "Hidden assigned option" in the "#region-main" "css_element"
     And I should see "Direct assigned option" in the "#region-main" "css_element"
