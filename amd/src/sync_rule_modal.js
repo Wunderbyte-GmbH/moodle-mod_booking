@@ -21,7 +21,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['core_form/modalform', 'core/notification'], function(ModalForm, Notification) {
+define(['core_form/modalform'], function(ModalForm) {
     return {
         /**
          * Initialize add-rule modal button.
@@ -39,17 +39,8 @@ define(['core_form/modalform', 'core/notification'], function(ModalForm, Notific
                     returnFocus: focusElement || document.body,
                 });
 
-                modalForm.addEventListener(modalForm.events.FORM_SUBMITTED, function(e) {
-                    const detail = e && e.detail ? e.detail : {};
-                    if (detail.feedbackmessage) {
-                        Notification.addNotification({
-                            message: detail.feedbackmessage,
-                            type: 'success',
-                        });
-                    }
-                    window.setTimeout(function() {
-                        window.location.reload();
-                    }, 500);
+                modalForm.addEventListener(modalForm.events.FORM_SUBMITTED, function() {
+                    window.location.reload();
                 });
 
                 modalForm.show();
