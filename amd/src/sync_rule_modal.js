@@ -21,7 +21,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['core_form/modalform'], function(ModalForm) {
+define(['core_form/modalform', 'core/notification'], function(ModalForm, Notification) {
     return {
         /**
          * Initialize add-rule modal button.
@@ -30,32 +30,72 @@ define(['core_form/modalform'], function(ModalForm) {
          * @param {Number} cmid Course module id.
          * @param {Number} optionid Booking option id.
          */
-        init: function(selector, cmid, optionid, title) {
-            const element = document.querySelector(selector);
-            if (!element) {
-                return;
-            }
-
-            element.addEventListener('click', function(e) {
-                e.preventDefault();
-
+        init: function(addSelector, actionSelector, cmid, optionid, addTitle, editTitle, deleteTitle) {
+            const showModal = function(formClass, args, title, focusElement) {
                 const modalForm = new ModalForm({
-                    formClass: 'mod_booking\\form\\sync_rule_form',
-                    args: {
-                        cmid: cmid,
-                        optionid: optionid,
-                    },
-                    modalConfig: {
-                        title: title || 'Add sync rule',
-                    },
-                    returnFocus: element,
+                    formClass: formClass,
+                    args: args,
+                    modalConfig: {title: title || ''},
+                    returnFocus: focusElement || document.body,
                 });
 
-                modalForm.addEventListener(modalForm.events.FORM_SUBMITTED, function() {
-                    window.location.reload();
+                modalForm.addEventListener(modalForm.events.FORM_SUBMITTED, function(e) {
+                    const detail = e && e.detail ? e.detail : {};
+                    if (detail.feedbackmessage) {
+                        Notification.addNotification({
+                            message: detail.feedbackmessage,
+                            type: 'success',
+                        });
+                    }
+                    window.setTimeout(function() {
+                        window.location.reload();
+                    }, 500);
                 });
 
                 modalForm.show();
+            };
+
+            const addButton = document.querySelector(addSelector);
+            if (addButton) {
+                addButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showModal(
+                        'mod_booking\\form\\sync_rule_form',
+                        {cmid: cmid, optionid: optionid, ruleid: 0},
+                        addTitle || 'Add sync rule',
+                        addButton
+                    );
+                });
+            }
+
+            const actionButtons = document.querySelectorAll(actionSelector);
+            actionButtons.forEach(function(button) {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    const action = button.dataset.action;
+                    const ruleid = parseInt(button.dataset.ruleid || '0', 10);
+                    if (!ruleid) {
+                        return;
+                    }
+
+                    if (action === 'delete') {
+                        showModal(
+                            'mod_booking\\form\\sync_rule_delete_form',
+                            {cmid: cmid, optionid: optionid, ruleid: ruleid},
+                            deleteTitle || 'Delete sync rule',
+                            button
+                        );
+                        return;
+                    }
+
+                    showModal(
+                        'mod_booking\\form\\sync_rule_form',
+                        {cmid: cmid, optionid: optionid, ruleid: ruleid},
+                        editTitle || 'Edit sync rule',
+                        button
+                    );
+                });
             });
         }
     };

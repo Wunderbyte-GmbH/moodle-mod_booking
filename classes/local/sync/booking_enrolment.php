@@ -16,6 +16,7 @@
 
 namespace mod_booking\local\sync;
 
+use mod_booking\bo_availability\bo_info;
 use mod_booking\singleton_service;
 use stdClass;
 
@@ -157,6 +158,35 @@ class booking_enrolment {
         }
 
         $now = time();
+
+        $ruleid = (int)($data->ruleid ?? 0);
+        if ($ruleid > 0) {
+            $record = $DB->get_record('booking_sync_rules', ['id' => $ruleid, 'bookingoptionid' => $optionid]);
+            if (!$record) {
+                throw new \moodle_exception('invalidrecord', 'error');
+            }
+
+            $duplicate = $DB->get_record('booking_sync_rules', [
+                'bookingoptionid' => $optionid,
+                'sourcetype' => $sourcetype,
+                'sourceid' => $sourceid,
+            ]);
+            if (!empty($duplicate) && (int)$duplicate->id !== $ruleid) {
+                throw new \moodle_exception('syncrulealreadyexists', 'mod_booking');
+            }
+
+            $record->sourcetype = $sourcetype;
+            $record->sourceid = $sourceid;
+            $record->syncenrol = $synccheckenrol ? 1 : 0;
+            $record->syncunenrol = $synccheckunenrol ? 1 : 0;
+            $record->conditionpolicy = (int)($data->syncconditionpolicy ?? self::CONDITION_POLICY_RESPECT);
+            $record->isenabled = 1;
+            $record->timemodified = $now;
+            $record->usermodified = $USER->id;
+            $DB->update_record('booking_sync_rules', $record);
+            return (int)$record->id;
+        }
+
         $existing = $DB->get_record('booking_sync_rules', [
             'bookingoptionid' => $optionid,
             'sourcetype'      => $sourcetype,
@@ -187,6 +217,69 @@ class booking_enrolment {
         $rule->usercreated = $USER->id;
         $rule->usermodified = $USER->id;
         return (int)$DB->insert_record('booking_sync_rules', $rule);
+    }
+
+    /**
+     * Get one rule for an option including source labels.
+     *
+     * @param int $optionid Booking option id.
+     * @param int $ruleid Rule id.
+     * @return ?stdClass
+     */
+    public static function get_rule_for_option(int $optionid, int $ruleid): ?stdClass {
+        global $DB;
+
+        $rule = $DB->get_record('booking_sync_rules', [
+            'id' => $ruleid,
+            'bookingoptionid' => $optionid,
+        ]);
+        if (!$rule) {
+            return null;
+        }
+
+        if ($rule->sourcetype === 'cohort') {
+            $rule->sourcename = $DB->get_field('cohort', 'name', ['id' => $rule->sourceid]) ?: '?';
+            $rule->sourcetypelabel = get_string('syncsourcetypecohort', 'mod_booking');
+        } else {
+            $rule->sourcename = $DB->get_field('groups', 'name', ['id' => $rule->sourceid]) ?: '?';
+            $rule->sourcetypelabel = get_string('syncsourcetypegroup', 'mod_booking');
+        }
+
+        return $rule;
+    }
+
+    /**
+     * Delete a rule and cleanup ownership links in booking answers.
+     *
+     * @param int $optionid Booking option id.
+     * @param int $ruleid Rule id.
+     * @return array{deletedanswers:int}
+     */
+    public static function delete_rule(int $optionid, int $ruleid): array {
+        global $DB;
+
+        $rule = $DB->get_record('booking_sync_rules', [
+            'id' => $ruleid,
+            'bookingoptionid' => $optionid,
+        ]);
+        if (!$rule) {
+            throw new \moodle_exception('invalidrecord', 'error');
+        }
+
+        $answers = $DB->get_records('booking_answers', [
+            'optionid' => $optionid,
+            'syncruleid' => $ruleid,
+        ], '', 'id,syncruleid');
+
+        $transaction = $DB->start_delegated_transaction();
+        foreach ($answers as $answer) {
+            $answer->syncruleid = 0;
+            $DB->update_record('booking_answers', $answer);
+        }
+        $DB->delete_records('booking_sync_rules', ['id' => $ruleid]);
+        $transaction->allow_commit();
+
+        return ['deletedanswers' => count($answers)];
     }
 
     /**
