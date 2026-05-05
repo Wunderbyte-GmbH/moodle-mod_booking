@@ -441,6 +441,7 @@ if (!$fromform = $mform->get_data()) {
                 get_string('syncunenrolaction', 'mod_booking'),
                 get_string('syncconditionpolicy', 'mod_booking'),
                 get_string('syncruleactive', 'mod_booking'),
+                get_string('actions'),
             ];
             $table->data = [];
             foreach ($syncrules as $rule) {
@@ -473,16 +474,42 @@ if (!$fromform = $mform->get_data()) {
                     $activecell = html_writer::tag('span', get_string('no'), ['class' => 'badge badge-secondary'])
                         . ' ' . html_writer::link($toggleurl, '(' . get_string('enable') . ')', ['class' => 'small']);
                 }
-                $table->data[] = [$sourcecell, $enrolcell, $unenrolcell, $policycell, $activecell];
+
+                $editbutton = html_writer::tag(
+                    'button',
+                    get_string('edit'),
+                    [
+                        'type' => 'button',
+                        'class' => 'btn btn-sm btn-outline-primary me-1 booking-sync-rule-action',
+                        'data-action' => 'edit',
+                        'data-ruleid' => (int)$rule->id,
+                    ]
+                );
+                $deletebutton = html_writer::tag(
+                    'button',
+                    get_string('delete'),
+                    [
+                        'type' => 'button',
+                        'class' => 'btn btn-sm btn-outline-danger booking-sync-rule-action',
+                        'data-action' => 'delete',
+                        'data-ruleid' => (int)$rule->id,
+                    ]
+                );
+                $actioncell = $editbutton . ' ' . $deletebutton;
+
+                $table->data[] = [$sourcecell, $enrolcell, $unenrolcell, $policycell, $activecell, $actioncell];
             }
             echo html_writer::table($table);
         }
 
         $PAGE->requires->js_call_amd('mod_booking/sync_rule_modal', 'init', [
             '#booking-sync-add-rule-btn',
+            '.booking-sync-rule-action',
             (int)$cm->id,
             (int)$optionid,
             get_string('syncaddrule', 'mod_booking'),
+            get_string('synceditrule', 'mod_booking'),
+            get_string('syncdeleterule', 'mod_booking'),
         ]);
 
         $diagnosticsbutton = html_writer::tag(

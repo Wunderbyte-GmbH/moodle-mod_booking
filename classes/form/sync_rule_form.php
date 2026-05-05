@@ -33,6 +33,8 @@ class sync_rule_form extends dynamic_form {
      * Define form elements.
      */
     public function definition() {
+        global $DB;
+
         $mform = $this->_form;
         $formdata = $this->_customdata ?? $this->_ajaxformdata;
 
@@ -41,6 +43,23 @@ class sync_rule_form extends dynamic_form {
 
         $mform->addElement('hidden', 'cmid', (int)($formdata['cmid'] ?? 0));
         $mform->setType('cmid', PARAM_INT);
+
+        $mform->addElement('hidden', 'ruleid', (int)($formdata['ruleid'] ?? 0));
+        $mform->setType('ruleid', PARAM_INT);
+
+        $sourcechoices = [];
+        $ruleid = (int)($formdata['ruleid'] ?? 0);
+        $optionid = (int)($formdata['optionid'] ?? 0);
+        if ($ruleid > 0 && $optionid > 0) {
+            $rule = \mod_booking\local\sync\booking_enrolment::get_rule_for_option($optionid, $ruleid);
+            if (!empty($rule)) {
+                if ($rule->sourcetype === 'cohort') {
+                    $sourcechoices[(int)$rule->sourceid] = $DB->get_field('cohort', 'name', ['id' => $rule->sourceid]) ?: '?';
+                } else {
+                    $sourcechoices[(int)$rule->sourceid] = $DB->get_field('groups', 'name', ['id' => $rule->sourceid]) ?: '?';
+                }
+            }
+        }
 
         $sourcetypes = [
             'cohort' => get_string('syncsourcetypecohort', 'mod_booking'),
@@ -54,7 +73,13 @@ class sync_rule_form extends dynamic_form {
             'multiple' => false,
             'data-cmid' => (int)($formdata['cmid'] ?? 0),
         ];
-        $mform->addElement('autocomplete', 'sourceid', get_string('syncsourceselect', 'mod_booking'), [], $sourceoptions);
+        $mform->addElement(
+            'autocomplete',
+            'sourceid',
+            get_string('syncsourceselect', 'mod_booking'),
+            $sourcechoices,
+            $sourceoptions
+        );
 
         $mform->addElement('advcheckbox', 'syncenrolaction', get_string('syncenrolaction', 'mod_booking'));
         $mform->setDefault('syncenrolaction', 1);
@@ -102,6 +127,21 @@ class sync_rule_form extends dynamic_form {
      */
     public function set_data_for_dynamic_submission(): void {
         $data = (object)($this->_ajaxformdata ?? $this->_customdata ?? []);
+
+        $ruleid = (int)($data->ruleid ?? 0);
+        $optionid = (int)($data->optionid ?? 0);
+        if ($ruleid > 0 && $optionid > 0) {
+            $rule = \mod_booking\local\sync\booking_enrolment::get_rule_for_option($optionid, $ruleid);
+            if (!empty($rule)) {
+                $data->sourcetype = $rule->sourcetype;
+                $data->sourceid = (int)$rule->sourceid;
+                $data->syncenrolaction = (int)$rule->syncenrol;
+                $data->syncunenrolaction = (int)$rule->syncunenrol;
+                $data->syncconditionpolicy = (int)$rule->conditionpolicy;
+                $data->syncapplycurrentmembers = 0;
+            }
+        }
+
         $this->set_data($data);
     }
 
@@ -127,6 +167,20 @@ class sync_rule_form extends dynamic_form {
         $sourceid = (int)($data['sourceid'] ?? 0);
         if (!\mod_booking\local\sync\booking_enrolment::source_exists($sourcetype, $sourceid)) {
             $errors['sourceid'] = get_string('invaliddata', 'error');
+        }
+
+        $ruleid = (int)($data['ruleid'] ?? 0);
+        $optionid = (int)($data['optionid'] ?? 0);
+        if ($optionid > 0) {
+            global $DB;
+            $existing = $DB->get_record('booking_sync_rules', [
+                'bookingoptionid' => $optionid,
+                'sourcetype' => $sourcetype,
+                'sourceid' => $sourceid,
+            ]);
+            if (!empty($existing) && (int)$existing->id !== $ruleid) {
+                $errors['sourceid'] = get_string('syncrulealreadyexists', 'mod_booking');
+            }
         }
 
         return $errors;
