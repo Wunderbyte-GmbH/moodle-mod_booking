@@ -5270,7 +5270,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026040800, 'booking');
     }
 
-    if ($oldversion < 2026042200) {
+    if ($oldversion < 2026043001) {
         // Create booking_sync_rules table.
         $table = new xmldb_table('booking_sync_rules');
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
@@ -5294,7 +5294,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026042200, 'booking');
     }
 
-    if ($oldversion < 2026042201) {
+    if ($oldversion < 2026043001) {
         // Create booking_sync_attempts table.
         $table = new xmldb_table('booking_sync_attempts');
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
