@@ -1156,8 +1156,7 @@ class booking {
      * @param string $additionalwhere
      * @param string $innerfrom
      * @param ?wunderbyte_table $tableinstance
-     * @param ?int $assignedteacherid
-     * @param int teacherpagevisibilitymode
+     * @param int $visibilityoverwritemode
      *
      * @return array
      */
@@ -1174,8 +1173,7 @@ class booking {
         $additionalwhere = '',
         $innerfrom = '',
         $tableinstance = null,
-        $assignedteacherid = null,
-        $teacherpagevisibilitymode = 0
+        $visibilityoverwritemode = 0
     ) {
 
         global $DB;
@@ -1212,17 +1210,17 @@ class booking {
                 $where = " 1 = 1 ";
             } else if (!empty($userid)) {
                 $where = " invisible <> 1 ";
-            } else if (!empty($assignedteacherid) && !empty($teacherpagevisibilitymode)) {
+            } else if (!empty($visibilityoverwritemode)) {
                 // Teacher-page visibility override: allow assigned teachers to see non-public options
-                // based on the teacherpagevisibilitymode setting.
-                // The teacher must be assigned to this option (already filtered by teacherobjects in wherearray).
-                if ($teacherpagevisibilitymode === 1) {
+                // based on the visibility override mode.
+                // The teacher assignment check is handled by caller-side where conditions.
+                if ($visibilityoverwritemode === 1) {
                     // Mode 1: Show fully invisible options (invisible = 1) only.
                     $where = "invisible IN (0, 1) ";
-                } else if ($teacherpagevisibilitymode === 2) {
+                } else if ($visibilityoverwritemode === 2) {
                     // Mode 2: Show direct-link-only options (invisible = 2) only.
                     $where = "invisible IN (0, 2) ";
-                } else if ($teacherpagevisibilitymode === 3) {
+                } else if ($visibilityoverwritemode === 3) {
                     // Mode 3: Show both fully invisible and direct-link-only options.
                     $where = " 1 = 1 ";
                 } else {

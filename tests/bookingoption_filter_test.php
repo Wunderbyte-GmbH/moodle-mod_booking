@@ -447,7 +447,6 @@ final class bookingoption_filter_test extends advanced_testcase {
             '',
             '',
             null,
-            $teacher->id,
             0
         );
         $this->assertStringContainsString('invisible = 0', $where);
@@ -466,7 +465,6 @@ final class bookingoption_filter_test extends advanced_testcase {
             '',
             '',
             null,
-            $teacher->id,
             1
         );
         $this->assertStringContainsString('invisible IN (0, 1)', $where);
@@ -484,7 +482,6 @@ final class bookingoption_filter_test extends advanced_testcase {
             '',
             '',
             null,
-            $teacher->id,
             2
         );
         $this->assertStringContainsString('invisible IN (0, 2)', $where);
@@ -502,7 +499,6 @@ final class bookingoption_filter_test extends advanced_testcase {
             '',
             '',
             null,
-            $teacher->id,
             3
         );
         $this->assertStringContainsString('1 = 1', $where);
@@ -525,49 +521,72 @@ final class bookingoption_filter_test extends advanced_testcase {
         $teacher1 = $this->getDataGenerator()->create_user();
         $teacher2 = $this->getDataGenerator()->create_user();
 
-        // Teacher1 has no canseeinvisibleoptions, so visibility-mode branch fires.
-        $this->setUser($teacher1);
-
-        $bdata = [
-            'course' => $course->id,
-            'name' => 'Multiteacher booking',
-        ];
+        $bdata = self::provide_bookingdata();
+        $bdata['course'] = $course->id;
+        $bdata['name'] = 'Multiteacher booking';
         $booking = $this->getDataGenerator()->create_module('booking', $bdata);
         $cmid = $booking->cmid;
 
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-
-        // Option A: visible, teacher1 only.
-        $optiona = $plugingenerator->create_option((object)[
+        $optiona = (object)['id' => $DB->insert_record('booking_options', (object)[
             'bookingid' => $booking->id,
             'text' => 'Visible teacher1 only',
+            'description' => 'Visible teacher1 only',
             'invisible' => 0,
-            'teachersforoption' => $teacher1->username,
-        ]);
-
-        // Option B: fully invisible, teacher1 only.
-        $optionb = $plugingenerator->create_option((object)[
+        ])];
+        $optionb = (object)['id' => $DB->insert_record('booking_options', (object)[
             'bookingid' => $booking->id,
             'text' => 'Invisible teacher1 only',
+            'description' => 'Invisible teacher1 only',
             'invisible' => 1,
-            'teachersforoption' => $teacher1->username,
-        ]);
-
-        // Option C: fully invisible, assigned to BOTH teacher1 and teacher2.
-        $optionc = $plugingenerator->create_option((object)[
+        ])];
+        $optionc = (object)['id' => $DB->insert_record('booking_options', (object)[
             'bookingid' => $booking->id,
             'text' => 'Invisible multi-teacher',
+            'description' => 'Invisible multi-teacher',
             'invisible' => 1,
-            'teachersforoption' => $teacher1->username . ',' . $teacher2->username,
-        ]);
-
-        // Option D: fully invisible, teacher2 only.
-        $optiond = $plugingenerator->create_option((object)[
+        ])];
+        $optiond = (object)['id' => $DB->insert_record('booking_options', (object)[
             'bookingid' => $booking->id,
             'text' => 'Invisible teacher2 only',
+            'description' => 'Invisible teacher2 only',
             'invisible' => 1,
-            'teachersforoption' => $teacher2->username,
+        ])];
+
+        // Assign teachers to options using booking_teachers relation.
+        $DB->insert_record('booking_teachers', (object)[
+            'bookingid' => $booking->id,
+            'userid' => $teacher1->id,
+            'optionid' => $optiona->id,
+            'completed' => 0,
+            'calendarid' => 0,
+        ]);
+        $DB->insert_record('booking_teachers', (object)[
+            'bookingid' => $booking->id,
+            'userid' => $teacher1->id,
+            'optionid' => $optionb->id,
+            'completed' => 0,
+            'calendarid' => 0,
+        ]);
+        $DB->insert_record('booking_teachers', (object)[
+            'bookingid' => $booking->id,
+            'userid' => $teacher1->id,
+            'optionid' => $optionc->id,
+            'completed' => 0,
+            'calendarid' => 0,
+        ]);
+        $DB->insert_record('booking_teachers', (object)[
+            'bookingid' => $booking->id,
+            'userid' => $teacher2->id,
+            'optionid' => $optionc->id,
+            'completed' => 0,
+            'calendarid' => 0,
+        ]);
+        $DB->insert_record('booking_teachers', (object)[
+            'bookingid' => $booking->id,
+            'userid' => $teacher2->id,
+            'optionid' => $optiond->id,
+            'completed' => 0,
+            'calendarid' => 0,
         ]);
 
         // Confirm invisible flag was persisted for options B, C and D.
@@ -598,7 +617,6 @@ final class bookingoption_filter_test extends advanced_testcase {
             '',
             '',
             $table1,
-            $teacher1->id,
             1
         );
         $table1->set_filter_sql($fields, $from, $where, $filter, $params);
@@ -629,7 +647,6 @@ final class bookingoption_filter_test extends advanced_testcase {
             '',
             '',
             $table2,
-            $teacher2->id,
             1
         );
         $table2->set_filter_sql($fields, $from, $where, $filter, $params);
@@ -656,7 +673,6 @@ final class bookingoption_filter_test extends advanced_testcase {
             '',
             '',
             $table3,
-            $teacher1->id,
             0
         );
         $table3->set_filter_sql($fields, $from, $where, $filter, $params);

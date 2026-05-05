@@ -651,6 +651,8 @@ class view implements renderable, templatable {
         bool $tsort = true,
         bool $lazy = false
     ) {
+        global $USER;
+
         $cmid = $this->cmid;
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
@@ -665,6 +667,13 @@ class view implements renderable, templatable {
             'bookingid' => (int)$booking->id,
             'teacherobjects' => '%"id":' . $teacherid . ',%',
         ];
+
+        $visibilityoverwritemode = 0;
+        if (isloggedin() && !isguestuser() && (int)$USER->id === (int)$teacherid) {
+            // Visibility override applies only on the teacher's own page.
+            $visibilityoverwritemode = (int)get_config('booking', 'teacherpagevisibilitymode');
+        }
+
         [$fields, $from, $where, $params, $filter] =
             booking::get_options_filter_sql(
                 0,
@@ -679,8 +688,7 @@ class view implements renderable, templatable {
                 '',
                 '',
                 $teacheroptionstable,
-                $teacherid,
-                (int)get_config('booking', 'teacherpagevisibilitymode')
+                $visibilityoverwritemode
             );
 
         $teacheroptionstable->set_filter_sql($fields, $from, $where, $filter, $params);
