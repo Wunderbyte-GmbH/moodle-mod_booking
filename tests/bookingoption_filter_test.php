@@ -413,11 +413,15 @@ final class bookingoption_filter_test extends advanced_testcase {
      * @return void
      */
     public function test_teacher_page_visibility_modes(): void {
+        global $DB;
+
         $this->resetAfterTest();
         $this->preventResetByRollback();
 
-        $course = $this->getDataGenerator()->create_course();
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $teacher = $this->getDataGenerator()->create_user();
+        $editingteacherroleid = $DB->get_field('role', 'id', ['shortname' => 'editingteacher'], MUST_EXIST);
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id, $editingteacherroleid);
         $this->setUser($teacher);
 
         $bdata = [
@@ -517,9 +521,12 @@ final class bookingoption_filter_test extends advanced_testcase {
         $this->resetAfterTest();
         $this->preventResetByRollback();
 
-        $course = $this->getDataGenerator()->create_course();
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $teacher1 = $this->getDataGenerator()->create_user();
         $teacher2 = $this->getDataGenerator()->create_user();
+        $editingteacherroleid = $DB->get_field('role', 'id', ['shortname' => 'editingteacher'], MUST_EXIST);
+        $this->getDataGenerator()->enrol_user($teacher1->id, $course->id, $editingteacherroleid);
+        $this->getDataGenerator()->enrol_user($teacher2->id, $course->id, $editingteacherroleid);
 
         $bdata = self::provide_bookingdata();
         $bdata['course'] = $course->id;
