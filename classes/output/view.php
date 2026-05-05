@@ -668,7 +668,7 @@ class view implements renderable, templatable {
             'teacherobjects' => '%"id":' . $teacherid . ',%',
         ];
 
-        $visibilityoverwritemode = 0;
+        $visibilityoverwritemode = null;
         if (isloggedin() && !isguestuser() && (int)$USER->id === (int)$teacherid) {
             // Visibility override applies only on the teacher's own page.
             $visibilityoverwritemode = (int)get_config('booking', 'teacherpagevisibilitymode');

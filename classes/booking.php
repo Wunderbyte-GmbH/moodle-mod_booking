@@ -1173,7 +1173,7 @@ class booking {
         $additionalwhere = '',
         $innerfrom = '',
         $tableinstance = null,
-        $visibilityoverwritemode = 0
+        $visibilityoverwritemode = null
     ) {
 
         global $DB;
@@ -1210,7 +1210,12 @@ class booking {
                 $where = " 1 = 1 ";
             } else if (!empty($userid)) {
                 $where = " invisible <> 1 ";
-            } else if (!empty($visibilityoverwritemode)) {
+            } else {
+                // ... then only show visible options.
+                $where = "invisible = 0 ";
+            }
+        } else {
+            if (isset($visibilityoverwritemode)) {
                 // Teacher-page visibility override: allow assigned teachers to see non-public options
                 // based on the visibility override mode.
                 // The teacher assignment check is handled by caller-side where conditions.
@@ -1228,13 +1233,11 @@ class booking {
                     $where = "invisible = 0 ";
                 }
             } else {
-                // ... then only show visible options.
-                $where = "invisible = 0 ";
+                // The "Where"-clause is always added so we have to have something here for the sql to work.
+                $where = "1=1 ";
             }
-        } else {
-            // The "Where"-clause is always added so we have to have something here for the sql to work.
-            $where = "1=1 ";
         }
+
         // Add where condition for searchtext.
         if (!empty($searchtext)) {
             $where .= " AND " . $DB->sql_like("text", ":searchtext", false);
