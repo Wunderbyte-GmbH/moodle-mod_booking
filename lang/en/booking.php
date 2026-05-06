@@ -3022,6 +3022,7 @@ $string['taskcleanupinvalidscheduledmails'] = 'Booking: Cleanup invalid schedule
 $string['taskconfirmbookinganswerbymailbyruleadhoc'] = 'Booking: Confirm booking answer from waitinglist by mail (adhoc task)';
 $string['taskenrolbookeduserstocourse'] = 'Booking: Enrol booked users to course';
 $string['taskpurgecampaigncaches'] = 'Booking: Clean caches for booking campaigns';
+$string['taskprocesssourcemembershipsyncadhoc'] = 'Booking: Process source membership sync (adhoc task)';
 $string['taskrecalculateprices'] = 'Prices of a booking instance are recalculated using the price formula';
 $string['taskremoveactivitycompletion'] = 'Booking: Remove activity completion';
 $string['tasksendcompletionmails'] = 'Booking: Send completion mails';

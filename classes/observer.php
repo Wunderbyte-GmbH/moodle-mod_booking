@@ -589,7 +589,7 @@ class mod_booking_observer {
 
         // Sync group membership to booking enrolments.
         $membershipadded = ($event->eventname === '\\core\\event\\group_member_added');
-        \mod_booking\local\sync\booking_enrolment::process_source_membership(
+        \mod_booking\local\sync\booking_enrolment::queue_source_membership_sync(
             'group',
             (int)$event->objectid,
             (int)$event->relateduserid,
@@ -605,7 +605,7 @@ class mod_booking_observer {
      */
     public static function cohort_membership_changed(base $event) {
         $membershipadded = ($event->eventname === '\\core\\event\\cohort_member_added');
-        \mod_booking\local\sync\booking_enrolment::process_source_membership(
+        \mod_booking\local\sync\booking_enrolment::queue_source_membership_sync(
             'cohort',
             (int)$event->objectid,
             (int)$event->relateduserid,
