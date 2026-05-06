@@ -263,7 +263,8 @@ class booking_option {
         int $optionid,
         int $userid,
         int $relateduserid,
-        string $fieldname = ""
+        string $fieldname = "",
+        array $detailedchanges = []
     ) {
 
         $data = [
@@ -272,7 +273,9 @@ class booking_option {
             'userid' => $userid,
             'relateduserid' => $relateduserid,
         ];
-        if (!empty($fieldname)) {
+        if (!empty($detailedchanges)) {
+            $data['other'] = ['changes' => $detailedchanges];
+        } else if (!empty($fieldname)) {
             $data['other'] = [
                 'changes' => [
                     (object)[
