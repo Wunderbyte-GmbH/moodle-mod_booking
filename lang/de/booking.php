@@ -2857,6 +2857,7 @@ $string['syncenrolaction'] = 'Nutzer:innen einbuchen, wenn sie zur Quelle hinzug
 $string['syncenrolmentblockeddesc'] = 'Eine Sync-Einbuchung wurde blockiert. Grund: {$a}';
 $string['syncmanagementempty'] = 'Keine Sync-Regeln für diese Option konfiguriert.';
 $string['syncmanagementheader'] = 'Verwaltung der Sync-Regeln';
+$string['syncreasonalreadyenrolled'] = 'Nutzer:in ist bereits in dieser Option eingebucht';
 $string['syncreasonblockedcapacityorstate'] = 'Buchungsoption voll oder geschlossen';
 $string['syncreasonblockedcondition'] = 'Verfügbarkeitsbedingung blockiert';
 $string['syncreasonblockedinvalidoption'] = 'Ungültige Buchungsoption';

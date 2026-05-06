@@ -2988,6 +2988,7 @@ $string['syncenrolaction'] = 'Enrol users when added to source';
 $string['syncenrolmentblockeddesc'] = 'A sync enrolment was blocked. Reason: {$a}';
 $string['syncmanagementempty'] = 'No sync rules configured for this option.';
 $string['syncmanagementheader'] = 'Sync rules management';
+$string['syncreasonalreadyenrolled'] = 'User already enrolled in this option';
 $string['syncreasonblockedcapacityorstate'] = 'Booking is full or closed';
 $string['syncreasonblockedcondition'] = 'Availability condition blocked';
 $string['syncreasonblockedinvalidoption'] = 'Invalid booking option';
