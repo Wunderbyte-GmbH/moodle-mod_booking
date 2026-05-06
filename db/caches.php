@@ -196,4 +196,11 @@ $definitions = [
         'staticaccelerationsize' => 1000,
         'invalidationevents' => ['setbackcustomfields'],
     ],
+    'syncrules' => [ // Caches sync rules for an option with preloaded source names.
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'staticacceleration' => true,
+        'staticaccelerationsize' => 100,
+        'invalidationevents' => ['setbacksyncrules'],
+    ],
 ];
