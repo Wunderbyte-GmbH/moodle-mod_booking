@@ -606,6 +606,7 @@ class price {
      * Save from form
      *
      * @param stdClass $fromform
+     * @param bool $triggerevent
      *
      * @return void
      *
@@ -771,6 +772,7 @@ class price {
      * @param string $categoryidentifier
      * @param string $price
      * @param ?string $currency
+     * @param bool $triggerevent
      * @return void
      */
     public static function add_price(
