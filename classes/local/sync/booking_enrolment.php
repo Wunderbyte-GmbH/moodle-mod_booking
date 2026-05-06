@@ -504,6 +504,34 @@ class booking_enrolment {
     }
 
     /**
+     * Activate one sync rule and optionally apply it to current source membership immediately.
+     *
+     * @param int $optionid Booking option ID.
+     * @param int $ruleid Rule ID.
+     * @param bool $retroactive True to process current source members immediately.
+     * @return array{enrolattempted:int, unenrolattempted:int}
+     */
+    public static function activate_rule(int $optionid, int $ruleid, bool $retroactive = false): array {
+        global $DB;
+
+        $rule = $DB->get_record('booking_sync_rules', [
+            'id' => $ruleid,
+            'bookingoptionid' => $optionid,
+        ]);
+        if (!$rule) {
+            throw new \moodle_exception('invalidrecord', 'error');
+        }
+
+        self::update_rule_settings($ruleid, ['isenabled' => 1]);
+
+        if (!$retroactive) {
+            return ['enrolattempted' => 0, 'unenrolattempted' => 0];
+        }
+
+        return self::apply_rule_to_current_members($ruleid);
+    }
+
+    /**
      * Disable all sync rules for a booking option.
      *
      * @param int $optionid Booking option ID.
