@@ -800,7 +800,8 @@ class price {
                 || $data->pricecategoryidentifier != $categoryidentifier
                 || $data->currency != $currency
             ) {
-                $oldprice = $data;
+                // Clone before mutation to keep the original value for event oldvalue.
+                $oldprice = clone $data;
                 // If there is a change and the new price is "", we delete the entry.
                 if ($price === "") {
                     $DB->delete_records('booking_prices', ['id' => $data->id, 'area' => $area]);

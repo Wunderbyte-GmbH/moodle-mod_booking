@@ -160,6 +160,16 @@ final class price_event_consolidation_test extends advanced_testcase {
         $priceformkeys = array_column($pricechanges, 'formkey');
         $this->assertContains('price_cat_a', $priceformkeys);
         $this->assertContains('price_cat_b', $priceformkeys);
+
+        $byformkey = [];
+        foreach ($pricechanges as $change) {
+            $byformkey[$change['formkey']] = $change;
+        }
+
+        $this->assertStringContainsString('Category A : 10', $byformkey['price_cat_a']['oldvalue']);
+        $this->assertStringContainsString('Category A : 11', $byformkey['price_cat_a']['newvalue']);
+        $this->assertStringContainsString('Category B : 20', $byformkey['price_cat_b']['oldvalue']);
+        $this->assertStringContainsString('Category B : 22', $byformkey['price_cat_b']['newvalue']);
     }
 
     /**

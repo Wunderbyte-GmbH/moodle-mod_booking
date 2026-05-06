@@ -254,6 +254,7 @@ class booking_option {
      * @param int $userid
      * @param int $relateduserid
      * @param string $fieldname
+     * @param array $detailedchanges
      *
      * @return void
      *
