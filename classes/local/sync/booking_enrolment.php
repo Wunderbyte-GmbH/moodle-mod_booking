@@ -16,6 +16,7 @@
 
 namespace mod_booking\local\sync;
 
+use cache_helper;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\singleton_service;
 use stdClass;
@@ -140,6 +141,11 @@ class booking_enrolment {
             $saved++;
         }
 
+        // Invalidate syncrules cache for this option after any mutations.
+        if ($saved > 0) {
+            cache_helper::purge_by_event('setbacksyncrules');
+        }
+
         return $saved;
     }
 
@@ -196,6 +202,7 @@ class booking_enrolment {
             $record->timemodified = $now;
             $record->usermodified = $USER->id;
             $DB->update_record('booking_sync_rules', $record);
+            cache_helper::purge_by_event('setbacksyncrules');
             return (int)$record->id;
         }
 
@@ -213,6 +220,7 @@ class booking_enrolment {
             $existing->timemodified = $now;
             $existing->usermodified = $USER->id;
             $DB->update_record('booking_sync_rules', $existing);
+            cache_helper::purge_by_event('setbacksyncrules');
             return (int)$existing->id;
         }
 
@@ -228,7 +236,9 @@ class booking_enrolment {
         $rule->timemodified = $now;
         $rule->usercreated = $USER->id;
         $rule->usermodified = $USER->id;
-        return (int)$DB->insert_record('booking_sync_rules', $rule);
+        $ruleid = (int)$DB->insert_record('booking_sync_rules', $rule);
+        cache_helper::purge_by_event('setbacksyncrules');
+        return $ruleid;
     }
 
     /**
@@ -363,6 +373,9 @@ class booking_enrolment {
         $DB->delete_records('booking_sync_rules', ['id' => $ruleid]);
         $transaction->allow_commit();
 
+        // Invalidate syncrules cache after deletion.
+        cache_helper::purge_by_event('setbacksyncrules');
+
         return ['affected' => count($answers)];
     }
 
@@ -387,9 +400,23 @@ class booking_enrolment {
         $unenrolattempted = 0;
 
         if (!empty($rule->syncenrol)) {
+            // Batch fetch all users to avoid N queries in the loop.
+            $userrecords = [];
+            if (!empty($memberids)) {
+                $userrecords = $DB->get_records_list(
+                    'user',
+                    'id',
+                    array_unique($memberids),
+                    '',
+                    'id,username,email,firstname,lastname,deleted'
+                );
+            }
+
             foreach ($memberids as $userid) {
                 $enrolattempted++;
-                self::enrol_user_by_rule($rule, (int)$userid);
+                // Use the internal helper with cached user record to avoid per-user fetch.
+                $user = $userrecords[(int)$userid] ?? null;
+                self::_enrol_user_by_rule_with_user_cache($rule, (int)$userid, $user);
             }
         }
 
@@ -464,16 +491,60 @@ class booking_enrolment {
     public static function get_rules_for_option(int $optionid): array {
         global $DB;
 
-        $rules = $DB->get_records('booking_sync_rules', ['bookingoptionid' => $optionid], 'timecreated ASC');
+        // Try to get cached rules with preloaded source names.
+        $cache = \cache::make('mod_booking', 'syncrules');
+        $cachekey = 'opt_' . $optionid;
+        $rules = $cache->get($cachekey);
 
-        foreach ($rules as $rule) {
-            if ($rule->sourcetype === 'cohort') {
-                $rule->sourcename = $DB->get_field('cohort', 'name', ['id' => $rule->sourceid]) ?: '?';
-                $rule->sourcetypelabel = get_string('syncsourcetypecohort', 'mod_booking');
-            } else {
-                $rule->sourcename = $DB->get_field('groups', 'name', ['id' => $rule->sourceid]) ?: '?';
-                $rule->sourcetypelabel = get_string('syncsourcetypegroup', 'mod_booking');
+        if ($rules === false) {
+            // Cache miss: fetch and enrich rules.
+            $rules = $DB->get_records('booking_sync_rules', ['bookingoptionid' => $optionid], 'timecreated ASC');
+
+            if (!empty($rules)) {
+                // Batch fetch all cohort and group names instead of N+1 queries.
+                $cohortids = [];
+                $groupids = [];
+
+                foreach ($rules as $rule) {
+                    if ($rule->sourcetype === 'cohort') {
+                        $cohortids[] = (int)$rule->sourceid;
+                    } else if ($rule->sourcetype === 'group') {
+                        $groupids[] = (int)$rule->sourceid;
+                    }
+                }
+
+                // Fetch all cohorts and groups in bulk.
+                $cohorts = [];
+                $groups = [];
+
+                if (!empty($cohortids)) {
+                    $cohortrecords = $DB->get_records_list('cohort', 'id', array_unique($cohortids), '', 'id,name');
+                    foreach ($cohortrecords as $c) {
+                        $cohorts[(int)$c->id] = $c->name;
+                    }
+                }
+
+                if (!empty($groupids)) {
+                    $grouprecords = $DB->get_records_list('groups', 'id', array_unique($groupids), '', 'id,name');
+                    foreach ($grouprecords as $g) {
+                        $groups[(int)$g->id] = $g->name;
+                    }
+                }
+
+                // Enrich rules with source names.
+                foreach ($rules as $rule) {
+                    if ($rule->sourcetype === 'cohort') {
+                        $rule->sourcename = $cohorts[(int)$rule->sourceid] ?? '?';
+                        $rule->sourcetypelabel = get_string('syncsourcetypecohort', 'mod_booking');
+                    } else if ($rule->sourcetype === 'group') {
+                        $rule->sourcename = $groups[(int)$rule->sourceid] ?? '?';
+                        $rule->sourcetypelabel = get_string('syncsourcetypegroup', 'mod_booking');
+                    }
+                }
             }
+
+            // Cache the enriched rules.
+            $cache->set($cachekey, $rules);
         }
 
         return array_values($rules);
@@ -503,6 +574,7 @@ class booking_enrolment {
         $record->timemodified = time();
         $record->usermodified = $USER->id;
         $DB->update_record('booking_sync_rules', $record);
+        cache_helper::purge_by_event('setbacksyncrules');
         return true;
     }
 
@@ -551,6 +623,12 @@ class booking_enrolment {
             $rule->usermodified = $USER->id;
             $DB->update_record('booking_sync_rules', $rule);
         }
+
+        // Invalidate syncrules cache after disabling rules.
+        if (!empty($rules)) {
+            cache_helper::purge_by_event('setbacksyncrules');
+        }
+
         return count($rules);
     }
 
@@ -867,6 +945,178 @@ class booking_enrolment {
             self::ACTION_UNENROL,
             self::REASON_OK
         );
+    }
+
+    /**
+     * Internal helper: enrol a user by rule with a pre-fetched user object.
+     * Use this in loops to avoid redundant user record fetches.
+     *
+     * @param stdClass $rule   Sync rule record.
+     * @param int      $userid User ID.
+     * @param stdClass $user   Pre-fetched user record (optional). If provided, avoids a DB query.
+     */
+    public static function _enrol_user_by_rule_with_user_cache(stdClass $rule, int $userid, ?stdClass $user = null): void {
+        global $DB;
+
+        $settings = singleton_service::get_instance_of_booking_option_settings((int)$rule->bookingoptionid);
+        if (!$settings || empty($settings->cmid)) {
+            self::log_attempt(
+                (int)$rule->id,
+                (int)$rule->bookingoptionid,
+                $userid,
+                self::ACTION_ENROL,
+                self::REASON_BLOCKED_INVALID,
+                'No valid cmid for optionid ' . $rule->bookingoptionid
+            );
+            return;
+        }
+
+        // Use provided user object if available; otherwise fetch it.
+        if ($user === null) {
+            $user = $DB->get_record('user', ['id' => $userid, 'deleted' => 0]);
+        }
+        if (!$user) {
+            self::log_attempt(
+                (int)$rule->id,
+                (int)$rule->bookingoptionid,
+                $userid,
+                self::ACTION_ENROL,
+                self::REASON_BLOCKED_INVALID,
+                'User not found: ' . $userid
+            );
+            return;
+        }
+
+        $option = singleton_service::get_instance_of_booking_option((int)$settings->cmid, (int)$rule->bookingoptionid);
+        if (!$option) {
+            self::log_attempt(
+                (int)$rule->id,
+                (int)$rule->bookingoptionid,
+                $userid,
+                self::ACTION_ENROL,
+                self::REASON_BLOCKED_INVALID,
+                'Could not load booking_option for optionid ' . $rule->bookingoptionid
+            );
+            return;
+        }
+
+        if (self::has_active_booking_answer((int)$rule->bookingoptionid, $userid)) {
+            self::log_attempt(
+                (int)$rule->id,
+                (int)$rule->bookingoptionid,
+                $userid,
+                self::ACTION_ENROL,
+                self::REASON_ALREADY_ENROLLED,
+                'User already has an active booking answer for optionid ' . $rule->bookingoptionid
+            );
+            return;
+        }
+
+        if ((int)$rule->conditionpolicy === self::CONDITION_POLICY_OVERRIDE) {
+            // Override mode: force book regardless of conditions or capacity.
+            $result = $option->user_submit_response(
+                $user,
+                0,
+                0,
+                MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE,
+                MOD_BOOKING_VERIFIED,
+                '',
+                0,
+                false,
+                (int)$rule->id
+            );
+        } else {
+            // Respect mode: check availability first.
+            $isavailable = \mod_booking\booking_option::option_allows_booking_for_user((int)$rule->bookingoptionid, $userid);
+            if (!$isavailable) {
+                $reasoncode = self::REASON_BLOCKED_CONDITION;
+                $reasonmessage = 'Availability condition blocked enrolment';
+
+                $settings = singleton_service::get_instance_of_booking_option_settings((int)$rule->bookingoptionid);
+                if (!empty($settings)) {
+                    $boinfo = new bo_info($settings);
+                    $results = bo_info::get_condition_results((int)$settings->id, $userid, true);
+                    [$conditionid, $availability, $description] = $boinfo->is_available((int)$settings->id, $userid, true);
+
+                    if (!$availability) {
+                        $blockingids = array_values(array_unique(array_map('intval', array_keys($results))));
+                        sort($blockingids, SORT_NUMERIC);
+
+                        if (!empty($blockingids)) {
+                            $idscsv = implode(',', $blockingids);
+                            $reasoncode = self::REASON_BLOCKED_CONDITION . '_' . $idscsv;
+                            $reasoncode = substr($reasoncode, 0, 50);
+                            $reasonmessage = 'Condition ids [' . $idscsv . ']';
+                        } else if (!empty($conditionid)) {
+                            $reasoncode = self::REASON_BLOCKED_CONDITION . '_' . (int)$conditionid;
+                            $reasonmessage = 'Condition id ' . (int)$conditionid;
+                        }
+
+                        if (!empty($description)) {
+                            $reasonmessage .= ': ' . trim(strip_tags((string)$description));
+                        }
+                    }
+                }
+
+                self::log_attempt(
+                    (int)$rule->id,
+                    (int)$rule->bookingoptionid,
+                    $userid,
+                    self::ACTION_ENROL,
+                    $reasoncode,
+                    $reasonmessage
+                );
+                return;
+            }
+            $result = $option->user_submit_response(
+                $user,
+                0,
+                0,
+                MOD_BOOKING_BO_SUBMIT_STATUS_DEFAULT,
+                MOD_BOOKING_VERIFIED,
+                '',
+                0,
+                false,
+                (int)$rule->id
+            );
+        }
+
+        if (!$result) {
+            self::log_attempt(
+                (int)$rule->id,
+                (int)$rule->bookingoptionid,
+                $userid,
+                self::ACTION_ENROL,
+                self::REASON_BLOCKED_CAPACITY,
+                'user_submit_response returned false'
+            );
+        } else {
+            self::log_attempt(
+                (int)$rule->id,
+                (int)$rule->bookingoptionid,
+                $userid,
+                self::ACTION_ENROL,
+                self::REASON_OK
+            );
+            // Write sync-origin entry to booking_history so the operation is auditable.
+            global $DB;
+            $bookedanswer = $DB->get_record(
+                'booking_answers',
+                ['optionid' => (int)$rule->bookingoptionid, 'userid' => $userid, 'syncruleid' => (int)$rule->id],
+                'id,bookingid,waitinglist',
+                IGNORE_MULTIPLE
+            );
+            if ($bookedanswer) {
+                \mod_booking\booking_option::booking_history_insert(
+                    (int)$bookedanswer->waitinglist,
+                    (int)$bookedanswer->id,
+                    (int)$rule->bookingoptionid,
+                    (int)$bookedanswer->bookingid,
+                    $userid,
+                    ['syncruleid' => (int)$rule->id, 'syncaction' => self::ACTION_ENROL]
+                );
+            }
+        }
     }
 
     /**
