@@ -107,8 +107,7 @@ class price extends field_base {
 
         parent::prepare_save_field($formdata, $newoption, $updateparam, '');
 
-        // For changes in price fields, the bookingoption_updated event is triggered separately...
-        // ...  in price class (price::add_price()). Hence no changes to report here.
+        // Price changes are collected in save_data() and merged into the main option update change set.
         return [];
     }
 
@@ -155,12 +154,14 @@ class price extends field_base {
      * @return void
      * @throws dml_exception
      */
-    public static function save_data(stdClass &$formdata, stdClass &$option) {
+    public static function save_data(stdClass &$formdata, stdClass &$option): array {
 
         // Save the prices.
         $price = new Mod_bookingPrice('option', $option->id);
 
-        $price->save_from_form($formdata);
+        // During booking option update we collect all price changes and let booking_option::update
+        // trigger one consolidated bookingoption_updated event with all changes.
+        return $price->save_from_form($formdata, false);
     }
 
     /**
