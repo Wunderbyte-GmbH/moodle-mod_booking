@@ -922,7 +922,26 @@ final class booking_enrolment_test extends advanced_testcase {
         );
 
         $tasks = \core\task\manager::get_adhoc_tasks('\\mod_booking\\task\\process_source_membership_adhoc');
-        $this->assertCount(1, $tasks);
+        $this->assertNotEmpty($tasks);
+
+        $found = false;
+        foreach ($tasks as $task) {
+            $data = $task->get_custom_data();
+            if (
+                !empty($data->sourcetype)
+                && (string)$data->sourcetype === 'cohort'
+                && !empty($data->sourceid)
+                && (int)$data->sourceid === (int)$env['cohort']->id
+                && !empty($data->userid)
+                && (int)$data->userid === (int)$env['user1']->id
+                && !empty($data->membershipadded)
+            ) {
+                $found = true;
+                break;
+            }
+        }
+        $this->assertTrue($found, 'Expected the matching source-membership sync adhoc task to be queued');
+
         $this->assertFalse(
             $DB->record_exists('booking_answers', [
                 'optionid' => $optionid,
