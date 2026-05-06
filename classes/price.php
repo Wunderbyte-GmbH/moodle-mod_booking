@@ -656,7 +656,8 @@ class price {
                 } else {
                     $context = context_module::instance($bosettings->cmid);
                 }
-                booking_option::trigger_updated_event($context, $eventoptionid, $USER->id, $USER->id, 'price');
+                $flatchanges = array_values(array_map(fn($c) => (object)$c['changes'], $changes));
+                booking_option::trigger_updated_event($context, $eventoptionid, $USER->id, $USER->id, 'price', $flatchanges);
             }
             return !empty($changes) ? ['changes' => $changes] : [];
         }
@@ -713,8 +714,9 @@ class price {
             } else {
                 $context = context_module::instance($bosettings->cmid);
             }
-            // Trigger one generic event for all changed price identifiers.
-            booking_option::trigger_updated_event($context, $eventoptionid, $USER->id, $USER->id, 'price');
+            // Trigger one consolidated event with detailed info for all changed price identifiers.
+            $flatchanges = array_values(array_map(fn($c) => (object)$c['changes'], $changes));
+            booking_option::trigger_updated_event($context, $eventoptionid, $USER->id, $USER->id, 'price', $flatchanges);
         }
 
         return !empty($changes) ? ['changes' => $changes] : [];
@@ -822,6 +824,21 @@ class price {
             $priceupdated = true;
         }
 
+        $change = [];
+        if ($priceupdated) {
+            $categoryname = self::get_active_pricecategory_from_cache_or_db($categoryidentifier)->name ?? $categoryidentifier;
+            $oldpricevalue = isset($oldprice->price) ? (string)$oldprice->price : '';
+            $newpricevalue = $price === '' ? '' : (string)$price;
+            $change = [
+                'changes' => [
+                    'fieldname' => 'price',
+                    'oldvalue' => $categoryname . ' : ' . $oldpricevalue,
+                    'newvalue' => $categoryname . ' : ' . $newpricevalue,
+                    'formkey' => 'price_' . $categoryidentifier,
+                ],
+            ];
+        }
+
         if ($priceupdated && $triggerevent) {
             global $USER;
 
@@ -840,22 +857,14 @@ class price {
                 /** @var context $context */
                 $context = context_module::instance($bosettings->cmid);
             }
-            booking_option::trigger_updated_event($context, $optionid, $USER->id, $USER->id, 'price');
-        }
-
-        $change = [];
-        if ($priceupdated) {
-            $categoryname = self::get_active_pricecategory_from_cache_or_db($categoryidentifier)->name ?? $categoryidentifier;
-            $oldpricevalue = isset($oldprice->price) ? (string)$oldprice->price : '';
-            $newpricevalue = $price === '' ? '' : (string)$price;
-            $change = [
-                'changes' => [
-                    'fieldname' => 'price',
-                    'oldvalue' => $categoryname . ' : ' . $oldpricevalue,
-                    'newvalue' => $categoryname . ' : ' . $newpricevalue,
-                    'formkey' => 'price_' . $categoryidentifier,
-                ],
-            ];
+            booking_option::trigger_updated_event(
+                $context,
+                $optionid,
+                $USER->id,
+                $USER->id,
+                'price',
+                !empty($change) ? [(object)$change['changes']] : []
+            );
         }
         // In any case, invalidate the cache after updating the booking option.
         // If performance is an issue, one could update only the cache of a this single option by key.
