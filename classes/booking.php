@@ -1156,7 +1156,7 @@ class booking {
      * @param string $additionalwhere
      * @param string $innerfrom
      * @param ?wunderbyte_table $tableinstance
-     * @param int $visibilityoverwritemode
+     * @param int $visibilityoverwritemode One of MOD_BOOKING_VISIBILITY_OVERRIDE_* constants.
      *
      * @return array
      */
@@ -1173,7 +1173,7 @@ class booking {
         $additionalwhere = '',
         $innerfrom = '',
         $tableinstance = null,
-        $visibilityoverwritemode = null
+        $visibilityoverwritemode = MOD_BOOKING_VISIBILITY_OVERRIDE_DEFAULT
     ) {
 
         global $DB;
@@ -1210,22 +1210,18 @@ class booking {
                 $where = " 1 = 1 ";
             } else if (!empty($userid)) {
                 $where = " invisible <> 1 ";
-            } else {
-                // ... then only show visible options.
-                $where = "invisible = 0 ";
-            }
-        } else {
-            if (isset($visibilityoverwritemode)) {
+            } else if (!empty($visibilityoverwritemode)) {
+                // For the moment, this is used for the teacher page, where we want to show invisible options based on the settings.
                 // Teacher-page visibility override: allow assigned teachers to see non-public options
                 // based on the visibility override mode.
                 // The teacher assignment check is handled by caller-side where conditions.
-                if ($visibilityoverwritemode === 1) {
+                if ($visibilityoverwritemode === MOD_BOOKING_VISIBILITY_OVERRIDE_FULLYINVISIBLE) {
                     // Mode 1: Show fully invisible options (invisible = 1) only.
                     $where = "invisible IN (0, 1) ";
-                } else if ($visibilityoverwritemode === 2) {
+                } else if ($visibilityoverwritemode === MOD_BOOKING_VISIBILITY_OVERRIDE_DIRECTLINKONLY) {
                     // Mode 2: Show direct-link-only options (invisible = 2) only.
                     $where = "invisible IN (0, 2) ";
-                } else if ($visibilityoverwritemode === 3) {
+                } else if ($visibilityoverwritemode === MOD_BOOKING_VISIBILITY_OVERRIDE_BOTH) {
                     // Mode 3: Show both fully invisible and direct-link-only options.
                     $where = " 1 = 1 ";
                 } else {
@@ -1233,9 +1229,12 @@ class booking {
                     $where = "invisible = 0 ";
                 }
             } else {
-                // The "Where"-clause is always added so we have to have something here for the sql to work.
-                $where = "1=1 ";
+                // ... then only show visible options.
+                $where = "invisible = 0 ";
             }
+        } else {
+            // The "Where"-clause is always added so we have to have something here for the sql to work.
+            $where = "1=1 ";
         }
 
         // Add where condition for searchtext.

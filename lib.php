@@ -407,6 +407,12 @@ define('MOD_BOOKING_OPTION_VISIBLE', 0);
 define('MOD_BOOKING_OPTION_INVISIBLE', 1);
 define('MOD_BOOKING_OPTION_VISIBLEWITHLINK', 2);
 
+// Define visibility override modes for option listing contexts (e.g. teacher own page).
+define('MOD_BOOKING_VISIBILITY_OVERRIDE_DEFAULT', 0);
+define('MOD_BOOKING_VISIBILITY_OVERRIDE_FULLYINVISIBLE', 1);
+define('MOD_BOOKING_VISIBILITY_OVERRIDE_DIRECTLINKONLY', 2);
+define('MOD_BOOKING_VISIBILITY_OVERRIDE_BOTH', 3);
+
 /**
  * Booking get coursemodule info.
  *

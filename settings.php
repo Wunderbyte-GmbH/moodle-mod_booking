@@ -1055,12 +1055,14 @@ if ($ADMIN->fulltree) {
                 'booking/teacherpagevisibilitymode',
                 get_string('teacherpagevisibilitymode', 'mod_booking'),
                 get_string('teacherpagevisibilitymode_desc', 'mod_booking'),
-                0,
+                MOD_BOOKING_VISIBILITY_OVERRIDE_DEFAULT,
                 [
-                    0 => get_string('teacherpagevisibilitymode:default', 'mod_booking'),
-                    1 => get_string('teacherpagevisibilitymode:fullyinvisible', 'mod_booking'),
-                    2 => get_string('teacherpagevisibilitymode:directlinkonly', 'mod_booking'),
-                    3 => get_string('teacherpagevisibilitymode:both', 'mod_booking'),
+                    MOD_BOOKING_VISIBILITY_OVERRIDE_DEFAULT => get_string('teacherpagevisibilitymode:default', 'mod_booking'),
+                    MOD_BOOKING_VISIBILITY_OVERRIDE_FULLYINVISIBLE =>
+                        get_string('teacherpagevisibilitymode:fullyinvisible', 'mod_booking'),
+                    MOD_BOOKING_VISIBILITY_OVERRIDE_DIRECTLINKONLY =>
+                        get_string('teacherpagevisibilitymode:directlinkonly', 'mod_booking'),
+                    MOD_BOOKING_VISIBILITY_OVERRIDE_BOTH => get_string('teacherpagevisibilitymode:both', 'mod_booking'),
                 ]
             )
         );
