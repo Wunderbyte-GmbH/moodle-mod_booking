@@ -463,16 +463,17 @@ if (!$fromform = $mform->get_data()) {
                     $activecell = html_writer::tag('span', get_string('yes'), ['class' => 'badge badge-success'])
                         . ' ' . html_writer::link($toggleurl, '(' . get_string('disable') . ')', ['class' => 'small']);
                 } else {
-                    $toggleurl = new moodle_url('/mod/booking/subscribeusers.php', [
-                        'id' => $id,
-                        'optionid' => $optionid,
-                        'agree' => $agree,
-                        'synctoggle' => $rule->id,
-                        'synctoggleval' => 1,
-                        'sesskey' => sesskey(),
-                    ]);
                     $activecell = html_writer::tag('span', get_string('no'), ['class' => 'badge badge-secondary'])
-                        . ' ' . html_writer::link($toggleurl, '(' . get_string('enable') . ')', ['class' => 'small']);
+                        . ' ' . html_writer::tag(
+                            'button',
+                            '(' . get_string('enable') . ')',
+                            [
+                                'type' => 'button',
+                                'class' => 'btn btn-link btn-sm p-0 align-baseline booking-sync-rule-action',
+                                'data-action' => 'activate',
+                                'data-ruleid' => (int)$rule->id,
+                            ]
+                        );
                 }
 
                 $editbutton = html_writer::tag(
@@ -510,6 +511,7 @@ if (!$fromform = $mform->get_data()) {
             get_string('syncaddrule', 'mod_booking'),
             get_string('synceditrule', 'mod_booking'),
             get_string('syncdeleterule', 'mod_booking'),
+            get_string('syncactivaterule', 'mod_booking'),
         ]);
 
         $diagnosticsbutton = html_writer::tag(

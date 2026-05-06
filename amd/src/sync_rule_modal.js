@@ -30,7 +30,7 @@ define(['core_form/modalform'], function(ModalForm) {
          * @param {Number} cmid Course module id.
          * @param {Number} optionid Booking option id.
          */
-        init: function(addSelector, actionSelector, cmid, optionid, addTitle, editTitle, deleteTitle) {
+        init: function(addSelector, actionSelector, cmid, optionid, addTitle, editTitle, deleteTitle, activateTitle) {
             const showModal = function(formClass, args, title, focusElement) {
                 const modalForm = new ModalForm({
                     formClass: formClass,
@@ -75,6 +75,16 @@ define(['core_form/modalform'], function(ModalForm) {
                             'mod_booking\\form\\sync_rule_delete_form',
                             {cmid: cmid, optionid: optionid, ruleid: ruleid},
                             deleteTitle || 'Delete sync rule',
+                            button
+                        );
+                        return;
+                    }
+
+                    if (action === 'activate') {
+                        showModal(
+                            'mod_booking\\form\\sync_rule_activate_form',
+                            {cmid: cmid, optionid: optionid, ruleid: ruleid},
+                            activateTitle || 'Activate sync rule',
                             button
                         );
                         return;
